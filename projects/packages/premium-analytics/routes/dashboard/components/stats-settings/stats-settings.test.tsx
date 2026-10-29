@@ -27,6 +27,9 @@ jest.mock( '@wordpress/data', () => {
 
 jest.mock( './plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
 
+const mockUsePlanUsage = jest.fn();
+jest.mock( './use-plan-usage', () => ( { usePlanUsage: () => mockUsePlanUsage() } ) );
+
 const useStatsSettingsMock = useStatsSettings as jest.Mock;
 
 const SETTINGS = {
@@ -50,7 +53,12 @@ const setScriptData = (
 ) => {
 	window.JetpackScriptData = {
 		premium_analytics: {
-			stats_settings: { fields, roles: ROLES, features_url: featuresUrl, features_screen: featuresScreen },
+			stats_settings: {
+				fields,
+				roles: ROLES,
+				features_url: featuresUrl,
+				features_screen: featuresScreen,
+			},
 		},
 	} as typeof window.JetpackScriptData;
 };
@@ -58,6 +66,7 @@ const setScriptData = (
 describe( 'StatsSettingsPanel', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
 		setScriptData( null );
 	} );
 
@@ -198,6 +207,20 @@ describe( 'StatsSettingsPanel', () => {
 			expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute( 'href', url );
 		}
 	);
+
+	it( 'draws no card while the plan usage loads, so the tab does not shift when it arrives', () => {
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Loading your Stats settings…' );
+		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'leaves out a card whose settings the site does not offer', () => {
 		setScriptData( null, { fields: [ 'admin_bar', 'wpcom_reader_views_enabled' ] } );
