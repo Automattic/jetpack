@@ -124,3 +124,19 @@ describe( 'TrafficChartCard upgrade prompt', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 	} );
 } );
+
+describe( 'TrafficChartCard period selector', () => {
+	it.each( [
+		[ 'disables', [], true ],
+		[ 'enables', [ 'social-enhanced-publishing' ], false ],
+	] )( '%s the selector for features %j', ( _, active, isDisabled ) => {
+		mockScriptData( {
+			site: { host: 'unknown', suffix: 'example.com', plan: { features: { active } } },
+		} );
+
+		render( <TrafficChartCard /> );
+
+		const trigger = screen.getByRole( 'button', { name: 'Date range: Last 7 days' } );
+		expect( trigger.getAttribute( 'aria-disabled' ) === 'true' ).toBe( isDisabled );
+	} );
+} );
