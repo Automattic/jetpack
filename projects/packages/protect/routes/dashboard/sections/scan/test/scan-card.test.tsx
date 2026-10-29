@@ -94,6 +94,25 @@ describe( 'ScanCard with Scan', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'offers a new scan instead of the all clear or countdown after a failed scan', async () => {
+		renderCard( { hasPlan: true, lastChecked: checkedAgo( HOUR_IN_MS ), lastScanFailed: true } );
+
+		expect( screen.getByText( /^Your last scan didn’t complete/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
+		expect( screen.queryByText( 'No threats found' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Next scan in:' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Last scan / ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'still lists threats from earlier scans after a failed scan', async () => {
+		const threat = { id: 5, title: 'Threat 5', severity: 3, status: 'current' as const };
+		renderCard( { hasPlan: true, lastScanFailed: true, threats: [ threat ] } );
+
+		expect( screen.getByText( 'All vulnerabilities found' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
+	} );
+
 	it( 'keeps the title and Scan history while a scan runs', async () => {
 		renderCard( { hasPlan: true, scanning: true } );
 
