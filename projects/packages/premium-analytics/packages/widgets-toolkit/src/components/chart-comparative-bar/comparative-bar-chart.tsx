@@ -426,11 +426,7 @@ export function ComparativeBarChart( {
 			const augmented = { ...datumByKey };
 
 			for ( const [ index, seriesData ] of alignedSeries.entries() ) {
-				if (
-					seriesData.options?.type !== 'comparison' ||
-					augmented[ seriesData.label ] ||
-					! isSeriesVisible( chartId, seriesData.label )
-				) {
+				if ( seriesData.options?.type !== 'comparison' || augmented[ seriesData.label ] ) {
 					continue;
 				}
 
@@ -458,7 +454,7 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries, primarySeriesByGroup, isSeriesVisible, chartId ]
+		[ alignedSeries, primarySeriesByGroup ]
 	);
 
 	const renderTooltip = useCallback(
