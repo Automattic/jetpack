@@ -179,6 +179,9 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 		$youtube_id = 'JaNH56Vpg-A';
 		$post       = self::factory()->post->create_and_get( array( 'post_content' => "https://www.youtube.com/watch?v=$youtube_id" ) );
 
+		// The bootstrap loads the shortcodes module after `init`, so the handler isn't registered yet.
+		wpcom_youtube_embed_crazy_url_init();
+
 		setup_postdata( $post );
 		ob_start();
 		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
