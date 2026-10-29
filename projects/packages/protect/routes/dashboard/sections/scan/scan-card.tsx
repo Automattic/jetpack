@@ -7,9 +7,10 @@ import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
 import LastScanned from './last-scanned';
 import SafeState from './safe-state';
+import ScanButton from './scan-button';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, useIsScanning, useScan, useScanRequest } from './store';
+import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -99,6 +100,26 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</Stack>
 			</CardRow>
 		);
+	} else if ( ! hasThreats && scan.lastScanFailed ) {
+		body = (
+			<CardRow className="jp-protect-scan__state">
+				<Stack direction="column" gap="sm" align="start">
+					<Text variant="body-md">
+						{ __(
+							'Your last scan didn’t complete, so we can’t confirm your site is free of threats.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+					<ScanButton
+						scan={ scan }
+						isStarting={ isStarting }
+						onScan={ startScan }
+						label={ __( 'Scan site', 'jetpack-protect-pkg' ) }
+						variant="outline"
+					/>
+				</Stack>
+			</CardRow>
+		);
 	} else if ( ! hasThreats ) {
 		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
@@ -141,7 +162,11 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							'jetpack-protect-pkg'
 						)
 			}
-			titleAside={ scan.lastChecked ? <LastScanned lastChecked={ scan.lastChecked } /> : undefined }
+			titleAside={
+				scan.lastChecked && ! scan.lastScanFailed ? (
+					<LastScanned lastChecked={ scan.lastChecked } />
+				) : undefined
+			}
 		>
 			{ body }
 			{ ! scan.hasPlan && ! scan.error && (

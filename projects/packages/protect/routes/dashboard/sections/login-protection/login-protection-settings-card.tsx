@@ -96,7 +96,7 @@ export default function LoginProtectionSettingsCard( {
 							data={ data }
 							name="jetpack_waf_ip_allow_list"
 							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-							description={ __( 'One address or range per line.', 'jetpack-protect-pkg' ) }
+							showLabel
 							currentIp={ login?.currentIp }
 						/>
 					</div>

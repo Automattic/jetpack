@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop logging a missing jetpackConfig error to the console on every load.

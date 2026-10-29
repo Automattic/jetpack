@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.1] - 2026-10-28
 ### Changed
-- Update dependencies. [#53636]
+- Update dependencies.
 
 ## [3.4.0] - 2026-10-26
 ### Added
@@ -15,9 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.17] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53678]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53678] [#53806]
 
 ## [3.3.16] - 2026-10-14
 ### Changed
@@ -25,11 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.15] - 2026-10-12
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [3.3.14] - 2026-10-05
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [3.3.13] - 2026-09-28
 ### Changed
@@ -78,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.2] - 2026-06-26
 ### Changed
-- Update dependencies. [#49464]
+- Update dependencies.
 
 ## [3.3.1] - 2026-06-23
 ### Changed

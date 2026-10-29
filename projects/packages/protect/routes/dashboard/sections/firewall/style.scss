@@ -197,6 +197,12 @@
 		font-weight: 500;
 	}
 
+	// Balanced like .jp-protect-feature-upsell in route.scss, to avoid widows.
+	&__title,
+	.jp-protect-card__muted {
+		text-wrap: balance;
+	}
+
 	&__link {
 		flex: none;
 		white-space: nowrap;

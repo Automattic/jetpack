@@ -42,10 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested up to WordPress 7.0. [#48114]
 - Update composer.lock files. [#49415]
 - Updated package dependencies. [#48735]
-- Update package dependencies. [#48064]
-- Update package dependencies. [#48683]
-- Update package dependencies. [#49218]
-- Update package dependencies. [#49448]
+- Update package dependencies. [#48064] [#48683] [#49218] [#49448]
 
 ### Fixed
 - Fix mobile overflow on the upsell/pricing page so cards no longer get clipped. [#48194]
