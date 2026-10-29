@@ -138,7 +138,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					tickResolution={ period }
 					onDatumClick={ openBucket }
 					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
-					defaultPreviousPeriodShown={ previousPeriodShown }
+					previousPeriodShown={ previousPeriodShown }
 					onPreviousPeriodShownChange={ setPreviousPeriodShown }
 					empty={
 						noPublishedPosts ? (
