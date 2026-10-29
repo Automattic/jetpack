@@ -194,10 +194,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
-	 * Wrap the tracking pushes in a WP Consent API gate.
-	 *
-	 * It checks in the browser because cached HTML is shared across visitors, re-checks on
-	 * `wp_consent_type_defined` and `load` for a late consent plugin, and fails closed.
+	 * Wrap the tracking pushes in a WP Consent API gate, checked in the browser because cached HTML is shared across visitors.
 	 *
 	 * `_jpStatsFire.done` is set before the pushes so a push that throws is never replayed: the
 	 * sender assigns the beacon `src` first, so that view was already counted.
@@ -208,6 +205,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	private static function build_consent_gate( $pushes ) {
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
+		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -221,6 +219,7 @@ function _jpStatsDenied() {
 }
 function _jpStatsCheck() {
 	if ( typeof window.wp_has_consent !== "function" ) { return; }
+	if ( window.waitfor_consent_hook && typeof window.wp_consent_type === "undefined" ) { return; }
 	var consented;
 	try {
 		consented = ! _jpStatsDenied() && window.wp_has_consent( "statistics" );
@@ -235,7 +234,12 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 } );
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
-window.addEventListener( "load", _jpStatsCheck, { once: true } );
+window.addEventListener( "load", function () {
+	if ( typeof window.wp_has_consent !== "function" ) {
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded, so Stats waits for a consent change." );
+	}
+	_jpStatsCheck();
+}, { once: true } );
 if ( document.readyState === "loading" ) {
 	document.addEventListener( "DOMContentLoaded", _jpStatsCheck, { once: true } );
 } else {

@@ -580,8 +580,6 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Invoke the private build_consent_gate() with the pushes build_stats_details() emits.
-	 *
 	 * @return string
 	 */
 	private function invoke_build_consent_gate() {
@@ -602,16 +600,20 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		return array(
 			'allowed before the page is ready'             => array( 'allowed before the page is ready', 1, 0, null ),
 			'denied, then allowed in the banner'           => array( 'denied, then allowed in the banner', 1, 0, null ),
+			'declined in the banner'                       => array( 'declined in the banner', 0, 0, null ),
+			'gate that loads after the page is ready'      => array( 'gate that loads after the page is ready', 1, 0, null ),
+			'consent type defined after the page is ready' => array( 'consent type defined after the page is ready', 1, 0, null ),
+			'banner that sets an opt-in consent type later' => array( 'banner that sets an opt-in consent type later', 0, 0, null ),
 			'denied in a banner that sets no consent type' => array( 'denied in a banner that sets no consent type', 0, 0, null ),
 			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
-			'consent API that never loads'                 => array( 'consent API that never loads', 0, 0, null ),
+			'consent API that never loads'                 => array( 'consent API that never loads', 0, 1, null ),
 			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
 			'stats sender that throws'                     => array( 'stats sender that throws', 0, 0, 'stats sender' ),
 		);
 	}
 
 	/**
-	 * Runs the gate under Node, since its behavior lives in the JavaScript, not in the PHP that prints it.
+	 * Runs the gate under Node: its behavior lives in the JavaScript, not the PHP that prints it.
 	 *
 	 * @dataProvider consent_gate_scenarios
 	 * @param string      $scenario A scenario in consent-gate-harness.js.
@@ -655,9 +657,6 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		$this->assertStringContainsString( 'function _jpStatsFire()', $pixel_details );
 	}
 
-	/**
-	 * Without the WP Consent API plugin, the markup is byte-for-byte the historical output.
-	 */
 	public function test_build_stats_details_unchanged_without_consent_api() {
 		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );
 

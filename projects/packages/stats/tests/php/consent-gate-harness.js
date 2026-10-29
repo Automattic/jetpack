@@ -36,6 +36,32 @@ const scenarios = {
 		dispatch( 'document', 'wp_listen_for_consent_change', { statistics: 'allow' } );
 		dispatch( 'document', 'wp_listen_for_consent_change', { statistics: 'allow' } );
 	},
+	'declined in the banner': () => {
+		page.wp_has_consent = () => false;
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'document', 'wp_listen_for_consent_change', { statistics: 'deny' } );
+	},
+	'gate that loads after the page is ready': () => {
+		page.document.readyState = 'complete';
+		page.wp_has_consent = () => true;
+		loadGate();
+	},
+	'consent type defined after the page is ready': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		page.wp_has_consent = () => true;
+		dispatch( 'document', 'wp_consent_type_defined' );
+	},
+	'banner that sets an opt-in consent type later': () => {
+		page.waitfor_consent_hook = '1';
+		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_consent_type = 'optin';
+		dispatch( 'window', 'wp_consent_type_defined' );
+	},
 	'denied in a banner that sets no consent type': () => {
 		page.wp_has_consent = () => true;
 		page.consent_api = { cookie_prefix: 'wp_consent' };

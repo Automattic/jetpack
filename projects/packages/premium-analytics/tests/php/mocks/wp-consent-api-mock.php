@@ -14,12 +14,3 @@
 function wp_has_consent( $category ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	return true;
 }
-
-/**
- * The consent type a banner plugin declares, as the WP Consent API plugin reads it.
- *
- * @return string
- */
-function wp_get_consent_type() {
-	return apply_filters( 'wp_get_consent_type', '' );
-}

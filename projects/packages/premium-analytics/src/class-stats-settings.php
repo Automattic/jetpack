@@ -38,7 +38,7 @@ final class Stats_Settings {
 	private const FIELDS = array( 'admin_bar', 'roles', 'count_roles' );
 
 	/**
-	 * Cookie banner plugins that support the WP Consent API, by plugin directory: the WordPress.org ones its readme lists.
+	 * Cookie banner plugins that support the WP Consent API, by plugin directory: the WordPress.org ones the WP Consent API readme lists.
 	 *
 	 * @var string[]
 	 */
