@@ -2,9 +2,9 @@ import { PA_COLUMN_COUNT } from '../../grid';
 import { VIDEO_DETAIL_LAYOUT } from './layout';
 
 describe( 'video detail layout', () => {
-	it( 'uses registered Premium Analytics widget types', () => {
+	it( 'uses registered widget type names', () => {
 		for ( const widget of VIDEO_DETAIL_LAYOUT ) {
-			expect( widget.type ).toMatch( /^jpa\// );
+			expect( widget.type ).toMatch( /^(?:jpa|videopress)\// );
 		}
 	} );
 
@@ -16,18 +16,23 @@ describe( 'video detail layout', () => {
 
 	// The composition is fixed (WOOA7S-1625): assert the exact arrangement so an
 	// accidental reshuffle surfaces here, not in the rendered dashboard.
-	it( 'composes the full-width bar performance chart above the full-width embeds list', () => {
+	it( 'composes the player, then the performance chart, then the embeds list', () => {
 		expect( VIDEO_DETAIL_LAYOUT ).toEqual( [
+			{
+				uuid: 'videopress-video-player',
+				type: 'videopress/video-player',
+				placement: { width: PA_COLUMN_COUNT, height: 3, order: 1 },
+			},
 			{
 				uuid: 'video-detail-views-performance',
 				type: 'jpa/video-detail-views-performance',
 				attributes: { chartType: 'bar' },
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
+				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'video-detail-embeds',
 				type: 'jpa/video-detail-embeds',
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: PA_COLUMN_COUNT, height: 2, order: 3 },
 			},
 		] );
 	} );
