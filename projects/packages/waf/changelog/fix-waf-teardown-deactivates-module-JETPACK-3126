@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CLI: Turn off the Firewall module when `wp jetpack-waf teardown` runs, so the firewall no longer shows as on afterward.

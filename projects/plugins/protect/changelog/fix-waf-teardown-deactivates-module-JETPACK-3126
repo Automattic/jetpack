@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall: Turn off the Firewall when `wp jetpack-waf teardown` runs, so the Protect page no longer shows it as on afterward.

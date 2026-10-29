@@ -123,12 +123,15 @@ class CLI extends WP_CLI_Command {
 	}
 
 	/**
-	 * Delete the WAF options.
+	 * Turn off the firewall module, delete the WAF options, and empty the rules file.
 	 *
 	 * @return void|null
 	 * @throws WP_CLI\ExitException If deactivating has failures.
 	 */
 	public function teardown() {
+		// Turn the module off too, or the Protect page keeps reporting the firewall as on.
+		Waf_Runner::disable();
+
 		try {
 			Waf_Runner::deactivate();
 		} catch ( \Exception $e ) {
