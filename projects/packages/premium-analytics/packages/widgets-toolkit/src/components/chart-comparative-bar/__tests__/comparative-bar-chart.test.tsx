@@ -385,7 +385,7 @@ describe( 'ComparativeBarChart', () => {
 		] );
 	} );
 
-	it( 'leaves a hidden previous period out of the tooltip', () => {
+	it( 'keeps previous-period values in the tooltip while their bars are hidden', () => {
 		setMockHiddenSeries( [ 'June', 'Visitors · June' ] );
 		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 
@@ -397,8 +397,8 @@ describe( 'ComparativeBarChart', () => {
 				} )
 			)
 		).toEqual( [
-			[ 'July', 100, undefined ],
-			[ 'Visitors', 40, undefined ],
+			[ 'July', 100, 80 ],
+			[ 'Visitors', 40, 30 ],
 		] );
 	} );
 

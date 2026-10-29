@@ -66,7 +66,7 @@ cuts, is named by its span, and a whole year by the year alone.
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before
 handing the data to `DatedTooltip` — without that, the shadow bar would be visible but its value
-unreadable. A hidden comparison series is left out of the tooltip.
+unreadable. A previous period whose bars are hidden still gives its values, as the metric cards do; only a hidden metric is left out.
 
 ## Y-axis domain
 
