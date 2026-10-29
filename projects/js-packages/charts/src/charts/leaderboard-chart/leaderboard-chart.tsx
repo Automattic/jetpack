@@ -368,6 +368,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		data
 	);
 	const shouldFitRows = fitRows && isMeasurable;
+	// Comparing adds a delta track so the values and the deltas each line up in a column
+	// of their own; with either series hidden the grid keeps its two tracks.
+	const showComparisonColumn = withComparison && isComparisonVisible;
+	const templateColumns =
+		showComparisonColumn && isPrimaryVisible ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -461,7 +466,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						<Grid
 							role="list"
 							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
-							templateColumns="minmax(0, 1fr) auto"
+							templateColumns={ templateColumns }
 							rowGap={ ROW_GAP }
 							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
@@ -474,7 +479,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									shouldFitRows && rowIndex >= fittedCount
 										? ( { visibility: 'hidden' } as const )
 										: undefined;
-								const showComparisonColumn = withComparison && isComparisonVisible;
 								const hasPreviousPeriodValue = hasPreviousValue( entry );
 								const hasDelta = hasDeltaValue( entry );
 								const showComparisonValue = showComparisonColumn && hasDelta;
@@ -501,9 +505,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											/>
 										</Stack>
 
-										<Stack
-											direction="row"
-											gap="xs"
+										<div
 											className={ clsx( styles.valueContainer, {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
@@ -532,7 +534,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 													</VisuallyHidden>
 												</Text>
 											) }
-										</Stack>
+										</div>
 									</>
 								);
 

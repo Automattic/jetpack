@@ -49,7 +49,7 @@
 		}
 
 		.label {
-			padding-left: var(--wpds-dimension-padding-sm);
+			padding-inline-start: var(--a8c-charts-dimension-leaderboard-label-inset);
 		}
 
 		// The bar's 100% height needs a track that fills the row,
@@ -121,9 +121,15 @@
 	}
 }
 
+// Spans the row's value and delta tracks and lays its cells out on them, so
+// the values and the deltas each end on their own column edge whatever width
+// the other takes.
 .valueContainer {
+	display: grid;
+	grid-column: 2 / -1;
+	grid-template-columns: subgrid;
 	align-items: center;
-	justify-content: flex-end;
+	justify-items: end;
 }
 
 .deltaValue {

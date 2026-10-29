@@ -107,6 +107,7 @@ export {
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
 export { ExternalLink, type ExternalLinkProps } from './external-link';
+export { MarkAsSpamButton, useMarkAsSpam, type MarkAsSpamButtonProps } from './mark-as-spam';
 export { InfoTip, type InfoTipProps } from './info-tip';
 export { InternalLink } from './internal-link';
 export { useStatsUpgradeLinkProps, type StatsUpgradeLinkProps } from './stats-upgrade-link';
@@ -201,6 +202,7 @@ export {
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
 } from './download-csv';
+export { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	EarningsHistoryList,
