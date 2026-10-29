@@ -1,5 +1,4 @@
 Significance: patch
-Type: other
-Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
+Type: bugfix
 
-
+Protect: Explain on the Settings tab why account protection is unavailable.
