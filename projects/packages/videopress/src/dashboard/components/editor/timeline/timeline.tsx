@@ -153,7 +153,6 @@ export default function StudioEditorTimeline( {
 						contentRef={ contentRef }
 						scrollerEl={ scrollerEl }
 						dispatch={ dispatch }
-						onSeek={ seekClamped }
 					/>
 				) }
 			/>

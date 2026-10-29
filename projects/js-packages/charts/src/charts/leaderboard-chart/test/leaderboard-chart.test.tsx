@@ -152,6 +152,24 @@ describe( 'LeaderboardChart', () => {
 		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
+	it.each( [
+		[ 'a current share is negative', { currentShare: -40 }, true, 2 ],
+		[ 'a comparison share is negative', { previousShare: -40 }, true, 2 ],
+		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0 ],
+		[
+			'only a share without a comparison value is negative',
+			{ previousShare: -40, previousValue: undefined },
+			true,
+			0,
+		],
+		[ 'every share is positive', {}, true, 0 ],
+	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected ) => {
+		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
+		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+	} );
+
 	it( 'shows custom label when provided', () => {
 		render(
 			<LeaderboardChart
@@ -748,6 +766,35 @@ describe( 'LeaderboardChart', () => {
 	describe( 'grid gaps', () => {
 		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
 		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
+		const templateColumns = () =>
+			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
+
+		it( 'lays the rows out without a delta track when not comparing', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
+
+			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+		} );
+
+		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
+			'adds a delta track when comparing and drops it while "%s" is hidden',
+			async legendItem => {
+				const user = userEvent.setup();
+				render(
+					<LeaderboardChart
+						data={ mockData }
+						withComparison={ true }
+						showLegend={ true }
+						legend={ { interactive: true } }
+					/>
+				);
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			}
+		);
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );

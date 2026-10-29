@@ -17,11 +17,13 @@ import { useMemo } from 'react';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import useDeviceViews from './use-device-views';
-import { type DevicesAttributes } from './widget';
 /**
  * Types
  */
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type DevicesAttributes = Record< never, never >;
 
 type DevicesRenderAttributes = DevicesAttributes & Partial< ReportParamsFieldAttributes >;
 type DevicesWidgetProps = WidgetRenderProps< DevicesRenderAttributes >;
@@ -79,6 +81,7 @@ function DevicesInner() {
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
 			withTotal={ false }
+			chartTitle={ __( 'Devices', 'jetpack-premium-analytics-pkg' ) }
 		/>
 	);
 }

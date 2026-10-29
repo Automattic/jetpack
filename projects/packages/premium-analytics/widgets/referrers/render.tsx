@@ -9,21 +9,22 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
+	MarkAsSpamButton,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
+	getReferrerSpamDomain,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	sharePercentage,
+	useMarkAsSpam,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
@@ -35,8 +36,10 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { ReferrersAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ReferrersAttributes = Record< never, never >;
 
 type ReferrersRenderAttributes = ReferrersAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -61,11 +64,13 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Used for row identity, comparison matching, and to
-	 * render leaf rows (no children) as an outbound link.
+	 * External referrer URL. Used for row identity, comparison matching, and for
+	 * the "View in new tab" action on leaf rows (no children).
 	 */
 	href?: string;
 	icon?: string | null;
+	/** Domain the row can be marked as spam under; absent when it can't be. */
+	spamDomain?: string;
 	/**
 	 * Child referrers for drill-down. Referrer groups can nest twice
 	 * (e.g. Search Engines → Google Search → google.com).
@@ -86,6 +91,7 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 		previousValue: item.previousValue,
 		href: safeHttpUrl( item.link ) ?? undefined,
 		icon: item.icon,
+		spamDomain: getReferrerSpamDomain( item ),
 		children: item.children?.map( toReferrerRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
@@ -97,7 +103,8 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 function buildLeaderboardData(
 	rows: ReferrerRow[],
 	withComparison: boolean,
-	onDrillDown?: ( row: ReferrerRow ) => void
+	onDrillDown?: ( row: ReferrerRow ) => void,
+	onMarkAsSpam?: ( domain: string ) => Promise< void >
 ): LeaderboardChartData {
 	const maxViews = getCombinedPeriodMax(
 		rows.map( row => row.value ),
@@ -116,6 +123,7 @@ function buildLeaderboardData(
 				media: { kind: 'favicon', url: row.icon ?? undefined },
 				action: resolveLeaderboardRowAction( {
 					href: row.href,
+					hrefAs: 'viewLink',
 					hasChildren,
 					drillDown: onDrillDown
 						? {
@@ -128,6 +136,10 @@ function buildLeaderboardData(
 							}
 						: undefined,
 				} ),
+				trailingAction:
+					row.spamDomain && onMarkAsSpam ? (
+						<MarkAsSpamButton domain={ row.spamDomain } onConfirm={ onMarkAsSpam } />
+					) : undefined,
 			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxViews ),
@@ -142,6 +154,8 @@ export type ReferrersLeaderboardProps = {
 	rows?: ReferrerRow[];
 	withComparison?: boolean;
 	onDrillDown?: ( row: ReferrerRow ) => void;
+	/** Marks a row's domain as spam; without it, rows offer no such action. */
+	onMarkAsSpam?: ( domain: string ) => Promise< void >;
 };
 
 /**
@@ -152,14 +166,17 @@ export function ReferrersLeaderboard( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	onMarkAsSpam,
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
+			data={ buildLeaderboardData( rows, withComparison, onDrillDown, onMarkAsSpam ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }
@@ -176,9 +193,15 @@ function ReferrersInner() {
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
+	// A domain marked from this widget hides at once; the refetch that marking
+	// triggers then drops it from the data itself.
+	const { markAsSpam, spammedDomains } = useMarkAsSpam();
 	const rows = useMemo(
-		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
-		[ comparisonRows ]
+		() =>
+			( comparisonRows?.rows ?? [] )
+				.map( toReferrerRow )
+				.filter( row => ! row.spamDomain || ! spammedDomains.has( row.spamDomain ) ),
+		[ comparisonRows, spammedDomains ]
 	);
 
 	// Referrer groups nest twice (group → source → domain), so the drill-down
@@ -271,50 +294,51 @@ function ReferrersInner() {
 			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
+	useReportActions( {
+		csv: {
+			exporter: referrersCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ trail.length > 0 && (
-					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
-				) }
-				<WidgetState
-					isLoading={ emptyState.isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps the prior period's rows on screen while `isError`
-					// flips true, so a transient refetch failure should not replace them.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load referrers. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					empty={ emptyState.empty }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<ReferrersLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ drillInto }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="referrers" />
-				<ExporterCsvDownloadButton
-					exporter={ referrersCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ trail.length > 0 && (
+				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+			) }
+			<WidgetState
+				isLoading={ emptyState.isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load referrers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<ReferrersLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ drillInto }
+					onMarkAsSpam={ markAsSpam }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 
+/**
+ * Shows the websites and search engines referring visitors for the selected
+ * dashboard date range via the PA proxy at `stats/referrers`.
+ */
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {

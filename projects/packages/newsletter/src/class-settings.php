@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.18.0';
+	const PACKAGE_VERSION = '0.18.3';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -416,6 +416,14 @@ class Settings {
 		// only queues events into `window._tkq`; without `jp-tracks` loaded, no
 		// pixel.gif requests fire and the queue grows forever.
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		wp_add_inline_script(
+			'jp-tracks',
+			sprintf(
+				'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;',
+				absint( Connection_Manager::get_site_id( true ) )
+			),
+			'before'
+		);
 
 		if ( self::is_modernized() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but

@@ -54,7 +54,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"autorelease": true,
 		"mirror-repo": "Automattic/automattic-for-agencies-client",
 		"release-branch-prefix": "automattic-for-agencies-client",

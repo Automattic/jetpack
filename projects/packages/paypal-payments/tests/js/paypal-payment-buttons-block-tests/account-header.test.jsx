@@ -16,6 +16,11 @@ jest.mock( '@wordpress/element', () => ( {
 	createPortal: require( 'react-dom' ).createPortal,
 } ) );
 
+// The admin URL comes from the page's script data.
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: path => `https://example.test/wp-admin/${ path }`,
+} ) );
+
 const noop = () => {};
 
 /**
@@ -95,6 +100,15 @@ const drawnPath = element => element.querySelector( 'svg path' )?.getAttribute( 
  * @return {HTMLElement} The item.
  */
 const item = name => screen.getByRole( 'menuitem', { name } );
+
+/**
+ * A menu item that opens in a new tab, by its label. Its name is the label with
+ * the hidden "(opens in a new tab)" right after it.
+ *
+ * @param {string} label - The label.
+ * @return {HTMLElement} The item.
+ */
+const newTabItem = label => item( `${ label }(opens in a new tab)` );
 
 describe( 'PayPalAccountHeader', () => {
 	// Cleared on the way in, so the header is unmounted before its card goes.
@@ -213,7 +227,7 @@ describe( 'PayPalAccountHeader', () => {
 		expect( drawnPath( card ) ).toBe( PayPalIcon.props.children[ 0 ].props.d );
 	} );
 
-	it( 'lists the four menu items in the order the design draws them', async () => {
+	it( 'lists the account menu items', async () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
@@ -221,12 +235,11 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( screen.getAllByRole( 'menuitem' ).map( menuItem => menuItem.textContent ) ).toEqual( [
-			'Customize checkout settings',
-			'View transactions',
-			'How to issue a refund',
-			'Log out',
-		] );
+		expect( newTabItem( 'Customize checkout settings' ) ).toBeInTheDocument();
+		expect( newTabItem( 'View transactions' ) ).toBeInTheDocument();
+		expect( newTabItem( 'How to issue a refund' ) ).toBeInTheDocument();
+		expect( newTabItem( 'Manage all links and buttons' ) ).toBeInTheDocument();
+		expect( item( 'Log out' ) ).toBeInTheDocument();
 	} );
 
 	it( 'puts Log out in a second group, which is what draws the divider', async () => {
@@ -252,9 +265,9 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( drawnPath( item( 'Customize checkout settings' ) ) ).toBe( pathOf( external ) );
-		expect( drawnPath( item( 'View transactions' ) ) ).toBe( pathOf( external ) );
-		expect( drawnPath( item( 'How to issue a refund' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'Customize checkout settings' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'View transactions' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'How to issue a refund' ) ) ).toBe( pathOf( external ) );
 		expect( drawnPath( item( 'Log out' ) ) ).toBe( pathOf( login ) );
 	} );
 
@@ -266,12 +279,12 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		const settings = item( 'Customize checkout settings' );
+		const settings = newTabItem( 'Customize checkout settings' );
 		expect( settings ).toHaveAttribute( 'href', 'https://www.sandbox.paypal.com/ncp/settings' );
 		expect( settings ).toHaveAttribute( 'target', '_blank' );
 		expect( settings ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 
-		expect( item( 'View transactions' ) ).toHaveAttribute(
+		expect( newTabItem( 'View transactions' ) ).toHaveAttribute(
 			'href',
 			'https://www.sandbox.paypal.com/unifiedtransactions/'
 		);
@@ -285,13 +298,30 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		const refund = item( 'How to issue a refund' );
+		const refund = newTabItem( 'How to issue a refund' );
 		expect( refund ).toHaveAttribute(
 			'href',
 			'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101'
 		);
 		expect( refund ).toHaveAttribute( 'target', '_blank' );
 		expect( refund ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+	} );
+
+	it( 'links to the PayPal Payment Links admin page in a new tab', async () => {
+		const user = userEvent.setup();
+		openSidebar();
+		renderHeader();
+		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+
+		await openMenu( user );
+
+		const manage = newTabItem( 'Manage all links and buttons' );
+		expect( manage ).toHaveAttribute(
+			'href',
+			'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
+		);
+		expect( manage ).toHaveAttribute( 'target', '_blank' );
+		expect( manage ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'falls back to production for an unknown environment', async () => {
@@ -302,16 +332,16 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( item( 'Customize checkout settings' ) ).toHaveAttribute(
+		expect( newTabItem( 'Customize checkout settings' ) ).toHaveAttribute(
 			'href',
 			'https://www.paypal.com/ncp/settings'
 		);
 	} );
 
-	it( 'draws Log out in the destructive style with the account email under it', async () => {
+	it( "draws Log out in the destructive style with a production account's email under it", async () => {
 		const user = userEvent.setup();
 		openSidebar();
-		renderHeader( { accountEmail: 'junior@sports.com' } );
+		renderHeader( { environment: 'production', accountEmail: 'junior@sports.com' } );
 		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
@@ -323,17 +353,16 @@ describe( 'PayPalAccountHeader', () => {
 		);
 	} );
 
-	it( 'offers a working Log out for an account with no stored email', async () => {
+	it( 'offers a working Log out with only its label for a production account with an empty email', async () => {
 		const user = userEvent.setup();
 		const onLogOut = jest.fn();
 		openSidebar();
-		renderHeader( { onLogOut } );
+		renderHeader( { environment: 'production', onLogOut } );
 		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 		const logOut = item( 'Log out' );
 		expect( logOut ).toBeEnabled();
-		// Anchored, so the label is all the item shows.
 		expect( logOut ).toHaveTextContent( /^Log out$/ );
 
 		await user.click( logOut );

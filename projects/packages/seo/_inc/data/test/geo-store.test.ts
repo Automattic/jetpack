@@ -17,7 +17,7 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the enhancer state on setEnhancer', () => {
 		const registry = makeRegistry();
-		const next = { available: true, enabled: true, aiSeoEnabled: false };
+		const next = { available: true, enabled: true, aiSeoEnabled: false, aiEnabled: true };
 		registry.dispatch( geoStore ).setEnhancer( next );
 		expect( registry.select( geoStore ).getEnhancer() ).toEqual( next );
 	} );
@@ -42,7 +42,10 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the crawler state on setCrawlers without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { ...SEEDED_GEO.crawlers, overrides: { gptbot: false, perplexitybot: true } };
+		const next = {
+			...SEEDED_GEO.crawlers,
+			blocked: { answer: [ 'perplexitybot' ], training: 'all' as const },
+		};
 		registry.dispatch( geoStore ).setCrawlers( next );
 		expect( registry.select( geoStore ).getCrawlers() ).toEqual( next );
 		expect( registry.select( geoStore ).getLlmsTxt() ).toEqual( SEEDED_GEO.llmsTxt );

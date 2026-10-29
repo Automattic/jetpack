@@ -39,6 +39,14 @@ beforeEach( () => {
 } );
 
 const setSiteEditor = ( siteEditor: unknown ) => {
+	window.myJetpackInitialState = {
+		deprecatedModules: [
+			'google-fonts',
+			...( ( siteEditor as { isBlockTheme?: boolean } ).isBlockTheme
+				? [ 'widgets', 'widget-visibility' ]
+				: [] ),
+		],
+	} as Window[ 'myJetpackInitialState' ];
 	window.JetpackScriptData = {
 		site: { admin_url: 'https://example.com/wp-admin/' },
 		myJetpack: { siteEditor },
@@ -113,10 +121,17 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it.each( [ 'waf', 'backup' ] as const )(
-		'explains the multisite-blocked %s and leaves it out of Available',
-		module => {
+	it.each( [
+		[ 'waf', false ],
+		[ 'backup', false ],
+		[ 'waf', true ],
+	] as const )(
+		'explains the multisite-blocked %s once and leaves it out of Available (account connect: %s)',
+		( module, accountConnect ) => {
 			setSiteEditor( { isBlockTheme: false } );
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
 			window.JetpackScriptData.site.is_multisite = true;
 			try {
 				const blockedModule = { ...sharing, module, activated: true };
@@ -274,6 +289,22 @@ describe( 'MoreFeatures', () => {
 
 		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to no settings for a module still waiting for an account', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const waiting = {
+			...sharing,
+			activated: true,
+			available: false,
+			requires_user_connection: true,
+			configure_url: 'https://example.com/settings',
+		};
+
+		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
+
+		expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links to no settings where the Site Editor block replaces the module', () => {

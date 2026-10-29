@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\All_Playlists_Block;
+use Automattic\Jetpack\VideoPress\Channel;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Playlist_Index;
 use WorDBless\BaseTestCase;
@@ -42,6 +43,10 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		\WP_Block_Supports::$block_to_render = null;
 		delete_option( Playlist_Index::OPTION_NAME );
 		unset( $_GET[ All_Playlists_Block::PAGE_QUERY_ARG ] );
+		remove_filter( 'videopress_channel_enabled', '__return_true' );
+		foreach ( array( Channel::PLAYLIST_QUERY_VAR, Channel::LIST_VAR ) as $var ) {
+			set_query_var( $var, '' );
+		}
 
 		$registry = \WP_Block_Type_Registry::get_instance();
 		foreach ( array( All_Playlists_Block::BLOCK_NAME, Playlist_Index::BLOCK_NAME ) as $name ) {
@@ -205,6 +210,7 @@ class All_Playlists_Block_Test extends BaseTestCase {
 				'show_description' => true,
 				'show_video_count' => true,
 				'pagination'       => 'numbered',
+				'exclude_current'  => false,
 				'show_updated'     => false,
 			),
 			All_Playlists_Block::settings( 'nope' )
@@ -438,6 +444,36 @@ class All_Playlists_Block_Test extends BaseTestCase {
 				)
 			)
 		);
+	}
+
+	/**
+	 * On a channel site, cards link to the playlist pages, and `excludeCurrent` leaves out the
+	 * playlist the page shows.
+	 */
+	public function test_render_on_a_channel_playlist_page() {
+		$this->seed_index(
+			array(
+				'a' => $this->record( 'Alpha', $this->create_post( '2026-01-01 10:00:00' ) ),
+				'b' => $this->record( 'Bravo', $this->create_post( '2026-02-01 10:00:00' ) ),
+			)
+		);
+		$post_link = get_permalink( get_option( Playlist_Index::OPTION_NAME )['a']['post_id'] );
+
+		// Elsewhere, cards link to the post holding the playlist, and nothing is left out.
+		$markup = All_Playlists_Block::render( array( 'excludeCurrent' => true ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( $markup ) );
+		$this->assertStringContainsString( 'href="' . esc_url( $post_link ) . '"', $markup );
+
+		add_filter( 'videopress_channel_enabled', '__return_true' );
+		$markup = All_Playlists_Block::render( array( 'excludeCurrent' => true ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( $markup ), 'Not on a playlist page.' );
+		$this->assertStringContainsString( 'href="' . esc_url( Channel::playlist_url( 'a' ) ) . '"', $markup );
+		$this->assertStringNotContainsString( 'href="' . esc_url( $post_link ) . '"', $markup );
+
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
+		set_query_var( Channel::LIST_VAR, 'a' );
+		$this->assertSame( array( 'Bravo' ), $this->titles_in( All_Playlists_Block::render( array( 'excludeCurrent' => true ) ) ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( All_Playlists_Block::render( array() ) ) );
 	}
 
 	/**

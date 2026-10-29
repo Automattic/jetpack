@@ -98,7 +98,7 @@ class Channel_Data {
 		/**
 		 * Short-circuits the channel's video list.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array[]|null $videos Records with id, guid, durationMs, height and publishedAt, newest first; null to query.
 		 * @param string       $search The search term, if any.
@@ -308,7 +308,7 @@ class Channel_Data {
 		/**
 		 * Filters the play counts the channel shows and sorts by.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array<int, int> $views Plays keyed by attachment ID.
 		 */
@@ -339,7 +339,7 @@ class Channel_Data {
 		/**
 		 * Filters the query the channel sends to the video plays stats endpoint.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param array $args Endpoint query arguments.
 		 */
@@ -660,7 +660,7 @@ class Channel_Data {
 		/**
 		 * Filters the channel handle shown in the channel details.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param string $handle "@" plus the first label of the site's host; empty for none.
 		 */
@@ -679,7 +679,7 @@ class Channel_Data {
 		 * Filters the subscriber count shown in the channel details: WordPress.com's count, read
 		 * directly on WordPress.com and through the site's connection elsewhere.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param int|null $count Subscribers, or null when unknown.
 		 */
@@ -780,7 +780,7 @@ class Channel_Data {
 		/**
 		 * Filters when the channel started, shown as "Joined".
 		 *
-		 * @since $$next-version$$
+		 * @since 0.58.0
 		 *
 		 * @param int $time Unix time, 0 when unknown.
 		 */

@@ -24,7 +24,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
@@ -168,6 +168,7 @@ export default function VideoPressEdit( {
 		caption,
 		isExample,
 		useQueriedVideo,
+		useLatestVideo,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -422,21 +423,43 @@ export default function VideoPressEdit( {
 					checked={ !! useQueriedVideo }
 					onChange={ ( value: boolean ) => setAttributes( { useQueriedVideo: value } ) }
 				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Show the newest upload', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Renders the newest VideoPress video in your library, e.g. a featured video.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! useLatestVideo }
+					onChange={ ( value: boolean ) => setAttributes( { useLatestVideo: value } ) }
+				/>
 			</PanelBody>
 		</InspectorControls>
 	);
 
-	if ( useQueriedVideo ) {
+	if ( useQueriedVideo || useLatestVideo ) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				{ queriedVideoControls }
 				<Placeholder
 					icon={ VideoPressIcon }
-					label={ __( 'Video being viewed', 'jetpack-videopress-pkg' ) }
-					instructions={ __(
-						'On the site, this shows the VideoPress video of the page or list entry.',
-						'jetpack-videopress-pkg'
-					) }
+					label={
+						useQueriedVideo
+							? __( 'Video being viewed', 'jetpack-videopress-pkg' )
+							: _x( 'Newest upload', '', 'jetpack-videopress-pkg' )
+					}
+					instructions={
+						useQueriedVideo
+							? __(
+									'On the site, this shows the VideoPress video of the page or list entry.',
+									'jetpack-videopress-pkg'
+								)
+							: _x(
+									'On the site, this plays your newest VideoPress video.',
+									'',
+									'jetpack-videopress-pkg'
+								)
+					}
 				/>
 			</div>
 		);

@@ -39,7 +39,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": false,
 		"mirror-repo": "Automattic/jetpack-knowledge",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"

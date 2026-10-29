@@ -108,6 +108,25 @@ describe( 'buildTrafficTooltipExtras', () => {
 		expect( posts.previous?.map( point => point.value ) ).toEqual( [ 2 ] );
 	} );
 
+	it( 'places each comparison bucket on the current one covering the same days, given the period starts', () => {
+		const [ ratio ] = buildTrafficTooltipExtras(
+			{
+				views: report( [
+					{ views: 300, visitors: 100 },
+					{ views: 50, visitors: 25 },
+				] ),
+				posts: undefined,
+			},
+			ZONE,
+			{ views: report( [ { views: 40, visitors: 20 } ], '06' ), posts: undefined },
+			{ current: '2026-07-01', comparison: '2026-05-31' }
+		);
+
+		expect( ratio.previous ).toEqual( [
+			expect.objectContaining( { date: ratio.data[ 1 ].date, value: 2 } ),
+		] );
+	} );
+
 	// The report lists a bucket without posts as an empty `post_titles`, which is a
 	// 0 worth showing only against a real count; two zeros keep the row out.
 	it.each( [

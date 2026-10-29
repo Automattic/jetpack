@@ -13,6 +13,17 @@ body.toplevel_page_jetpack-protect {
 	--wp-ui-dialog-z-index: 100000;
 }
 
+// Matches Boost's "Jetpack / Boost" trail. The width is what
+// the trail collapses into on narrow screens.
+.jp-protect-breadcrumbs {
+	flex: 1;
+}
+
+.jp-protect-breadcrumbs__item {
+	font-size: var(--wpds-typography-font-size-lg);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
 .jp-protect-dashboard__body {
 	box-sizing: border-box;
 	inline-size: 100%;
@@ -21,10 +32,20 @@ body.toplevel_page_jetpack-protect {
 	padding: 24px;
 }
 
+.jp-protect-dashboard__notice {
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
 .jp-protect-dashboard__cards {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+
+	// The 660px column of the other Jetpack settings screens.
+	&--settings {
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
 }
 
 .jp-protect-card {
@@ -32,12 +53,48 @@ body.toplevel_page_jetpack-protect {
 	// The row is full-bleed for its divider; the padding re-aligns its contents.
 	&__row {
 		box-sizing: border-box;
-		padding: 16px var(--wp-ui-card-padding);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// Cells split by rules; each cell takes the row's padding,
+	// so the rules run edge to edge.
+	&__row.jp-protect-card__cells {
+		--jp-protect-cells: 2;
+
+		display: grid;
+		grid-template-columns: repeat(var(--jp-protect-cells), minmax(0, 1fr));
+		padding: 0;
+
+		> * {
+			box-sizing: border-box;
+			padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
+		}
+
+		> * + * {
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+
+			> * + * {
+				border-inline-start: 0;
+				border-block-start:
+					var(--wpds-border-width-xs) solid
+					var(--wpds-color-stroke-surface-neutral);
+			}
+		}
 	}
 
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
 	}
 
 	&__title {
@@ -88,5 +145,83 @@ body.toplevel_page_jetpack-protect {
 
 	[class*="__inspector"]:has(.jp-protect-inspector) {
 		min-inline-size: 360px;
+	}
+}
+
+.jp-protect-feature-upsell {
+
+	&__heading,
+	&__title {
+		font-weight: 500;
+	}
+
+	&__body {
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg);
+		align-items: center;
+		justify-content: space-between;
+
+		// The button drops below the features, aligned with them.
+		@media (max-width: 600px) {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+
+	&__features {
+		display: grid;
+		flex: 1;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+			align-self: stretch;
+		}
+	}
+
+	&__icon {
+		flex: none;
+		fill: none;
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+
+	&__button {
+		flex: none;
+		white-space: nowrap;
+	}
+}
+
+.jp-protect-countdown {
+	color: var(--wpds-color-foreground-content-neutral);
+	// Equal-width digits, so the line doesn't jiggle as the seconds tick.
+	font-variant-numeric: tabular-nums;
+
+	&__part + &__part {
+		margin-inline-start: 0.3em;
+	}
+
+	&__digit {
+		display: inline-block;
+		animation: jp-protect-countdown-tick var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
+
+		@media (prefers-reduced-motion: reduce) {
+			animation-name: jp-protect-countdown-fade;
+		}
+	}
+}
+
+@keyframes jp-protect-countdown-tick {
+
+	from {
+		opacity: 0;
+		transform: translateY(-0.5em);
+	}
+}
+
+@keyframes jp-protect-countdown-fade {
+
+	from {
+		opacity: 0;
 	}
 }

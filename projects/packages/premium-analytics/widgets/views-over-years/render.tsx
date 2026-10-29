@@ -112,7 +112,12 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			}
 			renderLoading={ <HeatmapSkeleton /> }
 		>
-			<MonthlyHeatmap rows={ rows } { ...monthlyHeatmapLabels( metric ) } onSelect={ openMonth } />
+			<MonthlyHeatmap
+				chartTitle={ __( 'Views over years', 'jetpack-premium-analytics-pkg' ) }
+				rows={ rows }
+				{ ...monthlyHeatmapLabels( metric ) }
+				onSelect={ openMonth }
+			/>
 		</WidgetState>
 	);
 }

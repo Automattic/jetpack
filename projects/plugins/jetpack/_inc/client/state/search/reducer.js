@@ -68,14 +68,17 @@ export function isModuleFound( state, module ) {
 /**
  * Returns whether any module matches the current search term.
  *
- * @param {object} state - Global state tree
+ * @param {object}   state   - Global state tree
+ * @param {string[]} ignored - Modules with no settings card to show, which don't count as a match.
  * @return {boolean}      True only when there is an active search term and at least one module matches it.
  */
-export function hasAnyMatchingModule( state ) {
+export function hasAnyMatchingModule( state, ignored = [] ) {
 	if ( ! getSearchTerm( state ) ) {
 		return false;
 	}
 
 	const items = state.jetpack?.modules?.items ?? {};
-	return Object.values( items ).some( item => item?.module && isModuleFound( state, item.module ) );
+	return Object.values( items ).some(
+		item => item?.module && ! ignored.includes( item.module ) && isModuleFound( state, item.module )
+	);
 }

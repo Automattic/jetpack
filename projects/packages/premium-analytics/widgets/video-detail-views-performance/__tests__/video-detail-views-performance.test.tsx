@@ -21,6 +21,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics,
 		chartType,
 		empty,
+		hideSingleMetricLabel,
 	}: {
 		metrics: {
 			key: string;
@@ -32,10 +33,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		}[];
 		chartType?: string;
 		empty?: ReactNode;
+		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,

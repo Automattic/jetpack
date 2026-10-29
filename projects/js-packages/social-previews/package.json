@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/social-previews",
-	"version": "3.3.16",
+	"version": "3.4.1",
 	"description": "A suite of components to generate previews for a post for both social and search engines.",
 	"keywords": [
 		"wordpress",
@@ -54,23 +54,23 @@
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.3",
-		"@tsdown/css": "0.22.14",
+		"@tsdown/css": "0.23.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.31",
-		"@types/react-dom": "18.3.7",
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/theme": "2.3.0",
-		"babel-jest": "30.5.1",
-		"jest": "30.5.1",
+		"babel-jest": "30.5.2",
+		"jest": "30.5.2",
 		"lightningcss": "^1.33.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"sass-embedded": "^1.97.2",
-		"tsdown": "0.22.14",
+		"tsdown": "0.23.1",
 		"typescript": "6.0.3"
 	},
 	"peerDependencies": {
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0"
+		"react": "^18.0.0 || ^19.0.0",
+		"react-dom": "^18.0.0 || ^19.0.0"
 	}
 }

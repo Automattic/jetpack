@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the comment editor crashing on paragraphs, lists, quotes, and code, and fall back to the plain comment box when a block crashes.

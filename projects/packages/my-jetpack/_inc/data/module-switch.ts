@@ -1,4 +1,5 @@
 import { getBlockThemeMigration } from '../utils/block-theme-migration';
+import { getProtectPageUrl } from '../utils/protect-page';
 import { queueActivationRequest } from './queue-activation-request';
 import {
 	clearRequestedSwitch,
@@ -33,11 +34,15 @@ export function requestModuleSwitch(
 }
 
 /**
- * Whether the module's control is a plain on/off switch, rather than locked or a migration link.
+ * Whether the module's control is a plain on/off switch, rather than locked or a link elsewhere.
  *
  * @param $module - The module.
  * @return Whether the module has a plain switch.
  */
 export function hasPlainSwitch( $module: MyJetpackModule ): boolean {
-	return ! $module.override && ! getBlockThemeMigration( $module );
+	return (
+		! $module.override &&
+		! getBlockThemeMigration( $module ) &&
+		! getProtectPageUrl( $module.module )
+	);
 }

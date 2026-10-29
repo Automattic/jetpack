@@ -66,7 +66,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-connection",
 		"textdomain": "jetpack-connection",
 		"version-constants": {
@@ -76,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "9.12.x-dev"
+			"dev-trunk": "9.15.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

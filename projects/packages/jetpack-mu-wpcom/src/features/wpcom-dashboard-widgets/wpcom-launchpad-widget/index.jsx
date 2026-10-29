@@ -2,9 +2,9 @@ import { Launchpad } from '@automattic/launchpad';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRefEffect } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import { getLaunchSiteUrl } from '../../../common/launch-site-url';
 import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
 import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
@@ -53,10 +53,7 @@ const LaunchpadWidget = ( {
 
 	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
 
-	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-		siteSlug: siteDomain,
-		ref: 'wp-admin',
-	} );
+	const launchUrl = getLaunchSiteUrl( siteDomain, window.location.href );
 
 	const onTaskClick = task => {
 		if ( ! task.isLaunchTask ) {

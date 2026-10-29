@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useRaisePeriodChange } from '@jetpack-premium-analytics/data';
+import { useRaisePeriodChange, type LockableInterval } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
@@ -18,7 +18,7 @@ type ExactRangeSearch = ReportQuerySearchParams & { section?: string };
 export type CommitExactRange = (
 	surface: string,
 	range: Required< DateRange >,
-	options?: { opensSection?: boolean }
+	options?: { opensSection?: boolean; lockedIntervals?: readonly LockableInterval[] }
 ) => void;
 
 /**
@@ -32,12 +32,13 @@ export function useCommitExactRange(): CommitExactRange {
 	const raisePeriodChange = useRaisePeriodChange();
 
 	return useCallback(
-		( surface, range, { opensSection = false } = {} ) => {
+		( surface, range, { opensSection = false, lockedIntervals } = {} ) => {
 			const patch = buildRangePatch( {
 				nextRange: range,
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				effective,
+				lockedIntervals,
 			} );
 
 			raisePeriodChange( surface, range );

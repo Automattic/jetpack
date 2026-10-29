@@ -1,8 +1,46 @@
+// Simple only: pulled up over the table end so its masked backdrop fades the
+// last row, as Calypso does; pointer events pass through to that row.
+.jp-activity-log__upsell-callout-overlay {
+	position: relative;
+	z-index: 1;
+	margin-block-start: -100px;
+	padding: 116px 24px 24px;
+	pointer-events: none;
+	animation: jp-activity-log-upsell-slide-down 0.5s ease-out;
+
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: var(--wpds-color-background-surface-neutral);
+		mask-image: linear-gradient(to bottom, transparent, #000 100px);
+		-webkit-mask-image: linear-gradient(to bottom, transparent, #000 100px);
+	}
+
+	@media ( prefers-reduced-motion: reduce ) {
+		animation: none;
+	}
+}
+
+@keyframes jp-activity-log-upsell-slide-down {
+
+	from {
+		transform: translateY(-20px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
 // Upsell callout rendered below the Activity Log table on free plans.
 // Visual: a bordered card with the copy + CTA on the left and the
 // illustration on the right (column-reverse on mobile, image moves
 // below the copy).
 .jp-activity-log__upsell-callout {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
@@ -12,8 +50,9 @@
 	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: 4px;
 	background-color: var(--wpds-color-background-surface-neutral);
+	pointer-events: auto;
 
-	@media (min-width: 782px) {
+	@media ( min-width: 782px ) {
 		flex-direction: row;
 		align-items: center;
 		gap: 32px;

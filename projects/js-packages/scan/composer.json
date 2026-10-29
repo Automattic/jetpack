@@ -25,7 +25,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-scan/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"npmjs-autopublish": true
 	}
 }

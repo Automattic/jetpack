@@ -41,6 +41,8 @@ export interface GoogleVerify {
 	isOwner: boolean;
 	searchConsoleUrl: string;
 	isVerifying: boolean;
+	/** The popup returned a keyring, and the token is being saved and checked. */
+	isConfirming: boolean;
 	/** Open the WordPress.com keyring popup and verify with the returned keyring id. */
 	autoVerify: () => void;
 }
@@ -52,15 +54,16 @@ export interface GoogleVerify {
  * `/jetpack/v4/verify-site/google` endpoint. On a disconnected site there's no keyring,
  * so it reports `unavailable` and the UI falls back to manual code entry.
  *
- * @param options             - Hook options.
- * @param options.onCodeSaved - Called with the verification code once auto-verify
- *                            persists it, so the consumer can mirror it into form
- *                            state (e.g. to keep the completion status in sync).
+ * @param options          - Hook options.
+ * @param options.saveCode - Saves the verification code through the settings form,
+ *                         which records it and keeps the form in sync.
  * @return The Google-verification controller.
  */
 export function useGoogleVerify( {
-	onCodeSaved,
-}: { onCodeSaved?: ( code: string ) => void } = {} ): GoogleVerify {
+	saveCode,
+}: {
+	saveCode: ( code: string ) => Promise< void >;
+} ): GoogleVerify {
 	const bootstrap = useMemo( () => getGoogleVerifyBootstrap(), [] );
 	const isConnected = bootstrap?.is_connected ?? false;
 	const connectUrl = bootstrap?.connect_url ?? '';
@@ -71,6 +74,7 @@ export function useGoogleVerify( {
 	const [ isOwner, setIsOwner ] = useState( false );
 	const [ searchConsoleUrl, setSearchConsoleUrl ] = useState( '' );
 	const [ isVerifying, setIsVerifying ] = useState( false );
+	const [ isConfirming, setIsConfirming ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const applyStatus = useCallback( ( status: GoogleVerifyStatus ) => {
@@ -126,12 +130,12 @@ export function useGoogleVerify( {
 				setIsVerifying( false );
 				return;
 			}
+			setIsConfirming( true );
 			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			let savedToken = '';
 			// The auto-verify flow is: (1) fetch the verification token for this keyring,
 			// (2) save it to `verification_services_codes.google` so the site serves the
 			// `google-site-verification` meta tag, (3) ask Google to verify (it fetches the
@@ -158,24 +162,15 @@ export function useGoogleVerify( {
 							)
 						);
 					}
-					savedToken = status.token;
-					return apiFetch( {
-						path: '/wp/v2/settings',
-						method: 'POST',
-						data: { verification_services_codes: { google: status.token } },
-					} );
+					return saveCode( status.token );
 				} )
-				.then( () => {
-					// The code is now persisted to `verification_services_codes.google`;
-					// mirror it into the consumer's form state so the verification card's
-					// completion status updates without a reload.
-					onCodeSaved?.( savedToken );
-					return apiFetch( {
+				.then( () =>
+					apiFetch( {
 						path: ENDPOINT,
 						method: 'POST',
 						data: { keyring_id: keyringId },
-					} );
-				} )
+					} )
+				)
 				.then( () => apiFetch< GoogleVerifyStatus >( { path: `${ ENDPOINT }/${ keyringId }` } ) )
 				.then( status => {
 					applyStatus( status );
@@ -207,17 +202,28 @@ export function useGoogleVerify( {
 						{ id: NOTICE_ID, type: 'snackbar' }
 					);
 				} )
-				.finally( () => setIsVerifying( false ) );
+				.finally( () => {
+					setIsConfirming( false );
+					setIsVerifying( false );
+				} );
 		} );
 	}, [
 		connectUrl,
 		isVerifying,
 		applyStatus,
-		onCodeSaved,
+		saveCode,
 		createInfoNotice,
 		createSuccessNotice,
 		createErrorNotice,
 	] );
 
-	return { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify };
+	return {
+		state,
+		isConnected,
+		isOwner,
+		searchConsoleUrl,
+		isVerifying,
+		isConfirming,
+		autoVerify,
+	};
 }

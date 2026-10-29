@@ -30,6 +30,9 @@ type FetchArgs = {
 	number?: number;
 	page?: number;
 	sort_order?: ActivitySortOrder;
+	/** ISO 8601 date-time bounds, so a single backup can be fetched without paging to it. */
+	after?: string;
+	before?: string;
 };
 
 /**
@@ -46,6 +49,8 @@ type FetchArgs = {
  * @param args.page       - 1-indexed page number.
  * @param args.number     - Items per page.
  * @param args.sort_order - Sort direction.
+ * @param args.after      - Only activity after this date-time.
+ * @param args.before     - Only activity before this date-time.
  * @return The raw WPCOM-shaped response.
  */
 export async function fetchActivityLog(
@@ -56,6 +61,8 @@ export async function fetchActivityLog(
 			number: args.number,
 			page: args.page,
 			sort_order: args.sort_order,
+			after: args.after,
+			before: args.before,
 		} ),
 	} );
 }

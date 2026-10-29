@@ -1,6 +1,8 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
+import { getActivationStatusLabel } from '../utils';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
@@ -54,19 +56,61 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 }
 
 /**
- * Why a feature has no available route on this site.
+ * Whether the module can run on this site, ignoring any host override: an override only forces the switch on or off, and does not lift the module's own limits, such as multisite.
+ *
+ * @param $module - The module to check.
+ * @return The module's availability, the reason when it is unavailable, and whether multisite blocks it, as if no host override were set.
+ */
+export function getModuleAvailability( $module: MyJetpackModule ) {
+	return getModuleStatus( { ...$module, override: false } );
+}
+
+/**
+ * Why the feature cannot run on this site, if something stops it, including a missing WordPress.com account.
  *
  * @param state - The feature's live state.
- * @return The unavailable reason, or undefined when a plugin provides a route.
+ * @return The reason to show, or undefined when nothing stops the feature, for example when its plugin is installed or its module is available.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
+	if ( state.accountNeeded ) {
+		return __( 'Requires a connected WordPress.com account', 'jetpack-my-jetpack' );
+	}
 	if ( state.control.kind === 'module' ) {
-		return getModuleStatus( { ...state.control.module, override: false } ).reason;
+		return getModuleAvailability( state.control.module ).reason;
 	}
 	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
 		return undefined;
 	}
 	return state.unavailableReason;
+}
+
+/**
+ * The status badge text on the feature card and in its details dialog: Unavailable, Active or Inactive.
+ *
+ * With the account-connect flag on, Active and Inactive show only once loaded and only where no switch
+ * shows the state: a control of kind `none`, such as Jetpack AI while its switch is gated, or a card whose
+ * control is only a link, such as Manage in Protect. Nothing shows while an account is needed.
+ *
+ * @param state         - The feature's live state.
+ * @param controlIsLink - Whether the card's control is only a link, which cannot say whether the feature is on.
+ * @return The status label, or null when the feature's own control already says it.
+ */
+export function getFeatureStatusLabel( state: FeatureState, controlIsLink = false ): string | null {
+	// Only set with the account-connect flag on. Connect or Install says what is missing;
+	// see `needsAccountWithoutConnect()` for a feature with neither.
+	if ( state.accountNeeded ) {
+		return null;
+	}
+	if ( getFeatureUnavailableReason( state ) ) {
+		return __( 'Unavailable', 'jetpack-my-jetpack' );
+	}
+	if (
+		isAccountConnectEnabled() &&
+		( state.pending || ( state.control.kind !== 'none' && ! controlIsLink ) )
+	) {
+		return null;
+	}
+	return getActivationStatusLabel( state.status === 'active' );
 }
 
 /**
@@ -77,8 +121,15 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
  */
 export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
+	// With the account-connect flag off, Available still lists installs the user cannot make.
+	const skipsBlockedInstalls = isAccountConnectEnabled();
 	return (
 		! state.pending &&
+		( ! skipsBlockedInstalls || control.kind !== 'install-jetpack' || ! control.blocked ) &&
+		( ! skipsBlockedInstalls ||
+			control.kind !== 'install-plugin' ||
+			! control.blocked ||
+			Boolean( control.runsWithoutPlugin ) ) &&
 		( control.kind !== 'module' || control.module.override !== 'inactive' ) &&
 		( control.kind !== 'plugin' || control.override !== 'inactive' ) &&
 		! getFeatureUnavailableReason( state )

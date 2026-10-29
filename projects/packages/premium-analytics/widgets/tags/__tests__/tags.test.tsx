@@ -8,6 +8,7 @@ import { file as categoryGlyph, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import TagsWidget from '../render';
 import type { ReactElement } from 'react';
@@ -131,12 +132,7 @@ describe( 'TagsWidget', () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( '1,240' ) ).resolves.toBeInTheDocument();
-		// A compacted count is drawn aria-hidden, with the full figure left to screen readers.
-		expect(
-			screen.queryByText(
-				( text, node ) => !! text && node?.getAttribute( 'aria-hidden' ) === 'true'
-			)
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( '1.2K' ) ).not.toBeInTheDocument();
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
@@ -215,7 +211,9 @@ describe( 'TagsWidget CSV export', () => {
 	} );
 
 	it( 'downloads the whole Tags report while drilled into a group', async () => {
-		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+		const { findDeclaredAction } = renderWithActionsHost(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click(
@@ -226,9 +224,7 @@ describe( 'TagsWidget CSV export', () => {
 		await expect(
 			screen.findByRole( 'button', { name: /all tags & categories/i } )
 		).resolves.toBeInTheDocument();
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
 		const lines = await downloads.lines();
 		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );

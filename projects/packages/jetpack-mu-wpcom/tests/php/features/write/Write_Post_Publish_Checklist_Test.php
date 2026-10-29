@@ -211,8 +211,9 @@ class Write_Post_Publish_Checklist_Test extends \WorDBless\BaseTestCase {
 	public function test_post_publish_launch_url_targets_launch_site_flow() {
 		$url = wpcom_write_post_publish_launch_url();
 
-		$this->assertStringContainsString( 'https://wordpress.com/start/launch-site', $url );
+		$this->assertStringContainsString( 'https://wordpress.com/setup/launch-site', $url );
 		$this->assertStringContainsString( 'siteSlug=', $url );
+		$this->assertStringContainsString( 'ref=wp-admin', $url );
 		$host = wp_parse_url( home_url(), PHP_URL_HOST );
 		$this->assertStringContainsString( rawurlencode( (string) $host ), $url );
 	}

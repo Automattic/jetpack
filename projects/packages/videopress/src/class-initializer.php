@@ -19,6 +19,7 @@ class Initializer {
 	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
 	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
 	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
+	const LATEST_VIDEOS_PLAYLIST_MAX_PAGED     = 48;
 
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
@@ -296,7 +297,7 @@ class Initializer {
 		// Register All Playlists block.
 		self::register_videopress_all_playlists_block();
 
-		// Register the channel blocks' shared pieces: the playlist block's `source` and the editor data its picker reads.
+		// Register the playlist block's `source` and, where the channel feature is enabled, the channel blocks.
 		Channel_Blocks::register();
 	}
 
@@ -663,7 +664,8 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render' ),
 			)
 		);
 	}
@@ -707,9 +709,34 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
-				'skip_inner_blocks' => true,
+				'render_callback'       => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+				'skip_inner_blocks'     => true,
 			)
+		);
+	}
+
+	/**
+	 * The sort order, page size and pagination a Latest Videos Playlist block asks for, clamped to what it allows.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $block_attributes Block attributes.
+	 *
+	 * @return array{order: string, count: int, paginated: bool} Order is one of Channel_Data::BROWSE_SORTS.
+	 */
+	public static function latest_videos_playlist_query( $block_attributes ) {
+		$order     = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
+		$paginated = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
+		$max_count = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
+		$count     = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+
+		return array(
+			'order'     => $order,
+			'count'     => max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) ),
+			'paginated' => $paginated,
 		);
 	}
 
@@ -724,17 +751,179 @@ class Initializer {
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
 	 */
 	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
-		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
-			? (int) $block_attributes['count']
-			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
-		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
-
-		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+		$query      = self::latest_videos_playlist_query( $block_attributes );
+		$order      = $query['order'];
+		$count      = $query['count'];
+		$paginated  = $query['paginated'];
+		$controls   = ! empty( $block_attributes['showBrowseControls'] );
+		$exclude    = ! empty( $block_attributes['excludeCurrent'] ) ? array_filter( array( Channel::queried_guid() ) ) : array();
+		$show_meta  = ! empty( $block_attributes['showMeta'] );
+		$is_browsed = 'newest' !== $order || $controls || $paginated || $exclude || $show_meta;
 
 		// Dynamic playlists have no title of their own, so no heading either.
 		unset( $block_attributes['playlistTitle'], $block_attributes['showPlaylistTitle'] );
 
-		return self::render_videopress_playlist_block( $block_attributes, '', $block );
+		if ( ! $is_browsed ) {
+			$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+			if ( ! $block_attributes['videos'] ) {
+				return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
+			}
+			return self::render_videopress_playlist_block( $block_attributes, '', $block );
+		}
+
+		// A site without videos gets the empty state, not filters with nothing to filter.
+		if ( ! Channel_Data::videos() ) {
+			return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
+		}
+
+		$state   = Channel_Data::browse_request( $controls, $paginated, $order );
+		$results = Channel_Data::browse( $state, $count, $exclude, $show_meta );
+
+		$block_attributes['videos'] = $show_meta
+			? $results['entries']
+			: array_map(
+				function ( $entry ) {
+					return array_diff_key( $entry, array_flip( array( 'views', 'publishedAt' ) ) );
+				},
+				$results['entries']
+			);
+		$before                     = $controls ? self::render_video_browser_controls( $state, $results, $count ) : '';
+		$after                      = $paginated && $results['pages'] > 1 ? self::render_video_browser_pagination( $results['page'], $results['pages'] ) : '';
+		$markup                     = self::render_videopress_playlist_block( $block_attributes, '', $block, $before, $after );
+
+		if ( '' === $markup && $controls ) {
+			// Keep the controls when nothing matches, so the filters can be changed back.
+			$markup = sprintf(
+				'<figure %1$s>%2$s<p class="videopress-video-browser__empty">%3$s</p></figure>',
+				get_block_wrapper_attributes( array( 'class' => 'videopress-playlist is-layout-' . esc_attr( $block_attributes['layout'] ?? 'grid' ) . ' is-empty' ) ),
+				$before,
+				esc_html__( 'No videos match these filters.', 'jetpack-videopress-pkg' )
+			);
+		}
+
+		return $markup;
+	}
+
+	/**
+	 * The Videos page controls: search, sort and length, submitted as a GET form.
+	 *
+	 * @param array $state    Browsing state from Channel_Data::browse_request().
+	 * @param array $results  Page from Channel_Data::browse().
+	 * @param int   $per_page Page size.
+	 *
+	 * @return string Markup.
+	 */
+	private static function render_video_browser_controls( array $state, array $results, $per_page ) {
+		$own_args = array( Channel_Data::QUERY_ARG_SEARCH, Channel_Data::QUERY_ARG_SORT, Channel_Data::QUERY_ARG_LENGTH, Channel_Data::QUERY_ARG_PAGE );
+		$action   = strtok( remove_query_arg( $own_args ), '?' );
+
+		// A GET form drops the action's query string, so the page's other arguments ride along as fields.
+		$hidden = '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only echoed back as hidden fields.
+		foreach ( $_GET as $name => $value ) {
+			if ( is_string( $name ) && is_string( $value ) && ! in_array( $name, $own_args, true ) ) {
+				$hidden .= sprintf( '<input type="hidden" name="%1$s" value="%2$s" />', esc_attr( $name ), esc_attr( sanitize_text_field( wp_unslash( $value ) ) ) );
+			}
+		}
+
+		$sorts        = array(
+			'newest'  => __( 'Latest', 'jetpack-videopress-pkg' ),
+			'popular' => __( 'Popular', 'jetpack-videopress-pkg' ),
+			'oldest'  => __( 'Oldest', 'jetpack-videopress-pkg' ),
+		);
+		$sort_buttons = '';
+		foreach ( $sorts as $value => $label ) {
+			$is_current    = $value === $state['sort'];
+			$sort_buttons .= sprintf(
+				'<button type="submit" class="videopress-video-browser__sort%1$s" name="%2$s" value="%3$s" aria-pressed="%4$s">%5$s</button>',
+				$is_current ? ' is-current' : '',
+				esc_attr( Channel_Data::QUERY_ARG_SORT ),
+				esc_attr( 'newest' === $value ? 'latest' : $value ),
+				$is_current ? 'true' : 'false',
+				esc_html( $label )
+			);
+		}
+
+		$lengths = array(
+			'any'   => __( 'Any length', 'jetpack-videopress-pkg' ),
+			'short' => __( 'Under 20 min', 'jetpack-videopress-pkg' ),
+			'mid'   => __( '20 to 45 min', 'jetpack-videopress-pkg' ),
+			'long'  => __( 'Over 45 min', 'jetpack-videopress-pkg' ),
+		);
+		$options = '';
+		foreach ( $lengths as $value => $label ) {
+			$options .= sprintf( '<option value="%1$s"%2$s>%3$s</option>', esc_attr( $value ), selected( $value, $state['length'], false ), esc_html( $label ) );
+		}
+
+		if ( $results['total'] > 0 ) {
+			$summary = sprintf(
+				/* translators: 1: first video shown. 2: last video shown. 3: number of matching videos. */
+				_n( 'Showing %1$s–%2$s of %3$s video', 'Showing %1$s–%2$s of %3$s videos', $results['total'], 'jetpack-videopress-pkg' ),
+				number_format_i18n( $results['start'] + 1 ),
+				number_format_i18n( min( $results['start'] + $per_page, $results['total'] ) ),
+				number_format_i18n( $results['total'] )
+			);
+		} else {
+			$summary = __( '0 videos', 'jetpack-videopress-pkg' );
+		}
+
+		return sprintf(
+			'<form class="videopress-video-browser" method="get" action="%1$s" role="search">%2$s' .
+				'<input type="hidden" name="%3$s" value="%4$s" />' .
+				'<input type="search" class="videopress-video-browser__search" name="%5$s" value="%6$s" placeholder="%7$s" aria-label="%7$s" />' .
+				'<button type="submit" class="videopress-video-browser__submit">%8$s</button>' .
+				'<div class="videopress-video-browser__sorts" role="group" aria-label="%9$s">%10$s</div>' .
+				'<select class="videopress-video-browser__length" name="%11$s" aria-label="%12$s">%13$s</select>' .
+			'</form>' .
+			'<p class="videopress-video-browser__summary">%14$s</p>',
+			esc_url( $action ),
+			$hidden,
+			esc_attr( Channel_Data::QUERY_ARG_SORT ),
+			esc_attr( 'newest' === $state['sort'] ? 'latest' : $state['sort'] ),
+			esc_attr( Channel_Data::QUERY_ARG_SEARCH ),
+			esc_attr( $state['search'] ),
+			esc_attr__( 'Search this channel', 'jetpack-videopress-pkg' ),
+			esc_html__( 'Search', 'jetpack-videopress-pkg' ),
+			esc_attr__( 'Sort videos', 'jetpack-videopress-pkg' ),
+			$sort_buttons,
+			esc_attr( Channel_Data::QUERY_ARG_LENGTH ),
+			esc_attr__( 'Video length', 'jetpack-videopress-pkg' ),
+			$options,
+			esc_html( $summary )
+		);
+	}
+
+	/**
+	 * The Videos page's numbered pagination.
+	 *
+	 * @param int $current Current page.
+	 * @param int $pages   Number of pages.
+	 *
+	 * @return string Markup.
+	 */
+	private static function render_video_browser_pagination( $current, $pages ) {
+		$url_for = function ( $page ) {
+			return 1 === $page ? remove_query_arg( Channel_Data::QUERY_ARG_PAGE ) : add_query_arg( Channel_Data::QUERY_ARG_PAGE, $page );
+		};
+		$step    = function ( $page, $enabled, $modifier, $label ) use ( $url_for ) {
+			return $enabled
+				? sprintf( '<a class="videopress-video-browser__page videopress-video-browser__page--%1$s" href="%2$s">%3$s</a>', $modifier, esc_url( $url_for( $page ) ), esc_html( $label ) )
+				: sprintf( '<span class="videopress-video-browser__page videopress-video-browser__page--%1$s is-disabled" aria-disabled="true">%2$s</span>', $modifier, esc_html( $label ) );
+		};
+
+		$links = $step( $current - 1, $current > 1, 'prev', __( '← Previous', 'jetpack-videopress-pkg' ) );
+		for ( $page = 1; $page <= $pages; $page++ ) {
+			$links .= $page === $current
+				? sprintf( '<span class="videopress-video-browser__page videopress-video-browser__page--number is-current" aria-current="page">%d</span>', $page )
+				: sprintf( '<a class="videopress-video-browser__page videopress-video-browser__page--number" href="%1$s">%2$d</a>', esc_url( $url_for( $page ) ), $page );
+		}
+		$links .= $step( $current + 1, $current < $pages, 'next', __( 'Next →', 'jetpack-videopress-pkg' ) );
+
+		return sprintf(
+			'<nav class="videopress-video-browser__pagination" aria-label="%1$s">%2$s</nav>',
+			esc_attr__( 'Videos pagination', 'jetpack-videopress-pkg' ),
+			$links
+		);
 	}
 
 	/**
@@ -765,11 +954,18 @@ class Initializer {
 			 * metadata (title, poster) is always live: the view script reads it
 			 * from the video data after the page loads.
 			 */
-			$entries[] = array(
+			$entry = array(
 				'guid'       => $video['guid'],
 				'durationMs' => isset( $video['durationMs'] ) && is_numeric( $video['durationMs'] ) ? max( 0, (int) $video['durationMs'] ) : 0,
 				'height'     => isset( $video['height'] ) && is_numeric( $video['height'] ) ? max( 0, (int) $video['height'] ) : 0,
 			);
+			// Render-time extras for the meta line; never saved with the block.
+			foreach ( array( 'views', 'publishedAt' ) as $extra ) {
+				if ( isset( $video[ $extra ] ) && is_numeric( $video[ $extra ] ) ) {
+					$entry[ $extra ] = max( 0, (int) $video[ $extra ] );
+				}
+			}
+			$entries[] = $entry;
 		}
 
 		return $entries;
@@ -875,14 +1071,19 @@ class Initializer {
 	 * @param array          $block_attributes Block attributes.
 	 * @param string         $content          Rendered inner blocks: the title heading, when there is one.
 	 * @param \WP_Block|null $block            Current block.
+	 * @param string         $before           Markup placed above the playlist body, e.g. browse controls.
+	 * @param string         $after            Markup placed below the playlist body, e.g. pagination.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
 	 */
-	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null ) {
+	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null, $before = '', $after = '' ) {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
-			return '';
+			// A playlist picked from the index shows the empty state while the site has none.
+			return isset( $block_attributes['source'] ) && 'index' === $block_attributes['source'] && ! Channel::playlists()
+				? Channel_Blocks::render_empty_state( 'playlists', $block_attributes )
+				: '';
 		}
 
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist
@@ -914,6 +1115,7 @@ class Initializer {
 		$show_number    = $enabled( 'showPositionNumber', false );
 		$show_runtime   = $enabled( 'showTotalRuntime' );
 		$muted          = $enabled( 'muteByDefault', false );
+		$list_key       = isset( $block_attributes['videopressListKey'] ) && is_string( $block_attributes['videopressListKey'] ) ? sanitize_key( $block_attributes['videopressListKey'] ) : '';
 		$current_guid   = Channel::is_enabled() ? Channel::queried_guid() : '';
 
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
@@ -1000,6 +1202,11 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
+			$stats_label  = Channel_Data::views_and_age( array_intersect_key( $entry, array_flip( array( 'views', 'publishedAt' ) ) ) );
+			$stats_markup = '' !== $stats_label
+				? sprintf( '<span class="videopress-playlist__entry-stats">%s</span>', esc_html( $stats_label ) )
+				: '';
+
 			if ( $has_player ) {
 				$is_current  = $show_player && 0 === $index;
 				$entry_open  = sprintf(
@@ -1024,8 +1231,11 @@ class Initializer {
 				 * @param string $url  The video's page on videopress.com.
 				 * @param string $guid The video GUID.
 				 */
-				$entry_url  = apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] );
-				$on_site    = Channel::is_site_url( $entry_url );
+				$entry_url = apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] );
+				$on_site   = Channel::is_site_url( $entry_url );
+				if ( $on_site && '' !== $list_key ) {
+					$entry_url = add_query_arg( Channel::LIST_VAR, $list_key, $entry_url );
+				}
 				$is_current = '' !== $current_guid && $entry['guid'] === $current_guid;
 				$entry_open = sprintf(
 					'<a class="videopress-playlist__select%1$s" href="%2$s"%3$s%4$s data-guid="%5$s" data-title="%6$s" data-position="%7$s" data-details="%8$s">',
@@ -1045,7 +1255,7 @@ class Initializer {
 			$items .= sprintf(
 				'<li class="videopress-playlist__entry%10$s">%1$s' .
 					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span>%11$s</span>' .
 					'%9$s</li>',
 				$entry_open,
 				$number_markup,
@@ -1056,7 +1266,8 @@ class Initializer {
 				$resolution_markup,
 				$duration_markup,
 				$entry_close,
-				! $has_player && '' !== $current_guid && $entry['guid'] === $current_guid ? ' is-current' : ''
+				! $has_player && '' !== $current_guid && $entry['guid'] === $current_guid ? ' is-current' : '',
+				$stats_markup
 			);
 		}
 
@@ -1171,11 +1382,13 @@ class Initializer {
 			: '';
 
 		return sprintf(
-			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
+			'<figure %1$s>%2$s%5$s<div class="videopress-playlist__body">%3$s%4$s</div>%6$s</figure>',
 			$wrapper_attributes,
 			$heading_markup,
 			$stage_markup,
-			$list_markup
+			$list_markup,
+			$before,
+			$after
 		);
 	}
 

@@ -7,9 +7,9 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Free_Domain_Upsell_Experiment;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
@@ -27,19 +27,6 @@ const WPCOM_ADMIN_ICON_COLORS = array(
 	'modern'    => '#f3f1f1',
 	'sunrise'   => '#f3f1f1',
 );
-
-/**
- * Adds the origin_site_id query parameter to a URL.
- *
- * @deprecated 6.10.0 Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
- *
- * @param string $url The URL to add the query param to.
- * @return string The URL with the origin_site_id query parameter maybe added.
- */
-function maybe_add_origin_site_id_to_url( $url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.10.0', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
-	return Urls::maybe_add_origin_site_id( $url );
-}
 
 /**
  * Enqueue assets needed by the WordPress.com admin bar.
@@ -64,6 +51,15 @@ function wpcom_enqueue_admin_bar_assets() {
 		array(),
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
+
+	if ( Free_Domain_Upsell_Experiment::should_show_upsell() ) {
+		wp_add_inline_script(
+			'wpcom-admin-bar',
+			'var wpcomAdminBarUpsellSource = ' . wp_json_encode( wpcom_admin_bar_upsell_get_source(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+			. 'var wpcomAdminBarFreeDomainUpsellSource = ' . wp_json_encode( Free_Domain_Upsell_Experiment::get_upsell_source(), JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+	}
 
 	/**
 	 * Force the Atomic debug bar menu to be the first menu at the top-right.
@@ -155,7 +151,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						'WordPress.com' .
 						'</span>',
-			'href'  => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
+			'href'  => 'https://my.wordpress.com/sites',
 			'meta'  => array(
 				'menu_title' => 'WordPress.com',
 			),
@@ -167,7 +163,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
+			'href'   => 'https://my.wordpress.com/sites',
 		)
 	);
 
@@ -176,7 +172,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/domains' ),
+			'href'   => 'https://my.wordpress.com/domains',
 		)
 	);
 
@@ -185,7 +181,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-emails',
 			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/emails' ),
+			'href'   => 'https://my.wordpress.com/emails',
 		)
 	);
 
@@ -194,7 +190,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wp-logo',
 			'id'     => 'wpcom-plugins',
 			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/plugins' ),
+			'href'   => 'https://my.wordpress.com/plugins',
 		)
 	);
 
@@ -303,13 +299,12 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		$edit_profile_node->href  = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
-		$edit_profile_node->title = preg_replace( "/(<span class='display-name edit-profile'>)(.*?)(<\/span>)/", '$1' . __( 'My Profile', 'jetpack-mu-wpcom' ) . '$3', $edit_profile_node->title );
+		$edit_profile_node->href = 'https://my.wordpress.com/me/account';
 		$wp_admin_bar->add_node( (array) $edit_profile_node );
 	}
 	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
 	if ( $my_account_node ) {
-		$my_account_node->href = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
+		$my_account_node->href = 'https://my.wordpress.com/me/account';
 		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
@@ -340,7 +335,7 @@ function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
 			'parent' => 'wpcom-account',
 			'id'     => 'my-wpcom-account',
 			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
-			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' ),
+			'href'   => 'https://my.wordpress.com/me/account',
 		)
 	);
 }
@@ -538,3 +533,60 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );
+
+/**
+ * Which source the admin bar upsell is rendering on, for tracking.
+ *
+ * @return string One of 'site-frontend', 'site-editor', 'post-editor', 'wp-admin'.
+ */
+function wpcom_admin_bar_upsell_get_source() {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen ) {
+		return 'site-frontend';
+	}
+	if ( 'site-editor' === $screen->id ) {
+		return 'site-editor';
+	}
+	if ( $screen->is_block_editor() ) {
+		return 'post-editor';
+	}
+	return 'wp-admin';
+}
+
+/**
+ * Adds a "Free domain" upsell chip to the admin bar for users in the treatment
+ * of the omnibar upsell experiment.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_free_domain_upsell( $wp_admin_bar ) {
+	if ( ! Free_Domain_Upsell_Experiment::should_show_upsell() ) {
+		return;
+	}
+
+	$icon = '<svg width="16" height="16" viewBox="4 5 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path d="M18.9397 9.87999L15.4197 6.06999L15.3597 6.00999C15.2897 5.93999 15.1997 5.89999 15.0997 5.89999H8.87973C8.77973 5.89999 8.68973 5.93999 8.61973 6.00999L5.05973 9.87999C4.93973 10.01 4.93973 10.21 5.05973 10.34L11.5397 17.86C11.6497 17.99 11.8197 18.07 11.9997 18.07C12.1797 18.07 12.3397 17.99 12.4597 17.86L18.9397 10.34C19.0597 10.21 19.0497 10.01 18.9397 9.87999ZM15.4097 7.53999L17.3297 9.63999H15.1697L15.4097 7.53999ZM14.4297 6.83999L14.1097 9.63999H10.2897L9.64973 6.83999H14.4297ZM8.68973 7.42999L9.19973 9.63999H6.66973L8.68973 7.42999ZM6.61973 10.6H9.42973L10.8397 15.49L6.61973 10.6ZM12.0397 15.87L10.5297 10.6H13.8597L12.0397 15.87ZM14.9697 10.6H17.3797L13.3697 15.24L14.9697 10.6Z" fill="currentColor" />
+	</svg>';
+
+	$wp_admin_bar->add_menu(
+		array(
+			'id'     => 'free-domain-upsell',
+			'parent' => null,
+			'title'  => '<span class="ab-icon" aria-hidden="true">' . $icon . '</span><span class="ab-label">' . esc_html__( 'Free domain', 'jetpack-mu-wpcom' ) . '</span>',
+			'href'   => add_query_arg(
+				array(
+					'siteSlug' => wpcom_get_site_slug(),
+					'ref'      => 'omnibar-free-domain',
+				),
+				'https://wordpress.com/setup/domain-and-plan'
+			),
+			'meta'   => array(
+				'class'         => 'free-domain-upsell',
+				'title'         => __( 'Free domain with an annual plan', 'jetpack-mu-wpcom' ),
+				'menu_title'    => __( 'Free domain', 'jetpack-mu-wpcom' ),
+				'upsell_source' => Free_Domain_Upsell_Experiment::get_upsell_source(),
+			),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_free_domain_upsell', 81 );

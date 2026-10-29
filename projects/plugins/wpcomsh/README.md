@@ -158,11 +158,13 @@ We show a similar message to the update one under Akismet, Jetpack and VaultPres
 Plugins that bridge the gap between WP.com and Atomic, enabling WP.com-only features that are part of users' plans, receive a green banner with that information.
 This allows users to make an informed decision when enabling/disabling these plugins.
 
-### Symlinking WP.com pub (free) and premium themes
+### Installing WP.com themes
 
-We keep the WP.com pub and premium themes checked out on Atomic. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Atomic to user’s `wp-content/themes` folder.
+We keep the WP.com pub and premium themes, and other managed themes, checked out on Atomic. When users install a WP.com theme, from Calypso through the Jetpack themes API or from wp-admin’s Add Themes screen, wpcomsh symlinks it from the directory where we keep it on Atomic to the user’s `wp-content/themes` folder.
 
-When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
+A WP.com theme that isn’t kept on Atomic is downloaded instead, from the link WP.com gives the site for it, and installed by core like any other theme.
+
+When a user deletes a WP.com pub or premium theme, wpcomsh unsymlinks it.
 
 If a WP.com theme is a child theme of another WP.com theme, wpcomsh symlinks both the parent and the child themes. Analogously, if users try to delete a child WP.com theme, wpcomsh unsymlinks both the child and the parent themes. However, if only the parent theme is removed/unsymlinked, wpcomsh doesn’t unsymlink the child theme, making it potentially broken (as the parent theme is removed).
 

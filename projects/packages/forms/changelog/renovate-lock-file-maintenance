@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix two tests where the focus change now happens on the next animation frame, and remove a third that's redundant to one of the first two.
-
-

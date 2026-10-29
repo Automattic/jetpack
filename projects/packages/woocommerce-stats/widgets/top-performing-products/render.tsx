@@ -11,8 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { ProductLeaderboard } from '../../src/components/product-leaderboard';
 import { PHYSICAL_PRODUCTS_FILTER } from '../../src/reports';
-import type { TopPerformingProductsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type TopPerformingProductsAttributes = Record< never, never >;
 
 type TopPerformingProductsRenderAttributes = TopPerformingProductsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -29,6 +34,7 @@ export default function TopPerformingProductsRender( {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<ProductLeaderboard
+				chartTitle={ __( 'Top performing products', 'jetpack-woocommerce-stats-pkg' ) }
 				filter={ PHYSICAL_PRODUCTS_FILTER }
 				errorText={ __(
 					"We couldn't load product data. Please try again in a moment.",

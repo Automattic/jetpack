@@ -43,7 +43,6 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.4.x-dev"
 		},

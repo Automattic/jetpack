@@ -22,6 +22,11 @@
 //                                                    by <AdminPage>; admin-ui
 //                                                    2.0.0 forwards it onto
 //                                                    the page's outer node)
+//   <AdminPage> content:     .jp-admin-page__content   (the container that
+//                                                       scrolls between the
+//                                                       header and footer;
+//                                                       absent when
+//                                                       `unwrapped`)
 //   admin-ui's header:       <header> element rendered by admin-ui's <Page>
 //                            inside `.jp-admin-page__page` (no class hooks —
 //                            we anchor structurally to the HTML5 element)

@@ -43,15 +43,22 @@ export type ImageAttributes = { url?: string };
 
 export type ImageEditProps = BlockEditProps< ImageAttributes >;
 
-type HistoryStep = { blocks: Block[]; markup: string };
+/** The caret as the block editor reports it with an edit, which an undo puts back. */
+export type EditorSelection = {
+	selectionStart?: object;
+	selectionEnd?: object;
+	initialPosition?: number | null;
+};
+
+type HistoryStep = { blocks: Block[]; markup: string; selection?: EditorSelection };
 
 export type History = {
 	past: HistoryStep[];
 	present: HistoryStep;
 	future: HistoryStep[];
-	/** When the present step last changed; 0 after an undo or redo. */
-	editedAt: number;
 };
 
 export type HistoryAction =
-	{ type: 'edit'; blocks: Block[]; at: number } | { type: 'undo' } | { type: 'redo' };
+	| { type: 'edit'; blocks: Block[]; selection?: EditorSelection; persistent: boolean }
+	| { type: 'undo' }
+	| { type: 'redo' };

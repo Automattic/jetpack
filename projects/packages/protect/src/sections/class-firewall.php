@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
@@ -15,6 +16,7 @@ use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
+use Automattic\Jetpack\Waf\Waf_Stats;
 use WP_Error;
 use WP_REST_Server;
 
@@ -25,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The firewall's on/off state, blocked requests, IP lists and a one-time request to test it with.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Firewall implements Dashboard_Section {
 
@@ -60,9 +62,12 @@ class Firewall implements Dashboard_Section {
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
 			array(
-				'hasScan'   => Dashboard::has_scan_plan(),
-				'currentIp' => self::get_current_ip(),
-				'ipRules'   => self::get_ip_rules(),
+				'hasScan'        => Dashboard::has_scan_plan(),
+				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
+				'currentIp'      => self::get_current_ip(),
+				'ipRules'        => self::get_ip_rules(),
+				'rulesUpdatedAt' => self::get_rules_updated_at(),
+				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
 			)
 		);
 	}
@@ -124,21 +129,40 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * The recent blocks and the all-time count, refreshed after a test.
+	 * The recent blocks and the block counts, refreshed after a test.
+	 *
+	 * Today and the last 30 days are UTC days, as the firewall records them.
 	 *
 	 * @return array
 	 */
 	public static function get_blocks() {
+		$counts = class_exists( Waf_Stats::class ) ? Waf_Stats::get_blocked_requests() : array();
+
 		return array(
-			'recentBlocks' => self::get_recent_blocks(),
-			'blockedCount' => class_exists( Waf_Blocklog_Manager::class )
-				? Waf_Blocklog_Manager::get_all_time_block_count()
-				: null,
+			'recentBlocks'      => self::get_recent_blocks(),
+			'blockedCount'      => isset( $counts['all_time'] ) ? (int) $counts['all_time'] : null,
+			'blockedToday'      => isset( $counts['current_day'] ) ? (int) $counts['current_day'] : null,
+			'blockedLast30Days' => isset( $counts['thirty_days'] ) ? (int) $counts['thirty_days'] : null,
 		);
 	}
 
 	/**
-	 * The visitor's IP address as the firewall sees it, for "Add it to the list" on the always-allowed list.
+	 * When the automatic rules were last downloaded, as a Unix timestamp, or null while they're off or never were.
+	 *
+	 * @return int|null
+	 */
+	public static function get_rules_updated_at() {
+		if ( ! class_exists( Waf_Stats::class ) || ! Waf_Rules_Manager::automatic_rules_enabled() ) {
+			return null;
+		}
+
+		$timestamp = (int) Waf_Stats::get_automatic_rules_last_updated();
+
+		return $timestamp > 0 ? $timestamp : null;
+	}
+
+	/**
+	 * The visitor's IP address as the firewall sees it, to offer on the allow list and keep off the block list.
 	 *
 	 * Empty when it may be a proxy's: allowing that address would let every visitor behind the proxy past the rules.
 	 *
@@ -166,6 +190,73 @@ class Firewall implements Dashboard_Section {
 		}
 
 		return $ip;
+	}
+
+	/**
+	 * Refuse a block list that covers the visitor's own address, which would lock them out of the site.
+	 *
+	 * A list is allowed when the address is unknown, so a wrong guess can't stop a legitimate save.
+	 *
+	 * @param string $list The block list being saved: addresses, ranges or CIDR blocks.
+	 * @return true|WP_Error
+	 */
+	public static function validate_ip_block_list( $list ) {
+		$ip = self::get_current_ip();
+		if ( '' === $ip ) {
+			return true;
+		}
+
+		if ( ! self::ip_list_covers( $list, $ip ) ) {
+			return true;
+		}
+
+		// The firewall checks the allow list first, so this address would never actually be blocked.
+		if (
+			class_exists( Waf_Rules_Manager::class )
+			&& Waf_Rules_Manager::ip_allow_list_enabled()
+			&& self::ip_list_covers( (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ), $ip )
+		) {
+			return new WP_Error(
+				'ip_block_list_includes_allowed_ip',
+				sprintf(
+					/* translators: %s is the visitor's IP address. */
+					__( 'Your IP address (%s) is on your allow list, so it can\'t be added to the block list. Remove it, or the range that includes it, from the block list and try again.', 'jetpack-protect-pkg' ),
+					$ip
+				)
+			);
+		}
+
+		return new WP_Error(
+			'ip_block_list_includes_current_ip',
+			sprintf(
+				/* translators: %s is the visitor's IP address. */
+				__( 'Your IP address (%s) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.', 'jetpack-protect-pkg' ),
+				$ip
+			)
+		);
+	}
+
+	/**
+	 * Whether an IP list includes an address, through the address itself, a range or a CIDR block.
+	 *
+	 * @param string $list Addresses, ranges or CIDR blocks.
+	 * @param string $ip   The address to look for.
+	 * @return bool
+	 */
+	private static function ip_list_covers( $list, $ip ) {
+		foreach ( IP_Utils::get_ip_addresses_from_string( $list ) as $entry ) {
+			// Split as the firewall does: a CIDR block, a hyphenated range or a single address.
+			$range    = strpos( $entry, '/' ) !== false ? array( $entry, null ) : explode( '-', $entry );
+			$is_match = count( $range ) === 2
+				? IP_Utils::ip_address_is_in_range( $ip, $range[0], $range[1] )
+				: inet_pton( $entry ) === inet_pton( $ip );
+
+			if ( $is_match ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

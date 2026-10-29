@@ -8,7 +8,11 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { mockRecordEvent } from '../../../../tests/js/dashboard-toolkit-test-utils';
-import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
+import {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '../constants';
 import { resetOnboardingForTesting, useOnboarding } from './use-onboarding';
 
 jest.mock(
@@ -26,26 +30,28 @@ type PreferencesActions = {
 };
 
 /**
- * Read the persisted completion date from the preferences store.
+ * Read a persisted completion date from the preferences store.
  *
+ * @param key - The journey's preferences key.
  * @return The stored ISO date, or undefined before the journey completes.
  */
-function storedCompletion(): string | undefined {
+function storedCompletion( key = DASHBOARD_ONBOARDING_KEY ): string | undefined {
 	return ( select( preferencesStore ) as unknown as PreferencesSelectors ).get(
 		DASHBOARD_PREFERENCES_SCOPE,
-		DASHBOARD_ONBOARDING_KEY
+		key
 	);
 }
 
 /**
- * Write or clear the persisted completion date.
+ * Write or clear a persisted completion date.
  *
  * @param value - ISO date to store, or null to clear it.
+ * @param key   - The journey's preferences key.
  */
-function setStoredCompletion( value: string | null ) {
+function setStoredCompletion( value: string | null, key = DASHBOARD_ONBOARDING_KEY ) {
 	( dispatch( preferencesStore ) as unknown as PreferencesActions ).set(
 		DASHBOARD_PREFERENCES_SCOPE,
-		DASHBOARD_ONBOARDING_KEY,
+		key,
 		value
 	);
 }
@@ -66,6 +72,7 @@ describe( 'useOnboarding', () => {
 		// The preferences store registers on the shared default registry, so
 		// clear the key between tests.
 		setStoredCompletion( null );
+		setStoredCompletion( null, DASHBOARD_STORE_ONBOARDING_KEY );
 	} );
 
 	it( 'opens the modal on the first visit, marks it as seen and records the view', () => {
@@ -123,7 +130,9 @@ describe( 'useOnboarding', () => {
 	} );
 
 	it( 'walks the tour steps and finishes on the last one', () => {
-		const { result } = renderHook( () => useOnboarding( { enabled: true, stepCount: 3 } ) );
+		const { result } = renderHook( () =>
+			useOnboarding( { enabled: true, stepCounts: { stats: 3 } } )
+		);
 
 		act( () => result.current.start() );
 		expect( result.current.phase ).toBe( 'tour' );
@@ -138,13 +147,15 @@ describe( 'useOnboarding', () => {
 		expect( result.current.phase ).toBe( 'closed' );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_onboarding_step_view',
-			{ step: 3 }
+			{ flow: 'stats', step: 3 }
 		);
 		expect( eventNames().at( -1 ) ).toBe( 'jetpack_premium_analytics_onboarding_finish' );
 	} );
 
 	it( 'records a dismissal with where the reader was', () => {
-		const { result } = renderHook( () => useOnboarding( { enabled: true, stepCount: 3 } ) );
+		const { result } = renderHook( () =>
+			useOnboarding( { enabled: true, stepCounts: { stats: 3 } } )
+		);
 
 		act( () => result.current.start() );
 		act( () => result.current.next() );
@@ -153,7 +164,7 @@ describe( 'useOnboarding', () => {
 		expect( result.current.phase ).toBe( 'closed' );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_onboarding_dismiss',
-			{ phase: 'tour', step: 2, reason: 'escape' }
+			{ flow: 'stats', phase: 'tour', step: 2, reason: 'escape' }
 		);
 	} );
 
@@ -181,5 +192,74 @@ describe( 'useOnboarding', () => {
 
 		expect( result.current.phase ).toBe( 'closed' );
 		expect( eventNames().filter( name => name.endsWith( '_view' ) ) ).toHaveLength( 1 );
+	} );
+
+	const SEEN = '2026-09-01T10:00:00.000Z';
+
+	it.each( [
+		{ statsSeen: false, storeSeen: false, hasStoreSection: false, flow: 'stats' },
+		{ statsSeen: false, storeSeen: false, hasStoreSection: true, flow: 'stats-and-store' },
+		{ statsSeen: false, storeSeen: true, hasStoreSection: true, flow: 'stats-and-store' },
+		{ statsSeen: true, storeSeen: false, hasStoreSection: true, flow: 'store' },
+	] )(
+		'opens $flow for stats seen $statsSeen, store seen $storeSeen, store tab $hasStoreSection',
+		( { statsSeen, storeSeen, hasStoreSection, flow } ) => {
+			setStoredCompletion( statsSeen ? SEEN : null );
+			setStoredCompletion( storeSeen ? SEEN : null, DASHBOARD_STORE_ONBOARDING_KEY );
+
+			const { result } = renderHook( () => useOnboarding( { enabled: true, hasStoreSection } ) );
+
+			expect( result.current.phase ).toBe( 'modal' );
+			expect( result.current.flow ).toBe( flow );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_onboarding_view', {
+				flow,
+			} );
+		}
+	);
+
+	it.each( [
+		{ storeSeen: false, hasStoreSection: false },
+		{ storeSeen: true, hasStoreSection: true },
+	] )(
+		'stays closed once Stats is seen, store seen $storeSeen, store tab $hasStoreSection',
+		( { storeSeen, hasStoreSection } ) => {
+			setStoredCompletion( SEEN );
+			setStoredCompletion( storeSeen ? SEEN : null, DASHBOARD_STORE_ONBOARDING_KEY );
+
+			const { result } = renderHook( () => useOnboarding( { enabled: true, hasStoreSection } ) );
+
+			expect( result.current.phase ).toBe( 'closed' );
+		}
+	);
+
+	it( 'marks both journeys seen and keeps its flow and tour once the preferences land', () => {
+		const { result } = renderHook( () =>
+			useOnboarding( {
+				enabled: true,
+				hasStoreSection: true,
+				stepCounts: { stats: 3, store: 1, 'stats-and-store': 4 },
+			} )
+		);
+
+		expect( storedCompletion() ).toEqual( expect.any( String ) );
+		expect( storedCompletion( DASHBOARD_STORE_ONBOARDING_KEY ) ).toEqual( expect.any( String ) );
+
+		act( () => result.current.start() );
+		act( () => result.current.next() );
+		act( () => result.current.next() );
+		act( () => result.current.next() );
+
+		expect( result.current.flow ).toBe( 'stats-and-store' );
+		expect( result.current.phase ).toBe( 'tour' );
+		expect( result.current.step ).toBe( 3 );
+	} );
+
+	it( 'leaves the Stats journey unmarked when it only introduces the WooCommerce tab', () => {
+		setStoredCompletion( SEEN );
+
+		renderHook( () => useOnboarding( { enabled: true, hasStoreSection: true } ) );
+
+		expect( storedCompletion() ).toBe( SEEN );
+		expect( storedCompletion( DASHBOARD_STORE_ONBOARDING_KEY ) ).toEqual( expect.any( String ) );
 	} );
 } );

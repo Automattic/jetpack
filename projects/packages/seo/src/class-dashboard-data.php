@@ -15,6 +15,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_SEO_Utils;
 use WP_Error;
@@ -307,8 +308,8 @@ class Dashboard_Data {
 	/**
 	 * The SEO options exposed to `/wp/v2/settings`, keyed by option name.
 	 *
-	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforced for
-	 * the same keys, so a save behaves the same as before wherever that route exists.
+	 * Types, defaults and sanitizers mirror what `/jetpack/v4/settings` enforces for
+	 * the keys it also exposes, so a save behaves the same through either route.
 	 *
 	 * @return array<string, array>
 	 */
@@ -327,14 +328,27 @@ class Dashboard_Data {
 			Ai_Crawlers::OPTION                   => array(
 				'type'              => 'object',
 				'default'           => array(),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_ai_crawler_overrides' ),
+				'sanitize_callback' => array( Ai_Crawlers::class, 'sanitize_blocked' ),
 				'show_in_rest'      => array(
 					'schema' => array(
-						'type'                 => 'object',
-						// A sparse `crawler slug => blocked` map, so the keys are the
-						// catalog's, not a fixed property list. Ai_Crawlers::get_overrides()
-						// drops slugs it doesn't know on read.
-						'additionalProperties' => array( 'type' => 'boolean' ),
+						'type'       => 'object',
+						'properties' => array_fill_keys(
+							Ai_Crawlers::GROUPS,
+							array(
+								// Core needs `type` here as well as in `anyOf` (rest_default_additional_properties_to_false()).
+								'type'  => array( 'string', 'array' ),
+								'anyOf' => array(
+									array(
+										'type' => 'string',
+										'enum' => array( 'all' ),
+									),
+									array(
+										'type'  => 'array',
+										'items' => array( 'type' => 'string' ),
+									),
+								),
+							)
+						),
 					),
 				),
 			),
@@ -565,6 +579,30 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Name of the SEO plugin Jetpack stepped aside for, or '' when Jetpack's SEO output is live.
+	 *
+	 * @return string
+	 */
+	private static function get_conflicting_seo_plugin() {
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return '';
+		}
+
+		/**
+		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
+		 * so. Only read while `jetpack_disable_seo_tools` is true.
+		 *
+		 * @since 0.10.1
+		 *
+		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
+		 */
+		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
+
+		return is_string( $name ) ? trim( $name ) : '';
+	}
+
+	/**
 	 * Drop the superseded legacy front page description once a modern one is saved.
 	 *
 	 * The front end falls back to the legacy option whenever the modern value is
@@ -685,31 +723,30 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Whether the site is private or still in coming-soon, which WordPress.com records
-	 * as a negative `blog_public`. Always false on self-hosted, where the option is a
-	 * plain 0/1.
+	 * Whether a WordPress.com site is unpublished: private (a negative `blog_public`)
+	 * or Coming Soon. Always false on self-hosted, where the option is a plain 0/1.
 	 *
 	 * @return bool
 	 */
 	private static function is_site_private() {
-		return (int) get_option( 'blog_public', 1 ) < 0;
+		return (int) get_option( 'blog_public', 1 ) < 0 || self::is_site_coming_soon();
 	}
 
 	/**
-	 * Keep a WordPress.com site's private or coming-soon state out of reach of an SEO
-	 * toggle.
+	 * Whether the site is in WordPress.com's Coming Soon mode, which normally keeps
+	 * `blog_public` at 0, so only the platform's own flag tells it from a discouraged site.
 	 *
-	 * `blog_public` is a plain 0/1 on self-hosted, but WordPress.com also stores `-1`
-	 * for a private site and `-2` for one still in coming-soon. This dashboard only
-	 * offers "allow search engines to index this site", which writes 1 or 0 — so
-	 * without this, the owner of an unfinished site who flipped that toggle on
-	 * published it. Publishing a site is not a search-engine setting and isn't a
-	 * decision this surface asks for, so a negative stored value is left alone.
+	 * @return bool
+	 */
+	private static function is_site_coming_soon() {
+		return ( new Host() )->is_wpcom_platform() && (bool) ( new Status() )->is_coming_soon();
+	}
+
+	/**
+	 * Refuse an indexing write that would publish a private WordPress.com site or launch a Coming Soon one.
 	 *
-	 * The site's own visibility control is what changes it — and still can, because
-	 * this hangs off core's settings route rather than the option's sanitizer.
-	 * {@see self::get_settings_data()} reports `site_is_private` so the toggle can say
-	 * why it's disabled rather than silently doing nothing.
+	 * Needed because jetpack-mu-wpcom ends Coming Soon on any `blog_public` move away from 0. Hooked on
+	 * core's settings route, not the option's sanitizer, so the site's own visibility control still works.
 	 *
 	 * @param bool   $handled Whether another handler already wrote the setting.
 	 * @param string $name    Setting name.
@@ -721,9 +758,12 @@ class Dashboard_Data {
 			return $handled;
 		}
 
-		// Leave a write that keeps the site unpublished alone; only a move to a public
-		// value is refused.
-		return self::is_site_private() && (int) $value >= 0;
+		if ( (int) get_option( 'blog_public', 1 ) < 0 ) {
+			return (int) $value >= 0;
+		}
+
+		// A null write deletes the option, which reads back as the registered default of 1.
+		return self::is_site_coming_soon() && ( null === $value || (int) $value > 0 );
 	}
 
 	/**
@@ -826,25 +866,6 @@ class Dashboard_Data {
 		}
 
 		return $stored;
-	}
-
-	/**
-	 * Normalize the AI crawler override map to `slug => bool`.
-	 *
-	 * @param array $value Submitted overrides.
-	 * @return array
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $slug => $blocked ) {
-			$sanitized[ sanitize_key( $slug ) ] = (bool) $blocked;
-		}
-
-		return $sanitized;
 	}
 
 	/**
@@ -1005,6 +1026,7 @@ class Dashboard_Data {
 			'plan'                    => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+			'conflicting_seo_plugin'  => self::get_conflicting_seo_plugin(),
 			// Whether the site-verification toggle can do anything here. False where
 			// that module isn't present — WordPress.com Simple ships no Jetpack modules
 			// and reports every one of them active — so the dashboard hides the control
@@ -1070,6 +1092,14 @@ class Dashboard_Data {
 		$title_formats_editable = self::is_jetpack_seo_enabled();
 		$front_page_desc        = self::get_front_page_meta_description();
 
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			// Same for the description, which the helper swaps for the legacy fallback while
+			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
+			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
+			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
+		}
+
 		// A site that set a front-page description back when it was free for all
 		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
 		// the value stays live in the legacy option. The gated Settings uses this to keep
@@ -1084,11 +1114,17 @@ class Dashboard_Data {
 		$sitemap_active = $modules->is_active( 'sitemaps' );
 		$simple         = ( new Host() )->is_wpcom_simple();
 
+		// Ask the conflict check, not the disable filter: anyone can hook that filter just to turn the tags off.
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded by function_exists; lives in plugins/jetpack.
+		$canonical_conflicted = function_exists( 'jetpack_canonical_urls_check_conflicts' ) && jetpack_canonical_urls_check_conflicts( false );
+
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
-			// A private or coming-soon WordPress.com site isn't hidden from search by an
+			// A private or Coming Soon WordPress.com site isn't hidden from search by an
 			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
 			'site_is_private'            => self::is_site_private(),
+			'site_is_coming_soon'        => self::is_site_coming_soon(),
+			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
@@ -1098,6 +1134,7 @@ class Dashboard_Data {
 			// Simple reports every module active, so read its own switch ({@see Canonical_Urls}).
 			'canonical_active'           => $simple ? Canonical_Urls::is_enabled() : $modules->is_active( 'canonical-urls' ),
 			'canonical_switchable'       => $simple || self::has_module( 'canonical-urls' ),
+			'canonical_conflicted'       => $canonical_conflicted,
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type
@@ -1106,6 +1143,7 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
+			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1168,7 +1206,8 @@ class Dashboard_Data {
 	 *
 	 * `aiSeoEnabled` is reported separately rather than folded into availability:
 	 * with the control off the card is disabled, not hidden, so the saved choice
-	 * stays visible — the same treatment the Traffic page gives it.
+	 * stays visible — the same treatment the Traffic page gives it. `aiEnabled`
+	 * reports the site-wide Jetpack AI switch so the tab can name which one is off.
 	 *
 	 * @return array
 	 */
@@ -1180,6 +1219,8 @@ class Dashboard_Data {
 		// does not exist, so the enhancer keeps its pre-control behavior.
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
 		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_enabled' ) ) || \Jetpack_AI_Settings::is_ai_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -1192,6 +1233,7 @@ class Dashboard_Data {
 				'available'    => $filter_on && $plan_supports,
 				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
 				'aiSeoEnabled' => $ai_seo_on,
+				'aiEnabled'    => $ai_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),

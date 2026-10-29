@@ -1,9 +1,9 @@
-import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
+import gauge from './icon';
+import MonitorToggle, { useMonitorToggleData } from './monitor-toggle';
 import type { MonitorContext } from './types';
 
 /**
@@ -17,44 +17,12 @@ import type { MonitorContext } from './types';
 export default function MonitorSettingsCard( { state, settings }: MonitorContext ) {
 	const available = Boolean( state?.available );
 	const userConnected = Boolean( state?.userConnected );
-	const { save, refresh } = settings;
-	// Locks the email toggle until the re-read lands, which would otherwise overwrite a change made meanwhile.
-	const [ isEnabling, setIsEnabling ] = useState( false );
-	// Turning Monitor on subscribes the user to its emails on the server.
-	const monitorData = useMemo(
-		() => ( {
-			...settings,
-			save: async ( patch, path ) => {
-				if ( patch.monitor !== true ) {
-					return save( patch, path );
-				}
-				setIsEnabling( true );
-				try {
-					const saved = await save( patch, path );
-					await refresh( [ 'monitor_receive_notifications' ] );
-					return saved;
-				} finally {
-					setIsEnabling( false );
-				}
-			},
-		} ),
-		[ settings, save, refresh ]
-	);
+	const { data: monitorData, isEnabling } = useMonitorToggleData( settings );
 	return (
-		<ProtectCard icon={ seen } title={ __( 'Monitor', 'jetpack-protect-pkg' ) }>
+		<ProtectCard icon={ gauge } title={ __( 'Downtime monitoring', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
-					<SettingToggle
-						data={ monitorData }
-						name="monitor"
-						label={ __( 'Monitor your site for downtime', 'jetpack-protect-pkg' ) }
-						help={
-							available
-								? __( 'Jetpack checks your site every five minutes.', 'jetpack-protect-pkg' )
-								: __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' )
-						}
-						disabled={ ! available }
-					/>
+					<MonitorToggle data={ monitorData } available={ available } />
 					<SettingToggle
 						data={ settings }
 						name="monitor_receive_notifications"

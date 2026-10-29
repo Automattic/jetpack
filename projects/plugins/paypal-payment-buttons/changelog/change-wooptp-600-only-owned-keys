@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the fields of a payment link that the block does not edit when the block is saved.

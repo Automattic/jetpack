@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import {
 	resolveSegmentStyles,
 	applyStylesToItems,
+	formatChartName,
 	isEmptyPieChartData,
 	type SegmentStyle,
 } from '../../helpers';
@@ -71,6 +72,9 @@ export type DonutChartProps = {
 
 	showLegend?: boolean;
 
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
+
 	/**
 	 * Show the center metric value.
 	 * @default true
@@ -127,6 +131,7 @@ export function DonutChart( {
 	},
 	legendData,
 	showLegend = true,
+	chartTitle,
 	showMetric = true,
 	thickness = DEFAULT_THICKNESS,
 	maxSize = MAX_SIZE,
@@ -202,6 +207,7 @@ export function DonutChart( {
 				<PieChart
 					data={ styledChartData }
 					className={ styles.pieChart }
+					ariaLabel={ formatChartName( chartTitle ) }
 					width={ chartSize }
 					height={ chartSize }
 					thickness={ thickness }

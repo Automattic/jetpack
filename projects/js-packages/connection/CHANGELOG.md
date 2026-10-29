@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.15.0] - 2026-10-28
+### Added
+- Add a refreshConnectionStatus() store action that reads the site's connection status from the server again. [#53941]
+- Tracking: Add trackConnectionEvent() and bumpConnectionStat() helpers, and record Tracks events from the ownership transfer, owner disconnect and protected owner dialogs. [#54059]
+
+### Fixed
+- Record the offline mode that setIsOfflineMode() is given. [#53941]
+
+## [2.14.0] - 2026-10-26
+### Added
+- Add a get-calypso-origin subpath export, so a bundle can get the Calypso origin without loading the connection store. [#53721]
+- Add `getTracksIdentity()` and `initializeTracksIdentity()` helpers that identify the viewer to Tracks by their WordPress.com account. [#53861]
+- Ask for confirmation before disconnecting your user account, and offer to transfer ownership first when you own the connection. [#53865]
+- Connection error notice: Add a ConnectionErrorView component that renders an existing useConnectionErrorNotice() result, and let the reconnect flow return to a chosen page via `reconnectRedirectUrl` and `reconnectFrom`. [#53596]
+- Connect screen and ConnectButton: Show clear messages for every registration failure (WordPress.com rejected or couldn't verify the site, the site's own REST request failed, or the site couldn't reach WordPress.com), with the underlying cause underneath when it helps (for example the network error). [#53289]
+- Support React 19. [#53882]
+
+### Changed
+- Describe the ownership lock from one place, so a badge and the confirmation dialog cannot say it differently, and name the owner disconnect dialog in sentence case. [#54034]
+- Update package dependencies. [#53951]
+
+## [2.13.2] - 2026-10-20
+### Changed
+- Add `isInSafeMode` to the connection status type and the local `displayName` and `email` to the current user type. [#53785]
+
+## [2.13.1] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
 ## [2.13.0] - 2026-10-15
 ### Added
 - Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
@@ -1558,6 +1587,10 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.15.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.14.0...v2.15.0
+[2.14.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.2...v2.14.0
+[2.13.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.1...v2.13.2
+[2.13.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.0...v2.13.1
 [2.13.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.1...v2.13.0
 [2.12.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.1...v2.12.0

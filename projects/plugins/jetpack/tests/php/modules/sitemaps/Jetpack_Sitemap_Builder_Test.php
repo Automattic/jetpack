@@ -310,7 +310,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	 * Every URL from the other URLs filter is listed, across batches and sitemap files.
 	 *
 	 * @group jetpack-sitemap
-	 * @since $$next-version$$
+	 * @since 16.4
 	 */
 	#[Group( 'jetpack-sitemap' )]
 	public function test_other_urls_are_not_skipped_between_batches() {

@@ -1,10 +1,9 @@
-import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { dispatch, select } from '@wordpress/data';
+import { createRegistry, RegistryProvider } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { createQueryClient, queryKeys } from '../data/queries';
-import type { PlacementChoice, Settings, SharingLikesScriptData, Status } from '../types';
+import { store } from '../data/store';
+import type { PlacementChoice, Services, Settings, SharingLikesScriptData, Status } from '../types';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 
@@ -14,6 +13,7 @@ export const baseStatus: Status = {
 	comment_likes: { supported: true, follows_likes_settings: false },
 	placement: true,
 	site_editor_url: 'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template',
+	page_template_editor_url: '',
 };
 
 export const baseSettings: Settings = {
@@ -50,72 +50,83 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 	};
 }
 
+type Registry = ReturnType< typeof createRegistry >;
+
+interface StoreContents {
+	status?: Status;
+	settings?: Settings;
+	services?: Services;
+}
+
+// The registry the last render used, which is where its snackbars land.
+let current: Registry | undefined;
+
 /**
- * A query client seeded like the stage seeds it.
+ * A registry with the store seeded like the stage seeds it, and services when given.
  *
- * @param data          - Cache contents.
+ * @param data          - Store contents.
  * @param data.status   - Status.
  * @param data.settings - Settings.
- * @return Query client.
+ * @param data.services - Services; read from the route when omitted.
+ * @return Registry.
  */
-export function createTestQueryClient( {
+export function createTestRegistry( {
 	status = baseStatus,
 	settings = baseSettings,
-}: { status?: Status; settings?: Settings } = {} ) {
-	const queryClient = createQueryClient();
-	queryClient.setQueryData( queryKeys.status, status );
-	queryClient.setQueryData( queryKeys.settings, settings );
-	return queryClient;
+	services,
+}: StoreContents = {} ): Registry {
+	const registry = createRegistry();
+	registry.register( noticesStore );
+	registry.register( store );
+	registry.dispatch( store ).seed( { status, settings } );
+	if ( services ) {
+		registry.dispatch( store ).receive( 'services', services );
+		registry.dispatch( store ).finishResolution( 'getServices', [] );
+	}
+	current = registry;
+	return registry;
 }
 
 /**
  * Wrapper for `renderHook`.
  *
- * @param queryClient - Query client.
+ * @param registry - Registry.
  * @return Wrapper component.
  */
-export function wrapperFor( queryClient: QueryClient ) {
+export function wrapperFor( registry: Registry ) {
 	return function Wrapper( { children }: { children: ReactNode } ) {
-		return <QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>;
+		return <RegistryProvider value={ registry }>{ children }</RegistryProvider>;
 	};
 }
 
 /**
- * Render inside a seeded query client.
+ * Render inside a seeded registry.
  *
- * @param ui            - Element.
- * @param data          - Cache contents.
- * @param data.status   - Status.
- * @param data.settings - Settings.
- * @return Render result plus the query client.
+ * @param ui   - Element.
+ * @param data - Store contents.
+ * @return Render result plus the registry.
  */
-export function renderWithData(
-	ui: ReactNode,
-	data: { status?: Status; settings?: Settings } = {}
-) {
-	const queryClient = createTestQueryClient( data );
-	return { queryClient, ...render( ui, { wrapper: wrapperFor( queryClient ) } ) };
+export function renderWithData( ui: ReactNode, data: StoreContents = {} ) {
+	const registry = createTestRegistry( data );
+	return { registry, ...render( ui, { wrapper: wrapperFor( registry ) } ) };
 }
 
 /**
- * Text of every notice in the store.
+ * Every notice the last render's registry holds.
+ *
+ * @return Notices.
+ */
+export function notices() {
+	return current?.select( noticesStore ).getNotices() ?? [];
+}
+
+/**
+ * Text of every notice the last render's registry holds.
  *
  * @return Messages.
  */
 export function snackbarMessages(): string[] {
-	return select( noticesStore )
-		.getNotices()
-		.map( notice => String( notice.content ) );
-}
-
-/**
- * Clear the notices store between tests.
- */
-export function resetNotices() {
-	const { removeNotice } = dispatch( noticesStore );
-	select( noticesStore )
-		.getNotices()
-		.forEach( notice => removeNotice( notice.id ) );
+	return notices().map( notice => String( notice.content ) );
 }
 
 /**

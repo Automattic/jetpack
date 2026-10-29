@@ -539,6 +539,7 @@ class Admin_UI {
 					TwoColumn.prototype.initialize = function() {
 						if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
 							this.template = wp.template( 'attachment-details-two-column-videopress' );
+							this.listenTo( this.model, 'change:videopress_status', this.render );
 						} else {
 							this.template = wp.template( 'attachment-details-two-column' );
 						}
@@ -554,7 +555,10 @@ class Admin_UI {
 
 						// Now our stuff!
 						if ( 'video' === this.model.get('type') ) {
-							if ( this.model.get('videopress_guid') ) {
+							if ( 'failed' === this.model.get('videopress_status') ) {
+								// The legacy Jetpack renderer can insert a player during old_render.
+								this.$('.attachment-media-view .thumbnail-video').empty();
+							} else if ( this.model.get('videopress_guid') ) {
 								this.$('.attachment-media-view .thumbnail-video').html( vp_template( {
 									guid   : this.model.get('videopress_guid'),
 									width  : this.model.get('width') > 0 ? this.model.get('width') : '100%',
@@ -581,6 +585,11 @@ class Admin_UI {
 	 */
 	public static function attachment_details_template() {
 		?>
+		<style>
+			.attachment-details.videopress-attachment-details ~ .compat-item .compat-field-videopress_conversion_error {
+				display: none;
+			}
+		</style>
 		<script type="text/html" id="tmpl-videopress_iframe_vnext">
 			<iframe class="videopress-iframe" style="display: block; max-width: 100%; max-height: 180px;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
 		</script>
@@ -604,6 +613,8 @@ class Admin_UI {
 						DetailsTemplate.prototype.initialize = function() {
 							if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
 								this.template = wp.template( 'attachment-details-videopress' );
+								this.$el.addClass( 'videopress-attachment-details' );
+								this.listenTo( this.model, 'change:videopress_status', this.render );
 							} else {
 								this.template = wp.template( 'attachment-details' );
 							}
@@ -625,7 +636,7 @@ class Admin_UI {
 
 							// Now our stuff!
 							if ( 'video' === this.model.get('type') ) {
-								if ( this.model.get('videopress_guid') ) {
+								if ( this.model.get('videopress_guid') && 'failed' !== this.model.get('videopress_status') ) {
 									this.$('.attachment-info .wp-video').html( vp_template( {
 										guid   : this.model.get('videopress_guid'),
 										// width  : this.model.get('width') > 0 ? this.model.get('width') : '100%',
@@ -647,6 +658,11 @@ class Admin_UI {
 	 */
 	protected static function attachment_info_template_part() {
 		?>
+		<# if ( 'failed' === data.videopress_status ) { #>
+			<div class="notice notice-error" role="alert">
+				<p><?php esc_html_e( 'Conversion failed. Delete this video and upload it again.', 'jetpack-videopress-pkg' ); ?></p>
+			</div>
+		<# } #>
 		<span class="setting" data-setting="title">
 			<label for="attachment-details-title" class="name"><?php _e( 'Title', 'jetpack-videopress-pkg' ); ?></label>
 			<input type="text" id="attachment-details-title" value="{{ data.title }}" readonly />
@@ -845,12 +861,12 @@ class Admin_UI {
 	 */
 	public static function is_trim_cut_enabled() {
 		/**
-		 * Enable trim and cut after the video editing service is available for this site.
+		 * Whether the trim and cut editor is available for this site.
 		 *
 		 * @since 0.53.0
-		 * @param bool $enabled Whether trim and cut is enabled. Default false.
+		 * @param bool $enabled Whether trim and cut is enabled. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );
+		return (bool) apply_filters( 'jetpack_videopress_trim_cut', true );
 	}
 
 	/**

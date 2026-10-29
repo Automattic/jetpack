@@ -15,7 +15,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Monitor\Monitor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -23,6 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class Jetpack_Monitor
+ *
+ * Kept for backward compatibility; the logic lives in the automattic/jetpack-monitor package.
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -39,65 +41,58 @@ class Jetpack_Monitor {
 	 * Constructor.
 	 */
 	public function __construct() {
+		Monitor::init();
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
-		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
-		add_action( 'jetpack_unlinked_user', array( $this, 'delete_notifications_copy' ) );
-		add_action( 'deleted_user', array( $this, 'delete_notifications_copy' ) );
-		add_action( 'jetpack_site_before_disconnected', array( $this, 'delete_all_notifications_copies' ) );
 	}
 
 	/**
 	 * Forgets every linked user's saved notification choice, while a site disconnect can still say who was linked.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return void
 	 */
 	public function delete_all_notifications_copies() {
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		foreach ( array_keys( is_array( $user_tokens ) ? $user_tokens : array() ) as $user_id ) {
-			$this->delete_notifications_copy( $user_id );
-		}
+		Monitor::delete_all_notifications_copies();
 	}
 
 	/**
 	 * Forgets a user's saved notification choice, which belongs to the WordPress.com account they had linked.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id User ID.
 	 *
 	 * @return void
 	 */
 	public function delete_notifications_copy( $user_id ) {
-		delete_option( self::notifications_copy_option_name( $user_id ) );
+		Monitor::delete_notifications_copy( $user_id );
 	}
 
 	/**
 	 * Name of the option holding a user's local copy of their notification choice.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param int $user_id User ID.
 	 *
 	 * @return string
 	 */
 	public static function notifications_copy_option_name( $user_id ) {
-		return 'monitor_receive_notifications' . (int) $user_id;
+		return Monitor::notifications_copy_option_name( $user_id );
 	}
 
 	/**
 	 * Saves the current user's notification choice where Jetpack_Core_Json_Api_Endpoints::get_remote_value reads it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @param bool $enabled Whether the current user receives notifications.
 	 *
 	 * @return void
 	 */
 	public static function save_notifications_copy( $enabled ) {
-		// An integer: see Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( self::notifications_copy_option_name( get_current_user_id() ), (int) (bool) $enabled );
+		Monitor::save_notifications_copy( $enabled );
 	}
 
 	/**
@@ -106,9 +101,7 @@ class Jetpack_Monitor {
 	 * @return void
 	 */
 	public function activate_module() {
-		if ( ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
-			self::update_option_receive_jetpack_monitor_notification( true );
-		}
+		Monitor::activate_module();
 	}
 
 	/**
@@ -128,18 +121,11 @@ class Jetpack_Monitor {
 	 * @return bool
 	 */
 	public function update_option_receive_jetpack_monitor_notification( $value ) {
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'user_id' => get_current_user_id(),
-			)
-		);
-		$xml->query( 'jetpack.monitor.setNotifications', (bool) $value );
+		$result = Monitor::set_notifications( $value );
 
-		if ( $xml->isError() ) {
-			wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ) );
+		if ( is_wp_error( $result ) ) {
+			wp_die( sprintf( '%s: %s', esc_html( $result->get_error_code() ), esc_html( $result->get_error_message() ) ) );
 		}
-
-		self::save_notifications_copy( $value );
 
 		return true;
 	}
@@ -155,21 +141,12 @@ class Jetpack_Monitor {
 	 * @return boolean|WP_Error
 	 */
 	public static function user_receives_notifications( $die_on_error = true ) {
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'user_id' => get_current_user_id(),
-			)
-		);
-		$xml->query( 'jetpack.monitor.isUserInNotifications' );
+		$result = Monitor::user_receives_notifications();
 
-		if ( $xml->isError() ) {
-			if ( $die_on_error ) {
-				wp_die( sprintf( '%s: %s', esc_html( $xml->getErrorCode() ), esc_html( $xml->getErrorMessage() ) ), 400 );
-			} else {
-				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage(), array( 'status' => 400 ) );
-			}
+		if ( is_wp_error( $result ) && $die_on_error ) {
+			wp_die( sprintf( '%s: %s', esc_html( $result->get_error_code() ), esc_html( $result->get_error_message() ) ), 400 );
 		}
-		return $xml->getResponse();
+		return $result;
 	}
 
 	/**
@@ -179,17 +156,7 @@ class Jetpack_Monitor {
 	 * @return string date in YYYY-MM-DD HH:mm:ss format
 	 */
 	public function monitor_get_last_downtime() {
-		$xml = new Jetpack_IXR_Client();
-
-		$xml->query( 'jetpack.monitor.getLastDowntime' );
-
-		if ( $xml->isError() ) {
-			return new WP_Error( 'monitor-downtime', $xml->getErrorMessage() );
-		}
-
-		set_transient( 'monitor_last_downtime', $xml->getResponse(), 10 * MINUTE_IN_SECONDS );
-
-		return $xml->getResponse();
+		return Monitor::get_last_downtime();
 	}
 }
 

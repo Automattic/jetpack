@@ -33,8 +33,9 @@ export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
+export { pairComparisonBuckets, type ComparisonPeriodStarts } from './pair-comparison-buckets';
 export { dateFormatForResolution } from './tick-resolution-date-format';
-export { CHART_TYPE_ELEMENTS, type ChartDisplayChartType } from './chart-display-attribute-fields';
+export type { ChartDisplayChartType } from './chart-display-attribute-fields';
 export {
 	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
 	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -51,17 +52,17 @@ export {
 	type EmailRateSignals,
 } from './format-email-rate';
 export { formatViewCount } from './format-view-count';
+export { formatListMetricCount, getListMetricLabel, type ListMetric } from './list-metrics';
 export { HOURS_DATA_FORMAT } from './hours-data-format';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
-	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
-	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
 } from './monthly-heatmap-metric';
 export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
+export { formatChartName, formatMapName } from './format-chart-name';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';

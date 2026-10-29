@@ -14,7 +14,6 @@ import type { TZDate } from '@date-fns/tz';
  * Normalize a bucket bound into the one shape a report carries: a naive wall time.
  *
  * A stated offset is resolved and dropped, where `resolveBucketStamp` ignores one.
- * Woo stamps the site's own offset, so no endpoint writes a bound this shifts today.
  *
  * @param raw  - The bound as the API wrote it.
  * @param zone - The report's reporting timezone.

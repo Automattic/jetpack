@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { CommentLikesSection } from '../sections/comment-likes-section';
-import { baseStatus, renderWithData, resetNotices, setScriptData } from './helpers';
+import { baseStatus, renderWithData, setScriptData } from './helpers';
 import type { SectionState } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -9,7 +9,6 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 	setScriptData();
 } );
 
@@ -48,7 +47,7 @@ describe( 'CommentLikesSection', () => {
 
 		expect(
 			screen.getByText(
-				'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in offline mode.'
+				'Comment Likes need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.'
 			)
 		).toBeInTheDocument();
 		expect(

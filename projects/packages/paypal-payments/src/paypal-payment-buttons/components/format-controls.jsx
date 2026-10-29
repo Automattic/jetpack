@@ -1,14 +1,14 @@
 /* eslint-disable react/jsx-no-bind */
 /**
- * PayPal Payment Buttons — the Styles tab.
+ * PayPal Payment Buttons — the style controls.
  *
- * The Styles tab — Embed as and the per-format output controls. The panel set
- * changes per format and, for QR, per the caption toggle, which block supports
+ * Embed as and the per-format output controls, under the link details. The panel
+ * set changes per format and, for QR, per the caption toggle, which block supports
  * cannot do: block.json declares them once and they cannot follow a checkbox.
  *
- * Modelled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx:
- * one `group="styles"` fill holding core's own controls. Color is core's color
- * dropdown, which carries its reset menu; the rest are collapsible panels.
+ * Modeled on projects/plugins/jetpack/extensions/blocks/donations/style-controls.jsx,
+ * minus its `group="styles"` fill. Color is core's color dropdown, with its reset
+ * menu. The rest are collapsible panels.
  *
  * @package
  */
@@ -16,7 +16,6 @@
 import {
 	ContrastChecker,
 	FontSizePicker,
-	InspectorControls,
 	__experimentalBorderRadiusControl as BorderRadiusControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalSpacingSizesControl as SpacingSizesControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -362,9 +361,8 @@ function TypographyPanel( { fontSizeKey, attributes, setAttributes } ) {
 /**
  * Styles — Fill or Outline, on the button only.
  *
- * Not a `registerBlockStyle` variation: core renders `BlockStyles` first in the
- * tab and as preview cards, and the design puts this below Color as two plain
- * buttons.
+ * Two plain buttons below Color, per the design. A `registerBlockStyle` variation
+ * would show as preview cards.
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.buttonStyle   - The chosen style.
@@ -454,10 +452,10 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
 }
 
 /**
- * The Styles tab.
+ * The style controls.
  *
- * The first `group="styles"` fill is what creates the editor's tab bar, so the
- * product form in the default group becomes the Settings tab at the same time.
+ * Rendered inside the caller's sidebar fill, under the link details. A
+ * `group="styles"` fill would draw the editor's tab bar.
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.format        - Display format: BUTTON, STACKED, LINK or QR.
@@ -466,7 +464,7 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
  * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK. Empty once PayPal has deleted the link.
  * @param {boolean}  props.disabled      - Whether the format switcher and the per-format output controls are locked.
  * @param {string}   props.environment   - 'production' or 'sandbox', for the PayPal settings link.
- * @return {Element} The Styles tab contents.
+ * @return {Element} The style controls.
  */
 export default function PayPalFormatControls( {
 	format,
@@ -479,7 +477,7 @@ export default function PayPalFormatControls( {
 	const isOutline = isOutlineButton( attributes );
 
 	return (
-		<InspectorControls group="styles">
+		<>
 			{ /* Embed as and the format's own controls sit in a plain section with
 			     a divider, not a collapsible panel. Only Color, Typography, Width
 			     and Border are panels. */ }
@@ -619,6 +617,6 @@ export default function PayPalFormatControls( {
 					<BorderPanel attributes={ attributes } setAttributes={ setAttributes } showMargin />
 				</>
 			) }
-		</InspectorControls>
+		</>
 	);
 }

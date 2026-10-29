@@ -9,13 +9,14 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
+require_once __DIR__ . '/../../src/purchase-success.php';
+require_once __DIR__ . '/../../src/dashboard-first-visit.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -26,26 +27,42 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_personal_plan_price
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_wpcom_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_personal_plan_price' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
 
@@ -65,6 +82,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	private $plan_requests = 0;
 
 	/**
+	 * Plan list requests sent to WordPress.com during the test.
+	 *
+	 * @var int
+	 */
+	private $plan_list_requests = 0;
+
+	/**
+	 * The timeout the last plan list request carried.
+	 *
+	 * @var int|null
+	 */
+	private $plan_list_timeout;
+
+	/**
 	 * Host detection memoizes into the status cache, which outlives the constants.
 	 */
 	public function set_up() {
@@ -79,6 +110,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			array( 'name' => 'jpa/devices' ),
 			array( 'name' => 'jpa/locations' ),
 			array( 'name' => 'jpa/referrers' ),
+			array( 'name' => 'jpa/post-all-time-traffic' ),
 			array( 'name' => 'jpa/open-to-all' ),
 		);
 		add_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
@@ -112,16 +144,22 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$GLOBALS['jpa_test_wpcom_purchases'] = array( array( 'product_slug' => 'business-bundle' ) );
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
+		remove_all_filters( 'locale' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
+		delete_transient( Notices::NOTICES_CACHE_KEY );
 		remove_all_filters( 'pre_http_request' );
-		unset( $_GET['jpa_purchased'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
+		unset( $_GET['statsPurchaseSuccess'], $_GET['page'], $GLOBALS['current_screen'] );
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
-		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
-		Stats_Options::set_option( 'enable_odyssey_stats', true );
+		delete_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT );
+		delete_transient( PERSONAL_PLAN_PRICE_TRANSIENT . get_current_user_id() );
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token', 'user_tokens' ) );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -235,8 +273,120 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'stats PWYW is not'        => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), STATS_TIER_JETPACK_FREE ),
 			'complete plan'            => array( $plan( 'jetpack_complete_monthly' ), array(), STATS_TIER_COMMERCIAL ),
 			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro plan'                 => array( $plan( 'jetpack_pro_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'pro bi-yearly plan'       => array( $plan( 'jetpack_pro_bi_yearly' ), array(), STATS_TIER_COMMERCIAL ),
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
+		);
+	}
+
+	/**
+	 * A site without paid Stats is offered a plan from 30 days after its first dashboard load.
+	 *
+	 * @dataProvider provide_free_site_upgrade_offers
+	 *
+	 * @param string   $tier     The Stats plan tier.
+	 * @param int|null $days_ago Days since the first dashboard load, or null for none yet.
+	 * @param bool     $expected Whether the plan is offered.
+	 */
+	#[DataProvider( 'provide_free_site_upgrade_offers' )]
+	public function test_free_site_upgrade_follows_tier_and_first_visit( $tier, $days_ago, $expected ) {
+		if ( null !== $days_ago ) {
+			update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - $days_ago * DAY_IN_SECONDS );
+		}
+
+		$this->assertSame( $expected, offers_free_site_upgrade( $tier ) );
+	}
+
+	/**
+	 * Tiers and first-visit ages, and whether each is offered a plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_free_site_upgrade_offers() {
+		return array(
+			'Jetpack free on day 30' => array( STATS_TIER_JETPACK_FREE, 30, true ),
+			'Jetpack free on day 29' => array( STATS_TIER_JETPACK_FREE, 29, false ),
+			'no dashboard load yet'  => array( STATS_TIER_JETPACK_FREE, null, false ),
+			'WordPress.com free'     => array( STATS_TIER_FREE, 31, false ),
+			'legacy free'            => array( STATS_TIER_LEGACY_FREE, 31, true ),
+			'legacy basic'           => array( STATS_TIER_LEGACY_BASIC, 31, true ),
+			'paid'                   => array( STATS_TIER_PAID, 31, false ),
+			'commercial'             => array( STATS_TIER_COMMERCIAL, 31, false ),
+			'plan not synced'        => array( STATS_TIER_UNKNOWN, 31, false ),
+		);
+	}
+
+	/**
+	 * Stats counts PWYW as paid and stops its upgrade prompts, while the free Stats product still gets the offer.
+	 *
+	 * @dataProvider provide_free_site_upgrade_products
+	 *
+	 * @param string $slug     The site's Stats product.
+	 * @param bool   $expected Whether the plan is offered.
+	 */
+	#[DataProvider( 'provide_free_site_upgrade_products' )]
+	public function test_free_site_upgrade_follows_stats_product( $slug, $expected ) {
+		update_option( 'jetpack_active_plan', self::FREE_PLAN );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => $slug ) ) );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+
+		$this->assertSame( $expected, offers_free_site_upgrade( STATS_TIER_JETPACK_FREE ) );
+	}
+
+	/**
+	 * Stats products and whether each is offered a plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_free_site_upgrade_products() {
+		return array(
+			'PWYW Stats' => array( 'jetpack_stats_pwyw_yearly', false ),
+			'free Stats' => array( 'jetpack_stats_free_yearly', true ),
+		);
+	}
+
+	/**
+	 * Simple keeps the upgrade rules of its own, so the dashboard does not offer it.
+	 */
+	public function test_free_site_upgrade_is_not_offered_on_simple() {
+		$this->set_wpcom_platform( 'simple' );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+
+		$this->assertFalse( offers_free_site_upgrade( STATS_TIER_LEGACY_FREE ) );
+	}
+
+	/**
+	 * The free and PWYW Stats products count as a Stats product; other Jetpack products do not.
+	 *
+	 * @dataProvider provide_stats_products
+	 *
+	 * @param mixed $plan     The `jetpack_active_plan` option.
+	 * @param mixed $products The `jetpack_site_products` option.
+	 * @param bool  $expected Whether the site has a Stats product.
+	 */
+	#[DataProvider( 'provide_stats_products' )]
+	public function test_stats_product_follows_purchases( $plan, $products, $expected ) {
+		update_option( 'jetpack_active_plan', $plan );
+		update_option( 'jetpack_site_products', $products );
+
+		$this->assertSame( $expected, has_jetpack_stats_product() );
+	}
+
+	/**
+	 * Purchase states and whether each holds a Stats product.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_products() {
+		$products = static fn( $slug ) => array( array( 'product_slug' => $slug ) );
+
+		return array(
+			'no products'          => array( self::FREE_PLAN, array(), false ),
+			'malformed products'   => array( self::FREE_PLAN, 'garbage', false ),
+			'free Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_free_yearly' ), true ),
+			'PWYW Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), true ),
+			'another product only' => array( self::FREE_PLAN, $products( 'jetpack_backup_t1_yearly' ), false ),
 		);
 	}
 
@@ -290,6 +440,21 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The author and video detail pages apply no date limits, so every tier that limits dates must lock them.
+	 */
+	public function test_a_date_limited_tier_locks_the_author_and_video_reports() {
+		$date_limited = array_filter(
+			STATS_TIERS,
+			static fn( $tier ) => (bool) array_intersect( array( 'recent-7-days', 'long-date-presets' ), get_locked_stats_features( $tier ) )
+		);
+		$this->assertNotEmpty( $date_limited );
+
+		foreach ( $date_limited as $tier ) {
+			$this->assertEmpty( array_diff( array( 'authors', 'videos' ), get_locked_stats_features( $tier ) ), $tier );
+		}
+	}
+
+	/**
 	 * A widget type locks when its registered plan feature does, whichever plugin registered it.
 	 *
 	 * @dataProvider provide_locked_widget_types
@@ -335,10 +500,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'free locks the whole widget'      => array(
 				STATS_TIER_FREE,
 				array(
-					'jpa/devices'       => 'devices',
-					'jpa/locations'     => 'countries',
-					'jpa/referrers'     => 'referrers',
-					'plugin/top-videos' => 'videos',
+					'jpa/devices'               => 'devices',
+					'jpa/locations'             => 'countries',
+					'jpa/post-all-time-traffic' => 'recent-7-days',
+					'jpa/referrers'             => 'referrers',
+					'plugin/top-videos'         => 'videos',
 				),
 			),
 		);
@@ -348,16 +514,26 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 * A renamed widget or a misspelled feature would silently unlock a paid widget.
 	 */
 	public function test_package_plan_features_name_real_widgets_and_lockable_features() {
-		$names = array();
-		foreach ( glob( dirname( __DIR__, 2 ) . '/widgets/*/widget.json' ) as $file ) {
-			$names[] = wp_json_file_decode( $file )->name;
-		}
+		$names    = $this->package_widget_names();
 		$lockable = get_locked_stats_features( STATS_TIER_FREE );
 
 		foreach ( WIDGET_TYPE_PLAN_FEATURES as $name => $feature ) {
 			$this->assertContains( $name, $names );
 			$this->assertContains( $feature, $lockable, $name );
 		}
+	}
+
+	/**
+	 * The names of the widgets this package ships.
+	 *
+	 * @return string[]
+	 */
+	private function package_widget_names() {
+		$names = array();
+		foreach ( glob( dirname( __DIR__, 2 ) . '/widgets/*/widget.json' ) as $file ) {
+			$names[] = wp_json_file_decode( $file )->name;
+		}
+		return $names;
 	}
 
 	/**
@@ -371,30 +547,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertStringContainsString( '/personal?', get_stats_upgrade_url( 'referrers', STATS_TIER_FREE ) );
 	}
 
-	public function test_jetpack_upgrade_url_returns_with_the_purchase_flag() {
-		$GLOBALS['_parent_pages']['stats'] = false;
-		\Jetpack_Options::update_option( 'id', 1234 );
-		$url = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
-
-		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
-		$this->assertStringContainsString( 'productType=commercial', $url );
-		$this->assertStringContainsString( rawurlencode( 'jpa_purchased=1' ), $url );
-	}
-
-	public function test_jetpack_upgrade_url_is_empty_with_odyssey_stats_off() {
-		$GLOBALS['_parent_pages']['stats'] = false;
-		Stats_Options::set_option( 'enable_odyssey_stats', false );
-
-		$this->assertSame( '', get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE ) );
-	}
-
-	/**
-	 * Without the classic Stats page the feature stays locked, with nowhere to send the reader.
-	 */
-	public function test_jetpack_upgrade_url_is_empty_without_the_stats_page() {
+	public function test_jetpack_upgrade_url_opens_the_dashboard_upgrade_page() {
 		update_option( 'jetpack_active_plan', self::FREE_PLAN );
 
-		$this->assertSame( '', get_stats_plan_gates()['locked_features']['utm']['upgrade_url'] );
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-premium-analytics-wp-admin&p=' . rawurlencode( '/upgrade?source=jetpack-premium-analytics-locked-feature' ) ),
+			get_stats_plan_gates()['locked_features']['utm']['upgrade_url']
+		);
 	}
 
 	/**
@@ -426,6 +585,224 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
 			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
 			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
+			'intervals'    => array( 'intervals', 'Group your charts by week, month or year.', '' ),
+		);
+	}
+
+	/**
+	 * The gates link the user's language to a WordPress.com page.
+	 */
+	public function test_locked_features_link_wpcom_support_in_the_user_language() {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+		add_filter( 'locale', static fn() => 'zh_TW' );
+
+		$this->assertSame(
+			'https://wordpress.com/zh-tw/support/stats/analyze-content-performance/#track-file-downloads',
+			get_stats_plan_gates()['locked_features']['file-downloads']['support_url']
+		);
+	}
+
+	/**
+	 * Only a free site loses whole sections.
+	 *
+	 * @dataProvider provide_locked_sections
+	 *
+	 * @param string   $tier     Tier.
+	 * @param string[] $expected Locked sections.
+	 */
+	#[DataProvider( 'provide_locked_sections' )]
+	public function test_each_tier_locks_classic_stats_sections( $tier, $expected ) {
+		$this->assertSame( $expected, get_locked_stats_sections( $tier ) );
+	}
+
+	/**
+	 * Tiers and their locked sections.
+	 *
+	 * @return array
+	 */
+	public static function provide_locked_sections() {
+		return array(
+			'free'         => array( STATS_TIER_FREE, array( 'traffic', 'insights' ) ),
+			'paid'         => array( STATS_TIER_PAID, array() ),
+			'commercial'   => array( STATS_TIER_COMMERCIAL, array() ),
+			'legacy free'  => array( STATS_TIER_LEGACY_FREE, array() ),
+			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array() ),
+			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array() ),
+			'unknown'      => array( STATS_TIER_UNKNOWN, array() ),
+		);
+	}
+
+	/**
+	 * Each locked section carries classic Stats' upsell copy and the Personal checkout.
+	 */
+	public function test_locked_sections_carry_v1_copy() {
+		$this->set_wpcom_platform( 'simple' );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+		$sections = get_stats_plan_gates()['locked_sections'];
+
+		$this->assertSame( array( 'traffic', 'insights' ), array_keys( $sections ) );
+		$this->assertSame( 'Unlock site growth analytics', $sections['traffic']['title'] );
+		$this->assertSame( 'Unlock site insights', $sections['insights']['title'] );
+		$this->assertSame( 'View trends and data from any time period', $sections['traffic']['features'][0] );
+		$this->assertSame( 'Monitor your posting activity', $sections['insights']['features'][0] );
+		$this->assertSame( array( 'jpa/traffic-chart' ), $sections['traffic']['open_widget_types'] );
+		$this->assertSame( array(), $sections['insights']['open_widget_types'] );
+		// A renamed widget would otherwise hide the chart on every free site.
+		$this->assertContains( 'jpa/traffic-chart', $this->package_widget_names() );
+
+		foreach ( $sections as $section ) {
+			$this->assertCount( 11, $section['features'] );
+			$this->assertSame( 'Get detailed insights into your site’s performance with a Personal plan.', $section['description'] );
+			$this->assertSame( 'Get detailed insights into your site’s performance for <strong>%s/month</strong> with a Personal plan.', $section['description_with_price'] );
+			$this->assertSame( 'Upgrade to Personal', $section['upgrade_label'] );
+			$this->assertSame( 'Show all Personal features', $section['expand_label'] );
+			$this->assertSame( 'https://wordpress.com/support/stats/', $section['support_url'] );
+			$this->assertStringContainsString( '/personal?redirect_to=', $section['upgrade_url'] );
+		}
+	}
+
+	/**
+	 * Connect a user and answer WordPress.com's plan list with the given Personal plan.
+	 *
+	 * @param array|null|\WP_Error $personal The Personal plan's fields, null to leave it out, or a failed request.
+	 */
+	private function answer_plan_list_with( $personal ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'plan_price_admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "user_token.secret.$user_id" ) );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $personal ) {
+				if ( false === strpos( $url, '/rest/v1.5/plans' ) ) {
+					return $preempt;
+				}
+				++$this->plan_list_requests;
+				$this->plan_list_timeout = $args['timeout'];
+				if ( is_wp_error( $personal ) ) {
+					return $personal;
+				}
+				$plans = array( array( 'product_slug' => 'free_plan' ) );
+				if ( null !== $personal ) {
+					$plans[] = array( 'product_slug' => 'personal-bundle' ) + $personal;
+				}
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( $plans, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * A locked section carries the Personal plan's yearly price, or null when WordPress.com gives none, and a reload reuses either answer.
+	 *
+	 * @dataProvider provide_personal_plan_prices
+	 *
+	 * @param array|null|\WP_Error $personal The Personal plan's fields.
+	 * @param array|null           $expected The section's price.
+	 */
+	#[DataProvider( 'provide_personal_plan_prices' )]
+	public function test_locked_sections_carry_the_personal_plan_price( $personal, $expected ) {
+		$this->answer_plan_list_with( $personal );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+
+		for ( $load = 1; $load <= 2; $load++ ) {
+			foreach ( get_stats_plan_gates()['locked_sections'] as $section ) {
+				$this->assertSame( $expected, $section['plan_price'], "Load $load" );
+			}
+		}
+		$this->assertSame( 1, $this->plan_list_requests );
+		$this->assertSame( 5, $this->plan_list_timeout );
+	}
+
+	/**
+	 * Plan list answers and the price a section carries.
+	 *
+	 * @return array
+	 */
+	public static function provide_personal_plan_prices() {
+		return array(
+			'priced'        => array(
+				array(
+					'raw_price_integer' => 156000,
+					'currency_code'     => 'TWD',
+				),
+				array(
+					'yearly'   => 156000,
+					'currency' => 'TWD',
+				),
+			),
+			'missing plan'  => array( null, null ),
+			'no currency'   => array( array( 'raw_price_integer' => 4800 ), null ),
+			'zero price'    => array(
+				array(
+					'raw_price_integer' => 0,
+					'currency_code'     => 'USD',
+				),
+				null,
+			),
+			'request fails' => array( new \WP_Error( 'http_request_failed', 'Operation timed out' ), null ),
+		);
+	}
+
+	/**
+	 * A tier without locked sections never asks WordPress.com for the price.
+	 */
+	public function test_a_tier_without_locked_sections_never_asks_for_the_price() {
+		$this->answer_plan_list_with(
+			array(
+				'raw_price_integer' => 4800,
+				'currency_code'     => 'USD',
+			)
+		);
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_PAID );
+		get_stats_plan_gates();
+		$this->assertSame( 0, $this->plan_list_requests );
+	}
+
+	/**
+	 * Only a WordPress.com support URL moves, and only to a language its support site has.
+	 *
+	 * @dataProvider provide_support_url_localization
+	 *
+	 * @param string $locale   The user's locale.
+	 * @param string $url      English support URL.
+	 * @param string $expected Linked URL.
+	 */
+	#[DataProvider( 'provide_support_url_localization' )]
+	public function test_support_url_follows_the_user_locale( $locale, $url, $expected ) {
+		add_filter( 'locale', static fn() => $locale );
+
+		$this->assertSame( $expected, localize_stats_support_url( $url ) );
+	}
+
+	/**
+	 * Locales and URLs, localized or left in English.
+	 *
+	 * @return array
+	 */
+	public static function provide_support_url_localization() {
+		$wpcom   = 'https://wordpress.com/support/stats/analyze-content-performance/#track-file-downloads';
+		$jetpack = 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#devices-stats';
+
+		return array(
+			'region kept'          => array( 'pt_BR', $wpcom, 'https://wordpress.com/pt-br/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'region dropped'       => array( 'de_DE_formal', $wpcom, 'https://wordpress.com/de/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'no stats translation' => array( 'hi_IN', $wpcom, $wpcom ),
+			'english'              => array( 'en_US', $wpcom, $wpcom ),
+			'jetpack.com'          => array( 'zh_TW', $jetpack, $jetpack ),
 		);
 	}
 
@@ -442,6 +819,27 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_sections'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertNull( $data['premium_analytics']['plan_gates']['free_site_upgrade'] );
+	}
+
+	/**
+	 * The offer carries the upgrade page URL, credited to the banner, and whether the site has a Stats product for its title.
+	 */
+	public function test_script_data_offers_the_free_site_upgrade_with_its_upgrade_url() {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+
+		$data = inject_stats_plan_gates_script_data( array() );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-premium-analytics-wp-admin&p=' . rawurlencode( '/upgrade?source=jetpack-premium-analytics-free-site-upgrade-notice' ) ),
+			$data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url']
+		);
+		$this->assertTrue( $data['premium_analytics']['plan_gates']['free_site_upgrade']['has_stats_product'] );
 	}
 
 	/**
@@ -516,6 +914,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
 	}
 
+	public function test_unconnected_visit_does_not_throttle_the_refresh_after_connecting() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( STATS_TIER_JETPACK_FREE, get_stats_plan_tier() );
+	}
+
 	public function test_refreshed_plan_feeds_the_tier() {
 		$this->open_dashboard_with_counted_plan_fetches();
 
@@ -534,7 +946,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		maybe_refresh_jetpack_plan();
 		$this->assertSame( 1, $this->plan_requests, 'A cached plan is left alone.' );
 
-		$_GET['jpa_purchased'] = '1';
+		$_GET['statsPurchaseSuccess'] = 'paid';
 		maybe_refresh_jetpack_plan();
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the throttle under test.
 		maybe_refresh_jetpack_plan();
@@ -554,9 +966,62 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->plan_requests );
 	}
 
-	public function test_configure_hooks_the_refresh() {
+	public function test_purchase_return_drops_the_cached_stats_replies() {
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+
+		maybe_invalidate_stats_caches();
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ), 'A plain dashboard load keeps the caches.' );
+		$this->assertFalse( get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+
+		$_GET['statsPurchaseSuccess'] = 'free';
+		maybe_invalidate_stats_caches();
+		$this->assertFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+		maybe_invalidate_stats_caches();
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ), 'A second return within the window keeps the caches.' );
+		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+	}
+
+	/**
+	 * @dataProvider provide_purchase_returns_that_keep_the_caches
+	 *
+	 * @param string      $page     The admin page loaded.
+	 * @param string|null $platform `simple`, or null for a self-hosted site.
+	 */
+	#[DataProvider( 'provide_purchase_returns_that_keep_the_caches' )]
+	public function test_purchase_return_keeps_the_caches_off_the_dashboard_or_on_simple( $page, $platform ) {
+		$_GET['page']                 = $page;
+		$_GET['statsPurchaseSuccess'] = 'paid';
+		set_current_screen( 'toplevel_page_' . $page );
+		if ( $platform ) {
+			$this->set_wpcom_platform( $platform );
+		}
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+
+		maybe_invalidate_stats_caches();
+
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertFalse( get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_purchase_returns_that_keep_the_caches() {
+		return array(
+			'off the dashboard' => array( 'jetpack', null ),
+			'on Simple'         => array( Analytics::MENU_PAGE_SLUG, 'simple' ),
+		);
+	}
+
+	public function test_configure_hooks_the_purchase_return() {
 		configure_stats_plan_gates();
 
 		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' ) );
+		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' ) );
 	}
 }

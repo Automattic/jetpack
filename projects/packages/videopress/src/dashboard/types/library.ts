@@ -47,6 +47,7 @@ export interface LibraryItem {
 	// browsers can't decode. Undefined until the transcode ladder is ready.
 	playbackUrl?: string;
 	isProcessing: boolean;
+	conversionFailed?: boolean;
 	orientation: VideoOrientation;
 	tracks: VideoTextTrack[];
 }

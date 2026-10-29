@@ -23,7 +23,6 @@
 		}
 	],
 	"extra": {
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/number-formatters",
 		"textdomain": "number-formatters",

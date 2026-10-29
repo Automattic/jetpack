@@ -16,6 +16,7 @@ export {
 	OnboardingWelcomeModal,
 	type OnboardingDismissReason,
 	type OnboardingWelcomeModalProps,
+	type OnboardingWelcomeVariant,
 } from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
 export { tagRowGlyph } from './utils/tag-row-glyph';
@@ -35,5 +36,6 @@ export {
 export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
+export { StatsTierSlider } from './stats-tier-slider';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
 export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

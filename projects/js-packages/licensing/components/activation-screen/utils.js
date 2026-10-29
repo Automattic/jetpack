@@ -43,6 +43,7 @@ const PRODUCT_GROUPS = {
 	jetpack_anti_spam: JETPACK_ANTI_SPAM_PRODUCT_IDS,
 	jetpack_backup: JETPACK_BACKUP_PRODUCT_IDS,
 	jetpack_complete: JETPACK_COMPLETE_PRODUCT_IDS,
+	jetpack_pro: [ 2024, 2025, 2026 ],
 	jetpack_scan: JETPACK_SCAN_PRODUCT_IDS,
 	jetpack_search: JETPACK_SEARCH_PRODUCT_IDS,
 	jetpack_security: JETPACK_SECURITY_PRODUCT_IDS,

@@ -11,6 +11,16 @@ inputs:
 runs:
   using: composite
   steps:
+    # The runner image's default Azure Ubuntu mirrors are often much slower than the default ones.
+    # See, for example: https://github.com/actions/runner-images/issues/14823
+    - name: Use upstream Ubuntu mirrors
+      shell: bash
+      run: |
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt
+          cat /etc/apt/apt-mirrors.txt
+        fi
+
     - name: "Read tool versions"
       id: versions
       shell: bash
@@ -54,7 +64,7 @@ runs:
 
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1

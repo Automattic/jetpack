@@ -35,30 +35,40 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 	/**
 	 * Every class reprint-server is expected to publish.
 	 *
-	 * The Site_Export_* names stay global because they are the package's
-	 * consumer-facing API. PDO, PDOStatement and PDOException are deliberately
-	 * absent: see test_no_pdo_polyfill_classes().
+	 * Site_Export_HMAC_Client is the only global name: the client package uses it. PDO,
+	 * PDOStatement and PDOException are deliberately absent: see test_no_pdo_polyfill_classes().
 	 *
 	 * @var string[]
 	 */
 	const EXPECTED_CLASSES = array(
 		'Site_Export_HMAC_Client',
-		'Site_Export_HMAC_Server',
-		'Site_Export_HTTP_Server',
-		'Site_Export_Multipart_Processor',
-		'Site_Export_Push_Configuration_Exception',
-		'Site_Export_Push_Endpoints',
-		'Site_Export_Push_Exception',
-		'Site_Export_Push_Session',
+		'WordPress\\Reprint\\Server\\DatabasePush',
+		'WordPress\\Reprint\\Server\\DatabasePushEndpoints',
 		'WordPress\\Reprint\\Server\\DatabaseRowsReader',
+		'WordPress\\Reprint\\Server\\EnvelopeSigner',
 		'WordPress\\Reprint\\Server\\FileIndexProcessor',
 		'WordPress\\Reprint\\Server\\FileTreeProducer',
 		'WordPress\\Reprint\\Server\\GzipOutputStream',
+		'WordPress\\Reprint\\Server\\HMACServer',
+		'WordPress\\Reprint\\Server\\HTTPServer',
+		'WordPress\\Reprint\\Server\\MultipartProcessor',
+		'WordPress\\Reprint\\Server\\MultisiteDatabaseSelection',
+		'WordPress\\Reprint\\Server\\MultisiteFileSelection',
 		'WordPress\\Reprint\\Server\\MySQLDumpProducer',
+		'WordPress\\Reprint\\Server\\MysqliDriverPDO',
+		'WordPress\\Reprint\\Server\\MysqliDriverPDOStatement',
 		'WordPress\\Reprint\\Server\\PdoConstants',
+		'WordPress\\Reprint\\Server\\PublicKeyClient',
+		'WordPress\\Reprint\\Server\\PublicKeyServer',
+		'WordPress\\Reprint\\Server\\PushConfigurationException',
+		'WordPress\\Reprint\\Server\\PushEndpoints',
+		'WordPress\\Reprint\\Server\\PushException',
+		'WordPress\\Reprint\\Server\\PushSession',
+		'WordPress\\Reprint\\Server\\RequestAuthenticator',
 		'WordPress\\Reprint\\Server\\ResourceBudget',
 		'WordPress\\Reprint\\Server\\SqliteDriverPDO',
 		'WordPress\\Reprint\\Server\\SqliteDriverPDOStatement',
+		'WordPress\\Reprint\\Server\\Utils',
 		'WordPress\\Reprint\\Server\\WpdbDriverPDO',
 		'WordPress\\Reprint\\Server\\WpdbDriverPDOStatement',
 	);
@@ -195,6 +205,21 @@ class Reprint_Autoload_Manifest_Test extends WP_UnitTestCase {
 				if ( false !== strpos( $path, self::PACKAGE_DIR ) ) {
 					$found[] = $namespace;
 				}
+			}
+		}
+
+		$this->assertSame( array(), $found );
+	}
+
+	/**
+	 * The package registers no files-autoload entry, so its compat.php alias autoloader never runs site-wide.
+	 */
+	public function test_filemap_gains_no_reprint_entry() {
+		$found = array();
+
+		foreach ( $this->manifest( 'jetpack_autoload_filemap.php', false ) as $data ) {
+			if ( false !== strpos( $data['path'], self::PACKAGE_DIR ) ) {
+				$found[] = $data['path'];
 			}
 		}
 

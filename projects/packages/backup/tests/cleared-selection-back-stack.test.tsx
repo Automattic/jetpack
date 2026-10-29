@@ -24,7 +24,6 @@ import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const PER_PAGE = 10;
@@ -146,10 +145,14 @@ function renderApp() {
  * The back link carries no search, which is what leaves the selection with no address —
  * see `screens/download.tsx`'s `<Link to="/">`.
  *
- * @param view - The app's router (a `renderApp` result), to read the address back off.
+ * @param view   - The app's router (a `renderApp` result), to read the address back off.
+ * @param expire - Remove the chosen backup while away.
  * @return The chosen row's rewind id.
  */
-async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Promise< string > {
+async function roundTripViaDownload(
+	view: ReturnType< typeof renderApp >,
+	expire = false
+): Promise< string > {
 	const chosen = rewindId( PER_PAGE - 1 );
 	await userEvent.click( await screen.findByRole( 'button', { name: named( chosen ) } ) );
 	await waitFor( () => expect( view.state.location.search ).toEqual( { selected: chosen } ) );
@@ -160,6 +163,9 @@ async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Pro
 	// One new row lands while they are away — a completed restore writes one, and so does a
 	// finished backup via `useRefreshActivityOnBackupComplete` — pushing their row onto page 2.
 	log.unshift( rewindId( -1 ) );
+	if ( expire ) {
+		log = log.filter( id => id !== chosen );
+	}
 
 	await userEvent.click( back );
 	return chosen;
@@ -168,7 +174,6 @@ async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Pro
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	log = Array.from( { length: PER_PAGE }, ( _, index ) => rewindId( index ) );
 	mockApiFetch.mockReset();
@@ -202,10 +207,9 @@ describe( 'Coming back from Download with a row chosen', () => {
 
 	it( 'lets Back undo clearing a selection that came from memory', async () => {
 		const view = renderApp();
-		const chosen = await roundTripViaDownload( view );
+		const chosen = await roundTripViaDownload( view, true );
 
-		// The row is on page 2 now and the list is still on page 1, so the pane
-		// cannot resolve it and hedges instead of claiming it is gone.
+		// The backup disappeared while away, so the lookup cannot resolve the remembered selection.
 		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument()
@@ -215,9 +219,7 @@ describe( 'Coming back from Download with a row chosen', () => {
 			view.history.back();
 		} );
 
-		// The copy admits the row may still be fine, so the discard has to be
-		// undoable — landing back on the Overview with the selection restored,
-		// not on the Download screen the return trip came from.
+		// Clearing remains undoable: Back restores the selection instead of opening Download.
 		await expect( screen.findByRole( 'button', { name: CLEAR } ) ).resolves.toBeInTheDocument();
 		expect( view.state.location.search ).toEqual( { selected: chosen } );
 	} );

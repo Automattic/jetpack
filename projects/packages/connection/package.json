@@ -18,8 +18,8 @@
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate && pnpm run validate-connectors-card",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
-		"test": "node --test 'tests/js/**/*.test.js'",
-		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" pnpm run test",
+		"test": "node --test 'tests/js/**/*.test.js' && jest",
+		"test-coverage": "c8 --report-dir=\"$COVERAGE_DIR\" --temp-directory=\"$ARTIFACTS_DIR/v8\" node --test 'tests/js/**/*.test.js' && COVERAGE_DIR=\"$COVERAGE_DIR/jest\" jest --coverage",
 		"validate": "pnpm exec validate-es dist/",
 		"validate-connectors-card": "node bin/validate-connectors-card.js",
 		"watch": "pnpm run build && pnpm webpack watch"
@@ -30,23 +30,26 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
+		"@wordpress/components": "42.0.0",
 		"@wordpress/data": "10.57.0",
-		"@wordpress/element": "9.0.0"
+		"@wordpress/element": "9.0.0",
+		"@wordpress/i18n": "6.30.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/browserslist-config": "6.57.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
 		"c8": "^11.0.0",
 		"glob": "13.0.6",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"jest": "30.5.2",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	}
 }

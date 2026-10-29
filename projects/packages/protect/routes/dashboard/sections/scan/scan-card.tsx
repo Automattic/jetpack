@@ -1,15 +1,15 @@
-import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
+import LastScanned from './last-scanned';
 import SafeState from './safe-state';
-import ScanButton from './scan-button';
+import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
+import { checkScanAgain, useIsScanning, useScan, useScanRequest } from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -17,53 +17,12 @@ import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
 import './style.scss';
 
-// Like the Protect plugin: quick checks first, then back off.
-const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
-
 // Open Scan history on a given list, not whichever was open last.
 const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
-// About ten minutes of polling before asking the user to check again.
-const MAX_POLLS = 40;
-
-// How long a requested scan may stay unreported before we stop assuming it is starting.
-const REQUESTED_SCAN_TTL = 5 * 60 * 1000;
-
 /**
- * Whether a scan was requested but WordPress.com doesn't report it yet, as the Protect plugin checks.
- *
- * @param scan        - The latest report.
- * @param requestedAt - When this page requested a scan, if it did.
- * @return True while the request is recent and no newer report exists.
- */
-function isRequestedScanNotStarted( scan: ScanState, requestedAt: number | null ): boolean {
-	if ( ! requestedAt || Date.now() - requestedAt > REQUESTED_SCAN_TTL ) {
-		return false;
-	}
-	const lastChecked = scan.lastChecked
-		? new Date( scan.lastChecked.replace( ' ', 'T' ) + 'Z' ).getTime()
-		: 0;
-	return ! ( lastChecked > requestedAt );
-}
-
-/**
- * Whether the page is in a background tab, kept up to date.
- *
- * @return True while the document is hidden.
- */
-function useIsDocumentHidden(): boolean {
-	const [ isHidden, setIsHidden ] = useState( () => document.hidden );
-	useEffect( () => {
-		const onChange = () => setIsHidden( document.hidden );
-		document.addEventListener( 'visibilitychange', onChange );
-		return () => document.removeEventListener( 'visibilitychange', onChange );
-	}, [] );
-	return isHidden;
-}
-
-/**
- * The Scan card: start a scan, then review what it found or see that the site is safe.
+ * The Scan results card: what the latest scan found, or that it found nothing; scans start from the page header.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -72,18 +31,30 @@ function useIsDocumentHidden(): boolean {
 export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab' > ) {
 	// The section only renders this card once PHP has printed the Scan state.
 	const scan = useScan() as ScanState;
-	const [ isStarting, setIsStarting ] = useState( false );
+	const { isStarting, startError, hasStoppedPolling } = useScanRequest();
 	const [ isFetching, setIsFetching ] = useState( false );
-	const [ startError, setStartError ] = useState< string | null >( null );
-	const [ requestedAt, setRequestedAt ] = useState< number | null >( null );
-	const [ polls, setPolls ] = useState( 0 );
-	const isHidden = useIsDocumentHidden();
 	const threats = scan.threats ?? [];
 	const hasThreats = threats.length > 0;
 	const ignored = scan.ignored;
 	const { hasPlan } = scan;
-	const isScanning =
-		! scan.error && ( !! scan.scanning || isRequestedScanNotStarted( scan, requestedAt ) );
+	const isScanning = useIsScanning();
+
+	// Scans finished while the page is open: picks the safe state's animation and replays it.
+	const [ finishedScans, setFinishedScans ] = useState( 0 );
+	const wasScanning = useRef( isScanning );
+	const wasStarting = useRef( isStarting );
+	useEffect( () => {
+		// The free check never reports as scanning; its answer is in once the request settles.
+		const freeCheckDone = ! hasPlan && wasStarting.current && ! isStarting && ! startError;
+		if (
+			( wasScanning.current && ! isScanning && ! scan.error && ! startError ) ||
+			freeCheckDone
+		) {
+			setFinishedScans( count => count + 1 );
+		}
+		wasScanning.current = isScanning;
+		wasStarting.current = isStarting;
+	}, [ isScanning, isStarting, startError, scan.error, hasPlan ] );
 
 	// Ignored threats come from Scan history, which only a Scan plan has.
 	useEffect( () => {
@@ -92,72 +63,29 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		}
 	}, [ hasPlan ] );
 
-	const fetchScan = useCallback(
-		() =>
-			apiFetch< ScanState >( { path: SCAN_PATH } )
-				.then( mergeScan )
-				.catch( () => setScan( current => ( { ...current, error: true, scanning: false } ) ) ),
-		[]
-	);
-
 	const refresh = useCallback( () => {
 		setIsFetching( true );
-		setPolls( 0 );
-		fetchScan().finally( () => setIsFetching( false ) );
-	}, [ fetchScan ] );
+		checkScanAgain().finally( () => setIsFetching( false ) );
+	}, [] );
 
-	const startScan = useCallback( () => {
-		setIsStarting( true );
-		setStartError( null );
-		// With Scan, show the scan as started right away; the free check only re-reads its report.
-		setRequestedAt( hasPlan ? Date.now() : null );
-		apiFetch< ScanState >( { path: SCAN_PATH, method: 'POST' } )
-			.then( next => {
-				setPolls( 0 );
-				mergeScan( next );
-			} )
-			.catch( ( e: { message?: string } ) => {
-				setRequestedAt( null );
-				setStartError( e?.message || __( 'The scan couldn’t be started.', 'jetpack-protect-pkg' ) );
-			} )
-			.finally( () => setIsStarting( false ) );
-	}, [ hasPlan ] );
-
-	// Poll while a scan runs, pausing in background tabs and after MAX_POLLS.
-	useEffect( () => {
-		if ( ! isScanning || isHidden || polls >= MAX_POLLS ) {
-			return;
-		}
-		const timer = setTimeout(
-			() => fetchScan().finally( () => setPolls( count => count + 1 ) ),
-			pollInterval( polls )
-		);
-		return () => clearTimeout( timer );
-	}, [ isScanning, isHidden, polls, fetchScan ] );
-
-	// The running scan gets the whole card, without the header and footer.
-	if ( isScanning ) {
-		return (
-			<Card.Root
-				render={ <section /> }
-				className="jp-protect-card"
-				aria-label={ __( 'Scan', 'jetpack-protect-pkg' ) }
-			>
-				<Card.Content>
-					<ScanningState
-						scan={ scan }
-						onCheckAgain={ polls >= MAX_POLLS ? refresh : undefined }
-						isChecking={ isFetching }
-					/>
-				</Card.Content>
-			</Card.Root>
-		);
-	}
+	const safeState = (
+		<SafeState key={ finishedScans } scan={ scan } justScanned={ finishedScans > 0 } />
+	);
 
 	let body;
-	if ( scan.error ) {
+	if ( isScanning ) {
 		body = (
-			<CardRow>
+			<CardRow className="jp-protect-scan__state">
+				<ScanningState
+					scan={ scan }
+					onCheckAgain={ hasStoppedPolling ? refresh : undefined }
+					isChecking={ isFetching }
+				/>
+			</CardRow>
+		);
+	} else if ( scan.error ) {
+		body = (
+			<CardRow className="jp-protect-scan__state">
 				<Stack direction="column" gap="sm" align="start">
 					<Text variant="body-md">
 						{ __(
@@ -172,37 +100,27 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {
-		body = (
-			<CardRow>
-				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
-			</CardRow>
-		);
+		body = <CardRow className="jp-protect-scan__state">{ safeState }</CardRow>;
 	} else {
 		body = (
 			<>
-				{ hasThreats && (
-					<CardRow className="jp-protect-card__stats">
-						<Stat
-							label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
-							value={ threats.length }
-							warning
-						/>
-						<Stat
-							label={ __( 'Plugins checked', 'jetpack-protect-pkg' ) }
-							value={ scan.pluginsChecked ?? 0 }
-						/>
-						<Stat
-							label={ __( 'Themes checked', 'jetpack-protect-pkg' ) }
-							value={ scan.themesChecked ?? 0 }
-						/>
-					</CardRow>
-				) }
-				<CardRow className="jp-protect-card__threats">
-					<ThreatsList
-						threats={ threats }
-						canAct={ hasPlan }
-						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
+				<CardRow className="jp-protect-card__cells jp-protect-card__stats">
+					<Stat
+						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
+						value={ threats.length }
+						warning
 					/>
+					<Stat
+						label={ __( 'Plugins checked', 'jetpack-protect-pkg' ) }
+						value={ scan.pluginsChecked ?? 0 }
+					/>
+					<Stat
+						label={ __( 'Themes checked', 'jetpack-protect-pkg' ) }
+						value={ scan.themesChecked ?? 0 }
+					/>
+				</CardRow>
+				<CardRow className="jp-protect-card__threats">
+					<ThreatsList threats={ threats } canAct={ hasPlan } />
 				</CardRow>
 			</>
 		);
@@ -211,9 +129,9 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	return (
 		<ProtectCard
 			icon={ hasThreats ? threatsIcon : shield }
-			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
+			title={ __( 'Scan results', 'jetpack-protect-pkg' ) }
 			description={
-				scan.hasPlan
+				hasPlan
 					? __(
 							'Daily malware and vulnerability checks for your files, WordPress, plugins and themes.',
 							'jetpack-protect-pkg'
@@ -223,30 +141,18 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							'jetpack-protect-pkg'
 						)
 			}
-			actions={
-				hasThreats &&
-				! isScanning && (
-					<ScanButton
-						scan={ scan }
-						isStarting={ isStarting }
-						onScan={ startScan }
-						label={ __( 'Scan now', 'jetpack-protect-pkg' ) }
-						variant="outline"
-						size="compact"
-					/>
-				)
-			}
+			titleAside={ scan.lastChecked ? <LastScanned lastChecked={ scan.lastChecked } /> : undefined }
 		>
-			{ startError && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ startError }</Notice.Description>
-					</Notice.Root>
-				</CardRow>
-			) }
 			{ body }
-			<CardRow>
-				{ scan.hasPlan ? (
+			{ ! scan.hasPlan && ! scan.error && (
+				<ScanUpsell
+					variant={ scan.upsellVariant }
+					forced={ scan.upsellVariantForced }
+					url={ scan.url }
+				/>
+			) }
+			{ scan.hasPlan && (
+				<CardRow>
 					<Stack direction="row" gap="lg" wrap="wrap">
 						<TabLink tab="history" params={ FIXED_PARAMS } onOpen={ openTab }>
 							{ __( 'View scan history', 'jetpack-protect-pkg' ) }
@@ -266,15 +172,8 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 							</TabLink>
 						) }
 					</Stack>
-				) : (
-					<Link href={ scan.url }>
-						{ __(
-							'Get Scan for daily malware scanning and one-click fixes',
-							'jetpack-protect-pkg'
-						) }
-					</Link>
-				) }
-			</CardRow>
+				</CardRow>
+			) }
 		</ProtectCard>
 	);
 }

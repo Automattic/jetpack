@@ -248,6 +248,65 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * A parse error from WordPress.com gets its own code when the site's PHP has no XML extension.
+	 */
+	public function test_validate_remote_register_response_names_a_missing_xml_extension() {
+		$error = $this->validate_parse_error_response( false );
+
+		$this->assertInstanceOf( WP_Error::class, $error );
+		$this->assertSame( 'xml_extension_missing', $error->get_error_code() );
+		$this->assertStringContainsString( "PHP's XML extension is not available", $error->get_error_message() );
+	}
+
+	/**
+	 * A parse error from WordPress.com keeps its code and text when the XML extension is available.
+	 */
+	public function test_validate_remote_register_response_keeps_a_parse_error_with_the_xml_extension() {
+		$error = $this->validate_parse_error_response( true );
+
+		$this->assertInstanceOf( WP_Error::class, $error );
+		$this->assertSame( 'xml_rpc-32700', $error->get_error_code() );
+		$this->assertSame( 'Server text.', $error->get_error_message() );
+	}
+
+	/**
+	 * Run `validate_remote_register_response()` on WordPress.com's `xml_rpc-32700` reply.
+	 *
+	 * @param bool $has_xml_extension Whether the site's PHP has the XML extension.
+	 * @return mixed The validation result.
+	 */
+	private function validate_parse_error_response( $has_xml_extension ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_xml_extension_available' ) )
+			->getMock();
+		$manager->method( 'is_xml_extension_available' )->willReturn( $has_xml_extension );
+
+		$method = new \ReflectionMethod( Manager::class, 'validate_remote_register_response' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke(
+			$manager,
+			array(
+				'headers'  => array(),
+				'body'     => wp_json_encode(
+					array(
+						'error'             => 'xml_rpc-32700',
+						'error_description' => 'Server text.',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				'response' => array(
+					'code'    => 400,
+					'message' => 'Bad Request',
+				),
+			)
+		);
+	}
+
+	/**
 	 * `add_stats_to_heartbeat()` does not add any stats when the site is not connected.
 	 */
 	public function test_add_stats_to_heartbeat_skips_when_not_connected() {

@@ -11,20 +11,23 @@ import StatsCards from './cards';
 
 /**
  * Options for the stats visits hook
+ *
+ * @type {{ period: 'day', quantity: number, date: Date }}
  */
-const VISITS_OPTIONS = {
+export const VISITS_OPTIONS = {
 	period: 'day',
 	quantity: 14,
 	date: new Date( Date.now() + new Date().getTimezoneOffset() * 60000 ), // now in UTC to match Stats
 };
 
 /**
- * Process 14-day stats data to extract current and previous 7-day periods
+ * Split stats for twice a period into the latest period and the one before it.
  *
  * @param {object} visitsData - Raw visits data from API with fields and data arrays
- * @return {object} Object containing counts, previousCounts, and chartData for last 7 days
+ * @param {number} [days]     - The period's length in days.
+ * @return {{ counts: object, previousCounts: object, chartData: ?{ fields: string[], data: Array } }} Object containing counts, previousCounts, and chartData for the latest period
  */
-const processStatsData = visitsData => {
+export const processStatsData = ( visitsData, days = 7 ) => {
 	if (
 		! visitsData ||
 		! visitsData.fields ||
@@ -62,54 +65,53 @@ const processStatsData = visitsData => {
 		return new Date( b[ periodIndex ] ) - new Date( a[ periodIndex ] );
 	} );
 
-	// Split into current week (0-6) and previous week (7-13)
-	const currentWeekData = sortedData.slice( 0, 7 );
-	const previousWeekData = sortedData.slice( 7, 14 );
+	const currentData = sortedData.slice( 0, days );
+	const previousData = sortedData.slice( days, days * 2 );
 
-	// Calculate totals for current week
+	// Calculate totals for the latest period
 	const counts = {
 		views:
 			viewsIndex !== -1
-				? currentWeekData.reduce( ( sum, row ) => sum + ( row[ viewsIndex ] || 0 ), 0 )
+				? currentData.reduce( ( sum, row ) => sum + ( row[ viewsIndex ] || 0 ), 0 )
 				: 0,
 		visitors:
 			visitorsIndex !== -1
-				? currentWeekData.reduce( ( sum, row ) => sum + ( row[ visitorsIndex ] || 0 ), 0 )
+				? currentData.reduce( ( sum, row ) => sum + ( row[ visitorsIndex ] || 0 ), 0 )
 				: 0,
 		likes:
 			likesIndex !== -1
-				? currentWeekData.reduce( ( sum, row ) => sum + ( row[ likesIndex ] || 0 ), 0 )
+				? currentData.reduce( ( sum, row ) => sum + ( row[ likesIndex ] || 0 ), 0 )
 				: 0,
 		comments:
 			commentsIndex !== -1
-				? currentWeekData.reduce( ( sum, row ) => sum + ( row[ commentsIndex ] || 0 ), 0 )
+				? currentData.reduce( ( sum, row ) => sum + ( row[ commentsIndex ] || 0 ), 0 )
 				: 0,
 	};
 
-	// Calculate totals for previous week
+	// Calculate totals for the period before it
 	const previousCounts = {
 		views:
 			viewsIndex !== -1
-				? previousWeekData.reduce( ( sum, row ) => sum + ( row[ viewsIndex ] || 0 ), 0 )
+				? previousData.reduce( ( sum, row ) => sum + ( row[ viewsIndex ] || 0 ), 0 )
 				: 0,
 		visitors:
 			visitorsIndex !== -1
-				? previousWeekData.reduce( ( sum, row ) => sum + ( row[ visitorsIndex ] || 0 ), 0 )
+				? previousData.reduce( ( sum, row ) => sum + ( row[ visitorsIndex ] || 0 ), 0 )
 				: 0,
 		likes:
 			likesIndex !== -1
-				? previousWeekData.reduce( ( sum, row ) => sum + ( row[ likesIndex ] || 0 ), 0 )
+				? previousData.reduce( ( sum, row ) => sum + ( row[ likesIndex ] || 0 ), 0 )
 				: 0,
 		comments:
 			commentsIndex !== -1
-				? previousWeekData.reduce( ( sum, row ) => sum + ( row[ commentsIndex ] || 0 ), 0 )
+				? previousData.reduce( ( sum, row ) => sum + ( row[ commentsIndex ] || 0 ), 0 )
 				: 0,
 	};
 
-	// Create chart data with only current week (reverse to show chronological order)
+	// Chart only the latest period (reverse to show chronological order)
 	const chartData = {
 		fields,
-		data: currentWeekData.reverse(),
+		data: currentData.reverse(),
 	};
 
 	return {
@@ -117,6 +119,18 @@ const processStatsData = visitsData => {
 		previousCounts,
 		chartData,
 	};
+};
+
+/**
+ * Build the link to the detailed stats page.
+ *
+ * @param {string}  manageUrl               - The Stats product's manage URL.
+ * @param {boolean} premiumAnalyticsEnabled - Whether the URL is the Premium Analytics dashboard.
+ * @return {string|undefined} The link, or undefined without a manage URL.
+ */
+export const getDetailedStatsHref = ( manageUrl, premiumAnalyticsEnabled ) => {
+	const query = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
+	return manageUrl ? `${ manageUrl }${ query }` : undefined;
 };
 
 /**
@@ -165,8 +179,7 @@ const StatsSection = () => {
 		[ status, manageUrl ]
 	);
 
-	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
-	const viewStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
+	const viewStatsHref = getDetailedStatsHref( manageUrl, premiumAnalyticsEnabled );
 
 	const viewStatsButton = {
 		href: viewStatsHref,

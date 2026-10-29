@@ -12,19 +12,19 @@ import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
+	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -33,7 +33,6 @@ import {
  */
 import styles from './style.module.css';
 import useUtmInsights from './use-utm-insights';
-import { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
 import { type UtmInsightsAttributes } from './widget';
 /**
  * Types
@@ -62,6 +61,7 @@ type UtmInsightsInnerProps = {
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
 	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
@@ -167,6 +167,29 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
+	const offersFooterBuildUrl = ! isLoading && ( isError || data.length > 0 );
+	useReportActions( {
+		...( showReportLink && {
+			report: 'utm',
+			section: reportSection,
+			csv: {
+				exporter: utmCsvExporters[ reportSection ],
+				status: { isLoading, isFetching, isError },
+				rowCount: data.length,
+			},
+		} ),
+		actions: offersFooterBuildUrl
+			? [
+					{
+						id: 'build-url',
+						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'medium',
+						callback: openBuilder,
+					},
+				]
+			: [],
+	} );
+
 	return (
 		<>
 			{ backLink }
@@ -184,7 +207,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						),
 						action: {
 							label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
-							onClick: () => setBuilderOpen( true ),
+							onClick: openBuilder,
 						},
 					} }
 					error={ describeError( error, {
@@ -197,24 +220,21 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top UTM', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withComparison={ withComparison }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: isDrillDown
+								? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+								: getUtmDimensionLabel( reportSection ),
+							metric: 'views',
+						} }
 					/>
 				</WidgetState>
 			</div>
-			{ showReportLink && (
-				<WidgetFooter>
-					<ReportLink report="utm" section={ reportSection } />
-					<ExporterCsvDownloadButton
-						exporter={ utmCsvExporters[ reportSection ] }
-						status={ { isLoading, isFetching, isError } }
-						rowCount={ data.length }
-					/>
-				</WidgetFooter>
-			) }
 			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
 		</>
 	);

@@ -338,4 +338,12 @@ describe( 'normalizeReportParams', () => {
 
 		expect( result.author_id ).toBeUndefined();
 	} );
+
+	it( 'keeps a locked range on days instead of resolving it to weeks', () => {
+		expect(
+			normalizeReportParams( { from: '2026-01-01', to: '2026-06-30', interval: 'day' }, undefined, {
+				lockedIntervals: [ 'week', 'month', 'year' ],
+			} ).interval
+		).toBe( 'day' );
+	} );
 } );

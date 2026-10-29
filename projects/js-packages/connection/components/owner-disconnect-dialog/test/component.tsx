@@ -33,7 +33,7 @@ describe( 'OwnerDisconnectDialog', () => {
 		onClose: jest.fn(),
 	};
 
-	const dialogName = 'Disconnect Owner Account';
+	const dialogName = 'Disconnect owner account';
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -93,23 +93,15 @@ describe( 'OwnerDisconnectDialog', () => {
 	} );
 
 	describe( 'disconnect flow', () => {
-		it( 'unlinks and fires success callbacks on Disconnect', async () => {
+		it( 'unlinks every user and reports it on Disconnect', async () => {
 			const user = userEvent.setup();
-			const onDisconnected = jest.fn();
 			const onUnlinked = jest.fn();
-			render(
-				<OwnerDisconnectDialog
-					{ ...testProps }
-					onDisconnected={ onDisconnected }
-					onUnlinked={ onUnlinked }
-				/>
-			);
+			render( <OwnerDisconnectDialog { ...testProps } onUnlinked={ onUnlinked } /> );
 
 			await user.click( screen.getByRole( 'button', { name: 'Disconnect' } ) );
 
 			expect( mockUnlinkUser ).toHaveBeenCalledWith( true, { disconnectAllUsers: true } );
-			await waitFor( () => expect( onDisconnected ).toHaveBeenCalledTimes( 1 ) );
-			expect( onUnlinked ).toHaveBeenCalledTimes( 1 );
+			await waitFor( () => expect( onUnlinked ).toHaveBeenCalledTimes( 1 ) );
 		} );
 
 		it( 'shows an error and re-enables the button when unlink fails', async () => {

@@ -88,7 +88,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "6.11.x-dev"
 		},

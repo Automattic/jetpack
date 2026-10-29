@@ -19,7 +19,10 @@ type Props = {
 // attachments have no poster endpoint, and one still being processed has no
 // stable frame to cut from.
 const canEditThumbnail = ( video: LibraryItem ): boolean =>
-	video.type === 'videopress' && ! video.isProcessing && Boolean( video.sourceUrl || video.guid );
+	video.type === 'videopress' &&
+	! video.isProcessing &&
+	! video.conversionFailed &&
+	Boolean( video.sourceUrl || video.guid );
 
 /**
  * The card proper. Split from the guard below so the poster query, the

@@ -12,9 +12,11 @@ namespace Automattic\Jetpack\Comments;
  */
 class Passport {
 
-	const COOKIE         = 'jetpack_comment_identity';
+	// Prefixed like core's commenter cookies, so page caches serve the commenter a fresh page.
+	const COOKIE         = 'comment_author_jetpack_identity';
+	const LEGACY_COOKIE  = 'jetpack_comment_identity';
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
-	const FIELDS         = array( 'site_commenter_id', 'name', 'email', 'avatar' );
+	const FIELDS         = array( 'site_commenter_id', 'name', 'email', 'avatar', 'wpcom_user_id' );
 	const LIFETIME       = 30 * DAY_IN_SECONDS;
 
 	/**
@@ -23,8 +25,9 @@ class Passport {
 	 * @return array|null Keyed by FIELDS.
 	 */
 	public static function read() {
+		$legacy = ! isset( $_COOKIE[ self::COOKIE ] ) && isset( $_COOKIE[ self::LEGACY_COOKIE ] );
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Verified against its signature below.
-		$cookie = isset( $_COOKIE[ self::COOKIE ] ) ? wp_unslash( $_COOKIE[ self::COOKIE ] ) : '';
+		$cookie = wp_unslash( $_COOKIE[ $legacy ? self::LEGACY_COOKIE : self::COOKIE ] ?? '' );
 
 		if ( ! is_string( $cookie ) || '' === $cookie || substr_count( $cookie, '.' ) !== 1 ) {
 			return null;
@@ -48,6 +51,11 @@ class Passport {
 
 		if ( (int) ( $payload['blog_id'] ?? 0 ) !== Checkpoint::blog_id() ) {
 			return null;
+		}
+
+		// Copied to the new name, so the next page skips the cache. The old one stays for code that still reads it.
+		if ( $legacy ) {
+			self::set_cookie( self::COOKIE, $cookie, (int) $payload['expires_at'], true );
 		}
 
 		$identity = array();
@@ -97,8 +105,9 @@ class Passport {
 	 * @return void
 	 */
 	public static function revoke() {
-		unset( $_COOKIE[ self::COOKIE ], $_COOKIE[ self::DISPLAY_COOKIE ] );
+		unset( $_COOKIE[ self::COOKIE ], $_COOKIE[ self::LEGACY_COOKIE ], $_COOKIE[ self::DISPLAY_COOKIE ] );
 		self::set_cookie( self::COOKIE, '', time() - YEAR_IN_SECONDS, true );
+		self::set_cookie( self::LEGACY_COOKIE, '', time() - YEAR_IN_SECONDS, true );
 		self::set_cookie( self::DISPLAY_COOKIE, '', time() - YEAR_IN_SECONDS, false );
 	}
 

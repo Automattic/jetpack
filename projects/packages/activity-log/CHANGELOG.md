@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-10-28
+### Changed
+- Update dependencies. [#53813]
+
+## [0.7.0] - 2026-10-26
+### Added
+- Link backups to that backup in the Backup dashboard when the new dashboard is on. [#53929]
+- Mark backups that are known to contain security threats on sites hosted on WordPress.com, and open the in-admin restore screen from "Restore backup" when the new Backup dashboard is on. [#53755]
+
+### Fixed
+- Offer an available plan when Security is retired. [#53854]
+- Show an empty date picker on the free plan, instead of a date range it does not apply. Hide backup events on WordPress.com sites without backups. [#53982]
+- Stop logging a "jetpackConfig is missing" console error on the Activity Log page. [#54057]
+
+## [0.6.0] - 2026-10-20
+### Added
+- Add support for WordPress.com Simple sites. [#53330]
+
+## [0.5.1] - 2026-10-19
+### Changed
+- Update dependencies. [#53618]
+- Update package dependencies. [#53004]
+
 ## [0.5.0] - 2026-10-12
 ### Added
 - Let a link open the log filtered to AI agent actions. [#52895]
@@ -192,6 +215,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.7.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.4.6...v0.5.0
 [0.4.6]: https://github.com/Automattic/jetpack-activity-log/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/Automattic/jetpack-activity-log/compare/v0.4.4...v0.4.5

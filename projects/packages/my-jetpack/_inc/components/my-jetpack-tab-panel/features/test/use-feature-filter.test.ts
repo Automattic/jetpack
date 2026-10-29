@@ -11,6 +11,11 @@ const buildState = ( feature: Partial< MainFeature >, status = 'inactive' ): Fea
 const security = { slug: 'security', name: 'Security' };
 
 describe( 'matchesFilter', () => {
+	afterEach( () => {
+		window.myJetpackInitialState.myJetpackFlags =
+			{} as typeof window.myJetpackInitialState.myJetpackFlags;
+	} );
+
 	it( 'keeps every feature under All', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
@@ -27,15 +32,49 @@ describe( 'matchesFilter', () => {
 		}
 	);
 
-	it.each< [ string, FeatureState[ 'control' ] ] >( [
-		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
-		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
-	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
-		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
-		state.control = control;
-		expect( matchesFilter( state, 'available' ) ).toBe( false );
-		expect( matchesFilter( state, 'all' ) ).toBe( true );
-	} );
+	it.each< [ string, FeatureState[ 'control' ], boolean ] >( [
+		[
+			'module',
+			{ kind: 'module', module: { available: true, override: 'inactive' } as never },
+			false,
+		],
+		[
+			'installed plugin',
+			{ kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' },
+			false,
+		],
+		[
+			'plugin install',
+			{ kind: 'install-plugin', plugin: 'jetpack-search', blocked: 'disabled' },
+			false,
+		],
+		[
+			'Jetpack install',
+			{ kind: 'install-jetpack', installed: false, blocked: 'disabled' },
+			false,
+		],
+		[
+			'paid product running without its plugin',
+			{
+				kind: 'install-plugin',
+				plugin: 'jetpack-search',
+				blocked: 'disabled',
+				runsWithoutPlugin: true,
+			},
+			true,
+		],
+	] )(
+		'with the account-connect flag on, filters a blocked %s by whether it can already run',
+		( _, control, available ) => {
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect: true,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
+			const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+			state.control = control;
+			expect( matchesFilter( state, 'available' ) ).toBe( available );
+			expect( matchesFilter( state, 'all' ) ).toBe( true );
+		}
+	);
 
 	it( 'splits Active and Inactive on the live status, not the catalog', () => {
 		const on = buildState( {}, 'active' );

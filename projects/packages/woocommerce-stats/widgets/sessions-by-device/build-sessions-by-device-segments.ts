@@ -20,9 +20,29 @@ const DEVICE_LABELS: Record< string, string > = {
 };
 
 const getDeviceLabel = ( deviceType: string ): string =>
-	DEVICE_LABELS[ deviceType.toLowerCase() ] || deviceType;
+	DEVICE_LABELS[ deviceType.toLowerCase() ] ||
+	deviceType ||
+	__( 'Unknown', 'jetpack-woocommerce-stats-pkg' );
 
 const deviceKey = ( row: SessionsByDeviceRow ): string => row.device_type.toLowerCase();
+
+/**
+ * Sums a report's sessions per device, in the order the report lists the devices.
+ *
+ * @param {SessionsByDeviceReport|undefined} report - The report.
+ * @return {Map<string, SessionsByDeviceRow>} The rows by device key; rows with one key merge.
+ */
+function sessionsByDevice( report: SessionsByDeviceReport | undefined ) {
+	const devices = new Map< string, SessionsByDeviceRow >();
+	for ( const row of report?.data ?? [] ) {
+		const seen = devices.get( deviceKey( row ) );
+		devices.set( deviceKey( row ), {
+			device_type: seen?.device_type ?? row.device_type,
+			active_sessions: ( seen?.active_sessions ?? 0 ) + row.active_sessions,
+		} );
+	}
+	return devices;
+}
 
 /**
  * Maps the report rows to segments, one per device seen in either period, the selected period's
@@ -37,26 +57,22 @@ export function buildSessionsByDeviceSegments(
 	primary: SessionsByDeviceReport | undefined,
 	comparison: SessionsByDeviceReport | undefined
 ): DonutSegmentInput[] {
-	const previous = new Map(
-		( comparison?.data ?? [] ).map( row => [ deviceKey( row ), row.active_sessions ] )
-	);
-	const segments: DonutSegmentInput[] = ( primary?.data ?? [] ).map( row => ( {
+	const current = sessionsByDevice( primary );
+	const previous = sessionsByDevice( comparison );
+	const segments: DonutSegmentInput[] = [ ...current ].map( ( [ key, row ] ) => ( {
 		label: getDeviceLabel( row.device_type ),
 		value: row.active_sessions,
-		previousValue: comparison ? ( previous.get( deviceKey( row ) ) ?? 0 ) : undefined,
+		previousValue: comparison ? ( previous.get( key )?.active_sessions ?? 0 ) : undefined,
 	} ) );
 
-	const seen = new Set( ( primary?.data ?? [] ).map( deviceKey ) );
-	for ( const row of comparison?.data ?? [] ) {
-		if ( seen.has( deviceKey( row ) ) ) {
-			continue;
+	for ( const [ key, row ] of previous ) {
+		if ( ! current.has( key ) ) {
+			segments.push( {
+				label: getDeviceLabel( row.device_type ),
+				value: 0,
+				previousValue: row.active_sessions,
+			} );
 		}
-		seen.add( deviceKey( row ) );
-		segments.push( {
-			label: getDeviceLabel( row.device_type ),
-			value: 0,
-			previousValue: row.active_sessions,
-		} );
 	}
 
 	return segments;

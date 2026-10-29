@@ -7,6 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -56,6 +57,66 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 }
 
 /**
+ * Work out which surface a theme install or switch started from.
+ *
+ * @return string One of marketplace-tab, add-themes, themes, customizer, api, cli or other.
+ */
+function wpcom_themes_tracks_get_origin() {
+	if ( Constants::is_true( 'WP_CLI' ) ) {
+		return 'cli';
+	}
+
+	if ( Constants::is_true( 'REST_API_REQUEST' ) ) {
+		return 'api';
+	}
+
+	// This only labels the event and authorizes nothing, so nonces are not checked.
+	// phpcs:disable WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$marker      = $_REQUEST['wpcom_themes_origin'] ?? '';
+	$post_action = $_POST['action'] ?? '';
+	$customize   = $_POST['wp_customize'] ?? '';
+	$get_action  = $_GET['action'] ?? '';
+	// phpcs:enable WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+	// An array arrives when `_wp_http_referer[]` is sent.
+	$referer      = wp_get_raw_referer();
+	$referer      = is_string( $referer ) ? $referer : '';
+	$referer_path = (string) wp_parse_url( $referer, PHP_URL_PATH );
+
+	if ( $marker === 'marketplace-tab' ) {
+		return 'marketplace-tab';
+	}
+
+	if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
+		wp_parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $referer_query );
+
+		if ( ( $referer_query['browse'] ?? '' ) === 'wpcom' ) {
+			return 'marketplace-tab';
+		}
+	}
+
+	if ( $post_action === 'customize_save' || $customize === 'on' ) {
+		return 'customizer';
+	}
+
+	if ( $post_action === 'install-theme' ) {
+		return 'add-themes';
+	}
+
+	if ( $get_action === 'activate' ) {
+		if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
+			return 'add-themes';
+		}
+
+		if ( substr( $referer_path, -strlen( 'themes.php' ) ) === 'themes.php' ) {
+			return 'themes';
+		}
+	}
+
+	return 'other';
+}
+
+/**
  * Record a theme switch.
  *
  * @todo There is already a theme switch event for Simple sites. It should be removed in favor of this one.
@@ -66,18 +127,62 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
  * @return void
  */
 function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_theme ) {
+	if ( ! is_wpcom_user() ) {
+		return;
+	}
+
 	$old_theme_props = wpcom_themes_tracks_get_theme_props( $old_theme, 'old' );
 	$new_theme_props = wpcom_themes_tracks_get_theme_props( $new_theme, 'new' );
 
 	$event_props = array_merge(
 		array( 'blog_id' => get_wpcom_blog_id() ),
 		$old_theme_props,
-		$new_theme_props
+		$new_theme_props,
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
 	);
 
 	Common\wpcom_record_tracks_event( 'wpcom_theme_switch', $event_props );
 }
 add_action( 'switch_theme', 'wpcom_themes_tracks_switch_theme', 12, 3 );
+
+/**
+ * Work out the source and type of a theme install or update.
+ *
+ * @param string $hook_action The `action` from the upgrader hook data.
+ * @return array{source: string, type: string}
+ */
+function wpcom_themes_tracks_install_source_and_type( $hook_action ) {
+	$install_props = array(
+		'source' => '', // Intentionally left empty for debugging purposes.
+		'type'   => 'upload',
+	);
+
+	// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$action    = $_GET['action'] ?? '';
+	$overwrite = $_GET['overwrite'] ?? '';
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+	if ( $hook_action === 'install' && ! $action ) {
+		// Install theme via wp-admin UI
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'install';
+	} elseif ( $hook_action === 'install' && $action === 'upload-theme' && ! $overwrite ) {
+		// Upload a theme via wp-admin (new theme)
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'upload';
+	} elseif ( $hook_action === 'install' && $action === 'upload-theme' && $overwrite === 'update-theme' ) {
+		// Upload a theme via wp-admin (existing theme)
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'update';
+	} elseif ( $hook_action === 'update' && $action === 'do-theme-upgrade' ) {
+		// Update theme via update-core.php
+		$install_props['source'] = 'wp-admin';
+		$install_props['type']   = 'bulk-update';
+	}
+
+	return $install_props;
+}
 
 /**
  * Record a theme install via wp-admin.
@@ -97,49 +202,48 @@ function wpcom_themes_tracks_install_theme( $upgrader, $hook_extra ) {
 		return;
 	}
 
+	if ( ! is_wpcom_user() ) {
+		return;
+	}
+
 	$theme_slug = $upgrader->result['destination_name'] ?? '';
 
 	if ( ! $theme_slug ) {
 		return;
 	}
 
-	$theme         = wp_get_theme( $theme_slug );
-	$theme_props   = wpcom_themes_tracks_get_theme_props( $theme );
-	$install_props = array(
-		'source' => '', // Intentionally left empty for debugging purposes.
-		'type'   => 'upload',
-	);
-
-	// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$action    = $_GET['action'] ?? '';
-	$overwrite = $_GET['overwrite'] ?? '';
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-	if ( $hook_extra['action'] === 'install' && ! $action ) {
-		// Install theme via wp-admin UI
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'install';
-	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && ! $overwrite ) {
-		// Upload a theme via wp-admin (new theme)
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'upload';
-	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && $overwrite === 'update-theme' ) {
-		// Upload a theme via wp-admin (existing theme)
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'update';
-	} elseif ( $hook_extra['action'] === 'update' && $action === 'do-theme-upgrade' ) {
-		// Update theme via update-core.php
-		$install_props['source'] = 'wp-admin';
-		$install_props['type']   = 'bulk-update';
-	}
+	$theme       = wp_get_theme( $theme_slug );
+	$theme_props = wpcom_themes_tracks_get_theme_props( $theme );
 
 	$event_props = array_merge(
 		array( 'blog_id' => get_wpcom_blog_id() ),
 		$theme_props,
-		$install_props
+		wpcom_themes_tracks_install_source_and_type( $hook_extra['action'] ),
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
 	);
 
 	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
 }
 add_action( 'upgrader_process_complete', 'wpcom_themes_tracks_install_theme', 10, 2 );
+
+/**
+ * Record the install of a WP.com theme, which is symlinked instead of going through the upgrader.
+ *
+ * @param string $theme_slug Theme slug.
+ * @return void
+ */
+function wpcom_themes_tracks_install_wpcom_theme( $theme_slug ) {
+	if ( Constants::is_true( 'IS_WPCOM' ) || ! is_wpcom_user() ) {
+		return;
+	}
+
+	$event_props = array_merge(
+		array( 'blog_id' => get_wpcom_blog_id() ),
+		wpcom_themes_tracks_get_theme_props( wp_get_theme( $theme_slug ) ),
+		wpcom_themes_tracks_install_source_and_type( 'install' ),
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
+	);
+
+	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
+}
+add_action( 'wpcomsh_wpcom_theme_installed', 'wpcom_themes_tracks_install_wpcom_theme' );

@@ -2,13 +2,17 @@
  * WordPress dependencies
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, SelectControl } from '@wordpress/components';
+import { PanelBody, Placeholder, SelectControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { editorSourcePlaylist, PlaylistPicker } from '../../channel/editor-controls';
+import {
+	editorSourcePlaylist,
+	EmptyStateControl,
+	PlaylistPicker,
+} from '../../channel/editor-controls';
 import { VideoPressIcon } from '../video/components/icons';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
 import PlaylistPreview from './preview';
@@ -45,14 +49,33 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
 					value={ source }
 					options={ [
 						{ value: 'own', label: __( 'Videos I pick', 'jetpack-videopress-pkg' ) },
+						{
+							value: 'queried',
+							label: __( 'The playlist being viewed', 'jetpack-videopress-pkg' ),
+						},
 						{ value: 'index', label: __( 'A playlist on this site', 'jetpack-videopress-pkg' ) },
 					] }
 					onChange={ value => setAttributes( { source: value as PlaylistSource } ) }
 				/>
 				{ 'index' === source && (
-					<PlaylistPicker
-						value={ attributes.sourcePlaylistId ?? '' }
-						onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+					<>
+						<PlaylistPicker
+							value={ attributes.sourcePlaylistId ?? '' }
+							onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+						/>
+						<EmptyStateControl
+							kind="playlists"
+							value={ attributes.emptyState }
+							onChange={ emptyState => setAttributes( { emptyState } ) }
+						/>
+					</>
+				) }
+				{ 'own' !== source && (
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Views and upload date', 'jetpack-videopress-pkg' ) }
+						checked={ !! attributes.showMeta }
+						onChange={ ( value: boolean ) => setAttributes( { showMeta: value } ) }
 					/>
 				) }
 			</PanelBody>
@@ -65,7 +88,8 @@ const NO_VIDEOS: PlaylistEntry[] = [];
 
 /**
  * Canvas of a playlist that shows another playlist: a preview of that playlist's videos, as the
- * site renders them, with the display settings of this block.
+ * site renders them, with the display settings of this block. The playlist being viewed is only
+ * known on the site, so that source keeps a placeholder.
  *
  * @param props               - Component props.
  * @param props.attributes    - Block attributes.
@@ -73,7 +97,11 @@ const NO_VIDEOS: PlaylistEntry[] = [];
  * @return Edit component.
  */
 export function SourcedPlaylistEdit( { attributes, setAttributes }: Props ) {
-	const playlist = editorSourcePlaylist( attributes.sourcePlaylistId ?? '' );
+	// The playlist being viewed is only known on the site.
+	const isQueried = 'queried' === attributes.source;
+	const playlist = isQueried
+		? undefined
+		: editorSourcePlaylist( attributes.sourcePlaylistId ?? '' );
 	const videos = playlist?.videos?.length ? playlist.videos : NO_VIDEOS;
 	const { liveMetadata } = usePlaylistLiveMetadata( videos );
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
@@ -96,6 +124,10 @@ export function SourcedPlaylistEdit( { attributes, setAttributes }: Props ) {
 
 	if ( ! videos.length ) {
 		// Kept as separate statements so the minifier can't merge the __() calls.
+		const queriedLabel = __(
+			'On a channel playlist or video page, shows the playlist being viewed.',
+			'jetpack-videopress-pkg'
+		);
 		const unknownLabel = __( 'Shows a playlist published on this site.', 'jetpack-videopress-pkg' );
 		const noneLabel = __(
 			'No playlists yet. Publish a Video Playlist block with a title and it will show up here.',
@@ -107,7 +139,7 @@ export function SourcedPlaylistEdit( { attributes, setAttributes }: Props ) {
 		);
 		const emptyLabel = __( 'This playlist has no videos yet.', 'jetpack-videopress-pkg' );
 
-		let instructions: string = unknownLabel;
+		let instructions: string = isQueried ? queriedLabel : unknownLabel;
 		if ( null === playlist ) {
 			instructions = attributes.sourcePlaylistId ? missingLabel : noneLabel;
 		} else if ( playlist ) {

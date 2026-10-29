@@ -1,68 +1,21 @@
 <?php
 /**
- * Dashboard policy: the dashboard feature flags and the composition flag's script-data bridge.
+ * Dashboard policy: the dashboard feature flags and the shims older copies of the package call.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-
 /**
- * Name of the feature flag that offers adding, removing and resetting widgets.
- */
-const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
-
-/**
- * Name of the feature flag that shows the Store section.
- */
-const DASHBOARD_STORE_SECTION_FLAG = 'premium-analytics-store-section';
-
-/**
- * Registers the dashboard feature flags.
+ * Registers the dashboard feature flags: none today.
  *
- * Runs on every request so the flag stays discoverable wherever flags are read or
- * toggled: REST, WP-CLI and the WordPress.com control screen included.
+ * Kept as the symbol the policy file is guarded on, and for older copies of the package that
+ * call it.
  *
  * @return void
  */
 function register_dashboard_feature_flags() {
-	Feature_Flags::register(
-		DASHBOARD_COMPOSITION_FLAG,
-		array(
-			'default'     => true,
-			'description' => 'Offer adding, removing and resetting widgets on the analytics dashboard, on top of moving and resizing them.',
-			'owner'       => 'jetpack-premium-analytics',
-		)
-	);
-
-	Feature_Flags::register(
-		DASHBOARD_STORE_SECTION_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show the Store tab on the analytics dashboard of sites running WooCommerce.',
-			'owner'       => 'jetpack-premium-analytics',
-		)
-	);
-}
-
-/**
- * Whether the dashboard offers adding, removing and resetting widgets.
- *
- * @return bool
- */
-function is_dashboard_composition_enabled() {
-	return Feature_Flags::is_enabled( DASHBOARD_COMPOSITION_FLAG );
-}
-
-/**
- * Whether the dashboard shows the Store section.
- *
- * @return bool
- */
-function is_dashboard_store_section_enabled() {
-	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
 }
 
 /**
@@ -78,7 +31,10 @@ function is_dashboard_unlocked_for_a11n() {
 }
 
 /**
- * Configures the dashboard policy script data.
+ * Kept for older copies of the package, whose class-analytics.php calls it and whose client
+ * offers adding and removing widgets only while the script data says so.
+ *
+ * @deprecated 0.13.0 Adding and removing widgets is always offered.
  *
  * @return void
  */
@@ -87,7 +43,9 @@ function configure_dashboard_policy() {
 }
 
 /**
- * Injects the flag's answer into JetpackScriptData for the dashboard policy.
+ * Tells an older copy's client that adding and removing widgets is offered.
+ *
+ * @deprecated 0.13.0 Adding and removing widgets is always offered.
  *
  * @param array $data The script data passed by the assets package.
  * @return array
@@ -97,7 +55,7 @@ function inject_dashboard_policy_script_data( array $data ): array {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['dashboard_composition_enabled'] = is_dashboard_composition_enabled();
+	$data['premium_analytics']['dashboard_composition_enabled'] = true;
 
 	return $data;
 }

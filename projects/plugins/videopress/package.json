@@ -23,19 +23,19 @@
 		"@wordpress/date": "5.57.0",
 		"@wordpress/element": "9.0.0",
 		"@wordpress/i18n": "6.30.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.3.0",
+		"react-dom": "19.3.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/browserslist-config": "6.57.0",
 		"concurrently": "10.0.5",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	}
 }

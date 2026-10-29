@@ -108,11 +108,19 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Top platforms', 'jetpack-premium-analytics-pkg' ) }
 					data={ leaderboardData }
 					withComparison={ hasComparison }
 					withOverlayLabel
 					showLegend={ false }
 					dataFormat={ DATA_FORMAT }
+					columns={ {
+						label:
+							platformDimension === 'platform'
+								? __( 'Operating systems', 'jetpack-premium-analytics-pkg' )
+								: __( 'Browsers', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>

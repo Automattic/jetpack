@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
@@ -27,7 +26,6 @@ function Reader( props ) {
 		active,
 		isModuleFound,
 		searchTerm,
-		blogID,
 		isSavingAnyOption,
 		isReaderModuleActive,
 		readerModule,
@@ -119,10 +117,7 @@ function Reader( props ) {
 		</SettingsGroup>
 	);
 
-	const readerUrl = addQueryArgs(
-		'https://wordpress.com/reader/',
-		blogID ? { origin_site_id: blogID } : {}
-	);
+	const readerUrl = 'https://wordpress.com/reader/';
 	const visitReaderLink = (
 		<Card
 			compact
@@ -140,15 +135,9 @@ function Reader( props ) {
 		<div>
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Reader Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Reader', 'jetpack' )
-					: __(
-							'Discover and follow your favorite sites with the WordPress.com Reader.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-						) }
-			</h2>
+			{ searchTerm && (
+				<h2 className="jp-settings__section-title">{ __( 'Reader', 'jetpack' ) }</h2>
+			) }
 			<SettingsCard
 				{ ...props }
 				header={ __( 'Reader Visibility', 'jetpack' ) }

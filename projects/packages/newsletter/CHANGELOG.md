@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.3] - 2026-10-28
+### Changed
+- Email design: Tell the design screen which link brought the creator there. [#54167]
+- Overview: Use the same status icons as the AI launchpad checklist. [#54084]
+- Update package dependencies. [#54118]
+
+### Fixed
+- Dashboard: Attribute activity to the correct site on Atomic and Jetpack sites. [#54089]
+- Settings: Ask before switching dashboard tabs with unsaved changes. [#54093]
+- Subscribers: Show a badge for every active comped plan, including comps held alongside a paid plan, and none for expired plans. [#53901]
+
+## [0.18.2] - 2026-10-26
+### Changed
+- Settings: Space the settings cards 16px apart, matching the other Jetpack settings screens. [#53692]
+- Subscribers: Download as CSV exports the subscribers the table shows, using its current filters, search and sort order. [#53799]
+
+### Removed
+- Reader: Stop adding the `origin_site_id` parameter to Reader links. [#53920]
+
+### Fixed
+- Decode HTML entities in recent post titles on the Overview page. [#53973]
+- Only show published posts in the Overview's Recent posts card. [#53974]
+- Settings: Ask before leaving the page while a section has unsaved changes. [#53902]
+- Show a dash instead of 0% for a post's open and click rates until it has recorded sends. [#53975]
+- Subscribers: Remember the chosen number of subscribers per page. [#53903]
+
+## [0.18.1] - 2026-10-19
+### Changed
+- Overview: Title the intro card "Jetpack Newsletter", adding "on WordPress.com" only on WordPress.com sites. [#53600]
+- Settings: Use the shared CheckboxCard component for subscription placements. [#53733]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
 ## [0.18.0] - 2026-10-12
 ### Added
 - Action bar: Pass the post stats link through the jetpack_stats_url filter. [#52905]
@@ -434,6 +467,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.18.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.2...v0.18.3
+[0.18.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.1...v0.18.2
+[0.18.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.3...v0.18.0
 [0.17.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.2...v0.17.3
 [0.17.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.1...v0.17.2

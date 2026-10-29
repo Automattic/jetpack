@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.2] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.13.1] - 2026-10-26
+### Fixed
+- Stop telling editors and authors that PayPal is disconnected when they simply do not manage the connection, and stop offering them a reconnect flow they cannot complete. [#53793]
+
+## [0.13.0] - 2026-10-19
+### Added
+- Admin: List the posts and pages using a payment button on its detail view, drafts included, with edit and view links. [#53665]
+
+### Changed
+- Call a PayPal payment a payment button everywhere, and payment links and buttons where both are meant, in the block, the admin page, notices and emails. [#53667]
+- Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts. [#53639]
+- Show the PayPal logo and a clearer connect message in the block's placeholder before PayPal is connected. [#53689]
+- Show the style controls under a saved payment link's details instead of in a Styles tab. [#53638]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+### Fixed
+- Keep the fields of a payment link that the block does not edit when the block is saved. [#53776]
+
 ## [0.12.2] - 2026-10-14
 ### Changed
 - Gray the preview button in the Create new form until the link is created. [#53572]
@@ -423,6 +446,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.13.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.11.1...v0.12.0

@@ -16,8 +16,13 @@ import { useMemo } from 'react';
  */
 import { useReportCoupons } from '../../src/reports';
 import { buildSalesByCouponColumns } from './build-sales-by-coupon-columns';
-import type { SalesByCouponAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type SalesByCouponAttributes = Record< never, never >;
 
 type SalesByCouponRenderAttributes = SalesByCouponAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -72,6 +77,7 @@ function SalesByCoupon() {
 				onRetry: refetch,
 			} ) }
 			format={ CURRENCY_FORMAT }
+			chartTitle={ __( 'Sales by coupon', 'jetpack-woocommerce-stats-pkg' ) }
 		/>
 	);
 }

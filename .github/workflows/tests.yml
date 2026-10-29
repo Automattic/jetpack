@@ -55,6 +55,7 @@ jobs:
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
       WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
+      WITH_REACT_VERSION: ${{ matrix.with-react-version }}
       COVERAGE: ${{ matrix.coverage }}
       SPLIT_NUM: ${{ matrix.split-num }}
       SPLIT_TOTAL: ${{ matrix.split-total }}
@@ -93,9 +94,17 @@ jobs:
 
       - name: Monorepo install
         run: |
-          echo "::group::Pnpm"
-          pnpm install
-          echo "::endgroup::"
+          if [[ "$WITH_REACT_VERSION" =~ ^[0-9]+$ ]]; then
+            echo "Overriding React version to $WITH_REACT_VERSION"
+            sed -i -e 's/^const withReactVersion = undefined;$/const withReactVersion = '"$WITH_REACT_VERSION"';/' .pnpmfile.cjs
+            echo "::group::Pnpm update"
+            pnpm update -r "react@^$WITH_REACT_VERSION" "react-dom@^$WITH_REACT_VERSION"
+            echo "::endgroup::"
+          else
+            echo "::group::Pnpm"
+            pnpm install
+            echo "::endgroup::"
+          fi
 
       - name: Detect changed projects
         id: changed
@@ -384,7 +393,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -412,7 +421,7 @@ jobs:
         uses: $/.github/actions/tool-setup
 
       - name: Download coverage artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: 'Code coverage (*)'
           path: coverage_dl

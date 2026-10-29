@@ -32,7 +32,7 @@ import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { registerImageBlock } from './image';
 import { BlockToolbar } from './toolbar';
-import type { BoundaryProps, EditorProps, WritingAreaProps } from './types';
+import type { BoundaryProps, EditorProps, EditorSelection, WritingAreaProps } from './types';
 import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
@@ -142,9 +142,13 @@ const Editor = ( {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
 		const blocks = toBlocks( initialContent, placeholder );
 
-		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [], editedAt: 0 };
+		return {
+			past: [],
+			present: { blocks, markup: serialize( blocks ), selection: undefined },
+			future: [],
+		};
 	} );
-	const { blocks, markup } = present;
+	const { blocks, markup, selection } = present;
 	// An image or embed still waiting for its URL saves nothing, so the server would post an empty comment.
 	const isEmpty = blocks.every( ( { name, attributes } ) =>
 		name === 'core/paragraph'
@@ -171,8 +175,15 @@ const Editor = ( {
 		[ isEmpty ]
 	);
 
-	const onEdit = useCallback(
-		( next: Block[] ) => dispatch( { type: 'edit', blocks: next, at: Date.now() } ),
+	// The block editor sends a persistent change to onChange and the rest of a burst to onInput.
+	const onBlocksInput = useCallback(
+		( next: Block[], options?: { selection?: EditorSelection } ) =>
+			dispatch( { type: 'edit', blocks: next, selection: options?.selection, persistent: false } ),
+		[]
+	);
+	const onBlocksChange = useCallback(
+		( next: Block[], options?: { selection?: EditorSelection } ) =>
+			dispatch( { type: 'edit', blocks: next, selection: options?.selection, persistent: true } ),
 		[]
 	);
 	const undo = useCallback( () => dispatch( { type: 'undo' } ), [] );
@@ -194,8 +205,10 @@ const Editor = ( {
 		<SlotFillProvider>
 			<BlockEditorProvider
 				value={ blocks }
-				onInput={ onEdit }
-				onChange={ onEdit }
+				// Read only when an undo or redo resets the blocks, which would otherwise drop the caret.
+				selection={ selection }
+				onInput={ onBlocksInput }
+				onChange={ onBlocksChange }
 				settings={ editorSettings }
 				useSubRegistry
 			>
@@ -224,13 +237,17 @@ const Editor = ( {
  *
  * @param container - Where the editor renders.
  * @param props     - Editor props.
+ * @return A function that unmounts the editor, for a host whose form comes and goes.
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
 	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	registerImageBlock( props.labels, props.previewEmbeds ?? true );
-	createRoot( container ).render(
+	const root = createRoot( container );
+	root.render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />
 		</Boundary>
 	);
+
+	return () => root.unmount();
 };

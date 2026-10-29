@@ -84,7 +84,7 @@ add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrab
  * Split from the hook callback so both branches are testable without a user.
  *
  * @since 0.1.0
- * @since $$next-version$$ Gates the Stats categories alone: the WooCommerce Stats package gates its own.
+ * @since 0.13.0 Gates the Stats categories alone: the WooCommerce Stats package gates its own.
  *
  * @param array $widget_candidates Manifest candidates, each with a `category`.
  * @param bool  $can_view_stats    Whether the reader may see the Stats reports.

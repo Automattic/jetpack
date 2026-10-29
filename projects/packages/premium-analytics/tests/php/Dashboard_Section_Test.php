@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -94,8 +95,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
@@ -582,7 +583,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'date_filter',
 				'date_filter_options',
 				'requires_sync',
+				'notice',
 				'default_layout',
+				'insertable_widget_types',
 			),
 			array_keys( $schema['properties'] )
 		);
@@ -590,6 +593,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'range', 'year' ),
 			$schema['properties']['date_filter']['enum']
 		);
+		$this->assertSame( 'array', $schema['properties']['insertable_widget_types']['type'] );
+		$this->assertSame( array( 'type' => 'string' ), $schema['properties']['insertable_widget_types']['items'] );
+		$this->assertSame( array(), $schema['properties']['insertable_widget_types']['default'] );
 		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
 		$this->assertSame(
 			array( 'with_date_comparison', 'with_header_date_control', 'with_header_interval_control' ),
@@ -797,6 +803,130 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A section declares the widget types its inserter offers on top of its default layout.
+	 */
+	public function test_section_accepts_insertable_widget_types() {
+		$section = register_dashboard_section(
+			'example_dashboard',
+			'example/section',
+			array(
+				'default_layout'          => array( get_dashboard_default_widget_instance( 'a', 'example/a', 0 ) ),
+				'insertable_widget_types' => array( 'example/b', 'example/c' ),
+			)
+		);
+
+		$this->assertSame( array( 'example/b', 'example/c' ), $section->get_insertable_widget_types() );
+		$this->assertSame( array( 'example/b', 'example/c' ), $section->to_array()['insertable_widget_types'] );
+	}
+
+	/**
+	 * The list is narrowed to distinct, non-empty names, so the client only meets values it can
+	 * compare with a widget type name; anything but a list declares none.
+	 *
+	 * @dataProvider provide_insertable_widget_types
+	 *
+	 * @param mixed    $declared The registered value.
+	 * @param string[] $expected The names the section serves.
+	 */
+	#[DataProvider( 'provide_insertable_widget_types' )]
+	public function test_section_normalises_insertable_widget_types( $declared, $expected ) {
+		$section = new Dashboard_Section( 'example_dashboard', 'example/section', array( 'insertable_widget_types' => $declared ) );
+
+		$this->assertSame( $expected, $section->get_insertable_widget_types() );
+	}
+
+	/**
+	 * Declared insertable widget types and the list the section serves.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_insertable_widget_types() {
+		return array(
+			'mixed list' => array( array( 'example/a', '', 'example/a', 3, null, 'example/b' ), array( 'example/a', 'example/b' ) ),
+			'keyed list' => array(
+				array(
+					'x' => 'example/a',
+					'y' => 'example/b',
+				),
+				array( 'example/a', 'example/b' ),
+			),
+			'not a list' => array( 'example/a', array() ),
+		);
+	}
+
+	/**
+	 * The insertable-types filter runs from the section, with its declared types and id, and what
+	 * it hands back is narrowed the same way.
+	 */
+	public function test_insertable_widget_types_run_through_the_filter_with_the_section_id() {
+		$section = register_dashboard_section(
+			'layout_filter_dashboard',
+			'example/section',
+			array( 'insertable_widget_types' => array( 'example/a' ) )
+		);
+		$seen    = array();
+
+		add_filter(
+			DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER,
+			static function ( $types, $section_id, $filtered ) use ( &$seen, $section ) {
+				$seen    = array( $section_id, $filtered === $section );
+				$types[] = 'example/b';
+				$types[] = 'example/a';
+
+				return $types;
+			},
+			10,
+			3
+		);
+
+		$this->assertSame( array( 'example/a', 'example/b' ), $section->get_insertable_widget_types() );
+		$this->assertSame( array( 'example/section', true ), $seen );
+	}
+
+	/**
+	 * A filter that hands back no list leaves the section with none.
+	 */
+	public function test_insertable_widget_types_ignore_a_filter_that_returns_no_array() {
+		$section = register_dashboard_section(
+			'layout_filter_dashboard',
+			'example/section',
+			array( 'insertable_widget_types' => array( 'example/a' ) )
+		);
+
+		add_filter( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER, '__return_null' );
+
+		$this->assertSame( array(), $section->get_insertable_widget_types() );
+	}
+
+	/**
+	 * A notice may be a string or a callback, resolved per request; anything else is none.
+	 *
+	 * @dataProvider provide_notices
+	 *
+	 * @param mixed       $notice   The registered notice.
+	 * @param string|null $expected The notice the section serves.
+	 */
+	#[DataProvider( 'provide_notices' )]
+	public function test_section_serves_its_notice( $notice, $expected ) {
+		$section = new Dashboard_Section( 'jetpack_premium_analytics', 'analytics/store', array( 'notice' => $notice ) );
+
+		$this->assertSame( $expected, $section->to_array()['notice'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_notices() {
+		return array(
+			'a string'                => array( 'No orders yet.', 'No orders yet.' ),
+			'a callback'              => array( static fn() => 'No orders yet.', 'No orders yet.' ),
+			'a callback with nothing' => array( static fn() => null, null ),
+			'an empty string'         => array( '', null ),
+			'a non-string'            => array( 42, null ),
+		);
+	}
+
+	/**
 	 * Section to_array() carries its default layout.
 	 */
 	public function test_to_array_includes_default_layout() {
@@ -836,19 +966,21 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'                  => 'analytics/traffic',
-					'slug'                => 'traffic',
-					'label'               => 'Traffic',
-					'title'               => null,
-					'order'               => 10,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'analytics/traffic',
+					'slug'                    => 'traffic',
+					'label'                   => 'Traffic',
+					'title'                   => null,
+					'order'                   => 10,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => true,
 						'with_header_date_control'     => true,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
-					'default_layout'      => array(),
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'default_layout'          => array(),
+					'insertable_widget_types' => array(),
 				),
 			),
 			$response->get_data()
@@ -961,46 +1093,52 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'                  => 'analytics/traffic',
-					'slug'                => 'traffic',
-					'label'               => 'Traffic',
-					'title'               => 'Site traffic',
-					'order'               => 10,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'analytics/traffic',
+					'slug'                    => 'traffic',
+					'label'                   => 'Traffic',
+					'title'                   => 'Site traffic',
+					'order'                   => 10,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => true,
 						'with_header_date_control'     => true,
 						'with_header_interval_control' => false,
 					),
-					'requires_sync'       => false,
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'insertable_widget_types' => array(),
 				),
 				array(
-					'id'                  => 'analytics/insights',
-					'slug'                => 'insights',
-					'label'               => 'Insights',
-					'title'               => 'Site insights',
-					'order'               => 20,
-					'date_filter'         => 'year',
-					'date_filter_options' => array(
+					'id'                      => 'analytics/insights',
+					'slug'                    => 'insights',
+					'label'                   => 'Insights',
+					'title'                   => 'Site insights',
+					'order'                   => 20,
+					'date_filter'             => 'year',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => false,
 						'with_header_date_control'     => false,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'insertable_widget_types' => array(),
 				),
 				array(
-					'id'                  => 'analytics/subscribers',
-					'slug'                => 'subscribers',
-					'label'               => 'Subscribers',
-					'title'               => 'Subscribers stats',
-					'order'               => 30,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'analytics/subscribers',
+					'slug'                    => 'subscribers',
+					'label'                   => 'Subscribers',
+					'title'                   => 'Subscribers stats',
+					'order'                   => 30,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => false,
 						'with_header_date_control'     => false,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'insertable_widget_types' => array(),
 				),
 			),
 			array_map(
@@ -1157,21 +1295,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * On the site's own opt-in, the Store tab stays hidden until its feature flag is on.
-	 */
-	public function test_store_section_is_hidden_on_the_site_opt_in_while_its_flag_is_off() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$this->assertSame(
-			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
-			$this->available_section_ids()
-		);
-	}
-
-	/**
 	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {
@@ -1192,28 +1315,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'traffic', 'insights', 'subscribers', 'extra' ),
 			get_available_dashboard_section_slugs()
 		);
-	}
-
-	/**
-	 * Nothing else waits on the analytics sync, so the sync stays idle until the Store tab is exposed.
-	 */
-	public function test_no_section_awaits_sync_while_the_store_section_is_hidden() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$requires_sync = array_column(
-			array_map(
-				static function ( Dashboard_Section $section ) {
-					return $section->to_array();
-				},
-				get_available_dashboard_sections( DASHBOARD_NAME )
-			),
-			'requires_sync'
-		);
-
-		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
 	public function test_available_section_slugs_list_every_available_tab() {
@@ -1247,6 +1348,29 @@ class Dashboard_Section_Test extends BaseTestCase {
 		register_default_dashboard_sections();
 
 		$this->assertNotContains( 'subscribers', get_available_dashboard_section_slugs() );
+	}
+
+	/**
+	 * Only an available section that opts in follows the plan's date limits.
+	 */
+	public function test_plan_date_limited_section_slugs_list_available_opted_in_tabs() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'                    => 'Closed',
+				'is_available'             => false,
+				'follows_plan_date_limits' => true,
+			)
+		);
+
+		$this->assertSame(
+			array( 'traffic' ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']['plan_date_limited_sections']
+		);
 	}
 
 	/**
@@ -1315,12 +1439,33 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'has_videopress' => true,
-				'can_view_stats' => true,
-				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
+				'has_videopress'             => true,
+				'can_view_stats'             => true,
+				'classic_stats_url'          => null,
+				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
+				'plan_date_limited_sections' => array( 'traffic' ),
 			),
 			$data['premium_analytics']
 		);
+	}
+
+	/**
+	 * Switching the dashboard off lands on classic Stats, so the client is told where that page
+	 * is, also when the Jetpack plugin registers it under its own menu rather than top-level.
+	 */
+	public function test_section_script_data_carries_the_classic_stats_page_url() {
+		$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+
+		$GLOBALS['_parent_pages']['jetpack'] = false;
+		$GLOBALS['_parent_pages']['stats']   = 'jetpack';
+		try {
+			$this->assertSame(
+				admin_url( 'admin.php?page=stats' ),
+				inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url']
+			);
+		} finally {
+			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
 	}
 
 	/**
@@ -1554,34 +1699,38 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'                  => 'example/first',
-					'slug'                => 'first',
-					'label'               => 'First',
-					'title'               => null,
-					'order'               => 10,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'example/first',
+					'slug'                    => 'first',
+					'label'                   => 'First',
+					'title'                   => null,
+					'order'                   => 10,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => true,
 						'with_header_date_control'     => true,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
-					'default_layout'      => array(),
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'default_layout'          => array(),
+					'insertable_widget_types' => array(),
 				),
 				array(
-					'id'                  => 'example/later',
-					'slug'                => 'later',
-					'label'               => 'Later',
-					'title'               => null,
-					'order'               => 20,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'example/later',
+					'slug'                    => 'later',
+					'label'                   => 'Later',
+					'title'                   => null,
+					'order'                   => 20,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => true,
 						'with_header_date_control'     => true,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
-					'default_layout'      => array(),
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'default_layout'          => array(),
+					'insertable_widget_types' => array(),
 				),
 			),
 			$response->get_data()
@@ -1617,24 +1766,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'id'                  => 'analytics/traffic',
-					'slug'                => 'traffic',
-					'label'               => 'Traffic',
-					'title'               => null,
-					'order'               => 10,
-					'date_filter'         => 'range',
-					'date_filter_options' => array(
+					'id'                      => 'analytics/traffic',
+					'slug'                    => 'traffic',
+					'label'                   => 'Traffic',
+					'title'                   => null,
+					'order'                   => 10,
+					'date_filter'             => 'range',
+					'date_filter_options'     => array(
 						'with_date_comparison'         => true,
 						'with_header_date_control'     => true,
 						'with_header_interval_control' => true,
 					),
-					'requires_sync'       => false,
-					'default_layout'      => array(
+					'requires_sync'           => false,
+					'notice'                  => null,
+					'default_layout'          => array(
 						array(
 							'uuid' => 'default-route-widget',
 							'type' => 'example/widget',
 						),
 					),
+					'insertable_widget_types' => array(),
 				),
 			),
 			$response->get_data()

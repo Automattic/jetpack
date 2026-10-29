@@ -84,7 +84,7 @@ abstract class Hybrid_Product extends Product {
 		/*
 		 * Activate self-installed plugin if it's installed.
 		 */
-		if ( parent::is_plugin_installed() ) {
+		if ( parent::is_plugin_installed() && static::should_use_standalone_plugin() ) {
 			return activate_plugin( static::get_installed_plugin_filename() );
 		}
 
@@ -121,8 +121,9 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		if ( ! empty( static::$module_name ) ) {
-			if ( $local && ! Main_Features::module_works_locally( static::$module_name ) ) {
+		$module_name = static::get_module_name();
+		if ( ! empty( $module_name ) ) {
+			if ( $local && ! Main_Features::module_works_locally( $module_name ) ) {
 				return true;
 			}
 
@@ -132,7 +133,7 @@ abstract class Hybrid_Product extends Product {
 				return true;
 			}
 
-			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+			$module_activation = ( new Modules() )->activate( $module_name, false, false );
 
 			if ( ! $module_activation ) {
 				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
@@ -145,28 +146,36 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
-	 * Deactivates the product.
+	 * Deactivate the plugin and its saved active Jetpack module.
+	 * Otherwise products switched on through the Jetpack module stay half on.
 	 *
-	 * In addition to the parent's plugin deactivation, also deactivates the
-	 * matching Jetpack module when `static::$module_name` is set and the
-	 * module is saved and active — otherwise Hybrid products activated via
-	 * the Jetpack-module path stay half-on after "deactivation".
-	 *
-	 * @return bool|WP_Error True on success (matches Product::deactivate()),
-	 *                       WP_Error if the module deactivation failed.
+	 * @return true|WP_Error True on success, or an error if module deactivation fails.
 	 */
 	public static function deactivate() {
-		$result               = parent::deactivate();
+		// Before the parent call: deactivating the standalone plugin can change which module the product reads.
+		$module_name = static::get_module_name();
+		parent::deactivate();
+		return static::do_product_specific_deactivation( $module_name );
+	}
+
+	/**
+	 * Deactivate the product's saved active Jetpack module.
+	 *
+	 * @since 6.13.0
+	 * @param string|null $module_name Module selected before deactivating the plugin.
+	 * @return true|WP_Error True on success, or an error if module deactivation fails.
+	 */
+	public static function do_product_specific_deactivation( $module_name ) {
 		$modules              = new Modules();
 		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
 
 		// Modules::deactivate() can't remove a module only a plugin's filter forces on, nor a saved one that is unavailable.
 		if (
-			! empty( static::$module_name )
-			&& in_array( static::$module_name, $saved_active_modules, true )
-			&& $modules->is_active( static::$module_name )
+			! empty( $module_name )
+			&& in_array( $module_name, $saved_active_modules, true )
+			&& $modules->is_active( $module_name )
 		) {
-			if ( ! $modules->deactivate( static::$module_name ) ) {
+			if ( ! $modules->deactivate( $module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',
 					__( 'Error deactivating Jetpack module', 'jetpack-my-jetpack' )
@@ -174,7 +183,7 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		return $result;
+		return true;
 	}
 
 	/**
@@ -193,8 +202,9 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the module as well, if the user has a plan
 		 * or the product does not require a plan to work
 		 */
-		if ( static::has_any_plan_for_product() && isset( static::$module_name ) ) {
-			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+		$module_name = static::get_module_name();
+		if ( static::has_any_plan_for_product() && isset( $module_name ) ) {
+			$module_activation = ( new Modules() )->activate( $module_name, false, false );
 
 			if ( ! $module_activation ) {
 				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );

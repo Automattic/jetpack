@@ -8,10 +8,10 @@
 .jp-videopress-settings {
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
+	gap: 16px;
 	max-width: 660px;
 	margin-inline: auto;
-	padding-block: 32px;
+	padding-block: 24px;
 }
 
 // `width: 100%` is required because the wrapper is a flex child of the

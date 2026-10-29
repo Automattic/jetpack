@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -236,9 +237,19 @@ class Admin_Page {
 			}
 		}
 
-		// Self-hosted upsells the Growth plan; WordPress.com keeps Premium.
-		// `product_slug` is fed straight to the checkout URL; `plan_name` is a
-		// product name shown in the locked-preview copy (not translated).
+		$upgrade = array(
+			'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
+			'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
+		);
+		if ( ! $is_wpcom && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			$offer = My_Jetpack_Products::get_bundle_offer( 'growth' );
+			if ( 'growth' !== ( $offer['slug'] ?? '' ) ) {
+				$upgrade = array(
+					'product_slug' => $offer['wpcom_product_slug'] ?? '',
+					'plan_name'    => $offer['title'] ?? '',
+				);
+			}
+		}
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
@@ -248,10 +259,7 @@ class Admin_Page {
 			'preload'             => rest_preload_api_request( array(), '/wpcom/v2/podcast/settings' ),
 			'selected_category'   => self::get_selected_category(),
 			'tracks_user_data'    => self::get_tracks_user_data(),
-			'upgrade'             => array(
-				'product_slug' => $is_wpcom ? 'premium' : 'jetpack_growth_yearly',
-				'plan_name'    => $is_wpcom ? 'Premium' : 'Growth',
-			),
+			'upgrade'             => $upgrade,
 		);
 
 		return $data;

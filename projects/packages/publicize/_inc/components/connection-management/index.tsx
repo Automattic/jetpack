@@ -49,11 +49,7 @@ const ConnectionManagement = ( {
 	const canMarkAsShared = useUserCanShareConnection();
 
 	return (
-		<div
-			className={ clsx( listStyles.wrapper, className ) }
-			// @ts-expect-error inert property is not in the React 18 types
-			inert={ inertValue( disabled ) }
-		>
+		<div className={ clsx( listStyles.wrapper, className ) } inert={ inertValue( disabled ) }>
 			{ connections.length ? (
 				<>
 					{ ! hideHeading && <h3>{ __( 'Connected accounts', 'jetpack-publicize-pkg' ) }</h3> }

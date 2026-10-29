@@ -15,7 +15,12 @@ import {
  * Internal dependencies
  */
 import { getDefaultQueryParams } from '../defaults';
-import { resolveIntervalForRange, type IntervalType } from './interval';
+import {
+	NO_LOCKED_INTERVALS,
+	resolveIntervalForRange,
+	type IntervalType,
+	type LockableInterval,
+} from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
@@ -94,7 +99,8 @@ function canonicalTimestamp< T extends string | undefined >( value: T ): T {
 /** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
-	defaultPreset?: PresetType
+	defaultPreset?: PresetType,
+	{ lockedIntervals = NO_LOCKED_INTERVALS }: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportParams {
 	const defaults = getDefaultQueryParams( false, defaultPreset );
 
@@ -130,7 +136,7 @@ export function normalizeReportParams(
 	const from = presetRange?.from ?? canonicalTimestamp( search?.from ) ?? defaults.from;
 	const to = presetRange?.to ?? canonicalTimestamp( search?.to ) ?? defaults.to;
 
-	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
+	const interval = resolveIntervalForRange( preset, from, to, search?.interval, lockedIntervals );
 
 	const postId = toPostId( search?.post_id );
 	const authorId = toAuthorId( search?.author_id );
@@ -163,7 +169,10 @@ export function normalizeReportParams(
 /**
  * Whether report date params are incomplete or the interval is invalid for the range.
  */
-export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
+export function needsReportDateParamsSeed(
+	search?: ReportDateWindowSearch,
+	lockedIntervals?: readonly LockableInterval[]
+): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
 		return true;
 	}
@@ -180,6 +189,7 @@ export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): bo
 	// derive their allowed intervals from the range, like an absent preset.
 	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
 	return (
-		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+		resolveIntervalForRange( preset, search.from, search.to, search.interval, lockedIntervals ) !==
+		search.interval
 	);
 }

@@ -7,5 +7,31 @@
 		"content": "A summary of your site's views, visitors, likes, and comments, with period-over-period change."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "metrics",
+			"type": "jpa/array-checkbox",
+			"label": "Metrics",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "views",
+					"label": "Views"
+				},
+				{
+					"value": "visitors",
+					"label": "Visitors"
+				},
+				{
+					"value": "comments",
+					"label": "Comments"
+				},
+				{
+					"value": "likes",
+					"label": "Likes"
+				}
+			]
+		}
+	]
 }

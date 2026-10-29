@@ -1,5 +1,12 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type DateLimits,
+	type DateLimitUpsellCopy,
+	type ReportScope,
+} from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
@@ -78,18 +85,47 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
-export type { IntervalType } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export type { IntervalType, LockableInterval } from './utils/interval';
+export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
+} from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
 export {
 	getLockedFeature,
+	getLockedSection,
 	getLockedWidgetFeature,
 	isStatsFeatureLocked,
+	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
+export {
+	applyStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getSectionDatePolicy,
+	getStatsDatePolicy,
+	isDateLimitedPolicy,
+	isPlanDateLimitedSection,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+	type DateLimitFeature,
+	type StatsDatePolicy,
+} from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,

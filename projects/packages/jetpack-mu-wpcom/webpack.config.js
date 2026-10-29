@@ -60,6 +60,7 @@ module.exports = async () => {
 					'./src/features/wpcom-comments/wpcom-comment-like.css',
 				],
 				'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
+				'wpcom-dashboard-tracks': './src/features/wpcom-dashboard-tracks/wpcom-dashboard-tracks.ts',
 				'wpcom-dashboard-widgets':
 					'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.jsx',
 				'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.jsx',
@@ -76,6 +77,7 @@ module.exports = async () => {
 				'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 				'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 				'wpcom-marketplace-tab': './src/features/wpcom-plugins/js/marketplace-tab.ts',
+				'wpcom-themes-tab-tracks': './src/features/wpcom-themes/js/themes-tab-tracks-entry.ts',
 				'wpcom-profile-settings-link-to-wpcom':
 					'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 				'wpcom-replace-site-visibility':

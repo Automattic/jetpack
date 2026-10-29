@@ -1,12 +1,10 @@
+import { getScoreTier } from '@automattic/jetpack-boost-score-api';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { ScoreTier } from '@automattic/jetpack-boost-score-api';
 import type { SpeedScoresSet } from './use-speed-scores';
 
-export type ScoreTier = 'good' | 'medium' | 'poor';
-
-export function getScoreTier( score: number ): ScoreTier {
-	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
-	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
-}
+export { getScoreTier };
+export type { ScoreTier };
 
 export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {

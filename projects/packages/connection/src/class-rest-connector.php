@@ -560,7 +560,8 @@ class REST_Connector {
 
 		$connection_status = array(
 			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // Deprecated: use isInSafeMode.
+			'isInSafeMode'        => $status->in_safe_mode(),
 			'isRegistered'        => $connection->is_connected(),
 			'isUserConnected'     => $connection->is_user_connected(),
 			'hasConnectedOwner'   => $connection->has_connected_owner(),
@@ -766,6 +767,8 @@ class REST_Connector {
 			'isMaster'              => $is_master_user,
 			'username'              => $current_user->user_login,
 			'id'                    => $current_user->ID,
+			'displayName'           => $current_user->display_name,
+			'email'                 => $current_user->user_email,
 			'blogId'                => $blog_id,
 			'wpcomUser'             => $wpcom_user_data,
 			'gravatar'              => get_avatar_url( $current_user->ID ),

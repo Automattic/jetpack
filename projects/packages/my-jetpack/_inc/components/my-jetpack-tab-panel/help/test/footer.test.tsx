@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
-import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getAdminUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { isJetpackPluginActive } from '../../../../utils/is-jetpack-plugin-active';
 import { HelpFooter } from '../footer';
@@ -20,10 +25,21 @@ const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 describe( 'HelpFooter', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		( getScriptData as jest.Mock ).mockReturnValue( undefined );
 		mockCurrentUserCan.mockReturnValue( true );
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
+	} );
+	it( 'uses the shared eligible module-management destination', () => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			myJetpack: { modulesManagementUrl: 'features' },
+		} );
+		render( <HelpFooter /> );
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'features'
+		);
 	} );
 
 	it( 'shows the Useful links section for an admin with the Jetpack plugin active', () => {

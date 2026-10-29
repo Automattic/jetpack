@@ -52,6 +52,10 @@ class Contact_Form_Block {
 		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
 		 */
 		if ( ! self::can_manage_block() ) {
+			// Lets the Jetpack plugin's editor say why.
+			if ( class_exists( 'Jetpack_Gutenberg' ) ) {
+				\Jetpack_Gutenberg::set_extension_unavailable( 'contact-form', 'missing_module', array( 'module' => 'contact-form' ) );
+			}
 			return;
 		}
 
@@ -216,11 +220,8 @@ class Contact_Form_Block {
 	/**
 	 * Lightweight bootstrap default for the `central-form-management` feature flag.
 	 *
-	 * Registered from Util::init() so that early callers of
-	 * Contact_Form_Plugin::has_editor_feature_flag() — such as the Forms dashboard
-	 * default-tab redirect, which runs before the WP `init` hook fires — see the
-	 * correct flag value. Kept separate from register_feature() so the early-boot
-	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 * Registered early from Util::init(), which says why; kept apart from register_feature()
+	 * so that path skips the Current_Plan::supports() calls of the paid-plan flags.
 	 *
 	 * @param array $features - the features array.
 	 *

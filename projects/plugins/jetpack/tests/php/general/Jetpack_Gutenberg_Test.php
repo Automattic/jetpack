@@ -135,6 +135,65 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The SEO package registers the auto-generate setting for saving when it starts,
+	 * so the editor must not offer or read that setting before then.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_seo_package_started
+	 *
+	 * @param bool $started Whether the SEO package has started.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_seo_package_started' )]
+	public function test_seo_auto_enhance_waits_for_the_seo_package( $started ) {
+		global $current_screen;
+
+		// Available everywhere but started only where the host boots it, as on WordPress.com.
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( 'jetpack_seo_surface_visible_v2', true );
+		update_option( 'ai_seo_enhancer_enabled', true );
+		if ( $started ) {
+			do_action( 'jetpack_seo_init' );
+		}
+
+		$previous_screen = $current_screen;
+		$current_screen  = convert_to_screen( 'post' );
+		$current_screen->is_block_editor( true );
+		Shared_Stores_Assets::register_assets();
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		try {
+			Jetpack_Gutenberg::enqueue_block_editor_assets();
+		} finally {
+			$current_screen = $previous_screen;
+		}
+
+		preg_match(
+			'/Jetpack_Editor_Initial_State = (\{.*\});/',
+			(string) wp_scripts()->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' ),
+			$matches
+		);
+		$state = (array) json_decode( $matches[1], true );
+
+		$this->assertSame( $started, $state['ai-assistant']['is-seo-auto-enhance-switchable'] );
+		$this->assertSame( $started, $state['ai-assistant']['is-seo-auto-enhance-enabled'] );
+	}
+
+	/**
+	 * Whether the SEO package has started.
+	 *
+	 * @return array
+	 */
+	public static function provide_seo_package_started() {
+		return array(
+			'started'     => array( true ),
+			'not started' => array( false ),
+		);
+	}
+
+	/**
 	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
 	 */
 	public function test_does_calling_get_availability_twice_result_in_notice() {

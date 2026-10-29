@@ -15,11 +15,11 @@ import {
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
-import { useMediaQuery } from '@wordpress/compose';
+import { useInstanceId, useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { calendar, check, chevronDown } from '@wordpress/icons';
+import { calendar, check, chevronDown, lock } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -44,6 +44,13 @@ const WIDE_MENU_THRESHOLD = 820;
 const ATTENTION_STYLE = {
 	'--date-period-dropdown-attention-duration': `${ PERIOD_CHANGE_ATTENTION_MS }ms`,
 } as CSSProperties;
+
+const getPresetIcon = ( isLocked: boolean, isSelected: boolean ) => {
+	if ( isLocked ) {
+		return lock;
+	}
+	return isSelected ? check : undefined;
+};
 
 type DatePeriodDropdownProps = {
 	/**
@@ -140,6 +147,15 @@ type DatePeriodDropdownProps = {
 	 * restarts it.
 	 */
 	attentionId?: number;
+
+	/** Presets shown with a lock, which cannot be picked. */
+	lockedPresetIds?: readonly QuickSurfacePresetId[];
+
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
+	earliestDate?: Date;
+
+	/** Why the locked presets are locked, shown under them and read as each one's description. */
+	lockNotice?: ReactNode;
 };
 
 /**
@@ -164,7 +180,11 @@ export function DatePeriodDropdown( {
 	triggerProps,
 	onOpenChange,
 	attentionId,
+	lockedPresetIds,
+	earliestDate,
+	lockNotice,
 }: DatePeriodDropdownProps ) {
+	const lockNoticeId = useInstanceId( DatePeriodDropdown, 'date-period-dropdown__lock-notice' );
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
 	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_MENU_THRESHOLD }px)` );
@@ -272,45 +292,58 @@ export function DatePeriodDropdown( {
 			{ /* Both halves stretch: the seam is drawn on the calendar, which would
 			   cut it short beside a longer list. */ }
 			<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
-				<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
-					{ groups.map( group => (
-						<MenuGroup key={ group[ 0 ].id }>
-							{ group.map( preset => {
-								const isSelected = preset.id === appliedPresetId;
+				{ /* A menu may hold only menu items, so the lock notice sits below it. */ }
+				<Stack direction="column">
+					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
+						{ groups.map( group => (
+							<MenuGroup key={ group[ 0 ].id }>
+								{ group.map( preset => {
+									const isSelected = preset.id === appliedPresetId;
+									const isLocked = lockedPresetIds?.includes( preset.id ) ?? false;
 
-								return (
-									<MenuItem
-										key={ preset.id }
-										role="menuitemradio"
-										isSelected={ isSelected }
-										icon={ isSelected ? check : undefined }
-										onClick={ () => {
-											closedByActionRef.current = true;
-											selectPreset( preset );
-											onClose();
-										} }
-									>
-										{ preset.label }
-									</MenuItem>
-								);
-							} ) }
-						</MenuGroup>
-					) ) }
+									return (
+										<MenuItem
+											key={ preset.id }
+											role="menuitemradio"
+											isSelected={ isSelected }
+											icon={ getPresetIcon( isLocked, isSelected ) }
+											// MenuItem keeps a disabled item focusable, so its lock notice is read out.
+											disabled={ isLocked }
+											aria-describedby={ isLocked && lockNotice ? lockNoticeId : undefined }
+											onClick={ () => {
+												closedByActionRef.current = true;
+												selectPreset( preset );
+												onClose();
+											} }
+										>
+											{ preset.label }
+										</MenuItem>
+									);
+								} ) }
+							</MenuGroup>
+						) ) }
 
-					{ /* Opens the calendar beside the list rather than closing the menu. */ }
-					{ withCustomRange && (
-						<MenuGroup>
-							<MenuItem
-								role="menuitemradio"
-								isSelected={ appliedPresetId === PRESET_CUSTOM }
-								icon={ appliedPresetId === PRESET_CUSTOM ? check : undefined }
-								onClick={ () => setIsEditingCustom( true ) }
-							>
-								{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
-							</MenuItem>
-						</MenuGroup>
+						{ /* Opens the calendar beside the list rather than closing the menu. */ }
+						{ withCustomRange && (
+							<MenuGroup>
+								<MenuItem
+									role="menuitemradio"
+									isSelected={ appliedPresetId === PRESET_CUSTOM }
+									icon={ appliedPresetId === PRESET_CUSTOM ? check : undefined }
+									onClick={ () => setIsEditingCustom( true ) }
+								>
+									{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
+								</MenuItem>
+							</MenuGroup>
+						) }
+					</NavigableMenu>
+
+					{ lockNotice && (
+						<div id={ lockNoticeId } className="date-period-dropdown__lock-notice">
+							{ lockNotice }
+						</div>
 					) }
-				</NavigableMenu>
+				</Stack>
 
 				{ isEditingCustom && (
 					<DateRangePopoverContent
@@ -329,6 +362,7 @@ export function DatePeriodDropdown( {
 						canApply={ canApply }
 						isWideScreen={ !! isWideScreen }
 						timeZone={ timeZone }
+						earliestDate={ earliestDate }
 					/>
 				) }
 			</Stack>

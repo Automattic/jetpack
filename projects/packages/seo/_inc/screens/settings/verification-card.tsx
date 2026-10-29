@@ -22,6 +22,8 @@ interface Props {
 	 */
 	onToggle?: ( active: boolean ) => void;
 	onChange: ( key: VerificationKey, value: string ) => void;
+	/** Save the Google code auto-verify fetches, through the settings form. */
+	saveGoogleCode: ( code: string ) => Promise< void >;
 	/** Save the current value — called on blur (auto-save, no Save button). */
 	onCommit?: () => void;
 	disabled?: boolean;
@@ -72,6 +74,7 @@ const VerificationCard: FC< Props > = ( {
 	active,
 	onToggle,
 	onChange,
+	saveGoogleCode,
 	onCommit,
 	disabled,
 	open,
@@ -128,6 +131,7 @@ const VerificationCard: FC< Props > = ( {
 					<GoogleVerificationField
 						value={ value.google }
 						onChange={ next => onChange( 'google', next ) }
+						saveCode={ saveGoogleCode }
 						onCommit={ onCommit }
 						disabled={ controlsDisabled }
 					/>

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import CheckboxCard, { CheckboxCardGrid } from '@automattic/jetpack-components/checkbox-card';
 import { getAdminUrl, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
@@ -13,7 +14,6 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { SUBSCRIPTIONS_SECTION_ID } from '../anchors';
 import { getNewsletterScriptData } from '../script-data';
-import { PlacementCard } from './placement-card';
 import {
 	OverlayIllustration,
 	PopupIllustration,
@@ -62,7 +62,7 @@ interface SubscriptionsSectionProps {
  * Subscriptions Section Component
  *
  * Renders the four "Homepage and posts" placements as a 2×2 grid of
- * `PlacementCard`s, plus inline Navigation / Comments toggle subgroups
+ * `CheckboxCard`s, plus inline Navigation / Comments toggle subgroups
  * inside the same card. Per-placement Tracks events fire alongside the
  * state update so we can see toggle activity before any save.
  *
@@ -246,7 +246,7 @@ export function SubscriptionsSection( {
 								<Text variant="heading-sm" render={ <h3 /> }>
 									{ __( 'Homepage and posts', 'jetpack-newsletter' ) }
 								</Text>
-								<div className="jetpack-newsletter-placements-grid">
+								<CheckboxCardGrid>
 									{ placements.map( placement => {
 										// Surface "Preview and edit" only when the placement is
 										// enabled in the SAVED state AND still shown as checked —
@@ -259,7 +259,7 @@ export function SubscriptionsSection( {
 										const isEnabledAndSaved =
 											Boolean( data[ placement.key ] ) && Boolean( savedData?.[ placement.key ] );
 										return (
-											<PlacementCard
+											<CheckboxCard
 												key={ placement.key }
 												id={ `placement-${ placement.key }` }
 												name={ String( placement.key ) }
@@ -273,7 +273,7 @@ export function SubscriptionsSection( {
 											/>
 										);
 									} ) }
-								</div>
+								</CheckboxCardGrid>
 							</Stack>
 
 							<Stack gap="sm" direction="column">

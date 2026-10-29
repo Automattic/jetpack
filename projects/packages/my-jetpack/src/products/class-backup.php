@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
@@ -22,6 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Backup extends Hybrid_Product {
 	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
+
+	public const PLAN_REFRESH_MISS_TRANSIENT_KEY = 'my-jetpack-backup-plan-refresh-miss';
 
 	/**
 	 * The product slug
@@ -431,14 +435,31 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the backup module is active.
-	 *
-	 * The standalone plugin draws its dashboard whatever the module says, so it counts as on.
+	 * Whether a plugin that can deliver Backup is on, which is all that matters where the plan decides Backup.
 	 *
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		return static::is_standalone_plugin_active() || parent::is_module_active();
+		if ( ! static::is_plan_driven() ) {
+			return parent::is_module_active();
+		}
+
+		return static::is_standalone_plugin_active() || static::is_jetpack_plugin_active();
+	}
+
+	/**
+	 * Whether the site's plan, not the backup module, decides Backup here.
+	 *
+	 * An older Jetpack plugin still opens its dashboard only while the module is on.
+	 *
+	 * @since 6.13.0
+	 *
+	 * @return bool
+	 */
+	public static function is_plan_driven() {
+		return static::is_standalone_plugin_active()
+			|| ! class_exists( 'Jetpack', false )
+			|| defined( 'Jetpack::BACKUP_FOLLOWS_PLAN' );
 	}
 
 	/**
@@ -452,13 +473,79 @@ class Backup extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
-			// The Jetpack plugin hosts the dashboard wherever it initialized the package.
-			if ( did_action( 'jetpack_backup_initialized' ) ) {
+			// The Jetpack plugin hosts the dashboard wherever it initialized the package, or will on
+			// the next request when this one learned of the plan after Jetpack checked for it.
+			if ( did_action( 'jetpack_backup_initialized' ) || ( static::is_plan_driven() && static::plan_opens_jetpack_dashboard() ) ) {
 				return admin_url( 'admin.php?page=jetpack-backup' );
 			}
 
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers its bundled Backup dashboard, which Jetpack::configure_backup_package() asks.
+	 *
+	 * @since 6.13.0
+	 *
+	 * @return bool
+	 */
+	public static function offers_jetpack_dashboard() {
+		return static::jetpack_can_host_dashboard() && static::has_plan_on_record();
+	}
+
+	/**
+	 * Whether the Jetpack plugin could host the dashboard here, whatever the plan.
+	 *
+	 * @return bool
+	 */
+	private static function jetpack_can_host_dashboard() {
+		$connection = new Connection_Manager();
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		$connected = apply_filters( 'jetpack_is_connection_ready', $connection->is_connected(), $connection );
+
+		// Not on multisite, which the Backup package does not support, or without a connected
+		// owner, since buying and managing backups needs a linked account.
+		if ( is_multisite() || ! $connected || ! $connection->has_connected_owner() ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_backup_dashboard_enabled', true );
+	}
+
+	/**
+	 * Whether Manage opens the bundled dashboard, which is registered only once the stored plan includes Backup.
+	 *
+	 * @return bool
+	 */
+	private static function plan_opens_jetpack_dashboard() {
+		if ( ! static::jetpack_can_host_dashboard() ) {
+			return false;
+		}
+
+		if ( static::has_plan_on_record() ) {
+			return true;
+		}
+
+		// Right after checkout WordPress.com knows of the plan before the stored copy does, so
+		// catch that up rather than link to a page the next request would not register.
+		if ( get_transient( self::PLAN_REFRESH_MISS_TRANSIENT_KEY ) || ! static::has_paid_plan_for_product() ) {
+			return false;
+		}
+
+		// Refresh directly: the shared reload may already be spent on another product this request.
+		Current_Plan::refresh_from_wpcom();
+
+		if ( static::has_plan_on_record() ) {
+			return true;
+		}
+
+		// The two can keep disagreeing, so a miss holds off the next refresh.
+		set_transient( self::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, 5 * MINUTE_IN_SECONDS );
+
+		return false;
 	}
 
 	/**
@@ -481,6 +568,43 @@ class Backup extends Hybrid_Product {
 			'jetpack_backup_t0_yearly',
 			'jetpack_backup_t0_monthly',
 		);
+	}
+
+	/**
+	 * Whether the site's stored plan or products include Backup, current or expired, without asking WordPress.com.
+	 *
+	 * @since 6.13.0
+	 *
+	 * @return bool
+	 */
+	public static function has_plan_on_record() {
+		$feature = static::$feature_identifying_paid_plan;
+		$plan    = (array) get_option( Current_Plan::PLAN_OPTION, array() );
+
+		// The stored plan lists the features of every current purchase, standalone products included.
+		if ( in_array( $feature, (array) ( $plan['features']['active'] ?? array() ), true ) ) {
+			return true;
+		}
+
+		// An expired bundle stays the stored plan without listing its features, so match its family by slug.
+		$plan_slug = (string) ( $plan['product_slug'] ?? '' );
+		foreach ( array( 'jetpack_starter_', 'jetpack_security_', 'jetpack_complete', 'jetpack_pro_', 'jetpack_personal', 'jetpack_premium', 'jetpack_business' ) as $prefix ) {
+			if ( str_starts_with( $plan_slug, $prefix ) ) {
+				return true;
+			}
+		}
+
+		foreach ( (array) Current_Plan::get_products() as $product ) {
+			$slug = (string) ( ( (array) $product )['product_slug'] ?? '' );
+
+			foreach ( static::get_paid_plan_product_slugs() as $paid_slug ) {
+				if ( false !== strpos( $slug, $paid_slug ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

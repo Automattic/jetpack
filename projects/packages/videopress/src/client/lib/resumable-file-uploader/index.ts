@@ -18,7 +18,7 @@ const debug = debugFactory( 'videopress:resumable-file-uploader' );
  *
  * @see https://github.com/tfredrich/RestApiTutorial.com/blob/master/content/advanced/responses/retries.md
  */
-const RETRIABLE_STATUS_CODES = [ 408, 429, 500, 502, 503, 504 ];
+const RETRIABLE_STATUS_CODES = [ 408, 423, 429, 500, 502, 503, 504 ];
 
 const jwtsForKeys = {};
 
@@ -46,6 +46,7 @@ type UploadVideoArguments = {
 	onSuccess: ( media: VideoMediaProps, file: File ) => void;
 	onError: ( error ) => void;
 	tokenData: MediaTokenProps;
+	signal?: AbortSignal;
 };
 
 const getJwtKey = ( url: string ) => {
@@ -61,6 +62,7 @@ const resumableFileUploader = ( {
 	onProgress,
 	onSuccess,
 	onError,
+	signal,
 }: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
 		onError,
@@ -77,7 +79,7 @@ const resumableFileUploader = ( {
 		onShouldRetry: function ( err: tus.DetailedError ) {
 			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
 
-			// Only retry on transient errors (timeouts, rate limits, server errors).
+			// Only retry on transient errors (timeouts, upload locks, rate limits, server errors).
 			if ( status && ! RETRIABLE_STATUS_CODES.includes( status ) ) {
 				debug( 'not retrying due to %d error', status );
 				localStorage.removeItem( upload._urlStorageKey );
@@ -170,7 +172,13 @@ const resumableFileUploader = ( {
 		},
 	} );
 
+	signal?.addEventListener( 'abort', () => void upload.abort(), { once: true } );
+
 	upload.findPreviousUploads().then( function ( previousUploads ) {
+		// `start()` clears tus's abort flag, so an abort that landed first must skip it.
+		if ( signal?.aborted ) {
+			return;
+		}
 		if ( previousUploads.length ) {
 			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
 		}

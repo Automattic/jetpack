@@ -1,0 +1,77 @@
+// Copying takes the visible letters, not this copy as well.
+.typed-label {
+	user-select: none;
+}
+
+// Letters are laid out from the start and only revealed, so nothing shifts.
+.typed {
+	--typed-step: calc(1s / var(--typed-count));
+
+	> span {
+		position: relative;
+		animation: typed-letter 400ms ease-out backwards;
+		animation-delay: calc(var(--typed-index) * var(--typed-step));
+
+		// The caret sits on the newest letter's inline end, taking up no space.
+		&::after {
+			content: "";
+			position: absolute;
+			inset-block: 0.1em;
+			inset-inline-start: 100%;
+			border-inline-start: 2px solid currentColor;
+			opacity: 0;
+			animation: typed-caret calc(var(--typed-step) * 2) linear;
+			animation-delay: calc(var(--typed-index) * var(--typed-step));
+		}
+
+		&:last-child::after {
+			animation-duration: 1s;
+			animation-iteration-count: 2;
+		}
+	}
+}
+
+@keyframes typed-letter {
+
+	0% {
+		visibility: hidden;
+	}
+
+	0.01% {
+		visibility: visible;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+@keyframes typed-caret {
+
+	0%,
+	49.99% {
+		opacity: 1;
+	}
+
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+// Each section rises in turn, 70ms apart.
+.sections > * {
+	animation: section-rise 300ms ease-out backwards;
+	animation-delay: calc(var(--section-index, 0) * 70ms);
+
+	@for $i from 2 through 3 {
+		&:nth-child(#{$i}) {
+			--section-index: #{$i - 1};
+		}
+	}
+}
+
+@keyframes section-rise {
+
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}

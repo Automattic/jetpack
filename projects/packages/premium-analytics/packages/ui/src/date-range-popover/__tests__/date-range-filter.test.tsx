@@ -131,4 +131,11 @@ describe( 'DateRangePopoverContent selection', () => {
 			'custom'
 		);
 	} );
+
+	it( 'disables the days before the earliest one', () => {
+		renderContent( { earliestDate: new Date( '2026-07-10T00:00:00Z' ) } );
+
+		expect( day( 9 ) ).toBeDisabled();
+		expect( day( 10 ) ).toBeEnabled();
+	} );
 } );

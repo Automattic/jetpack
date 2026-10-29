@@ -9,15 +9,12 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import {
+	chartIntervalAttributeField,
 	chartIntervalElements,
-	chartIntervalField,
 	type ChartIntervalFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
-import {
-	CHART_TYPE_ELEMENTS,
-	type ChartDisplayChartType,
-	type CountLabel,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
+import { trafficIntervalExtension } from './interval-extension';
 import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
@@ -28,6 +25,7 @@ export const TRAFFIC_PERIODS = [
 	'day',
 	'week',
 	'month',
+	'year',
 ] as const satisfies readonly StatsPeriod[];
 
 /**
@@ -42,8 +40,8 @@ export function defaultChartType(): TrafficChartType {
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type TrafficChartType = ChartDisplayChartType;
 
@@ -108,18 +106,10 @@ export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartG
 };
 
 const chartIntervalAttribute = {
-	...chartIntervalField,
+	...chartIntervalAttributeField< TrafficChartAttributes >( ( range, item ) =>
+		trafficIntervalExtension( range, item.chartType ?? defaultChartType() )
+	),
 	elements: chartIntervalElements( TRAFFIC_PERIODS ),
-};
-
-// The switch must show what the chart draws, and the default depends on Stats v1.
-const chartTypeAttribute = {
-	id: 'chartType',
-	label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-	type: 'jpa/toggle-group',
-	elements: CHART_TYPE_ELEMENTS,
-	relevance: 'high',
-	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
 };
 
 /**
@@ -130,7 +120,11 @@ const chartTypeAttribute = {
 export default {
 	attributes: [
 		chartIntervalAttribute,
-		chartTypeAttribute,
+		{
+			id: 'chartType',
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType(),
+		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {},

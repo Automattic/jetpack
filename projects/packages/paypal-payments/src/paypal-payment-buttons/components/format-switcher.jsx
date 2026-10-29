@@ -21,7 +21,7 @@ const FORMAT_OPTIONS = [
 ];
 
 /**
- * Format switcher — the Styles tab's Embed as control.
+ * Format switcher - the Embed as control.
  *
  * @param {object}   props          - Component props.
  * @param {string}   props.value    - Current format value ('BUTTON' | 'STACKED' | 'LINK' | 'QR').

@@ -11,15 +11,19 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	title_separator: '-',
 	title_formats_editable: true,
+	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	search_engines_visible: true,
 	sitemap_active: false,
 	sitemap_switchable: true,
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: makeSchemaSettings(),
 	...overrides,
 } );
@@ -83,18 +87,12 @@ describe( 'buildCorePayload', () => {
 		expect( buildCorePayload( baseline, local ) ).toEqual( {} );
 	} );
 
-	it( 'sends the whole verification map when any code changed', () => {
-		const baseline = makeSettings();
-		const verification = {
-			google: 'g-code',
-			bing: '',
-			pinterest: '',
-			yandex: 'y-code',
-			facebook: '',
-		};
-		const local = makeSettings( { verification } );
+	it( 'sends only the verification codes that changed, cleared ones included', () => {
+		const codes = { google: 'g-code', bing: 'b-code', pinterest: '', yandex: '', facebook: '' };
+		const baseline = makeSettings( { verification: codes } );
+		const local = makeSettings( { verification: { ...codes, bing: '', yandex: 'y-code' } } );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			verification_services_codes: verification,
+			verification_services_codes: { bing: '', yandex: 'y-code' },
 		} );
 	} );
 
@@ -107,7 +105,7 @@ describe( 'buildCorePayload', () => {
 		} );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
 			advanced_seo_front_page_description: 'Desc',
-			verification_services_codes: verification,
+			verification_services_codes: { google: 'g' },
 		} );
 	} );
 

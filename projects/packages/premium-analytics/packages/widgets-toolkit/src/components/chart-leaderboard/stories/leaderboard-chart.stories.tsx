@@ -321,6 +321,51 @@ export const Resizable: Story = {
 	},
 };
 
+/**
+ * A fixed-height tile, so the header and row fitting behave as they do in the dashboard.
+ */
+const withTileHeight =
+	( height: number ): Decorator =>
+	Story => (
+		<div style={ { width: 370, height } }>
+			<Story />
+		</div>
+	);
+
+/**
+ * With a column header naming the rows and the metric. Hovering an abbreviated
+ * value restores the exact figure with its unit, e.g. "4,186 views".
+ */
+export const WithColumns: Story = {
+	args: {
+		data: mockLeaderboardData,
+		withOverlayLabel: true,
+		showLegend: false,
+		dataFormat: { type: 'number', options: { useMultipliers: true } },
+		columns: { label: 'Pages', metric: 'views' },
+	},
+	decorators: [ withTileHeight( 340 ) ],
+};
+
+/**
+ * The metric heading sits over the value and its delta together.
+ */
+export const WithColumnsAndComparison: Story = {
+	args: {
+		...WithColumns.args,
+		withComparison: true,
+	},
+	decorators: [ withTileHeight( 340 ) ],
+};
+
+/**
+ * A height-1 tile hides the header and keeps every row that fits.
+ */
+export const WithColumnsShortTile: Story = {
+	args: WithColumns.args,
+	decorators: [ withTileHeight( 110 ) ],
+};
+
 type SkeletonStory = StoryObj< typeof LeaderboardSkeleton >;
 
 /**

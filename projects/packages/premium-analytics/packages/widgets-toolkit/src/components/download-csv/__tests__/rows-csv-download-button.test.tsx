@@ -70,12 +70,21 @@ describe( 'RowsCsvDownloadButton', () => {
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'stays hidden when the server disables CSV exports', () => {
-		mockGetScriptData.mockReturnValue( {
-			premium_analytics: {
-				initial_full_sync_finished: 1,
-				csv_exports_enabled: false,
+	it.each( [
+		[ 'the server disables CSV exports', { csv_exports_enabled: false } ],
+		[
+			"the site's plan locks them",
+			{
+				plan_gates: {
+					tier: 'free',
+					locked_features: { csv: { description: '', support_url: '', upgrade_url: '' } },
+					locked_widget_types: {},
+				},
 			},
+		],
+	] )( 'stays hidden when %s', ( _name, premiumAnalytics ) => {
+		mockGetScriptData.mockReturnValue( {
+			premium_analytics: { initial_full_sync_finished: 1, ...premiumAnalytics },
 		} as ReturnType< typeof getScriptData > );
 
 		render(

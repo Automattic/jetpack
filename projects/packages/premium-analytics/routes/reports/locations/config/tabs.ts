@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { defineReportTabs } from '@jetpack-premium-analytics/routing';
-import { __ } from '@wordpress/i18n';
-import type { LocationsReportSection } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	getLocationsSectionLabel,
+	type LocationsReportSection,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type ReportLocationsTabId = LocationsReportSection;
 
@@ -13,15 +15,15 @@ const reportLocationsTabs = defineReportTabs< ReportLocationsTabId >(
 	[
 		{
 			id: 'countries',
-			getLabel: () => __( 'Countries', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getLocationsSectionLabel( 'countries' ),
 		},
 		{
 			id: 'regions',
-			getLabel: () => __( 'Regions', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getLocationsSectionLabel( 'regions' ),
 		},
 		{
 			id: 'cities',
-			getLabel: () => __( 'Cities', 'jetpack-premium-analytics-pkg' ),
+			getLabel: () => getLocationsSectionLabel( 'cities' ),
 		},
 	],
 	DEFAULT_TAB_ID

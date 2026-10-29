@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import UtmInsightsWidget from '../render';
 import type { UtmInsightsRow } from '../use-utm-insights';
@@ -18,13 +19,14 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 let mockRows: UtmInsightsRow[] = [];
+let mockIsLoading = false;
 
 jest.mock( '../use-utm-insights', () => ( {
 	__esModule: true,
 	default: () => ( {
 		data: mockRows,
 		hasComparison: false,
-		isLoading: false,
+		isLoading: mockIsLoading,
 		isFetching: false,
 		hasData: mockRows.length > 0,
 		isError: false,
@@ -32,53 +34,77 @@ jest.mock( '../use-utm-insights', () => ( {
 } ) );
 
 beforeEach( () => {
+	jest.useFakeTimers();
 	mockRows = [];
+	mockIsLoading = false;
 } );
+
+const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
 afterEach( () => {
 	jest.useRealTimers();
 } );
 
 describe( 'UtmInsightsWidget', () => {
-	it( 'offers Build URL for an empty selection and keeps View all available', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( <UtmInsightsWidget attributes={ {} } /> );
+	it( 'offers Build URL in the empty state', async () => {
+		const user = setupUser();
+		render( <UtmInsightsWidget attributes={ {} } /> );
 
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+	} );
 
-		await user.keyboard( '{Escape}' );
+	it( 'declares Build URL when there are UTM visits', async () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		rerender( <UtmInsightsWidget attributes={ {} } /> );
-		expect( screen.queryByRole( 'button', { name: 'Build URL' } ) ).not.toBeInTheDocument();
+		const { runDeclaredAction } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
+
+		await runDeclaredAction( 'build-url' );
+		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'there are no UTM visits', [], false ],
+		[ 'the first load is in flight', [], true ],
+		[
+			'a new period loads over the previous rows',
+			[ { label: 'newsletter / email', value: 18 } ],
+			true,
+		],
+	] )( 'leaves Build URL out of the footer while %s', ( _state, rows, isLoading ) => {
+		mockRows = rows;
+		mockIsLoading = isLoading;
+		const { declaredActions } = renderWithActionsHost( <UtmInsightsWidget attributes={ {} } /> );
+
+		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'view-all' ] );
 	} );
 
 	it.each( [
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],
-	] as const )( 'links View all to the %s report tab', ( section, attributes ) => {
-		render( <UtmInsightsWidget attributes={ attributes } /> );
+	] as const )( 'declares View all to the %s report tab', ( section, attributes ) => {
+		const { declaredLink } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ attributes } />
+		);
 
-		const href = screen.getByRole( 'link', { name: 'View all' } ).getAttribute( 'href' ) ?? '';
+		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
 		expect( href ).toContain( '/reports/utm' );
 		expect( href ).toContain( `section=${ section }` );
 	} );
 
-	it( 'hides the report link and the download when the host composition opts out', () => {
+	it( 'keeps only Build URL when the host composition opts out of the report actions', () => {
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		render( <UtmInsightsWidget attributes={ { showReportLink: false } } /> );
+		const { declaredActions } = renderWithActionsHost(
+			<UtmInsightsWidget attributes={ { showReportLink: false } } />
+		);
 
-		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+		expect( declaredActions().map( action => action.id ) ).toEqual( [ 'build-url' ] );
 	} );
 
 	it( 'downloads the full report for the active UTM dimension', async () => {
-		jest.useFakeTimers();
 		const downloads = captureCsvDownloads();
 		mockApiFetch.mockResolvedValue( {} );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
-		render(
+		const { findDeclaredAction } = renderWithActionsHost(
 			<UtmInsightsWidget
 				attributes={ {
 					utmDimension: 'utm_campaign,utm_source,utm_medium',
@@ -87,7 +113,7 @@ describe( 'UtmInsightsWidget', () => {
 			/>
 		);
 
-		await downloads.clickAndSave( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 		const [ saved ] = downloads.files;
 		downloads.restore();
 
@@ -95,7 +121,7 @@ describe( 'UtmInsightsWidget', () => {
 	} );
 
 	it( 'links a drilled-in post to its detail page and carries the report window', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		mockRows = [
 			{
 				label: 'jetpack-forms / email',
@@ -112,10 +138,13 @@ describe( 'UtmInsightsWidget', () => {
 			/>
 		);
 
+		expect( screen.getByText( 'Source / Medium' ) ).toBeInTheDocument();
+
 		await user.click(
 			screen.getByRole( 'button', { name: 'View posts for jetpack-forms / email' } )
 		);
 
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 
@@ -130,7 +159,7 @@ describe( 'UtmInsightsWidget', () => {
 	} );
 
 	it( 'names the active UTM dimension as the origin section', async () => {
-		const user = userEvent.setup();
+		const user = setupUser();
 		mockRows = [
 			{
 				label: 'spring-sale',

@@ -1,16 +1,44 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { FormToggle } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { getProtectPageUrl } from '../../../utils/protect-page';
+import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
-import { getSwitchLabel } from '../utils';
-import { getFeatureManageUrl, getForcedReason } from './feature-state';
+import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
+import { CONNECT_INTENT_PARAM, rememberConnectIntent } from './connect-resume';
+import { UpgradeButton } from './feature-paid';
+import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
-import type { FeatureActionOrigin } from './features-tracking-context';
+import type { ConnectionStartAction, FeatureActionOrigin } from './features-tracking-context';
+import type { Ref } from 'react';
+
+/**
+ * Leave to connect a WordPress.com account, coming back to the same Features view.
+ *
+ * @return Starts the connection for the feature the action was taken on.
+ */
+export function useAccountConnection() {
+	const tracking = useFeaturesTracking();
+
+	return useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
+			tracking?.trackConnectionStart( state, origin, action );
+			const intent = action === 'connect' ? rememberConnectIntent( state.feature.slug ) : null;
+			const returnUrl = getFeatureConnectReturnUrl(
+				undefined,
+				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
+			);
+			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
+		},
+		[ tracking ]
+	);
+}
 
 type PluginToggleProps = {
 	state: FeatureState;
@@ -87,10 +115,16 @@ export function InstallButton( {
 }: InstallButtonProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
+	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( { state, action, origin } );
-		run( action );
-	}, [ action, origin, run, state, tracking ] );
+		const connectAfter = Boolean( state?.accountNeeded );
+		run( action, { leavesPage: connectAfter } ).then( done => {
+			if ( done && connectAfter ) {
+				connectAccount( state, origin, 'install' );
+			}
+		} );
+	}, [ action, connectAccount, origin, run, state, tracking ] );
 	const busyLabel =
 		action === 'install'
 			? __( 'Installing…', 'jetpack-my-jetpack' )
@@ -118,8 +152,9 @@ type FeatureActionProps = {
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, so several features can be flipped in a row; the
- * wp-admin sidebar is refreshed in place after each switch (see `use-sidebar-sync.ts`).
+ * A switch answers in place, so several features can be flipped in a row; the wp-admin sidebar
+ * is refreshed after each (see `use-sidebar-sync.ts`). Installing Jetpack reloads the page, and
+ * connecting an account leaves it.
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
@@ -150,10 +185,58 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		);
 	}
 
+	if ( offersConnect( state ) ) {
+		return <ConnectButton state={ state } origin={ origin } />;
+	}
+
 	switch ( control.kind ) {
+		case 'plan':
+			if ( state.status === 'active' ) {
+				return null;
+			}
+
+			// Paid for, with its plugin off: activating it is all that is left to do.
+			if ( control.activatePlugin && state.feature.included ) {
+				return (
+					<InstallButton
+						state={ state }
+						origin={ origin }
+						plugin={ control.activatePlugin }
+						name={ pluginName }
+						label={ __( 'Activate', 'jetpack-my-jetpack' ) }
+						action="activate"
+					/>
+				);
+			}
+
+			// Otherwise there is a sale to offer instead of a switch; buying it sets the plugin up.
+			return <UpgradeButton state={ state } />;
+
 		case 'module': {
 			if ( getForcedReason( state ) ) {
 				return null;
+			}
+
+			const protectPageUrl = getProtectPageUrl( control.module.module );
+			if ( protectPageUrl ) {
+				return (
+					<ButtonLink
+						href={ protectPageUrl }
+						variant="outline"
+						size="compact"
+						aria-label={ sprintf(
+							/* translators: %s is the feature name. "Protect" is a product name. */
+							__( 'Manage %s in Protect', 'jetpack-my-jetpack' ),
+							feature.name
+						) }
+						aria-describedby={ describedby }
+					>
+						{
+							/* translators: "Protect" is a product name. */
+							__( 'Manage in Protect', 'jetpack-my-jetpack' )
+						}
+					</ButtonLink>
+				);
 			}
 
 			return (
@@ -218,6 +301,45 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		default:
 			return null;
 	}
+}
+
+type ConnectButtonProps = {
+	state: FeatureState;
+	origin: FeatureActionOrigin;
+	buttonRef?: Ref< HTMLButtonElement >;
+};
+
+/**
+ * Start connecting the WordPress.com account a feature is waiting for.
+ *
+ * @param {ConnectButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature.
+ * @param {string}             props.origin    - Which control this is.
+ * @param {Ref}                props.buttonRef - Ref to the button, for a caller that moves focus to it.
+ * @return The rendered component.
+ */
+export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps ) {
+	const connectAccount = useAccountConnection();
+	const onClick = useCallback(
+		() => connectAccount( state, origin, 'connect' ),
+		[ connectAccount, origin, state ]
+	);
+
+	return (
+		<Button
+			ref={ buttonRef }
+			variant="outline"
+			size="compact"
+			onClick={ onClick }
+			aria-label={ sprintf(
+				/* translators: %s is the feature name. */
+				__( 'Connect account for %s', 'jetpack-my-jetpack' ),
+				state.feature.name
+			) }
+		>
+			{ __( 'Connect', 'jetpack-my-jetpack' ) }
+		</Button>
+	);
 }
 
 type JetpackButtonProps = {

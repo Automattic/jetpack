@@ -1,6 +1,7 @@
 import { GooglePhotosLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Fragment, memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 
 /**
  * AuthInstructions component
@@ -11,23 +12,23 @@ function AuthInstructions() {
 	return (
 		<Fragment>
 			<GooglePhotosLogo />
-			<p>
+			<Text variant="body-lg" render={ <p /> }>
 				{ __(
 					'To get started, connect your site to your Google Photos library.',
 					'jetpack-external-media'
 				) }
-			</p>
-			<p>
+			</Text>
+			<Text variant="body-lg" render={ <p /> }>
 				{ __(
 					'You can remove the connection in either of these places:',
 					'jetpack-external-media'
 				) }
-			</p>
+			</Text>
 			<ul>
 				<li>
-					<a target="_blank" rel="noopener noreferrer" href="https://myaccount.google.com/security">
+					<Link openInNewTab href="https://myaccount.google.com/security">
 						{ __( 'Google Security page', 'jetpack-external-media' ) }
-					</a>
+					</Link>
 				</li>
 			</ul>
 		</Fragment>

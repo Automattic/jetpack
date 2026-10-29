@@ -41,6 +41,7 @@ function buildDateFilters(): ReportDateFilters {
 		appliedComparisonPresetId: 'previous-period',
 		interval: 'week',
 		intervalOptions: [ 'day', 'week' ],
+		lockedIntervalOptions: [],
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onIntervalChange: jest.fn(),

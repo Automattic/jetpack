@@ -29,6 +29,7 @@ import {
 	nextIncompleteId,
 	isCompleteOnClickTask,
 	isTaskActionable,
+	recordsWizardCompleted,
 	resolveCtaUrl,
 	tasksFromFixture,
 	type EnrichedTask,
@@ -72,6 +73,9 @@ interface Props {
 
 	// The site-language copy the page tasks write into the pages they create.
 	copy: SiteCopy;
+
+	// Set only when pendingTailor came from a finished wizard, so bypassed loads record no completion.
+	fromWizard?: boolean;
 }
 
 /**
@@ -86,9 +90,17 @@ interface Props {
  * @param props.site          - Site context for the preview (always supplied by the host).
  * @param props.goal          - The wizard goal (wizard→list path), for the heading.
  * @param props.copy          - Site-language copy for the pages the tasks create.
+ * @param props.fromWizard    - Whether pendingTailor came from the wizard.
  * @return The tailored-list element.
  */
-export function TailoredList( { pendingTailor, initialData, site, goal, copy }: Props ) {
+export function TailoredList( {
+	pendingTailor,
+	initialData,
+	site,
+	goal,
+	copy,
+	fromWizard = false,
+}: Props ) {
 	// Returning users seed straight from initialData so the first frame isn't the
 	// loading copy. The wizard→list path has no initialData and starts as loading.
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( () => initialData?.tasks ?? null );
@@ -206,7 +218,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			// render) so the event carries the freshly inferred props instead of
 			// waiting a render cycle. An empty landing (tailor and read both failed)
 			// is an error state, not a tasklist — no completion is recorded for it.
-			if ( pendingTailor && nextTasks.length > 0 ) {
+			if ( recordsWizardCompleted( fromWizard, !! pendingTailor, nextTasks.length ) ) {
 				setTracksContext( contextFromInferred( nextOutput?.inferred ) );
 				setTracksContext( contextFromTaskIds( nextTasks.map( task => task.id ) ) );
 				trackWizardCompleted();
@@ -215,7 +227,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		return () => {
 			cancelled = true;
 		};
-	}, [ pendingTailor, initialData, savedOnRetry ] );
+	}, [ pendingTailor, initialData, savedOnRetry, fromWizard ] );
 
 	useEffect( () => {
 		if ( ! allDone ) {

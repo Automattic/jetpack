@@ -62,7 +62,21 @@ export default function ProductInterstitial( {
 	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
-	const { detail: bundleDetail } = useProduct( bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( bundle );
+	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: bundle;
+	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
+	const showSidebar = ! bundle || Boolean( offeredBundle || children );
+	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
@@ -74,13 +88,16 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
-	const showBundledTOS = ! hideTOS && !! bundle;
+	const showBundledTOS =
+		! hideTOS &&
+		!! bundle &&
+		( ! ( proIsOnSale || legacyIsRetired ) || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -200,7 +217,7 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -220,7 +237,7 @@ export default function ProductInterstitial( {
 						horizontalGap={ 0 }
 						fluid
 					>
-						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+						<Col sm={ 4 } md={ showSidebar ? 4 : 8 } lg={ showSidebar ? 7 : 12 }>
 							<ProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductOrBundleClick }
@@ -236,29 +253,30 @@ export default function ProductInterstitial( {
 								isFetchingSuccess={ isSuccess }
 							/>
 						</Col>
-						<Col
-							sm={ 4 }
-							md={ 4 }
-							lg={ 5 }
-							className={ clsx( styles.imageContainer, imageContainerClassName ) }
-						>
-							{ bundle ? (
-								<ProductDetailCard
-									slug={ bundle }
-									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ clickHandler }
-									className={ isUpgradableByBundle ? styles.container : null }
-									hideTOS={ hideTOS || showBundledTOS }
-									quantity={ quantity }
-									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
-									isFetchingSuccess={ isSuccess }
-									isUpsell={ true }
-								/>
-							) : (
-								children
-							) }
-						</Col>
+						{ showSidebar && (
+							<Col
+								sm={ 4 }
+								md={ 4 }
+								lg={ 5 }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
+							>
+								{ bundle && offeredBundle && (
+									<ProductDetailCard
+										slug={ offeredBundle }
+										trackButtonClick={ trackProductOrBundleClick }
+										onClick={ clickHandler }
+										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
+										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
+										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
+									/>
+								) }
+								{ ! offeredBundle && children }
+							</Col>
+						) }
 					</Container>
 				</Col>
 				<Col>

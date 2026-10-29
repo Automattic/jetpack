@@ -131,6 +131,22 @@ describe( 'SourcedPlaylistEdit', () => {
 		expect( screen.getByTestId( 'styles-controls' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps a placeholder for the playlist being viewed, only known on the site', () => {
+		window.videopressChannelEditor = { playlists };
+		render(
+			<SourcedPlaylistEdit
+				attributes={ attributes( { source: 'queried' } ) }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByTestId( 'playlist-preview' ) ).not.toBeInTheDocument();
+		expect(
+			screen.getAllByText( 'On a channel playlist or video page, shows the playlist being viewed.' )
+				.length
+		).toBeGreaterThan( 0 );
+	} );
+
 	it( 'previews the most recently updated playlist when none is picked', () => {
 		window.videopressChannelEditor = { playlists };
 		renderSourced();

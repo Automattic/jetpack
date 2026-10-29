@@ -9,13 +9,15 @@ import { useActiveSection } from './use-active-section';
 import type { DashboardSection } from '../../config';
 
 const mockSearch: { section?: string } = {};
+const mockStaged: { section?: string } = {};
 const mockStage = jest.fn();
 const mockCommit = jest.fn();
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useStagedSearch: () => ( {
-		staged: mockSearch,
-		effective: mockSearch,
+		committed: mockSearch,
+		staged: mockStaged,
+		effective: { ...mockSearch, ...mockStaged },
 		stage: mockStage,
 		commit: mockCommit,
 	} ),
@@ -37,7 +39,8 @@ const SECTIONS = [ section( 'traffic', 10 ), section( 'insights', 20 ), section(
 describe( 'useActiveSection', () => {
 	beforeEach( () => {
 		delete mockSearch.section;
-		mockStage.mockClear();
+		delete mockStaged.section;
+		mockStage.mockReset();
 		mockCommit.mockClear();
 	} );
 
@@ -87,12 +90,41 @@ describe( 'useActiveSection', () => {
 		expect( mockCommit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'switches sections with one history entry per change', () => {
-		const { result } = renderHook( () => useActiveSection( SECTIONS ) );
+	it.each( [
+		[ 'alone', undefined, { section: 'store' } ],
+		[
+			'with the search the caller adds',
+			() => ( { preset: 'all-time' } ),
+			{ preset: 'all-time', section: 'store' },
+		],
+	] )(
+		'switches sections %s, with one history entry per change',
+		( _case, switchSearch, staged ) => {
+			const { result } = renderHook( () => useActiveSection( SECTIONS, [], switchSearch ) );
+
+			act( () => result.current[ 1 ]( 'store' ) );
+
+			expect( mockStage ).toHaveBeenCalledTimes( 1 );
+			expect( mockStage ).toHaveBeenCalledWith( staged );
+			expect( mockCommit ).toHaveBeenCalledTimes( 1 );
+			expect( mockCommit ).toHaveBeenCalledWith( { replace: false } );
+		}
+	);
+
+	it( 'switches the active section at once and reports it committed when the router lands', () => {
+		mockSearch.section = 'traffic';
+		mockStage.mockImplementation( patch => Object.assign( mockStaged, patch ) );
+		const { result, rerender } = renderHook( () => useActiveSection( SECTIONS ) );
 
 		act( () => result.current[ 1 ]( 'store' ) );
+		rerender();
 
-		expect( mockStage ).toHaveBeenCalledWith( { section: 'store' } );
-		expect( mockCommit ).toHaveBeenCalledWith( { replace: false } );
+		expect( result.current[ 0 ] ).toBe( 'store' );
+		expect( result.current[ 2 ] ).toBe( false );
+
+		mockSearch.section = 'store';
+		rerender();
+
+		expect( result.current[ 2 ] ).toBe( true );
 	} );
 } );

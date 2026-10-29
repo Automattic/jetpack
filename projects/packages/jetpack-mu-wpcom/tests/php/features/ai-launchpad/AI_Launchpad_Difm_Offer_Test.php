@@ -64,7 +64,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	 * Stubs an eligible user on an eligible site, with the given parts replaced.
 	 *
 	 * The default is a two-day-old Simple site on the Free plan, an English administrator, no
-	 * stickers, no dismissal, and a user ExPlat assigns to the treatment.
+	 * stickers, no dismissal, and a user ExPlat assigns to the `no_time_to_build` arm.
 	 *
 	 * @param array $overrides Any of: is_simple, purchases, registered, locale, stickers, preferences, variation, role.
 	 */
@@ -77,7 +77,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 				'locale'      => 'en',
 				'stickers'    => array(),
 				'preferences' => array(),
-				'variation'   => 'treatment',
+				'variation'   => 'no_time_to_build',
 				'role'        => 'administrator',
 			),
 			$overrides
@@ -125,15 +125,42 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * An eligible user in the treatment gets the offer.
+	 * An eligible user in any copy arm gets the offer with that arm.
+	 *
+	 * @dataProvider provide_arms
+	 *
+	 * @param string $arm The ExPlat variation.
 	 */
-	public function test_eligible_treatment_user_gets_the_offer() {
-		$this->stub_site();
+	#[DataProvider( 'provide_arms' )]
+	public function test_eligible_user_in_an_arm_gets_the_offer( $arm ) {
+		$this->stub_site( array( 'variation' => $arm ) );
 
 		$offer = AI_Launchpad_Difm_Offer::get_offer( self::NOW );
 
-		$this->assertSame( 'treatment', $offer['variation'] );
-		$this->assertStringEndsWith( '/images/difm-offer-illustration.svg', $offer['image_url'] );
+		$this->assertSame( $arm, $offer['variation'] );
+		$this->assertStringEndsWith( '/images/difm-offer-illustration.webp', $offer['image_url'] );
+	}
+
+	/**
+	 * Data provider for test_eligible_user_in_an_arm_gets_the_offer.
+	 *
+	 * @return array
+	 */
+	public static function provide_arms() {
+		return array(
+			'expert help'      => array( 'expert_help' ),
+			'no time to build' => array( 'no_time_to_build' ),
+			'skip the setup'   => array( 'skip_the_setup' ),
+		);
+	}
+
+	/**
+	 * The single arm the experiment had before registration no longer shows the offer.
+	 */
+	public function test_unknown_variation_gets_no_offer() {
+		$this->stub_site( array( 'variation' => 'treatment' ) );
+
+		$this->assertNull( AI_Launchpad_Difm_Offer::get_offer( self::NOW ) );
 	}
 
 	/**
@@ -184,7 +211,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Stubs an eligible treatment user on a site created yesterday, and registers the AI Launchpad routes.
+	 * Stubs an eligible user in the `no_time_to_build` arm on a site created yesterday, and registers the AI Launchpad routes.
 	 */
 	private function stub_launchpad() {
 		$this->stub_site( array( 'registered' => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) ) );
@@ -239,7 +266,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 
 		$data = $this->get_launchpad();
 
-		$this->assertSame( 'treatment', $data['difm_offer']['variation'] );
+		$this->assertSame( 'no_time_to_build', $data['difm_offer']['variation'] );
 	}
 
 	/**
@@ -250,7 +277,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 
 		$data = $this->get_launchpad( array( 'all_tasks' => '1' ) );
 
-		$this->assertSame( 'treatment', $data['difm_offer']['variation'] );
+		$this->assertSame( 'no_time_to_build', $data['difm_offer']['variation'] );
 	}
 
 	/**
@@ -295,7 +322,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 			'an Author, not an admin'    => array( array( 'role' => 'author' ) ),
 			'not a Simple site'          => array( array( 'is_simple' => false ) ),
 			'Business plan'              => array( array( 'purchases' => array( self::plan( 'business-bundle' ) ) ) ),
-			'eight days old'             => array( array( 'registered' => gmdate( 'Y-m-d H:i:s', self::NOW - 8 * DAY_IN_SECONDS ) ) ),
+			'fifteen days old'           => array( array( 'registered' => gmdate( 'Y-m-d H:i:s', self::NOW - 15 * DAY_IN_SECONDS ) ) ),
 			'no registered date'         => array( array( 'registered' => '0000-00-00 00:00:00' ) ),
 			'no blog details'            => array( array( 'registered' => null ) ),
 			'empty registered date'      => array( array( 'registered' => '' ) ),
@@ -361,7 +388,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 					),
 				),
 			),
-			'exactly seven days old'       => array( array( 'registered' => gmdate( 'Y-m-d H:i:s', self::NOW - 7 * DAY_IN_SECONDS ) ) ),
+			'exactly fourteen days old'    => array( array( 'registered' => gmdate( 'Y-m-d H:i:s', self::NOW - 14 * DAY_IN_SECONDS ) ) ),
 			'British English user'         => array( array( 'locale' => 'en-gb' ) ),
 			'core-format US English user'  => array( array( 'locale' => 'en_US' ) ),
 			'other preferences, no ruling' => array( array( 'preferences' => array( 'sidebarCollapsed' => true ) ) ),

@@ -8,7 +8,7 @@ import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpe
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
 import SubscribersDataViews from './subscribers-data-views';
-import type { Subscriber } from '../data/types';
+import type { Subscriber, SubscribersExportQuery } from '../data/types';
 import type { JSX, ReactNode } from 'react';
 
 installDataViewsFooterI18n();
@@ -68,6 +68,13 @@ export default function SubscribersBody( {
 	const [ isSelfOnly, setIsSelfOnly ] = useState( false );
 	const [ isNudgeDismissed, setNudgeDismissed ] = useState( false );
 	const dismissNudge = useCallback( () => setNudgeDismissed( true ), [] );
+
+	const [ exportQuery, setExportQuery ] = useState< SubscribersExportQuery >( {
+		filters: [],
+		search: '',
+		sort: 'date_subscribed',
+		sortOrder: 'desc',
+	} );
 
 	const [ isAddOpen, setAddOpen ] = useState( false );
 	const openAdd = useCallback( () => {
@@ -138,6 +145,7 @@ export default function SubscribersBody( {
 				onViewSubscriber={ handleViewSubscriber }
 				onSubscribersRemoved={ handleSubscribersRemoved }
 				onSelfOnlyChange={ setIsSelfOnly }
+				onQueryChange={ setExportQuery }
 			/>
 			<AddSubscribersModal isOpen={ isAddOpen } onClose={ closeAdd } />
 		</>
@@ -146,6 +154,7 @@ export default function SubscribersBody( {
 	const actions = (
 		<HeaderActions
 			blogId={ blogId }
+			exportQuery={ exportQuery }
 			onAddSubscribers={ openAdd }
 			showSelfOnlyNudge={ isSelfOnly && ! isNudgeDismissed && ! isAddOpen }
 			onDismissSelfOnlyNudge={ dismissNudge }

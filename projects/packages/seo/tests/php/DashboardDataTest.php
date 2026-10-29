@@ -28,12 +28,16 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
 		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
+		\Jetpack_AI_Settings::$is_ai_enabled            = true;
 		delete_option( 'advanced_seo_title_formats' );
+		delete_option( Dashboard_Data::FRONT_PAGE_META_OPTION );
 		delete_option( 'jetpack_ai_seo_enabled' );
 		delete_option( 'jetpack_seo_sitemap_enabled' );
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
+		remove_all_filters( 'jetpack_seo_conflicting_plugin' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 
 		self::reset_plan();
 
@@ -59,6 +63,17 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertTrue( $on['aiSeoEnabled'] );
 		$this->assertTrue( $off['available'], 'The card stays available so it can be disabled, not hidden.' );
 		$this->assertFalse( $off['aiSeoEnabled'] );
+	}
+
+	/**
+	 * The site-wide Jetpack AI switch is reported on its own, so the tab can name it.
+	 */
+	public function test_get_geo_data_reports_the_jetpack_ai_switch_state() {
+		$this->assertTrue( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
+
+		\Jetpack_AI_Settings::$is_ai_enabled = false;
+
+		$this->assertFalse( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
 	}
 
 	/**
@@ -140,10 +155,13 @@ class DashboardDataTest extends SeoTestCase {
 			$this->assertIsBool( $geo['llmsTxt']['canServe'] );
 			$this->assertArrayHasKey( 'crawlers', $geo );
 			$this->assertIsArray( $geo['crawlers']['catalog'] );
-			// A sparse map, cast to an object by get_bootstrap_data() so an empty
-			// override set serializes as `{}` rather than `[]` — the same reason
-			// `title_formats` is cast in get_settings_data().
-			$this->assertIsObject( $geo['crawlers']['overrides'] );
+			$this->assertSame(
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+				$geo['crawlers']['blocked']
+			);
 			$this->assertIsBool( $geo['crawlers']['dataSharingOptOut'] );
 			$this->assertIsBool( $geo['crawlers']['pathBasedMultisite'] );
 		} finally {
@@ -339,6 +357,51 @@ class DashboardDataTest extends SeoTestCase {
 
 		$this->assertEquals( (object) $formats, $settings['title_formats'] );
 		$this->assertFalse( $settings['title_formats_editable'] );
+	}
+
+	/**
+	 * The locked front-page description shows what Jetpack saved, not the helper's legacy fallback.
+	 */
+	public function test_get_settings_data_shows_the_saved_description_while_output_is_disabled() {
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Saved description.' );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		$this->assertSame( 'Saved description.', Dashboard_Data::get_settings_data()['front_page_description'] );
+	}
+
+	/**
+	 * @dataProvider provide_conflicting_seo_plugin_states
+	 * @param bool        $disabled Whether `jetpack_disable_seo_tools` is on.
+	 * @param string|null $name     What `jetpack_seo_conflicting_plugin` returns, or null for no callback.
+	 * @param string      $expected The name both payloads should report.
+	 */
+	#[DataProvider( 'provide_conflicting_seo_plugin_states' )]
+	public function test_dashboard_names_the_conflicting_seo_plugin( $disabled, $name, $expected ) {
+		if ( $disabled ) {
+			add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		}
+		if ( null !== $name ) {
+			add_filter(
+				'jetpack_seo_conflicting_plugin',
+				static function () use ( $name ) {
+					return $name;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
+		$this->assertSame( $expected, Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
+	}
+
+	/**
+	 * @return array Step-aside state, filtered name, expected report.
+	 */
+	public static function provide_conflicting_seo_plugin_states() {
+		return array(
+			'no conflict'                     => array( false, null, '' ),
+			'Jetpack stepped aside'           => array( true, ' Yoast SEO ', 'Yoast SEO' ),
+			'named but Jetpack still outputs' => array( false, 'Yoast SEO', '' ),
+		);
 	}
 
 	/**

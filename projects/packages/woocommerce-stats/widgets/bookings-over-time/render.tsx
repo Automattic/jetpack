@@ -13,8 +13,14 @@ import { __, _n } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { BOOKINGS_FILTER, useReportOrders } from '../../src/reports';
-import type { BookingsOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type BookingsOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type BookingsOverTimeRenderAttributes = BookingsOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -37,6 +43,7 @@ function BookingsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportOrders( { ...reportParams, filters: [ BOOKINGS_FILTER ] } ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Bookings over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_no"
 			label={ __( 'Bookings', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }

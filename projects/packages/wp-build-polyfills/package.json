@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.6.3",
+	"version": "0.7.1",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available or incomplete in older WP versions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
@@ -12,6 +12,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"bin": {
+		"emit-widget-strings": "bin/emit-widget-strings.js",
 		"provide-boot-asset-file": "bin/provide-boot-asset-file.js",
 		"stamp-textdomains": "bin/stamp-textdomains.js",
 		"strip-unminified-prod": "bin/strip-unminified-prod.js"
@@ -26,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/boot": "^0.24.0",
@@ -50,8 +51,8 @@
 		"webpack-cli": "^7.0.0"
 	},
 	"optionalDependencies": {
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+		"react": "19.3.0",
+		"react-dom": "19.3.0"
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

@@ -22,6 +22,9 @@ window.jetpackModules.views = ( function ( window, $, Backbone, wp ) {
 				m_purpose = $( '.purpose-filter .current' ),
 				m_availability = $( '.button-group.availability-filter .active' ),
 				m_search = $( '#srch-term-search-input' ).val();
+			if ( new URLSearchParams( window.location.search ).get( 'modules_fallback' ) === '1' ) {
+				url += '&modules_fallback=1';
+			}
 
 			if ( m_search.length ) {
 				url += '&s=' + encodeURIComponent( m_search );

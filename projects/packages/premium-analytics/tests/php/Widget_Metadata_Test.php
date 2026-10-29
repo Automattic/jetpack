@@ -22,6 +22,7 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_widget_help
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_widget_icon
  * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_widget_actions
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_widget_attributes
  * @covers ::Automattic\Jetpack\PremiumAnalytics\resolve_widget_action_href
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_metadata_i18n_schema
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_modules_response
@@ -31,6 +32,7 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_widget_help' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_widget_icon' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_widget_actions' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_widget_attributes' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\resolve_widget_action_href' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_metadata_i18n_schema' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_modules_response' )]
@@ -120,6 +122,58 @@ class Widget_Metadata_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Attribute text, option text included, is translated with the attribute
+	 * contexts; ids, types and option values are not.
+	 */
+	public function test_translate_widget_metadata_translates_attribute_strings() {
+		$calls    = array();
+		$callback = static function ( $translation, $text, $context, $domain ) use ( &$calls ) {
+			$calls[] = array( $text, $context, $domain );
+			return $translation;
+		};
+		add_filter( 'gettext_with_context', $callback, 10, 4 );
+
+		$widget = translate_widget_metadata(
+			array(
+				'attributes' => array(
+					array(
+						'id'          => 'variant',
+						'type'        => 'text',
+						'label'       => 'Variant',
+						'header'      => 'Kind',
+						'description' => 'How much to show.',
+						'placeholder' => 'Pick one',
+						'elements'    => array(
+							array(
+								'value'       => 'compact',
+								'label'       => 'Compact',
+								'description' => 'Fewer details.',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		remove_filter( 'gettext_with_context', $callback );
+
+		$domain = 'jetpack-premium-analytics-pkg';
+		$this->assertSame(
+			array(
+				array( 'Variant', 'widget attribute label', $domain ),
+				array( 'Kind', 'widget attribute header', $domain ),
+				array( 'How much to show.', 'widget attribute description', $domain ),
+				array( 'Pick one', 'widget attribute placeholder', $domain ),
+				array( 'Compact', 'widget attribute option label', $domain ),
+				array( 'Fewer details.', 'widget attribute option description', $domain ),
+			),
+			$calls,
+			'Only the attribute text is translated, each string with its own context.'
+		);
+		$this->assertSame( 'compact', $widget['attributes'][0]['elements'][0]['value'], 'Option values pass through untouched.' );
+	}
+
+	/**
 	 * Hydration registers manifest candidates with metadata translated,
 	 * the help note sanitized, and every field mapped onto the type.
 	 */
@@ -152,6 +206,15 @@ class Widget_Metadata_Test extends BaseTestCase {
 						'icon'      => 'core/download',
 						'relevance' => 'high',
 						'extra'     => 'dropped',
+					),
+				),
+				'attributes'    => array(
+					array(
+						'id'        => 'view',
+						'type'      => 'text',
+						'label'     => 'View',
+						'relevance' => 'high',
+						'render'    => 'dropped',
 					),
 				),
 				'keywords'      => array( 'sentinel' ),
@@ -203,6 +266,18 @@ class Widget_Metadata_Test extends BaseTestCase {
 				),
 				$widget_type->actions,
 				'The actions are sanitized during hydration.'
+			);
+			$this->assertSame(
+				array(
+					array(
+						'id'        => 'view',
+						'type'      => 'text',
+						'label'     => 'View',
+						'relevance' => 'high',
+					),
+				),
+				$widget_type->attributes,
+				'The attributes are sanitized during hydration.'
 			);
 		} finally {
 			Widget_Type_Registry::get_instance()->unregister( 'test/hydration-sentinel' );
@@ -407,6 +482,11 @@ class Widget_Metadata_Test extends BaseTestCase {
 					'href'  => 'export.php?type=csv',
 				),
 				array(
+					'id'    => 'dashboard-route',
+					'label' => 'Dashboard route',
+					'href'  => 'admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fcomments%3Fsection%3Dposts',
+				),
+				array(
 					'id'    => 'script',
 					'label' => 'Script',
 					'href'  => 'javascript:alert(1)',
@@ -453,6 +533,11 @@ class Widget_Metadata_Test extends BaseTestCase {
 					'id'    => 'admin',
 					'label' => 'Admin entry point',
 					'href'  => 'export.php?type=csv',
+				),
+				array(
+					'id'    => 'dashboard-route',
+					'label' => 'Dashboard route',
+					'href'  => 'admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fcomments%3Fsection%3Dposts',
 				),
 			),
 			$actions,
@@ -597,6 +682,124 @@ class Widget_Metadata_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Known field keys survive; malformed or empty ones drop without taking
+	 * the entry, the `custom` validation rule is stripped, and an element
+	 * keeps only a well-formed icon reference.
+	 */
+	public function test_sanitize_widget_attributes_constrains_entries() {
+		$attributes = sanitize_widget_attributes(
+			array(
+				array(
+					'id'          => 'location',
+					'type'        => 'location',
+					'label'       => 'Event location',
+					'description' => 'City or region.',
+					'placeholder' => '',
+					'readOnly'    => 'yes',
+					'isDisabled'  => true,
+					'relevance'   => 'high',
+					'isValid'     => array(
+						'required' => true,
+						'custom'   => 'not-a-rule',
+					),
+					'filterBy'    => array(),
+					'Edit'        => array( 'control' => 'text' ),
+					'render'      => 'ignored',
+				),
+				array(
+					'id'        => 'variant',
+					'elements'  => array(
+						array(
+							'value' => 'compact',
+							'label' => 'Compact',
+							'icon'  => 'jpa/chart-line',
+						),
+						array(
+							'value' => 'full',
+							'label' => 'Full',
+							'icon'  => 'not a reference',
+						),
+						array( 'value' => 'no-label' ),
+						'not-an-option',
+					),
+					'relevance' => 'urgent',
+					'filterBy'  => false,
+					'format'    => array(),
+					'Edit'      => array(),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'id'          => 'location',
+					'type'        => 'location',
+					'label'       => 'Event location',
+					'description' => 'City or region.',
+					'isDisabled'  => true,
+					'isValid'     => array( 'required' => true ),
+					'Edit'        => array( 'control' => 'text' ),
+					'relevance'   => 'high',
+				),
+				array(
+					'id'       => 'variant',
+					'elements' => array(
+						array(
+							'value' => 'compact',
+							'label' => 'Compact',
+							'icon'  => 'jpa/chart-line',
+						),
+						array(
+							'value' => 'full',
+							'label' => 'Full',
+						),
+					),
+					'filterBy' => false,
+				),
+			),
+			$attributes,
+			'Only well-formed, non-empty keys survive, in schema order.'
+		);
+	}
+
+	/**
+	 * Entries need a unique, non-empty string `id`; the first one wins, and
+	 * an empty result is null.
+	 */
+	public function test_sanitize_widget_attributes_requires_unique_ids() {
+		$attributes = sanitize_widget_attributes(
+			array(
+				array(
+					'id'   => 'perPage',
+					'type' => 'integer',
+				),
+				array(
+					'id'   => 'perPage',
+					'type' => 'text',
+				),
+				array( 'type' => 'text' ),
+				array( 'id' => '' ),
+				'perPage',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'id'   => 'perPage',
+					'type' => 'integer',
+				),
+			),
+			$attributes,
+			'Only the first entry with a usable id survives.'
+		);
+		$this->assertNull( sanitize_widget_attributes( null ), 'Null input stays null.' );
+		$this->assertNull( sanitize_widget_attributes( 'perPage' ), 'A non-array input is dropped.' );
+		$this->assertNull( sanitize_widget_attributes( array() ), 'An empty list becomes null.' );
+	}
+
+	/**
 	 * A registered widget type's metadata reaches the widget-modules REST
 	 * record intact.
 	 */
@@ -618,6 +821,14 @@ class Widget_Metadata_Test extends BaseTestCase {
 						'id'    => 'export',
 						'label' => 'Export',
 						'href'  => 'https://example.com/export.csv',
+					),
+				),
+				'attributes'    => array(
+					array(
+						'id'        => 'view',
+						'type'      => 'text',
+						'label'     => 'View',
+						'relevance' => 'high',
 					),
 				),
 				'keywords'      => array( 'sentinel' ),
@@ -657,6 +868,18 @@ class Widget_Metadata_Test extends BaseTestCase {
 			),
 			$record['actions'],
 			'The actions reach the record.'
+		);
+		$this->assertSame(
+			array(
+				array(
+					'id'        => 'view',
+					'type'      => 'text',
+					'label'     => 'View',
+					'relevance' => 'high',
+				),
+			),
+			$record['attributes'],
+			'The attributes reach the record.'
 		);
 		$this->assertSame( array( 'sentinel' ), $record['keywords'], 'The keywords reach the record.' );
 	}

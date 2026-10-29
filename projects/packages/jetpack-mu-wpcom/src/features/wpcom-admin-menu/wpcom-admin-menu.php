@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
@@ -16,6 +17,30 @@ use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+
+/**
+ * Feature flag gating the native Activity Log page on Simple sites.
+ */
+const WPCOM_NATIVE_ACTIVITY_LOG_FLAG = 'wpcom-native-activity-log';
+
+/**
+ * Registers the feature flag.
+ *
+ * Runs as this file loads, so the flag is listed wherever flags are read or toggled.
+ *
+ * @return void
+ */
+function wpcom_register_native_activity_log_flag() {
+	Feature_Flags::register(
+		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+wpcom_register_native_activity_log_flag();
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -308,6 +333,25 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 }
 
 /**
+ * Whether the host replaces My Jetpack with Stats.
+ *
+ * @return bool
+ */
+function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		return false;
+	}
+	$plan = \Automattic\Jetpack\Current_Plan::get();
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+}
+add_filter(
+	'jetpack_my_jetpack_modules_management_available',
+	static function ( $available ) {
+		return $available && ! jetpack_mu_wpcom_redirects_my_jetpack_to_stats();
+	}
+);
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -333,14 +377,7 @@ function wpcom_add_jetpack_submenu() {
 
 	// @codeCoverageIgnoreStart
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal_or_premium = false;
-	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class             = $current_plan['class'] ?? '';
-		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
-	}
-
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
+	if ( jetpack_mu_wpcom_redirects_my_jetpack_to_stats() ) {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
@@ -479,8 +516,8 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// still hide the native page and link to wordpress.com/activity-log.
-	if ( $is_simple_site ) {
+	// get the native page behind a feature flag, and link to wordpress.com/activity-log otherwise.
+	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
 			'jetpack',
@@ -518,6 +555,26 @@ function wpcom_add_jetpack_submenu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
+
+/**
+ * Registers the native Activity Log page under Jetpack on a Simple site.
+ *
+ * @return bool Whether the page was registered.
+ */
+function wpcom_add_native_activity_log_submenu() {
+	if ( ! Feature_Flags::is_enabled( WPCOM_NATIVE_ACTIVITY_LOG_FLAG ) ) {
+		return false;
+	}
+
+	// The package ships with Jetpack, which deploys separately from this one.
+	if ( ! class_exists( '\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' ) ) {
+		return false;
+	}
+
+	// A package predating Simple support returns null, which keeps the Calypso link.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+	return null !== \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::add_wp_admin_submenu();
+}
 
 /*
  * Prevents the Jetpack menu from being overridden on Simple sites.

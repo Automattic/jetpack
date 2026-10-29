@@ -7,22 +7,20 @@ import {
 	authorDetailLinkProps,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	authorsCsvExporter,
 	type LeaderboardChartData,
 	type WidgetStateEmpty,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
@@ -32,8 +30,10 @@ import { useEffect, useMemo } from 'react';
 import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
 import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type AuthorsAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but callers may
 // also pass them via `attributes`. Compose the render-only shape to cover both.
@@ -180,6 +180,7 @@ export function AuthorsLeaderboard( {
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Popular authors', 'jetpack-premium-analytics-pkg' ) }
 					data={ chartData }
 					withComparison={ withComparison }
 					withOverlayLabel
@@ -188,6 +189,12 @@ export function AuthorsLeaderboard( {
 					dataFormat={ {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
+					} }
+					columns={ {
+						label: isDrilled
+							? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+							: __( 'Authors', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
 					} }
 				/>
 			</WidgetState>
@@ -221,29 +228,27 @@ function AuthorsReport() {
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
+	useReportActions( {
+		csv: {
+			exporter: authorsCsvExporter,
+			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<AuthorsLeaderboard
-				rows={ rows }
-				isLoading={ emptyState.isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior period's rows on screen while `isError`
-				// flips true, so a transient refetch failure should not replace them.
-				isError={ rows.length === 0 && isError }
-				refetch={ refetch }
-				withComparison={ hasComparison }
-				legendLabels={ legendLabels }
-				empty={ emptyState.empty }
-			/>
-			<WidgetFooter>
-				<ReportLink report="authors" />
-				<ExporterCsvDownloadButton
-					exporter={ authorsCsvExporter }
-					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
-				/>
-			</WidgetFooter>
-		</>
+		<AuthorsLeaderboard
+			rows={ rows }
+			isLoading={ emptyState.isLoading }
+			isFetching={ isFetching }
+			// `placeholderData` keeps the prior period's rows on screen while `isError`
+			// flips true, so a transient refetch failure should not replace them.
+			isError={ rows.length === 0 && isError }
+			refetch={ refetch }
+			withComparison={ hasComparison }
+			legendLabels={ legendLabels }
+			empty={ emptyState.empty }
+		/>
 	);
 }
 

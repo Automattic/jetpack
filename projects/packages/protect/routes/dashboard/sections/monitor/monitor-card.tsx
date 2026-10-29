@@ -2,71 +2,99 @@ import apiFetch from '@wordpress/api-fetch';
 import { getSettings, gmdateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
-import { Button, Link, Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import { CardRow, ProtectCard } from '../../components/card';
+import { Badge, Button, Link, Skeleton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { CardRow, ProtectCard, SettingsErrorRow, UnavailableCard } from '../../components/card';
+import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
+import { recordEvent } from '../../data/tracks';
+import gauge from './icon';
+import MonitorToggle, { useMonitorToggleData } from './monitor-toggle';
 import type { MonitorContext, Uptime, UptimeDay } from './types';
 import type { CardStatus } from '../../components/card';
 import './style.scss';
 
 const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
 const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
+const MINUTES_PER_DAY = 1440;
+const onConnect = () =>
+	recordEvent( 'jetpack_protect_monitor_connect_link_click', { use_beacon: true } );
+const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
+
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'monitor' };
+
+// The only setting this card saves.
+const MONITOR_KEYS = [ 'monitor' ];
 
 /**
- * Text for one day's bar.
+ * A day's date, in the site's date format.
+ *
+ * @param day - The day.
+ * @return The date.
+ */
+function formatDay( day: UptimeDay ): string {
+	// Days are UTC dates, so format them in UTC to keep the same day.
+	return gmdateI18n( getSettings().formats.date, `${ day.date }T00:00:00Z` );
+}
+
+/**
+ * What happened on a day.
  *
  * @param day - The day.
  * @return The text.
  */
-function describeDay( day: UptimeDay ): string {
-	// Days are UTC dates, so format them in UTC to keep the same day.
-	const date = gmdateI18n( getSettings().formats.date, `${ day.date }T00:00:00Z` );
+function describeStatus( day: UptimeDay ): string {
 	if ( day.status === 'up' ) {
-		/* translators: %s is a date. */
-		return sprintf( __( '%s: 100%% uptime', 'jetpack-protect-pkg' ), date );
+		return __( 'Operational all day', 'jetpack-protect-pkg' );
 	}
 	if ( day.status === 'down' ) {
 		return sprintf(
-			/* translators: %1$s is a date. %2$d is a number of minutes. */
+			/* translators: %d is a number of minutes. */
 			_n(
-				'%1$s: down for %2$d minute',
-				'%1$s: down for %2$d minutes',
+				'Down for %d minute',
+				'Down for %d minutes',
 				day.downtimeInMinutes,
 				'jetpack-protect-pkg'
 			),
-			date,
 			day.downtimeInMinutes
 		);
 	}
-	/* translators: %s is a date. */
-	return sprintf( __( '%s: no data', 'jetpack-protect-pkg' ), date );
+	return __( 'No data', 'jetpack-protect-pkg' );
+}
+
+/**
+ * Share of monitored time the site was up, skipping days with no data.
+ *
+ * @param days - The days.
+ * @return The percentage, or null when no day was monitored.
+ */
+function getUptimePercent( days: UptimeDay[] ): number | null {
+	const monitored = days.filter( day => day.status !== 'monitor_inactive' );
+	if ( ! monitored.length ) {
+		return null;
+	}
+	const minutes = monitored.length * MINUTES_PER_DAY;
+	const down = monitored.reduce(
+		( sum, day ) => sum + Math.min( day.downtimeInMinutes, MINUTES_PER_DAY ),
+		0
+	);
+	return ( 100 * ( minutes - down ) ) / minutes;
 }
 
 /**
  * The card's badge.
  *
- * @param available - Whether Monitor can run on this site.
- * @param active    - Whether Monitor is on.
  * @param connected - Whether the user has a WordPress.com connection.
  * @param uptime    - The uptime response, once loaded.
  * @param failed    - Whether loading it failed.
  * @return The badge, if any.
  */
 function getStatus(
-	available: boolean,
-	active: boolean,
 	connected: boolean,
 	uptime: Uptime | null,
 	failed: boolean
 ): CardStatus | undefined {
-	if ( ! available ) {
-		return { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'draft' };
-	}
-	if ( ! active ) {
-		return { label: __( 'Off', 'jetpack-protect-pkg' ), intent: 'draft' };
-	}
 	if ( ! connected ) {
 		return { label: __( 'On', 'jetpack-protect-pkg' ), intent: 'none' };
 	}
@@ -130,68 +158,71 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 	}, [ canLoad, retries, refresh ] );
 
 	const days = uptime?.days;
-	const count = ( status: UptimeDay[ 'status' ] ) =>
-		days?.filter( day => day.status === status ).length ?? 0;
-	const summary = sprintf(
-		/* translators: %1$s, %2$s and %3$s are counts of days: "38 days up", "1 day down", "1 day with no data". */
-		__( '%1$s, %2$s, %3$s', 'jetpack-protect-pkg' ),
-		/* translators: %d is a number of days. */
-		sprintf( _n( '%d day up', '%d days up', count( 'up' ), 'jetpack-protect-pkg' ), count( 'up' ) ),
-		sprintf(
-			/* translators: %d is a number of days. */
-			_n( '%d day down', '%d days down', count( 'down' ), 'jetpack-protect-pkg' ),
-			count( 'down' )
-		),
-		sprintf(
-			/* translators: %d is a number of days. */
-			_n(
-				'%d day with no data',
-				'%d days with no data',
-				count( 'monitor_inactive' ),
-				'jetpack-protect-pkg'
-			),
-			count( 'monitor_inactive' )
-		)
-	);
+	const status = getStatus( connected, uptime, failed );
+	const uptimePercent = days ? getUptimePercent( days ) : null;
+	const dayLabels = days?.map( day => ( {
+		day,
+		date: formatDay( day ),
+		text: describeStatus( day ),
+	} ) );
 
-	const body = available
-		? __(
-				'Turn on downtime monitoring to get an email the moment your site goes down.',
-				'jetpack-protect-pkg'
-			)
-		: __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' );
+	const title = __( 'Downtime monitoring', 'jetpack-protect-pkg' );
+	const { data: toggleData } = useMonitorToggleData( settings );
+
+	if ( ! available ) {
+		return <UnavailableCard icon={ gauge } title={ title } />;
+	}
 
 	return (
 		<ProtectCard
-			icon={ seen }
-			title={ __( 'Monitor', 'jetpack-protect-pkg' ) }
-			status={ getStatus( available, active, connected, uptime, failed ) }
+			icon={ gauge }
+			title={ title }
+			description={ __(
+				'Find out your site is down before your visitors do, with an email alert within minutes.',
+				'jetpack-protect-pkg'
+			) }
 		>
-			<CardRow>
-				{ ! active && <Text variant="body-md">{ body }</Text> }
-				{ active && (
-					<Stack direction="column" gap="md">
-						{ connected && (
-							<Text variant="body-md">
-								{ sprintf(
-									/* translators: %d is a number of days. */
-									__( 'Uptime, last %d days (UTC)', 'jetpack-protect-pkg' ),
-									days?.length ?? monitor?.uptimeDays ?? 0
-								) }
-							</Text>
-						) }
-						{ ! connected && (
-							<>
+			<SettingsErrorRow settings={ settings } keys={ MONITOR_KEYS } />
+			{ ! active && (
+				<CardRow>
+					<MonitorToggle data={ toggleData } available />
+				</CardRow>
+			) }
+			{ active && (
+				<CardRow className="jp-protect-uptime-row">
+					<Stack direction="column" gap="lg">
+						<Stack direction="row" gap="md" align="center" justify="space-between">
+							{ connected ? (
+								<Stack direction="row" gap="sm" align="baseline">
+									<Text variant="body-md">
+										{ sprintf(
+											/* translators: %d is a number of days. */
+											__( 'Last %d days uptime', 'jetpack-protect-pkg' ),
+											days?.length ?? monitor?.uptimeDays ?? 0
+										) }
+									</Text>
+								</Stack>
+							) : (
 								<Text variant="body-md">
 									{ __(
 										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
 										'jetpack-protect-pkg'
 									) }
 								</Text>
-								<Link href={ CONNECT_URL }>
+							) }
+							<Stack direction="row" gap="sm" align="center">
+								{ connected && uptimePercent !== null && (
+									<Text variant="heading-md">{ formatNumber( uptimePercent / 100, PERCENT ) }</Text>
+								) }
+								{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
+							</Stack>
+						</Stack>
+						{ ! connected && (
+							<div>
+								<Link href={ CONNECT_URL } onClick={ onConnect }>
 									{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
 								</Link>
-							</>
+							</div>
 						) }
 						{ failed && (
 							<Stack direction="row" gap="sm" align="center">
@@ -206,39 +237,42 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 						{ connected && ! failed && ! days && (
 							<Skeleton className="jp-protect-uptime__skeleton" />
 						) }
-						{ connected && ! failed && days && (
+						{ dayLabels && (
 							<>
-								<div className="jp-protect-uptime" aria-hidden="true">
-									{ days.map( day => (
-										<span
-											key={ day.date }
-											className={ `jp-protect-uptime__bar is-${ day.status }` }
-											title={ describeDay( day ) }
-										/>
-									) ) }
-								</div>
-								<Text variant="body-sm" className="jp-protect-card__muted">
-									{ summary }
-								</Text>
+								<Tooltip.Provider delay={ 0 }>
+									<div className="jp-protect-uptime" aria-hidden="true">
+										{ dayLabels.map( ( { day, date, text } ) => (
+											<Tooltip.Root key={ day.date }>
+												<Tooltip.Trigger
+													render={
+														<span className={ `jp-protect-uptime__bar is-${ day.status }` } />
+													}
+												/>
+												<Tooltip.Popup>
+													<span className="jp-protect-uptime__tip-date">{ date }</span>
+													<span className={ `jp-protect-uptime__tip-status is-${ day.status }` }>
+														{ text }
+													</span>
+												</Tooltip.Popup>
+											</Tooltip.Root>
+										) ) }
+									</div>
+								</Tooltip.Provider>
 								<VisuallyHidden>
 									<ul>
-										{ days.map( day => (
-											<li key={ day.date }>{ describeDay( day ) }</li>
+										{ dayLabels.map( ( { day, date, text } ) => (
+											<li key={ day.date }>{ `${ date }: ${ text }` }</li>
 										) ) }
 									</ul>
 								</VisuallyHidden>
 							</>
 						) }
+						<div>
+							<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
+								{ __( 'Configure downtime monitoring', 'jetpack-protect-pkg' ) }
+							</TabLink>
+						</div>
 					</Stack>
-				) }
-			</CardRow>
-			{ available && (
-				<CardRow>
-					<TabLink tab="settings" onOpen={ openTab }>
-						{ active
-							? __( 'Configure Downtime Monitoring', 'jetpack-protect-pkg' )
-							: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
-					</TabLink>
 				</CardRow>
 			) }
 		</ProtectCard>

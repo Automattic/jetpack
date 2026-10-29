@@ -3,6 +3,7 @@ import {
 	Card,
 	Link,
 	ButtonLink,
+	Meter,
 	Stack,
 	Text,
 	Spinner,
@@ -10,10 +11,9 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-import { ProgressBar } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';
+import { getOverLimitMessage, usePlanUpgradeLinkProps } from './plan-usage';
 import styles from './stats-settings.module.scss';
 import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
@@ -39,17 +39,32 @@ function UsageMeter( {
 	usage?: number;
 	daysToReset?: number;
 } ): JSX.Element {
+	const usageText = formatMetricValue( usage, 'number', { decimals: 0 } );
+	const limitText = formatMetricValue( limit, 'number', { decimals: 0 } );
 	const label = sprintf(
 		/* translators: 1: views used in the current cycle, 2: the plan's views limit. */
 		__( '%1$s / %2$s views', 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( usage, 'number', { decimals: 0 } ),
-		formatMetricValue( limit, 'number', { decimals: 0 } )
+		usageText,
+		limitText
 	);
+	const spokenLabel = sprintf(
+		/* translators: Read by screen readers. 1: views used in the current cycle, 2: the plan's views limit. */
+		__( '%1$s of %2$s views used', 'jetpack-premium-analytics-pkg' ),
+		usageText,
+		limitText
+	);
+	const formatLabel = useCallback( () => label, [ label ] );
+	const formatSpokenLabel = useCallback( () => spokenLabel, [ spokenLabel ] );
 
 	return (
-		<Stack direction="column" gap="sm">
+		<Meter.Root
+			value={ usage }
+			max={ limit }
+			aria-label={ __( 'Billable views', 'jetpack-premium-analytics-pkg' ) }
+			getAriaValueText={ formatSpokenLabel }
+		>
 			<Stack direction="row" justify="space-between" align="baseline" gap="md">
-				<Text className={ styles.usageCount }>{ label }</Text>
+				<Meter.Value className={ styles.usageCount }>{ formatLabel }</Meter.Value>
 				{ daysToReset !== undefined && (
 					<Text className={ styles.usageReset }>
 						{ sprintf(
@@ -65,13 +80,10 @@ function UsageMeter( {
 					</Text>
 				) }
 			</Stack>
-			{ /* Until the @wordpress/ui update (Automattic/jetpack#53004) ships `Meter`, which fits usage against a limit; switch to it then. */ }
-			<ProgressBar
-				className={ styles.usageBar }
-				value={ Math.min( 100, ( usage / limit ) * 100 ) }
-				aria-label={ label }
-			/>
-		</Stack>
+			<Meter.Track>
+				<Meter.Indicator tone="brand" />
+			</Meter.Track>
+		</Meter.Root>
 	);
 }
 
@@ -84,7 +96,7 @@ export function PlanUsageCard(): JSX.Element {
 	const { data, isLoading, isError, refetch, limit, overLimitMonths } = usePlanUsage();
 	const overLimitMessage = getOverLimitMessage( overLimitMonths );
 	const trackEvent = useTrackEvent();
-	const upgradeUrl = getPlanUpgradeUrl();
+	const upgradeLink = usePlanUpgradeLinkProps();
 	const retry = useCallback( () => refetch(), [ refetch ] );
 	const trackUpgrade = useCallback(
 		() => trackEvent( 'jetpack_premium_analytics_plan_upgrade_click' ),
@@ -144,8 +156,8 @@ export function PlanUsageCard(): JSX.Element {
 						{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
 					</Link>
 				</Text>
-				{ upgradeUrl && (
-					<ButtonLink href={ upgradeUrl } onClick={ trackUpgrade }>
+				{ upgradeLink && (
+					<ButtonLink { ...upgradeLink } onClick={ trackUpgrade }>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
 					</ButtonLink>
 				) }

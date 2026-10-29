@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../../../utils/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -15,12 +15,19 @@ import type { FeatureFilter } from '../use-feature-filter';
 import type { MoreFeaturesGroup } from '../use-more-features';
 import type { ReactNode } from 'react';
 
-const mockRun = jest.fn();
+const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	reloadPage: jest.fn(),
+	leavePageFor: jest.fn(),
+} ) );
+
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
+} ) );
 
 jest.mock( '../use-main-features', () => ( {
 	useMainFeatures: () => ( {
@@ -83,7 +90,11 @@ jest.mock( '../feature-state', () => ( {
 	} ),
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
+	useAccountConnected: () => false,
+	isPlanExpired: () => false,
 	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
+	offersConnect: jest.requireActual( '../feature-state' ).offersConnect,
+	needsAccountWithoutConnect: jest.requireActual( '../feature-state' ).needsAccountWithoutConnect,
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
@@ -188,6 +199,12 @@ const eventNames = () => recordEvent.mock.calls.map( ( [ name ] ) => name );
 const lastEvent = ( name: string ) =>
 	recordEvent.mock.calls.filter( ( [ event ] ) => event === name ).at( -1 )?.[ 1 ];
 
+const setAccountConnectFlag = ( accountConnect: boolean ) => {
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMoreFeatures = [];
@@ -196,6 +213,7 @@ beforeEach( () => {
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
+	setAccountConnectFlag( false );
 } );
 
 describe( 'Features tab toolbar tracking', () => {
@@ -331,6 +349,42 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
+	beforeEach( () => setAccountConnectFlag( true ) );
+
+	it.each( [
+		[ 'an install from the card, then one connection start', 'card', 'install' ],
+		[ 'Connect as a connection start alone', 'more_features', 'connect' ],
+	] as const )( 'records %s, never an activation', async ( _, origin, action ) => {
+		const state = buildState(
+			action === 'connect'
+				? { kind: 'module', module: { module: 'monitor', activated: false } as never }
+				: { kind: 'install-plugin', plugin: 'jetpack-boost' },
+			{ accountNeeded: true }
+		);
+		state.feature.product = 'boost';
+		renderTracked( <FeatureAction state={ state } origin={ origin } /> );
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: action === 'connect' ? /^Connect account/ : 'Install' } )
+		);
+
+		await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
+		expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			...( action === 'install' ? [ 'jetpack_myjetpack_feature_action' ] : [] ),
+			'jetpack_myjetpack_feature_connection_start',
+		] );
+		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
+			action,
+			origin,
+			product: 'boost',
+			feature_slug: 'boost',
+			account_needed: true,
+			current_filter: 'all',
+			view: 'grid',
+			event_version: 1,
+		} );
+	} );
+
 	it( 'records an install from the card, and says it came from the card', async () => {
 		renderTracked(
 			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
@@ -519,6 +573,20 @@ describe( 'The grid every event is measured against', () => {
 			search_term: 'boo',
 			view: 'list',
 		} );
+	} );
+
+	it.each( [
+		[ 'sends', true, false ],
+		[ 'leaves out', false, undefined ],
+	] )( '%s account_needed as the account-connect flag says', async ( _, flagOn, sent ) => {
+		setAccountConnectFlag( flagOn );
+		renderTracked(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' )?.account_needed ).toBe( sent );
 	} );
 
 	it( 'leaves out a search term there is none of, rather than sending it empty', async () => {

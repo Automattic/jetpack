@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -42,6 +43,16 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
+		wp_set_current_user( 0 );
+		Cache::clear();
+		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
+			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
+			remove_all_filters( 'jetpack_module_configurable_' . $module );
+		}
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
@@ -134,6 +145,72 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertIsArray( $item );
 		$this->assertSame( array( Dashboard::class, 'render' ), $item['function'] );
 		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
+	}
+
+	/**
+	 * Each security module and the card its Configure link should open.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_security_modules() {
+		return array(
+			'Firewall'            => array( 'waf', 'firewall' ),
+			'Brute force'         => array( 'protect', 'loginProtection' ),
+			'Account protection'  => array( 'account-protection', 'loginProtection' ),
+			'WordPress.com login' => array( 'sso', 'loginProtection' ),
+			'Downtime monitoring' => array( 'monitor', 'monitor' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_security_modules
+	 *
+	 * @param string $module  Module slug.
+	 * @param string $section The section whose card should open.
+	 */
+	#[DataProvider( 'provide_security_modules' )]
+	public function test_security_module_configure_links_open_their_settings_card( $module, $section ) {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3D' . $section ),
+			apply_filters( 'jetpack_module_configuration_url_' . $module, 'https://example.com/default' )
+		);
+		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
+	}
+
+	/**
+	 * The URL a host sends and the upgrade link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::get_scan_upgrade_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
 	}
 
 	public function test_init_announces_the_dashboard() {
@@ -248,6 +325,40 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
 	}
 
+	/**
+	 * Threat report requests and the dashboard URL each should redirect to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_report_requests() {
+		$report = admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Fthreats%3D' );
+		return array(
+			'ids'                   => array( array( 'threats' => '12,34' ), $report . '12%2C34' ),
+			'ids with junk dropped' => array( array( 'threats' => '12, 3<4,x, 56' ), $report . '12%2C56' ),
+			'no ids left'           => array( array( 'threats' => 'abc' ), null ),
+			'no threats param'      => array( array(), null ),
+			'an array'              => array( array( 'threats' => array( '12' ) ), null ),
+			'already routed'        => array(
+				array(
+					'threats' => '12',
+					'p'       => '/',
+				),
+				null,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_report_requests
+	 *
+	 * @param array       $query    The request's query args.
+	 * @param string|null $expected The redirect, or null for none.
+	 */
+	#[DataProvider( 'provide_threat_report_requests' )]
+	public function test_get_threat_report_redirect_moves_the_ids_into_the_route( $query, $expected ) {
+		$this->assertSame( $expected, Dashboard::get_threat_report_redirect( $query ) );
+	}
+
 	public function test_restore_screen_id_undoes_the_alias() {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -337,5 +448,98 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( $expected, $output );
+	}
+
+	/**
+	 * Whether the site agreed to the terms, whether it is offline, and whether Tracks is allowed.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_states() {
+		return array(
+			'terms agreed'     => array( true, false, true ),
+			'offline'          => array( true, true, false ),
+			'terms not agreed' => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracking_states
+	 *
+	 * @param bool $agreed   Whether the site agreed to the terms of service.
+	 * @param bool $offline  Whether Jetpack is in offline mode.
+	 * @param bool $expected Whether the Tracks script loads and the page may record.
+	 */
+	#[DataProvider( 'provide_tracking_states' )]
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+
+		Dashboard::enqueue_tracks_transport();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
+	}
+
+	/**
+	 * Whether the current user is connected, the WordPress.com user already in the script data, and the result.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracks_identities() {
+		$set_by_another_package = array(
+			'ID'    => 5,
+			'login' => 'other',
+		);
+		return array(
+			'already set by another package' => array( true, $set_by_another_package, $set_by_another_package ),
+			'no connected user'              => array( false, array( 'avatar' => 'a.png' ), array( 'avatar' => 'a.png' ) ),
+			'connected user'                 => array(
+				true,
+				array( 'avatar' => 'a.png' ),
+				array(
+					'avatar' => 'a.png',
+					'ID'     => 7,
+					'login'  => 'wpcomuser',
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_tracks_identities
+	 *
+	 * @param bool  $connected Whether the current user is connected to WordPress.com.
+	 * @param array $wpcom     The WordPress.com user already in the script data.
+	 * @param array $expected  The WordPress.com user in the returned script data.
+	 */
+	#[DataProvider( 'provide_tracks_identities' )]
+	public function test_add_tracks_identity_fills_in_only_a_missing_user( $connected, $wpcom, $expected ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'blog_token', 'blog.secret' );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+			set_transient(
+				"jetpack_connected_user_data_$user_id",
+				array(
+					'ID'    => 7,
+					'login' => 'wpcomuser',
+				)
+			);
+		}
+
+		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
+
+		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
 	}
 }

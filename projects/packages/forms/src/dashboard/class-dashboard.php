@@ -53,15 +53,6 @@ class Dashboard {
 			return;
 		}
 
-		// When no route path is specified, redirect to the default view
-		// so the client-side router doesn't need a catch-all root route.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['p'] ) ) {
-			wp_safe_redirect( self::get_forms_admin_url( self::get_default_tab() ) );
-
-			exit;
-		}
-
 		// Register polyfills for WP < 7.0 (must run before enqueue).
 		WP_Build_Polyfills::register(
 			'jetpack-forms',
@@ -111,20 +102,9 @@ class Dashboard {
 	const FORMS_WPBUILD_ADMIN_SLUG = 'jetpack-forms-responses-wp-admin';
 
 	/**
-	 * Cookie holding the top tab the user last chose.
-	 *
-	 * Written by src/dashboard/last-tab-cookie.ts; the two names have to stay in step.
+	 * Cookie holding the top tab the user last chose, written by src/dashboard/last-tab-cookie.ts.
 	 */
 	const LAST_TAB_COOKIE = 'jetpack_forms_last_tab';
-
-	/**
-	 * Top tabs the dashboard can reopen on.
-	 *
-	 * Mirrored by TOP_TABS in src/dashboard/constants.ts.
-	 *
-	 * @var string[]
-	 */
-	private const TOP_TABS = array( 'forms', 'responses' );
 
 	/**
 	 * Priority for the dashboard menu.
@@ -631,11 +611,13 @@ class Dashboard {
 	/**
 	 * The tab the standalone Forms page opens on when the URL names no route.
 	 *
-	 * A cookie, not a user preference: this redirect runs before any script could read one.
+	 * @deprecated 8.3.5 The dashboard's root route picks the tab client-side now.
 	 *
 	 * @return string Tab slug understood by get_forms_admin_url().
 	 */
 	public static function get_default_tab() {
+		_deprecated_function( __METHOD__, 'package-8.3.5' );
+
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			// The Forms tab is not rendered at all here, so honouring a stored 'forms'
 			// would strand the user on a tab they cannot leave.
@@ -644,7 +626,7 @@ class Dashboard {
 
 		$remembered = sanitize_key( wp_unslash( $_COOKIE[ self::LAST_TAB_COOKIE ] ?? '' ) );
 
-		return in_array( $remembered, self::TOP_TABS, true ) ? $remembered : 'forms';
+		return in_array( $remembered, array( 'forms', 'responses' ), true ) ? $remembered : 'forms';
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { queryKeys, useServices, useSettings, useStatus } from '../data/queries';
+import { useServices } from '../data/queries';
+import { store } from '../data/store';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveServices } from '../data/use-save-services';
 import { useSaveSetting } from '../data/use-save-setting';
@@ -8,8 +9,7 @@ import {
 	apiCalls,
 	baseSettings,
 	baseStatus,
-	createTestQueryClient,
-	resetNotices,
+	createTestRegistry,
 	snackbarMessages,
 	wrapperFor,
 } from './helpers';
@@ -21,25 +21,18 @@ const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 const switched: Status = { ...baseStatus, sharing: { state: 'block_call_to_action' } };
 
 /**
- * Render the action hook alongside an active settings query, which is what gets refetched.
+ * Render the action hook in a seeded registry.
  *
- * @return Hook result and query client.
+ * @return Hook result and registry.
  */
 function renderAction() {
-	const queryClient = createTestQueryClient();
-	const { result } = renderHook(
-		() => {
-			useSettings();
-			return useFeatureAction();
-		},
-		{ wrapper: wrapperFor( queryClient ) }
-	);
-	return { result, queryClient };
+	const registry = createTestRegistry();
+	const { result } = renderHook( () => useFeatureAction(), { wrapper: wrapperFor( registry ) } );
+	return { result, registry };
 }
 
 beforeEach( () => {
 	mockApiFetch.mockReset();
-	resetNotices();
 } );
 
 describe( 'useFeatureAction', () => {
@@ -47,14 +40,12 @@ describe( 'useFeatureAction', () => {
 		mockApiFetch.mockImplementation( ( { method } ) =>
 			Promise.resolve( method === 'POST' ? switched : baseSettings )
 		);
-		const { result, queryClient } = renderAction();
+		const { result, registry } = renderAction();
 
 		act( () => result.current.run( 'sharing', 'switch-to-block' ) );
 
 		await waitFor( () =>
-			expect( queryClient.getQueryData< Status >( queryKeys.status )?.sharing.state ).toBe(
-				'block_call_to_action'
-			)
+			expect( registry.select( store ).getStatus()?.sharing.state ).toBe( 'block_call_to_action' )
 		);
 		expect( apiCalls( 'POST' ) ).toEqual( [
 			{ path: '/wpcom/v2/sharing-likes/sharing/switch-to-block', method: 'POST' },
@@ -93,13 +84,13 @@ describe( 'useFeatureAction', () => {
 					? post()
 					: Promise.resolve( { visible: [ 'x' ], hidden: [], services: [] } )
 			);
-			const queryClient = createTestQueryClient();
+			const registry = createTestRegistry();
 			const { result } = renderHook(
 				() => {
 					useServices( true );
 					return useFeatureAction();
 				},
-				{ wrapper: wrapperFor( queryClient ) }
+				{ wrapper: wrapperFor( registry ) }
 			);
 			await waitFor( () => expect( apiCalls() ).toHaveLength( 1 ) );
 
@@ -107,7 +98,9 @@ describe( 'useFeatureAction', () => {
 
 			await waitFor( () => expect( snackbarMessages() ).toContain( notice ) );
 			await waitFor( () => expect( result.current.isPending ).toBe( false ) );
-			expect( apiCalls() ).toEqual( [ { path: '/wpcom/v2/sharing-likes/services' } ] );
+			expect( apiCalls().filter( ( { path } ) => path?.endsWith( '/services' ) ) ).toHaveLength(
+				1
+			);
 		}
 	);
 
@@ -122,14 +115,8 @@ describe( 'useFeatureAction', () => {
 			}
 			return path?.endsWith( '/status' ) ? statusRead : Promise.resolve( baseSettings );
 		} );
-		const queryClient = createTestQueryClient();
-		const { result } = renderHook(
-			() => {
-				useStatus();
-				return useFeatureAction();
-			},
-			{ wrapper: wrapperFor( queryClient ) }
-		);
+		const registry = createTestRegistry();
+		const { result } = renderHook( () => useFeatureAction(), { wrapper: wrapperFor( registry ) } );
 
 		act( () => {
 			result.current.run( 'likes', 'activate' );
@@ -143,9 +130,7 @@ describe( 'useFeatureAction', () => {
 		await act( async () => resolveStatus( baseStatus ) );
 
 		await waitFor( () =>
-			expect( queryClient.getQueryData< Status >( queryKeys.status )?.sharing.state ).toBe(
-				'block_call_to_action'
-			)
+			expect( registry.select( store ).getStatus()?.sharing.state ).toBe( 'block_call_to_action' )
 		);
 	} );
 
@@ -158,13 +143,10 @@ describe( 'useFeatureAction', () => {
 			}
 			return method === 'PUT' ? put : Promise.resolve( baseSettings );
 		} );
-		const queryClient = createTestQueryClient();
+		const registry = createTestRegistry();
 		const { result } = renderHook(
-			() => {
-				useSettings();
-				return { action: useFeatureAction(), save: useSaveSetting() };
-			},
-			{ wrapper: wrapperFor( queryClient ) }
+			() => ( { action: useFeatureAction(), save: useSaveSetting() } ),
+			{ wrapper: wrapperFor( registry ) }
 		);
 
 		let saved: Promise< unknown > = Promise.resolve();
@@ -174,10 +156,46 @@ describe( 'useFeatureAction', () => {
 		} );
 		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
 
-		expect( queryClient.getQueryData< Settings >( queryKeys.settings ) ).toMatchObject( {
+		expect( registry.select( store ).getSettings() ).toMatchObject( {
 			button_style: 'icon',
 		} );
 
+		await act( async () => {
+			resolvePut( { ...baseSettings, button_style: 'icon' } );
+			await saved;
+		} );
+	} );
+
+	it( "drops a settings read that lands after a save's optimistic value", async () => {
+		let resolveRead!: ( value: Settings ) => void;
+		const read = new Promise< Settings >( resolve => ( resolveRead = resolve ) );
+		let resolvePut!: ( value: Settings ) => void;
+		const put = new Promise< Settings >( resolve => ( resolvePut = resolve ) );
+		mockApiFetch.mockImplementation( ( { method } ) => {
+			if ( method === 'POST' ) {
+				return Promise.resolve( switched );
+			}
+			return method === 'PUT' ? put : read;
+		} );
+		const registry = createTestRegistry();
+		const { result } = renderHook(
+			() => ( { action: useFeatureAction(), save: useSaveSetting() } ),
+			{ wrapper: wrapperFor( registry ) }
+		);
+
+		act( () => result.current.action.run( 'sharing', 'switch-to-block' ) );
+		await waitFor( () =>
+			expect( apiCalls() ).toContainEqual( { path: '/wpcom/v2/sharing-likes/settings' } )
+		);
+		let saved: Promise< unknown > = Promise.resolve();
+		act( () => {
+			saved = result.current.save( 'button_style', 'icon' );
+		} );
+		await act( async () => resolveRead( baseSettings ) );
+
+		expect( registry.select( store ).getSettings()?.button_style ).toBe( 'icon' );
+
+		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
 		await act( async () => {
 			resolvePut( { ...baseSettings, button_style: 'icon' } );
 			await saved;
@@ -204,15 +222,10 @@ describe( 'useFeatureAction', () => {
 			}
 			return Promise.resolve( path?.endsWith( '/services' ) ? services : baseSettings );
 		} );
-		const queryClient = createTestQueryClient();
-		queryClient.setQueryData( queryKeys.services, services );
+		const registry = createTestRegistry( { services } );
 		const { result } = renderHook(
-			() => {
-				useSettings();
-				useServices( true );
-				return { action: useFeatureAction(), save: useSaveServices() };
-			},
-			{ wrapper: wrapperFor( queryClient ) }
+			() => ( { action: useFeatureAction(), save: useSaveServices() } ),
+			{ wrapper: wrapperFor( registry ) }
 		);
 
 		let saved: Promise< unknown > = Promise.resolve();
@@ -222,10 +235,7 @@ describe( 'useFeatureAction', () => {
 		} );
 		await waitFor( () => expect( apiCalls( 'PUT' ) ).toHaveLength( 1 ) );
 
-		expect( queryClient.getQueryData< Services >( queryKeys.services )?.visible ).toEqual( [
-			'x',
-			'facebook',
-		] );
+		expect( registry.select( store ).getServices()?.visible ).toEqual( [ 'x', 'facebook' ] );
 
 		await act( async () => {
 			resolvePut( { ...services, visible: [ 'x', 'facebook' ] } );

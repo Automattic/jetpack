@@ -49,3 +49,15 @@ if ( ! function_exists( 'jetpack_woocommerce_stats_get_registered_widget_modules
 		return $modules;
 	}
 }
+
+// Stand-in for the module registrant wp-build generates: the modules at a placeholder URL.
+if ( ! function_exists( 'jetpack_woocommerce_stats_register_script_modules' ) ) {
+	/**
+	 * Module registrant stand-in.
+	 *
+	 * @return void
+	 */
+	function jetpack_woocommerce_stats_register_script_modules() {
+		wp_register_script_module( '@jetpack-woocommerce-stats/store-performance-bookings', 'https://example.test/store-performance-bookings.js' );
+	}
+}

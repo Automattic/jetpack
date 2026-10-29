@@ -15,8 +15,13 @@ import { useMemo } from 'react';
  */
 import { useReportSessionsByDevice } from '../../src/reports';
 import { buildSessionsByDeviceSegments } from './build-sessions-by-device-segments';
-import type { SessionsByDeviceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type SessionsByDeviceAttributes = Record< never, never >;
 
 type SessionsByDeviceRenderAttributes = SessionsByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -65,6 +70,9 @@ function SessionsByDevice() {
 				onRetry: refetch,
 			} ) }
 			variant="half-ring"
+			chartTitle={ __( 'Sessions by device', 'jetpack-woocommerce-stats-pkg' ) }
+			total={ primary.data?.summary.total_sessions }
+			previousTotal={ comparison.data?.summary.total_sessions }
 		/>
 	);
 }

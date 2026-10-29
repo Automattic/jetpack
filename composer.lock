@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "85af72693768d765fa688ff3f14b3f86ebac74a6"
+                "reference": "6d1b1e15365780047585426afd3f89213643c36e"
             },
             "require": {
                 "php": ">=7.4"
@@ -28,7 +28,6 @@
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/ignorefile/compare/v${old}...v${new}"
                 },
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "4.0.x-dev"
                 }
@@ -63,7 +62,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "6f39c44b56d2f578aee80b632185ce2683ceb785"
+                "reference": "1e9acd3da13f122dc341814cccca30006e0e3ad2"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -81,7 +80,6 @@
             },
             "type": "phpcodesniffer-standard",
             "extra": {
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-codesniffer",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
@@ -138,7 +136,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "7b54675be8c2d8e8a04854ce9101618296be0fc5"
+                "reference": "81ab4c58db69d1b7a1567da09a4f5b5c1f4354f2"
             },
             "require": {
                 "phan/phan": "5.5.2",
@@ -150,7 +148,6 @@
             },
             "type": "library",
             "extra": {
-                "autotagger": true,
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 },
@@ -377,16 +374,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.5.1",
+            "version": "3.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "528948210cc46f967a4b98e83b19e76f2b504993"
+                "reference": "9dfce66f1e97360ea5e6d3e38ab14277e4cc591e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/528948210cc46f967a4b98e83b19e76f2b504993",
-                "reference": "528948210cc46f967a4b98e83b19e76f2b504993",
+                "url": "https://api.github.com/repos/composer/semver/zipball/9dfce66f1e97360ea5e6d3e38ab14277e4cc591e",
+                "reference": "9dfce66f1e97360ea5e6d3e38ab14277e4cc591e",
                 "shasum": ""
             },
             "require": {
@@ -438,7 +435,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.5.1"
+                "source": "https://github.com/composer/semver/tree/3.5.2"
             },
             "funding": [
                 {
@@ -450,7 +447,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-05T13:12:12+00:00"
+            "time": "2026-10-22T15:37:26+00:00"
         },
         {
             "name": "composer/spdx-licenses",

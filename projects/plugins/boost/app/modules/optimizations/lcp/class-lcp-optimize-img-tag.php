@@ -85,11 +85,19 @@ class LCP_Optimize_Img_Tag {
 			return $buffer_processor->get_updated_html();
 		}
 
+		$resized_src = '';
+
 		// If the image isn't photonized, it might be resized by WP.
 		// We need the original image URL, as we'll be generating
 		// the necessary sizes based on it.
 		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
-			$image_url = Image_CDN::strip_image_dimensions_maybe( $image_url );
+			$original_src = (string) $image_url;
+			$image_url    = Image_CDN::strip_image_dimensions_maybe( $original_src );
+
+			// Its -WxH suffix names a WordPress size if stripping found the original, or the attachment lists it.
+			if ( $image_url !== $original_src || $this->is_attachment_size( $buffer_processor, $original_src ) ) {
+				$resized_src = $original_src;
+			}
 		} else {
 			// In case it's Photonized, we need to remove any size change arguments.
 			$image_url = remove_query_arg( array( 'w', 'h' ), $image_url );
@@ -114,10 +122,47 @@ class LCP_Optimize_Img_Tag {
 
 		// srcset uses CDN URLs internally (via Image_CDN_Core::cdn_url), so skip if CDN is disabled.
 		if ( $apply_srcset && $apply_cdn ) {
-			$this->add_responsive_image_attributes( $buffer_processor, $image_url );
+			$this->add_responsive_image_attributes( $buffer_processor, $image_url, $resized_src );
 		}
 
 		return $buffer_processor->get_updated_html();
+	}
+
+	/**
+	 * Whether the image's attachment lists the src's file as one of its sizes, as when the
+	 * original is offloaded or deleted and there is no file on disk to confirm it.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @param string                $src     The image src.
+	 * @return bool
+	 */
+	private function is_attachment_size( $element, $src ) {
+		list( $width ) = Image_CDN::parse_dimensions_from_filename( $src );
+		if ( ! $width ) {
+			return false;
+		}
+
+		$attachment_id = 0;
+		foreach ( $element->class_list() ?? array() as $class_name ) {
+			if ( preg_match( '/^wp-image-([1-9][0-9]*)$/', $class_name, $matches ) ) {
+				$attachment_id = (int) $matches[1];
+				break;
+			}
+		}
+
+		$meta = $attachment_id ? wp_get_attachment_metadata( $attachment_id ) : false;
+		if ( ! is_array( $meta ) || empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
+			return false;
+		}
+
+		$file = rawurldecode( wp_basename( (string) wp_parse_url( $src, PHP_URL_PATH ) ) );
+		foreach ( $meta['sizes'] as $size ) {
+			if ( is_array( $size ) && isset( $size['file'] ) && $size['file'] === $file ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -125,18 +170,24 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
 	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */
-	private function add_responsive_image_attributes( $element, $image_url ) {
+	private function add_responsive_image_attributes( $element, $image_url, $resized_src = '' ) {
 		// is_array() as well as empty(): empty( 'not-an-array' ) is false, so a string
 		// breakpoints field would reach the foreach in get_srcset() and get_sizes().
 		if ( empty( $this->lcp_data['breakpoints'] ) || ! is_array( $this->lcp_data['breakpoints'] ) ) {
 			return $element;
 		}
 
-		$srcset = $this->get_srcset( $image_url );
+		$object_fit = $this->get_marked_object_fit( $element );
+
+		// Under cover, a file cropped to the box shows the same picture and is smaller.
+		$aspect_ratio = 'cover' === $object_fit ? null : $this->get_aspect_ratio( $element, $resized_src );
+
+		$srcset = $this->get_srcset( $image_url, $aspect_ratio, 'contain' === $object_fit );
 		if ( ! empty( $srcset ) ) {
 			$element->set_attribute( 'srcset', $srcset );
 		}
@@ -150,14 +201,81 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
+	 * Get the object-fit the markup sets, as core's Featured Image (inline style) and Cover
+	 * (data-object-fit) blocks do. A fit set by a stylesheet is not seen here.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @return string|null 'cover', 'contain', or null if the markup sets neither.
+	 */
+	private function get_marked_object_fit( $element ) {
+		// Inline style first: its last !important declaration, else its last, as CSS applies them.
+		$style = $element->get_attribute( 'style' );
+		if ( is_string( $style ) && preg_match_all( '/(?:^|;)\s*object-fit\s*:\s*([a-z-]+)\s*(!important\s*)?(?=;|$)/i', $style, $matches ) ) {
+			$important = array_filter( $matches[2] );
+			$fits      = $important ? array_intersect_key( $matches[1], $important ) : $matches[1];
+			$fit       = strtolower( end( $fits ) );
+
+			return in_array( $fit, array( 'cover', 'contain' ), true ) ? $fit : null;
+		}
+
+		if ( 'cover' === $element->get_attribute( 'data-object-fit' ) ) {
+			return 'cover';
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the aspect ratio of the file the page asked for.
+	 *
+	 * @param WP_HTML_Tag_Processor $element     The image tag.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
+	 * @return float|null Width divided by height, or null if neither source gives both.
+	 */
+	private function get_aspect_ratio( $element, $resized_src ) {
+		// The size's -WxH suffix first: the attributes can describe a different size than the file.
+		list( $width, $height ) = Image_CDN::parse_dimensions_from_filename( (string) $resized_src );
+		if ( ! $width || ! $height ) {
+			$width  = $element->get_attribute( 'width' );
+			$height = $element->get_attribute( 'height' );
+		}
+
+		$width  = $this->to_dimension( $width );
+		$height = $this->to_dimension( $height );
+
+		return $width && $height ? $width / $height : null;
+	}
+
+	/**
+	 * Read a pixel size, as digits only like Image CDN does.
+	 *
+	 * @param mixed $value An attribute or filename value.
+	 * @return int|null The size, or null if it is not a whole number from 1 to 65535.
+	 */
+	private function to_dimension( $value ) {
+		if ( is_int( $value ) ) {
+			$value = (string) $value;
+		}
+
+		// The cap keeps the widened sizes below in int range.
+		if ( ! is_string( $value ) || ! ctype_digit( $value ) || (int) $value < 1 || (int) $value > 65535 ) {
+			return null;
+		}
+
+		return (int) $value;
+	}
+
+	/**
 	 * Get the srcsets for an image.
 	 *
-	 * @param string $original_url The original image URL.
+	 * @param string     $original_url The original image URL.
+	 * @param float|null $aspect_ratio The image's width divided by its height, if known.
+	 * @param bool       $fit_inside   Whether the image is drawn inside the box (object-fit: contain).
 	 * @return string The srcset for the image.
 	 *
 	 * @since 4.1.0
 	 */
-	private function get_srcset( $original_url ) {
+	private function get_srcset( $original_url, $aspect_ratio = null, $fit_inside = false ) {
 		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// The field is optional; the background-image sibling has always carried
@@ -185,19 +303,36 @@ class LCP_Optimize_Img_Tag {
 				$width  = (int) $breakpoint_dimensions['width'];
 				$height = (int) $breakpoint_dimensions['height'];
 
-				$dimensions[ $width ] = $height;
+				// Resize to the image's own proportions, covering the box or fitting inside it: a box
+				// shaped differently would otherwise be cropped into the file, where CSS cannot undo it.
+				$file_width  = $width;
+				$file_height = $height;
+				if ( $aspect_ratio ) {
+					$width_at_box_height = (int) ceil( $height * $aspect_ratio );
+
+					$file_width  = $fit_inside ? min( $width, $width_at_box_height ) : max( $width, $width_at_box_height );
+					$file_height = (int) round( $file_width / $aspect_ratio );
+				}
+
+				// Keyed by the box width, not the file's: the w descriptors must match `sizes`,
+				// or object-fit: cover draws the widened file at a lower density than the DPR.
+				$add = function ( $dpr ) use ( &$dimensions, $width, $file_width, $file_height ) {
+					$dimensions[ (int) round( $width * $dpr ) ] = array( (int) round( $file_width * $dpr ), (int) round( $file_height * $dpr ) );
+				};
+
+				$add( 1 );
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
+					$add( 1.75 );
 				}
 
 				// Include 2x DPR.
-				$dimensions[ $width * 2 ] = $height * 2;
+				$add( 2 );
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$dimensions[ $width * 3 ] = $height * 3;
+					$add( 3 );
 				}
 			}
 		}
@@ -210,7 +345,7 @@ class LCP_Optimize_Img_Tag {
 			$srcset[] = Image_CDN_Core::cdn_url(
 				$original_url,
 				array(
-					'resize' => array( $width, $dimensions[ $width ] ),
+					'resize' => $dimensions[ $width ],
 				)
 			) . " {$width}w";
 		}

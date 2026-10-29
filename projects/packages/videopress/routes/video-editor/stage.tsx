@@ -634,6 +634,21 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 		return <EditorNotFound videoId={ id } />;
 	}
 
+	if ( video.conversionFailed ) {
+		return (
+			<EditorChrome videoId={ id } breadcrumbLabel={ video.title || undefined }>
+				<div className="vp-video-editor vp-video-editor__processing" role="status">
+					<Text>
+						{ __(
+							'Conversion failed. Delete this video from your library and upload it again.',
+							'jetpack-videopress-pkg'
+						) }
+					</Text>
+				</div>
+			</EditorChrome>
+		);
+	}
+
 	if ( activeTool === 'trim' && isTrimCutEnabled() ) {
 		return <TrimCutEditor key={ video.guid } video={ video } onSelectTool={ setActiveTool } />;
 	}

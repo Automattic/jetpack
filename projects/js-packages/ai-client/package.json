@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.35.6",
+	"version": "0.35.9",
 	"private": false,
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
@@ -45,7 +45,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@types/wordpress__block-editor": "15.0.7",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/base-styles": "13.3.0",
@@ -64,20 +64,20 @@
 		"@wordpress/url": "4.57.0",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
-		"markdown-it": "14.3.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"markdown-it": "14.3.3",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"turndown": "7.1.2"
 	},
 	"devDependencies": {
-		"@storybook/addon-docs": "10.4.6",
-		"@storybook/react": "10.4.6",
+		"@storybook/addon-docs": "10.6.3",
+		"@storybook/react": "10.6.3",
 		"@testing-library/dom": "10.4.2",
 		"@types/markdown-it": "14.2.0",
 		"@types/turndown": "5.0.6",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.5.1",
-		"storybook": "10.4.6",
+		"jest": "30.5.2",
+		"storybook": "10.6.3",
 		"typescript": "6.0.3"
 	}
 }

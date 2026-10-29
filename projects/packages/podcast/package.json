@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-podcast",
-	"version": "2.2.1",
+	"version": "2.2.4",
 	"private": true,
 	"description": "Jetpack Podcast functionality (Simple and Atomic only).",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/podcast/#readme",
@@ -65,9 +65,9 @@
 		"@wordpress/url": "4.57.0",
 		"canvas-confetti": "1.9.4",
 		"clsx": "2.1.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"webpack": "5.111.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"devDependencies": {
@@ -76,7 +76,7 @@
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@types/canvas-confetti": "1.9.0",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@wordpress/base-styles": "13.3.0",
 		"@wordpress/browserslist-config": "6.57.0",
 		"@wordpress/build": "0.25.0",

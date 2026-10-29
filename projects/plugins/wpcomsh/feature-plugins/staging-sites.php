@@ -148,3 +148,41 @@ function wpcomsh_disable_pingback_ui_on_staging() {
 	<?php
 }
 add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_staging' );
+
+/**
+ * Tells search engines not to index staging sites, even when `blog_public` allows it.
+ *
+ * @param array $headers HTTP response headers.
+ * @return array Filtered headers.
+ */
+function wpcomsh_add_staging_site_robots_header( $headers ) {
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
+		$existing                = $headers['X-Robots-Tag'] ?? '';
+		$headers['X-Robots-Tag'] = $existing ? $existing . ', noindex, nofollow' : 'noindex, nofollow';
+	}
+
+	return $headers;
+}
+// Run last so directives other plugins set are kept.
+add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header', PHP_INT_MAX );
+
+/**
+ * Adds `noindex, nofollow` to the robots meta tag on staging sites.
+ *
+ * @param array $robots Associative array of robots directives.
+ * @return array Filtered directives.
+ */
+function wpcomsh_add_staging_site_robots_directives( $robots ) {
+	if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+		return $robots;
+	}
+
+	// Drop `index` and `follow` so the tag can't read "index, noindex".
+	unset( $robots['index'], $robots['follow'] );
+
+	$robots['noindex']  = true;
+	$robots['nofollow'] = true;
+
+	return $robots;
+}
+add_filter( 'wp_robots', 'wpcomsh_add_staging_site_robots_directives', 100 );

@@ -14,12 +14,13 @@ import type { ReactNode } from 'react';
 
 // The map is Google's; the kind's job is what it hands it.
 jest.mock( '../../locations-geo-chart', () => ( {
-	LocationsGeoChart: ( { mode, rows, valueLabel }: LocationsGeoChartProps ) => (
+	LocationsGeoChart: ( { mode, rows, valueLabel, chartTitle }: LocationsGeoChartProps ) => (
 		<div
 			data-testid="geo-chart"
 			data-mode={ mode }
 			data-rows={ rows.length }
 			data-value-label={ valueLabel }
+			data-chart-title={ chartTitle }
 		/>
 	),
 } ) );
@@ -59,6 +60,15 @@ describe( 'Locations', () => {
 		);
 
 		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-mode', 'region' );
+	} );
+
+	it( 'names the list and hands the map the chart title', () => {
+		renderLocations(
+			<Locations rows={ ROWS } status={ READY } valueLabel="Views" chartTitle="Locations" />
+		);
+
+		expect( screen.getByRole( 'list', { name: 'Chart: Locations' } ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-chart-title', 'Locations' );
 	} );
 
 	it( 'shows the deltas only while the comparison period is on', () => {

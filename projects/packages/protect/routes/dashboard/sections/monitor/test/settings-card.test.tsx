@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import MonitorSettingsCard from '../settings-card';
 import type { ProtectSettingsData } from '../../../data/use-protect-settings';
 
-const MONITOR = 'Monitor your site for downtime';
+const MONITOR = 'Enable downtime monitoring';
 const EMAIL = 'Email me when my site goes down and comes back up';
 
 const card = ( {
@@ -41,7 +41,7 @@ describe( 'MonitorSettingsCard', () => {
 		renderCard( options );
 
 		const enabled = ( label: string ) =>
-			! screen.getByLabelText( label ).hasAttribute( 'disabled' );
+			screen.getByRole( 'switch', { name: label } ).getAttribute( 'aria-disabled' ) !== 'true';
 		expect( enabled( MONITOR ) ).toBe( canToggle );
 		expect( enabled( EMAIL ) ).toBe( canEmail );
 	} );
@@ -49,7 +49,10 @@ describe( 'MonitorSettingsCard', () => {
 	it( 'keeps the email toggle locked while a Monitor save is in flight', () => {
 		renderCard( { saving: true } );
 
-		expect( screen.getByLabelText( EMAIL ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'keeps the email toggle locked until the re-read after turning Monitor on settles', async () => {
@@ -63,13 +66,19 @@ describe( 'MonitorSettingsCard', () => {
 		const save = jest.fn().mockResolvedValue( undefined );
 		const { rerender } = renderCard( { monitor: false, save, refresh } );
 
-		await userEvent.setup().click( screen.getByLabelText( MONITOR ) );
+		await userEvent.setup().click( screen.getByRole( 'switch', { name: MONITOR } ) );
 		// The Monitor save has settled and the setting now reads on; only the re-read is pending.
 		rerender( card( { save, refresh } ) );
-		expect( screen.getByLabelText( EMAIL ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 
 		await act( async () => finishRefresh() );
-		expect( screen.getByLabelText( EMAIL ) ).toBeEnabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it.each( [
@@ -82,7 +91,7 @@ describe( 'MonitorSettingsCard', () => {
 			const refresh = jest.fn().mockResolvedValue( undefined );
 			renderCard( { monitor, save, refresh } );
 
-			await userEvent.setup().click( screen.getByLabelText( MONITOR ) );
+			await userEvent.setup().click( screen.getByRole( 'switch', { name: MONITOR } ) );
 
 			expect( save ).toHaveBeenCalledWith( { monitor: ! monitor }, undefined );
 			expect( refresh.mock.calls ).toEqual( calls );

@@ -20,6 +20,8 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type RevenueByCustomerTypeProps = {
 	/** The product types the revenue counts; every type when omitted. */
 	filters?: FilterCondition[];
+	/** The widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 };
 
 /**
@@ -29,7 +31,7 @@ type RevenueByCustomerTypeProps = {
  * @param {RevenueByCustomerTypeProps} props - The component props.
  * @return {JSX.Element} The columns, or the loading, error or empty state of their report.
  */
-export function RevenueByCustomerType( { filters }: RevenueByCustomerTypeProps ) {
+export function RevenueByCustomerType( { filters, chartTitle }: RevenueByCustomerTypeProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( filters ? { ...reportParams, filters } : reportParams ),
@@ -85,6 +87,7 @@ export function RevenueByCustomerType( { filters }: RevenueByCustomerTypeProps )
 				onRetry: refetch,
 			} ) }
 			format={ CURRENCY_FORMAT }
+			chartTitle={ chartTitle }
 		/>
 	);
 }

@@ -108,7 +108,7 @@ class All_Playlists_Block {
 	 *
 	 * @param mixed $block_attributes Block attributes; anything but an array counts as none.
 	 *
-	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string, show_updated: bool}
+	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string, exclude_current: bool, show_updated: bool}
 	 */
 	public static function settings( $block_attributes ) {
 		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
@@ -135,6 +135,7 @@ class All_Playlists_Block {
 			'show_description' => $flag( 'showDescription', true ),
 			'show_video_count' => $flag( 'showVideoCount', true ),
 			'pagination'       => $pick( 'pagination', self::PAGINATIONS ),
+			'exclude_current'  => $flag( 'excludeCurrent', false ),
 			'show_updated'     => $flag( 'showUpdated', false ),
 		);
 	}
@@ -319,9 +320,24 @@ class All_Playlists_Block {
 	public static function render( $block_attributes, $content = '' ) {
 		$settings  = self::settings( $block_attributes );
 		$playlists = self::ordered_playlists( $settings['order_by'] );
-		$total     = count( $playlists );
+		$has_any   = (bool) $playlists;
+		if ( $settings['exclude_current'] ) {
+			$current   = Channel::queried_playlist();
+			$playlists = $current
+				? array_values(
+					array_filter(
+						$playlists,
+						function ( $playlist ) use ( $current ) {
+							return $playlist['key'] !== $current['key'];
+						}
+					)
+				)
+				: $playlists;
+		}
+		$total = count( $playlists );
 		if ( ! $total ) {
-			return '';
+			// Only a site without any playlist is empty; "More playlists" next to the only one stays hidden.
+			return $has_any ? '' : Channel_Blocks::render_empty_state( 'playlists', $block_attributes, 'videopress-all-playlists' );
 		}
 
 		$per_page     = $settings['per_page'];
@@ -422,7 +438,7 @@ class All_Playlists_Block {
 	 */
 	private static function render_item( $playlist, $settings, $page, $hidden ) {
 		$title       = '' !== $playlist['title'] ? $playlist['title'] : __( 'Untitled playlist', 'jetpack-videopress-pkg' );
-		$permalink   = $playlist['post'] ? get_permalink( $playlist['post'] ) : '';
+		$permalink   = $playlist['post'] ? self::playlist_link( $playlist ) : '';
 		$video_count = count( $playlist['videos'] );
 		$first_guid  = $video_count && isset( $playlist['videos'][0]['guid'] ) && is_string( $playlist['videos'][0]['guid'] )
 			? $playlist['videos'][0]['guid']
@@ -504,6 +520,17 @@ class All_Playlists_Block {
 			$poster,
 			$body
 		);
+	}
+
+	/**
+	 * Where a card links: the playlist's page on a channel site, else the post holding it.
+	 *
+	 * @param array $playlist A record from ordered_playlists() with a published post.
+	 *
+	 * @return string
+	 */
+	private static function playlist_link( $playlist ) {
+		return Channel::is_enabled() ? Channel::playlist_url( $playlist['key'] ) : (string) get_permalink( $playlist['post'] );
 	}
 
 	/**

@@ -13,8 +13,14 @@ import { __, _n } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportVisitors } from '../../src/reports';
-import type { VisitorsOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type VisitorsOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type VisitorsOverTimeRenderAttributes = VisitorsOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -37,6 +43,7 @@ function VisitorsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportVisitors( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Store visitors over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="visitors"
 			label={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }

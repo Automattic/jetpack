@@ -17,14 +17,21 @@ use Automattic\Jetpack\Status\Host;
 class AI_Launchpad_Difm_Offer {
 
 	/**
-	 * The ExPlat experiment. A placeholder until the experiment is registered, the same name Calypso uses.
+	 * The ExPlat experiment, the same one Calypso uses. It is registered on the calypso platform,
+	 * which the server-side assigner also accepts.
 	 */
-	const EXPERIMENT = 'wpcom_difm_post_signup_offer_placeholder';
+	const EXPERIMENT = 'calypso_difm_free_with_upgrade_wpadmin_202610_v1';
 
 	/**
-	 * The only variation that shows the banner.
+	 * The copy arms. Each one shows the banner with its own copy, and `control` shows none.
+	 * The names match the ExPlat variations.
 	 */
-	const TREATMENT = 'treatment';
+	const ARMS = array( 'expert_help', 'no_time_to_build', 'skip_the_setup' );
+
+	/**
+	 * The arm that the override filter forces.
+	 */
+	const FORCED_ARM = 'no_time_to_build';
 
 	/**
 	 * The Calypso preference the Calypso banners also write, so one dismissal hides the offer everywhere.
@@ -34,7 +41,7 @@ class AI_Launchpad_Difm_Offer {
 	/**
 	 * The oldest site, in days, that still gets the offer.
 	 */
-	const MAX_SITE_AGE_DAYS = 7;
+	const MAX_SITE_AGE_DAYS = 14;
 
 	/**
 	 * Free, Personal and Premium, every term, and the Personal trial. Same list as Calypso's ELIGIBLE_PLAN_SLUGS.
@@ -71,13 +78,14 @@ class AI_Launchpad_Difm_Offer {
 			return null;
 		}
 
-		if ( self::TREATMENT !== self::get_variation() ) {
+		$variation = self::get_variation();
+		if ( ! in_array( $variation, self::ARMS, true ) ) {
 			return null;
 		}
 
 		return array(
-			'variation' => self::TREATMENT,
-			'image_url' => plugins_url( 'images/difm-offer-illustration.svg', __FILE__ ),
+			'variation' => $variation,
+			'image_url' => plugins_url( 'images/difm-offer-illustration.webp', __FILE__ ),
 			'cta_url'   => self::get_cta_url(),
 		);
 	}
@@ -225,11 +233,11 @@ class AI_Launchpad_Difm_Offer {
 		 *
 		 * The eligibility checks still apply; only the assignment is replaced.
 		 *
-		 * @param bool|null $override True to force the treatment, false to force control, or null to ask ExPlat.
+		 * @param bool|null $override True to force the `no_time_to_build` arm, false to force control, or null to ask ExPlat.
 		 */
 		$override = apply_filters( 'wpcom_ai_launchpad_difm_offer_override_is_treatment', null );
 		if ( null !== $override ) {
-			return $override ? self::TREATMENT : 'control';
+			return $override ? self::FORCED_ARM : 'control';
 		}
 
 		if ( ! function_exists( '\ExPlat\assign_current_user' ) ) {

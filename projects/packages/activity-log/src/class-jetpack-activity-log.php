@@ -16,11 +16,13 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use Jetpack_Options;
 use function add_action;
 use function add_filter;
+use function add_submenu_page;
 use function class_exists;
 use function current_user_can;
 use function did_action;
@@ -31,6 +33,7 @@ use function is_multisite;
 use function sanitize_text_field;
 use function wp_add_inline_script;
 use function wp_enqueue_script;
+use function wp_json_encode;
 use function wp_register_script;
 use function wp_unslash;
 use function wp_verify_nonce;
@@ -119,6 +122,11 @@ class Jetpack_Activity_Log {
 	 * plugin that carries this package.
 	 */
 	public static function initialize() {
+		// Simple has no module system, and jetpack-mu-wpcom registers the page itself via add_wp_admin_submenu().
+		if ( self::is_wpcom_simple() ) {
+			return;
+		}
+
 		self::register_module();
 
 		if ( did_action( 'jetpack_activity_log_initialized' ) || ! self::is_module_active() ) {
@@ -211,7 +219,10 @@ class Jetpack_Activity_Log {
 	 * Register the Activity Log submenu under Jetpack.
 	 *
 	 * Mirrors the gating used by the legacy my-jetpack "Activity Log" menu
-	 * item (connected user + non-multisite).
+	 * item (connected user + non-multisite). On WordPress.com Simple sites,
+	 * jetpack-mu-wpcom calls this once it has built the Jetpack menu.
+	 *
+	 * @since 0.6.0 Registers the page on WordPress.com Simple sites.
 	 *
 	 * @return string|null The resulting page's hook suffix, if registered.
 	 */
@@ -235,19 +246,34 @@ class Jetpack_Activity_Log {
 			? 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'render_fallback' );
 
-		$page_suffix = Admin_Menu::add_menu(
-			/** "Activity Log" is a product name, do not translate. */
-			'Activity Log',
-			'Activity Log',
-			'manage_options',
-			self::PAGE_SLUG,
-			$render_callback
-		);
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-			self::opt_out_of_jitms( $page_suffix );
+		if ( self::is_wpcom_simple() ) {
+			// jetpack-mu-wpcom calls this after Admin_Menu has already flushed its queue.
+			$page_suffix = add_submenu_page(
+				'jetpack',
+				/** "Activity Log" is a product name, do not translate. */
+				'Activity Log',
+				'Activity Log',
+				'manage_options',
+				self::PAGE_SLUG,
+				$render_callback
+			);
+		} else {
+			$page_suffix = Admin_Menu::add_menu(
+				/** "Activity Log" is a product name, do not translate. */
+				'Activity Log',
+				'Activity Log',
+				'manage_options',
+				self::PAGE_SLUG,
+				$render_callback
+			);
 		}
+
+		if ( ! $page_suffix ) {
+			return null;
+		}
+
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		self::opt_out_of_jitms( $page_suffix );
 
 		return $page_suffix;
 	}
@@ -294,11 +320,16 @@ class Jetpack_Activity_Log {
 	 * @return bool
 	 */
 	public static function is_available() {
-		if ( is_multisite() ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Simple sites need no Jetpack connection: their users are WordPress.com users.
+		if ( self::is_wpcom_simple() ) {
+			return true;
+		}
+
+		if ( is_multisite() ) {
 			return false;
 		}
 
@@ -485,8 +516,14 @@ class Jetpack_Activity_Log {
 		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
 		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 
+		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config (via AdminPage) reads this global.
+		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => self::PAGE_SLUG ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
-		Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
+
+		// Simple has no Jetpack connection to describe; the app treats a missing state as no connection errors.
+		if ( ! self::is_wpcom_simple() ) {
+			Connection_Initial_State::render_script( self::DATA_SCRIPT_HANDLE );
+		}
 
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 
@@ -500,6 +537,17 @@ class Jetpack_Activity_Log {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+	}
+
+	/**
+	 * Whether this is a WordPress.com Simple site.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcom_simple() {
+		return ( new Host() )->is_wpcom_simple();
 	}
 
 	/**

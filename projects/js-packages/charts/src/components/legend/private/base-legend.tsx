@@ -257,13 +257,19 @@ export const BaseLegend: ForwardRefExoticComponent<
 					<Stack
 						ref={ ref }
 						direction={ orientation === 'vertical' ? 'column' : 'row' }
-						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						// Stack's gap is inline; horizontal gaps live in CSS so consumers can override them.
+						gap={ orientation === 'vertical' ? 'sm' : undefined }
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( standaloneScopeClass, styles.legend, className ) }
+						className={ clsx(
+							standaloneScopeClass,
+							styles.legend,
+							orientation === 'horizontal' && styles[ 'legend--horizontal' ],
+							className
+						) }
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {

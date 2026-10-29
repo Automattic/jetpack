@@ -18,12 +18,26 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import {
-	ALL_TIME_STATS_METRICS,
-	type AllTimeStatsAttributes,
-	type AllTimeStatsMetricId,
-} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Lifetime totals the widget shows, in display order. Each id doubles as the
+ * summary field the tile reads.
+ */
+export const ALL_TIME_STATS_METRICS = [
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'posts', label: __( 'Posts', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: string; label: string }[];
+
+export type AllTimeStatsMetricId = ( typeof ALL_TIME_STATS_METRICS )[ number ][ 'id' ];
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields. A
+ * `metrics` subset persisted by an earlier version is ignored.
+ */
+export type AllTimeStatsAttributes = Record< never, never >;
 
 // Report params arrive from the host but change nothing here: the all-time
 // summary query takes no date params.
@@ -98,6 +112,9 @@ function AllTimeStatsReport() {
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats "All-time stats" card.
+ */
 export default function AllTimeStats( { attributes = {} }: AllTimeStatsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

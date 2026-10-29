@@ -97,3 +97,9 @@
 		display: none;
 	}
 }
+
+.global-controls-separator {
+	align-self: stretch;
+	inline-size: 1px;
+	background-color: var(--wpds-color-stroke-surface-neutral-weak);
+}

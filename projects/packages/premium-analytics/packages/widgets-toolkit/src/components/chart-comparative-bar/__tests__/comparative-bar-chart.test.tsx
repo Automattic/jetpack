@@ -9,9 +9,12 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
+	mockOverlapBarColor,
 	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
+	setMockElementStyles,
+	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
@@ -109,6 +112,7 @@ function recordedProps(): {
 	};
 	margin?: Record< string, number >;
 	chartId: string;
+	layout?: string;
 	defaultHiddenSeries?: readonly string[];
 	legend: {
 		collapseGroups: boolean;
@@ -188,6 +192,20 @@ describe( 'ComparativeBarChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+	} );
+
+	it( 'names the chart from chartTitle', () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
+		);
 	} );
 
 	it( 'passes no x tickFormat when no tick format is requested', () => {
@@ -319,6 +337,7 @@ describe( 'ComparativeBarChart', () => {
 	} );
 
 	it( 'gives each row the swatch of its own series, the comparison its own too', () => {
+		setMockElementStyles( ( { index } ) => ( { color: `#series${ index }` } ) );
 		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
 
 		const [ july, visitors ] = tooltipModelFor( hoveredJuly( JULY_1 ), {
@@ -328,22 +347,14 @@ describe( 'ComparativeBarChart', () => {
 
 		// The chart lists both current periods before either previous period, while the
 		// styles follow the series, so a positional lookup would hand rows the wrong style.
-		expect( july.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( july.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
-		expect( visitors.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: undefined },
-		} );
-		expect( visitors.previous?.indicator ).toEqual( {
-			kind: 'series',
-			style: { stroke: '#3858E9', opacity: 0.5 },
-		} );
+		expect(
+			[ july, july.previous, visitors, visitors.previous ].map( row => row?.indicator )
+		).toEqual(
+			[ 0, 1, 2, 3 ].map( index => ( {
+				kind: 'series',
+				style: { stroke: `#series${ index }` },
+			} ) )
+		);
 	} );
 
 	// A shorter comparison period has no bar for the last buckets; the column stays,
@@ -359,7 +370,7 @@ describe( 'ComparativeBarChart', () => {
 		const model = tooltipModelFor( hoveredJuly( JULY_3 ) );
 		expect( model.rows[ 0 ].previous ).toEqual( {
 			value: null,
-			indicator: { kind: 'series', style: { stroke: '#3858E9', opacity: 0.5 } },
+			indicator: { kind: 'series', style: { stroke: '#3858E9' } },
 		} );
 		expect( model.previousDate ).toBeUndefined();
 	} );
@@ -373,6 +384,57 @@ describe( 'ComparativeBarChart', () => {
 			[ 'July', 100, 80 ],
 		] );
 	} );
+
+	it( 'draws an overlap layout with the tooltip and legend swatches in its opaque bar colors', () => {
+		render(
+			<ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } layout="overlap" />
+		);
+
+		expect( recordedProps().layout ).toBe( 'overlap' );
+		const [ july, visitors ] = tooltipModelFor( hoveredJuly( JULY_1 ), {
+			datum: { date: JULY_1, value: 40 },
+			key: 'Visitors',
+		} ).rows;
+		expect(
+			[ july, july.previous, visitors, visitors.previous ].map( row => row?.indicator )
+		).toEqual(
+			[ 0, 1, 2, 3 ].map( index => ( {
+				kind: 'series',
+				style: { stroke: mockOverlapBarColor( index ) },
+			} ) )
+		);
+		expect(
+			mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items.map( ( { color } ) => color )
+		).toEqual( [ mockOverlapBarColor( 0 ), mockOverlapBarColor( 2 ), mockOverlapBarColor( 1 ) ] );
+	} );
+
+	it.each( [
+		[ 'its widest bar', [], undefined, 1 ],
+		[ 'its widest shown bar', [ 'July', 'June' ], undefined, 3 ],
+		[ "the picked metric's bar, even when a wider one is shown", [], 'Visitors', 3 ],
+	] )(
+		'names the overlap previous period with one legend item, in the color of %s',
+		( _case, hidden, primarySeries, colorIndex ) => {
+			setMockHiddenSeries( hidden );
+			render(
+				<ComparativeBarChart
+					series={ PAIRED_SERIES }
+					dataFormat={ DATA_FORMAT }
+					layout="overlap"
+					comparisonLabel="Prev. 7 days"
+					primarySeries={ primarySeries }
+				/>
+			);
+			setMockHiddenSeries();
+
+			expect( mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items.at( -1 ) ).toEqual( {
+				label: 'Prev. 7 days',
+				color: mockOverlapBarColor( colorIndex ),
+				shapeStyle: undefined,
+				interactive: false,
+			} );
+		}
+	);
 
 	it( 'passes visibility settings through to the chart and legend', () => {
 		render(

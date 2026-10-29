@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Add Tracks events for widget renders, toggles, and clicks, and for opening Screen Options.

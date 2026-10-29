@@ -65,7 +65,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-premium-analytics",
 		"textdomain": "jetpack-premium-analytics-pkg",
 		"version-constants": {
@@ -75,7 +74,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.12.x-dev"
+			"dev-trunk": "0.15.x-dev"
 		}
 	}
 }

@@ -14,8 +14,10 @@ require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
  * Tests for Jetpack::is_premium_analytics_enabled().
  *
  * @covers \Jetpack
+ * @covers \Jetpack_Stats_Feature_Flags
  */
 #[CoversClass( Jetpack::class )]
+#[CoversClass( Jetpack_Stats_Feature_Flags::class )]
 class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -37,6 +39,8 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'active_modules' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED );
+		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		parent::tear_down();
 	}
 
@@ -187,6 +191,35 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Retiring the classic Stats page turns Stats v2 on even where the opt-in was switched off.
+	 */
+	public function test_retiring_the_classic_page_overrides_the_option() {
+		update_option( 'jetpack_premium_analytics_enabled', 0 );
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
+
+		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
+	}
+
+	/**
+	 * Stats v2 takes the plain Stats name and the pre-connection Stats page only once there is no classic Stats page to tell it apart from.
+	 */
+	public function test_stats_v2_takes_over_once_the_classic_page_is_retired() {
+		$options = new ReflectionMethod( Jetpack::class, 'premium_analytics_options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+
+		$this->assertSame( array(), $options->invoke( null ) );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, '__return_true' );
+
+		$retired = $options->invoke( null );
+		$this->assertSame( 'Stats', ( $retired['menu_title'] )() );
+		$this->assertTrue( $retired['replaces_pre_connection_stats_page'] );
+	}
+
+	/**
 	 * The answer is resolved once, so every caller in a request sees the same one.
 	 */
 	public function test_answer_is_resolved_once_per_request() {
@@ -262,20 +295,36 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The legacy Stats admin menu stays registered alongside Stats v2 instead of
-	 * being suppressed, on any site.
+	 * The classic Stats menu goes only once the page is retired and Stats v2 is there to replace it.
 	 *
-	 * Calling stats_load() also registers other hooks (pre_option_db_version,
-	 * the stats_array filter, the upgrade-nudges action) that this test
-	 * doesn't assert on and tear_down() doesn't remove — intentional, since
-	 * this test only cares about the admin menu.
+	 * Calling stats_load() also registers other hooks that tear_down() doesn't remove; only the menu matters here.
+	 *
+	 * @param bool $retired   Whether the classic page is retired.
+	 * @param bool $v2_on     What the `jetpack_premium_analytics_enabled` filter answers.
+	 * @param bool $kept      Whether the classic menu is registered.
+	 * @dataProvider provide_stats_admin_menu_cases
 	 */
-	public function test_stats_admin_menu_kept_when_enabled() {
-		update_option( 'jetpack_premium_analytics_enabled', 1 );
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_stats_admin_menu_cases' )]
+	public function test_stats_admin_menu( $retired, $v2_on, $kept ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Stats_Feature_Flags::CLASSIC_PAGE_RETIRED, $retired ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_premium_analytics_enabled', $v2_on ? '__return_true' : '__return_false' );
 
 		stats_load();
 
-		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+		$this->assertSame( $kept, false !== has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+	}
+
+	/**
+	 * Data for test_stats_admin_menu.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_admin_menu_cases() {
+		return array(
+			'kept alongside Stats v2'    => array( false, true, true ),
+			'retired'                    => array( true, true, false ),
+			'kept while Stats v2 is off' => array( true, false, true ),
+		);
 	}
 
 	/**

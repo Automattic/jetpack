@@ -1,7 +1,7 @@
 import { pickPlaybackUrl } from '..';
 
 // The dvd → std → hd ladder preference is covered through the dashboard's
-// toLibraryItem tests (use-library.test.ts); these direct cases pin the
+// toLibraryItem tests (dashboard/utils/test/library-item.test.ts); these direct cases pin the
 // degenerate inputs the helper must absorb (it is also called with raw v1.1
 // items by routes/video-editor/stage.tsx and the chapter manager modal).
 describe( 'pickPlaybackUrl', () => {

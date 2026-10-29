@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Canonical URLs: Let the module load on WordPress.com Simple, where the SEO package loads it; no change for plugin sites. Update a related test.
-
-

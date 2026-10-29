@@ -3,7 +3,12 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildModulesPayload, readCoreResponse } from './build-payload';
+import {
+	buildCorePayload,
+	buildModulesPayload,
+	changedCodes,
+	readCoreResponse,
+} from './build-payload';
 import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
 import { VERIFICATION_KEYS } from './verification-services';
@@ -74,6 +79,50 @@ function sentSettings( baseline: SettingsResponse, values: SettingsResponse ): S
 	} );
 }
 
+/**
+ * Replace one verification code.
+ *
+ * @param state - Form values, or null before they load.
+ * @param key   - The verification service.
+ * @param value - The new code.
+ * @return The values with that code replaced.
+ */
+function withVerification< T extends SettingsResponse | null >(
+	state: T,
+	key: VerificationKey,
+	value: string
+): T {
+	return state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state;
+}
+
+/**
+ * Apply a patch, taking from its verification map only the given codes: the others
+ * may be older than a code another save has adopted since.
+ *
+ * @param state - Values to update, or null before they load.
+ * @param patch - The fields to apply.
+ * @param codes - The verification codes the patch owns.
+ * @return The updated values.
+ */
+function withPatch< T extends SettingsResponse | null >(
+	state: T,
+	patch: Partial< SettingsResponse >,
+	codes: VerificationKey[]
+): T {
+	if ( ! state ) {
+		return state;
+	}
+	const next: SettingsResponse = { ...state, ...patch };
+	const verification = patch.verification;
+	if ( verification ) {
+		next.verification = {
+			...state.verification,
+			...Object.fromEntries( codes.map( key => [ key, verification[ key ] ] ) ),
+		};
+	}
+	return next as T;
+}
+
 // The package's own settings read, re-fetched after every save so the form shows
 // what the server actually stored — including a value it refused and the
 // recomputed `sitemap_url`.
@@ -102,6 +151,8 @@ export interface SettingsForm {
 	setSchemaSettings: ( schema: SchemaSettings ) => void;
 	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
+	/** Save one verification code straight away (Google auto-verify) and adopt it as saved. Rejects if the save fails. */
+	saveVerification: ( key: VerificationKey, value: string ) => Promise< void >;
 	/**
 	 * Save a toggle change immediately. Persists only the patched field(s) — not
 	 * the rest of local — so unsaved edits in the text-heavy sections stay local
@@ -153,9 +204,36 @@ export function useSettingsForm(): SettingsForm {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { setSettings } = useDispatch( settingsStore );
 
+	// Writes patch the store's latest snapshot, not this form's: a form left on another
+	// tab mid-save must not roll back what a newer one saved since.
+	const patchStore = useCallback(
+		( apply: ( saved: SettingsResponse ) => SettingsResponse ) => {
+			const saved = select( settingsStore ).getSettings();
+			if ( saved ) {
+				setSettings( apply( saved ) );
+			}
+		},
+		[ setSettings ]
+	);
+
 	// Refs so `commit()` reads the freshest values without stale closures and
 	// without re-creating the callback on every keystroke.
 	const baselineRef = useRef< SettingsResponse | null >( initial );
+	// Saves run one at a time: each waits for the one before. The server merges codes
+	// without a lock, and a late re-read must not land after a newer save.
+	const inFlightRef = useRef< Promise< unknown > >( Promise.resolve() );
+	// `isSaving` holds until the last queued save settles, not the first.
+	const activeSavesRef = useRef( 0 );
+	const beginSave = useCallback( () => {
+		activeSavesRef.current += 1;
+		setIsSaving( true );
+	}, [] );
+	const endSave = useCallback( () => {
+		activeSavesRef.current -= 1;
+		if ( activeSavesRef.current === 0 ) {
+			setIsSaving( false );
+		}
+	}, [] );
 	const localRef = useRef< SettingsResponse | null >( initial );
 	useEffect( () => {
 		localRef.current = local;
@@ -168,7 +246,11 @@ export function useSettingsForm(): SettingsForm {
 	// save can fail after its first request already committed. `sitemap_url` comes
 	// along because it's read-only and recomputed by the sitemap toggle.
 	const adoptServerState = useCallback(
-		( touched: Array< keyof SettingsResponse >, savedTitlePage?: string ) =>
+		(
+			touched: Array< keyof SettingsResponse >,
+			savedTitlePage?: string,
+			codes: VerificationKey[] = []
+		) =>
 			new Promise< void >( resolve => {
 				// Always settles: on the response, on an error, or on the timeout that
 				// aborts a request which never came back.
@@ -210,10 +292,10 @@ export function useSettingsForm(): SettingsForm {
 							localPatch.title_formats = titleFormats;
 						}
 
-						localRef.current = { ...current, ...localPatch };
-						baselineRef.current = { ...baseline, ...patch };
+						localRef.current = withPatch( current, localPatch, codes );
+						baselineRef.current = withPatch( baseline, patch, codes );
 						setLocal( localRef.current );
-						setSettings( baselineRef.current );
+						patchStore( saved => withPatch( saved, patch, codes ) );
 					} )
 					.catch( () => {
 						// Nothing better to show than what's already on screen; the next load
@@ -224,7 +306,7 @@ export function useSettingsForm(): SettingsForm {
 						resolve();
 					} );
 			} ),
-		[ setSettings ]
+		[ patchStore ]
 	);
 
 	const saveValues = useCallback(
@@ -242,6 +324,10 @@ export function useSettingsForm(): SettingsForm {
 			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
+			const sent: Partial< SettingsResponse > = Object.fromEntries(
+				touched.map( field => [ field, values[ field ] ] )
+			);
+			const codes = Object.keys( changedCodes( baseline, values ) ) as VerificationKey[];
 			const settings = sentSettings( baseline, values );
 			// What landed: core's settings write reports what it stored, and the module
 			// route lists what it applied, even when it fails partway.
@@ -263,7 +349,7 @@ export function useSettingsForm(): SettingsForm {
 					: JSON.stringify( coreStored[ field ] ) !== JSON.stringify( baseline[ field ] );
 			};
 
-			setIsSaving( true );
+			beginSave();
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
@@ -274,7 +360,7 @@ export function useSettingsForm(): SettingsForm {
 			// be refused, and the re-read below has to see a settled server state to
 			// reconcile against. Overlapping the two would race that read, and a failure
 			// in one would leave the client unable to say what the other had landed.
-			Promise.resolve()
+			inFlightRef.current = inFlightRef.current
 				.then( () =>
 					Object.keys( corePayload ).length > 0
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
@@ -295,9 +381,10 @@ export function useSettingsForm(): SettingsForm {
 					modulesApplied = Object.keys( applied ?? {} );
 					// Adopt what we asked for; `adoptServerState()` below then corrects it
 					// wherever the server reports something else. Skipped on failure, where
-					// only the server knows what landed.
-					baselineRef.current = values;
-					setSettings( values );
+					// only the server knows what landed. Only what this save changed, so a
+					// code `saveVerification()` adopted meanwhile isn't rolled back.
+					baselineRef.current = withPatch( baselineRef.current ?? baseline, sent, codes );
+					patchStore( saved => withPatch( saved, sent, codes ) );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -330,10 +417,18 @@ export function useSettingsForm(): SettingsForm {
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
-				.then( () => adoptServerState( touched, savedTitlePage ) )
-				.finally( () => setIsSaving( false ) );
+				.then( () => adoptServerState( touched, savedTitlePage, codes ) )
+				.finally( endSave );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
+		[
+			createInfoNotice,
+			createSuccessNotice,
+			createErrorNotice,
+			patchStore,
+			adoptServerState,
+			beginSave,
+			endSave,
+		]
 	);
 
 	const setField = useCallback(
@@ -344,10 +439,49 @@ export function useSettingsForm(): SettingsForm {
 
 	const setVerification = useCallback(
 		( key: VerificationKey, value: string ) =>
-			setLocal( state =>
-				state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state
-			),
+			setLocal( state => withVerification( state, key, value ) ),
 		[]
+	);
+
+	const saveVerification = useCallback(
+		( key: VerificationKey, value: string ) => {
+			const props: SettingChange = {
+				setting: TRACKED_SETTINGS.verification,
+				verification_service: key,
+				setting_value: value ? 'set' : 'cleared',
+			};
+			beginSave();
+			const run = inFlightRef.current
+				.then( () => {
+					// As in `sentSettings()`, a retry that saves the code already stored records nothing.
+					const changed = baselineRef.current?.verification[ key ] !== value;
+					return apiFetch( {
+						path: CORE_SETTINGS_PATH,
+						method: 'POST',
+						data: { verification_services_codes: { [ key ]: value } },
+					} ).then(
+						() => {
+							if ( changed ) {
+								recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', props );
+							}
+							baselineRef.current = withVerification( baselineRef.current, key, value );
+							localRef.current = withVerification( localRef.current, key, value );
+							setLocal( state => withVerification( state, key, value ) );
+							patchStore( saved => withVerification( saved, key, value ) );
+						},
+						( error: unknown ) => {
+							if ( changed ) {
+								recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', props );
+							}
+							throw error;
+						}
+					);
+				} )
+				.finally( endSave );
+			inFlightRef.current = run.catch( () => undefined );
+			return run;
+		},
+		[ patchStore, beginSave, endSave ]
 	);
 
 	const setSchemaSettings = useCallback(
@@ -363,9 +497,9 @@ export function useSettingsForm(): SettingsForm {
 			baselineRef.current = nextBaseline;
 			localRef.current = nextLocal;
 			setLocal( nextLocal );
-			setSettings( nextBaseline );
+			patchStore( saved => ( { ...saved, schema } ) );
 		},
-		[ setSettings ]
+		[ patchStore ]
 	);
 
 	const commit = useCallback(
@@ -462,6 +596,7 @@ export function useSettingsForm(): SettingsForm {
 		setField,
 		setSchemaSettings,
 		setVerification,
+		saveVerification,
 		commit,
 		commitFields,
 		isDirty,

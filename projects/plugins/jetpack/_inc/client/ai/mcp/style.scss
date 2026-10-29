@@ -8,6 +8,7 @@
 		text-align: start;
 		border-radius: 0;
 		box-shadow: none;
+		border-block-start: var(--wpds-border-width-xs) solid rgba(0, 0, 0, 0.1);
 
 		&:hover {
 			background: var(--wpds-color-background-surface-neutral-weak);
@@ -24,8 +25,8 @@
 		}
 	}
 
-	&__action-card {
-		overflow: hidden;
+	&__summary-rows {
+		margin-block-start: var(--wpds-dimension-gap-xl);
 	}
 
 	&__connect-row {
@@ -77,6 +78,54 @@
 		flex-shrink: 0;
 		margin-top: 2px;
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// Pinned in the page's scroll area. Padding hides tools scrolling beneath;
+	// the negative margin keeps the unpinned spacing unchanged.
+	&__toolbar {
+		position: sticky;
+		inset-block-start: 0;
+		z-index: 2;
+		padding-block: var(--wpds-dimension-gap-md);
+		margin-block: calc(-1 * var(--wpds-dimension-gap-md));
+		background-color: var(--wpds-color-background-surface-neutral);
+	}
+
+	// Sit below the sticky tab strip (about 48px) when the page has one.
+	.jp-admin-page__page:has(.jp-admin-page-tabs) &__toolbar {
+		inset-block-start: 48px;
+	}
+
+	&__card-content {
+		padding-block: 16px;
+		padding-inline: 24px;
+	}
+
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__group-title {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	&__tool-row {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--wpds-dimension-gap-sm);
+		// Clears the sticky tab strip and toolbar.
+		scroll-margin-block-start: 260px;
+
+		> :first-child {
+			flex: 1;
+		}
+	}
+
+	// Hashed class name on the description: match its stable suffix.
+	&__tool-switch [class*="__description"] {
+		margin-block-start: var(--wpds-dimension-gap-xs);
+		line-height: 18px;
 	}
 
 	&__badge-content {
@@ -163,10 +212,6 @@
 	// row rather than as a separate paragraph.
 	.components-base-control__help {
 		margin-top: 0;
-	}
-
-	&__access-card {
-		overflow: hidden;
 	}
 
 	// Explainer steps: icon beside the text in one column on phones, icon

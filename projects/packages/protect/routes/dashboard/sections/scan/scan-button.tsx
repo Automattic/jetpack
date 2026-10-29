@@ -1,7 +1,9 @@
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useId, useState } from '@wordpress/element';
+import { humanTimeDiff } from '@wordpress/date';
+import { useEffect, useId, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Popover, Stack, VisuallyHidden } from '@wordpress/ui';
+import { Button, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import useRerenderEvery from '../../components/use-rerender-every';
+import { parseLastChecked } from './store';
 import type { ScanState } from './types';
 import type { ComponentProps } from 'react';
 
@@ -14,20 +16,18 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
  * @return The time, or null when unknown.
  */
 export function getNextCheck( lastChecked?: string | null ): Date | null {
-	if ( ! lastChecked ) {
-		return null;
-	}
-	const next = new Date( new Date( lastChecked.replace( ' ', 'T' ) + 'Z' ).getTime() + DAY_IN_MS );
-	return Number.isNaN( next.getTime() ) ? null : next;
+	const last = parseLastChecked( lastChecked );
+	return last && new Date( last.getTime() + DAY_IN_MS );
 }
 
 /**
  * Whether a time has passed, re-rendering when it does.
  *
- * @param time - The time, or null when unknown.
+ * @param time   - The time, or null when unknown.
+ * @param margin - How long after the time to re-render, in ms.
  * @return True once the time has passed, or when it is unknown.
  */
-export function useHasPassed( time: Date | null ): boolean {
+export function useHasPassed( time: Date | null, margin = 1000 ): boolean {
 	const [ now, setNow ] = useState( Date.now );
 	const target = time ? time.getTime() : null;
 
@@ -37,10 +37,10 @@ export function useHasPassed( time: Date | null ): boolean {
 		}
 		const timer = setTimeout(
 			() => setNow( Date.now() ),
-			Math.max( 0, target - Date.now() ) + 1000
+			Math.max( 0, target - Date.now() ) + margin
 		);
 		return () => clearTimeout( timer );
-	}, [ target, now ] );
+	}, [ target, now, margin ] );
 
 	return target === null || target <= now;
 }
@@ -52,28 +52,39 @@ type Props = {
 	label: string;
 	variant?: ComponentProps< typeof Button >[ 'variant' ];
 	size?: ComponentProps< typeof Button >[ 'size' ];
+	disabled?: boolean;
+	withNextCheck?: boolean;
 };
 
 /**
- * Starts a scan when one can actually run, otherwise explains when it can.
+ * Starts a scan when one can actually run, otherwise offers the upgrade.
  *
- * @param props            - Component props.
- * @param props.scan       - The current report.
- * @param props.isStarting - Whether a scan is being requested.
- * @param props.onScan     - Starts a scan.
- * @param props.label      - The button text.
- * @param props.variant    - The button variant.
- * @param props.size       - The button size.
+ * @param props               - Component props.
+ * @param props.scan          - The current report.
+ * @param props.isStarting    - Whether a scan is being requested.
+ * @param props.onScan        - Starts a scan.
+ * @param props.label         - The button text.
+ * @param props.variant       - The button variant.
+ * @param props.size          - The button size.
+ * @param props.disabled      - Disables the button, such as while a scan runs.
+ * @param props.withNextCheck - Also says when the next free check can run, where no countdown shows.
  * @return The button.
  */
-export default function ScanButton( { scan, isStarting, onScan, label, variant, size }: Props ) {
-	const [ isOpen, setIsOpen ] = useState( false );
-	const open = useCallback( () => setIsOpen( true ), [] );
-	const close = useCallback( () => setIsOpen( false ), [] );
+export default function ScanButton( {
+	scan,
+	isStarting,
+	onScan,
+	label,
+	variant,
+	size,
+	disabled,
+	withNextCheck = false,
+}: Props ) {
 	const descriptionId = useId();
 	const nextCheck = getNextCheck( scan.lastChecked );
 	const hasNextCheckPassed = useHasPassed( nextCheck );
 	const canScan = scan.hasPlan || hasNextCheckPassed;
+	useRerenderEvery( 30000, withNextCheck && ! canScan );
 
 	const button = (
 		<Button
@@ -81,7 +92,7 @@ export default function ScanButton( { scan, isStarting, onScan, label, variant, 
 			size={ size }
 			onClick={ onScan }
 			loading={ isStarting }
-			disabled={ isStarting || ! canScan }
+			disabled={ disabled || isStarting || ! canScan }
 			aria-describedby={ canScan ? undefined : descriptionId }
 		>
 			{ label }
@@ -92,34 +103,25 @@ export default function ScanButton( { scan, isStarting, onScan, label, variant, 
 		return button;
 	}
 
-	const description = sprintf(
-		/* translators: %s is a date and time, such as "Oct 6, 10PM". */
-		__(
-			'Free vulnerability checks run once a day, so the next one can start on %s. Upgrade to Scan to scan whenever you like.',
-			'jetpack-protect-pkg'
-		),
-		dateI18n( 'M j, gA', nextCheck )
-	);
+	const description =
+		withNextCheck && nextCheck
+			? sprintf(
+					/* translators: %s is how long until the next free check, such as "in 21 hours". */
+					__( 'Next free check %s. Upgrade to Scan to check anytime.', 'jetpack-protect-pkg' ),
+					humanTimeDiff( nextCheck )
+				)
+			: __( 'Upgrade to Scan to check anytime', 'jetpack-protect-pkg' );
 
 	return (
-		<Popover.Root open={ isOpen } onOpenChange={ setIsOpen }>
-			{ /* A disabled `@wordpress/ui` Button stays focusable; opening on focus covers keyboard users. */ }
-			<Popover.Trigger
-				openOnHover
-				delay={ 0 }
-				closeDelay={ 0 }
-				nativeButton={ false }
-				render={ <span className="jp-protect-scan-button" onFocus={ open } onBlur={ close } /> }
-			>
-				{ button }
-				<VisuallyHidden id={ descriptionId }>{ description }</VisuallyHidden>
-			</Popover.Trigger>
-			<Popover.Popup className="jp-protect-scan-button__popover" initialFocus={ false }>
-				<Stack direction="column" gap="xs">
-					<Popover.Title>{ __( 'Checked once a day', 'jetpack-protect-pkg' ) }</Popover.Title>
-					<Popover.Description>{ description }</Popover.Description>
-				</Stack>
-			</Popover.Popup>
-		</Popover.Root>
+		<Tooltip.Provider delay={ 0 }>
+			<Tooltip.Root>
+				{ /* The wrapper catches hover and focus: a disabled `@wordpress/ui` Button stays focusable. */ }
+				<Tooltip.Trigger render={ <span /> }>{ button }</Tooltip.Trigger>
+				<Tooltip.Popup positioner={ <Tooltip.Positioner side="bottom" /> }>
+					{ description }
+				</Tooltip.Popup>
+			</Tooltip.Root>
+			<VisuallyHidden id={ descriptionId }>{ description }</VisuallyHidden>
+		</Tooltip.Provider>
 	);
 }

@@ -30,6 +30,18 @@ describe( 'buildColumnsChartData', () => {
 		] );
 	} );
 
+	it( 'draws no comparison bar for a column the comparison has no figure for', () => {
+		const series = buildColumnsChartData(
+			[ COLUMNS[ 0 ], { label: 'Tablet', value: 120, previousValue: null } ],
+			{ hasComparison: true, labels: LABELS }
+		);
+
+		expect( series[ 1 ].data ).toEqual( [
+			{ label: 'Returning', value: 3000 },
+			{ label: 'Tablet', value: null },
+		] );
+	} );
+
 	it( 'leaves the comparison series out while the comparison period is off', () => {
 		const series = buildColumnsChartData( COLUMNS, { hasComparison: false, labels: LABELS } );
 

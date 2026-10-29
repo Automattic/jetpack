@@ -315,23 +315,15 @@ class Jetpack_AI_Page {
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
 
-		/*
-		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
-		 * falling back to the Traffic settings card. Checking the `rsm_jetpack_seo`
-		 * filter is required in addition to the cohort check: is_seo_surface_visible()
-		 * alone returns true on all of wpcom-platform even while the flag is off —
-		 * it answers only the cohort half, and page registration requires both
-		 * (see packages/seo Initializer::init()).
-		 */
+		// Link to the Jetpack SEO page when it registers, which takes both checks below
+		// (see the SEO package's Initializer::init()); otherwise to the Traffic card.
 		$seo_settings_url          = admin_url( 'admin.php?page=jetpack-settings#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
-			// The exact-symbol guard matters: the autoloader can select an older
-			// jetpack-seo copy from another plugin that has the class but not
-			// this method, and class_exists alone would then fatal here.
-			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_seo_surface_visible' )
-			&& (bool) apply_filters( 'rsm_jetpack_seo', false )
+			// is_available() is the newer of the two; an older SEO package loaded first can lack it.
+			method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_available' )
+			&& \Automattic\Jetpack\SEO\Initializer::is_available()
 			&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
 		) {
 			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
@@ -394,6 +386,8 @@ class Jetpack_AI_Page {
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
+				// Self-hosted sites get the Hub's `-self-hosted` ChatGPT and Claude connect links.
+				'isSelfHosted'      => ! $host->is_wpcom_platform(),
 			)
 		);
 
@@ -478,6 +472,7 @@ class Jetpack_AI_Page {
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
+			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
 		);
 
 		wp_add_inline_script(

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "2.13.0",
+	"version": "2.15.0",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -20,6 +20,8 @@
 	"type": "module",
 	"exports": {
 		".": "./index.jsx",
+		"./connection-error-message": "./helpers/get-connect-screen-error-message.tsx",
+		"./get-calypso-origin": "./helpers/get-calypso-origin.ts",
 		"./get-user-connection-url": "./helpers/get-user-connection-url.ts",
 		"./hooks/use-product-checkout-workflow": "./hooks/use-product-checkout-workflow/index.tsx",
 		"./state/store-id": "./state/store-id.jsx",
@@ -42,6 +44,7 @@
 		"@wordpress/components": "42.0.0",
 		"@wordpress/data": "10.57.0",
 		"@wordpress/element": "9.0.0",
+		"@wordpress/html-entities": "4.57.0",
 		"@wordpress/i18n": "6.30.0",
 		"@wordpress/icons": "18.0.0",
 		"@wordpress/ui": "0.24.0",
@@ -53,20 +56,20 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@jest/globals": "30.5.1",
+		"@jest/globals": "30.5.2",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
+		"@testing-library/user-event": "14.6.8",
 		"@types/jest": "^30.0.0",
-		"@types/react": "18.3.31",
+		"@types/react": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.5.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
-		"storybook": "10.4.6"
+		"jest": "30.5.2",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
+		"storybook": "10.6.3"
 	},
 	"peerDependencies": {
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0"
+		"react": "^18.0.0 || ^19.0.0",
+		"react-dom": "^18.0.0 || ^19.0.0"
 	}
 }

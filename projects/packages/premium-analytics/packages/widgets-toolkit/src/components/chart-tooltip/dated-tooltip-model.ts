@@ -66,7 +66,7 @@ export type DatedTooltipModelOptions = {
 type Point = Partial< ComparativeDatePointDate >;
 
 function readingOf( point: Point | undefined ): number | null {
-	return point?.value ?? null;
+	return point?.missing ? null : ( point?.value ?? null );
 }
 
 /**

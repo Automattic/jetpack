@@ -114,20 +114,20 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 ### A buyer says the link opens a PayPal "not found" page
 
-**Cause:** The payment link was deleted, either from the block or from the PayPal Payment Links admin page. PayPal cannot pause or restore a deleted link, so every copy of it (emails, printed QR codes, other posts) stops working at once.
+**Cause:** The payment button was deleted, either from the block or from the PayPal Payment Buttons admin page. PayPal cannot pause or restore a deleted button, so every copy of it (emails, printed QR codes, other posts) stops working at once.
 
 **Steps to fix:**
-1. Create a new payment link by adding the block again and filling in the product details
+1. Create a new payment button by adding the block again and filling in the product details
 2. Share the new link or QR code: the old URL cannot be reused
 3. Update any published post that still embeds the old link. Those blocks render nothing until the post is updated, and the editor shows a warning on them
 
 ### The block disappeared from a published page
 
-**Cause:** The link the block points at was deleted from the PayPal Payment Links admin page or from another post. Rather than show a button that leads to PayPal's "not found" page, the block renders nothing.
+**Cause:** The payment button the block points at was deleted from the PayPal Payment Buttons admin page or from another post. Rather than show a button that leads to PayPal's "not found" page, the block renders nothing.
 
 **Steps to fix:**
 1. Open the post. The block shows a "deleted from PayPal" warning
-2. Update the post to create a new link, or remove the block
+2. Update the post to create a new payment button, or remove the block
 
 ### Legacy paste-code button shows "legacy paste-code format"
 
@@ -170,9 +170,9 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 
 The plugin connects to **Production**; the sandbox is only available to developers behind the `paypal-payments-sandbox` feature flag (see `DEVELOPMENT.md`). If a site was connected to the sandbox while that flag was on:
 
-1. In the block editor, open the sidebar (**Settings** panel)
-2. Under **PayPal Connection**, note the current environment
-3. Disconnect the current connection (this clears the stored credentials and token — your existing published buttons continue to work, as their payment links are static PayPal URLs)
+1. In the block editor, select the block and open the menu beside **PayPal Payment Button** at the top of the sidebar
+2. Check the line under **Log out**: it starts with "Sandbox" on a sandbox connection. A live connection shows only the account email, if there is one
+3. Choose **Log out** and confirm (this clears the stored credentials and token — your existing published buttons continue to work, as their payment links are static PayPal URLs)
 4. Reconnect with **Live** credentials from the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/), or through **Connect PayPal**
 5. Recreate any buttons you need — payment resources from one environment don't work in the other
 

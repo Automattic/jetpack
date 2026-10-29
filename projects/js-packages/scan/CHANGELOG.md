@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-10-28
+### Changed
+- Update dependencies. [#53495]
+
+## [1.5.0] - 2026-10-26
+### Added
+- Support React 19. [#53882]
+
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Threats list: Show a default icon for threats of an unknown type instead of crashing the list layout. [#53818]
+
+## [1.4.25] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+### Fixed
+- Threats data views: Stop requesting two stylesheets that do not exist on pages built with wp-build. [#53565]
+
 ## [1.4.24] - 2026-10-12
 ### Changed
 - Update dependencies. [#53250]
@@ -293,6 +315,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.5.1]: https://github.com/Automattic/jetpack-scan/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-scan/compare/v1.4.25...v1.5.0
+[1.4.25]: https://github.com/Automattic/jetpack-scan/compare/v1.4.24...v1.4.25
 [1.4.24]: https://github.com/Automattic/jetpack-scan/compare/v1.4.23...v1.4.24
 [1.4.23]: https://github.com/Automattic/jetpack-scan/compare/v1.4.22...v1.4.23
 [1.4.22]: https://github.com/Automattic/jetpack-scan/compare/v1.4.21...v1.4.22

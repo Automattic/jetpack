@@ -5,6 +5,7 @@ import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../hooks/use-my-jetpack-connection' );
+jest.mock( '../hooks/use-paid-menu-sync', () => ( { usePaidMenuSync: jest.fn() } ) );
 
 jest.mock( '../components/my-jetpack-screen', () => ( {
 	__esModule: true,
@@ -41,6 +42,16 @@ describe( 'App', () => {
 		expect( screen.getByTestId( 'my-jetpack-screen' ) ).toBeInTheDocument();
 	} );
 
+	it( 'gives the connection route its scoped scrolling layout', () => {
+		window.location.hash = '#/connection';
+
+		render( <App /> );
+
+		const connect = screen.getByRole( 'button', { name: 'Connect your user account' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The scrolling layout belongs to the AdminPage root.
+		expect( connect.closest( '.jp-admin-page' ) ).toHaveClass( 'jp-my-jetpack-connection' );
+	} );
+
 	it( 'renders the partner coupon screen in place of the routes', () => {
 		window.location.hash = '';
 		window.myJetpackInitialState.partnerCoupon = {
@@ -60,6 +71,34 @@ describe( 'App', () => {
 			expect( screen.queryByTestId( 'my-jetpack-screen' ) ).not.toBeInTheDocument();
 		} finally {
 			delete window.myJetpackInitialState.partnerCoupon;
+		}
+	} );
+
+	it( 'hides the footer on offline Features', () => {
+		const initial = window.myJetpackInitialState;
+		const scriptData = window.JetpackScriptData;
+		const local = { jetpack: 'inactive', features: [] };
+		window.location.hash = '#/features';
+		window.myJetpackInitialState = {
+			...initial,
+			isOfflineFeatures: true,
+			products: { items: {} },
+			myJetpackFlags: {},
+		};
+		window.JetpackScriptData = {
+			site: { admin_url: 'http://example.org/wp-admin/' },
+			myJetpack: { isAvailable: true, offlineFeatures: { mainFeatures: local, plugins: {} } },
+		};
+		apiFetch.mockResolvedValue( local );
+
+		try {
+			const view = render( <App /> );
+			expect( screen.getByRole( 'heading', { name: 'Features' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'contentinfo', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+			view.unmount();
+		} finally {
+			window.myJetpackInitialState = initial;
+			window.JetpackScriptData = scriptData;
 		}
 	} );
 

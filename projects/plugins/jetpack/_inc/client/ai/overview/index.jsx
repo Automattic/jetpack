@@ -26,12 +26,14 @@ import './style.scss';
 const QUICK_START = [
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
-		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
 		icon: chatGptIcon,
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
 		title: __( 'Connect Claude', 'jetpack' ),
 		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
 		icon: claudeIcon,
@@ -353,6 +355,7 @@ export default function AiOverview( {
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
+	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 	return (
 		<Stack direction="column" gap="3xl">
 			{ /* The banner and the usage card share a tighter rhythm than the
@@ -370,20 +373,23 @@ export default function AiOverview( {
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug, title, description, icon } ) => (
-						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
-							<NavRow
-								icon={ icon }
-								iconSize={ 28 }
-								title={ title }
-								description={ description }
-								href={ getRedirectUrl( slug ) }
-								onClick={ recordLinkClick( 'quick_start', slug ) }
-								tone="neutral"
-								external
-							/>
-						</Card.Root>
-					) ) }
+					{ QUICK_START.map( ( { slug: wpcomSlug, selfHostedSlug, title, description, icon } ) => {
+						const slug = isSelfHosted ? selfHostedSlug : wpcomSlug;
+						return (
+							<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
+								<NavRow
+									icon={ icon }
+									iconSize={ 28 }
+									title={ title }
+									description={ description }
+									href={ getRedirectUrl( slug ) }
+									onClick={ recordLinkClick( 'quick_start', wpcomSlug ) }
+									tone="neutral"
+									external
+								/>
+							</Card.Root>
+						);
+					} ) }
 				</div>
 			</Stack>
 

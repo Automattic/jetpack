@@ -369,4 +369,32 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			wpcom_expiry_notices_banner_sentence( $this->message_state( array( 'days_remaining' => 5 ) ), true )
 		);
 	}
+
+	public function test_my_jetpack_gets_this_notice_for_the_plan_and_none_when_it_is_not_due(): void {
+		set_current_screen( 'jetpack_page_my-jetpack' );
+		$alerts = array(
+			'business-bundle--plan_expiring_soon'    => array( 'product_slug' => 'business-bundle' ),
+			'jetpack_backup_t1_yearly--plan_expired' => array( 'product_slug' => 'jetpack_backup_t1_yearly' ),
+		);
+
+		$this->set_purchase( 45 );
+		$this->assertSame(
+			array( 'jetpack_backup_t1_yearly--plan_expired' ),
+			array_keys( wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts ) )
+		);
+
+		$this->set_purchase( 5 );
+		$filtered = wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts );
+		$notice   = $filtered['business-bundle--plan_expiring_soon']['wpcom_plan_notice'];
+		$this->assertStringContainsString( '5 days', $notice['title'] );
+		$this->assertSame( 'Renew now', $notice['actions'][0]['label'] );
+		$this->assertStringContainsString( rawurlencode( 'page=my-jetpack' ), $notice['actions'][0]['url'] );
+		$this->assertSame( 'my_jetpack', $notice['track_props']['surface'] );
+		$this->assertArrayNotHasKey( 'wpcom_plan_notice', $filtered['jetpack_backup_t1_yearly--plan_expired'] );
+
+		$this->set_purchase( -5 );
+		$this->act_as_non_owner();
+		$notice = wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts )['business-bundle--plan_expired']['wpcom_plan_notice'];
+		$this->assertSame( array(), $notice['actions'] );
+	}
 }

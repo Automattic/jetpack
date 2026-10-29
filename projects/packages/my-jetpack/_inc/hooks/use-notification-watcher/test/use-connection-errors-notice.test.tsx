@@ -186,6 +186,7 @@ describe( 'useConnectionErrorsNotice', () => {
 			expect.objectContaining( {
 				navigate: assignLocation,
 				trackingContext: 'my-jetpack',
+				trackingPlacement: 'page_notice',
 				trackingCallback: expect.any( Function ),
 			} )
 		);

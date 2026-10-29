@@ -15,10 +15,10 @@
 #   - idempotent (it only fills the keys that are missing; a no-op once fully configured), and
 #   - a no-op in the primary checkout, which keeps using `jetpack_dev`.
 #
-# Known limitations (acceptable for a manual dev helper): it reserves ports recorded in other
-# worktrees' .env files and the primary defaults, but does NOT probe for live-bound host ports,
-# and does not lock against another worktree seeding at the same instant. A genuine clash
-# surfaces as a `jp docker up` "address already in use" error; re-run after editing .env.
+# It skips ports recorded in other worktrees' .env files, the primary defaults, and any port that
+# already has a listener on localhost. Known limitation (acceptable for a manual dev helper): it
+# does not lock against another worktree seeding at the same instant. A genuine clash surfaces as
+# a `jp docker up` "address already in use" error; re-run after editing .env.
 #
 # Written for portability down to the bash 3.2 that ships with macOS — no associative arrays.
 #
@@ -57,13 +57,38 @@ is_claimed() {
 	esac
 }
 
+# Is something already listening on localhost port $1, such as another app or an SSH tunnel?
+# A closed port refuses at once. A probe still waiting after about a second (a listener whose
+# accept queue is full can drop the connect) counts as busy rather than stalling the script.
+port_in_use() {
+	local host pid waited
+	for host in 127.0.0.1 ::1; do
+		( : < "/dev/tcp/$host/$1" ) 2>/dev/null &
+		pid=$!
+		waited=0
+		while kill -0 "$pid" 2>/dev/null; do
+			if [ "$waited" -ge 20 ]; then
+				kill "$pid" 2>/dev/null || true
+				wait "$pid" 2>/dev/null || true
+				return 0
+			fi
+			sleep 0.05
+			waited=$(( waited + 1 ))
+		done
+		if wait "$pid"; then
+			return 0
+		fi
+	done
+	return 1
+}
+
 # Reserve the first free port at or above $1 into CLAIMED and return it via ALLOCATED. Writing
 # to a global (rather than echoing via command substitution, which runs in a subshell and would
 # discard the CLAIMED reservation) keeps the five services from ever landing on the same number.
 ALLOCATED=""
 alloc_port() {
 	local port="$1"
-	while is_claimed "$port"; do
+	while is_claimed "$port" || port_in_use "$port"; do
 		port=$(( port + 1 ))
 	done
 	CLAIMED="${CLAIMED}${port} "

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "4.0.4",
+	"version": "6.1.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -33,6 +33,11 @@
 			"types": "./build/components/button/index.d.ts",
 			"default": "./build/components/button/index.js"
 		},
+		"./checkbox-card": {
+			"jetpack:src": "./components/checkbox-card/index.tsx",
+			"types": "./build/components/checkbox-card/index.d.ts",
+			"default": "./build/components/checkbox-card/index.js"
+		},
 		"./global-notices": {
 			"jetpack:src": "./components/global-notices/index.ts",
 			"types": "./build/components/global-notices/index.d.ts",
@@ -47,6 +52,15 @@
 			"jetpack:src": "./components/jetpack-footer/index.tsx",
 			"types": "./build/components/jetpack-footer/index.d.ts",
 			"default": "./build/components/jetpack-footer/index.js"
+		},
+		"./jetpack-footer/style.scss": {
+			"jetpack:src": "./components/jetpack-footer/style.scss",
+			"default": "./build/components/jetpack-footer/style.scss"
+		},
+		"./jetpack-footer/unstyled": {
+			"jetpack:src": "./components/jetpack-footer/jetpack-footer.tsx",
+			"types": "./build/components/jetpack-footer/jetpack-footer.d.ts",
+			"default": "./build/components/jetpack-footer/jetpack-footer.js"
 		},
 		"./jetpack-logo": {
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
@@ -67,6 +81,11 @@
 			"jetpack:src": "./components/product-price/index.tsx",
 			"types": "./build/components/product-price/index.d.ts",
 			"default": "./build/components/product-price/index.js"
+		},
+		"./radio-card": {
+			"jetpack:src": "./components/radio-card/index.tsx",
+			"types": "./build/components/radio-card/index.d.ts",
+			"default": "./build/components/radio-card/index.js"
 		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",
@@ -118,28 +137,28 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@jest/globals": "30.5.1",
-		"@storybook/addon-docs": "10.4.6",
-		"@storybook/react": "10.4.6",
+		"@jest/globals": "30.5.2",
+		"@storybook/addon-docs": "10.6.3",
+		"@storybook/react": "10.6.3",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
+		"@testing-library/user-event": "14.6.8",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.31",
-		"@types/react-dom": "18.3.7",
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.5.1",
-		"react": "18.3.1",
-		"react-dom": "18.3.1",
+		"jest": "30.5.2",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"require-from-string": "2.0.2",
-		"storybook": "10.4.6",
+		"storybook": "10.6.3",
 		"ts-dedent": "2.2.0",
 		"typescript": "6.0.3",
-		"webpack": "5.111.1",
+		"webpack": "5.112.2",
 		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0"
+		"react": "^18.0.0 || ^19.0.0",
+		"react-dom": "^18.0.0 || ^19.0.0"
 	}
 }

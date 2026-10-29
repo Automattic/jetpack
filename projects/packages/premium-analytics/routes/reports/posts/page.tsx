@@ -17,6 +17,7 @@ import {
 	ExporterCsvAction,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
+	toViewLiveUrl,
 	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -27,6 +28,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import {
 	getArchivesFields,
 	getPostsFields,
@@ -125,6 +127,14 @@ function PostsReport(): JSX.Element {
 		() => getArchivesFields( records.archives.hasComparison ),
 		[ records.archives.hasComparison ]
 	);
+	const postActions = useMemo(
+		() => [
+			createViewLiveAction< StatsTopPostsComparisonItem >( item =>
+				toViewLiveUrl( 'post', item.id, item.link )
+			),
+		],
+		[]
+	);
 
 	// One element per tab: the two exporters' row types cannot share one generic call.
 	const csvAction =
@@ -163,6 +173,7 @@ function PostsReport(): JSX.Element {
 				isFetching={ records.posts.isFetching }
 				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				actions={ postActions }
 				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
@@ -177,6 +188,8 @@ function PostsReport(): JSX.Element {
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
+				collapsible
+				defaultExpanded="none"
 			/>
 		);
 

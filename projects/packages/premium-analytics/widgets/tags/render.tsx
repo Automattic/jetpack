@@ -5,10 +5,8 @@ import {
 	LeaderboardChart,
 	LeaderboardRow,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
@@ -18,10 +16,10 @@ import {
 	tagRowGlyph,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	tagsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -32,8 +30,10 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTagViews, { type TagChildView } from './use-tag-views';
-import { type TagsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TagsAttributes = Record< never, never >;
 
 type TagsRenderAttributes = Partial< ReportParamsFieldAttributes > & TagsAttributes;
 type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
@@ -129,6 +129,14 @@ function TagsInner() {
 		} );
 	}, [ data, selectGroup ] );
 
+	useReportActions( {
+		csv: {
+			exporter: tagsCsvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: data.length,
+		},
+	} );
+
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
@@ -172,6 +180,7 @@ function TagsInner() {
 						<TagGroupMembers members={ selectedGroup.children } />
 					) : (
 						<LeaderboardChart
+							chartTitle={ __( 'Top tags & categories', 'jetpack-premium-analytics-pkg' ) }
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
@@ -183,18 +192,14 @@ function TagsInner() {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },
 							} }
+							columns={ {
+								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								metric: 'views',
+							} }
 						/>
 					) }
 				</WidgetState>
 			</div>
-			<WidgetFooter>
-				<ReportLink report="tags" />
-				<ExporterCsvDownloadButton
-					exporter={ tagsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ data.length }
-				/>
-			</WidgetFooter>
 		</Stack>
 	);
 }

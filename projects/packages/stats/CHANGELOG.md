@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.2] - 2026-10-28
+### Fixed
+- Abilities: Fix the views, visitors, streak, followers, top content and post views the Stats abilities report, reject dates that do not exist, and return get-followers' `publicize` as an object. [#53385]
+
+## [0.23.1] - 2026-10-26
+### Changed
+- Internal updates.
+
 ## [0.23.0] - 2026-10-12
 ### Added
 - Settings: Add a method that saves the WordPress.com Reader setting, and give each settings error its HTTP status. [#53357]
@@ -400,6 +408,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.23.2]: https://github.com/Automattic/jetpack-stats/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-stats/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/jetpack-stats/compare/v0.22.1...v0.23.0
 [0.22.1]: https://github.com/Automattic/jetpack-stats/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/Automattic/jetpack-stats/compare/v0.21.1...v0.22.0

@@ -1,5 +1,10 @@
 .legend {
 	align-self: stretch;
+
+	&--horizontal {
+		column-gap: var(--a8c-charts-dimension-legend-column-gap);
+		row-gap: var(--a8c-charts-dimension-legend-row-gap);
+	}
 }
 
 .legend-item {
