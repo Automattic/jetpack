@@ -11,7 +11,6 @@ import {
 	MOCK_SWITCH_USER_PERMISSIONS,
 	MOCK_SWITCH_THREATS,
 	MOCK_SWITCH_REWIND_STATE,
-	MOCK_SWITCH_SCAN_STATE,
 } from 'state/action-types';
 
 export const resetOptions = options => {
@@ -224,11 +223,4 @@ export const switchRewindState = state => {
 			rewindState: { state: state },
 		} );
 	};
-};
-
-export const switchScanState = state => dispatch => {
-	dispatch( {
-		type: MOCK_SWITCH_SCAN_STATE,
-		scanState: { state },
-	} );
 };

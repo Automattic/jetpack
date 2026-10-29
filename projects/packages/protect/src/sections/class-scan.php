@@ -262,7 +262,7 @@ class Scan implements Dashboard_Section {
 	/**
 	 * Whether the host lets site owners ignore threats.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @return bool
 	 */
@@ -270,7 +270,7 @@ class Scan implements Dashboard_Section {
 		/**
 		 * Filters whether site owners can ignore threats; they can still unignore them. Hosts that fix threats themselves can turn this off.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.4.0
 		 *
 		 * @param bool $allowed Whether threats can be ignored. Default true.
 		 */
