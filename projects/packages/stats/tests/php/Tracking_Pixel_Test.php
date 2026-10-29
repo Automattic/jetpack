@@ -600,12 +600,13 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	 */
 	public static function consent_gate_scenarios() {
 		return array(
-			'allowed before the page is ready'   => array( 'allowed before the page is ready', 1, 0, null ),
-			'denied, then allowed in the banner' => array( 'denied, then allowed in the banner', 1, 0, null ),
+			'allowed before the page is ready'             => array( 'allowed before the page is ready', 1, 0, null ),
+			'denied, then allowed in the banner'           => array( 'denied, then allowed in the banner', 1, 0, null ),
+			'denied in a banner that sets no consent type' => array( 'denied in a banner that sets no consent type', 0, 0, null ),
 			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
-			'consent API that never loads'       => array( 'consent API that never loads', 0, 0, null ),
-			'consent API that throws'            => array( 'consent API that throws', 0, 1, null ),
-			'stats sender that throws'           => array( 'stats sender that throws', 0, 0, 'stats sender' ),
+			'consent API that never loads'                 => array( 'consent API that never loads', 0, 0, null ),
+			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
+			'stats sender that throws'                     => array( 'stats sender that throws', 0, 0, 'stats sender' ),
 		);
 	}
 

@@ -207,6 +207,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return string
 	 */
 	private static function build_consent_gate( $pushes ) {
+		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -214,11 +215,15 @@ function _jpStatsFire() {
 	_jpStatsFire.done = true;
 	%1$s
 }
+function _jpStatsDenied() {
+	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api &&
+		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) === "deny";
+}
 function _jpStatsCheck() {
 	if ( typeof window.wp_has_consent !== "function" ) { return; }
 	var consented;
 	try {
-		consented = window.wp_has_consent( "statistics" );
+		consented = ! _jpStatsDenied() && window.wp_has_consent( "statistics" );
 	} catch ( e ) {
 		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so Stats waits for a consent change.", e );
 		return;

@@ -36,6 +36,14 @@ const scenarios = {
 		dispatch( 'document', 'wp_listen_for_consent_change', { statistics: 'allow' } );
 		dispatch( 'document', 'wp_listen_for_consent_change', { statistics: 'allow' } );
 	},
+	'denied in a banner that sets no consent type': () => {
+		page.wp_has_consent = () => true;
+		page.consent_api = { cookie_prefix: 'wp_consent' };
+		page.consent_api_get_cookie = name => ( name === 'wp_consent_statistics' ? 'deny' : '' );
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+	},
 	'consent API that loads only by the load event': () => {
 		loadGate();
 		dispatch( 'document', 'DOMContentLoaded' );
