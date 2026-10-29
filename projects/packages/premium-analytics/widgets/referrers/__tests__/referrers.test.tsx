@@ -301,7 +301,11 @@ describe( 'ReferrersWidget', () => {
 
 		await user.click( spam );
 
-		expect( screen.getByRole( 'alertdialog', { name: 'Mark as spam' } ) ).toBeInTheDocument();
+		const dialog = screen.getByRole( 'alertdialog', { name: 'Mark as spam' } );
+		// The dialog renders in a portal; React still bubbles its clicks to the row.
+		await user.click( within( dialog ).getByText( /Are you sure/ ) );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+
 		expect( screen.queryByRole( 'button', { name: /all referrers/i } ) ).not.toBeInTheDocument();
 	} );
 

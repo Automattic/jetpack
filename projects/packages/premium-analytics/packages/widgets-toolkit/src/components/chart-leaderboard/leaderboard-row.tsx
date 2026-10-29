@@ -85,22 +85,35 @@ export type LeaderboardRowActionOptions = {
 	drillDown?: Omit< Extract< LeaderboardRowAction, { kind: 'drillDown' } >, 'kind' >;
 };
 
+/** The actions whose row keeps its label in place, so a trailing action has somewhere to go. */
+export type LeaderboardRowActionWithTrailing = Extract<
+	LeaderboardRowAction,
+	{ kind: 'viewLink' | 'static' | 'drillDown' }
+>;
+
 export type LeaderboardRowProps = {
 	/** Label text. */
 	label: string;
 	/** Media rendered before the label. */
 	media: LeaderboardRowMedia;
-	/** The mutually exclusive action applied to this chart row. */
-	action: LeaderboardRowAction;
-	/**
-	 * A row action rendered after the label, revealed on hover or focus (with the
-	 * "View" action when there is one). Rows that link out as a whole (`link`, and
-	 * `postLink`/`videoLink` without a detail page) drop it.
-	 */
-	trailingAction?: ReactElement;
 	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
 	variant?: LeaderboardVariant;
-};
+} & (
+	| {
+			/** The mutually exclusive action applied to this chart row. */
+			action: LeaderboardRowActionWithTrailing;
+			/**
+			 * A row action rendered after the label, revealed on hover or focus (with the
+			 * "View" action when there is one).
+			 */
+			trailingAction?: ReactElement;
+	  }
+	| {
+			/** Any action; a row that links out as a whole or opens a detail page has no room for another. */
+			action: LeaderboardRowAction;
+			trailingAction?: never;
+	  }
+);
 
 type LeaderboardRowButtonProps = {
 	label: ReactElement;
@@ -121,6 +134,12 @@ export type LeaderboardRowChartProps =
  *
  * @return The single action that the leaderboard row should expose.
  */
+export function resolveLeaderboardRowAction(
+	options: LeaderboardRowActionOptions & { hrefAs: 'viewLink' }
+): LeaderboardRowActionWithTrailing;
+export function resolveLeaderboardRowAction(
+	options: LeaderboardRowActionOptions
+): LeaderboardRowAction;
 export function resolveLeaderboardRowAction(
 	options: LeaderboardRowActionOptions
 ): LeaderboardRowAction {
@@ -208,6 +227,11 @@ export function LeaderboardRow( {
 	}
 
 	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+	// A drill-down row's value slides over the label end on hover; keep the action clear of it.
+	const trailingRowClassName = clsx(
+		rowClassName,
+		action.kind === 'drillDown' && trailing && styles.chevronReserve
+	);
 
 	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
@@ -227,7 +251,7 @@ export function LeaderboardRow( {
 	// The label carries the tooltip itself, so each action keeps only its own.
 	if ( action.kind === 'viewLink' || ( action.kind !== 'link' && trailing ) ) {
 		return (
-			<span className={ rowClassName }>
+			<span className={ trailingRowClassName }>
 				<span className={ styles.plainLabel } title={ label }>
 					{ content }
 				</span>

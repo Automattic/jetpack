@@ -134,11 +134,20 @@
 	text-decoration: underline;
 }
 
-/* A plain label beside a "View" action still has to shrink for the ellipsis. */
+/* A plain label beside a "View" action still has to shrink for the ellipsis.
+ * A layered chart row keeps pointer events off its cells; take them back so a
+ * truncated label still shows its title (clicks still reach the row button). */
 .plainLabel {
 	display: flex;
 	min-inline-size: 0;
 	max-inline-size: 100%;
+	pointer-events: auto;
+}
+
+/* A drill-down row slides its value over the label end by the chevron reserve
+ * on hover, so a trailing action stops that much short of it. */
+.chevronReserve {
+	padding-inline-end: calc(var(--wpds-dimension-padding-md) + var(--wpds-dimension-gap-2xl));
 }
 
 /* Beside a "View" action the title keeps its own width so the arrow follows it,
