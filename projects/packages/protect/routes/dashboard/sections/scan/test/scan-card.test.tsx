@@ -105,11 +105,16 @@ describe( 'ScanCard with Scan', () => {
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'still lists threats from earlier scans after a failed scan', async () => {
+	it( 'lists threats from earlier scans and says the last scan failed', async () => {
 		const threat = { id: 5, title: 'Threat 5', severity: 3, status: 'current' as const };
 		renderCard( { hasPlan: true, lastScanFailed: true, threats: [ threat ] } );
 
 		expect( screen.getByText( 'All vulnerabilities found' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Your last scan didn’t complete, so these results are from an earlier scan.'
+			)
+		).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 

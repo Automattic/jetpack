@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -125,6 +125,18 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	} else {
 		body = (
 			<>
+				{ scan.lastScanFailed && (
+					<CardRow>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Your last scan didn’t complete, so these results are from an earlier scan.',
+									'jetpack-protect-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CardRow>
+				) }
 				<CardRow className="jp-protect-card__cells jp-protect-card__stats">
 					<Stat
 						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect card: Show when the last scan didn't complete instead of calling the site secure.
