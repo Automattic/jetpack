@@ -167,15 +167,26 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 	public function test_update_protect_global_whitelist_is_deprecated_but_still_saves() {
 		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
-		Jetpack::update_active_modules( array( 'protect' ) );
 
 		$request = new WP_REST_Request();
 		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => '3.3.3.3' ) );
 
 		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
 
-		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'success', $result->get_data()['code'] );
 		$this->assertSame( '3.3.3.3', get_option( 'jetpack_waf_ip_allow_list' ) );
+	}
+
+	public function test_update_protect_global_whitelist_reports_invalid_ip() {
+		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => 'not-an-ip' ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'some_updated', $result->get_error_code() );
 	}
 
 	/**
