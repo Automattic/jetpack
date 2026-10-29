@@ -250,6 +250,20 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'decodes the HTML-encoded display names WordPress stores', async () => {
+		mockFetchCandidates.mockResolvedValue( [
+			{ ...candidates[ 0 ], displayName: 'O&#039;Neil &amp; Sons &lt;3' },
+		] );
+		const user = userEvent.setup();
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+
+		await expect(
+			screen.findByRole( 'option', { name: "O'Neil & Sons <3 (kazz@example.com)" } )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'says so when the candidates cannot be loaded', async () => {
 		mockFetchCandidates.mockRejectedValue( new Error( 'Network down' ) );
 		render( <TransferConnectionOwnership { ...props } /> );

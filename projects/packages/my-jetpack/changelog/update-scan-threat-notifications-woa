@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Skip the threats alert in the menu bubble and on My Jetpack when the host turns off threat notifications.

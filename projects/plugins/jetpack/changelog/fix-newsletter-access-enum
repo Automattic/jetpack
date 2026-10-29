@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Reject unknown post audience values sent through the REST API instead of publishing the post to everyone.
