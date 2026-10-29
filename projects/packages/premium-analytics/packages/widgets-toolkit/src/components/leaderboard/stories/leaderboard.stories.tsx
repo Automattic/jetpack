@@ -53,7 +53,7 @@ const meta: Meta< typeof Leaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The ranked-rows widget body: hand it domain rows and the request status, and it renders the leaderboard chart with its loading, error and empty states, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. Renders inside `WidgetRoot`.',
+					'The ranked-rows widget body: hand it domain rows and the request status, and it renders the leaderboard chart with its loading, error and empty states and the dashboard window on detail links; the chart derives the bar shares and deltas from the values. Renders inside `WidgetRoot`.',
 			},
 		},
 	},

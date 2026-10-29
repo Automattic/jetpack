@@ -4,7 +4,7 @@ A responsive leaderboard (horizontal bar) chart component for displaying ranking
 
 ## Widgets: use `Leaderboard`
 
-A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, and the dashboard window on detail links. The chart derives the bar shares and deltas from the values. It must render inside `WidgetRoot`.
 
 ```tsx
 // Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
