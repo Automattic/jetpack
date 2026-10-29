@@ -11,7 +11,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Settings as Stats_Package_Settings;
 
 /**
- * Exposes the Stats settings through core's `wp/v2/settings` route, and the role list the Settings tab offers through script data.
+ * Exposes the Stats settings through core's `wp/v2/settings` route, and the settings and roles the Settings tab offers through script data.
  */
 final class Stats_Settings {
 
@@ -83,7 +83,9 @@ final class Stats_Settings {
 	private static $update_error = null;
 
 	/**
-	 * Hook the settings up. The host that serves the site's REST API calls this before `rest_api_init`.
+	 * Hook up the settings route and the Settings tab's script data.
+	 *
+	 * Call it before `rest_api_init`, or call register() on that hook directly. Add any FIELDS_FILTER callback before either.
 	 *
 	 * @return void
 	 */
@@ -101,7 +103,8 @@ final class Stats_Settings {
 	 * @return void
 	 */
 	public static function register() {
-		$stats_fields = self::get_stats_option_fields();
+		$fields       = self::get_fields();
+		$stats_fields = array_values( array_intersect( self::FIELDS, $fields ) );
 		if ( array() !== $stats_fields ) {
 			$role       = array(
 				'type' => 'string',
@@ -136,7 +139,7 @@ final class Stats_Settings {
 				)
 			);
 		}
-		if ( in_array( self::READER_VIEWS_OPTION, self::get_fields(), true ) ) {
+		if ( in_array( self::READER_VIEWS_OPTION, $fields, true ) ) {
 			register_setting(
 				self::GROUP,
 				self::READER_VIEWS_OPTION,
@@ -164,6 +167,8 @@ final class Stats_Settings {
 
 		/**
 		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer.
+		 *
+		 * Keep at least one `stats_options` field with the Reader setting: the tab cannot load the Reader setting alone.
 		 *
 		 * @since $$next-version$$
 		 *

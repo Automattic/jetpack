@@ -17,7 +17,7 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
@@ -133,6 +133,11 @@ export function StatsSettingsPanel(): JSX.Element {
  */
 function StatsSettingsContent(): JSX.Element {
 	const { isLoading: isLoadingPlanUsage } = usePlanUsage();
+	// Latched: the card refetches a failed usage on mount, which must not swap the tab back and unmount it.
+	const [ hasPlanUsageAnswered, setPlanUsageAnswered ] = useState( ! isLoadingPlanUsage );
+	if ( ! isLoadingPlanUsage && ! hasPlanUsageAnswered ) {
+		setPlanUsageAnswered( true );
+	}
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
@@ -179,7 +184,7 @@ function StatsSettingsContent(): JSX.Element {
 	);
 
 	// A plan without a view limit has no usage card, so hold the whole tab until that is known rather than shift it.
-	if ( isLoadingPlanUsage ) {
+	if ( ! hasPlanUsageAnswered ) {
 		return (
 			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
 				<Spinner />

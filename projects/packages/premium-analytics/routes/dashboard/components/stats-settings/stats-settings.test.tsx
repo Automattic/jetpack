@@ -190,6 +190,23 @@ describe( 'StatsSettingsPanel', () => {
 		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps the cards once the plan usage has answered, while the card retries a failed usage', () => {
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+		const { rerender } = render( <StatsSettingsPanel /> );
+		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
+		rerender( <StatsSettingsPanel /> );
+
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		rerender( <StatsSettingsPanel /> );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+	} );
+
 	it( 'leaves out a card whose settings the site does not offer', () => {
 		setScriptData( null, [ 'admin_bar', 'wpcom_reader_views_enabled' ] );
 		useStatsSettingsMock.mockReturnValue( {
