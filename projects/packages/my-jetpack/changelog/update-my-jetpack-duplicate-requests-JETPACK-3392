@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reduce repeated requests on page load: reuse product ownership data and refresh the historically active modules list at most hourly.
