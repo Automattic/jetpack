@@ -90,6 +90,7 @@ class Scan_Section_Test extends BaseTestCase {
 		$state = ( new Scan() )->get_state();
 
 		$this->assertTrue( $state['hasPlan'] );
+		$this->assertSame( ! $is_woa, $state['needsCredentials'] );
 		$this->assertSame( $is_woa, '' === $state['url'] );
 		$this->assertSame( ! $is_woa, array_key_exists( 'hasCredentials', $state ) );
 	}
