@@ -1,12 +1,21 @@
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
-import { useCallback } from '@wordpress/element';
+import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
+import { AlertDialog, Badge, Button, ButtonLink, Link, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
-import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
+import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
+import {
+	deleteThreatRow,
+	fixThreat,
+	getThreatRow,
+	ignoreThreat,
+	unignoreThreat,
+	useThreatAction,
+	type ThreatRow,
+} from './threat-actions';
 import type { ScanThreat } from './types';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -58,12 +67,32 @@ function StateBadge( { threat }: { threat: ScanThreat } ) {
 }
 
 /**
- * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
+ * Where a threat was found: its file, or its database table.
  *
  * @param threat - The threat.
+ * @return "File: index.php" or "Table: wp_options", or empty when it's neither.
+ */
+function getLocation( threat: ScanThreat ): string {
+	const file = threat.filename?.split( '/' ).pop();
+	if ( file ) {
+		/* translators: %s is a file name, such as "index.php". */
+		return sprintf( __( 'File: %s', 'jetpack-protect-pkg' ), file );
+	}
+	if ( threat.database ) {
+		/* translators: %s is a database table, such as "wp_options". */
+		return sprintf( __( 'Table: %s', 'jetpack-protect-pkg' ), threat.database.table );
+	}
+	return '';
+}
+
+/**
+ * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
+ *
+ * @param threat    - The threat.
+ * @param canDelete - Whether the threat's option can be deleted from the details.
  * @return The advice.
  */
-function getResolution( threat: ScanThreat ): string {
+function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 	const fixer = threat.fixable && getFixerDescription( threat as Threat );
 	if ( fixer ) {
 		return sprintf(
@@ -72,11 +101,30 @@ function getResolution( threat: ScanThreat ): string {
 			fixer.replace( /\.$/, '' )
 		);
 	}
+	if ( threat.fixable ) {
+		return __( 'Jetpack Scan can fix this threat for you.', 'jetpack-protect-pkg' );
+	}
 	if ( threat.fixedIn ) {
 		return sprintf(
 			/* translators: %s is a version number, such as "5.3.2". */
 			__( 'Update to version %s or later.', 'jetpack-protect-pkg' ),
 			threat.fixedIn
+		);
+	}
+	if ( threat.database && canDelete ) {
+		return __(
+			'Jetpack Scan can’t fix this itself, but you can delete the option above if you don’t recognize it. Deleting can’t be undone, so check first that no plugin you use needs it, or contact Jetpack support for help.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( threat.database ) {
+		return sprintf(
+			/* translators: %s is a database table, such as "wp_options". */
+			__(
+				'Jetpack can’t fix this automatically. If you don’t recognize the row above, remove it from the %s table, or contact Jetpack support for help.',
+				'jetpack-protect-pkg'
+			),
+			threat.database.table
 		);
 	}
 	return __(
@@ -110,6 +158,144 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 }
 
 /**
+ * Delete the option a threat was found in, after a confirmation that says it can't be undone.
+ *
+ * @param props        - Component props.
+ * @param props.threat - A database threat whose row is an option the dashboard may delete.
+ * @param props.name   - The option's name.
+ * @return The control.
+ */
+function DeleteOptionButton( { threat, name }: { threat: ScanThreat; name: string } ) {
+	const [ , setThreat ] = useSearchParam( THREAT_PARAM );
+	const onConfirm = useCallback( async () => {
+		const error = await deleteThreatRow( threat );
+		if ( error ) {
+			return { error };
+		}
+		setThreat();
+	}, [ threat, setThreat ] );
+	const label = __( 'Delete option', 'jetpack-protect-pkg' );
+
+	return (
+		<Stack direction="column" gap="xs" align="start">
+			<AlertDialog.Root onConfirm={ onConfirm }>
+				<AlertDialog.Trigger render={ <Button variant="outline" tone="neutral" size="compact" /> }>
+					{ label }
+				</AlertDialog.Trigger>
+				<AlertDialog.Popup
+					intent="irreversible"
+					title={ __( 'Delete option?', 'jetpack-protect-pkg' ) }
+					description={ sprintf(
+						/* translators: %s is an option name, such as "_wpc_ak". */
+						__(
+							'This permanently deletes the %s option from your database. Jetpack doesn’t keep a copy, so it can’t be undone. If a plugin you use needs this option, that plugin may stop working.',
+							'jetpack-protect-pkg'
+						),
+						name
+					) }
+					confirmButtonText={ label }
+				/>
+			</AlertDialog.Root>
+			<Text variant="body-sm" className="jp-protect-card__muted">
+				{ __( 'Deleting can’t be undone.', 'jetpack-protect-pkg' ) }
+			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Read the database row a current database threat was found in, from the site.
+ *
+ * @param threat - The threat.
+ * @param canAct - Whether the site's plan can act on threats, which reading the row needs.
+ * @return The row once read, and why it couldn't be.
+ */
+function useThreatRow( threat: ScanThreat, canAct: boolean ) {
+	const [ row, setRow ] = useState< ThreatRow | null >( null );
+	const [ rowError, setRowError ] = useState< string | null >( null );
+	const canRead = canAct && threat.status === 'current' && !! threat.database;
+
+	useEffect( () => {
+		setRow( null );
+		setRowError( null );
+		if ( ! canRead ) {
+			return;
+		}
+		let isCurrent = true;
+		getThreatRow( threat )
+			.then( next => isCurrent && setRow( next ) )
+			.catch( ( e: { message?: string } ) => isCurrent && setRowError( e?.message ?? null ) );
+		return () => {
+			isCurrent = false;
+		};
+		// Refetch per threat, not per render of the same threat.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ threat.id, canRead ] );
+
+	return { row, rowError };
+}
+
+/**
+ * The database row a threat was found in: Scan's key and columns, then the whole row once the site returns it.
+ *
+ * @param props          - Component props.
+ * @param props.threat   - A database threat.
+ * @param props.row      - The row, once read from the site.
+ * @param props.rowError - Why the row couldn't be read.
+ * @return The row.
+ */
+function DatabaseRow( {
+	threat,
+	row,
+	rowError,
+}: {
+	threat: ScanThreat;
+	row: ThreatRow | null;
+	rowError: string | null;
+} ) {
+	const database = threat.database as NonNullable< ScanThreat[ 'database' ] >;
+	const fields: [ string, unknown ][] = row
+		? Object.entries( row.columns )
+		: [
+				...( database.pkColumn
+					? [ [ database.pkColumn, database.pkValue ] as [ string, unknown ] ]
+					: [] ),
+				...Object.entries( database.details ?? {} ),
+			];
+	const optionName = row?.canDelete ? row.columns.option_name : null;
+
+	return (
+		<>
+			<Text variant="body-md" className="jp-protect-card__muted">
+				{ sprintf(
+					/* translators: %s is a database table, such as "wp_options". */
+					__( 'Threat found in the %s table, in this row:', 'jetpack-protect-pkg' ),
+					database.table
+				) }
+			</Text>
+			{ fields.length > 0 && (
+				<dl className="jp-protect-threat-details__code jp-protect-threat-details__fields">
+					{ fields.map( ( [ column, value ] ) => (
+						<Fragment key={ column }>
+							<dt>{ column }</dt>
+							<dd>{ typeof value === 'string' ? value : JSON.stringify( value ) }</dd>
+						</Fragment>
+					) ) }
+				</dl>
+			) }
+			{ rowError && (
+				<Text variant="body-sm" className="jp-protect-card__muted">
+					{ rowError }
+				</Text>
+			) }
+			{ typeof optionName === 'string' && (
+				<DeleteOptionButton threat={ threat } name={ optionName } />
+			) }
+		</>
+	);
+}
+
+/**
  * Ignore it, and Auto-fix it when Scan can, pinned to the bottom of the inspector.
  *
  * @param props        - Component props.
@@ -119,10 +305,15 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
+	const canIgnore = useCanIgnore();
 	const open = useOpenThreat();
 	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
+
+	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
+		return null;
+	}
 
 	return (
 		<div className="jp-protect-threat-details__footer">
@@ -144,17 +335,19 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 					{ __( 'Unignore it', 'jetpack-protect-pkg' ) }
 				</Button>
 			) : (
-				<Stack direction="row" gap="sm" justify="space-between">
-					<Button
-						className="jp-protect-threat-details__ignore"
-						variant="minimal"
-						tone="neutral"
-						onClick={ onIgnore }
-						loading={ busy === 'ignoring' }
-						disabled={ !! busy }
-					>
-						{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
-					</Button>
+				<Stack direction="row" gap="sm" justify={ canIgnore ? 'space-between' : 'end' }>
+					{ canIgnore && (
+						<Button
+							className="jp-protect-threat-details__ignore"
+							variant="minimal"
+							tone="neutral"
+							onClick={ onIgnore }
+							loading={ busy === 'ignoring' }
+							disabled={ !! busy }
+						>
+							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
+						</Button>
+					) }
 					{ threat.fixable && (
 						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
 							{ busy === 'fixing'
@@ -229,7 +422,7 @@ export default function ThreatDetails( {
 	const { kind, subject } = getThreatLabel( threat );
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
-	const file = threat.filename?.split( '/' ).pop();
+	const { row, rowError } = useThreatRow( threat, canAct );
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -243,13 +436,7 @@ export default function ThreatDetails( {
 					{ kind || subject }
 				</Text>
 				<Text variant="body-md" className="jp-protect-card__muted">
-					{ file
-						? sprintf(
-								/* translators: %s is a file name, such as "index.php". */
-								__( 'File: %s', 'jetpack-protect-pkg' ),
-								file
-							)
-						: kind && subject }
+					{ getLocation( threat ) || ( kind && subject ) }
 				</Text>
 				<Stack direction="row" gap="xs" wrap="wrap">
 					<SeverityBadge severity={ threat.severity } />
@@ -307,9 +494,12 @@ export default function ThreatDetails( {
 				) }
 			</Section>
 
-			{ ( threat.filename || threat.extension ) && (
+			{ ( threat.filename || threat.extension || threat.database ) && (
 				<Section title={ __( 'The technical details', 'jetpack-protect-pkg' ) }>
-					{ threat.filename ? (
+					{ threat.database && ! threat.filename && (
+						<DatabaseRow threat={ threat } row={ row } rowError={ rowError } />
+					) }
+					{ threat.filename && (
 						<>
 							<Text variant="body-md" className="jp-protect-card__muted">
 								{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
@@ -326,7 +516,8 @@ export default function ThreatDetails( {
 								</pre>
 							) }
 						</>
-					) : (
+					) }
+					{ ! threat.filename && ! threat.database && (
 						<Text variant="body-md" className="jp-protect-card__muted">
 							{ threat.fixedIn
 								? sprintf(
@@ -347,7 +538,7 @@ export default function ThreatDetails( {
 
 			<Section title={ __( 'How to resolve or handle this detection?', 'jetpack-protect-pkg' ) }>
 				<Text variant="body-md" className="jp-protect-card__muted">
-					{ getResolution( threat ) }
+					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
 				<SoftwareActions threat={ threat } />
 			</Section>

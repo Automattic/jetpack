@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let people pick the Overview v1 Stats period and step through earlier periods, shown only while the Overview v1 feature flag is on.

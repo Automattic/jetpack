@@ -117,6 +117,9 @@ class Initializer {
 			return;
 		}
 
+		// Before anything can read the AI crawler choices.
+		Ai_Crawlers::register_legacy_migration();
+
 		// The opt-in endpoint must be reachable even before the surface is visible, so
 		// existing self-hosted installs can switch to the new experience from the legacy
 		// Traffic page or My Jetpack (JETPACK-1700). Registered ahead of the cohort gate.
@@ -160,6 +163,12 @@ class Initializer {
 		// register nothing else here and let those opt-in surfaces drive discovery.
 		if ( ! self::is_seo_surface_visible() ) {
 			return;
+		}
+
+		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
+		// module. Once the surface is visible that view only points here, so link here.
+		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
+			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
 		// The admin menu and app shell register whenever the surface is visible, even

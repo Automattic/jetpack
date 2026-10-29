@@ -2544,18 +2544,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 			),
 
-			// GEO tab (Jetpack > SEO). Sparse per-crawler override map the SEO
-			// package reads to emit robots.txt directives for blocked AI crawlers.
-			// Stored as `slug => bool` (true = blocked); catalog validation and
-			// default-pruning happen in `Ai_Crawlers::get_overrides()`.
-			'jetpack_seo_ai_crawler_overrides'          => array(
-				'description'       => esc_html__( 'AI crawler allow/block overrides.', 'jetpack' ),
-				'type'              => 'object',
-				'default'           => array(),
-				'jp_group'          => 'seo-tools',
-				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_overrides',
-			),
-
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
@@ -3300,29 +3288,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sanitize the AI crawler override map.
-	 *
-	 * Keeps the value package-agnostic: each key is normalized with sanitize_key()
-	 * and each value cast to bool. Catalog validation and default-pruning happen in
-	 * `Automattic\Jetpack\SEO\Ai_Crawlers::get_overrides()`.
-	 *
-	 * @param mixed $value The submitted override map.
-	 *
-	 * @return array<string, bool> Sanitized `slug => bool` map.
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $k => $v ) {
-			$sanitized[ sanitize_key( $k ) ] = (bool) $v;
-		}
-		return $sanitized;
-	}
-
-	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.3.0
@@ -3625,7 +3590,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				if ( is_wp_error( $value ) ) {
 					return false;
 				}
-				// update_option() won't create an option whose value is `false`.
+				// An integer, as in Monitor::save_notifications_copy().
 				$value = (int) (bool) $value;
 				break;
 

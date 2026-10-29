@@ -67,8 +67,8 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
-/* The chart insets its own `.label` in overlay mode, but an element label
- * bypasses that rule — and the overlay bar takes its height from this row. */
+/* An element label bypasses the chart's overlay `.label` inset, so it reads the
+ * same inset itself; the overlay bar takes its height from this row. */
 .row,
 .rowLink {
 	display: flex;
@@ -78,7 +78,9 @@
 	min-block-size: 36px;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	padding-inline: var(--wpds-dimension-padding-md);
+	padding-inline:
+		var(--a8c-charts-dimension-leaderboard-label-inset)
+		var(--wpds-dimension-padding-md);
 	gap: var(--wpds-dimension-gap-xs);
 	overflow: hidden;
 	color: inherit;

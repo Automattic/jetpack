@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features tab: Let administrators who can manage Jetpack modules but not plugins switch modules on and off in bulk.

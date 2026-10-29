@@ -177,6 +177,42 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
 	}
 
+	/**
+	 * The URL a host sends and the upgrade link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::get_scan_upgrade_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
+	}
+
 	public function test_init_announces_the_dashboard() {
 		$this->assertGreaterThan( 0, did_action( 'jetpack_protect_dashboard_initialized' ) );
 	}

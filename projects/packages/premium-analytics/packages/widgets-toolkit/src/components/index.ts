@@ -202,6 +202,7 @@ export {
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
 } from './download-csv';
+export { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	EarningsHistoryList,

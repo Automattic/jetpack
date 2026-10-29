@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop stripping a size suffix such as -600x400 from short image URLs on other domains.

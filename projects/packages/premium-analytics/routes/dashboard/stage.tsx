@@ -538,7 +538,6 @@ function Dashboard(): JSX.Element {
 												ref={ setHeaderRef }
 												title={ resolveSectionHeading( section ) }
 												pinned
-												notice={ <RefreshFailureNotice /> }
 												controlsRef={ setControlsAnchor }
 											>
 												{ dateControls }
@@ -548,6 +547,7 @@ function Dashboard(): JSX.Element {
 											{ activeSection === section.slug && isSectionCommitted ? (
 												<DashboardSectionProvider section={ section.slug }>
 													<div className={ styles.body }>
+														<RefreshFailureNotice />
 														{ ! editMode && <DashboardNotices /> }
 
 														{ /* Behind the onboarding journey: it introduces the tabs
@@ -594,9 +594,9 @@ function Dashboard(): JSX.Element {
 											</DashboardSectionProvider>
 										</SectionTabPanel>
 									) }
-								</DashboardSections>
 
-								<JetpackFooter />
+									<JetpackFooter />
+								</DashboardSections>
 
 								<WidgetDashboard.Commands />
 
