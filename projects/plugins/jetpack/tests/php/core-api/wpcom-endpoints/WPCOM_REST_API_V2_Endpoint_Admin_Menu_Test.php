@@ -4,6 +4,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\SEO\Admin_Page as Seo_Admin_Page;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -103,6 +104,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$hide_items   = static function ( $states ) {
 			$states['rest-hidden-submenu'] = Admin_Menu::VISIBILITY_HIDDEN;
 			$states['rest-hidden-top']     = Admin_Menu::VISIBILITY_HIDDEN;
+			$states['jetpack-seo']         = Admin_Menu::VISIBILITY_HIDDEN;
 			return $states;
 		};
 		add_filter( 'jetpack_admin_menu_visibility', $hide_items );
@@ -110,6 +112,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		Admin_Menu::add_menu( 'Hidden submenu', 'Hidden submenu', 'read', 'rest-hidden-submenu', '__return_null' );
 		Admin_Menu::add_top_level_menu( 'Visible top level', 'Visible top level', 'read', 'rest-visible-top', '__return_null' );
 		Admin_Menu::add_top_level_menu( 'Hidden top level', 'Hidden top level', 'read', 'rest-hidden-top', '__return_null' );
+		Seo_Admin_Page::add_menu_item();
 		try {
 			// The shared request already included menu.php, so register this test's menus explicitly.
 			add_menu_page( 'Jetpack', 'Jetpack', 'read', 'jetpack', '__return_null' );
@@ -123,6 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 			foreach ( array(
 				'rest-hidden-submenu' => 'jetpack',
 				'rest-hidden-top'     => '',
+				'jetpack-seo'         => 'jetpack',
 			) as $slug => $parent ) {
 				$this->assertStringNotContainsString( $slug, $data );
 				$this->assertArrayHasKey( get_plugin_page_hookname( $slug, $parent ), $GLOBALS['_registered_pages'] );
