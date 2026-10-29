@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add localizedSign to CurrencyObject to preserve Unicode Bidirectional control marks for RTL currencies.

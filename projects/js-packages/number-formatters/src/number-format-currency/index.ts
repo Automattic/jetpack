@@ -331,6 +331,23 @@ const numberFormatCurrency = ( {
 };
 
 /**
+ * Unicode Bidirectional (Bidi) control marks used by CLDR / Intl.NumberFormat
+ * to preserve proper sign positioning in RTL locales:
+ * - \u200E: Left-to-Right Mark (LRM)
+ * - \u200F: Right-to-Left Mark (RLM)
+ * - \u061C: Arabic Letter Mark (ALM)
+ */
+const BIDI_MARKS = [ '\u200E', '\u200F', '\u061C' ];
+
+/**
+ * Checks whether a string represents a Unicode Bidirectional control mark.
+ *
+ * @param  value - The string value to check.
+ * @return {boolean} True if the value is a Bidi control mark.
+ */
+const isBidiMark = ( value: string ): boolean => BIDI_MARKS.includes( value );
+
+/**
  * Returns a formatted price object which can be used to manually render a
  * formatted currency (eg: if you wanted to render the currency symbol in a
  * different font size).
@@ -413,6 +430,8 @@ const getCurrencyObject = ( {
 	const parts = formatter.formatToParts( numberAsFloat );
 
 	let sign = '' as CurrencyObject[ 'sign' ];
+	let localizedSign = '';
+	let pendingPrefix = '';
 	let symbol = '$';
 	let symbolPosition = 'before' as CurrencyObject[ 'symbolPosition' ];
 	let hasAmountBeenSet = false;
@@ -427,30 +446,46 @@ const getCurrencyObject = ( {
 				if ( hasAmountBeenSet ) {
 					symbolPosition = 'after';
 				}
+				pendingPrefix = '';
 				return;
 			case 'group':
 				integer += part.value;
 				hasAmountBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'decimal':
 				fraction += part.value;
 				hasAmountBeenSet = true;
 				hasDecimalBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'integer':
 				integer += part.value;
 				hasAmountBeenSet = true;
+				pendingPrefix = '';
 				return;
 			case 'fraction':
 				fraction += part.value;
 				hasAmountBeenSet = true;
 				hasDecimalBeenSet = true;
+				pendingPrefix = '';
+				return;
+			case 'literal':
+				if ( ! sign ) {
+					pendingPrefix += part.value;
+				} else if ( isBidiMark( part.value ) && ! localizedSign.includes( part.value ) ) {
+					localizedSign += part.value;
+				}
 				return;
 			case 'minusSign':
 				sign = '-' as CurrencyObject[ 'sign' ];
+				localizedSign = pendingPrefix + part.value;
+				pendingPrefix = '';
 				return;
 			case 'plusSign':
 				sign = '+' as CurrencyObject[ 'sign' ];
+				localizedSign = pendingPrefix + part.value;
+				pendingPrefix = '';
 		}
 	} );
 
@@ -458,6 +493,7 @@ const getCurrencyObject = ( {
 
 	return {
 		sign,
+		localizedSign,
 		symbol,
 		symbolPosition,
 		integer,

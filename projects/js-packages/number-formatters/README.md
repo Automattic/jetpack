@@ -83,6 +83,12 @@ For currencies that include decimals, this will always return the amount with de
 
 Since rounding errors are common in floating point math, sometimes a price is provided as an integer in the smallest unit of a currency (eg: cents in USD or yen in JPY). Set the `isSmallestUnit` to change the function to operate on integer numbers instead. If this option is not set or false, the function will format the amount `1025` in `USD` as `$1,025.00`, but when the option is true, it will return `$10.25` instead.
 
+#### Notes on `sign` vs `localizedSign`
+
+`CurrencyObject` provides two properties representing the sign of the number:
+- `sign` (`'-' | '+' | ''`): The standard mathematical sign. This property is preserved for backwards compatibility and for programmatic checks (e.g., `if ( obj.sign === '-' )`).
+- `localizedSign` (`string`): The localized sign string formatted by `Intl.NumberFormat`. In Right-to-Left (RTL) locales such as Hebrew (`he`) or Arabic (`ar`), this property retains the Unicode Bidirectional control marks (such as RLM/LRM) emitted by CLDR so that the sign stays on the correct visual side of the number without flipping when rendered in HTML or text. Consumers rendering the visual sign should prefer `localizedSign`.
+
 #### Notes
 
 - We always show `US$` for USD when the user's geolocation is not inside the US. This is important because other currencies use `$` for their currency and are surprised sometimes if they are actually charged in USD (which is the default for many users). We can't safely display `US$` for everyone because we've found that US users are confused by that style and it decreases confidence in the product.
