@@ -929,11 +929,11 @@ function sharing_process_requests() {
 	global $post;
 
 	// Only process if: single post and share=X defined
-	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( $post instanceof WP_Post && ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sharer = new Sharing_Service();
 
 		$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_GET['share'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service && $post instanceof WP_Post ) {
+		if ( $service ) {
 			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 	}
