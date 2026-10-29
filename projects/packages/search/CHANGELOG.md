@@ -20,8 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [8.3.3] - 2026-10-19
 ### Changed
 - Update dependencies. [#53618]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## [8.3.2] - 2026-10-12
 ### Changed
@@ -307,8 +306,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search: Normalize page tabs onto shared minimal variant + jp-admin-page-tabs--minimal wrapper modifier. Bump @wordpress/ui to 0.13.0. [#48964]
 - Search: the AI Answer block (`jetpack-search/ai-answer`) no longer gates on the site-wide `jetpack_search_ai_answers_enabled` option — block presence in post content is the only switch. The option still governs the instant-search overlay. [#48993]
 - Search Blocks: let authors pick which suggestion sections appear in the Search Input dropdown (query completions, categories & tags, post titles) via a new per-block suggestionTypes attribute. Existing blocks default to all three. [#48991]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
 - AI Answers: Fix the answer panel colors in dark mode. [#49019]
@@ -993,7 +991,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.44.15] - 2024-08-19
 ### Changed
-- Update dependencies. [#38861] [#38662]
+- Update dependencies. [#38662] [#38861]
 
 ### Fixed
 - Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
@@ -1084,8 +1082,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.43.5] - 2024-03-12
 ### Changed
 - Updated package dependencies. [#36325]
-- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187]
-- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36187] [#36227]
 
 ## [0.43.4] - 2024-03-04
 ### Changed
@@ -1719,7 +1716,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Search: refactored Settings to expose the settings array for sync [#24167]
-- Updated package dependencies. [#24189] [#24204] [#24302] [#24276] [#24296] [#24301]
+- Updated package dependencies. [#24189] [#24204] [#24276] [#24296] [#24301] [#24302]
 
 ### Fixed
 - Search: Fix left padding for upsell page [#24285]
@@ -1731,7 +1728,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
-- Updated package dependencies. [#24095] [#24230] [#24198] [#24228]
+- Updated package dependencies. [#24095] [#24198] [#24228] [#24230]
 
 ### Deprecated
 - Moved the options class into Connection. [#24095]

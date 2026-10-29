@@ -47,8 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Name the videos and their views above the Top videos list. [#53697]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 - Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
 - Video Playlist: Open this site's video pages in the same tab, and mark the entry of the video being viewed. [#53502]
 

@@ -15,9 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.7] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53675]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53675] [#53806]
 
 ## [0.35.6] - 2026-10-14
 ### Changed
@@ -638,7 +636,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.16.2] - 2024-08-19
 ### Changed
-- Update dependencies. [#38861] [#38662] [#38665] [#38893]
+- Update dependencies. [#38662] [#38665] [#38861] [#38893]
 
 ### Fixed
 - Lossless image optimization for images (should improve performance with no visible changes). [#38750]

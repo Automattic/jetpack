@@ -1038,7 +1038,8 @@ class Initializer {
 	public static function get_header_state() {
 		return array(
 			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
-			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+			// `connector` names the connection package's card, which opens its details for it.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php?connector=wordpress_com' ) : null,
 		);
 	}
 

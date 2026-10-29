@@ -27,8 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.1.4] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## [5.1.3] - 2026-10-12
 ### Changed
@@ -634,7 +633,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.3] - 2024-08-19
 ### Changed
-- Update dependencies. [#38861] [#38662]
+- Update dependencies. [#38662] [#38861]
 
 ### Fixed
 - Lossless image optimization for images (should improve performance with no visible changes). [#38750]
@@ -1145,7 +1144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.7] - 2022-05-31
 ### Changed
-- Updated package dependencies. [#24432] [#24573] [#24475] [#24505] [#24515]
+- Updated package dependencies. [#24432] [#24475] [#24505] [#24515] [#24573]
 
 ## [1.3.6] - 2022-05-24
 ### Changed
@@ -1162,7 +1161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.3] - 2022-05-18
 ### Changed
 - Changed method used to disconnect upon deactivation [#24300]
-- Updated package dependencies. [#23795] [#24372] [#24153] [#24334] [#24347] [#24344]
+- Updated package dependencies. [#23795] [#24153] [#24334] [#24344] [#24347] [#24372]
 
 ### Fixed
 - Fix new PHPCS sniffs. [#24366]

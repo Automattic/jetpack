@@ -47,8 +47,6 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'editor-welcome-guides-per-user' );
-
 		$this->user_id = wp_insert_user(
 			array(
 				'user_login' => 'welcome_guides_user',
@@ -66,12 +64,6 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 			10,
 			2
 		);
-	}
-
-	public function tear_down() {
-		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
-
-		parent::tear_down();
 	}
 
 	/**
@@ -133,10 +125,6 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 
 		$this->dismissed = array();
 		$this->assertSame( $stored, $this->read_preferences() );
-
-		$this->dismissed = array( 'core/edit-post' => array( 'welcomeGuide' ) );
-		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
-		$this->assertSame( $stored, $this->read_preferences() );
 	}
 
 	public function test_write_reports_guides_turned_off() {
@@ -170,9 +158,6 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 	public function test_write_reports_nothing_when_nothing_applies() {
 		update_user_meta( $this->user_id, wpcom_editor_welcome_guides_meta_key(), array( 'core/edit-post' => array( 'welcomeGuide' => true ) ) );
 		update_user_meta( $this->user_id, 'nickname', array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) );
-
-		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
-		update_user_meta( $this->user_id, wpcom_editor_welcome_guides_meta_key(), array( 'core/edit-post' => array( 'welcomeGuide' => false ) ) );
 
 		$this->assertSame( array(), $this->recorded );
 	}

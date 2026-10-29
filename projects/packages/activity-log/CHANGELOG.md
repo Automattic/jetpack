@@ -63,9 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Exclude source map files from the distributed package. [#52304]
 - Only wire up the admin page and REST routes while the activity-log module is active. [#52409]
-- Update package dependencies. [#52187]
-- Update package dependencies. [#52401]
-- Update package dependencies. [#52402]
+- Update package dependencies. [#52187] [#52401] [#52402]
 
 ### Fixed
 - Keep the event and actor icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Balance the line breaks in the upgrade cards so no single word sits alone on a line.

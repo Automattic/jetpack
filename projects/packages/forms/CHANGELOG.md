@@ -22,9 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.3.4] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53675]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53675] [#53806]
 - Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
 
 ### Fixed
@@ -1892,7 +1890,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linting: First pass of style coding standards. [#42734]
 - Move shared integration card logic. [#42908]
 - Reorganize form integration modal code. [#42918]
-- Update Creative Mail integration to hooks. [#42828] [#42762] [#42806] [#42809]
+- Update Creative Mail integration to hooks. [#42762] [#42806] [#42809] [#42828]
 
 ### Fixed
 - Ensure response management compatibility with WordPress 6.6. [#42883]
