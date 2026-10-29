@@ -92,7 +92,7 @@ class WP_Dashboard_Odyssey_Widget_Test extends Stats_TestCase {
 		$this->assertFalse( $this->widget_is_on_dashboard() );
 	}
 
-	public function test_render_draws_the_outline_while_the_script_loads() {
+	public function test_render_draws_the_skeleton_while_the_script_loads() {
 		wp_set_current_user( $this->admin_id );
 
 		$markup = $this->render_widget();
@@ -100,6 +100,20 @@ class WP_Dashboard_Odyssey_Widget_Test extends Stats_TestCase {
 		$this->assertStringContainsString( 'class="jp-stats-widget-skeleton" role="status"', $markup );
 		$this->assertStringNotContainsString( 'loading-64.gif', $markup );
 		$this->assertStringNotContainsString( 'Please reload the page', $markup );
+	}
+
+	public function test_skeleton_draws_one_list_row_as_the_widget_does_while_loading() {
+		wp_set_current_user( $this->admin_id );
+
+		$this->assertSame( 1, substr_count( $this->render_widget(), 'jp-stats-widget-skeleton__row"' ) );
+	}
+
+	public function test_skeleton_leaves_out_site_protection_without_the_jetpack_plugin() {
+		wp_set_current_user( $this->admin_id );
+
+		// The package's tests run without the Jetpack plugin, so `JETPACK__VERSION` is not defined.
+		$this->assertFalse( defined( 'JETPACK__VERSION' ) );
+		$this->assertSame( 2, substr_count( $this->render_widget(), 'jp-stats-widget-skeleton__card"' ) );
 	}
 
 	public function test_render_asks_for_a_reload_when_the_widget_was_hidden() {

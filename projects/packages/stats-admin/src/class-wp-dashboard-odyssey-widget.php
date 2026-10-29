@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Responsible for loading Jetpack Stats widget for WP Dashboard.
@@ -83,15 +84,19 @@ class WP_Dashboard_Odyssey_Widget {
 
 	/**
 	 * Renders the widget's skeleton for the time its script takes to load: an Overview card
-	 * with two totals and a chart, a lists card, a card with two counts, and the footer. The
-	 * widget replaces it when it mounts. Styled inline, since its stylesheet arrives with its
-	 * script, and the widget's own loader leaves a skeleton that is already here alone.
+	 * with two totals and a chart, a lists card, on Jetpack sites a card with two counts, and
+	 * the footer. The widget replaces it when it mounts. Styled inline, since its stylesheet
+	 * arrives with its script, and the widget's own loader leaves a skeleton that is already
+	 * here alone.
 	 */
 	private function render_loading_skeleton() {
+		// The gates the widget applies to its Site protection card: not on Simple sites, nor on
+		// a standalone Stats plugin without Jetpack. See Odyssey_Config_Data::get_config_data().
+		$has_site_protection = ! ( new Host() )->is_wpcom_simple() && defined( 'JETPACK__VERSION' );
 		?>
 		<div class="jp-stats-widget-skeleton" role="status" aria-label="<?php esc_attr_e( 'Loading', 'jetpack-stats-admin' ); ?>">
 			<style>
-				.jp-stats-widget-skeleton{margin:-11px -12px -12px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
+				.jp-stats-widget-skeleton{container-type:inline-size;margin:-11px -12px -12px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
 				.jp-stats-widget-skeleton__card{padding:8px 12px 12px;border:1px solid #e0e0e0;border-radius:4px;background:#fff}
 				.jp-stats-widget-skeleton__header{display:flex;justify-content:space-between;align-items:center;min-height:32px;margin-bottom:8px}
 				.jp-stats-widget-skeleton__metrics{display:flex;gap:16px}
@@ -113,6 +118,7 @@ class WP_Dashboard_Odyssey_Widget {
 				.jp-stats-widget-skeleton__bar.is-link{width:72px;margin-top:16px}
 				.jp-stats-widget-skeleton__bar.is-logo{width:88px;height:20px}
 				.jp-stats-widget-skeleton__bar.is-footer-link{width:80px}
+				@container (max-width:360px){.jp-stats-widget-skeleton__metrics{flex-direction:column}.jp-stats-widget-skeleton__metric{flex:none}}
 				@media not (prefers-reduced-motion){.jp-stats-widget-skeleton__bar{animation:jp-stats-widget-skeleton-pulse 1.5s ease-in-out infinite}}
 				@media (forced-colors:active){.jp-stats-widget-skeleton__bar{border:1px solid CanvasText}}
 				@keyframes jp-stats-widget-skeleton-pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -148,17 +154,10 @@ class WP_Dashboard_Odyssey_Widget {
 						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
 						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
 					</div>
-					<div class="jp-stats-widget-skeleton__row">
-						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
-						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
-					</div>
-					<div class="jp-stats-widget-skeleton__row">
-						<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
-						<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
-					</div>
 				</div>
 				<span class="jp-stats-widget-skeleton__bar is-link"></span>
 			</div>
+			<?php if ( $has_site_protection ) : ?>
 			<div class="jp-stats-widget-skeleton__card">
 				<div class="jp-stats-widget-skeleton__header">
 					<span class="jp-stats-widget-skeleton__bar is-title"></span>
@@ -174,6 +173,7 @@ class WP_Dashboard_Odyssey_Widget {
 					</div>
 				</div>
 			</div>
+			<?php endif; ?>
 			<div class="jp-stats-widget-skeleton__footer">
 				<span class="jp-stats-widget-skeleton__bar is-logo"></span>
 				<span class="jp-stats-widget-skeleton__bar is-footer-link"></span>
