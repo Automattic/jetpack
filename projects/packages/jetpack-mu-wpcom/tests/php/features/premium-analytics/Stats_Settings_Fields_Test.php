@@ -18,7 +18,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/stats-s
 class Stats_Settings_Fields_Test extends \WorDBless\BaseTestCase {
 
 	public function test_simple_keeps_the_admin_bar_and_reader_settings_on_the_package_filter() {
-		$fields = apply_filters( Stats_Settings::FIELDS_FILTER, array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled' ) );
+		$fields = apply_filters( Stats_Settings::FIELDS_FILTER, array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled', 'consent' ) );
 
 		$this->assertSame( array( 'admin_bar', 'wpcom_reader_views_enabled' ), $fields );
 	}

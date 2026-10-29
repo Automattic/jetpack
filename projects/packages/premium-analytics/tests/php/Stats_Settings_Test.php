@@ -318,7 +318,7 @@ class Stats_Settings_Test extends BaseTestCase {
 		$this->assertSame( array( 'administrator', 'editor' ), get_option( Stats_Options::OPTION_NAME )['roles'] );
 	}
 
-	public function test_script_data_lists_the_fields_the_host_keeps_without_roles() {
+	public function test_script_data_lists_the_fields_the_host_keeps_without_roles_or_consent() {
 		$this->log_in_as( 'administrator' );
 		$this->keep_fields( array( 'admin_bar', self::READER_VIEWS_OPTION ) );
 
@@ -326,6 +326,7 @@ class Stats_Settings_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'admin_bar', self::READER_VIEWS_OPTION ), $context['fields'] );
 		$this->assertSame( array(), $context['roles'] );
+		$this->assertArrayNotHasKey( 'consent', $context );
 	}
 
 	public function test_script_data_carries_nothing_when_the_host_keeps_no_field() {
