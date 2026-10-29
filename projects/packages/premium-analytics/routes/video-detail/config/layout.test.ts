@@ -1,4 +1,3 @@
-import { PA_COLUMN_COUNT } from '../../grid';
 import { VIDEO_DETAIL_LAYOUT } from './layout';
 
 describe( 'video detail layout', () => {
@@ -16,23 +15,23 @@ describe( 'video detail layout', () => {
 
 	// The composition is fixed (WOOA7S-1625): assert the exact arrangement so an
 	// accidental reshuffle surfaces here, not in the rendered dashboard.
-	it( 'composes the player, then the performance chart, then the embeds list', () => {
+	it( 'composes the performance chart, then the player beside the embeds list', () => {
 		expect( VIDEO_DETAIL_LAYOUT ).toEqual( [
-			{
-				uuid: 'videopress-video-player',
-				type: 'videopress/video-player',
-				placement: { width: PA_COLUMN_COUNT, height: 3, order: 1 },
-			},
 			{
 				uuid: 'video-detail-views-performance',
 				type: 'jpa/video-detail-views-performance',
 				attributes: { chartType: 'bar' },
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: 'full', height: 2, order: 10 },
+			},
+			{
+				uuid: 'videopress-video-player',
+				type: 'videopress/video-player',
+				placement: { width: 1, height: 3, order: 20 },
 			},
 			{
 				uuid: 'video-detail-embeds',
 				type: 'jpa/video-detail-embeds',
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 3 },
+				placement: { width: 'fill', height: 2, order: 30 },
 			},
 		] );
 	} );
