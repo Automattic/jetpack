@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Premium Analytics: Draw negative leaderboard values below zero, and scale overlay-label leaderboards to the current period when comparing.
+Premium Analytics: Draw negative values below zero in ranked lists, show the right direction of change when the previous value was negative, and size list bars to the current period when comparing.

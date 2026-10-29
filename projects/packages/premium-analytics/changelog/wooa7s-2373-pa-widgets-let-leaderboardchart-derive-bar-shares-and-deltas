@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Widgets: Let leaderboard charts size their bars and compute percentage changes from the values, so negative values draw below zero and overlay-label leaderboards scale to the current period.
+Widgets: Let leaderboard charts size their bars and compute percentage changes from the values, so negative values draw below zero, a negative previous value gives the right direction of change, and list bars scale to the current period when comparing.
