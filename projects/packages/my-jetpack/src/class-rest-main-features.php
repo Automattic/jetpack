@@ -389,7 +389,7 @@ class REST_Main_Features {
 	/**
 	 * Keep Jetpack active, and keep the serving plugin when no remaining copy can serve this page.
 	 *
-	 * @since $$next-version$$ Added the $excluded_folders parameter.
+	 * @since 6.14.0 Added the $excluded_folders parameter.
 	 * @param string   $slug             WordPress.org plugin slug.
 	 * @param string   $action           One of install, activate or deactivate.
 	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.

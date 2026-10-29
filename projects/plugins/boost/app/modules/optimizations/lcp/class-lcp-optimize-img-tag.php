@@ -94,8 +94,8 @@ class LCP_Optimize_Img_Tag {
 			$original_src = (string) $image_url;
 			$image_url    = Image_CDN::strip_image_dimensions_maybe( $original_src );
 
-			// Its -WxH suffix names a WordPress size only if stripping found the original.
-			if ( $image_url !== $original_src ) {
+			// Its -WxH suffix names a WordPress size if stripping found the original, or the attachment lists it.
+			if ( $image_url !== $original_src || $this->is_attachment_size( $buffer_processor, $original_src ) ) {
 				$resized_src = $original_src;
 			}
 		} else {
@@ -129,11 +129,48 @@ class LCP_Optimize_Img_Tag {
 	}
 
 	/**
+	 * Whether the image's attachment lists the src's file as one of its sizes, as when the
+	 * original is offloaded or deleted and there is no file on disk to confirm it.
+	 *
+	 * @param WP_HTML_Tag_Processor $element The image tag.
+	 * @param string                $src     The image src.
+	 * @return bool
+	 */
+	private function is_attachment_size( $element, $src ) {
+		list( $width ) = Image_CDN::parse_dimensions_from_filename( $src );
+		if ( ! $width ) {
+			return false;
+		}
+
+		$attachment_id = 0;
+		foreach ( $element->class_list() ?? array() as $class_name ) {
+			if ( preg_match( '/^wp-image-([1-9][0-9]*)$/', $class_name, $matches ) ) {
+				$attachment_id = (int) $matches[1];
+				break;
+			}
+		}
+
+		$meta = $attachment_id ? wp_get_attachment_metadata( $attachment_id ) : false;
+		if ( ! is_array( $meta ) || empty( $meta['sizes'] ) || ! is_array( $meta['sizes'] ) ) {
+			return false;
+		}
+
+		$file = rawurldecode( wp_basename( (string) wp_parse_url( $src, PHP_URL_PATH ) ) );
+		foreach ( $meta['sizes'] as $size ) {
+			if ( is_array( $size ) && isset( $size['file'] ) && $size['file'] === $file ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Optimize an image tag by adding srcset and sizes attributes.
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
-	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
 	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
@@ -210,7 +247,7 @@ class LCP_Optimize_Img_Tag {
 	 * Get the aspect ratio of the file the page asked for.
 	 *
 	 * @param WP_HTML_Tag_Processor $element     The image tag.
-	 * @param string                $resized_src The WordPress-resized src swapped for the original, if any.
+	 * @param string                $resized_src The src, if its -WxH suffix names a WordPress size.
 	 * @return float|null Width divided by height, or null if neither source gives both.
 	 */
 	private function get_aspect_ratio( $element, $resized_src ) {
