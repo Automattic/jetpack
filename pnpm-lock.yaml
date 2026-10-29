@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-e6k2TnVmSmmDZRqs4k8CPvLC+/2KOaeqgnh3BGnPmWE=
+pnpmfileChecksum: sha256-PeB8E/xGsDL6pOp8Umz9l5qxr5S4h/rMjj0EiXFtKbI=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -11553,7 +11553,7 @@ packages:
     engines: {node: '>=20.10.0'}
     hasBin: true
     peerDependencies:
-      '@wordpress/theme': '>=0.8.0 <3.0.0'
+      '@wordpress/theme': '>=0.8.0 <=3.0.0'
     peerDependenciesMeta:
       '@wordpress/theme':
         optional: true
