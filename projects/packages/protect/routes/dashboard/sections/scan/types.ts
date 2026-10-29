@@ -37,6 +37,8 @@ export type ScanState = {
 	error: boolean;
 	scanning?: boolean;
 	lastChecked?: string | null;
+	/** Whether the last scan started but failed, so `lastChecked` is when it tried, not when it vouched for the site. */
+	lastScanFailed?: boolean;
 	/** How far a running scan has got, as a percentage, when Scan reports it. */
 	progress?: number | null;
 	pluginsChecked?: number;

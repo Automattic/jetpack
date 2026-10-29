@@ -798,6 +798,7 @@ class Scan implements Dashboard_Section {
 			'error'          => false,
 			'scanning'       => $is_initializing || in_array( $status->status, self::SCANNING_STATUSES, true ),
 			'lastChecked'    => $status->last_checked,
+			'lastScanFailed' => ! empty( $status->last_scan_failed ),
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),

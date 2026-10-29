@@ -170,21 +170,25 @@ function UnknownThreats( {
 /**
  * The Scan tab's safe state, shown above the report once none of its threats need attention.
  *
- * @param props            - Component props.
- * @param props.siteIsSafe - Whether Scan finds no other threats on the site either.
- * @param props.hasPlan    - Whether the site has Scan, without which the free check can't call it safe.
- * @param props.openTab    - Switches dashboard tabs, for the link to the Overview.
+ * @param props                - Component props.
+ * @param props.noOtherThreats - Whether Scan finds no other threats on the site either.
+ * @param props.lastScanFailed - Whether the last scan failed, so Scan can't vouch for the rest of the site.
+ * @param props.hasPlan        - Whether the site has Scan, without which the free check can't call it safe.
+ * @param props.openTab        - Switches dashboard tabs, for the link to the Overview.
  * @return The section.
  */
 function ReportSafeState( {
-	siteIsSafe,
+	noOtherThreats,
+	lastScanFailed,
 	hasPlan,
 	openTab,
 }: {
-	siteIsSafe: boolean;
+	noOtherThreats: boolean;
+	lastScanFailed: boolean;
 	hasPlan: boolean;
 	openTab: ( tab: string ) => void;
 } ) {
+	const siteIsSafe = noOtherThreats && ! lastScanFailed;
 	let title: string = __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
 	if ( siteIsSafe ) {
 		title = hasPlan
@@ -201,12 +205,23 @@ function ReportSafeState( {
 						{ title }
 					</Text>
 					<Text variant="body-lg" className="jp-protect-safe__details">
-						{ siteIsSafe ? (
+						{ siteIsSafe &&
 							__(
 								'None of the threats from your alert need your attention.',
 								'jetpack-protect-pkg'
-							)
-						) : (
+							) }
+						{ ! siteIsSafe && noOtherThreats && (
+							<>
+								{ __(
+									'Your last scan didn’t complete, so we can’t confirm the rest of your site is free of threats.',
+									'jetpack-protect-pkg'
+								) }{ ' ' }
+								<TabLink tab="overview" onOpen={ openTab }>
+									{ __( 'Scan again from the Overview.', 'jetpack-protect-pkg' ) }
+								</TabLink>
+							</>
+						) }
+						{ ! noOtherThreats && (
 							<>
 								{ __( 'Other threats on your site still need attention.', 'jetpack-protect-pkg' ) }{ ' ' }
 								<TabLink tab="overview" onOpen={ openTab }>
@@ -317,7 +332,12 @@ export default function ThreatReport( {
 	return (
 		<div className="jp-protect-dashboard__cards">
 			{ isClear && (
-				<ReportSafeState siteIsSafe={ ! active.length } hasPlan={ hasPlan } openTab={ openTab } />
+				<ReportSafeState
+					noOtherThreats={ ! active.length }
+					lastScanFailed={ Boolean( scan?.lastScanFailed ) }
+					hasPlan={ hasPlan }
+					openTab={ openTab }
+				/>
 			) }
 			{ pending.length > 0 && ! failed && (
 				<Notice.Root intent="info">

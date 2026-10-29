@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Flag a most recent scan that failed instead of treating it like a clean scan.
