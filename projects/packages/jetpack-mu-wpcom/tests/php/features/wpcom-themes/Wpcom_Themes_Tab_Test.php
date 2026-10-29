@@ -165,6 +165,16 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Make the site a Simple one.
+	 *
+	 * @return void
+	 */
+	private function pretend_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Cache::clear();
+	}
+
+	/**
 	 * Answers every request the same way, recording the URL.
 	 *
 	 * @param int    $code HTTP status code.
@@ -496,12 +506,35 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab is Atomic only, so the flag alone does not turn it on elsewhere.
+	 * The flag turns the tab on only where WordPress.com hosts the site.
+	 *
+	 * @param string $host    `self-hosted`, `atomic` or `simple`.
+	 * @param bool   $enabled Whether the tab should show.
+	 * @dataProvider provide_hosts
 	 */
-	public function test_flag_alone_does_not_enable_the_tab_off_atomic() {
+	#[DataProvider( 'provide_hosts' )]
+	public function test_the_flag_enables_the_tab_on_wpcom_hosts_only( string $host, bool $enabled ) {
+		if ( 'atomic' === $host ) {
+			$this->pretend_atomic();
+		} elseif ( 'simple' === $host ) {
+			$this->pretend_simple();
+		}
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
-		$this->assertFalse( wpcom_themes_tab_enabled() );
+		$this->assertSame( $enabled, wpcom_themes_tab_enabled() );
+	}
+
+	/**
+	 * Hosts, and whether the flag shows the tab on each.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_hosts(): array {
+		return array(
+			'self-hosted' => array( 'self-hosted', false ),
+			'Atomic'      => array( 'atomic', true ),
+			'Simple'      => array( 'simple', true ),
+		);
 	}
 
 	/**
@@ -949,6 +982,99 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			'a term too short'     => array( array( 'search' => 'po' ), true ),
 			'a browse tab'         => array( array( 'browse' => 'popular' ), true ),
 			'the tab switched off' => array( array( 'search' => 'portfolio' ), false ),
+		);
+	}
+
+	/**
+	 * Answers the catalog with a free and a partner theme.
+	 *
+	 * @return object A core tab's result: WordPress.org's copies of both, then a theme only it lists.
+	 */
+	private function answer_with_twins() {
+		$this->answer_with_themes(
+			array(
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'twentytwentyfive',
+						'name'       => 'Twenty Twenty-Five',
+						'theme_tier' => array( 'slug' => 'free' ),
+					)
+				),
+				array_merge(
+					self::THEME,
+					array(
+						'id'         => 'restaurant-block',
+						'theme_tier' => array( 'slug' => 'partner' ),
+					)
+				),
+			)
+		);
+
+		return (object) array(
+			'info'   => array( 'results' => 3 ),
+			'themes' => array(
+				(object) array( 'slug' => 'twentytwentyfive' ),
+				(object) array( 'slug' => 'restaurant-block' ),
+				(object) array( 'slug' => 'from-wporg' ),
+			),
+		);
+	}
+
+	/**
+	 * On Simple, our copy of a shared theme takes the WordPress.org card's place, but not a partner theme's.
+	 */
+	public function test_simple_shows_our_copy_of_a_shared_theme() {
+		$this->pretend_simple();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$from_wporg = $this->answer_with_twins();
+		$others     = array_slice( $from_wporg->themes, 1 );
+
+		$result = wpcom_themes_tab_prefer_wpcom_copies( $from_wporg, 'query_themes' );
+
+		$ours = $result->themes[0];
+		$this->assertTrue( $ours->is_wpcom_theme );
+		$this->assertSame( 'twentytwentyfive', $ours->slug );
+		$this->assertSame( 'Included with plan', $ours->plan_badge );
+		$this->assertFalse( $ours->wpcom_marketplace_tab );
+		$this->assertSame( $others, array_slice( $result->themes, 1 ) );
+		$this->assertSame( 3, $result->info['results'] );
+	}
+
+	/**
+	 * Elsewhere WordPress.org's copy stays, as it does on Atomic.
+	 *
+	 * @param string $host        `atomic` or `simple`.
+	 * @param bool   $tab_enabled Whether the Marketplace tab is on.
+	 * @dataProvider provide_copies_left_alone
+	 */
+	#[DataProvider( 'provide_copies_left_alone' )]
+	public function test_wporg_copies_stay_elsewhere( string $host, bool $tab_enabled ) {
+		if ( 'atomic' === $host ) {
+			$this->pretend_atomic();
+		} else {
+			$this->pretend_simple();
+		}
+		if ( $tab_enabled ) {
+			add_filter( self::FLAG_FILTER, '__return_true' );
+		}
+		$from_wporg = $this->answer_with_twins();
+		$themes     = $from_wporg->themes;
+
+		$result = wpcom_themes_tab_prefer_wpcom_copies( $from_wporg, 'query_themes' );
+
+		$this->assertSame( $themes, $result->themes );
+	}
+
+	/**
+	 * Where WordPress.org's copy is left in place.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_copies_left_alone(): array {
+		return array(
+			'Atomic'                  => array( 'atomic', true ),
+			'Simple with the tab off' => array( 'simple', false ),
 		);
 	}
 }
