@@ -682,15 +682,16 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param bool        $simple  Whether this is a Simple site.
 	 * @param string|null $address Which Settings address the Jetpack plugin registers.
+	 * @param bool        $atomic Whether to define the Atomic hosting constants.
 	 */
 	#[DataProvider( 'provide_seo_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_orders_seo_across_environments( $simple, $address ) {
+	public function test_jetpack_submenu_orders_seo_across_environments( $simple, $address, $atomic = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
-		} else {
+		} elseif ( $atomic ) {
 			define( 'ATOMIC_SITE_ID', 1 );
 			define( 'ATOMIC_CLIENT_ID', 2 );
 			define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
@@ -728,9 +729,10 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_seo_menu_environments() {
 		return array(
-			'Atomic legacy Settings' => array( false, 'legacy' ),
-			'Atomic Settings'        => array( false, 'own' ),
-			'Simple'                 => array( true, null ),
+			'Atomic legacy Settings'             => array( false, 'legacy' ),
+			'Atomic Settings'                    => array( false, 'own' ),
+			'Simple'                             => array( true, null ),
+			'Other host with WordPress.com menu' => array( false, 'own', false ),
 		);
 	}
 }
