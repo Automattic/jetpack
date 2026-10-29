@@ -10,7 +10,7 @@ export interface AiCrawler {
 	slug: string;
 	/** Human-readable name shown in the UI. */
 	label: string;
-	/** User-agent tokens written to robots.txt `User-agent:` lines, current one first. */
+	/** Every robots.txt `User-agent:` token the operator uses for this crawler. */
 	userAgents: string[];
 	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';

@@ -418,7 +418,9 @@ class AiCrawlersTest extends TestCase {
 		$forced = Ai_Crawlers::get_data_sharing_blocked_slugs();
 		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
 			$expected = in_array( $slug, $forced, true ) ? 1 : 0;
-			$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $info['user_agents'][0] . "\n" ), $slug );
+			foreach ( $info['user_agents'] as $user_agent ) {
+				$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $user_agent . "\n" ), $user_agent );
+			}
 		}
 	}
 
