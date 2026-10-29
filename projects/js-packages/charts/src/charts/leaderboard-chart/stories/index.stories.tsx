@@ -595,23 +595,6 @@ export const NegativeValues: Story = {
 	},
 };
 
-export const ClampedNegativeValues: Story = {
-	args: {
-		...NegativeValues.args,
-		withOverlayLabel: true,
-		negativeBars: 'clamp',
-	},
-	render: args => <LeaderboardChartWithOverlayLabel { ...args } />,
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'With `negativeBars="clamp"`, a negative value draws as an empty bar and the other bars are sized against the largest positive value.',
-			},
-		},
-	},
-};
-
 export const CurrencyFormatting: Story = {
 	args: {
 		data: sampleData,
@@ -729,7 +712,23 @@ const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 
 export const OverlayLabelWithImage: Story = {
 	args: {
-		data: dataWithImageColor.map( entry => ( {
+		data: [
+			...dataWithImageColor,
+			{
+				id: 'affiliate',
+				label: 'Affiliate',
+				currentValue: 2100,
+				previousValue: -400,
+				imageColor: '#00A32A',
+			},
+			{
+				id: 'email',
+				label: 'Email',
+				currentValue: -1200,
+				previousValue: 800,
+				imageColor: '#D63638',
+			},
+		].map( entry => ( {
 			...entry,
 			label: (
 				<CustomLabelComponent
@@ -741,6 +740,7 @@ export const OverlayLabelWithImage: Story = {
 		} ) ),
 		withComparison: true,
 		withOverlayLabel: true,
+		negativeBars: 'clamp',
 		loading: false,
 		style: {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',
