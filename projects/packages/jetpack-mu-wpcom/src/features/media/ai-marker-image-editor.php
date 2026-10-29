@@ -6,13 +6,18 @@
  */
 
 /**
- * Returns the exiftool path, or '' when the host has none.
+ * Returns the path of exiftool or c2patool, or '' when the host has none.
  *
+ * @param string $tool 'exiftool' or 'c2patool'.
  * @return string
  */
-function jetpack_wpcom_exiftool_path() {
+function jetpack_wpcom_ai_marker_tool_path( $tool ) {
+	$candidates = 'c2patool' === $tool
+		? array( defined( 'C2PATOOL' ) ? C2PATOOL : '/usr/local/bin/c2patool' )
+		: array( '/usr/local/bin/exiftool', '/usr/bin/exiftool' );
+
 	$path = '';
-	foreach ( array( '/usr/local/bin/exiftool', '/usr/bin/exiftool' ) as $candidate ) {
+	foreach ( $candidates as $candidate ) {
 		if ( is_executable( $candidate ) ) {
 			$path = $candidate;
 			break;
@@ -20,34 +25,14 @@ function jetpack_wpcom_exiftool_path() {
 	}
 
 	/**
-	 * Filters the exiftool path. Return '' to skip the AI marker.
+	 * Filters the path of exiftool or c2patool. Return '' to skip that tool.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $path The exiftool path, or '' when the host has none.
+	 * @param string $path The tool's path, or '' when the host has none.
+	 * @param string $tool 'exiftool' or 'c2patool'.
 	 */
-	return apply_filters( 'jetpack_wpcom_exiftool_path', $path );
-}
-
-/**
- * Returns the c2patool path, or '' when the host has none.
- *
- * @return string
- */
-function jetpack_wpcom_c2patool_path() {
-	$path = defined( 'C2PATOOL' ) ? C2PATOOL : '/usr/local/bin/c2patool';
-	if ( ! is_executable( $path ) ) {
-		$path = '';
-	}
-
-	/**
-	 * Filters the c2patool path. Return '' to skip the C2PA read.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $path The c2patool path, or '' when the host has none.
-	 */
-	return apply_filters( 'jetpack_wpcom_c2patool_path', $path );
+	return apply_filters( 'jetpack_wpcom_ai_marker_tool_path', $path, $tool );
 }
 
 /**
@@ -62,9 +47,6 @@ function jetpack_wpcom_ai_marker_image_editors( $editors ) {
 		return $editors;
 	}
 
-	// Other callers may apply this filter before core loads its editor classes.
-	require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
-	require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
 	require_once __DIR__ . '/class-jetpack-wpcom-image-editor-gd.php';
 	$editors[ $index ] = 'Jetpack_WPCOM_Image_Editor_GD';
 

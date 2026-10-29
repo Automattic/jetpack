@@ -5,9 +5,12 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+// This file can load before core's editor classes.
+require_once ABSPATH . WPINC . '/class-wp-image-editor.php';
+require_once ABSPATH . WPINC . '/class-wp-image-editor-gd.php';
+
 /**
- * GD drops all metadata on save. Like Photon, this keeps one field: the XMP
- * DigitalSourceType, which marks AI-generated images.
+ * GD drops all metadata on save. This keeps the XMP DigitalSourceType, whatever its value.
  */
 class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 
@@ -27,14 +30,12 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	 * @return bool
 	 */
 	protected function make_image( $filename, $callback, $arguments ) {
-		// Read before this save can overwrite the source.
 		if ( null === $this->digital_source_type ) {
 			$this->digital_source_type = self::read_digital_source_type( $this->file );
 		}
 
 		$result = parent::make_image( $filename, $callback, $arguments );
 
-		// Before image_make_intermediate_size, so filters on it see the final bytes.
 		if ( $result && '' !== $this->digital_source_type && ! wp_is_stream( $filename ) ) {
 			self::write_digital_source_type( $filename, $this->digital_source_type );
 		}
@@ -43,19 +44,30 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	}
 
 	/**
-	 * Reads the DigitalSourceType from XMP, then from C2PA.
+	 * Reads the DigitalSourceType from a path or a URL.
 	 *
 	 * @param string $file Path or URL of the source image.
 	 * @return string The type, or '' when the file has none.
 	 */
 	private static function read_digital_source_type( $file ) {
-		if ( preg_match( '|^https?://|', $file ) ) {
-			return self::read_digital_source_type_from_url( $file );
+		return preg_match( '|^https?://|', $file )
+			? self::read_digital_source_type_from_url( $file )
+			: self::read_local_digital_source_type( $file );
+	}
+
+	/**
+	 * Reads the DigitalSourceType from XMP, then from C2PA when the file has a manifest.
+	 *
+	 * @param string $file Path of the source image.
+	 * @return string The type, or '' when the file has none.
+	 */
+	private static function read_local_digital_source_type( $file ) {
+		$tags = self::read_tags( $file );
+		if ( '' !== $tags['type'] || ! $tags['has_c2pa'] ) {
+			return $tags['type'];
 		}
 
-		$digital_source_type = self::read_xmp_digital_source_type( $file );
-
-		return '' === $digital_source_type ? self::read_c2pa_digital_source_type( $file ) : $digital_source_type;
+		return self::read_c2pa_digital_source_type( $file );
 	}
 
 	/**
@@ -74,49 +86,48 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 			return '';
 		}
 
-		$digital_source_type = self::read_digital_source_type( $temp );
-		// A plain unlink(): wp_delete_file() hooks are for uploads, and this is a temp file.
+		$digital_source_type = self::read_local_digital_source_type( $temp );
+		// wp_delete_file() hooks are for uploads, not temp files.
 		unlink( $temp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 
 		return $digital_source_type;
 	}
 
 	/**
-	 * Reads the XMP DigitalSourceType with exiftool.
+	 * Reads the XMP DigitalSourceType, and whether the file has a C2PA (JUMBF) box.
 	 *
-	 * @param string $file Path of the source image.
-	 * @return string The type, or '' when the file has none or exiftool is missing.
+	 * @param string $file Path of the image.
+	 * @return array{type: string, has_c2pa: bool} '' and false when exiftool is missing or fails.
 	 */
-	private static function read_xmp_digital_source_type( $file ) {
-		$exiftool = jetpack_wpcom_exiftool_path();
-		if ( ! $exiftool ) {
-			return '';
+	private static function read_tags( $file ) {
+		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
+		$output   = '';
+		if ( $exiftool ) {
+			$output = (string) self::run_tool( array( $exiftool, '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
 		}
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
-		exec( escapeshellarg( $exiftool ) . ' -m -s3 -XMP-iptcExt:DigitalSourceType ' . escapeshellarg( $file ) . ' 2>/dev/null', $output, $status );
+		$has_type = preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match );
 
-		return 0 === $status ? trim( implode( '', $output ) ) : '';
+		return array(
+			'type'     => $has_type ? trim( $match[1] ) : '',
+			'has_c2pa' => str_contains( $output, 'JUMDLabel: ' ),
+		);
 	}
 
 	/**
-	 * Some models mark their output only in C2PA. Reads the active manifest first,
-	 * because c2patool lists manifests in no fixed order.
+	 * Reads the active manifest first: c2patool lists manifests in no fixed order.
 	 *
 	 * @param string $file Path of the source image.
-	 * @return string The type, or '' when the file has none or c2patool is missing.
+	 * @return string The type, or '' when there is none or c2patool fails.
 	 */
 	private static function read_c2pa_digital_source_type( $file ) {
-		$c2patool = jetpack_wpcom_c2patool_path();
-		// Without the settings, c2patool fetches remote manifest URLs found in the file.
+		$c2patool = jetpack_wpcom_ai_marker_tool_path( 'c2patool' );
 		$settings = __DIR__ . '/c2pa-settings.json';
 		if ( ! $c2patool || ! is_readable( $settings ) ) {
 			return '';
 		}
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
-		exec( escapeshellarg( $c2patool ) . ' --settings ' . escapeshellarg( $settings ) . ' ' . escapeshellarg( $file ) . ' 2>/dev/null', $output, $status );
-		$store     = 0 === $status ? json_decode( implode( "\n", $output ), true ) : null;
+		$store     = json_decode( (string) self::run_tool( array( $c2patool, '--settings', $settings, $file ) ), true );
 		$manifests = (array) ( $store['manifests'] ?? array() );
 		$active    = $store['active_manifest'] ?? '';
 		if ( isset( $manifests[ $active ] ) ) {
@@ -126,9 +137,10 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 		foreach ( $manifests as $manifest ) {
 			foreach ( (array) ( $manifest['assertions'] ?? array() ) as $assertion ) {
 				foreach ( (array) ( $assertion['data']['actions'] ?? array() ) as $action ) {
-					if ( ! empty( $action['digitalSourceType'] ) ) {
+					$digital_source_type = $action['digitalSourceType'] ?? '';
+					if ( is_string( $digital_source_type ) && '' !== $digital_source_type ) {
 						do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', 'from-c2pa' );
-						return $action['digitalSourceType'];
+						return $digital_source_type;
 					}
 				}
 			}
@@ -138,23 +150,51 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	}
 
 	/**
-	 * Writes the type with exiftool. It renames a new file over the old one, so a killed write can't truncate it.
+	 * Writes the type with exiftool.
 	 *
 	 * @param string $filename            Path of the saved image.
 	 * @param string $digital_source_type The type to write.
+	 * @return bool Whether it worked.
 	 */
 	private static function write_digital_source_type( $filename, $digital_source_type ) {
-		$exiftool = jetpack_wpcom_exiftool_path();
-		if ( ! $exiftool ) {
-			return;
+		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
+		if ( ! $exiftool || '' === $digital_source_type ) {
+			return false;
 		}
 
-		$command = escapeshellarg( $exiftool ) . ' -m -q -overwrite_original '
-			. escapeshellarg( '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type ) . ' '
-			. escapeshellarg( $filename ) . ' 2>/dev/null';
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
-		exec( $command, $output, $status );
+		$output  = self::run_tool( array( $exiftool, '-m', '-q', '-overwrite_original', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
+		$written = null !== $output;
 
-		do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', 0 === $status ? 'written' : 'write-failed' );
+		do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', $written ? 'written' : 'write-failed' );
+
+		return $written;
+	}
+
+	/**
+	 * Runs a tool under timeout(1), since PHP's time limit ignores time spent in other programs.
+	 *
+	 * @param string[] $command The program and its arguments.
+	 * @return string|null Its output, or null when it fails or times out.
+	 */
+	private static function run_tool( array $command ) {
+		/**
+		 * Filters how many seconds exiftool or c2patool may run on one file.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int|float $seconds The time limit.
+		 */
+		$seconds = (float) apply_filters( 'jetpack_wpcom_ai_marker_tool_time_limit', 10 );
+
+		$args = array_map( 'escapeshellarg', array_merge( array( 'timeout', (string) $seconds ), $command ) );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
+		exec( implode( ' ', $args ) . ' 2>/dev/null', $output, $status );
+
+		// 124: timeout(1) stopped the tool.
+		if ( 124 === $status ) {
+			do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', 'timed-out' );
+		}
+
+		return 0 === $status ? implode( "\n", $output ) : null;
 	}
 }
