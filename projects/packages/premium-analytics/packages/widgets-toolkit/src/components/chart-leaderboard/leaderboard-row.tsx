@@ -204,6 +204,8 @@ export function LeaderboardRow( {
 						{ ...titleLinkProps }
 						classNames={ {
 							internal: clsx( styles.labelLink, styles.titleLink ),
+							external: clsx( styles.labelLink, styles.titleLink ),
+							plain: styles.plainLabel,
 							text: styles.label,
 						} }
 					>
