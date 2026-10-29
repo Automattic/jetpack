@@ -19,8 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings: Show a working Canonical URLs switch on WordPress.com Simple sites that adds canonical tags to archive pages. [#53569]
 
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ### Fixed
 - Dashboard: Line up the Enable SEO tools card on the Settings, Content, and GEO tabs with the Overview tab. [#53623]
