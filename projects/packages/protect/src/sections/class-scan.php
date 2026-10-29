@@ -131,7 +131,7 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether Scan needs server credentials to auto-fix; not on WoA, where WordPress.com runs Scan without them.
+	 * Whether Scan needs server credentials to auto-fix threats; not on WoA, where WordPress.com auto-fixes without them.
 	 *
 	 * @return bool
 	 */

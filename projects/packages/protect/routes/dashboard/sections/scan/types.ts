@@ -28,7 +28,7 @@ export type ScanState = {
 	canIgnore?: boolean;
 	/** Where to set Scan's server credentials with a plan, or to buy Scan without one; empty when credentials aren't needed. */
 	url: string;
-	/** False where the host runs Scan without server credentials. Only with a plan. */
+	/** False where the host lets Scan auto-fix threats without server credentials. Only with a plan. */
 	needsCredentials?: boolean;
 	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only when they're needed. */
 	hasCredentials?: boolean | null;
