@@ -2,6 +2,8 @@
  * Internal dependencies
  */
 import { useStatsUtm } from '@jetpack-premium-analytics/data';
+import { getUtmUrlBuilderValues } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { UtmUrlBuilderValues } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
 	StatsUtmComparisonItem,
@@ -15,6 +17,7 @@ export interface UtmInsightsChildRow {
 	value: number;
 	previousValue?: number;
 	href?: string | null;
+	urlBuilder?: Partial< UtmUrlBuilderValues > | null;
 }
 
 export interface UtmInsightsRow {
@@ -61,6 +64,7 @@ function toChildRow( item: StatsUtmComparisonTopPostItem ): UtmInsightsChildRow 
 		value: item.value,
 		previousValue: item.previousValue,
 		href: item.href,
+		urlBuilder: getUtmUrlBuilderValues( item.actions ),
 	};
 }
 
