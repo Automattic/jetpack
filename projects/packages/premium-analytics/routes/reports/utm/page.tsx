@@ -14,6 +14,7 @@ import {
 	utmCsvExporters,
 	UtmUrlBuilderDialog,
 	type UtmReportRow,
+	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -28,6 +29,7 @@ import {
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
+	useBuildUrlAction,
 	useUtmReportRecords,
 } from './config';
 import type { JSX } from 'react';
@@ -80,9 +82,13 @@ function UtmReport(): JSX.Element {
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
-	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
-	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
-	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
+	const [ builderValues, setBuilderValues ] = useState< Partial< UtmUrlBuilderValues > | null >(
+		null
+	);
+	const openBlankBuilder = useCallback( () => setBuilderValues( {} ), [] );
+	const closeBuilder = useCallback( () => setBuilderValues( null ), [] );
+	const buildUrlAction = useBuildUrlAction( setBuilderValues );
+	const actions = useMemo( () => [ buildUrlAction ], [ buildUrlAction ] );
 
 	return (
 		<ReportPageShell
@@ -90,7 +96,7 @@ function UtmReport(): JSX.Element {
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
-					<Button variant="outline" size="compact" onClick={ openBuilder }>
+					<Button variant="outline" size="compact" onClick={ openBlankBuilder }>
 						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 					<ExporterCsvAction
@@ -124,6 +130,7 @@ function UtmReport(): JSX.Element {
 						isLoading={ records.isLoading }
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
+						actions={ actions }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 						collapsible
@@ -131,7 +138,9 @@ function UtmReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
+			{ builderValues && (
+				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
+			) }
 		</ReportPageShell>
 	);
 }
