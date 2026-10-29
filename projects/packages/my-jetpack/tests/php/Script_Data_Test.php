@@ -182,7 +182,6 @@ class Script_Data_Test extends BaseTestCase {
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isBlockTheme'] );
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isSharingBlockAvailable'] );
 		$this->assertIsBool( $data['myJetpack']['siteEditor']['isLikeBlockAvailable'] );
-		$this->assertSame( get_stylesheet(), $data['myJetpack']['siteEditor']['activeThemeStylesheet'] );
 	}
 
 	/**

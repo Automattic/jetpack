@@ -494,16 +494,6 @@ export function arePromotionsActive( state ) {
 }
 
 /**
- * Get the current theme's stylesheet (slug).
- *
- * @param {object} state - Global state tree.
- * @return {string} theme stylesheet, e.g. twentytwentythree.
- */
-export function currentThemeStylesheet( state ) {
-	return state.jetpack.initialState.themeData?.stylesheet;
-}
-
-/**
  * Check that theme supports a certain feature
  *
  * @param {object} state   - Global state tree.
