@@ -144,7 +144,7 @@ class Status {
 	/**
 	 * Updated the cached status and its timestamp
 	 *
-	 * @param array $status The new status to be cached.
+	 * @param object $status The new status to be cached, as decoded from the API response.
 	 * @return void
 	 */
 	public static function update_status_option( $status ) {
