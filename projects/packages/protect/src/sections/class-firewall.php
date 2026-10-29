@@ -67,6 +67,7 @@ class Firewall implements Dashboard_Section {
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
+				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
 			)
 		);
 	}

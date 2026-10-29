@@ -16,6 +16,7 @@
 // than the switch. 40px matches @wordpress/components ToggleControl's help
 // `margin-inline-start` (≈ 36px switch + gap).
 .toggleLink {
+	align-self: flex-start;
 	margin-inline-start: 40px;
 }
 
