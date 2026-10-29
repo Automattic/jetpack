@@ -13,6 +13,7 @@ use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
 use Automattic\Jetpack\Waf\Waf_Stats;
 use WP_Error;
