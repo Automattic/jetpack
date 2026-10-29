@@ -3,6 +3,7 @@
  */
 import restApi from '@automattic/jetpack-api';
 import { useDispatch } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -167,7 +168,13 @@ export default function useOwnershipTransfer( {
 					return;
 				}
 
-				const list = Array.isArray( result ) ? ( result as ConnectionOwnerCandidate[] ) : [];
+				// WordPress stores display names HTML-encoded.
+				const list = Array.isArray( result )
+					? ( result as ConnectionOwnerCandidate[] ).map( candidate => ( {
+							...candidate,
+							displayName: decodeEntities( candidate.displayName ),
+						} ) )
+					: [];
 
 				setCandidates( list );
 

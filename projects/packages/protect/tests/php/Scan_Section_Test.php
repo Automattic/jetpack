@@ -8,15 +8,26 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Protect\Sections\Scan;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_REST_Request;
 
 /**
  * @covers \Automattic\Jetpack\Protect\Sections\Scan
  */
 #[CoversClass( Scan::class )]
 class Scan_Section_Test extends BaseTestCase {
+
+	/**
+	 * The query filter flag_option_row() adds, removed after each test.
+	 *
+	 * @var callable|null
+	 */
+	private static $row_lookup;
 
 	/**
 	 * Release the scan request lock between tests.
@@ -26,8 +37,18 @@ class Scan_Section_Test extends BaseTestCase {
 		delete_transient( Scan::HISTORY_CACHE );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
+		remove_all_filters( 'jetpack_protect_threat_ignoring_enabled' );
+		remove_all_actions( 'rest_api_init' );
+		$GLOBALS['wp_rest_server'] = null;
+		delete_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		\Jetpack_Options::delete_option( 'id' );
-		delete_option( \Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME );
+		delete_option( Scan_Status::OPTION_NAME );
+		Scan_Status::$status = null;
+		if ( self::$row_lookup ) {
+			remove_filter( 'wordbless_wpdb_query_results', self::$row_lookup );
+			self::$row_lookup = null;
+		}
 		parent::tear_down();
 	}
 
@@ -82,6 +103,47 @@ class Scan_Section_Test extends BaseTestCase {
 		wp_set_current_user( $user_id );
 
 		$this->assertFalse( Scan::can_act_on_threats() );
+	}
+
+	/**
+	 * Test that a host turning ignoring off hides Ignore and refuses the ignore route, but leaves unignoring alone.
+	 *
+	 * @param string $action        `ignore` or `unignore`.
+	 * @param string $expected_code The error the route answers with.
+	 * @dataProvider provide_ignore_routes
+	 */
+	#[DataProvider( 'provide_ignore_routes' )]
+	public function test_hosts_can_turn_off_ignoring_but_not_unignoring( $action, $expected_code ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_protect_threat_ignoring_enabled', '__return_false' );
+		add_action( 'rest_api_init', array( new Scan(), 'register_routes' ) );
+
+		$response = rest_do_request( new \WP_REST_Request( 'POST', "/jetpack/v4/protect-dashboard/scan/threats/1/$action" ) );
+
+		$this->assertFalse( ( new Scan() )->get_state()['canIgnore'] );
+		$this->assertSame( $expected_code, $response->as_error()->get_error_code() );
+	}
+
+	/**
+	 * The ignore routes, and what each answers with while ignoring is off and WordPress.com is unreachable.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_ignore_routes() {
+		return array(
+			'ignore'   => array( 'ignore', 'threat_ignoring_disabled' ),
+			'unignore' => array( 'unignore', 'threat_not_unignored' ),
+		);
 	}
 
 	/**
@@ -389,5 +451,157 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, self::call( 'has_credentials' ) );
+	}
+
+	/**
+	 * Threats whose row the dashboard must not read, by threat id and table.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_find_threat_row_refuses() {
+		global $wpdb;
+		return array(
+			'an id Scan did not report' => array( '2', $wpdb->options ),
+			'a table outside the site'  => array( '1', 'information_schema.tables' ),
+			'the shared users table'    => array( '1', $wpdb->users ),
+		);
+	}
+
+	/**
+	 * Test that only the rows of current threats, in the site's own tables, can be reached.
+	 *
+	 * @dataProvider provider_find_threat_row_refuses
+	 * @param string $id    The requested threat id.
+	 * @param string $table The table the reported threat names.
+	 */
+	#[DataProvider( 'provider_find_threat_row_refuses' )]
+	public function test_find_threat_row_refuses( $id, $table ) {
+		Scan_Status::$status = new Status_Model(
+			array(
+				'threats' => array(
+					new Threat_Model(
+						array(
+							'id'      => '1',
+							'details' => (object) array(
+								'table'     => $table,
+								'pk_column' => 'option_id',
+								'pk_value'  => '315',
+							),
+						)
+					),
+				),
+			)
+		);
+
+		$found = self::call( 'find_threat_row', $id );
+
+		$this->assertInstanceOf( \WP_Error::class, $found );
+		$this->assertSame( 'threat_row_not_found', $found->get_error_code() );
+	}
+
+	/**
+	 * Rows a threat was found in, and the option name the dashboard may delete.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_get_deletable_option() {
+		global $wpdb;
+		$row = static function ( $name ) {
+			return array( 'option_name' => $name );
+		};
+		return array(
+			'a flagged option'                    => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_ak', '_wpc_ak' ),
+			'an option the site needs'            => array( $wpdb->options, 'option_id', $row( 'active_plugins' ), null, null ),
+			'a row in another table'              => array( $wpdb->posts, 'ID', $row( '_wpc_ak' ), null, null ),
+			'a name delete_option() would trim'   => array( $wpdb->options, 'option_id', $row( ' _wpc_ak' ), null, null ),
+			'a key that now holds another option' => array( $wpdb->options, 'option_id', $row( '_wpc_ak' ), '_wpc_uid', null ),
+		);
+	}
+
+	/**
+	 * Test that only ordinary options can be deleted from the dashboard.
+	 *
+	 * @dataProvider provider_get_deletable_option
+	 * @param string      $table     The row's table.
+	 * @param string      $pk_column The table's key column.
+	 * @param array       $row       The row.
+	 * @param string|null $flagged   The option name Scan reported, if any.
+	 * @param string|null $expected  The deletable option's name.
+	 */
+	#[DataProvider( 'provider_get_deletable_option' )]
+	public function test_get_deletable_option( $table, $pk_column, $row, $flagged, $expected ) {
+		$found = array(
+			'threat'    => new Threat_Model( array( 'details' => (object) array( 'details' => (object) array( 'option_name' => $flagged ) ) ) ),
+			'table'     => $table,
+			'pk_column' => $pk_column,
+			'row'       => $row,
+		);
+
+		$this->assertSame( $expected, self::call( 'get_deletable_option', $found ) );
+	}
+
+	/**
+	 * Report a threat in option row 315, `_wpc_ak`, and answer its lookup the way MySQL would, as WorDBless has no tables.
+	 *
+	 * @param string $value The option's value.
+	 * @return WP_REST_Request A request naming the threat.
+	 */
+	private static function flag_option_row( $value ) {
+		global $wpdb;
+		Scan_Status::$status = new Status_Model(
+			array(
+				'threats' => array(
+					new Threat_Model(
+						array(
+							'id'      => '7',
+							'details' => (object) array(
+								'table'     => $wpdb->options,
+								'pk_column' => 'option_id',
+								'pk_value'  => '315',
+								'details'   => (object) array( 'option_name' => '_wpc_ak' ),
+							),
+						)
+					),
+				),
+			)
+		);
+		self::$row_lookup    = function ( $results, $query ) use ( $value ) {
+				$row = array(
+					'option_id'    => '315',
+					'option_name'  => '_wpc_ak',
+					'option_value' => $value,
+				);
+				return false !== strpos( $query, '`option_id` = \'315\'' ) ? array( (object) $row ) : $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', self::$row_lookup, 10, 2 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/7/row' );
+		$request->set_url_params( array( 'id' => '7' ) );
+		return $request;
+	}
+
+	/**
+	 * Test that a long value is cut by characters, so a multibyte one stays valid UTF-8 for the JSON response.
+	 */
+	public function test_get_threat_row_cuts_long_values_by_characters() {
+		$response = Scan::get_threat_row( self::flag_option_row( str_repeat( 'é', Scan::ROW_VALUE_LIMIT + 1 ) ) );
+
+		$this->assertSame( str_repeat( 'é', Scan::ROW_VALUE_LIMIT ) . '…', $response['columns']->option_value );
+		$this->assertTrue( $response['canDelete'] );
+	}
+
+	/**
+	 * Test that deleting a flagged option removes it and lists its threat as fixed in History.
+	 */
+	public function test_delete_threat_row_deletes_the_option_and_marks_the_threat_fixed() {
+		add_option( '_wpc_ak', 'malicious' );
+		set_transient( Scan::HISTORY_CACHE, array(), MINUTE_IN_SECONDS );
+
+		$response = Scan::delete_threat_row( self::flag_option_row( 'malicious' ) );
+
+		$this->assertFalse( get_option( '_wpc_ak' ) );
+		$this->assertSame( 'fixed', $response['threat']['status'] );
+		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 }

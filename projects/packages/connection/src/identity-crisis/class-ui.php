@@ -124,7 +124,10 @@ class UI {
 			'isDevelopmentSite'              => $is_development_site,
 
 			/**
-			 * Use the filter to provide custom HTML elecontainer ID.
+			 * Use the filter to provide custom HTML container element ID.
+			 *
+			 * The element may be added after the page loads, within 60 seconds of it;
+			 * the screen is rendered into it once.
 			 *
 			 * @since 0.10.0
 			 *

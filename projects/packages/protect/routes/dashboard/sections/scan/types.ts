@@ -6,6 +6,13 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 	source?: string | null;
 	context?: { line: number; code: string }[];
 	vulnerabilities?: { id?: string; title?: string; source?: string }[];
+	/** The table and row a database threat was found in. */
+	database?: {
+		table: string;
+		pkColumn?: string | null;
+		pkValue?: string | number | null;
+		details?: Record< string, unknown >;
+	} | null;
 	extension?: Threat[ 'extension' ] & {
 		icon?: string | null;
 		/** Whether the installed plugin or theme is in use; `parent` is the active theme's parent. */
@@ -17,6 +24,8 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 
 export type ScanState = {
 	hasPlan: boolean;
+	/** False when the host doesn't let the site ignore threats. */
+	canIgnore?: boolean;
 	/** Where to set Scan's server credentials with a plan, or to buy Scan without one. */
 	url: string;
 	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only with a plan. */

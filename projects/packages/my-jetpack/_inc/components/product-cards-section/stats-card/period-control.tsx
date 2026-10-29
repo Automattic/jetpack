@@ -44,6 +44,7 @@ const StatsPeriodControl: FC< { period: StatsPeriod } > = ( { period } ) => {
 				{ dates }
 			</Text>
 			<PeriodSelector
+				label={ __( 'Date range', 'jetpack-my-jetpack' ) }
 				presets={ presets }
 				value={ String( days ) }
 				onChange={ onChange }

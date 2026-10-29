@@ -118,20 +118,19 @@ describe( 'Protect dashboard stage', () => {
 	} );
 
 	it.each( [
-		[ 'starts the header trail at Jetpack', true, {}, 'Protect' ],
-		[ 'keeps a plain title without My Jetpack', false, {}, 'Protect' ],
-		[ 'names the threat report in the trail', true, { threats: '5' }, 'Threats from your alert' ],
-	] )( '%s', ( _name, isAvailable, search, heading ) => {
+		[ 'titles the page Protect', {}, 'Protect' ],
+		[ 'names the threat report in the trail', { threats: '5' }, 'Threats from your alert' ],
+	] )( '%s, without a Jetpack crumb', ( _name, search, heading ) => {
 		( window as { JetpackScriptData?: object } ).JetpackScriptData = {
 			site: { admin_url: '/wp-admin/' },
-			myJetpack: { isAvailable },
+			myJetpack: { isAvailable: true },
 		};
 		window.jetpackProtectDashboard = { scan: { hasPlan: true, lastChecked } };
 		mockUseSearch.mockReturnValue( search );
 		render( <Stage /> );
 
 		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
-		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) !== null ).toBe( isAvailable );
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [

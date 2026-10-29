@@ -10,6 +10,7 @@ import { Icon, check, shield, login } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
+import { generatePath, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -20,7 +21,6 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
 import styles from './style.module.scss';
@@ -35,12 +35,15 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( {
+		slug: 'protect',
+		fallback: MyJetpackRoutes.Features,
+	} );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { detail: securityDetail } = useProduct( 'security' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
-	const navigateToUpgrade = useMyJetpackNavigate( MyJetpackRoutes.AddProtect );
+	const navigate = useNavigate();
 
 	const { data: protectData, isLoading: isLoadingProtectData } = useSimpleQuery< ProtectData >( {
 		name: QUERY_GET_PROTECT_DATA_KEY,
@@ -74,8 +77,8 @@ export default function ProtectProductPage() {
 			placement: 'product-page',
 			context: 'my-jetpack',
 		} );
-		navigateToUpgrade();
-	}, [ recordEvent, navigateToUpgrade ] );
+		navigate( generatePath( MyJetpackRoutes.AddProtect ) );
+	}, [ recordEvent, navigate ] );
 
 	const hasProtectPage = !! detail?.hasProtectPage;
 	const scanResultsUrl = detail?.scanResultsUrl || getRedirectUrl( 'my-jetpack-manage-scan' );
@@ -94,7 +97,7 @@ export default function ProtectProductPage() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

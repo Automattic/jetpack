@@ -185,36 +185,27 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			$data['post']
 		);
 
-		// OFF (default): byte-for-byte identical to the historical output.
-		if ( ! Options::get_option( 'honor_cookie_consent' ) ) {
+		// Without the WP Consent API plugin there is no consent to honor, so the output stays byte-for-byte historical.
+		if ( ! function_exists( 'wp_has_consent' ) ) {
 			return "_stq = window._stq || [];\n" . $pushes;
 		}
 
-		// Fail closed when the WP Consent API plugin is active (an unavailable client-side API
-		// means "wait", not "fire"); fail open otherwise to preserve historical tracking.
-		return self::build_consent_gate( $pushes, ! function_exists( 'wp_has_consent' ) );
+		return self::build_consent_gate( $pushes );
 	}
 
 	/**
-	 * Wrap the tracking pushes in a WP Consent API gate.
+	 * Wrap the tracking pushes in a WP Consent API gate, checked in the browser because cached HTML is shared across visitors.
 	 *
-	 * The check runs in the browser because cached HTML is shared across visitors, deferred to
-	 * DOMContentLoaded (and re-run on the `wp_consent_type_defined` readiness event) so a
-	 * late-loading consent plugin is still honored. The check is idempotent.
-	 *
-	 * `_jpStatsFire.done` is set before the pushes, not after, so the gate is at-most-once even
-	 * if a push throws. Retrying can't recover: the stats sender assigns the beacon `src` before
-	 * any of its fallible DOM work, so a later exception means the view was already counted and
-	 * a replay would double-count it.
+	 * `_jpStatsFire.done` is set before the pushes so a push that throws is never replayed: the
+	 * sender assigns the beacon `src` first, so that view was already counted.
 	 *
 	 * @access private
-	 * @param string $pushes    The `_stq.push(...)` statements to gate.
-	 * @param bool   $fail_open Whether to fire when the client-side WP Consent API is unavailable.
+	 * @param string $pushes The `_stq.push(...)` statements to gate.
 	 * @return string
 	 */
-	private static function build_consent_gate( $pushes, $fail_open ) {
-		$fail_open_literal = $fail_open ? 'true' : 'false';
-
+	private static function build_consent_gate( $pushes ) {
+		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
+		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -222,31 +213,39 @@ function _jpStatsFire() {
 	_jpStatsFire.done = true;
 	%1$s
 }
+function _jpStatsDenied() {
+	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api &&
+		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) === "deny";
+}
 function _jpStatsCheck() {
-	if ( typeof window.wp_has_consent === "function" ) {
-		var consented;
-		try {
-			consented = window.wp_has_consent( "statistics" );
-		} catch ( e ) {
-			consented = %2$s;
-		}
-		if ( consented ) { _jpStatsFire(); }
+	if ( typeof window.wp_has_consent !== "function" ) { return; }
+	if ( window.waitfor_consent_hook && typeof window.wp_consent_type === "undefined" ) { return; }
+	var consented;
+	try {
+		consented = ! _jpStatsDenied() && window.wp_has_consent( "statistics" );
+	} catch ( e ) {
+		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so Stats waits for a consent change.", e );
 		return;
 	}
-	if ( %2$s ) { _jpStatsFire(); }
+	if ( consented ) { _jpStatsFire(); }
 }
 document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 	if ( event && event.detail && event.detail.statistics === "allow" ) { _jpStatsFire(); }
 } );
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
+window.addEventListener( "load", function () {
+	if ( typeof window.wp_has_consent !== "function" ) {
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded, so Stats waits for a consent change." );
+	}
+	_jpStatsCheck();
+}, { once: true } );
 if ( document.readyState === "loading" ) {
 	document.addEventListener( "DOMContentLoaded", _jpStatsCheck, { once: true } );
 } else {
 	_jpStatsCheck();
 }',
-			$pushes,
-			$fail_open_literal
+			$pushes
 		);
 	}
 
