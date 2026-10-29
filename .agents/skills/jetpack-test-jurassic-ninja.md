@@ -148,14 +148,18 @@ Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`). A
 `ssh_command`. The a8c key is a Secure Enclave key, so AutoProxxy may ask the user to approve
 each use, and an SSH call can sit waiting on them.
 
+Every key-auth `ssh` uses `-o BatchMode=yes`: a bare `ssh` with no TTY falls through to
+password prompts and burns failed attempts toward the lockout below.
+
 **If the command succeeds (exit code 0):** set `SSH_OK=true`. **Do not fetch the site
 password** — pulling it into the transcript is an avoidable credential leak.
 
-**If it fails:** tell the user, then continue on the password fallback:
+**If it fails:** tell the user, then continue on the password fallback. If the stanza below is
+already in place and the check still fails, say so rather than repeating the setup:
 
-> SSH key authentication to `ssh.atomicsites.net` is not configured. Without this stanza, ssh
-> offers the wrong key and the server refuses it. If you are an Automattician, add it near the
-> **top** of `~/.ssh/config`, above any `Host *` block:
+> SSH key authentication to `ssh.atomicsites.net` failed. Without this stanza, ssh offers the
+> wrong key and the server refuses it. The documented setup for Automatticians is to add it
+> near the **top** of `~/.ssh/config`, above any `Host *` block:
 >
 > ```
 > Host ssh.atomicsites.net
@@ -191,7 +195,7 @@ toggling plugins — run WP-CLI over SSH.
 **If `SSH_OK=true`**, just run it directly:
 
 ```bash
-ssh {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp plugin list"
+ssh -o BatchMode=yes {domain}@ssh.atomicsites.net "cd /srv/htdocs && wp plugin list"
 ```
 
 **If `SSH_OK=false`**, drive the password prompt with `expect`, within the lockout rules in
