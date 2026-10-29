@@ -20,12 +20,7 @@
 - Premium Analytics: Show the Personal plan's monthly price in the upgrade prompt that replaces a free WordPress.com site's Insights and Traffic sections. [#54136]
 - Premium Analytics: Show the Stats plan choice on a site that is not connected yet, and connect the site from it. [#53941]
 - Protect: Refuse to save a firewall block list that includes your own IP address. [#54122]
-- Protect: Show the firewall as on for WordPress.com-hosted sites, where the host provides it. [#53954]
-- Protect: Show the table, row and values a database threat was found in on the Protect dashboard, and delete a flagged option in place. [#54073]
 - Subscriptions: Add a filter to customize the format of the subscriber count. [#53926]
-
-### Improved compatibility
-- Protect: Hide the Ignore threat action on WordPress.com sites, to match the WordPress.com dashboard. [#53984]
 
 ### Bug fixes
 - Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns an empty value such as null or false. [#53849]
@@ -51,7 +46,6 @@
 - Premium Analytics: Recognize the Stats views included in Jetpack Pro on the upgrade page. [#54108]
 - Premium Analytics: Scroll the Jetpack footer with the page, instead of keeping it pinned to the bottom of the screen. [#54206]
 - Premium Analytics: Show the values for the selected date in chart tooltips when you move through a chart with the arrow keys. [#54132]
-- Protect: Link the Scan card on the Protect page's Settings tab to your server credentials, which Auto-fix needs, instead of a page with no Scan settings. [#53985]
 - Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
 - Site Accelerator: Fix some images hosted on other sites failing to load when their file name ends in a size like -600x400. [#54204]
 - Slideshow and Story blocks: Keep every file when uploading several at once with client-side media processing enabled. Slideshow and Tiled Gallery blocks: Hide the upload button from users who cannot upload. [#54127]
@@ -89,7 +83,6 @@
 - Forms: Open the Forms dashboard faster by skipping a redirect. [#53752]
 - Jetpack AI: Use the same cards and spacing on AI Features and MCP and Connectors as the other Jetpack settings screens. [#53609]
 - Likes: Show how many more people liked a post at the end of the likes popover, which lists up to 90 people. [#54031]
-- Modules: Link Firewall, Brute force protection, Account protection, Downtime monitoring and WordPress.com login to their card on the Protect page, in place of their switches, while that page owns their settings. [#53745]
 - My Jetpack: Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
 - My Jetpack: Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
 - My Jetpack: Recognize Jetpack Pro subscriptions and licenses. [#53424]
@@ -185,7 +178,6 @@
 - Newsletter: Open the email design screen to proxied Automatticians on Atomic sites, alongside the site sticker. [#54002]
 - Newsletter: update the email editor package to 2.5.1. [#54004]
 - Reprint export: Accept public-key signed export requests and update Reprint to 0.11.2. [#53537]
-- Settings: Remove the Security tab when the Protect page is on, and send its links and searches there. [#53741]
 - Settings: Stop adding the `origin_site_id` parameter to the Reader link. [#53920]
 - Stats: Add a feature flag that retires the classic Stats page in favor of Stats v2. [#53914]
 - Stats: Load the admin bar views chart independently of the Stats page. [#53831]
@@ -242,7 +234,6 @@
 - Premium Analytics: Thank the reader for their Stats purchase when checkout returns to the dashboard. [#53642]
 - Premium Analytics: Use the dashboard's generic empty state in the WooCommerce widgets for a period with no data. [#53426]
 - Related Posts: Expose the "Show related content after posts" on/off toggle in Settings > Reading by default so users can disable the feature, including on Portfolio custom post type pages. [#53567]
-- Scan: Point the admin bar threats notice and My Jetpack at the Protect dashboard instead of Jetpack Cloud, drop the external Scan menu item, show the number of threats next to the Protect menu item, and show a red alert icon on the Protect dashboard Scan card when there are threats, when the Protect dashboard is active. The admin bar and the menu item share one threat count, which loads without delaying admin pages. [#53566]
 - Social: Tighten the spacing between wrapped legend rows in the Overview traffic chart. [#53704]
 - Stats: Show location map tooltips in Premium Analytics and Podcast stats on the same dark surface, and at the same distance from the cursor, as the other chart tooltips. [#53515]
 - VideoPress: Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date. [#53506]
@@ -365,7 +356,7 @@
 - Premium Analytics: Show the date once in chart tooltips, read each row as value then metric, and list the comparison period in a second column. [#53147]
 - Premium Analytics: Show the empty-cell color at the start of heatmap legends such as Posting activity. [#53338]
 - Premium Analytics: Use a 2px corner radius on chart bars. [#53132]
-- Protect: Add a Protect page for Scan, Firewall, Login protection and Downtime monitoring, with threat details and fixes, scan history, blocked-request stats and uptime. It's on by default for connected sites, except those that also run the Jetpack Protect plugin. [#53182]
+- Protect: Add a Protect page for Scan, Firewall, Login protection and Downtime monitoring, with threat details and fixes, scan history, blocked-request stats, uptime and their settings. It's on by default for connected sites, except those that also run the Jetpack Protect plugin, and replaces the Security tab in Jetpack > Settings. The admin bar and Jetpack menu show threat counts that link to it. [#53182]
 - SSO: When a site requires two-step authentication and your WordPress.com account doesn't have it, the login screen now names your account and links straight to two-step setup. [#52403]
 - VideoPress: Add an introductory video to the first-run welcome modal. [#53208]
 - VideoPress: Add trim and cut editing to the video block toolbar and clarify the editor tool icons. [#53100]
