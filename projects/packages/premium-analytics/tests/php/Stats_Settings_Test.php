@@ -471,15 +471,18 @@ class Stats_Settings_Test extends BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_script_data_links_to_the_stats_feature_when_my_jetpack_is_registered() {
+	public function test_script_data_links_to_my_jetpack_before_the_modules_screen() {
 		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 		$this->log_in_as( 'administrator' );
-		$without_my_jetpack = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+		$without_either = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+		add_submenu_page( '', 'Jetpack Settings', 'Settings', 'manage_options', 'jetpack_modules', '__return_null' );
+		$modules_only = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 		add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'manage_options', 'my-jetpack', '__return_null' );
 
 		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 
-		$this->assertNull( $without_my_jetpack['features_url'] );
+		$this->assertNull( $without_either['features_url'] );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules&s=stats' ), $modules_only['features_url'] );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ), $context['features_url'] );
 	}
 

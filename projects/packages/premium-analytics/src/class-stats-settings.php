@@ -343,7 +343,7 @@ final class Stats_Settings {
 		// WordPress.com turns this off on Atomic Personal and Premium plans, which hide My Jetpack and redirect it to Stats.
 		/** This filter is documented in projects/packages/my-jetpack/src/class-initializer.php */
 		$features_available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
-		// Jetpack can be active without My Jetpack's screen, for example on Atomic, where wpcomsh skips it.
+		// Jetpack can be active without My Jetpack's screen, for example in Offline Mode.
 		if ( $features_available && '' !== menu_page_url( 'my-jetpack', false ) ) {
 			return admin_url( 'admin.php?page=my-jetpack#/features?search=stats' );
 		}
