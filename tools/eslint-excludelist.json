@@ -223,7 +223,6 @@
 	"projects/packages/search/src/search-blocks/blocks/search-results/edit.jsx",
 	"projects/packages/search/src/search-blocks/editor/post-type-control.jsx",
 	"projects/packages/seo/_inc/screens/content/seo-inspector.tsx",
-	"projects/packages/seo/_inc/screens/geo/index.tsx",
 	"projects/packages/seo/_inc/screens/settings/google-verification-field.tsx",
 	"projects/packages/seo/_inc/screens/settings/index.tsx",
 	"projects/packages/seo/_inc/screens/settings/schema-card.tsx",
