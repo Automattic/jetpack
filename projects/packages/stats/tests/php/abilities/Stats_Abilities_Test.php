@@ -1198,7 +1198,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_get_visits_normalizes_series_rows(): void {
-		$this->filter_wpcom_stats(
+		$requests = $this->filter_wpcom_stats(
 			array(
 				'get_visits' => array(
 					'fields' => array( 'period', 'views', 'visitors' ),
@@ -1212,11 +1212,22 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 
 		$result = Stats_Abilities::get_visits(
 			array(
-				'unit'     => 'day',
-				'quantity' => 2,
+				'period' => 'week',
+				'num'    => 2,
 			)
 		);
 
+		$this->assertSame(
+			array(
+				'unit'        => 'week',
+				'quantity'    => 2,
+				'date'        => $result['date'],
+				'stat_fields' => 'views,visitors',
+			),
+			$requests['get_visits']
+		);
+		$this->assertSame( 'week', $result['period'] );
+		$this->assertSame( 2, $result['num'] );
 		$this->assertSame( array( 'views', 'visitors' ), $result['fields'] );
 		$this->assertCount( 2, $result['series'] );
 		$this->assertSame(
