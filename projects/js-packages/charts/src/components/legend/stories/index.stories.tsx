@@ -288,9 +288,9 @@ const ControlledItemComponent = () => {
 				interactive
 				shape="line"
 				items={ [
-					...controlledItemData.map( series => ( {
+					...controlledItemData.map( ( series, index ) => ( {
 						label: series.label,
-						color: series.options?.stroke,
+						color: CONTROLLED_ITEM_COLORS[ index ],
 					} ) ),
 					{
 						label: 'Previous period',
