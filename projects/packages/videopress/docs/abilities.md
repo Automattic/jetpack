@@ -20,6 +20,7 @@ The shared gate affects all participating Jetpack registrars. Configure its exis
 
 | Name | Permission | Result |
 | --- | --- | --- |
+| `videopress/get-site-status` | `manage_options` | Activation, connection prerequisites, VideoPress site ID, and host type. |
 | `videopress/get-settings` | `manage_options` | Effective video privacy default, automatic subtitle opt-out, preload opt-out, inline player preference, share-menu opt-out, site privacy, and host type. |
 
 The settings read accepts an empty object and rejects unknown input fields. It performs no remote request, requires no active module or connection, and returns the same values as `Data::get_videopress_settings()`. On WordPress.com Simple, default video privacy follows site privacy.
@@ -28,6 +29,8 @@ This ability is read-only and idempotent. It opts into REST with `meta.show_in_r
 
 With authenticated administrator credentials, discover the `videopress` category at `/wp-json/wp-abilities/v1/abilities?category=videopress` and execute with `GET /wp-json/wp-abilities/v1/abilities/videopress/get-settings/run`. MCP clients use the installed adapter's discovery and execution tools.
 
+The status read uses local connection state without fetching plans or remote site data. `active` follows the existing VideoPress standalone-plugin/module check. `connection_allows_actions` reports the connection prerequisite for the acting user, not permission to mutate a video or proof of plan entitlement. A registered site ID can remain present while its connection is broken. It is `null` when no positive site ID is configured.
+
 ## Incremental delivery
 
-This foundation contains one settings read. Follow-up PRs add site status and capability discovery, then video library reads. Media writes, uploads and processing, editorial operations, channel management, and analytics follow as separate feature PRs. Each new ability needs its own schema, permission and host availability checks, and behavior tests.
+The first PR adds registration and settings reads; the second adds site status diagnostics. Follow-up PRs add capability discovery, then video library reads. Media writes, uploads and processing, editorial operations, channel management, and analytics follow as separate feature PRs. Each new ability needs its own schema, permission and host availability checks, and behavior tests.
