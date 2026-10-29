@@ -6,7 +6,7 @@
  */
 
 /**
- * Keep the settings Simple's Stats honors: it ignores `stats_options['roles']` on Simple, and never counts logged-in views.
+ * Keep `admin_bar` and the Reader setting: Simple's Stats ignores `roles`, and never counts the logged-in views `count_roles` picks.
  *
  * @since $$next-version$$
  *

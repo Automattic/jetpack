@@ -128,7 +128,7 @@ export function PlanUsageCard(): JSX.Element | null {
 			</Stack>
 		);
 	} else if ( limit === null ) {
-		// No limit to meter, as on WordPress.com or a plan without one; Calypso leaves its card out too.
+		// No view limit to meter, so there is no card.
 		return null;
 	} else {
 		content = (
