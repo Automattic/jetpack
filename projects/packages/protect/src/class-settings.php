@@ -154,7 +154,8 @@ class Settings {
 					return self::error( 'module_update_failed', $key );
 				}
 			} elseif ( isset( self::SSO_OPTIONS[ $key ] ) && $modules->is_module( 'sso' ) ) {
-				update_option( $key, (bool) $value );
+				// An integer, because update_option() won't create an option whose value is `false`.
+				update_option( $key, (int) (bool) $value );
 			} elseif ( self::MONITOR_NOTIFICATIONS === $key ) {
 				if ( true !== Monitor::set_notifications( (bool) $value ) ) {
 					return self::error( 'monitor_notifications_failed', $key );
