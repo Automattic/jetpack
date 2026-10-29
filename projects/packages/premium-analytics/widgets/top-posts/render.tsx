@@ -124,8 +124,6 @@ function buildLeaderboardData(
 			action: resolveRowAction( row, detailSearch, onDrillDown ),
 		} ),
 		currentValue: row.value,
-		// Rows without a comparison-period match keep `undefined` so the chart
-		// renders a placeholder instead of a fabricated delta (see AGENTS.md).
 		previousValue: row.previousValue,
 	} ) );
 }

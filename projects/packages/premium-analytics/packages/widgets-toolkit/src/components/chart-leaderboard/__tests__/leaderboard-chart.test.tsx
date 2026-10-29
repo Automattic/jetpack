@@ -11,8 +11,8 @@ import { LeaderboardChart, type LeaderboardChartData } from '../leaderboard-char
 import type { ComponentProps } from 'react';
 
 const DATA: LeaderboardChartData = [
-	{ id: 'seo', label: 'The Ultimate Guide to SEO', currentValue: 4186, currentShare: 100 },
-	{ id: 'hello', label: 'Hello world!', currentValue: 734, currentShare: 18 },
+	{ id: 'seo', label: 'The Ultimate Guide to SEO', currentValue: 4186 },
+	{ id: 'hello', label: 'Hello world!', currentValue: 734 },
 ];
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
