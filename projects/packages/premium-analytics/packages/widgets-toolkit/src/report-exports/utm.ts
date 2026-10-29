@@ -13,6 +13,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import {
+	getUtmUrlBuilderValues,
+	type UtmUrlBuilderValues,
+} from '../components/utm-url-builder-dialog';
 import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
@@ -84,6 +88,7 @@ export type UtmReportRow = {
 	views: number;
 	previousViews?: number;
 	isGroup?: boolean;
+	urlBuilder?: Partial< UtmUrlBuilderValues >;
 };
 
 /**
@@ -115,15 +120,20 @@ export function aggregateUtmRows( items: StatsUtmComparisonItem[] ): UtmReportRo
 			previousViews: item.previousValue,
 			isGroup: true,
 		};
-		const posts = ( item.children ?? [] ).map( post => ( {
-			id: getUtmPostRowId( id, post ),
-			parentId: id,
-			label: String( post.label ?? '' ),
-			groupLabel: label,
-			postId: post.id,
-			views: post.value,
-			previousViews: post.previousValue,
-		} ) );
+		const posts = ( item.children ?? [] ).map( post => {
+			const urlBuilder = getUtmUrlBuilderValues( post.actions );
+
+			return {
+				id: getUtmPostRowId( id, post ),
+				parentId: id,
+				label: String( post.label ?? '' ),
+				groupLabel: label,
+				postId: post.id,
+				views: post.value,
+				previousViews: post.previousValue,
+				...( urlBuilder && { urlBuilder } ),
+			};
+		} );
 
 		return [ parent, ...posts ];
 	} );
