@@ -5,7 +5,7 @@ export { default as SlottedBarSeries } from './slotted-bar-series';
 export { BarLayer } from './bar-layer';
 export { SelectedBarRing, type SelectedBar } from './selected-bar-ring';
 export { SlotTooltipMembers, type SlotMember } from './slot-tooltip-members';
-export { useOverlapSlots, getSelectedSlot, isSameCategory } from './use-overlap-slots';
+export { useOverlapSlots, getSelectedSlot, isSameCategory, membersAt } from './use-overlap-slots';
 export { useBarStops } from './use-bar-stops';
 export { ComparisonBars } from './comparison-bars';
 export type { ComparisonSeriesEntry } from './comparison-bars';

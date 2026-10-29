@@ -23,7 +23,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.39.1';
+	const VERSION = '0.39.2';
 
 	/**
 	 * Singleton Main instance.
@@ -96,7 +96,21 @@ class Main {
 	 * @return bool
 	 */
 	private static function needs_own_dashboard() {
-		return ! self::is_site_connected();
+		if ( self::is_site_connected() ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether Stats registers its own dashboard while the site is not connected.
+		 *
+		 * A host that offers its own Stats page before connection returns false, so the site
+		 * does not show two Stats menus. Read when the package initializes, on `plugins_loaded`.
+		 *
+		 * @since 0.39.2
+		 *
+		 * @param bool $register Whether to register the pre-connection dashboard. Default true.
+		 */
+		return (bool) apply_filters( 'jetpack_stats_admin_pre_connection_dashboard', true );
 	}
 
 	/**

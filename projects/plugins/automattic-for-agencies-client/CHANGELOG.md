@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unneeded development and documentation files from the published plugin. [#49014]
 - Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
 - Tested up to WordPress 7.0. [#48114]
-- Updated package dependencies. [#48735] [#48064] [#48106] [#48404] [#48405] [#48683] [#49012] [#49218] [#49272] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50529] [#50751]
+- Updated package dependencies. [#48064] [#48106] [#48404] [#48405] [#48683] [#48735] [#49012] [#49218] [#49272] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50529] [#50751]
 
 ## 0.8.0 - 2026-04-11
 ### Added

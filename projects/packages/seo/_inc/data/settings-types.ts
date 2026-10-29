@@ -37,10 +37,14 @@ export interface SettingsResponse {
 		facebook: string;
 	};
 	search_engines_visible: boolean;
-	// WordPress.com records a private or coming-soon site as a negative `blog_public`.
-	// Indexing is off for such a site because it isn't published at all, which no SEO
-	// setting here can change — so the toggle is disabled rather than silently inert.
+	// A private or Coming Soon WordPress.com site. Indexing is off for such a site
+	// because it isn't published at all, which no SEO setting here can change — so
+	// the toggle is disabled rather than silently inert.
 	site_is_private: boolean;
+	// Read-only: the unpublished site is Coming Soon rather than private.
+	site_is_coming_soon: boolean;
+	// Read-only: where the site's visibility is changed.
+	site_visibility_url: string;
 	sitemap_active: boolean;
 	sitemap_switchable: boolean;
 	// Read-only: the reachable sitemap URL, or '' until it's been generated and is

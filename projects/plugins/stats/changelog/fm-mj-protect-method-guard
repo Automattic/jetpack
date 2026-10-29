@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Fix a fatal error when activating Jetpack Stats beside an older Jetpack plugin.

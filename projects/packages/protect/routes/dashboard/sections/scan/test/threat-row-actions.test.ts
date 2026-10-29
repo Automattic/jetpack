@@ -1,5 +1,6 @@
 import { act, renderHook, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { resetScan } from '../store';
 import * as threatActions from '../threat-actions';
 import { deleteSoftware, fixThreat } from '../threat-actions';
 import { useThreatRowActions } from '../threat-row-actions';
@@ -56,6 +57,23 @@ describe( 'useThreatRowActions', () => {
 		act( () => void start( item ) );
 
 		expect( eligibleIds( result.current, item ) ).toEqual( expected );
+	} );
+
+	it.each( [
+		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix' ] ],
+		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
+		[
+			'a fix left out of bulk fixes',
+			{ fixer: 'update', extras: { isBulkFixable: false } },
+			[ 'auto-fix' ],
+		],
+	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
+		const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
+		const { result } = renderHook( () => useThreatRowActions( open, true ) );
+
+		expect(
+			eligibleIds( result.current, item ).filter( id => id.startsWith( 'auto-fix' ) )
+		).toEqual( expected );
 	} );
 
 	it( 'gives a row its actions back when the fix fails', async () => {
@@ -128,4 +146,31 @@ describe( 'useThreatRowActions with bulk actions', () => {
 		expect( run ).toHaveBeenCalledWith( threats, expect.any( Function ) );
 		run.mockRestore();
 	} );
+} );
+
+describe( 'useThreatRowActions where the host decides about ignoring', () => {
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+	} );
+
+	it.each( [
+		[ 'ignore', 'current', false ],
+		[ 'unignore', 'ignored', true ],
+	] as const )(
+		'with ignoring turned off, %s on a %s threat is offered: %s',
+		( id, status, offered ) => {
+			const threat = { ...threatIn( 20 ), status };
+			const isEligible = ( canIgnore: boolean ) => {
+				window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canIgnore } };
+				resetScan();
+				return renderHook( () => useThreatRowActions( open, true ) )
+					.result.current.find( action => action.id === id )
+					?.isEligible?.( threat );
+			};
+
+			expect( isEligible( true ) ).toBe( true );
+			expect( isEligible( false ) ).toBe( offered );
+		}
+	);
 } );

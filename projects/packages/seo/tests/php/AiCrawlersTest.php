@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Jetpack SEO Ai_Crawlers store-intent model.
+ * Tests for the Jetpack SEO Ai_Crawlers robots.txt controls.
  *
  * @package automattic/jetpack-seo
  */
@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,6 +33,7 @@ class AiCrawlersTest extends TestCase {
 		parent::setUp();
 		$this->blog_public = get_option( 'blog_public', null );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -47,7 +49,9 @@ class AiCrawlersTest extends TestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
+		remove_filter( 'default_option_' . Ai_Crawlers::OPTION, array( Ai_Crawlers::class, 'migrate_legacy_overrides' ), Ai_Crawlers::MIGRATION_PRIORITY );
 		delete_option( Ai_Crawlers::OPTION );
+		delete_option( Ai_Crawlers::LEGACY_OPTION );
 		delete_option( 'wpcom_data_sharing_opt_out' );
 		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_filter(
@@ -64,183 +68,293 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
-	 * The catalog slugs whose default policy is "blocked" (the training bots).
-	 *
-	 * @return string[]
-	 */
-	private function training_slugs() {
-		$slugs = array();
-		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
-			if ( 'training' === $info['type'] ) {
-				$slugs[] = $slug;
-			}
-		}
-		return $slugs;
-	}
-
-	/**
-	 * With no overrides, every training bot is blocked and no answer bot is.
+	 * With nothing blocked by the owner, no crawler is blocked and robots.txt is left untouched.
 	 *
 	 * @return void
 	 */
-	public function test_defaults_block_all_training_crawlers() {
-		$blocked  = Ai_Crawlers::get_blocked_slugs();
-		$training = $this->training_slugs();
-
-		sort( $blocked );
-		sort( $training );
-		$this->assertSame( $training, $blocked );
-
-		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
-			if ( 'answer' === $info['type'] ) {
-				$this->assertFalse( Ai_Crawlers::is_blocked( $slug ), "$slug (answer) should be allowed by default" );
-			}
-		}
-	}
-
-	/**
-	 * A training bot absent from the override map is still blocked (new-bot
-	 * auto-coverage — the whole point of the store-intent model).
-	 *
-	 * @return void
-	 */
-	public function test_training_crawler_without_override_is_blocked() {
-		update_option( Ai_Crawlers::OPTION, array( 'gptbot' => false ) );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'claudebot' ) );
-	}
-
-	/**
-	 * Google-Extended is dual-purpose (Gemini training + grounding AI answers) but
-	 * filed under training and blocked by default, so the owner actively opts in.
-	 *
-	 * @return void
-	 */
-	public function test_google_extended_is_training_and_blocked_by_default() {
-		$catalog = Ai_Crawlers::get_catalog();
-
-		$this->assertSame( 'training', $catalog['google-extended']['type'] );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'google-extended' ) );
-		$this->assertContains( 'google-extended', Ai_Crawlers::get_blocked_slugs() );
-	}
-
-	/**
-	 * An override of `{ gptbot: false }` allows GPTBot (a training bot).
-	 *
-	 * @return void
-	 */
-	public function test_override_allows_a_training_crawler() {
-		update_option( Ai_Crawlers::OPTION, array( 'gptbot' => false ) );
-		$this->assertFalse( Ai_Crawlers::is_blocked( 'gptbot' ) );
-		$this->assertNotContains( 'gptbot', Ai_Crawlers::get_blocked_slugs() );
-	}
-
-	/**
-	 * An override of `{ perplexitybot: true }` blocks PerplexityBot (an answer bot).
-	 *
-	 * @return void
-	 */
-	public function test_override_blocks_an_answer_crawler() {
-		update_option( Ai_Crawlers::OPTION, array( 'perplexitybot' => true ) );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'perplexitybot' ) );
-		$this->assertContains( 'perplexitybot', Ai_Crawlers::get_blocked_slugs() );
-	}
-
-	/**
-	 * `get_overrides()` prunes entries equal to the default and drops unknown slugs.
-	 *
-	 * @return void
-	 */
-	public function test_get_overrides_prunes_defaults_and_unknown_slugs() {
-		update_option(
-			Ai_Crawlers::OPTION,
-			array(
-				'gptbot'         => true,  // training default is blocked → pruned.
-				'perplexitybot'  => false, // answer default is allowed → pruned.
-				'gptbot-allowed' => false, // unknown slug → dropped.
-				'not-a-real-bot' => true,  // unknown slug → dropped.
-				'ccbot'          => false, // real deviation → kept.
-				'oai-searchbot'  => true,  // real deviation → kept.
-			)
-		);
-
-		$overrides = Ai_Crawlers::get_overrides();
-		$this->assertSame(
-			array(
-				'ccbot'         => false,
-				'oai-searchbot' => true,
-			),
-			$overrides
-		);
-	}
-
-	/**
-	 * Non-array stored values resolve to an empty override map.
-	 *
-	 * @return void
-	 */
-	public function test_get_overrides_ignores_non_array_option() {
-		update_option( Ai_Crawlers::OPTION, 'nonsense' );
-		$this->assertSame( array(), Ai_Crawlers::get_overrides() );
-	}
-
-	/**
-	 * WordPress.com's existing data-sharing opt-out wins over per-bot allows.
-	 *
-	 * @return void
-	 */
-	public function test_data_sharing_opt_out_forces_legacy_blocks() {
-		update_option( 'wpcom_data_sharing_opt_out', true );
-		update_option(
-			Ai_Crawlers::OPTION,
-			array(
-				'gptbot'          => false,
-				'google-extended' => false,
-				'perplexitybot'   => false,
-			)
-		);
-
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'gptbot' ) );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'google-extended' ) );
-		$this->assertTrue( Ai_Crawlers::is_blocked( 'perplexitybot' ) );
-		$this->assertFalse( Ai_Crawlers::is_blocked( 'oai-searchbot' ) );
-		$this->assertTrue( Ai_Crawlers::get_bootstrap_data()['dataSharingOptOut'] );
-	}
-
-	/**
-	 * `append_directives` emits a `User-agent` + `Disallow: /` block for each
-	 * blocked bot and leaves the output unchanged when nothing is blocked.
-	 *
-	 * @return void
-	 */
-	public function test_append_directives_emits_blocks_for_blocked_bots() {
-		// Default: training bots blocked, answer bots allowed.
-		$output  = Ai_Crawlers::append_directives( "User-agent: *\nDisallow:", true );
-		$catalog = Ai_Crawlers::get_catalog();
-
-		$this->assertStringContainsString( '# AI crawlers blocked via Jetpack SEO.', $output );
-		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agent'], $output );
-		$this->assertStringContainsString( 'Disallow: /', $output );
-		// An allowed answer bot must not appear.
-		$this->assertStringNotContainsString( 'User-agent: ' . $catalog['perplexitybot']['user_agent'], $output );
-	}
-
-	/**
-	 * When nothing is blocked, the robots.txt output is returned untouched.
-	 *
-	 * @return void
-	 */
-	public function test_append_directives_unchanged_when_nothing_blocked() {
-		// Allow every training bot so no bot is blocked.
-		$overrides = array();
-		foreach ( $this->training_slugs() as $slug ) {
-			$overrides[ $slug ] = false;
-		}
-		update_option( Ai_Crawlers::OPTION, $overrides );
-
+	public function test_every_crawler_is_allowed_by_default() {
 		$this->assertSame( array(), Ai_Crawlers::get_blocked_slugs() );
 
 		$input = "User-agent: *\nDisallow:";
 		$this->assertSame( $input, Ai_Crawlers::append_directives( $input, true ) );
+	}
+
+	/**
+	 * Google-Extended also grounds Gemini answers, but is filed with the training crawlers.
+	 *
+	 * @return void
+	 */
+	public function test_google_extended_is_filed_under_training() {
+		$this->assertSame( 'training', Ai_Crawlers::get_catalog()['google-extended']['type'] );
+	}
+
+	/**
+	 * One crawler of each type.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function provide_crawlers_to_block() {
+		return array(
+			'training' => array( 'training', 'gptbot' ),
+			'answer'   => array( 'answer', 'perplexitybot' ),
+		);
+	}
+
+	/**
+	 * A listed crawler is blocked, in either group.
+	 *
+	 * @dataProvider provide_crawlers_to_block
+	 * @param string $type Crawler group.
+	 * @param string $slug Crawler to block.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_crawlers_to_block' )]
+	public function test_a_listed_crawler_is_blocked( $type, $slug ) {
+		update_option( Ai_Crawlers::OPTION, array( $type => array( $slug ) ) );
+		$this->assertTrue( Ai_Crawlers::is_blocked( $slug ) );
+		$this->assertSame( array( $slug ), Ai_Crawlers::get_blocked_slugs() );
+	}
+
+	/**
+	 * `'all'` blocks every crawler in its group and none in the other.
+	 *
+	 * @return void
+	 */
+	public function test_all_blocks_the_whole_group() {
+		update_option( Ai_Crawlers::OPTION, array( 'training' => 'all' ) );
+
+		$training = array_keys( wp_list_filter( Ai_Crawlers::get_catalog(), array( 'type' => 'training' ) ) );
+		$this->assertSame( $training, Ai_Crawlers::get_blocked_slugs() );
+	}
+
+	/**
+	 * Values `sanitize_blocked()` normalizes.
+	 *
+	 * @return array<string, array{mixed, array}>
+	 */
+	public static function provide_blocked_values() {
+		return array(
+			'not an array'                   => array(
+				'nonsense',
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
+			'unknown, other-group and dupes' => array(
+				array(
+					'answer'   => array( 'oai-searchbot', 'gptbot', 'not-a-bot', 'oai-searchbot' ),
+					'training' => 'some',
+					'other'    => 'all',
+				),
+				array(
+					'answer'   => array( 'oai-searchbot' ),
+					'training' => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Unknown slugs, slugs from the other group, unknown groups and bad group values are dropped.
+	 *
+	 * @dataProvider provide_blocked_values
+	 * @param mixed $value    Stored or submitted value.
+	 * @param array $expected Normalized value.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_blocked_values' )]
+	public function test_sanitize_blocked( $value, $expected ) {
+		$this->assertSame( $expected, Ai_Crawlers::sanitize_blocked( $value ) );
+	}
+
+	/**
+	 * Old maps with no allowed training crawler.
+	 *
+	 * @return array<string, array{array, array}>
+	 */
+	public static function provide_legacy_maps() {
+		return array(
+			'answer engines blocked' => array(
+				array(
+					'perplexitybot' => true,
+					'oai-searchbot' => true,
+					'not-a-bot'     => true,
+				),
+				array(
+					'answer'   => array( 'oai-searchbot', 'perplexitybot' ),
+					'training' => array(),
+				),
+			),
+			'answer engine allowed'  => array(
+				array( 'perplexitybot' => false ),
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Only answer-engine blocks carry over, and the old option is deleted.
+	 *
+	 * @dataProvider provide_legacy_maps
+	 * @param array $legacy   The old option.
+	 * @param array $expected The new option.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_legacy_maps' )]
+	public function test_migration_carries_answer_blocks( $legacy, $expected ) {
+		update_option( Ai_Crawlers::LEGACY_OPTION, $legacy );
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( $expected, get_option( Ai_Crawlers::OPTION ) );
+		$this->assertSame( $expected, $this->stored( Ai_Crawlers::OPTION ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * An option as the database holds it, bypassing the object cache.
+	 *
+	 * @param string $name Option name.
+	 * @return mixed The stored value, or false when there is no row.
+	 */
+	private function stored( $name ) {
+		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( $name, 'options' );
+		return get_option( $name, false );
+	}
+
+	/**
+	 * Unsaved training crawlers stay blocked, including on the first read past register_setting()'s default.
+	 *
+	 * @return void
+	 */
+	public function test_migration_keeps_unsaved_training_crawlers_blocked() {
+		update_option(
+			Ai_Crawlers::LEGACY_OPTION,
+			array(
+				'gptbot'        => false,
+				'perplexitybot' => true,
+			)
+		);
+		register_setting( 'jetpack-seo-test', Ai_Crawlers::OPTION, array( 'default' => array() ) );
+		Ai_Crawlers::register_legacy_migration();
+
+		try {
+			$blocked = get_option( Ai_Crawlers::OPTION );
+		} finally {
+			unregister_setting( 'jetpack-seo-test', Ai_Crawlers::OPTION );
+		}
+
+		$training = array_keys( wp_list_filter( Ai_Crawlers::get_catalog(), array( 'type' => 'training' ) ) );
+		$this->assertSame(
+			array(
+				'answer'   => array( 'perplexitybot' ),
+				'training' => array_values( array_diff( $training, array( 'gptbot' ) ) ),
+			),
+			$blocked
+		);
+	}
+
+	/**
+	 * With no old option, a read returns the default and writes nothing.
+	 *
+	 * @return void
+	 */
+	public function test_migration_writes_nothing_without_an_old_option() {
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( 'missing', get_option( Ai_Crawlers::OPTION, 'missing' ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::OPTION ) );
+	}
+
+	/**
+	 * An existing new option wins, and the old one is kept.
+	 *
+	 * @return void
+	 */
+	public function test_migration_skips_an_existing_new_option() {
+		$current = array(
+			'answer'   => 'all',
+			'training' => array(),
+		);
+		update_option( Ai_Crawlers::OPTION, $current );
+		update_option( Ai_Crawlers::LEGACY_OPTION, array( 'gptbot' => false ) );
+		Ai_Crawlers::register_legacy_migration();
+
+		$this->assertSame( $current, get_option( Ai_Crawlers::OPTION ) );
+		$this->assertSame( array( 'gptbot' => false ), get_option( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * A first save through update_option() migrates on the way in, then the saved value wins.
+	 *
+	 * @return void
+	 */
+	public function test_migration_survives_a_first_save() {
+		update_option( Ai_Crawlers::LEGACY_OPTION, array( 'perplexitybot' => true ) );
+		Ai_Crawlers::register_legacy_migration();
+		$saved = array(
+			'answer'   => array( 'oai-searchbot' ),
+			'training' => 'all',
+		);
+
+		$this->assertTrue( update_option( Ai_Crawlers::OPTION, $saved ) );
+		$this->assertSame( $saved, $this->stored( Ai_Crawlers::OPTION ) );
+		$this->assertFalse( $this->stored( Ai_Crawlers::LEGACY_OPTION ) );
+	}
+
+	/**
+	 * A list naming every crawler in its group is saved as `'all'`, so crawlers added later are blocked too.
+	 *
+	 * @return void
+	 */
+	public function test_sanitize_blocked_turns_a_full_list_into_all() {
+		$training = array_keys( wp_list_filter( Ai_Crawlers::get_catalog(), array( 'type' => 'training' ) ) );
+
+		$this->assertSame(
+			array(
+				'answer'   => array(),
+				'training' => 'all',
+			),
+			Ai_Crawlers::sanitize_blocked( array( 'training' => array_reverse( $training ) ) )
+		);
+	}
+
+	/**
+	 * WordPress.com's data-sharing opt-out replaces the owner's choices.
+	 *
+	 * @return void
+	 */
+	public function test_data_sharing_opt_out_replaces_owner_choices() {
+		update_option( 'wpcom_data_sharing_opt_out', true );
+		update_option( Ai_Crawlers::OPTION, array( 'answer' => array( 'oai-searchbot' ) ) );
+
+		$this->assertTrue( Ai_Crawlers::is_blocked( 'gptbot' ) );
+		$this->assertTrue( Ai_Crawlers::is_blocked( 'perplexitybot' ) );
+		$this->assertFalse( Ai_Crawlers::is_blocked( 'oai-searchbot' ) );
+
+		$bootstrap = Ai_Crawlers::get_bootstrap_data();
+		$this->assertTrue( $bootstrap['dataSharingOptOut'] );
+		$this->assertSame( Ai_Crawlers::get_data_sharing_blocked_slugs(), $bootstrap['dataSharingBlocked'] );
+	}
+
+	/**
+	 * `append_directives` emits a `User-agent` + `Disallow: /` block for each blocked bot only.
+	 *
+	 * @return void
+	 */
+	public function test_append_directives_emits_blocks_for_blocked_bots() {
+		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'gptbot' ) ) );
+		$output  = Ai_Crawlers::append_directives( "User-agent: *\nDisallow:", true );
+		$catalog = Ai_Crawlers::get_catalog();
+
+		$this->assertStringContainsString( '# AI crawlers blocked via Jetpack SEO.', $output );
+		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agent'] . "\nDisallow: /", $output );
+		$this->assertStringNotContainsString( 'User-agent: ' . $catalog['claudebot']['user_agent'], $output );
 	}
 
 	/**
@@ -256,6 +370,7 @@ class AiCrawlersTest extends TestCase {
 		Ai_Crawlers::init();
 		add_filter( 'robots_txt', $append_bare_line, 11 );
 		update_option( 'blog_public', 1 );
+		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'gptbot' ) ) );
 
 		try {
 			$output = apply_filters( 'robots_txt', "User-agent: *\nDisallow: /wp-admin/\n", true );
@@ -285,14 +400,7 @@ class AiCrawlersTest extends TestCase {
 		);
 		update_option( 'blog_public', 1 );
 		update_option( 'wpcom_data_sharing_opt_out', true );
-		update_option(
-			Ai_Crawlers::OPTION,
-			array(
-				'gptbot'          => false,
-				'google-extended' => false,
-				'perplexitybot'   => false,
-			)
-		);
+		update_option( Ai_Crawlers::OPTION, array( 'answer' => array( 'oai-searchbot' ) ) );
 
 		$output = apply_filters( 'robots_txt', 'TEST', true );
 
@@ -304,13 +412,12 @@ class AiCrawlersTest extends TestCase {
 				'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Blog_Privacy\\robots_txt'
 			)
 		);
-		$this->assertStringContainsString( "User-agent: GPTBot\nDisallow: /", $output );
-		$this->assertStringContainsString( "User-agent: Google-Extended\nDisallow: /", $output );
-		$this->assertStringContainsString( "User-agent: PerplexityBot\nDisallow: /", $output );
-		$this->assertStringNotContainsString( 'User-agent: OAI-SearchBot', $output );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: GPTBot' ) );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: Google-Extended' ) );
-		$this->assertSame( 1, substr_count( $output, 'User-agent: PerplexityBot' ) );
+		// The GEO tab shows get_data_sharing_blocked_slugs(), so it must match what WordPress.com writes.
+		$forced = Ai_Crawlers::get_data_sharing_blocked_slugs();
+		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
+			$expected = in_array( $slug, $forced, true ) ? 1 : 0;
+			$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $info['user_agent'] . "\n" ), $slug );
+		}
 	}
 
 	/**

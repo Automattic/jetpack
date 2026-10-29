@@ -93,6 +93,10 @@ body.toplevel_page_jetpack-protect {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
 	&__title {
 		margin: 0;
 	}
@@ -151,6 +155,13 @@ body.toplevel_page_jetpack-protect {
 		font-weight: 500;
 	}
 
+	// Text's default `pretty` still strands single words in these narrow columns.
+	&__heading,
+	&__title,
+	&__features .jp-protect-card__muted {
+		text-wrap: balance;
+	}
+
 	&__body {
 		display: flex;
 		gap: var(--wpds-dimension-gap-lg);
@@ -185,5 +196,39 @@ body.toplevel_page_jetpack-protect {
 	&__button {
 		flex: none;
 		white-space: nowrap;
+	}
+}
+
+.jp-protect-countdown {
+	color: var(--wpds-color-foreground-content-neutral);
+	// Equal-width digits, so the line doesn't jiggle as the seconds tick.
+	font-variant-numeric: tabular-nums;
+
+	&__part + &__part {
+		margin-inline-start: 0.3em;
+	}
+
+	&__digit {
+		display: inline-block;
+		animation: jp-protect-countdown-tick var(--wpds-motion-duration-md) var(--wpds-motion-easing-expressive) both;
+
+		@media (prefers-reduced-motion: reduce) {
+			animation-name: jp-protect-countdown-fade;
+		}
+	}
+}
+
+@keyframes jp-protect-countdown-tick {
+
+	from {
+		opacity: 0;
+		transform: translateY(-0.5em);
+	}
+}
+
+@keyframes jp-protect-countdown-fade {
+
+	from {
+		opacity: 0;
 	}
 }

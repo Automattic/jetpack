@@ -23,10 +23,22 @@ declare module '@automattic/jetpack-script-data' {
 			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string };
-			// The roles the Stats settings list, and the screen that switches Stats on and off; absent for users who cannot manage options.
+			// The roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options.
 			stats_settings?: {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
+				consent?: {
+					api_active: boolean;
+					api_installed: boolean;
+					consent_type_declared: boolean;
+					banner_plugin: string | null;
+					// The banner plugin holds the Stats script itself until visitors allow it, as Complianz's Jetpack integration does.
+					banner_blocks_stats: boolean;
+					recommended_banners: Array< { name: string; url: string } >;
+					can_install: boolean;
+					can_activate: boolean;
+					file_mods_allowed: boolean;
+				};
 			};
 			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
 			plan_gates?: {
@@ -42,12 +54,14 @@ declare module '@automattic/jetpack-script-data' {
 					{
 						title: string;
 						description: string;
+						description_with_price: `${ string }%s${ string }`;
 						features: string[];
 						upgrade_label: string;
 						expand_label: string;
 						support_url: string;
 						upgrade_url: string;
 						open_widget_types: string[];
+						plan_price: { yearly: number; currency: string } | null;
 					}
 				>;
 				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.

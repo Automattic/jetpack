@@ -214,6 +214,8 @@ class Backup_Product_Test extends TestCase {
 			'an expired Security bundle'  => array( self::expired_bundle( 'jetpack_security_t1_yearly' ), array(), true ),
 			'an expired Starter bundle'   => array( self::expired_bundle( 'jetpack_starter_yearly' ), array(), true ),
 			'an expired t0 Security plan' => array( self::expired_bundle( 'jetpack_security_t0_yearly' ), array(), true ),
+			'an expired yearly Pro'       => array( self::expired_bundle( 'jetpack_pro_yearly' ), array(), true ),
+			'an expired two-year Pro'     => array( self::expired_bundle( 'jetpack_pro_bi_yearly' ), array(), true ),
 			'an expired legacy plan'      => array( self::expired_bundle( 'jetpack_business_monthly' ), array(), true ),
 			'an expired Growth bundle'    => array( self::expired_bundle( 'jetpack_growth_yearly' ), array(), false ),
 			'another product'             => array( $free, array( array( 'product_slug' => 'jetpack_scan' ) ), false ),

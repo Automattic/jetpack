@@ -125,6 +125,7 @@ class Initial_State {
 		 * coupling the analytics package to that schema would widen its surface unnecessarily.
 		 * When both are present, `JetpackScriptData.site.wpcom.blog_id` is populated via
 		 * `set_connection_script_data()` above for other consumers.
+		 * Jetpack_Connector::enqueue_script_module() prints the same line on the Connectors screen.
 		 */
 		return 'var JP_CONNECTION_INITIAL_STATE; typeof JP_CONNECTION_INITIAL_STATE === "object" || (JP_CONNECTION_INITIAL_STATE = ' . wp_json_encode( self::get_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'
 			. sprintf( 'window.jpTracksContext = window.jpTracksContext || {}; window.jpTracksContext.blog_id = %s;', absint( \Jetpack_Options::get_option( 'id', 0 ) ) );

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.60.1] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [0.60.0] - 2026-10-26
 ### Added
 - Make the Trim & cut editor available by default. [#54053]
@@ -43,8 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Name the videos and their views above the Top videos list. [#53697]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 - Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
 - Video Playlist: Open this site's video pages in the same tab, and mark the entry of the video being viewed. [#53502]
 
@@ -2386,6 +2389,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1
 [0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.57.0...v0.58.0

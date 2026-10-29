@@ -177,10 +177,6 @@
 	}
 }
 
-.jp-protect-ip-rule__error {
-	color: var(--wpds-color-foreground-content-error);
-}
-
 .jp-protect-firewall-standalone {
 	margin: 0;
 
@@ -199,6 +195,12 @@
 
 	&__title {
 		font-weight: 500;
+	}
+
+	// Balanced like .jp-protect-feature-upsell in route.scss, to avoid widows.
+	&__title,
+	.jp-protect-card__muted {
+		text-wrap: balance;
 	}
 
 	&__link {

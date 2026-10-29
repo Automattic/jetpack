@@ -133,9 +133,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
 - My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
 - Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
-- Update package dependencies. [#51701]
-- Update package dependencies. [#51802]
-- Update package dependencies. [#52187]
+- Update package dependencies. [#51701] [#51802] [#52187]
 - VideoPress: refine the welcome modal type scale, match the upload dropzone text to the design system's empty state, and drop the duplicate header Upload button while the empty-library dropzone is showing. [#52061]
 
 ### Fixed
@@ -216,7 +214,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove unneeded development and documentation files from the published plugin. [#49014]
 - Update composer.lock files. [#48743] [#49415]
 - Update minimum WordPress version to 6.9. [#49021]
-- Update package dependencies. [#48735] [#49793] [#48405] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183]
+- Update package dependencies. [#48405] [#48735] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49793] [#49831] [#50097] [#50183]
 
 ### Fixed
 - Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
@@ -386,7 +384,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 2.0 - 2024-09-05
 ### Changed
-- General: Dependency updates. [#38942] [#38822] [#39004] [#39111] [#39176]
+- General: Dependency updates. [#38822] [#38942] [#39004] [#39111] [#39176]
 
 ## 1.9 - 2024-08-15
 ### Changed
@@ -395,9 +393,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - General: update WordPress version requirements to WordPress 6.5.
-
-### Fixed
-- Updated package dependencies.
 
 ## 1.8 - 2024-05-22
 ### Added

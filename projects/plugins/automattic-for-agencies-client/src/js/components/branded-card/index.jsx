@@ -12,7 +12,7 @@ export default function BrandedCard( { children } ) {
 	return (
 		<div className={ styles.card }>
 			<div className={ styles.card__column + ' ' + styles[ 'card__column--brand' ] }>
-				<AutomatticIconLogo />
+				<AutomatticIconLogo innerColor="#FFFFFF" outerColor="#FFFFFF" />
 				<AutomatticForAgenciesLogo />
 			</div>
 			<div className={ styles.card__column + ' ' + styles[ 'card__column--content' ] }>

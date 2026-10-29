@@ -44,8 +44,8 @@ interface LeaderboardEntry {
 	label: string | ReactElement; // Display name or React component
 	currentValue: number;        // Current period value
 	previousValue?: number;      // Previous period value; omit when no comparison row exists
-	currentShare: number;        // Current bar width (0-100)
-	previousShare?: number;      // Previous bar width (0-100)
+	currentShare: number;        // Current bar width (0-100, or -100-100 for negative values)
+	previousShare?: number;      // Previous bar width (same range as currentShare)
 	delta?: number;              // Percentage change; omit when unavailable
 	imageColor?: string;         // Optional color for the entry's image/icon
 	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.

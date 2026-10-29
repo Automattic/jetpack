@@ -35,7 +35,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	onUnlinked,
 	connectedPlugins,
 	connectedSiteId,
-	context,
 	onConnectUser = null,
 } ) => {
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
@@ -143,7 +142,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		trackSupportLinkClick,
 	} = useConnectionErrorNotice( {
 		trackingCallback: connectionErrorTrackingCallback,
-		trackingContext: 'my-jetpack-connection-card',
+		trackingContext: 'my-jetpack',
+		trackingPlacement: 'connection_card',
 		navigate: assignLocation,
 	} );
 
@@ -279,7 +279,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 				connectedUser={ userConnectionData }
 				isOpen={ isManageConnectionDialogOpen }
 				onClose={ closeManageConnectionDialog }
-				context={ context }
+				context="my-jetpack"
+				placement="connection_card"
 			/>
 		</section>
 	);

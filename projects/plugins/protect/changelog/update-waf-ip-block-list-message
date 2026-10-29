@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Firewall: Explain to a visitor blocked by the IP block list what happened and that site managers can log in for more information.

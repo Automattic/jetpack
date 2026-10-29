@@ -7,6 +7,7 @@ export {
 } from './use-post-thumbnail';
 export { useStatsSite } from './use-stats-site';
 export { useSiteIsCommercial } from './use-site-is-commercial';
+export { useStatsYearlyProduct } from './use-stats-yearly-product';
 export { usePrefetchViewerCountry, useViewerCountry } from './use-viewer-country';
 export {
 	useStatsPost,

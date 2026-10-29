@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-10-28
+### Changed
+- Update dependencies. [#53813]
+
 ## [0.7.0] - 2026-10-26
 ### Added
 - Link backups to that backup in the Backup dashboard when the new dashboard is on. [#53929]
@@ -59,9 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Exclude source map files from the distributed package. [#52304]
 - Only wire up the admin page and REST routes while the activity-log module is active. [#52409]
-- Update package dependencies. [#52187]
-- Update package dependencies. [#52401]
-- Update package dependencies. [#52402]
+- Update package dependencies. [#52187] [#52401] [#52402]
 
 ### Fixed
 - Keep the event and actor icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
@@ -211,6 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.7.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-activity-log/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/Automattic/jetpack-activity-log/compare/v0.5.0...v0.5.1

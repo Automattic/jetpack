@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "6.0.0",
+	"version": "6.1.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -81,6 +81,11 @@
 			"jetpack:src": "./components/product-price/index.tsx",
 			"types": "./build/components/product-price/index.d.ts",
 			"default": "./build/components/product-price/index.js"
+		},
+		"./radio-card": {
+			"jetpack:src": "./components/radio-card/index.tsx",
+			"types": "./build/components/radio-card/index.d.ts",
+			"default": "./build/components/radio-card/index.js"
 		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",

@@ -20,6 +20,8 @@
  */
 
 import {
+	bumpConnectionStat,
+	CONNECTION_EVENTS,
 	CONNECTION_STORE_ID,
 	ConnectionErrorView,
 	DisconnectDialog,
@@ -32,6 +34,7 @@ import {
 	ProtectedOwnerRelease,
 	TermsOfService,
 	TransferConnectionOwnership,
+	trackConnectionEvent,
 	getUserConnectKind,
 	getUserConnectMessage,
 	useConnectionErrorNotice,
@@ -63,6 +66,10 @@ const VStack = components.__experimentalVStack || components.VStack;
 const Text = components.__experimentalText || components.Text;
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
+const CONNECTOR_ID = 'wordpress_com';
+// Links such as My Jetpack's "Manage connection" add ?connector=wordpress_com to open the details.
+const isLinkedTo =
+	new URLSearchParams( window.location.search ).get( 'connector' ) === CONNECTOR_ID;
 const dataEl = document.getElementById( `wp-script-module-data-${ MODULE_ID }` );
 const data = JSON.parse( dataEl?.textContent ?? '{}' );
 
@@ -85,6 +92,8 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 const ssoStatus = data.ssoStatus ?? null;
 const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
 const idc = data.idc || null;
+// `platform` matches what the Identity Crisis screen sends with the same jetpack_idc_* events.
+const idcTrackingProps = idc?.platform ? { platform: idc.platform } : {};
 const protectedOwner = data.protectedOwner || null;
 
 /**
@@ -150,10 +159,18 @@ function useCardConnection() {
 		if ( isConnected && ! owner && userConnectionData?.connectionOwner ) {
 			owner = { id: null, displayName: userConnectionData.connectionOwner };
 		}
+		const ownerIsViewer = owner?.id
+			? Boolean( currentUser && owner.id === currentUser.id )
+			: Boolean( owner && currentUser?.isMaster );
 		// Not gated on isConnected, so a healthy viewer keeps their row when the owner's token breaks.
 		const viewer = isRegistered
 			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
 			: null;
+		// Tracks `viewer_connection_type`: `site_only` whenever the viewer's own account isn't connected, owner or not.
+		let viewerConnectionType = 'site_only';
+		if ( viewer ) {
+			viewerConnectionType = ownerIsViewer || viewer.isOwner ? 'owner' : 'user';
+		}
 		// The initial state sends a WP_Error object when the plugin list can't be read.
 		const connectedPlugins = ( Array.isArray( plugins ) ? plugins : [] ).map( plugin => ( {
 			name: plugin.name || plugin.slug,
@@ -184,9 +201,8 @@ function useCardConnection() {
 					}
 				: null,
 			isOwnerConnectionBroken,
-			ownerIsViewer: owner?.id
-				? Boolean( currentUser && owner.id === currentUser.id )
-				: Boolean( owner && currentUser?.isMaster ),
+			ownerIsViewer,
+			viewerConnectionType,
 			connectedPlugins,
 			// Stats and Backups are Jetpack-plugin features, so only cite them as examples
 			// of paused features when a Jetpack-family plugin is actually connected.
@@ -204,6 +220,34 @@ function useCardConnection() {
 				: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' ),
 		};
 	}, [ connectionStatus, userConnectionData, storeOwner, plugins, isOfflineMode, blogId ] );
+}
+
+const TRACKING_CONTEXT = 'connectors';
+
+/**
+ * Tracks recording for the card, silent in offline mode where every action is disabled.
+ *
+ * Every event carries the viewer's `viewer_connection_type` from useCardConnection(). `track` is a no-op when an
+ * older shared bundle lacks the helper.
+ *
+ * @param {object}  connection                      - Values from the caller's useCardConnection().
+ * @param {boolean} connection.isOfflineMode        - Whether the site is in offline mode.
+ * @param {string}  connection.viewerConnectionType - The viewer's connection: owner, user or site_only.
+ * @return {{trackingContext: (string|undefined), track: Function}} Context for the shared dialogs, and a recorder.
+ */
+function useTracking( { isOfflineMode, viewerConnectionType } ) {
+	return useMemo( () => {
+		const trackingContext = isOfflineMode ? undefined : TRACKING_CONTEXT;
+		const track = ( event, props ) => {
+			if ( trackingContext && event && typeof trackConnectionEvent === 'function' ) {
+				trackConnectionEvent( event, trackingContext, {
+					...props,
+					viewer_connection_type: viewerConnectionType,
+				} );
+			}
+		};
+		return { trackingContext, track };
+	}, [ isOfflineMode, viewerConnectionType ] );
 }
 
 /**
@@ -713,7 +757,8 @@ function canReleaseProtectedOwner( viewer ) {
  */
 function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
-	const { isOfflineMode, subjectNoun } = useCardConnection();
+	const { isOfflineMode, subjectNoun, viewerConnectionType } = useCardConnection();
+	const { trackingContext, track } = useTracking( { isOfflineMode, viewerConnectionType } );
 
 	return createElement(
 		VStack,
@@ -724,7 +769,10 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 				variant: 'link',
 				className: 'jetpack-connector__inline-action',
 				disabled: isBusy || isOfflineMode,
-				onClick: () => setIsReleaseOpen( true ),
+				onClick: () => {
+					track( CONNECTION_EVENTS?.cardActionClick, { action: 'release_protected_owner' } );
+					setIsReleaseOpen( true );
+				},
 			},
 			__( 'Release ownership', 'jetpack-connection' )
 		),
@@ -734,6 +782,7 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 					apiRoot,
 					apiNonce,
 					subject: subjectNoun,
+					trackingContext,
 					onClose: () => setIsReleaseOpen( false ),
 					onReleased: () => window.location.reload(),
 				} )
@@ -748,7 +797,8 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
  */
 function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
-	const { subjectNoun } = useCardConnection();
+	const { subjectNoun, isOfflineMode, viewerConnectionType } = useCardConnection();
+	const { trackingContext, track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const kind = protectedOwnerSlotKind();
 	let title;
 	let body;
@@ -821,7 +871,10 @@ function ProtectedOwnerSection() {
 				{
 					variant: 'link',
 					className: 'jetpack-connector__inline-action',
-					onClick: () => setIsConfirmOpen( true ),
+					onClick: () => {
+						track( CONNECTION_EVENTS?.cardActionClick, { action: 'confirm_protected_owner' } );
+						setIsConfirmOpen( true );
+					},
 				},
 				sprintf(
 					// translators: %s: "site" or "store".
@@ -856,6 +909,7 @@ function ProtectedOwnerSection() {
 					apiRoot,
 					apiNonce,
 					subject: subjectNoun,
+					trackingContext,
 					onClose: () => setIsConfirmOpen( false ),
 					onConfirmed: () => window.location.reload(),
 				} )
@@ -978,6 +1032,7 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
  */
 function TransferOwnershipModal( { onClose, onTransferred } ) {
 	const [ isTransferring, setIsTransferring ] = useState( false );
+	const { trackingContext } = useTracking( useCardConnection() );
 
 	return createElement(
 		Modal,
@@ -997,6 +1052,7 @@ function TransferOwnershipModal( { onClose, onTransferred } ) {
 			apiNonce,
 			onBusyChange: setIsTransferring,
 			onTransferred,
+			trackingContext,
 		} )
 	);
 }
@@ -1128,9 +1184,19 @@ function IDCPanel() {
 	const [ error, setError ] = useState( null );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ showWhy, setShowWhy ] = useState( false );
-	const { hasJetpackPlugin, subjectNoun } = useCardConnection();
+	const { hasJetpackPlugin, subjectNoun, isOfflineMode, viewerConnectionType } =
+		useCardConnection();
+	const { track, trackingContext } = useTracking( { isOfflineMode, viewerConnectionType } );
+	// Also bumps the `jetpack-idc` MC stat the Identity Crisis screen bumps, when the site allows tracking.
+	const trackIdc = ( event, stat ) => {
+		track( event, idcTrackingProps );
+		if ( stat && trackingContext && idc?.bumpStats && typeof bumpConnectionStat === 'function' ) {
+			bumpConnectionStat( 'jetpack-idc', stat );
+		}
+	};
 
 	const handleMigrate = async () => {
+		trackIdc( 'jetpack_idc_migrate', 'migrate' );
 		setBusyAction( 'migrate' );
 		setError( null );
 		try {
@@ -1151,6 +1217,7 @@ function IDCPanel() {
 	};
 
 	const handleStartFresh = async () => {
+		trackIdc( 'jetpack_idc_start_fresh', 'start-fresh' );
 		setBusyAction( 'start-fresh' );
 		setError( null );
 		try {
@@ -1171,6 +1238,7 @@ function IDCPanel() {
 	};
 
 	const handleStaySafe = async () => {
+		trackIdc( 'jetpack_idc_confirm_safe_mode', 'confirm-safe-mode' );
 		setBusyAction( 'safe-mode' );
 		setError( null );
 		try {
@@ -1185,6 +1253,7 @@ function IDCPanel() {
 	};
 
 	const executeDisconnect = async () => {
+		trackIdc( 'jetpack_idc_disconnect_site' );
 		setPendingConfirm( null );
 		setBusyAction( 'disconnect' );
 		setError( null );
@@ -1204,6 +1273,7 @@ function IDCPanel() {
 	};
 
 	const handleDisconnect = () => {
+		track( CONNECTION_EVENTS?.cardActionClick, { action: 'safe_mode_disconnect_site' } );
 		setPendingConfirm( {
 			title: sprintf(
 				// translators: %s: "site" or "store".
@@ -1538,6 +1608,7 @@ function ExpandedDetails( {
 		isOfflineMode,
 		tracksIdentity,
 		connectedPlugins,
+		viewerConnectionType,
 	} = useCardConnection();
 	const [ isDisconnectUserOpen, setIsDisconnectUserOpen ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
@@ -1545,6 +1616,7 @@ function ExpandedDetails( {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
+	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const detailsLinkRef = useRef( null );
 	const transferOwnershipRef = useRef( null );
 	const transferredRef = useRef( false );
@@ -1597,7 +1669,12 @@ function ExpandedDetails( {
 													variant: 'link',
 													className: 'jetpack-connector__inline-action',
 													disabled: isOfflineMode,
-													onClick: () => setIsTransferOpen( true ),
+													onClick: () => {
+														track( CONNECTION_EVENTS?.cardActionClick, {
+															action: 'transfer_ownership',
+														} );
+														setIsTransferOpen( true );
+													},
 												},
 												__( 'Transfer ownership', 'jetpack-connection' )
 											)
@@ -1609,7 +1686,12 @@ function ExpandedDetails( {
 											variant: 'link',
 											isDestructive: true,
 											disabled: isOfflineMode,
-											onClick: () => setIsDisconnectUserOpen( true ),
+											onClick: () => {
+												track( CONNECTION_EVENTS?.cardActionClick, {
+													action: 'disconnect_account',
+												} );
+												setIsDisconnectUserOpen( true );
+											},
 											className: 'jetpack-connector__inline-action',
 										},
 										__( 'Disconnect account', 'jetpack-connection' )
@@ -1677,6 +1759,7 @@ function ExpandedDetails( {
 								variant: 'link',
 								onClick: e => {
 									e.currentTarget.blur();
+									track( CONNECTION_EVENTS?.cardActionClick, { action: 'details_modal' } );
 									setShowDetailsModal( true );
 								},
 								className: 'jetpack-connector__details-link',
@@ -1690,6 +1773,8 @@ function ExpandedDetails( {
 							{
 								variant: 'link',
 								href: connectedUsersUrl,
+								onClick: () =>
+									track( CONNECTION_EVENTS?.cardActionClick, { action: 'connected_users' } ),
 								className: 'jetpack-connector__connected-users-link',
 							},
 							__( 'Connected users', 'jetpack-connection' )
@@ -1706,7 +1791,10 @@ function ExpandedDetails( {
 							isDestructive: true,
 							size: 'compact',
 							disabled: isOfflineMode,
-							onClick: () => setIsDisconnectDialogOpen( true ),
+							onClick: () => {
+								track( CONNECTION_EVENTS?.cardActionClick, { action: 'disconnect_site' } );
+								setIsDisconnectDialogOpen( true );
+							},
 							className: 'jetpack-connector__disconnect-site',
 						},
 						__( 'Disconnect site', 'jetpack-connection' )
@@ -1741,7 +1829,7 @@ function ExpandedDetails( {
 					connectedPlugins,
 					// No connectedSiteId: without it the dialog skips the disconnect survey.
 					connectedUser: tracksIdentity,
-					context: 'connectors',
+					context: TRACKING_CONTEXT,
 					isOpen: true,
 					// The dialog disconnects on its first step; the reload waits for its closing steps.
 					onDisconnected: () => window.location.reload(),
@@ -1756,7 +1844,7 @@ function ExpandedDetails( {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
-					context: 'connectors',
+					context: TRACKING_CONTEXT,
 					// The unlink already recorded itself in the store, which a non-owner's row reads
 					// from. Otherwise card-only data such as protectedOwner changed too, so reload.
 					onUnlinked: () => {
@@ -1816,7 +1904,7 @@ function ExpandedDetails( {
 function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const connectorName = name || label;
 	const connectorLogo = logo || icon || CONNECTOR_LOGO;
-	const [ isExpanded, setIsExpanded ] = useState( false );
+	const [ isExpanded, setIsExpanded ] = useState( isLinkedTo );
 	const {
 		isConnected,
 		isRegistered: isSiteRegistered,
@@ -1827,7 +1915,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		viewer,
 		currentUser,
 		tracksIdentity,
+		viewerConnectionType,
 	} = useCardConnection();
+	const { track } = useTracking( { isOfflineMode, viewerConnectionType } );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	// Identify the viewer once here, so every dialog the card opens records events under them.
 	useEffect( () => {
@@ -1838,13 +1928,25 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		data.authError ? { message: data.authError, detail: null } : null
 	);
 	const errorNotice = useConnectionErrorNotice( {
-		trackingContext: 'connectors',
+		trackingContext: TRACKING_CONTEXT,
 		reconnectRedirectUrl: connectorsUrl,
 		reconnectFrom: 'jetpack-connector',
 	} );
 	// Hidden in offline mode, where the card disables connection actions.
 	const connectionErrorNotice = isOfflineMode ? null : errorNotice;
 	const connectionErrorSeverity = connectionErrorNotice?.severity ?? null;
+
+	// The denominator for every other event: once per page load, however often the card re-renders.
+	const hasTrackedView = useRef( false );
+	useEffect( () => {
+		if ( hasTrackedView.current || isOfflineMode ) {
+			return;
+		}
+		hasTrackedView.current = true;
+		track( CONNECTION_EVENTS?.cardView );
+		// Deliberately once: later changes to these values are not new views.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {
@@ -1861,6 +1963,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		if ( isOfflineMode ) {
 			return;
 		}
+		track( CONNECTION_EVENTS?.cardActionClick, {
+			action: isSiteRegistered ? 'connect_authorize' : 'connect_register',
+		} );
 		setIsConnecting( true );
 		setConnectError( null );
 
@@ -1922,7 +2027,12 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		const toggleProps = {
 			variant: 'secondary',
 			size: 'compact',
-			onClick: () => setIsExpanded( ! isExpanded ),
+			onClick: () => {
+				if ( ! isExpanded ) {
+					track( CONNECTION_EVENTS?.cardActionClick, { action: 'details_open' } );
+				}
+				setIsExpanded( ! isExpanded );
+			},
 			'aria-expanded': isExpanded,
 		};
 		let toggleLabel = isExpanded
@@ -2006,7 +2116,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	);
 }
 
-registerConnector( 'wordpress_com', {
+registerConnector( CONNECTOR_ID, {
 	name: data.connectorName ?? 'Jetpack Connection',
 	label: data.connectorName ?? 'Jetpack Connection',
 	description:

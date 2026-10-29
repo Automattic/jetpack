@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.40
+ * Stubs automatically generated from PHPUnit 12.5.42
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -25522,6 +25522,12 @@ final class Exporter
 final readonly class Filesystem
 {
     public static function createDirectory(string $directory): bool
+    {
+    }
+    public static function createPrivateDirectory(string $directory, int $userId): bool
+    {
+    }
+    public static function currentUserId(): false|int
     {
     }
     /**
