@@ -298,9 +298,10 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasBlockListIps = splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length > 0;
 	const isBlockListOff = hasBlockListIps && ! ipData.settings?.[ enabledKey( IP_BLOCK_LIST ) ];
 	const needsBlockList = ! firewall.hasScan && ( ! hasBlockListIps || isBlockListOff );
-	const isFreeEmptyState = isEmpty && needsBlockList;
-	// Blocks so far came from a list since emptied; without rules either, nothing more can be blocked.
-	const hasNothingToBlock = active && hasBlocks && needsBlockList && rulesUpdatedAt === null;
+	// Without automatic rules either, nothing more can be blocked.
+	const hasNoRules = needsBlockList && rulesUpdatedAt === null;
+	const isFreeEmptyState = isEmpty && hasNoRules;
+	const hasNothingToBlock = active && hasBlocks && hasNoRules;
 	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
 	useRerenderEvery( 30000, !! lastTestAt );
 
@@ -368,7 +369,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					isListOff={ isBlockListOff }
 				/>
 			) }
-			{ isEmpty && ! needsBlockList && (
+			{ isEmpty && ! isFreeEmptyState && (
 				<NoBlocksState lastTestAt={ lastTestAt } isTesting={ isTesting } onTest={ runTest } />
 			) }
 			{ hasNothingToBlock && (

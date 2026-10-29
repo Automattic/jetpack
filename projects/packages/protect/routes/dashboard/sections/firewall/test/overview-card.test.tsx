@@ -445,16 +445,25 @@ describe( 'FirewallOverviewCard', () => {
 		expect( screen.queryByText( /Your firewall has nothing to block/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'still warns a free site in an empty state that its rules stopped updating', () => {
-		render(
-			<FirewallOverviewCard { ...props } state={ noBlocks( { rulesUpdatedAt: 1773446400 } ) } />
-		);
+	it.each( [
+		[ 'addresses on its block list', props.state.ipRules ],
+		[ 'an empty block list', EMPTY_LIST ],
+	] )(
+		'still warns a free site in an empty state, with %s, that its rules stopped updating',
+		( _, ipRules ) => {
+			render(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ noBlocks( { rulesUpdatedAt: 1773446400, ipRules } ) }
+				/>
+			);
 
-		expect( screen.getByRole( 'heading', { name: 'No requests blocked yet' } ) ).toBeVisible();
-		expect(
-			screen.getByText( 'Your automatic firewall rules have stopped updating' )
-		).toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'heading', { name: 'No requests blocked yet' } ) ).toBeVisible();
+			expect(
+				screen.getByText( 'Your automatic firewall rules have stopped updating' )
+			).toBeInTheDocument();
+		}
+	);
 
 	it( 'asks a free site with no blocked IPs to add some or upgrade', async () => {
 		render( <FirewallOverviewCard { ...props } state={ noBlocks( { ipRules: EMPTY_LIST } ) } /> );
@@ -499,6 +508,21 @@ describe( 'FirewallOverviewCard', () => {
 			expect( screen.getByRole( 'button', { name: 'Edit block list' } ) ).toBeVisible();
 		}
 	);
+
+	it( 'shows the test it ran from the empty state, still with nothing else blocked', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
+			...refreshed( 1 ),
+			hasBlocked: false,
+			lastTestAt: HOUR_AGO,
+		} );
+		render( <FirewallOverviewCard { ...props } state={ noBlocks() } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
+
+		expect( screen.getByText( 'Latest test ran an hour ago' ) ).toBeInTheDocument();
+		expect( document.body ).toHaveTextContent( 'No other requests have been blocked yet.' );
+	} );
 
 	it( 'opens the Settings tab at its own card', async () => {
 		const openTab = jest.fn();
