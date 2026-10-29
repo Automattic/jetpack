@@ -43,11 +43,14 @@ const ROLES = [
 
 const setScriptData = (
 	featuresUrl: string | null,
-	featuresScreen: 'features' | 'modules' | null = null
+	{
+		featuresScreen = null,
+		fields,
+	}: { featuresScreen?: 'features' | 'modules' | null; fields?: string[] } = {}
 ) => {
 	window.JetpackScriptData = {
 		premium_analytics: {
-			stats_settings: { roles: ROLES, features_url: featuresUrl, features_screen: featuresScreen },
+			stats_settings: { fields, roles: ROLES, features_url: featuresUrl, features_screen: featuresScreen },
 		},
 	} as typeof window.JetpackScriptData;
 };
@@ -188,11 +191,26 @@ describe( 'StatsSettingsPanel', () => {
 				isError: false,
 				saveChange: jest.fn(),
 			} );
-			setScriptData( url, featuresScreen );
+			setScriptData( url, { featuresScreen } );
 
 			render( <StatsSettingsPanel /> );
 
 			expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute( 'href', url );
 		}
 	);
+
+	it( 'leaves out a card whose settings the site does not offer', () => {
+		setScriptData( null, { fields: [ 'admin_bar', 'wpcom_reader_views_enabled' ] } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'WordPress.com Reader' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Manage permissions' ) ).not.toBeInTheDocument();
+	} );
 } );
