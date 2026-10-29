@@ -289,7 +289,21 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_scan_upgrade_url() {
-		return admin_url( 'admin.php?page=my-jetpack#/add-scan' );
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-scan',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
 	}
 
 	/**

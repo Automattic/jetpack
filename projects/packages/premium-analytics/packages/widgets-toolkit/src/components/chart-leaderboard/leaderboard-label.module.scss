@@ -67,8 +67,8 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
-/* The chart insets its own `.label` in overlay mode, but an element label
- * bypasses that rule — and the overlay bar takes its height from this row. */
+/* An element label bypasses the chart's overlay `.label` inset, so it reads the
+ * same inset itself; the overlay bar takes its height from this row. */
 .row,
 .rowLink {
 	display: flex;
@@ -78,7 +78,9 @@
 	min-block-size: 36px;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	padding-inline: var(--wpds-dimension-padding-md);
+	padding-inline:
+		var(--a8c-charts-dimension-leaderboard-label-inset)
+		var(--wpds-dimension-padding-md);
 	gap: var(--wpds-dimension-gap-xs);
 	overflow: hidden;
 	color: inherit;
@@ -86,11 +88,11 @@
 	white-space: nowrap;
 }
 
-/* A row with a detail page and a public URL offers both: the title inside and
- * a trailing "View" action. */
+/* A row whose label stays put offers its actions after it: "View in new tab",
+ * and whatever the widget adds. */
 .row {
 
-	@include reveal-action-on-hover(".viewAction");
+	@include reveal-action-on-hover(".rowAction");
 }
 
 /* The `bars` look lays the label above its bar: nothing to inset from or to
@@ -132,6 +134,22 @@
 	text-decoration: underline;
 }
 
+/* A plain label beside a "View" action still has to shrink for the ellipsis.
+ * A layered chart row keeps pointer events off its cells; take them back so a
+ * truncated label still shows its title (clicks still reach the row button). */
+.plainLabel {
+	display: flex;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	pointer-events: auto;
+}
+
+/* A drill-down row slides its value over the label end by the chevron reserve
+ * on hover, so a trailing action stops that much short of it. */
+.chevronReserve {
+	padding-inline-end: calc(var(--wpds-dimension-padding-md) + var(--wpds-dimension-gap-2xl));
+}
+
 /* Beside a "View" action the title keeps its own width so the arrow follows it,
  * and stretches over the row so the click target stays the row. */
 .row {
@@ -144,8 +162,10 @@
 	inset: 0;
 }
 
-/* The action sits above the stretched title so its own click wins. */
-.viewAction {
+/* The actions sit above the stretched title so their own clicks win. */
+.rowAction {
+	display: inline-flex;
+	flex: none;
 	position: relative;
 	z-index: 1;
 }

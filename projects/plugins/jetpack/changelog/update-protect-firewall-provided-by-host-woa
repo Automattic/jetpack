@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Protect: Show the firewall as on for WordPress.com-hosted sites, where the host provides it.
