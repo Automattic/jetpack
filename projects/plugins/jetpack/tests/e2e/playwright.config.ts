@@ -9,7 +9,8 @@ export default {
 		{
 			// This project is used to run the Jetpack Core tests that require an already connected site.
 			name: 'jetpack e2e',
-			testIgnore: '**/specs/onboarding/**',
+			// Admin shell specs run from playwright.admin-shell.config.ts.
+			testIgnore: [ '**/specs/onboarding/**', '**/specs/admin-shell/**' ],
 			dependencies: [ 'connection setup' ],
 		},
 		{
