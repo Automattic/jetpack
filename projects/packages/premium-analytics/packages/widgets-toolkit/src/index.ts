@@ -155,6 +155,8 @@ export {
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
 	UtmUrlBuilderDialog,
+	getUtmUrlBuilderValues,
+	type UtmUrlBuilderValues,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,
