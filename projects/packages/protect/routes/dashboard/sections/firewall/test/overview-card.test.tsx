@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
@@ -6,7 +6,10 @@ import { check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordViewOnce } from '../../../data/tracks';
 import { runFirewallTest } from '../firewall-test';
-import FirewallOverviewCard, { resetFirewallBlocks } from '../overview-card';
+import FirewallOverviewCard, {
+	BLOCKS_REFRESH_INTERVAL,
+	resetFirewallBlocks,
+} from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -289,6 +292,59 @@ describe( 'FirewallOverviewCard', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Run test' } ) );
 
 		expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days56' );
+	} );
+
+	describe( 'without a reload', () => {
+		const setHidden = ( hidden: boolean ) => {
+			Object.defineProperty( document, 'hidden', { configurable: true, value: hidden } );
+			act( () => document.dispatchEvent( new Event( 'visibilitychange' ) ) );
+		};
+		const tick = () => act( async () => jest.advanceTimersByTime( BLOCKS_REFRESH_INTERVAL ) );
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			( apiFetch as unknown as jest.Mock ).mockReset().mockResolvedValue( refreshed( 56 ) );
+		} );
+		afterEach( () => {
+			jest.useRealTimers();
+			Object.defineProperty( document, 'hidden', { configurable: true, value: false } );
+		} );
+
+		it( 'refreshes the counts while the page stays open, pausing in a background tab', async () => {
+			render( <FirewallOverviewCard { ...props } /> );
+			setHidden( true );
+			await tick();
+			expect( apiFetch ).not.toHaveBeenCalled();
+
+			setHidden( false );
+			await waitFor( () =>
+				expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days56' )
+			);
+
+			( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 57 ) );
+			await tick();
+			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days57' );
+		} );
+
+		it( 'refreshes the counts when the firewall is turned on', async () => {
+			const off = { ...props.state!, active: false };
+			const { rerender } = render( <FirewallOverviewCard { ...props } state={ off } /> );
+
+			rerender(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ off }
+					settings={ { ...props.settings, settings: { waf: true } } }
+				/>
+			);
+
+			await waitFor( () =>
+				expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days56' )
+			);
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/jetpack/v4/protect-dashboard/firewall/blocks',
+			} );
+		} );
 	} );
 
 	it( 'leaves the empty state for the counts once its test logs a block, keeping focus on Run test', async () => {

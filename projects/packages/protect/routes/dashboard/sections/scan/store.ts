@@ -303,7 +303,7 @@ export function useIsScanning(): boolean {
  *
  * @return True while the document is hidden.
  */
-function useIsDocumentHidden(): boolean {
+export function useIsDocumentHidden(): boolean {
 	const [ isHidden, setIsHidden ] = useState( () => document.hidden );
 	useEffect( () => {
 		const onChange = () => setIsHidden( document.hidden );

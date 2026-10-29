@@ -23,7 +23,7 @@ import {
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import { createStore } from '../scan/store';
+import { createStore, useIsDocumentHidden } from '../scan/store';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -66,10 +66,70 @@ const FIREWALL_KEYS = [ 'waf' ];
 // The card unmounts on a tab switch, so a test's refreshed counts live here.
 const blocksStore = createStore< FirewallBlocks | undefined >( () => undefined );
 
+// How often an open page re-reads the counts.
+export const BLOCKS_REFRESH_INTERVAL = 60 * 1000;
+
+// Reads land in start order, so an older answer can't replace a newer one.
+let readsStarted = 0;
+let readApplied = 0;
+
 /** Forget refreshed counts, so tests start from the page state. */
 export const resetFirewallBlocks = (): void => {
 	blocksStore.reset();
+	readsStarted = 0;
+	readApplied = 0;
 };
+
+/**
+ * Read the blocks and counts into the store, unless a later read already landed.
+ *
+ * @param beforeApply - Runs with the fresh blocks just before they render.
+ * @return The fresh blocks.
+ */
+async function refreshBlocks(
+	beforeApply?: ( fresh: FirewallBlocks ) => void
+): Promise< FirewallBlocks > {
+	const read = ++readsStarted;
+	const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
+	if ( read > readApplied ) {
+		readApplied = read;
+		beforeApply?.( fresh );
+		blocksStore.set( () => fresh );
+	}
+	return fresh;
+}
+
+/** Refresh in the background; a failed read keeps the counts as they were. */
+const refreshQuietly = () => {
+	refreshBlocks().catch( () => {} );
+};
+
+/**
+ * Keep the counts current while the firewall is on: on an interval, when the tab returns, and when it's turned on.
+ *
+ * @param active       - Whether the firewall is on now.
+ * @param activeAtLoad - Whether it was on at page load, so turning it on from the Settings tab counts too.
+ */
+function useBlocksRefresh( active: boolean, activeAtLoad: boolean ): void {
+	const isHidden = useIsDocumentHidden();
+	const wasActive = useRef( activeAtLoad );
+	const wasHidden = useRef( isHidden );
+
+	useEffect( () => {
+		const turnedOn = active && ! wasActive.current;
+		const cameBack = active && wasHidden.current && ! isHidden;
+		wasActive.current = active;
+		wasHidden.current = isHidden;
+		if ( turnedOn || cameBack ) {
+			refreshQuietly();
+		}
+		if ( ! active || isHidden ) {
+			return;
+		}
+		const timer = setInterval( refreshQuietly, BLOCKS_REFRESH_INTERVAL );
+		return () => clearInterval( timer );
+	}, [ active, isHidden ] );
+}
 
 const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
 	( blockedCount ?? recentBlocks.length ) > 0;
@@ -243,6 +303,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
+	useBlocksRefresh( active && firewall.available && ! firewall.providedByHost, firewall.active );
 	// Turning the automatic rules off on the Settings tab hides their date; the date itself is from page load.
 	const rulesUpdatedAt =
 		settings.settings?.[ AUTOMATIC_RULES ] === false ? null : firewall.rulesUpdatedAt;
@@ -300,9 +361,9 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		// The test has run by now, so a failed refresh mustn't replace its result with an error.
 		let isRecorded: boolean | null = null;
 		try {
-			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
-			focusHeaderTest.current = fromEmptyState && hasAnyBlocks( fresh );
-			blocksStore.set( () => fresh );
+			const fresh = await refreshBlocks( next => {
+				focusHeaderTest.current = fromEmptyState && hasAnyBlocks( next );
+			} );
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
