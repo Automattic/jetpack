@@ -293,6 +293,39 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Scan's fixer extras, and the JSON the dashboard gets for them.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_format_fixable_extras() {
+		return array(
+			'keys are camelCased'        => array( (object) array( 'is_dotorg' => false ), '{"isDotorg":false}' ),
+			'empty extras are an object' => array( array(), '{}' ),
+		);
+	}
+
+	/**
+	 * Test that format() camelCases the fixer's extras and keeps them a JSON object.
+	 *
+	 * @dataProvider provider_format_fixable_extras
+	 * @param mixed  $extras   Scan's extras.
+	 * @param string $expected The extras as JSON.
+	 */
+	#[DataProvider( 'provider_format_fixable_extras' )]
+	public function test_format_fixable_extras( $extras, $expected ) {
+		$threat = Dashboard_Threats::format(
+			(object) array(
+				'fixable' => (object) array(
+					'fixer'  => 'delete',
+					'extras' => $extras,
+				),
+			)
+		);
+
+		$this->assertSame( $expected, wp_json_encode( $threat['fixable']['extras'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
 	 * Inputs for format_all(), and the ids of the threats it should return.
 	 *
 	 * @return array[]
