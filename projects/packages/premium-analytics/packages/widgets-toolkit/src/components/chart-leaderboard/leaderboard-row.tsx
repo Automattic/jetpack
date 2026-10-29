@@ -37,7 +37,7 @@ export type LeaderboardRowAction =
 			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
-			/** A trailing action after the "View" link. The row reveals it on hover and keeps it above the title link. */
+			/** A trailing action beside "View", revealed with it. */
 			extraAction?: ReactElement;
 	  }
 	| {
@@ -52,7 +52,7 @@ export type LeaderboardRowAction =
 			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
-			/** A trailing action after the "View" link. The row reveals it on hover and keeps it above the title link. */
+			/** A trailing action beside "View", revealed with it. */
 			extraAction?: ReactElement;
 	  }
 	| {
