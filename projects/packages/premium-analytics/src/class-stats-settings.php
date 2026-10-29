@@ -92,7 +92,7 @@ final class Stats_Settings {
 	/**
 	 * Hook up the settings route and the Settings tab's script data.
 	 *
-	 * Call it before `rest_api_init`, or call register() on that hook directly. Add any FIELDS_FILTER callback before either.
+	 * Call it before `rest_api_init`, or hook register() itself on that hook, which add_action() merges with this one. Add any FIELDS_FILTER callback before either.
 	 *
 	 * @return void
 	 */
