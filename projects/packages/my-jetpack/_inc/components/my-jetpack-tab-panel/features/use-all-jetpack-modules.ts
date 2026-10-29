@@ -8,6 +8,10 @@ import { getProductModules } from './mappings';
 import { useMainFeatures } from './use-main-features';
 
 const NO_MODULES: Record< string, MyJetpackModule > = {};
+const offlineModuleSnapshots = new WeakMap<
+	Record< string, MyJetpackModule >,
+	Record< string, MyJetpackModule >
+>();
 
 /**
  * Drop the forced-on override that a product's own standalone plugin causes.
@@ -75,29 +79,36 @@ export function useAllJetpackModules(): {
 	const { data: products } = useAllProducts();
 	const localFeatures = isOfflineFeatures() ? state.features : null;
 
-	return useMemo(
-		() => ( {
-			modules: withoutPluginForcedOverrides(
-				modules,
-				localFeatures
-					? Object.fromEntries(
-							localFeatures
-								.filter( feature => feature.product )
-								.map( feature => [
-									feature.product,
-									{
-										standalonePluginInfo: {
-											isStandaloneActive: feature.plugin_status === 'active',
-										},
+	return useMemo( () => {
+		// Keep the plugin switch usable after deactivation: the cached list still carries its forced override.
+		const source =
+			localFeatures && modules ? ( offlineModuleSnapshots.get( modules ) ?? modules ) : modules;
+		const normalized = withoutPluginForcedOverrides(
+			source,
+			localFeatures
+				? Object.fromEntries(
+						localFeatures
+							.filter( feature => feature.product )
+							.map( feature => [
+								feature.product,
+								{
+									standalonePluginInfo: {
+										isStandaloneActive: feature.plugin_status === 'active',
 									},
-								] )
-						)
-					: products
-			) as Record< JetpackModuleSlug, MyJetpackModule >,
+								},
+							] )
+					)
+				: products
+		);
+		if ( localFeatures && modules ) {
+			offlineModuleSnapshots.set( modules, normalized );
+		}
+
+		return {
+			modules: normalized as Record< JetpackModuleSlug, MyJetpackModule >,
 			isLoading,
 			hasLoaded,
 			hasFailed,
-		} ),
-		[ modules, products, localFeatures, isLoading, hasLoaded, hasFailed ]
-	);
+		};
+	}, [ modules, products, localFeatures, isLoading, hasLoaded, hasFailed ] );
 }
