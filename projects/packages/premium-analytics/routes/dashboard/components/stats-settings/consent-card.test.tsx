@@ -29,6 +29,7 @@ const NOT_SET_UP = {
 	api_installed: false,
 	has_banner: false,
 	banner_plugin: null,
+	banner_blocks_stats: false,
 	recommended_banners: [
 		{ name: 'Complianz', url: 'https://wordpress.org/plugins/complianz-gdpr/' },
 		{ name: 'CookieYes', url: 'https://wordpress.org/plugins/cookie-law-info/' },
@@ -178,6 +179,16 @@ describe( 'ConsentCard', () => {
 
 		expect( screen.getByText( 'Set up' ) ).toBeInTheDocument();
 		expect( step( 'WP Consent API' ).getByText( 'Active' ) ).toBeInTheDocument();
+	} );
+
+	it( 'counts a banner that blocks Stats itself as set up, leaving WP Consent API optional', () => {
+		setConsent( { banner_plugin: 'Complianz', banner_blocks_stats: true, can_install: false } );
+
+		render( <ConsentCard /> );
+
+		expect( screen.getByText( 'Set up' ) ).toBeInTheDocument();
+		expect( step( 'WP Consent API' ).getByText( /^Optional\./ ) ).toBeInTheDocument();
+		expect( screen.queryByText( /permission to install/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves focus where the user moved it while activating', async () => {

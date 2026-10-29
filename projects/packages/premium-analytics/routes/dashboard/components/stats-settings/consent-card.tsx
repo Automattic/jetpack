@@ -152,7 +152,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	const apiStepRef = useRef< HTMLLIElement >( null );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
 	const hasBanner = status.has_banner || status.banner_plugin !== null;
-	const connected = status.api_active && hasBanner;
+	const connected = hasBanner && ( status.api_active || status.banner_blocks_stats );
 	const canConnect = status.api_installed ? status.can_activate : status.can_install;
 
 	// The action button unmounts once the plugin is active, so focus falls to <body> unless the user moved it.
@@ -234,7 +234,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	}
 
 	let blockedReason: string | null = null;
-	if ( ! status.api_active && ! canConnect ) {
+	if ( ! status.api_active && ! status.banner_blocks_stats && ! canConnect ) {
 		if ( status.api_installed ) {
 			blockedReason = __(
 				'You do not have permission to activate plugins here. Ask whoever manages plugins on this site to activate WP Consent API.',
@@ -251,6 +251,21 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 				'jetpack-premium-analytics-pkg'
 			);
 		}
+	}
+
+	let apiDescription: string;
+	if ( status.api_active ) {
+		apiDescription = __( 'Tells Stats what each visitor chose.', 'jetpack-premium-analytics-pkg' );
+	} else if ( status.banner_blocks_stats ) {
+		apiDescription = __(
+			'Optional. Your cookie banner already asks visitors before Stats counts them.',
+			'jetpack-premium-analytics-pkg'
+		);
+	} else {
+		apiDescription = __(
+			'A free plugin that tells Stats what each visitor chose. Once it’s active, visitors who decline aren’t counted, so your views will likely drop.',
+			'jetpack-premium-analytics-pkg'
+		);
 	}
 
 	let bannerDescription: ReactNode;
@@ -320,14 +335,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 									: __( 'Not installed', 'jetpack-premium-analytics-pkg' )
 							}
 							title={ __( 'WP Consent API', 'jetpack-premium-analytics-pkg' ) }
-							description={
-								status.api_active
-									? __( 'Tells Stats what each visitor chose.', 'jetpack-premium-analytics-pkg' )
-									: __(
-											'A free plugin that tells Stats what each visitor chose. Once it’s active, visitors who decline aren’t counted, so your views will likely drop.',
-											'jetpack-premium-analytics-pkg'
-										)
-							}
+							description={ apiDescription }
 							action={ apiAction }
 							rowRef={ apiStepRef }
 						/>

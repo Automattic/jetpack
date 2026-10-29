@@ -452,6 +452,44 @@ class Stats_Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Complianz's Jetpack integration and cookie blocker, and whether the card hears that Complianz blocks Stats.
+	 *
+	 * @return array
+	 */
+	public static function complianz_provider() {
+		return array(
+			'integration and blocker on' => array( true, true, true ),
+			'integration off'            => array( false, true, false ),
+			'blocker off'                => array( true, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider complianz_provider
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $integration Whether Complianz's Jetpack integration is enabled.
+	 * @param bool $blocker     Whether Complianz's cookie blocker runs on the front end.
+	 * @param bool $expected    Whether the card hears that Complianz blocks Stats.
+	 */
+	#[DataProvider( 'complianz_provider' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_script_data_says_when_complianz_blocks_stats( $integration, $blocker, $expected ) {
+		require_once __DIR__ . '/mocks/complianz-mock.php';
+		$GLOBALS['cmplz_mock'] = array(
+			'integration' => $integration,
+			'blocker'     => $blocker,
+		);
+		$this->log_in_as( 'administrator' );
+
+		$consent = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings']['consent'];
+
+		$this->assertSame( $expected, $consent['banner_blocks_stats'] );
+	}
+
+	/**
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
