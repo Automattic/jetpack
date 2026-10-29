@@ -16,13 +16,10 @@ import {
 	WidgetState,
 	archivesCsvExporter,
 	buildLeaderboardRow,
-	calculateDelta,
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
-	getCombinedPeriodMax,
 	postsPagesCsvExporter,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
@@ -113,45 +110,24 @@ function resolveRowAction(
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
- * Shares use the largest value across both periods as one denominator, so
- * equal-width bars represent equal values.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
-	withComparison: boolean,
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	const maxViews = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
-	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-
-		return {
-			id: `${ index }-${ row.href ?? row.label }`,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'none' },
-				action: resolveRowAction( row, detailSearch, onDrillDown ),
-			} ),
-			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxViews ),
-			// Rows without a comparison-period match keep `undefined` so the chart
-			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxViews )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
-		};
-	} );
+	return rows.map( ( row, index ) => ( {
+		id: `${ index }-${ row.href ?? row.label }`,
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: resolveRowAction( row, detailSearch, onDrillDown ),
+		} ),
+		currentValue: row.value,
+		// Rows without a comparison-period match keep `undefined` so the chart
+		// renders a placeholder instead of a fabricated delta (see AGENTS.md).
+		previousValue: row.previousValue,
+	} ) );
 }
 
 type TopPostsLeaderboardProps = {
@@ -196,7 +172,7 @@ export const TopPostsLeaderboard = ( {
 	return (
 		<LeaderboardChart
 			chartTitle={ __( 'Top pages', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
+			data={ buildLeaderboardData( rows, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }

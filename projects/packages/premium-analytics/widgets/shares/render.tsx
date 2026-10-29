@@ -8,7 +8,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -38,8 +37,6 @@ function SharesInner() {
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( s => s.value ), 0 );
-
 		return data.map( ( service, index ) => ( {
 			id: `${ index }-${ service.service }`,
 			...buildLeaderboardRow( {
@@ -48,7 +45,6 @@ function SharesInner() {
 				action: { kind: 'static' },
 			} ),
 			currentValue: service.value,
-			currentShare: sharePercentage( service.value, maxValue ),
 		} ) );
 	}, [ data ] );
 
