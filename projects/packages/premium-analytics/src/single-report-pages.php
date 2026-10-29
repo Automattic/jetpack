@@ -102,12 +102,16 @@ function configure_single_report_pages_script_data() {
 }
 
 /**
- * Adds `premium_analytics.single_report_pages` to the script data.
+ * Adds `premium_analytics.single_report_pages` to the dashboard's script data; other admin screens get nothing.
  *
  * @param array $data Script data.
  * @return array
  */
 function inject_single_report_pages_script_data( array $data ): array {
+	if ( ! Analytics::is_dashboard_request() ) {
+		return $data;
+	}
+
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}

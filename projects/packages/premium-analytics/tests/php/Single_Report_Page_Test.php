@@ -99,6 +99,7 @@ class Single_Report_Page_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		wp_set_current_user( 0 );
 		$this->reset_analytics_capabilities();
 
@@ -359,9 +360,11 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$this->assertSame( array_keys( $record['sections'][0] ), array_keys( $schema['properties']['sections']['items']['properties'] ) );
 	}
 
-	public function test_script_data_lists_the_available_pages_once_one_is_registered() {
+	public function test_script_data_lists_the_available_pages_on_the_dashboard_once_one_is_registered() {
 		$this->set_admin_user();
 		configure_single_report_pages_script_data();
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$before = apply_filters( 'jetpack_admin_js_script_data', array() );
 		$this->assertArrayNotHasKey( 'single_report_pages', $before['premium_analytics'] ?? array() );
@@ -370,6 +373,11 @@ class Single_Report_Page_Test extends BaseTestCase {
 
 		$after = apply_filters( 'jetpack_admin_js_script_data', array() );
 		$this->assertSame( array( 'example/video' ), array_column( $after['premium_analytics']['single_report_pages'], 'id' ) );
+
+		// Every other admin screen loads the same script data, without the pages.
+		$_GET['page'] = 'jetpack';
+		set_current_screen( 'toplevel_page_jetpack' );
+		$this->assertArrayNotHasKey( 'premium_analytics', apply_filters( 'jetpack_admin_js_script_data', array() ) );
 	}
 
 	public function test_rest_route_lists_the_available_pages_for_a_dashboard_reader() {
