@@ -44,6 +44,7 @@ class Flow {
 		Flow_Post_Type::init();
 		Engine::init();
 		REST_Controller::init();
+		Abilities\Flow_Abilities::init();
 
 		if ( is_admin() ) {
 			add_action( 'admin_menu', array( __CLASS__, 'register_admin_menu' ) );
