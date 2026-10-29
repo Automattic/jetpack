@@ -198,7 +198,7 @@ For a post, page, or email with a detail page inside the dashboard, use the `pos
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
 ID and the reader can open post details, the public URL otherwise, and plain text when neither is
 usable. A row whose title opens the detail route and that also has a public URL gets a trailing
-"View" action, which opens the live content in a new tab and shows on hover or focus.
+"View" action, which opens the live content in a new tab and shows on hover or focus. Pass `extraAction` (an element) on `postLink` or `videoLink` for one more trailing action after it; the row wraps it, so it reveals the same way and stays clickable above the title.
 
 ```tsx
 const row = {

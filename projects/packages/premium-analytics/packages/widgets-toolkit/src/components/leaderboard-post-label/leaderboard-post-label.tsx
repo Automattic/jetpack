@@ -32,6 +32,11 @@ export type LeaderboardPostLabelProps = {
 	 * `origin.section`, which becomes `ref_section`.
 	 */
 	section?: string;
+
+	/**
+	 * A trailing row action, forwarded to the row's `postLink` action.
+	 */
+	extraAction?: ReactElement;
 };
 
 /**
@@ -43,6 +48,7 @@ export function LeaderboardPostLabel( {
 	link,
 	origin,
 	section,
+	extraAction,
 }: LeaderboardPostLabelProps ): ReactElement {
 	const search = useWidgetNavigationSearch( { origin, section } );
 
@@ -50,7 +56,7 @@ export function LeaderboardPostLabel( {
 		<LeaderboardRow
 			label={ label }
 			media={ { kind: 'none' } }
-			action={ { kind: 'postLink', id, href: link, search } }
+			action={ { kind: 'postLink', id, href: link, search, extraAction } }
 		/>
 	);
 }
