@@ -32,7 +32,7 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 /**
@@ -136,6 +136,7 @@ function createReportParamsField( {
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
 				grain={ grain }
+				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
 			/>
 		);
 
@@ -182,7 +183,8 @@ const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESETS_WITH_ALL_T
  * The `jpa/report-params` control: a date range over the presets the attribute's `elements`
  * list, with All time anchored on the item's `allTimeStart` when it carries one. No bucket
  * control; whether a comparison is offered is the host scope's call, and so is the attention
- * it draws when a widget sets the period.
+ * it draws when a widget sets the period. The trigger keeps the panel's default look: a page
+ * header is not a widget header.
  *
  * @param {DataFormControlProps< Partial< ReportParamsFieldAttributes > >} props - The DataForm control props.
  * @return The control.
@@ -218,8 +220,12 @@ function ReportParamsControl( {
 	withIntervalControl,
 	grain,
 	attentionId,
+	triggerProps,
 }: DataFormControlProps< Partial< ReportParamsFieldAttributes > > &
-	ReportParamsFieldOptions & { attentionId?: number } ) {
+	ReportParamsFieldOptions & {
+		attentionId?: number;
+		triggerProps?: DateControlTriggerProps;
+	} ) {
 	const { presetIds, periods } = grain ?? {};
 	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
 	const allTimeStart = useMemo(
@@ -395,7 +401,7 @@ function ReportParamsControl( {
 			canApply={ isDateRangeDirty }
 			onCancel={ revert }
 			timeZone={ reportingTimeZone() }
-			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
+			triggerProps={ triggerProps }
 			presetIds={ presetIds }
 			allTimeStart={ allTimeStart }
 			withIntervalControl={ withIntervalControl }
