@@ -8,18 +8,22 @@ export default function IndeterminateProgress( {
 	children,
 	isGenerating = true,
 	live = false,
+	value,
 }: {
 	label: string;
 	children: ReactNode;
 	isGenerating?: boolean;
 	live?: boolean;
+	value?: number;
 } ) {
 	return (
 		<div className={ styles.pending }>
 			<Text variant="body-md" role={ live ? 'status' : undefined }>
 				{ children }
 			</Text>
-			{ isGenerating && <ProgressBar className={ styles.progress } aria-label={ label } /> }
+			{ isGenerating && (
+				<ProgressBar className={ styles.progress } aria-label={ label } value={ value } />
+			) }
 		</div>
 	);
 }

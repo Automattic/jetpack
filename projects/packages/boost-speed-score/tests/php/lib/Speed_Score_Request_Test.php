@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Durations;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
@@ -551,5 +552,18 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( 0, $history->count() );
 		$this->assertArrayNotHasKey( $this->history_option_name(), $this->options );
+	}
+
+	public function test_a_finished_run_records_how_long_it_took_without_autoloading() {
+		$this->poll_with_scores(
+			array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+			microtime( true ) - 30
+		);
+
+		$this->assertSame( array( 30 ), $this->options[ Speed_Score_Durations::OPTION_NAME ] );
+		$this->assertFalse( $this->autoload[ Speed_Score_Durations::OPTION_NAME ] );
 	}
 }

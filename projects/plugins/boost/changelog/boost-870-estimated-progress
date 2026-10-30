@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Show roughly how far along a speed test is, based on how long recent tests on the site took.

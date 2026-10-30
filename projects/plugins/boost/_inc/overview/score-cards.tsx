@@ -1,7 +1,7 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { speak } from '@wordpress/a11y';
 import { CardDivider } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -9,8 +9,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import GradeExplanation from './grade-explanation';
 import { getOverallScoreTier, getScoreDisplayState } from './lib/score-utils';
+import { useEstimatedPercent } from './lib/use-estimated-percent';
 import ScoreCard from './score-card';
-import type { SpeedScoresSet } from './lib/use-speed-scores';
+import type { SpeedScoreProgress, SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode, RefObject } from 'react';
 import './score-ready.scss';
 
@@ -19,6 +20,7 @@ type Props = {
 	isLoading?: boolean;
 	isRunning?: boolean;
 	hasScores?: boolean;
+	progress?: SpeedScoreProgress;
 	error?: Error | null;
 	onRetry?: () => void;
 	isVisible?: boolean;
@@ -31,6 +33,7 @@ export default function ScoreCards( {
 	isLoading,
 	isRunning,
 	hasScores = true,
+	progress,
 	error,
 	onRetry,
 	isVisible = true,
@@ -42,6 +45,7 @@ export default function ScoreCards( {
 	const hasFocus = useRef( false );
 	const displayState = getScoreDisplayState( { isRunning, hasScores, error } );
 	const showOverlay = displayState === 'generating';
+	const percent = useEstimatedPercent( showOverlay ? progress : undefined );
 	const [ announceCalculating, setAnnounceCalculating ] = useState( false );
 	useEffect( () => {
 		setAnnounceCalculating( Boolean( showOverlay ) );
@@ -83,8 +87,22 @@ export default function ScoreCards( {
 				label={ __( 'Testing site speed', 'jetpack-boost' ) }
 				isGenerating={ showOverlay }
 				live
+				value={ percent }
 			>
-				{ showOverlay && announceCalculating && __( 'Checking site speed…', 'jetpack-boost' ) }
+				{ showOverlay && announceCalculating && (
+					<>
+						{ __( 'Checking site speed…', 'jetpack-boost' ) }
+						{ percent !== undefined && (
+							<span aria-hidden="true">
+								{ ' ' }
+								{
+									/* translators: %d: how much of the speed test is done, as a percentage. */
+									sprintf( __( '%d%%', 'jetpack-boost' ), percent )
+								}
+							</span>
+						) }
+					</>
+				) }
 			</IndeterminateProgress>
 		</Card.Content>
 	);

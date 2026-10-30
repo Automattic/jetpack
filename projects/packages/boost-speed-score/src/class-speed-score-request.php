@@ -116,6 +116,15 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
+	 * When this request was dispatched, or last restarted.
+	 *
+	 * @return int|float Seconds since epoch.
+	 */
+	public function get_created() {
+		return $this->created;
+	}
+
+	/**
 	 * Convert this object to a plain array for JSON serialization.
 	 */
 	#[\ReturnTypeWillChange]
@@ -257,6 +266,7 @@ class Speed_Score_Request extends Cacheable {
 				$this->status = 'success';
 				$this->store();
 				$this->record_history( $response );
+				Speed_Score_Durations::record( microtime( true ) - $this->created );
 
 				break;
 

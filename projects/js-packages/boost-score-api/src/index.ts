@@ -63,26 +63,34 @@ interface SpeedHistoryResponse {
 	};
 }
 
+export type SpeedScoreProgress = {
+	elapsed: number;
+	expected: number;
+};
+
 type ParsedApiResponse = {
 	status: string;
 	scores?: SpeedScoresSet;
+	progress?: SpeedScoreProgress;
 };
 
 type SpeedScoresRequestOptions = {
 	signal?: AbortSignal;
 	onPending?: () => void;
+	onProgress?: ( progress: SpeedScoreProgress ) => void;
 };
 
 /**
  * Request speed scores for this site, polling until completion or cancellation.
  *
- * @param {boolean}     force             - Force regenerate speed scores.
- * @param {string}      rootUrl           - Root URL for the HTTP request.
- * @param {string}      siteUrl           - URL of the site.
- * @param {string}      nonce             - Nonce to use for authentication.
- * @param {object}      options           - Request options.
- * @param {AbortSignal} options.signal    - Stop polling without aborting an in-flight HTTP request.
- * @param {Function}    options.onPending - Called once if the site is still measuring, before polling starts.
+ * @param {boolean}     force              - Force regenerate speed scores.
+ * @param {string}      rootUrl            - Root URL for the HTTP request.
+ * @param {string}      siteUrl            - URL of the site.
+ * @param {string}      nonce              - Nonce to use for authentication.
+ * @param {object}      options            - Request options.
+ * @param {AbortSignal} options.signal     - Stop polling without aborting an in-flight HTTP request.
+ * @param {Function}    options.onPending  - Called once if the site is still measuring, before polling starts.
+ * @param {Function}    options.onProgress - Called with seconds elapsed and expected whenever the site is still measuring.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 export function requestSpeedScores(
@@ -126,7 +134,10 @@ export async function requestSpeedScores(
 			return response.scores;
 		}
 		options?.onPending?.();
-		return await pollRequest( rootUrl, siteUrl, nonce, signal );
+		if ( response.progress ) {
+			options?.onProgress?.( response.progress );
+		}
+		return await pollRequest( rootUrl, siteUrl, nonce, signal, options?.onProgress );
 	} catch ( error ) {
 		if ( ! signal?.aborted ) {
 			throw error;
@@ -208,25 +219,32 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 		throw new Error( __( 'Invalid response while requesting metrics', 'boost-score-api' ) );
 	}
 
+	const progress = isJsonObject( response.progress ) ? response.progress : {};
+	const elapsed = castToNumber( progress.elapsed );
+	const expected = castToNumber( progress.expected );
+
 	return {
 		status: requestStatus,
+		...( elapsed !== undefined && expected && { progress: { elapsed, expected } } ),
 	};
 }
 
 /**
  * Poll a speed score request for results, timing out if it takes too long.
  *
- * @param {string}      rootUrl - Root URL of the site to request metrics for
- * @param {string}      siteUrl - Site URL to request metrics for
- * @param {string}      nonce   - Nonce to use for authentication
- * @param {AbortSignal} signal  - Signal to stop polling.
+ * @param {string}      rootUrl    - Root URL of the site to request metrics for
+ * @param {string}      siteUrl    - Site URL to request metrics for
+ * @param {string}      nonce      - Nonce to use for authentication
+ * @param {AbortSignal} signal     - Signal to stop polling.
+ * @param {Function}    onProgress - Called with the progress of each pending response.
  * @return {SpeedScoresSet | undefined} Speed scores, or undefined when aborted.
  */
 async function pollRequest(
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	onProgress?: ( progress: SpeedScoreProgress ) => void
 ): Promise< SpeedScoresSet | undefined > {
 	return pollPromise< SpeedScoresSet | undefined >( {
 		timeout: pollTimeout,
@@ -245,6 +263,8 @@ async function pollRequest(
 				resolve( undefined );
 			} else if ( response.scores ) {
 				resolve( response.scores );
+			} else if ( response.progress ) {
+				onProgress?.( response.progress );
 			}
 		},
 	} );

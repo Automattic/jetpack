@@ -317,6 +317,28 @@ class Speed_Score {
 	}
 
 	/**
+	 * How far along the pending run is, measured from the earliest pending request.
+	 *
+	 * @param Speed_Score_Request|null $score_request          Speed score request.
+	 * @param Speed_Score_Request|null $score_request_no_boost Speed score request without boost enabled.
+	 *
+	 * @return array{elapsed: int, expected: int} Seconds since dispatch, and the seconds a run usually takes on this site.
+	 */
+	private function get_progress( $score_request, $score_request_no_boost ) {
+		$started = microtime( true );
+		foreach ( array( $score_request, $score_request_no_boost ) as $request ) {
+			if ( $request && $request->is_pending() ) {
+				$started = min( $started, $request->get_created() );
+			}
+		}
+
+		return array(
+			'elapsed'  => (int) round( microtime( true ) - $started ),
+			'expected' => Speed_Score_Durations::expected(),
+		);
+	}
+
+	/**
 	 * Prepare the speed score response.
 	 *
 	 * @param string              $url                    URL of the speed is requested for.
@@ -357,7 +379,8 @@ class Speed_Score {
 			}
 		} else {
 			// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
-			$response['status'] = 'pending';
+			$response['status']   = 'pending';
+			$response['progress'] = $this->get_progress( $score_request, $score_request_no_boost );
 		}
 
 		return rest_ensure_response( $response );
