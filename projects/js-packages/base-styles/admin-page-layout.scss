@@ -433,3 +433,9 @@ $jp-breakpoint-mobile: 782px;
 		}
 	}
 }
+
+body.admin_page_jetpack-spa-wp-admin,
+body.jetpack_page_jetpack-spa-wp-admin {
+
+	@include jetpack-admin-page-layout-wp-build;
+}

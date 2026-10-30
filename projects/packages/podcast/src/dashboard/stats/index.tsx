@@ -38,7 +38,7 @@ const Stats = () => {
 	const headingRef = useRef< HTMLHeadingElement | null >( null );
 
 	// `?episode=` owns the drilldown so Episodes-tab plays-clicks deep-link in.
-	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StatsSearch;
+	const search = useSearch( { strict: false } ) as StatsSearch;
 	const navigate = useNavigate();
 
 	const rawEpisode = Number( search.episode );

@@ -61,7 +61,7 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
  * @return The rendered Download screen.
  */
 export default function DownloadScreen() {
-	const { rewindId } = useParams( { from: '/download/$rewindId' } );
+	const { rewindId } = useParams( { strict: false } ) as { rewindId: string };
 	const gate = useGateState();
 	const siteSuffix = useSiteSuffix();
 	// `strict: false` is the unvalidated read, and it is the whole option:

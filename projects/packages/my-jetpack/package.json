@@ -126,6 +126,7 @@
 		"packageNamespace": "jetpack-my-jetpack",
 		"handlePrefix": "jetpack-my-jetpack",
 		"pages": [
+			"jetpack-spa",
 			{
 				"id": "my-jetpack-dashboard",
 				"init": [

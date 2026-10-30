@@ -175,6 +175,10 @@ class Initializer {
 			return;
 		}
 
+		add_action( 'jetpack_wp_admin_spa_load', array( __CLASS__, 'load_wp_build_for_spa' ) );
+		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
+		add_filter( 'jetpack_wp_admin_spa_redirect_legacy_url', array( __CLASS__, 'keep_setup_steps_on_legacy_url' ), 10, 2 );
+
 		if ( self::is_offline_features_enabled() ) {
 			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
 			Connection_Rest_Authentication::init();
@@ -379,6 +383,63 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * Load My Jetpack's wp-build output for the Jetpack plugin's top-level SPA page.
+	 *
+	 * @see Jetpack_WP_Admin_SPA::maybe_load_wp_build()
+	 * @return void
+	 */
+	public static function load_wp_build_for_spa() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		if ( ! self::current_user_can_access_page() || ! file_exists( $build_index ) ) {
+			return;
+		}
+		require_once $build_index;
+
+		// Declared on the host page only so wp-build emits the routes; the host does the booting.
+		remove_action( 'admin_enqueue_scripts', 'jetpack_my_jetpack_jetpack_spa_wp_admin_enqueue_scripts' );
+		add_filter(
+			'jetpack_wp_admin_spa_route_getters',
+			function ( $getters ) {
+				$getters[] = 'jetpack_my_jetpack_get_jetpack_spa_wp_admin_routes';
+				return $getters;
+			}
+		);
+
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		self::admin_init();
+	}
+
+	/**
+	 * Point the My Jetpack sidebar entry at the SPA route, when the build can serve it.
+	 *
+	 * @param array $routes Menu slug => SPA route path.
+	 * @return array
+	 */
+	public static function add_spa_menu_route( $routes ) {
+		if ( file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			$routes['my-jetpack'] = '/my-jetpack';
+		}
+		return $routes;
+	}
+
+	/**
+	 * Leave setup-step URLs, such as the onboarding takeover, on the My Jetpack page.
+	 *
+	 * @param bool   $redirect Whether to redirect the legacy URL to the SPA.
+	 * @param string $page     The legacy page slug.
+	 * @return bool
+	 */
+	public static function keep_setup_steps_on_legacy_url( $redirect, $page ) {
+		if ( 'my-jetpack' === $page && isset( $_GET['step'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+		return $redirect;
 	}
 
 	/**

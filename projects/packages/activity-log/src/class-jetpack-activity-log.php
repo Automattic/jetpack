@@ -134,6 +134,8 @@ class Jetpack_Activity_Log {
 		}
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
+		add_action( 'jetpack_wp_admin_spa_load', array( __CLASS__, 'load_wp_build_for_spa' ) );
+		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
 
@@ -275,6 +277,49 @@ class Jetpack_Activity_Log {
 		self::opt_out_of_jitms( $page_suffix );
 
 		return $page_suffix;
+	}
+
+	/**
+	 * Load Activity Log's wp-build output for the Jetpack plugin's top-level SPA page.
+	 *
+	 * @see Jetpack_WP_Admin_SPA::maybe_load_wp_build()
+	 * @return void
+	 */
+	public static function load_wp_build_for_spa() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		if ( ! self::is_available() || ! file_exists( $build_index ) ) {
+			return;
+		}
+		require_once $build_index;
+
+		// Declared on the host page only so wp-build emits the routes; the host does the booting.
+		remove_action( 'admin_enqueue_scripts', 'jetpack_activity_log_jetpack_spa_wp_admin_enqueue_scripts' );
+		add_filter(
+			'jetpack_wp_admin_spa_route_getters',
+			function ( $getters ) {
+				$getters[] = 'jetpack_activity_log_get_jetpack_spa_wp_admin_routes';
+				return $getters;
+			}
+		);
+
+		if ( function_exists( 'jetpack_activity_log_register_script_modules' ) ) {
+			jetpack_activity_log_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
+	}
+
+	/**
+	 * Point the Activity Log sidebar entry at the SPA route, when the build can serve it.
+	 *
+	 * @param array $routes Menu slug => SPA route path.
+	 * @return array
+	 */
+	public static function add_spa_menu_route( $routes ) {
+		if ( file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			$routes[ self::PAGE_SLUG ] = '/activity-log';
+		}
+		return $routes;
 	}
 
 	/**

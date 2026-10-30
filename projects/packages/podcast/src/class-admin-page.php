@@ -68,6 +68,8 @@ class Admin_Page {
 		self::$initialized = true;
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+		add_action( 'jetpack_wp_admin_spa_load', array( __CLASS__, 'load_wp_build_for_spa' ) );
+		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
 
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
 		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
@@ -173,6 +175,50 @@ class Admin_Page {
 
 		self::load_wp_build_with_screen_alias();
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+	}
+
+	/**
+	 * Load Podcast's wp-build output for the Jetpack plugin's top-level SPA page.
+	 *
+	 * @see Jetpack_WP_Admin_SPA::maybe_load_wp_build()
+	 * @return void
+	 */
+	public static function load_wp_build_for_spa() {
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		if ( ! current_user_can( 'manage_options' ) || ! file_exists( $build_index ) ) {
+			return;
+		}
+		require_once $build_index;
+
+		// Declared on the host page only so wp-build emits the routes; the host does the booting.
+		remove_action( 'admin_enqueue_scripts', 'jetpack_podcast_jetpack_spa_wp_admin_enqueue_scripts' );
+		add_filter(
+			'jetpack_wp_admin_spa_route_getters',
+			function ( $getters ) {
+				$getters[] = 'jetpack_podcast_get_jetpack_spa_wp_admin_routes';
+				return $getters;
+			}
+		);
+
+		if ( function_exists( 'jetpack_podcast_register_script_modules' ) ) {
+			jetpack_podcast_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+		self::admin_init();
+	}
+
+	/**
+	 * Point the Podcast sidebar entry at the SPA route, when the build can serve it.
+	 *
+	 * @param array $routes Menu slug => SPA route path.
+	 * @return array
+	 */
+	public static function add_spa_menu_route( $routes ) {
+		if ( file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			$routes[ self::ADMIN_PAGE_SLUG ] = '/podcast';
+		}
+		return $routes;
 	}
 
 	/**

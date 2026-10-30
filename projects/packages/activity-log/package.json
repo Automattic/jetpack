@@ -35,6 +35,7 @@
 		"packageNamespace": "jetpack-activity-log",
 		"handlePrefix": "jetpack-activity-log",
 		"pages": [
+			"jetpack-spa",
 			{
 				"id": "jetpack-activity-log-dashboard",
 				"init": [
