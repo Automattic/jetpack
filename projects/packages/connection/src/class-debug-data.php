@@ -216,7 +216,8 @@ class Debug_Data {
 		 *
 		 * @param array $fields Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 		 */
-		$fields = apply_filters( 'jetpack_connection_debug_data', $fields );
+		$filtered = apply_filters( 'jetpack_connection_debug_data', $fields );
+		$fields   = is_array( $filtered ) ? $filtered : $fields;
 
 		$idc_urls = array(
 			'home'       => Urls::home_url(),
