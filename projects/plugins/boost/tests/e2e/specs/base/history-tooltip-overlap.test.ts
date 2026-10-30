@@ -605,7 +605,11 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		[ mobile, 60, 'rgb(250, 167, 84)' ],
 		[ desktop.nth( 1 ), 40, 'rgb(204, 24, 24)' ],
 	] as const ) {
-		await expect( card.getByRole( 'progressbar' ) ).toHaveValue( String( score ) );
+		// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute(
+			'aria-valuenow',
+			String( score )
+		);
 		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'aria-valuemax', '100' );
 		const track = card.locator( '.jetpack-boost-overview__progress-track' );
 		await expect( track.locator( ':scope > div' ) ).toHaveCSS( 'background-color', color );
@@ -734,7 +738,8 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	await expect( failed.getByRole( 'region' ) ).toHaveCount( 0 );
 	const notice = ( await failedRefresh.getByText( 'Failed to load speed scores' ).boundingBox() )!;
 	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
-	await expect( desktop.getByRole( 'progressbar' ) ).toHaveValue( '80' );
+	// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+	await expect( desktop.getByRole( 'progressbar' ) ).toHaveAttribute( 'aria-valuenow', '80' );
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 
