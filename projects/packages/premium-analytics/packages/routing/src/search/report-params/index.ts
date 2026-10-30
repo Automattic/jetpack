@@ -9,5 +9,4 @@ export {
 	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,
-	buildSingleReportLink,
 } from './report-params';

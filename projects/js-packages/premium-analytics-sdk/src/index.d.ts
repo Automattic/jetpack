@@ -211,13 +211,6 @@ export declare function defaultReportParamsForGrain( ...args: any[] ): any;
 export type ReportParamsFieldAttributes = any;
 export type ReportGrain = any;
 
-// The link to a single-report page, `/report/{kind}/{id}`, keeping the shared report window.
-export declare function buildSingleReportLink(
-	kind: string,
-	id: string | number,
-	search: Record< string, unknown > | undefined
-): string;
-
 // Report scope and dates.
 export type ReportParams = any;
 export type StatsPeriod = any;
