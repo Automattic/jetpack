@@ -489,7 +489,22 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 		);
 	};
 
-	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
+	const llmsTxtEffectivelyOn = Boolean(
+		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.disabled
+	);
+	const llmsTxtConflictNotice = llmsTxt?.conflictingPlugin
+		? sprintf(
+				/* translators: %1$s: name of the active SEO plugin. */
+				__(
+					'Jetpack is not generating llms.txt while %1$s is active. Your saved setting is retained. Deactivate %1$s to let Jetpack generate the file.',
+					'jetpack-seo'
+				),
+				llmsTxt.conflictingPlugin
+			)
+		: __(
+				'Jetpack is not generating llms.txt because SEO tools are disabled on this site. Your saved setting is retained.',
+				'jetpack-seo'
+			);
 
 	let enhancerHelp: string | undefined;
 	if ( ! enhancer.aiSeoEnabled ) {
@@ -529,7 +544,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ searchEnginesVisible && ! llmsTxt.canServe && (
+							{ llmsTxt.disabled && (
+								<Notice.Root intent="warning">
+									<Notice.Description>{ llmsTxtConflictNotice }</Notice.Description>
+								</Notice.Root>
+							) }
+							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.disabled && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -544,8 +564,13 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 									label={ __( 'Generate an llms.txt file', 'jetpack-seo' ) }
 									help={ llmsTxtHelp }
 									checked={ llmsTxtEffectivelyOn }
-									onChange={ setLlmsTxtEnabled }
-									disabled={ isSaving || ! searchEnginesVisible }
+									// eslint-disable-next-line react/jsx-no-bind
+									onChange={ next => {
+										if ( ! llmsTxt.disabled ) {
+											setLlmsTxtEnabled( next );
+										}
+									} }
+									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.disabled }
 									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (
