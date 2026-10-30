@@ -7,7 +7,11 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-require_once __DIR__ . '/single-report-pages.php';
+// Guarded on a symbol the file declares, so a second copy of the package can't
+// redeclare it. See the include block in Analytics::load_dashboard_components().
+if ( ! function_exists( __NAMESPACE__ . '\\register_single_report_page' ) ) {
+	require_once __DIR__ . '/single-report-pages.php';
+}
 if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 	require_once __DIR__ . '/videopress-availability.php';
 }
