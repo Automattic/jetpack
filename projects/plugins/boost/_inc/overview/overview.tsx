@@ -295,6 +295,7 @@ function OverviewContent( {
 					isLoading={ isLoading }
 					isRunning={ scoreState.isRunning }
 					hasScores={ scoreState.hasScores }
+					progress={ scoreState.progress }
 					error={ scoreState.error }
 					onRetry={ () => onRefresh( 'score_card' ) }
 					isVisible={ isVisible }

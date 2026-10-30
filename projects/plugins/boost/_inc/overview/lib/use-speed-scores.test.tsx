@@ -545,3 +545,30 @@ test( 'does not announce a run started elsewhere when an automatic refresh follo
 	await act( async () => refresh( true ) );
 	expect( completed ).not.toHaveBeenCalled();
 } );
+
+test( 'keeps the latest reported progress during a run and drops it when scores land', async () => {
+	const { result } = renderHook( () => useSpeedScores(), { wrapper } );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+	let report!: ( progress: { elapsed: number; expected: number } ) => void;
+	let resolveRequest!: ( scores: typeof nextScores ) => void;
+	jest.mocked( requestSpeedScores ).mockImplementationOnce(
+		( _force, _root, _url, _nonce, options ) =>
+			new Promise( resolve => {
+				options?.onPending?.();
+				report = progress => options?.onProgress?.( progress );
+				resolveRequest = resolve;
+			} )
+	);
+	let request!: ReturnType< ( typeof result.current )[ 1 ] >;
+	act( () => {
+		request = result.current[ 1 ]( true );
+	} );
+	act( () => report( { elapsed: 12, expected: 40 } ) );
+	expect( result.current[ 0 ].progress ).toMatchObject( { elapsed: 12, expected: 40 } );
+	await act( async () => {
+		resolveRequest( nextScores );
+		await request;
+	} );
+	expect( result.current[ 0 ].progress ).toBeUndefined();
+} );

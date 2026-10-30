@@ -8,11 +8,17 @@ import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-strin
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
 export type SpeedScoresSet = NonNullable< Awaited< ReturnType< typeof requestSpeedScores > > >;
+export type SpeedScoreProgress = {
+	elapsed: number;
+	expected: number;
+	receivedAt: number;
+};
 export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
 	hasScores: boolean;
 	isRunning: boolean;
+	progress?: SpeedScoreProgress;
 	scores: SpeedScoresSet;
 };
 
@@ -69,6 +75,7 @@ export function useSpeedScores(
 					acceptedUserRun.current === url ||
 					( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
+				progress: undefined,
 			} ) );
 			try {
 				const scores = await requestSpeedScores(
@@ -85,6 +92,14 @@ export function useSpeedScores(
 									acceptedUserRun.current = url;
 								}
 								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+						onProgress: ( { elapsed, expected } ) => {
+							if ( id === requestId.current ) {
+								setState( previous => ( {
+									...previous,
+									progress: { elapsed, expected, receivedAt: Date.now() },
+								} ) );
 							}
 						},
 					}
@@ -109,7 +124,13 @@ export function useSpeedScores(
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
-				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
+				setState( previous => ( {
+					...previous,
+					status: 'error',
+					isRunning: false,
+					progress: undefined,
+					error,
+				} ) );
 			}
 		},
 		[ online, url, enabled, cancelPending, onUserRunComplete ]

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an onProgress option that reports how far along a running speed test is.
