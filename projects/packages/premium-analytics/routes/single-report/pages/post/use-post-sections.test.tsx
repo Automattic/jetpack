@@ -55,7 +55,11 @@ function mockSends( totalSends?: number, state: 'loading' | 'error' = 'loading' 
  */
 function sectionsFor( summary: PostSummary = SUMMARY, activeSlug?: string ) {
 	return renderHook( () =>
-		usePostSections( summary, SECTIONS, { entityId: POST_ID, activeSlug, timeZone: 'UTC' } )
+		usePostSections( summary, SECTIONS, {
+			entityId: String( POST_ID ),
+			activeSlug,
+			timeZone: 'UTC',
+		} )
 	).result.current;
 }
 

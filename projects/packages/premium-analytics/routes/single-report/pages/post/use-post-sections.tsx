@@ -70,7 +70,7 @@ function notSentEmptyState(): PageEmptyStateProps {
  * @param summary            - The post summary, in any state.
  * @param sections           - The record's sections.
  * @param context            - The entity, the section the URL names and the site timezone.
- * @param context.entityId   - The post id.
+ * @param context.entityId   - The post id, as the URL carries it.
  * @param context.activeSlug - The section the URL names, if any.
  * @param context.timeZone   - The site timezone.
  * @return One state per section, in the record's order.
@@ -80,7 +80,7 @@ export function usePostSections(
 	sections: SingleReportPageSection[],
 	{ entityId, activeSlug, timeZone }: SectionsContext
 ): SectionState[] {
-	const postId = entityId;
+	const postId = Number( entityId );
 	const postType = summary.type;
 	const showEmail =
 		postId > 0 &&

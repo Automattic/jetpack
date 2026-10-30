@@ -86,7 +86,10 @@ export type SectionState = {
  * What the page knows when it asks an adapter about the sections.
  */
 export type SectionsContext = {
-	entityId: number;
+	/*
+	 * The entity id, as the URL carries it.
+	 */
+	entityId: string;
 
 	/*
 	 * The section the URL names, if any.

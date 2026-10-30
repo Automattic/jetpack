@@ -61,10 +61,11 @@ function useCarriedPostUrl(): string | undefined {
  * published date come from the Stats `post` payload; the featured image
  * isn't in that payload, so it's read separately from core-data.
  *
- * @param postId - The post/page ID from the route.
+ * @param id - The post/page ID, as the URL carries it.
  * @return The resolved post summary.
  */
-export function usePostSummary( postId: number ): PostSummary {
+export function usePostSummary( id: string ): PostSummary {
+	const postId = Number( id );
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
 	const { data, isLoading, isPending, isPaused, isError, error, refetch } = useStatsPost( {
