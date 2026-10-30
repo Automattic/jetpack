@@ -142,7 +142,15 @@ class Jetpack_WP_Admin_SPA {
 
 		$routes = self::get_menu_routes();
 		$page   = sanitize_text_field( wp_unslash( $_GET['page'] ) );
-		if ( ! isset( $routes[ $page ] ) ) {
+		/**
+		 * Filters whether a product's legacy admin URL redirects to its SPA route.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool   $redirect Whether to redirect.
+		 * @param string $page     The legacy page slug.
+		 */
+		if ( ! isset( $routes[ $page ] ) || ! apply_filters( 'jetpack_wp_admin_spa_redirect_legacy_url', true, $page ) ) {
 			return;
 		}
 
