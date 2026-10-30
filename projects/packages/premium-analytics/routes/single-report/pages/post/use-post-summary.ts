@@ -8,10 +8,12 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import type { EntitySummary } from '../adapter';
 
-export type PostSummary = {
-	/** Post title for display. */
-	title?: string;
+export type PostSummary = EntitySummary & {
 	/** Post type slug (e.g. `post`, `page`). */
 	type?: string;
 	/** Published date as a datetime string, when available. */
@@ -20,14 +22,6 @@ export type PostSummary = {
 	imageUrl?: string;
 	/** Public URL of the post/page, when available. */
 	url?: string;
-	/** Whether the underlying stats request is still resolving. */
-	isLoading: boolean;
-	/** Whether the stats request failed without a post to show. */
-	isError: boolean;
-	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
-	error: unknown;
-	/** Re-runs the failed request, for the error state's Retry action. */
-	refetch: () => void;
 };
 
 /**
@@ -67,10 +61,11 @@ function useCarriedPostUrl(): string | undefined {
  * published date come from the Stats `post` payload; the featured image
  * isn't in that payload, so it's read separately from core-data.
  *
- * @param postId - The post/page ID from the route.
+ * @param id - The post/page ID, as the URL carries it.
  * @return The resolved post summary.
  */
-export function usePostSummary( postId: number ): PostSummary {
+export function usePostSummary( id: string ): PostSummary {
+	const postId = Number( id );
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
 	const { data, isLoading, isPending, isPaused, isError, error, refetch } = useStatsPost( {
@@ -113,13 +108,16 @@ export function usePostSummary( postId: number ): PostSummary {
 		void refetch();
 	}, [ refetch ] );
 
+	// GMT fallback gets an explicit `Z` suffix so downstream code doesn't
+	// mistake it for a site-timezone wall time.
+	const publishedDate =
+		post?.post_date ?? ( post?.post_date_gmt ? `${ post.post_date_gmt }Z` : undefined );
+
 	return {
 		title: post?.post_title,
 		type,
-		// GMT fallback gets an explicit `Z` suffix so downstream code doesn't
-		// mistake it for a site-timezone wall time.
-		publishedDate:
-			post?.post_date ?? ( post?.post_date_gmt ? `${ post.post_date_gmt }Z` : undefined ),
+		publishedDate,
+		allTimeStart: publishedDate,
 		imageUrl,
 		// The entity permalink is authoritative; the carried URL only covers the
 		// post types core data cannot resolve.
@@ -128,6 +126,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		isLoading: isLoading || ( isPending && isPaused ),
 		isError: hasFailed,
 		error: hasFailed ? error : null,
+		// The Stats report answers for any id; a missing post reads as an error, as before.
+		isNotFound: false,
 		refetch: retry,
 	};
 }

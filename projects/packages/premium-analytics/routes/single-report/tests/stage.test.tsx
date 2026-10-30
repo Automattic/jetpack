@@ -1,4 +1,4 @@
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, useStatsEmailClicksBreakdown } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
@@ -14,6 +14,7 @@ import type { ReactNode } from 'react';
 let mockSearch: Record< string, unknown > = {};
 let mockParams: Record< string, string > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
+let mockPeriodHost: { openPeriod: () => void; attentionId?: number } | undefined;
 let mockDashboardProps: {
 	editMode?: boolean;
 	onEditChange?: ( next: boolean ) => void;
@@ -21,7 +22,8 @@ let mockDashboardProps: {
 	onLayoutReset?: () => void;
 } = {};
 const mockNavigate = jest.fn();
-const mockUseSummary = jest.fn< EntitySummary & { publishedDate?: string }, [ string ] >();
+type AnySummary = EntitySummary & Record< string, unknown >;
+const mockUseSummary = jest.fn< AnySummary, [ string ] >();
 let mockAdapters: Record< string, SingleReportAdapter > = {};
 
 const VIDEO_PAGE = {
@@ -41,6 +43,42 @@ const VIDEO_PAGE = {
 		{ uuid: 'embeds', type: 'jpa/video-detail-embeds' },
 	],
 	sections: [],
+};
+
+const POST_PAGE = {
+	...VIDEO_PAGE,
+	id: 'analytics/post',
+	path: 'post',
+	label: 'Post',
+	feature: null,
+	icon: 'jpa/post',
+	reports_page: 'posts',
+	preferences_scope: 'jetpack-premium-analytics/post-detail',
+	default_layout: [],
+	sections: [
+		{
+			slug: 'post-traffic',
+			label: 'Post traffic',
+			default_layout: [ { uuid: 'views', type: 'jpa/post-views' } ],
+			controls: null,
+		},
+		{
+			slug: 'email-opens',
+			label: 'Email opens',
+			default_layout: [
+				{ uuid: 'opens', type: 'jpa/email-top-row', attributes: { metric: 'opens' } },
+			],
+			controls: [],
+		},
+		{
+			slug: 'email-clicks',
+			label: 'Email clicks',
+			default_layout: [
+				{ uuid: 'clicks', type: 'jpa/email-top-row', attributes: { metric: 'clicks' } },
+			],
+			controls: [],
+		},
+	],
 };
 
 // A page another plugin registered: no adapter in the route, no controls, no reports page.
@@ -69,10 +107,14 @@ const RECAP_PAGE = {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	useStatsEmailClicksBreakdown: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	usePeriodHost: ( ...args: unknown[] ) =>
+		mockPeriodHost ??
+		jest.requireActual( '@jetpack-premium-analytics/routing' ).usePeriodHost( ...args ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => {
 		const filters: Record< string, unknown > = {
@@ -94,6 +136,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest.requireActual( '../../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
+	SectionTabs: jest.requireActual( '../../../packages/ui/src/section-tabs/section-tabs' )
+		.SectionTabs,
+	PeriodChangeStatus: jest.requireActual(
+		'../../../packages/ui/src/period-change-status/period-change-status'
+	).PeriodChangeStatus,
 	StatsPageIcon: () => <svg data-testid="stats-icon" />,
 	safeHttpUrl: jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' ).safeHttpUrl,
 } ) );
@@ -107,6 +154,7 @@ type ControlItem = { reportParams?: Record< string, unknown >; allTimeStart?: st
  * @return The control.
  */
 function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem > ) {
+	const { attentionId } = useReportScope();
 	const applyLastSevenDays = useCallback(
 		() =>
 			onChange( {
@@ -120,6 +168,7 @@ function MockDateControl( { data, onChange }: DataFormControlProps< ControlItem 
 			<div>Date filters</div>
 			<div>{ `Window from ${ String( data.reportParams?.from ?? 'none' ) }` }</div>
 			<div>{ `All time from ${ data.allTimeStart ?? 'none' }` }</div>
+			<div>{ attentionId === undefined ? 'No attention' : `Attention ${ attentionId }` }</div>
 			<button onClick={ applyLastSevenDays }>Apply last 7 days</button>
 		</div>
 	);
@@ -275,11 +324,11 @@ jest.mock( '../pages', () => ( {
 const refetch = jest.fn();
 
 /**
- * Stubs the summary, defaulting to a resolved video with no title.
+ * Stubs the summary, defaulting to a resolved entity with no title.
  *
  * @param overrides - Fields to override on the default summary.
  */
-function mockSummary( overrides: Partial< EntitySummary & { publishedDate?: string } > = {} ) {
+function mockSummary( overrides: Partial< AnySummary > = {} ) {
 	mockUseSummary.mockReturnValue( {
 		isLoading: false,
 		isError: false,
@@ -309,7 +358,7 @@ describe( 'single-report stage', () => {
 			value: {
 				premium_analytics: {
 					has_videopress: true,
-					single_report_pages: [ VIDEO_PAGE, CLIP_PAGE, RECAP_PAGE ],
+					single_report_pages: [ VIDEO_PAGE, POST_PAGE, CLIP_PAGE, RECAP_PAGE ],
 				},
 				user: { current_user: { capabilities: {} } },
 			},
@@ -320,6 +369,7 @@ describe( 'single-report stage', () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
 		mockDateFilterOverrides = {};
+		mockPeriodHost = undefined;
 		mockParams = { kind: 'video', id: '42' };
 		mockSearch = {
 			from: '2026-06-01',
@@ -542,6 +592,16 @@ describe( 'single-report stage', () => {
 		expect( screen.getByText( 'Scope offers no comparison' ) ).toBeInTheDocument();
 	} );
 
+	// The control is a DataForm field, so the host's attention reaches it through the scope.
+	it( 'hands the control the attention the period host raises', () => {
+		mockPeriodHost = { openPeriod: jest.fn(), attentionId: 7 };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( screen.getByText( 'Attention 7' ) ).toBeInTheDocument();
+	} );
+
 	it( 'hands the dashboard the layout the record declares', () => {
 		mockSummary( { title: 'Launch recap' } );
 
@@ -682,5 +742,117 @@ describe( 'single-report stage', () => {
 
 		act( () => mockDashboardProps.onLayoutReset?.() );
 		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	describe( 'the post page', () => {
+		const mockGate = jest.mocked( useStatsEmailClicksBreakdown );
+
+		/**
+		 * Mocks the clicks rate summary that gates the email sections.
+		 *
+		 * @param totalSends - The sends the gate reports; undefined leaves it unanswered.
+		 */
+		function mockSends( totalSends?: number ) {
+			const answered = totalSends !== undefined;
+			mockGate.mockReturnValue( {
+				data: answered ? { summary: { total_sends: totalSends } } : undefined,
+				isLoading: ! answered,
+				isSuccess: answered,
+				isError: false,
+			} as never );
+		}
+
+		beforeEach( () => {
+			mockParams = { kind: 'post', id: '42' };
+			mockAdapters = {
+				post: {
+					useSummary: mockUseSummary,
+					headerSlots: jest.requireActual( '../pages/post/post-header-slots' ).postHeaderSlots,
+					headerActions: jest.requireActual( '../pages/post/header-actions' ).postHeaderActions,
+					useSections: jest.requireActual( '../pages/post/use-post-sections' ).usePostSections,
+				},
+			};
+			mockSends( 3 );
+		} );
+
+		it( 'shows the three sections, the date filter and the View post action for a sent post', () => {
+			mockSummary( {
+				title: 'Hello world',
+				type: 'post',
+				allTimeStart: '2026-06-22 10:00:00',
+				url: 'https://example.com/hello/',
+			} );
+
+			render( stage() );
+
+			expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+				'Post traffic',
+				'Email opens',
+				'Email clicks',
+			] );
+			expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+			// `openInNewTab` appends a screen-reader hint to the accessible name.
+			expect(
+				screen.getByRole( 'link', { name: 'View post(opens in a new tab)' } )
+			).toHaveAttribute( 'href', 'https://example.com/hello/' );
+			expect( mockUseStoredLayout ).toHaveBeenCalledWith(
+				'jetpack-premium-analytics/post-detail',
+				'post-traffic',
+				POST_PAGE.sections[ 0 ].default_layout
+			);
+		} );
+
+		it( 'hides the email sections for a page, which is never sent as a newsletter', () => {
+			mockSummary( { title: 'About', type: 'page', url: 'https://example.com/about/' } );
+
+			render( stage() );
+
+			expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
+				'Post traffic',
+			] );
+			expect(
+				screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } )
+			).toBeInTheDocument();
+		} );
+
+		it( 'pins an email section to the send window, with the email identity and no date filter', () => {
+			mockSearch = { ...mockSearch, section: 'email-opens' };
+			mockSummary( {
+				title: 'Hello world',
+				type: 'post',
+				publishedDate: '2026-06-22 10:00:00',
+				allTimeStart: '2026-06-22 10:00:00',
+			} );
+
+			render( stage() );
+
+			expect( screen.getByText( /Email sent on Jun 22, 2026\./ ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+			const [ , layoutId, layout ] = mockUseStoredLayout.mock.calls.at( -1 ) as [
+				string,
+				string,
+				Array< { attributes?: Record< string, unknown > } >,
+			];
+			expect( layoutId ).toBe( 'email-opens' );
+			expect( layout[ 0 ].attributes ).toMatchObject( {
+				metric: 'opens',
+				reportParams: expect.objectContaining( { post_id: 42, interval: 'day' } ),
+			} );
+			expect( String( layout[ 0 ].attributes?.reportParams ) ).toBeDefined();
+		} );
+
+		it( 'replaces the header and the widgets of an email section with the never-sent state', () => {
+			mockSends( 0 );
+			mockSearch = { ...mockSearch, section: 'email-opens' };
+			mockSummary( { title: 'Hello world', type: 'post', allTimeStart: '2026-06-22 10:00:00' } );
+
+			render( stage() );
+
+			expect(
+				screen.getByText( 'This post hasn’t been sent as a newsletter' )
+			).toBeInTheDocument();
+			expect( screen.queryByText( /Email sent on/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Page widgets' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

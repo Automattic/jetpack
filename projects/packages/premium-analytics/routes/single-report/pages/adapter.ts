@@ -3,6 +3,7 @@
  */
 import type { SingleReportPageSection } from '../registry';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
+import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 /**
@@ -53,6 +54,55 @@ export type SingleReportHeaderSlots = {
 };
 
 /**
+ * The window a section pins its widgets to in place of the URL's, or why it has none yet:
+ * `pending` while the window resolves, `blocked` when it never will and the widgets mount anyway.
+ */
+export type SectionScope =
+	{ reportParams: Record< string, unknown >; range: DateRange } | 'pending' | 'blocked';
+
+/**
+ * What an adapter says about one of the record's sections for the current entity.
+ */
+export type SectionState = {
+	section: SingleReportPageSection;
+
+	/*
+	 * The tab is absent: the section does not apply to this entity.
+	 */
+	hidden?: boolean;
+
+	/*
+	 * A pinned window; the section then renders no date controls.
+	 */
+	scope?: SectionScope;
+
+	/*
+	 * Replaces the header and the widgets with one page-level state.
+	 */
+	emptyState?: PageEmptyStateProps;
+};
+
+/**
+ * What the page knows when it asks an adapter about the sections.
+ */
+export type SectionsContext = {
+	/*
+	 * The entity id, as the URL carries it.
+	 */
+	entityId: string;
+
+	/*
+	 * The section the URL names, if any.
+	 */
+	activeSlug?: string;
+
+	/*
+	 * The site timezone, for a window computed from a date.
+	 */
+	timeZone: string;
+};
+
+/**
  * What the page hands an adapter along with the summary.
  */
 export type HeaderContext = {
@@ -64,7 +114,7 @@ export type HeaderContext = {
 	/*
 	 * The active inner section, on a page with sections.
 	 */
-	section?: SingleReportPageSection;
+	section?: SectionState;
 
 	/*
 	 * The committed report range, stated as the performance window.
@@ -96,4 +146,13 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	 * The not-found notice's sentence, whole for translators; a page without one names no kind.
 	 */
 	notFoundDescription?(): string;
+
+	/*
+	 * The state of each of the record's sections for this entity; absent, every section renders as declared.
+	 */
+	useSections?(
+		summary: Summary,
+		sections: SingleReportPageSection[],
+		context: SectionsContext
+	): SectionState[];
 };
