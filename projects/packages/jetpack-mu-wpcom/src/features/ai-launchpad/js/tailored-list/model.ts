@@ -17,11 +17,13 @@ export interface EnrichedTask {
 	subtitle: string;
 	title: string;
 	completed: boolean;
-	// True when a task is mid-way through its prerequisite. For a site-editor task that
-	// means a saved-but-unpublished draft (drafts icon + "Continue" CTA, `calypso_path`
-	// reopens it); for the synthetic `install_woocommerce` task it means the plugin is
-	// installed but not yet active (the CTA activates it).
+	// True when a task is mid-way through its prerequisite: the user started it (here or
+	// in the Agent chat), a site-editor task has a saved-but-unpublished draft, or the
+	// synthetic `install_woocommerce` task's plugin is installed but not yet active.
 	in_progress: boolean;
+	// True when a site-editor task has a saved-but-unpublished draft: `calypso_path`
+	// reopens it and the CTA reads "Continue" instead of creating a new one.
+	has_draft: boolean;
 	// True for a task shown as a locked preview of the roadmap (e.g. a sell site's
 	// commerce tasks before WooCommerce is active): it renders muted, expands to its
 	// subtitle, but offers no CTA or Skip until its prerequisite is met.
@@ -257,7 +259,7 @@ export async function resolveCtaUrl(
 
 	const kind = ctaKind( task.id );
 	let url: string | null;
-	if ( task.in_progress && task.calypso_path ) {
+	if ( task.has_draft && task.calypso_path ) {
 		// The task already has an unpublished draft; reopen it rather than creating a duplicate.
 		url = task.calypso_path;
 	} else if ( kind === 'first_post' && output ) {
@@ -311,8 +313,8 @@ export function isTaskActionable(
 	if ( task.disabled ) {
 		return false;
 	}
-	// An in-progress task reopens its existing draft via calypso_path, so it stays actionable.
-	if ( task.in_progress && task.calypso_path ) {
+	// A task with a draft reopens it via calypso_path, so it stays actionable.
+	if ( task.has_draft && task.calypso_path ) {
 		return true;
 	}
 	const kind = ctaKind( task.id );
@@ -363,6 +365,7 @@ export function tasksFromFixture( output: TailoredOutput ): EnrichedTask[] {
 		title: humanizeTaskId( task.id ),
 		completed: false,
 		in_progress: false,
+		has_draft: false,
 		disabled: false,
 		calypso_path: null,
 	} ) );

@@ -15,6 +15,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	const OPTION_AI_OUTPUT = 'wpcom_ai_launchpad_ai_output';
 	const OPTION_DISMISSED = 'wpcom_ai_launchpad_dismissed';
 	const OPTION_SKIPPED   = 'wpcom_ai_launchpad_skipped_tasks';
+	// Tasks started from Site Setup or the Agent chat, so both surfaces show the same "in progress".
+	const OPTION_STARTED = 'wpcom_ai_launchpad_started_tasks';
 	// Latched "every task is done" flag, autoloaded so the menu gate reads it without rebuilding the task list.
 	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
 	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
@@ -426,6 +428,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/start-task',
+			array(
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'start_task' ),
+					'permission_callback' => array( $this, 'can_write' ),
+					'args'                => array(
+						'task_id' => array(
+							'description'       => 'The task to mark as started.',
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/tailored',
 			array(
 				array(
@@ -574,7 +596,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		$all_tasks = $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' );
 		if ( $all_tasks ) {
-			$tasks = $this->apply_skipped_tasks( $this->build_all_catalog_tasks() );
+			$tasks = $this->apply_started_tasks( $this->apply_skipped_tasks( $this->build_all_catalog_tasks() ) );
 		} else {
 			$tasks = $this->get_current_tasks();
 		}
@@ -693,7 +715,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		// user's own removals). No-op on an empty list so the wizard still runs when there is no AI output.
 		$tasks = $this->backfill_to_minimum( $tasks, $theme_cta, $disable_hidden_woo );
 
-		return $this->apply_skipped_tasks( $tasks );
+		return $this->apply_started_tasks( $this->apply_skipped_tasks( $tasks ) );
 	}
 
 	/**
@@ -999,8 +1021,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
-		// A fresh list must not inherit the previous one's skips or "done" flag.
+		// A fresh list must not inherit the previous one's skips, starts, or "done" flag.
 		delete_option( self::OPTION_SKIPPED );
+		delete_option( self::OPTION_STARTED );
 		delete_option( self::OPTION_COMPLETED );
 
 		// Baseline the born-completed tasks now (needs the fresh options above), so completion
@@ -1170,8 +1193,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function skip_task( $request ) {
 		$task_id = $request['task_id'];
 
-		$skippable = array_merge( wpcom_ai_launchpad_get_ai_task_ids(), self::SYNTHETIC_TASK_IDS, array_keys( $this->backfill_pool() ) );
-		if ( ! in_array( $task_id, $skippable, true ) ) {
+		if ( ! in_array( $task_id, $this->rendered_task_ids(), true ) ) {
 			return new WP_Error(
 				'ai_launchpad_task_not_skippable',
 				__( 'This task is not on the tailored list.', 'jetpack-mu-wpcom' ),
@@ -1179,11 +1201,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			);
 		}
 
-		$skipped = $this->get_skipped_task_ids();
-		if ( ! in_array( $task_id, $skipped, true ) ) {
-			$skipped[] = $task_id;
-			update_option( self::OPTION_SKIPPED, $skipped, false );
-		}
+		$this->record_task_id( self::OPTION_SKIPPED, $task_id );
 
 		// Latch now so skipping the last task hides the menu on the next page load, not just on the next read.
 		$this->maybe_mark_completed();
@@ -1196,6 +1214,44 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
+	 * Marks a task as started, so every surface renders it "in progress" until it completes.
+	 *
+	 * Content tasks already signal progress through their marker draft; this covers the rest (theme, domain,
+	 * design…), whose only "started" signal is the user picking them, in Site Setup or in the Agent chat.
+	 * Same allowlist as skip_task(): every rendered card can be started.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return array|WP_Error
+	 */
+	public function start_task( $request ) {
+		$task_id = $request['task_id'];
+
+		if ( ! in_array( $task_id, $this->rendered_task_ids(), true ) ) {
+			return new WP_Error(
+				'ai_launchpad_task_not_startable',
+				__( 'This task is not on the tailored list.', 'jetpack-mu-wpcom' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$this->record_task_id( self::OPTION_STARTED, $task_id );
+
+		return array(
+			'started' => true,
+			'task_id' => $task_id,
+		);
+	}
+
+	/**
+	 * Every id the site can render a card for: the AI-selected list, the synthetic store tasks, and the backfill pool.
+	 *
+	 * @return string[]
+	 */
+	private function rendered_task_ids() {
+		return array_merge( wpcom_ai_launchpad_get_ai_task_ids(), self::SYNTHETIC_TASK_IDS, array_keys( $this->backfill_pool() ) );
+	}
+
+	/**
 	 * Deletes the AI output and marks the AI Launchpad as dismissed.
 	 *
 	 * @return array
@@ -1203,6 +1259,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	public function dismiss() {
 		delete_option( self::OPTION_AI_OUTPUT );
 		delete_option( self::OPTION_SKIPPED );
+		delete_option( self::OPTION_STARTED );
 		delete_option( self::OPTION_COMPLETED );
 		update_option( self::OPTION_DISMISSED, true, true );
 
@@ -1210,21 +1267,45 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	}
 
 	/**
-	 * The persisted skipped task ids, always as a clean string array, remapped onto the
-	 * ids the launchpad renders — a skip recorded under a task's raw id before that id
-	 * was remapped must keep applying to the card it renders as now.
+	 * Appends a task id to one of the per-task id list options, once.
+	 *
+	 * @param string $option  The option name (OPTION_SKIPPED or OPTION_STARTED).
+	 * @param string $task_id The task id.
+	 */
+	private function record_task_id( $option, $task_id ) {
+		$ids = $this->get_recorded_task_ids( $option );
+		if ( ! in_array( $task_id, $ids, true ) ) {
+			$ids[] = $task_id;
+			update_option( $option, $ids, false );
+		}
+	}
+
+	/**
+	 * The task ids persisted in one of the id list options, always as a clean string array, remapped onto
+	 * the ids the launchpad renders — an id recorded under a task's raw id before that id was remapped must
+	 * keep applying to the card it renders as now.
+	 *
+	 * @param string $option The option name (OPTION_SKIPPED or OPTION_STARTED).
+	 * @return string[]
+	 */
+	private function get_recorded_task_ids( $option ) {
+		$ids = get_option( $option, array() );
+		if ( ! is_array( $ids ) ) {
+			return array();
+		}
+
+		$ids = array_map( 'wpcom_ai_launchpad_remap_task_id', array_filter( $ids, 'is_string' ) );
+
+		return array_values( array_unique( $ids ) );
+	}
+
+	/**
+	 * The persisted skipped task ids.
 	 *
 	 * @return string[]
 	 */
 	private function get_skipped_task_ids() {
-		$skipped = get_option( self::OPTION_SKIPPED, array() );
-		if ( ! is_array( $skipped ) ) {
-			return array();
-		}
-
-		$skipped = array_map( 'wpcom_ai_launchpad_remap_task_id', array_filter( $skipped, 'is_string' ) );
-
-		return array_values( array_unique( $skipped ) );
+		return $this->get_recorded_task_ids( self::OPTION_SKIPPED );
 	}
 
 	/**
@@ -1241,6 +1322,32 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			$task['skipped'] = in_array( $task['id'], $skipped, true );
 			if ( $task['skipped'] ) {
 				$task['completed'] = true;
+			}
+		}
+		unset( $task );
+
+		return $tasks;
+	}
+
+	/**
+	 * Overlays the persisted starts: a started task renders in progress until it completes. Applied after the skip
+	 * overlay, so a skipped (coerced complete) task never shows as in progress. `has_draft`, the title, and the CTA
+	 * are left alone: those follow the marker draft, not the start.
+	 *
+	 * @param array $tasks The enriched task list.
+	 * @return array
+	 */
+	private function apply_started_tasks( $tasks ) {
+		$started = $this->get_recorded_task_ids( self::OPTION_STARTED );
+
+		foreach ( $tasks as &$task ) {
+			// The install task's in-progress state is live (installed but inactive) and its CTA activates the plugin,
+			// so a start must not fake it.
+			if ( 'install_woocommerce' === $task['id'] ) {
+				continue;
+			}
+			if ( ! $task['completed'] && ! $task['disabled'] && in_array( $task['id'], $started, true ) ) {
+				$task['in_progress'] = true;
 			}
 		}
 		unset( $task );
@@ -1589,21 +1696,21 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				$calypso_path = wpcom_ai_launchpad_to_simple_plugins_path( $calypso_path );
 			}
 
-			$title       = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
-			$in_progress = false;
+			$title     = isset( $definition['get_title'] ) ? $definition['get_title']() : '';
+			$has_draft = false;
 
 			// A saved-but-unpublished draft (found by marker meta) puts a site-editor task "in progress": reopen that
 			// draft instead of creating a new one, and surface the drafts icon + a "Continue…" prompt in the card.
 			if ( ! $completed && ! $disabled ) {
 				$draft_url = $this->get_in_progress_draft_url( $task['id'] );
 				if ( null !== $draft_url ) {
-					$in_progress  = true;
+					$has_draft    = true;
 					$calypso_path = $draft_url;
 				}
 			}
 
-			// Title follows our precise in-progress signal so it, the icon, and the CTA agree.
-			$title = $this->get_task_title( $task['id'], $in_progress, $title );
+			// Title follows the draft signal so it, the CTA, and the reopened draft agree.
+			$title = $this->get_task_title( $task['id'], $has_draft, $title );
 
 			$seen_ids[ $task['id'] ] = true;
 			$built[]                 = array(
@@ -1611,7 +1718,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'subtitle'     => $task['subtitle'],
 				'title'        => $title,
 				'completed'    => $completed,
-				'in_progress'  => $in_progress,
+				// Widened by apply_started_tasks() for tasks started without a draft.
+				'in_progress'  => $has_draft,
+				'has_draft'    => $has_draft,
 				'disabled'     => $disabled,
 				'calypso_path' => $calypso_path,
 			);
@@ -1788,6 +1897,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'title'        => __( 'Install the WooCommerce plugin', 'jetpack-mu-wpcom' ),
 			'completed'    => $active,
 			'in_progress'  => $in_progress,
+			'has_draft'    => false,
 			'disabled'     => false,
 			'calypso_path' => $calypso_path,
 		);
@@ -1810,6 +1920,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'title'        => __( 'Set up your store', 'jetpack-mu-wpcom' ),
 			'completed'    => $completed,
 			'in_progress'  => false,
+			'has_draft'    => false,
 			'disabled'     => ! $active,
 			'calypso_path' => $completed || ! $active ? null : admin_url( 'admin.php?page=wc-admin&path=%2Fsetup-wizard' ),
 		);

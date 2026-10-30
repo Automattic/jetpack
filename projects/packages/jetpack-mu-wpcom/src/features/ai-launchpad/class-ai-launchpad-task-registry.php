@@ -447,16 +447,16 @@ class AI_Launchpad_Task_Registry {
 		// done, so the user can go back and change the icon or try another variation.
 		$calypso_path = isset( $definition['calypso_path'] ) ? $definition['calypso_path']() : null;
 
-		$in_progress = false;
+		$has_draft = false;
 		if ( ! $completed && isset( $definition['draft_id'] ) ) {
 			$draft_id = $definition['draft_id']();
 			if ( null !== $draft_id ) {
-				$in_progress  = true;
+				$has_draft    = true;
 				$calypso_path = admin_url( 'post.php?post=' . $draft_id . '&action=edit' );
 			}
 		}
 
-		$title = $in_progress && isset( $definition['in_progress_title'] )
+		$title = $has_draft && isset( $definition['in_progress_title'] )
 			? $definition['in_progress_title']()
 			: $definition['title']();
 
@@ -465,7 +465,9 @@ class AI_Launchpad_Task_Registry {
 			'subtitle'     => '' !== $subtitle ? $subtitle : $definition['default_subtitle'](),
 			'title'        => $title,
 			'completed'    => $completed,
-			'in_progress'  => $in_progress,
+			// Widened by the REST controller's started-tasks overlay for tasks started without a draft.
+			'in_progress'  => $has_draft,
+			'has_draft'    => $has_draft,
 			'disabled'     => false,
 			'calypso_path' => $calypso_path,
 		);

@@ -342,6 +342,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Write your first post', $first_task['title'] );
 		$this->assertTrue( $first_task['completed'] );
 		$this->assertFalse( $first_task['in_progress'] );
+		$this->assertFalse( $first_task['has_draft'] );
 		$this->assertSame( admin_url( 'post-new.php' ), $first_task['calypso_path'] );
 
 		$last_task = $data['tasks'][5];
@@ -371,6 +372,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$before = $this->rendered_task( $task_id );
 		$this->assertFalse( $before['in_progress'] );
+		$this->assertFalse( $before['has_draft'] );
 		$this->assertSame( $title, $before['title'] );
 		$this->assertSame( 'Subtitle for ' . $seeded[0] . '.', $before['subtitle'] );
 
@@ -378,6 +380,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 
 		$after = $this->rendered_task( $task_id );
 		$this->assertTrue( $after['in_progress'] );
+		$this->assertTrue( $after['has_draft'] );
 		$this->assertSame( $continue, $after['title'] );
 		$this->assertSame( admin_url( 'post.php?post=' . $draft_id . '&action=edit' ), $after['calypso_path'] );
 	}
@@ -1773,6 +1776,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$result = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'complete_profile' ) );
 		$this->assertSame( 403, $result->get_status() );
 
+		$result = $this->call_api( 'POST', '/start-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertSame( 403, $result->get_status() );
+
 		$result = $this->call_api( Requests::DELETE );
 		$this->assertSame( 403, $result->get_status() );
 
@@ -2088,16 +2094,116 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Writing a fresh tailored list clears the previous list's skips and the cached completion flag.
+	 * Every card the site renders can be started however its id got there, and the start renders it in progress
+	 * without a draft, without touching its title, CTA, or siblings. A repeat start stores the id once.
+	 *
+	 * @param array  $seeded  The task ids to seed.
+	 * @param string $goal    The inferred goal to seed.
+	 * @param string $task_id The rendered card id to start.
+	 * @dataProvider provide_startable_rendered_ids
+	 */
+	#[DataProvider( 'provide_startable_rendered_ids' )]
+	public function test_start_task_accepts_every_rendered_card( $seeded, $goal, $task_id ) {
+		$this->seed_ai_output_with_tasks( $seeded, $goal );
+		$before = $this->rendered_task( $task_id );
+		$this->assertFalse( $before['in_progress'] );
+
+		$result = $this->call_api( 'POST', '/start-task', array( 'task_id' => $task_id ) );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertTrue( $result->get_data()['started'] );
+		$this->assertSame( 200, $this->call_api( 'POST', '/start-task', array( 'task_id' => $task_id ) )->get_status() );
+		$this->assertSame( array( $task_id ), get_option( 'wpcom_ai_launchpad_started_tasks' ) );
+
+		$tasks = $this->rendered_tasks();
+		$this->assertTrue( $tasks[ $task_id ]['in_progress'] );
+		$this->assertFalse( $tasks[ $task_id ]['has_draft'] );
+		$this->assertFalse( $tasks[ $task_id ]['completed'] );
+		$this->assertSame( $before['title'], $tasks[ $task_id ]['title'] );
+		$this->assertSame( $before['calypso_path'], $tasks[ $task_id ]['calypso_path'] );
+		$this->assertFalse( $tasks['site_launched']['in_progress'] );
+	}
+
+	/**
+	 * Rendered-card ids for test_start_task_accepts_every_rendered_card: the skippable set minus the install task,
+	 * whose in-progress state is live.
+	 *
+	 * @return array
+	 */
+	public static function provide_startable_rendered_ids() {
+		$ids = self::provide_skippable_rendered_ids();
+		unset( $ids['a synthetic store task the server minted'] );
+		return $ids;
+	}
+
+	/**
+	 * The install task's in-progress state means "installed but inactive", so a start is recorded but never rendered.
+	 */
+	public function test_start_task_does_not_fake_the_install_task_state() {
+		$this->seed_ai_output_with_tasks( array( 'woo_products', 'site_launched' ), 'sell' );
+
+		$this->assertSame( 200, $this->call_api( 'POST', '/start-task', array( 'task_id' => 'install_woocommerce' ) )->get_status() );
+
+		$this->assertSame( array( 'install_woocommerce' ), get_option( 'wpcom_ai_launchpad_started_tasks' ) );
+		$this->assertFalse( $this->rendered_task( 'install_woocommerce' )['in_progress'] );
+	}
+
+	/**
+	 * Test that POST /start-task rejects a task that is neither on the site's AI list nor synthetic.
+	 */
+	public function test_start_task_rejects_task_not_on_list() {
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
+
+		$result = $this->call_api( 'POST', '/start-task', array( 'task_id' => 'earn_money' ) );
+
+		$this->assertSame( 404, $result->get_status() );
+		$this->assertSame( 'ai_launchpad_task_not_startable', $result->get_data()['code'] );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_started_tasks' ) );
+	}
+
+	/**
+	 * A started task stops rendering in progress once it is done or skipped: done and skipped win over started.
+	 *
+	 * @param string $route The route that finishes the task.
+	 * @dataProvider provide_finishing_routes
+	 */
+	#[DataProvider( 'provide_finishing_routes' )]
+	public function test_started_task_is_not_in_progress_once_finished( $route ) {
+		$this->seed_ai_output_with_tasks( array( 'complete_profile', 'site_launched' ) );
+		$this->call_api( 'POST', '/start-task', array( 'task_id' => 'complete_profile' ) );
+		$this->assertTrue( $this->rendered_task( 'complete_profile' )['in_progress'] );
+
+		$this->assertSame( 200, $this->call_api( 'POST', $route, array( 'task_id' => 'complete_profile' ) )->get_status() );
+
+		$task = $this->rendered_task( 'complete_profile' );
+		$this->assertTrue( $task['completed'] );
+		$this->assertFalse( $task['in_progress'] );
+	}
+
+	/**
+	 * Finishing routes for test_started_task_is_not_in_progress_once_finished.
+	 *
+	 * @return array
+	 */
+	public static function provide_finishing_routes() {
+		return array(
+			'completed' => array( '/complete-task' ),
+			'skipped'   => array( '/skip-task' ),
+		);
+	}
+
+	/**
+	 * Writing a fresh tailored list clears the previous list's skips, starts, and the cached completion flag.
 	 */
 	public function test_tailored_write_clears_skips_and_completed_flag() {
 		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'first_post_published' ), false );
+		update_option( 'wpcom_ai_launchpad_started_tasks', array( 'site_theme_selected' ), false );
 		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload() );
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_started_tasks' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 	}
 
@@ -2108,6 +2214,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', 'site_launched' ) );
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ) );
 		update_option( 'wpcom_ai_launchpad_skipped_tasks', array( 'site_launched' ), false );
+		update_option( 'wpcom_ai_launchpad_started_tasks', array( 'first_post_published' ), false );
 		update_option( 'wpcom_ai_launchpad_completed', true, true );
 
 		$result = $this->call_api( Requests::DELETE );
@@ -2116,6 +2223,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array( 'dismissed' => true ), $result->get_data() );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_skipped_tasks' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_started_tasks' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
