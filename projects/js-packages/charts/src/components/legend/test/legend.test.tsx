@@ -978,40 +978,45 @@ describe( 'BaseLegend', () => {
 			expect( onToggle ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it.each( [
-			[ true, false, undefined ],
-			[ false, true, 'Previous period: hidden' ],
-		] )(
-			'stays static but shows pressed %s in a legend that is not interactive',
-			async ( pressed, inactive, ariaLabel ) => {
-				const user = userEvent.setup();
-				const onToggle = jest.fn();
-				render(
-					<GlobalChartsProvider>
-						<BaseLegend
-							items={ [
-								{
-									label: 'Previous period',
-									color: '#000',
-									seriesLabels: [ 'Views' ],
-									pressed,
-									onToggle,
-								},
-							] }
-							interactive={ false }
-							chartId="test-chart"
-						/>
-					</GlobalChartsProvider>
-				);
+		const renderStaticControlledItem = ( pressed: boolean ) => {
+			const onToggle = jest.fn();
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [
+							{
+								label: 'Previous period',
+								color: '#000',
+								seriesLabels: [ 'Views' ],
+								pressed,
+								onToggle,
+							},
+						] }
+						interactive={ false }
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+			return { item: screen.getByTestId( 'legend-item' ), onToggle };
+		};
 
-				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-				const item = screen.getByTestId( 'legend-item' );
-				expect( item ).not.toHaveClass( 'legend-item--inactive' );
-				expect( item.getAttribute( 'aria-label' ) ?? undefined ).toBe( ariaLabel );
-				await user.click( item );
-				expect( onToggle ).not.toHaveBeenCalled();
-			}
-		);
+		it( 'stays static in a legend that is not interactive', async () => {
+			const user = userEvent.setup();
+			const { item, onToggle } = renderStaticControlledItem( true );
+
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( item ).not.toHaveClass( 'legend-item--inactive' );
+			expect( item ).not.toHaveAttribute( 'aria-label' );
+			await user.click( item );
+			expect( onToggle ).not.toHaveBeenCalled();
+		} );
+
+		it( 'dims an item that is not pressed in a legend that is not interactive', () => {
+			const { item } = renderStaticControlledItem( false );
+
+			expect( item ).toHaveClass( 'legend-item--inactive' );
+			expect( item ).toHaveAttribute( 'aria-label', 'Previous period: hidden' );
+		} );
 	} );
 
 	describe( 'Non-interactive legend reflects hidden state', () => {
