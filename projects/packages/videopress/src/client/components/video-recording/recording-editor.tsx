@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { usePreviewPlayback } from '../../../dashboard/components/editor/preview/use-preview-playback';
@@ -104,8 +104,8 @@ export default function RecordingEditor( { file, onUpload, onRecordAgain, blocke
 						disabled={ locked || ! playback.hasMetadata }
 					>
 						{ playback.playing
-							? __( 'Pause preview', 'jetpack-videopress-pkg' )
-							: __( 'Play preview', 'jetpack-videopress-pkg' ) }
+							? _x( 'Pause preview', 'button: pause recording preview', 'jetpack-videopress-pkg' )
+							: _x( 'Play preview', 'button: play recording preview', 'jetpack-videopress-pkg' ) }
 					</button>
 				</div>
 				{ exporting && (

@@ -1,5 +1,5 @@
 import { Button, Modal, Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
 import { getRecordingMimeType } from '../../lib/video-recording';
@@ -260,8 +260,16 @@ export default function RecordingModal( {
 								</span>
 								<span>
 									{ state === 'recording' || state === 'stopping'
-										? __( 'Stop recording', 'jetpack-videopress-pkg' )
-										: __( 'Start recording', 'jetpack-videopress-pkg' ) }
+										? _x(
+												'Stop recording',
+												'button: stop camera recording',
+												'jetpack-videopress-pkg'
+											)
+										: _x(
+												'Start recording',
+												'button: start camera recording',
+												'jetpack-videopress-pkg'
+											) }
 								</span>
 							</button>
 						</div>
