@@ -540,8 +540,8 @@ function wpcom_add_jetpack_submenu() {
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first;
- * Beta Tester, Settings and the upgrade link go at the bottom, as on self-hosted.
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first; Beta Tester, Settings and the
+ * upgrade link go at the bottom, as on self-hosted.
  *
  * WordPress points the top-level Jetpack link at the first item, so a `hide-if-js` item sorts after the visible
  * ones in its tier. Items admin-ui hides only leave on admin_head, so they sort as visible here.
@@ -562,8 +562,8 @@ function wpcom_sort_jetpack_submenu() {
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
 
-	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	// Without a My Jetpack page, pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! in_array( 'my-jetpack', array_column( $submenu['jetpack'], 2 ), true ) ) {
 		$named_tiers['jetpack-activity-log'] = -5;
 		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
 	}

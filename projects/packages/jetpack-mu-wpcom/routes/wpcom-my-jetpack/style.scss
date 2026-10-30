@@ -1,0 +1,78 @@
+// Route-level styles for the Simple My Jetpack page. The layout mixin is
+// included per route because each wp-build route bundles its own CSS.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
+body.jetpack_page_my-jetpack {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.wpcom-my-jetpack__body {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Two columns like My Jetpack's Features tab. 782px is where wp-admin itself
+// collapses the sidebar.
+.wpcom-my-jetpack__tools {
+	display: grid;
+	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 782px) {
+
+	.wpcom-my-jetpack__tools {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// The card from My Jetpack's Features tab. Link draws the focus ring, and its
+// reset of the radius on hover and focus needs this much specificity to beat.
+.wpcom-my-jetpack__tools a.wpcom-my-jetpack__tool {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: block;
+	padding: var(--wpds-dimension-padding-xl);
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+// The product tile from jetpack.com's menu.
+.wpcom-my-jetpack__tool-icon {
+	align-items: center;
+	background: #073f12;
+	block-size: 2.25rem;
+	border-radius: var(--wpds-border-radius-md);
+	color: #0ced57;
+	display: flex;
+	fill: currentColor;
+	flex: none;
+	inline-size: 2.25rem;
+	justify-content: center;
+}
+
+.wpcom-my-jetpack__tool-text {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.wpcom-my-jetpack__tool-title {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.wpcom-my-jetpack__tool-description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.wpcom-my-jetpack__tool-arrow {
+	align-self: center;
+	color: var(--wpds-color-foreground-content-neutral);
+	display: flex;
+	flex: none;
+}
