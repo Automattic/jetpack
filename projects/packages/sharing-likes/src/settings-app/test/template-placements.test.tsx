@@ -202,25 +202,25 @@ describe( 'TemplatePlacements', () => {
 			'sharing',
 			[ 'single' ],
 			PAGE_TEMPLATE_URL,
-			'Your post template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
 		],
 		[
 			'likes',
 			[ 'page' ],
 			PAGE_TEMPLATE_URL,
-			'Your page template was saved in the Site Editor, so that’s where you place the Like block now.',
+			'You’ve customized your page template in the Site Editor. Add, move, or remove the Like block there.',
 		],
 		[
 			'sharing',
 			[ 'single', 'page' ],
 			PAGE_TEMPLATE_URL,
-			'Your post and page templates were saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
+			'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
 		],
 		[
 			'likes',
 			[ 'single' ],
 			'',
-			'Your post template was saved in the Site Editor, so that’s where you place the Like block now.',
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Like block there.',
 		],
 	] as [ Feature, PlacementTemplate[], string, string ][] )(
 		'%s managed by %j, page template "%s": only a notice linking to the templates',
@@ -245,7 +245,7 @@ describe( 'TemplatePlacements', () => {
 				name: 'Where should the Like block go on posts and pages?',
 			} )
 		).toBeInTheDocument();
-		expect( screen.queryByText( /saved in the Site Editor/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /customized your/ ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
 			'href',
 			baseStatus.site_editor_url

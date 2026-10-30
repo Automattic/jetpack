@@ -53,15 +53,15 @@ function copyFor( feature: Feature ) {
 			),
 			managed: {
 				both: __(
-					'Your post and page templates were saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
+					'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 				single: __(
-					'Your post template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
+					'You’ve customized your post template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 				page: __(
-					'Your page template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
+					'You’ve customized your page template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 			},
@@ -73,15 +73,15 @@ function copyFor( feature: Feature ) {
 		legend: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
 		managed: {
 			both: __(
-				'Your post and page templates were saved in the Site Editor, so that’s where you place the Like block now.',
+				'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 			single: __(
-				'Your post template was saved in the Site Editor, so that’s where you place the Like block now.',
+				'You’ve customized your post template in the Site Editor. Add, move, or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 			page: __(
-				'Your page template was saved in the Site Editor, so that’s where you place the Like block now.',
+				'You’ve customized your page template in the Site Editor. Add, move, or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 		},
