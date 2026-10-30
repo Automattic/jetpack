@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Connectors card: Add JS tests and move its derived state into a testable module.
+
