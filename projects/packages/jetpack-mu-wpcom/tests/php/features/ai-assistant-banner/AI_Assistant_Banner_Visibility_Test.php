@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -43,6 +44,7 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		delete_transient( 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id() );
 		delete_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed' );
+		delete_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_free_dismissed' );
 		Constants::clear_constants();
 		delete_option( 'big_sky_enable' );
 		delete_option( 'jetpack_active_plan' );
@@ -196,5 +198,67 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 		wpcom_ai_assistant_banner_record_dismissal();
 
 		$this->assertSame( 1, get_user_meta( $user_id, 'wpcom_ai_assistant_banner_dismissed', true ) );
+	}
+
+	/**
+	 * Sites without agent access show the ChatGPT connector CTA.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_free_variant_uses_chatgpt_connector() {
+		\Brain\Monkey\setUp();
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+
+		$data = wpcom_ai_assistant_banner_script_data( 'dashboard' );
+		$this->assertSame( 'free', $data['variant'] );
+		$this->assertSame( '1', $data['shouldShowBanner'] );
+
+		ob_start();
+		wpcom_render_ai_assistant_banner();
+		$markup = ob_get_clean();
+
+		$this->assertStringContainsString( 'Connect to ChatGPT', $markup );
+		$this->assertStringContainsString( 'source=jetpack-ai-hub-mcp-setup-chatgpt', $markup );
+		$this->assertStringNotContainsString( 'Set up AI tools', $markup );
+		\Brain\Monkey\tearDown();
+	}
+
+	/**
+	 * Dismissing the free CTA does not suppress the setup CTA after upgrading.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_free_dismissal_is_separate_from_setup_dismissal() {
+		\Brain\Monkey\setUp();
+		$has_agent_access = false;
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function () use ( &$has_agent_access ) {
+				return $has_agent_access;
+			}
+		);
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'ai_banner_free_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue( wpcom_should_show_ai_assistant_banner() );
+		wpcom_ai_assistant_banner_record_dismissal();
+		$this->assertSame( 1, get_user_meta( $user_id, 'wpcom_ai_assistant_banner_free_dismissed', true ) );
+		$this->assertEmpty( get_user_meta( $user_id, 'wpcom_ai_assistant_banner_dismissed', true ) );
+		$this->assertFalse( wpcom_should_show_ai_assistant_banner() );
+
+		$has_agent_access = true;
+		$this->assertTrue( wpcom_should_show_ai_assistant_banner() );
+		\Brain\Monkey\tearDown();
 	}
 }
