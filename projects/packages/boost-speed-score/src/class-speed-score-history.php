@@ -74,7 +74,7 @@ class Speed_Score_History {
 
 			self::migrate_legacy_record( $url, $legacy_urls );
 			$this->entries = get_option( $this->get_option_name(), array() );
-			update_option( $migrated_option, 1, true );
+			update_option( $migrated_option, 1, false );
 		}
 	}
 

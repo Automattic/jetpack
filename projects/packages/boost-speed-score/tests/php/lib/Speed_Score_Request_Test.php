@@ -458,6 +458,12 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com' ) )->latest_scores() );
 	}
 
+	public function test_per_url_marker_is_not_autoloaded() {
+		( new Speed_Score_History( self::URL ) )->count();
+
+		$this->assertFalse( $this->autoload[ $this->history_option_name() . '_legacy_migrated' ] );
+	}
+
 	public function test_empty_home_history_recovers_newest_site_url_spelling() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
 		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
