@@ -79,6 +79,14 @@ class PHP_Autoloader {
 			return false;
 		}
 
+		// The classmap is captured once per request, so the mapped file may no
+		// longer exist, e.g. when a plugin update replaces the tree mid-request.
+		// Requiring it would fatal the request; treat it as a miss instead so
+		// another autoloader or the calling code can handle the class.
+		if ( ! file_exists( $file ) ) {
+			return false;
+		}
+
 		// A common source of strange and confusing problems is when a vendor
 		// file is autoloaded before all plugins have had a chance to register
 		// with the autoloader. Detect that, if a development constant is set.
