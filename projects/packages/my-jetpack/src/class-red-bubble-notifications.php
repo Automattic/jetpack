@@ -98,6 +98,10 @@ class Red_Bubble_Notifications {
 				// Plugin is installed, but not activated.
 				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
 			}
+			// Within a bundle the missing plugin is a recommendation, so it leaves the menu count alone.
+			if ( isset( $plugin_requirements[ $purchase->product_slug ] ) && ! in_array( $purchase->product_slug, $product_class::get_paid_plan_product_slugs(), true ) ) {
+				$plugin_requirements[ $purchase->product_slug ]['is_silent'] = true;
+			}
 		}
 
 		return $plugin_requirements;
@@ -351,38 +355,11 @@ class Red_Bubble_Notifications {
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
 			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
-				// Within a bundle the missing plugin is a recommendation, so only a standalone purchase adds to the menu count.
-				if ( ! self::is_standalone_purchase_of( $plan_slug, $plugins_requirements ) ) {
-					$plugins_requirements['is_silent'] = true;
-				}
-
 				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
 			}
 		}
 
 		return $red_bubble_slugs;
-	}
-
-	/**
-	 * Whether a plan is a purchase of one of the products whose plugin is missing, rather than a bundle that includes it.
-	 *
-	 * @param string $plan_slug            The purchase's product slug.
-	 * @param array  $plugins_requirements The plan's `needs_installed` and `needs_activated_only` product slugs.
-	 * @return bool
-	 */
-	private static function is_standalone_purchase_of( $plan_slug, array $plugins_requirements ) {
-		$product_slugs = array_merge(
-			$plugins_requirements['needs_installed'] ?? array(),
-			$plugins_requirements['needs_activated_only'] ?? array()
-		);
-		foreach ( $product_slugs as $product_slug ) {
-			$product_class = Products::get_product_class( $product_slug );
-			if ( $product_class && in_array( $plan_slug, $product_class::get_paid_plan_product_slugs(), true ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
