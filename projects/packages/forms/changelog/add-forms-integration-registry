@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a registration API for form integrations, and move the bundled integrations onto it.

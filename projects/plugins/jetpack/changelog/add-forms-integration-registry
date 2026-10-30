@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Ships the Forms integration registration API; the Slack integration it enables is behind a feature flag that is off by default, so nothing is user-facing yet.
+
+

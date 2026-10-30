@@ -1,15 +1,16 @@
 /**
  * Internal dependencies
  */
-import { buildAkismetCard } from '../helpers/akismet.tsx';
-import { buildGoogleDriveCard } from '../helpers/google-drive.tsx';
-import { buildHostingerReachCard } from '../helpers/hostinger-reach.tsx';
-import { buildJetpackCrmCard } from '../helpers/jetpack-crm.tsx';
-import { buildMailPoetCard } from '../helpers/mailpoet.tsx';
-import { buildSalesforceCard } from '../helpers/salesforce.tsx';
+import { getFormsIntegration } from '../../../../../integrations/registry.ts';
+import { registerBuiltInIntegrations } from '../helpers/register-built-ins.ts';
 import type { CardItem, IntegrationsListProps } from '../helpers/types.ts';
 
 // Maps raw integrations into card items for rendering.
+//
+// Which card an integration renders comes from the client-side registry, so an integration
+// added by a plugin is looked up exactly the way a bundled one is. An integration that
+// registers no card — because it has no settings, or because its script has not loaded —
+// falls back to the title and description the server supplied.
 const useIntegrationCardsData = ( {
 	integrations = [],
 	refreshIntegrations,
@@ -19,6 +20,8 @@ const useIntegrationCardsData = ( {
 	setAttributes,
 	components,
 }: IntegrationsListProps ): CardItem[] => {
+	registerBuiltInIntegrations();
+
 	return integrations.map( integration => {
 		const base: CardItem = {
 			id: integration.id,
@@ -31,58 +34,21 @@ const useIntegrationCardsData = ( {
 			},
 		};
 
-		switch ( integration.id ) {
-			case 'akismet':
-				return buildAkismetCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					handlers,
-				} );
-			case 'google-drive':
-				return buildGoogleDriveCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					handlers,
-				} );
-			case 'zero-bs-crm':
-				return buildJetpackCrmCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					attributes,
-					setAttributes,
-				} );
-			case 'mailpoet':
-				return buildMailPoetCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					attributes,
-					setAttributes,
-					components,
-				} );
-			case 'hostinger-reach':
-				return buildHostingerReachCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					attributes,
-					setAttributes,
-					components,
-				} );
-			case 'salesforce':
-				return buildSalesforceCard( {
-					integration,
-					refreshIntegrations,
-					context,
-					attributes,
-					setAttributes,
-				} );
-			default:
-				return base;
+		const buildCard = getFormsIntegration( integration.id )?.buildCard;
+
+		if ( ! buildCard ) {
+			return base;
 		}
+
+		return buildCard( {
+			integration,
+			refreshIntegrations,
+			context,
+			handlers,
+			attributes,
+			setAttributes,
+			components,
+		} );
 	} );
 };
 
