@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Scale the checkbox input proportionally when a custom font size is set.
