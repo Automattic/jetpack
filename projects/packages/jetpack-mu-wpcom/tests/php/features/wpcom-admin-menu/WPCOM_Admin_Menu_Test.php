@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -88,6 +90,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
@@ -528,44 +531,51 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Jetpack > Protect is hidden with a class, which Calypso's sidebar honors, unless the standalone plugin is active.
-	 *
-	 * Runs in a separate process because the standalone row declares `Jetpack_Protect`.
+	 * Protect sits just below Calypso's Scan, whichever page serves it.
 	 *
 	 * @dataProvider provide_protect_entry_cases
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 *
-	 * @param bool $standalone Whether the standalone Protect plugin is active.
-	 * @param bool $hidden     Whether the entry should be hidden.
+	 * @param string   $served_by 'protect page', 'upgrade prompt', or 'nothing'.
+	 * @param string[] $expected  The visible entries, in menu order.
 	 */
 	#[DataProvider( 'provide_protect_entry_cases' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_hides_protect_entry( $standalone, $hidden ) {
+	public function test_jetpack_submenu_puts_protect_below_scan( $served_by, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $standalone ) {
-			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
+		// Registered before Protect, as Jetpack does, so only the reorder can put Protect above it.
+		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
+		if ( 'protect page' === $served_by ) {
+			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
 		}
-		$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Jetpack Protect' );
+		if ( 'upgrade prompt' === $served_by ) {
+			WPCOM_Scan::register_page();
+		}
 
 		wpcom_add_jetpack_submenu();
 
-		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => 'jetpack-protect' ) ) );
-		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+		$calypso = 'https://wordpress.com/scan/' . self::$domain;
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], array( $calypso, 'jetpack-protect', 'jetpack-search' ), true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $calypso === $item[2] ? 'calypso' : $item[2];
+			}
+		}
+
+		$this->assertSame( $expected, $visible );
 	}
 
 	/**
-	 * Whether the standalone plugin is active, and whether the entry should be hidden.
+	 * What serves the Protect slug, and the entries that should show.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_protect_entry_cases() {
 		return array(
-			'Jetpack plugin only'       => array( false, true ),
-			'standalone plugin present' => array( true, false ),
+			'Protect page'   => array( 'protect page', array( 'calypso', 'jetpack-protect', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'calypso', 'jetpack-protect', 'jetpack-search' ) ),
+			// The Protect page's module is off on a plan that includes Scan.
+			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
 		);
 	}
 

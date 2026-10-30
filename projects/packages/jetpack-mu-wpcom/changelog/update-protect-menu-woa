@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Add Protect to the Jetpack menu just below Scan, and send Protect's links to the Protect page instead of Calypso's Scan.

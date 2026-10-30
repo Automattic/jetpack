@@ -339,7 +339,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A WordPress.com feature's upgrade goes to the plan upgrade flow and its manage link to WordPress.com; other features keep Jetpack's.
+	 * A WordPress.com feature's upgrade goes to the plan upgrade flow; a site that has it, and other features, keep Jetpack's links.
 	 *
 	 * @dataProvider provide_feature_upgrades
 	 *
@@ -363,12 +363,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$live = str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $live );
-
-		if ( $site_has_feature ) {
-			$this->assertStringEndsWith( $live, $upgrade['manage_url'] );
-			return;
-		}
-
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
@@ -386,9 +380,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_feature_upgrades() {
 		return array(
 			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
-			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', '/wp-admin/admin.php?page=jetpack-protect' ),
+			'backup, has plan' => array( 'backup', true, null, null ),
+			'scan, has plan'   => array( 'protect-dashboard', true, null, null ),
 			'another feature'  => array( 'boost', false, null, null ),
 		);
 	}
@@ -486,8 +480,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_upgrade_landings() {
 		return array(
-			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
-			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
+			'Backup, served by the Jetpack plugin'  => array( WPCOM_Backup::class, null ),
+			'Protect, served by the Jetpack plugin' => array( WPCOM_Scan::class, null ),
 		);
 	}
 
@@ -667,43 +661,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Protect hides itself, since admins without a linked WordPress.com account never load the
-	 * WordPress.com menu; Backup leaves its entry to that menu, which links Calypso in its place.
-	 *
-	 * @param string $page        Page class.
-	 * @param bool   $modernized  Whether the Backup modernization filter is on.
-	 * @param bool   $hidden      Whether the entry should be hidden.
-	 *
-	 * @dataProvider provide_sidebar_visibility
-	 */
-	#[DataProvider( 'provide_sidebar_visibility' )]
-	public function test_registered_page_sidebar_visibility( $page, $modernized, $hidden ) {
-		global $submenu;
-
-		$this->set_up_admin_menu();
-		add_filter( WPCOM_Backup::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
-
-		$page::register_page();
-
-		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
-		$this->assertCount( 1, $items );
-		$this->assertSame( $hidden ? 'hide-if-js' : '', $items[0][4] ?? '' );
-	}
-
-	/**
-	 * Each page, the Backup modernization flag, and whether the entry is hidden.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_sidebar_visibility() {
-		return array(
-			'Backup, modernized'      => array( WPCOM_Backup::class, true, false ),
-			'Backup, legacy'          => array( WPCOM_Backup::class, false, false ),
-			'Protect, either setting' => array( WPCOM_Scan::class, true, true ),
-		);
-	}
-
-	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
 	 * "tidy" into something else, and links into the page depend on it.
 	 *
@@ -864,8 +821,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_transfer_landings() {
 		return array(
 			'Backup'  => array( WPCOM_Backup::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-backup' ),
-			// Calypso's Scan page until the Jetpack plugin serves jetpack-protect on WoA.
-			'Protect' => array( WPCOM_Scan::class, 'https://wordpress.com/scan/example.wpcomstaging.com' ),
+			'Protect' => array( WPCOM_Scan::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-protect' ),
 		);
 	}
 
@@ -1009,61 +965,5 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
 		$this->assertTrue( $payload['isEligible'] );
-	}
-
-	/**
-	 * Only the Jetpack plugin's Protect page leaves the sidebar, and only without the standalone plugin.
-	 *
-	 * @dataProvider provide_protect_menu_items
-	 *
-	 * @param array  $args       The menu item's Admin_Menu args.
-	 * @param string $expected   The item's resulting visibility state.
-	 * @param bool   $standalone Whether the standalone Protect plugin is active.
-	 */
-	#[DataProvider( 'provide_protect_menu_items' )]
-	public function test_admin_menu_visibility_hides_only_the_jetpack_protect_page( $args, $expected, $standalone = false ) {
-		if ( $standalone ) {
-			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
-		}
-		$item = array(
-			'menu_slug' => 'jetpack-protect',
-			'args'      => $args,
-		);
-
-		$states = WPCOM_Scan::filter_admin_menu_visibility( array( 'jetpack-protect' => 'default' ), array( $item ) );
-
-		$this->assertSame( $expected, $states['jetpack-protect'] );
-	}
-
-	/**
-	 * Admin_Menu args each Protect page registers with, and the state it should end up in.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_protect_menu_items() {
-		return array(
-			'Jetpack plugin Protect page' => array(
-				array(
-					'key'    => 'jetpack-protect',
-					'module' => 'protect-dashboard',
-				),
-				'hidden',
-			),
-			'standalone Protect plugin'   => array(
-				array(
-					'product' => 'protect',
-					'key'     => 'jetpack-protect',
-				),
-				'default',
-			),
-			'Jetpack plugin Protect page, standalone plugin active' => array(
-				array(
-					'key'    => 'jetpack-protect',
-					'module' => 'protect-dashboard',
-				),
-				'default',
-				true,
-			),
-		);
 	}
 }
