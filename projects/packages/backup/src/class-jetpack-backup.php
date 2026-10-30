@@ -189,6 +189,8 @@ class Jetpack_Backup {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+
 		if ( $options['manage_connection'] ) {
 			self::init_standalone_connection();
 		}
@@ -1201,6 +1203,50 @@ class Jetpack_Backup {
 			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
 
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Register Backup with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! self::is_modernized() || ! current_user_can( 'manage_options' ) ) {
+			return $members;
+		}
+		$members[ self::JETPACK_BACKUP_SLUG ] = array(
+			'build_prefix' => 'jetpack_backup',
+			'build_page'   => 'jetpack-backup-dashboard',
+			'init_modules' => array( '@jetpack-backup/init' ),
+			'title'        => 'Backup',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Backup routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		// Unbuilt, enqueue_admin_scripts() would put the legacy app on the host page.
+		if ( ! self::is_wp_build_dashboard_active() ) {
+			return;
+		}
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
 	}
 

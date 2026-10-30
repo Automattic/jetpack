@@ -39,6 +39,13 @@ class Social_Admin_Page {
 	private static $wp_build_original_screen_id = null;
 
 	/**
+	 * Whether Social was loaded as a guest of another dashboard's admin shell.
+	 *
+	 * @var bool
+	 */
+	private static $is_admin_shell_guest = false;
+
+	/**
 	 * Initialize the class.
 	 *
 	 * @return Social_Admin_Page
@@ -59,6 +66,71 @@ class Social_Admin_Page {
 		// function is defined before `add_menu` (priority 10) registers the page.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+		add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+	}
+
+	/**
+	 * Register Social with the Jetpack admin shell.
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		if ( ! self::should_add_menu() || ! current_user_can( 'publish_posts' ) ) {
+			return $members;
+		}
+		$members['jetpack-social'] = array(
+			'build_prefix' => 'jetpack_social',
+			'build_page'   => 'jetpack-social-dashboard',
+			'init_modules' => array( '@jetpack-social/init' ),
+			'title'        => 'Social',
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Social route and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias, which would boot a second app, and wp_enqueue_media(), which is too heavy to run eagerly.
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		if ( function_exists( 'jetpack_social_register_script_modules' ) ) {
+			jetpack_social_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		self::$is_admin_shell_guest = true;
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ), 20 );
+	}
+
+	/**
+	 * Whether Social was loaded as a guest of another dashboard's admin shell.
+	 *
+	 * @return bool
+	 */
+	public static function is_admin_shell_guest() {
+		return self::$is_admin_shell_guest;
+	}
+
+	/**
+	 * Whether the Social page should be registered for the current user and site.
+	 *
+	 * @return bool
+	 */
+	private static function should_add_menu() {
+		// If this isn't an admin (or someone with the capability to change the module status )
+		// and Publicize is inactive, then don't render the admin page.
+		if ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() ) {
+			return false;
+		}
+
+		// We don't need Jetpack connection on WP.com.
+		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
+
+		// If the Jetpack Social plugin is not active, hide the menu if the site is not connected.
+		return defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || ! $needs_site_connection;
 	}
 
 	/**
@@ -92,20 +164,7 @@ class Social_Admin_Page {
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 
-		// If this isn't an admin (or someone with the capability to change the module status )
-		// and Publicize is inactive, then don't render the admin page.
-		if ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() ) {
-			return;
-		}
-
-		// We don't need Jetpack connection on WP.com.
-		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
-
-		/**
-		 * If the Jetpack Social plugin is not active,
-		 * we want to hide the menu if the site is not connected.
-		 */
-		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && $needs_site_connection ) {
+		if ( ! self::should_add_menu() ) {
 			return;
 		}
 
@@ -173,6 +232,9 @@ class Social_Admin_Page {
 		 */
 		if ( wp_script_is( 'jetpack-social-dashboard-wp-admin-prerequisites', 'registered' ) ) {
 			Connection_Initial_State::render_script( 'jetpack-social-dashboard-wp-admin-prerequisites' );
+		} elseif ( self::$is_admin_shell_guest ) {
+			// As a guest, the prerequisites handle belongs to the host app, so use the always-present wp-api-fetch.
+			Connection_Initial_State::render_script( 'wp-api-fetch' );
 		}
 
 		// The i18n loader is registered on every admin page by jetpack-assets but

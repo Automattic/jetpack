@@ -41,7 +41,8 @@
 					"@jetpack-activity-log/init"
 				]
 			}
-		]
+		],
+		"sharedModules": "../admin-ui/package.json"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",

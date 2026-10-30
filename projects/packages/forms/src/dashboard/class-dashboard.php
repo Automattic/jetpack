@@ -125,6 +125,51 @@ class Dashboard {
 		self::load_wp_build();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+	}
+
+	/**
+	 * Whether Forms was loaded as a guest of another dashboard's admin shell.
+	 *
+	 * @var bool
+	 */
+	private static $is_admin_shell_guest = false;
+
+	/**
+	 * Register Forms with the Jetpack admin shell.
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		$members[ self::FORMS_WPBUILD_ADMIN_SLUG ] = array(
+			'build_prefix' => 'jetpack_forms',
+			'build_page'   => 'jetpack-forms-responses',
+			'init_modules' => array( '@jetpack-forms/init' ),
+			'default_path' => self::get_forms_admin_path_wp_build( self::get_default_tab(), null ),
+			'title'        => 'Forms',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Forms routes and data on another shell member's page.
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		$wp_build_index = self::wp_build_index_path();
+		if ( ! file_exists( $wp_build_index ) ) {
+			return;
+		}
+		require_once $wp_build_index;
+
+		// The generated registration runs on wp_default_scripts, which has fired by admin_menu.
+		if ( function_exists( 'jetpack_forms_register_script_modules' ) ) {
+			jetpack_forms_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		self::$is_admin_shell_guest = true;
 	}
 
 	/**
@@ -193,7 +238,7 @@ class Dashboard {
 	 * Load JavaScript for the dashboard.
 	 */
 	public function load_admin_scripts() {
-		if ( ! self::is_jetpack_forms_admin_page() ) {
+		if ( ! self::is_jetpack_forms_admin_page() && ! self::$is_admin_shell_guest ) {
 			return;
 		}
 

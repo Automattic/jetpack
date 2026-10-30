@@ -136,6 +136,7 @@ class Jetpack_Activity_Log {
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_filter( 'jetpack_package_versions', array( Package_Version::class, 'send_package_version_to_tracker' ) );
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
 
 		/**
 		 * Fires once the Jetpack Activity Log package has wired its hooks.
@@ -275,6 +276,42 @@ class Jetpack_Activity_Log {
 		self::opt_out_of_jitms( $page_suffix );
 
 		return $page_suffix;
+	}
+
+	/**
+	 * Register Activity Log with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! self::is_available() ) {
+			return $members;
+		}
+		$members[ self::PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_activity_log',
+			'build_page'   => self::WP_BUILD_PAGE_SLUG,
+			'init_modules' => array( '@jetpack-activity-log/init' ),
+			'title'        => 'Activity Log',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Activity Log routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
 	}
 
 	/**

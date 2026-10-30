@@ -36,6 +36,10 @@ class Jetpack_Admin {
 	public static function init() {
 		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Admin();
+			// Unconditional so the shell's guest endpoint also answers admin-ajax requests.
+			if ( class_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class ) ) {
+				\Automattic\Jetpack\Admin_UI\Admin_Shell::init();
+			}
 		}
 		return self::$instance;
 	}
@@ -74,6 +78,7 @@ class Jetpack_Admin {
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
 		add_action( 'admin_menu', array( $jetpack_settings, 'maybe_load_wp_build' ), 1 );
+		add_filter( 'jetpack_admin_shell_members', array( $jetpack_settings, 'add_admin_shell_member' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_settings, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );

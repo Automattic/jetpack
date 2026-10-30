@@ -69,6 +69,8 @@ class Admin_Page {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+
 		// On Simple/Atomic, wpcom-admin-menu.php builds the Jetpack menu at
 		// priority 999999 and calls add_wp_admin_submenu() itself. Self-hosted
 		// has no such file, so we register our own. Priority 999 queues the item
@@ -76,6 +78,43 @@ class Admin_Page {
 		if ( ! ( new Host() )->is_wpcom_platform() ) {
 			add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 999 );
 		}
+	}
+
+	/**
+	 * Register Podcast with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $members;
+		}
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_podcast',
+			'build_page'   => self::WP_BUILD_SLUG,
+			'init_modules' => array( '@jetpack-podcast/init' ),
+			'title'        => 'Podcast',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Podcast routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_podcast_script_data' ) );
+		self::admin_init();
 	}
 
 	/**

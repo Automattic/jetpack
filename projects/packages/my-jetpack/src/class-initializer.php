@@ -159,6 +159,13 @@ class Initializer {
 	private static $wp_build_original_screen_id = null;
 
 	/**
+	 * Whether My Jetpack was loaded as a guest of another dashboard's admin shell.
+	 *
+	 * @var bool
+	 */
+	private static $is_admin_shell_guest = false;
+
+	/**
 	 * Initialize My Jetpack
 	 *
 	 * @return void
@@ -174,6 +181,8 @@ class Initializer {
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
+
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
 
 		if ( self::is_offline_features_enabled() ) {
 			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
@@ -840,6 +849,63 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! self::current_user_can_access_page() || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			return $members;
+		}
+
+		// A disconnected site would be redirected to the full-screen onboarding, which is not a wp-build page.
+		$redirect_args = self::get_onboarding_redirect_args(
+			'',
+			( new Connection_Manager() )->is_connected(),
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' )
+		);
+		if ( null !== $redirect_args ) {
+			return $members;
+		}
+
+		$members['my-jetpack'] = array(
+			'build_prefix' => 'jetpack_my_jetpack',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-my-jetpack/init' ),
+			'title'        => 'My Jetpack',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the My Jetpack routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		require_once dirname( __DIR__ ) . '/build/build.php';
+
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+		);
+
+		self::$is_admin_shell_guest = true;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
 	 * Require the generated build file with the screen ID aliased across its enqueue check.
 	 *
 	 * @see WP_Build_Screen_Id::load_with_alias()
@@ -1267,7 +1333,7 @@ class Initializer {
 		}
 
 		if (
-			self::is_my_jetpack_admin_request()
+			( self::is_my_jetpack_admin_request() || self::$is_admin_shell_guest )
 			&& self::is_offline_features_enabled()
 			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()

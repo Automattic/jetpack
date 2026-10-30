@@ -117,7 +117,49 @@ class Dashboard {
 			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
+			add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
 		}
+	}
+
+	/**
+	 * Register Search with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		if ( ! $this->should_add_search_submenu() ) {
+			return $members;
+		}
+		$members['jetpack-search'] = array(
+			'build_prefix' => 'jetpack_search',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-search/init' ),
+			'title'        => 'Search',
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Search routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		$build_index = $this->wp_build_index();
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+		require_once $build_index;
+		$this->register_wp_build_modules();
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 	}
 
 	/**
@@ -136,7 +178,15 @@ class Dashboard {
 		}
 
 		self::require_wp_build_with_screen_alias( $build_index );
+		$this->register_wp_build_modules();
+	}
 
+	/**
+	 * Register the wp-build script modules and polyfills.
+	 *
+	 * @return void
+	 */
+	private function register_wp_build_modules() {
 		// wp-build hooks module registration to wp_default_scripts, which has already
 		// fired by admin_menu — call it directly or the init module never registers.
 		if ( function_exists( 'jetpack_search_register_script_modules' ) ) {

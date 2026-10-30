@@ -155,6 +155,8 @@ class Settings {
 		// so an inline check here would always see the unfiltered default.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		add_filter( 'jetpack_admin_shell_members', array( $this, 'add_admin_shell_member' ) );
+
 		// Priority 20 runs after add_script_data(), which replaces the whole `newsletter` key on the Newsletter page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_subscribers_url_script_data' ), 20 );
 
@@ -217,6 +219,41 @@ class Settings {
 		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
 			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
+	}
+
+	/**
+	 * Register the wp-build Newsletter dashboard with the Jetpack admin shell.
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		if ( ! self::is_modernized() ) {
+			return $members;
+		}
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_newsletter',
+			'build_page'   => 'jetpack-newsletter-dashboard',
+			'init_modules' => array( '@jetpack-newsletter/init' ),
+			'title'        => 'Newsletter',
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Newsletter route and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
+			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		$this->admin_init();
 	}
 
 	/**

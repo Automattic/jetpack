@@ -94,6 +94,44 @@ class Jetpack_AI_Page {
 	}
 
 	/**
+	 * Register the AI Hub with the Jetpack admin shell, under the same gates as its menu entry.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		$can_view = current_user_can( 'manage_options' )
+			&& ( Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode() );
+		if ( ! $can_view || ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' ) ) {
+			return $members;
+		}
+
+		$members['jetpack-ai'] = array(
+			'build_prefix' => 'jetpack_plugin',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-plugin/init' ),
+			'title'        => 'Jetpack AI',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the AI Hub routes and page data on another shell member's page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		if ( Jetpack_WP_Build_Page::load_as_guest( self::WP_BUILD_PAGE_ID ) ) {
+			add_action( 'admin_enqueue_scripts', array( new self(), 'page_admin_scripts' ) );
+		}
+	}
+
+	/**
 	 * Register the page and its page-specific hooks.
 	 *
 	 * The AI Hub owns its full React layout, so it does not need the legacy
@@ -667,3 +705,4 @@ class Jetpack_AI_Page {
  * add_action() dedupes.
  */
 add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );
+add_filter( 'jetpack_admin_shell_members', array( 'Jetpack_AI_Page', 'add_admin_shell_member' ) );
