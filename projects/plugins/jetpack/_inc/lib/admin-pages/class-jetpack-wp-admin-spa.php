@@ -128,7 +128,9 @@ class Jetpack_WP_Admin_SPA {
 	}
 
 	/**
-	 * Retarget the Jetpack sidebar entries at SPA routes. Hook late, after every project added its entry.
+	 * Retarget the Jetpack sidebar entries at SPA routes.
+	 *
+	 * Runs on `admin_head`, after Admin_Menu drops hidden entries by slug and after core's page access check.
 	 *
 	 * @return void
 	 */
@@ -211,7 +213,7 @@ class Jetpack_WP_Admin_SPA {
 
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'maybe_load_wp_build' ), 1 );
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'add_page' ) );
-add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'retarget_menu' ), 99999 );
+add_action( 'admin_head', array( 'Jetpack_WP_Admin_SPA', 'retarget_menu' ), 20 );
 add_filter( 'parent_file', array( 'Jetpack_WP_Admin_SPA', 'filter_parent_file' ) );
 add_filter( 'submenu_file', array( 'Jetpack_WP_Admin_SPA', 'filter_submenu_file' ) );
 add_action( 'admin_print_footer_scripts', array( 'Jetpack_WP_Admin_SPA', 'print_menu_script' ), 99 );
