@@ -48,11 +48,11 @@ The `my-jetpack-modules-to-features` flag is on by default, sending eligible leg
 
 #### Offline Mode
 
-The offline Features entry is off by default. Register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );` before My Jetpack initializes, for example in a must-use plugin, and visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string.
+The offline Features entry is on by default. Visit `/wp-admin/admin.php?page=my-jetpack#/features` on a site in offline mode. My Jetpack opens Features without connection onboarding; other hash routes redirect there while preserving the query string. To turn it off for rollback or testing, register `add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );` before My Jetpack initializes, for example in a must-use plugin.
 
 Users need permission to edit posts and activate plugins, plus manage the network on multisite. The Jetpack plugin keeps its Modules and Settings entry for users who cannot access Features. Local modules can be switched and retain their state after reload. The Features controller refuses to activate modules that require a connection; standalone plugins can still be activated and may run their own activation steps, including Social enabling its module.
 
-Features refuses to deactivate the plugin serving the page unless another active plugin will remain with a My Jetpack copy that supports offline Features. The same restriction applies to bulk deactivation.
+Features refuses to deactivate the plugin serving the page unless another active plugin will remain with My Jetpack 6.15.0 or later, which enables offline Features by default. The same restriction applies to bulk deactivation.
 
 Feature details retain plan names and explanations as plain text offline, without purchase links or upgrade buttons. The offline page hides the footer.
 
