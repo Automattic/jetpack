@@ -26,7 +26,7 @@ class SharePostTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * PHP errors raised while creating the draft.
+	 * PHP errors share-post.php raised while creating the draft.
 	 *
 	 * @var string[]
 	 */
@@ -53,7 +53,7 @@ class SharePostTest extends WP_UnitTestCase {
 	/**
 	 * Open post-new.php with the given share link arguments, recording PHP errors.
 	 *
-	 * @param array $args Query arguments, slashed as WordPress slashes `$_GET`.
+	 * @param array $args Unslashed query arguments; slashed here as WordPress slashes `$_GET`.
 	 * @return WP_Post The new draft.
 	 */
 	private function create_shared_draft( array $args ) {
@@ -62,6 +62,10 @@ class SharePostTest extends WP_UnitTestCase {
 		$this->php_errors = array();
 		set_error_handler(
 			function ( $errno, $errstr, $errfile, $errline ) {
+				// Other plugins on WP Cloud test sites may raise unrelated notices.
+				if ( ! str_ends_with( $errfile, 'share-post/share-post.php' ) ) {
+					return false;
+				}
 				$this->php_errors[] = "$errstr in $errfile:$errline";
 				return true;
 			}
@@ -123,7 +127,7 @@ class SharePostTest extends WP_UnitTestCase {
 	public static function provide_embed_urls() {
 		return array(
 			'plain URL'             => array( 'https://www.youtube.com/watch/abc', 'https://www.youtube.com/watch/abc' ),
-			'query string stripped' => array( 'https://www.youtube.com/watch?v=abc', 'https://www.youtube.com/watch' ),
+			'query string stripped' => array( 'https://www.youtube.com/embed/abc?feature=oembed', 'https://www.youtube.com/embed/abc' ),
 			'double hyphen in path' => array( 'https://example.com/clip--one', 'https://example.com/clip--one' ),
 			'ampersand in path'     => array( 'https://example.com/a&b', 'https://example.com/a&b' ),
 		);
