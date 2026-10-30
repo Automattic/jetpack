@@ -53,15 +53,15 @@ function copyFor( feature: Feature ) {
 			),
 			managed: {
 				both: __(
-					'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Sharing Buttons block there.',
+					'Your post and page templates were saved in the Site Editor, so these choices no longer change them, and won’t bring back a Sharing Buttons block you removed there.',
 					'jetpack-sharing-likes'
 				),
 				single: __(
-					'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Sharing Buttons block there.',
+					'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Sharing Buttons block you removed there.',
 					'jetpack-sharing-likes'
 				),
 				page: __(
-					'Your page template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Sharing Buttons block there.',
+					'Your page template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Sharing Buttons block you removed there.',
 					'jetpack-sharing-likes'
 				),
 			},
@@ -73,15 +73,15 @@ function copyFor( feature: Feature ) {
 		legend: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
 		managed: {
 			both: __(
-				'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Like block there.',
+				'Your post and page templates were saved in the Site Editor, so these choices no longer change them, and won’t bring back a Like block you removed there.',
 				'jetpack-sharing-likes'
 			),
 			single: __(
-				'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
+				'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
 				'jetpack-sharing-likes'
 			),
 			page: __(
-				'Your page template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
+				'Your page template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
 				'jetpack-sharing-likes'
 			),
 		},

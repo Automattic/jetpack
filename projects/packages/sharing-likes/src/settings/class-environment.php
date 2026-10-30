@@ -36,6 +36,13 @@ final class Environment {
 	private static $page_template_editor_url = null;
 
 	/**
+	 * Memoised templates, by blog and template ID, since building one applies block hooks.
+	 *
+	 * @var array<string, \WP_Block_Template|null>
+	 */
+	private static $block_templates = array();
+
+	/**
 	 * Whether the active theme is a block theme.
 	 */
 	public static function is_block_theme(): bool {
@@ -289,9 +296,8 @@ final class Environment {
 			return null;
 		}
 
-		$stylesheet = get_stylesheet();
-		$template   = $stylesheet ? get_block_template( $stylesheet . '//' . $slug ) : null;
-		$post       = $template && $template->wp_id ? get_post( $template->wp_id ) : null;
+		$template = self::block_template( $slug );
+		$post     = $template && $template->wp_id ? get_post( $template->wp_id ) : null;
 
 		return $post instanceof \WP_Post ? $post->post_content : null;
 	}
@@ -302,15 +308,35 @@ final class Environment {
 	 * @param string $slug Template slug.
 	 */
 	private static function template_editor_url( string $slug ): string {
-		$stylesheet = get_stylesheet();
-		$template   = $stylesheet ? $stylesheet . '//' . $slug : '';
-
-		if ( ! $template || ! get_block_template( $template ) ) {
+		if ( ! self::block_template( $slug ) ) {
 			return '';
 		}
 
 		// `add_query_arg()` does not encode, and the Site Editor router wants `p` percent-encoded.
-		return admin_url( 'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit' );
+		return admin_url( 'site-editor.php?p=' . rawurlencode( '/wp_template/' . get_stylesheet() . '//' . $slug ) . '&canvas=edit' );
+	}
+
+	/**
+	 * One of the active theme's templates, as `get_block_template()` resolves it.
+	 *
+	 * @param string $slug Template slug.
+	 */
+	private static function block_template( string $slug ): ?\WP_Block_Template {
+		$stylesheet = get_stylesheet();
+
+		if ( ! $stylesheet ) {
+			return null;
+		}
+
+		$id  = $stylesheet . '//' . $slug;
+		$key = get_current_blog_id() . ':' . $id;
+
+		if ( ! array_key_exists( $key, self::$block_templates ) ) {
+			$template                      = get_block_template( $id );
+			self::$block_templates[ $key ] = $template instanceof \WP_Block_Template ? $template : null;
+		}
+
+		return self::$block_templates[ $key ];
 	}
 
 	/**

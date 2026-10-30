@@ -138,11 +138,12 @@ trait Section_Environment {
 	}
 
 	/**
-	 * Clear `Environment::$single_template_editor_url`, which otherwise leaks the first
-	 * case's answer into the rest.
+	 * Clear `Environment::$single_template_editor_url`, and the templates behind it, which
+	 * otherwise leak the first case's answer into the rest.
 	 */
 	private function forget_single_template_editor_url(): void {
 		$this->forget_environment_memo( 'single_template_editor_url' );
+		$this->forget_environment_memo( 'block_templates', array() );
 	}
 
 	/**
@@ -150,19 +151,21 @@ trait Section_Environment {
 	 */
 	private function forget_page_template_editor_url(): void {
 		$this->forget_environment_memo( 'page_template_editor_url' );
+		$this->forget_environment_memo( 'block_templates', array() );
 	}
 
 	/**
 	 * Clear one of `Environment`'s memoised statics.
 	 *
 	 * @param string $property Property name.
+	 * @param mixed  $empty    The value it holds before anything is memoised.
 	 */
-	private function forget_environment_memo( string $property ): void {
+	private function forget_environment_memo( string $property, $empty = null ): void {
 		$property = new ReflectionProperty( Environment::class, $property );
 		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
-		$property->setValue( null, null );
+		$property->setValue( null, $empty );
 	}
 }

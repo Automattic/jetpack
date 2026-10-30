@@ -99,15 +99,20 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Clear `Environment::$single_template_editor_url`.
+	 * Clear `Environment::$single_template_editor_url` and the templates behind it.
 	 */
 	private function forget_single_template_editor_url(): void {
-		$property = new ReflectionProperty( Environment::class, 'single_template_editor_url' );
-		// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
+		foreach ( array(
+			'single_template_editor_url' => null,
+			'block_templates'            => array(),
+		) as $name => $empty ) {
+			$property = new ReflectionProperty( Environment::class, $name );
+			// setAccessible() is a no-op as of PHP 8.1 and deprecated in 8.5; only needed on older versions.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $empty );
 		}
-		$property->setValue( null, null );
 	}
 
 	/**

@@ -264,6 +264,28 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( $likes, $data['likes']['managed_templates'] );
 	}
 
+	/**
+	 * Each lookup builds the template with block hooks applied, so the editor links and the saved content share one.
+	 */
+	public function test_status_looks_each_template_up_once(): void {
+		$this->given_block_routes();
+		$looked_up = array();
+		add_filter(
+			'pre_get_block_template',
+			static function ( $found, string $id ) use ( &$looked_up ) {
+				$looked_up[] = $id;
+				return $found;
+			},
+			10,
+			2
+		);
+
+		$this->request( 'GET', 'status' );
+
+		$this->assertSame( array( 'block-theme//single', 'block-theme//page' ), array_values( array_unique( $looked_up ) ) );
+		$this->assertCount( 2, $looked_up );
+	}
+
 	public function test_status_skips_the_templates_where_no_section_offers_the_placements(): void {
 		$this->given_block_routes();
 		$this->given_modules( array( 'sharedaddy', 'likes' ) );
