@@ -157,6 +157,9 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint(
 			'action'     => '(string) Only possible value is \'update\'. More to follow.',
 			'autoupdate' => '(bool) Whether or not to automatically update the theme.',
 		),
+		'query_parameters'        => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
+		),
 		'response_format'         => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
 		'allow_jetpack_site_auth' => true,
 		'example_request_data'    => array(
@@ -186,6 +189,9 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint(
 			'autoupdate' => '(bool) Whether or not to automatically update the theme.',
 			'themes'     => '(array) A list of theme slugs',
 		),
+		'query_parameters'        => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
+		),
 		'response_format'         => array(
 			'themes' => '(array:theme) A list of theme objects',
 		),
@@ -203,6 +209,32 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint(
 			),
 		),
 		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes',
+	)
+);
+
+// POST /sites/%s/themes/%s/update
+new Jetpack_JSON_API_Themes_Modify_Endpoint(
+	array(
+		'description'             => 'Update a theme on a jetpack blog',
+		'group'                   => '__do_not_document',
+		'stat'                    => 'themes:1:update',
+		'method'                  => 'POST',
+		'path'                    => '/sites/%s/themes/%s/update/',
+		'path_labels'             => array(
+			'$site'  => '(int|string) The site ID, The site domain',
+			'$theme' => '(string) The theme slug',
+		),
+		'query_parameters'        => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
+		),
+		'response_format'         => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
+		'allow_jetpack_site_auth' => true,
+		'example_request_data'    => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/update',
 	)
 );
 
