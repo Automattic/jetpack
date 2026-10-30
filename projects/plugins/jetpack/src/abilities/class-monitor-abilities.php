@@ -148,12 +148,11 @@ class Monitor_Abilities extends Registrar {
 	/**
 	 * Permission check: can the current user manage Monitor notifications?
 	 *
-	 * Notifications are a per-user preference that affects the caller's own inbox,
-	 * so `jetpack_admin_page` (the same capability that gates the admin settings UI)
-	 * is the right gate — no stricter cap is warranted.
+	 * The settings API needs `jetpack_configure_modules` (`manage_options`) for this setting, and the
+	 * write also updates the site-wide `monitor_receive_notifications` option the settings screen reads.
 	 */
 	public static function can_manage_monitor(): bool {
-		return current_user_can( 'jetpack_admin_page' );
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

@@ -479,7 +479,7 @@ class Stats_Abilities extends Registrar {
 				'properties' => self::settings_output_properties(),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_settings' ),
-			'permission_callback' => array( __CLASS__, 'can_view_stats' ),
+			'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
 			'meta'                => array(
 				'annotations'  => array(
 					'readonly'    => true,
@@ -596,11 +596,10 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Write-side permission: manage_options.
+	 * Settings permission, for reads and writes: manage_options, as on the Stats settings screen.
 	 *
-	 * Stats configuration writes modify the `stats_options` WP option,
-	 * which includes the very roles that gate `view_stats`. Guard with the
-	 * site-admin capability, not `view_stats`, so readers can't escalate.
+	 * The `stats_options` WP option includes the very roles that gate `view_stats`,
+	 * so users who can only view stats must not read or change it.
 	 *
 	 * @return bool
 	 */
