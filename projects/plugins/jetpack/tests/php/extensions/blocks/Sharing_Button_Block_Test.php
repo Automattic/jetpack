@@ -149,6 +149,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			array(
 				'url'           => get_permalink( $post ),
 				'title'         => 'Tips & tricks',
+				'post_title'    => 'Tips & tricks',
 				'is_post_share' => 'true',
 			),
 			$args

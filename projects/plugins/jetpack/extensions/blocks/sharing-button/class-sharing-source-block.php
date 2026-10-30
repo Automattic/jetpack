@@ -1483,9 +1483,13 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 	 * @return array
 	 */
 	private function get_repost_args( $post ) {
+		$title = $this->get_share_title( $post->ID );
+
 		return array(
 			'url'           => $this->get_share_url( $post->ID ),
-			'title'         => $this->get_share_title( $post->ID ),
+			// Core fills a new post's title from post_title, and wpcomsh's share-post from title.
+			'title'         => $title,
+			'post_title'    => $title,
 			// WordPress.com only builds the draft from these arguments when this flag is set.
 			'is_post_share' => 'true',
 		);
@@ -1522,9 +1526,8 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 		}
 
 		$args = $this->get_repost_args( $post );
-		// Core fills a new post from these two, for sites without Jetpack to read the arguments above.
-		$args['post_title'] = $args['title'];
-		$args['content']    = $args['url'];
+		// Core fills a new post from this, for sites without Jetpack to embed the post.
+		$args['content'] = $args['url'];
 
 		return add_query_arg( rawurlencode_deep( $args ), $editor_url );
 	}
