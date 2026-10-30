@@ -297,6 +297,11 @@ every request, and `Sharing_Buttons_Markup` builds the block with its buttons.
 That markup has to match `sharing-buttons/save.jsx` exactly, or the Site Editor
 flags the block as invalid.
 
+The buttons come from the site's legacy services where the block offers them,
+and otherwise from a default list, which differs on Simple. New Simple sites on a
+block theme rely on that list: wpcom's `wpmu_new_blog` handler in
+`mu-plugins/post-flair.php` starts them with no legacy services at all.
+
 Simple only reaches `Initializer::init()` on admin and public-api requests (see
 above), so on its front end the Sharing Buttons block's `register_block()` calls
 `Hooked_Blocks::init()` instead; calling it twice is harmless.
