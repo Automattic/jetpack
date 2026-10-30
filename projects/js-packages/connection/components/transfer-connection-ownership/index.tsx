@@ -14,6 +14,7 @@ import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
 import useOwnershipTransfer, { type ConnectionOwnerCandidate } from './use-ownership-transfer';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 
 export type { ConnectionOwnerCandidate };
 
@@ -30,6 +31,8 @@ export interface TransferConnectionOwnershipProps {
 	onBusyChange?: ( isBusy: boolean ) => void;
 	/** Surface to report Tracks events as, e.g. 'connectors'. Sent as null when omitted. */
 	trackingContext?: string;
+	/** Where on the page the flow sits, e.g. 'header'. Sent as `placement` when set. */
+	trackingPlacement?: ConnectionPlacement;
 }
 
 /**
@@ -46,6 +49,7 @@ const TransferConnectionOwnership = ( {
 	onTransferred,
 	onBusyChange,
 	trackingContext,
+	trackingPlacement,
 }: TransferConnectionOwnershipProps ) => {
 	const {
 		candidates,
@@ -58,7 +62,13 @@ const TransferConnectionOwnership = ( {
 		transfer,
 		isTransferring,
 		error,
-	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred, trackingContext } );
+	} = useOwnershipTransfer( {
+		apiRoot,
+		apiNonce,
+		onTransferred,
+		trackingContext,
+		trackingPlacement,
+	} );
 
 	// Null only while the request is in flight: a failure resolves to an empty list.
 	const isLoading = null === candidates;

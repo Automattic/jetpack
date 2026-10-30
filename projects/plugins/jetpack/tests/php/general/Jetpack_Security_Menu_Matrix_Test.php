@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * With the Protect page turned on, a self-hosted site has one security entry in the Jetpack menu: Protect.
- * Atomic keeps the entry it has today.
+ * Atomic keeps the entry it has today, because jetpack-mu-wpcom hides the Protect page there.
  *
  * Each row runs in its own process: the module loader includes a module file once, and the
  * standalone Protect plugin is detected by a class that cannot be undefined afterwards.
@@ -43,6 +43,11 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		// The Protect page is being built behind this flag, which is removed when it ships.
 		add_filter( 'jetpack_feature_flag_enabled_jetpack-protect-dashboard', '__return_true' );
+
+		// The wpcomsh run loads jetpack-mu-wpcom, which would hide the Protect page in every row; make_site_atomic() adds it back.
+		remove_filter( 'jetpack_admin_menu_visibility', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_admin_menu_visibility' ) );
+		// It would also drop the module, since the test site's plan has no Scan.
+		remove_filter( 'jetpack_get_available_modules', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_available_modules' ) );
 	}
 
 	/**
@@ -93,7 +98,6 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 			$this->activate_standalone_protect_plugin();
 		}
 
-		// The first release changes nothing on Atomic, where the Protect page stays off.
 		$expected = $is_atomic
 			? array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) )
 			: array( array( 'Protect', 'jetpack-protect' ) );
@@ -111,6 +115,21 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 		update_option( 'wpcom_admin_interface', 'wp-admin' );
 		// Host caches is_woa_site(), and the plugin bootstrap already asked it.
 		Cache::clear();
+
+		// Stands in for jetpack-mu-wpcom, which hides the Protect page from the menu on Atomic.
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			static function ( $states, $items ) {
+				foreach ( $items as $item ) {
+					if ( 'protect-dashboard' === ( $item['args']['module'] ?? null ) ) {
+						$states[ $item['args']['key'] ?? $item['menu_slug'] ] = 'hidden';
+					}
+				}
+				return $states;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -182,6 +201,8 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		do_action( '_admin_menu' );
 		do_action( 'admin_menu' );
+		// Hidden items leave the submenu on admin_head, which this run does not fire.
+		Admin_Menu::remove_hidden_menu_items();
 
 		global $submenu;
 

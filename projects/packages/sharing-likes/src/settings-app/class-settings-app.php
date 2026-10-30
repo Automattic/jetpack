@@ -19,14 +19,14 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 use WP_REST_Request;
 
 /**
- * Swaps the PHP screen for the wp-build app on sites that opt in.
+ * Swaps the PHP screen for the wp-build app, unless a site opts out.
  *
  * Everything here runs on the Sharing page only: the polyfills force-replace core script handles.
  */
 final class Settings_App {
 
 	/**
-	 * Opt-in filter. Off by default while the React screen is being built.
+	 * Return false to keep the PHP screen until it retires.
 	 */
 	public const FILTER = 'rsm_jetpack_ui_modernization_sharing_likes';
 
@@ -57,7 +57,7 @@ final class Settings_App {
 	 * Hook the loader.
 	 */
 	public static function init(): void {
-		// Priority 1: opt-in code adds the filter on `plugins_loaded`, and the menu registers at 10.
+		// Priority 1: opt-out code adds the filter on `plugins_loaded`, and the menu registers at 10.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load' ), 1 );
 	}
 
@@ -71,7 +71,7 @@ final class Settings_App {
 	}
 
 	/**
-	 * Whether this is a wp-admin request for the Sharing page on a site that opted in.
+	 * Whether this is a wp-admin request for the Sharing page on a site that did not opt out.
 	 *
 	 * Not true for Calypso's `wpcom/v2/admin-menu`, which fires `admin_menu` in a REST request.
 	 */
@@ -86,7 +86,7 @@ final class Settings_App {
 			return false;
 		}
 
-		return (bool) apply_filters( self::FILTER, false );
+		return (bool) apply_filters( self::FILTER, true );
 	}
 
 	/**

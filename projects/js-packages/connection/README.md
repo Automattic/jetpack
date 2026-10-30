@@ -144,6 +144,8 @@ If an error occurs while trying to disconnect, a custmomizable error message wil
 - *onDisconnected* - callback, to be called after the user has been successfully disconnected AND clicks the "Return to WordPress" button.
 - *onError* - callback, to be called when an error occurs while disconnecting.
 - *errorMessage* - string, error message to display when an error occurs while disconnecting. Defaults to: "Failed to disconnect. Please try again."
+- *context* - string, the surface recorded with the dialog's analytics events, e.g. `plugins`. Sent as `null` when omitted.
+- *placement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the dialog was opened from. Sent as `placement` only when set.
 
 ### Important Notes
 It's important to note that the `onDisconnected` callback will not immediately trigger upon receiving a successful API response. This happens because we want to display a success message to the user first within the `DisconnectDialog`.
@@ -186,7 +188,8 @@ The unlink itself runs through the store's `unlinkUser` action, which records th
 - *onClose* - callback (required), called when the dialog is dismissed without disconnecting.
 - *onUnlinked* - callback, called once the account has been disconnected. The dialog does not close itself, so the host decides what closes and whether to reload.
 - *onTransferOwnership* - callback, opens the host's ownership transfer flow. Omit it to hide that action from the owner's warning.
-- *context* - string, recorded with the dialog's analytics events. Leave it out only if the surface genuinely has no name: there is no default, so an omitted context is absent from the data rather than attributed to another surface.
+- *context* - string, recorded with the dialog's analytics events. Leave it out only if the surface genuinely has no name: there is no default, so an omitted context is sent as `null` rather than attributed to another surface.
+- *placement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the dialog was opened from. Sent as `placement` only when set.
 
 ### Important Notes
 The dialog takes no props describing the viewer. It reads `isMaster` and the viewer's capabilities from the store, which `Initial_State` fills, so a host that renders it on a page without that script data will show the non-owner confirmation to everyone.
@@ -223,6 +226,7 @@ On success it updates the package store with the new owner, so surfaces reading 
 - *onTransferred* - callback, called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
 - *onBusyChange* - callback, called with whether a transfer is in flight, so a host can hold its own exits shut while it runs.
 - *trackingContext* - string, the surface to report Tracks events as (`jetpack_connection_owner_transfer_attempt`, `_success` and `_error` with a `reason`). Sent as `context`, or `null` when omitted.
+- *trackingPlacement* - `ConnectionPlacement` (`header`, `connection_card` or `page_notice`), where on the page the flow sits. Sent as `placement` only when set.
 
 ### Important Notes
 The component renders only the controls its own steps need: `Continue`, `Back` between steps, and the transfer itself. Leaving the flow is the host surface's business, so there is no Cancel, Close or Done button — add one in your own chrome if the surface needs it.
@@ -241,7 +245,11 @@ import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 ```
 
 ## Tracking connection events
-`ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. The package also exports `CONNECTION_EVENTS` (the canonical event names) `trackConnectionEvent( event, context, props )` and `bumpConnectionStat( group, name )` (an MC stat) for hosts that cannot bundle `@automattic/jetpack-analytics`, such as the Connectors card. Neither throws. `bumpConnectionStat` skips the Tracks script, so check that the site allows tracking before calling it.
+`ProtectedOwnerConfirmation`, `ProtectedOwnerRelease`, `TransferConnectionOwnership` and the transfer link in `DisconnectUserDialog` record Tracks events by default. The `trackingContext` prop (`context` for `DisconnectUserDialog`) is sent as the event's `context` property, or `null` when omitted. `context` names the page; when one page renders the same component in more than one place, `trackingPlacement` (`placement` for the dialogs) names which, and is left out of the event otherwise. Placements are a closed `ConnectionPlacement` type: add a new one there before passing it.
+
+Only the page's own entry point sets `context`. A component that can render on more than one page, such as one exported from a package or loaded onto other dashboards through a shared script, takes `context` from its host and never hard-codes it; it may still set its own `placement`. For example, My Jetpack's shared header is told `my-jetpack` or `boost` by the page it renders on.
+
+The package also exports `CONNECTION_EVENTS` (the canonical event names) `trackConnectionEvent( event, context, props )` and `bumpConnectionStat( group, name )` (an MC stat) for hosts that cannot bundle `@automattic/jetpack-analytics`, such as the Connectors card. Neither throws. `bumpConnectionStat` skips the Tracks script, so check that the site allows tracking before calling it.
 
 ## Fetching connection status and other data from the store
 The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Setup wizard: Start the connection with the standard my_jetpack_onboarding entry point, so WordPress.com shows its unified connection screen. This is behind the default-off `my-jetpack-onboarding-wizard` flag.

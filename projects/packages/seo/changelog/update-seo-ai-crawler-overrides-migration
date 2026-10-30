@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: GEO: Copy AI crawler choices saved before allow-by-default into `jetpack_seo_blocked_crawlers` the first time it is read, keeping the training crawlers blocked for owners who changed that group, then delete the old option. The new SEO page is still gated.
-

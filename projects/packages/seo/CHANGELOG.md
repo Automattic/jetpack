@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2026-10-28
+### Changed
+- Internal updates.
+
 ## [0.10.1] - 2026-10-26
 ### Fixed
 - Breadcrumb schema: Stop adding the current post, or the first post of an archive, as an ancestor when the site has a static front page and no Posts page. [#53549]
@@ -15,8 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings: Show a working Canonical URLs switch on WordPress.com Simple sites that adds canonical tags to archive pages. [#53569]
 
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ### Fixed
 - Dashboard: Line up the Enable SEO tools card on the Settings, Content, and GEO tabs with the Overview tab. [#53623]
@@ -33,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.8] - 2026-10-05
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [0.9.7] - 2026-09-29
 ### Changed
@@ -92,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.3] - 2026-08-25
 ### Changed
-- Update dependencies. [#51438]
+- Update dependencies.
 
 ## [0.8.2] - 2026-08-20
 ### Added
@@ -235,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.10.2]: https://github.com/Automattic/jetpack-seo/compare/0.10.1...0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-seo/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-seo/compare/0.9.10...0.10.0
 [0.9.10]: https://github.com/Automattic/jetpack-seo/compare/0.9.9...0.9.10

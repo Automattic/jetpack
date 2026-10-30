@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
 if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
@@ -68,13 +69,13 @@ wpcom_themes_tab_register_flag();
 /**
  * Whether to show the tab on this site.
  *
- * Atomic only for now: Simple has no Add Themes screen to add a tab to, and this package ships
- * there too, so the host is checked rather than left to the screen's absence.
+ * Core's Add Themes screen can't be reached on Simple, so there the tab goes on WordPress.com's
+ * own copy of it, which asks this before it draws.
  *
  * @return bool
  */
 function wpcom_themes_tab_enabled() {
-	return is_woa_site() && Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
+	return ( new Host() )->is_wpcom_platform() && Feature_Flags::is_enabled( WPCOM_THEMES_TAB_FLAG );
 }
 
 /**
@@ -548,3 +549,51 @@ function wpcom_themes_tab_splice_search_partners( $result, $action, $args ) {
 	return $result;
 }
 add_filter( 'themes_api_result', 'wpcom_themes_tab_splice_search_partners', 10, 3 );
+
+/**
+ * Shows WordPress.com's copy of a theme both directories list, on Simple.
+ *
+ * A Simple site can activate ours without moving to Atomic, so it takes the WordPress.org card's
+ * place. Not a partner theme's slug, which WordPress.org uses for another author's theme.
+ *
+ * @param object|WP_Error $result Themes API response.
+ * @param string          $action Themes API action.
+ * @return object|WP_Error
+ */
+function wpcom_themes_tab_prefer_wpcom_copies( $result, $action ) {
+	if (
+		'query_themes' !== $action
+		|| ! is_object( $result )
+		|| ! isset( $result->themes )
+		|| ! is_array( $result->themes )
+		|| ! ( new Host() )->is_wpcom_simple()
+		|| ! wpcom_themes_tab_enabled()
+	) {
+		return $result;
+	}
+
+	$ours = array();
+	foreach ( wpcom_themes_tab_catalog() as $theme ) {
+		if ( WPCom_Themes_Tiers::PARTNER !== WPCom_Themes_Tiers::tier_of( $theme ) ) {
+			$ours[ $theme->id ] = $theme;
+		}
+	}
+
+	foreach ( $result->themes as $i => $theme ) {
+		$slug = is_object( $theme ) && empty( $theme->is_wpcom_theme ) ? ( $theme->slug ?? null ) : null;
+
+		if ( ! is_string( $slug ) || ! isset( $ours[ $slug ] ) ) {
+			continue;
+		}
+
+		$copy = wpcom_themes_tab_add_plan( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $ours[ $slug ] ) );
+
+		// Listed by core's tab, which installs and purchase clicks are attributed to.
+		$copy->wpcom_marketplace_tab = false;
+
+		$result->themes[ $i ] = $copy;
+	}
+
+	return $result;
+}
+add_filter( 'themes_api_result', 'wpcom_themes_tab_prefer_wpcom_copies', 10, 2 );

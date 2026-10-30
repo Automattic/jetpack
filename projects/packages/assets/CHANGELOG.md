@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.16] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [5.0.15] - 2026-10-26
 ### Changed
 - Internal updates.
@@ -23,15 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.11] - 2026-10-14
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.10] - 2026-10-12
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.9] - 2026-10-06
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.8] - 2026-10-05
 ### Changed
@@ -39,11 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.7] - 2026-09-28
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.6] - 2026-09-23
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.5] - 2026-09-18
 ### Changed
@@ -58,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.3] - 2026-09-14
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.2] - 2026-09-08
 ### Changed
@@ -66,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.1] - 2026-09-01
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [5.0.0] - 2026-08-26
 ### Removed
@@ -90,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.7] - 2026-07-22
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [4.4.6] - 2026-07-20
 ### Changed
@@ -99,11 +103,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.5] - 2026-07-13
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.4.4] - 2026-07-09
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.4.3] - 2026-07-06
 ### Added
@@ -114,7 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.2] - 2026-06-26
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.4.1] - 2026-06-23
 ### Changed
@@ -129,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.44] - 2026-06-15
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.43] - 2026-06-10
 ### Changed
@@ -149,12 +153,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.39] - 2026-06-02
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.38] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [4.3.37] - 2026-05-19
 ### Changed
@@ -162,11 +165,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.36] - 2026-05-13
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.35] - 2026-05-11
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.34] - 2026-05-04
 ### Changed
@@ -182,7 +185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.31] - 2026-04-06
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.30] - 2026-03-30
 ### Changed
@@ -198,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.27] - 2026-03-09
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.26] - 2026-02-26
 ### Changed
@@ -222,7 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.21] - 2026-01-26
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.20] - 2026-01-19
 ### Changed
@@ -242,7 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.16] - 2025-12-11
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.15] - 2025-12-08
 ### Fixed
@@ -266,15 +269,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.11] - 2025-10-28
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.10] - 2025-10-02
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.9] - 2025-09-22
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.8] - 2025-09-19
 ### Changed
@@ -290,7 +293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.5] - 2025-08-18
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.3.4] - 2025-08-13
 ### Changed
@@ -318,7 +321,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.1.2] - 2025-07-08
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.1.1] - 2025-07-08
 ### Changed
@@ -334,7 +337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.31] - 2025-06-30
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.30] - 2025-06-27
 ### Added
@@ -342,7 +345,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.29] - 2025-06-24
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.28] - 2025-06-23
 ### Changed
@@ -354,11 +357,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.26] - 2025-06-10
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.25] - 2025-06-04
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.24] - 2025-06-03
 ### Changed
@@ -366,7 +369,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.23] - 2025-06-02
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.22] - 2025-05-26
 ### Changed
@@ -374,7 +377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.21] - 2025-05-22
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.20] - 2025-05-05
 ### Changed
@@ -394,7 +397,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.16] - 2025-04-01
 ### Changed
-- Update dependencies. [#42554]
+- Update dependencies.
 
 ## [4.0.15] - 2025-03-31
 ### Changed
@@ -987,6 +990,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.16]: https://github.com/Automattic/jetpack-assets/compare/v5.0.15...v5.0.16
 [5.0.15]: https://github.com/Automattic/jetpack-assets/compare/v5.0.14...v5.0.15
 [5.0.14]: https://github.com/Automattic/jetpack-assets/compare/v5.0.13...v5.0.14
 [5.0.13]: https://github.com/Automattic/jetpack-assets/compare/v5.0.12...v5.0.13

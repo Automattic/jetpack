@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Protect\Threat_Count;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Admin_Bar;
@@ -94,6 +95,10 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
+			return false;
+		}
+
 		// Check if VaultPress is active, the assumtion there is that VaultPress is working.
 		// It has its own notice in the admin bar.
 		if ( class_exists( 'VaultPress' ) ) {
@@ -121,7 +126,10 @@ class Admin_Bar_Notice {
 		$this->add_inline_styles();
 
 		// The Protect dashboard's own script refreshes its count; otherwise this one fetches it when nothing is cached.
-		$needs_refresh = $this->uses_protect_count() ? Threat_Count::needs_refresh() : null === $this->has_threats();
+		// On the Protect page, fixing or ignoring a threat sends the new count with the same event.
+		$needs_refresh = $this->uses_protect_count()
+			? Threat_Count::needs_refresh() || $this->is_protect_dashboard_page()
+			: null === $this->has_threats();
 		if ( ! $needs_refresh ) {
 			return;
 		}
@@ -158,12 +166,12 @@ class Admin_Bar_Notice {
 	 */
 	public function add_inline_styles() {
 		// We know there are no threats so lets not include any css.
-		if ( false === $this->has_threats() ) {
+		if ( ! $this->keeps_node() ) {
 			return;
 		}
 
 		// We might be showing the threats in the admin bar lets make sure that they look great!
-		$hide_wording_on_mobile = '#wp-admin-bar-jetpack-scan-notice .is-hidden { display:none; } @media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; } }';
+		$hide_wording_on_mobile = '#wp-admin-bar-jetpack-scan-notice.is-hidden { display:none; } @media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; } }';
 		$style                  = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
 		if ( is_rtl() ) {
 			$style = '#wp-admin-bar-jetpack-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
@@ -181,10 +189,10 @@ class Admin_Bar_Notice {
 			return;
 		}
 
-		$has_threats = $this->has_threats();
-		if ( false === $has_threats ) {
+		if ( ! $this->keeps_node() ) {
 			return;
 		}
+		$has_threats = $this->has_threats();
 
 		$node = array(
 			'id'     => 'jetpack-scan-notice',
@@ -223,6 +231,25 @@ class Admin_Bar_Notice {
 	private function has_protect_dashboard() {
 		// The standalone Protect plugin needs no check: with it active, this notice is never shown.
 		return (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Whether this is the Protect dashboard page, where the threat count can change without a reload.
+	 *
+	 * @return bool
+	 */
+	private function is_protect_dashboard_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared, to pick which script loads.
+		return is_admin() && $this->has_protect_dashboard() && isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
+	}
+
+	/**
+	 * Whether the admin bar gets a node, hidden while there are no threats, so a later count can show it.
+	 *
+	 * @return bool
+	 */
+	private function keeps_node() {
+		return false !== $this->has_threats() || ( $this->uses_protect_count() && $this->is_protect_dashboard_page() );
 	}
 
 	/**

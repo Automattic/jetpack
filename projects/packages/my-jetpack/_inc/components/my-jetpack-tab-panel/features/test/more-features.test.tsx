@@ -221,17 +221,16 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
+	it( 'says what to do in Settings › Sharing, and drops the status badge, where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection();
 
 		expect(
-			screen.getByText( 'Add the Sharing Buttons block to your theme’s template.' )
+			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Inactive' ) ).not.toBeInTheDocument();
 	} );
@@ -307,11 +306,10 @@ describe( 'MoreFeatures', () => {
 		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links to no settings where the Site Editor block replaces the module', () => {
+	it( 'links to no settings where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection( { ...sharing, activated: true, configure_url: 'https://example.com/settings' } );

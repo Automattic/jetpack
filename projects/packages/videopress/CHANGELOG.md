@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.60.1] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [0.60.0] - 2026-10-26
 ### Added
 - Make the Trim & cut editor available by default. [#54053]
@@ -43,8 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Name the videos and their views above the Top videos list. [#53697]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 - Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
 - Video Playlist: Open this site's video pages in the same tab, and mark the entry of the video being viewed. [#53502]
 
@@ -229,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.1] - 2026-08-20
 ### Changed
-- Update dependencies. [#49464]
+- Update dependencies.
 
 ## [0.47.0] - 2026-08-19
 ### Added
@@ -530,7 +533,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.3] - 2026-03-02
 ### Changed
-- Update dependencies. [#46758]
+- Update dependencies.
 
 ## [0.35.2] - 2026-02-26
 ### Changed
@@ -612,7 +615,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.15] - 2025-11-18
 ### Changed
-- Update dependencies. [#45553]
+- Update dependencies.
 
 ## [0.32.14] - 2025-11-17
 ### Changed
@@ -641,11 +644,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.8] - 2025-09-29
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.7] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.6] - 2025-09-19
 ### Changed
@@ -661,7 +664,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.32.3] - 2025-09-01
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.32.2] - 2025-08-25
 ### Changed
@@ -719,7 +722,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.30.1] - 2025-06-24
 ### Changed
-- Update dependencies. [#43885]
+- Update dependencies.
 
 ## [0.30.0] - 2025-06-23
 ### Changed
@@ -854,7 +857,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.11] - 2025-02-11
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.25.10] - 2025-02-10
 ### Changed
@@ -904,7 +907,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.2] - 2024-11-26
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.25.1] - 2024-11-25
 ### Changed
@@ -963,7 +966,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.9] - 2024-09-23
 ### Changed
-- Update dependencies. [#38595]
+- Update dependencies.
 
 ## [0.24.8] - 2024-09-16
 ### Changed
@@ -2386,6 +2389,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1
 [0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.57.0...v0.58.0

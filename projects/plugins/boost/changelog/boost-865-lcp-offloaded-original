@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Stop cropping the LCP image when its original file is offloaded or deleted.

@@ -38,12 +38,12 @@ export interface GeoState {
 		enabled: boolean;
 		/** The site's llms.txt URL, for the "view" link. */
 		url: string;
-		/**
-		 * Whether WordPress can actually serve the dynamic /llms.txt here. False
-		 * when a static llms.txt or the host's setup fronts the request, so the
-		 * toggle would silently do nothing — the tab then shows an honest notice.
-		 */
+		/** Whether Jetpack can serve llms.txt, considering files, hosting and plugin conflicts. */
 		canServe: boolean;
+		/** Whether Jetpack SEO output is disabled by a plugin conflict or another filter. */
+		disabled: boolean;
+		/** The detected conflicting plugin's display name, or an empty string. */
+		conflictingPlugin: string;
 	};
 	crawlers: {
 		/** The full AI crawler catalog. */

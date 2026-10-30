@@ -88,6 +88,53 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
+	it( 'keeps saved schema values visible and disables every editing action during a conflict', () => {
+		mockForm = makeForm( {
+			organization: {
+				name: 'Saved studio',
+				description: 'Saved description',
+				email: 'hello@example.test',
+				sameAs: [ 'https://example.test/studio' ],
+			},
+			localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
+			isOrganizationDirty: true,
+		} );
+		render(
+			<SchemaCard
+				initialSettings={ bootstrap }
+				disabled
+				disabledReason="Yoast SEO manages structured data. Saved settings are retained."
+			/>
+		);
+		expandCard();
+		expect( screen.getByDisplayValue( 'Saved studio' ) ).toBeDisabled();
+		expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'group', { name: 'Schema settings' } ) ).toHaveAccessibleDescription(
+			'Yoast SEO manages structured data. Saved settings are retained.'
+		);
+		for ( const control of [
+			...screen.getAllByRole( 'textbox' ),
+			...screen.getAllByRole( 'checkbox' ),
+		] ) {
+			expect( control ).toBeDisabled();
+		}
+		expect( screen.getByRole( 'button', { name: 'Save schema settings' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save schema settings' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+		expect( saveOrganizationEntity ).not.toHaveBeenCalled();
+		expect( commitBreadcrumbList ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
 

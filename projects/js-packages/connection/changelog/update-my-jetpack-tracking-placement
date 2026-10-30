@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Tracking: Send a null context instead of `jetpack-dashboard` when the connection dialogs get none, and add a ConnectionPlacement placement option to the dialogs, the ownership transfer and the error notice.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Protect: Show the table, row and values a database threat was found in on the Protect dashboard, and delete a flagged option in place.

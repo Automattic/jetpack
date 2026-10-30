@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
 - Tested up to WordPress 7.0. [#48114]
 - Update composer.lock files. [#49415]
-- Update package dependencies. [#48735] [#47907] [#48064] [#48106] [#48141] [#48404] [#48405] [#48683] [#49218] [#49272] [#49273] [#49379] [#49448] [#49492] [#49631] [#49638] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50510] [#50529] [#50582] [#50751] [#50753] [#50792] [#51008] [#51125]
+- Update package dependencies. [#47907] [#48064] [#48106] [#48141] [#48404] [#48405] [#48683] [#48735] [#49218] [#49272] [#49273] [#49379] [#49448] [#49492] [#49631] [#49638] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50510] [#50529] [#50582] [#50751] [#50753] [#50792] [#51008] [#51125]
 - Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names. [#49272]
 
 ### Fixed
@@ -69,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin Page: Restore border on header component. [#47425]
 - Constrain license activation link width on mobile to prevent header overflow. [#47431]
 - Ensure proper flags are used with `json_encode()`. [#46117]
-- Fix TypeScript errors detected by tsgo. [#47419] [#47409]
+- Fix TypeScript errors detected by tsgo. [#47409] [#47419]
 
 ## 4.4.1 - 2025-11-21
 ### Added
@@ -309,7 +309,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix connection button loading indicators. [#28514]
 - Fix Protect status report caching. [#28766]
 - Remove unnecessary full path from example in UI. [#29037]
-- Other assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28397] [#28273]
+- Other assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28273] [#28397]
 
 ## 1.2.0 - 2023-01-16
 ### Added

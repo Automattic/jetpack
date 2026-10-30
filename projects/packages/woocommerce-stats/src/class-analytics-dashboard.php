@@ -23,7 +23,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.

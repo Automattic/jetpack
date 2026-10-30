@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Abilities: get-visits takes and returns `period` and `num`, matching get-top-content and get-post-views, in place of `unit` and `quantity`.

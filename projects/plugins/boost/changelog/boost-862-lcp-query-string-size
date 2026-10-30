@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Optimize LCP Images: Stop cropping the LCP image when its URL has a query string.
+LCP: Stop cropping the LCP image when its URL has a query string.

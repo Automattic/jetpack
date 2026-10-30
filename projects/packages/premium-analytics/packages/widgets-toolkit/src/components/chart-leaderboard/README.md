@@ -4,7 +4,7 @@ A responsive leaderboard (horizontal bar) chart component for displaying ranking
 
 ## Widgets: use `Leaderboard`
 
-A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, and the dashboard window on detail links. The chart derives the bar shares and deltas from the values. It must render inside `WidgetRoot`.
 
 ```tsx
 // Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
@@ -77,27 +77,18 @@ const data = [
 		label: 'Direct traffic',
 		currentValue: 125000,
 		previousValue: 98000,
-		currentShare: 42,
-		previousShare: 35,
-		delta: 27.55,
 	},
 	{
 		id: '2',
 		label: 'Google Ads',
 		currentValue: 87500,
 		previousValue: 92000,
-		currentShare: 29,
-		previousShare: 33,
-		delta: -4.89,
 	},
 	{
 		id: '3',
 		label: 'Email campaign',
 		currentValue: 53000,
 		previousValue: 61000,
-		currentShare: 18,
-		previousShare: 22,
-		delta: -13.11,
 	},
 ];
 
@@ -129,7 +120,6 @@ const row = {
 		action: { kind: 'link', href: 'https://example.com' },
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -173,7 +163,6 @@ const row = {
 		},
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -214,7 +203,6 @@ const row = {
 		},
 	} ),
 	currentValue: 100,
-	currentShare: 100,
 };
 ```
 
@@ -272,7 +260,7 @@ inline padding.
 
 | Prop               | Type                   | Default                                                        | Description                                                                                                                                                    |
 | ------------------ | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label, values, shares, and deltas                                                                                              |
+| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label and values; shares and deltas are optional                                                                               |
 | `className`        | `string`               | -                                                              | Additional CSS classes for container                                                                                                                           |
 | `loading`          | `boolean`              | `false`                                                        | Shows loading skeleton when true                                                                                                                               |
 | `withComparison`   | `boolean`              | `false`                                                        | Enables comparison mode with previous period data                                                                                                              |
@@ -297,38 +285,17 @@ type LeaderboardChartData = Array< {
 	ariaLabel?: string;
 	currentValue: number;
 	previousValue?: number;
-	currentShare: number; // Percentage (0-100)
-	previousShare?: number; // Percentage (0-100); omitted when no comparison row matches
-	delta?: number; // Percentage change; omitted when no comparison row matches or unavailable
+	currentShare?: number; // Percentage of the largest value; derived when omitted
+	previousShare?: number; // Percentage of the largest value; derived when omitted
+	delta?: number; // Percentage change; derived when omitted
 } >;
 ```
 
-### Premium Analytics comparison bar scaling
+### Derived shares and deltas
 
-Premium Analytics comparison widgets use one shared scale so current and previous bar widths are
-directly comparable. Calculate the largest value represented across both periods and use it for
-both shares:
+Pass `currentValue` and `previousValue` only. The chart derives the shares and deltas; the rules are in the [Leaderboard Chart docs](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library-charts-leaderboard-chart--docs) under Share Calculation. This wrapper passes `negativeBars="clamp"` with `withOverlayLabel`, so a negative value draws an empty bar under its label instead of diverging.
 
-```tsx
-import { getCombinedPeriodMax, sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
-
-const maxValue = getCombinedPeriodMax(
-	rows.map( row => row.currentValue ),
-	rows.map( row => row.previousValue )
-);
-
-const data = rows.map( row => ( {
-	...row,
-	currentShare: sharePercentage( row.currentValue, maxValue ),
-	previousShare:
-		row.previousValue === undefined ? undefined : sharePercentage( row.previousValue, maxValue ),
-} ) );
-```
-
-Do not normalize each period against a separate maximum. That can render equal-width bars for
-different values and visually contradict the displayed delta. Build the maximum from visible
-primary rows and their matching comparison values; omit missing comparison values rather than
-treating them as zero.
+Leave a missing `previousValue` `undefined`, not `0`, so the chart shows the placeholder.
 
 ### DataFormat Type
 

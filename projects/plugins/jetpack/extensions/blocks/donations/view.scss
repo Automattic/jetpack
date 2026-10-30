@@ -1,5 +1,6 @@
 @use "sass:math";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 @use "common";
 @use "../../shared/memberships";
 
@@ -27,9 +28,9 @@
 
 		&::before {
 			content: "";
-			background-color: gb.$gray-600;
-			width: gb.$spinner-size;
-			height: gb.$spinner-size;
+			background-color: colors.$gray-600;
+			width: variables.$spinner-size;
+			height: variables.$spinner-size;
 			opacity: 0.7;
 			border-radius: 100%;
 			position: absolute;
@@ -40,16 +41,16 @@
 
 		&::after {
 			content: "";
-			background-color: gb.$white;
-			width: math.div(gb.$spinner-size, 4.5);
-			height: math.div(gb.$spinner-size, 4.5);
+			background-color: colors.$white;
+			width: math.div(variables.$spinner-size, 4.5);
+			height: math.div(variables.$spinner-size, 4.5);
 			border-radius: 100%;
 			position: absolute;
 			top: 50%;
 			inset-inline-start: 50%;
-			margin-inline-start: math.div(-(gb.$spinner-size), 3);
-			margin-top: math.div(-(gb.$spinner-size), 3);
-			transform-origin: math.div(gb.$spinner-size, 3) math.div(gb.$spinner-size, 3);
+			margin-inline-start: math.div(-(variables.$spinner-size), 3);
+			margin-top: math.div(-(variables.$spinner-size), 3);
+			transform-origin: math.div(variables.$spinner-size, 3) math.div(variables.$spinner-size, 3);
 			animation: spinner 1s infinite linear;
 		}
 	}
@@ -82,7 +83,7 @@
 		cursor: pointer;
 
 		&.is-selected {
-			box-shadow: 0 0 0 1px gb.$white, 0 0 0 3px var(--wp-admin-theme-color);
+			box-shadow: 0 0 0 1px colors.$white, 0 0 0 3px var(--wp-admin-theme-color);
 			outline: 2px solid transparent;
 			outline-offset: -2px;
 		}
@@ -98,7 +99,7 @@
 
 			&:empty::after {
 				content: attr(data-empty-text);
-				color: gb.$gray-400;
+				color: colors.$gray-400;
 			}
 
 			&:focus {
@@ -109,7 +110,7 @@
 
 	.donations__range-error {
 		display: none;
-		color: gb.$alert-red;
+		color: colors.$alert-red;
 		font-size: 0.875em;
 		margin-block-end: 8px;
 

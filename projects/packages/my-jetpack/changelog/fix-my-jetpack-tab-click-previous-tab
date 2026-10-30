@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Record the right previous tab in tab click analytics when arrow keys switch tabs in quick succession.

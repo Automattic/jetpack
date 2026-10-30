@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .wp-block-jetpack-videopress {
 	position: relative;
@@ -12,7 +12,7 @@
 		margin-bottom: 1em;
 		margin-top: 0.5em;
 
-		@include gb.caption-style-theme();
+		@include mixins.caption-style-theme();
 	}
 
 	.jetpack-videopress-player__wrapper {

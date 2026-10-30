@@ -49,11 +49,12 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
-	 * First My Jetpack release with the opt-in offline Features page.
+	 * First My Jetpack release with offline Features enabled by default.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.14.0
+	 * @since $$next-version$$ Raised to the first default-on release.
 	 */
-	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.10.0';
+	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
 	 * Whether module metadata proves it can run without either connection.
@@ -570,7 +571,7 @@ class Main_Features {
 		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
 		 * Set `manage_url` to where a site that has the feature manages it, read only when `$site_has_feature`.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.14.0
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
@@ -857,7 +858,7 @@ class Main_Features {
 	/**
 	 * Whether no other active plugin can take over this My Jetpack page.
 	 *
-	 * @since $$next-version$$ Added the $excluded_folders parameter.
+	 * @since 6.14.0 Added the $excluded_folders parameter.
 	 * @param string   $slug             The plugin's folder name.
 	 * @param string[] $excluded_folders Other plugin folders being deactivated in the same request.
 	 * @return bool True when no other active plugin carries a suitable My Jetpack copy.
@@ -1063,6 +1064,10 @@ class Main_Features {
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
+			// A host's manage link doesn't replace an active standalone plugin's own page.
+			if ( is_array( $upgrade ) && $product_class && method_exists( $product_class, 'is_standalone_plugin_active' ) && $product_class::is_standalone_plugin_active() ) {
+				unset( $upgrade['manage_url'] );
+			}
 
 			$feature = array(
 				'slug'             => $slug,

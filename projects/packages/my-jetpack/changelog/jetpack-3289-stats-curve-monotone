@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Overview: Keep the Stats chart line at or above 0 before a sharp rise, while the Overview v1 feature flag is on.
