@@ -206,7 +206,7 @@ class Jetpack_WP_Admin_SPA {
 
 		$current = isset( $_GET['p'] ) ? sanitize_text_field( wp_unslash( $_GET['p'] ) ) : '/'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		foreach ( self::get_menu_routes() as $route_path ) {
-			if ( $current === $route_path || 0 === strpos( $current, $route_path . '/' ) ) {
+			if ( $current === $route_path || 0 === strpos( $current, $route_path . '/' ) || 0 === strpos( $current, $route_path . '?' ) ) {
 				return self::get_route_url( $route_path );
 			}
 		}
@@ -222,24 +222,52 @@ class Jetpack_WP_Admin_SPA {
 		if ( ! self::is_spa_request() ) {
 			return;
 		}
-
-		// Tail of the router's own history: push, then tell it the location changed.
 		?>
 		<script>
-		document.getElementById( 'adminmenu' )?.addEventListener( 'click', ( event ) => {
-			const link = event.target.closest( 'a[href*="page=<?php echo esc_js( self::PAGE_SLUG ); ?>"]' );
-			if ( ! link || event.metaKey || event.ctrlKey || event.shiftKey || event.button ) {
+		( () => {
+			const menu = document.getElementById( 'adminmenu' );
+			if ( ! menu ) {
 				return;
 			}
-			event.preventDefault();
-			const state = window.history.state || {};
-			window.history.pushState( { ...state, key: String( Date.now() ), __TSR_index: ( state.__TSR_index ?? 0 ) + 1 }, '', link.href );
-			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
-			document.querySelectorAll( '#adminmenu .wp-submenu li.current' ).forEach( ( li ) => li.classList.remove( 'current' ) );
-			document.querySelectorAll( '#adminmenu .wp-submenu a.current' ).forEach( ( a ) => a.classList.remove( 'current' ) );
-			link.classList.add( 'current' );
-			link.parentElement.classList.add( 'current' );
-		} );
+			const slug = <?php echo wp_json_encode( self::PAGE_SLUG ); ?>;
+			const links = [ ...menu.querySelectorAll( `.wp-submenu a[href*="page=${ slug }"]` ) ];
+			const routeOf = ( link ) => new URL( link.href ).searchParams.get( 'p' ) || '';
+
+			// Keep the Jetpack menu open and highlight the entry whose route owns the current `p`.
+			const markActive = () => {
+				const current = new URL( window.location.href ).searchParams.get( 'p' ) || '/';
+				const match = links
+					.filter( ( link ) => current === routeOf( link ) || current.startsWith( routeOf( link ) + '/' ) || current.startsWith( routeOf( link ) + '?' ) )
+					.sort( ( a, b ) => routeOf( b ).length - routeOf( a ).length )[ 0 ];
+				const top = document.getElementById( 'toplevel_page_jetpack' );
+				if ( top ) {
+					menu.querySelectorAll( 'li.wp-has-current-submenu' ).forEach( ( li ) => {
+						li.classList.replace( 'wp-has-current-submenu', 'wp-not-current-submenu' );
+						li.classList.remove( 'wp-menu-open' );
+					} );
+					top.classList.remove( 'wp-not-current-submenu' );
+					top.classList.add( 'wp-has-current-submenu', 'wp-menu-open' );
+					top.querySelector( ':scope > a' )?.classList.add( 'wp-has-current-submenu', 'wp-menu-open' );
+				}
+				menu.querySelectorAll( '.wp-submenu .current' ).forEach( ( el ) => el.classList.remove( 'current' ) );
+				match?.classList.add( 'current' );
+				match?.parentElement.classList.add( 'current' );
+			};
+
+			// Tail of the router's own history: push, then tell it the location changed.
+			menu.addEventListener( 'click', ( event ) => {
+				const link = event.target.closest( `a[href*="page=${ slug }"]` );
+				if ( ! link || event.metaKey || event.ctrlKey || event.shiftKey || event.button ) {
+					return;
+				}
+				event.preventDefault();
+				const state = window.history.state || {};
+				window.history.pushState( { ...state, key: String( Date.now() ), __TSR_index: ( state.__TSR_index ?? 0 ) + 1 }, '', link.href );
+				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			} );
+			window.addEventListener( 'popstate', markActive );
+			markActive();
+		} )();
 		</script>
 		<?php
 	}
