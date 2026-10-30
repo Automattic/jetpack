@@ -124,8 +124,11 @@ const row = {
 ```
 
 A `viewLink` row keeps the label as plain text and offers the URL from a "View in new tab"
-action beside it, revealed on hover or focus, for lists whose rows should not read as links
-themselves. `resolveLeaderboardRowAction` returns it for a childless row when passed
+action beside it, revealed on hover or focus. Pick between `link` and `viewLink` by how many
+actions the row carries, as design settled on STATS-574: a row with one action besides drilling
+down links it from the title, and only a row that needs several, such as a Top referrers row with
+"View in new tab" and "Mark as spam", keeps a plain name with secondary actions beside it.
+`resolveLeaderboardRowAction` returns `viewLink` for a childless row when passed
 `hrefAs: 'viewLink'`:
 
 ```tsx
