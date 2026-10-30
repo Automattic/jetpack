@@ -86,11 +86,15 @@ const OverviewScreen: FC = () => {
 	// two always-valid cards (site visibility + verification, both backed by core
 	// WordPress options) topped with the upsell banner. The AI-crawler and
 	// content-coverage cards and the disable control are paid surfaces, hidden here.
+	// The paused banner stays, because a gated site's own SEO output pauses too. It
+	// needs SEO tools on: this layout also shows while they're off, and then the pause
+	// isn't what stops the output.
 	if ( isGated() ) {
 		return (
 			// Column Stack (matching the Settings tab) so the upsell banner — which sits
 			// below the cards and isn't dismissible — has space above it.
 			<Stack direction="column" gap="lg" className={ styles.root }>
+				{ data.site_visibility.seo_tools_active && <SeoPausedBanner /> }
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
 						data={ siteVisibilityData }

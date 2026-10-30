@@ -112,19 +112,24 @@ describe( 'ContentScreen — paused SEO output', () => {
 		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
 	} );
 
-	it( 'shows the same banner as the other tabs while Jetpack SEO output is paused', () => {
+	it.each( [
+		[
+			'Yoast SEO',
+			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+		],
+		[
+			'',
+			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+		],
+	] )( 'shows the same banner as the other tabs with "%s" in charge', ( plugin, banner ) => {
 		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
 			site: { admin_url: 'https://example.com/wp-admin/' },
-			seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+			seo: { output: { paused: true, conflicting_plugin: plugin } },
 		};
 
 		render( <ContentScreen /> );
 
-		expect(
-			screen.getByText(
-				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.'
-			)
-		).toBeInTheDocument();
+		expect( screen.getByText( banner ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows no banner while Jetpack owns the output', () => {

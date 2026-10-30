@@ -106,6 +106,7 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		render( <SettingsScreen form={ buildForm( true ) } /> );
 
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveAttribute( 'maxlength', '300' );
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeEnabled();
 	} );
 
 	it( 'shows the front-page description on an ungated site regardless of the legacy flag', () => {
@@ -126,5 +127,40 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		// switch them off. Without this, tucking the card into the gated branch would
 		// go unnoticed.
 		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
+	} );
+
+	describe( 'while Jetpack SEO output is paused', () => {
+		afterEach( () => {
+			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		} );
+
+		// Neither the banner nor the lock is a paid surface.
+		it.each( [
+			[
+				'Yoast SEO',
+				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+				'Paused while Yoast SEO is active.',
+			],
+			[
+				'',
+				'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+				'Paused on this site.',
+			],
+		] )(
+			'shows the banner and locks the legacy description, with "%s" in charge',
+			( plugin, banner, line ) => {
+				isGated.mockReturnValue( true );
+				( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+					site: { admin_url: 'https://example.com/wp-admin/' },
+					seo: { output: { paused: true, conflicting_plugin: plugin } },
+				};
+
+				render( <SettingsScreen form={ buildForm( true ) } /> );
+
+				expect( screen.getByText( banner ) ).toBeInTheDocument();
+				expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeDisabled();
+				expect( screen.getByText( line ) ).toBeInTheDocument();
+			}
+		);
 	} );
 } );

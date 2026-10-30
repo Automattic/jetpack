@@ -227,9 +227,9 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
 
-	// Jetpack's SEO output is paused, so the fields that feed it are locked. Gated sites
-	// keep their grandfathered description editable.
-	const outputLocked = ! gated && getOutput().paused;
+	// Jetpack's SEO output is paused, so the fields that feed it are locked. That
+	// includes a gated site's grandfathered description: Jetpack stops printing it too.
+	const outputLocked = getOutput().paused;
 	if ( outputLocked ) {
 		frontPageStatus = 'paused';
 	}
@@ -298,7 +298,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ ! gated && <SeoPausedBanner /> }
+			<SeoPausedBanner />
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
