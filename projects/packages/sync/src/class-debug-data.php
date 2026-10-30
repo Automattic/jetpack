@@ -24,6 +24,22 @@ class Debug_Data {
 	 * @return array The fields with the sync status added.
 	 */
 	public static function add_fields( $fields ) {
+		if ( ! Actions::sync_allowed() ) {
+			$fields['sync_allowed'] = array(
+				'label'   => 'Sync Allowed',
+				'value'   => 'No',
+				'private' => false,
+			);
+
+			return $fields;
+		}
+
+		$fields['sync_allowed'] = array(
+			'label'   => 'Sync Allowed',
+			'value'   => 'Yes',
+			'private' => false,
+		);
+
 		$sync_module = Modules::get_module( 'full-sync' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $sync_module';
 		if ( $sync_module ) {
