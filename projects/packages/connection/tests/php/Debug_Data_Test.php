@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -75,21 +76,46 @@ class Debug_Data_Test extends TestCase {
 	}
 
 	/**
-	 * Tests that other packages and plugins can add fields.
+	 * Tests that the fields a filter returns are used, unless they are not an array.
+	 *
+	 * @dataProvider provide_filtered_fields
+	 *
+	 * @param mixed $filtered     What the filter returns.
+	 * @param bool  $expect_extra  Whether the filter's field should be reported.
 	 */
-	public function test_get_fields_applies_filter() {
+	#[DataProvider( 'provide_filtered_fields' )]
+	public function test_get_fields_applies_filter( $filtered, $expect_extra ) {
 		add_filter(
 			'jetpack_connection_debug_data',
-			static function ( $fields ) {
-				$fields['extra'] = array(
-					'label'   => 'Extra',
-					'value'   => 'yes',
-					'private' => false,
-				);
-				return $fields;
+			static function () use ( $filtered ) {
+				return $filtered;
 			}
 		);
 
-		$this->assertSame( 'yes', Debug_Data::get_fields()['extra']['value'] );
+		$fields = Debug_Data::get_fields();
+
+		$this->assertSame( $expect_extra, isset( $fields['extra'] ) );
+		$this->assertArrayHasKey( 'cxn_tests', $fields );
+	}
+
+	/**
+	 * Data provider for test_get_fields_applies_filter.
+	 *
+	 * @return array
+	 */
+	public static function provide_filtered_fields() {
+		return array(
+			'array'     => array(
+				array(
+					'extra' => array(
+						'label'   => 'Extra',
+						'value'   => 'yes',
+						'private' => false,
+					),
+				),
+				true,
+			),
+			'non-array' => array( 'not an array', false ),
+		);
 	}
 }
