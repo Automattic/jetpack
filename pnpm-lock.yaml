@@ -5920,9 +5920,6 @@ importers:
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -5944,9 +5941,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6161,9 +6155,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6568,9 +6559,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6640,9 +6628,6 @@ importers:
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6664,9 +6649,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6809,9 +6791,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6835,9 +6814,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6865,9 +6841,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -6962,9 +6935,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -7047,9 +7017,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       config:
         specifier: 4.4.1
         version: 4.4.1
@@ -7177,9 +7144,6 @@ importers:
       '@wordpress/e2e-test-utils-playwright':
         specifier: 3.0.0
         version: 3.0.0(@playwright/test@1.60.0)(@types/node@24.19.2)
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
       axios:
         specifier: 1.20.0
         version: 1.20.0
@@ -12365,12 +12329,6 @@ packages:
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
 
-  allure-js-commons@2.15.1:
-    resolution: {integrity: sha512-5V/VINplbu0APnfSZOkYpKOzucO36Q2EtTD1kqjWjl7n6tj7Hh+IHCZsH3Vpk/LXRDfj9RuXugBBvwYKV5YMJw==}
-
-  allure-playwright@2.15.1:
-    resolution: {integrity: sha512-P1Uu1j/ptDHdYp3V5ZAeBZyt33+L+OQu0otUIEl/zkOcv0KRycHqlHwC0GEJmpgnLKvVP7s+K37LcLoSUUj3Cg==}
-
   anser@2.3.5:
     resolution: {integrity: sha512-vcZjxvvVoxTeR5XBNJB38oTu/7eDCZlwdz32N1eNgpyPF7j/Z7Idf+CUwQOkKKpJ7RJyjxgLHCM7vdIK0iCNMQ==}
 
@@ -12398,10 +12356,6 @@ packages:
   ansi-regex@3.0.1:
     resolution: {integrity: sha512-+O9Jct8wf++lXxxFc4hc8LsjaSq0HFzzL7cVsw8pRDIPdjKD2mT4ytDZlLuSBZ4cLKZFXIrMGO7DbQCtMJJMKw==}
     engines: {node: '>=4'}
-
-  ansi-regex@4.1.1:
-    resolution: {integrity: sha512-ILlv4k/3f6vfQ4OoP2AGvirOktlQ98ZEL1k9FaQjxa3L1abBgbuTDAdPOpvbGncC0BTVQrl+OM8xZGK6tWXt7g==}
-    engines: {node: '>=6'}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -16511,10 +16465,6 @@ packages:
   proper-lockfile@4.1.2:
     resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
 
-  properties@1.2.1:
-    resolution: {integrity: sha512-qYNxyMj1JeW54i/EWEFsM1cVwxJbtgPp8+0Wg9XjNaK6VE/c4oRi6PNu5p7w1mNXEIQIjV5Wwn8v8Gz82/QzdQ==}
-    engines: {node: '>=0.10'}
-
   protocol-buffers-schema@3.6.1:
     resolution: {integrity: sha512-VG2K63Igkiv9p76tk1lilczEK1cT+kCjKtkdhw1dQZV3k3IXJbd3o6Ho8b9zJZaHSnT2hKe4I+ObmX9w6m5SmQ==}
 
@@ -17502,10 +17452,6 @@ packages:
   strip-ansi@4.0.0:
     resolution: {integrity: sha512-4XaJ2zQdCzROZDivEVIDPkcQn8LMFSa8kj8Gxb/Lnwzv9A8VctNZ+lfivC/sV3ivW8ElJTERXZoPBRrZKkNKow==}
     engines: {node: '>=4'}
-
-  strip-ansi@5.2.0:
-    resolution: {integrity: sha512-DuRs1gKbBqsMKIZlrffwlug8MHkcnpjs5VPmL1PAh+mA30U0DTotfDZ0d2UUsXpPmPmMMJ6W773MaA3J+lbiWA==}
-    engines: {node: '>=6'}
 
   strip-ansi@6.0.1:
     resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==}
@@ -30780,16 +30726,6 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  allure-js-commons@2.15.1:
-    dependencies:
-      md5: 2.3.0
-      properties: 1.2.1
-      strip-ansi: 5.2.0
-
-  allure-playwright@2.15.1:
-    dependencies:
-      allure-js-commons: 2.15.1
-
   anser@2.3.5: {}
 
   ansi-colors@4.1.3: {}
@@ -30805,8 +30741,6 @@ snapshots:
   ansi-regex@2.1.1: {}
 
   ansi-regex@3.0.1: {}
-
-  ansi-regex@4.1.1: {}
 
   ansi-regex@5.0.1: {}
 
@@ -35569,8 +35503,6 @@ snapshots:
       retry: 0.12.0
       signal-exit: 3.0.7
 
-  properties@1.2.1: {}
-
   protocol-buffers-schema@3.6.1: {}
 
   proxy-addr@2.0.8:
@@ -36707,10 +36639,6 @@ snapshots:
   strip-ansi@4.0.0:
     dependencies:
       ansi-regex: 3.0.1
-
-  strip-ansi@5.2.0:
-    dependencies:
-      ansi-regex: 4.1.1
 
   strip-ansi@6.0.1:
     dependencies:

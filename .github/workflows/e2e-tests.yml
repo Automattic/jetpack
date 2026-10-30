@@ -291,7 +291,10 @@ jobs:
           # The WordPress version is part of the name: without it the two runs of a project would
           # race for the same artifact and upload-artifact would fail on the duplicate.
           name: test-output-${{ matrix.project }}-wp-${{ matrix.wpVersion }}
-          path: ${{ matrix.path }}/output
+          # The HTML report keeps its own copy of each video. The Slack notification reads only screenshots from results.
+          path: |
+            ${{ matrix.path }}/output
+            !${{ matrix.path }}/output/results/**/*.webm
           include-hidden-files: true
 
   test-report:
