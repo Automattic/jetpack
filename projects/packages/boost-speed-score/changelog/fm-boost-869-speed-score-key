@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Keep one score record per page, so a test started from any screen updates the score shown on the others once its result is collected. A result nobody collects within 30 minutes still reaches only the graph, tracked in BOOST-644.
+Keep one score record per page, so a test started from any screen updates the score shown on the others.

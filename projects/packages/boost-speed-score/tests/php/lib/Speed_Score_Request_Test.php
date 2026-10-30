@@ -81,6 +81,14 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			}
 		);
 
+		Functions\when( 'delete_option' )->alias(
+			function ( $name ) {
+				unset( $this->options[ $name ] );
+
+				return true;
+			}
+		);
+
 		Functions\when( 'wp_parse_args' )->alias(
 			function ( $args, $defaults = array() ) {
 				if ( is_object( $args ) ) {
@@ -337,14 +345,25 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * After the update, reading any spelling finds the newest old record, and the next run keeps it.
+	 * Seed an old record the way earlier versions stored it.
+	 *
+	 * @param string $spelling The exact URL the record was saved under.
+	 * @param array  $scores   Mobile and desktop scores.
+	 * @param int    $age      How long ago it was recorded, in seconds.
+	 */
+	private function seed_old_record( $spelling, array $scores, $age ) {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( $spelling ) ] = array( $this->entry( $scores, time() - $age ) );
+	}
+
+	/**
+	 * The first build moves the newest old record to the new key, removes the old rows and sets the marker.
 	 *
 	 * @dataProvider old_records
 	 *
 	 * @param string $newest_spelling The spelling holding the newest old record.
 	 */
 	#[DataProvider( 'old_records' )]
-	public function test_history_reads_the_newest_old_record_until_a_new_run_replaces_it( $newest_spelling ) {
+	public function test_first_build_migrates_the_newest_old_record( $newest_spelling ) {
 		Functions\when( 'get_site_url' )->justReturn( 'http://example.com/wp' );
 
 		$old    = array(
@@ -356,23 +375,78 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			'desktop' => 99,
 		);
 		foreach ( array( 'http://example.com', 'http://example.com/', 'http://example.com/wp', 'http://example.com/wp/' ) as $spelling ) {
-			$scores = $spelling === $newest_spelling ? $newest : $old;
-			$age    = $spelling === $newest_spelling ? 1000 : 2000;
-
-			$this->options[ Speed_Score_History::OPTION_PREFIX . md5( $spelling ) ] = array( $this->entry( $scores, time() - $age ) );
+			$this->seed_old_record( $spelling, $spelling === $newest_spelling ? $newest : $old, $spelling === $newest_spelling ? 1000 : 2000 );
 		}
 
 		$this->assertSame( $newest, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
 
-		$new_run = array(
+		$this->assertSame( array( $this->history_option_name(), Speed_Score_History::LEGACY_MIGRATED_OPTION ), array_keys( $this->options ) );
+		$this->assertTrue( $this->autoload[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] );
+	}
+
+	/**
+	 * A newer record on the new key survives the migration.
+	 */
+	public function test_migration_keeps_a_newer_canonical_record() {
+		$newer = array(
 			'mobile'  => 91,
 			'desktop' => 92,
 		);
-		$this->poll_with_scores( $new_run );
+		$this->seed_old_record( 'http://example.com', $newer, 1000 );
+		$this->seed_old_record(
+			'http://example.com/',
+			array(
+				'mobile'  => 67,
+				'desktop' => 63,
+			),
+			2000
+		);
 
-		$history = new Speed_Score_History( 'http://example.com/' );
-		$this->assertSame( $new_run, $history->latest_scores() );
-		$this->assertSame( $newest, $history->latest_scores( 1 ) );
+		$this->assertSame( $newer, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+		$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ), $this->options );
+	}
+
+	/**
+	 * A first build under cron, with the home URL in http, still moves the record the https admin wrote.
+	 */
+	public function test_migration_covers_the_other_scheme() {
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->seed_old_record( 'https://example.com/', $scores, 1000 );
+
+		( new Speed_Score_History( 'http://example.com' ) )->count();
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com/' ) )->latest_scores() );
+	}
+
+	/**
+	 * Once the marker is set, a build reads only its own record.
+	 */
+	public function test_build_reads_no_old_keys_once_migrated() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+		$this->seed_old_record(
+			'http://example.com/',
+			array(
+				'mobile'  => 67,
+				'desktop' => 63,
+			),
+			1000
+		);
+
+		$reads = array();
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default_value = false ) use ( &$reads ) {
+				$reads[] = $name;
+
+				return $this->options[ $name ] ?? $default_value;
+			}
+		);
+
+		( new Speed_Score_History( 'http://example.com/' ) )->count();
+
+		$this->assertSame( array( Speed_Score_History::LEGACY_MIGRATED_OPTION, $this->history_option_name() ), $reads );
 	}
 
 	/**

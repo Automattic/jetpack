@@ -26,8 +26,8 @@ class Speed_Score_History_Test extends Base_TestCase {
 		$this->data = array();
 
 		Functions\when( 'get_option' )->alias(
-			function () {
-				return $this->data;
+			function ( $name ) {
+				return Speed_Score_History::LEGACY_MIGRATED_OPTION === $name ? 1 : $this->data;
 			}
 		);
 

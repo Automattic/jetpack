@@ -19,6 +19,11 @@ class Speed_Score_History {
 	const STALE_TRANSIENT_KEY = 'speed_score_stale_marker';
 
 	/**
+	 * Set once the scores saved under older URL spellings have moved. Autoloaded, so checking it costs no query.
+	 */
+	const LEGACY_MIGRATED_OPTION = 'jetpack_boost_speed_score_legacy_migrated';
+
+	/**
 	 * Limit the number of recent records to keep.
 	 */
 	const LIMIT = 20;
@@ -43,53 +48,85 @@ class Speed_Score_History {
 	 * @param string $url URL of the site the speed scores belong to.
 	 */
 	public function __construct( $url ) {
+		self::maybe_migrate_legacy_records();
+
 		$this->url     = $url;
-		$this->entries = $this->read_entries();
+		$this->entries = get_option( $this->get_option_name(), array() );
 	}
 
 	/**
-	 * Read the stored entries, taking the newest of this URL's record and its older spellings.
+	 * Move the scores saved under older URL spellings to the keys used now, once per site.
 	 *
-	 * This can't stop at a non-empty record: the canonical spelling is the one My Jetpack used to
-	 * write to, so it can hold scores older than the ones the Boost dashboard showed.
-	 *
-	 * @return array
+	 * The marker is set last, so a request arriving midway repeats the work rather than finding no
+	 * scores and starting a new test.
 	 */
-	private function read_entries() {
-		$entries = get_option( $this->get_option_name(), array() );
+	private static function maybe_migrate_legacy_records() {
+		if ( get_option( self::LEGACY_MIGRATED_OPTION ) ) {
+			return;
+		}
 
-		foreach ( $this->get_legacy_urls() as $legacy_url ) {
-			$legacy_entries = get_option( static::OPTION_PREFIX . hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $legacy_url ), array() );
+		// The first build can run under cron, where the home URL can have another scheme than in the admin.
+		foreach ( array( 'http', 'https' ) as $scheme ) {
+			$home_url = rtrim( set_url_scheme( home_url(), $scheme ), '/' );
 
-			if ( self::get_latest_timestamp( $legacy_entries ) > self::get_latest_timestamp( $entries ) ) {
-				$entries = $legacy_entries;
+			// My Jetpack saved the home page's scores under the site URL, which differs when WordPress lives in a subdirectory.
+			// Match schemes first: under cron or CLI the two can differ by scheme alone, which isn't a subdirectory install.
+			$site_url = rtrim( set_url_scheme( get_site_url(), $scheme ), '/' );
+
+			foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+				$legacy_urls = array( $home_url . '/' . $query );
+				if ( $site_url !== $home_url ) {
+					$legacy_urls[] = $site_url . $query;
+					$legacy_urls[] = $site_url . '/' . $query;
+				}
+
+				self::migrate_legacy_record( $home_url . $query, $legacy_urls );
 			}
 		}
 
-		return $entries;
+		update_option( self::LEGACY_MIGRATED_OPTION, 1, true );
 	}
 
 	/**
-	 * List the spellings this URL's scores were saved under before they shared one record.
+	 * Move the newest of the older records to the given URL's key, unless its own record is newer.
 	 *
-	 * @return string[]
+	 * The canonical spelling is the one My Jetpack used to write to, so it can hold scores older
+	 * than the ones the Boost dashboard showed.
+	 *
+	 * @param string   $url         The URL as it is keyed now.
+	 * @param string[] $legacy_urls The spellings its scores may have been saved under.
 	 */
-	private function get_legacy_urls() {
-		$canonical_url = Speed_Score_Request::canonicalize_url( $this->url );
-		$path_length   = strcspn( $canonical_url, '?#' );
-		$path          = substr( $canonical_url, 0, $path_length );
-		$rest          = substr( $canonical_url, $path_length );
-		$legacy_urls   = array( $path . '/' . $rest );
+	private static function migrate_legacy_record( $url, $legacy_urls ) {
+		$newest_entries      = array();
+		$legacy_option_names = array();
 
-		// My Jetpack saved the home page's scores under the site URL, which differs when WordPress lives in a subdirectory.
-		// Cron and CLI can see another scheme for the two, which is not a subdirectory.
-		$site_url = rtrim( set_url_scheme( get_site_url(), wp_parse_url( home_url(), PHP_URL_SCHEME ) ), '/' );
-		if ( rtrim( home_url(), '/' ) === $path && $site_url !== $path ) {
-			$legacy_urls[] = $site_url . $rest;
-			$legacy_urls[] = $site_url . '/' . $rest;
+		foreach ( $legacy_urls as $legacy_url ) {
+			$option_name = static::OPTION_PREFIX . hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $legacy_url );
+			$entries     = get_option( $option_name, array() );
+
+			if ( empty( $entries ) ) {
+				continue;
+			}
+
+			if ( self::get_latest_timestamp( $entries ) > self::get_latest_timestamp( $newest_entries ) ) {
+				$newest_entries = $entries;
+			}
+			$legacy_option_names[] = $option_name;
 		}
 
-		return $legacy_urls;
+		if ( empty( $legacy_option_names ) ) {
+			return;
+		}
+
+		$option_name = static::OPTION_PREFIX . Speed_Score_Request::generate_cache_id_from_url( $url );
+		if ( self::get_latest_timestamp( $newest_entries ) > self::get_latest_timestamp( get_option( $option_name, array() ) ) ) {
+			update_option( $option_name, $newest_entries, false );
+		}
+
+		// Do not reorder: a request that finds these gone must also find the record they moved to.
+		foreach ( $legacy_option_names as $legacy_option_name ) {
+			delete_option( $legacy_option_name );
+		}
 	}
 
 	/**
