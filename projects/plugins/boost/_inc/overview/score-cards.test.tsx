@@ -269,20 +269,23 @@ test( 'shows one calculating status instead of the score sections before scores 
 
 test( 'advances the estimated percentage between polls without changing the announcement', () => {
 	jest.useFakeTimers();
-	render(
-		<ScoreCards
-			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
-			isRunning
-			progress={ { elapsed: 20, expected: 40, receivedAt: Date.now() } }
-		/>
-	);
-	const progress = screen.getByRole( 'progressbar', { name: 'Testing site speed' } );
-	expect( progress ).toHaveValue( '45' );
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed… 45%' );
-	act( () => jest.advanceTimersByTime( 4000 ) );
-	expect( progress ).toHaveValue( '54' );
-	expect( screen.getByText( '54%', { exact: false } ) ).toHaveAttribute( 'aria-hidden', 'true' );
-	jest.useRealTimers();
+	try {
+		render(
+			<ScoreCards
+				scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+				isRunning
+				progress={ { elapsed: 20, expected: 40, receivedAt: Date.now() } }
+			/>
+		);
+		const progress = screen.getByRole( 'progressbar', { name: 'Testing site speed' } );
+		expect( progress ).toHaveValue( 45 );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed… 45%' );
+		act( () => jest.advanceTimersByTime( 4000 ) );
+		expect( progress ).toHaveValue( 54 );
+		expect( screen.getByText( '54%', { exact: false } ) ).toHaveAttribute( 'aria-hidden', 'true' );
+	} finally {
+		jest.useRealTimers();
+	}
 } );
 
 test( 'keeps the live region mounted before adding the calculating message', () => {
