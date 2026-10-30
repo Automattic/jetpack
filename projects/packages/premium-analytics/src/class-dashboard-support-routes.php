@@ -66,6 +66,9 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_single_report_page' ) ) {
 			require_once __DIR__ . '/single-report-pages.php';
 		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_default_single_report_pages' ) ) {
+			require_once __DIR__ . '/default-single-report-pages.php';
+		}
 		// Copies from before dashboard-sections.php loaded the policy file leave it unloaded.
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
 			require_once __DIR__ . '/dashboard-policy.php';

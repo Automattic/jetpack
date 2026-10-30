@@ -18,15 +18,17 @@ type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
  * a reload keeps the page's own range. `useDetailDateControls` anchors the all-time start.
  *
  * @param search     - The current route search params.
- * @param resourceId - The page's post or video ID. Links never carry it as `post_id`, so a
- *                   missing or mismatched one marks an arrival.
+ * @param resourceId - The page's entity ID. Links never carry it under the scope param, so
+ *                   a missing or mismatched one marks an arrival.
+ * @param scopeParam - The search param the page keeps its entity ID under.
  * @return The normalized report params plus the origin-window params.
  */
 export function seedDetailDateParams(
 	search: Record< string, unknown >,
-	resourceId: string
+	resourceId: string,
+	scopeParam = 'post_id'
 ): Record< string, unknown > {
-	if ( search.post_id === resourceId ) {
+	if ( search[ scopeParam ] === resourceId ) {
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
 			...pickReportOriginWindowParams( search ),

@@ -14,6 +14,7 @@ export const projects = [
 	'projects/packages/my-jetpack/_inc/components',
 	'projects/packages/premium-analytics/packages',
 	'projects/packages/premium-analytics/widgets',
+	'projects/packages/premium-analytics/routes',
 	'projects/packages/publicize/_inc/components',
 	'projects/packages/search/src/dashboard/components',
 	'projects/packages/videopress/src/client/block-editor',
