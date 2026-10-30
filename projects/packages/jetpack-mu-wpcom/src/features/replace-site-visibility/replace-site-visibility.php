@@ -12,6 +12,7 @@ use Automattic\Jetpack\Status\Host;
  * Load dependencies.
  */
 require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../../common/site-launch-publish-copy.php';
 
 /**
  * Whether the current site is connected to Jetpack.
@@ -129,6 +130,7 @@ function replace_site_visibility_load_assets() {
 		'siteDomain'             => wp_parse_url( home_url(), PHP_URL_HOST ),
 		'sitePlan'               => $current_plan,
 		'hasCustomDomain'        => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+		'usePublishCopy'         => wpcom_site_launch_uses_publish_copy(),
 	);
 
 	// If the site is launched, replace the option value with the actual site visibility.

@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
+require_once __DIR__ . '/../../common/site-launch-publish-copy.php';
+
 /**
  * Determine whether the launch button should be shown/enhanced on this request.
  *
@@ -82,7 +84,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'id'     => 'launch-site',
 			'parent' => null,
 			'group'  => null,
-			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
+			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . ( wpcom_site_launch_uses_publish_copy() ? __( 'Publish site', 'jetpack-mu-wpcom' ) : __( 'Launch site', 'jetpack-mu-wpcom' ) ) . '</span>',
 			// The JS button reuses this href, refreshing only its `back_to`.
 			// The Omnibar fetches this node over REST, where the request URL is no page to go back to.
 			'href'   => Common\wpcom_get_launch_site_url( defined( 'REST_REQUEST' ) && REST_REQUEST ? array() : array( 'back_to' => Common\wpcom_get_launch_site_back_to() ) ),
@@ -168,6 +170,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
 			'isTrial'         => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'trial' ),
+			'usePublishCopy'  => wpcom_site_launch_uses_publish_copy(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

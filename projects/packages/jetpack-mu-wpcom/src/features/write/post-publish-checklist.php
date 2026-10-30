@@ -19,6 +19,8 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
+require_once __DIR__ . '/../../common/site-launch-publish-copy.php';
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -117,21 +119,25 @@ function wpcom_write_post_publish_launch_url() {
  * @return array<string, string> Map of key -> translated string.
  */
 function wpcom_write_get_post_publish_checklist_strings() {
+	$publish = wpcom_site_launch_uses_publish_copy();
+
 	return array(
 		'heading'         => __( 'Your post is saved!', 'jetpack-mu-wpcom' ),
-		'description'     => __( 'Your site is still private, so only you can see this post. Launch your site to share it with the world.', 'jetpack-mu-wpcom' ),
-		'launchTitle'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+		'description'     => $publish
+			? __( 'Your site is still private, so only you can see this post. Publish your site to share it with the world.', 'jetpack-mu-wpcom' )
+			: __( 'Your site is still private, so only you can see this post. Launch your site to share it with the world.', 'jetpack-mu-wpcom' ),
+		'launchTitle'     => $publish ? __( 'Publish your site', 'jetpack-mu-wpcom' ) : __( 'Launch your site', 'jetpack-mu-wpcom' ),
 		'launchDesc'      => __( 'Make your site public.', 'jetpack-mu-wpcom' ),
 		'shareTitle'      => __( 'Share your post', 'jetpack-mu-wpcom' ),
-		'shareDesc'       => __( 'Available after you launch.', 'jetpack-mu-wpcom' ),
-		'launchCta'       => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+		'shareDesc'       => $publish ? __( 'Available after you publish your site.', 'jetpack-mu-wpcom' ) : __( 'Available after you launch.', 'jetpack-mu-wpcom' ),
+		'launchCta'       => $publish ? __( 'Publish your site', 'jetpack-mu-wpcom' ) : __( 'Launch your site', 'jetpack-mu-wpcom' ),
 		'dismiss'         => __( 'Maybe later', 'jetpack-mu-wpcom' ),
 		'close'           => __( 'Close', 'jetpack-mu-wpcom' ),
 		// Inline email-verification step, swapped in when the author tries to
 		// launch with an unverified email (see post-publish-checklist.js).
-		'verifyTitle'     => __( 'Confirm your email to launch', 'jetpack-mu-wpcom' ),
+		'verifyTitle'     => $publish ? __( 'Confirm your email to publish your site', 'jetpack-mu-wpcom' ) : __( 'Confirm your email to launch', 'jetpack-mu-wpcom' ),
 		'verifyDesc'      => __( 'Your site can go public once your email is confirmed. Check your inbox for the confirmation link.', 'jetpack-mu-wpcom' ),
-		'confirmCta'      => __( "I've confirmed — launch", 'jetpack-mu-wpcom' ),
+		'confirmCta'      => $publish ? __( "I've confirmed — publish", 'jetpack-mu-wpcom' ) : __( "I've confirmed — launch", 'jetpack-mu-wpcom' ),
 		'resendCta'       => __( 'Resend verification email', 'jetpack-mu-wpcom' ),
 		'resendSent'      => __( 'Verification email sent. Check your inbox.', 'jetpack-mu-wpcom' ),
 		'resendError'     => __( 'Something went wrong. Please try again.', 'jetpack-mu-wpcom' ),

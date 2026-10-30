@@ -22,6 +22,7 @@ interface Props {
 	siteDomain: string;
 	sitePlan?: { product_slug: string; product_name?: string };
 	hasCustomDomain: boolean;
+	usePublishCopy: boolean;
 }
 
 const LaunchSite = ( {
@@ -37,6 +38,7 @@ const LaunchSite = ( {
 	siteDomain,
 	sitePlan,
 	hasCustomDomain,
+	usePublishCopy,
 }: Props ) => {
 	const [ , variant ] = useSiteLaunchGatingVariant();
 	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
@@ -57,7 +59,9 @@ const LaunchSite = ( {
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
 
-	const descriptions = {
+	// Separate __() calls: terser folds `cond ? __( a ) : __( b )` into `__( cond ? a : b )`,
+	// which i18n-check-webpack-plugin rejects.
+	const launchDescriptions = {
 		comingSoon: __(
 			'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
 			'jetpack-mu-wpcom'
@@ -67,6 +71,19 @@ const LaunchSite = ( {
 			'jetpack-mu-wpcom'
 		),
 	};
+	const publishDescriptions = {
+		comingSoon: __(
+			'Your site hasn\'t been published yet. It is hidden from visitors behind a "Coming Soon" notice until it is published.',
+			'jetpack-mu-wpcom'
+		),
+		private: __(
+			"Your site hasn't been published yet. It's private; only you can see it until it is published.",
+			'jetpack-mu-wpcom'
+		),
+	};
+	const descriptions = usePublishCopy ? publishDescriptions : launchDescriptions;
+	const launchLabel = __( 'Launch site', 'jetpack-mu-wpcom' );
+	const publishLabel = __( 'Publish site', 'jetpack-mu-wpcom' );
 
 	const handleLaunchClick = () => {
 		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
@@ -97,7 +114,7 @@ const LaunchSite = ( {
 				style={ { marginTop: '0.5em' } }
 				onClick={ handleLaunchClick }
 			>
-				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
+				{ usePublishCopy ? publishLabel : launchLabel }
 			</button>
 			{ showPreviewLink && (
 				<SitePreviewLink

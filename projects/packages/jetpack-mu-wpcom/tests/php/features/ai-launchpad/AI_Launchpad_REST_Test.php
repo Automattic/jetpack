@@ -333,6 +333,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
 		$this->assertArrayHasKey( 'difm_offer', $data );
 		$this->assertNull( $data['difm_offer'] );
+		// ExPlat can't answer in tests, so the launch CTA keeps "Launch".
+		$this->assertFalse( $data['use_publish_copy'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
