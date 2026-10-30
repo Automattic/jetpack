@@ -34,7 +34,8 @@ class Jetpack_Share_Destination_Helper {
 	 * @return string|null Endpoint URL without a query string, or null if the address is not usable.
 	 */
 	public static function get_endpoint( string $address, string $path, bool $upgrade_http ): ?string {
-		$address = trim( $address );
+		// Pasted addresses can carry invisible characters, like a zero-width space, that trim() misses.
+		$address = preg_replace( '/^[\s\p{Cf}]+|[\s\p{Cf}]+$/u', '', $address ) ?? trim( $address );
 		if ( ! preg_match( '#^[a-z][a-z0-9+.-]*://#i', $address ) ) {
 			$address = 'https://' . $address;
 		}
@@ -57,11 +58,13 @@ class Jetpack_Share_Destination_Helper {
 			return null;
 		}
 
-		if ( ! preg_match( '/^[\p{L}\p{M}\p{N}.-]+$/u', $parts['host'] ) ) {
+		// IDNA treats these full-width and ideographic full stops as dots, as in mstdn。jp.
+		$host = str_replace( array( "\u{3002}", "\u{FF0E}", "\u{FF61}" ), '.', $parts['host'] );
+		if ( ! preg_match( '/^[\p{L}\p{M}\p{N}.-]+$/u', $host ) ) {
 			return null;
 		}
 
-		$url = $scheme . '://' . $parts['host'];
+		$url = $scheme . '://' . $host;
 		if ( isset( $parts['port'] ) ) {
 			$url .= ':' . $parts['port'];
 		}

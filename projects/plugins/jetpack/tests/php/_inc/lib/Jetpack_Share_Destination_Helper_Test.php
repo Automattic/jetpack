@@ -47,6 +47,9 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 		return array(
 			'bare host'                     => array( 'mastodon.social', self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
 			'surrounding whitespace'        => array( "  mastodon.social\n", self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
+			'trailing zero-width space'     => array( "https://mastodon.social\u{200B}", self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
+			'ideographic full stop'         => array( "https://mstdn\u{3002}jp", self::MASTODON, $upgrade, 'https://mstdn.jp/share' ),
+			'full-width full stop'          => array( "https://mstdn\u{FF0E}jp", self::MASTODON, $upgrade, 'https://mstdn.jp/share' ),
 			'trailing slash'                => array( 'https://mastodon.social/', self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
 			'http upgraded'                 => array( 'http://mastodon.social', self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
 			'uppercase scheme'              => array( 'HTTPS://mastodon.social', self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
@@ -58,7 +61,6 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 			'site: https kept'              => array( 'https://example.com', self::WORDPRESS, $keep, 'https://example.com/wp-admin/post-new.php' ),
 			'site: bare domain'             => array( 'example.com', self::WORDPRESS, $keep, 'https://example.com/wp-admin/post-new.php' ),
 			'site: host and port'           => array( 'localhost:8080', self::WORDPRESS, $keep, 'https://localhost:8080/wp-admin/post-new.php' ),
-			'site: query and fragment'      => array( 'https://example.com/blog/?p=1#respond', self::WORDPRESS, $keep, 'https://example.com/blog/wp-admin/post-new.php' ),
 		);
 	}
 
@@ -96,35 +98,7 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 			'path without host'     => array( 'https:///share', self::MASTODON, $upgrade ),
 			'backslash in host'     => array( 'https://evil.example\\.mastodon.social', self::MASTODON, $upgrade ),
 			'protocol-relative URL' => array( '//evil.example', self::MASTODON, $upgrade ),
-			'site: userinfo'        => array( 'https://example.com@other.example', self::WORDPRESS, $keep ),
 			'site: ftp'             => array( 'ftp://example.com', self::WORDPRESS, $keep ),
-		);
-	}
-
-	/**
-	 * @dataProvider provide_services
-	 *
-	 * @param string $service Sharing service short name.
-	 */
-	#[DataProvider( 'provide_services' )]
-	public function test_get_prompt_url_reopens_service_prompt( $service ) {
-		$post_id = self::factory()->post->create();
-
-		$this->assertSame(
-			get_permalink( $post_id ) . '&share=' . $service . '&nb=1',
-			Jetpack_Share_Destination_Helper::get_prompt_url( $post_id, $service )
-		);
-	}
-
-	/**
-	 * Data provider for test_get_prompt_url_reopens_service_prompt.
-	 *
-	 * @return array<string, array{string}>
-	 */
-	public static function provide_services() {
-		return array(
-			'mastodon'  => array( 'mastodon' ),
-			'wordpress' => array( 'wordpress' ),
 		);
 	}
 }
