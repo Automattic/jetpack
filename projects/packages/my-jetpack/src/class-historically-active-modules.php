@@ -17,6 +17,16 @@ class Historically_Active_Modules {
 	public const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'jetpack_update_historically_active_modules';
 
 	/**
+	 * Transient set while the list is fresh enough that a My Jetpack visit need not rebuild it.
+	 */
+	public const REFRESHED_TRANSIENT_KEY = 'jetpack_my_jetpack_historically_active_modules_refreshed';
+
+	/**
+	 * How long a rebuild satisfies My Jetpack visits, in seconds.
+	 */
+	public const REFRESH_INTERVAL = HOUR_IN_SECONDS;
+
+	/**
 	 * Register the REST API routes.
 	 *
 	 * @return void
@@ -54,12 +64,10 @@ class Historically_Active_Modules {
 	 */
 	public static function update_historically_active_jetpack_modules() {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
-		$products                    = Products::get_products();
 		$product_classes             = Products::get_products_classes();
 
-		foreach ( $products as $product ) {
-			$product_slug = $product['slug'];
-			$status       = $product_classes[ $product_slug ]::get_status();
+		foreach ( $product_classes as $product_slug => $product_class ) {
+			$status = $product_class::get_status();
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
 			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
@@ -79,13 +87,32 @@ class Historically_Active_Modules {
 			// A bundle without a plan reports needs_plan rather than module_disabled, so it goes too.
 			if (
 				in_array( $status, Products::$disabled_module_statuses, true ) ||
-				( Products::STATUS_NEEDS_PLAN === $status && $product_classes[ $product_slug ]::is_bundle_product() )
+				( Products::STATUS_NEEDS_PLAN === $status && $product_class::is_bundle_product() )
 			) {
 				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}
 
 		\Jetpack_Options::update_option( 'historically_active_modules', array_unique( $historically_active_modules ) );
+		set_transient( self::REFRESHED_TRANSIENT_KEY, 1, self::REFRESH_INTERVAL );
+	}
+
+	/**
+	 * Whether My Jetpack should rebuild the list on this visit.
+	 *
+	 * @return bool
+	 */
+	public static function is_refresh_due() {
+		return ! get_transient( self::REFRESHED_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Make the next My Jetpack visit rebuild the list, for changes no hook updates it on.
+	 *
+	 * @return void
+	 */
+	public static function expire_refresh() {
+		delete_transient( self::REFRESHED_TRANSIENT_KEY );
 	}
 
 	/**

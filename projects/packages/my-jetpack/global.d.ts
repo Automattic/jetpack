@@ -601,6 +601,7 @@ interface Window {
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];
