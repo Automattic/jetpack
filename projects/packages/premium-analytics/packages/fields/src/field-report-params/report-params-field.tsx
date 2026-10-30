@@ -16,7 +16,7 @@ import {
 import {
 	type ComparisonPresetId,
 	type IntervalType,
-	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	MENU_SURFACE_PRESET_GROUPS,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
 	parseSiteDateTime,
@@ -176,8 +176,8 @@ export function reportParamsAttributeField<
 	};
 }
 
-// The presets a `jpa/report-params` attribute may list as `elements`.
-const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESETS_WITH_ALL_TIME;
+// The presets a `jpa/report-params` attribute may list as `elements`: the ones the menu can show.
+const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESET_GROUPS.flat();
 
 /**
  * The `jpa/report-params` control: a date range over the presets the attribute's `elements`

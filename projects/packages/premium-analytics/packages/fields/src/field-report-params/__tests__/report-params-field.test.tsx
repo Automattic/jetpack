@@ -190,6 +190,27 @@ describe( 'ReportParamsField', () => {
 		);
 	} );
 
+	it( 'ignores a listed preset the menu cannot show, keeping the default presets', async () => {
+		const user = userEvent.setup();
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+			elements: [ { value: 'last-90-days', label: 'Last 90 days' } ],
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+
+		render(
+			<ReportParamsField
+				data={ { reportParams: { preset: 'last-7-days' } } }
+				field={ field }
+				onChange={ jest.fn() }
+			/>
+		);
+
+		await openPeriods( user, /^Last 7 days$/ );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'draws the attention the host scope raises; a widget-owned control does not', () => {
 		const field = {
 			id: 'reportParams',
