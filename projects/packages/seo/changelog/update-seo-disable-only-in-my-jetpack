@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Hide the SEO menu item while seo-tools is off, turn seo-tools on once for self-hosted and Atomic sites with the SEO page, and remove the disable control from Settings, leaving My Jetpack as the place to turn it off. The new SEO page is gated.
+

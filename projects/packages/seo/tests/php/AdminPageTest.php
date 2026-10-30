@@ -220,32 +220,6 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The menu must be visible even when seo-tools is off, so the user can turn it back on.
-	 * Verified by checking that no module gate is declared on the registered item.
-	 */
-	public function test_menu_item_is_registered_without_a_module_gate() {
-		Admin_Page::add_menu_item();
-
-		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
-		if ( \PHP_VERSION_ID < 80100 ) {
-			$menu_items->setAccessible( true );
-		}
-		$items = $menu_items->getValue( null );
-
-		$seo_item = null;
-		foreach ( $items as $item ) {
-			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
-				$seo_item = $item;
-				break;
-			}
-		}
-
-		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
-		$this->assertArrayNotHasKey( 'module', $seo_item['args'] ?? array() );
-		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
-	}
-
-	/**
 	 * The dashboard opts the screen Admin_Menu registers out of JITMs, and no other.
 	 */
 	public function test_dashboard_opts_its_screen_out_of_jitms() {

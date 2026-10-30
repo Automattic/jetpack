@@ -93,6 +93,13 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
+	 * Option recording that SEO tools was switched on once for a site with the SEO page.
+	 *
+	 * @var string
+	 */
+	const SEO_TOOLS_AUTO_ACTIVATED_OPTION = 'jetpack_seo_tools_auto_activated';
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -171,10 +178,12 @@ class Initializer {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
-		// The admin menu and app shell register whenever the surface is visible, even
-		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
-		// turned on from within the page itself (JETPACK-1700). When the module is off,
-		// the Overview renders only its "enable SEO tools" affordance.
+		// Priority 0 on `admin_menu`, ahead of Admin_Menu dropping items for inactive modules;
+		// `admin_init` fires after the menu is built, so the first visit would miss the item.
+		add_action( 'admin_menu', array( __CLASS__, 'activate_seo_tools_once' ), 0 );
+
+		// The page registers whenever the surface is visible, even with `seo-tools` off, so
+		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
 		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
@@ -330,6 +339,27 @@ class Initializer {
 			return false;
 		}
 		return ( new Modules() )->is_active( 'seo-tools' );
+	}
+
+	/**
+	 * Turn SEO tools on the first time an admin opens wp-admin with the SEO page, since it can
+	 * start off; only once, so turning it off sticks. Simple runs every module regardless.
+	 *
+	 * @return void
+	 */
+	public static function activate_seo_tools_once() {
+		if (
+			( new Host() )->is_wpcom_simple()
+			|| get_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION )
+			|| ! current_user_can( 'manage_options' )
+		) {
+			return;
+		}
+
+		// Activation fails before the site is connected; leave the option unset to retry.
+		if ( ( new Modules() )->activate( 'seo-tools', false, false ) ) {
+			update_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION, true );
+		}
 	}
 
 	/**

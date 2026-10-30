@@ -514,4 +514,159 @@ class InitializerTest extends TestCase {
 			$this->init_and_get_configuration_urls( false )
 		);
 	}
+
+	/**
+	 * The menu is built before `admin_init`, so a later hook would leave the first visit without it.
+	 */
+	public function test_seo_tools_is_switched_on_before_admin_menu_drops_inactive_items() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$callback = array( Initializer::class, 'activate_seo_tools_once' );
+
+		try {
+			Initializer::init();
+			\Automattic\Jetpack\Admin_UI\Admin_Menu::init();
+
+			$priority = has_action( 'admin_menu', $callback );
+			$this->assertIsInt( $priority );
+			$this->assertLessThan( has_action( 'admin_menu', array( \Automattic\Jetpack\Admin_UI\Admin_Menu::class, 'admin_menu_hook_callback' ) ), $priority );
+		} finally {
+			remove_action( 'admin_menu', $callback, 0 );
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * Run a callback as a user of the given role, with `seo-tools` available but off.
+	 *
+	 * @param string   $role     User role.
+	 * @param callable $callback Test body.
+	 */
+	private function with_seo_tools_off( $role, callable $callback ) {
+		$available = static function () {
+			return array( 'seo-tools' );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $available );
+		\Jetpack_Options::delete_option( 'active_modules' );
+		delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => uniqid( 'seo-' ),
+					'user_pass'  => 'pass',
+					'role'       => $role,
+				)
+			)
+		);
+
+		try {
+			$callback();
+		} finally {
+			wp_set_current_user( 0 );
+			remove_filter( 'jetpack_get_available_standalone_modules', $available );
+			\Jetpack_Options::delete_option( 'active_modules' );
+			delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+		}
+	}
+
+	/**
+	 * SEO tools can start off; turning it on must happen once, so a later turn-off in My Jetpack sticks.
+	 *
+	 * @dataProvider provide_sites_switched_on
+	 *
+	 * @param bool $on_atomic Whether the site is on Atomic.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_switched_on' )]
+	public function test_activate_seo_tools_once_does_not_undo_a_later_turn_off( $on_atomic ) {
+		$atomic = array( 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' );
+		if ( $on_atomic ) {
+			foreach ( $atomic as $constant ) {
+				\Automattic\Jetpack\Constants::set_constant( $constant, 1 );
+			}
+			\Automattic\Jetpack\Status\Cache::clear();
+			$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() );
+		}
+
+		try {
+			$this->with_seo_tools_off(
+				'administrator',
+				function () {
+					$modules = new \Automattic\Jetpack\Modules();
+
+					Initializer::activate_seo_tools_once();
+					$this->assertTrue( $modules->is_active( 'seo-tools' ) );
+
+					$modules->deactivate( 'seo-tools' );
+					Initializer::activate_seo_tools_once();
+					$this->assertFalse( $modules->is_active( 'seo-tools' ) );
+				}
+			);
+		} finally {
+			foreach ( $atomic as $constant ) {
+				\Automattic\Jetpack\Constants::clear_single_constant( $constant );
+			}
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/**
+	 * Sites where SEO tools gets switched on once.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public static function provide_sites_switched_on() {
+		return array(
+			'self-hosted site' => array( false ),
+			'Atomic site'      => array( true ),
+		);
+	}
+
+	/**
+	 * Simple runs every module regardless, and only an admin's visit switches it on.
+	 *
+	 * @dataProvider provide_sites_left_alone
+	 *
+	 * @param string $role     User role.
+	 * @param bool   $on_wpcom Whether the site is on WordPress.com Simple.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_left_alone' )]
+	public function test_activate_seo_tools_once_leaves_module_off( $role, $on_wpcom ) {
+		$this->with_seo_tools_off(
+			$role,
+			function () use ( $on_wpcom ) {
+				if ( $on_wpcom ) {
+					\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+				}
+
+				try {
+					Initializer::activate_seo_tools_once();
+				} finally {
+					\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+				}
+
+				$this->assertSame( array(), \Jetpack_Options::get_option( 'active_modules', array() ) );
+				$this->assertFalse( get_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION ) );
+			}
+		);
+	}
+
+	/**
+	 * Sites where SEO tools must stay off.
+	 *
+	 * @return array<string, array{string, bool}>
+	 */
+	public static function provide_sites_left_alone() {
+		return array(
+			'WordPress.com Simple site' => array( 'administrator', true ),
+			'non-admin visit'           => array( 'editor', false ),
+		);
+	}
 }

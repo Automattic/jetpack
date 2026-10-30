@@ -1,8 +1,6 @@
-/* eslint-disable react/jsx-no-bind */
-
 import { __ } from '@wordpress/i18n';
 import { Button, EmptyState } from '@wordpress/ui';
-import useSeoToolsToggle from '../data/use-seo-tools-toggle';
+import useEnableSeoTools from '../data/use-enable-seo-tools';
 import styles from './enable-seo-empty-state.module.scss';
 import type { SeoTracksScreen } from '../data/record-seo-event';
 import type { FC } from 'react';
@@ -10,7 +8,7 @@ import type { FC } from 'react';
 /**
  * Shown when the `seo-tools` module is inactive. Explains what SEO tools do and
  * offers a one-click enable. Activating reloads the page so the rest of the SEO
- * surface comes online (see `useSeoToolsToggle`).
+ * surface comes online (see `useEnableSeoTools`).
  *
  * An `@wordpress/ui` `EmptyState` rather than a card: with the module off it is
  * the only thing on the page, centered under the header (see `SeoDisabledStage`).
@@ -20,7 +18,7 @@ import type { FC } from 'react';
  * @return The enable-SEO-tools empty state.
  */
 const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) => {
-	const { isToggling, setActive } = useSeoToolsToggle( screen );
+	const { isEnabling, enable } = useEnableSeoTools( screen );
 
 	return (
 		<EmptyState.Root className={ styles.root }>
@@ -32,7 +30,7 @@ const EnableSeoEmptyState: FC< { screen: SeoTracksScreen } > = ( { screen } ) =>
 				) }
 			</EmptyState.Description>
 			<EmptyState.Actions>
-				<Button onClick={ () => setActive( true ) } loading={ isToggling } disabled={ isToggling }>
+				<Button onClick={ enable } loading={ isEnabling } disabled={ isEnabling }>
 					{ __( 'Enable SEO tools', 'jetpack-seo' ) }
 				</Button>
 			</EmptyState.Actions>
