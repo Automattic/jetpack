@@ -126,7 +126,7 @@ export type ComparativeBarChartProps = {
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
-	/** Overlap layout only. Whether the previous period is drawn; setting it turns its legend item into a toggle. See the README. */
+	/** Overlap layout only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See the README. */
 	previousPeriodShown?: boolean;
 
 	/** Called with the new value when the reader presses the previous-period legend item. */
@@ -258,36 +258,24 @@ export function ComparativeBarChart( {
 		comparisonIndexes.find( index => alignedSeries[ index ].group === pickedOrFirstGroup ) ??
 		comparisonIndexes[ 0 ];
 
-	const isPrimaryVisible = useCallback(
-		( group?: string ) => {
-			const primaryLabel =
-				group !== undefined ? primarySeriesByGroup.get( group )?.label : undefined;
-			return ! primaryLabel || isSeriesVisible( chartId, primaryLabel );
-		},
-		[ primarySeriesByGroup, isSeriesVisible, chartId ]
-	);
-
 	const drawnSeries = useMemo(
 		() =>
-			previousPeriodToggle
-				? alignedSeries.filter(
-						item =>
-							item.options?.type !== 'comparison' ||
-							( previousPeriodShown && isPrimaryVisible( item.group ) )
-					)
+			previousPeriodToggle && ! previousPeriodShown
+				? alignedSeries.filter( item => item.options?.type !== 'comparison' )
 				: alignedSeries,
-		[ previousPeriodToggle, alignedSeries, previousPeriodShown, isPrimaryVisible ]
+		[ previousPeriodToggle, alignedSeries, previousPeriodShown ]
 	);
 
-	const barChartHiddenSeries = useMemo( () => {
-		if ( ! previousPeriodToggle ) {
-			return defaultHiddenSeries;
+	// A metric's previous period is hidden and shown with it, as the line chart does under the same `chartId`.
+	const comparisonLabelsByGroup = useMemo( () => {
+		const labels = new Map< string | undefined, string[] >();
+		for ( const item of alignedSeries ) {
+			if ( item.options?.type === 'comparison' ) {
+				labels.set( item.group, [ ...( labels.get( item.group ) ?? [] ), item.label ] );
+			}
 		}
-		const comparisonLabels = new Set(
-			alignedSeries.flatMap( item => ( item.options?.type === 'comparison' ? [ item.label ] : [] ) )
-		);
-		return defaultHiddenSeries?.filter( label => ! comparisonLabels.has( label ) );
-	}, [ previousPeriodToggle, defaultHiddenSeries, alignedSeries ] );
+		return labels;
+	}, [ alignedSeries ] );
 
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
@@ -298,10 +286,13 @@ export function ComparativeBarChart( {
 		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
 
 		if ( previousPeriodToggle ) {
-			const ownSeriesItems = metricItems.map( item => ( {
-				...item,
-				seriesLabels: [ item.label ],
-			} ) );
+			const ownSeriesItems = metricItems.map( item => {
+				const group = alignedSeries.find( candidate => candidate.label === item.label )?.group;
+				return {
+					...item,
+					seriesLabels: [ item.label, ...( comparisonLabelsByGroup.get( group ) ?? [] ) ],
+				};
+			} );
 			if ( pickedComparisonIndex === undefined ) {
 				return ownSeriesItems;
 			}
@@ -353,6 +344,7 @@ export function ComparativeBarChart( {
 		pickedComparisonIndex,
 		previousPeriodShown,
 		onPreviousPeriodShownChange,
+		comparisonLabelsByGroup,
 		alignedSeries,
 		primarySeries,
 		isSeriesVisible,
@@ -483,7 +475,7 @@ export function ComparativeBarChart( {
 				data={ drawnSeries }
 				layout={ layout }
 				options={ chartOptions }
-				defaultHiddenSeries={ barChartHiddenSeries }
+				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }

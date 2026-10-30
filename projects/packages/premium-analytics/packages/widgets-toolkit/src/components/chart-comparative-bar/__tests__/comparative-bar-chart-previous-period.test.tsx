@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
+import { GlobalChartsProvider, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -63,8 +63,17 @@ const SERIES = [
 
 const CURRENT_SERIES = SERIES.filter( item => item.options?.type !== 'comparison' );
 
+let isStoreVisible: ( label: string ) => boolean = () => true;
+
+const StoreProbe = () => {
+	const { isSeriesVisible } = useGlobalChartsContext();
+	isStoreVisible = label => isSeriesVisible( CHART_ID, label );
+	return null;
+};
+
 const chart = ( props: Partial< ComponentProps< typeof ComparativeBarChart > > = {} ) => (
 	<GlobalChartsProvider>
+		<StoreProbe />
 		<ComparativeBarChart
 			chartId={ CHART_ID }
 			series={ SERIES }
@@ -83,7 +92,10 @@ const lastBarChart = () => {
 	expect( mockBarCharts.length ).toBeGreaterThan( 0 );
 	return mockBarCharts[ mockBarCharts.length - 1 ];
 };
-const drawnLabels = () => lastBarChart().data.map( item => item.label );
+const drawnLabels = () =>
+	lastBarChart()
+		.data.map( item => item.label )
+		.filter( label => isStoreVisible( label ) );
 const colorOf = ( label: string ) => {
 	const { data, colors } = lastBarChart();
 	return colors[ data.findIndex( item => item.label === label ) ];
@@ -144,7 +156,7 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 		await user.click( visitorsItem() );
 
-		expect( drawnLabels() ).toEqual( [ 'Views', 'Previous views', 'Visitors' ] );
+		expect( drawnLabels() ).toEqual( [ 'Views', 'Previous views' ] );
 	} );
 
 	it( "draws a revealed metric's previous period when the metric started hidden", async () => {
@@ -159,7 +171,29 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		await user.click( visitorsItem() );
 
 		expect( drawnLabels() ).toContain( 'Previous visitors' );
-		expect( lastBarChart().defaultHiddenSeries ).toEqual( [ 'Visitors' ] );
+	} );
+
+	it( "draws a revealed metric's previous period after another chart hid both under the same id", async () => {
+		const user = setupUser();
+		const { rerender } = render(
+			chart( { layout: undefined, defaultHiddenSeries: [ 'Visitors', 'Previous visitors' ] } )
+		);
+
+		rerender(
+			chart( {
+				previousPeriodShown: true,
+				onPreviousPeriodShownChange: jest.fn(),
+				defaultHiddenSeries: [ 'Visitors', 'Previous visitors' ],
+			} )
+		);
+		await user.click( visitorsItem() );
+
+		expect( drawnLabels() ).toEqual( [
+			'Views',
+			'Previous views',
+			'Visitors',
+			'Previous visitors',
+		] );
 	} );
 
 	it.each( [ false, true ] )(
