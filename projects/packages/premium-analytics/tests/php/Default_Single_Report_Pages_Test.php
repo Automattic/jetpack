@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
+use WP_REST_Request;
+use WP_REST_Server;
 
 require_once __DIR__ . '/../../src/default-single-report-pages.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -49,6 +51,9 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		}
 		$instance->setValue( null, null );
 
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		wp_set_current_user( 0 );
 		$this->reset_analytics_capabilities();
@@ -77,6 +82,22 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 			array_column( $record['default_layout'], 'type' )
 		);
 		$this->assertSame( array( 'analytics/video' ), array_column( get_available_single_report_page_records(), 'id' ) );
+	}
+
+	public function test_the_rest_route_lists_the_video_page() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		Dashboard_Support_Routes::boot_routes();
+
+		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
+		$this->login_as( 'administrator' );
+
+		$response = rest_get_server()->dispatch(
+			new WP_REST_Request( 'GET', '/wpcom/v2/dashboards/' . DASHBOARD_NAME . '/single-report-pages' )
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'analytics/video' ), array_column( $response->get_data(), 'id' ) );
 	}
 
 	public function test_the_video_page_needs_videopress_and_stats_access() {
