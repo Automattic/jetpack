@@ -101,25 +101,18 @@ class LCP_Invalidator_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_saves_in_a_row_leave_one_reanalysis_scheduled() {
-		foreach ( array( 'wp_template', 'wp_template_part', 'wp_global_styles' ) as $post_type ) {
-			wp_insert_post(
-				array(
-					'post_type'   => $post_type,
-					'post_status' => 'publish',
-					'post_title'  => 'Saved',
-				)
-			);
-		}
+	public function test_a_later_save_moves_the_reanalysis_after_it() {
+		wp_schedule_single_event( time() + MINUTE_IN_SECONDS, LCP_Invalidator::STYLE_REANALYSIS_HOOK );
 
-		$events = array_filter(
-			_get_cron_array(),
-			function ( $hooks ) {
-				return isset( $hooks[ LCP_Invalidator::STYLE_REANALYSIS_HOOK ] );
-			}
+		wp_insert_post(
+			array(
+				'post_type'   => 'wp_global_styles',
+				'post_status' => 'publish',
+				'post_title'  => 'Saved',
+			)
 		);
 
-		$this->assertCount( 1, $events );
+		$this->assertGreaterThanOrEqual( time() + 5 * MINUTE_IN_SECONDS - 1, wp_next_scheduled( LCP_Invalidator::STYLE_REANALYSIS_HOOK ) );
 	}
 
 	/**
