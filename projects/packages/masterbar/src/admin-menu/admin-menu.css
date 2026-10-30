@@ -257,7 +257,9 @@
 	.auto-fold #adminmenuback,
 	.auto-fold #adminmenuwrap {
 		width: 100%;
-		z-index: 171;
+
+		/* Core's desktop menu layer, so page headers like Woo's stay below. */
+		z-index: 9990;
 	}
 
 	.wp-responsive-open #wpcontent {
