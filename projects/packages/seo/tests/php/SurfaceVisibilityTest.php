@@ -103,4 +103,40 @@ class SurfaceVisibilityTest extends TestCase {
 			delete_option( Initializer::VISIBILITY_OPTION );
 		}
 	}
+
+	public function test_optin_availability_read_requires_an_admin_and_keeps_surface_hidden() {
+		$original_user = get_current_user_id();
+		$user_id       = wp_insert_user(
+			array(
+				'user_login' => 'seo_availability_admin',
+				'user_pass'  => 'test-only',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $user_id );
+		delete_option( Initializer::VISIBILITY_OPTION );
+		$original_modules = get_option( 'jetpack_active_modules' );
+		add_filter( Initializer::FEATURE_FILTER, '__return_true' );
+		do_action( 'rest_api_init' );
+		Surface_Visibility::register_optin_route();
+		try {
+			wp_set_current_user( $user_id );
+			$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/jetpack/v4/seo/opt-in' ) );
+			$this->assertSame( 200, $response->get_status() );
+			$this->assertTrue( $response->get_data()['optin_available'] );
+			$this->assertFalse( Surface_Visibility::is_visible() );
+			$this->assertSame( $original_modules, get_option( 'jetpack_active_modules' ) );
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+			$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/jetpack/v4/seo/opt-in' ) );
+			$this->assertFalse( $response->get_data()['optin_available'] );
+			delete_option( Initializer::VISIBILITY_OPTION );
+			wp_set_current_user( 0 );
+			$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/jetpack/v4/seo/opt-in' ) );
+			$this->assertSame( 401, $response->get_status() );
+		} finally {
+			wp_set_current_user( $original_user );
+			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+	}
 }
