@@ -733,7 +733,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
