@@ -220,7 +220,6 @@ class Speed_Score {
 		$url_no_boost           = $this->get_boost_modules_disabled_url( $url );
 		$score_request_no_boost = $this->get_score_request_by_url( $url_no_boost );
 		if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
-			$polled[] = $score_request_no_boost;
 			$response = $score_request_no_boost->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
@@ -360,7 +359,9 @@ class Speed_Score {
 
 		$response = array();
 
-		if ( ( ! $score_request || $score_request->is_success() ) && ( ! $score_request_no_boost || $score_request_no_boost->is_success() ) ) {
+		// The site's own score is ready before the comparison run finishes; noBoost then reads the previous comparison.
+		$no_boost_failed = $score_request_no_boost && $score_request_no_boost->is_error();
+		if ( ( ! $score_request || $score_request->is_success() ) && ! $no_boost_failed ) {
 			$response['status'] = 'success';
 
 			$response['scores'] = array(
