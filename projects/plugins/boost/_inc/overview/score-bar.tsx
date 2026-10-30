@@ -1,5 +1,6 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { ProgressBar } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, error, mobile } from '@wordpress/icons';
 import { Badge, Text } from '@wordpress/ui';
@@ -41,12 +42,16 @@ export default function ScoreBar( {
 						label={ __( 'Testing site speed', 'jetpack-boost' ) }
 						value={ percent }
 					>
-						{ __( 'Checking site speed…', 'jetpack-boost' ) }
-						{ percent !== undefined &&
-							` ${
-								/* translators: %d: how much of the speed test is done, as a percentage. */
-								sprintf( __( '%d%%', 'jetpack-boost' ), percent )
-							}` }
+						{ percent === undefined
+							? __( 'Checking site speed…', 'jetpack-boost' )
+							: createInterpolateElement(
+									sprintf(
+										/* translators: %d: how much of the speed test is done, as a percentage. */
+										__( 'Checking site speed… <pct>%d%%</pct>', 'jetpack-boost' ),
+										percent
+									),
+									{ pct: <span /> }
+								) }
 					</IndeterminateProgress>
 				</div>
 			) : (

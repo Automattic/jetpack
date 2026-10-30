@@ -23,8 +23,7 @@ class Speed_Score_Durations {
 	const LIMIT = 5;
 
 	/**
-	 * Expected run length before this site has finished a run: the fleet average is about 36 s,
-	 * plus up to one 5 s poll.
+	 * Expected run length before this site has finished one: roughly the fleet average plus one 5 s poll.
 	 */
 	const DEFAULT_SECONDS = 40;
 
@@ -33,6 +32,27 @@ class Speed_Score_Durations {
 	 * means nobody was watching when the run finished.
 	 */
 	const MAX_SECONDS = 240;
+
+	/**
+	 * Record the run once the last of its requests succeeds, timed from the earliest dispatch.
+	 *
+	 * @param Speed_Score_Request[] $polled Requests that were pending before this poll.
+	 */
+	public static function record_finished_run( array $polled ) {
+		if ( empty( $polled ) ) {
+			return;
+		}
+
+		$started = microtime( true );
+		foreach ( $polled as $request ) {
+			if ( ! $request->is_success() ) {
+				return;
+			}
+			$started = min( $started, $request->get_created() );
+		}
+
+		self::record( microtime( true ) - $started );
+	}
 
 	/**
 	 * Record how long a finished run took.

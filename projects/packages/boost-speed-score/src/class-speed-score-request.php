@@ -266,7 +266,6 @@ class Speed_Score_Request extends Cacheable {
 				$this->status = 'success';
 				$this->store();
 				$this->record_history( $response );
-				Speed_Score_Durations::record( microtime( true ) - $this->created );
 
 				break;
 

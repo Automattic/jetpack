@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Durations;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -74,5 +75,37 @@ class Speed_Score_Durations_Test extends Base_TestCase {
 		}
 
 		$this->assertSame( $expected, Speed_Score_Durations::expected() );
+	}
+
+	/**
+	 * Requests polled in one fetch, as status and seconds since dispatch, and what gets stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_polled_requests() {
+		return array(
+			'both finish: one entry, from the earliest dispatch' => array( array( array( 'success', 30 ), array( 'success', 28 ) ), array( 30 ) ),
+			'one still measuring records nothing yet' => array( array( array( 'success', 30 ), array( 'pending', 30 ) ), null ),
+			'a failed request records nothing'        => array( array( array( 'error', 30 ) ), null ),
+			'nothing was pending, so no run finished' => array( array(), null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_polled_requests
+	 *
+	 * @param array      $requests Status and seconds since dispatch per polled request.
+	 * @param array|null $stored   The durations stored afterwards.
+	 */
+	#[DataProvider( 'provide_polled_requests' )]
+	public function test_a_run_is_recorded_once_when_its_last_request_succeeds( array $requests, $stored ) {
+		$polled = array();
+		foreach ( $requests as $i => list( $status, $seconds_ago ) ) {
+			$polled[] = new Speed_Score_Request( 'http://example.com/?r=' . $i, array(), microtime( true ) - $seconds_ago, $status );
+		}
+
+		Speed_Score_Durations::record_finished_run( $polled );
+
+		$this->assertSame( $stored, $this->stored );
 	}
 }

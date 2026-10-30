@@ -1,6 +1,7 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { speak } from '@wordpress/a11y';
 import { CardDivider } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, VisuallyHidden } from '@wordpress/ui';
@@ -89,20 +90,18 @@ export default function ScoreCards( {
 				live
 				value={ percent }
 			>
-				{ showOverlay && announceCalculating && (
-					<>
-						{ __( 'Checking site speed…', 'jetpack-boost' ) }
-						{ percent !== undefined && (
-							<span aria-hidden="true">
-								{ ' ' }
-								{
+				{ showOverlay &&
+					announceCalculating &&
+					( percent === undefined
+						? __( 'Checking site speed…', 'jetpack-boost' )
+						: createInterpolateElement(
+								sprintf(
 									/* translators: %d: how much of the speed test is done, as a percentage. */
-									sprintf( __( '%d%%', 'jetpack-boost' ), percent )
-								}
-							</span>
-						) }
-					</>
-				) }
+									__( 'Checking site speed… <pct>%d%%</pct>', 'jetpack-boost' ),
+									percent
+								),
+								{ pct: <span aria-hidden="true" /> }
+							) ) }
 			</IndeterminateProgress>
 		</Card.Content>
 	);

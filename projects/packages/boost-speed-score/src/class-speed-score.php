@@ -214,10 +214,13 @@ class Speed_Score {
 			return $url;
 		}
 
+		$polled = array();
+
 		// Poll update if there is an ongoing request for scores with boost disabled.
 		$url_no_boost           = $this->get_boost_modules_disabled_url( $url );
 		$score_request_no_boost = $this->get_score_request_by_url( $url_no_boost );
 		if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
+			$polled[] = $score_request_no_boost;
 			$response = $score_request_no_boost->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
@@ -227,11 +230,14 @@ class Speed_Score {
 		// Poll update if there is an ongoing request for scores with boost enabled.
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( $score_request && $score_request->is_pending() ) {
+			$polled[] = $score_request;
 			$response = $score_request->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
 		}
+
+		Speed_Score_Durations::record_finished_run( $polled );
 
 		// If this is a fresh install, there might not be any speed score history. In which case, we want to fetch the initial scores.
 		// While updating plugin from 1.2 -> 1.3, the history will be missing along with a non-pending score request due to data structure change.
