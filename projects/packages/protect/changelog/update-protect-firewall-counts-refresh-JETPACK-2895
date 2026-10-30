@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Refresh the Firewall block counts while the page is open and after the firewall is turned on, without a reload.

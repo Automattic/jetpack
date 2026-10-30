@@ -23,7 +23,7 @@ import {
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import { createStore } from '../scan/store';
+import { createStore, useIsDocumentHidden } from '../scan/store';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -66,10 +66,69 @@ const FIREWALL_KEYS = [ 'waf' ];
 // The card unmounts on a tab switch, so a test's refreshed counts live here.
 const blocksStore = createStore< FirewallBlocks | undefined >( () => undefined );
 
+// How often an open page re-reads the counts.
+export const BLOCKS_REFRESH_INTERVAL = 60 * 1000;
+
+// Reads land in start order, so an older answer can't replace a newer one.
+let readsStarted = 0;
+let readApplied = 0;
+let lastReadAt = Date.now();
+// Outlives the card, so coming back to this tab doesn't count as turning the firewall on.
+let lastSeenActive: boolean | null = null;
+
 /** Forget refreshed counts, so tests start from the page state. */
 export const resetFirewallBlocks = (): void => {
 	blocksStore.reset();
+	readsStarted = 0;
+	readApplied = 0;
+	lastReadAt = Date.now();
+	lastSeenActive = null;
 };
+
+/**
+ * Read the blocks and counts into the store, unless a later read already landed.
+ *
+ * @return The fresh blocks.
+ */
+async function refreshBlocks(): Promise< FirewallBlocks > {
+	const read = ++readsStarted;
+	const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
+	if ( read > readApplied ) {
+		readApplied = read;
+		lastReadAt = Date.now();
+		blocksStore.set( () => fresh );
+	}
+	return fresh;
+}
+
+/** Refresh in the background; a failed read keeps the counts as they were. */
+const refreshQuietly = () => {
+	refreshBlocks().catch( () => {} );
+};
+
+/**
+ * Keep the counts current while the firewall is on: on an interval, when they're older than that, and when it's turned on.
+ *
+ * @param active       - Whether the firewall is on now.
+ * @param activeAtLoad - Whether it was on at page load, so turning it on from the Settings tab counts too.
+ */
+function useBlocksRefresh( active: boolean, activeAtLoad: boolean ): void {
+	const isHidden = useIsDocumentHidden();
+
+	useEffect( () => {
+		const turnedOn = active && ! ( lastSeenActive ?? activeAtLoad );
+		lastSeenActive = active;
+		if ( ! active || isHidden ) {
+			return;
+		}
+		// Covers a return to the browser tab or to this dashboard tab, which remounts the card.
+		if ( turnedOn || Date.now() - lastReadAt >= BLOCKS_REFRESH_INTERVAL ) {
+			refreshQuietly();
+		}
+		const timer = setInterval( refreshQuietly, BLOCKS_REFRESH_INTERVAL );
+		return () => clearInterval( timer );
+	}, [ active, isHidden, activeAtLoad ] );
+}
 
 const hasAnyBlocks = ( { blockedCount, recentBlocks }: FirewallBlocks ) =>
 	( blockedCount ?? recentBlocks.length ) > 0;
@@ -243,6 +302,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
+	useBlocksRefresh( active && firewall.available && ! firewall.providedByHost, firewall.active );
 	// Turning the automatic rules off on the Settings tab hides their date; the date itself is from page load.
 	const rulesUpdatedAt =
 		settings.settings?.[ AUTOMATIC_RULES ] === false ? null : firewall.rulesUpdatedAt;
@@ -285,11 +345,14 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		const empty = emptyState.current;
 		const fromEmptyState = !! empty?.contains( empty.ownerDocument.activeElement );
 		notify( 'testing' );
+		// Set before any read lands, as a background read can also swap the empty state for the counts.
+		focusHeaderTest.current = fromEmptyState;
 		const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
 		let testResult: TestResult;
 		try {
 			testResult = await runFirewallTest( active );
 		} catch ( e ) {
+			focusHeaderTest.current = false;
 			if ( isMounted.current ) {
 				notifyFailure( e );
 				setIsTesting( false );
@@ -300,14 +363,16 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		// The test has run by now, so a failed refresh mustn't replace its result with an error.
 		let isRecorded: boolean | null = null;
 		try {
-			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
-			focusHeaderTest.current = fromEmptyState && hasAnyBlocks( fresh );
-			blocksStore.set( () => fresh );
+			const fresh = await refreshBlocks();
+			if ( ! hasAnyBlocks( fresh ) ) {
+				focusHeaderTest.current = false;
+			}
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
 		} catch {
 			// The counts stay as they were.
+			focusHeaderTest.current = false;
 		}
 		if ( ! isMounted.current ) {
 			return;
