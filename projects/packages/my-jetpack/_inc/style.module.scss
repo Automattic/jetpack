@@ -56,4 +56,21 @@
 			display: none;
 		}
 	}
+
+	// The wizard's sheet scrolls inside itself, so it takes exactly the window.
+	// Only the wizard: the single-screen flow needs the page to scroll.
+	.jetpack-admin-full-screen.jetpack-onboarding-wizard {
+		block-size: 100vh;
+		block-size: 100dvh;
+		overflow: hidden;
+
+		#wpwrap,
+		#wpcontent,
+		#wpbody,
+		#wpbody-content,
+		#my-jetpack-container > * {
+			block-size: 100%;
+			min-block-size: 0 !important;
+		}
+	}
 }

@@ -48,3 +48,18 @@
 		display: none;
 	}
 }
+
+// Lines up with the connection form's column.
+.skip {
+	inline-size: 100%;
+	max-inline-size: 450px;
+	margin-block-start: 16px;
+}
+
+// The wizard shell's color (SHELL_BACKGROUND in wizard/wizard.tsx), so the
+// window stays dark while its chunk loads.
+.wizard-loading {
+	position: fixed;
+	inset: 0;
+	background: #1e1e1e;
+}
