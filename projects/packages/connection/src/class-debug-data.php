@@ -29,15 +29,6 @@ class Debug_Data {
 	const LEGACY_CALLBACK = array( 'Jetpack_Debug_Data', 'core_debug_data' );
 
 	/**
-	 * Hook the section into Site Health.
-	 *
-	 * @since $$next-version$$
-	 */
-	public static function init() {
-		add_filter( 'debug_information', array( __CLASS__, 'add_section' ) );
-	}
-
-	/**
 	 * Add the Jetpack section, unless an older Jetpack plugin adds its own.
 	 *
 	 * @since $$next-version$$
