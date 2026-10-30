@@ -5,6 +5,7 @@ import { Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard, SettingsErrorRow, Stat } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
+import AccountProtectionToggle from './account-protection-toggle';
 import SsoToggle, { getSsoBlocker } from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -124,19 +125,14 @@ export default function LoginProtectionCard( {
 			<BruteForceRow data={ data } login={ login } openTab={ openTab } />
 			<CardRow className="jp-protect-card__cells">
 				<div>
-					<SettingToggle
+					<AccountProtectionToggle
 						data={ data }
-						name="account-protection"
-						disabled={ ! login.accountProtection.available }
+						login={ login }
 						label={ __( 'Enable account protection', 'jetpack-protect-pkg' ) }
-						help={
-							login.accountProtection.available
-								? __(
-										'Keep administrator and editor accounts out of attackers’ hands.',
-										'jetpack-protect-pkg'
-									)
-								: __( 'Account protection isn’t available on this site.', 'jetpack-protect-pkg' )
-						}
+						help={ __(
+							'Keep administrator and editor accounts out of attackers’ hands.',
+							'jetpack-protect-pkg'
+						) }
 					/>
 				</div>
 				<Stack direction="column" gap="md" align="start">
