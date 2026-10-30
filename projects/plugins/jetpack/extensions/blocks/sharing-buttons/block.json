@@ -102,6 +102,11 @@
 				"margin": true,
 				"padding": false
 			}
+		},
+		"__experimentalStyle": {
+			"spacing": {
+				"blockGap": "0"
+			}
 		}
 	},
 	"example": {
