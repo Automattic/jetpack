@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Record whether the firewall has blocked anything besides its own test, so the Protect dashboard can tell repeated tests from real blocks.

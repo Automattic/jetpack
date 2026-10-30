@@ -14,6 +14,7 @@ class Waf_Blocklog_Manager {
 
 	const BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        = 'jetpack_waf_blocklog_daily_summary';
 	const BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT = 'jetpack_waf_all_time_block_count';
+	const BLOCKLOG_OPTION_NAME_HAS_BLOCKED          = 'jetpack_waf_has_blocked';
 
 	/**
 	 * Database connection.
@@ -273,6 +274,27 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Record that the firewall has blocked a request other than its own test. Set once and never cleared.
+	 *
+	 * @return void
+	 */
+	private static function write_has_blocked_row() {
+		global $table_prefix;
+		$option_name = self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED;
+
+		$db_connection = self::connect_to_wordpress_db();
+		if ( ! $db_connection ) {
+			return;
+		}
+
+		$statement = $db_connection->prepare( "INSERT IGNORE INTO {$table_prefix}options (option_name, option_value, autoload) VALUES (?, '1', 'off')" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 's', $option_name );
+			$statement->execute();
+		}
+	}
+
+	/**
 	 * Increment the all-time stats.
 	 *
 	 * @return void
@@ -370,6 +392,17 @@ class Waf_Blocklog_Manager {
 		}
 
 		return self::get_default_all_time_stat_value();
+	}
+
+	/**
+	 * Whether the firewall has blocked a request other than its own test since it started recording that.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_blocked_requests() {
+		return (bool) self::get_stored_option( self::BLOCKLOG_OPTION_NAME_HAS_BLOCKED, false );
 	}
 
 	/**
@@ -510,6 +543,9 @@ class Waf_Blocklog_Manager {
 
 		self::write_daily_summary();
 		self::write_all_time_block_count();
+		if ( (string) Waf_Self_Check::RULE_ID !== (string) $rule_id ) {
+			self::write_has_blocked_row();
+		}
 		self::write_blocklog_row( $log_data );
 		self::close_db_connection();
 	}

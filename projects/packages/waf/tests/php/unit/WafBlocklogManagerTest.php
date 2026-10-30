@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
@@ -144,5 +145,77 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 
 		$this->assertSame( 3, Waf_Blocklog_Manager::get_all_time_block_count() );
 		$this->assertSame( 3, Waf_Blocklog_Manager::get_current_day_block_count() );
+	}
+
+	/**
+	 * Only a block that isn't the firewall's own test marks the site as having blocked a request.
+	 *
+	 * @dataProvider provide_rule_ids
+	 *
+	 * @param string $rule_id  The rule that blocked the request.
+	 * @param bool   $recorded Whether the block is recorded as a real one.
+	 */
+	#[DataProvider( 'provide_rule_ids' )]
+	public function testOnlyRealBlocksAreRecorded( $rule_id, $recorded ) {
+		$connection = new class() {
+			/** @var string[] */
+			public $prepared = array();
+
+			/** @var int */
+			public $insert_id = 1;
+
+			/**
+			 * @param string $query Query.
+			 */
+			public function query( $query ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return false;
+			}
+
+			/**
+			 * @param string $query Query.
+			 */
+			public function prepare( $query ) {
+				$this->prepared[] = $query;
+				return new class() {
+					/**
+					 * @param mixed ...$args Arguments.
+					 */
+					public function bind_param( ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+						return true;
+					}
+
+					/** Execute. */
+					public function execute() {
+						return true;
+					}
+				};
+			}
+
+			/** Close. */
+			public function close() {}
+		};
+		$property   = new ReflectionProperty( Waf_Blocklog_Manager::class, 'db_connection' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $connection );
+
+		Waf_Blocklog_Manager::write_blocklog( $rule_id, 'reason' );
+
+		$flagged = preg_grep( '/INSERT IGNORE INTO \S*options/', $connection->prepared );
+		$this->assertSame( $recorded, array() !== $flagged );
+	}
+
+	/**
+	 * Data provider for testOnlyRealBlocksAreRecorded.
+	 *
+	 * @return array
+	 */
+	public static function provide_rule_ids() {
+		return array(
+			'the firewall test' => array( '-2', false ),
+			'a rule'            => array( '1337', true ),
+		);
 	}
 }

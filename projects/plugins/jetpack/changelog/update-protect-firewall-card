@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Protect Dashboard: Redesign the Firewall card, with what to do next before it blocks anything and its 30-day and all-time block counts once it does.
