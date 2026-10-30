@@ -293,9 +293,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @dataProvider data_registered_reports
 	 *
 	 * @param string $route Route requested.
+	 * @param string $id    Id of the report the handler should receive.
 	 */
 	#[DataProvider( 'data_registered_reports' )]
-	public function test_serves_a_report_handler_registered_through_the_hook( $route ) {
+	public function test_serves_a_report_handler_registered_through_the_hook( $route, $id ) {
 		$handler = new class() implements Report_Handler {
 			/**
 			 * Answer with the report's id.
@@ -323,17 +324,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$response = $this->get_report( $route );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertStringContainsString( '.', $response->get_data()['id'] );
+		$this->assertSame( $id, $response->get_data()['id'] );
 		$this->assertSame( array(), $this->requests );
 	}
 
 	/**
-	 * @return array<string, array{0: string}>
+	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function data_registered_reports() {
 		return array(
-			'a new report'                 => array( 'owner/report' ),
-			'a handler that beats the `*`' => array( 'orders/by-date' ),
+			'a new report'                 => array( 'owner/report', 'owner.report' ),
+			'a handler that beats the `*`' => array( 'orders/by-date', 'orders.by_date' ),
 		);
 	}
 

@@ -39,10 +39,14 @@ class Default_Reports {
 	/**
 	 * Fill the registry.
 	 *
-	 * @param Report_Registry $registry The registry being filled.
+	 * @param mixed $registry The registry being filled.
 	 * @return void
 	 */
-	public static function register( Report_Registry $registry ) {
+	public static function register( $registry ) {
+		if ( ! $registry instanceof Report_Registry ) {
+			return;
+		}
+
 		$registry->register_provider( new Remote_Report_Provider() );
 		$registry->register_handler( Report_Registry::ANY_REPORT, 'remote', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
 
