@@ -12,6 +12,7 @@ import {
 import {
 	canStepBackward,
 	clampRangeEndToToday,
+	findSelectablePresetForRange,
 	PRESET_CUSTOM,
 	reportingTimeZone,
 	stepDateRange,
@@ -78,9 +79,12 @@ export type ReportDateFilters = {
 
 	/**
 	 * Step the applied window backward or forward by its own length and commit
-	 * it. Returns the window committed, so a caller can track it as applied.
+	 * it. Returns what was committed, so a caller can track it as applied: the
+	 * preset whose window the step landed on, or `custom`.
 	 */
-	onStep: ( direction: StepDirection ) => DateRange | undefined;
+	onStep: (
+		direction: StepDirection
+	) => { range: DateRange; presetId: PrimaryPresetId } | undefined;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -301,9 +305,12 @@ export function useReportDateFilters< TFrom extends string >(
 			// A forward step closes the running unit the window was measured
 			// against, which reaches past today; "12 months" returns to its to-date window.
 			const nextRange = clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) );
+			// Landing exactly on a preset's window reads as that preset again, so a
+			// step forward to today gives "Last 7 days" back rather than its dates.
+			const nextPresetId = findSelectablePresetForRange( nextRange, timeZone ) ?? PRESET_CUSTOM;
 			const patch = buildRangePatch( {
 				nextRange,
-				nextPresetId: PRESET_CUSTOM,
+				nextPresetId,
 				exactRange: true,
 				effective,
 				lockedIntervals,
@@ -316,7 +323,7 @@ export function useReportDateFilters< TFrom extends string >(
 			stage( patch );
 			commit();
 
-			return nextRange;
+			return { range: nextRange, presetId: nextPresetId };
 		},
 		[
 			appliedPresetId,

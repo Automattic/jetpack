@@ -36,6 +36,7 @@ export {
 	type StepOptions,
 } from './step-date-range';
 export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
+export { findSelectablePresetForRange } from './preset-for-range';
 
 export { drillDateRange } from './drill-date-range';
 

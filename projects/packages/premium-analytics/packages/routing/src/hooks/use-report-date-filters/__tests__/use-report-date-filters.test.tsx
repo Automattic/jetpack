@@ -440,8 +440,33 @@ describe( 'useReportDateFilters', () => {
 			interval: 'hour',
 		} );
 		expect( result.current.appliedPresetId ).toBe( 'custom' );
-		// The window committed, for the caller to track as applied.
-		expect( stepped ).toEqual( result.current.appliedRange );
+		// What was committed, for the caller to track as applied.
+		expect( stepped ).toEqual( { range: result.current.appliedRange, presetId: 'custom' } );
+	} );
+
+	it( 'reads as the preset again when a step lands back on its window', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-08-14T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			preset: 'custom',
+		} );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'next' );
+		} );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-7-days' } );
+		expect( stepped ).toMatchObject( { presetId: 'last-7-days' } );
 	} );
 
 	it( 'ignores a step without a measurable window', () => {
@@ -662,7 +687,7 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch ).toMatchObject( {
 			from: '2026-09-01T00:00:00.000+00:00',
 			to: '2026-09-30T23:59:59.999+00:00',
-			preset: 'custom',
+			preset: 'last-month',
 			compare_from: '2026-08-01T00:00:00.000+00:00',
 			compare_to: '2026-08-31T23:59:59.999+00:00',
 		} );
@@ -688,7 +713,7 @@ describe( 'useReportDateFilters', () => {
 		expect( mockSearch ).toMatchObject( {
 			from: '2025-09-01T00:00:00.000+00:00',
 			to: '2026-08-20T23:59:59.999+00:00',
-			preset: 'custom',
+			preset: 'last-12-months',
 		} );
 	} );
 

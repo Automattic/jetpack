@@ -5,7 +5,6 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
 import {
 	DashboardWidgetHostProvider,
@@ -380,15 +379,16 @@ function Dashboard(): JSX.Element {
 		},
 		[ changeComparison, rememberOnComparisonChange ]
 	);
-	// A step applies at once, as a custom range: tracked like one, and not remembered as a preset.
+	// A step applies at once: tracked like a range the reader picked, and
+	// remembered only when it lands back on a preset.
 	const onDateStep = useCallback< typeof stepDateRange >(
 		direction => {
 			const stepped = stepDateRange( direction );
 
 			if ( stepped ) {
-				trackedOnChange( stepped, PRESET_CUSTOM, { exactRange: true } );
+				trackedOnChange( stepped.range, stepped.presetId, { exactRange: true } );
 				trackedOnApply();
-				rememberOnChange( stepped, PRESET_CUSTOM );
+				rememberOnChange( stepped.range, stepped.presetId );
 				rememberOnApply();
 			}
 
