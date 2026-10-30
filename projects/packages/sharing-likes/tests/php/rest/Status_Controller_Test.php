@@ -17,6 +17,7 @@ use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+use WP_Block_Template;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
 require_once __DIR__ . '/../lib/class-jetpack-likes-settings.php';
@@ -53,6 +54,7 @@ class Status_Controller_Test extends BaseTestCase {
 		}
 
 		remove_all_filters( 'get_block_template' );
+		remove_all_filters( 'pre_get_block_template' );
 		$this->tear_down_rest();
 		$this->tear_down_site();
 		Constants::clear_constants();
@@ -166,6 +168,89 @@ class Status_Controller_Test extends BaseTestCase {
 			'the fixture theme ships page.html' => array( 'block_theme', '?p=%2Fwp_template%2Fblock-theme%2F%2Fpage&canvas=edit' ),
 			'a block theme without page.html'   => array( 'no_page_template', '' ),
 		);
+	}
+
+	/**
+	 * Save a template in the Site Editor, as core stores it: a post the template then points at.
+	 *
+	 * @param string $slug    Template slug.
+	 * @param string $content Saved content.
+	 */
+	private function given_saved_template( string $slug, string $content ): void {
+		$template        = new WP_Block_Template();
+		$template->slug  = $slug;
+		$template->wp_id = wp_insert_post(
+			array(
+				'post_type'    => 'wp_template',
+				'post_name'    => $slug,
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		add_filter(
+			'pre_get_block_template',
+			static function ( $found, string $id ) use ( $template, $slug ) {
+				return get_stylesheet() . '//' . $slug === $id ? $template : $found;
+			},
+			10,
+			2
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: array<string, string>, 1: string[], 2: string[]}>
+	 */
+	public static function provide_saved_templates(): array {
+		$ignoring = '<!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . Block_Names::SHARING_BUTTONS . '"]}} /-->';
+
+		return array(
+			'none saved'                       => array( array(), array(), array() ),
+			'both saved before either applied' => array(
+				array(
+					'single' => '<!-- wp:post-content /-->',
+					'page'   => '<!-- wp:post-content /-->',
+				),
+				array(),
+				array(),
+			),
+			'each managing one block'          => array(
+				array(
+					'single' => $ignoring,
+					'page'   => '<!-- wp:post-content /--><!-- wp:jetpack/like /-->',
+				),
+				array( 'single' ),
+				array( 'page' ),
+			),
+			'both managing sharing'            => array(
+				array(
+					'single' => $ignoring,
+					'page'   => $ignoring,
+				),
+				array( 'single', 'page' ),
+				array(),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_saved_templates
+	 *
+	 * @param array<string, string> $saved   Saved content by template slug.
+	 * @param string[]              $sharing Templates managing the Sharing Buttons block.
+	 * @param string[]              $likes   Templates managing the Like block.
+	 */
+	#[DataProvider( 'provide_saved_templates' )]
+	public function test_status_lists_the_saved_templates_that_manage_each_block( array $saved, array $sharing, array $likes ): void {
+		$this->given_block_routes();
+		foreach ( $saved as $slug => $content ) {
+			$this->given_saved_template( $slug, $content );
+		}
+
+		$data = $this->request( 'GET', 'status' )->get_data();
+
+		$this->assertSame( $sharing, $data['sharing']['managed_templates'] );
+		$this->assertSame( $likes, $data['likes']['managed_templates'] );
 	}
 
 	public function test_switching_to_the_block_turns_off_only_that_feature(): void {

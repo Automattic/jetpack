@@ -276,6 +276,23 @@ final class Environment {
 	}
 
 	/**
+	 * Content of one of the active theme's templates as saved in the Site Editor; null while the theme's file serves it.
+	 *
+	 * Read from the post, since `get_block_template()` returns the content with block hooks already applied.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $slug Template slug.
+	 */
+	public static function saved_template_content( string $slug ): ?string {
+		$stylesheet = get_stylesheet();
+		$template   = $stylesheet ? get_block_template( $stylesheet . '//' . $slug ) : null;
+		$post       = $template && $template->wp_id ? get_post( $template->wp_id ) : null;
+
+		return $post instanceof \WP_Post ? $post->post_content : null;
+	}
+
+	/**
 	 * Site Editor URL for one of the active theme's templates, empty when it has none.
 	 *
 	 * @param string $slug Template slug.

@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { TemplatePlacements } from '../components/template-placements';
 import { LikeButtonsSection } from '../sections/like-buttons-section';
 import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
-import type { Feature, Settings, Status, TemplatePlacement } from '../types';
+import type { Feature, PlacementTemplate, Settings, Status, TemplatePlacement } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -49,6 +49,42 @@ function renderCards(
 		status: { ...baseStatus, ...status },
 		settings: { ...baseSettings, [ KEYS[ feature ] ]: stored },
 	} );
+}
+
+/**
+ * Render the cards for a feature whose block some saved templates manage.
+ *
+ * @param feature - Feature.
+ * @param managed - Templates managing the block.
+ * @param pageUrl - Page template URL, empty when the theme has none.
+ * @return Render result.
+ */
+function renderManaged( feature: Feature, managed: PlacementTemplate[], pageUrl: string ) {
+	return renderCards( feature, [ 'after_content' ], {
+		page_template_editor_url: pageUrl,
+		[ feature ]: {
+			...baseStatus[ feature ],
+			state: 'block_call_to_action',
+			managed_templates: managed,
+		},
+	} );
+}
+
+const templateUrls: Record< PlacementTemplate, string > = {
+	single: baseStatus.site_editor_url,
+	page: PAGE_TEMPLATE_URL,
+};
+
+/**
+ * Where the "Edit the … template" links go, post template first.
+ *
+ * @return URLs.
+ */
+function templateLinks(): ( string | null )[] {
+	return [ 'post', 'page' ]
+		.map( name => screen.queryByRole( 'link', { name: `Edit the ${ name } template` } ) )
+		.filter( link => link !== null )
+		.map( link => link.getAttribute( 'href' ) );
 }
 
 /**
@@ -144,20 +180,83 @@ describe( 'TemplatePlacements', () => {
 		);
 	} );
 
-	it.each( [ PAGE_TEMPLATE_URL, '' ] )(
-		'links the page template only with a URL, keeping the notes: "%s"',
-		url => {
-			renderCards( 'sharing', [], { page_template_editor_url: url } );
+	it.each( [ PAGE_TEMPLATE_URL, '' ] )( 'links the page template only with a URL: "%s"', url => {
+		renderCards( 'sharing', [], { page_template_editor_url: url } );
 
-			// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
-			expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
-				url || undefined
+		// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
+		expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
+			url || undefined
+		);
+		expect(
+			screen.queryByRole( 'link', { name: 'Edit the post template' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'sharing',
+			[ 'single' ],
+			'Your post template was saved in the Site Editor, so the Sharing Buttons block on posts is managed there now.',
+			'Where should the Sharing Buttons block go on pages?',
+			PAGE_TEMPLATE_URL,
+		],
+		[
+			'likes',
+			[ 'page' ],
+			'Your page template was saved in the Site Editor, so the Like block on pages is managed there now.',
+			'Where should the Like block go on posts?',
+			baseStatus.site_editor_url,
+		],
+	] as [ Feature, PlacementTemplate[], string, string, string ][] )(
+		'%s managed by %j: a notice, and cards for the other template',
+		( feature, managed, notice, legend, previewUrl ) => {
+			renderManaged( feature, managed, PAGE_TEMPLATE_URL );
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( templateLinks() ).toEqual( managed.map( template => templateUrls[ template ] ) );
+			expect( screen.getByRole( 'radiogroup', { name: legend } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
+				'href',
+				previewUrl
 			);
-			expect(
-				screen.getByText( /Once you’ve saved a template in the Site Editor/ )
-			).toBeInTheDocument();
+			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
 		}
 	);
+
+	it.each( [
+		[
+			'sharing',
+			[ 'single', 'page' ],
+			PAGE_TEMPLATE_URL,
+			'Your post and page templates were saved in the Site Editor, so the Sharing Buttons block is managed there now.',
+		],
+		[
+			'likes',
+			[ 'single' ],
+			'',
+			'Your post template was saved in the Site Editor, so the Like block on posts is managed there now.',
+		],
+	] as [ Feature, PlacementTemplate[], string, string ][] )(
+		'%s managed by %j, page template "%s": a notice instead of the cards',
+		( feature, managed, pageUrl, notice ) => {
+			renderManaged( feature, managed, pageUrl );
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( templateLinks() ).toEqual( managed.map( template => templateUrls[ template ] ) );
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'keeps the cards for posts and pages while neither template manages the block', () => {
+		renderCards( 'likes', [], { page_template_editor_url: PAGE_TEMPLATE_URL } );
+
+		expect(
+			screen.getByRole( 'radiogroup', {
+				name: 'Where should the Like block go on posts and pages?',
+			} )
+		).toBeInTheDocument();
+		expect( screen.queryByText( /managed there now/ ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'shows the cards disabled, not the Site Editor button, while settings catch up with a switch', async () => {
 		const user = userEvent.setup();
@@ -166,13 +265,16 @@ describe( 'TemplatePlacements', () => {
 			if ( method === 'POST' ) {
 				return Promise.resolve( {
 					...baseStatus,
-					likes: { state: 'block_call_to_action', supported: true },
+					likes: { ...baseStatus.likes, state: 'block_call_to_action', supported: true },
 				} );
 			}
 			return path?.endsWith( '/settings' ) ? settings.promise : Promise.resolve( baseStatus );
 		} );
 		renderWithData( <LikeButtonsSection />, {
-			status: { ...baseStatus, likes: { state: 'configure_with_block_nudge', supported: true } },
+			status: {
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'configure_with_block_nudge', supported: true },
+			},
 		} );
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to the Like block' } ) );

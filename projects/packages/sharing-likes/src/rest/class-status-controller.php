@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
 use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Feature_Actions;
 use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section;
@@ -85,15 +87,21 @@ final class Status_Controller extends Controller {
 		$sharing_state        = Sharing_Section::state();
 		$likes_state          = Likes_Section::state();
 		$comment_likes_follow = Environment::comment_likes_follow_likes_settings();
+		$saved_templates      = array(
+			'single' => Environment::saved_template_content( 'single' ),
+			'page'   => Environment::saved_template_content( 'page' ),
+		);
 
 		return rest_ensure_response(
 			array(
 				'sharing'                  => array(
-					'state' => $sharing_state,
+					'state'             => $sharing_state,
+					'managed_templates' => self::managed_templates( Block_Names::SHARING_BUTTONS, $saved_templates ),
 				),
 				'likes'                    => array(
-					'state'     => $likes_state,
-					'supported' => Environment::likes_supported(),
+					'state'             => $likes_state,
+					'supported'         => Environment::likes_supported(),
+					'managed_templates' => self::managed_templates( Block_Names::LIKE, $saved_templates ),
 				),
 				// No variants: comments have no block to move to.
 				'comment_likes'            => array(
@@ -105,6 +113,25 @@ final class Status_Controller extends Controller {
 				'page_template_editor_url' => Environment::page_template_editor_url(),
 			)
 		);
+	}
+
+	/**
+	 * The templates whose saved copy decides where a block goes, which the template placements no longer change.
+	 *
+	 * @param string                     $block           Block type.
+	 * @param array<string, string|null> $saved_templates Saved content by template slug, null where the theme's file serves it.
+	 * @return string[] Template slugs.
+	 */
+	private static function managed_templates( string $block, array $saved_templates ): array {
+		$managed = array();
+
+		foreach ( $saved_templates as $slug => $content ) {
+			if ( null !== $content && Hooked_Blocks::is_managed_by_template( $content, $block ) ) {
+				$managed[] = $slug;
+			}
+		}
+
+		return $managed;
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show a notice linking to the Site Editor instead of the block placement cards for a template saved there, where picking a card no longer changes it.
