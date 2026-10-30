@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Site Health: Include Jetpack connection details when copying the site info report.
+Site Health: Add Jetpack connection details to the Info tab and the copied site info report.
