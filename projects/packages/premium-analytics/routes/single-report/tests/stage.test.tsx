@@ -92,6 +92,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest.requireActual( '../../../packages/ui/src/section-header' ).SectionHeader,
+	StatsBreadcrumbs: jest.requireActual( '../../../packages/ui/src/stats-breadcrumbs' )
+		.StatsBreadcrumbs,
 	StatsPageIcon: () => <svg data-testid="stats-icon" />,
 	safeHttpUrl: jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' ).safeHttpUrl,
 } ) );

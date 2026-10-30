@@ -3,25 +3,3 @@
 .page {
 	min-block-size: 0;
 }
-
-// wp-admin gives list items a bottom margin that misaligns the trail with
-// the page icon.
-.trail {
-	display: contents;
-}
-
-.trail li {
-	margin-block-end: 0;
-}
-
-// A long unbroken crumb would widen the page: the header's flex chain keeps
-// `min-inline-size: auto`, so the limit lands on the slot's parent and on
-// the nav.
-// Upstream: https://github.com/WordPress/gutenberg/issues/81297.
-:has(> .trail) {
-	min-inline-size: 0;
-}
-
-.trail nav {
-	min-inline-size: 0;
-}

@@ -10,10 +10,9 @@ import {
 	omitReportDateParams,
 	pickReportDateParams,
 	pickReportNavigationParams,
-	useDashboardLink,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import { StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
 	PageNotice,
@@ -24,7 +23,7 @@ import {
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, useNavigate, useParams, useSearch } from '@wordpress/route';
@@ -193,22 +192,9 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		surface,
 	} );
 
-	const dashboardLink = useDashboardLink();
 	const breadcrumbs = useDetailBreadcrumbs(
 		canRenderWidgets ? summary.title?.trim() || page.label : undefined,
 		page.reports_page ?? undefined
-	);
-
-	// The trail starts at the dashboard; an unlinked final crumb is the page heading.
-	const trail = (
-		<div className={ styles.trail }>
-			<Breadcrumbs
-				items={ [
-					{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-					...breadcrumbs,
-				] }
-			/>
-		</div>
 	);
 
 	const header = adapter.headerSlots( summary, {
@@ -273,7 +259,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 						<Page
 							className={ styles.page }
 							visual={ <StatsPageIcon /> }
-							breadcrumbs={ trail }
+							breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 							badges={
 								isCustomizing ? (
 									<Badge intent="informational">
