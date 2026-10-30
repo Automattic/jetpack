@@ -253,7 +253,7 @@ function Dashboard(): JSX.Element {
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals } );
+	const dateFilters = useReportDateFilters( '/', { lockedIntervals, dateLimits } );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
@@ -337,6 +337,7 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
+		onStep: stepDateRange,
 	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -377,6 +378,26 @@ function Dashboard(): JSX.Element {
 			rememberOnComparisonChange( range, presetId );
 		},
 		[ changeComparison, rememberOnComparisonChange ]
+	);
+	// A step applies at once: tracked like a range the reader picked, and
+	// remembered only when it lands back on a preset.
+	const onDateStep = useCallback< typeof stepDateRange >(
+		direction => {
+			const stepped = stepDateRange( direction );
+
+			if ( stepped ) {
+				trackedOnChange( stepped.range, stepped.presetId, {
+					exactRange: true,
+					interval: stepped.interval,
+				} );
+				trackedOnApply();
+				rememberOnChange( stepped.range, stepped.presetId );
+				rememberOnApply();
+			}
+
+			return stepped;
+		},
+		[ stepDateRange, trackedOnChange, trackedOnApply, rememberOnChange, rememberOnApply ]
 	);
 
 	/*
@@ -459,6 +480,7 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
+					onStep={ onDateStep }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

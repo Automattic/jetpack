@@ -50,9 +50,12 @@ function scopeWithLocks( { children }: { children: ReactNode } ) {
 	);
 }
 
-function renderDateFilters( search: Record< string, unknown > = {} ) {
+function renderDateFilters(
+	search: Record< string, unknown > = {},
+	wrapper?: typeof scopeWithLocks
+) {
 	mockSearch = search;
-	return renderHook( () => useReportDateFilters( '/' ) );
+	return renderHook( () => useReportDateFilters( '/' ), { wrapper } );
 }
 
 describe( 'useReportDateFilters', () => {
@@ -411,6 +414,179 @@ describe( 'useReportDateFilters', () => {
 		} );
 	} );
 
+	/*
+	 * The step commits the exact stepped window: rounding its `to` up to the
+	 * end of the day would stretch a rolling window on every step.
+	 */
+	it( 'steps the applied window by its own length and commits it as custom', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-09T14:30:00.000+00:00',
+			to: '2026-07-10T14:30:00.000+00:00',
+			preset: 'last-24-hours',
+			interval: 'hour',
+		} );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'previous' );
+		} );
+		rerender();
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-07-08T14:30:00.000+00:00',
+			to: '2026-07-09T14:30:00.000+00:00',
+			preset: 'custom',
+			interval: 'hour',
+		} );
+		expect( result.current.appliedPresetId ).toBe( 'custom' );
+		// What was committed, for the caller to track as applied.
+		expect( stepped ).toEqual( {
+			range: result.current.appliedRange,
+			presetId: 'custom',
+			interval: 'hour',
+		} );
+	} );
+
+	it( 'reads as the preset again when a step lands back on its window', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-08-14T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			preset: 'custom',
+		} );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'next' );
+		} );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-7-days' } );
+		expect( stepped ).toMatchObject( { presetId: 'last-7-days' } );
+	} );
+
+	it( 'ignores a step without a measurable window', () => {
+		const { result } = renderDateFilters();
+
+		expect( result.current.canStepBackward ).toBe( false );
+		expect( result.current.canStepForward ).toBe( false );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'previous' );
+		} );
+
+		expect( stepped ).toBeUndefined();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	// Turning the page keeps the reader's bucket; only a new pick resets it.
+	it( 'keeps the interval across a step that lands back on a preset, and reports it', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-22T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'next' );
+		} );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
+		expect( stepped ).toMatchObject( { presetId: 'last-30-days', interval: 'week' } );
+	} );
+
+	// The route redirects a window before the plan's earliest date to the
+	// fallback preset with a notice, so the step refuses it first. The dashboard
+	// renders above its scope and hands the limits in; report pages read them.
+	it.each( [
+		[
+			'passed in',
+			{
+				dateLimits: {
+					lockedPresetIds: [],
+					lockedIntervals: [],
+					earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+				},
+			},
+			undefined,
+		],
+		[
+			'declared by the report scope',
+			undefined,
+			( { children }: { children: ReactNode } ) => (
+				<ReportScopeProvider
+					dateLimits={ {
+						lockedPresetIds: [],
+						lockedIntervals: [],
+						earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+					} }
+				>
+					{ children }
+				</ReportScopeProvider>
+			),
+		],
+	] )( 'refuses a step before the earliest date, with limits %s', ( _name, options, wrapper ) => {
+		mockSearch = {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'custom',
+		};
+		const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
+
+		expect( result.current.canStepBackward ).toBe( false );
+		expect( result.current.canStepForward ).toBe( true );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'previous' );
+		} );
+
+		expect( stepped ).toBeUndefined();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps a stepped window custom when the plan locks the preset it lands on', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const scope = ( { children }: { children: ReactNode } ) => (
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [ 'last-year' ], lockedIntervals: [] } }>
+				{ children }
+			</ReportScopeProvider>
+		);
+		const { result, rerender } = renderDateFilters(
+			{
+				from: '2024-01-01T00:00:00.000+00:00',
+				to: '2024-12-31T23:59:59.999+00:00',
+				preset: 'custom',
+				interval: 'month',
+			},
+			scope
+		);
+
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-01-01T00:00:00.000+00:00',
+			to: '2025-12-31T23:59:59.999+00:00',
+			preset: 'custom',
+		} );
+	} );
+
 	it( 'replaces the current entry when the page reconciles the range', () => {
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
@@ -546,6 +722,78 @@ describe( 'useReportDateFilters', () => {
 		rerender();
 
 		expect( result.current.control ).toEqual( expect.any( Number ) );
+	} );
+
+	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
+		// `last-12-months` as read on 20 August 2026. Stepped by its day count
+		// the window would start on 12 September and its comparison on the 24th.
+		const { result, rerender } = renderDateFilters( {
+			from: '2025-09-01T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-12-months',
+			interval: 'month',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2024-09-01T00:00:00.000+00:00',
+			to: '2025-08-31T23:59:59.999+00:00',
+			preset: 'custom',
+			interval: 'month',
+			compare_from: '2023-09-01T00:00:00.000+00:00',
+			compare_to: '2024-08-31T23:59:59.999+00:00',
+		} );
+	} );
+
+	it( 'steps the month to date back to the whole month before, comparison included', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-29T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-10-01T00:00:00.000+00:00',
+			to: '2026-10-29T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			interval: 'day',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-09-01T00:00:00.000+00:00',
+			to: '2026-09-30T23:59:59.999+00:00',
+			preset: 'last-month',
+			compare_from: '2026-08-01T00:00:00.000+00:00',
+			compare_to: '2026-08-31T23:59:59.999+00:00',
+		} );
+	} );
+
+	it( 'lands back on the to-date window when a step forward closes the running month', () => {
+		// The window a step back out of `last-12-months` leaves. Stepping
+		// forward again closes August, eleven days past the day it is read on:
+		// days the report has no data for, and the forward arrow would then
+		// disable on a window nobody can leave.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+
+		const { result, rerender } = renderDateFilters( {
+			from: '2024-09-01T00:00:00.000+00:00',
+			to: '2025-08-31T23:59:59.999+00:00',
+			preset: 'custom',
+			interval: 'month',
+		} );
+
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-09-01T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-12-months',
+		} );
 	} );
 
 	it( 'binds to the route it is given', () => {

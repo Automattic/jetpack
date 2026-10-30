@@ -66,6 +66,7 @@ describe( 'useDetailDateControls with the site ahead of UTC', () => {
 			expect( result.current.dateControls ).toMatchObject( {
 				presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 				withIntervalControl: false,
+				onStep: undefined,
 			} );
 			// Unset, not false: the panel's own default is what offers Custom range.
 			expect( result.current.dateControls ).not.toHaveProperty( 'withCustomRange' );

@@ -5,10 +5,12 @@ import {
 	hasComparisonEnabled,
 	intervalMenuOptions,
 	resolveIntervalForRange,
+	useReportScope,
 	useScopeLockedIntervals,
+	type DateLimits,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import { planDateStep, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -22,6 +24,7 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
+	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -66,6 +69,21 @@ export type ReportDateFilters = {
 	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
+
+	/** Whether the applied window has an earlier one the plan lets the site read. */
+	canStepBackward: boolean;
+
+	/** Whether the applied window has a later one that has already happened. */
+	canStepForward: boolean;
+
+	/**
+	 * Step the applied window backward or forward by its own length and commit
+	 * it. Returns what was committed, so a caller can track it as applied: the
+	 * preset whose window the step landed on, or `custom`, and the interval kept.
+	 */
+	onStep: (
+		direction: StepDirection
+	) => { range: DateRange; presetId: PrimaryPresetId; interval: IntervalType } | undefined;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -112,20 +130,26 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * @param from                          - The route path the search params are bound to (e.g. `/`).
  * @param filterOptions                 - Hook options.
  * @param filterOptions.lockedIntervals - The buckets the plan locks; defaults to the report scope's.
+ * @param filterOptions.dateLimits      - The dates and presets the plan locks, which bound a step; defaults to the report scope's.
  * @return Props for `DateFiltersPanel`.
  */
 export function useReportDateFilters< TFrom extends string >(
 	from: TFrom,
-	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
+	filterOptions: {
+		lockedIntervals?: readonly LockableInterval[];
+		dateLimits?: DateLimits;
+	} = {}
 ): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
 	>( { from } );
 
-	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
+	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass limits in.
 	const scopedLocks = useScopeLockedIntervals();
 	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
+	const scopedDateLimits = useReportScope().dateLimits;
+	const { earliestDate, lockedPresetIds } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
 	const timeZone = reportingTimeZone();
 
@@ -259,6 +283,60 @@ export function useReportDateFilters< TFrom extends string >(
 		[ interval, stage, commit, hasPrimaryDraft ]
 	);
 
+	/*
+	 * One decision for the arrows and the step: the plan function says whether
+	 * the window moves, where it lands and what the landing is called.
+	 */
+	const stepContext = useMemo(
+		() => ( {
+			presetId: appliedPresetId,
+			timeZone,
+			now: new Date(),
+			earliestDate,
+			lockedPresetIds,
+		} ),
+		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds ]
+	);
+	const canStepBackward = useMemo(
+		() => planDateStep( appliedRange, 'previous', stepContext ) !== undefined,
+		[ appliedRange, stepContext ]
+	);
+	const canStepForward = useMemo(
+		() => planDateStep( appliedRange, 'next', stepContext ) !== undefined,
+		[ appliedRange, stepContext ]
+	);
+
+	/*
+	 * Commits and pushes a history entry so Back undoes the step. Steps the
+	 * applied range, not the staged one: the arrows sit outside the picker, so
+	 * stepping must not apply an open draft. The interval carries unless the new
+	 * range disallows it: a step turns the page, it does not pick a preset anew.
+	 */
+	const onStep = useCallback(
+		( direction: StepDirection ) => {
+			const step = planDateStep( appliedRange, direction, { ...stepContext, now: new Date() } );
+			const patch =
+				step &&
+				buildRangePatch( {
+					nextRange: step.range,
+					nextPresetId: step.presetId,
+					exactRange: true,
+					effective,
+					lockedIntervals,
+				} );
+
+			if ( ! step || ! patch ) {
+				return undefined;
+			}
+
+			stage( patch );
+			commit();
+
+			return { ...step, interval: patch.interval ?? interval };
+		},
+		[ appliedRange, stepContext, commit, effective, interval, lockedIntervals, stage ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -292,6 +370,9 @@ export function useReportDateFilters< TFrom extends string >(
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
+		canStepBackward,
+		canStepForward,
+		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

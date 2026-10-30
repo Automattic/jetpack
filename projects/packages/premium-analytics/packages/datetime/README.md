@@ -227,7 +227,7 @@ either its `id` or one of its `aliases`.
 **Returns:** `ComparisonOption | undefined` - `undefined` when no option in
 `options` has that id or alias
 
-### Range Measurement
+### Range Measurement and Stepping
 
 #### `getDateRangeSpan( range? )`
 
@@ -244,6 +244,56 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
+
+#### `stepDateRange( range, direction, options? )`
+
+Shifts a range backward or forward (`'previous' | 'next'`) by its own length,
+measured the way the comparison measures its previous period: whole calendar
+months step by months, any other day-aligned window by its days, so a window
+starting mid-month moves by its day count. Steps move in calendar units, so a
+step across a DST boundary keeps the wall clock; where a calendar step cannot
+be undone, it falls back to whole days. Pass the preset the range came from in
+`options.presetId`: "This month", "This year" and "12 months" then step as
+their completed month or year, a "Last N days" preset always steps by days, and
+"All time" does not step. Returns `undefined` when the range has no measurable
+span.
+
+```typescript
+stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
+stepDateRange( { from, to }, 'previous', { presetId: 'last-month' } ); // the month before
+```
+
+#### `canStepForward( range, now, options? )`
+
+Whether the next window has already happened in full. Pass the site's `now`,
+not the browser's. A window of whole calendar years looks ahead to the end of
+this year, so "Last year" can step into the year to date.
+
+#### `canStepBackward( range, options? )`
+
+Whether the previous window starts on or after `options.earliestDate`, the
+first day the plan lets the site read. Without a limit, any measurable window
+can step back.
+
+#### `clampRangeEndToToday( range, now )`
+
+Pulls a window's end back to the end of today when a forward step runs past
+it, so stepping out of "12 months" lands on the to-date window again.
+
+#### `planDateStep( range, direction, context )`
+
+Decides a step in full, for the arrows that offer it and the filters that
+apply it to share one answer: whether the window can move that way (the
+plan's `earliestDate` behind, today ahead), where it lands (clamped to today),
+and what the landing is called — the preset whose window it is today, or
+`custom`. `context` carries the applied `presetId`, the site `timeZone`,
+`now`, and the plan's `earliestDate` and `lockedPresetIds`; a landing is never
+named as a locked preset. Returns `undefined` when the window cannot move.
+
+```typescript
+planDateStep( range, 'previous', { presetId: 'last-7-days', timeZone, now: new Date() } );
+// { range: the 7 days before, presetId: 'custom' }
+```
 
 ## Types
 

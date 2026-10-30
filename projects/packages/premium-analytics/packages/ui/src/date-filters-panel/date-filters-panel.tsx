@@ -9,6 +9,7 @@ import {
 	type IntervalType,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
@@ -20,6 +21,7 @@ import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
+import { DatePeriodNavigation } from '../date-period-navigation';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
@@ -101,6 +103,21 @@ export type DateFiltersPanelProps = {
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
+	 * Steps the applied window backward or forward by its own length. Left out,
+	 * the navigation arrows are not rendered at all: a surface whose range is
+	 * not a movable window has nowhere to step.
+	 */
+	onStep?: ( direction: StepDirection ) => void;
+
+	/**
+	 * Whether each arrow has somewhere to go, as the date filters decided it:
+	 * the plan's earliest date behind, today ahead. An arrow with nowhere to go
+	 * is disabled, not hidden.
+	 */
+	canStepBackward?: boolean;
+	canStepForward?: boolean;
+
+	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -156,6 +173,9 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
+	onStep,
+	canStepBackward = true,
+	canStepForward = true,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -253,6 +273,19 @@ export function DateFiltersPanel( {
 		]
 	);
 
+	const navigationControl = useMemo(
+		() =>
+			onStep ? (
+				<DatePeriodNavigation
+					canStepBackward={ canStepBackward }
+					canStepForward={ canStepForward }
+					disabled={ disabled }
+					onStep={ onStep }
+				/>
+			) : null,
+		[ canStepBackward, canStepForward, disabled, onStep ]
+	);
+
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
@@ -281,6 +314,8 @@ export function DateFiltersPanel( {
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				{ navigationControl }
+
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }

@@ -15,6 +15,7 @@ type DetailDateControls = {
 	presetIds: typeof MENU_SURFACE_PRESETS_WITH_ALL_TIME;
 	allTimeStart: Date | undefined;
 	withIntervalControl: false;
+	onStep: undefined;
 };
 
 /**
@@ -33,7 +34,8 @@ type DetailDateFilters = {
 /**
  * Provide detail date controls and hold widgets until the all-time start resolves.
  *
- * Spread dateControls after the date-filter props to disable the interval control.
+ * Spread dateControls after the date-filter props to disable the interval
+ * control and the step arrows: a detail page's range is not a movable window.
  *
  * @param publishedDate               - The resource's publish date, as the summary carries it:
  *                                    a site-local wall time, or an offset-bearing instant.
@@ -80,6 +82,7 @@ export function useDetailDateControls(
 			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			allTimeStart,
 			withIntervalControl: false,
+			onStep: undefined,
 		} ),
 		[ allTimeStart ]
 	);
