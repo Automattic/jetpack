@@ -133,10 +133,10 @@ export function TemplatePlacements( {
 		template => urls[ template ] && status?.[ feature ].managed_templates.includes( template )
 	);
 	// Preview a template the cards still change, where there is one.
-	const previewUrl =
-		managed.includes( 'single' ) && ! managed.includes( 'page' ) && urls.page
-			? urls.page
-			: urls.single;
+	const previewable = TEMPLATES.filter(
+		template => urls[ template ] && ! managed.includes( template )
+	);
+	const previewUrl = previewable.length ? urls[ previewable[ 0 ] ] : '';
 
 	const notice = managed.length > 0 && (
 		<SettingGroup>

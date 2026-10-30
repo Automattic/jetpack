@@ -275,8 +275,9 @@ Site Editor to the single template (`site_editor_url`) and to the page template
 (`page_template_editor_url`), each empty when the theme has no such template.
 Each feature's `managed_templates` lists which of the two were saved in the
 Site Editor in a state the placements no longer change
-(`Hooked_Blocks::is_managed_by_template()`). Having been saved is not enough: a
-template saved before the block was hooked still gets it.
+(`Hooked_Blocks::is_managed_by_template()`), and stays empty unless a section is
+in `BLOCK_CALL_TO_ACTION`. Having been saved is not enough: a template saved
+before the block was hooked still gets it.
 
 Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
 stores. They are offered wherever `Environment::likes_supported()` holds, like

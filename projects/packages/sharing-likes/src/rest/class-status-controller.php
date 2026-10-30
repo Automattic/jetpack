@@ -87,10 +87,15 @@ final class Status_Controller extends Controller {
 		$sharing_state        = Sharing_Section::state();
 		$likes_state          = Likes_Section::state();
 		$comment_likes_follow = Environment::comment_likes_follow_likes_settings();
-		$saved_templates      = array(
-			'single' => Environment::saved_template_content( 'single' ),
-			'page'   => Environment::saved_template_content( 'page' ),
-		);
+		$saved_templates      = array();
+
+		// Only the block route offers the template placements.
+		if ( in_array( Section_State::BLOCK_CALL_TO_ACTION, array( $sharing_state, $likes_state ), true ) ) {
+			$saved_templates = array(
+				'single' => Environment::saved_template_content( 'single' ),
+				'page'   => Environment::saved_template_content( 'page' ),
+			);
+		}
 
 		return rest_ensure_response(
 			array(

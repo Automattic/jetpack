@@ -207,14 +207,14 @@ describe( 'TemplatePlacements', () => {
 			[ 'single', 'page' ],
 			PAGE_TEMPLATE_URL,
 			'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Sharing Buttons block there.',
-			baseStatus.site_editor_url,
+			'',
 		],
 		[
 			'likes',
 			[ 'single' ],
 			'',
 			'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
-			baseStatus.site_editor_url,
+			'',
 		],
 	] as [ Feature, PlacementTemplate[], string, string, string ][] )(
 		'%s managed by %j, page template "%s": a notice above the cards',
@@ -227,10 +227,9 @@ describe( 'TemplatePlacements', () => {
 			);
 			// Other templates, such as `singular` or a custom one, still follow the choice.
 			expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
-			expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
-				'href',
-				previewUrl
-			);
+			expect(
+				screen.queryByRole( 'link', { name: 'Preview and edit' } )?.getAttribute( 'href' ) ?? ''
+			).toBe( previewUrl );
 			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
 		}
 	);

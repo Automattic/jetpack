@@ -264,6 +264,17 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( $likes, $data['likes']['managed_templates'] );
 	}
 
+	public function test_status_skips_the_templates_where_no_section_offers_the_placements(): void {
+		$this->given_block_routes();
+		$this->given_modules( array( 'sharedaddy', 'likes' ) );
+		$this->given_saved_template( 'single', '<!-- wp:post-content /--><!-- wp:jetpack/sharing-buttons /--><!-- wp:jetpack/like /-->' );
+
+		$data = $this->request( 'GET', 'status' )->get_data();
+
+		$this->assertSame( array(), $data['sharing']['managed_templates'] );
+		$this->assertSame( array(), $data['likes']['managed_templates'] );
+	}
+
 	public function test_switching_to_the_block_turns_off_only_that_feature(): void {
 		$this->given_block_routes();
 		$this->given_modules( array( 'sharedaddy', 'likes' ) );
