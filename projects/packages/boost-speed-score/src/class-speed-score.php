@@ -220,7 +220,6 @@ class Speed_Score {
 		$url_no_boost           = $this->get_boost_modules_disabled_url( $url );
 		$score_request_no_boost = $this->get_score_request_by_url( $url_no_boost );
 		if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
-			$polled[] = $score_request_no_boost;
 			$response = $score_request_no_boost->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
@@ -323,20 +322,14 @@ class Speed_Score {
 	}
 
 	/**
-	 * How far along the pending run is, measured from the earliest pending request.
+	 * How far along the pending run is, measured from the request with Boost: the only one the dashboard waits for.
 	 *
-	 * @param Speed_Score_Request|null $score_request          Speed score request.
-	 * @param Speed_Score_Request|null $score_request_no_boost Speed score request without boost enabled.
+	 * @param Speed_Score_Request|null $score_request Speed score request.
 	 *
 	 * @return array{elapsed: int, expected: int} Seconds since dispatch, and the seconds a run usually takes on this site.
 	 */
-	private function get_progress( $score_request, $score_request_no_boost ) {
-		$started = microtime( true );
-		foreach ( array( $score_request, $score_request_no_boost ) as $request ) {
-			if ( $request && $request->is_pending() ) {
-				$started = min( $started, $request->get_created() );
-			}
-		}
+	private function get_progress( $score_request ) {
+		$started = $score_request && $score_request->is_pending() ? $score_request->get_created() : microtime( true );
 
 		return array(
 			'elapsed'  => (int) round( microtime( true ) - $started ),
@@ -360,7 +353,9 @@ class Speed_Score {
 
 		$response = array();
 
-		if ( ( ! $score_request || $score_request->is_success() ) && ( ! $score_request_no_boost || $score_request_no_boost->is_success() ) ) {
+		// The site's own score is ready before the comparison run finishes; noBoost then reads the previous comparison.
+		$no_boost_failed = $score_request_no_boost && $score_request_no_boost->is_error();
+		if ( ( ! $score_request || $score_request->is_success() ) && ! $no_boost_failed ) {
 			$response['status'] = 'success';
 
 			$response['scores'] = array(
@@ -371,6 +366,10 @@ class Speed_Score {
 			// Only include noBoost scores if at least one module is enabled.
 			if ( $score_request && ! empty( $score_request->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
+				// Keeps the dashboard polling: only a poll collects the comparison result.
+				if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
+					$response['scores']['noBoostPending'] = true;
+				}
 			}
 
 			$response['scores']['isStale'] = $history->is_stale();
@@ -384,9 +383,9 @@ class Speed_Score {
 				$response = $score_request_no_boost->jsonSerialize();
 			}
 		} else {
-			// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
+			// The request with Boost is still pending.
 			$response['status']   = 'pending';
-			$response['progress'] = $this->get_progress( $score_request, $score_request_no_boost );
+			$response['progress'] = $this->get_progress( $score_request );
 		}
 
 		return rest_ensure_response( $response );

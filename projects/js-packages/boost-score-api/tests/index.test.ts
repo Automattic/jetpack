@@ -58,6 +58,19 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'passes on that the comparison without Boost is still measuring', async () => {
+		post.mockResolvedValue( { ...mockData, scores: { ...mockData.scores, noBoostPending: true } } );
+
+		const scores = await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce'
+		);
+
+		expect( scores ).toEqual( { ...mockData.scores, noBoostPending: true } );
+	} );
+
 	it( 'asks for a fresh measurement when forced', async () => {
 		post.mockResolvedValue( mockData );
 
