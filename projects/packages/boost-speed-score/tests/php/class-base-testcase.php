@@ -22,6 +22,12 @@ abstract class Base_TestCase extends TestCase {
 		Monkey\Functions\stubEscapeFunctions();
 		Monkey\Functions\when( 'home_url' )->justReturn( 'http://example.com' );
 		Monkey\Functions\when( 'get_site_url' )->justReturn( 'http://example.com' );
+		Monkey\Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+		Monkey\Functions\when( 'set_url_scheme' )->alias(
+			function ( $url, $scheme ) {
+				return preg_replace( '#^\w+://#', $scheme . '://', $url );
+			}
+		);
 
 		add_filter(
 			'jetpack_boost_module_enabled',

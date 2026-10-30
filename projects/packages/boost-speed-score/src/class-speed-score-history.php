@@ -82,7 +82,8 @@ class Speed_Score_History {
 		$legacy_urls   = array( $path . '/' . $rest );
 
 		// My Jetpack saved the home page's scores under the site URL, which differs when WordPress lives in a subdirectory.
-		$site_url = rtrim( get_site_url(), '/' );
+		// Cron and CLI can see another scheme for the two, which is not a subdirectory.
+		$site_url = rtrim( set_url_scheme( get_site_url(), wp_parse_url( home_url(), PHP_URL_SCHEME ) ), '/' );
 		if ( rtrim( home_url(), '/' ) === $path && $site_url !== $path ) {
 			$legacy_urls[] = $site_url . $rest;
 			$legacy_urls[] = $site_url . '/' . $rest;

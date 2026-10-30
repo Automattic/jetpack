@@ -376,6 +376,20 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
+	 * The old "without Boost" record stays readable, so dropping the query part can't lose it.
+	 */
+	public function test_history_reads_the_old_comparison_record() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 60,
+		);
+
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/?jb-disable-modules=all' ) ] = array( $this->entry( $scores, time() - 1000 ) );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com?jb-disable-modules=all' ) )->latest_scores() );
+	}
+
+	/**
 	 * A run started with My Jetpack's spelling updates what the Boost dashboard reads.
 	 */
 	public function test_run_from_another_client_updates_the_boost_dashboard_record() {
