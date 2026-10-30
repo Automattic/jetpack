@@ -9,9 +9,8 @@ import {
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
-import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 import { type ComponentProps } from 'react';
 /**
  * Internal dependencies
@@ -62,12 +61,6 @@ function resolveSeriesStyles(
 		};
 	} );
 }
-
-/**
- * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no axes, grid, or legend).
- */
-const COMPACT_CHART_HEIGHT = 140;
 
 function applyStylesToSeries(
 	series: ComparativeLineChartSeries[],
@@ -120,8 +113,8 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Degrade to a sparkline (no axes, grid, or legend) when the chart area is too
-	 * short for readable axis labels.
+	 * Draw a sparkline (no axes, grid, or legend) below `theme.sparkline.compactBelow`.
+	 * Forwarded to `LineChart`.
 	 */
 	compactWhenShort?: boolean;
 
@@ -188,17 +181,7 @@ export function ComparativeLineChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const resolvedChartId = chartId ?? fallbackChartId;
-	const { getHiddenSeries, theme } = useGlobalChartsContext();
-	// The measured Stack fills its container (flex), so its height is independent
-	// of whether the axis/legend are shown — no measure/hide feedback loop.
-	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
-	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
-		const rect = entries[ 0 ]?.contentRect;
-		if ( rect ) {
-			setChartAreaHeight( rect.height );
-		}
-	} );
-	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
+	const { getHiddenSeries } = useGlobalChartsContext();
 	// Also used for tooltip styling, not only to decorate the series data.
 	const resolvedStyles = useMemo< SeriesStyle[] >(
 		() => resolveSeriesStyles( stylesProp, series ),
@@ -280,7 +263,6 @@ export function ComparativeLineChart( {
 	);
 
 	const chartOptions = useMemo( () => {
-		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {
 				x: {
@@ -288,13 +270,11 @@ export function ComparativeLineChart( {
 					// `xTickFormat` unconditionally puts full dates on every tick.
 					tickFormat: xTickFormatType ? xTickFormat : undefined,
 					tickResolution,
-					...hiddenWhenCompact,
 				},
 				y: {
 					tickFormat: yTickFormat,
 					tickDecimals: yTickDecimals,
 					...( yTicks ? { tickValues: yTicks } : {} ),
-					...hiddenWhenCompact,
 				},
 			},
 		};
@@ -313,11 +293,10 @@ export function ComparativeLineChart( {
 		yTickDecimals,
 		yTicks,
 		pinnedYAxis,
-		isCompact,
 	] );
 
 	return (
-		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				chartId={ resolvedChartId }
 				ariaLabel={ formatChartName( chartTitle ) }
@@ -327,8 +306,7 @@ export function ComparativeLineChart( {
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
-				gridVisibility={ isCompact ? 'none' : undefined }
-				margin={ isCompact ? theme.sparkline.margin : undefined }
+				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				withLegendGlyph={ false }
 				showLegend={ false }
@@ -340,25 +318,23 @@ export function ComparativeLineChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ ! isCompact && (
-					<LineChart.Legend
-						items={ legendItems }
-						interactive={ legendInteractive }
-						shape="line"
-						className={ styles.legend }
-						itemClassName={ styles.legendItem }
-						itemStyles={ {
-							margin: 0,
-						} }
-						labelClassName={ styles.legendLabel }
-						labelStyles={ {
-							maxWidth: '100%',
-							textOverflow: 'ellipsis',
-							margin: 0,
-						} }
-						shapeStyles={ { margin: 0 } }
-					/>
-				) }
+				<LineChart.Legend
+					items={ legendItems }
+					interactive={ legendInteractive }
+					shape="line"
+					className={ styles.legend }
+					itemClassName={ styles.legendItem }
+					itemStyles={ {
+						margin: 0,
+					} }
+					labelClassName={ styles.legendLabel }
+					labelStyles={ {
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+						margin: 0,
+					} }
+					shapeStyles={ { margin: 0 } }
+				/>
 			</LineChart>
 		</Stack>
 	);
