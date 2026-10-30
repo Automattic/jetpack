@@ -713,6 +713,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 					}
 				)
 			);
+			$this->assertFalse( has_block( Block_Names::SHARING_BUTTONS, $saved ), 'The removal left the block in place.' );
 		} elseif ( 'add' === $edit ) {
 			$saved .= '<!-- wp:jetpack/sharing-buttons /-->';
 		}

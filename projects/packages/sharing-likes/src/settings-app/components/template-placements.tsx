@@ -187,7 +187,7 @@ export function TemplatePlacements( {
 								/>
 							) ) }
 						</RadioCardGrid>
-						{ urls.page && ! managed.length && (
+						{ urls.page && ! managed.includes( 'page' ) && (
 							<Text render={ <p /> }>
 								{ createInterpolateElement(
 									__(

@@ -71,13 +71,23 @@ function renderManaged( feature: Feature, managed: PlacementTemplate[], pageUrl:
 }
 
 /**
- * Where the "Edit the … template" links go, post template first.
+ * Where the notice's "Edit the … template" links go, post template first.
  *
+ * @param notice - The notice text.
  * @return URLs.
  */
-function templateLinks(): ( string | null )[] {
+function noticeLinks( notice: string ): ( string | null )[] {
+	let container: HTMLElement | null = screen.getByText( notice );
+	while ( container && ! within( container ).queryAllByRole( 'link' ).length ) {
+		// eslint-disable-next-line testing-library/no-node-access -- The notice has no role to query it by.
+		container = container.parentElement;
+	}
 	return [ 'post', 'page' ]
-		.map( name => screen.queryByRole( 'link', { name: `Edit the ${ name } template` } ) )
+		.map( name =>
+			within( container as HTMLElement ).queryByRole( 'link', {
+				name: `Edit the ${ name } template`,
+			} )
+		)
 		.filter( link => link !== null )
 		.map( link => link.getAttribute( 'href' ) );
 }
@@ -222,7 +232,7 @@ describe( 'TemplatePlacements', () => {
 			renderManaged( feature, managed, pageUrl );
 
 			expect( screen.getByText( notice ) ).toBeInTheDocument();
-			expect( templateLinks() ).toEqual(
+			expect( noticeLinks( notice ) ).toEqual(
 				managed.map( template => ( template === 'single' ? baseStatus.site_editor_url : pageUrl ) )
 			);
 			// Other templates, such as `singular` or a custom one, still follow the choice.
@@ -230,7 +240,9 @@ describe( 'TemplatePlacements', () => {
 			expect( screen.queryByText( 'Preview and edit' )?.getAttribute( 'href' ) ?? '' ).toBe(
 				previewUrl
 			);
-			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Want pages to look different/ ) !== null ).toBe(
+				pageUrl !== '' && ! managed.includes( 'page' )
+			);
 		}
 	);
 
