@@ -128,6 +128,40 @@ class Jetpack_WP_Admin_SPA {
 	}
 
 	/**
+	 * Send a product's old admin URL to its SPA route, keeping the route path and query it carried in `p`.
+	 *
+	 * Runs after the products' own `admin_init` redirects, such as Protect's threat-email one.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_legacy_url() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Only redirects; nothing is changed.
+		if ( 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || wp_doing_ajax() || empty( $_GET['page'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$routes = self::get_menu_routes();
+		$page   = sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		if ( ! isset( $routes[ $page ] ) ) {
+			return;
+		}
+
+		$legacy_path  = isset( $_GET['p'] ) ? sanitize_text_field( wp_unslash( $_GET['p'] ) ) : '/';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$legacy_parts = explode( '?', $legacy_path, 2 );
+		$route        = $routes[ $page ];
+		if ( '/' !== $legacy_parts[0] ) {
+			$route .= '/' === substr( $legacy_parts[0], 0, 1 ) ? $legacy_parts[0] : '/' . $legacy_parts[0];
+		}
+		if ( isset( $legacy_parts[1] ) ) {
+			$route .= '?' . $legacy_parts[1];
+		}
+
+		wp_safe_redirect( admin_url( self::get_route_url( $route ) ) );
+		exit( 0 );
+	}
+
+	/**
 	 * Retarget the Jetpack sidebar entries at SPA routes.
 	 *
 	 * Runs on `admin_head`, after Admin_Menu drops hidden entries by slug and after core's page access check.
@@ -213,6 +247,7 @@ class Jetpack_WP_Admin_SPA {
 
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'maybe_load_wp_build' ), 1 );
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'add_page' ) );
+add_action( 'admin_init', array( 'Jetpack_WP_Admin_SPA', 'maybe_redirect_legacy_url' ), 20 );
 add_action( 'admin_head', array( 'Jetpack_WP_Admin_SPA', 'retarget_menu' ), 20 );
 add_filter( 'parent_file', array( 'Jetpack_WP_Admin_SPA', 'filter_parent_file' ) );
 add_filter( 'submenu_file', array( 'Jetpack_WP_Admin_SPA', 'filter_submenu_file' ) );
