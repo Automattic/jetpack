@@ -4,13 +4,16 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for the Debug_Data class.
  *
  * @package automattic/jetpack-sync
+ * @covers \Automattic\Jetpack\Sync\Debug_Data
  */
+#[CoversClass( Debug_Data::class )]
 class Debug_Data_Test extends TestCase {
 
 	/**
@@ -19,20 +22,18 @@ class Debug_Data_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		remove_all_filters( 'jetpack_connection_debug_data' );
 		Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
-	 * Tests that configuring Sync adds the queue status to the Connection package's Site Health section.
+	 * Tests that the queue status is reported when sync is allowed.
 	 */
-	public function test_configure_adds_queue_fields() {
+	public function test_add_fields_reports_queue_status() {
 		Jetpack_Options::update_option( 'id', 12345 );
 		Jetpack_Options::update_option( 'blog_token', 'blogkey.blogsecret' );
-		Main::configure();
 
-		$fields = apply_filters( 'jetpack_connection_debug_data', array() );
+		$fields = Debug_Data::add_fields( array() );
 
 		$this->assertSame( 'Yes', $fields['sync_allowed']['value'] );
 		$this->assertSame( 0, $fields['sync_size']['value'] );
