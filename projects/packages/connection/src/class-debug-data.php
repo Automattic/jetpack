@@ -76,8 +76,6 @@ class Debug_Data {
 	/**
 	 * Compile the section's fields.
 	 *
-	 * Labels are deliberately not translated: the report is read by Jetpack support.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @return array Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
@@ -90,7 +88,7 @@ class Debug_Data {
 				'private' => false,
 			),
 			'ssl_cert'                 => array(
-				'label'   => 'Jetpack SSL Verfication Bypass',
+				'label'   => 'Jetpack SSL Verification Bypass',
 				'value'   => Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ? 'Yes' : 'No',
 				'private' => false,
 			),
