@@ -7,9 +7,11 @@ import type { Option } from '@jetpack-premium-analytics/externals';
 type UseElementsParams = {
 	elements?: Option[];
 	getElements?: () => Promise< Option[] >;
+	/** Bump to read `getElements` again; the current list stays until the new one is in. */
+	revision?: number;
 };
 
-export default function useElements( { elements, getElements }: UseElementsParams ) {
+export default function useElements( { elements, getElements, revision = 0 }: UseElementsParams ) {
 	const staticElements = useMemo(
 		() => ( Array.isArray( elements ) && elements.length > 0 ? elements : [] ),
 		[ elements ]
@@ -25,21 +27,24 @@ export default function useElements( { elements, getElements }: UseElementsParam
 		}
 
 		let cancelled = false;
-		setIsLoading( true );
+		const isRefresh = revision > 0;
+		if ( ! isRefresh ) {
+			setIsLoading( true );
+		}
 		getElements()
 			.then( fetchedElements => {
 				if ( cancelled ) {
 					return;
 				}
 
-				setRecords(
-					Array.isArray( fetchedElements ) && fetchedElements.length > 0
-						? fetchedElements
-						: staticElements
-				);
+				if ( Array.isArray( fetchedElements ) && fetchedElements.length > 0 ) {
+					setRecords( fetchedElements );
+				} else if ( ! isRefresh ) {
+					setRecords( staticElements );
+				}
 			} )
 			.catch( () => {
-				if ( ! cancelled ) {
+				if ( ! cancelled && ! isRefresh ) {
 					setRecords( staticElements );
 				}
 			} )
@@ -52,7 +57,7 @@ export default function useElements( { elements, getElements }: UseElementsParam
 		return () => {
 			cancelled = true;
 		};
-	}, [ getElements, staticElements ] );
+	}, [ getElements, staticElements, revision ] );
 
 	return {
 		elements: records,
