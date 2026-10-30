@@ -27,7 +27,6 @@ The following test specific tools are used:
 
 - [Playwright](https://playwright.dev) for browser automation
 - [Playwright test](https://playwright.dev) for test management and test runner
-- [Allure](https://docs.qameta.io/allure/) as test reporter
 
 ## Setup E2E tests for your Jetpack plugin
 
@@ -52,7 +51,7 @@ For monorepo to pick up additional dependencies in `e2e` folder, ensure that it 
 
 ### Add your plugin tests into CI pipeline
 
-In `.github/files/e2e-tests/e2e-matrix.js` we define list of E2E projects to run tests for. Add your plugin into `projects` list as follows: 
+In `.github/files/e2e-tests/e2e-matrix.js` we define list of E2E projects to run tests for. Add your plugin into `projects` list as follows:
 
 ```javascript
 {
@@ -158,7 +157,7 @@ Very similar to the one above, but it mocks waf rules data instead of Jetpack pl
 
 #### e2e-wpcom-request-interceptor.php
 
-The purpose of this plugin is to track the number of total requests to the WPCOM REST API and store them in a transient. This transient is reset on every new test and added to the corresponding E2E reports. This is particularly useful in order to identify PRs that might introduce an excessive amount of requests to WPCOM.
+The purpose of this plugin is to track the number of total requests to the WPCOM REST API and store them in a transient. This transient is reset before every test and reported as a `wpcom-requests` annotation on the test result. This is particularly useful in order to identify PRs that might introduce an excessive amount of requests to WPCOM.
 
 ## Writing tests
 
@@ -166,25 +165,25 @@ As with any other testing types, E2E tests roughly follows the AAA pattern ([Arr
 
 - Arrange: Involves preparing a site as needed through a multi-stage process:
 
-    **Global Playwright Projects** (automatic setup via dependency chain):
-    1. `global authentication` - Authenticates both local WordPress user and WordPress.com user, stores authentication state in
-  `storage-state.json`
-    2. `connection setup` - Establishes Jetpack connection between local site and WordPress.com (depends on authentication)
+  **Global Playwright Projects** (automatic setup via dependency chain):
+  1. `global authentication` - Authenticates both local WordPress user and WordPress.com user, stores authentication state in
+     `storage-state.json`
+  2. `connection setup` - Establishes Jetpack connection between local site and WordPress.com (depends on authentication)
 
-    These setup projects run once before all tests and create a shared state that subsequent tests inherit. Each plugin's test configuration
+  These setup projects run once before all tests and create a shared state that subsequent tests inherit. Each plugin's test configuration
   extends the base setup by including these projects as dependencies.
 
-    **Test-specific Arrangement** - Anything more specific (module activation, plan mocking, environment variables) should be done within test's
+  **Test-specific Arrangement** - Anything more specific (module activation, plan mocking, environment variables) should be done within test's
   `before*` hooks using the provided `testUtils` utilities.
 
-    **Base test fixture** - The `fixtures/base-test.ts` extends the [test fixture](https://github.com/WordPress/gutenberg/blob/trunk/packages/e2e-test-utils-playwright/src/test.ts) from `@wordpress/e2e-test-utils-playwright` package, inheriting all its utilities (`admin`, `pageUtils`, `requestUtils`, etc.) while adding Jetpack-specific enhancements:
-    - `page` - Enhanced page object that logs errors and sets WordPress.com cookie consent
-    - `testUtils` - Worker-scoped utilities for WordPress CLI commands and API operations
-    - `editor` - EditorPage instance for block editor interactions
-    - `sidebar` - Sidebar instance for WordPress admin sidebar navigation
-    - Automatic WPCOM API request tracking via `beforeEach`/`afterEach` hooks
-    
-    Usage: Import `test` from this fixture instead of Playwright's default test to access both WordPress and Jetpack-specific utilities in your tests. 
+  **Base test fixture** - The `fixtures/base-test.ts` extends the [test fixture](https://github.com/WordPress/gutenberg/blob/trunk/packages/e2e-test-utils-playwright/src/test.ts) from `@wordpress/e2e-test-utils-playwright` package, inheriting all its utilities (`admin`, `pageUtils`, `requestUtils`, etc.) while adding Jetpack-specific enhancements:
+  - `page` - Enhanced page object that logs errors and sets WordPress.com cookie consent
+  - `testUtils` - Worker-scoped utilities for WordPress CLI commands and API operations
+  - `editor` - EditorPage instance for block editor interactions
+  - `sidebar` - Sidebar instance for WordPress admin sidebar navigation
+  - Automatic WPCOM API request tracking via `beforeEach`/`afterEach` hooks
+
+  Usage: Import `test` from this fixture instead of Playwright's default test to access both WordPress and Jetpack-specific utilities in your tests.
 
 - Act: The part when the test is following the user flow. In most cases it takes the form of navigating between pages, filling in forms, clicking buttons, etc.
 - Assert: The part where we verify that the test did what it was supposed to do. It could be done at the end of the user flow, or along the way when you need to verify specific state. Do note that if one of the interactions with the page in `Act` part will fail, it will fail the whole test. Meaning you don't really need to assert every step in `Act` section.
@@ -195,17 +194,4 @@ Starter Plugin's e2e folder already includes [a basic test](/projects/plugins/st
 
 A few [reporters](https://playwright.dev/docs/test-reporters) are configured by default, check `playwright.config.default.ts` for details.
 
-### Allure reporter
-
-To use allure reporter, you'll need to install a the Allure CLI dependency.
-
-```shell
-npm i -D allure-playwright
-```
-
-Allure results are generated in the configured allure-results folder. You can use these results to generate a full report.
-
-```shell
-# Run this in the path where `allure-results` folder is
-allure serve
-```
+An HTML report is written to `output/html-report`. Open it from your plugin's `tests/e2e` folder with `npx playwright show-report output/html-report`. In CI, it is part of the `test-output-*` artifact.
