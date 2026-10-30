@@ -821,20 +821,29 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Determine whether to disable the comment experience.
+	 * Whether the blog is a P2. This covers both P2 and P2020 themes.
 	 *
 	 * @param int $blog_id The blog ID.
 	 * @return boolean
 	 */
-	private static function should_disable_comment_experience( $blog_id ) {
+	private static function is_p2( $blog_id ) {
 		$path_wp_for_teams = WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 
 		if ( file_exists( $path_wp_for_teams ) ) {
 			require_once $path_wp_for_teams;
 		}
 
-		// This covers both P2 and P2020 themes.
-		$is_p2     = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
+		return str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( $blog_id );
+	}
+
+	/**
+	 * Determine whether to disable the comment experience.
+	 *
+	 * @param int $blog_id The blog ID.
+	 * @return boolean
+	 */
+	private static function should_disable_comment_experience( $blog_id ) {
+		$is_p2     = self::is_p2( $blog_id );
 		$is_forums = str_contains( get_stylesheet(), 'a8c/supportforums' ); // Not in /forums.
 
 		$verbum_option_enabled = get_blog_option( $blog_id, 'enable_verbum_commenting', true );
@@ -904,9 +913,16 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load Verbum Moderate.
+	 * Load the editor for a comment that holds blocks on the edit-comment screen.
 	 */
 	public static function load_verbum_moderate() {
+		// P2 comments come from P2's editor, with blocks Jetpack Comments' editor would drop on save.
+		if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() && ! self::is_p2( get_current_blog_id() ) ) {
+			// The edit screen and its save only, so admin-ajax and the rest of wp-admin keep core's comment filters.
+			add_action( 'load-comment.php', array( \Automattic\Jetpack\Comments\Block_Editor::class, 'init' ) );
+			return;
+		}
+
 		require_once __DIR__ . '/features/verbum-comments/assets/class-verbum-moderate.php';
 		new \Automattic\Jetpack\Verbum_Moderate();
 	}
