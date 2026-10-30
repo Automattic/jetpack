@@ -1728,8 +1728,9 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public static function page_feature_flags() {
 		return array(
-			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
-			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
+			'overview v1'            => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
+			'account connect'        => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
+			'settings consolidation' => array( 'settingsConsolidation', Initializer::SETTINGS_CONSOLIDATION_FLAG, false ),
 		);
 	}
 
