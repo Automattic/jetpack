@@ -84,7 +84,8 @@ class Analytics {
 	 *                         a textdomain can load, unlike init time.
 	 *                       - replaces_pre_connection_stats_page (bool): Stop stats-admin from
 	 *                         registering its own Stats page while the site is not connected, so
-	 *                         this dashboard is the only Stats entry. Defaults to false.
+	 *                         this dashboard is the only Stats entry. Defaults to whether classic
+	 *                         Stats is retired.
 	 *                       A later call still applies its options, so a host that calls this after
 	 *                       another plugin did keeps its configuration.
 	 * @return void
@@ -106,6 +107,17 @@ class Analytics {
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
 		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Whether Stats v2 booted in this request, whichever plugin or platform booted it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_initialized() {
+		return self::$initialized;
 	}
 
 	/**
@@ -186,7 +198,7 @@ class Analytics {
 	}
 
 	/**
-	 * Let a host replace stats-admin's pre-connection Stats page with this dashboard.
+	 * Replace stats-admin's pre-connection Stats page with this dashboard when the host asks, or once classic Stats is retired.
 	 *
 	 * The callback reads the option when stats-admin initializes on `plugins_loaded`, so a host whose
 	 * init() call comes after another plugin's still takes effect.
@@ -197,7 +209,7 @@ class Analytics {
 		add_filter(
 			'jetpack_stats_admin_pre_connection_dashboard',
 			static function ( $register ) {
-				return self::$replaces_pre_connection_stats_page ? false : $register;
+				return self::$replaces_pre_connection_stats_page || Classic_Stats::is_retired() ? false : $register;
 			}
 		);
 	}
@@ -644,9 +656,14 @@ class Analytics {
 
 		// A positive check rather than a null coalesce: a closure may return an empty string, or
 		// something that isn't a string at all, and either would reach esc_html() as a broken label.
-		self::$resolved_menu_title = is_string( $title ) && '' !== $title
-			? $title
-			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		if ( is_string( $title ) && '' !== $title ) {
+			self::$resolved_menu_title = $title;
+		} elseif ( Classic_Stats::is_retired() ) {
+			// No classic Stats menu is left to tell apart from.
+			self::$resolved_menu_title = __( 'Stats', 'jetpack-premium-analytics-pkg' );
+		} else {
+			self::$resolved_menu_title = __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		}
 
 		return self::$resolved_menu_title;
 	}

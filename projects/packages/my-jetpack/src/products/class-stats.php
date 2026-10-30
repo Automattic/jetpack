@@ -314,15 +314,19 @@ class Stats extends Hybrid_Product {
 	/**
 	 * Whether the Premium Analytics dashboard is the site's analytics UI.
 	 *
-	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
-	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
-	 * report the same answer the URLs are built from.
+	 * Asks the package, so a dashboard the standalone Stats plugin booted counts too. The Jetpack
+	 * check covers a package too old to answer. Public so the UI flags report the same answer the URLs are built from.
 	 *
 	 * @since 5.42.0
 	 *
 	 * @return bool
 	 */
 	public static function is_premium_analytics_enabled() {
+		$analytics = 'Automattic\Jetpack\PremiumAnalytics\Analytics';
+		if ( method_exists( $analytics, 'is_initialized' ) && $analytics::is_initialized() ) {
+			return true;
+		}
+
 		return class_exists( 'Jetpack' )
 			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
 			&& \Jetpack::is_premium_analytics_enabled();

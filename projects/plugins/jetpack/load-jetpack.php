@@ -64,11 +64,15 @@ Jetpack_Application_Password_Extras::init();
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-protect-dashboard-feature-flags.php';
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-stats-feature-flags.php';
 
 // Another plugin may have loaded an older version of this class, so only call the method if it exists.
 if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {
 	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+}
+
+// An older Premium Analytics package, loaded by another plugin, predates the classic Stats retirement flag.
+if ( class_exists( \Automattic\Jetpack\PremiumAnalytics\Classic_Stats::class ) ) {
+	\Automattic\Jetpack\PremiumAnalytics\Classic_Stats::register_feature_flag();
 }
 
 if ( is_admin() ) {
