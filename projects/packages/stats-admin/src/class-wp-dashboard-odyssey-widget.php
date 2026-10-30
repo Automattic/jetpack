@@ -85,9 +85,9 @@ class WP_Dashboard_Odyssey_Widget {
 	/**
 	 * Renders the widget's skeleton for the time its script takes to load: an Overview card
 	 * with two totals and a chart, a lists card, on Jetpack sites a card with two counts, and
-	 * the footer. The widget replaces it when it mounts. Styled inline, since its stylesheet
-	 * arrives with its script, and the widget's own loader leaves a skeleton that is already
-	 * here alone.
+	 * the footer. Styled inline, since its stylesheet arrives with its script. The widget's
+	 * loader swaps in its own copy of the skeleton as soon as it runs, and the widget replaces
+	 * that when it mounts, so this one covers the time before any script runs.
 	 *
 	 * Each card is laid out as the widget's section is, a 48px header then a padded body, so
 	 * the box is the height the widget takes when it mounts. Kept in step with the loader's
@@ -101,7 +101,7 @@ class WP_Dashboard_Odyssey_Widget {
 		<div class="jp-stats-widget-skeleton" role="status" aria-label="<?php esc_attr_e( 'Loading', 'jetpack-stats-admin' ); ?>">
 			<style>
 				.jp-stats-widget-skeleton{container-type:inline-size;margin:-11px -12px -12px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
-				.jp-stats-widget-skeleton__card{border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.1);background:#fff}
+				.jp-stats-widget-skeleton__card{border-radius:7px;box-shadow:0 0 0 1px rgba(0,0,0,.1);background:#fff}
 				.jp-stats-widget-skeleton__header{display:flex;justify-content:space-between;align-items:center;min-height:32px;padding:8px}
 				.jp-stats-widget-skeleton__body{padding:8px 12px 12px}
 				.jp-stats-widget-skeleton__body.is-tabbed{padding-top:0}
@@ -128,7 +128,7 @@ class WP_Dashboard_Odyssey_Widget {
 				.jp-stats-widget-skeleton__bar.is-footer-link{width:80px}
 				@container (max-width:360px){.jp-stats-widget-skeleton__metrics{flex-direction:column}.jp-stats-widget-skeleton__metric{flex:none}}
 				@media not (prefers-reduced-motion){.jp-stats-widget-skeleton__bar{animation:jp-stats-widget-skeleton-pulse 1.5s ease-in-out infinite}}
-				@media (forced-colors:active){.jp-stats-widget-skeleton__bar{border:1px solid CanvasText}}
+				@media (forced-colors:active){.jp-stats-widget-skeleton__bar{outline:1px solid CanvasText;outline-offset:-1px}}
 				@keyframes jp-stats-widget-skeleton-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 			</style>
 			<div class="jp-stats-widget-skeleton__card">
