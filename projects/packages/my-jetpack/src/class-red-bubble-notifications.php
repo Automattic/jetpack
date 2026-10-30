@@ -166,9 +166,13 @@ class Red_Bubble_Notifications {
 
 		// A recorded owner without a token is reported as a connection error instead. Only a user who
 		// can take the vacant owner slot (see Manager::authorize()) fixes a site without an owner.
+		// An older Connection package may be loaded mid-update; the fallback mirrors the helper.
+		$can_become_owner = method_exists( $connection, 'current_user_can_become_connection_owner' )
+			? $connection->current_user_can_become_connection_owner()
+			: current_user_can( 'jetpack_connect' ) && current_user_can( 'manage_options' );
 		if ( ! empty( $broken_modules['needs_user_connection'] )
 			&& ! Jetpack_Options::get_option( 'master_user' )
-			&& current_user_can( 'jetpack_connect' ) ) {
+			&& $can_become_owner ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
 				'is_error' => true,

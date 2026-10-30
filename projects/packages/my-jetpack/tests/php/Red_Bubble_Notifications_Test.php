@@ -116,9 +116,9 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	}
 
 	/**
-	 * A role granted connection rights through `jetpack_disconnect_cap` is alerted too.
+	 * A non-admin granted connection rights through `jetpack_disconnect_cap` still can't take the owner slot.
 	 */
-	public function test_alerts_missing_user_connection_when_role_is_granted_connection_rights() {
+	public function test_skips_missing_user_connection_when_non_admin_is_granted_connection_rights() {
 		add_filter(
 			'jetpack_disconnect_cap',
 			static function () {
@@ -127,7 +127,22 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		);
 		$this->log_in_as( 'editor' );
 
-		$this->assert_user_alert( Red_Bubble_Notifications::alert_if_missing_connection( array() ) );
+		$this->assertArrayNotHasKey( 'missing-connection', Red_Bubble_Notifications::alert_if_missing_connection( array() ) );
+	}
+
+	/**
+	 * An admin denied connection rights through `jetpack_disconnect_cap` gets no connect CTA.
+	 */
+	public function test_skips_missing_user_connection_when_admin_is_denied_connection_rights() {
+		add_filter(
+			'jetpack_disconnect_cap',
+			static function () {
+				return array( 'do_not_allow' );
+			}
+		);
+		$this->log_in_as( 'administrator' );
+
+		$this->assertArrayNotHasKey( 'missing-connection', Red_Bubble_Notifications::alert_if_missing_connection( array() ) );
 	}
 
 	/**

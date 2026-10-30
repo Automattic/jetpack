@@ -2,7 +2,7 @@
 
 Once the site is [registered](register-site.md) (it has a blog token), you can authorize a user. This links a local WordPress user to their WordPress.com account and creates a "user token", which lets the Connection package make authenticated requests on that user's behalf.
 
-The first user with the `jetpack_connect` capability to be authorized becomes the **connection owner** (also called the "master user"), and so does any such user who authorizes while there is no connected owner (`has_connected_owner()` is false). `jetpack_connect` resolves to `manage_options` (administrators) by default and can be changed with the `jetpack_disconnect_cap` filter. Other users are always linked as secondary users, even when the owner slot is vacant. A site can have a site-level connection with no authorized users (see `is_site_connection()`), but many features require at least one connected user.
+The first administrator with the `jetpack_connect` capability to be authorized becomes the **connection owner** (also called the "master user"), and so does any such user who authorizes while there is no connected owner (`has_connected_owner()` is false). `jetpack_connect` resolves to `manage_options` by default and can be changed with the `jetpack_disconnect_cap` filter, but ownership always also requires `manage_options`: the filter can narrow who may become owner, never widen it. Other users are always linked as secondary users, and can only start authorizing (`jetpack_connect_user`) once there is a connected owner. `current_user_can_become_connection_owner()` answers the eligibility question for the current user. A site can have a site-level connection with no authorized users (see `is_site_connection()`), but many features require at least one connected user.
 
 ## The authorization flow
 
@@ -55,6 +55,7 @@ The `Manager` class exposes several helpers for reasoning about user authorizati
 * `has_connected_owner()`: Checks if the site has a connection owner (a connected admin marked as the owner).
 * `is_connection_owner()`: Checks if the current user (or a given user ID) is the connection owner.
 * `get_connection_owner()`: Returns the `WP_User` of the connection owner, or `false`.
+* `current_user_can_become_connection_owner()`: Checks if the current user may take a vacant owner slot (`jetpack_connect` and administrator).
 
 ```php
 $manager = new Manager( 'plugin-slug' );
@@ -70,7 +71,7 @@ if ( ! $manager->has_connected_owner() ) {
 
 ## Changing the connection owner
 
-If the connection owner needs to be changed to another connected user, make a POST request to `jetpack/v4/connection/owner` with the target user ID. Only an existing connected admin can transfer ownership, and the new owner must already be a connected user.
+If the connection owner needs to be changed to another connected user, make a POST request to `jetpack/v4/connection/owner` with the target user ID. Only an existing connected admin can transfer ownership, and the new owner must already be a connected administrator.
 
 ## Disconnecting a user
 
