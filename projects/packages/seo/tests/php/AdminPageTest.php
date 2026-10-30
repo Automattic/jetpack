@@ -70,6 +70,30 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * Every tab reads whether SEO output is paused from the same script data.
+	 */
+	public function test_script_data_reports_the_output_state() {
+		$plugin = static function () {
+			return 'Yoast SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertSame(
+			array(
+				'paused'             => true,
+				'conflicting_plugin' => 'Yoast SEO',
+			),
+			$data[ Initializer::SCRIPT_DATA_KEY ]['output']
+		);
+	}
+
+	/**
 	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
 	 *
 	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are

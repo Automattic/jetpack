@@ -22,16 +22,16 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 // its completion threshold is one of the rules under test — but the Google field
 // inside it reaches for the verify endpoint, so that one field is stubbed.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
-	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+	default: ( { disabled }: { disabled?: boolean } ) => (
 		<div data-testid="author" aria-disabled={ disabled }>
-			{ disabled && disabledReason }author
+			author
 		</div>
 	),
 } ) );
 jest.unstable_mockModule( '../schema-card', () => ( {
-	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+	default: ( { disabled }: { disabled?: boolean } ) => (
 		<div data-testid="schema" aria-disabled={ disabled }>
-			{ disabled && disabledReason }schema
+			schema
 		</div>
 	),
 } ) );
@@ -76,7 +76,6 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_formats: {},
 		title_separator: '-',
 		title_formats_editable: true,
-		conflicting_seo_plugin: '',
 		verification_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
@@ -108,7 +107,19 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 	} as unknown as SettingsForm;
 };
 
-const STATUS_LABELS = [ 'Not started', 'In progress', 'Complete' ];
+const STATUS_LABELS = [ 'Not started', 'In progress', 'Complete', 'Paused' ];
+
+/**
+ * Report Jetpack's SEO output as paused in the page bootstrap `getOutput()` reads.
+ *
+ * @param plugin - The SEO plugin that manages the site's SEO, or '' for none.
+ */
+const setPaused = ( plugin: string ) => {
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		site: { admin_url: 'https://example.com/wp-admin/' },
+		seo: { output: { paused: true, conflicting_plugin: plugin } },
+	};
+};
 
 /**
  * The status shown in a given module's header. `Card.Title` is itself an
@@ -134,38 +145,75 @@ const statusFor = ( moduleTitle: string ): string | undefined => {
 	return undefined;
 };
 
-describe( 'Another SEO plugin owning the output', () => {
+describe( 'Jetpack SEO output paused', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
 	const openDescription = () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Front-page description' } ) );
 		return screen.findByRole( 'textbox', { name: 'Home page description' } );
 	};
 
-	// A plugin can switch Jetpack's output off without naming itself; the lock can't depend on the name.
+	// A filter can switch Jetpack's output off without a plugin; the lock can't depend on the name.
 	it.each( [
-		[ 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
-		[ '', /^Jetpack SEO is disabled on this site, so its title/ ],
+		[
+			'Yoast SEO',
+			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+			'Paused while Yoast SEO is active.',
+		],
+		[
+			'',
+			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+			'Paused on this site.',
+		],
 	] )(
-		'with "%s" in charge, locks the description and hides the previews',
-		async ( plugin, notice ) => {
-			render(
-				<SettingsScreen
-					form={ buildForm( { conflicting_seo_plugin: plugin, title_formats_editable: false } ) }
-				/>
-			);
+		'with "%s" in charge, explains it once and locks the cards it feeds',
+		async ( plugin, banner, line ) => {
+			setPaused( plugin );
+			render( <SettingsScreen form={ buildForm( { title_formats_editable: false } ) } /> );
 
-			expect( screen.getByText( notice ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'social previews' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( banner ) ).toBeInTheDocument();
+			expect( statusFor( 'Front-page description' ) ).toBe( 'Paused' );
+			expect( screen.getByTestId( 'schema' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByTestId( 'author' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( /^Locked while Jetpack SEO is disabled/ ) ).toBeInTheDocument();
+			expect( screen.getByText( line ) ).toBeInTheDocument();
+			// The description keeps its usual help; the banner carries the cause.
+			expect( screen.getByText( /^Shown under your site name/ ) ).toBeInTheDocument();
+			// The previews stay visible, read-only, with the same line.
+			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+				expect.objectContaining( { paused: true } )
+			);
 		}
 	);
 
-	it( 'leaves both alone while Jetpack owns the output', async () => {
+	it( 'links to the Plugins screen only when a plugin is named', () => {
+		setPaused( 'Yoast SEO' );
+		const { unmount } = render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.getByRole( 'link', { name: 'Manage plugins' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/plugins.php'
+		);
+
+		unmount();
+		setPaused( '' );
 		render( <SettingsScreen form={ buildForm() } /> );
 
-		expect( screen.queryByText( /is managing your SEO/ ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'social previews' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Manage plugins' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves everything alone while Jetpack owns the output', async () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Paused (while|on)/ ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'schema' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { paused: false } )
+		);
 		await expect( openDescription() ).resolves.toBeEnabled();
 	} );
 } );
@@ -235,6 +283,10 @@ describe( 'Indexing toggle on an unpublished site', () => {
 } );
 
 describe( 'Settings module completion status', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
 	it( 'keeps platform-managed sitemap and canonical controls read-only', async () => {
 		render(
 			<SettingsScreen
@@ -256,7 +308,8 @@ describe( 'Settings module completion status', () => {
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
 	} );
 
-	it( 'locks the canonical switch while another SEO plugin controls canonical URLs', async () => {
+	it( 'locks the canonical switch at its saved state while another SEO plugin is active', async () => {
+		setPaused( 'Yoast SEO' );
 		render(
 			<SettingsScreen
 				form={ buildForm( { canonical_active: true, canonical_conflicted: true } ) }
@@ -267,9 +320,22 @@ describe( 'Settings module completion status', () => {
 		await expect(
 			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
 		).resolves.toBeDisabled();
-		expect(
-			screen.getByText( /Jetpack won't add canonical URLs to avoid conflicts/i )
-		).toBeVisible();
+		// Its saved "on" no longer prints a tag, so the header doesn't call it complete.
+		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Paused' );
+		expect( screen.getAllByText( 'Paused while Yoast SEO is active.' ) ).not.toHaveLength( 0 );
+		expect( screen.getByText( /^Points search engines to one preferred URL/ ) ).toBeVisible();
+	} );
+
+	// Canonical output only steps aside for a plugin, not for the general switch.
+	it( 'keeps the canonical switch live while SEO output is off without a plugin', async () => {
+		setPaused( '' );
+		render( <SettingsScreen form={ buildForm( { canonical_active: true } ) } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toBeEnabled();
+		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Complete' );
 	} );
 
 	describe( 'Site visibility — counts its two toggles', () => {
@@ -566,28 +632,6 @@ describe( 'Settings module text hierarchy', () => {
 		// `body-md` is also `Text`'s default, so the class alone would still pass if the
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
-	} );
-} );
-
-describe( 'Schema output ownership', () => {
-	it( 'keeps schema and author editors visible and disabled while another plugin owns the output', () => {
-		render(
-			<SettingsScreen
-				form={ buildForm( { title_formats_editable: false, conflicting_seo_plugin: 'Yoast SEO' } ) }
-			/>
-		);
-		for ( const card of [ 'schema', 'author' ] ) {
-			expect( screen.getByTestId( card ) ).toHaveAttribute( 'aria-disabled', 'true' );
-			expect( screen.getByTestId( card ) ).toHaveTextContent(
-				'Yoast SEO is managing your structured data'
-			);
-			expect( screen.getByTestId( card ) ).toHaveTextContent(
-				'Your saved Jetpack settings are shown here but are not being used.'
-			);
-			expect( screen.getByTestId( card ) ).toHaveTextContent(
-				'Deactivate Yoast SEO to edit these settings in Jetpack.'
-			);
-		}
 	} );
 } );
 

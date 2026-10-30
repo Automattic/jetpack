@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: SEO: Detect conflicting SEO plugins in one always-loaded file, so canonical URLs and the SEO page read the same `jetpack_seo_conflicting_plugin` filter even with SEO Tools off.
+
+

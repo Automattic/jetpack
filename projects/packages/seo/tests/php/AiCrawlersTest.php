@@ -358,6 +358,47 @@ class AiCrawlersTest extends TestCase {
 	}
 
 	/**
+	 * Saved blocks keep applying while Jetpack's SEO output is paused. The dashboard's
+	 * paused banner relies on this: it leaves AI crawler rules out of what it lists.
+	 *
+	 * @dataProvider provide_pause_filters
+	 * @param string   $filter   Filter that pauses Jetpack's SEO output.
+	 * @param callable $callback Its callback.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_pause_filters' )]
+	public function test_blocks_still_apply_while_seo_output_is_paused( $filter, $callback ) {
+		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'gptbot' ) ) );
+		add_filter( $filter, $callback );
+		try {
+			$this->assertTrue( Seo_Tools::is_disabled() );
+			$output = Ai_Crawlers::append_directives( "User-agent: *\nDisallow:", true );
+		} finally {
+			remove_filter( $filter, $callback );
+		}
+
+		$catalog = Ai_Crawlers::get_catalog();
+		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agent'] . "\nDisallow: /", $output );
+	}
+
+	/**
+	 * The two ways Jetpack's SEO output is paused: a named plugin, or the general switch.
+	 *
+	 * @return array
+	 */
+	public static function provide_pause_filters() {
+		return array(
+			'plugin conflict' => array(
+				'jetpack_seo_conflicting_plugin',
+				static function () {
+					return 'Yoast SEO';
+				},
+			),
+			'general disable' => array( 'jetpack_disable_seo_tools', '__return_true' ),
+		);
+	}
+
+	/**
 	 * Bare `Disallow` lines another filter appends first stay in the `User-agent: *` group
 	 * rather than the last AI crawler group.
 	 *

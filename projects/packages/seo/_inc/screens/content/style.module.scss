@@ -4,6 +4,12 @@
 	inline-size: 100%;
 }
 
+// The tab is full-bleed, so the paused banner brings back the page padding the
+// other tabs get from their content area.
+.notice {
+	margin: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-2xl) 0;
+}
+
 // The per-post SEO editor in the route's inspector sidebar, which scrolls it.
 // The frame fills the sidebar so the actions footer can sit at its bottom.
 .inspectorFrame {

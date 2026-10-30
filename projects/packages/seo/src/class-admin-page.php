@@ -345,6 +345,7 @@ class Admin_Page {
 		// the load-error path.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['google_verify'] = Dashboard_Data::get_google_verify_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']          = Dashboard_Data::get_site_data();
+		$data[ Initializer::SCRIPT_DATA_KEY ]['output']        = Dashboard_Data::get_output_data();
 
 		// Plan-gating signal for below-Premium WordPress.com sites: when gated, the
 		// dashboard reduces to a free subset and surfaces the upsell banner. Self-hosted

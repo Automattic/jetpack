@@ -34,6 +34,8 @@ $tools = array(
 	'videopress/class.videopress-gutenberg.php',
 	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
 	'reprint-export.php',
+	// Names the SEO plugin that owns SEO output, for the SEO dashboard and canonical URLs.
+	'seo-tools/seo-tools-conflicts.php',
 	// Lets the SEO dashboard lock the canonical URLs switch while another SEO plugin is active.
 	'canonical-urls/canonical-urls-conflicts.php',
 );

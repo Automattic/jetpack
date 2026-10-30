@@ -86,6 +86,13 @@ class SchemaSettingsControllerTest extends TestCase {
 			$response = rest_get_server()->dispatch( $request );
 			$this->assertSame( 409, $response->get_status() );
 			$this->assertSame( 'jetpack_seo_tools_disabled', $response->get_data()['code'] );
+			// Names the paused output these routes feed, and the plugin when there is one.
+			$this->assertSame(
+				'jetpack_seo_conflicting_plugin' === $filter
+					? 'Yoast SEO is managing your site’s SEO, so Jetpack has paused its structured data. Your changes were not saved. Reload this page to see the current settings.'
+					: 'Jetpack’s structured data is turned off on this site. Your changes were not saved. Reload this page to see the current settings.',
+				$response->get_data()['message']
+			);
 			$this->assertSame( $schema, Schema_Settings::get_editable() );
 			$this->assertSame( $profile, Author_Schema_Node::get_profile( $admin->ID ) );
 			$read = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/seo/' . $route ) );
@@ -111,6 +118,34 @@ class SchemaSettingsControllerTest extends TestCase {
 			}
 		}
 		return $cases;
+	}
+
+	/**
+	 * Non-admins are refused before the pause check, so they can't save and never see the paused state.
+	 *
+	 * @dataProvider conflicted_write_requests
+	 */
+	#[DataProvider( 'conflicted_write_requests' )]
+	public function test_non_admin_writes_are_forbidden_even_while_paused( $route, $method, $payload, $filter, $callback ) {
+		$editor = $this->make_user( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor->ID );
+		$schema          = Schema_Settings::get_editable();
+		$register_routes = array( Schema_Settings_Controller::class, 'register_routes' );
+		add_action( 'rest_api_init', $register_routes );
+		add_filter( $filter, $callback );
+		try {
+			do_action( 'rest_api_init' );
+			$request = new WP_REST_Request( $method, '/jetpack/v4/seo/' . $route );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body( wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( 403, $response->get_status() );
+			$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+			$this->assertSame( $schema, Schema_Settings::get_editable() );
+		} finally {
+			remove_filter( $filter, $callback );
+			remove_action( 'rest_api_init', $register_routes );
+		}
 	}
 
 	/**

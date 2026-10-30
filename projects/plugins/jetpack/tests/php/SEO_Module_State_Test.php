@@ -108,6 +108,14 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
 		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+		// The same always-loaded detection names the plugin for every tab's banner.
+		$this->assertSame(
+			array(
+				'paused'             => true,
+				'conflicting_plugin' => 'Yoast SEO',
+			),
+			Dashboard_Data::get_output_data()
+		);
 	}
 
 	/**

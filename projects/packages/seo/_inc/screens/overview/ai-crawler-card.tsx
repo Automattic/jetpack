@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
+import getOutput from '../../data/get-output';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -46,6 +47,7 @@ const pathBasedMultisiteLabel = __(
 );
 const llmsPublishedLabel = __( 'llms.txt published', 'jetpack-seo' );
 const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
+const llmsPausedLabel = __( 'llms.txt paused', 'jetpack-seo' );
 
 /**
  * Overview card summarizing AI access. When the per-crawler settings
@@ -76,18 +78,16 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const answerBlocked = answerBots.filter( isBotBlocked ).length;
 	const trainingBlocked = trainingBots.filter( isBotBlocked ).length;
 
-	// A host or static file can own the path; a plugin conflict pauses Jetpack generation.
-	const llmsPublished =
-		! llmsTxt?.disabled && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
+	// The card reports the state of optimization, not who owns it: `canServe` is false
+	// when a static file or the host already answers /llms.txt, which reads as
+	// published. While Jetpack's SEO output is paused `canServe` is false too, but
+	// nothing is served, so the row says "paused" when llms.txt is switched on and
+	// "not published" when it isn't.
+	const { paused } = getOutput();
+	const llmsPublished = ! paused && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
 	let llmsLabel: string = llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel;
-	if ( llmsTxt?.disabled ) {
-		llmsLabel = llmsTxt.conflictingPlugin
-			? sprintf(
-					/* translators: %s: name of the active SEO plugin. */
-					__( 'Jetpack llms.txt paused while %s is active', 'jetpack-seo' ),
-					llmsTxt.conflictingPlugin
-				)
-			: __( 'Jetpack llms.txt paused while SEO tools are disabled', 'jetpack-seo' );
+	if ( paused && llmsTxt?.enabled ) {
+		llmsLabel = llmsPausedLabel;
 	}
 
 	// When the settings can't apply, choose the highest-precedence reason.
