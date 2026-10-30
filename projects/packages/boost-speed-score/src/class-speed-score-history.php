@@ -66,7 +66,7 @@ class Speed_Score_History {
 
 			if ( $base_url === rtrim( home_url(), '/' ) ) {
 				$site_url = rtrim( get_site_url(), '/' );
-				if ( $site_url !== $base_url && $site_url !== rtrim( get_option( 'home' ), '/' ) ) {
+				if ( $site_url !== $base_url && set_url_scheme( $site_url, 'https' ) !== rtrim( set_url_scheme( get_option( 'home' ), 'https' ), '/' ) ) {
 					$legacy_urls[] = $site_url . $suffix;
 					$legacy_urls[] = $site_url . '/' . $suffix;
 				}

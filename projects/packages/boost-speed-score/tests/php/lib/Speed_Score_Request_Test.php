@@ -445,6 +445,19 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$this->assertSame( $default, $this->stored_history()->latest_scores() );
 	}
 
+	public function test_filtered_home_leaves_the_default_record_when_the_stored_scheme_differs() {
+		Functions\when( 'home_url' )->justReturn( 'https://example.com/fr' );
+		Functions\when( 'get_site_url' )->justReturn( 'https://example.com' );
+		$scores = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$this->seed_old_record( 'https://example.com', $scores, 1000 );
+
+		$this->assertNull( ( new Speed_Score_History( 'https://example.com/fr' ) )->latest_scores() );
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com' ) )->latest_scores() );
+	}
+
 	public function test_empty_home_history_recovers_newest_site_url_spelling() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
 		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
@@ -509,7 +522,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Once the marker is set, a build reads only its own record.
+	 * Once the marker is set, a build of a populated record reads only that record.
 	 */
 	public function test_populated_history_reads_no_old_keys_once_migrated() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
