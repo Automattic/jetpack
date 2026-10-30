@@ -77,8 +77,7 @@ class Surface_Visibility {
 	}
 
 	/**
-	 * Register the opt-in REST route that switches an existing self-hosted install over to
-	 * the new SEO experience.
+	 * Register the REST route for checking availability and opting into the SEO dashboard.
 	 *
 	 * Lives on the `jetpack/v4` namespace and is registered ahead of the cohort gate, so a
 	 * site whose SEO surface is still hidden can reach it from the legacy Traffic page or
@@ -91,11 +90,22 @@ class Surface_Visibility {
 			'jetpack/v4',
 			'/seo/opt-in',
 			array(
-				'methods'             => \WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'handle_optin' ),
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
+				array(
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => function () {
+						return rest_ensure_response( array( 'optin_available' => self::is_optin_available() ) );
+					},
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+				),
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'handle_optin' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+				),
 			)
 		);
 	}
