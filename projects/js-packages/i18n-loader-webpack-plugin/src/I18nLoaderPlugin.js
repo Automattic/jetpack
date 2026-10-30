@@ -1,11 +1,8 @@
 const path = require( 'path' );
-const webpack = require( 'webpack' );
-const I18nLoaderModuleDependency = require( './I18nLoaderModuleDependency' );
-const I18nLoaderRuntimeModule = require( './I18nLoaderRuntimeModule' );
+const { validateSchema } = require( 'webpack' );
+const getI18nLoaderRuntimeModuleClass = require( './getI18nLoaderRuntimeModuleClass' );
 const PLUGIN_NAME = require( './plugin-name' );
 const debug = require( 'debug' )( PLUGIN_NAME ); // eslint-disable-line import/order
-
-const { RuntimeGlobals } = webpack;
 
 const schema = {
 	title: `${ PLUGIN_NAME } plugin options`,
@@ -76,7 +73,7 @@ const schema = {
  */
 class I18nLoaderPlugin {
 	constructor( options = {} ) {
-		webpack.validateSchema( schema, options, {
+		validateSchema( schema, options, {
 			name: PLUGIN_NAME,
 			baseDataPath: 'options',
 		} );
@@ -108,6 +105,17 @@ class I18nLoaderPlugin {
 	}
 
 	apply( compiler ) {
+		const { RuntimeGlobals, WebpackError } = compiler.webpack;
+		const I18nLoaderRuntimeModule = getI18nLoaderRuntimeModuleClass( compiler.webpack );
+
+		/**
+		 * Dependency class.
+		 *
+		 * Webpack requires a Dependency subclass to identify modules to build and to locate
+		 * the built modules, and doesn't provide a usable generic class of its own.
+		 */
+		class I18nLoaderModuleDependency extends compiler.webpack.dependencies.ModuleDependency {}
+
 		// Register the dependency class.
 		compiler.hooks.compilation.tap( PLUGIN_NAME, ( compilation, { normalModuleFactory } ) => {
 			compilation.dependencyFactories.set( I18nLoaderModuleDependency, normalModuleFactory );
@@ -137,7 +145,7 @@ class I18nLoaderPlugin {
 							msg +=
 								"You'll need to add the appropriate externals directive to your Webpack config.";
 						}
-						compilation.errors.push( new webpack.WebpackError( msg ) );
+						compilation.errors.push( new WebpackError( msg ) );
 					}
 					resolve();
 				} );
@@ -284,7 +292,7 @@ class I18nLoaderPlugin {
 
 			// And add our runtime module to the chunks that may need it.
 			compilation.hooks.runtimeRequirementInTree
-				.for( webpack.RuntimeGlobals.ensureChunkHandlers )
+				.for( RuntimeGlobals.ensureChunkHandlers )
 				.tap( PLUGIN_NAME, ( chunk, set ) => {
 					const { loaderModule, i18nModulesArr } = getStuff();
 					if ( ! loaderModule || i18nModulesArr.length <= 0 ) {
@@ -292,7 +300,7 @@ class I18nLoaderPlugin {
 					}
 
 					debug( `Queuing runtime module for ${ chunk.name || chunk.id || chunk.debugId }.` );
-					set.add( webpack.RuntimeGlobals.getChunkScriptFilename );
+					set.add( RuntimeGlobals.getChunkScriptFilename );
 					compilation.addRuntimeModule(
 						chunk,
 						new I18nLoaderRuntimeModule( set, {

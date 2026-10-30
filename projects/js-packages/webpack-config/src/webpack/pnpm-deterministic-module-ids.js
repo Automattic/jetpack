@@ -10,11 +10,7 @@ const {
 	getFullModuleName,
 	assignDeterministicIds,
 } = require( 'webpack/lib/ids/IdHelpers' );
-const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 const { fixPnpmPaths } = require( './pnpm-fix-paths.js' );
-
-/** @typedef {import("webpack/lib/Compiler")} Compiler */
-/** @typedef {import("webpack/lib/Module")} Module */
 
 const PLUGIN_NAME = 'PnpmDeterministicModuleIdsPlugin';
 
@@ -25,10 +21,12 @@ class PnpmDeterministicModuleIdsPlugin {
 
 	/**
 	 * Applies the plugin by registering its hooks on the compiler.
-	 * @param {Compiler} compiler - the compiler instance
+	 * @param {import('webpack').Compiler} compiler - the compiler instance
 	 * @return {void}
 	 */
 	apply( compiler ) {
+		const { compareModulesByPreOrderIndexOrIdentifier } = compiler.webpack.util.comparators;
+
 		compiler.hooks.compilation.tap( PLUGIN_NAME, compilation => {
 			compilation.hooks.moduleIds.tap( PLUGIN_NAME, () => {
 				const chunkGraph = compilation.chunkGraph;

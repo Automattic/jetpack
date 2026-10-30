@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Use the compilation's `webpack` instance rather than requiring our own copy in `StaticSiteGeneratorWebpackPlugin`.
+
+
