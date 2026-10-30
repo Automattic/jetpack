@@ -36,6 +36,7 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
+  - '@gravatar-com/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
   # Renovate security update: zod@4.6.6

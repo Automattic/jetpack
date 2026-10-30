@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gravatar Hovercards: Update @gravatar-com/hovercards to 0.17.0, which adds defensive escaping of Gravatar profile data.
