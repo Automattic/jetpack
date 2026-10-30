@@ -570,6 +570,11 @@ function wpcom_sort_jetpack_submenu() {
 
 	$keyed = array();
 	foreach ( $submenu['jetpack'] as $item ) {
+		// Drop exact duplicates, as the old fixed-list reorder did: Simple can register Akismet twice.
+		if ( in_array( $item, array_column( $keyed, 'item' ), true ) ) {
+			continue;
+		}
+
 		if ( isset( $named_tiers[ $item[2] ] ) ) {
 			$tier = $named_tiers[ $item[2] ];
 		} elseif ( str_contains( $item[2], 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item' ) ) {

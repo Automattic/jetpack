@@ -749,6 +749,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			array( 'Beta Tester', 'manage_options', 'jetpack-beta' ),
 			array( 'SEO', 'manage_options', 'jetpack-seo' ),
 			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
+			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
 			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
 		if ( ! $simple ) {
