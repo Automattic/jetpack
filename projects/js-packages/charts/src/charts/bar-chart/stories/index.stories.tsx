@@ -117,6 +117,24 @@ export const ForcedColors: Story = {
 	},
 };
 
+export const CompactWhenShort: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		compactWhenShort: true,
+		containerHeight: '120px',
+		resize: 'vertical',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Below `theme.sparkline.compactBelow` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+			},
+		},
+	},
+};
+
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,

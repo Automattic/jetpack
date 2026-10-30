@@ -114,6 +114,23 @@ Default.args = {
 	showLegend: true,
 };
 
+export const CompactWhenShort: StoryObj< StoryArgs > = Template.bind( {} );
+CompactWhenShort.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+	compactWhenShort: true,
+	containerHeight: '120px',
+	resize: 'vertical',
+};
+CompactWhenShort.parameters = {
+	docs: {
+		description: {
+			story:
+				'Below `theme.sparkline.compactBelow` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+		},
+	},
+};
+
 export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
 Zoomable.args = {
 	...areaChartStoryArgs,

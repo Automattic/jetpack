@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Line, area and bar charts: Add `compactWhenShort`, which drops the axes, grid and legend while the chart is shorter than the new `theme.sparkline.compactBelow` (140px by default).

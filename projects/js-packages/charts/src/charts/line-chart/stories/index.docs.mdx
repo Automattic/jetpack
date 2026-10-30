@@ -388,7 +388,7 @@ Add visual markers at data points using the glyph system:
 
 ### Hiding Axes and Grid
 
-For minimal chart displays like sparklines or inline visualizations, you can hide the axes and grid using the `options` prop and `gridVisibility`:
+For minimal chart displays like sparklines or inline visualizations, you can hide the axes and grid using the `options` prop and `gridVisibility`. To do this only while the chart is short, use [`compactWhenShort`](#compact-when-short) instead.
 
 <Source
 	language="jsx"
@@ -647,6 +647,22 @@ By default, charts **fill their parent container's dimensions**. The parent must
 />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+### Compact When Short
+
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.sparkline.compactBelow` (140px by default). What remains is a sparkline that keeps its tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back.
+
+<Canvas of={ LineChartStories.CompactWhenShort } />
+
+In compact mode the margin defaults to `theme.sparkline.margin`, and any side you pass through `margin` still wins. To change the threshold, set it on the theme:
+
+<Source
+	language="jsx"
+	code={ `// Applies to every chart under this provider
+	<GlobalChartsProvider theme={ { sparkline: { compactBelow: 180 } } }>
+		<LineChart data={ data } compactWhenShort />
+	</GlobalChartsProvider>` }
+/>
 
 ## Animation
 

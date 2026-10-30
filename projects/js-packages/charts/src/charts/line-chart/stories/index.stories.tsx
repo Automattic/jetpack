@@ -122,6 +122,23 @@ Zoomable.parameters = {
 	},
 };
 
+export const CompactWhenShort: StoryObj< StoryArgs > = Template.bind( {} );
+CompactWhenShort.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+	compactWhenShort: true,
+	containerHeight: '120px',
+	resize: 'vertical',
+};
+CompactWhenShort.parameters = {
+	docs: {
+		description: {
+			story:
+				'Below `theme.sparkline.compactBelow` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+		},
+	},
+};
+
 export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
 FixedDimensions.args = {
 	...lineChartStoryArgs,

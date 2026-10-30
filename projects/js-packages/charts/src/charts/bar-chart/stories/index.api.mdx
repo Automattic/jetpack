@@ -30,6 +30,7 @@ Main chart component with responsive behavior by default.
 | `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
 | `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
+| `compactWhenShort` | `boolean?` | `false` | Below `theme.sparkline.compactBelow` (140px by default), drop the axes, grid and legend and default to `theme.sparkline.margin`. Ignored by horizontal bars. See [Compact When Short](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#compact-when-short) |
 | `tooltipPlacement` | `'auto' \| 'beside'` | `'auto'` | Tooltip placement mode. See [beside tooltip positioning and clipping](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#beside-tooltips). |
 | `tooltipAnchorTop` | `number` | - | Override the top anchor for auto or beside placement in SVG coordinates; values less than `margin.top` are above the plot, and negative values are above the SVG. Clipping bounds can clamp the tooltip back into view. |
 | `barClassName` | `(datum: DataPointDate) => string \| undefined` | - | Additional CSS class for each primary bar; retains `visx-bar`. |
