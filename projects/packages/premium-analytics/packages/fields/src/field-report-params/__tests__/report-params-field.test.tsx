@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -9,6 +10,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import {
+	ReportParamsField,
 	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,
@@ -147,6 +149,98 @@ describe( 'reportParamsAttributeField', () => {
 			label: 'Date range',
 			relevance: 'high',
 		} );
+	} );
+} );
+
+describe( 'ReportParamsField', () => {
+	it( 'offers the presets the attribute lists as elements, and anchors All time on the item', async () => {
+		const user = userEvent.setup();
+		const saved: Partial< ReportParamsFieldAttributes >[] = [];
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+			elements: [
+				{ value: 'last-7-days', label: 'Last 7 days' },
+				{ value: 'all-time', label: 'All time' },
+			],
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+
+		render(
+			<ReportParamsField
+				data={ { reportParams: { preset: 'last-7-days' }, allTimeStart: '2026-01-10T08:00:00' } }
+				field={ field }
+				onChange={ edits => saved.push( edits ) }
+			/>
+		);
+
+		await openPeriods( user, /^Last 7 days$/ );
+		expect(
+			screen.queryByRole( 'menuitemradio', { name: 'Last 30 days' } )
+		).not.toBeInTheDocument();
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'All time' } ) );
+
+		expect( saved.at( -1 )?.reportParams ).toEqual(
+			expect.objectContaining( {
+				preset: PRESET_ALL_TIME,
+				from: expect.stringMatching( /^2026-01-10/ ),
+			} )
+		);
+	} );
+
+	it( 'ignores a listed preset the menu cannot show, keeping the default presets', async () => {
+		const user = userEvent.setup();
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+			elements: [ { value: 'last-90-days', label: 'Last 90 days' } ],
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+
+		render(
+			<ReportParamsField
+				data={ { reportParams: { preset: 'last-7-days' } } }
+				field={ field }
+				onChange={ jest.fn() }
+			/>
+		);
+
+		await openPeriods( user, /^Last 7 days$/ );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'draws the attention the host scope raises; a widget-owned control does not', () => {
+		const field = {
+			id: 'reportParams',
+			label: 'Date range',
+		} as unknown as DataFormControlProps< Partial< ReportParamsFieldAttributes > >[ 'field' ];
+		const { Edit } = reportParamsAttributeField< ReportParamsFieldAttributes >();
+		const WidgetField = Edit as ComponentType<
+			DataFormControlProps< ReportParamsFieldAttributes >
+		>;
+		// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+		const fills = () => document.querySelectorAll( '.date-period-dropdown__attention' ).length;
+
+		const view = render(
+			<ReportScopeProvider openPeriod={ jest.fn() } attentionId={ 1 }>
+				<ReportParamsField data={ ATTRIBUTES } field={ field } onChange={ jest.fn() } />
+			</ReportScopeProvider>
+		);
+
+		expect( fills() ).toBe( 1 );
+
+		view.rerender(
+			<ReportScopeProvider openPeriod={ jest.fn() } attentionId={ 1 }>
+				<WidgetField
+					{ ...( {
+						data: ATTRIBUTES,
+						field,
+						onChange: jest.fn(),
+					} as unknown as DataFormControlProps< ReportParamsFieldAttributes > ) }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( fills() ).toBe( 0 );
 	} );
 } );
 

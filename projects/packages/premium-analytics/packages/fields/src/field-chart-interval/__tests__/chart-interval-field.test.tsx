@@ -12,7 +12,7 @@ import {
 	chartIntervalElements,
 	type ChartIntervalFieldAttributes,
 } from '../chart-interval-field';
-import type { ReportParamsFieldAttributes } from '../../report-params-field/report-params-field';
+import type { ReportParamsFieldAttributes } from '../../field-report-params';
 import type { ComponentType } from 'react';
 
 type Attributes = ChartIntervalFieldAttributes & Partial< ReportParamsFieldAttributes >;

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 
 .wp-block-jetpack-instagram-gallery__grid {
 	align-content: stretch;
@@ -27,7 +27,7 @@
 	}
 }
 
-@media ( max-width: gb.$break-small ) {
+@media ( max-width: breakpoints.$break-small ) {
 
 	.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile
 	.wp-block-jetpack-instagram-gallery__grid-post {
@@ -42,7 +42,7 @@
 		gap: 10px;
 		grid-auto-columns: 1fr;
 
-		@media ( max-width: gb.$break-small ) {
+		@media ( max-width: breakpoints.$break-small ) {
 
 			&.is-stacked-on-mobile {
 				display: block;

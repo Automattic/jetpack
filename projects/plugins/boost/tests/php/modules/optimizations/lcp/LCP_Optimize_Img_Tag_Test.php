@@ -371,7 +371,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	 * @dataProvider srcset_cases
 	 */
 	#[DataProvider( 'srcset_cases' )]
-	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $attributes, $expected_candidates, $src = 'https://example.com/image.jpg' ) {
+	public function test_srcset_keeps_the_image_proportions_at_the_box_density( $attributes, $expected_candidates, $src = 'https://example.com/image.jpg', $computed_object_fit = null ) {
 		// Boost swaps a WordPress size for its original only if the original is on disk.
 		$original = null;
 		if ( str_contains( $src, '{uploads}' ) ) {
@@ -383,7 +383,7 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 		}
 
 		try {
-			$candidates = $this->get_srcset_candidates( '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">' );
+			$candidates = $this->get_srcset_candidates( '<img class="wp-post-image" id="test-img" ' . $attributes . ' src="' . $src . '">', $computed_object_fit );
 		} finally {
 			if ( $original ) {
 				wp_delete_file( $original );
@@ -447,14 +447,18 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 	/**
 	 * Optimize an LCP image for a 412x700 box and read its srcset.
 	 *
-	 * @param string $buffer The image tag.
+	 * @param string      $buffer              The image tag.
+	 * @param string|null $computed_object_fit The object-fit the LCP report carries, if any.
 	 * @return string[] Each candidate's resize argument and descriptor.
 	 */
-	private function get_srcset_candidates( $buffer ) {
+	private function get_srcset_candidates( $buffer, $computed_object_fit = null ) {
 		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 
-		$data                = $this->create_lcp_data();
-		$data['html']        = $buffer;
+		$data         = $this->create_lcp_data();
+		$data['html'] = $buffer;
+		if ( $computed_object_fit ) {
+			$data['objectFit'] = $computed_object_fit;
+		}
 		$data['breakpoints'] = array(
 			array(
 				'maxWidth'        => 412,
@@ -505,6 +509,11 @@ class LCP_Optimize_Img_Tag_Test extends BaseTestCase {
 			'object-fit: cover (Featured Image Scale): the box' => array( 'width="1200" height="800" style="aspect-ratio:3/5;object-fit:cover;"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'data-object-fit="cover" (Cover block): the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ) ),
 			'a square thumbnail of any upload: still 1:1' => array( 'width="300" height="300"', array( '2100,2100 1236w', '1400,1400 824w', '1225,1225 721w', '700,700 412w' ) ),
+			'a computed cover the markup does not show (theme CSS): the box' => array( 'width="1200" height="800"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed contain the markup does not show: fits inside the box' => array( 'width="1200" height="800"', array( '1236,825 1236w', '824,550 824w', '721,481 721w', '412,275 412w' ), 'https://example.com/image.jpg', 'contain' ),
+			'a computed cover the markup agrees with: the box' => array( 'width="1200" height="800" data-object-fit="cover"', array( '1236,2100 1236w', '824,1400 824w', '721,1225 721w', '412,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed cover over inline contain (stale report): widened, not cropped' => array( 'width="1200" height="800" style="object-fit:contain"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'cover' ),
+			'a computed fill over data-object-fit="cover" (stale report): widened' => array( 'width="1200" height="800" data-object-fit="cover"', array( '3150,2100 1236w', '2100,1400 824w', '1838,1225 721w', '1050,700 412w' ), 'https://example.com/image.jpg', 'fill' ),
 		);
 	}
 

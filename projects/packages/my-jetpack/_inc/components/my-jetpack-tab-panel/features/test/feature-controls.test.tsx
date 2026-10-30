@@ -1,7 +1,8 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { leavePageFor } from '../../../../utils/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
+import { CONNECT_INTENT_STORAGE_KEY } from '../connect-resume';
 import { FeatureAction } from '../feature-action';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureItem } from '../feature-item';
@@ -14,7 +15,10 @@ import type { FeatureState } from '../feature-state';
 const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 
-jest.mock( '../../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	leavePageFor: jest.fn(),
+	reloadPage: jest.fn(),
+} ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	...jest.requireActual( '@automattic/jetpack-connection' ),
@@ -78,6 +82,7 @@ beforeEach( () => {
 	mockRun.mockClear();
 	mockSetModuleActive.mockClear();
 	( leavePageFor as jest.Mock ).mockClear();
+	( reloadPage as jest.Mock ).mockClear();
 	( getUserConnectionUrl as jest.Mock ).mockClear();
 	mockAskedFor = null;
 	mockBusy = false;
@@ -679,7 +684,11 @@ describe( 'FeatureItem install notice', () => {
 } );
 
 describe( 'features waiting for an account', () => {
-	beforeEach( () => setAccountConnect( true ) );
+	beforeEach( () => {
+		setAccountConnect( true );
+		window.sessionStorage.clear();
+		window.location.hash = '';
+	} );
 
 	const connectionUrl = '/wp-admin/admin.php?connect_url_redirect=1';
 	const accountModule = ( activated: boolean ) =>
@@ -858,13 +867,20 @@ describe( 'features waiting for an account', () => {
 			true
 		);
 
+	// The route the saved click names, or null when nothing was saved.
+	const storedRoute = () =>
+		JSON.parse( window.sessionStorage.getItem( CONNECT_INTENT_STORAGE_KEY ) ?? 'null' )?.route ??
+		null;
+
 	it.each( [
-		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1 ],
-		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0 ],
-		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1 ],
+		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1, false ],
+		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0, false ],
+		[ 'Install Jetpack', true, 'install', accountJetpack( 'not-installed' ), 1, true ],
+		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0, false ],
+		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1, true ],
 	] as const )(
-		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
-		async ( name, succeeds, action, state, connections ) => {
+		'%s (succeeds: %s): asks Jetpack not to reload, connects only on success and remembers the click only for Jetpack',
+		async ( name, succeeds, action, state, connections, resumes ) => {
 			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
 			render( <FeatureAction state={ state } /> );
 
@@ -875,11 +891,95 @@ describe( 'features waiting for an account', () => {
 				expect.objectContaining( { action, leavesPage: true } )
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
-			// Install has already turned its plugin on, so the return has nothing to finish.
 			expect( getUserConnectionUrl ).toHaveBeenCalledTimes( connections );
-			expect( getUserConnectionUrl ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { redirect_url: expect.stringContaining( 'connect_intent' ) } )
+			const returnUrl = ( getUserConnectionUrl as jest.Mock ).mock.calls[ 0 ]?.[ 0 ].redirect_url;
+			const urlPattern = expect.stringMatching(
+				resumes ? /#\/features\?connect_intent=[0-9a-f]{16}$/ : /#\/features$/
 			);
+			expect( returnUrl ).toEqual( connections ? urlPattern : undefined );
+			expect( storedRoute() ).toBe( resumes ? 'connect' : null );
+		}
+	);
+
+	const noAccountJetpack = resolveFeatureState(
+		accountJetpack( 'inactive' ).feature,
+		'inactive',
+		undefined,
+		undefined,
+		{}
+	);
+	const missingBoost = buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } );
+	const jetpack = { plugin: 'jetpack', name: 'Jetpack' };
+	const boost = { plugin: 'jetpack-boost', name: 'Jetpack Boost' };
+
+	type ReloadCase = { fails?: boolean; flagOff?: boolean; offline?: boolean };
+
+	it.each< [ string, FeatureState, typeof jetpack, ReloadCase, boolean, boolean ] >( [
+		[ 'reloads to turn the module on', noAccountJetpack, jetpack, {}, true, true ],
+		[
+			'turns nothing on after a failed activation',
+			noAccountJetpack,
+			jetpack,
+			{ fails: true },
+			true,
+			false,
+		],
+		[
+			'leaves the reload to Jetpack with the flag off',
+			noAccountJetpack,
+			jetpack,
+			{ flagOff: true },
+			false,
+			false,
+		],
+		[
+			'leaves the reload to Jetpack offline',
+			noAccountJetpack,
+			jetpack,
+			{ offline: true },
+			false,
+			false,
+		],
+		[ "turns nothing on after another plugin's Install", missingBoost, boost, {}, false, false ],
+	] )(
+		'%s when no account connection follows',
+		async (
+			_,
+			state,
+			plugin,
+			{ fails = false, flagOff = false, offline = false },
+			leavesPage,
+			resumes
+		) => {
+			setAccountConnect( ! flagOff );
+			window.myJetpackInitialState.isOfflineFeatures = offline;
+			const initialHash = '#/features?feature=activity-log&filter=inactive';
+			window.location.hash = initialHash;
+			mockRun.mockReturnValueOnce( Promise.resolve( ! fails ) );
+			try {
+				render( <FeatureAction state={ state } /> );
+				await userEvent.click(
+					screen.getByRole( 'button', { name: /^(Activate Jetpack|Install)$/ } )
+				);
+				await settle();
+			} finally {
+				window.myJetpackInitialState.isOfflineFeatures = false;
+			}
+
+			expect( mockRun ).toHaveBeenCalledTimes( 1 );
+			expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( plugin ) );
+			expect( ( mockRun.mock.calls[ 0 ][ 0 ] as { leavesPage?: boolean } ).leavesPage ).toBe(
+				leavesPage || undefined
+			);
+			expect( reloadPage ).toHaveBeenCalledTimes( resumes ? 1 : 0 );
+			expect( leavePageFor ).not.toHaveBeenCalled();
+			const saved = JSON.parse(
+				window.sessionStorage.getItem( CONNECT_INTENT_STORAGE_KEY ) ?? 'null'
+			);
+			expect( window.location.hash ).toBe(
+				resumes ? `#/features?feature=activity-log&connect_intent=${ saved.id }` : initialHash
+			);
+			expect( storedRoute() ).toBe( resumes ? 'reload' : null );
 		}
 	);
 

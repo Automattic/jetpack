@@ -75,6 +75,14 @@ of the content. Picking a card saves a one-item list, and the first option an
 empty one. It falls back to the Site Editor link only where `settings` does not
 offer the key and no write is pending; while one is, the group shows disabled.
 
+## Share destinations
+
+`Share_Destination` turns an address a reader types into a sharing button's modal
+(a Mastodon instance, their own site) into an endpoint URL on that host, and gives
+the URL that reopens the modal when the address can't be used. The Jetpack
+plugin's Mastodon handlers, in the Sharing module and the Sharing Button block,
+call it behind `class_exists()` with their old handling as the fallback.
+
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches

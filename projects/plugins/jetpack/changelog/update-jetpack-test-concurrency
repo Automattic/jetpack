@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Test: Run JS in series, PHP in parallel.
+
+
