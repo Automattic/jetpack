@@ -27,7 +27,7 @@ import './route.scss';
  */
 const Stage = () => {
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument below need a cast.
-	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
+	const search: Record< string, unknown > = useSearch( { strict: false } );
 	const requestedTab = typeof search.tab === 'string' ? search.tab : '';
 	const requestedSection = typeof search.section === 'string' ? search.section : undefined;
 	const navigate = useNavigate();

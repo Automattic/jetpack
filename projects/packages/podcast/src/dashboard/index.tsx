@@ -91,7 +91,7 @@ const App = () => {
 	}, [] );
 
 	// `?tab=` owns the active tab; absent `?tab=` falls back to `defaultTab`.
-	const search = useSearch( { from: '/' as unknown as never, strict: false } ) as StageSearch;
+	const search = useSearch( { strict: false } ) as StageSearch;
 
 	// A `?tab=` deep link opts past the Welcome gate.
 	const [ hasEnabled, setHasEnabled ] = useState( () => isValidTab( search.tab ) );

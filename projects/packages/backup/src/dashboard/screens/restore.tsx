@@ -64,7 +64,7 @@ const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
-	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
+	const { rewindId } = useParams( { strict: false } ) as { rewindId: string };
 	const gate = useGateState();
 	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );

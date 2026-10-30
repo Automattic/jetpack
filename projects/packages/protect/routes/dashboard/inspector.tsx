@@ -10,7 +10,7 @@ import sections from './sections';
  */
 function Inspector() {
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument need a cast.
-	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
+	const search: Record< string, unknown > = useSearch( { strict: false } );
 	const navigate = useNavigate();
 	const inspector = sections.find(
 		section => section.inspector && search[ section.inspector.param ]
