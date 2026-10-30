@@ -1,26 +1,3 @@
-// Every block in a step is a full-width row. grunion.scss has said so since
-// multistep shipped, with `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
-// but it says it on the wrong axis: a multistep form is vertical, which makes
-// the step `flex-direction: column` (below), so that `100%` is a height basis
-// and the width falls to `align-items: flex-start`, i.e. shrink to fit. This is
-// the same axis mistake the container-block rule below corrects, and it
-// applies to every other child too: a paragraph or heading in a step ends up as
-// wide as its text, on the front end as well as in the editor, so aligning its
-// text does nothing visible.
-// This lives here rather than in grunion.scss because grunion.scss is front-end
-// only (registered in class-contact-form-plugin.php, not among the block's
-// `style_handles`), and the editor needs the same rule.
-// One class of specificity is deliberate: high enough to beat a theme styling
-// a bare element, low enough that a field's own width setting still wins
-// (`.grunion-field-width-50-wrap` front end, `.jetpack-field__width-50` editor,
-// both two classes). A button cannot be a step child — `form-step`'s
-// ALLOWED_BLOCKS is the field blocks, the step nav and CORE_BLOCKS — so `*`
-// carries none of the risk it would at form level.
-.wp-block-jetpack-form-step > * {
-	box-sizing: border-box;
-	width: 100%;
-}
-
 // Gutenberg versions will use different classname strategies
 // for layout flex support, make it backwards compatible using both.
 .wp-block-jetpack-contact-form-container.is-layout-flex,
@@ -124,11 +101,31 @@
 			margin-top: var(--wp--style--block-gap, 1.5rem);
 		}
 
+		// The step is its own layout container now, so it only needs to fill the
+		// form; core's generated rule decides how it lays its own blocks out.
 		.wp-block-jetpack-form-step {
-			display: flex;
-			flex-wrap: wrap;
 			width: 100%;
 			box-sizing: border-box;
+
+			// Except the gap, which core only writes when the *theme* opts into
+			// block gap: `wp_render_layout_support_flag()` takes
+			// `$has_block_gap_support` from
+			// `isset( $global_settings['spacing']['blockGap'] )`, and core's own
+			// theme.json leaves `settings.spacing.blockGap` null. A classic theme
+			// (no theme.json) never opts in, so core emits no gap at all and the
+			// step falls through to core's shared
+			// `:where(.is-layout-flex) { gap: 0.5em }` — 8px, where the rule this
+			// replaced gave 24px. Declaring `spacing.blockGap` on the block does
+			// not close the gap: the gate is the theme's setting, not the block's
+			// support.
+			// So keep the declaration the deleted rule used. On a block theme the
+			// variable is defined and resolves to the same value core would emit;
+			// on a classic theme the 1.5rem fallback preserves the old spacing.
+			// Note this sits at three classes against core's one, so it wins
+			// wherever core does emit a gap. That is only safe while the step has
+			// no `spacing.blockGap` support: add one and a user's own value would
+			// be overridden here, so this rule has to give way at the same time.
+			gap: var(--wp--style--block-gap, 1.5rem);
 		}
 
 		.jetpack-form-steps-wrapper {
@@ -139,39 +136,6 @@
 			align-self: normal;
 		}
 
-		&.is-content-justification-left .wp-block-jetpack-form-step {
-			align-items: flex-start;
-		}
-
-		&.is-content-justification-right .wp-block-jetpack-form-step {
-			align-items: flex-end;
-		}
-
-		&.is-content-justification-center .wp-block-jetpack-form-step {
-			align-items: center;
-		}
-
-
-		&.is-horizontal {
-
-			.wp-block-jetpack-form-step {
-				align-items: flex-end;
-			}
-		}
-
-		&.is-vertical {
-
-			.wp-block-jetpack-form-step {
-				flex-direction: column;
-			}
-		}
-
-		&.is-nowrap {
-
-			.wp-block-jetpack-form-step {
-				flex-wrap: nowrap;
-			}
-		}
 	}
 
 	&.is-style-outlined,
