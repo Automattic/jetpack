@@ -97,7 +97,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 				array(
 					'title'       => 'Akismet Anti-spam',
 					'description' => 'Filter spam from comments and forms',
-					'icon'        => 'akismet',
+					'icon'        => 'akismet-key-config',
 					'url'         => admin_url( 'admin.php?page=akismet-key-config' ),
 					'external'    => false,
 				),
@@ -118,6 +118,55 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 			),
 			WPCOM_My_Jetpack::get_tools()
 		);
+	}
+
+	/**
+	 * Values escaped for wp-admin's menu HTML reach React decoded, and badges stay out of titles.
+	 */
+	public function test_tools_decode_escaped_slugs_and_titles() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Journal d&#039;activit&eacute; <span class="count">3</span>', 'manage_options', 'https://jetpack.com/redirect/?source=x&#038;site=y' ),
+			array( '<span class="name">Wrapped</span>', 'manage_options', 'jetpack-wrapped' ),
+		);
+
+		$tools = WPCOM_My_Jetpack::get_tools();
+
+		$this->assertSame( "Journal d'activité", $tools[0]['title'] );
+		$this->assertSame( 'https://jetpack.com/redirect/?source=x&site=y', $tools[0]['url'] );
+		$this->assertSame( 'Wrapped', $tools[1]['title'] );
+	}
+
+	/**
+	 * Only Jetpack's own slugs pick up a description and icon, and each address form of a tool does.
+	 */
+	public function test_tools_match_known_slugs_exactly() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'WPForms', 'manage_options', 'wpforms-admin' ),
+			array( 'Museo', 'manage_options', 'museo-settings' ),
+			array( 'Forms', 'manage_options', 'jetpack-forms-responses-wp-admin' ),
+			array( 'Traffic', 'manage_options', 'https://wordpress.com/marketing/traffic/' . $this->domain ),
+		);
+
+		$this->assertSame( array( '', '', 'forms-responses-wp-admin', 'marketing/traffic' ), array_column( WPCOM_My_Jetpack::get_tools(), 'icon' ) );
+	}
+
+	/**
+	 * Code linking to My Jetpack's Features screen stands down once this page holds the slug.
+	 */
+	public function test_page_reports_no_modules_management() {
+		global $submenu;
+
+		$this->assertTrue( apply_filters( 'jetpack_my_jetpack_modules_management_available', true ) );
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array();
+		WPCOM_My_Jetpack::register_page();
+
+		$this->assertFalse( apply_filters( 'jetpack_my_jetpack_modules_management_available', true ) );
 	}
 
 	/**

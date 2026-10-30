@@ -562,6 +562,12 @@ function wpcom_sort_jetpack_submenu() {
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
 
+	// Without a My Jetpack page, pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! in_array( 'my-jetpack', array_column( $submenu['jetpack'], 2 ), true ) ) {
+		$named_tiers['jetpack-activity-log'] = -5;
+		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
+	}
+
 	$keyed = array();
 	foreach ( $submenu['jetpack'] as $item ) {
 		// Drop exact duplicates: Simple can register Akismet twice.

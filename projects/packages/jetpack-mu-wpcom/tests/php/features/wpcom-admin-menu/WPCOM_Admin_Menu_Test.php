@@ -726,11 +726,12 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @param string|null $address  Which Settings address the Jetpack plugin registers.
 	 * @param array       $expected Expected submenu titles, top to bottom; a hidden item ends in "(hidden)".
 	 * @param bool        $atomic   Whether to define the Atomic hosting constants.
+	 * @param bool        $page     Whether a My Jetpack page registered.
 	 */
 	#[DataProvider( 'provide_jetpack_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true ) {
+	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true, $page = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
@@ -752,8 +753,10 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
 			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		if ( $page ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		}
 		if ( ! $simple ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
@@ -834,6 +837,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
 			'Atomic Settings'                    => array( false, 'own', $atomic ),
 			'Simple'                             => array( true, null, $simple ),
+			'Simple without the My Jetpack page' => array( true, null, array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' ), true, false ),
 			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
 	}

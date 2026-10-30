@@ -10,7 +10,6 @@ body.jetpack_page_my-jetpack {
 }
 
 .wpcom-my-jetpack__body {
-	box-sizing: border-box;
 	padding: var(--wpds-dimension-padding-2xl);
 }
 
@@ -29,27 +28,18 @@ body.jetpack_page_my-jetpack {
 	}
 }
 
-// The card from My Jetpack's Features tab: icon, title and description,
-// trailing arrow, the whole card one target.
-.wpcom-my-jetpack__tool {
-	align-items: flex-start;
+// The card from My Jetpack's Features tab. Link draws the focus ring, and its
+// reset of the radius on hover and focus needs this much specificity to beat.
+.wpcom-my-jetpack__tools a.wpcom-my-jetpack__tool {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-lg);
-	display: flex;
-	gap: var(--wpds-dimension-gap-md);
+	display: block;
 	padding: var(--wpds-dimension-padding-xl);
-	position: relative;
 
 	&:hover {
 		background: var(--wpds-color-background-surface-neutral-weak);
 		border-color: var(--wpds-color-stroke-surface-neutral);
-	}
-
-	// The one focus ring, for keyboard users only.
-	&:has(.wpcom-my-jetpack__tool-title:focus-visible) {
-		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
 }
 
@@ -68,32 +58,12 @@ body.jetpack_page_my-jetpack {
 }
 
 .wpcom-my-jetpack__tool-text {
-	display: flex;
 	flex: 1;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-xs);
 	min-inline-size: 0;
 }
 
 .wpcom-my-jetpack__tool-title {
 	color: var(--wpds-color-foreground-content-neutral);
-	text-decoration: none;
-
-	// Stretched over the card, so anywhere on it follows the link. The card
-	// draws the focus ring.
-	&::after {
-		content: "";
-		inset: 0;
-		position: absolute;
-	}
-
-	// wp-admin's `a:focus` draws a ring on any focused link, mouse clicks
-	// included.
-	&:focus {
-		box-shadow: none;
-		color: var(--wpds-color-foreground-content-neutral);
-		outline: none;
-	}
 }
 
 .wpcom-my-jetpack__tool-description {
