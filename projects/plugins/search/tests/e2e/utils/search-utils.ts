@@ -67,6 +67,7 @@ export async function searchAutoConfig(): Promise< string > {
  */
 export async function clearSearchPlanInfo(): Promise< string > {
 	// When running locally, sometimes there could be data in the option - better clear it.
+	await executeWpCommand( 'transient delete jetpack_search_plan_info_fetch_failed' );
 	return await executeWpCommand( 'option delete jetpack_search_plan_info' );
 }
 

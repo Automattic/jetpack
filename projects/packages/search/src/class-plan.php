@@ -23,6 +23,10 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
 	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
+	// Held during an implicit lookup and kept if it fails, so a missing plan doesn't trigger a WPCOM request on every page load.
+	const PLAN_INFO_FETCH_FAILED_TRANSIENT = 'jetpack_search_plan_info_fetch_failed';
+	const PLAN_INFO_FETCH_FAILED_TTL       = HOUR_IN_SECONDS;
+
 	// The pricing update starting from August 2022.
 	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
 	const JETPACK_SEARCH_FREE_PRODUCT_SLUG   = 'jetpack_search_free';
@@ -42,6 +46,9 @@ class Plan {
 		// TODO: implement heartbeart for search.
 		if ( ! static::$update_plan_hook_initialized ) {
 			add_action( 'jetpack_heartbeat', array( $this, 'get_plan_info_from_wpcom' ) );
+			// A new blog token (reconnection, re-registration or a manual fix) may resolve the failed lookup.
+			add_action( 'add_option_jetpack_private_options', array( $this, 'clear_failed_lookup' ) );
+			add_action( 'update_option_jetpack_private_options', array( $this, 'clear_failed_lookup' ) );
 			static::$update_plan_hook_initialized = true;
 		}
 	}
@@ -52,17 +59,12 @@ class Plan {
 	 * @return array|WP_Error HTTP response, or an error when offline, unregistered, or the request could not be sent.
 	 */
 	public function get_plan_info_from_wpcom() {
-		if ( ( new Status() )->is_offline_mode() ) {
-			return new WP_Error( 'site_offline', 'Site is in offline mode.' );
-		}
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		// An unregistered site (or a stale cache view hiding the registration) has no
-		// blog ID: bail rather than requesting the malformed `/sites//…` path.
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		$error = $this->get_lookup_blocker();
+		if ( $error ) {
+			return $error;
 		}
 		$response = Client::wpcom_json_api_request_as_blog(
-			'/sites/' . $blog_id . '/jetpack-search/plan',
+			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/jetpack-search/plan',
 			'2',
 			array(),
 			null,
@@ -78,6 +80,8 @@ class Plan {
 	/**
 	 * Get plan info.
 	 *
+	 * A missing plan is fetched implicitly, unless a lookup failed within the last PLAN_INFO_FETCH_FAILED_TTL.
+	 *
 	 * @param bool $force_refresh - Default to false. Set true to attempt a refresh via get_plan_info_from_wpcom().
 	 */
 	public function get_plan_info( $force_refresh = false ) {
@@ -85,10 +89,38 @@ class Plan {
 			$this->get_plan_info_from_wpcom();
 		}
 		$plan_info = get_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
-		if ( false === $plan_info && ! $force_refresh ) {
+		if ( false === $plan_info && ! $force_refresh && ! $this->get_lookup_blocker() && ! $this->lookup_failed() ) {
+			// Set before the request so concurrent page loads don't each send one; a stored plan clears it.
+			set_transient( self::PLAN_INFO_FETCH_FAILED_TRANSIENT, true, self::PLAN_INFO_FETCH_FAILED_TTL );
 			$plan_info = $this->get_plan_info( true );
 		}
 		return $plan_info;
+	}
+
+	/**
+	 * Whether an implicit lookup failed (or is in flight) within the last PLAN_INFO_FETCH_FAILED_TTL.
+	 *
+	 * @return bool
+	 */
+	public function lookup_failed() {
+		return (bool) get_transient( self::PLAN_INFO_FETCH_FAILED_TRANSIENT );
+	}
+
+	/**
+	 * Why no plan request can be sent, if any.
+	 *
+	 * @return WP_Error|null Error when offline or unregistered, null otherwise.
+	 */
+	private function get_lookup_blocker() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error( 'site_offline', 'Site is in offline mode.' );
+		}
+		// An unregistered site (or a stale cache view hiding the registration) has no
+		// blog ID: bail rather than requesting the malformed `/sites//…` path.
+		if ( ! Jetpack_Options::get_option( 'id' ) ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+		return null;
 	}
 
 	/**
@@ -189,6 +221,14 @@ class Plan {
 			update_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH, true, false );
 		}
 		update_option( self::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+		$this->clear_failed_lookup();
 		return true;
+	}
+
+	/**
+	 * Let the next implicit lookup reach WPCOM again.
+	 */
+	public function clear_failed_lookup() {
+		delete_transient( self::PLAN_INFO_FETCH_FAILED_TRANSIENT );
 	}
 }
