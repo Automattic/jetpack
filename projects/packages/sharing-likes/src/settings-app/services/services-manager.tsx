@@ -221,7 +221,7 @@ export function ServicesManager(): JSX.Element {
 				<Notice.Root intent="info">
 					<Notice.Description>
 						{ __(
-							'Please note that your services have been restricted because your site is private.',
+							'Some sharing services aren’t available while your site is private.',
 							'jetpack-sharing-likes'
 						) }
 					</Notice.Description>

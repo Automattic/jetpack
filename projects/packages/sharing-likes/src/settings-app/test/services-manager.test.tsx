@@ -280,7 +280,7 @@ describe( 'ServicesManager', () => {
 
 		expect(
 			screen.getByText(
-				'Please note that your services have been restricted because your site is private.',
+				'Some sharing services aren’t available while your site is private.',
 				// The notice also announces itself through the a11y-speak live region.
 				{ ignore: 'script, style, .a11y-speak-region' }
 			)
