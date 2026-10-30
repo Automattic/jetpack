@@ -32,19 +32,17 @@ function wpcomsh_insert_shared_post_data( $target_post_id, $post = null, $update
 		return;
 	}
 
-	// phpcs:disable WordPress.Security
-	$title   = $_GET['title'];
-	$image   = $_GET['image'];
-	$text    = $_GET['text'];
-	$url     = $_GET['url'];
-	$embed   = strtok( $_GET['embed'], '?' );
+	$title   = wpcomsh_get_shared_post_arg( 'title' );
+	$image   = wpcomsh_get_shared_post_arg( 'image' );
+	$text    = wpcomsh_get_shared_post_arg( 'text' );
+	$url     = wpcomsh_get_shared_post_arg( 'url' );
+	$embed   = strtok( wpcomsh_get_shared_post_arg( 'embed' ), '?' );
 	$link    = sprintf(
 		'<a href="%1$s">%2$s</a>',
 		esc_url( $url ),
 		sanitize_text_field( $title )
 	);
 	$content = '';
-	// phpcs:enable
 
 	if ( $embed ) {
 		$content .= wpcomsh_get_embed_content( $embed );
@@ -68,9 +66,20 @@ function wpcomsh_insert_shared_post_data( $target_post_id, $post = null, $update
 	add_filter( 'default_title', 'wpcomsh_filter_title', 10, 2 );
 	add_filter( 'default_content', 'wpcomsh_filter_content', 10, 2 );
 
-	return wp_update_post( $data );
+	return wp_update_post( wp_slash( $data ) );
 }
 add_action( 'wp_insert_post', 'wpcomsh_insert_shared_post_data', 10, 3 );
+
+/**
+ * Get an argument from the share link.
+ *
+ * @param string $key Query argument name.
+ * @return string Unslashed, unescaped value, or an empty string when absent.
+ */
+function wpcomsh_get_shared_post_arg( $key ) {
+	// phpcs:ignore WordPress.Security -- Values are escaped where they are used.
+	return isset( $_GET[ $key ] ) && is_string( $_GET[ $key ] ) ? wp_unslash( $_GET[ $key ] ) : '';
+}
 
 /**
  * Generate the embed content for our sharing post.
@@ -79,9 +88,19 @@ add_action( 'wp_insert_post', 'wpcomsh_insert_shared_post_data', 10, 3 );
  * @return string Generated content for the sharing post.
  */
 function wpcomsh_get_embed_content( $embed ) {
-	return sprintf(
-		'<!-- wp:embed {"url":"%s"} --><figure><div class="wp-block-embed__wrapper">%s</div></figure><!-- /wp:embed -->',
-		esc_url( $embed )
+	$url = esc_url_raw( $embed );
+	if ( '' === $url ) {
+		return '';
+	}
+
+	// Matches the core/embed block's save() output, so the editor validates it.
+	return get_comment_delimited_block_content(
+		'core/embed',
+		array( 'url' => $url ),
+		sprintf(
+			'<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">%s</div></figure>',
+			"\n" . esc_html( $url ) . "\n"
+		)
 	);
 }
 
