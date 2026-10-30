@@ -227,8 +227,6 @@ $jp-breakpoint-mobile: 782px;
 	// regardless of element type, keeping us forward-compatible with 2.1+
 	// AND backward-compatible with 2.0's `<header>`.
 	.jp-admin-page__page {
-		// TEMPORARY, WRONG FIX: nudges the layout back from shifting to the left. Find the real cause.
-		margin-inline-start: 20px;
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
@@ -321,8 +319,6 @@ $jp-breakpoint-mobile: 782px;
 	// reads as a visual continuation of the page header and tracks any
 	// future token (theme/dark-mode) changes automatically.
 	.jp-admin-page-tabs {
-		// TEMPORARY, WRONG FIX: nudges the layout back from shifting to the left. Find the real cause.
-		margin-inline-start: 20px;
 		position: sticky;
 		top: 0;
 		z-index: 10;
@@ -436,4 +432,12 @@ $jp-breakpoint-mobile: 782px;
 			text-decoration: underline;
 		}
 	}
+}
+
+// The Jetpack SPA host page is a hidden page, so no product's own `body.<page>` scope matches it.
+// Apply the layout here too, or AdminPage's legacy -20px shift is never cancelled.
+body.admin_page_jetpack-spa-wp-admin,
+body.jetpack_page_jetpack-spa-wp-admin {
+
+	@include jetpack-admin-page-layout-wp-build;
 }
