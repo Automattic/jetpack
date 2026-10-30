@@ -101,6 +101,15 @@ class LCP_Invalidator {
 		}
 
 		// One Site Editor save writes several of these, and the cloud caps LCP URLs per hour, so wait for the last.
+		self::schedule_style_reanalysis();
+	}
+
+	/**
+	 * Schedule the style re-analysis five minutes from now, replacing any already scheduled.
+	 *
+	 * @return void
+	 */
+	private static function schedule_style_reanalysis() {
 		wp_clear_scheduled_hook( self::STYLE_REANALYSIS_HOOK );
 		wp_schedule_single_event( time() + 5 * MINUTE_IN_SECONDS, self::STYLE_REANALYSIS_HOOK );
 	}
@@ -114,6 +123,14 @@ class LCP_Invalidator {
 	public static function reanalyze_cornerstone_pages() {
 		$state = ( new LCP_State() )->get();
 		if ( empty( $state['pages'] ) ) {
+			return;
+		}
+
+		// The cloud drops a request while the site has an LCP job queued, leaving pages it doesn't cover pending.
+		// A pending state an hour old has lost its callback, so run anyway.
+		$updated = isset( $state['updated'] ) ? (float) $state['updated'] : 0.0;
+		if ( LCP_State::ANALYSIS_STATES['pending'] === ( $state['status'] ?? null ) && microtime( true ) - $updated < HOUR_IN_SECONDS ) {
+			self::schedule_style_reanalysis();
 			return;
 		}
 

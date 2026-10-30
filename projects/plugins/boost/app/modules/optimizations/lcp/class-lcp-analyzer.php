@@ -65,7 +65,12 @@ class LCP_Analyzer {
 			->set_pending_pages( $pages )
 			->save();
 
-		$this->analyze_pages( $pages );
+		$response = $this->analyze_pages( $pages );
+
+		// No callback follows a refused request, so the pages would otherwise stay pending.
+		if ( is_wp_error( $response ) ) {
+			$this->state->set_error( $response->get_error_message() )->save();
+		}
 
 		// @todo - Clear previous LCP analysis data from storage for pages in the $pages array.
 		// We currently don't have a way to do this.
