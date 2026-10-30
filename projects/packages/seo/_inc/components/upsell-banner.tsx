@@ -29,6 +29,8 @@ const UPGRADE_PENDING_KEY = 'jetpack-seo-upgrade-pending';
  * @return The upsell banner.
  */
 const UpsellBanner: FC = () => {
+	const upsellUrl = getUpsellUrl();
+
 	useEffect( () => {
 		const onFocus = () => {
 			if ( window.sessionStorage.getItem( UPGRADE_PENDING_KEY ) ) {
@@ -45,6 +47,10 @@ const UpsellBanner: FC = () => {
 		window.sessionStorage.setItem( UPGRADE_PENDING_KEY, '1' );
 	};
 
+	if ( ! upsellUrl ) {
+		return null;
+	}
+
 	return (
 		<BaseUpsellBanner
 			title={ __( 'Boost your search engine ranking', 'jetpack-seo' ) }
@@ -53,7 +59,7 @@ const UpsellBanner: FC = () => {
 				'jetpack-seo'
 			) }
 			primaryCtaLabel={ __( 'Upgrade', 'jetpack-seo' ) }
-			primaryCtaURL={ getUpsellUrl() }
+			primaryCtaURL={ upsellUrl }
 			primaryCtaOnClick={ onUpgradeClick }
 			primaryCtaIsExternalLink
 		/>

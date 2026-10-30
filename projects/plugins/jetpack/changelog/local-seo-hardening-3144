@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Preserve multi-year terms in SEO upgrades, return to the dashboard after checkout or cancellation, and hide upgrade offers on P2 sites. The new SEO page is still gated.
