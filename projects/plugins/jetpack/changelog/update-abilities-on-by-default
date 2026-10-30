@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Abilities: Make Jetpack's abilities available to AI agents by default, including Stats, Backup, Newsletter, Monitor, modules and connection status. Return false from the jetpack_wp_abilities_enabled filter to turn them off.

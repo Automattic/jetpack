@@ -2,7 +2,7 @@
 
 Two templates — one per host-project type. Each template covers the same five assertion groups:
 
-1. **Registrar wiring** — gate filter defaulting false, hook wiring, late-load, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
+1. **Registrar wiring** — gate filter turning registration off, hook wiring, late-load, per-ability allow-list, category auto-injection. This is the differentiating value-add; a hand-rolled ability class without these assertions is incomplete.
 2. **Module-activation gating (Case A only)** — for module-backed abilities, the ability must not register when the backing module is inactive. Because Case A wires `::init()` from inside `modules/<slug>.php` (which Jetpack only includes for active modules), the assertion is: when `Jetpack::is_module_active()` returns false, `<Name>_Abilities::init()` either never runs OR, if defensively called, registers nothing. See `references/module-colocation.md`.
 2. **Abstract getters** — the three static methods return the expected shapes.
 3. **Permission callbacks** — allowed user returns true; denied user returns false; unauth returns false.
@@ -390,10 +390,10 @@ class <Name>AbilitiesTest extends TestCase {
 
 	// -------------------- Registrar wiring --------------------
 
-	public function test_init_is_disabled_by_default(): void {
+	public function test_init_registers_nothing_when_the_gate_filter_returns_false(): void {
 		Filters\expectApplied( 'jetpack_wp_abilities_enabled' )
 			->once()
-			->with( false )
+			->with( true )
 			->andReturn( false );
 
 		Functions\expect( 'did_action' )->never();

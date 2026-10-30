@@ -187,6 +187,9 @@ function _manually_load_muplugin() {
 	}
 }
 
+// Ability tests turn abilities on themselves, so keep them off while the plugin loads.
+tests_add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Registrar: Skip an ability whose category is not registered, instead of letting WordPress reject it.
