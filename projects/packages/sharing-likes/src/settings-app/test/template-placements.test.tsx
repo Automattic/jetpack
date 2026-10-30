@@ -227,9 +227,9 @@ describe( 'TemplatePlacements', () => {
 			);
 			// Other templates, such as `singular` or a custom one, still follow the choice.
 			expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
-			expect(
-				screen.queryByRole( 'link', { name: 'Preview and edit' } )?.getAttribute( 'href' ) ?? ''
-			).toBe( previewUrl );
+			expect( screen.queryByText( 'Preview and edit' )?.getAttribute( 'href' ) ?? '' ).toBe(
+				previewUrl
+			);
 			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
 		}
 	);
