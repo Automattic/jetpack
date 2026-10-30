@@ -325,7 +325,7 @@ class Settings_App_Test extends BaseTestCase {
 		return array(
 			'open'                 => array( 'open', false ),
 			'closed'               => array( 'closed', true ),
-			// What Settings > Discussion saves when the box is unticked.
+			// Settings > Discussion passes null for an unticked box, stored as ''. '' itself would be sanitized to 'closed'.
 			'unticked in wp-admin' => array( null, true ),
 		);
 	}
