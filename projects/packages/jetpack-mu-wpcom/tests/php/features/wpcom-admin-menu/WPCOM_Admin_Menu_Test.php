@@ -716,20 +716,21 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Keep SEO in the platform menu order, including Simple without Jetpack Settings.
+	 * Sort the Jetpack submenu into the self-hosted tiers, each A to Z, on every platform.
 	 *
-	 * @dataProvider provide_seo_menu_environments
+	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @param bool        $simple  Whether this is a Simple site.
-	 * @param string|null $address Which Settings address the Jetpack plugin registers.
-	 * @param bool        $atomic Whether to define the Atomic hosting constants.
+	 * @param bool        $simple   Whether this is a Simple site.
+	 * @param string|null $address  Which Settings address the Jetpack plugin registers.
+	 * @param array       $expected Expected submenu titles, top to bottom; a hidden item ends in "(hidden)".
+	 * @param bool        $atomic   Whether to define the Atomic hosting constants.
 	 */
-	#[DataProvider( 'provide_seo_menu_environments' )]
+	#[DataProvider( 'provide_jetpack_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_orders_seo_across_environments( $simple, $address, $atomic = true ) {
+	public function test_jetpack_submenu_sorts_into_tiers( $simple, $address, $expected, $atomic = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
@@ -740,41 +741,73 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		}
 		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'id', 200 );
-		$settings_slug = $address ? ( 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings' ) : null;
+		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu['jetpack'] = array(
-			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
+			array( 'Social', 'manage_options', 'jetpack-social' ),
+			array( 'Beta Tester', 'manage_options', 'jetpack-beta' ),
 			array( 'SEO', 'manage_options', 'jetpack-seo' ),
+			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
+			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
-		if ( $settings_slug ) {
+		if ( ! $simple ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
 		}
 
 		wpcom_add_jetpack_submenu();
 
-		$slugs = array_column( $submenu['jetpack'], 2 );
-		$this->assertContains( 'jetpack-seo', $slugs );
-		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( 'jetpack-seo', $slugs, true ) );
-		if ( $settings_slug ) {
-			$this->assertSame( array_search( 'jetpack-seo', $slugs, true ) + 1, array_search( $settings_slug, $slugs, true ) );
-		} else {
-			$this->assertNotContains( 'jetpack-settings', $slugs );
-			$this->assertNotContains( admin_url( 'admin.php?page=jetpack#/settings' ), $slugs );
-		}
+		$titles = array_map(
+			function ( $item ) {
+				$title = wp_strip_all_tags( $item[0] );
+				return str_contains( $item[4] ?? '', 'hide-if-js' ) ? "$title (hidden)" : $title;
+			},
+			$submenu['jetpack']
+		);
+		$this->assertSame( $expected, $titles );
 	}
 
 	/**
-	 * Settings addresses across Jetpack releases.
+	 * Atomic Personal and Premium hide My Jetpack and redirect it to Stats, so it keeps the
+	 * top link even though it is hidden, ahead of a visible Modules page; the upgrade link
+	 * sorts after Settings.
+	 */
+	public function test_jetpack_submenu_keeps_a_hidden_my_jetpack_first() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Upgrade Jetpack', 'manage_options', 'https://jetpack.com/redirect/?source=jetpack-wpadmin-sidebar-free-plan-upsell-menu-item&site=example.org' ),
+			array( 'Settings', 'manage_options', 'jetpack-settings', '', 'hide-if-js' ),
+			array( 'Scan', 'manage_options', 'https://wordpress.com/scan/example.org' ),
+			array( 'Akismet Anti-spam', 'manage_options', 'akismet-key-config' ),
+			array( 'Modules', 'manage_options', 'jetpack_modules' ),
+			array( 'My Jetpack', 'manage_options', 'my-jetpack', '', 'hide-if-js' ),
+		);
+
+		wpcom_sort_jetpack_submenu();
+
+		$this->assertSame(
+			array( 'My Jetpack', 'Modules', 'Akismet Anti-spam', 'Scan', 'Settings', 'Upgrade Jetpack' ),
+			array_column( $submenu['jetpack'], 0 )
+		);
+	}
+
+	/**
+	 * Platforms and Settings addresses across Jetpack releases.
 	 *
 	 * @return array
 	 */
-	public static function provide_seo_menu_environments() {
+	public static function provide_jetpack_menu_environments() {
+		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'SEO', 'Social', 'Backup', 'Monetize', 'Scan', 'Beta Tester', 'Settings' );
+		$simple = array( 'Akismet Anti-spam 2', 'Podcast', 'SEO', 'Social', 'Activity Log (hidden)', 'Activity Log', 'Backup', 'Monetize', 'Scan', 'Traffic', 'Beta Tester' );
+
 		return array(
-			'Atomic legacy Settings'             => array( false, 'legacy' ),
-			'Atomic Settings'                    => array( false, 'own' ),
-			'Simple'                             => array( true, null ),
-			'Other host with WordPress.com menu' => array( false, 'own', false ),
+			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
+			'Atomic Settings'                    => array( false, 'own', $atomic ),
+			'Simple'                             => array( true, null, $simple ),
+			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
 	}
 }

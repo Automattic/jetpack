@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Admin menu: Sort the Jetpack menu alphabetically, with My Jetpack at the top, WordPress.com links below the wp-admin pages, and Settings at the bottom.
