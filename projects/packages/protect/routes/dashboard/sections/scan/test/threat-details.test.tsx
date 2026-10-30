@@ -1,7 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { ignoreThreat } from '../threat-actions';
 import ThreatDetails from '../threat-details';
 import type { ScanThreat } from '../types';
 
@@ -45,16 +44,18 @@ describe( 'ThreatDetails', () => {
 		expect( !! screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).toBe( confirms );
 	} );
 
-	it( 'disables Confirm deletion while another action runs on the threat', async () => {
-		const threat = threatIn( 3, 'delete' );
-		render( <ThreatDetails threat={ threat } canAct /> );
+	it( 'starts a delete fix and closes the confirmation once the slug is typed', async () => {
+		render( <ThreatDetails threat={ threatIn( 3, 'delete' ) } canAct /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
 		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
-		const confirm = screen.getByRole( 'button', { name: 'Confirm deletion' } );
-		expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Confirm deletion' } ) );
 
-		act( () => void ignoreThreat( threat ) );
-
-		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/threats/3/fix' ) } )
+		);
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByRole( 'button', { name: 'Fixing…' } ) ).toBeInTheDocument();
 	} );
 } );

@@ -300,6 +300,7 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	public static function provider_format_fixable_extras() {
 		return array(
 			'keys are camelCased'        => array( (object) array( 'is_dotorg' => false ), '{"isDotorg":false}' ),
+			'every word is camelCased'   => array( (object) array( 'is_bulk_fixable' => false ), '{"isBulkFixable":false}' ),
 			'empty extras are an object' => array( array(), '{}' ),
 		);
 	}

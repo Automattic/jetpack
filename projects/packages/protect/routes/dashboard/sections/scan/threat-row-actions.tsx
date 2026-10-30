@@ -60,6 +60,7 @@ function getThreatRowActions(
 		};
 	const canFix = ( item: ScanThreat ) =>
 		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
+	const autoFix = { label: __( 'Auto-fix', 'jetpack-protect-pkg' ), isPrimary: true };
 
 	const actions: Action< ScanThreat >[] = [
 		{
@@ -71,8 +72,7 @@ function getThreatRowActions(
 		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
 		{
 			id: 'auto-fix',
-			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
-			isPrimary: true,
+			...autoFix,
 			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
@@ -83,8 +83,7 @@ function getThreatRowActions(
 		},
 		{
 			id: 'auto-fix-delete',
-			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
-			isPrimary: true,
+			...autoFix,
 			isEligible: item => canFix( item ) && isDeleteFix( item ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
 			RenderModal: FixDeleteModal,
