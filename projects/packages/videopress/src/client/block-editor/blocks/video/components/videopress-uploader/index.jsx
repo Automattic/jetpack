@@ -443,7 +443,7 @@ const VideoPressUploader = ( {
 				noticeOperations.createErrorNotice( error );
 			} }
 		>
-			<RecordVideoButton onRecorded={ onSelectVideo } />
+			<RecordVideoButton __next40pxDefaultSize onRecorded={ onSelectVideo } />
 		</MediaPlaceholder>
 	);
 };
