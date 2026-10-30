@@ -3,11 +3,15 @@ export type SectionState =
 
 export type Feature = 'sharing' | 'likes';
 
+/** A template the placements add the blocks to. */
+export type PlacementTemplate = 'single' | 'page';
+
 export interface Status {
-	sharing: { state: SectionState };
-	likes: { state: SectionState; supported: boolean };
+	sharing: { state: SectionState; managed_templates: PlacementTemplate[] };
+	likes: { state: SectionState; supported: boolean; managed_templates: PlacementTemplate[] };
 	comment_likes: { supported: boolean; follows_likes_settings: boolean };
 	placement: boolean;
+	/** Empty when the theme has no `single` template. */
 	site_editor_url: string;
 	/** Empty when the theme has no `page` template. */
 	page_template_editor_url: string;

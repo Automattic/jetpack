@@ -74,6 +74,11 @@ placements" below): "Don't add it automatically" first, then a card for each sid
 of the content. Picking a card saves a one-item list, and the first option an
 empty one. It falls back to the Site Editor link only where `settings` does not
 offer the key and no write is pending; while one is, the group shows disabled.
+Once either template manages the block (see `managed_templates` under "REST
+API"), the section shows only a notice, linking to both templates. Next to a
+saved template, cards read as if they still moved its block. The stored choice
+keeps applying to the templates the Site Editor hasn't taken over (`singular`,
+`page-*`, custom ones), with no control for it here until the notice goes.
 
 ## Share destinations
 
@@ -277,6 +282,11 @@ nothing to hook. Each holds one side of the content at most: a write with both
 is refused, not trimmed by `Template_Placements::update()`. `status` links the
 Site Editor to the single template (`site_editor_url`) and to the page template
 (`page_template_editor_url`), each empty when the theme has no such template.
+Each feature's `managed_templates` lists which of the two were saved in the
+Site Editor in a state the placements no longer change
+(`Hooked_Blocks::is_managed_by_template()`), and stays empty unless a section is
+in `BLOCK_CALL_TO_ACTION`. Having been saved is not enough: a template saved
+before the block was hooked still gets it.
 
 Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
 stores. They are offered wherever `Environment::likes_supported()` holds, like
@@ -341,8 +351,8 @@ Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
 `get_block_template()`, `Environment::single_template_editor_url()`,
-`Environment::page_template_editor_url()` and the sections' `state()` all
-recurse from there.
+`Environment::page_template_editor_url()`, `Environment::saved_template_content()`
+and the sections' `state()` all recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on

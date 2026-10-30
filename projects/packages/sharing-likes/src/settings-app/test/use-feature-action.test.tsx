@@ -18,7 +18,10 @@ import type { Services, Settings, Status } from '../types';
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
-const switched: Status = { ...baseStatus, sharing: { state: 'block_call_to_action' } };
+const switched: Status = {
+	...baseStatus,
+	sharing: { ...baseStatus.sharing, state: 'block_call_to_action' },
+};
 
 /**
  * Render the action hook in a seeded registry.

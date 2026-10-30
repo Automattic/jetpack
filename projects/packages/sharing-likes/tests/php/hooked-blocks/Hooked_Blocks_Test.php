@@ -679,6 +679,90 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @return array<string, array{0: string[], 1: string, 2: bool}>
+	 */
+	public static function provide_saved_templates(): array {
+		return array(
+			'saved before the block was placed'          => array( array(), '', false ),
+			'saved with the block after the content'     => array( array( Template_Placements::AFTER_CONTENT ), '', true ),
+			'saved with the block, then removed'         => array( array( Template_Placements::AFTER_CONTENT ), 'remove', true ),
+			'saved before, then the block added by hand' => array( array(), 'add', true ),
+		);
+	}
+
+	/**
+	 * The Site Editor saves a template as core serves it, so the content is built the same way here.
+	 *
+	 * @dataProvider provide_saved_templates
+	 *
+	 * @param string[] $at_save Sharing Buttons placements when the template was saved.
+	 * @param string   $edit    What the owner did to the block afterwards: `remove`, `add` or nothing.
+	 * @param bool     $managed Whether the template manages the block.
+	 */
+	#[DataProvider( 'provide_saved_templates' )]
+	public function test_a_saved_template_manages_a_block_exactly_when_core_stops_placing_it( array $at_save, string $edit, bool $managed ): void {
+		Template_Placements::update( Template_Placements::FEATURE_SHARING, $at_save );
+		$saved = get_block_template( get_stylesheet() . '//single' )->content;
+
+		if ( 'remove' === $edit ) {
+			$saved = serialize_blocks(
+				array_filter(
+					parse_blocks( $saved ),
+					static function ( array $block ): bool {
+						return Block_Names::SHARING_BUTTONS !== ( $block['innerBlocks'][0]['blockName'] ?? null );
+					}
+				)
+			);
+			$this->assertFalse( has_block( Block_Names::SHARING_BUTTONS, $saved ), 'The removal left the block in place.' );
+		} elseif ( 'add' === $edit ) {
+			$saved .= '<!-- wp:jetpack/sharing-buttons /-->';
+		}
+
+		$this->assertSame( $managed, Hooked_Blocks::is_managed_by_template( $saved, Block_Names::SHARING_BUTTONS ) );
+
+		$template          = self::template( 'single' );
+		$template->content = $saved;
+
+		foreach ( Template_Placements::PLACEMENTS as $placement ) {
+			Template_Placements::update( Template_Placements::FEATURE_SHARING, array( $placement ) );
+			$hooked = apply_block_hooks_to_content( $saved, $template, 'insert_hooked_blocks_and_set_ignored_hooked_blocks_metadata' );
+
+			$this->assertSame(
+				! $managed,
+				substr_count( $hooked, '<!-- wp:jetpack/sharing-buttons' ) > substr_count( $saved, '<!-- wp:jetpack/sharing-buttons' ),
+				"Core places the block at $placement exactly when the template does not manage it."
+			);
+		}
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_post_content_anchors(): array {
+		$ignored = '<!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . Block_Names::SHARING_BUTTONS . '"]}} /-->';
+
+		return array(
+			'no post content'                    => array( '<!-- wp:post-title /-->', false ),
+			'nested, ignoring the block'         => array( '<!-- wp:group --><div class="wp-block-group">' . $ignored . '</div><!-- /wp:group -->', true ),
+			'ignoring only another block'        => array( '<!-- wp:post-content {"metadata":{"ignoredHookedBlocks":["' . Block_Names::LIKE . '"]}} /-->', false ),
+			'one of two still open to the block' => array( $ignored . '<!-- wp:post-content /-->', false ),
+			'malformed ignored list'             => array( '<!-- wp:post-content {"metadata":{"ignoredHookedBlocks":"' . Block_Names::SHARING_BUTTONS . '"}} /-->', false ),
+			'the block inside another block'     => array( '<!-- wp:post-content /--><!-- wp:group --><div class="wp-block-group"><!-- wp:jetpack/sharing-buttons /--></div><!-- /wp:group -->', true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_post_content_anchors
+	 *
+	 * @param string $content Saved template content.
+	 * @param bool   $managed Whether the template manages the Sharing Buttons block.
+	 */
+	#[DataProvider( 'provide_post_content_anchors' )]
+	public function test_a_saved_template_manages_a_block_only_where_no_post_content_is_open_to_it( string $content, bool $managed ): void {
+		$this->assertSame( $managed, Hooked_Blocks::is_managed_by_template( $content, Block_Names::SHARING_BUTTONS ) );
+	}
+
+	/**
 	 * Other code may hook these blocks elsewhere; that is not ours to rebuild.
 	 */
 	public function test_leaves_the_blocks_alone_elsewhere(): void {

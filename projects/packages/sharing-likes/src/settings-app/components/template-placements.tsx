@@ -1,12 +1,12 @@
 import RadioCard, { RadioCardGrid } from '@automattic/jetpack-components/radio-card';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Field, Fieldset, Link, Radio, RadioGroup, Stack, Text } from '@wordpress/ui';
+import { Field, Fieldset, Link, Notice, Radio, RadioGroup, Stack, Text } from '@wordpress/ui';
 import { useIsSaving, useSettings, useStatus } from '../data/queries';
 import { useSaveSetting } from '../data/use-save-setting';
 import { PlacementIllustration, type PlacedBlock } from './placement-illustrations';
 import { SettingGroup } from './section-card';
-import type { Feature, TemplatePlacement } from '../types';
+import type { Feature, PlacementTemplate, TemplatePlacement } from '../types';
 import type { JSX, ReactNode } from 'react';
 
 const SETTING_KEYS = {
@@ -21,6 +21,8 @@ const PLACED_BLOCKS: Record< Feature, PlacedBlock > = {
 
 const PLACEMENTS: TemplatePlacement[] = [ 'before_content', 'after_content' ];
 
+const TEMPLATES: PlacementTemplate[] = [ 'single', 'page' ];
+
 const NONE = 'none';
 
 const NONE_ITEM_RENDER = <Stack gap="sm" align="center" />;
@@ -32,17 +34,14 @@ const NONE_ITEM_RENDER = <Stack gap="sm" align="center" />;
  * @return Copy.
  */
 function copyFor( feature: Feature ) {
-	return {
-		legend:
-			feature === 'sharing'
-				? __(
-						'Where should the Sharing Buttons block go on posts and pages?',
-						'jetpack-sharing-likes'
-					)
-				: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
+	const shared = {
 		none: __( 'Don’t add it automatically', 'jetpack-sharing-likes' ),
 		before: _x( 'Before the content', 'Where the block goes', 'jetpack-sharing-likes' ),
 		after: _x( 'After the content', 'Where the block goes', 'jetpack-sharing-likes' ),
+		editTemplate: {
+			single: __( 'Edit the post template', 'jetpack-sharing-likes' ),
+			page: __( 'Edit the page template', 'jetpack-sharing-likes' ),
+		},
 		pageTemplate:
 			feature === 'sharing'
 				? __(
@@ -54,6 +53,49 @@ function copyFor( feature: Feature ) {
 						'jetpack-sharing-likes'
 					),
 	};
+
+	if ( feature === 'sharing' ) {
+		return {
+			...shared,
+			legend: __(
+				'Where should the Sharing Buttons block go on posts and pages?',
+				'jetpack-sharing-likes'
+			),
+			managed: {
+				both: __(
+					'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+					'jetpack-sharing-likes'
+				),
+				single: __(
+					'You’ve customized your post template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+					'jetpack-sharing-likes'
+				),
+				page: __(
+					'You’ve customized your page template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+					'jetpack-sharing-likes'
+				),
+			},
+		};
+	}
+
+	return {
+		...shared,
+		legend: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
+		managed: {
+			both: __(
+				'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Like block there.',
+				'jetpack-sharing-likes'
+			),
+			single: __(
+				'You’ve customized your post template in the Site Editor. Add, move, or remove the Like block there.',
+				'jetpack-sharing-likes'
+			),
+			page: __(
+				'You’ve customized your page template in the Site Editor. Add, move, or remove the Like block there.',
+				'jetpack-sharing-likes'
+			),
+		},
+	};
 }
 
 /**
@@ -62,7 +104,7 @@ function copyFor( feature: Feature ) {
  * @param props          - Props.
  * @param props.feature  - Feature.
  * @param props.fallback - Shown where the settings do not offer the placements.
- * @return Cards, or the fallback.
+ * @return Cards, a notice linking to the templates once one manages the block, or the fallback.
  */
 export function TemplatePlacements( {
 	feature,
@@ -93,8 +135,34 @@ export function TemplatePlacements( {
 
 	const copy = copyFor( feature );
 	const block = PLACED_BLOCKS[ feature ];
-	const previewUrl = status?.site_editor_url ?? '';
-	const pageTemplateUrl = status?.page_template_editor_url ?? '';
+	const urls: Record< PlacementTemplate, string > = {
+		single: status?.site_editor_url ?? '',
+		page: status?.page_template_editor_url ?? '',
+	};
+	const linked = TEMPLATES.filter( template => urls[ template ] );
+	const managed = linked.filter( template =>
+		status?.[ feature ].managed_templates.includes( template )
+	);
+
+	// Once a template is saved in the Site Editor, that's where the block is placed: cards here would only mislead.
+	if ( managed.length > 0 ) {
+		return (
+			<SettingGroup>
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ copy.managed[ managed.length === 1 ? managed[ 0 ] : 'both' ] }
+					</Notice.Description>
+					<Notice.Actions>
+						{ linked.map( template => (
+							<Notice.ActionLink key={ template } href={ urls[ template ] }>
+								{ copy.editTemplate[ template ] }
+							</Notice.ActionLink>
+						) ) }
+					</Notice.Actions>
+				</Notice.Root>
+			</SettingGroup>
+		);
+	}
 
 	return (
 		<Field.Root>
@@ -121,26 +189,18 @@ export function TemplatePlacements( {
 								illustration={ <PlacementIllustration block={ block } placement={ placement } /> }
 								previewUrl={
 									// The template only has the block once the save has gone through.
-									selected === placement && ! saving ? previewUrl : undefined
+									selected === placement && ! saving ? urls.single : undefined
 								}
 							/>
 						) ) }
 					</RadioCardGrid>
-					<SettingGroup>
-						{ pageTemplateUrl && (
-							<Text render={ <p /> }>
-								{ createInterpolateElement( copy.pageTemplate, {
-									link: <Link href={ pageTemplateUrl } />,
-								} ) }
-							</Text>
-						) }
+					{ urls.page && (
 						<Text render={ <p /> }>
-							{ __(
-								'Once you’ve saved a template in the Site Editor, move or remove its blocks there: picking a place here won’t move a block that template already has, or bring back one you removed.',
-								'jetpack-sharing-likes'
-							) }
+							{ createInterpolateElement( copy.pageTemplate, {
+								link: <Link href={ urls.page } />,
+							} ) }
 						</Text>
-					</SettingGroup>
+					) }
 				</SettingGroup>
 			</Fieldset.Root>
 		</Field.Root>

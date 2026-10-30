@@ -127,6 +127,55 @@ final class Hooked_Blocks {
 	}
 
 	/**
+	 * Whether a template saved in the Site Editor decides itself where the block goes, so the placements no longer change it.
+	 *
+	 * That holds once it has the block, or once every `core/post-content` in it lists the block in `ignoredHookedBlocks`,
+	 * which core records on saving a template the block was hooked into, and keeps after the owner removes the block.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $content The saved template content, without block hooks applied.
+	 * @param string $block   Block type.
+	 */
+	public static function is_managed_by_template( string $content, string $block ): bool {
+		if ( has_block( $block, $content ) ) {
+			return true;
+		}
+
+		$anchors = self::anchors( parse_blocks( $content ) );
+
+		foreach ( $anchors as $anchor ) {
+			$ignored = $anchor['attrs']['metadata']['ignoredHookedBlocks'] ?? null;
+
+			if ( ! is_array( $ignored ) || ! in_array( $block, $ignored, true ) ) {
+				return false;
+			}
+		}
+
+		return (bool) $anchors;
+	}
+
+	/**
+	 * Every `core/post-content` block, at any depth.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return array[]
+	 */
+	private static function anchors( array $blocks ): array {
+		$anchors = array();
+
+		foreach ( $blocks as $block ) {
+			if ( self::ANCHOR === $block['blockName'] ) {
+				$anchors[] = $block;
+			}
+
+			$anchors = array_merge( $anchors, self::anchors( $block['innerBlocks'] ) );
+		}
+
+		return $anchors;
+	}
+
+	/**
 	 * Post types whose single views get the blocks.
 	 *
 	 * @return string[]
