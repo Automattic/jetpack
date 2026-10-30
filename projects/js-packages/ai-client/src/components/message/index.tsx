@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -203,9 +204,9 @@ export function UpgradeMessage( {
 		<Message severity={ messageSeverity }>
 			<span>
 				{ sprintf(
-					// translators: %1$d: number of requests remaining
-					__( 'You have %1$d requests remaining.', 'jetpack-ai-client' ),
-					requestsRemaining
+					// translators: %1$s: formatted number of requests remaining
+					__( 'You have %1$s requests remaining.', 'jetpack-ai-client' ),
+					formatNumber( requestsRemaining )
 				) }
 			</span>
 			<Button

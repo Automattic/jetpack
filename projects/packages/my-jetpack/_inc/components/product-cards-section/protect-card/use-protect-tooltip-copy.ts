@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, createElement, type ReactElement } from 'react';
@@ -255,14 +256,14 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 					'jetpack-my-jetpack'
 				),
 				sprintf(
-					/* translators: %d is the number of plugins installed on the site. */
-					_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
-					pluginsCount
+					/* translators: %s is the formatted number of plugins installed on the site. */
+					_n( '%s plugin', '%s plugins', pluginsCount, 'jetpack-my-jetpack' ),
+					formatNumber( pluginsCount )
 				),
 				sprintf(
-					/* translators: %d is the number of themes installed on the site. */
-					_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
-					themesCount
+					/* translators: %s is the formatted number of themes installed on the site. */
+					_n( '%s theme', '%s themes', themesCount, 'jetpack-my-jetpack' ),
+					formatNumber( themesCount )
 				)
 			),
 		},
@@ -279,9 +280,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											'jetpack-my-jetpack'
 										),
 										sprintf(
-											/* translators: %d is the number of detected scan threats on the site. */
-											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
-											numThreats
+											/* translators: %s is the formatted number of detected scan threats on the site. */
+											_n( '%s threat', '%s threats', numThreats, 'jetpack-my-jetpack' ),
+											formatNumber( numThreats )
 										),
 										criticalThreatCount,
 										isStandaloneActive ? 'Protect' : 'Scan'
@@ -301,9 +302,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 											'jetpack-my-jetpack'
 										),
 										sprintf(
-											/* translators: %d is the number of detected scan threats on the site. */
-											_n( '%d threat', '%d threats', numThreats, 'jetpack-my-jetpack' ),
-											numThreats
+											/* translators: %s is the formatted number of detected scan threats on the site. */
+											_n( '%s threat', '%s threats', numThreats, 'jetpack-my-jetpack' ),
+											formatNumber( numThreats )
 										),
 										isStandaloneActive ? 'Protect' : 'Scan'
 									),

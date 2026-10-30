@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { useInstanceId } from '@wordpress/compose';
 import {
 	createInterpolateElement,
@@ -45,9 +46,9 @@ function downloadLabel( count: number ): string {
 		return __( 'Download backup', 'jetpack-backup-pkg' );
 	}
 	return sprintf(
-		/* translators: %d count of selected items (files + opaque folders) */
-		_n( 'Download %d selected item', 'Download %d selected items', count, 'jetpack-backup-pkg' ),
-		count
+		/* translators: %s formatted count of selected items (files + opaque folders) */
+		_n( 'Download %s selected item', 'Download %s selected items', count, 'jetpack-backup-pkg' ),
+		formatNumber( count )
 	);
 }
 

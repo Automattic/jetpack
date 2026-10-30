@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
@@ -237,9 +238,9 @@ export const FormPrePublishPanel = () => {
 			.map( e => e.trim() )
 			.filter( Boolean );
 		emailsLabel = sprintf(
-			/* translators: %d: number of email recipients */
-			_n( '%d recipient', '%d recipients', recipients.length, 'jetpack-forms' ),
-			recipients.length
+			/* translators: %s: formatted number of email recipients */
+			_n( '%s recipient', '%s recipients', recipients.length, 'jetpack-forms' ),
+			formatNumber( recipients.length )
 		);
 	} else {
 		emailsLabel = __( 'Enabled', 'jetpack-forms' );

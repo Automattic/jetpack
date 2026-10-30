@@ -1,4 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { formatNumber } from '@automattic/number-formatters';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -29,17 +30,17 @@ const JetpackExternalMediaImport = () => {
 	const selectButtonText = ( selectedImages, isCopying ) => {
 		if ( isCopying ) {
 			return sprintf(
-				/* translators: %1$d is the number of media that were selected. */
-				__( 'Importing %1$d media…', 'jetpack-external-media' ),
-				selectedImages
+				/* translators: %1$s is the formatted number of media that were selected. */
+				__( 'Importing %1$s media…', 'jetpack-external-media' ),
+				formatNumber( selectedImages )
 			);
 		}
 
 		return selectedImages
 			? sprintf(
-					/* translators: %1$d is the number of media that were selected. */
-					__( 'Import %1$d media', 'jetpack-external-media' ),
-					selectedImages
+					/* translators: %1$s is the formatted number of media that were selected. */
+					__( 'Import %1$s media', 'jetpack-external-media' ),
+					formatNumber( selectedImages )
 				)
 			: __( 'Import media', 'jetpack-external-media' );
 	};
@@ -51,9 +52,9 @@ const JetpackExternalMediaImport = () => {
 
 		setNoticeMessage(
 			sprintf(
-				/* translators: %d is the number of the media */
-				__( '%d media imported successfully.', 'jetpack-external-media' ),
-				media.length
+				/* translators: %s is the formatted number of the media */
+				__( '%s media imported successfully.', 'jetpack-external-media' ),
+				formatNumber( media.length )
 			)
 		);
 	};

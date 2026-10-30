@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
@@ -33,18 +34,18 @@ export const useLastScanText = ( data: ProtectData ) => {
 		}
 		return (
 			sprintf(
-				/* translators: %d is the number of plugins installed on the site. */
-				_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
-				pluginsCount
+				/* translators: %s is the formatted number of plugins installed on the site. */
+				_n( '%s plugin', '%s plugins', pluginsCount, 'jetpack-my-jetpack' ),
+				formatNumber( pluginsCount )
 			) +
 			' ' +
 			/* translators: The ampersand symbol here (&) is meaning "and". */
 			__( '&', 'jetpack-my-jetpack' ) +
 			'\xa0' + // `\xa0` is a non-breaking space.
 			sprintf(
-				/* translators: %d is the number of themes installed on the site. */
-				_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
-				themesCount
+				/* translators: %s is the formatted number of themes installed on the site. */
+				_n( '%s theme', '%s themes', themesCount, 'jetpack-my-jetpack' ),
+				formatNumber( themesCount )
 			).replace( ' ', '\xa0' ) // `\xa0` is a non-breaking space.
 		);
 	}, [ isPluginActive, timeSinceLastScan, pluginsCount, themesCount ] );

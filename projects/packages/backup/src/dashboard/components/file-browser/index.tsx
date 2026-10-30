@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { CheckboxControl } from '@wordpress/components';
 import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
@@ -538,9 +539,9 @@ export default function FileBrowser( {
 						/>
 						<Text variant="body-sm" className="jpb-text-muted" id={ selectionCountId }>
 							{ sprintf(
-								/* translators: %d count of selected items (files + opaque folders) */
-								_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
-								selectedCount
+								/* translators: %s formatted count of selected items (files + opaque folders) */
+								_n( '%s item selected', '%s items selected', selectedCount, 'jetpack-backup-pkg' ),
+								formatNumber( selectedCount )
 							) }
 						</Text>
 					</Stack>

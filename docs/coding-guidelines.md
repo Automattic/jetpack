@@ -100,6 +100,24 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 - When using TypeScript in Webpack, use `@babel/preset-typescript` rather than `ts-loader`.
   - To generate `.d.ts` files, use `tsgo` with a tsconfig extending `jetpack-js-tools/tsconfig.tsc-declaration-only.json`.
 
+#### Formatting displayed quantities
+
+- Use `formatNumber()` from [`@automattic/number-formatters`](../projects/js-packages/number-formatters/README.md) for displayed counts and quantities, including cards, table cells, filters, tooltips, and notices. Do not hardcode comma separators or rely on the browser's default locale.
+- Prefer full counts. Use `formatNumberCompact()` only when the available space needs an abbreviation and an approximate value is sufficient.
+- `formatNumber()` defaults to zero decimal places. Set `decimals` or `numberFormatOptions` explicitly for fractional measurements or rates, and use `formatCurrency()` for money.
+- Keep the underlying values numeric for calculations, sorting, and plural selection: pass the original count to `_n()`, and format only the displayed value. In `sprintf()`, use `%s` for formatted numbers; `%d` discards their separators.
+- Leave identifiers, version numbers, years, HTTP status codes, and port numbers in their expected formats.
+- Verify large counts (for example, `1234567`), zero and singular values, and another locale such as German.
+
+```ts
+import { formatNumber } from '@automattic/number-formatters';
+
+const displayedCount = formatNumber( count );
+const displayedRate = formatNumber( rate, {
+	numberFormatOptions: { maximumFractionDigits: 2 },
+} );
+```
+
 ## Where should my code live?
 
 Here are some general guidelines when considering adding new functionality:

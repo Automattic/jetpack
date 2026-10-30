@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import './usage-counter.scss';
@@ -18,17 +19,20 @@ export default function UsageCounter( { currentLimit, currentUsage, cost }: Usag
 	const requestsBalance = currentLimit - currentUsage;
 
 	const requestsNeeded = createInterpolateElement(
-		// Translators: %d is the cost of one image.
-		sprintf( __( 'Requests needed: <counter>%d</counter>', 'jetpack-ai-client' ), cost ),
+		sprintf(
+			// Translators: %s is the formatted cost of one image.
+			__( 'Requests needed: <counter>%s</counter>', 'jetpack-ai-client' ),
+			formatNumber( cost )
+		),
 		{
 			counter: <span />,
 		}
 	);
 	const requestsAvailable = createInterpolateElement(
 		sprintf(
-			// Translators: %d is the current requests balance.
-			__( 'Requests available: <counter>%d</counter>', 'jetpack-ai-client' ),
-			requestsBalance
+			// Translators: %s is the formatted current requests balance.
+			__( 'Requests available: <counter>%s</counter>', 'jetpack-ai-client' ),
+			formatNumber( requestsBalance )
 		),
 		{
 			counter:

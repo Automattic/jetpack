@@ -85,6 +85,7 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 - Importing from `react` directly is fine. `@wordpress/element` also works but is no longer required — follow the convention used in the package you're working in
 - Use WordPress data stores (`@wordpress/data`) for state management
 - Use `@wordpress/i18n` for translations with an appropriate unique text domain
+- Format displayed counts and quantities with `formatNumber()` from `@automattic/number-formatters`; preserve required decimal precision, use `%s` for formatted values in `sprintf()`, and keep numeric counts for plural selection in `_n()`. Use compact notation only when the layout needs it. See `docs/coding-guidelines.md`.
 - When using TypeScript with Webpack, use `@babel/preset-typescript` rather than `ts-loader`
 
 ### CSS / SCSS

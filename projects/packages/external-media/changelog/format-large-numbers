@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Format media counts with locale-aware number separators.

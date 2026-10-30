@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { VisuallyHidden } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -320,9 +321,9 @@ const getFieldText = ( field?: ResponseField ): string => {
 		}
 
 		return sprintf(
-			/* translators: %d: number of files uploaded in a single form field. */
-			_n( '%d file', '%d files', files.length, 'jetpack-forms' ),
-			files.length
+			/* translators: %s: formatted number of files uploaded in a single form field. */
+			_n( '%s file', '%s files', files.length, 'jetpack-forms' ),
+			formatNumber( files.length )
 		);
 	}
 
