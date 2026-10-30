@@ -16,19 +16,15 @@ require_once __DIR__ . '/../../src/default-single-report-pages.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
 
 /**
- * The video page registers through the API like any plugin's page, gated on VideoPress and Stats access.
+ * The package's own pages register through the API like any plugin's: post and author, for readers with Stats access.
  *
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_author_single_report_page_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_email_clicks_single_report_section_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_email_opens_single_report_section_default_layout
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_post_traffic_single_report_section_default_layout
- * @covers ::Automattic\Jetpack\PremiumAnalytics\get_video_single_report_page_default_layout
- * @covers ::Automattic\Jetpack\PremiumAnalytics\is_video_single_report_page_available
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_default_single_report_pages
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_default_single_report_pages' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_video_single_report_page_available' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_video_single_report_page_default_layout' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_post_traffic_single_report_section_default_layout' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_email_opens_single_report_section_default_layout' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_email_clicks_single_report_section_default_layout' )]
@@ -62,34 +58,10 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
-		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 		wp_set_current_user( 0 );
 		$this->reset_analytics_capabilities();
 
 		parent::tear_down();
-	}
-
-	public function test_registers_the_video_page_through_the_api() {
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
-		$this->login_as( 'administrator' );
-
-		$page = get_registered_single_report_page( DASHBOARD_NAME, 'analytics/video' );
-
-		$this->assertInstanceOf( Single_Report_Page::class, $page );
-		$record = $page->to_array();
-		$this->assertSame( 'video', $record['path'] );
-		$this->assertSame( 'traffic', $record['dashboard_section'] );
-		$this->assertSame( 'videos', $record['feature'] );
-		$this->assertSame( 'post_id', $record['scope_param'] );
-		$this->assertSame( 'jpa/video', $record['icon'] );
-		$this->assertNull( $record['controls'] );
-		$this->assertSame( 'videos', $record['reports_page'] );
-		$this->assertSame( 'jetpack-premium-analytics/video-detail', $record['preferences_scope'] );
-		$this->assertSame(
-			array( 'jpa/video-detail-views-performance', 'jpa/video-detail-embeds' ),
-			array_column( $record['default_layout'], 'type' )
-		);
-		$this->assertSame( array( 'analytics/author', 'analytics/post', 'analytics/video' ), array_column( get_available_single_report_page_records(), 'id' ) );
 	}
 
 	public function test_registers_the_author_page_scoped_by_author_id() {
@@ -124,12 +96,11 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		$this->assertSame( 'jpa/email-breakdown--top-links', $record['sections'][2]['default_layout'][5]['type'] );
 	}
 
-	public function test_the_rest_route_lists_the_video_page() {
+	public function test_the_rest_route_lists_the_pages() {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		Dashboard_Support_Routes::boot_routes();
 
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
 		$this->login_as( 'administrator' );
 
 		$response = rest_get_server()->dispatch(
@@ -137,18 +108,15 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( array( 'analytics/video' ), array_column( $response->get_data(), 'id' ) );
+		$this->assertSame( array( 'analytics/author', 'analytics/post' ), array_column( $response->get_data(), 'id' ) );
 	}
 
-	public function test_the_video_page_needs_videopress_and_stats_access() {
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_false' );
+	public function test_the_pages_are_available_to_stats_readers_only() {
 		$this->login_as( 'administrator' );
 		$this->assertSame( array( 'analytics/author', 'analytics/post' ), array_column( get_available_single_report_page_records(), 'id' ) );
 
-		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
 		$this->login_as( 'subscriber' );
 		$this->assertSame( array(), get_available_single_report_page_records() );
-		$this->assertInstanceOf( Single_Report_Page::class, get_registered_single_report_page( DASHBOARD_NAME, 'analytics/video' ) );
+		$this->assertInstanceOf( Single_Report_Page::class, get_registered_single_report_page( DASHBOARD_NAME, 'analytics/post' ) );
 	}
 }
