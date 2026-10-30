@@ -1,5 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .more-link {
 	display: inline-block;
@@ -59,7 +59,7 @@
 
 .connections-list {
 	border-radius: 2px;
-	border: 1px solid gb.$gray-200;
+	border: 1px solid colors.$gray-200;
 }
 
 .empty-state {
@@ -95,5 +95,5 @@
 }
 
 .per-network-customization-notice {
-	color: gb.$gray-700;
+	color: colors.$gray-700;
 }

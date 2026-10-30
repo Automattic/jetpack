@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize LCP Images: Size the LCP image to its box when the theme's stylesheet sets `object-fit: cover`, instead of serving a larger file than needed.

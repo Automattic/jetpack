@@ -3,6 +3,8 @@
  * Tests for /wpcom/v2/admin-menu endpoint.
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\SEO\Admin_Page as Seo_Admin_Page;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -90,6 +92,52 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$this->assertSame( 200, $response->get_status() );
 
 		return $response;
+	}
+
+	/**
+	 * @depends test_successful_request
+	 */
+	#[Depends( 'test_successful_request' )]
+	public function test_hidden_jetpack_items_are_omitted_without_unregistering_their_pages() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$menu_globals = array_intersect_key( $GLOBALS, array_flip( array( 'menu', 'submenu', 'admin_page_hooks', '_registered_pages', '_parent_pages', '_wp_menu_nopriv', '_wp_submenu_nopriv' ) ) );
+		$hide_items   = static function ( $states ) {
+			$states['rest-hidden-submenu'] = Admin_Menu::VISIBILITY_HIDDEN;
+			$states['rest-hidden-top']     = Admin_Menu::VISIBILITY_HIDDEN;
+			$states['jetpack-seo']         = Admin_Menu::VISIBILITY_HIDDEN;
+			return $states;
+		};
+		add_filter( 'jetpack_admin_menu_visibility', $hide_items );
+		Admin_Menu::add_menu( 'Visible submenu', 'Visible submenu', 'read', 'rest-visible-submenu', '__return_null' );
+		Admin_Menu::add_menu( 'Hidden submenu', 'Hidden submenu', 'read', 'rest-hidden-submenu', '__return_null' );
+		Admin_Menu::add_top_level_menu( 'Visible top level', 'Visible top level', 'read', 'rest-visible-top', '__return_null' );
+		Admin_Menu::add_top_level_menu( 'Hidden top level', 'Hidden top level', 'read', 'rest-hidden-top', '__return_null' );
+		Seo_Admin_Page::add_menu_item();
+		try {
+			// The shared request already included menu.php, so register this test's menus explicitly.
+			add_menu_page( 'Jetpack', 'Jetpack', 'read', 'jetpack', '__return_null' );
+			Admin_Menu::admin_menu_hook_callback();
+			Admin_Menu::top_level_menu_hook_callback();
+			$response = $this->server->dispatch( new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' ) );
+			$this->assertSame( 200, $response->get_status() );
+			$data = wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES );
+			$this->assertStringContainsString( 'rest-visible-submenu', $data );
+			$this->assertStringContainsString( 'rest-visible-top', $data );
+			foreach ( array(
+				'rest-hidden-submenu' => 'jetpack',
+				'rest-hidden-top'     => '',
+				'jetpack-seo'         => 'jetpack',
+			) as $slug => $parent ) {
+				$this->assertStringNotContainsString( $slug, $data );
+				$this->assertArrayHasKey( get_plugin_page_hookname( $slug, $parent ), $GLOBALS['_registered_pages'] );
+			}
+		} finally {
+			remove_filter( 'jetpack_admin_menu_visibility', $hide_items );
+			Admin_Menu::reset();
+			foreach ( $menu_globals as $name => $value ) {
+				$GLOBALS[ $name ] = $value;
+			}
+		}
 	}
 
 	/**

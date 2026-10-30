@@ -23,7 +23,14 @@ const renderCard = (
 ) =>
 	render(
 		<MonitorCard
-			state={ { available: true, active: true, uptimeDays: 40, userConnected: true, ...state } }
+			state={ {
+				available: true,
+				active: true,
+				uptimeDays: 40,
+				userConnected: true,
+				alertEmail: null,
+				...state,
+			} }
 			settings={
 				{
 					settings: null,
@@ -120,7 +127,13 @@ describe( 'MonitorCard', () => {
 			const refresh = useCallback( async () => setLive( { monitor: false } ), [] );
 			return (
 				<MonitorCard
-					state={ { available: true, active: true, uptimeDays: 40, userConnected: true } }
+					state={ {
+						available: true,
+						active: true,
+						uptimeDays: 40,
+						userConnected: true,
+						alertEmail: null,
+					} }
 					settings={
 						{ settings: live, isSaving: () => false, refresh } as unknown as ProtectSettingsData
 					}

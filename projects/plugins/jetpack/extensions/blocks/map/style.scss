@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .wp-block-jetpack-map {
 
@@ -13,7 +13,7 @@
 	.wp-block-jetpack-map__gm-container {
 		width: 100%;
 		overflow: hidden;
-		background: gb.$gray-200;
+		background: colors.$gray-200;
 		min-height: 400px;
 		text-align: start;
 	}

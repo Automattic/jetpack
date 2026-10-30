@@ -214,7 +214,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
-const { render, screen } = require( '@testing-library/react' );
+const { act, render, screen } = require( '@testing-library/react' );
 const userEvent = require( '@testing-library/user-event' ).default;
 
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
@@ -1528,7 +1528,7 @@ describe( 'Email design editor entry point', () => {
 				};
 
 				const writes = () =>
-					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'PUT' === options.method );
+					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'POST' === options.method );
 
 				/**
 				 * Mount the panel as the editor's plugin area would, for a given record.
@@ -1631,7 +1631,7 @@ describe( 'Email design editor entry point', () => {
 				} );
 
 				it( 'clears both halves, rather than writing today’s defaults into them', async () => {
-					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
 					renderPanelFor( ourId );
 
 					await userEvent.click( resetButton() );
@@ -1643,18 +1643,96 @@ describe( 'Email design editor entry point', () => {
 
 					const [ [ write ] ] = writes();
 
-					expect( write.path ).toBe( `/wp/v2/global-styles/${ ourId }` );
+					expect( write.path ).toBe( '/wpcom/v2/email-editor-bootstrap' );
 
 					// Each half exactly, rather than the pair as a subset: an empty object is a
 					// subset of any object, so a half full of defaults would satisfy that.
-					expect( write.data.styles ).toEqual( {} );
-					expect( write.data.settings ).toEqual( {} );
+					expect( write.data.design.styles ).toEqual( {} );
+					expect( write.data.design.settings ).toEqual( {} );
+				} );
+
+				/**
+				 * Start a reset and stop while WordPress.com has not answered yet.
+				 *
+				 * @param {number} id - The global-styles id the bundle named.
+				 * @return {Promise<Function>} The function that lets the request answer.
+				 */
+				const resetUntilWpcomAnswers = async id => {
+					let storeDesignOnWpcom;
+
+					mockApiFetch.mockReturnValue(
+						new Promise( resolve => {
+							storeDesignOnWpcom = resolve;
+						} )
+					);
+					renderPanelFor( id );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					return () =>
+						act( async () => storeDesignOnWpcom( { design: { styles: {}, settings: {} } } ) );
+				};
+
+				// The store's own save reads the record it is about to replace, so clearing it there
+				// first is what a creator would watch revert while the save and the reload run.
+				it( 'leaves the design on screen while it clears it on WordPress.com', async () => {
+					const answer = await resetUntilWpcomAnswers( ourId );
+
+					expect(
+						select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', ourId ).styles
+					).toEqual( { color: { background: '#c0ffee' } } );
+
+					await answer();
+				} );
+
+				// The save and the reload both take a moment on a hosted blog, and the editor goes on
+				// drawing the design being thrown away for all of it.
+				it( 'covers the screen for as long as the reset is running', async () => {
+					const answer = await resetUntilWpcomAnswers( ourId );
+
+					expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Resetting your email design' );
+
+					await answer();
+
+					// The page has not been replaced yet, so the cover stays.
+					expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+				} );
+
+				// `UnsavedChangesWarning` turns the reload into a browser prompt while a half is
+				// pending, and backing out of that prompt leaves the screen covered for good.
+				it( 'clears what the creator had pending, so nothing blocks the reload', async () => {
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
+					dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', ourId, {
+						styles: { color: { background: '#decaf0' } },
+					} );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect(
+						select( coreStore ).hasEditsForEntityRecord( 'root', 'globalStyles', ourId )
+					).toBe( false );
+					expect( mockReload ).toHaveBeenCalled();
+				} );
+
+				// Uncovering it would show the design the creator still has, under an error saying it
+				// could not be reset.
+				it( 'uncovers the screen when the reset fails', async () => {
+					mockApiFetch.mockRejectedValue( new Error( 'no' ) );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 				} );
 
 				// The canvas draws previews WordPress.com rendered against the stored design and sent
 				// once, at mount, so the reset one only appears on a fresh fetch.
 				it( 'fetches the canvas again, rather than leaving the old design on screen', async () => {
-					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
 					renderPanelFor( ourId );
 
 					await userEvent.click( resetButton() );

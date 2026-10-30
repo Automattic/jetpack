@@ -31,7 +31,6 @@ const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardR
 	label: 'Jane Cooper',
 	avatarUrl: null,
 	currentValue: 20,
-	currentShare: 1,
 	posts,
 } );
 
@@ -134,7 +133,6 @@ describe( 'AuthorsWidget', () => {
 			title: 'Quarterly update',
 			link: 'https://example.com/quarterly-update/',
 			currentValue: 20,
-			currentShare: 1,
 		};
 		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
 

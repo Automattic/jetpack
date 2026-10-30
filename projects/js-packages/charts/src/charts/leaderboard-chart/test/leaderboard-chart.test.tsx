@@ -81,6 +81,22 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'derives the delta of entries that pass only values', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{ id: 'up', label: 'Up', currentValue: 100, previousValue: 80 },
+					{ id: 'down', label: 'Down', currentValue: 50, previousValue: 100 },
+				] }
+				withComparison={ true }
+				deltaFormatter={ testDeltaFormatter }
+			/>
+		);
+
+		expect( screen.getByText( '25delta' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-50delta' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows a placeholder when a row has no previous value', () => {
 		render(
 			<LeaderboardChart
@@ -168,6 +184,31 @@ describe( 'LeaderboardChart', () => {
 		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
 
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+	} );
+
+	it( 'keeps every bar on one side when negative bars clamp', () => {
+		const data = [
+			{ ...mockData[ 0 ], currentShare: undefined, currentValue: -40 },
+			mockData[ 1 ],
+		];
+		render( <LeaderboardChart data={ data } withComparison negativeBars="clamp" /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( 0 );
+	} );
+
+	it.each( [
+		[ 'comparison bars draw', false, /^calc\(50%/ ],
+		[ 'the overlay label hides comparison bars', true, /^calc\(100%/ ],
+	] )( 'sizes the current bar against the max when %s', ( _, withOverlayLabel, expected ) => {
+		const data = [
+			{ id: 'a', label: 'A', currentValue: 50, previousValue: 100 },
+			{ id: 'b', label: 'B', currentValue: 25, previousValue: 10 },
+		] as LeaderboardEntry[];
+		render(
+			<LeaderboardChart data={ data } withComparison withOverlayLabel={ withOverlayLabel } />
+		);
+
+		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch( expected );
 	} );
 
 	it( 'shows custom label when provided', () => {

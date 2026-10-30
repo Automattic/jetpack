@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Fix the Stats v2 Settings link for switching Stats off on WordPress.com Personal and Premium sites, which led back to Stats.

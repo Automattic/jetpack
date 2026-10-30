@@ -244,8 +244,7 @@
 
 ## [1.4.52] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.4.51] - 2026-05-19
 ### Changed
@@ -894,8 +893,7 @@
 
 ## [0.32.0] - 2024-02-05
 ### Changed
-- Allow using blog ID instead of site suffix in checkout URL. [#34996]
-- Allow using blog ID instead of site suffix in checkout URL. [#35004]
+- Allow using blog ID instead of site suffix in checkout URL. [#34996] [#35004]
 - Updated package dependencies.
 
 ## [0.31.2] - 2024-01-29

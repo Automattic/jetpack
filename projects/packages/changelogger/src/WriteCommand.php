@@ -311,6 +311,39 @@ EOF
 	}
 
 	/**
+	 * Extract trailing PR number links (e.g. ` [#123]`) from the change string.
+	 *
+	 * @param string $content Change string.
+	 * @return array{string,string[]} Separated change text and PR number links.
+	 */
+	protected static function splitPrSuffixes( $content ) {
+		if ( ! preg_match( '/(?: \[#\d+\])+$/', $content, $m ) ) {
+			return array( $content, array() );
+		}
+		return array(
+			substr( $content, 0, -strlen( $m[0] ) ),
+			explode( ' ', trim( $m[0] ) ),
+		);
+	}
+
+	/**
+	 * Sort and deduplicate the trailing PR number suffix.
+	 *
+	 * @param ChangeEntry $change Change to update.
+	 */
+	protected static function cleanPrSuffix( ChangeEntry $change ) {
+		list( $content, $prs ) = self::splitPrSuffixes( $change->getContent() );
+		if ( ! $prs ) {
+			return;
+		}
+
+		$prs = array_unique( $prs );
+		sort( $prs, SORT_NATURAL );
+		$content .= ' ' . implode( ' ', $prs );
+		$change->setContent( $content );
+	}
+
+	/**
 	 * Deduplicate changes.
 	 *
 	 * @param InputInterface  $input InputInterface.
@@ -337,21 +370,37 @@ EOF
 			$output->writeln( "Deduplicating changes from the last $depth version(s)...", OutputInterface::VERBOSITY_DEBUG );
 			foreach ( array_slice( $changelog->getEntries(), 0, $depth ) as $entry ) {
 				foreach ( $entry->getChanges() as $change ) {
-					$dedup[ $change->getContent() ] = true;
+					list( $key, $prs ) = self::splitPrSuffixes( $change->getContent() );
+					$dedup[ $key ]     = array_merge( $dedup[ $key ] ?? array(), $prs );
 				}
 			}
 			unset( $dedup[''] );
 		} else {
 			$output->writeln( 'Deduplicating changes in the current version...', OutputInterface::VERBOSITY_DEBUG );
 		}
+		$seen    = array();
 		$changes = array_filter(
 			$changes,
-			function ( $change, $name ) use ( &$dedup, $output ) {
-				if ( isset( $dedup[ $change->getContent() ] ) ) {
-					$output->writeln( "Found duplicate change in $name.", OutputInterface::VERBOSITY_DEBUG );
+			function ( $change, $name ) use ( $dedup, &$seen, $output ) {
+				list( $key, $prs ) = self::splitPrSuffixes( $change->getContent() );
+				if ( isset( $dedup[ $key ] ) ) {
+					// Keep only PR numbers that the previous versions don't already list.
+					$prs = array_diff( $prs, $dedup[ $key ] );
+					if ( ! $prs ) {
+						$output->writeln( "Found duplicate change in $name.", OutputInterface::VERBOSITY_DEBUG );
+						return false;
+					}
+					$change->setContent( $key . ' ' . implode( ' ', $prs ) );
+				}
+				if ( isset( $seen[ $key ] ) ) {
+					$output->writeln( "Found duplicate change in $name. Merging PR numbers.", OutputInterface::VERBOSITY_DEBUG );
+					// For now, just append the PR number to the entry; we'll clean those up at a later point.
+					if ( $prs ) {
+						$seen[ $key ]->setContent( $seen[ $key ]->getContent() . ' ' . implode( ' ', $prs ) );
+					}
 					return false;
 				}
-				$dedup[ $change->getContent() ] = true;
+				$seen[ $key ] = $change;
 				return true;
 			},
 			ARRAY_FILTER_USE_BOTH
@@ -641,6 +690,9 @@ EOF
 		$ret = $this->deduplicateChanges( $input, $output, $changelog, $changes );
 		if ( self::OK_EXIT !== $ret ) {
 			return $ret;
+		}
+		foreach ( $changes as $change ) {
+			self::cleanPrSuffix( $change );
 		}
 		$anyChangesWithContent = $this->doChangesHaveContent( $input, $output, $changes );
 		if ( ! $anyChangesWithContent && ! $this->askedNoChanges ) {
