@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Make `wp jetpack-waf teardown` turn the Firewall off and `wp jetpack-waf setup` turn it on, so the Protect page shows the Firewall's real state.

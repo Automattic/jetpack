@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CLI: Make `wp jetpack-waf teardown` turn the Firewall module off and `wp jetpack-waf setup` turn it on, so the firewall's on/off state matches what the commands did.
