@@ -414,6 +414,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
+		require_once __DIR__ . '/features/media/ai-marker-image-editor.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
