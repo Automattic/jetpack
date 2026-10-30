@@ -12,6 +12,7 @@ const hackerNews: Service = {
 	name: 'Hacker News',
 	custom: true,
 	deprecated: false,
+	legacy: false,
 	url: 'https://news.ycombinator.com/submitlink?u=%post_url%',
 	icon: 'https://news.ycombinator.com/favicon.ico',
 };
@@ -19,7 +20,10 @@ const hackerNews: Service = {
 const services: Services = {
 	visible: [ 'facebook' ],
 	hidden: [ hackerNews.id ],
-	services: [ { id: 'facebook', name: 'Facebook', custom: false, deprecated: false }, hackerNews ],
+	services: [
+		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false, legacy: false },
+		hackerNews,
+	],
 };
 
 const lobsters = {
@@ -39,6 +43,7 @@ function respond(
 		id: 'custom-1759830001',
 		custom: true,
 		deprecated: false,
+		legacy: false,
 	}
 ) {
 	mockApiFetch.mockImplementation( ( { path, method, data } ) => {

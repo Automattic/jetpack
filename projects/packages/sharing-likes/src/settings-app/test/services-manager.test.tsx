@@ -20,11 +20,11 @@ const services: Services = {
 	visible: [ 'facebook', 'x' ],
 	hidden: [ 'email' ],
 	services: [
-		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
-		{ id: 'x', name: 'X', custom: false, deprecated: false },
-		{ id: 'email', name: 'Email', custom: false, deprecated: false },
-		{ id: 'mastodon', name: 'Mastodon', custom: false, deprecated: false },
-		{ id: 'acme', name: 'Acme', custom: false, deprecated: false },
+		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false, legacy: false },
+		{ id: 'x', name: 'X', custom: false, deprecated: false, legacy: false },
+		{ id: 'email', name: 'Email', custom: false, deprecated: false, legacy: false },
+		{ id: 'mastodon', name: 'Mastodon', custom: false, deprecated: false, legacy: false },
+		{ id: 'acme', name: 'Acme', custom: false, deprecated: false, legacy: false },
 	],
 };
 
@@ -33,6 +33,7 @@ const lobsters = {
 	name: 'Lobsters',
 	custom: true,
 	deprecated: false,
+	legacy: false,
 	url: 'https://l.example/?u=%post_url%',
 	icon: 'https://l.example/i.png',
 };
@@ -62,6 +63,7 @@ function respond( list: Services = services ) {
 				id: 'custom-1',
 				custom: true,
 				deprecated: false,
+				legacy: false,
 				...( data as object ),
 			} );
 		}
@@ -306,12 +308,14 @@ describe( 'ServicesManager', () => {
 		);
 	} );
 
-	it( 'offers only services the site does not use, and none that shut down', async () => {
+	it( 'offers only services the site does not use, and none that shut down or are legacy', async () => {
 		respond( {
 			...services,
+			visible: [ 'facebook' ],
 			services: [
 				...services.services,
-				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true },
+				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true, legacy: false },
+				{ id: 'twitter', name: 'X', custom: false, deprecated: false, legacy: true },
 			],
 		} );
 		const user = userEvent.setup();
@@ -326,6 +330,8 @@ describe( 'ServicesManager', () => {
 			within( dialog ).queryByRole( 'button', { name: 'Facebook' } )
 		).not.toBeInTheDocument();
 		expect( within( dialog ).queryByRole( 'button', { name: 'Pocket' } ) ).not.toBeInTheDocument();
+		// The legacy Twitter service is named X too.
+		expect( within( dialog ).getAllByRole( 'button', { name: 'X' } ) ).toHaveLength( 1 );
 	} );
 
 	it( 'creates a custom service once every field is filled in', async () => {

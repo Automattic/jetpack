@@ -195,7 +195,10 @@ export function ServicesManager(): JSX.Element {
 	};
 	const available = services.filter(
 		service =>
-			! service.deprecated && ! visible.includes( service.id ) && ! hidden.includes( service.id )
+			! service.deprecated &&
+			! service.legacy &&
+			! visible.includes( service.id ) &&
+			! hidden.includes( service.id )
 	);
 	const shutDown = services.filter(
 		service =>

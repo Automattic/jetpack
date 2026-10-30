@@ -16,9 +16,9 @@ const services: Services = {
 	visible: [ 'facebook', 'x' ],
 	hidden: [ 'email' ],
 	services: [
-		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
-		{ id: 'x', name: 'X', custom: false, deprecated: false },
-		{ id: 'email', name: 'Email', custom: false, deprecated: false },
+		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false, legacy: false },
+		{ id: 'x', name: 'X', custom: false, deprecated: false, legacy: false },
+		{ id: 'email', name: 'Email', custom: false, deprecated: false, legacy: false },
 	],
 };
 
@@ -68,7 +68,7 @@ describe( 'SharingButtonsSection', () => {
 			...services,
 			services: [
 				...services.services.slice( 0, 2 ),
-				{ id: 'email', name: 'Email', custom: false, deprecated: true },
+				{ id: 'email', name: 'Email', custom: false, deprecated: true, legacy: false },
 			],
 		} );
 		renderWithData( <SharingButtonsSection /> );

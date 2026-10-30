@@ -29,6 +29,20 @@ class Sharing_Source {
 	protected $name;
 
 	/**
+	 * Button style.
+	 *
+	 * @var string
+	 */
+	public $button_style = 'icon-text';
+
+	/**
+	 * Whether to show the network's official button.
+	 *
+	 * @var bool
+	 */
+	public $smart = false;
+
+	/**
 	 * Build a service.
 	 *
 	 * @param string $id     Service ID.
@@ -64,6 +78,49 @@ class Sharing_Source {
 	 */
 	public function is_deprecated() {
 		return 'deprecated' === $this->id;
+	}
+
+	/**
+	 * Whether the service is only kept for the sites that use it.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy() {
+		return 'legacy' === $this->id;
+	}
+
+	/**
+	 * Class name the services list styles the service with.
+	 *
+	 * @return string
+	 */
+	public function get_class() {
+		return $this->id;
+	}
+
+	/**
+	 * Whether the services list offers to remove the service.
+	 *
+	 * @return bool
+	 */
+	public function has_advanced_options() {
+		return false;
+	}
+
+	/**
+	 * Whether the button style is the service's own.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_button_style() {
+		return false;
+	}
+
+	/**
+	 * Print the button the services list previews.
+	 */
+	public function display_preview() {
+		echo '<a>' . esc_html( $this->name ) . '</a>';
 	}
 }
 

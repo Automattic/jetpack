@@ -93,6 +93,17 @@ abstract class Sharing_Source {
 	}
 
 	/**
+	 * Whether the service still works on sites that use it, but is no longer offered to others.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function is_legacy() {
+		return false;
+	}
+
+	/**
 	 * Get the protocol to use for a sharing service, based on the site settings.
 	 *
 	 * @return string
@@ -1135,6 +1146,17 @@ class Share_Twitter extends Sharing_Source {
 	 */
 	public function get_name() {
 		return __( 'X', 'jetpack' );
+	}
+
+	/**
+	 * Share_X has the same name and icon, so only sites already using this button keep it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function is_legacy() {
+		return true;
 	}
 
 	/**
