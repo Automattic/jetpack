@@ -486,9 +486,7 @@ describe( 'useReportDateFilters', () => {
 	it( 'keeps a stepped window custom when the plan locks the preset it lands on', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const scope = ( { children }: { children: ReactNode } ) => (
-			<ReportScopeProvider
-				dateLimits={ { lockedPresetIds: [ 'last-year' ], lockedIntervals: [] } }
-			>
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [ 'last-year' ], lockedIntervals: [] } }>
 				{ children }
 			</ReportScopeProvider>
 		);

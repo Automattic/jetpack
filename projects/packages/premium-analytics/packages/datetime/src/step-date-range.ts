@@ -183,9 +183,17 @@ export function stepDateRange(
 	return shift( from, to, 'day', sign * days );
 }
 
-/** Whether the window is one or more whole calendar years. */
+/**
+ * Whether the window is one or more whole calendar years.
+ *
+ * @param from - Start of the window.
+ * @param to   - End of the window.
+ * @return Whether the window runs from a January 1st to a December 31st.
+ */
 function isWholeCalendarYears( from: Date, to: Date ): boolean {
-	return from.getMonth() === 0 && from.getDate() === 1 && to.getMonth() === 11 && to.getDate() === 31;
+	return (
+		from.getMonth() === 0 && from.getDate() === 1 && to.getMonth() === 11 && to.getDate() === 31
+	);
 }
 
 /**
