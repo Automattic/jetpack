@@ -1,0 +1,34 @@
+{
+	"name": "woocommerce-analytics/prototype-stock-local",
+	"icon": "jpa/chart-bar",
+	"title": "Stock (local only)",
+	"description": "Stock counts by status from WooCommerce on this site, with no WordPress.com connection needed. Report execution prototype.",
+	"help": {
+		"content": "Stock counts by status from WooCommerce on this site, with no WordPress.com connection needed. Report execution prototype."
+	},
+	"category": "prototype",
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "execution",
+			"type": "jpa/toggle-group",
+			"label": "Execution",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "auto",
+					"label": "Auto"
+				},
+				{
+					"value": "local",
+					"label": "Local"
+				},
+				{
+					"value": "remote",
+					"label": "Remote"
+				}
+			]
+		}
+	],
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

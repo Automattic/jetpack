@@ -139,6 +139,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				'woocommerce-analytics/prototype-orders-local',
+				'woocommerce-analytics/prototype-orders-remote',
+				'woocommerce-analytics/prototype-sessions-remote',
+				'woocommerce-analytics/prototype-stock-local',
 			),
 			$section->get_insertable_widget_types()
 		);

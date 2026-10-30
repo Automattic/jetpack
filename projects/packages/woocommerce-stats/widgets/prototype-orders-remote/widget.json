@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/prototype-orders-remote",
+	"icon": "jpa/chart-bar",
+	"title": "Orders (remote)",
+	"description": "Orders, net and total sales from WordPress.com. Report execution prototype.",
+	"help": {
+		"content": "Orders, net and total sales from WordPress.com. Report execution prototype."
+	},
+	"category": "prototype",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}
