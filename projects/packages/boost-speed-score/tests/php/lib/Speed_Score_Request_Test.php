@@ -280,6 +280,17 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
+	 * Call the handler with a stand-in, as WP_REST_Request is not loaded in these tests.
+	 *
+	 * @param mixed  $service The Speed_Score instance.
+	 * @param object $request Anything with get_json_params().
+	 * @return mixed
+	 */
+	private function fetch_with_stand_in_request( $service, $request ) {
+		return $service->fetch_speed_score( $request );
+	}
+
+	/**
 	 * Read a history entry, failing the test if it is missing.
 	 *
 	 * @param Speed_Score_History $history The history to read from.
@@ -400,8 +411,14 @@ class Speed_Score_Request_Test extends Base_TestCase {
 				return $url . '?' . $key . '=' . $value;
 			}
 		);
-		$scores  = array( 'mobile' => 89, 'desktop' => 99 );
-		$default = array( 'mobile' => 67, 'desktop' => 63 );
+		$scores  = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$default = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
 		$this->seed_old_record( self::URL . '/', $default, 2000 );
 		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
 			$this->seed_old_record( self::URL . '/fr/' . $query, $scores, 1000 );
@@ -418,7 +435,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 			}
 		};
 
-		$response = $service->fetch_speed_score( $request );
+		$response = $this->fetch_with_stand_in_request( $service, $request );
 		$this->assertSame( $scores, $response['scores']['current'] );
 		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
 			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
@@ -432,9 +449,19 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
 		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
 		Functions\when( 'get_site_url' )->justReturn( self::URL . '/wp' );
-		$scores = array( 'mobile' => 89, 'desktop' => 99 );
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
 		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
-			$this->seed_old_record( self::URL . '/fr/' . $query, array( 'mobile' => 60, 'desktop' => 70 ), 2000 );
+			$this->seed_old_record(
+				self::URL . '/fr/' . $query,
+				array(
+					'mobile'  => 60,
+					'desktop' => 70,
+				),
+				2000
+			);
 			$this->seed_old_record( self::URL . '/wp' . $query, $scores, 1000 );
 			$this->seed_old_record( self::URL . '/wp/' . $query, $scores, 1500 );
 			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
@@ -487,7 +514,14 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	public function test_populated_history_reads_no_old_keys_once_migrated() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
 
-		$this->seed_old_record( self::URL, array( 'mobile' => 89, 'desktop' => 99 ), 1000 );
+		$this->seed_old_record(
+			self::URL,
+			array(
+				'mobile'  => 89,
+				'desktop' => 99,
+			),
+			1000
+		);
 
 		$reads = array();
 		Functions\when( 'get_option' )->alias(

@@ -115,6 +115,9 @@ class Speed_Score_History {
 	/**
 	 * Move the newest of the older records to the given URL's key, unless its own record is newer.
 	 *
+	 * The canonical spelling is the one My Jetpack used to write to, so it can hold scores older
+	 * than the ones the Boost dashboard showed.
+	 *
 	 * @param string   $url         The URL as it is keyed now.
 	 * @param string[] $legacy_urls The spellings its scores may have been saved under.
 	 */
