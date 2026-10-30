@@ -1147,7 +1147,12 @@ class Jetpack {
 
 		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
-			$this->run_initialize_tracking_action();
+			// Defer to `init`: resolving the current user during `plugins_loaded` can recurse on application-password requests.
+			if ( did_action( 'init' ) ) {
+				$this->run_initialize_tracking_action();
+			} else {
+				add_action( 'init', array( $this, 'run_initialize_tracking_action' ), 0 );
+			}
 
 			Jetpack_Heartbeat::init();
 			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
