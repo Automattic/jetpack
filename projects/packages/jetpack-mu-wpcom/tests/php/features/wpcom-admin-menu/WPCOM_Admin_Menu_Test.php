@@ -752,11 +752,11 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
 			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
 		if ( ! $simple ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
 		}
 
 		wpcom_add_jetpack_submenu();
@@ -769,121 +769,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$submenu['jetpack']
 		);
 		$this->assertSame( $expected, $titles );
-	}
-
-	/**
-	 * Sets up the Jetpack menu a Simple site's My Jetpack page reads.
-	 */
-	private function set_up_simple_my_jetpack_menu() {
-		global $submenu;
-		wp_set_current_user( self::$admin_id );
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$submenu['jetpack'] = array(
-			array( 'My Jetpack', 'edit_posts', 'my-jetpack' ),
-			array( 'Akismet Anti-spam <span class="awaiting-mod"><span class="count">2</span></span>', 'manage_options', 'akismet-key-config' ),
-			array( 'Activity Log', 'manage_options', 'jetpack-activity-log', '', 'hide-if-js' ),
-			array( 'Scan', 'manage_options', 'https://wordpress.com/scan/' . self::$domain ),
-			array( 'New Tool', 'manage_options', 'jetpack-new-tool' ),
-		);
-	}
-
-	/**
-	 * The page registers on a site without My Jetpack, and leaves a sticker site's real page alone.
-	 */
-	public function test_simple_my_jetpack_page_registers_only_when_the_slug_is_free() {
-		global $submenu;
-		wp_set_current_user( self::$admin_id );
-
-		wpcom_add_simple_my_jetpack_page();
-		$this->assertSame( array( 'my-jetpack' ), array_column( $submenu['jetpack'], 2 ) );
-
-		wpcom_add_simple_my_jetpack_page();
-		$this->assertSame( array( 'my-jetpack' ), array_column( $submenu['jetpack'], 2 ) );
-	}
-
-	/**
-	 * The page lists visible items only, with clean titles and the right destinations.
-	 */
-	public function test_simple_my_jetpack_items_list_the_visible_menu() {
-		$this->set_up_simple_my_jetpack_menu();
-
-		$this->assertSame(
-			array(
-				array(
-					'title'       => 'Akismet Anti-spam',
-					'description' => 'Filter spam from comments and forms',
-					'url'         => admin_url( 'admin.php?page=akismet-key-config' ),
-					'external'    => false,
-				),
-				array(
-					'title'       => 'Scan',
-					'description' => 'Check your site for malware and threats',
-					'url'         => 'https://wordpress.com/scan/' . self::$domain,
-					'external'    => true,
-				),
-				array(
-					'title'       => 'New Tool',
-					'description' => '',
-					'url'         => admin_url( 'admin.php?page=jetpack-new-tool' ),
-					'external'    => false,
-				),
-			),
-			array_map(
-				function ( $item ) {
-					unset( $item['icon'] );
-					return $item;
-				},
-				wpcom_get_simple_my_jetpack_items()
-			)
-		);
-	}
-
-	/**
-	 * Known tools get their product icon, and a new tool gets the Jetpack mark.
-	 */
-	public function test_simple_my_jetpack_icon_falls_back_to_the_jetpack_mark() {
-		$fallback = wpcom_get_simple_my_jetpack_icon( 'jetpack-new-tool' );
-
-		$this->assertStringContainsString( 'viewBox="0 0 32 32"', $fallback );
-		foreach ( array( 'jetpack-activity-log', 'akismet-key-config', 'jetpack-backup', 'advertising', 'jetpack-forms-responses-wp-admin', 'https://wordpress.com/earn/', 'jetpack-newsletter', 'jetpack-podcast', 'jetpack-scan', 'jetpack-search', 'jetpack-seo', 'jetpack-social', 'https://wordpress.com/marketing/traffic/', 'jetpack-videopress' ) as $slug ) {
-			$this->assertNotSame( $fallback, wpcom_get_simple_my_jetpack_icon( $slug ), $slug );
-		}
-	}
-
-	/**
-	 * A site's own domain can't pick a tool's description.
-	 */
-	public function test_simple_my_jetpack_description_comes_from_the_tool_alone() {
-		$this->assertSame( '', wpcom_get_simple_my_jetpack_description( 'jetpack-new-tool' ) );
-		$this->assertSame( 'Analytics and site verification', wpcom_get_simple_my_jetpack_description( 'https://wordpress.com/marketing/traffic/' ) );
-	}
-
-	/**
-	 * Admins get the plan link and Editors don't.
-	 */
-	public function test_simple_my_jetpack_page_shows_the_plan_link_to_admins_only() {
-		$this->set_up_simple_my_jetpack_menu();
-
-		ob_start();
-		wpcom_render_simple_my_jetpack_page();
-		$this->assertStringContainsString( 'https://wordpress.com/plans/' . self::$domain, ob_get_clean() );
-
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'editor_user',
-					'user_pass'  => 'pass',
-					'user_email' => 'editor@example.com',
-					'role'       => 'editor',
-				)
-			)
-		);
-
-		ob_start();
-		wpcom_render_simple_my_jetpack_page();
-		$html = ob_get_clean();
-		$this->assertStringNotContainsString( 'wordpress.com/plans/', $html );
-		$this->assertStringContainsString( 'Akismet Anti-spam', $html );
 	}
 
 	/**

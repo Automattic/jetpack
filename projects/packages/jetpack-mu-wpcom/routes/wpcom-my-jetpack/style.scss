@@ -1,0 +1,53 @@
+// Route-level styles for the Simple My Jetpack page. The layout mixin is
+// included per route because each wp-build route bundles its own CSS.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Scoped to the body class so the layout cannot leak onto other Jetpack pages.
+body.jetpack_page_my-jetpack {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.wpcom-my-jetpack__body {
+	max-width: 1040px;
+	box-sizing: border-box;
+	padding: 24px;
+}
+
+.wpcom-my-jetpack__tools {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+	gap: 8px;
+}
+
+.wpcom-my-jetpack__tool {
+	display: block;
+	height: 100%;
+	text-decoration: none;
+	color: inherit;
+}
+
+.wpcom-my-jetpack__tool-card {
+	height: 100%;
+	box-sizing: border-box;
+}
+
+// The product tile from jetpack.com's menu.
+.wpcom-my-jetpack__tool-icon {
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	background: #073f12;
+	color: #0ced57;
+	fill: currentColor;
+}
+
+.wpcom-my-jetpack__tool-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}

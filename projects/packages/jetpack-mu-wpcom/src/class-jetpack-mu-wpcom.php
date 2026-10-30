@@ -132,6 +132,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
+		// Simple has no My Jetpack without the sticker, so it gets a lightweight page of its own.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
+		}
+
 		// At mu-plugin scope, because the Jetpack plugin can resolve these filters before plugins_loaded loads the pages.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
@@ -927,6 +932,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_scan() {
 		require_once __DIR__ . '/features/wpcom-scan/wpcom-scan.php';
+	}
+
+	/**
+	 * Load the lightweight My Jetpack page on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_my_jetpack() {
+		require_once __DIR__ . '/features/wpcom-my-jetpack/wpcom-my-jetpack.php';
 	}
 
 	/**

@@ -17,7 +17,6 @@ use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
-require_once __DIR__ . '/simple-my-jetpack.php';
 
 /**
  * Feature flag gating the native Activity Log page on Simple sites.
@@ -534,10 +533,6 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/activity-log/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	}
-
-	if ( $is_simple_site ) {
-		wpcom_add_simple_my_jetpack_page();
 	}
 
 	wpcom_sort_jetpack_submenu();
