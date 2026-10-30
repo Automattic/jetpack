@@ -120,16 +120,17 @@ class SharePostTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Embed URLs, and the URL the embed block should keep.
+	 * Embed URLs, the URL the embed block should keep, and the wrapper text save() would write.
 	 *
 	 * @return array
 	 */
 	public static function provide_embed_urls() {
 		return array(
-			'plain URL'             => array( 'https://www.youtube.com/watch/abc', 'https://www.youtube.com/watch/abc' ),
-			'query string stripped' => array( 'https://www.youtube.com/embed/abc?feature=oembed', 'https://www.youtube.com/embed/abc' ),
-			'double hyphen in path' => array( 'https://example.com/clip--one', 'https://example.com/clip--one' ),
-			'ampersand in path'     => array( 'https://example.com/a&b', 'https://example.com/a&b' ),
+			'plain URL'             => array( 'https://www.youtube.com/watch/abc', 'https://www.youtube.com/watch/abc', 'https://www.youtube.com/watch/abc' ),
+			'query string stripped' => array( 'https://www.youtube.com/embed/abc?feature=oembed', 'https://www.youtube.com/embed/abc', 'https://www.youtube.com/embed/abc' ),
+			'double hyphen in path' => array( 'https://example.com/clip--one', 'https://example.com/clip--one', 'https://example.com/clip--one' ),
+			'ampersand in path'     => array( 'https://example.com/a&b', 'https://example.com/a&b', 'https://example.com/a&amp;b' ),
+			'entity in path'        => array( 'https://example.com/a&amp;b', 'https://example.com/a&amp;b', 'https://example.com/a&amp;amp;b' ),
 		);
 	}
 
@@ -138,11 +139,12 @@ class SharePostTest extends WP_UnitTestCase {
 	 *
 	 * @dataProvider provide_embed_urls
 	 *
-	 * @param string $embed        Embed argument.
-	 * @param string $expected_url URL the block should keep.
+	 * @param string $embed         Embed argument.
+	 * @param string $expected_url  URL the block should keep.
+	 * @param string $expected_text Escaped URL inside the wrapper.
 	 */
 	#[DataProvider( 'provide_embed_urls' )]
-	public function test_share_link_with_embed_creates_embed_block( string $embed, string $expected_url ) {
+	public function test_share_link_with_embed_creates_embed_block( string $embed, string $expected_url, string $expected_text ) {
 		$post = $this->create_shared_draft(
 			array(
 				'url'   => 'https://example.com/a-post/',
@@ -156,8 +158,41 @@ class SharePostTest extends WP_UnitTestCase {
 		$this->assertSame( 'core/embed', $blocks[0]['blockName'] );
 		$this->assertSame( array( 'url' => $expected_url ), $blocks[0]['attrs'] );
 		$this->assertSame(
-			'<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">' . "\n" . esc_html( $expected_url ) . "\n" . '</div></figure>',
+			'<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">' . "\n" . $expected_text . "\n" . '</div></figure>',
 			$blocks[0]['innerHTML']
 		);
+	}
+
+	/**
+	 * Embed arguments that cannot become a valid embed block.
+	 *
+	 * @return array
+	 */
+	public static function provide_unusable_embeds() {
+		return array(
+			'unsafe scheme' => array( 'javascript:alert(1)' ),
+			'invalid UTF-8' => array( "https://example.com/\xE9" ),
+		);
+	}
+
+	/**
+	 * A share link with an unusable embed still builds the draft, without an embed block.
+	 *
+	 * @dataProvider provide_unusable_embeds
+	 *
+	 * @param string $embed Embed argument.
+	 */
+	#[DataProvider( 'provide_unusable_embeds' )]
+	public function test_share_link_with_unusable_embed_skips_embed_block( string $embed ) {
+		$post = $this->create_shared_draft(
+			array(
+				'text'  => 'Quoted text.',
+				'embed' => $embed,
+			)
+		);
+
+		$this->assertSame( array(), $this->php_errors );
+		$this->assertStringNotContainsString( 'wp:embed', $post->post_content );
+		$this->assertStringContainsString( '<p>Quoted text.</p>', $post->post_content );
 	}
 }

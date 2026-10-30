@@ -88,7 +88,7 @@ function wpcomsh_get_shared_post_arg( $key ) {
  * @return string Generated content for the sharing post.
  */
 function wpcomsh_get_embed_content( $embed ) {
-	$url = esc_url_raw( $embed );
+	$url = esc_url_raw( wp_check_invalid_utf8( $embed ) );
 	if ( '' === $url ) {
 		return '';
 	}
@@ -99,7 +99,7 @@ function wpcomsh_get_embed_content( $embed ) {
 		array( 'url' => $url ),
 		sprintf(
 			'<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">%s</div></figure>',
-			"\n" . esc_html( $url ) . "\n"
+			"\n" . htmlspecialchars( $url, ENT_QUOTES, 'UTF-8', true ) . "\n"
 		)
 	);
 }
