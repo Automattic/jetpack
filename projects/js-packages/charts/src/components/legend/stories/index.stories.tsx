@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Button } from '@wordpress/components';
 import { Stack } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { BarChart } from '../../../charts/bar-chart';
 import { LineChart } from '../../../charts/line-chart';
 import { PieChart } from '../../../charts/pie-chart';
@@ -243,6 +243,78 @@ const ProgrammaticVisibilityComponent = () => {
 
 export const ProgrammaticVisibility: Story = {
 	render: () => <ProgrammaticVisibilityComponent />,
+};
+
+const CONTROLLED_ITEM_COLORS = [ '#3858e9', '#d63638' ];
+const PREVIOUS_PERIOD_COLOR = '#757575';
+const PREVIOUS_PERIOD_VALUES = [
+	[ 90, 120, 130 ],
+	[ 70, 85, 80 ],
+];
+const controlledItemData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
+	...series,
+	options: { stroke: CONTROLLED_ITEM_COLORS[ index ] },
+} ) );
+const previousPeriodData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
+	label: `${ series.label } (previous period)`,
+	data: series.data.map( ( point, pointIndex ) => ( {
+		...point,
+		value: PREVIOUS_PERIOD_VALUES[ index ][ pointIndex ],
+	} ) ),
+	options: {
+		stroke: PREVIOUS_PERIOD_COLOR,
+		seriesLineStyle: { strokeDasharray: '4 4' },
+	},
+} ) );
+
+const ControlledItemComponent = () => {
+	const [ showPrevious, setShowPrevious ] = useState( false );
+	const togglePrevious = useCallback( () => setShowPrevious( current => ! current ), [] );
+
+	return (
+		<Stack direction="column" gap="md">
+			<LineChart
+				chartId="controlled-item-demo"
+				data={
+					showPrevious ? [ ...controlledItemData, ...previousPeriodData ] : controlledItemData
+				}
+				showLegend={ false }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+			/>
+			<Legend
+				chartId="controlled-item-demo"
+				interactive
+				shape="line"
+				items={ [
+					...controlledItemData.map( ( series, index ) => ( {
+						label: series.label,
+						color: CONTROLLED_ITEM_COLORS[ index ],
+					} ) ),
+					{
+						label: 'Previous period',
+						color: PREVIOUS_PERIOD_COLOR,
+						shapeStyle: { strokeDasharray: '4 4' },
+						pressed: showPrevious,
+						onToggle: togglePrevious,
+					},
+				] }
+			/>
+		</Stack>
+	);
+};
+
+export const ControlledItem: Story = {
+	render: () => <ControlledItemComponent />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Previous period item is not a series. It reports its pressed state and calls `onToggle` instead of changing series visibility, so the consumer decides what it controls: here, whether the dashed previous-period lines are passed to the chart.',
+			},
+		},
+	},
 };
 
 // Story showing a real-world dashboard layout with centralized legends

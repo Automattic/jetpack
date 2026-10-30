@@ -900,6 +900,131 @@ describe( 'BaseLegend', () => {
 		} );
 	} );
 
+	describe( 'Controlled items', () => {
+		const VisibilityProbe = () => {
+			const { isSeriesVisible } = useGlobalChartsContext();
+			return (
+				<output data-testid="views-visible">
+					{ String( isSeriesVisible( 'test-chart', 'Views' ) ) }
+				</output>
+			);
+		};
+
+		it.each( [ false, true ] )( 'takes the pressed state from the item (%s)', pressed => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [ { label: 'Previous period', color: '#000', pressed, onToggle: jest.fn() } ] }
+						interactive
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByRole( 'button', { name: /Previous period/ } ) ).toHaveAttribute(
+				'aria-pressed',
+				String( pressed )
+			);
+		} );
+
+		it.each( [ 'click', 'Enter', ' ' ] )(
+			'calls onToggle on %s and leaves series visibility alone',
+			async interaction => {
+				const user = userEvent.setup();
+				const onToggle = jest.fn();
+				render(
+					<GlobalChartsProvider>
+						<BaseLegend
+							items={ [
+								{
+									label: 'Previous period',
+									color: '#000',
+									seriesLabels: [ 'Views' ],
+									pressed: false,
+									onToggle,
+								},
+							] }
+							interactive
+							chartId="test-chart"
+						/>
+						<VisibilityProbe />
+					</GlobalChartsProvider>
+				);
+
+				const button = screen.getByRole( 'button', { name: /Previous period/ } );
+				if ( interaction === 'click' ) {
+					await user.click( button );
+				} else {
+					button.focus();
+					await user.keyboard( interaction === ' ' ? ' ' : '{Enter}' );
+				}
+
+				expect( onToggle ).toHaveBeenCalledTimes( 1 );
+				expect( onToggle ).toHaveBeenCalledWith();
+				expect( screen.getByTestId( 'views-visible' ) ).toHaveTextContent( 'true' );
+			}
+		);
+
+		it( 'ignores key repeats while Enter is held', async () => {
+			const user = userEvent.setup();
+			const onToggle = jest.fn();
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [ { label: 'Previous period', color: '#000', pressed: false, onToggle } ] }
+						interactive
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'button', { name: /Previous period/ } ).focus();
+			await user.keyboard( '{Enter>3/}' );
+
+			expect( onToggle ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		const renderStaticControlledItem = ( pressed: boolean ) => {
+			const onToggle = jest.fn();
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend
+						items={ [
+							{
+								label: 'Previous period',
+								color: '#000',
+								seriesLabels: [ 'Views' ],
+								pressed,
+								onToggle,
+							},
+						] }
+						interactive={ false }
+						chartId="test-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+			return { item: screen.getByTestId( 'legend-item' ), onToggle };
+		};
+
+		it( 'stays static in a legend that is not interactive', async () => {
+			const user = userEvent.setup();
+			const { item, onToggle } = renderStaticControlledItem( true );
+
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( item ).not.toHaveClass( 'legend-item--inactive' );
+			expect( item ).not.toHaveAttribute( 'aria-label' );
+			await user.click( item );
+			expect( onToggle ).not.toHaveBeenCalled();
+		} );
+
+		it( 'dims an item that is not pressed in a legend that is not interactive', () => {
+			const { item } = renderStaticControlledItem( false );
+
+			expect( item ).toHaveClass( 'legend-item--inactive' );
+			expect( item ).toHaveAttribute( 'aria-label', 'Previous period: hidden' );
+		} );
+	} );
+
 	describe( 'Non-interactive legend reflects hidden state', () => {
 		const HiddenSeriesHarness = ( { interactive }: { interactive: boolean } ) => {
 			const context = useGlobalChartsContext();
