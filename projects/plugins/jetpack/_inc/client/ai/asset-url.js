@@ -2,7 +2,7 @@
  * Build a URL for an AI Hub image shipped under the plugin's `images/ai-hub/` directory.
  *
  * The images are referenced rather than imported because wp-build's esbuild pipeline has no
- * loader for `.webp` or `.svg`, and `_inc/client/**` is `production-exclude` so the sources
+ * loader for `.svg`, and `_inc/client/**` is `production-exclude` so the sources
  * never reach a built plugin.
  *
  * @param {string} filename - File name within `images/ai-hub/`.

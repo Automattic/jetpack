@@ -8,8 +8,8 @@ describe( 'assetUrl', () => {
 	test( 'builds a versioned URL under images/ai-hub/', () => {
 		window.jetpackAiSettings = { pluginUrl: 'https://example.com/jetpack', assetsVersion: '1.2.3' };
 
-		expect( assetUrl( 'build-page.webp' ) ).toBe(
-			'https://example.com/jetpack/images/ai-hub/build-page.webp?ver=1.2.3'
+		expect( assetUrl( 'upsell-illustration.svg' ) ).toBe(
+			'https://example.com/jetpack/images/ai-hub/upsell-illustration.svg?ver=1.2.3'
 		);
 	} );
 
@@ -19,20 +19,20 @@ describe( 'assetUrl', () => {
 			assetsVersion: '1.2.3',
 		};
 
-		expect( assetUrl( 'build-page.webp' ) ).toBe(
-			'https://example.com/jetpack/images/ai-hub/build-page.webp?ver=1.2.3'
+		expect( assetUrl( 'upsell-illustration.svg' ) ).toBe(
+			'https://example.com/jetpack/images/ai-hub/upsell-illustration.svg?ver=1.2.3'
 		);
 	} );
 
 	test( 'omits the query when no version is available', () => {
 		window.jetpackAiSettings = { pluginUrl: 'https://example.com/jetpack' };
 
-		expect( assetUrl( 'build-page.webp' ) ).toBe(
-			'https://example.com/jetpack/images/ai-hub/build-page.webp'
+		expect( assetUrl( 'upsell-illustration.svg' ) ).toBe(
+			'https://example.com/jetpack/images/ai-hub/upsell-illustration.svg'
 		);
 	} );
 
 	test( 'returns an empty string rather than a URL against the wrong origin', () => {
-		expect( assetUrl( 'build-page.webp' ) ).toBe( '' );
+		expect( assetUrl( 'upsell-illustration.svg' ) ).toBe( '' );
 	} );
 } );

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { speak } from '@wordpress/a11y';
-import PageNotice, { getPageNoticeState } from '../index';
+import PageNotice, { getPageNoticeState, isConnectionNoticeState } from '../index';
 
 jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
@@ -89,7 +89,7 @@ describe( 'getPageNoticeState', () => {
 		} );
 
 		it( 'still belongs to no other view', () => {
-			expect( resolve( { view: 'mcp', hasConnectionError: true } ) ).toBeNull();
+			expect( resolve( { view: 'scheduled-tasks', hasConnectionError: true } ) ).toBeNull();
 		} );
 	} );
 
@@ -140,10 +140,20 @@ describe( 'getPageNoticeState', () => {
 		} );
 	} );
 
-	describe( 'views the notice does not belong to', () => {
-		it.each( [ 'mcp', 'scheduled-tasks' ] )( 'stays silent on the %s view', view => {
-			expect( resolve( { view, blogId: 0 } ) ).toBeNull();
+	// The MCP view hosts the AI features section, so the notice speaks there too.
+	describe( 'views the notice belongs to', () => {
+		it.each( [ 'overview', 'mcp' ] )( 'names the state on the %s view', view => {
+			expect( resolve( { view, blogId: 0 } ) ).toBe( 'site-disconnected' );
 		} );
+	} );
+
+	describe( 'views the notice does not belong to', () => {
+		it.each( [ 'scheduled-tasks', 'discover', 'features' ] )(
+			'stays silent on the %s view',
+			view => {
+				expect( resolve( { view, blogId: 0 } ) ).toBeNull();
+			}
+		);
 
 		it( 'stays silent on an MCP sub-view', () => {
 			expect( resolve( { view: 'mcp/read', blogId: 0 } ) ).toBeNull();
@@ -400,4 +410,20 @@ describe( 'PageNotice', () => {
 			).not.toBeInTheDocument();
 		} );
 	} );
+} );
+
+describe( 'isConnectionNoticeState', () => {
+	it.each( [ 'offline-mode', 'site-disconnected', 'user-unlinked' ] )(
+		'counts %s as a connection state',
+		state => {
+			expect( isConnectionNoticeState( state ) ).toBe( true );
+		}
+	);
+
+	it.each( [ 'connection-error', 'host-off', 'forced-off', 'master-off', null ] )(
+		'leaves %s to the AI features section',
+		state => {
+			expect( isConnectionNoticeState( state ) ).toBe( false );
+		}
+	);
 } );

@@ -18,6 +18,8 @@ class Jetpack_AI_Feature_Flags {
 
 	const SCHEDULED_TASKS = 'ai-hub-scheduled-tasks';
 
+	const DISCOVER = 'ai-hub-discover';
+
 	/**
 	 * Register Jetpack AI feature flags.
 	 *
@@ -29,6 +31,15 @@ class Jetpack_AI_Feature_Flags {
 			array(
 				'default'     => false,
 				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+			)
+		);
+
+		Feature_Flags::register(
+			self::DISCOVER,
+			array(
+				'default'     => false,
+				'description' => 'Enable the Discover tab of agent skills in AI Hub.',
 				'owner'       => 'jetpack-ai',
 			)
 		);

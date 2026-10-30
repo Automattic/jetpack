@@ -106,3 +106,35 @@ describe( 'McpHub activity log tracks', () => {
 		);
 	} );
 } );
+
+describe( 'McpHub connect card', () => {
+	test( 'leads the view, before the explainer and the access card', () => {
+		renderHub();
+
+		const headings = screen
+			.getAllByRole( 'heading', { level: 2 } )
+			.map( heading => heading.textContent );
+		expect( headings ).toEqual( [
+			'Connect your AI agent',
+			'How it works',
+			'External AI agent access',
+		] );
+	} );
+
+	test( 'is the one connect prompt: the old setup row is gone', () => {
+		renderHub();
+
+		expect(
+			screen.queryByRole( 'button', { name: 'Connect external AI agent' } )
+		).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'region', { name: 'Connect your AI agent' } ) ).toHaveLength( 1 );
+	} );
+
+	test( 'shows with MCP off too, pointing at the switch', () => {
+		renderHub( { siteLevelEnabled: false } );
+
+		expect(
+			screen.getByText( 'Turn on MCP access below, then connect your agent.' )
+		).toBeInTheDocument();
+	} );
+} );

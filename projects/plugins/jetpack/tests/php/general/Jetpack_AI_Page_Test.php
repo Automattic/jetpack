@@ -45,6 +45,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_admin_config' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-discover' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
@@ -740,6 +741,35 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			),
 			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS )
 		);
+	}
+
+	/**
+	 * The Discover tab is registered as a default-off feature flag.
+	 */
+	public function test_discover_feature_flag_is_registered() {
+		Jetpack_AI_Feature_Flags::register();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Discover tab of agent skills in AI Hub.',
+				'owner'       => 'jetpack-ai',
+				'name'        => 'ai-hub-discover',
+			),
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::DISCOVER )
+		);
+	}
+
+	/**
+	 * The Discover tab stays hidden unless its feature flag is on.
+	 */
+	public function test_discover_view_follows_feature_flag() {
+		$settings = $this->get_injected_settings();
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::DISCOVER ] );
+
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-discover', '__return_true' );
+		$settings = $this->get_injected_settings();
+		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::DISCOVER ] );
 	}
 
 	/**

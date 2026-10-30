@@ -1,4 +1,4 @@
-import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
@@ -28,13 +28,10 @@ const callsFor = eventName =>
 const cancelNavigation = event => event.preventDefault();
 beforeEach( () => {
 	document.addEventListener( 'click', cancelNavigation );
-	// assetUrl() builds the thumbnail URLs from these; without them it returns ''.
-	window.jetpackAiSettings = {
-		pluginUrl: 'https://example.com/wp-content/plugins/jetpack',
-		assetsVersion: '1.2.3',
-	};
+	// The connect self-hosted tests flip isSelfHosted on this object.
+	window.jetpackAiSettings = {};
 	// The assistant banner has its own suite; dismissing it here keeps its
-	// links from colliding with the quick-start card queries.
+	// links from colliding with the connect card queries.
 	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
 } );
 
@@ -84,7 +81,7 @@ describe( 'AiOverview', () => {
 		// Same layout as the depleted state, softer copy: the upsell shows
 		// whenever an upgrade is on offer, not just at zero.
 		await expect(
-			screen.findByRole( 'heading', { level: 2, name: 'Upgrade Jetpack AI Assistant' } )
+			screen.findByRole( 'heading', { level: 2, name: 'Upgrade Jetpack AI' } )
 		).resolves.toBeInTheDocument();
 		expect(
 			screen.getByText(
@@ -141,7 +138,7 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 		// The depleted state keeps its own, harder pitch.
 		expect(
-			screen.queryByRole( 'heading', { name: 'Upgrade Jetpack AI Assistant' } )
+			screen.queryByRole( 'heading', { name: 'Upgrade Jetpack AI' } )
 		).not.toBeInTheDocument();
 	} );
 
@@ -181,7 +178,9 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		// The rest of the tab is unaffected.
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Connect your AI agent' } )
+		).toBeInTheDocument();
 		// With nothing left inside it, the intro wrapper must be truly :empty
 		// so the stylesheet can drop it and the outer gap doesn't double.
 		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
@@ -225,7 +224,7 @@ describe( 'AiOverview', () => {
 			screen.findByRole( 'heading', { level: 2, name: 'Documentation' } )
 		).resolves.toBeInTheDocument();
 		expect(
-			screen.getByRole( 'heading', { level: 2, name: 'Walkthrough videos' } )
+			screen.getByRole( 'heading', { level: 2, name: 'Connect your AI agent' } )
 		).toBeInTheDocument();
 	} );
 
@@ -271,7 +270,7 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
-		// Same-site row: no new tab, unlike the external Quick start cards.
+		// Same-site row: no new tab, unlike the connect buttons.
 		expect( row ).not.toHaveAttribute( 'target' );
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
@@ -340,91 +339,22 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'walkthrough videos: renders the four cards with their durations', async () => {
+	test( 'walkthrough videos: the section is gone', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		// Each card links to its course lesson; durations are the live lesson
-		// lengths, not the design frame's stale numbers.
-		const videos = [
-			[ 'Connect your site to Claude', '3:18' ],
-			[ 'Build a page from a single prompt', '3:09' ],
-			[ 'Manage your Media Library with AI', '3:14' ],
-			[ 'Optimize your site with AI', '3:15' ],
-		];
-		for ( const [ title, duration ] of videos ) {
-			const card = screen.getByRole( 'link', { name: new RegExp( title ) } );
-			expect( card ).toHaveTextContent( duration );
-		}
+		expect(
+			screen.queryByRole( 'heading', { name: 'Walkthrough videos' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: /Connect your site to Claude/ } )
+		).not.toBeInTheDocument();
 	} );
 
-	test( 'walkthrough videos: each card shows its thumbnail', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
-
-		// The artwork is decorative — the card's title carries the meaning —
-		// so the images are alt-empty and queried by role="presentation".
-		const thumbs = screen.getAllByRole( 'presentation' );
-		expect( thumbs ).toHaveLength( 4 );
-		// toHaveAttribute( 'src' ) alone passes on src="", which is what a missing
-		// pluginUrl produces — assert the resolved path instead.
-		expect( thumbs.map( img => img.getAttribute( 'src' ) ) ).toEqual( [
-			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/connect-claude.webp?ver=1.2.3',
-			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/build-page.webp?ver=1.2.3',
-			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/media-library.webp?ver=1.2.3',
-			'https://example.com/wp-content/plugins/jetpack/images/ai-hub/optimize-site.webp?ver=1.2.3',
-		] );
-	} );
-
-	test( 'walkthrough videos: each card opens in a new tab and says so', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
-
-		// The cards carry no arrow (the design leaves them unmarked), so the
-		// new tab is announced through each link's accessible name instead.
-		for ( const title of [
-			'Connect your site to Claude',
-			'Build a page from a single prompt',
-			'Manage your Media Library with AI',
-			'Optimize your site with AI',
-		] ) {
-			const card = screen.getByRole( 'link', {
-				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
-			} );
-			expect( card ).toHaveAttribute( 'target', '_blank' );
-			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		}
-	} );
-
-	test( 'walkthrough videos: each card links through the redirect service', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Walkthrough videos' ) ).resolves.toBeInTheDocument();
-
-		const slugByName = {
-			'Connect your site to Claude': 'jetpack-ai-hub-overview-video-connect-claude',
-			'Build a page from a single prompt': 'jetpack-ai-hub-overview-video-build-page',
-			'Manage your Media Library with AI': 'jetpack-ai-hub-overview-video-media-library',
-			'Optimize your site with AI': 'jetpack-ai-hub-overview-video-optimize-site',
-		};
-		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
-			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
-			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
-		}
-	} );
-
-	test( 'documentation: renders all four links through the redirect service', async () => {
+	test( 'documentation: one card, a row per guide, through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -432,34 +362,124 @@ describe( 'AiOverview', () => {
 		// Settle the usage fetch so it cannot update state after the test body.
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		// The i4 docs section is a plain list of external links (no rows).
-		const slugByName = {
-			'MCP integration guide': 'jetpack-ai-hub-overview-docs-mcp-guide',
-			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
-			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
-			'Available capabilities': 'jetpack-ai-hub-overview-docs-mcp-tools',
+		// Each guide is a nav row with its own description, opening in a new tab.
+		const rows = {
+			'MCP integration guide': [
+				'jetpack-ai-hub-overview-docs-mcp-guide',
+				'Connect an AI agent to your site.',
+			],
+			'AI features overview': [
+				'jetpack-ai-hub-overview-docs-features',
+				'Everything Jetpack AI can do on your site.',
+			],
+			'Billing & plans': [
+				'jetpack-ai-hub-overview-docs-billing',
+				'How requests, plans, and upgrades work.',
+			],
+			'Available capabilities': [
+				'jetpack-ai-hub-overview-docs-mcp-tools',
+				'What a connected agent can read and change.',
+			],
 		};
-		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
+		const links = [];
+		for ( const [ name, [ slug, description ] ] of Object.entries( rows ) ) {
 			const link = screen.getByRole( 'link', { name: new RegExp( name ) } );
-			expect( link ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+			expect( link ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
+			expect( link ).toHaveAccessibleDescription( description );
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+			links.push( link );
 		}
+		// All four share one card.
+		/* eslint-disable testing-library/no-node-access -- the card is a plain
+		   container with no role, so its class is the only handle. */
+		const cards = new Set( links.map( link => link.closest( '.jetpack-ai-overview__docs' ) ) );
+		/* eslint-enable testing-library/no-node-access */
+		expect( cards.size ).toBe( 1 );
+		expect( [ ...cards ][ 0 ] ).not.toBeNull();
 	} );
-	test( 'tracks: a video card click records the video slug', async () => {
+
+	test( 'tracks: a documentation row click records its slug', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		await userEvent.click( screen.getByRole( 'link', { name: /Connect your site to Claude/ } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /Billing & plans/ } ) );
 		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
-			{
-				site_type: 'jetpack',
-				is_a11n: 'false',
-				is_test: 'false',
-				link_type: 'video',
-				link: 'jetpack-ai-hub-overview-video-connect-claude',
-			},
+			expect.objectContaining( {
+				link_type: 'docs',
+				link: 'jetpack-ai-hub-overview-docs-billing',
+			} ),
 		] );
+	} );
+
+	test( 'skills hero: only with the Skills tab on', async () => {
+		// The two layouts mount the usage card afresh, so it fetches again.
+		apiFetch.mockResolvedValue( freePayload() );
+
+		const { rerender } = render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'Run your site from your AI agent' } )
+		).not.toBeInTheDocument();
+
+		window.jetpackAiSettings.featureFlags = { 'ai-hub-discover': true };
+		rerender( <AiOverview { ...PROPS } /> );
+		expect(
+			screen.getByRole( 'heading', { level: 2, name: 'Run your site from your AI agent' } )
+		).toBeInTheDocument();
+		// Let the remounted usage card's fetch land inside the test.
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+	} );
+
+	test( 'connect card: on Overview, pointing at Settings while MCP is off', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		const { rerender } = render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		const card = screen.getByRole( 'region', { name: 'Connect your AI agent' } );
+		expect(
+			within( card ).getByText(
+				'Manage your site by chatting with Claude, ChatGPT, or another agent.'
+			)
+		).toBeInTheDocument();
+		// No setup sub-view to open unless the hub is there.
+		expect(
+			within( card ).queryByRole( 'link', { name: 'Other agents' } )
+		).not.toBeInTheDocument();
+
+		rerender( <AiOverview { ...PROPS } isMcpEnabled={ false } showOtherAgents /> );
+		expect( within( card ).getByRole( 'link', { name: 'Settings' } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( /#\/mcp$/ )
+		);
+		expect( within( card ).getByRole( 'link', { name: 'Other agents' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'section order: opening with connect, usage, skills, activity log, documentation', async () => {
+		window.jetpackAiSettings.featureFlags = { 'ai-hub-discover': true };
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		const usage = await screen.findByText( 'Available requests' );
+		// With Skills on, the connect buttons sit in the opening column, not a card.
+		expect(
+			screen.queryByRole( 'heading', { name: 'Connect your AI agent' } )
+		).not.toBeInTheDocument();
+		const sequence = [
+			screen.getByRole( 'heading', { level: 2, name: 'Run your site from your AI agent' } ),
+			screen.getByRole( 'link', { name: /^Connect Claude/ } ),
+			// On a free plan the upgrade card comes before the skills.
+			usage,
+			screen.getByRole( 'group', { name: 'Start with a skill' } ),
+			screen.getByRole( 'link', { name: /Activity log/ } ),
+			screen.getByRole( 'heading', { level: 2, name: 'Documentation' } ),
+		];
+		for ( let i = 1; i < sequence.length; i++ ) {
+			// DOCUMENT_POSITION_FOLLOWING === 4.
+			expect( sequence[ i - 1 ].compareDocumentPosition( sequence[ i ] ) ).toBe( 4 );
+		}
 	} );
 
 	test( 'tracks: an Activity log click records whether the link is filtered', async () => {
@@ -481,7 +501,7 @@ describe( 'AiOverview', () => {
 		] );
 	} );
 
-	test( 'tracks: a quick start card click records the connector slug', async () => {
+	test( 'tracks: a connect button click records the agent', async () => {
 		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -494,13 +514,13 @@ describe( 'AiOverview', () => {
 				site_type: 'jetpack',
 				is_a11n: 'false',
 				is_test: 'false',
-				link_type: 'quick_start',
-				link: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+				link_type: 'overview_connect',
+				link: 'chatgpt',
 			},
 		] );
 	} );
 
-	test( 'quick start: renders the two connector cards through the redirect service', async () => {
+	test( 'connect: self-hosted buttons go through the redirect service', async () => {
 		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -508,10 +528,7 @@ describe( 'AiOverview', () => {
 
 		// Settle the usage fetch so it cannot update state after the test body.
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
 
-		// The frame's Quick start row: Connect ChatGPT / Connect Claude, each a
-		// nav row whose destination lives in the redirect service.
 		const slugByName = {
 			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
 			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
@@ -520,34 +537,26 @@ describe( 'AiOverview', () => {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
 			expect( card ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
 		}
-		expect(
-			screen.getByText( 'Give Claude access to your site by installing the connector.' )
-		).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Give ChatGPT access to your site by installing the plugin.' )
-		).toBeInTheDocument();
 	} );
 
-	test( 'quick start: WordPress.com sites keep the WordPress.com links', async () => {
+	test( 'connect: WordPress.com sites go straight to each agent’s directory', async () => {
 		window.jetpackAiSettings.isSelfHosted = false;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		for ( const client of [ 'ChatGPT', 'Claude' ] ) {
-			expect(
-				screen.getByRole( 'link', { name: new RegExp( `Connect ${ client }` ) } )
-			).toHaveAttribute(
-				'href',
-				expect.stringMatching(
-					`source=jetpack-ai-hub-overview-quick-start-${ client.toLowerCase() }(&|$)`
-				)
-			);
-		}
+		expect( screen.getByRole( 'link', { name: /Connect Claude/ } ) ).toHaveAttribute(
+			'href',
+			'https://claude.ai/directory/wordpress-com'
+		);
+		expect( screen.getByRole( 'link', { name: /Connect ChatGPT/ } ) ).toHaveAttribute(
+			'href',
+			'https://chatgpt.com/plugins/wordpress-com?open_in_app'
+		);
 	} );
 
-	test( 'quick start: each card opens in a new tab and says so', async () => {
+	test( 'connect: each button opens in a new tab and says so', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -597,46 +606,19 @@ describe( 'AiOverview', () => {
 		expect( speak ).not.toHaveBeenCalled();
 	} );
 
-	test( 'section order: the activity log sits below the walkthrough videos', async () => {
+	test( 'section order: the activity log sits between the connect card and documentation', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
-		const videos = screen.getByRole( 'heading', { level: 2, name: 'Walkthrough videos' } );
+		const connect = screen.getByRole( 'heading', { level: 2, name: 'Connect your AI agent' } );
 		const activityLog = screen.getByRole( 'link', { name: /Activity log/ } );
 		const docs = screen.getByRole( 'heading', { level: 2, name: 'Documentation' } );
 
 		// DOCUMENT_POSITION_FOLLOWING === 4.
-		expect( videos.compareDocumentPosition( activityLog ) ).toBe( 4 );
+		expect( connect.compareDocumentPosition( activityLog ) ).toBe( 4 );
 		expect( activityLog.compareDocumentPosition( docs ) ).toBe( 4 );
-	} );
-
-	test( 'quick start: each connector row carries its own mark', async () => {
-		apiFetch.mockResolvedValueOnce( freePayload() );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
-
-		// A missing icon entry still renders the row, just with nothing in the icon
-		// slot, so the mark itself has to be asserted. It is decorative and
-		// aria-hidden by design, so Testing Library has no query that reaches it.
-		/* eslint-disable testing-library/no-node-access */
-		const marks = [ 'Connect ChatGPT', 'Connect Claude' ].map( name =>
-			screen.getByRole( 'link', { name: new RegExp( name ) } ).querySelector( 'svg' )
-		);
-
-		for ( const mark of marks ) {
-			// Inset on a 28px canvas rather than the icons' usual 24px grid.
-			expect( mark ).toHaveAttribute( 'viewBox', '-4 -4 32 32' );
-			expect( mark ).toHaveAttribute( 'width', '28' );
-		}
-
-		// The two rows must not share one mark.
-		const paths = marks.map( mark => mark.querySelector( 'path' ).getAttribute( 'd' ) );
-		/* eslint-enable testing-library/no-node-access */
-		expect( paths[ 0 ] ).not.toBe( paths[ 1 ] );
 	} );
 } );

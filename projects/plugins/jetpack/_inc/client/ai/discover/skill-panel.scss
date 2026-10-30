@@ -1,0 +1,140 @@
+// The skill's side panel, built like Send's email panel (and Newsletter ›
+// Subscribers' before it): a bar with Close over a padded body. Boot draws
+// the surface, its width and its motion.
+
+.jetpack-ai-skill-panel {
+	// The bar with Close comes last in the DOM, after the body, and is drawn
+	// first; see skill-panel.jsx.
+	display: flex;
+	flex-direction: column;
+
+	p,
+	h2,
+	h3,
+	h4 {
+		margin: 0;
+	}
+
+	&__header {
+		order: -1;
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
+		border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__body {
+		padding: var(--wpds-dimension-padding-2xl);
+	}
+
+	// Fits its text, so the focus ring it gets on opening hugs the title.
+	&__title {
+		align-self: flex-start;
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+		}
+	}
+
+	// Send to agent fits its label, and spans the column on phones (below).
+	&__send {
+		align-self: flex-start;
+	}
+
+	// Card's own padding is 24, a step too roomy in a 400 column (as Send's).
+	// Card spaces its header from its content by the header-content gap, 24 by
+	// default, which leaves each small uppercase title floating over its
+	// section; 12 keeps the two together.
+	&__section {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-gap: var(--wpds-dimension-gap-md);
+	}
+
+	// Try it prompt's Copy. Button's icon margin is sized for a 24 glyph, so
+	// it's zeroed for the 14 one and the gap closes to match. A mouse click
+	// leaves focus on the button, and @wordpress/ui then keeps its focus ring
+	// and hover fill until focus moves; the snackbar already confirms the copy,
+	// so both go unless focus came from the keyboard. The button is 24 tall
+	// beside a 16 title, which made this card's header 8 taller than the
+	// others'; pulling it in by the difference, split above and below, keeps
+	// all three headers the same. It still centres on the title and keeps its
+	// full hit area.
+	&__copy {
+		--wp-ui-button-icon-margin: 0;
+		gap: var(--wpds-dimension-gap-xs);
+		margin-block: calc((var(--wpds-typography-line-height-xs) - var(--wpds-dimension-size-sm)) / 2);
+
+		&:focus:not(:focus-visible) {
+			outline: none;
+
+			&:not(:hover) {
+				background-color: transparent;
+				border-color: transparent;
+			}
+		}
+	}
+
+	// The same object as the Overview's prompt box: monospace on the soft
+	// fill. The md corner nests inside the card's lg one, and the padding stays
+	// tight for the 400 column.
+	&__prompt {
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+		border-radius: var(--wpds-border-radius-md);
+		font-family: var(--wpds-typography-font-family-mono);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+
+	&__instructions {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+
+		h4 {
+			margin-block-end: var(--wpds-dimension-gap-xs);
+		}
+
+		ol,
+		ul {
+			margin: 0;
+			padding-inline-start: var(--wpds-dimension-padding-xl);
+		}
+
+		ul {
+			list-style: disc;
+		}
+
+		li + li {
+			margin-block-start: var(--wpds-dimension-gap-xs);
+		}
+	}
+}
+
+// The card whose skill is open, marked as Send marks its open row. A list row
+// has no outline of its own, so it draws one inside its edges instead, and
+// keeps its divider.
+.jetpack-ai-discover__card[data-open] {
+	border-color: var(--wpds-color-stroke-surface-brand);
+}
+
+.jetpack-ai-discover__card--row[data-open] {
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-surface-brand);
+}
+
+// Jetpack's page layout (base-styles' admin-page-layout) sizes boot's stage
+// from its content (`flex: 1 1 auto`), which squeezed the panel to 136 beside
+// the catalog at 1440; sized from zero, like the panel, it keeps boot's split,
+// as Send's stage does. The hub's content sets the class while a panel is
+// open, and naming AdminPage's root and both content classes outranks that
+// layout rule's own `:has()`.
+:is(body.jetpack_page_jetpack-ai, body.toplevel_page_jetpack-ai)
+#wpbody-content
+:is(.boot-layout__stage, [class*="__stage"]):has(.jp-admin-page .jetpack-ai-admin__content.jetpack-ai-admin__content--panel-open) {
+	flex-basis: 0;
+	min-inline-size: 0;
+}
