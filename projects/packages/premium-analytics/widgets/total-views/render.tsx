@@ -43,7 +43,11 @@ type TotalViewsWidgetProps = WidgetRenderProps< TotalViewsRenderAttributes > & {
 // but both cards share one unit and one request.
 const PERIOD = 'day';
 
-const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
+const HEADLINE_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true },
+	preferExact: true,
+};
 
 /**
  * The period's view total over an area sparkline of the trend.

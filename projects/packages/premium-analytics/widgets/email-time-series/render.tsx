@@ -42,6 +42,7 @@ type EmailTimeSeriesWidgetProps = WidgetRenderProps< EmailTimeSeriesRenderAttrib
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 /** The timeline field each metric charts. */

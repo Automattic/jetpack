@@ -10,7 +10,9 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './abbreviated-value.module.scss';
+import { useIsClipped } from './use-is-clipped';
 import type { DataFormat } from '../../types';
+import type { Ref } from 'react';
 
 export type AbbreviatedTextProps = {
 	/** The shortened text to show, e.g. `'18.4K'`. */
@@ -20,23 +22,35 @@ export type AbbreviatedTextProps = {
 	/** Restored in place of `exact`, e.g. `'18,432 opens'`; assistive tech only when nothing was shortened. */
 	restored?: string;
 	className?: string;
+	/** The element holding the text, for a caller that measures it. */
+	ref?: Ref< HTMLSpanElement >;
 };
 
 /**
  * Shows the shortened text and restores the full one in a tooltip and for
  * assistive tech; no tooltip when nothing was shortened.
  */
-export function AbbreviatedText( { display, exact, restored, className }: AbbreviatedTextProps ) {
+export function AbbreviatedText( {
+	display,
+	exact,
+	restored,
+	className,
+	ref,
+}: AbbreviatedTextProps ) {
 	const full = restored ?? exact;
 
 	if ( display === full ) {
-		return <span className={ className }>{ display }</span>;
+		return (
+			<span ref={ ref } className={ className }>
+				{ display }
+			</span>
+		);
 	}
 
 	// Sighted users get the unit from the column header, which assistive tech doesn't tie to the value.
 	if ( display === exact ) {
 		return (
-			<span className={ className }>
+			<span ref={ ref } className={ className }>
 				<span aria-hidden="true">{ display }</span>
 				<VisuallyHidden render={ <span /> }>{ full }</VisuallyHidden>
 			</span>
@@ -47,7 +61,7 @@ export function AbbreviatedText( { display, exact, restored, className }: Abbrev
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
 	return (
 		<Tooltip text={ full } placement="bottom">
-			<span className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
+			<span ref={ ref } className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
 				<span aria-hidden="true">{ display }</span>
 				<VisuallyHidden render={ <span /> }>{ full }</VisuallyHidden>
 			</span>
@@ -77,7 +91,8 @@ export type AbbreviatedValueProps = {
 
 /**
  * Formats a metric value, restoring the full figure (`18,432`) behind a
- * compact one (`18.4K`).
+ * compact one (`18.4K`). With `dataFormat.preferExact` the full figure shows
+ * instead, and the compact one only once the full figure gets clipped.
  */
 export function AbbreviatedValue( {
 	value,
@@ -94,10 +109,13 @@ export function AbbreviatedValue( {
 			exact: formatMetricValue( value, dataFormat.type, { ...options, useMultipliers: false } ),
 		};
 	}, [ value, dataFormat, currencyCode ] );
+	const preferExact = dataFormat.preferExact === true && display !== exact;
+	const [ ref, isClipped ] = useIsClipped( exact, preferExact );
 
 	return (
 		<AbbreviatedText
-			display={ display }
+			ref={ ref }
+			display={ preferExact && ! isClipped ? exact : display }
 			exact={ exact }
 			restored={ formatRestored?.( exact ) }
 			className={ className }

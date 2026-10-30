@@ -42,6 +42,7 @@ type TileIcon = ComponentProps< typeof Icon >[ 'icon' ];
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 const RATE_FORMAT: DataFormat = {

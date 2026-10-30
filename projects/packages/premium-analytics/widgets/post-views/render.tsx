@@ -30,6 +30,7 @@ type PostViewsWidgetProps = WidgetRenderProps< PostViewsRenderAttributes >;
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 type PostViewsInnerProps = {

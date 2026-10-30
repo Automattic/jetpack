@@ -37,6 +37,7 @@ type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttr
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 /**

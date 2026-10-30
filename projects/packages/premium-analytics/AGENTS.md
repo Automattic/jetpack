@@ -832,7 +832,9 @@ above the leaderboard or chart content.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
   Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
   restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
-  `<AbbreviatedValue>` to get the same.
+  `<AbbreviatedValue>` to get the same. A widget whose job is one figure (metric tiles, metric
+  cards, a headline) adds `preferExact: true`, which shows the exact figure and falls back to the
+  compact one only where it would be clipped (STATS-549); breakdown widgets stay compact.
   `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
   ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
   beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;

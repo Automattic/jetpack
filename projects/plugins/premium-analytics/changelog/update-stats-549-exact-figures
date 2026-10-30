@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show exact figures in single-figure widgets, shortening them only where they would be clipped.

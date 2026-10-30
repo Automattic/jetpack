@@ -37,6 +37,7 @@ type PostDetailHighlightsWidgetProps = WidgetRenderProps< PostDetailHighlightsRe
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 const ALL_TIME_NOTE = () =>
