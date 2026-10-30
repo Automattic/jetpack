@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { postHeaderActions } from './header-actions';
@@ -17,6 +21,7 @@ export const postAdapter: SingleReportAdapter< PostSummary > = {
 	headerSlots: postHeaderSlots,
 	headerActions: postHeaderActions,
 	useSections: usePostSections,
+	notFoundDescription: () => __( "We couldn't find this post.", 'jetpack-premium-analytics-pkg' ),
 };
 
 export { usePostSummary, postHeaderSlots, usePostSections, type PostSummary };
