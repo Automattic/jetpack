@@ -4,6 +4,10 @@ import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-fi
 import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
+jest.mock( '../../../../client/components/video-recording/recording-stage', () =>
+	jest.requireActual( '../../../../client/components/video-recording/fixtures/recording-stage' )
+);
+
 const mockCreateErrorNotice = jest.fn();
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
@@ -36,6 +40,17 @@ beforeEach( () => {
 } );
 
 describe( 'UploadDropzone', () => {
+	it( 'does not open the file picker when interacting with the recording modal portal', async () => {
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The file input has no accessible label.
+		const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+		const clickPicker = jest.spyOn( input, 'click' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Record a video' } ) );
+		await userEvent.click( await screen.findByLabelText( 'Camera preview' ) );
+		expect( clickPicker ).not.toHaveBeenCalled();
+		clickPicker.mockRestore();
+	} );
+
 	it( 'renders the single-file copy by default', () => {
 		render( <UploadDropzone onFiles={ jest.fn() } /> );
 
@@ -87,6 +102,7 @@ describe( 'UploadDropzone', () => {
 		await waitFor( () => expect( onFiles ).toHaveBeenCalledTimes( 1 ) );
 
 		rerender( <UploadDropzone onFiles={ onFiles } disabled /> );
+		expect( screen.getByRole( 'button', { name: 'Record a video' } ) ).toBeDisabled();
 		expect( dropzone ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByRole( 'button', { name: 'Select a video to upload' } ) ).toHaveAttribute(
 			'aria-disabled',

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect } from 'react';
-import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
+import { Navigate, Routes, Route, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -37,6 +37,7 @@ import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-wind
 import { isOfflineFeatures } from './data/utils/offline-features';
 import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
+import { RouterBridge } from './router-bridge';
 import './style.module.scss';
 
 /**
@@ -87,10 +88,10 @@ export default function App() {
 	if ( isOfflineFeatures() ) {
 		return (
 			<Providers>
-				<HashRouter>
+				<RouterBridge>
 					<ScrollToTop />
 					<OfflineFeaturesRoute />
-				</HashRouter>
+				</RouterBridge>
 			</Providers>
 		);
 	}
@@ -99,7 +100,7 @@ export default function App() {
 
 	return (
 		<Providers>
-			<HashRouter>
+			<RouterBridge>
 				<ScrollToTop />
 				<PaidMenuSync />
 				<PartnerCouponGate>
@@ -137,7 +138,7 @@ export default function App() {
 						<Route path="*" element={ <MyJetpackScreen /> } />
 					</Routes>
 				</PartnerCouponGate>
-			</HashRouter>
+			</RouterBridge>
 		</Providers>
 	);
 }

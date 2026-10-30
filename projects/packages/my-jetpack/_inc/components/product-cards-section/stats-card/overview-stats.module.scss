@@ -1,11 +1,11 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
 
 .tabs {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: var(--wpds-dimension-gap-sm);
 
-	@media (max-width: gb.$break-small) {
+	@media (max-width: breakpoints.$break-small) {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }

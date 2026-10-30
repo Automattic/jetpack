@@ -48,4 +48,39 @@ class Sharing_Buttons_Block_Test extends WP_UnitTestCase {
 		$this->assertIsString( $ids[1] );
 		$this->assertNotSame( self::LIST_ID, $ids[1] );
 	}
+
+	/**
+	 * A theme's flex gap must not spread the buttons apart on the front end.
+	 *
+	 * The theme's `.is-layout-flex` gap ties the block stylesheet's specificity and prints later.
+	 * Isolated because it registers the block and filters the theme's global styles.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_block_default_gap_overrides_theme_flex_gap() {
+		register_block();
+		add_filter(
+			'wp_theme_json_data_theme',
+			function ( $theme_json ) {
+				return $theme_json->update_with(
+					array(
+						'version'  => 3,
+						'settings' => array( 'spacing' => array( 'blockGap' => true ) ),
+						'styles'   => array( 'spacing' => array( 'blockGap' => '1.2rem' ) ),
+					)
+				);
+			}
+		);
+		wp_clean_theme_json_cache();
+
+		wp_enqueue_global_styles();
+		$css = implode( '', wp_styles()->get_data( 'global-styles', 'after' ) );
+
+		$this->assertSame( 1, preg_match( '/:where\(\.is-layout-flex\)\s*\{[^}]*gap:\s*1\.2rem/', $css, $theme_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no theme flex gap rule.' );
+		$this->assertSame( 1, preg_match( '/:where\(\.wp-block-jetpack-sharing-buttons-is-layout-flex\)\s*\{[^}]*gap:\s*0\s*[;}]/', $css, $block_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no default gap rule for the block.' );
+		$this->assertGreaterThan( $theme_gap[0][1], $block_gap[0][1], 'The block default gap must be printed after the theme flex gap.' );
+	}
 }
