@@ -51,10 +51,11 @@ function sizeAvatarUrl( url: string ): string {
  * post count from the posts endpoint. The two fail independently, so a posts
  * failure leaves the name and the cards in place.
  *
- * @param authorId - The user ID from the route.
+ * @param id - The user ID, as the URL carries it.
  * @return The resolved author summary.
  */
-export function useAuthorSummary( authorId: number ): AuthorSummary {
+export function useAuthorSummary( id: string ): AuthorSummary {
+	const authorId = Number( id );
 	const source = useAuthorStats( authorId );
 	const anchor = useAuthorAllTimeStart( authorId );
 	const { isLoading, error, refetch } = source;
