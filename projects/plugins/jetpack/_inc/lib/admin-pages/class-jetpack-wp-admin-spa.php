@@ -96,7 +96,122 @@ class Jetpack_WP_Admin_SPA {
 			'jetpack_plugin_jetpack_spa_wp_admin_render_page'
 		);
 	}
+
+	/**
+	 * Menu slug => SPA route path for every project whose sidebar entry the SPA can serve.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function get_menu_routes() {
+		if ( ! file_exists( JETPACK__PLUGIN_DIR . 'build/pages/' . self::PAGE_ID . '/page-wp-admin.php' ) ) {
+			return array();
+		}
+
+		/**
+		 * Filters which Jetpack submenu entries open a route on the SPA page instead of their own page.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array<string,string> $routes Menu slug => route path, e.g. `jetpack-backup` => `/backup`.
+		 */
+		return (array) apply_filters( 'jetpack_wp_admin_spa_menu_routes', array() );
+	}
+
+	/**
+	 * The SPA URL a route path opens.
+	 *
+	 * @param string $route_path Route path.
+	 * @return string Admin-relative URL.
+	 */
+	private static function get_route_url( $route_path ) {
+		return 'admin.php?page=' . self::PAGE_SLUG . '&p=' . rawurlencode( $route_path );
+	}
+
+	/**
+	 * Retarget the Jetpack sidebar entries at SPA routes. Hook late, after every project added its entry.
+	 *
+	 * @return void
+	 */
+	public static function retarget_menu() {
+		global $submenu;
+
+		$routes = self::get_menu_routes();
+		if ( ! $routes || empty( $submenu['jetpack'] ) ) {
+			return;
+		}
+
+		foreach ( $submenu['jetpack'] as $index => $item ) {
+			if ( isset( $routes[ $item[2] ] ) ) {
+				$submenu['jetpack'][ $index ][2] = self::get_route_url( $routes[ $item[2] ] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			}
+		}
+	}
+
+	/**
+	 * Keep "Jetpack" open in the sidebar while on the SPA page.
+	 *
+	 * @param string $parent_file Parent menu file.
+	 * @return string
+	 */
+	public static function filter_parent_file( $parent_file ) {
+		return self::is_spa_request() ? 'jetpack' : $parent_file;
+	}
+
+	/**
+	 * Highlight the sidebar entry of the route being shown.
+	 *
+	 * @param string|null $submenu_file Current submenu file.
+	 * @return string|null
+	 */
+	public static function filter_submenu_file( $submenu_file ) {
+		if ( ! self::is_spa_request() ) {
+			return $submenu_file;
+		}
+
+		$current = isset( $_GET['p'] ) ? sanitize_text_field( wp_unslash( $_GET['p'] ) ) : '/'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		foreach ( self::get_menu_routes() as $route_path ) {
+			if ( $current === $route_path || 0 === strpos( $current, $route_path . '/' ) ) {
+				return self::get_route_url( $route_path );
+			}
+		}
+		return $submenu_file;
+	}
+
+	/**
+	 * Make sidebar clicks navigate the router instead of loading a new page.
+	 *
+	 * @return void
+	 */
+	public static function print_menu_script() {
+		if ( ! self::is_spa_request() ) {
+			return;
+		}
+
+		// Tail of the router's own history: push, then tell it the location changed.
+		?>
+		<script>
+		document.getElementById( 'adminmenu' )?.addEventListener( 'click', ( event ) => {
+			const link = event.target.closest( 'a[href*="page=<?php echo esc_js( self::PAGE_SLUG ); ?>"]' );
+			if ( ! link || event.metaKey || event.ctrlKey || event.shiftKey || event.button ) {
+				return;
+			}
+			event.preventDefault();
+			const state = window.history.state || {};
+			window.history.pushState( { ...state, key: String( Date.now() ), __TSR_index: ( state.__TSR_index ?? 0 ) + 1 }, '', link.href );
+			window.dispatchEvent( new PopStateEvent( 'popstate' ) );
+			document.querySelectorAll( '#adminmenu .wp-submenu li.current' ).forEach( ( li ) => li.classList.remove( 'current' ) );
+			document.querySelectorAll( '#adminmenu .wp-submenu a.current' ).forEach( ( a ) => a.classList.remove( 'current' ) );
+			link.classList.add( 'current' );
+			link.parentElement.classList.add( 'current' );
+		} );
+		</script>
+		<?php
+	}
 }
 
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'maybe_load_wp_build' ), 1 );
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'add_page' ) );
+add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'retarget_menu' ), 99999 );
+add_filter( 'parent_file', array( 'Jetpack_WP_Admin_SPA', 'filter_parent_file' ) );
+add_filter( 'submenu_file', array( 'Jetpack_WP_Admin_SPA', 'filter_submenu_file' ) );
+add_action( 'admin_print_footer_scripts', array( 'Jetpack_WP_Admin_SPA', 'print_menu_script' ), 99 );

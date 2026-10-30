@@ -186,6 +186,7 @@ class Jetpack_Backup {
 		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
 		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
+		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
@@ -1237,6 +1238,19 @@ class Jetpack_Backup {
 		}
 
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Point the Backup sidebar entry at the SPA route, when the build can serve it.
+	 *
+	 * @param array $routes Menu slug => SPA route path.
+	 * @return array
+	 */
+	public static function add_spa_menu_route( $routes ) {
+		if ( self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			$routes[ self::JETPACK_BACKUP_SLUG ] = '/backup';
+		}
+		return $routes;
 	}
 
 	/**
