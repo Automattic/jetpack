@@ -140,7 +140,7 @@ export const mockWordPressCompose = {
 	// `@wordpress/data` needs the rest of the real module.
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height?: number; width?: number } }[] ) => void ) =>
+		( onResize: ( entries: { contentRect: { width?: number } }[] ) => void ) =>
 		( element: HTMLElement | null ) => {
 			if ( element && chartWidth !== undefined ) {
 				onResize( [ { contentRect: { width: chartWidth } } ] );
