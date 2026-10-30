@@ -94,6 +94,7 @@
 		"packageNamespace": "jetpack-backup",
 		"handlePrefix": "jetpack-backup",
 		"pages": [
+			"jetpack-spa",
 			{
 				"id": "jetpack-backup-dashboard",
 				"init": [
