@@ -30,12 +30,8 @@ const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles =>
  */
 export const mockOverlapBarColor = ( index: number ) => `#bar${ index }`;
 
-/** The sparkline margin the charts context's theme hands out. */
-export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
-
 let elementStyles = defaultElementStyles;
 let hiddenSeries = new Set< string >();
-let chartHeight: number | undefined;
 let chartWidth: number | undefined;
 
 /**
@@ -59,16 +55,7 @@ export function setMockHiddenSeries( labels: string[] = [] ): void {
 }
 
 /**
- * Set the height a resize observer reports on mount. Unset, it never reports, as in jsdom.
- *
- * @param height - Measured height in px.
- */
-export function setMockChartHeight( height?: number ): void {
-	chartHeight = height;
-}
-
-/**
- * Set the width a resize observer reports on mount, alongside the height. Unset, it reports none.
+ * Set the width a resize observer reports on mount. Unset, it never reports, as in jsdom.
  *
  * @param width - Measured width in px.
  */
@@ -76,20 +63,19 @@ export function setMockChartWidth( width?: number ): void {
 	chartWidth = width;
 }
 
-/** Clear the chart spies and restore the default theme, visibility and size. */
+/** Clear the chart spies and restore the default theme, visibility and width. */
 export function resetMockCharts(): void {
 	[ mockBarChartSpy, mockBarChartLegendSpy, mockLineChartSpy, mockLineChartLegendSpy ].forEach(
 		spy => spy.mockClear()
 	);
 	setMockElementStyles();
 	setMockHiddenSeries();
-	setMockChartHeight();
 	setMockChartWidth();
 }
 
 const BarChart = ( props: { children?: ReactNode } ) => {
 	mockBarChartSpy( props );
-	// Children render so the legend, which the wrappers mount conditionally, is observable.
+	// Children render so the legend is observable.
 	return <div data-testid="bar-chart">{ props.children }</div>;
 };
 BarChart.Legend = ( props: Record< string, unknown > ) => {
@@ -146,19 +132,18 @@ export const mockChartExternals = () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
 		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
-		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );
 
-/** Shared Jest replacement for `@wordpress/compose`, reporting the size the `setMockChart*` helpers set. */
+/** Shared Jest replacement for `@wordpress/compose`, reporting the width `setMockChartWidth` sets. */
 export const mockWordPressCompose = {
 	// `@wordpress/data` needs the rest of the real module.
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
 		( onResize: ( entries: { contentRect: { height?: number; width?: number } }[] ) => void ) =>
 		( element: HTMLElement | null ) => {
-			if ( element && ( chartHeight !== undefined || chartWidth !== undefined ) ) {
-				onResize( [ { contentRect: { height: chartHeight, width: chartWidth } } ] );
+			if ( element && chartWidth !== undefined ) {
+				onResize( [ { contentRect: { width: chartWidth } } ] );
 			}
 		},
 };

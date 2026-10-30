@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Let the charts library switch short comparative charts to a sparkline instead of measuring them in the widgets toolkit.
