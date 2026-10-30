@@ -43,6 +43,16 @@ function copyFor( feature: Feature ) {
 		none: __( 'Don’t add it automatically', 'jetpack-sharing-likes' ),
 		before: _x( 'Before the content', 'Where the block goes', 'jetpack-sharing-likes' ),
 		after: _x( 'After the content', 'Where the block goes', 'jetpack-sharing-likes' ),
+		pageTemplate:
+			feature === 'sharing'
+				? __(
+						'Your choice applies to pages too. To place the Sharing Buttons block differently on pages, <link>edit the page template</link>.',
+						'jetpack-sharing-likes'
+					)
+				: __(
+						'Your choice applies to pages too. To place the Like block differently on pages, <link>edit the page template</link>.',
+						'jetpack-sharing-likes'
+					),
 	};
 }
 
@@ -119,13 +129,9 @@ export function TemplatePlacements( {
 					<SettingGroup>
 						{ pageTemplateUrl && (
 							<Text render={ <p /> }>
-								{ createInterpolateElement(
-									__(
-										'Want pages to look different? <link>Edit the page template</link>.',
-										'jetpack-sharing-likes'
-									),
-									{ link: <Link href={ pageTemplateUrl } /> }
-								) }
+								{ createInterpolateElement( copy.pageTemplate, {
+									link: <Link href={ pageTemplateUrl } />,
+								} ) }
 							</Text>
 						) }
 						<Text render={ <p /> }>
