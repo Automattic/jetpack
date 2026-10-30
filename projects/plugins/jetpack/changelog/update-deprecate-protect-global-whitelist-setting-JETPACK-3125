@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Protect: Deprecate the jetpack_protect_global_whitelist setting in the settings REST API. Use jetpack_waf_ip_allow_list instead.
