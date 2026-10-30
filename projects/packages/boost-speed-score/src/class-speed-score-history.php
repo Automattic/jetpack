@@ -44,7 +44,64 @@ class Speed_Score_History {
 	 */
 	public function __construct( $url ) {
 		$this->url     = $url;
-		$this->entries = get_option( $this->get_option_name(), array() );
+		$this->entries = $this->read_entries();
+	}
+
+	/**
+	 * Read the stored entries, taking the newest of this URL's record and its older spellings.
+	 *
+	 * This can't stop at a non-empty record: the canonical spelling is the one My Jetpack used to
+	 * write to, so it can hold scores older than the ones the Boost dashboard showed.
+	 *
+	 * @return array
+	 */
+	private function read_entries() {
+		$entries = get_option( $this->get_option_name(), array() );
+
+		foreach ( $this->get_legacy_urls() as $legacy_url ) {
+			$legacy_entries = get_option( static::OPTION_PREFIX . hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $legacy_url ), array() );
+
+			if ( self::get_latest_timestamp( $legacy_entries ) > self::get_latest_timestamp( $entries ) ) {
+				$entries = $legacy_entries;
+			}
+		}
+
+		return $entries;
+	}
+
+	/**
+	 * List the spellings this URL's scores were saved under before they shared one record.
+	 *
+	 * @return string[]
+	 */
+	private function get_legacy_urls() {
+		$canonical_url = Speed_Score_Request::canonicalize_url( $this->url );
+		$path_length   = strcspn( $canonical_url, '?#' );
+		$path          = substr( $canonical_url, 0, $path_length );
+		$rest          = substr( $canonical_url, $path_length );
+		$legacy_urls   = array( $path . '/' . $rest );
+
+		// My Jetpack saved the home page's scores under the site URL, which differs when WordPress lives in a subdirectory.
+		$site_url = rtrim( get_site_url(), '/' );
+		if ( rtrim( home_url(), '/' ) === $path && $site_url !== $path ) {
+			$legacy_urls[] = $site_url . $rest;
+			$legacy_urls[] = $site_url . '/' . $rest;
+		}
+
+		return $legacy_urls;
+	}
+
+	/**
+	 * Get the timestamp of the last of the given history entries.
+	 *
+	 * @param array $entries History entries, oldest first.
+	 *
+	 * @return int
+	 */
+	private static function get_latest_timestamp( $entries ) {
+		$latest = end( $entries );
+
+		return (int) ( $latest['timestamp'] ?? 0 );
 	}
 
 	/**

@@ -14,6 +14,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Speed_Score_Request_Test
@@ -287,6 +288,117 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 */
 	private function stored_history() {
 		return new Speed_Score_History( self::URL );
+	}
+
+	/**
+	 * Provide each spelling of the two records a client can ask for.
+	 *
+	 * @return array[]
+	 */
+	public static function url_spellings() {
+		return array(
+			'slash'              => array( 'http://example.com/', 'http://example.com' ),
+			'no slash'           => array( 'http://example.com', 'http://example.com' ),
+			'subdirectory slash' => array( 'http://example.com/blog/', 'http://example.com/blog' ),
+			'query and slash'    => array( 'http://example.com/?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'query and no slash' => array( 'http://example.com?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'slash inside query' => array( 'http://example.com?page=a/', 'http://example.com?page=a/' ),
+		);
+	}
+
+	/**
+	 * Every spelling of a URL lands on one record, without merging in the "without Boost" one.
+	 *
+	 * @dataProvider url_spellings
+	 *
+	 * @param string $spelling  The URL a client sends.
+	 * @param string $canonical The URL the record belongs to.
+	 */
+	#[DataProvider( 'url_spellings' )]
+	public function test_url_spellings_share_one_key( $spelling, $canonical ) {
+		$this->assertSame(
+			hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $canonical ),
+			Speed_Score_Request::generate_cache_id_from_url( $spelling )
+		);
+	}
+
+	/**
+	 * Provide old records, with the one expected to win at release.
+	 *
+	 * The first row is the reported site: a stale slash record and a newer no-slash one. The second
+	 * is the reverse, where stopping at the non-empty canonical record would show older scores.
+	 *
+	 * @return array[]
+	 */
+	public static function old_records() {
+		return array(
+			'no slash is newest'            => array( 'http://example.com' ),
+			'slash is newest'               => array( 'http://example.com/' ),
+			'site URL is newest'            => array( 'http://example.com/wp' ),
+			'site URL with slash is newest' => array( 'http://example.com/wp/' ),
+		);
+	}
+
+	/**
+	 * After the update, reading any spelling finds the newest old record, and the next run keeps it.
+	 *
+	 * @dataProvider old_records
+	 *
+	 * @param string $newest_spelling The spelling holding the newest old record.
+	 */
+	#[DataProvider( 'old_records' )]
+	public function test_history_reads_the_newest_old_record_until_a_new_run_replaces_it( $newest_spelling ) {
+		Functions\when( 'get_site_url' )->justReturn( 'http://example.com/wp' );
+
+		$old    = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$newest = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		foreach ( array( 'http://example.com', 'http://example.com/', 'http://example.com/wp', 'http://example.com/wp/' ) as $spelling ) {
+			$scores = $spelling === $newest_spelling ? $newest : $old;
+			$age    = $spelling === $newest_spelling ? 1000 : 2000;
+
+			$this->options[ Speed_Score_History::OPTION_PREFIX . md5( $spelling ) ] = array( $this->entry( $scores, time() - $age ) );
+		}
+
+		$this->assertSame( $newest, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+
+		$new_run = array(
+			'mobile'  => 91,
+			'desktop' => 92,
+		);
+		$this->poll_with_scores( $new_run );
+
+		$history = new Speed_Score_History( 'http://example.com/' );
+		$this->assertSame( $new_run, $history->latest_scores() );
+		$this->assertSame( $newest, $history->latest_scores( 1 ) );
+	}
+
+	/**
+	 * A run started with My Jetpack's spelling updates what the Boost dashboard reads.
+	 */
+	public function test_run_from_another_client_updates_the_boost_dashboard_record() {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ) ] = array(
+			$this->entry(
+				array(
+					'mobile'  => 67,
+					'desktop' => 63,
+				),
+				time() - 1000
+			),
+		);
+
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->poll_with_scores( $scores );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
 	}
 
 	/**

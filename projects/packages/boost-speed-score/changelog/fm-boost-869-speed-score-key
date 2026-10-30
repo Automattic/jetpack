@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep one score record per page, so a test started from any screen updates the score shown on the others.
