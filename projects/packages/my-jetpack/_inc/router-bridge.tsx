@@ -42,7 +42,9 @@ export function RouterBridge( { children }: { children: ReactNode } ) {
 			},
 			go: delta => window.history.go( delta ),
 			push: to => navigate( { href: toHref( to ) } as NavigateOptions ),
-			replace: to => navigate( { href: toHref( to ), replace: true } as NavigateOptions ),
+			// A replace corrects the address mid-navigation; its own view transition would skip the running one.
+			replace: to =>
+				navigate( { href: toHref( to ), replace: true, viewTransition: false } as NavigateOptions ),
 		};
 	}, [ navigate ] );
 
