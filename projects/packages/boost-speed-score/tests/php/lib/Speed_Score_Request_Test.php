@@ -323,10 +323,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Provide old records, with the one expected to win at release.
-	 *
-	 * The first row is the reported site: a stale slash record and a newer no-slash one. The second
-	 * is the reverse, where stopping at the non-empty canonical record would show older scores.
+	 * Provide the spelling holding the newest old record.
 	 *
 	 * @return array[]
 	 */
