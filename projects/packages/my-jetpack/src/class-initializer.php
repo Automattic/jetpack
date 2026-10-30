@@ -1060,7 +1060,6 @@ class Initializer {
 				&& $block_availability['sharing-buttons']['available'],
 			'isLikeBlockAvailable'    => isset( $block_availability['like'] )
 				&& $block_availability['like']['available'],
-			'activeThemeStylesheet'   => get_stylesheet(),
 		);
 
 		return $data;
