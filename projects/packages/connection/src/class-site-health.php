@@ -40,6 +40,8 @@ class Site_Health {
 
 		add_action( 'admin_init', array( __CLASS__, 'maybe_register_site_health' ), 1 );
 
+		add_filter( 'debug_information', array( Debug_Data::class, 'add_section' ) );
+
 		// Deliberately hooked to the cron-only `jetpack_heartbeat` action (end of
 		// Heartbeat::cron_exec()) and not `jetpack_heartbeat_stats_array`, which
 		// also fires in synchronous request contexts (XML-RPC, REST, WP-CLI) where
