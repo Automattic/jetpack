@@ -24,7 +24,7 @@ const TZ_SUITES = [
 	'packages/routing/src/hooks/use-report-date-filters/__tests__/build-range-patch.test.ts',
 	'packages/routing/src/hooks/use-report-date-filters/__tests__/use-report-date-filters.test.tsx',
 	'packages/widgets-toolkit/src/components/post-highlight-card/__tests__/post-highlight-card.test.tsx',
-	'routes/detail-header.test.ts',
+	'routes/single-report/detail-header.test.ts',
 	'routes/single-report/pages/post/post-header-slots.test.tsx',
 	'routes/single-report/pages/video/video-header-slots.test.tsx',
 	'widgets/popular-days/__tests__/bucket-views-by-weekday.test.ts',

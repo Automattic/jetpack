@@ -29,6 +29,21 @@ function get_video_single_report_page_default_layout() {
 }
 
 /**
+ * The author page's fixed composition: performance, the scoped spotlights, top posts, all-time traffic.
+ *
+ * @return array
+ */
+function get_author_single_report_page_default_layout() {
+	return array(
+		get_dashboard_default_widget_instance( 'author-performance', 'jpa/author-performance', 1, 3, 2, array( 'chartType' => 'bar' ) ),
+		get_dashboard_default_widget_instance( 'author-popular-post', 'jpa/popular-post--author', 2, 2, 2, array( 'authorScoped' => true ) ),
+		get_dashboard_default_widget_instance( 'author-latest-post', 'jpa/latest-post--author', 3, 1, 2, array( 'authorScoped' => true ) ),
+		get_dashboard_default_widget_instance( 'author-top-posts', 'jpa/author-top-posts', 4, 3, 2 ),
+		get_dashboard_default_widget_instance( 'author-all-time-traffic', 'jpa/views-over-years--author', 5, 3, 2, array( 'authorScoped' => true ) ),
+	);
+}
+
+/**
  * The Post traffic section of the post page: highlights, views, likes, comments, UTM, all-time traffic.
  *
  * @return array
@@ -182,7 +197,18 @@ function register_default_single_report_pages( $registry = null ) {
 	}
 
 	$pages = array(
-		'analytics/post'  => array(
+		'analytics/author' => array(
+			'path'              => 'author',
+			'label'             => __( 'Author', 'jetpack-premium-analytics-pkg' ),
+			'dashboard_section' => 'traffic',
+			'feature'           => 'authors',
+			'scope_param'       => 'author_id',
+			'icon'              => 'jpa/post-author',
+			'reports_page'      => 'authors',
+			'default_layout'    => __NAMESPACE__ . '\\get_author_single_report_page_default_layout',
+			'preferences_scope' => 'jetpack-premium-analytics/author-detail',
+		),
+		'analytics/post'   => array(
 			'path'              => 'post',
 			'label'             => __( 'Post', 'jetpack-premium-analytics-pkg' ),
 			'dashboard_section' => 'traffic',
@@ -210,7 +236,7 @@ function register_default_single_report_pages( $registry = null ) {
 			),
 			'preferences_scope' => 'jetpack-premium-analytics/post-detail',
 		),
-		'analytics/video' => array(
+		'analytics/video'  => array(
 			'path'              => 'video',
 			'label'             => __( 'Video', 'jetpack-premium-analytics-pkg' ),
 			'dashboard_section' => 'traffic',

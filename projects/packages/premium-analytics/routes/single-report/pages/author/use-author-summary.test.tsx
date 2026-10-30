@@ -65,7 +65,7 @@ describe( 'useAuthorSummary', () => {
 	it( 'exposes the resolved author', () => {
 		mockQueries();
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( {
 			name: 'Priya Patel',
@@ -89,7 +89,7 @@ describe( 'useAuthorSummary', () => {
 			error: { error: 'unknown_author', status: 404 },
 		} );
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( {
 			isNotFound: true,
@@ -103,7 +103,7 @@ describe( 'useAuthorSummary', () => {
 		const error = { error: 'unauthorized', status: 403 };
 		mockQueries( { data: undefined, isError: true, error } );
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( { isNotFound: false, isError: true, error } );
 	} );
@@ -111,7 +111,7 @@ describe( 'useAuthorSummary', () => {
 	it( 'keeps the author when a background refetch fails', () => {
 		mockQueries( { isError: true, error: { status: 503 } } );
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( { name: 'Priya Patel', isError: false, error: null } );
 	} );
@@ -119,7 +119,7 @@ describe( 'useAuthorSummary', () => {
 	it( 'ignores another author held as placeholder data', () => {
 		mockQueries( { isPlaceholderData: true, isLoading: true } );
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( { name: undefined, isLoading: true } );
 	} );
@@ -127,7 +127,7 @@ describe( 'useAuthorSummary', () => {
 	it( 'reports a posts failure on its own, leaving the identity intact', () => {
 		mockQueries( {}, { data: undefined, isError: true } );
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current ).toMatchObject( {
 			name: 'Priya Patel',
@@ -153,7 +153,7 @@ describe( 'useAuthorSummary', () => {
 			{ data: { postCount: 0 } }
 		);
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 
 		expect( result.current.avatarUrl ).toBe( expected );
 		expect( result.current.firstPublishedDate ).toBeUndefined();
@@ -162,7 +162,7 @@ describe( 'useAuthorSummary', () => {
 	it( 'keeps a click event out of the underlying refetch', () => {
 		mockQueries();
 
-		const { result } = renderHook( () => useAuthorSummary( 7 ) );
+		const { result } = renderHook( () => useAuthorSummary( '7' ) );
 		( result.current.refetch as ( event: unknown ) => void )( { type: 'click' } );
 
 		expect( refetch ).toHaveBeenCalledWith();

@@ -1,5 +1,5 @@
 jest.mock( '@wordpress/route', () => {
-	const { mockWordPressRoute } = jest.requireActual( '../tests/js/route-test-utils' );
+	const { mockWordPressRoute } = jest.requireActual( '../../../tests/js/route-test-utils' );
 
 	return mockWordPressRoute;
 } );
@@ -7,8 +7,6 @@ jest.mock( '@wordpress/route', () => {
 /**
  * External dependencies
  */
-import { renderHook } from '@testing-library/react';
-import { getSettings, setSettings } from '@wordpress/date';
 import {
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	PRESET_ALL_TIME,
@@ -16,10 +14,12 @@ import {
 	dateToISOStringWithTZ,
 } from '@jetpack-premium-analytics/datetime';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { renderHook } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { mockWordPressRoute, setMockRouteSearch } from '../tests/js/route-test-utils';
+import { mockWordPressRoute, setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import { useDetailDateControls } from './use-detail-date-controls';
 
 // A zone ahead of UTC, so a visitor-zone reading of the wall time would land on

@@ -2,15 +2,18 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { DETAIL_HEADER_GLYPH_SIZE } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence } from '../../../detail-header';
-import placeholders from '../../../detail-header.module.scss';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	formatPublishedDate,
+	performanceSentence,
+} from '../../detail-header';
+import placeholders from '../../detail-header.module.scss';
 import styles from './video-header-slots.module.scss';
 import type { VideoSummary } from './use-video-summary';
 import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
