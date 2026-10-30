@@ -752,7 +752,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					continue;
 				}
 				foreach ( $service_connections as $service_connection ) {
-					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 				}
 			}
 		} elseif ( is_array( $publicize ) && ( $publicize !== array() ) ) {
@@ -786,7 +786,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				if ( ! in_array( $name, $publicize, true ) && ! array_key_exists( $name, $publicize ) ) {
 					// Skip the whole service by adding each connection ID.
 					foreach ( $service_connections as $service_connection ) {
-						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 					}
 				} elseif ( ! empty( $publicize[ $name ] ) ) {
 					// Seems we're being asked to only push to [a] specific connection[s].
@@ -795,16 +795,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 					// Flag the connections we can't match with the requested list to be skipped.
 					foreach ( $service_connections as $service_connection ) {
-						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections, true ) ) {
-							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+						if ( ! in_array( (string) $GLOBALS['publicize_ui']->publicize->get_connection_id( $service_connection ), $requested_connections, true ) ) {
+							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 						} else {
-							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
+							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
 						}
 					}
 				} else {
 					// delete all SKIP values; it's okay to publish to all connected IDs for this service.
 					foreach ( $service_connections as $service_connection ) {
-						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
+						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
 					}
 				}
 			}
