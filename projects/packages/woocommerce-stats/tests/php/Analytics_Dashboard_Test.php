@@ -87,6 +87,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 10, has_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) ) );
+		$this->assertNotNull( Report_Execution\Report_Registry::create()->get_definition_for_route( 'orders/by-date' ) );
 		$this->assertSame( 10, has_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) ) );
 		$this->assertSame(
 			array( Api_Proxy_Controller::CACHE_PREFIX ),
