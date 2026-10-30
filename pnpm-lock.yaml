@@ -535,8 +535,8 @@ importers:
         specifier: ^7
         version: 7.29.7
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@wordpress/a11y':
         specifier: 5.0.0
         version: 5.0.0
@@ -3079,8 +3079,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@gravatar-com/quick-editor':
         specifier: 0.8.0
         version: 0.8.0
@@ -8756,8 +8756,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@gravatar-com/hovercards@0.16.0':
-    resolution: {integrity: sha512-NOB73YXOUALYyqLD8SeiQkKgwrmG8wYeVz8JfqFXiH5NjAt/0iDI0pC4TL/Cqxew3XaDmGUFhXEun7mzopaaCw==}
+  '@gravatar-com/hovercards@0.17.0':
+    resolution: {integrity: sha512-8T1UhflUYNe9gyTEf/PVisbPTAyvjCBsFzeBepLJ4EdjYoriyCrjPNwaXNflFVVOsBNRjJeBkxtMkM8RvAPJlQ==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.8.0':
@@ -20252,7 +20252,7 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@gravatar-com/hovercards@0.16.0': {}
+  '@gravatar-com/hovercards@0.17.0': {}
 
   '@gravatar-com/quick-editor@0.8.0': {}
 
