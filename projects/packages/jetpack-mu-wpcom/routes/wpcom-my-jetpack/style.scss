@@ -46,7 +46,8 @@ body.jetpack_page_my-jetpack {
 		border-color: var(--wpds-color-stroke-surface-neutral);
 	}
 
-	&:focus-within {
+	// The one focus ring, for keyboard users only.
+	&:has(.wpcom-my-jetpack__tool-title:focus-visible) {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
@@ -86,8 +87,11 @@ body.jetpack_page_my-jetpack {
 		position: absolute;
 	}
 
-	&:focus-visible {
+	// wp-admin's `a:focus` draws a ring on any focused link, mouse clicks
+	// included.
+	&:focus {
 		box-shadow: none;
+		color: var(--wpds-color-foreground-content-neutral);
 		outline: none;
 	}
 }
