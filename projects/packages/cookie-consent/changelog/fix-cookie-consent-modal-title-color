@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cookie preferences panel: keep its spacing and title on themes that reset element styles or color headings.
