@@ -37,7 +37,6 @@
 		"packageNamespace": "jetpack-protect",
 		"handlePrefix": "jetpack-protect",
 		"pages": [
-			"jetpack-spa",
 			{
 				"id": "jetpack-protect-dashboard",
 				"init": [

@@ -110,8 +110,6 @@ class Dashboard {
 
 		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_threat_report' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
-		add_action( 'jetpack_wp_admin_spa_load', array( __CLASS__, 'load_wp_build_for_spa' ) );
-		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
@@ -338,53 +336,6 @@ class Dashboard {
 		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
-	}
-
-	/**
-	 * Load Protect's wp-build output for the Jetpack plugin's top-level SPA page.
-	 *
-	 * @see Jetpack_WP_Admin_SPA::maybe_load_wp_build()
-	 * @return void
-	 */
-	public static function load_wp_build_for_spa() {
-		$build_index = dirname( __DIR__ ) . '/build/build.php';
-		if ( ! self::can_manage() || ! file_exists( $build_index ) ) {
-			return;
-		}
-		require_once $build_index;
-
-		// Declared on the host page only so wp-build emits the routes; the host does the booting.
-		remove_action( 'admin_enqueue_scripts', 'jetpack_protect_jetpack_spa_wp_admin_enqueue_scripts' );
-		add_filter(
-			'jetpack_wp_admin_spa_route_getters',
-			function ( $getters ) {
-				$getters[] = 'jetpack_protect_get_jetpack_spa_wp_admin_routes';
-				return $getters;
-			}
-		);
-
-		if ( function_exists( 'jetpack_protect_register_script_modules' ) ) {
-			jetpack_protect_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
-		}
-
-		add_action( 'admin_print_scripts', array( __CLASS__, 'print_initial_state' ), 1 );
-		add_action( 'admin_print_scripts', array( __CLASS__, 'print_tracks_state' ), 1 );
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_tracks_identity' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
-	}
-
-	/**
-	 * Point the Protect sidebar entry at the SPA route, when the build can serve it.
-	 *
-	 * @param array $routes Menu slug => SPA route path.
-	 * @return array
-	 */
-	public static function add_spa_menu_route( $routes ) {
-		if ( file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
-			$routes[ self::MENU_SLUG ] = '/protect';
-		}
-		return $routes;
 	}
 
 	/**

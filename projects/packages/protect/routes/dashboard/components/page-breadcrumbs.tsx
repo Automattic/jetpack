@@ -10,7 +10,7 @@ import { Breadcrumb, VisuallyHidden } from '@wordpress/ui';
  * @return The trail.
  */
 export default function PageBreadcrumbs( { current }: { current: string } ) {
-	const { href, onClick } = useLinkProps( { to: '.', search: {} } as never );
+	const { href, onClick } = useLinkProps( { to: '/' } );
 
 	return (
 		<>

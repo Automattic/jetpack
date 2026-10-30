@@ -355,7 +355,7 @@ export function useSearchParam(
 	param: string
 ): [ string | undefined, ( value?: string | number ) => void ] {
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument need a cast.
-	const search: Record< string, unknown > = useSearch( { strict: false } );
+	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
 	const navigate = useNavigate();
 	const setValue = useCallback(
 		( value?: string | number ) =>
