@@ -79,12 +79,10 @@ class Sharing_Buttons_Block_Test extends WP_UnitTestCase {
 		);
 		wp_clean_theme_json_cache();
 
-		$css       = WP_Theme_JSON_Resolver::get_merged_data()->get_stylesheet( array( 'styles' ) );
-		$theme_gap = strpos( $css, ':root :where(.is-layout-flex){gap: 1.2rem;}' );
-		$block_gap = strpos( $css, ':root :where(.wp-block-jetpack-sharing-buttons-is-layout-flex){gap: 0;}' );
+		$css = WP_Theme_JSON_Resolver::get_merged_data()->get_stylesheet( array( 'styles' ) );
 
-		$this->assertIsInt( $theme_gap );
-		$this->assertIsInt( $block_gap );
-		$this->assertGreaterThan( $theme_gap, $block_gap );
+		$this->assertSame( 1, preg_match( '/:where\(\.is-layout-flex\)\s*\{[^}]*gap:\s*1\.2rem/', $css, $theme_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no theme flex gap rule.' );
+		$this->assertSame( 1, preg_match( '/:where\(\.wp-block-jetpack-sharing-buttons-is-layout-flex\)\s*\{[^}]*gap:\s*0\s*[;}]/', $css, $block_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no default gap rule for the block.' );
+		$this->assertGreaterThan( $theme_gap[0][1], $block_gap[0][1], 'The block default gap must be printed after the theme flex gap.' );
 	}
 }
