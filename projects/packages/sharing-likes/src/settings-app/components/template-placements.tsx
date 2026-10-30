@@ -26,7 +26,7 @@ const NONE = 'none';
 const NONE_ITEM_RENDER = <Stack gap="sm" align="center" />;
 
 /**
- * The copy for each feature, one complete sentence per string.
+ * The copy for each feature, no sentence split across strings.
  *
  * @param feature - Feature.
  * @return Copy.
