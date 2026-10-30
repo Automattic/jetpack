@@ -21,6 +21,9 @@ type CompactChartProps = {
 	orientation?: 'horizontal' | 'vertical';
 	margin?: { left?: number };
 	withGradientFill?: boolean;
+	chartId?: string;
+	legend?: { interactive?: boolean };
+	defaultHiddenSeries?: string[];
 	children?: ReactNode;
 	ref?: Ref< ChartInstanceRef >;
 };
@@ -43,25 +46,26 @@ const CHARTS = [
 	[ 'BarChart', BarChartUnresponsive ],
 ] as unknown as [ string, CompactChart ][];
 
-const renderChart = (
+const chartTree = (
 	Chart: CompactChart,
 	props: Partial< CompactChartProps > = {},
 	theme?: ComponentProps< typeof GlobalChartsProvider >[ 'theme' ]
-) =>
-	render(
-		<GlobalChartsProvider theme={ theme }>
-			<Chart
-				data={ data }
-				width={ 500 }
-				height={ 300 }
-				withGradientFill={ false }
-				showLegend
-				{ ...props }
-			>
-				<Chart.Legend />
-			</Chart>
-		</GlobalChartsProvider>
-	);
+) => (
+	<GlobalChartsProvider theme={ theme }>
+		<Chart
+			data={ data }
+			width={ 500 }
+			height={ 300 }
+			withGradientFill={ false }
+			showLegend
+			{ ...props }
+		>
+			<Chart.Legend />
+		</Chart>
+	</GlobalChartsProvider>
+);
+
+const renderChart = ( ...args: Parameters< typeof chartTree > ) => render( chartTree( ...args ) );
 
 /* eslint-disable testing-library/no-node-access -- visx renders axes and grid lines without roles or test IDs. */
 const chrome = () => ( {
@@ -89,22 +93,21 @@ describe( 'compactWhenShort', () => {
 
 		it( 'restores the chrome when a short chart grows back', () => {
 			const { rerender } = renderChart( Chart, { height: 100, compactWhenShort: true } );
-			rerender(
-				<GlobalChartsProvider>
-					<Chart
-						data={ data }
-						width={ 500 }
-						height={ 300 }
-						withGradientFill={ false }
-						showLegend
-						compactWhenShort
-					>
-						<Chart.Legend />
-					</Chart>
-				</GlobalChartsProvider>
-			);
+			rerender( chartTree( Chart, { height: 300, compactWhenShort: true } ) );
 
 			expect( chrome() ).toEqual( FULL );
+		} );
+
+		it( 'does not point at the hidden legend when every series is hidden', () => {
+			renderChart( Chart, {
+				height: 100,
+				compactWhenShort: true,
+				chartId: 'all-hidden',
+				legend: { interactive: true },
+				defaultHiddenSeries: [ 'A', 'B' ],
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
 		} );
 	} );
 

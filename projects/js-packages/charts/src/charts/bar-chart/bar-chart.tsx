@@ -740,7 +740,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ getAllHiddenMessage( legendInteractive, 'series' ) }
+												{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 

@@ -508,7 +508,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
