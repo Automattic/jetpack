@@ -795,6 +795,31 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tools and Settings still use the fixed-list reorder: listed slugs first, in list order and
+	 * each item once even when two slugs match it, then the rest as they were. A menu that isn't
+	 * registered is left alone.
+	 */
+	public function test_reorder_submenu_puts_listed_slugs_first() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['tools.php'] = array(
+			array( 'Theme File Editor', 'manage_options', 'theme-editor.php' ),
+			array( 'Export', 'manage_options', 'export.php' ),
+			array( 'Import', 'manage_options', 'https://wordpress.com/import/' . self::$domain ),
+			array( 'Export Media Library', 'manage_options', 'export-media-files' ),
+		);
+
+		wpcom_reorder_submenu( 'tools.php', array( 'import', 'export', 'export-media-files' ) );
+		wpcom_reorder_submenu( 'missing.php', array( 'import' ) );
+
+		$this->assertSame(
+			array( 'Import', 'Export', 'Export Media Library', 'Theme File Editor' ),
+			array_column( $submenu['tools.php'], 0 )
+		);
+		$this->assertArrayNotHasKey( 'missing.php', $submenu );
+	}
+
+	/**
 	 * Platforms and Settings addresses across Jetpack releases.
 	 *
 	 * @return array
