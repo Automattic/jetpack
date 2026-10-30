@@ -232,6 +232,21 @@ The date options the surface's plan locks, as `DateLimits`: the policy's `locked
 `intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
 The date controls read it through `useReportScope()`; absent where the host applies no limits.
 
+### Period changes a widget sets
+
+A widget never writes the surface's window itself. It calls `openPeriod` from `useReportScope()`,
+which the host built with `usePeriodHost()` (routing package). That call raises a period-change
+signal (`PeriodChangeSignalProvider`, mounted once per stage) and commits the range to the URL in
+one history entry. Once the host's control shows the applied range, `useSettlePeriodChange()`
+matches the pending signal to the surface and hands out an `attentionId` for 1.6 seconds, then
+drops it; a signal whose navigation landed elsewhere, or older than 5 seconds, is dropped unused,
+so a period the reader picked, a tab switch or Customize never replay it.
+
+The host passes `attentionId` to the date control (`DatePeriodDropdown` draws a fading fill),
+to `PeriodChangeStatus` (the live region reads the new range out) and, on a detail page, to the
+layout's `returnToTopKey`. A host that renders its control through the `jpa/report-params` field
+puts `attentionId` on `ReportScopeProvider` next to `openPeriod`, and the field reads it there.
+
 ## Architecture
 
 ```
@@ -240,7 +255,7 @@ src/
 ├── queries/                # React Query definitions, one per Stats endpoint
 ├── hooks/                  # useReport and the Stats hooks built on it
 ├── processing/             # Response sanitization (author, latest post, stats)
-├── providers/              # React Query client provider
+├── providers/              # React Query client, the report scope, the period-change signal
 ├── defaults/               # Default report params and presets
 └── utils/                  # Report params, intervals, timezone, API errors
 ```

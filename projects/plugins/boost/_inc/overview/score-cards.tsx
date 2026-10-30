@@ -1,6 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { speak } from '@wordpress/a11y';
-import { CardDivider } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
@@ -200,7 +199,6 @@ export default function ScoreCards( {
 					{ __( 'Your site speed', 'jetpack-boost' ) }
 				</Card.Title>
 			</Card.Header>
-			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			{ body }
 		</Card.Root>
 	);

@@ -785,10 +785,12 @@ export function MetricTabsChart( {
 								}
 								setIsDropdownOpen( false );
 							} }
-							triggerContent={
-								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
-								)
+							trigger={
+								<SelectControl.Trigger>
+									{ activeMetric && (
+										<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
+									) }
+								</SelectControl.Trigger>
 							}
 						/>
 					</div>

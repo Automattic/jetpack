@@ -102,7 +102,7 @@ export function FeatureItem( {
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
 	const isSettling = Boolean( state.pending );
-	// On a block theme these modules offer the Site Editor instead of a switch, so the card
+	// On a block theme these modules link to Settings › Sharing instead of a switch, so the card
 	// says what to do there and drops a status badge that would only confuse next to it.
 	const migration =
 		state.control.kind === 'module' ? getBlockThemeMigration( state.control.module ) : null;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Boost: Say "Checking site speed…" instead of "Calculating…" while the speed score loads.

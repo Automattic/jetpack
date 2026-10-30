@@ -56,7 +56,7 @@ describe( 'WidgetDataTable', () => {
 		rerender( table( 12 ) );
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveTextContent( '2' );
 	} );
 
 	it( 'stays where it fell back to when a later result grows again', async () => {

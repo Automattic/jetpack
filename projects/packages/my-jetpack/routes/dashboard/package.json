@@ -2,7 +2,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"route": {
-		"path": "/",
+		"path": "/$",
 		"page": "my-jetpack-dashboard"
 	}
 }
