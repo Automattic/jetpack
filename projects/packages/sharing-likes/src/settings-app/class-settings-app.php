@@ -210,7 +210,8 @@ final class Settings_App {
 			'multibyte_supported'        => function_exists( 'mb_stripos' ),
 			'private_site'               => ( new Status() )->is_private_site(),
 			// Only the default for new posts: each post can still open its comments.
-			'comments_closed_by_default' => 'closed' === get_option( 'default_comment_status' ),
+			// Unticking the box in Settings > Discussion stores '', not 'closed'.
+			'comments_closed_by_default' => 'open' !== get_option( 'default_comment_status' ),
 			'discussion_settings_url'    => admin_url( 'options-discussion.php' ),
 		);
 

@@ -61,6 +61,13 @@ describe( 'CommentLikesSection', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	it( 'leaves the note out without a link to Discussion settings', () => {
+		setScriptData( { comments_closed_by_default: true, discussion_settings_url: '' } );
+		renderWithData( <CommentLikesSection /> );
+
+		expect( screen.queryByText( /Comments are turned off/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'only explains offline mode when Comment Likes cannot run', () => {
 		setScriptData( { comments_closed_by_default: true } );
 		renderWithData( <CommentLikesSection />, {

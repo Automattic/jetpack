@@ -303,11 +303,11 @@ class Settings_App_Test extends BaseTestCase {
 	 *
 	 * @dataProvider provide_default_comment_status
 	 *
-	 * @param string $status Value of `default_comment_status`.
-	 * @param bool   $closed Whether the screen should say comments are closed.
+	 * @param string|null $status Value saved to `default_comment_status`.
+	 * @param bool        $closed Whether the screen should say comments are closed.
 	 */
 	#[DataProvider( 'provide_default_comment_status' )]
-	public function test_script_data_says_whether_new_posts_close_comments( string $status, bool $closed ): void {
+	public function test_script_data_says_whether_new_posts_close_comments( ?string $status, bool $closed ): void {
 		update_option( 'default_comment_status', $status );
 
 		$data = Settings_App::add_script_data( array() )['sharing_likes'];
@@ -317,14 +317,16 @@ class Settings_App_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Values of `default_comment_status`.
+	 * Values saved to `default_comment_status`.
 	 *
 	 * @return array
 	 */
 	public static function provide_default_comment_status(): array {
 		return array(
-			'open'   => array( 'open', false ),
-			'closed' => array( 'closed', true ),
+			'open'                 => array( 'open', false ),
+			'closed'               => array( 'closed', true ),
+			// What Settings > Discussion saves when the box is unticked.
+			'unticked in wp-admin' => array( null, true ),
 		);
 	}
 
