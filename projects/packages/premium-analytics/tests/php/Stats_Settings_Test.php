@@ -482,8 +482,11 @@ class Stats_Settings_Test extends BaseTestCase {
 		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 
 		$this->assertNull( $without_either['features_url'] );
+		$this->assertNull( $without_either['features_screen'] );
 		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules&s=stats' ), $modules_only['features_url'] );
+		$this->assertSame( 'modules', $modules_only['features_screen'] );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/features?search=stats' ), $context['features_url'] );
+		$this->assertSame( 'features', $context['features_screen'] );
 	}
 
 	/**
@@ -496,11 +499,14 @@ class Stats_Settings_Test extends BaseTestCase {
 		require_once __DIR__ . '/mocks/jetpack-plugin-mock.php';
 		$this->log_in_as( 'administrator' );
 		add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'manage_options', 'my-jetpack', '__return_null' );
-		add_submenu_page( '', 'Jetpack Settings', 'Settings', 'manage_options', 'jetpack_modules', '__return_null' );
 		add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+		$without_modules = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
+		add_submenu_page( '', 'Jetpack Settings', 'Settings', 'manage_options', 'jetpack_modules', '__return_null' );
 
 		$context = Stats_Settings::add_script_data( array() )['premium_analytics']['stats_settings'];
 
+		$this->assertNull( $without_modules['features_url'] );
 		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules&s=stats' ), $context['features_url'] );
+		$this->assertSame( 'modules', $context['features_screen'] );
 	}
 }

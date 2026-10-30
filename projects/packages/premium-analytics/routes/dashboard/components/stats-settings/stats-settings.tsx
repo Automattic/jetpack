@@ -107,6 +107,7 @@ export function StatsSettingsPanel(): JSX.Element {
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
+	const featuresScreen = premiumAnalytics?.stats_settings?.features_screen;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
 	const cardGroups = useMemo( getCardGroups, [] );
 	const formLayout = useMemo< Form >(
@@ -201,10 +202,15 @@ export function StatsSettingsPanel(): JSX.Element {
 					<Card.Content>
 						<Text>
 							{ createInterpolateElement(
-								__(
-									'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
-									'jetpack-premium-analytics-pkg'
-								),
+								'modules' === featuresScreen
+									? __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack modules</link>.',
+											'jetpack-premium-analytics-pkg'
+										)
+									: __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
+											'jetpack-premium-analytics-pkg'
+										),
 								{ link: <Link href={ featuresUrl } /> }
 							) }
 						</Text>

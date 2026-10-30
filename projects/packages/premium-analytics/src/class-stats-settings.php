@@ -38,6 +38,16 @@ final class Stats_Settings {
 	private const FIELDS = array( 'admin_bar', 'roles', 'count_roles' );
 
 	/**
+	 * The screens that switch the Stats module on and off, by the name the card labels its link with.
+	 *
+	 * @var string[]
+	 */
+	private const FEATURES_SCREENS = array(
+		'features' => 'admin.php?page=my-jetpack#/features?search=stats',
+		'modules'  => 'admin.php?page=jetpack_modules&s=stats',
+	);
+
+	/**
 	 * Cookie banner plugins that support the WP Consent API, by plugin directory: the WordPress.org ones the WP Consent API readme lists.
 	 *
 	 * @var string[]
@@ -262,10 +272,13 @@ final class Stats_Settings {
 			$data['premium_analytics'] = array();
 		}
 
+		$features_screen = self::get_features_screen();
+
 		$data['premium_analytics']['stats_settings'] = array(
-			'roles'        => $roles,
-			'features_url' => self::get_features_url(),
-			'consent'      => self::get_consent_status(),
+			'roles'           => $roles,
+			'features_url'    => null === $features_screen ? null : admin_url( self::FEATURES_SCREENS[ $features_screen ] ),
+			'features_screen' => $features_screen,
+			'consent'         => self::get_consent_status(),
 		);
 
 		return $data;
@@ -333,9 +346,9 @@ final class Stats_Settings {
 	/**
 	 * Where the Stats module is switched on and off: My Jetpack's Features, or Jetpack's Modules screen where the host keeps people out of My Jetpack.
 	 *
-	 * @return string|null The URL, or null when the site has neither screen.
+	 * @return 'features'|'modules'|null The screen, or null when the site has neither.
 	 */
-	private static function get_features_url() {
+	private static function get_features_screen() {
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return null;
 		}
@@ -345,9 +358,9 @@ final class Stats_Settings {
 		$features_available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
 		// Jetpack can be active without My Jetpack's screen, for example in Offline Mode.
 		if ( $features_available && '' !== menu_page_url( 'my-jetpack', false ) ) {
-			return admin_url( 'admin.php?page=my-jetpack#/features?search=stats' );
+			return 'features';
 		}
 
-		return '' !== menu_page_url( 'jetpack_modules', false ) ? admin_url( 'admin.php?page=jetpack_modules&s=stats' ) : null;
+		return '' !== menu_page_url( 'jetpack_modules', false ) ? 'modules' : null;
 	}
 }
