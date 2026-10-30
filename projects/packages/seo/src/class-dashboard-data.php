@@ -1072,22 +1072,16 @@ class Dashboard_Data {
 		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
 		// intentionally hides them while another SEO plugin controls output, but the
 		// dashboard must still show the saved values without allowing edits.
-		$title_formats          = self::normalize_title_formats( get_option( 'advanced_seo_title_formats', array() ) );
-		$title_formats_editable = self::is_jetpack_seo_enabled();
-		$front_page_desc        = self::get_front_page_meta_description();
+		$title_formats              = self::normalize_title_formats( get_option( 'advanced_seo_title_formats', array() ) );
+		$title_formats_editable     = self::is_jetpack_seo_enabled();
+		$front_page_desc            = self::get_front_page_meta_description();
+		$has_legacy_front_page_meta = self::has_legacy_front_page_meta();
 
-		if ( Seo_Tools::is_disabled() ) {
-			// Same for the description, which the helper swaps for the legacy fallback while
-			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
+		if ( Seo_Tools::is_disabled() || ( Initializer::is_gated() && ! $has_legacy_front_page_meta ) ) {
+			// Show the saved value when the output is disabled, without replacing a live legacy description.
 			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
 			$front_page_desc = $modern ? $modern : get_option( self::LEGACY_FRONT_PAGE_META_OPTION, '' );
 		}
-
-		// A site that set a front-page description back when it was free for all
-		// WordPress.com Simple sites keeps editing it, even when otherwise plan-gated:
-		// the value stays live in the legacy option. The gated Settings uses this to keep
-		// that one field editable, and it's the same rule the save writes by.
-		$has_legacy_front_page_meta = self::has_legacy_front_page_meta();
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
@@ -1126,6 +1120,7 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
+			'seo_tools_disabled'         => Seo_Tools::is_disabled(),
 			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,

@@ -25,6 +25,8 @@ export interface SettingsResponse {
 	// Server-owned conflict state. False keeps saved formats visible but read-only
 	// and prevents them from being included in a save payload.
 	title_formats_editable: boolean;
+	// Output ownership is separate from the plan gate and grandfathered descriptions.
+	seo_tools_disabled?: boolean;
 	// Name of the SEO plugin Jetpack stepped aside for, or '' when none is active.
 	// Read-only, never sent back.
 	conflicting_seo_plugin: string;

@@ -1,0 +1,3 @@
+Significance: patch
+Type: bugfix
+Comment: Keep saved settings visible but disabled after a plan downgrade in the unreleased SEO dashboard.

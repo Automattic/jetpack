@@ -2,6 +2,7 @@
 
 /* eslint-disable react/jsx-no-bind */
 
+// eslint-disable-next-line @wordpress/use-recommended-components -- Retain the existing controls and styling while changing their plan restrictions.
 import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -208,8 +209,9 @@ interface Props {
 	isFormatDirty: ( pageType: string ) => boolean;
 	/** The site's document-title separator, for previewing untouched page types. */
 	titleSeparator: string;
-	/** Whether Jetpack currently controls title output. */
+	/** Whether the saved title formats can be edited. */
 	editable: boolean;
+	disabledReason?: string;
 	disabled?: boolean;
 }
 
@@ -229,6 +231,7 @@ const TitleStructureField: FC< Props > = ( {
 	isFormatDirty,
 	titleSeparator,
 	editable,
+	disabledReason,
 	disabled,
 } ) => {
 	// A smart default counts as configured — the same rule the Schema module uses.
@@ -274,10 +277,11 @@ const TitleStructureField: FC< Props > = ( {
 					{ ! editable && (
 						<Notice.Root intent="warning">
 							<Notice.Description>
-								{ __(
-									'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
-									'jetpack-seo'
-								) }
+								{ disabledReason ??
+									__(
+										'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
+										'jetpack-seo'
+									) }
 							</Notice.Description>
 						</Notice.Root>
 					) }
