@@ -17,38 +17,52 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
+import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
 
 type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
 
 /**
- * The form's cards and the fields each one holds.
+ * The form's cards and the fields each one holds, keeping only the fields the site offers.
  *
- * @return The cards, in order.
+ * @param offered - The settings the site offers; every setting when the site does not say.
+ * @return The cards left holding a field, in order.
  */
-const getCardGroups = (): CardGroup[] => [
-	{
-		id: 'admin-bar',
-		label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'admin_bar' ],
-	},
-	{
-		id: 'permissions',
-		label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'roles', 'count_roles' ],
-	},
-	{
-		id: 'reader',
-		label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'wpcom_reader_views_enabled' ],
-	},
-];
+const getCardGroups = ( offered?: string[] ): CardGroup[] => {
+	const groups: CardGroup[] = [
+		{
+			id: 'admin-bar',
+			label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'admin_bar' ],
+		},
+		{
+			id: 'permissions',
+			label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'roles', 'count_roles' ],
+		},
+		{
+			id: 'reader',
+			label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'wpcom_reader_views_enabled' ],
+		},
+	];
+	if ( ! offered ) {
+		return groups;
+	}
+
+	return groups
+		.map( group => ( {
+			...group,
+			children: group.children.filter( id => offered.includes( id ) ),
+		} ) )
+		.filter( group => group.children.length > 0 );
+};
 
 // apiFetch writes these itself when the request never reached the site.
 const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
@@ -104,11 +118,32 @@ function getSettingChanges(
  * @return The Settings tab content.
  */
 export function StatsSettingsPanel(): JSX.Element {
+	return (
+		// Outside any widget, so outside the provider `WidgetRoot` mounts for widgets.
+		<AnalyticsQueryClientProvider>
+			<StatsSettingsContent />
+		</AnalyticsQueryClientProvider>
+	);
+}
+
+/**
+ * The Settings tab's cards, once it is known whether the plan usage card is among them.
+ *
+ * @return The Settings tab content.
+ */
+function StatsSettingsContent(): JSX.Element {
+	const { isLoading: isLoadingPlanUsage } = usePlanUsage();
+	// Latched: the card refetches a failed usage on mount, which must not swap the tab back and unmount it.
+	const [ hasPlanUsageAnswered, setPlanUsageAnswered ] = useState( ! isLoadingPlanUsage );
+	if ( ! isLoadingPlanUsage && ! hasPlanUsageAnswered ) {
+		setPlanUsageAnswered( true );
+	}
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
+	const offered = premiumAnalytics?.stats_settings?.fields;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
-	const cardGroups = useMemo( getCardGroups, [] );
+	const cardGroups = useMemo( () => getCardGroups( offered ), [ offered ] );
 	const formLayout = useMemo< Form >(
 		() => ( { layout: { type: 'card', isCollapsible: false }, fields: cardGroups } ),
 		[ cardGroups ]
@@ -147,6 +182,18 @@ export function StatsSettingsPanel(): JSX.Element {
 		},
 		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
+
+	// A plan without a view limit has no usage card, so hold the whole tab until that is known rather than shift it.
+	if ( ! hasPlanUsageAnswered ) {
+		return (
+			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
+				<Spinner />
+				<VisuallyHidden role="status">
+					{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
+				</VisuallyHidden>
+			</Stack>
+		);
+	}
 
 	let form: JSX.Element;
 	if ( settings ) {
@@ -187,10 +234,7 @@ export function StatsSettingsPanel(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="xl" className={ styles.root }>
-			{ /* Outside any widget, so outside the provider `WidgetRoot` mounts for widgets. */ }
-			<AnalyticsQueryClientProvider>
-				<PlanUsageCard />
-			</AnalyticsQueryClientProvider>
+			<PlanUsageCard />
 			{ form }
 			<ConsentCard />
 			{ featuresUrl && (

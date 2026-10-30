@@ -27,6 +27,9 @@ jest.mock( '@wordpress/data', () => {
 
 jest.mock( './plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
 
+const mockUsePlanUsage = jest.fn();
+jest.mock( './use-plan-usage', () => ( { usePlanUsage: () => mockUsePlanUsage() } ) );
+
 const useStatsSettingsMock = useStatsSettings as jest.Mock;
 
 const SETTINGS = {
@@ -41,15 +44,16 @@ const ROLES = [
 	{ slug: 'editor', name: 'Editor', count: null },
 ];
 
-const setScriptData = ( featuresUrl: string | null ) => {
+const setScriptData = ( featuresUrl: string | null, fields?: string[] ) => {
 	window.JetpackScriptData = {
-		premium_analytics: { stats_settings: { roles: ROLES, features_url: featuresUrl } },
+		premium_analytics: { stats_settings: { fields, roles: ROLES, features_url: featuresUrl } },
 	} as typeof window.JetpackScriptData;
 };
 
 describe( 'StatsSettingsPanel', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
 		setScriptData( null );
 	} );
 
@@ -170,5 +174,51 @@ describe( 'StatsSettingsPanel', () => {
 		render( <StatsSettingsPanel /> );
 
 		expect( screen.queryByText( 'Activation' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws no card while the plan usage loads, so the tab does not shift when it arrives', () => {
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Loading your Stats settings…' );
+		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the cards once the plan usage has answered, while the card retries a failed usage', () => {
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+		const { rerender } = render( <StatsSettingsPanel /> );
+		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
+		rerender( <StatsSettingsPanel /> );
+
+		mockUsePlanUsage.mockReturnValue( { isLoading: true } );
+		rerender( <StatsSettingsPanel /> );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves out a card whose settings the site does not offer', () => {
+		setScriptData( null, [ 'admin_bar', 'wpcom_reader_views_enabled' ] );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'WordPress.com Reader' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Manage permissions' ) ).not.toBeInTheDocument();
 	} );
 } );
