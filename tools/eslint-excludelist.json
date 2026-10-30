@@ -200,7 +200,6 @@
 	"projects/packages/scan/src/js/screens/overview/scan-status.tsx",
 	"projects/packages/search/src/customberg/components/sidebar/excluded-post-types-control.jsx",
 	"projects/packages/search/src/customberg/components/sidebar/sidebar-options.jsx",
-	"projects/packages/search/src/dashboard/components/ai-agent-access-control/index.jsx",
 	"projects/packages/search/src/dashboard/components/ai-answers-tab/index.jsx",
 	"projects/packages/search/src/dashboard/components/experience-selector/index.jsx",
 	"projects/packages/search/src/dashboard/components/module-control/index.jsx",
