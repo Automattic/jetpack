@@ -233,45 +233,47 @@ export default function RecordingModal( {
 							</div>
 						) }
 						<div className="videopress-recording__overlay-bottom">
-							<EffectPicker
-								value={ effect }
-								onChange={ setEffect }
-								disabled={
-									confirmation !== null ||
-									! cameraReady ||
-									state === 'error' ||
-									state === 'stopping'
-								}
-							/>
-							<button
-								type="button"
-								className={ `videopress-recording__record-toggle${ state === 'recording' || state === 'stopping' ? ' is-recording' : '' }` }
-								disabled={
-									! cameraReady ||
-									confirmation !== null ||
-									state === 'loading' ||
-									state === 'error' ||
-									state === 'stopping'
-								}
-								onClick={ () => ( state === 'recording' ? void stop() : start() ) }
-							>
-								<span className="videopress-recording__record-ring" aria-hidden="true">
-									<span />
-								</span>
-								<span>
-									{ state === 'recording' || state === 'stopping'
-										? _x(
-												'Stop recording',
-												'button: stop camera recording',
-												'jetpack-videopress-pkg'
-											)
-										: _x(
-												'Start recording',
-												'button: start camera recording',
-												'jetpack-videopress-pkg'
-											) }
-								</span>
-							</button>
+							<div className="videopress-recording__camera-actions">
+								<EffectPicker
+									value={ effect }
+									onChange={ setEffect }
+									disabled={
+										confirmation !== null ||
+										! cameraReady ||
+										state === 'error' ||
+										state === 'stopping'
+									}
+								/>
+								<button
+									type="button"
+									className={ `videopress-recording__record-toggle${ state === 'recording' ? ' is-recording' : '' }${ state === 'stopping' ? ' is-stopping' : '' }` }
+									disabled={
+										! cameraReady ||
+										confirmation !== null ||
+										state === 'loading' ||
+										state === 'error' ||
+										state === 'stopping'
+									}
+									onClick={ () => ( state === 'recording' ? void stop() : start() ) }
+								>
+									<span className="videopress-recording__record-ring" aria-hidden="true">
+										<span />
+									</span>
+									<span>
+										{ state === 'recording' || state === 'stopping'
+											? _x(
+													'Stop recording',
+													'button: stop camera recording',
+													'jetpack-videopress-pkg'
+												)
+											: _x(
+													'Start recording',
+													'button: start camera recording',
+													'jetpack-videopress-pkg'
+												) }
+									</span>
+								</button>
+							</div>
 						</div>
 					</RecordingStage>
 				) }

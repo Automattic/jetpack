@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getRecordingMimeType } from '../../../lib/video-recording';
 import { recordCamera } from '../../../lib/video-recording/camera';
@@ -103,6 +103,30 @@ it( 'mirrors the camera monitor by default and allows turning mirroring off', as
 	} );
 } );
 
+it( 'discloses filters and restores focus on Escape without losing the selection or closing the camera', async () => {
+	const onClose = jest.fn();
+	render( <RecordingModal onClose={ onClose } onRecorded={ jest.fn() } /> );
+	const filters = screen.getByRole( 'button', { name: 'Filters' } );
+	expect( filters ).toHaveAttribute( 'aria-expanded', 'false' );
+	expect( screen.queryByRole( 'button', { name: 'Warm effect' } ) ).not.toBeInTheDocument();
+
+	await waitFor( () => expect( filters ).toBeEnabled() );
+	await userEvent.click( filters );
+	expect( filters ).toHaveAttribute( 'aria-expanded', 'true' );
+	await userEvent.click( screen.getByRole( 'button', { name: 'Warm effect' } ) );
+	await userEvent.keyboard( '{Escape}' );
+	expect( filters ).toHaveFocus();
+	expect( filters ).toHaveAttribute( 'aria-expanded', 'false' );
+	expect( screen.queryByRole( 'button', { name: 'Warm effect' } ) ).not.toBeInTheDocument();
+	expect( onClose ).not.toHaveBeenCalled();
+
+	await userEvent.click( filters );
+	expect( screen.getByRole( 'button', { name: 'Warm effect' } ) ).toHaveAttribute(
+		'aria-pressed',
+		'true'
+	);
+} );
+
 it( 'keeps the selected effect current while recording', async () => {
 	jest.mocked( recordCamera ).mockReturnValue( {
 		finished: new Promise( () => {} ),
@@ -112,6 +136,7 @@ it( 'keeps the selected effect current while recording', async () => {
 		resume: jest.fn(),
 	} );
 	render( <RecordingModal onClose={ jest.fn() } onRecorded={ jest.fn() } /> );
+	await userEvent.click( await screen.findByRole( 'button', { name: 'Filters' } ) );
 	const mono = await screen.findByRole( 'button', { name: 'Mono effect' } );
 
 	await userEvent.click( mono );
