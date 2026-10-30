@@ -69,9 +69,26 @@ body.is-nav-unification .inline-icon {
 	color: #1e1e1e;
 }
 
-.wpcom-my-jetpack__tool svg {
+.wpcom-my-jetpack__tool > svg {
 	flex: none;
 	color: #50575e;
+}
+
+.wpcom-my-jetpack__tool-icon {
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	background: #073f12;
+	color: #0ced57;
+}
+
+.wpcom-my-jetpack__tool-icon svg {
+	width: 22px;
+	height: 22px;
 }
 
 .wpcom-my-jetpack__tool-text {

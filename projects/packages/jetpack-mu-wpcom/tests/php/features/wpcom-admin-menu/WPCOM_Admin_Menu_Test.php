@@ -828,8 +828,26 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 					'external'    => false,
 				),
 			),
-			wpcom_get_simple_my_jetpack_items()
+			array_map(
+				function ( $item ) {
+					unset( $item['icon'] );
+					return $item;
+				},
+				wpcom_get_simple_my_jetpack_items()
+			)
 		);
+	}
+
+	/**
+	 * Known tools get their product icon, and a new tool gets the Jetpack mark.
+	 */
+	public function test_simple_my_jetpack_icon_falls_back_to_the_jetpack_mark() {
+		$fallback = wpcom_get_simple_my_jetpack_icon( 'jetpack-new-tool' );
+
+		$this->assertStringContainsString( 'viewBox="0 0 32 32"', $fallback );
+		foreach ( array( 'jetpack-activity-log', 'akismet-key-config', 'jetpack-backup', 'advertising', 'jetpack-forms-responses-wp-admin', 'https://wordpress.com/earn/', 'jetpack-newsletter', 'jetpack-podcast', 'jetpack-scan', 'jetpack-search', 'jetpack-seo', 'jetpack-social', 'https://wordpress.com/marketing/traffic/', 'jetpack-videopress' ) as $slug ) {
+			$this->assertNotSame( $fallback, wpcom_get_simple_my_jetpack_icon( $slug ), $slug );
+		}
 	}
 
 	/**
