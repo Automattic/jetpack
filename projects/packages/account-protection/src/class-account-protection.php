@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -38,6 +39,13 @@ class Account_Protection {
 	 * @var Modules
 	 */
 	private $modules;
+
+	/**
+	 * Status instance.
+	 *
+	 * @var Status
+	 */
+	private $status;
 
 	/**
 	 * Password detection instance.
@@ -99,9 +107,11 @@ class Account_Protection {
 	 * @param ?Password_Detection      $password_detection Password detection instance.
 	 * @param ?Password_Manager        $password_manager Password manager instance.
 	 * @param ?Password_Strength_Meter $password_strength_meter Password strength meter instance.
+	 * @param ?Status                  $status             Status instance.
 	 */
-	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null ) {
+	public function __construct( ?Modules $modules = null, ?Password_Detection $password_detection = null, ?Password_Manager $password_manager = null, ?Password_Strength_Meter $password_strength_meter = null, ?Status $status = null ) {
 		$this->modules = $modules ?? new Modules();
+		$this->status  = $status ?? new Status();
 
 		/*
 		 * The password collaborators are only used by the runtime hooks, which
@@ -168,6 +178,11 @@ class Account_Protection {
 	 * @return void
 	 */
 	protected function register_runtime_hooks(): void {
+		// Skip all runtime hooks in offline mode — the checks require Jetpack API access.
+		if ( $this->status->is_offline_mode() ) {
+			return;
+		}
+
 		$this->register_password_detection_hooks();
 		$this->register_strong_passwords_hooks();
 	}
@@ -268,6 +283,11 @@ class Account_Protection {
 
 		// Do not run for WordPress.com Simple sites
 		if ( ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		// Do not run in Jetpack offline mode (e.g. local/dev environments with JETPACK_DEV_DEBUG=true)
+		if ( $this->status->is_offline_mode() ) {
 			return false;
 		}
 

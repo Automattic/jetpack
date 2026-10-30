@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Account_Protection;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use WorDBless\BaseTestCase;
 
 /**
@@ -209,6 +210,79 @@ class Account_Protection_Test extends BaseTestCase {
 			has_action( 'wp_authenticate_user', array( $password_detection, 'login_form_password_detection' ) ),
 			'wp_authenticate_user should be wired to the injected Password_Detection at priority 10.'
 		);
+	}
+
+	public function test_is_supported_environment_returns_false_in_offline_mode(): void {
+		$status_mock = $this->createMock( Status::class );
+		$status_mock->expects( $this->once() )
+			->method( 'is_offline_mode' )
+			->willReturn( true );
+
+		$sut = new Account_Protection( null, null, null, null, $status_mock );
+		$this->assertFalse( $sut->is_supported_environment(), 'Module should not be supported in offline mode.' );
+	}
+
+	public function test_is_supported_environment_returns_true_when_not_in_offline_mode(): void {
+		$status_mock = $this->createMock( Status::class );
+		$status_mock->expects( $this->once() )
+			->method( 'is_offline_mode' )
+			->willReturn( false );
+
+		$sut = new Account_Protection( null, null, null, null, $status_mock );
+		$this->assertTrue( $sut->is_supported_environment(), 'Module should be supported when not in offline mode.' );
+	}
+
+	public function test_register_runtime_hooks_skips_all_hooks_in_offline_mode(): void {
+		$status_mock = $this->createMock( Status::class );
+		$status_mock->expects( $this->once() )
+			->method( 'is_offline_mode' )
+			->willReturn( true );
+
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'register_password_detection_hooks', 'register_strong_passwords_hooks' ) );
+
+		// Inject the status mock via reflection so the partial mock still uses it.
+		$property = ( new \ReflectionClass( Account_Protection::class ) )->getProperty( 'status' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $sut, $status_mock );
+
+		$sut->expects( $this->never() )->method( 'register_password_detection_hooks' );
+		$sut->expects( $this->never() )->method( 'register_strong_passwords_hooks' );
+
+		$method = new \ReflectionMethod( Account_Protection::class, 'register_runtime_hooks' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( $sut );
+	}
+
+	public function test_register_runtime_hooks_registers_all_hooks_when_not_in_offline_mode(): void {
+		$status_mock = $this->createMock( Status::class );
+		$status_mock->expects( $this->once() )
+			->method( 'is_offline_mode' )
+			->willReturn( false );
+
+		$sut = $this->createPartialMock( Account_Protection::class, array( 'register_password_detection_hooks', 'register_strong_passwords_hooks' ) );
+
+		$property = ( new \ReflectionClass( Account_Protection::class ) )->getProperty( 'status' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $sut, $status_mock );
+
+		$sut->expects( $this->once() )->method( 'register_password_detection_hooks' );
+		$sut->expects( $this->once() )->method( 'register_strong_passwords_hooks' );
+
+		$method = new \ReflectionMethod( Account_Protection::class, 'register_runtime_hooks' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( $sut );
 	}
 
 	/**
