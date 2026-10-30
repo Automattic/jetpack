@@ -37,7 +37,7 @@ describe( 'useVideoSummary', () => {
 		post => {
 			mockVideoQuery( { data: { post } } );
 
-			const { result } = renderHook( () => useVideoSummary( 42 ) );
+			const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 			expect( result.current.isNotFound ).toBe( true );
 		}
@@ -50,7 +50,7 @@ describe( 'useVideoSummary', () => {
 		mimeType => {
 			mockVideoQuery( { data: { post: { id: 42, mimeType } } } );
 
-			const { result } = renderHook( () => useVideoSummary( 42 ) );
+			const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 			expect( result.current.isNotFound ).toBe( true );
 		}
@@ -61,7 +61,7 @@ describe( 'useVideoSummary', () => {
 		mimeType => {
 			mockVideoQuery( { data: { post: { id: 42, mimeType } } } );
 
-			const { result } = renderHook( () => useVideoSummary( 42 ) );
+			const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 			expect( result.current.isNotFound ).toBe( false );
 			expect( mockUseStatsSingleVideo ).toHaveBeenCalledWith( 42 );
@@ -79,7 +79,7 @@ describe( 'useVideoSummary', () => {
 			},
 		} );
 
-		const { result } = renderHook( () => useVideoSummary( 42 ) );
+		const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 		expect( result.current.posterUrl ).toBe(
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/demo.jpg'
@@ -91,7 +91,7 @@ describe( 'useVideoSummary', () => {
 		poster => {
 			mockVideoQuery( { data: { post: { id: 42, mimeType: 'video/mp4', poster } } } );
 
-			const { result } = renderHook( () => useVideoSummary( 42 ) );
+			const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 			expect( result.current.posterUrl ).toBeUndefined();
 		}
@@ -100,7 +100,7 @@ describe( 'useVideoSummary', () => {
 	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
 		mockVideoQuery( { data: undefined, isPending: true, isPaused: true, isSuccess: false } );
 
-		const { result } = renderHook( () => useVideoSummary( 42 ) );
+		const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 		expect( result.current.isLoading ).toBe( true );
 	} );
@@ -109,7 +109,7 @@ describe( 'useVideoSummary', () => {
 		const error = { code: 'rest_forbidden', status: 403 };
 		mockVideoQuery( { data: undefined, isError: true, isSuccess: false, error } );
 
-		const { result } = renderHook( () => useVideoSummary( 42 ) );
+		const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.error ).toBe( error );
@@ -121,7 +121,7 @@ describe( 'useVideoSummary', () => {
 	] )( 'does not report not found before a successful resolution', queryState => {
 		mockVideoQuery( { data: { post: null }, ...queryState } );
 
-		const { result } = renderHook( () => useVideoSummary( 42 ) );
+		const { result } = renderHook( () => useVideoSummary( '42' ) );
 
 		expect( result.current.isNotFound ).toBe( false );
 	} );

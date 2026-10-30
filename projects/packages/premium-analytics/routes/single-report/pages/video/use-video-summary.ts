@@ -19,12 +19,12 @@ export type VideoSummary = EntitySummary & {
 /**
  * Resolve the title and publication date for a single VideoPress attachment.
  *
- * @param videoId - The attachment post ID from the route.
+ * @param videoId - The attachment post ID, as the URL carries it.
  * @return The resolved video summary.
  */
-export function useVideoSummary( videoId: number ): VideoSummary {
+export function useVideoSummary( videoId: string ): VideoSummary {
 	const { data, isLoading, isPending, isPaused, isError, error, isSuccess, refetch } =
-		useStatsSingleVideo( videoId );
+		useStatsSingleVideo( Number( videoId ) );
 	const post = data?.post;
 	const hasValidId = Number.isInteger( post?.id ) && Number( post?.id ) > 0;
 	// Require a `video/` prefix so non-video IDs (images, posts, pages) resolve to

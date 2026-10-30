@@ -79,9 +79,9 @@ type SingleReportBodyProps = {
 	page: SingleReportPageRecord;
 
 	/*
-	 * The entity the page is about.
+	 * The entity the page is about, as the URL carries it.
 	 */
-	entityId: number;
+	entityId: string;
 
 	/*
 	 * The page's adapter, or the record-only one.
@@ -160,7 +160,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 			trackedOnApply();
 			void navigate( {
 				to: ROUTE_FROM,
-				params: { kind: page.path, id: String( entityId ) } as unknown as never,
+				params: { kind: page.path, id: entityId } as unknown as never,
 				search: ( ( previous: Record< string, unknown > ) => ( {
 					...omitReportDateParams( previous ),
 					...next,
@@ -324,8 +324,8 @@ function SingleReport(): JSX.Element | null {
 	const { kind, id } = useParams( { from: ROUTE_FROM } ) as { kind?: string; id?: string };
 	const page = getSingleReportPage( kind );
 
-	if ( ! page ) {
-		// The route guard already sent an unknown page to the dashboard.
+	if ( ! page || ! id ) {
+		// The route guard already sent an unknown page or id to the dashboard.
 		return null;
 	}
 
@@ -334,7 +334,7 @@ function SingleReport(): JSX.Element | null {
 			// Another page is another adapter, so another hook order: remount.
 			key={ page.path }
 			page={ page }
-			entityId={ Number( id ) }
+			entityId={ id }
 			adapter={ getSingleReportAdapter( page.path ) ?? RECORD_ADAPTER }
 		/>
 	);

@@ -21,7 +21,7 @@ let mockDashboardProps: {
 	onLayoutReset?: () => void;
 } = {};
 const mockNavigate = jest.fn();
-const mockUseSummary = jest.fn< EntitySummary & { publishedDate?: string }, [ number ] >();
+const mockUseSummary = jest.fn< EntitySummary & { publishedDate?: string }, [ string ] >();
 let mockAdapters: Record< string, SingleReportAdapter > = {};
 
 const VIDEO_PAGE = {
@@ -53,6 +53,17 @@ const CLIP_PAGE = {
 	controls: [],
 	reports_page: null,
 	preferences_scope: 'jetpack-premium-analytics/clip-detail',
+};
+
+// A page whose ids are slugs: the stage hands the adapter and the next URL the string as it came.
+const RECAP_PAGE = {
+	...VIDEO_PAGE,
+	id: 'demo/recap',
+	path: 'recap',
+	label: 'Recap',
+	id_pattern: '^[a-z-]+$',
+	reports_page: null,
+	preferences_scope: 'jetpack-premium-analytics/recap-detail',
 };
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -294,7 +305,10 @@ describe( 'single-report stage', () => {
 			configurable: true,
 			// The Videos crumb reads VideoPress off it; the page options menu the reader's capabilities.
 			value: {
-				premium_analytics: { has_videopress: true, single_report_pages: [ VIDEO_PAGE, CLIP_PAGE ] },
+				premium_analytics: {
+					has_videopress: true,
+					single_report_pages: [ VIDEO_PAGE, CLIP_PAGE, RECAP_PAGE ],
+				},
 				user: { current_user: { capabilities: {} } },
 			},
 		} );
@@ -495,6 +509,22 @@ describe( 'single-report stage', () => {
 			preset: 'last-7-days',
 			from: '2026-06-10',
 			to: '2026-06-16',
+		} );
+	} );
+
+	it( 'keeps a non-numeric id as the URL carries it, for the adapter and the next URL', async () => {
+		mockParams = { kind: 'recap', id: 'launch-recap' };
+		mockSearch = { ...mockSearch, post_id: 'launch-recap' };
+		mockAdapters = { recap: mockAdapters.video };
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Apply last 7 days' } ) );
+
+		expect( mockUseSummary ).toHaveBeenCalledWith( 'launch-recap' );
+		expect( mockNavigate.mock.calls[ 0 ][ 0 ].params ).toEqual( {
+			kind: 'recap',
+			id: 'launch-recap',
 		} );
 	} );
 

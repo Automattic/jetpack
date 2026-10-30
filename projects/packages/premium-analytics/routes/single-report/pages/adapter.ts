@@ -78,9 +78,9 @@ export type HeaderContext = {
  */
 export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary > = {
 	/*
-	 * The entity's summary request.
+	 * The entity's summary request, over the id as the URL carries it.
 	 */
-	useSummary( entityId: number ): Summary;
+	useSummary( entityId: string ): Summary;
 
 	/*
 	 * The header slots for a summary in any state.
