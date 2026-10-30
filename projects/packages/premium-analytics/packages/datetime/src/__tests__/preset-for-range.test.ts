@@ -10,14 +10,17 @@ import { computePrimaryRange } from '../presets/primary';
 
 const TIMEZONE = 'America/New_York';
 
-describe( 'findSelectablePresetForRange', () => {
-	beforeEach( () => {
-		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
-	} );
+// File-level like its group siblings: a per-test restore would hand the real
+// clock back to a suite sharing the registry that froze it for its own run.
+beforeAll( () => {
+	jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+} );
 
-	afterEach( () => {
-		jest.useRealTimers();
-	} );
+afterAll( () => {
+	jest.useRealTimers();
+} );
+
+describe( 'findSelectablePresetForRange', () => {
 
 	it.each( [ [ 'last-7-days' ], [ 'last-month' ], [ 'month-to-date' ] ] as const )(
 		'names the window "%s" covers today',
