@@ -453,7 +453,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'contract_violation', $response->get_data()['code'] );
 	}
 
-	public function test_names_the_contract_and_its_deviations_in_the_provenance() {
+	public function test_names_the_provider_and_contract_in_headers_only() {
 		$this->upstream = $this->upstream_response( 200, '{"summary":{"orders_no":"3"}}' );
 
 		$response = $this->get_report(
@@ -464,8 +464,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			)
 		);
 
+		$this->assertSame( 'remote', $response->get_headers()['X-Jetpack-Report-Provider'] );
 		$this->assertSame( 'orders.by_date@1', $response->get_headers()['X-Jetpack-Report-Contract'] );
-		$this->assertSame( 'sunday', $response->get_data()->provenance['deviations']->week_start );
+		$this->assertSame( array( 'summary' ), array_keys( (array) $response->get_data() ) );
 	}
 
 	public function test_serves_a_report_another_owner_registers_through_the_hook() {
@@ -473,7 +474,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			// phpcs:disable Squiz.Commenting.FunctionComment.Missing, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			public function get_capability() {
 				return array(
-					'fields'     => '*',
+					'fields'     => array( 'signups' ),
 					'params'     => array( 'from', 'to' ),
 					'deviations' => array(),
 				);
@@ -494,7 +495,18 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			// phpcs:enable
 		};
 		$register = static function ( Report_Registry $registry ) use ( $handler ) {
-			$registry->register_report( new Report_Definition( 'stock.notifications', 1, array(), array( 'signups' => 'int' ), array( 'products' ) ) );
+			$registry->register_report(
+				new Report_Definition(
+					'stock.notifications',
+					1,
+					array(),
+					array(
+						'signups' => 'int',
+						'waiting' => 'int',
+					),
+					array( 'products' )
+				)
+			);
 			$registry->register_handler( 'stock.notifications', 'local', $handler );
 		};
 		add_action( Report_Registry::REGISTER_ACTION, $register, 20 );
@@ -503,6 +515,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 7, $response->get_data()['summary']['signups'] );
+		$this->assertSame( array( 'waiting' ), $response->get_data()['unsupported_fields'] );
 		$this->assertSame( 'stock.notifications@1', $response->get_headers()['X-Jetpack-Report-Contract'] );
 		$this->assertSame( array(), $this->requests );
 	}

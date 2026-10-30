@@ -1,26 +1,18 @@
 /**
  * Internal dependencies
  */
-import { fetchReport, type ReportExecution } from '../fetch-report';
+import { fetchReportWithHeaders, type ReportExecution } from '../fetch-report';
 import type { BaseReportParams } from '../utils/types';
 import type { ReportQuery } from '@automattic/jetpack-premium-analytics-sdk';
 
-export type ReportProvenance = {
-	provider: 'local' | 'remote';
-	/** Report id and version, e.g. `orders.by_date@1`. */
-	contract: string;
-	generated_at: string;
-	fields: string[] | null;
-	unsupported_fields: string[];
-	/** Where the provider's semantics differ from the report definition's, e.g. `{ week_start: 'sunday' }`. */
-	deviations: Record< string, string >;
-};
-
-/** A report as the executor answers it: the wpcom shape, values left as sent, plus provenance. */
+/** A report as the executor answers it: the wpcom shape, values left as sent. */
 export type ExecutedReport = {
 	summary: Record< string, string | number | null >;
 	data: Record< string, string | number | null >[];
-	provenance?: ReportProvenance;
+	/** Contract fields the provider cannot produce, present only when there are any. */
+	unsupported_fields?: string[];
+	/** Read from the `X-Jetpack-Report-Provider` response header. */
+	provider?: string;
 };
 
 export type ExecutedReportParams = Partial< BaseReportParams > & {
@@ -45,7 +37,14 @@ export function executedReportQuery( params: ExecutedReportParams ): ReportQuery
 
 	const query = {
 		queryKey: [ 'reports', 'executed', route, execution, fields, sent ],
-		queryFn: () => fetchReport< ExecutedReport >( route, sent, { execution, fields } ),
+		queryFn: async () => {
+			const { body, headers } = await fetchReportWithHeaders< ExecutedReport >( route, sent, {
+				execution,
+				fields,
+			} );
+
+			return { ...body, provider: headers?.get( 'X-Jetpack-Report-Provider' ) ?? undefined };
+		},
 		enabled: send.every( key => !! params[ key ] ),
 		placeholderData: ( previousData: ExecutedReport | undefined ) => previousData,
 		retry: shouldRetry,

@@ -74,11 +74,8 @@ export function ReportExecutionCard( {
 		);
 	}
 
-	const provenance = primary.data?.provenance;
-	const unsupported = provenance?.unsupported_fields ?? [];
-	const deviations = Object.entries( provenance?.deviations ?? {} ).map(
-		( [ rule, value ] ) => `${ rule }=${ value }`
-	);
+	const provider = primary.data?.provider;
+	const unsupported = primary.data?.unsupported_fields ?? [];
 
 	return (
 		<div className={ styles.root }>
@@ -116,29 +113,12 @@ export function ReportExecutionCard( {
 						</div>
 					) ) }
 				</dl>
-				{ provenance && (
+				{ provider && (
 					<p className={ styles.provenance }>
 						{ sprintf(
-							/* translators: 1: provider name, 2: time the data was generated. */
-							__( 'Served by %1$s · generated %2$s', 'jetpack-woocommerce-stats-pkg' ),
-							PROVIDER_LABELS[ provenance.provider ] ?? provenance.provider,
-							new Date( provenance.generated_at ).toLocaleTimeString()
-						) }
-						<br />
-						{ sprintf(
-							/* translators: %s: report contract, e.g. orders.by_date@1. */
-							__( 'Contract: %s', 'jetpack-woocommerce-stats-pkg' ),
-							provenance.contract
-						) }
-						{ deviations.length > 0 && (
-							<>
-								<br />
-								{ sprintf(
-									/* translators: %s: comma-separated rule=value pairs, e.g. week_start=sunday. */
-									__( 'Differs from the contract: %s', 'jetpack-woocommerce-stats-pkg' ),
-									deviations.join( ', ' )
-								) }
-							</>
+							/* translators: %s: provider name. */
+							__( 'Served by %s', 'jetpack-woocommerce-stats-pkg' ),
+							PROVIDER_LABELS[ provider ] ?? provider
 						) }
 						{ unsupported.length > 0 && (
 							<>

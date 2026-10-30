@@ -86,9 +86,11 @@ async function toError( response: Response ): Promise< unknown > {
  * Request through apiFetch without its parse step, so a failure keeps its HTTP status.
  *
  * @param path - REST path of the request, query string included.
- * @return The parsed response body.
+ * @return The parsed response body, and the headers when the response carried them.
  */
-async function fetchPreservingStatus< TResponse >( path: string ): Promise< TResponse > {
+async function fetchPreservingStatus< TResponse >(
+	path: string
+): Promise< { body: TResponse; headers: Headers | null } > {
 	let result: unknown;
 
 	try {
@@ -103,7 +105,7 @@ async function fetchPreservingStatus< TResponse >( path: string ): Promise< TRes
 
 		// apiFetch only refreshes a stale nonce when it parses the response itself.
 		if ( isPlainErrorBody( error ) && error.code === 'rest_cookie_invalid_nonce' ) {
-			return ( await apiFetch( { path } ) ) as TResponse;
+			return { body: ( await apiFetch( { path } ) ) as TResponse, headers: null };
 		}
 
 		throw error;
@@ -111,10 +113,13 @@ async function fetchPreservingStatus< TResponse >( path: string ): Promise< TRes
 
 	// A middleware that resolves plain data, as a mock does, has already parsed it.
 	if ( ! isResponse( result ) ) {
-		return result as TResponse;
+		return { body: result as TResponse, headers: null };
 	}
 
-	return ( result.status === 204 ? null : await parseJson( result ) ) as TResponse;
+	return {
+		body: ( result.status === 204 ? null : await parseJson( result ) ) as TResponse,
+		headers: result.headers ?? null,
+	};
 }
 
 /**
@@ -125,13 +130,13 @@ async function fetchPreservingStatus< TResponse >( path: string ): Promise< TRes
  * @param options           - Request options.
  * @param options.execution - The provider to force, or `auto`.
  * @param options.fields    - The report fields the caller reads; omitted, the whole report.
- * @return The report response.
+ * @return The report response and its headers, null when the response carried none.
  */
-export async function fetchReport< TResponse = unknown >(
+export async function fetchReportWithHeaders< TResponse = unknown >(
 	endpoint: string,
 	params?: ReportRequestParams,
 	options?: { execution?: ReportExecution; fields?: string[] }
-): Promise< TResponse > {
+): Promise< { body: TResponse; headers: Headers | null } > {
 	const path = `${ REPORTS_PATH }/${ endpoint.replace( /^\/+/, '' ) }`;
 	const query = cleanQueryParams( {
 		...params,
@@ -140,4 +145,22 @@ export async function fetchReport< TResponse = unknown >(
 	} );
 
 	return fetchPreservingStatus< TResponse >( query ? addQueryArgs( path, query ) : path );
+}
+
+/**
+ * Fetch a WooCommerce report through the package's proxy, for a caller that reads only the body.
+ *
+ * @param endpoint          - Report endpoint below `analytics/reports`, e.g. `orders/by-date`.
+ * @param params            - Query params of the report request.
+ * @param options           - Request options, as `fetchReportWithHeaders` takes them.
+ * @param options.execution - The provider to force, or `auto`.
+ * @param options.fields    - The report fields the caller reads; omitted, the whole report.
+ * @return The report response.
+ */
+export async function fetchReport< TResponse = unknown >(
+	endpoint: string,
+	params?: ReportRequestParams,
+	options?: { execution?: ReportExecution; fields?: string[] }
+): Promise< TResponse > {
+	return ( await fetchReportWithHeaders< TResponse >( endpoint, params, options ) ).body;
 }

@@ -56,7 +56,7 @@ class Report_Executor {
 	 * @param string|null $execution     The validated override, or null when the request names none.
 	 * @param string|null $fields        Comma-separated fields the caller reads, or null for the whole report.
 	 * @param bool        $force_refresh Whether to skip caches.
-	 * @return array|WP_Error The handler's payload with its provenance, or an error with a `reason`.
+	 * @return array|WP_Error The handler's payload, described, or an error with a `reason`.
 	 */
 	public function execute( $route, array $params, $execution = null, $fields = null, $force_refresh = false ) {
 		$definition = $this->registry->get_definition_for_route( $route );
@@ -85,7 +85,7 @@ class Report_Executor {
 			return $invalid;
 		}
 
-		return self::with_provenance( $payload, $provider, $handler, $query );
+		return self::describe_result( $payload, $provider, $handler, $query );
 	}
 
 	/**
@@ -262,7 +262,8 @@ class Report_Executor {
 	}
 
 	/**
-	 * Add the provenance to the payload: a `provenance` key on an object body, and headers either way.
+	 * Name the provider and contract in headers, and add `unsupported_fields` to the body when the
+	 * handler serves only part of the contract. Other responses keep their body as it came.
 	 *
 	 * @param array          $payload  The handler's payload.
 	 * @param string         $provider Provider name.
@@ -270,31 +271,22 @@ class Report_Executor {
 	 * @param Report_Query   $query    The request.
 	 * @return array
 	 */
-	private static function with_provenance( array $payload, $provider, Report_Handler $handler, Report_Query $query ) {
+	private static function describe_result( array $payload, $provider, Report_Handler $handler, Report_Query $query ) {
 		$definition = $query->definition;
 		$capability = $handler->get_capability();
-		$provenance = array(
-			'provider'           => $provider,
-			'contract'           => $definition->id . '@' . $definition->version,
-			'generated_at'       => gmdate( 'c', (int) ( $payload['generated_at'] ?? time() ) ),
-			'fields'             => $query->fields,
-			'unsupported_fields' => null === $definition->fields || '*' === $capability['fields'] ? array() : array_values( array_diff( array_keys( $definition->fields ), $capability['fields'] ) ),
-			'deviations'         => (object) $capability['deviations'],
-			'datasets'           => $definition->datasets,
-		);
+		$missing    = null === $definition->fields || '*' === $capability['fields'] ? array() : array_values( array_diff( array_keys( $definition->fields ), $capability['fields'] ) );
 
-		if ( is_object( $payload['data'] ) ) {
-			$payload['data']->provenance = $provenance;
-		} elseif ( is_array( $payload['data'] ) && ! wp_is_numeric_array( $payload['data'] ) ) {
-			$payload['data']['provenance'] = $provenance;
+		if ( $missing && is_object( $payload['data'] ) ) {
+			$payload['data']->unsupported_fields = $missing;
+		} elseif ( $missing && is_array( $payload['data'] ) && ! wp_is_numeric_array( $payload['data'] ) ) {
+			$payload['data']['unsupported_fields'] = $missing;
 		}
 
 		$payload['headers'] = array_merge(
 			(array) $payload['headers'],
 			array(
-				'X-Jetpack-Report-Provider'     => $provenance['provider'],
-				'X-Jetpack-Report-Contract'     => $provenance['contract'],
-				'X-Jetpack-Report-Generated-At' => $provenance['generated_at'],
+				'X-Jetpack-Report-Provider' => $provider,
+				'X-Jetpack-Report-Contract' => $definition->id . '@' . $definition->version,
 			)
 		);
 

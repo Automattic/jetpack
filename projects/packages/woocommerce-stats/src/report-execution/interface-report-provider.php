@@ -17,7 +17,7 @@ use WP_Error;
 interface Report_Provider {
 
 	/**
-	 * The provider's name, as the `execution` param and the provenance name it.
+	 * The provider's name, as the `execution` param and the response header name it.
 	 *
 	 * @return string
 	 */

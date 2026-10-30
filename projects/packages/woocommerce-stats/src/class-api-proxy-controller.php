@@ -228,10 +228,9 @@ class Api_Proxy_Controller {
 		}
 
 		$payload = array(
-			'data'         => $data,
-			'status'       => $status,
-			'headers'      => $this->get_forwarded_headers( wp_remote_retrieve_headers( $response ) ),
-			'generated_at' => time(),
+			'data'    => $data,
+			'status'  => $status,
+			'headers' => $this->get_forwarded_headers( wp_remote_retrieve_headers( $response ) ),
 		);
 		if ( null !== $cache_key && 200 === $status ) {
 			set_transient( $cache_key, $payload, self::CACHE_TTL );

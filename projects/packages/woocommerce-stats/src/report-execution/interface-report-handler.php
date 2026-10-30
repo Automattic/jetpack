@@ -43,7 +43,7 @@ interface Report_Handler {
 	 * Serve the request in the wpcom report shape.
 	 *
 	 * @param Report_Query $query The request.
-	 * @return array|WP_Error `data`, `status`, `headers`, and optionally `generated_at`.
+	 * @return array|WP_Error `data`, `status` and `headers`.
 	 */
 	public function run( Report_Query $query );
 }
