@@ -20,11 +20,11 @@ const services: Services = {
 	visible: [ 'facebook', 'x' ],
 	hidden: [ 'email' ],
 	services: [
-		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false, legacy: false },
-		{ id: 'x', name: 'X', custom: false, deprecated: false, legacy: false },
-		{ id: 'email', name: 'Email', custom: false, deprecated: false, legacy: false },
-		{ id: 'mastodon', name: 'Mastodon', custom: false, deprecated: false, legacy: false },
-		{ id: 'acme', name: 'Acme', custom: false, deprecated: false, legacy: false },
+		{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
+		{ id: 'x', name: 'X', custom: false, deprecated: false },
+		{ id: 'email', name: 'Email', custom: false, deprecated: false },
+		{ id: 'mastodon', name: 'Mastodon', custom: false, deprecated: false },
+		{ id: 'acme', name: 'Acme', custom: false, deprecated: false },
 	],
 };
 
@@ -33,7 +33,6 @@ const lobsters = {
 	name: 'Lobsters',
 	custom: true,
 	deprecated: false,
-	legacy: false,
 	url: 'https://l.example/?u=%post_url%',
 	icon: 'https://l.example/i.png',
 };
@@ -63,7 +62,6 @@ function respond( list: Services = services ) {
 				id: 'custom-1',
 				custom: true,
 				deprecated: false,
-				legacy: false,
 				...( data as object ),
 			} );
 		}
@@ -314,7 +312,7 @@ describe( 'ServicesManager', () => {
 			visible: [ 'facebook' ],
 			services: [
 				...services.services,
-				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true, legacy: false },
+				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true },
 				{ id: 'twitter', name: 'X', custom: false, deprecated: false, legacy: true },
 			],
 		} );

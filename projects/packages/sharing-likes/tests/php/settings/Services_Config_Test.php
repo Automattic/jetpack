@@ -38,7 +38,7 @@ class Services_Config_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$_POST = array();
-		unset( $GLOBALS['sharing_likes_test_global_options'], $GLOBALS['sharing_likes_test_services'] );
+		unset( $GLOBALS['sharing_likes_test_global_options'] );
 
 		remove_all_filters( 'wp_redirect' );
 		remove_all_actions( 'sharing_global_options' );
@@ -154,17 +154,5 @@ class Services_Config_Test extends BaseTestCase {
 		$this->assertIsInt( $third_party );
 		$this->assertLessThan( $heading, $resources );
 		$this->assertLessThan( $third_party, $heading );
-	}
-
-	public function test_available_services_leave_out_legacy_ones(): void {
-		$GLOBALS['sharing_likes_test_services'] = array( 'x', 'legacy' );
-
-		ob_start();
-		( new Services_Config() )->render();
-		$markup = (string) ob_get_clean();
-
-		$this->assertSame( 1, preg_match( '#<ul class="services-available"[^>]*>(.*?)</ul>#s', $markup, $available ) );
-		preg_match_all( '#<li [^>]*id="([^"]+)"#', $available[1], $ids );
-		$this->assertSame( array( 'x' ), $ids[1] );
 	}
 }

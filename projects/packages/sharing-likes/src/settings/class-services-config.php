@@ -54,8 +54,7 @@ final class Services_Config {
 						<ul class="services-available" style="height: 100px;">
 							<?php foreach ( $sharer->get_all_services_blog() as $id => $service ) : ?>
 								<?php
-								$is_legacy = method_exists( $service, 'is_legacy' ) && $service->is_legacy();
-								if ( ! isset( $enabled['all'][ $id ] ) && ! $is_legacy ) {
+								if ( ! isset( $enabled['all'][ $id ] ) ) {
 										$this->output_service( $id, $service );
 								}
 								?>

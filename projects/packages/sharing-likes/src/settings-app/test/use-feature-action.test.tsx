@@ -207,8 +207,8 @@ describe( 'useFeatureAction', () => {
 			visible: [ 'facebook', 'x' ],
 			hidden: [],
 			services: [
-				{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false, legacy: false },
-				{ id: 'x', name: 'X', custom: false, deprecated: false, legacy: false },
+				{ id: 'facebook', name: 'Facebook', custom: false, deprecated: false },
+				{ id: 'x', name: 'X', custom: false, deprecated: false },
 			],
 		};
 		let resolvePut!: ( value: Services ) => void;
