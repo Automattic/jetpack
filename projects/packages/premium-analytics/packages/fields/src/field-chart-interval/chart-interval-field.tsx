@@ -21,7 +21,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { WIDGET_HEADER_TRIGGER_PROPS } from '../helpers/widget-header-trigger';
-import type { ReportParamsFieldAttributes } from '../report-params-field/report-params-field';
+import type { ReportParamsFieldAttributes } from '../field-report-params';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
