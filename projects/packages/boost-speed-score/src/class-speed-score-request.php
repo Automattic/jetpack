@@ -112,13 +112,11 @@ class Speed_Score_Request extends Cacheable {
 	 * Url::normalize() is no use here: it also removes the query argument that keeps the
 	 * "without Boost" scores apart from the regular ones.
 	 *
-	 * @since $$next-version$$
-	 *
 	 * @param string $url The URL.
 	 *
 	 * @return string
 	 */
-	public static function canonicalize_url( $url ) {
+	private static function canonicalize_url( $url ) {
 		$path_length = strcspn( $url, '?#' );
 
 		return rtrim( substr( $url, 0, $path_length ), '/' ) . substr( $url, $path_length );

@@ -65,13 +65,14 @@ class Speed_Score_History {
 			return;
 		}
 
+		// The raw options, because a translation plugin's home_url filter would migrate only that language's record.
 		// The first build can run under cron, where the home URL can have another scheme than in the admin.
 		foreach ( array( 'http', 'https' ) as $scheme ) {
-			$home_url = rtrim( set_url_scheme( home_url(), $scheme ), '/' );
+			$home_url = rtrim( set_url_scheme( get_option( 'home' ), $scheme ), '/' );
 
 			// My Jetpack saved the home page's scores under the site URL, which differs when WordPress lives in a subdirectory.
 			// Match schemes first: under cron or CLI the two can differ by scheme alone, which isn't a subdirectory install.
-			$site_url = rtrim( set_url_scheme( get_site_url(), $scheme ), '/' );
+			$site_url = rtrim( set_url_scheme( get_option( 'siteurl' ), $scheme ), '/' );
 
 			foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
 				$legacy_urls = array( $home_url . '/' . $query );

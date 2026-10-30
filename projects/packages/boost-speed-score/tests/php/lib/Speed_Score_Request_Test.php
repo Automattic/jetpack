@@ -59,7 +59,10 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->options      = array();
+		$this->options      = array(
+			'home'    => 'http://example.com',
+			'siteurl' => 'http://example.com',
+		);
 		$this->autoload     = array();
 		$this->theme_name   = 'Twenty Twenty-Four';
 		$this->api_response = array();
@@ -331,16 +334,17 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Provide the spelling holding the newest old record.
+	 * Provide the spelling holding the newest old record, and what home_url() says on the first build.
 	 *
 	 * @return array[]
 	 */
 	public static function old_records() {
 		return array(
-			'no slash is newest'            => array( 'http://example.com' ),
-			'slash is newest'               => array( 'http://example.com/' ),
-			'site URL is newest'            => array( 'http://example.com/wp' ),
-			'site URL with slash is newest' => array( 'http://example.com/wp/' ),
+			'no slash is newest'             => array( 'http://example.com' ),
+			'slash is newest'                => array( 'http://example.com/' ),
+			'site URL is newest'             => array( 'http://example.com/wp' ),
+			'site URL with slash is newest'  => array( 'http://example.com/wp/' ),
+			'translation filter on home_url' => array( 'http://example.com/', 'http://example.com/fr' ),
 		);
 	}
 
@@ -361,10 +365,12 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 * @dataProvider old_records
 	 *
 	 * @param string $newest_spelling The spelling holding the newest old record.
+	 * @param string $home_url        What home_url() returns during the first build.
 	 */
 	#[DataProvider( 'old_records' )]
-	public function test_first_build_migrates_the_newest_old_record( $newest_spelling ) {
-		Functions\when( 'get_site_url' )->justReturn( 'http://example.com/wp' );
+	public function test_first_build_migrates_the_newest_old_record( $newest_spelling, $home_url = 'http://example.com' ) {
+		$this->options['siteurl'] = 'http://example.com/wp';
+		Functions\when( 'home_url' )->justReturn( $home_url );
 
 		$old    = array(
 			'mobile'  => 67,
@@ -380,7 +386,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( $newest, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
 
-		$this->assertSame( array( $this->history_option_name(), Speed_Score_History::LEGACY_MIGRATED_OPTION ), array_keys( $this->options ) );
+		$this->assertSame( array( 'home', 'siteurl', $this->history_option_name(), Speed_Score_History::LEGACY_MIGRATED_OPTION ), array_keys( $this->options ) );
 		$this->assertTrue( $this->autoload[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] );
 	}
 
@@ -426,14 +432,6 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 */
 	public function test_build_reads_no_old_keys_once_migrated() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
-		$this->seed_old_record(
-			'http://example.com/',
-			array(
-				'mobile'  => 67,
-				'desktop' => 63,
-			),
-			1000
-		);
 
 		$reads = array();
 		Functions\when( 'get_option' )->alias(
@@ -450,15 +448,15 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
-	 * The old "without Boost" record stays readable, so dropping the query part can't lose it.
+	 * The old "without Boost" record moves too, so dropping the query part can't lose it.
 	 */
-	public function test_history_reads_the_old_comparison_record() {
+	public function test_migration_moves_the_old_comparison_record() {
 		$scores = array(
 			'mobile'  => 50,
 			'desktop' => 60,
 		);
 
-		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/?jb-disable-modules=all' ) ] = array( $this->entry( $scores, time() - 1000 ) );
+		$this->seed_old_record( 'http://example.com/?jb-disable-modules=all', $scores, 1000 );
 
 		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com?jb-disable-modules=all' ) )->latest_scores() );
 	}

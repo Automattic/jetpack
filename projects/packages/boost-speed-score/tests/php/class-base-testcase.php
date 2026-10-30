@@ -20,8 +20,6 @@ abstract class Base_TestCase extends TestCase {
 	protected function set_up() {
 		Monkey\setUp();
 		Monkey\Functions\stubEscapeFunctions();
-		Monkey\Functions\when( 'home_url' )->justReturn( 'http://example.com' );
-		Monkey\Functions\when( 'get_site_url' )->justReturn( 'http://example.com' );
 		Monkey\Functions\when( 'set_url_scheme' )->alias(
 			function ( $url, $scheme ) {
 				return preg_replace( '#^\w+://#', $scheme . '://', $url );
