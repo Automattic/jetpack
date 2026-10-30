@@ -936,7 +936,13 @@ describe( 'BaseLegend', () => {
 					<GlobalChartsProvider>
 						<BaseLegend
 							items={ [
-								{ label: 'Previous period', color: '#000', seriesLabels: [ 'Views' ], onToggle },
+								{
+									label: 'Previous period',
+									color: '#000',
+									seriesLabels: [ 'Views' ],
+									pressed: false,
+									onToggle,
+								},
 							] }
 							interactive
 							chartId="test-chart"
@@ -965,7 +971,7 @@ describe( 'BaseLegend', () => {
 			render(
 				<GlobalChartsProvider>
 					<BaseLegend
-						items={ [ { label: 'Previous period', color: '#000', onToggle } ] }
+						items={ [ { label: 'Previous period', color: '#000', pressed: false, onToggle } ] }
 						interactive
 						chartId="test-chart"
 					/>

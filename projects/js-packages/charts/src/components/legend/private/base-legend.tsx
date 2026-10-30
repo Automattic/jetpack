@@ -284,7 +284,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const itemInteractive = interactive && matchedItem?.interactive !== false;
 							const onToggle = itemInteractive ? matchedItem?.onToggle : undefined;
 							const visible = matchedItem?.onToggle
-								? matchedItem.pressed === true
+								? matchedItem.pressed
 								: matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
 							const handleClick = createClickHandler( seriesLabels, itemInteractive, onToggle );
 							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive, onToggle );
