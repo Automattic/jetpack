@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes\REST;
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Response;
 
@@ -99,13 +100,30 @@ class Services_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_option( 'sharing-services' ) );
 	}
 
-	public function test_flags_a_deprecated_service(): void {
-		$GLOBALS['sharing_likes_test_services'][] = 'deprecated';
+	/**
+	 * @param string $flag Service ID, which the test double also uses as the flag it sets.
+	 * @dataProvider provide_flags
+	 */
+	#[DataProvider( 'provide_flags' )]
+	public function test_flags_a_service( string $flag ): void {
+		$GLOBALS['sharing_likes_test_services'][] = $flag;
 
-		$services = array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'deprecated', 'id' );
+		$services = array_column( $this->request( 'GET', 'services' )->get_data()['services'], $flag, 'id' );
 
-		$this->assertTrue( $services['deprecated'] );
+		$this->assertTrue( $services[ $flag ] );
 		$this->assertFalse( $services['x'] );
+	}
+
+	/**
+	 * Flags the screen reads to leave a service out of the ones it offers.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_flags(): array {
+		return array(
+			'shut down' => array( 'deprecated' ),
+			'legacy'    => array( 'legacy' ),
+		);
 	}
 
 	public function test_saving_services_drops_unknown_ones_and_any_listed_twice(): void {
@@ -209,6 +227,7 @@ class Services_Controller_Test extends BaseTestCase {
 				'name'       => 'Mastodon Deluxe',
 				'custom'     => true,
 				'deprecated' => false,
+				'legacy'     => false,
 				'url'        => 'https://example.com/share?u=%post_url%',
 				'icon'       => 'https://example.com/icon.png',
 			),

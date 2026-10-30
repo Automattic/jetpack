@@ -98,7 +98,6 @@ export function ContactSupportLine( { code }: { code?: string | null } ) {
 			a: (
 				<Link
 					openInNewTab
-					className="jpb-backup-status__link"
 					// Omitted rather than passed as undefined — see `useSiteSuffix`.
 					href={ getRedirectUrl( 'jetpack-contact-support', site ) }
 				/>
@@ -109,11 +108,7 @@ export function ContactSupportLine( { code }: { code?: string | null } ) {
 	return (
 		<>
 			{ support }{ ' ' }
-			<Link
-				openInNewTab
-				className="jpb-backup-status__link"
-				href={ getRedirectUrl( troubleDocSlug( code ), site ) }
-			>
+			<Link openInNewTab href={ getRedirectUrl( troubleDocSlug( code ), site ) }>
 				{ __( 'Learn more', 'jetpack-backup-pkg' ) }
 			</Link>
 		</>

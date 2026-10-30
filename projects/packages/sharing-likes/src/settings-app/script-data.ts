@@ -28,3 +28,21 @@ export function getPlacementChoices(): PlacementChoice[] {
 export function isPrivateSite(): boolean {
 	return getSharingLikesScriptData()?.private_site ?? false;
 }
+
+/**
+ * Whether new posts start with comments closed. Each post can still open its own.
+ *
+ * @return Whether they are closed.
+ */
+export function commentsClosedByDefault(): boolean {
+	return getSharingLikesScriptData()?.comments_closed_by_default ?? false;
+}
+
+/**
+ * Settings > Discussion, where the default for new posts is set.
+ *
+ * @return URL, or an empty string if the page printed no script data.
+ */
+export function getDiscussionSettingsUrl(): string {
+	return getSharingLikesScriptData()?.discussion_settings_url ?? '';
+}

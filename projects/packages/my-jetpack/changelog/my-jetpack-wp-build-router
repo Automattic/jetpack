@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Move the dashboard to the wp-build router. Links in the older #/ form still open the same screen.

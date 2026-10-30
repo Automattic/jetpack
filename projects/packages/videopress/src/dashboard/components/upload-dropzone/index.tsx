@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { EmptyState, Text } from '@wordpress/ui';
+import RecordVideoButton from '../../../client/components/video-recording';
 import {
 	FREE_TIER_AT_LIMIT_MESSAGE,
 	FREE_TIER_AT_LIMIT_NOTICE_ID,
@@ -144,6 +145,9 @@ const UploadDropzone = ( {
 
 	const onSurfaceClick = useCallback(
 		( event: MouseEvent< HTMLDivElement > ) => {
+			if ( ! event.currentTarget.contains( event.target as Node ) ) {
+				return;
+			}
 			// The picker button lives inside this surface and opens the picker
 			// itself, so its click has to stop here or the file dialog would be
 			// asked for twice.
@@ -256,6 +260,7 @@ const UploadDropzone = ( {
 				) : (
 					pickerButton
 				) }
+				<RecordVideoButton onRecorded={ file => onFiles( [ file ] ) } disabled={ disabled } />
 			</div>
 			<input
 				ref={ inputRef }
