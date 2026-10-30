@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Offer a single X button when adding sharing buttons on the React version of Settings > Sharing. Sites that already use the older X (Twitter) button keep it.

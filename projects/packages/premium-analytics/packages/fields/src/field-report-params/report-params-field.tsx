@@ -3,6 +3,7 @@
  */
 import {
 	ReportScopeProvider,
+	useReportScope,
 	chartInterval,
 	getDefaultPreset,
 	getDefaultReportParams,
@@ -15,8 +16,10 @@ import {
 import {
 	type ComparisonPresetId,
 	type IntervalType,
+	MENU_SURFACE_PRESET_GROUPS,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
+	parseSiteDateTime,
 	reportingTimeZone,
 	type DateRange,
 	type PrimaryPresetId,
@@ -29,7 +32,7 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 /**
@@ -52,6 +55,12 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
+	/**
+	 * Where the All time preset starts, as the report returns the entity's publication
+	 * date. A host rendering the field as page chrome passes it in the item; a widget
+	 * instance never persists it.
+	 */
+	allTimeStart?: string;
 };
 
 /**
@@ -127,6 +136,7 @@ function createReportParamsField( {
 				{ ...props }
 				withIntervalControl={ withIntervalControl }
 				grain={ grain }
+				triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
 			/>
 		);
 
@@ -166,14 +176,62 @@ export function reportParamsAttributeField<
 	};
 }
 
+// The presets a `jpa/report-params` attribute may list as `elements`: the ones the menu can show.
+const DECLARABLE_PRESET_IDS: readonly string[] = MENU_SURFACE_PRESET_GROUPS.flat();
+
+/**
+ * The `jpa/report-params` control: a date range over the presets the attribute's `elements`
+ * list, with All time anchored on the item's `allTimeStart` when it carries one. No bucket
+ * control; whether a comparison is offered is the host scope's call, and so is the attention
+ * it draws when a widget sets the period. The trigger keeps the panel's default look: a page
+ * header is not a widget header.
+ *
+ * @param {DataFormControlProps< Partial< ReportParamsFieldAttributes > >} props - The DataForm control props.
+ * @return The control.
+ */
+export function ReportParamsField(
+	props: DataFormControlProps< Partial< ReportParamsFieldAttributes > >
+) {
+	const { elements } = props.field;
+	const { attentionId } = useReportScope();
+	const presetIds = useMemo( () => {
+		const ids = ( elements ?? [] )
+			.map( element => element.value )
+			.filter( ( value ): value is QuickSurfacePresetId =>
+				DECLARABLE_PRESET_IDS.includes( value )
+			);
+
+		return ids.length ? ids : undefined;
+	}, [ elements ] );
+
+	return (
+		<ReportParamsControl
+			{ ...props }
+			grain={ presetIds ? { presetIds } : undefined }
+			withIntervalControl={ false }
+			attentionId={ attentionId }
+		/>
+	);
+}
+
 function ReportParamsControl( {
 	data: attributes,
 	onChange,
 	withIntervalControl,
 	grain,
-}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > & ReportParamsFieldOptions ) {
+	attentionId,
+	triggerProps,
+}: DataFormControlProps< Partial< ReportParamsFieldAttributes > > &
+	ReportParamsFieldOptions & {
+		attentionId?: number;
+		triggerProps?: DateControlTriggerProps;
+	} ) {
 	const { presetIds, periods } = grain ?? {};
 	const committed = attributes?.reportParams ?? NO_REPORT_PARAMS;
+	const allTimeStart = useMemo(
+		() => parseSiteDateTime( attributes?.allTimeStart ),
+		[ attributes?.allTimeStart ]
+	);
 
 	const saveReportParams = useCallback(
 		( next: ReportParams ) => onChange( { reportParams: next } ),
@@ -331,6 +389,7 @@ function ReportParamsControl( {
 	return (
 		<DateFiltersPanel
 			range={ range }
+			attentionId={ attentionId }
 			appliedPresetId={ appliedParams.preset }
 			appliedRange={ appliedRange }
 			comparisonPresetId={
@@ -342,8 +401,9 @@ function ReportParamsControl( {
 			canApply={ isDateRangeDirty }
 			onCancel={ revert }
 			timeZone={ reportingTimeZone() }
-			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
+			triggerProps={ triggerProps }
 			presetIds={ presetIds }
+			allTimeStart={ allTimeStart }
 			withIntervalControl={ withIntervalControl }
 			interval={ interval }
 			intervalOptions={ intervalOptions }

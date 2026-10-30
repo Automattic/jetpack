@@ -45,6 +45,8 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 			placement_choices: placementChoices,
 			multibyte_supported: true,
 			private_site: false,
+			comments_closed_by_default: false,
+			discussion_settings_url: 'https://example.com/wp-admin/options-discussion.php',
 			...overrides,
 		},
 	};

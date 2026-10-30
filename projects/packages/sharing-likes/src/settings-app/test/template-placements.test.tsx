@@ -185,11 +185,25 @@ describe( 'TemplatePlacements', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'sharing', 'Sharing Buttons block' ],
+		[ 'likes', 'Like block' ],
+	] as const )( 'says the %s placement covers pages, naming the %s', ( feature, block ) => {
+		renderCards( feature, [], { page_template_editor_url: PAGE_TEMPLATE_URL } );
+
+		expect(
+			screen.getByText(
+				`Your choice applies to pages too. To place the ${ block } differently on pages,`,
+				{ exact: false }
+			)
+		).toContainElement( screen.getByText( 'edit the page template' ) );
+	} );
+
 	it.each( [ PAGE_TEMPLATE_URL, '' ] )( 'links the page template only with a URL: "%s"', url => {
 		renderCards( 'sharing', [], { page_template_editor_url: url } );
 
 		// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
-		expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
+		expect( screen.queryByText( 'edit the page template' )?.getAttribute( 'href' ) ).toBe(
 			url || undefined
 		);
 		expect(
@@ -233,7 +247,7 @@ describe( 'TemplatePlacements', () => {
 			);
 			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Preview and edit' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Your choice applies to pages too/ ) ).not.toBeInTheDocument();
 		}
 	);
 

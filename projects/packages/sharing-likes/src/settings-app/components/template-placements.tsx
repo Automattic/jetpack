@@ -28,7 +28,7 @@ const NONE = 'none';
 const NONE_ITEM_RENDER = <Stack gap="sm" align="center" />;
 
 /**
- * The copy for each feature, one complete sentence per string.
+ * The copy for each feature, no sentence split across strings.
  *
  * @param feature - Feature.
  * @return Copy.
@@ -42,6 +42,16 @@ function copyFor( feature: Feature ) {
 			single: __( 'Edit the post template', 'jetpack-sharing-likes' ),
 			page: __( 'Edit the page template', 'jetpack-sharing-likes' ),
 		},
+		pageTemplate:
+			feature === 'sharing'
+				? __(
+						'Your choice applies to pages too. To place the Sharing Buttons block differently on pages, <link>edit the page template</link>.',
+						'jetpack-sharing-likes'
+					)
+				: __(
+						'Your choice applies to pages too. To place the Like block differently on pages, <link>edit the page template</link>.',
+						'jetpack-sharing-likes'
+					),
 	};
 
 	if ( feature === 'sharing' ) {
@@ -186,13 +196,9 @@ export function TemplatePlacements( {
 					</RadioCardGrid>
 					{ urls.page && (
 						<Text render={ <p /> }>
-							{ createInterpolateElement(
-								__(
-									'Want pages to look different? <link>Edit the page template</link>.',
-									'jetpack-sharing-likes'
-								),
-								{ link: <Link href={ urls.page } /> }
-							) }
+							{ createInterpolateElement( copy.pageTemplate, {
+								link: <Link href={ urls.page } />,
+							} ) }
 						</Text>
 					) }
 				</SettingGroup>

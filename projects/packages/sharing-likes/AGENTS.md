@@ -80,6 +80,14 @@ saved template, cards read as if they still moved its block. The stored choice
 keeps applying to the templates the Site Editor hasn't taken over (`singular`,
 `page-*`, custom ones), with no control for it here until the notice goes.
 
+## Share destinations
+
+`Share_Destination` turns an address a reader types into a sharing button's modal
+(a Mastodon instance, their own site) into an endpoint URL on that host, and gives
+the URL that reopens the modal when the address can't be used. The Jetpack
+plugin's Mastodon handlers, in the Sharing module and the Sharing Button block,
+call it behind `class_exists()` with their old handling as the fallback.
+
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
