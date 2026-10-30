@@ -483,30 +483,33 @@ describe( 'useReportDateFilters', () => {
 
 	// The route redirects a window before the plan's earliest date to the
 	// fallback preset with a notice, so the step has to refuse it first.
-	it( 'refuses a step before the earliest date the plan allows', () => {
+	it( 'keeps a stepped window custom when the plan locks the preset it lands on', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const scope = ( { children }: { children: ReactNode } ) => (
 			<ReportScopeProvider
-				dateLimits={ {
-					lockedPresetIds: [],
-					lockedIntervals: [],
-					earliestDate: new TZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
-				} }
+				dateLimits={ { lockedPresetIds: [ 'last-year' ], lockedIntervals: [] } }
 			>
 				{ children }
 			</ReportScopeProvider>
 		);
-		const { result } = renderDateFilters(
+		const { result, rerender } = renderDateFilters(
 			{
-				from: '2026-07-01T00:00:00.000+00:00',
-				to: '2026-07-07T23:59:59.999+00:00',
-				preset: 'last-7-days',
+				from: '2024-01-01T00:00:00.000+00:00',
+				to: '2024-12-31T23:59:59.999+00:00',
+				preset: 'custom',
+				interval: 'month',
 			},
 			scope
 		);
 
-		act( () => result.current.onStep( 'previous' ) );
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
 
-		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-01-01T00:00:00.000+00:00',
+			to: '2025-12-31T23:59:59.999+00:00',
+			preset: 'custom',
+		} );
 	} );
 
 	it( 'replaces the current entry when the page reconciles the range', () => {
@@ -672,6 +675,7 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it( 'steps the month to date back to the whole month before, comparison included', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-29T12:00:00.000Z' ) );
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-10-01T00:00:00.000+00:00',
 			to: '2026-10-29T23:59:59.999+00:00',

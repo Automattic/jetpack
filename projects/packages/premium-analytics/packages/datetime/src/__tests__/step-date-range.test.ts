@@ -278,8 +278,8 @@ describe( 'canStepForward', () => {
 		expect( canStepForward( next!, now ) ).toBe( false );
 	} );
 
-	// The month in progress is the bucket `now` sits in, so the month before it
-	// can step forward into it; the month to date itself cannot.
+	// The month or year in progress is the bucket `now` sits in, so the one
+	// before it can step forward into it; the month or year to date cannot.
 	it.each( [
 		[ 'the month before', wholeDays( at( 2026, 6, 1 ), at( 2026, 6, 30 ) ), 'last-month', true ],
 		[
@@ -288,6 +288,8 @@ describe( 'canStepForward', () => {
 			'month-to-date',
 			false,
 		],
+		[ 'last year', wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) ), 'last-year', true ],
+		[ 'the year to date', wholeDays( at( 2026, 1, 1 ), at( 2026, 7, 27 ) ), 'year-to-date', false ],
 		[ 'all time', wholeDays( at( 2020, 1, 1 ), at( 2026, 7, 27 ) ), 'all-time', false ],
 	] as const )( 'is %s on %s', ( _name, range, presetId, expected ) => {
 		expect( canStepForward( range, now, { presetId } ) ).toBe( expected );

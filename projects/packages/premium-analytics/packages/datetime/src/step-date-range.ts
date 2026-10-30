@@ -152,7 +152,7 @@ export function stepDateRange(
 	range: DateRange,
 	direction: StepDirection,
 	options: StepOptions = {}
-): DateRange | undefined {
+): Required< DateRange > | undefined {
 	// All time has no neighbour to step to.
 	if ( options.presetId === PRESET_ALL_TIME ) {
 		return undefined;
@@ -183,11 +183,18 @@ export function stepDateRange(
 	return shift( from, to, 'day', sign * days );
 }
 
+/** Whether the window is one or more whole calendar years. */
+function isWholeCalendarYears( from: Date, to: Date ): boolean {
+	return from.getMonth() === 0 && from.getDate() === 1 && to.getMonth() === 11 && to.getDate() === 31;
+}
+
 /**
  * Whether there is a later window to step into.
  *
  * The next window qualifies once it ends within the bucket `now` sits in, so a
- * live preset ending in the running hour or day stays reachable.
+ * live preset ending in the running hour or day stays reachable. A calendar
+ * year looks ahead to the end of this year, so "Last year" can step into the
+ * year to date.
  *
  * @param range   - The window to test.
  * @param now     - The instant to compare against.
@@ -199,16 +206,15 @@ export function canStepForward( range: DateRange, now: Date, options: StepOption
 	const span = from && to ? getStepSpan( from, to, options.presetId ) : null;
 	const next = stepDateRange( range, 'next', options );
 
-	if ( ! span || ! next?.to ) {
+	if ( ! span || ! next ) {
 		return false;
 	}
 
 	// Anchored to the window's own timezone, so a site offset from the browser
 	// closes its buckets on its own clock.
 	const timeZone = range.to && 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
-	const horizon = END_OF_BUCKET[ span.unit ](
-		timeZone ? new TZDate( now.getTime(), timeZone ) : now
-	);
+	const unit = isWholeCalendarYears( from as Date, to as Date ) ? 'year' : span.unit;
+	const horizon = END_OF_BUCKET[ unit ]( timeZone ? new TZDate( now.getTime(), timeZone ) : now );
 
 	return next.to.getTime() <= horizon.getTime();
 }
@@ -229,7 +235,7 @@ export function canStepBackward(
 	const { earliestDate, ...stepOptions } = options;
 	const previous = stepDateRange( range, 'previous', stepOptions );
 
-	if ( ! previous?.from ) {
+	if ( ! previous ) {
 		return false;
 	}
 

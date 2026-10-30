@@ -33,10 +33,9 @@ export {
 	canStepForward,
 	canStepBackward,
 	type StepDirection,
-	type StepOptions,
 } from './step-date-range';
-export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
-export { findSelectablePresetForRange } from './preset-for-range';
+export { clampRangeEndToToday } from './to-date-range';
+export { findSelectablePresetForRange, type FindPresetOptions } from './preset-for-range';
 
 export { drillDateRange } from './drill-date-range';
 

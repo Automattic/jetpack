@@ -263,7 +263,8 @@ stepDateRange( { from, to }, 'previous', { presetId: 'last-month' } ); // the mo
 #### `canStepForward( range, now, options? )`
 
 Whether the next window has already happened in full. Pass the site's `now`,
-not the browser's.
+not the browser's. A window of whole calendar years looks ahead to the end of
+this year, so "Last year" can step into the year to date.
 
 #### `canStepBackward( range, options? )`
 

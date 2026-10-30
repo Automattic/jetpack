@@ -30,6 +30,26 @@ describe( 'findSelectablePresetForRange', () => {
 		}
 	);
 
+	it( 'names a window two presets cover as the calendar one when stepped from a calendar preset', () => {
+		// On the 30th the month to date is also the last 30 days.
+		jest.setSystemTime( Date.parse( '2026-08-30T12:00:00.000Z' ) );
+		const range = computePrimaryRange( 'month-to-date', TIMEZONE )!;
+
+		expect( findSelectablePresetForRange( range, TIMEZONE ) ).toBe( 'last-30-days' );
+		expect( findSelectablePresetForRange( range, TIMEZONE, { presetId: 'last-month' } ) ).toBe(
+			'month-to-date'
+		);
+		jest.setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+	} );
+
+	it( 'never names a window as an excluded preset', () => {
+		const range = computePrimaryRange( 'last-7-days', TIMEZONE )!;
+
+		expect(
+			findSelectablePresetForRange( range, TIMEZONE, { exclude: [ 'last-7-days' ] } )
+		).toBeUndefined();
+	} );
+
 	it( 'names nothing for a window a step moved off every preset', () => {
 		const { from, to } = computePrimaryRange( 'last-7-days', TIMEZONE )!;
 

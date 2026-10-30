@@ -10,7 +10,6 @@ import {
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import {
-	canStepBackward,
 	clampRangeEndToToday,
 	findSelectablePresetForRange,
 	PRESET_CUSTOM,
@@ -145,7 +144,7 @@ export function useReportDateFilters< TFrom extends string >(
 	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
 	const scopedLocks = useScopeLockedIntervals();
 	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
-	const earliestDate = useReportScope().dateLimits?.earliestDate;
+	const lockedPresetIds = useReportScope().dateLimits?.lockedPresetIds;
 
 	const timeZone = reportingTimeZone();
 
@@ -282,20 +281,12 @@ export function useReportDateFilters< TFrom extends string >(
 	/*
 	 * Commits and pushes a history entry so Back undoes the step. Steps the
 	 * applied range, not the staged one: the arrows sit outside the picker, so
-	 * stepping must not apply an open draft. A step before the plan's earliest
-	 * date is refused here too, since the route would redirect it away.
+	 * stepping must not apply an open draft. Whether a step is available is
+	 * the panel's call, which reads the plan's earliest date from its scope.
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
 			const stepOptions = { presetId: appliedPresetId };
-
-			if (
-				direction === 'previous' &&
-				! canStepBackward( appliedRange, { ...stepOptions, earliestDate } )
-			) {
-				return undefined;
-			}
-
 			const stepped = stepDateRange( appliedRange, direction, stepOptions );
 
 			if ( ! stepped ) {
@@ -307,7 +298,12 @@ export function useReportDateFilters< TFrom extends string >(
 			const nextRange = clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) );
 			// Landing exactly on a preset's window reads as that preset again, so a
 			// step forward to today gives "Last 7 days" back rather than its dates.
-			const nextPresetId = findSelectablePresetForRange( nextRange, timeZone ) ?? PRESET_CUSTOM;
+			// Never as a preset the plan locks, which the route would redirect away.
+			const nextPresetId =
+				findSelectablePresetForRange( nextRange, timeZone, {
+					...stepOptions,
+					exclude: lockedPresetIds,
+				} ) ?? PRESET_CUSTOM;
 			const patch = buildRangePatch( {
 				nextRange,
 				nextPresetId,
@@ -329,9 +325,9 @@ export function useReportDateFilters< TFrom extends string >(
 			appliedPresetId,
 			appliedRange,
 			commit,
-			earliestDate,
 			effective,
 			lockedIntervals,
+			lockedPresetIds,
 			stage,
 			timeZone,
 		]
