@@ -91,4 +91,9 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 	 * Actions beside the page options, such as View post.
 	 */
 	headerActions?( summary: Summary ): ReactNode;
+
+	/*
+	 * The not-found notice's sentence, whole for translators; a page without one names no kind.
+	 */
+	notFoundDescription?(): string;
 };

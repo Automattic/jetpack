@@ -328,6 +328,8 @@ describe( 'single-report stage', () => {
 			video: {
 				useSummary: mockUseSummary,
 				headerSlots: jest.requireActual( '../pages/video/video-header-slots' ).videoHeaderSlots,
+				notFoundDescription:
+					jest.requireActual( '../pages/video' ).videoAdapter.notFoundDescription,
 			},
 		};
 		jest.mocked( useWidgetTypesWithI18n ).mockReturnValue( [ [], false ] );

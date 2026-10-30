@@ -231,11 +231,9 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	} else if ( summary.isNotFound ) {
 		notice = {
 			intent: 'info',
-			description: sprintf(
-				/* translators: %s: the entity kind, lowercase, e.g. "video". */
-				__( "We couldn't find this %s.", 'jetpack-premium-analytics-pkg' ),
-				page.label.toLowerCase()
-			),
+			description:
+				adapter.notFoundDescription?.() ??
+				__( "We couldn't find what you were looking for.", 'jetpack-premium-analytics-pkg' ),
 			...( reportsPage
 				? {
 						link: {
