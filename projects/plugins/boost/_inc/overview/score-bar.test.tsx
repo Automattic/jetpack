@@ -43,7 +43,7 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 	'shows generating instead of scores without another announcement: %j',
 	pending => {
 		render( <ScoreBar state={ { ...state, ...pending } } /> );
-		expect( screen.getByText( 'Calculating score…' ) ).toBeVisible();
+		expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 		expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
 		const progress = within( screen.getByTestId( 'score-bar' ) ).getByRole( 'progressbar', {
@@ -67,7 +67,7 @@ test( 'shows an error instead of generating when no scores have loaded', () => {
 		/>
 	);
 	expect( screen.getByText( 'Failed to load speed scores' ) ).toBeVisible();
-	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'alert', { hidden: true } ) ).not.toBeInTheDocument();
 } );
 
@@ -101,7 +101,7 @@ test( 'retains scores during a plain refetch, matching the card', () => {
 	expect(
 		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText( '80' )
 	).toBeVisible();
-	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 } );
 
 test( 'reveals completed scores in both surfaces with a motion-safe CSS entry', () => {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Say "Checking site speed…" instead of "Calculating…" while a speed test runs.
