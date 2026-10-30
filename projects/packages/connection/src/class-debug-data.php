@@ -201,6 +201,8 @@ class Debug_Data {
 		/**
 		 * Filters the fields of the Jetpack section in Site Health › Info.
 		 *
+		 * The IDC and connection test fields are added after this runs, so they stay last and can't be overwritten.
+		 *
 		 * @since $$next-version$$
 		 *
 		 * @param array $fields Fields keyed by ID, each with a `label`, a `value` and a `private` flag.

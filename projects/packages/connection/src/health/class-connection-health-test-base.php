@@ -381,7 +381,7 @@ class Connection_Health_Test_Base {
 	 */
 	protected function helper_get_support_url() {
 		/**
-		 * Filters the Jetpack support URL used in connection health tests.
+		 * Filters the Jetpack support URL used in connection health tests and the Site Health Info section.
 		 *
 		 * @since 8.5.0
 		 *
