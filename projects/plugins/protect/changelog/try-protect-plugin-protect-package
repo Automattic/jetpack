@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace the Protect dashboard with the new one shared with the Jetpack plugin, including Downtime Monitor and WordPress.com login settings.
