@@ -9,6 +9,11 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Query;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -47,6 +52,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		do_action( 'rest_api_init' );
+		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
@@ -66,6 +72,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		remove_all_actions( Report_Registry::REGISTER_ACTION );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -168,6 +175,166 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'no_connection', $response->get_data()['code'] );
 		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_serves_a_cached_report_on_a_site_that_lost_its_connection() {
+		$this->get_report();
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$response = $this->get_report();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * @dataProvider data_widget_routes
+	 *
+	 * @param string $route Route a widget requests, forwarded exactly as sent.
+	 */
+	#[DataProvider( 'data_widget_routes' )]
+	public function test_forwards_every_route_the_widgets_read( $route ) {
+		$this->assertSame( 200, $this->get_report( $route )->get_status() );
+		$this->assertStringContainsString( '/sites/4242/analytics/reports/' . $route . '?', $this->requests[0]['url'] );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function data_widget_routes() {
+		$routes = array(
+			'bookings/by-date',
+			'coupons/',
+			'coupons/by-date',
+			'customers/by-date',
+			'customers/new-returning',
+			'order-attribution/channel/summary',
+			'order-attribution/source/summary',
+			'order-attribution/campaign/summary',
+			'order-attribution-by-product/channel/summary',
+			'orders/by-date',
+			'orders-by-product-type/by-date',
+			'products',
+			'sessions/by-conversion-rate',
+			'sessions/by-date',
+			'sessions/by-device',
+			'sessions/by-location',
+		);
+
+		return array_combine( $routes, array_map( fn( $route ) => array( $route ), $routes ) );
+	}
+
+	public function test_answers_unknown_report_for_a_route_without_a_definition() {
+		$response = $this->get_report( 'orders/by-week' );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'unknown_report', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_refuses_an_unknown_execution_value() {
+		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'execution' => 'mars' ) )->get_status() );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {
+		$response = $this->get_report( 'orders/by-date', array( 'execution' => 'local' ) );
+
+		$this->assertSame( 422, $response->get_status() );
+		$this->assertSame( 'unsupported_provider', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @dataProvider data_remote_executions
+	 *
+	 * @param string $execution Value of the `execution` param.
+	 */
+	#[DataProvider( 'data_remote_executions' )]
+	public function test_never_forwards_the_execution_param_and_shares_the_cache( $execution ) {
+		$this->get_report();
+		$this->get_report( 'orders/by-date', array( 'execution' => $execution ) + array( 'force_refresh' => '1' ) );
+		$cached = $this->get_report( 'orders/by-date', array( 'execution' => $execution ) );
+
+		$this->assertSame( 200, $cached->get_status() );
+		$this->assertCount( 2, $this->requests );
+		$this->assertStringNotContainsString( 'execution', $this->requests[1]['url'] );
+	}
+
+	/**
+	 * @dataProvider data_remote_executions
+	 *
+	 * @param string $execution Value of the `execution` param.
+	 */
+	#[DataProvider( 'data_remote_executions' )]
+	public function test_answers_needs_connection_when_a_request_names_a_provider( $execution ) {
+		$this->get_report();
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$response = $this->get_report( 'orders/by-date', array( 'execution' => $execution ) );
+
+		$this->assertSame( 503, $response->get_status() );
+		$this->assertSame( 'needs_connection', $response->get_data()['code'] );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function data_remote_executions() {
+		return array(
+			'auto'   => array( 'auto' ),
+			'remote' => array( 'remote' ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_registered_reports
+	 *
+	 * @param string $route Route requested.
+	 */
+	#[DataProvider( 'data_registered_reports' )]
+	public function test_serves_a_report_handler_registered_through_the_hook( $route ) {
+		$handler = new class() implements Report_Handler {
+			/**
+			 * Answer with the report's id.
+			 *
+			 * @param Report_Query $query The request.
+			 * @return array
+			 */
+			public function run( Report_Query $query ) {
+				return array(
+					'data'    => array( 'id' => $query->definition->id ),
+					'status'  => 200,
+					'headers' => array(),
+				);
+			}
+		};
+		add_action(
+			Report_Registry::REGISTER_ACTION,
+			static function ( Report_Registry $registry ) use ( $handler ) {
+				$registry->register_report( new Report_Definition( 'owner.report', 0, array( 'owner/report' ) ) );
+				$registry->register_handler( 'owner.report', 'remote', $handler );
+				$registry->register_handler( 'orders.by_date', 'remote', $handler );
+			}
+		);
+
+		$response = $this->get_report( $route );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( '.', $response->get_data()['id'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function data_registered_reports() {
+		return array(
+			'a new report'                 => array( 'owner/report' ),
+			'a handler that beats the `*`' => array( 'orders/by-date' ),
+		);
 	}
 
 	public function test_caches_a_report_by_path_and_params() {
