@@ -6,9 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
@@ -17,7 +15,6 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
-	sharePercentage,
 	useWidgetDrillDown,
 	useReportActions,
 	useWidgetRootContext,
@@ -103,13 +100,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = getCombinedPeriodMax(
-			activeData.map( item => item.value ),
-			withComparison ? activeData.map( item => item.previousValue ) : []
-		);
-
 		return activeData.map( ( item, index ) => {
-			const previousValue = item.previousValue;
 			const postRow = 'postId' in item ? item : null;
 			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
@@ -145,19 +136,10 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 							} ),
 						} ) ),
 				currentValue: item.value,
-				currentShare: sharePercentage( item.value, maxValue ),
-				previousValue,
-				previousShare:
-					withComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					withComparison && previousValue !== undefined
-						? calculateDelta( item.value, previousValue )
-						: undefined,
+				previousValue: item.previousValue,
 			};
 		} );
-	}, [ activeData, isDrillDown, reportSection, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
