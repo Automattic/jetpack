@@ -19,7 +19,7 @@ class Speed_Score_History {
 	const STALE_TRANSIENT_KEY = 'speed_score_stale_marker';
 
 	/**
-	 * Set once the scores saved under older URL spellings have moved. Autoloaded, so checking it costs no query.
+	 * Mark the raw home and site URL migration as complete. Autoloaded, so checking it costs no query.
 	 */
 	const LEGACY_MIGRATED_OPTION = 'jetpack_boost_speed_score_legacy_migrated';
 
@@ -79,7 +79,7 @@ class Speed_Score_History {
 	}
 
 	/**
-	 * Move the scores saved under older URL spellings to the keys used now, once per site.
+	 * Migrate older spellings of the raw home and site URLs once per site.
 	 *
 	 * The marker is set last, so a request arriving midway repeats the work rather than finding no
 	 * scores and starting a new test.
@@ -114,9 +114,6 @@ class Speed_Score_History {
 
 	/**
 	 * Move the newest of the older records to the given URL's key, unless its own record is newer.
-	 *
-	 * The canonical spelling is the one My Jetpack used to write to, so it can hold scores older
-	 * than the ones the Boost dashboard showed.
 	 *
 	 * @param string   $url         The URL as it is keyed now.
 	 * @param string[] $legacy_urls The spellings its scores may have been saved under.
