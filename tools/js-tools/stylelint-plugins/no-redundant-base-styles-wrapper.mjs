@@ -19,7 +19,10 @@ const messages = ruleMessages( ruleName, {
 const declaresBaseStylesCache = new Map();
 
 /**
- * Whether the nearest package.json above a directory declares `@wordpress/base-styles`.
+ * Whether any package.json from a directory up to its project root declares `@wordpress/base-styles`.
+ *
+ * Nested package.json files (wp-build routes, `packages/init`) list no dependencies, so the
+ * walk continues to the project root, which is the directory holding `composer.json`.
  *
  * @param {string} dir - Directory to start from.
  * @return {boolean} Whether the dependency is declared.
@@ -36,7 +39,9 @@ function declaresBaseStyles( dir ) {
 			pkg.dependencies?.[ '@wordpress/base-styles' ] ||
 			pkg.devDependencies?.[ '@wordpress/base-styles' ]
 		);
-	} else if ( path.dirname( dir ) !== dir ) {
+	}
+	const isProjectRoot = fs.existsSync( path.join( dir, 'composer.json' ) );
+	if ( ! declares && ! isProjectRoot && path.dirname( dir ) !== dir ) {
 		declares = declaresBaseStyles( path.dirname( dir ) );
 	}
 	declaresBaseStylesCache.set( dir, declares );
