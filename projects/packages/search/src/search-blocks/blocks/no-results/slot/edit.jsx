@@ -15,25 +15,31 @@ import { __ } from '@wordpress/i18n';
 
 const CONDITIONS = [ 'any', 'filtered', 'error' ];
 
-// Mirrors `No_Results::render_default_copy()`. An unscoped variant previews both lines even though
-// a visitor only ever sees one, so the author sees every state the variant covers.
+const normalizeCondition = stored => ( CONDITIONS.includes( stored ) ? stored : 'any' );
+
+// Mirrors `No_Results::render_default_copy()`. An unscoped variant yields the filtered state to a
+// `filtered` sibling on the front end, so it previews the filtered line only when there is none.
 // A function, not a constant, so the `__()` calls run after the editor's i18n is loaded rather than
 // being cached in the source locale at module init.
-const defaultMessages = condition => {
+const defaultMessages = ( condition, hasFilteredSibling ) => {
 	if ( condition === 'error' ) {
-		return [ __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) ];
+		return [ { text: __( 'Something went wrong. Please try again.', 'jetpack-search-pkg' ) } ];
 	}
-	const messages = [];
-	if ( condition !== 'filtered' ) {
-		messages.push( __( 'No results found. Try a different search.', 'jetpack-search-pkg' ) );
-	}
-	messages.push(
-		__(
-			'No results match these filters. Try clearing some, or searching for something else.',
-			'jetpack-search-pkg'
-		)
+	const filtered = __(
+		'No results match these filters. Try clearing some, or searching for something else.',
+		'jetpack-search-pkg'
 	);
-	return messages;
+	if ( condition === 'filtered' ) {
+		return [ { text: filtered } ];
+	}
+	const unfiltered = __( 'No results found. Try a different search.', 'jetpack-search-pkg' );
+	if ( hasFilteredSibling ) {
+		return [ { text: unfiltered } ];
+	}
+	return [
+		{ label: __( 'Without filters', 'jetpack-search-pkg' ), text: unfiltered },
+		{ label: __( 'With filters', 'jetpack-search-pkg' ), text: filtered },
+	];
 };
 
 // Keyed rather than branched: a `return __( … )` per branch reads better but
@@ -41,21 +47,37 @@ const defaultMessages = condition => {
 // computed msgid, which `i18n-check-webpack-plugin` rejects and which would
 // leave the strings untranslatable.
 export const conditionLabels = () => ( {
-	any: __( 'Any empty search', 'jetpack-search-pkg' ),
-	filtered: __( 'Filters are active', 'jetpack-search-pkg' ),
-	error: __( 'Search failed', 'jetpack-search-pkg' ),
+	any: __( 'Any Empty Search', 'jetpack-search-pkg' ),
+	filtered: __( 'Filters Are Active', 'jetpack-search-pkg' ),
+	error: __( 'Search Failed', 'jetpack-search-pkg' ),
+} );
+
+const conditionDescriptions = () => ( {
+	any: __( 'Shown when a search finds no results.', 'jetpack-search-pkg' ),
+	filtered: __(
+		'Shown when a search with filters applied finds no results.',
+		'jetpack-search-pkg'
+	),
+	error: __( 'Shown when the search request fails.', 'jetpack-search-pkg' ),
 } );
 
 /**
- * Per-condition display name for a variant, used as the block's `__experimentalLabel` so List view,
- * the breadcrumb, and the block toolbar name the condition instead of repeating the block title.
+ * One variation per condition, so the settings sidebar, List view, and breadcrumb all name the
+ * condition. Scoped out of the inserter and the block switcher: a variant's condition never changes.
  *
- * @param {object} attributes - Block attributes.
- * @return {string} The condition's label.
+ * @return {object[]} Block variations.
  */
-export const conditionLabel = attributes => {
-	const stored = attributes?.condition;
-	return conditionLabels()[ CONDITIONS.includes( stored ) ? stored : 'any' ];
+export const conditionVariations = () => {
+	const labels = conditionLabels();
+	const descriptions = conditionDescriptions();
+	return CONDITIONS.map( condition => ( {
+		name: condition,
+		title: labels[ condition ],
+		description: descriptions[ condition ],
+		attributes: { condition },
+		scope: [],
+		isActive: attributes => normalizeCondition( attributes?.condition ) === condition,
+	} ) );
 };
 
 /**
@@ -67,13 +89,16 @@ export const conditionLabel = attributes => {
  * @return {object} Rendered element.
  */
 export default function NoResultsSlotEdit( { attributes, clientId } ) {
-	const stored = attributes?.condition;
-	const condition = CONDITIONS.includes( stored ) ? stored : 'any';
-	const { hasInnerBlocks, isActive } = useSelect(
+	const condition = normalizeCondition( attributes?.condition );
+	const { hasInnerBlocks, hasFilteredSibling, isActive } = useSelect(
 		select => {
 			const editor = select( blockEditorStore );
 			return {
 				hasInnerBlocks: editor.getBlockCount( clientId ) > 0,
+				// Stands in for the front end's page-global `hasScopedNoResultsFiltered`: one container per page.
+				hasFilteredSibling: editor
+					.getBlockOrder( editor.getBlockRootClientId( clientId ) )
+					.some( id => editor.getBlockAttributes( id )?.condition === 'filtered' ),
 				isActive:
 					editor.isBlockSelected( clientId ) || editor.hasSelectedInnerBlock( clientId, true ),
 			};
@@ -90,10 +115,23 @@ export default function NoResultsSlotEdit( { attributes, clientId } ) {
 			: 'jetpack-search-no-results__variant jetpack-search-no-results--default',
 	} );
 
+	const messages = hasInnerBlocks ? [] : defaultMessages( condition, hasFilteredSibling );
+
 	return (
 		<div { ...blockProps } data-testid="no-results-variant">
-			{ ! hasInnerBlocks &&
-				defaultMessages( condition ).map( message => <p key={ message }>{ message }</p> ) }
+			{ messages.map( ( { label, text } ) => (
+				<p key={ text }>
+					{ label && <span className="jetpack-search-no-results__preview-label">{ label }</span> }
+					{ text }
+				</p>
+			) ) }
+			{ messages.length > 0 && (
+				<p className="jetpack-search-no-results__hint">
+					{ messages.length > 1
+						? __( 'Default messages. Add blocks to replace them.', 'jetpack-search-pkg' )
+						: __( 'Default message. Add blocks to replace it.', 'jetpack-search-pkg' ) }
+				</p>
+			) }
 			{ /* Never unmount `InnerBlocks`: the drop target comes from `useInnerBlocksProps`, and
 			     without it a drag onto an unselected variant resolves to the container, which rejects
 			     it. See AGENTS.md's "InnerBlocks appender boundary trap". */ }
