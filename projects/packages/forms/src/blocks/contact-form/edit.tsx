@@ -69,7 +69,9 @@ import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-o
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
+import useDeprecatedThankYouMigration from './shared/hooks/use-deprecated-thank-you-migration.js';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
+import useSingleInputFieldRequired from './shared/hooks/use-single-input-field-required.js';
 import { getAutoRecipient } from './util/auto-recipient.ts';
 import { getEditorContext } from './util/get-editor-context.ts';
 import { isCollectingResponses } from './util/is-collecting-responses.ts';
@@ -146,23 +148,6 @@ const PRIORITIZED_INSERTER_BLOCKS = ( () => {
 	];
 } )();
 
-// Determine if a block has a required attribute. Exclude hidden fields.
-const isInputWithRequiredField = ( fullName?: string ): boolean => {
-	if ( ! fullName || ! fullName.startsWith( 'jetpack/' ) ) return false;
-	const baseName = fullName.slice( 'jetpack/'.length );
-	const field = childBlocks.find( block => block.name === baseName );
-	// @ts-expect-error: childBlocks are defined in JS without explicit types.
-	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
-	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
-	const isHidden = field?.name === 'field-hidden';
-	const isImplicitConsent =
-		field?.name === 'field-consent' &&
-		// @ts-expect-error: childBlocks are defined in JS without explicit types.
-		// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
-		field?.settings?.attributes?.consentType !== 'explicit';
-	return hasRequired && ! isHidden && ! isImplicitConsent;
-};
-
 type CustomThankyouType =
 	| '' // default message
 	| 'noSummary' // default message without a summary
@@ -228,7 +213,6 @@ function JetpackContactFormEdit( {
 		ref,
 		to,
 		subject,
-		customThankyou,
 		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
@@ -260,20 +244,13 @@ function JetpackContactFormEdit( {
 		errorType: syncedFormErrorType,
 	} = useSyncedForm( ref );
 
+	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
+		useDispatch( blockEditorStore );
+
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
 	// and not a disableSummary attribute, so we need to set it here.
-	useEffect( () => {
-		// Migrate redirect setting from deprecated customThankyou attribute
-		if ( customThankyou === 'redirect' && confirmationType !== 'redirect' ) {
-			setAttributes( { confirmationType: 'redirect' } );
-		}
-
-		// Migrate disableSummary from deprecated customThankyou attribute
-		if ( [ 'noSummary', 'message' ].includes( customThankyou ) && ! disableSummary ) {
-			setAttributes( { disableSummary: true } );
-		}
-	}, [ confirmationType, customThankyou, disableSummary, setAttributes ] );
+	useDeprecatedThankYouMigration( { attributes, setAttributes } );
 
 	const steps = useFormSteps( clientId );
 
@@ -437,9 +414,6 @@ function JetpackContactFormEdit( {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
-		useDispatch( blockEditorStore );
-
 	const { editEntityRecord } = useDispatch( coreStore );
 	const { setActiveStep } = useDispatch( singleStepStore );
 
@@ -487,26 +461,6 @@ function JetpackContactFormEdit( {
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
 
-	// Helper function to identify input field blocks
-	const getInputFieldBlocks = useCallback( blocks => {
-		const inputFields = [];
-
-		const findInputFields = blockList => {
-			blockList.forEach( block => {
-				if ( isInputWithRequiredField( block.name ) ) {
-					inputFields.push( block );
-				}
-				// Recursively check inner blocks (for multistep forms)
-				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
-					findInputFields( block.innerBlocks );
-				}
-			} );
-		};
-
-		findInputFields( blocks );
-		return inputFields;
-	}, [] );
-
 	// Effect to handle block insertion and reordering
 	useEffect( () => {
 		const currentBlockCount = currentInnerBlocks.length;
@@ -547,21 +501,8 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
-	// Effect to automatically make single input fields required
-	useEffect( () => {
-		const inputFields = getInputFieldBlocks( currentInnerBlocks );
-
-		// Only proceed if there's exactly one input field
-		if ( inputFields.length === 1 ) {
-			const singleField = inputFields[ 0 ];
-
-			// Check if the field is not already required
-			if ( ! singleField.attributes?.required ) {
-				// Update the field to be required
-				updateBlockAttributes( singleField.clientId, { required: true } );
-			}
-		}
-	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
+	// A form with a single field has nothing to submit unless that field is filled in.
+	useSingleInputFieldRequired( { innerBlocks: currentInnerBlocks } );
 
 	// Helper function to get all field blocks (blocks with width attribute)
 	const getFieldBlocks = useCallback( ( blocks: typeof currentInnerBlocks ) => {

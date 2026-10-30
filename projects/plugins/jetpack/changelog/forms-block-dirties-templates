@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: stop the form block from marking a post, template, or template part as having unsaved changes the moment it loads.
