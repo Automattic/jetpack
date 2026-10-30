@@ -88,7 +88,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Severity labels', 'jetpack-my-jetpack' ),
-				free: { included: false, label: NOT_INCLUDED },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
