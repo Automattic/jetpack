@@ -213,64 +213,6 @@ class Jetpack_WP_Admin_SPA {
 		return $submenu_file;
 	}
 
-	/**
-	 * Make sidebar clicks navigate the router instead of loading a new page.
-	 *
-	 * @return void
-	 */
-	public static function print_menu_script() {
-		if ( ! self::is_spa_request() ) {
-			return;
-		}
-		?>
-		<script>
-		( () => {
-			const menu = document.getElementById( 'adminmenu' );
-			if ( ! menu ) {
-				return;
-			}
-			const slug = <?php echo wp_json_encode( self::PAGE_SLUG ); ?>;
-			const links = [ ...menu.querySelectorAll( `.wp-submenu a[href*="page=${ slug }"]` ) ];
-			const routeOf = ( link ) => new URL( link.href ).searchParams.get( 'p' ) || '';
-
-			// Keep the Jetpack menu open and highlight the entry whose route owns the current `p`.
-			const markActive = () => {
-				const current = new URL( window.location.href ).searchParams.get( 'p' ) || '/';
-				const match = links
-					.filter( ( link ) => current === routeOf( link ) || current.startsWith( routeOf( link ) + '/' ) || current.startsWith( routeOf( link ) + '?' ) )
-					.sort( ( a, b ) => routeOf( b ).length - routeOf( a ).length )[ 0 ];
-				const top = document.getElementById( 'toplevel_page_jetpack' );
-				if ( top ) {
-					menu.querySelectorAll( 'li.wp-has-current-submenu' ).forEach( ( li ) => {
-						li.classList.replace( 'wp-has-current-submenu', 'wp-not-current-submenu' );
-						li.classList.remove( 'wp-menu-open' );
-					} );
-					top.classList.remove( 'wp-not-current-submenu' );
-					top.classList.add( 'wp-has-current-submenu', 'wp-menu-open' );
-					top.querySelector( ':scope > a' )?.classList.add( 'wp-has-current-submenu', 'wp-menu-open' );
-				}
-				menu.querySelectorAll( '.wp-submenu .current' ).forEach( ( el ) => el.classList.remove( 'current' ) );
-				match?.classList.add( 'current' );
-				match?.parentElement.classList.add( 'current' );
-			};
-
-			// Tail of the router's own history: push, then tell it the location changed.
-			menu.addEventListener( 'click', ( event ) => {
-				const link = event.target.closest( `a[href*="page=${ slug }"]` );
-				if ( ! link || event.metaKey || event.ctrlKey || event.shiftKey || event.button ) {
-					return;
-				}
-				event.preventDefault();
-				const state = window.history.state || {};
-				window.history.pushState( { ...state, key: String( Date.now() ), __TSR_index: ( state.__TSR_index ?? 0 ) + 1 }, '', link.href );
-				window.dispatchEvent( new PopStateEvent( 'popstate' ) );
-			} );
-			window.addEventListener( 'popstate', markActive );
-			markActive();
-		} )();
-		</script>
-		<?php
-	}
 }
 
 add_action( 'admin_menu', array( 'Jetpack_WP_Admin_SPA', 'maybe_load_wp_build' ), 1 );
@@ -279,4 +221,3 @@ add_action( 'admin_init', array( 'Jetpack_WP_Admin_SPA', 'maybe_redirect_legacy_
 add_action( 'admin_head', array( 'Jetpack_WP_Admin_SPA', 'retarget_menu' ), 20 );
 add_filter( 'parent_file', array( 'Jetpack_WP_Admin_SPA', 'filter_parent_file' ) );
 add_filter( 'submenu_file', array( 'Jetpack_WP_Admin_SPA', 'filter_submenu_file' ) );
-add_action( 'admin_print_footer_scripts', array( 'Jetpack_WP_Admin_SPA', 'print_menu_script' ), 99 );
