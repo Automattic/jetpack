@@ -32,13 +32,31 @@ function runsPast( element: HTMLElement, box: HTMLElement ): boolean {
 	return left < start - 1 || right > end + 1;
 }
 
-type Clip = { text: string; boxWidth: number };
+// The box often sizes to its content, so once it shows shorter text it never
+// grows again on its own; growth is watched on the ancestors that size it too.
+const ANCESTORS_WATCHED = 4;
+
+/** The box and the ancestors above it whose growth earns the text another try. */
+function watchedBoxes( box: HTMLElement ): HTMLElement[] {
+	const boxes = [ box ];
+	for (
+		let node = box.parentElement;
+		node && node !== document.body && boxes.length <= ANCESTORS_WATCHED;
+		node = node.parentElement
+	) {
+		boxes.push( node );
+	}
+	return boxes;
+}
+
+type Clip = { text: string; widths: number[] };
 
 /**
  * Whether `text`, rendered in the element the returned ref is on, gets clipped
  * by the nearest ancestor that hides overflow. Once clipped it stays so until
- * that ancestor grows past the width it clipped at, so a shorter text swapped
- * in cannot bounce back. Never clipped where there is no ResizeObserver.
+ * that box or one of its ancestors grows past the width it clipped at, so a
+ * shorter text swapped in cannot bounce back. Never clipped where there is no
+ * ResizeObserver.
  *
  * @param text    - The text being measured; a new text is measured afresh.
  * @param enabled - Skip measuring (and the layout it forces) when false.
@@ -58,18 +76,20 @@ export function useIsClipped( text: string, enabled: boolean ) {
 		if ( ! box ) {
 			return;
 		}
+		const boxes = watchedBoxes( box );
+		const widths = () => boxes.map( node => node.clientWidth );
 		const check = () => {
 			if ( isClipped ) {
-				if ( box.clientWidth > ( clip as Clip ).boxWidth ) {
+				if ( widths().some( ( width, i ) => width > ( clip as Clip ).widths[ i ] ) ) {
 					setClip( null );
 				}
 			} else if ( runsPast( element, box ) ) {
-				setClip( { text, boxWidth: box.clientWidth } );
+				setClip( { text, widths: widths() } );
 			}
 		};
 		check();
 		const observer = new ResizeObserver( check );
-		observer.observe( box );
+		boxes.forEach( node => observer.observe( node ) );
 		return () => observer.disconnect();
 	}, [ enabled, text, isClipped, clip ] );
 
