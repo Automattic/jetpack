@@ -306,12 +306,14 @@ describe( 'ServicesManager', () => {
 		);
 	} );
 
-	it( 'offers only services the site does not use, and none that shut down', async () => {
+	it( 'offers only services the site does not use, and none that shut down or are legacy', async () => {
 		respond( {
 			...services,
+			visible: [ 'facebook' ],
 			services: [
 				...services.services,
 				{ id: 'pocket', name: 'Pocket', custom: false, deprecated: true },
+				{ id: 'twitter', name: 'X', custom: false, deprecated: false, legacy: true },
 			],
 		} );
 		const user = userEvent.setup();
@@ -326,6 +328,19 @@ describe( 'ServicesManager', () => {
 			within( dialog ).queryByRole( 'button', { name: 'Facebook' } )
 		).not.toBeInTheDocument();
 		expect( within( dialog ).queryByRole( 'button', { name: 'Pocket' } ) ).not.toBeInTheDocument();
+		// The legacy Twitter service is named X too.
+		expect( within( dialog ).getAllByRole( 'button', { name: 'X' } ) ).toHaveLength( 1 );
+
+		await user.click( within( dialog ).getByRole( 'button', { name: 'X' } ) );
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' ) ).toEqual( [
+				{
+					path: '/wpcom/v2/sharing-likes/services',
+					method: 'PUT',
+					data: { visible: [ 'facebook', 'x' ], hidden: [ 'email' ] },
+				},
+			] )
+		);
 	} );
 
 	it( 'creates a custom service once every field is filled in', async () => {

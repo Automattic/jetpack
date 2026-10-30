@@ -64,6 +64,7 @@ export interface Service {
 	name: string;
 	custom: boolean;
 	deprecated: boolean;
+	legacy?: boolean;
 	url?: string;
 	icon?: string;
 }
