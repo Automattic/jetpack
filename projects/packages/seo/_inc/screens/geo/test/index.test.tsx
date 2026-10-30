@@ -475,13 +475,13 @@ describe( 'GeoScreen (GEO tab) — paused SEO output', () => {
 	it.each( [
 		[
 			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
 			'Paused while Yoast SEO is active.',
 		],
 		[
 			'',
-			'Jetpack’s SEO output is turned off on this site. Your saved settings are kept.',
-			'Paused while Jetpack SEO is off.',
+			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+			'Paused on this site.',
 		],
 	] )(
 		'with "%s" in charge, explains it once and shows llms.txt saved but locked',

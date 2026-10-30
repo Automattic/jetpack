@@ -121,10 +121,10 @@ class Schema_Settings_Controller {
 			$message = $plugin
 				? sprintf(
 					/* translators: %s: name of the SEO plugin that manages the site's SEO, e.g. Yoast SEO. */
-					__( '%s is managing your site’s SEO, so Jetpack’s SEO output is paused. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+					__( '%s is managing your site’s SEO, so Jetpack has paused its structured data. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
 					$plugin
 				)
-				: __( 'Jetpack’s SEO output is turned off on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' );
+				: __( 'Jetpack’s structured data is turned off on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' );
 
 			return new \WP_Error(
 				'jetpack_seo_tools_disabled',

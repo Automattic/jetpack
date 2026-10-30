@@ -87,12 +87,12 @@ describe( 'OverviewScreen', () => {
 			[
 				'names the plugin that manages SEO',
 				'Yoast SEO',
-				'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
 			],
 			[
-				'says SEO output is off without a plugin',
+				'names what is turned off without a plugin',
 				'',
-				'Jetpack’s SEO output is turned off on this site. Your saved settings are kept.',
+				'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
 			],
 		] )( '%s', ( _, plugin, banner ) => {
 			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
@@ -111,6 +111,6 @@ describe( 'OverviewScreen', () => {
 	it( 'shows no banner while Jetpack owns the output', () => {
 		render( <OverviewScreen /> );
 
-		expect( screen.queryByText( /SEO output is/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
 	} );
 } );

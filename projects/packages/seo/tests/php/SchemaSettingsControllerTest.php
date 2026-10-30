@@ -86,11 +86,11 @@ class SchemaSettingsControllerTest extends TestCase {
 			$response = rest_get_server()->dispatch( $request );
 			$this->assertSame( 409, $response->get_status() );
 			$this->assertSame( 'jetpack_seo_tools_disabled', $response->get_data()['code'] );
-			// Same cause as the dashboard banner, naming the plugin when there is one.
-			$this->assertStringStartsWith(
+			// Names the paused output these routes feed, and the plugin when there is one.
+			$this->assertSame(
 				'jetpack_seo_conflicting_plugin' === $filter
-					? 'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused.'
-					: 'Jetpack’s SEO output is turned off on this site.',
+					? 'Yoast SEO is managing your site’s SEO, so Jetpack has paused its structured data. Your changes were not saved. Reload this page to see the current settings.'
+					: 'Jetpack’s structured data is turned off on this site. Your changes were not saved. Reload this page to see the current settings.',
 				$response->get_data()['message']
 			);
 			$this->assertSame( $schema, Schema_Settings::get_editable() );

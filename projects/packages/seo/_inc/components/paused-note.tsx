@@ -6,7 +6,7 @@ import type { FC } from 'react';
 
 // Module scope, so the production minifier can't fold the two lines into one
 // `__()` call. See feedback_i18n_ternary_minifier_fold.
-const offLabel = __( 'Paused while Jetpack SEO is off.', 'jetpack-seo' );
+const offLabel = __( 'Paused on this site.', 'jetpack-seo' );
 
 /**
  * The short line at the top of a card that is locked while Jetpack's SEO output is

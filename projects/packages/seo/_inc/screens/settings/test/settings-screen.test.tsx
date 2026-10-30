@@ -160,13 +160,13 @@ describe( 'Jetpack SEO output paused', () => {
 	it.each( [
 		[
 			'Yoast SEO',
-			'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.',
+			'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.',
 			'Paused while Yoast SEO is active.',
 		],
 		[
 			'',
-			'Jetpack’s SEO output is turned off on this site. Your saved settings are kept.',
-			'Paused while Jetpack SEO is off.',
+			'Jetpack’s SEO titles, descriptions, structured data and llms.txt are turned off on this site. Your saved settings are kept.',
+			'Paused on this site.',
 		],
 	] )(
 		'with "%s" in charge, explains it once and locks the cards it feeds',
@@ -208,8 +208,8 @@ describe( 'Jetpack SEO output paused', () => {
 	it( 'leaves everything alone while Jetpack owns the output', async () => {
 		render( <SettingsScreen form={ buildForm() } /> );
 
-		expect( screen.queryByText( /SEO output is/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /^Paused while/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /^Paused (while|on)/ ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'schema' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { paused: false } )

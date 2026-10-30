@@ -122,7 +122,7 @@ describe( 'ContentScreen — paused SEO output', () => {
 
 		expect(
 			screen.getByText(
-				'Yoast SEO is managing your site’s SEO, so Jetpack’s SEO output is paused. Your saved settings are kept. Deactivate Yoast SEO to use them.'
+				'Yoast SEO is managing your site’s SEO, so Jetpack has paused its SEO titles, descriptions, canonical URLs, structured data and llms.txt. Your saved settings are kept. Deactivate Yoast SEO to use them.'
 			)
 		).toBeInTheDocument();
 	} );
@@ -130,6 +130,6 @@ describe( 'ContentScreen — paused SEO output', () => {
 	it( 'shows no banner while Jetpack owns the output', () => {
 		render( <ContentScreen /> );
 
-		expect( screen.queryByText( /SEO output is/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /SEO titles, descriptions/ ) ).not.toBeInTheDocument();
 	} );
 } );

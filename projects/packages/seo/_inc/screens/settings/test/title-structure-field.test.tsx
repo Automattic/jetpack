@@ -254,7 +254,7 @@ describe( 'TitleStructureField', () => {
 		expand();
 
 		// One short line; the tab's banner explains the cause.
-		expect( screen.getByText( 'Paused while Jetpack SEO is off.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Paused on this site.' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Another SEO plugin/ ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
