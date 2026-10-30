@@ -34,12 +34,15 @@ class Jetpack_Debug_Data {
 	 * A dedication function instead of using Core functionality to allow for output in seconds.
 	 *
 	 * @since 7.3.0
+	 * @deprecated $$next-version$$ Nothing in Jetpack uses it any more.
 	 *
 	 * @param int $seconds Number of seconds to convert to human time.
 	 *
 	 * @return string Human readable time.
 	 */
 	public static function seconds_to_time( $seconds ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
 		$seconds = (int) $seconds;
 		$units   = array(
 			'week'   => WEEK_IN_SECONDS,
