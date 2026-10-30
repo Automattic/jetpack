@@ -643,4 +643,64 @@ class Scan_Section_Test extends BaseTestCase {
 		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
+
+	/**
+	 * Test that deleting an ignored threat's file moves it from Ignored to History as fixed.
+	 */
+	public function test_delete_threat_file_marks_an_ignored_threat_fixed() {
+		$dir = WP_CONTENT_DIR . '/uploads';
+		if ( ! is_dir( $dir ) ) {
+			mkdir( $dir, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( "$dir/protect-ignored-threat.php", '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
+		$ignored             = array(
+			'id'       => 9,
+			'status'   => 'ignored',
+			'filename' => '/htdocs/wp-content/uploads/protect-ignored-threat.php',
+		);
+		set_transient( Scan::HISTORY_CACHE, array( $ignored ), MINUTE_IN_SECONDS );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
+		$request->set_url_params( array( 'id' => '9' ) );
+
+		$response = Scan::delete_threat_file( $request );
+
+		$this->assertFileDoesNotExist( "$dir/protect-ignored-threat.php" );
+		$this->assertSame( 'fixed', $response['threat']['status'] );
+		$this->assertSame( array(), Scan::get_ignored_threats() );
+		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	/**
+	 * Scan paths, which start from Scan's own root, and whether each resolves to the test file.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_files() {
+		return array(
+			'Scan root differs from ours'        => array( '/htdocs/wp-content/uploads/protect-threat-file.php', true ),
+			'deleted plugin file, same basename' => array( '/htdocs/wp-content/plugins/gone/protect-threat-file.php', false ),
+			'traversal out of the site'          => array( '/htdocs/wp-content/../../../../../../../etc/passwd', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_files
+	 *
+	 * @param string $filename The path as Scan reports it.
+	 * @param bool   $is_found Whether it resolves to the uploaded test file.
+	 */
+	#[DataProvider( 'provide_threat_files' )]
+	public function test_threat_files_are_found_only_inside_the_site( $filename, $is_found ) {
+		$dir = WP_CONTENT_DIR . '/uploads';
+		if ( ! is_dir( $dir ) ) {
+			mkdir( $dir, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( "$dir/protect-threat-file.php", '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$path = self::call( 'locate_threat_file', $filename );
+		wp_delete_file( "$dir/protect-threat-file.php" );
+
+		$this->assertSame( $is_found ? realpath( $dir ) . '/protect-threat-file.php' : null, $path );
+	}
 }
