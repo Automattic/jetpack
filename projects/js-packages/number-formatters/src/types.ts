@@ -74,6 +74,13 @@ export interface NumberFormatCurrencyParams {
 	stripZeros?: boolean;
 
 	/**
+	 * Number of decimal places to show in place of the currency's own (eg: a store's price
+	 * decimals setting): an integer from 0 to 20, else ignored. It does not change the
+	 * `isSmallestUnit` divisor.
+	 */
+	decimals?: number;
+
+	/**
 	 * Changes function to treat number as an integer in the currency's smallest unit.
 	 *
 	 * Since rounding errors are common in floating point math, sometimes a price

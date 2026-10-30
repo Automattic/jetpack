@@ -32,6 +32,7 @@
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Storage_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/lcp/LCP_Invalidator_Test.php</exclude>
 			<exclude>tests/php/lib/Body_Close_Locator_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</exclude>
 			<exclude>tests/php/abilities/Boost_Abilities_Test.php</exclude>
@@ -48,6 +49,7 @@
 			<file>tests/php/modules/optimizations/lcp/LCP_Storage_Test.php</file>
 			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</file>
 			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</file>
+			<file>tests/php/modules/optimizations/lcp/LCP_Invalidator_Test.php</file>
 			<file>tests/php/lib/Body_Close_Locator_Test.php</file>
 			<file>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</file>
 			<file>tests/php/abilities/Boost_Abilities_Test.php</file>

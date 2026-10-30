@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 .backup-storage-space {
 
@@ -11,14 +11,14 @@
 
 		.components-popover__content {
 			min-width: 300px;
-			padding: gb.$grid-unit-20;
+			padding: variables.$grid-unit-20;
 		}
 	}
 
 	&__close-popover {
 		position: absolute;
-		right: gb.$grid-unit-20;
-		top: gb.$grid-unit-20;
+		right: variables.$grid-unit-20;
+		top: variables.$grid-unit-20;
 	}
 
 	&__button-section {

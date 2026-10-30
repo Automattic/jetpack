@@ -303,7 +303,9 @@ class Tracking {
 			$wpcom_user_data = $this->connection->get_connected_user_data( $user_id );
 			$wpcom_id        = $wpcom_user_data['ID'] ?? null;
 
-			if ( is_string( $wpcom_id ) ) {
+			// The connection reports the ID as an integer; anything else non-numeric would reach Tracks as `[object Object]`.
+			if ( ( is_int( $wpcom_id ) || ( is_string( $wpcom_id ) && ctype_digit( $wpcom_id ) ) ) && (int) $wpcom_id > 0 ) {
+				$wpcom_id = (string) $wpcom_id;
 				update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_id );
 
 				return array(

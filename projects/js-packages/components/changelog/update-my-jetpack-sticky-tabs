@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AdminPage: Add a `jp-admin-page__content` class to the content container.

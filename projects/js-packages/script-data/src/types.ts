@@ -62,7 +62,6 @@ export interface MyJetpackScriptData {
 		isBlockTheme: boolean;
 		isSharingBlockAvailable: boolean;
 		isLikeBlockAvailable: boolean;
-		activeThemeStylesheet: string;
 	};
 	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
 	assetsUrl?: string;

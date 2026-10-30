@@ -155,6 +155,13 @@ body.toplevel_page_jetpack-protect {
 		font-weight: 500;
 	}
 
+	// Text's default `pretty` still strands single words in these narrow columns.
+	&__heading,
+	&__title,
+	&__features .jp-protect-card__muted {
+		text-wrap: balance;
+	}
+
 	&__body {
 		display: flex;
 		gap: var(--wpds-dimension-gap-lg);

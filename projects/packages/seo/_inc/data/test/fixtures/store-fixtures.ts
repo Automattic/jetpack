@@ -47,7 +47,13 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 
 export const SEEDED_GEO: GeoState = {
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
+	llmsTxt: {
+		enabled: false,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+		disabled: false,
+		conflictingPlugin: '',
+	},
 	crawlers: {
 		catalog: [
 			{

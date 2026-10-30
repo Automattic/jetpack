@@ -162,6 +162,8 @@ export function LeaderboardChart( {
 				legendLabels={ legendLabels }
 				primaryColor={ barColor }
 				withOverlayLabel={ withOverlayLabel }
+				// Diverging bars would pull away from labels drawn over them.
+				negativeBars={ withOverlayLabel ? 'clamp' : 'diverge' }
 				showLegend={ false }
 				fitRows={ fitRows }
 				style={ style }

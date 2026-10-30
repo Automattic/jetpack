@@ -516,7 +516,6 @@ class Protect extends Hybrid_Product {
 	public static function get_protect_page_module_urls() {
 		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
 		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
 		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
 			return array();
 		}
@@ -554,7 +553,7 @@ class Protect extends Hybrid_Product {
 			parent::get_info(),
 			array(
 				'has_protect_page' => static::has_protect_page(),
-				'scan_results_url' => Scan::get_manage_url(),
+				'scan_results_url' => static::get_manage_url(),
 			)
 		);
 	}
@@ -587,11 +586,42 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Where a host has a paying site manage Scan, so the card, Scan results and Features tab agree.
+	 *
+	 * @return string The host's URL, or an empty string when the host sends none.
+	 */
+	private static function get_host_manage_url() {
+		// The standalone plugin's own page keeps the card, as its menu entry does on WoA.
+		if ( static::is_standalone_plugin_active() || ! static::has_paid_plan_for_product() ) {
+			return '';
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			true
+		);
+
+		return is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['manage_url'] ?? '' ) ) : '';
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		$host_url = static::get_host_manage_url();
+		if ( $host_url ) {
+			return $host_url;
+		}
+
 		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );

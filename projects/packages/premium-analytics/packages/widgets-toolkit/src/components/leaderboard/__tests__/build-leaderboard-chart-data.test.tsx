@@ -18,43 +18,20 @@ const ROWS: LeaderboardRowInput[] = [
 ];
 
 describe( 'buildLeaderboardChartData', () => {
-	it( 'shares every row against the largest value of either period when comparing', () => {
-		const data = buildLeaderboardChartData( ROWS, { hasComparison: true } );
-
-		expect( data.map( row => row.currentShare ) ).toEqual( [ 80, 40, 20 ] );
-		expect( data.map( row => row.previousShare ) ).toEqual( [ 100, undefined, 10 ] );
-		expect( data.map( row => row.delta ) ).toEqual( [ -20, undefined, 100 ] );
-	} );
-
-	it( 'ignores the previous values when the comparison is off', () => {
+	it( 'passes both period values through and leaves shares and deltas to the chart', () => {
 		const data = buildLeaderboardChartData( ROWS );
 
-		expect( data.map( row => row.currentShare ) ).toEqual( [ 100, 50, 25 ] );
-		expect( data.every( row => row.previousShare === undefined && row.delta === undefined ) ).toBe(
-			true
-		);
-		// The value still travels: the chart only draws it in comparison mode.
-		expect( data[ 0 ].previousValue ).toBe( 100 );
+		expect( data.map( row => row.currentValue ) ).toEqual( [ 80, 40, 20 ] );
+		expect( data.map( row => row.previousValue ) ).toEqual( [ 100, undefined, 10 ] );
+		expect(
+			data.some( row => [ 'currentShare', 'previousShare', 'delta' ].some( key => key in row ) )
+		).toBe( false );
 	} );
 
-	it( 'draws a negative value as an empty bar', () => {
-		const data = buildLeaderboardChartData(
-			[
-				{ id: 'a', label: 'Alpha', value: 80, previousValue: -20 },
-				{ id: 'b', label: 'Beta', value: -40 },
-			],
-			{ hasComparison: true }
-		);
-
-		expect( data.map( row => row.currentShare ) ).toEqual( [ 100, 0 ] );
-		expect( data[ 0 ].previousShare ).toBe( 0 );
-	} );
-
-	it( 'keeps the first maxRows rows and sizes the shares to them', () => {
+	it( 'keeps the first maxRows rows', () => {
 		const data = buildLeaderboardChartData( ROWS, { maxRows: 2 } );
 
 		expect( data.map( row => row.id ) ).toEqual( [ 'a', 'b' ] );
-		expect( data.map( row => row.currentShare ) ).toEqual( [ 100, 50 ] );
 	} );
 
 	it( 'defaults a row to no media and no action', () => {

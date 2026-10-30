@@ -402,4 +402,66 @@ class Tracking_Test extends TestCase {
 			),
 		);
 	}
+
+	/**
+	 * A connected user with no saved WordPress.com ID is identified by the ID the connection reports.
+	 *
+	 * @param mixed       $wpcom_id      The `ID` that get_connected_user_data() returns.
+	 * @param array       $expected      The identity expected.
+	 * @param string|null $expected_meta The ID expected to be saved, or null when nothing is saved.
+	 *
+	 * @dataProvider data_provider_test_identity_of_a_connected_user_without_saved_id
+	 */
+	#[DataProvider( 'data_provider_test_identity_of_a_connected_user_without_saved_id' )]
+	public function test_identity_of_a_connected_user_without_saved_id( $wpcom_id, $expected, $expected_meta ) {
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'is_user_connected', 'get_connected_user_data' ) )
+			->getMock();
+		$connection->method( 'is_user_connected' )->willReturn( true );
+		$connection->method( 'get_connected_user_data' )->willReturn( array( 'ID' => $wpcom_id ) );
+
+		$saved = null;
+		Monkey\Functions\when( 'get_user_meta' )->alias(
+			function ( $user_id, $key ) {
+				return 'jetpack_tracks_anon_id' === $key ? 'jetpack:anon' : '';
+			}
+		);
+		Monkey\Functions\when( 'update_user_meta' )->alias(
+			function ( $user_id, $key, $value ) use ( &$saved ) {
+				$saved = $value;
+			}
+		);
+		$_COOKIE['tk_ai'] = 'jetpack:anon';
+
+		$identity = ( new Tracking( 'jetpack', $connection ) )->tracks_get_identity( 1 );
+		unset( $_COOKIE['tk_ai'] );
+
+		$this->assertSame( $expected, $identity );
+		$this->assertSame( $expected_meta, $saved );
+	}
+
+	/**
+	 * Data provider for test_identity_of_a_connected_user_without_saved_id.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_identity_of_a_connected_user_without_saved_id() {
+		$wpcom = array(
+			'_ut' => 'wpcom:user_id',
+			'_ui' => '8735',
+		);
+		$anon  = array(
+			'_ut' => 'anon',
+			'_ui' => 'jetpack:anon',
+		);
+
+		return array(
+			'integer, as the connection returns it' => array( 8735, $wpcom, '8735' ),
+			'numeric string'                        => array( '8735', $wpcom, '8735' ),
+			'array, sent as [object Object] before' => array( array( 8735 ), $anon, null ),
+			'missing'                               => array( null, $anon, null ),
+			'non-numeric string'                    => array( 'abc', $anon, null ),
+			'zero'                                  => array( '0', $anon, null ),
+		);
+	}
 }

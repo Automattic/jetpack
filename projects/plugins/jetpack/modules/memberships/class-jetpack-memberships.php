@@ -1123,7 +1123,7 @@ class Jetpack_Memberships {
 		/**
 		 * Filter the format used for the subscriber count in the join others text.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.4
 		 *
 		 * @param string $format            Subscriber count format: 'short', 'rounded', or 'raw'. Default 'short'.
 		 * @param int    $subscribers_total Total number of subscribers.

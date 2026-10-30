@@ -91,6 +91,8 @@ export {
 	WidgetBackLink,
 	type WidgetBackLinkProps,
 	ExternalLink,
+	MarkAsSpamButton,
+	useMarkAsSpam,
 	type ExternalLinkProps,
 	InfoTip,
 	type InfoTipProps,
@@ -152,6 +154,7 @@ export {
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
+	UtmUrlBuilderDialog,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,
@@ -284,7 +287,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	calculateDelta,
 	flagUrl,
 	formatLegendLabels,
 	formatChartName,
@@ -295,8 +297,6 @@ export {
 	saveCsv,
 	type CsvColumn,
 	type CsvDateRange,
-	getCombinedPeriodMax,
-	sharePercentage,
 	getVideoPosterUrl,
 	describeError,
 	summaryCount,

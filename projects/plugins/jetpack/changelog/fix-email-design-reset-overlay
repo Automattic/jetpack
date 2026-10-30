@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Email design: Keep the saved design on screen while resetting it to the defaults.
