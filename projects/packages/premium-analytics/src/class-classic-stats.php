@@ -35,7 +35,9 @@ final class Classic_Stats {
 	}
 
 	/**
-	 * Whether the retirement flag is on. Drop the classic page only once Stats v2 also booted, or the site has none.
+	 * Whether the retirement flag is on; callers still keep the classic page until Stats v2 has booted.
+	 *
+	 * Read on `plugins_loaded`, so a filter forcing it has to be added before that.
 	 *
 	 * @return bool
 	 */

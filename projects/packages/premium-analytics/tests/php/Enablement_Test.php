@@ -63,6 +63,7 @@ class Enablement_Test extends BaseTestCase {
 			'opted in, Stats module off' => array( false, true, false, null, false ),
 			'retired, Stats module off'  => array( false, false, true, null, false ),
 			'filter turns it on'         => array( true, false, false, true, true ),
+			'filter overrides opt-in'    => array( true, true, false, false, false ),
 			'filter overrides retiring'  => array( true, false, true, false, false ),
 			'filter cannot beat module'  => array( false, false, false, true, false ),
 		);

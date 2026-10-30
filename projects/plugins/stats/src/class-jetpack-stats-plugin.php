@@ -84,7 +84,7 @@ class Jetpack_Stats_Plugin {
 		// Stats Admin package: the REST proxy to the WPCOM stats API used by the dashboard.
 		$config->ensure( 'stats_admin' );
 
-		// Another plugin may have loaded an older package without the shared rule.
+		// Another plugin may have loaded an older premium-analytics, so guard only what is newer than `Enablement_Setting`.
 		if ( ! self::is_jetpack_plugin_active() && class_exists( Enablement::class ) && Enablement::is_enabled() ) {
 			Analytics::init();
 			Analytics_Dashboard::init();
