@@ -19,6 +19,7 @@ import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
@@ -106,6 +107,7 @@ export function StatsSettingsPanel(): JSX.Element {
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
+	const featuresScreen = premiumAnalytics?.stats_settings?.features_screen;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
 	const cardGroups = useMemo( getCardGroups, [] );
 	const formLayout = useMemo< Form >(
@@ -191,6 +193,7 @@ export function StatsSettingsPanel(): JSX.Element {
 				<PlanUsageCard />
 			</AnalyticsQueryClientProvider>
 			{ form }
+			<ConsentCard />
 			{ featuresUrl && (
 				<Card.Root>
 					<Card.Header>
@@ -199,10 +202,15 @@ export function StatsSettingsPanel(): JSX.Element {
 					<Card.Content>
 						<Text>
 							{ createInterpolateElement(
-								__(
-									'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
-									'jetpack-premium-analytics-pkg'
-								),
+								'modules' === featuresScreen
+									? __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack modules</link>.',
+											'jetpack-premium-analytics-pkg'
+										)
+									: __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
+											'jetpack-premium-analytics-pkg'
+										),
 								{ link: <Link href={ featuresUrl } /> }
 							) }
 						</Text>

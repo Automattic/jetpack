@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Protect: Hide the Ignore threat action on WordPress.com sites, to match the WordPress.com dashboard.

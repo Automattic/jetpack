@@ -12,7 +12,6 @@ import {
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
 	tagRowGlyph,
 	useWidgetDrillDown,
 	useWidgetRootContext,
@@ -98,15 +97,12 @@ function TagsInner() {
 	}, [ selectedLabel, selectedGroup, clearSelection ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( row => row.value ), 0 );
-
 		return data.map( row => {
 			const isGroup = row.children.length > 0;
 
 			return {
 				id: row.id,
 				currentValue: row.value,
-				currentShare: sharePercentage( row.value, maxValue ),
 				// Grouped rows have no single archive URL, so a click drills into
 				// their members instead. Single tag/category rows link out directly.
 				...buildLeaderboardRow( {

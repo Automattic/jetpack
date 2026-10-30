@@ -66,7 +66,6 @@ function AuthorTopPostsInner() {
 					/>
 				),
 				currentValue: row.views,
-				currentShare: row.share,
 			} ) ),
 		[ rows ]
 	);

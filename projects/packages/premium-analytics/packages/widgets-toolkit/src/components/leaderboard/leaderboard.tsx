@@ -119,7 +119,7 @@ const DEFAULT_FORMAT: DataFormat = {
 
 /**
  * A ranked-rows widget body: the leaderboard chart with its loading, error and empty
- * states, the row limit, the comparison shares and deltas, the drill-down into child rows,
+ * states, the row limit, the drill-down into child rows,
  * and the dashboard window on detail links. Renders inside `WidgetRoot`, which provides
  * the report params it reads.
  *
@@ -188,7 +188,6 @@ export function Leaderboard( {
 	const data = useMemo(
 		() =>
 			buildLeaderboardChartData( activeRows, {
-				hasComparison,
 				maxRows: parent ? 0 : maxRows,
 				detailSearch,
 				drillDown: drillDown
@@ -196,7 +195,7 @@ export function Leaderboard( {
 					: undefined,
 				variant,
 			} ),
-		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select, variant ]
+		[ activeRows, parent, maxRows, detailSearch, drillDown, select, variant ]
 	);
 
 	const legendLabels = useMemo(

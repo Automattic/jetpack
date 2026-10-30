@@ -123,7 +123,7 @@ function requestPluginSwitch(
 		} );
 }
 
-// What a plugin action asked for; `leavesPage` says the caller navigates away once it succeeds.
+// What a plugin action asked for; `leavesPage` says the caller leaves or reloads the page itself once it succeeds.
 type PluginRequest = { action: PluginAction; leavesPage: boolean };
 
 /**
@@ -136,7 +136,7 @@ type PluginRequest = { action: PluginAction; leavesPage: boolean };
 export function useFeaturePlugin( plugin: string, name: string ) {
 	const queryClient = useQueryClient();
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
-	const { invalidateResolution } = useDispatch( modulesStore );
+	const { fetchModules } = useDispatch( modulesStore );
 
 	const mutationKey = pluginMutationKey( plugin );
 	const { mutateAsync } = useMutation( {
@@ -147,10 +147,12 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			await queryClient.cancelQueries( { queryKey: QUERY_KEY } );
 			return requestPluginSwitch( queryClient, plugin, action );
 		},
-		onSuccess: ( _state, { action, leavesPage } ) => {
+		onSuccess: async ( state, { action, leavesPage } ) => {
 			// A product switches its Jetpack module along with its plugin, so the modules
 			// store More Features reads from is now behind.
-			invalidateResolution( 'getJetpackModules', [] );
+			if ( state.jetpack === 'active' && plugin !== 'jetpack' && ! leavesPage ) {
+				await fetchModules();
+			}
 
 			const deactivated = sprintf(
 				/* translators: %s is a plugin or feature name. */
@@ -165,7 +167,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			const message = action === 'deactivate' ? deactivated : activated;
 
 			// Jetpack's modules only load on the next request, so the page has to reload to
-			// offer them, unless it is about to leave anyway; everything else updates in place.
+			// offer them, unless the caller leaves or reloads anyway; everything else updates in place.
 			if ( plugin === 'jetpack' ) {
 				setPendingSuccessNotice( message );
 				if ( ! leavesPage ) {
@@ -176,25 +178,26 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: ( error: { message?: string }, { action } ) => {
-			// Read the site again: the plugin may well have been switched before whatever failed.
-			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
-			invalidateResolution( 'getJetpackModules', [] );
-
-			// Shown on the feature itself instead (see useInstallError).
-			if ( action === 'install' ) {
-				return;
+		onError: async ( error: { message?: string }, { action } ) => {
+			// A failed install is shown on the feature itself instead (see useInstallError).
+			if ( action !== 'install' ) {
+				// The route hands back what actually failed; a generic "try again" just invites the same click.
+				createErrorNotice(
+					error?.message ||
+						sprintf(
+							/* translators: %s is a plugin or feature name. */
+							__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
+							name
+						)
+				);
 			}
 
-			// The route hands back what actually failed; a generic "try again" just invites the same click.
-			createErrorNotice(
-				error?.message ||
-					sprintf(
-						/* translators: %s is a plugin or feature name. */
-						__( 'Could not change %s. Please try again.', 'jetpack-my-jetpack' ),
-						name
-					)
-			);
+			// Read the site again: the plugin may have switched before whatever failed. The switch
+			// stays busy until this lands.
+			await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
+			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
+				await fetchModules();
+			}
 		},
 	} );
 

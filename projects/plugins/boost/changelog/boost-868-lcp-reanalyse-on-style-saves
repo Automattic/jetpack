@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize LCP Images: Re-analyze cornerstone pages a few minutes after a template, Global Styles or Additional CSS change, so LCP images follow the new styles.

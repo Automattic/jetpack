@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Keep the Jetpack plugin's Protect page out of the Calypso sidebar on WoA, as in wp-admin.

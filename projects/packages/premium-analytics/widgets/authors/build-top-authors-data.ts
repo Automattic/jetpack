@@ -2,11 +2,6 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import {
-	calculateDelta,
-	getCombinedPeriodMax,
-	sharePercentage,
-} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type {
 	StatsTopAuthorsComparisonItem,
@@ -31,9 +26,6 @@ export interface AuthorPost {
 	link: string | null;
 	currentValue: number;
 	previousValue?: number;
-	currentShare: number;
-	previousShare?: number;
-	delta?: number;
 }
 
 /**
@@ -51,9 +43,6 @@ export interface AuthorLeaderboardRow {
 	avatarUrl: string | null;
 	currentValue: number;
 	previousValue?: number;
-	currentShare: number;
-	previousShare?: number;
-	delta?: number;
 	posts: AuthorPost[];
 }
 
@@ -76,27 +65,14 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
  * layer) onto the drill-down row shape.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
-	const maxValue = getCombinedPeriodMax(
-		posts.map( post => post.views ),
-		posts.map( post => post.previousViews )
-	);
-
-	return posts.map( ( post, index ) => {
-		const previousValue = post.previousViews;
-
-		return {
-			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
-			postId: post.id ?? undefined,
-			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
-			link: post.link ?? null,
-			currentValue: post.views,
-			previousValue,
-			currentShare: sharePercentage( post.views, maxValue ),
-			previousShare:
-				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
-			delta: previousValue !== undefined ? calculateDelta( post.views, previousValue ) : undefined,
-		};
-	} );
+	return posts.map( ( post, index ) => ( {
+		id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
+		postId: post.id ?? undefined,
+		title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
+		link: post.link ?? null,
+		currentValue: post.views,
+		previousValue: post.previousViews,
+	} ) );
 }
 
 /**
@@ -106,8 +82,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
  * aligns comparison values by a stable author key) into the shape the render
  * layer consumes. Each row carries the author's avatar and posts so the render
  * layer can show a name + picture label and drill down into the author's
- * posts; rows without a comparison match keep `previousValue`, `previousShare`,
- * and `delta` as `undefined`.
+ * posts; rows without a comparison match keep `previousValue` as `undefined`.
  */
 export function buildTopAuthorsData(
 	authors: StatsTopAuthorsComparisonItem[] = []
@@ -116,27 +91,13 @@ export function buildTopAuthorsData(
 		return [];
 	}
 
-	const maxValue = getCombinedPeriodMax(
-		authors.map( author => author.views ),
-		authors.map( author => author.previousViews )
-	);
-
-	return authors.map( author => {
-		const previousValue = author.previousViews;
-
-		return {
-			id: author.key,
-			authorId: toAuthorId( author.id ?? undefined ),
-			label: getAuthorLabel( author ),
-			avatarUrl: author.icon ?? null,
-			currentValue: author.views,
-			previousValue,
-			currentShare: sharePercentage( author.views, maxValue ),
-			previousShare:
-				previousValue !== undefined ? sharePercentage( previousValue, maxValue ) : undefined,
-			delta:
-				previousValue !== undefined ? calculateDelta( author.views, previousValue ) : undefined,
-			posts: toAuthorPostRows( author.children ?? [] ),
-		};
-	} );
+	return authors.map( author => ( {
+		id: author.key,
+		authorId: toAuthorId( author.id ?? undefined ),
+		label: getAuthorLabel( author ),
+		avatarUrl: author.icon ?? null,
+		currentValue: author.views,
+		previousValue: author.previousViews,
+		posts: toAuthorPostRows( author.children ?? [] ),
+	} ) );
 }

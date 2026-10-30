@@ -4,6 +4,15 @@
 .root {
 	max-inline-size: 660px;
 	margin-inline: auto;
+
+	input:disabled:not([type="checkbox"], [type="radio"]),
+	textarea:disabled {
+		color: var(--wpds-color-foreground-interactive-neutral-disabled);
+		background-color: var(--wpds-color-background-surface-neutral-weak);
+		border-color: var(--wpds-color-stroke-surface-neutral-weak);
+		opacity: 1;
+		cursor: not-allowed;
+	}
 }
 
 // Deep-link target wrapper. `scroll-margin-block-start` clears the fixed

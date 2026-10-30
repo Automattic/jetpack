@@ -310,6 +310,35 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The Protect dashboard module is offered only to a plan with Scan's UI.
+	 *
+	 * @param string $granted  The feature the plan includes.
+	 * @param bool   $expected Whether the module stays available.
+	 *
+	 * @dataProvider provide_protect_dashboard_plans
+	 */
+	#[DataProvider( 'provide_protect_dashboard_plans' )]
+	public function test_protect_dashboard_module_needs_self_serve_scan( $granted, $expected ) {
+		$this->grant_feature( $granted );
+
+		$modules = WPCOM_Scan::filter_available_modules( array( 'protect-dashboard' => '16.4' ) );
+
+		$this->assertSame( $expected, isset( $modules['protect-dashboard'] ) );
+	}
+
+	/**
+	 * Data provider for test_protect_dashboard_module_needs_self_serve_scan.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_dashboard_plans() {
+		return array(
+			'self-serve Scan' => array( \WPCOM_Features::SCAN_SELF_SERVE, true ),
+			'SCAN alone'      => array( \WPCOM_Features::SCAN, false ),
+		);
+	}
+
+	/**
 	 * A WordPress.com feature's upgrade goes to the plan upgrade flow and its manage link to WordPress.com; other features keep Jetpack's.
 	 *
 	 * @dataProvider provide_feature_upgrades
@@ -980,5 +1009,61 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
 		$this->assertTrue( $payload['isEligible'] );
+	}
+
+	/**
+	 * Only the Jetpack plugin's Protect page leaves the sidebar, and only without the standalone plugin.
+	 *
+	 * @dataProvider provide_protect_menu_items
+	 *
+	 * @param array  $args       The menu item's Admin_Menu args.
+	 * @param string $expected   The item's resulting visibility state.
+	 * @param bool   $standalone Whether the standalone Protect plugin is active.
+	 */
+	#[DataProvider( 'provide_protect_menu_items' )]
+	public function test_admin_menu_visibility_hides_only_the_jetpack_protect_page( $args, $expected, $standalone = false ) {
+		if ( $standalone ) {
+			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
+		}
+		$item = array(
+			'menu_slug' => 'jetpack-protect',
+			'args'      => $args,
+		);
+
+		$states = WPCOM_Scan::filter_admin_menu_visibility( array( 'jetpack-protect' => 'default' ), array( $item ) );
+
+		$this->assertSame( $expected, $states['jetpack-protect'] );
+	}
+
+	/**
+	 * Admin_Menu args each Protect page registers with, and the state it should end up in.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_menu_items() {
+		return array(
+			'Jetpack plugin Protect page' => array(
+				array(
+					'key'    => 'jetpack-protect',
+					'module' => 'protect-dashboard',
+				),
+				'hidden',
+			),
+			'standalone Protect plugin'   => array(
+				array(
+					'product' => 'protect',
+					'key'     => 'jetpack-protect',
+				),
+				'default',
+			),
+			'Jetpack plugin Protect page, standalone plugin active' => array(
+				array(
+					'key'    => 'jetpack-protect',
+					'module' => 'protect-dashboard',
+				),
+				'default',
+				true,
+			),
+		);
 	}
 }

@@ -8,6 +8,7 @@ import {
 } from '../../../../data/requested-switch-state';
 import { reloadPage } from '../../../../utils/reload-page';
 import { useFeatureStates } from '../feature-state';
+import { useBulkFeatureSwitch } from '../use-bulk-feature-switch';
 import { useFeaturePlugin, useInstallError, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
 
@@ -15,6 +16,7 @@ jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const mockCreateErrorNotice = jest.fn();
+const mockFetchModules = jest.fn().mockResolvedValue( true );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	useGlobalNotices: () => ( {
@@ -31,7 +33,9 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { invalidateResolution: jest.fn() } ),
+	useDispatch: () => ( {
+		fetchModules: mockFetchModules,
+	} ),
 	useSelect: () => undefined,
 	createReduxStore: jest.fn(),
 	register: jest.fn(),
@@ -97,6 +101,7 @@ const renderTab = () => {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockCreateErrorNotice.mockClear();
+	mockFetchModules.mockClear();
 	window.myJetpackInitialState = { mainFeatures: pageState } as Window[ 'myJetpackInitialState' ];
 } );
 
@@ -283,15 +288,16 @@ describe( 'useFeaturePlugin', () => {
 	);
 
 	it.each( [
-		[ 'reloads the page', false, 1 ],
-		[ 'leaves the page to a caller that navigates away', true, 0 ],
-	] )( '%s once Jetpack is on', async ( _, leavesPage, reloads ) => {
+		[ 'reloads the page', 'jetpack', false, 1 ],
+		[ 'leaves the page to a caller that navigates away', 'jetpack', true, 0 ],
+		[ 'leaves the page to connect a standalone plugin', 'jetpack-videopress', true, 0 ],
+	] )( '%s without refreshing modules', async ( _, plugin, leavesPage, reloads ) => {
 		( reloadPage as jest.Mock ).mockClear();
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
 			method === 'POST' ? Promise.resolve( pageState ) : new Promise( () => undefined )
 		);
 		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
-		const { result } = renderHook( () => useFeaturePlugin( 'jetpack', 'Jetpack' ), {
+		const { result } = renderHook( () => useFeaturePlugin( plugin, plugin ), {
 			wrapper: wrapper( client ),
 		} );
 
@@ -302,6 +308,7 @@ describe( 'useFeaturePlugin', () => {
 
 		expect( done ).toBe( true );
 		expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
 	} );
 
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
@@ -365,6 +372,68 @@ describe( 'useFeaturePlugin', () => {
 
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'inactive' ) );
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
+	} );
+
+	it( 'shows a failed switch’s notice before the refresh, and stays busy until the refresh lands', async () => {
+		let settleRead: () => void = () => undefined;
+		let settleModules: () => void = () => undefined;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? Promise.reject( new Error( 'nope' ) )
+				: new Promise( resolve => ( settleRead = () => resolve( pageState ) ) )
+		);
+		mockFetchModules.mockImplementationOnce(
+			() => new Promise( resolve => ( settleModules = () => resolve( true ) ) )
+		);
+
+		const { result } = renderTab();
+
+		act( () => void result.current.akismet.run( 'deactivate' ) );
+
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'nope' ) );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
+		expect( result.current.akismet.isBusy ).toBe( true );
+
+		await act( async () => settleRead() );
+		await waitFor( () => expect( mockFetchModules ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.akismet.isBusy ).toBe( true );
+
+		await act( async () => settleModules() );
+		await waitFor( () => expect( result.current.akismet.isBusy ).toBe( false ) );
+	} );
+
+	it( 'shows a failed bulk run’s notice before the refresh, and keeps running until the refresh lands', async () => {
+		let settleRead: () => void = () => undefined;
+		let settleModules: () => void = () => undefined;
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? Promise.reject( new Error( 'Server error.' ) )
+				: new Promise( resolve => ( settleRead = () => resolve( pageState ) ) )
+		);
+		mockFetchModules.mockImplementationOnce(
+			() => new Promise( resolve => ( settleModules = () => resolve( true ) ) )
+		);
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+		const { result } = renderHook(
+			() => ( {
+				states: useFeatureStates( useMainFeatures() ).states,
+				bulk: useBulkFeatureSwitch(),
+			} ),
+			{ wrapper: wrapper( client ) }
+		);
+
+		act( () => void result.current.bulk.run( result.current.states, false ) );
+
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Server error.' ) );
+		expect( mockFetchModules ).not.toHaveBeenCalled();
+		expect( result.current.bulk.isRunning ).toBe( true );
+
+		await act( async () => settleRead() );
+		await waitFor( () => expect( mockFetchModules ).toHaveBeenCalledTimes( 1 ) );
+		expect( result.current.bulk.isRunning ).toBe( true );
+
+		await act( async () => settleModules() );
+		await waitFor( () => expect( result.current.bulk.isRunning ).toBe( false ) );
 	} );
 
 	it( 'leaves a feature that is still being switched alone when another answers', async () => {

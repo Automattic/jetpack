@@ -23,7 +23,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.39.1';
+	const VERSION = '0.39.2';
 
 	/**
 	 * Singleton Main instance.
@@ -106,7 +106,7 @@ class Main {
 		 * A host that offers its own Stats page before connection returns false, so the site
 		 * does not show two Stats menus. Read when the package initializes, on `plugins_loaded`.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.39.2
 		 *
 		 * @param bool $register Whether to register the pre-connection dashboard. Default true.
 		 */

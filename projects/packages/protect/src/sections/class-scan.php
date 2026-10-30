@@ -16,6 +16,7 @@ use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -100,20 +101,42 @@ class Scan implements Dashboard_Section {
 		// Fetched first: has_credentials() reads the report this caches.
 		$report = self::get_scan_report( $has_plan );
 
+		if ( ! $has_plan ) {
+			$plan_state = array(
+				'url'                 => Dashboard::get_scan_upgrade_url(),
+				'upsellVariant'       => self::get_upsell_variant(),
+				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
+			);
+		} elseif ( self::needs_credentials() ) {
+			$plan_state = array(
+				'url'              => Redirect::get_url( 'jetpack-settings-security-credentials' ),
+				'needsCredentials' => true,
+				'hasCredentials'   => self::has_credentials(),
+			);
+		} else {
+			$plan_state = array(
+				'url'              => '',
+				'needsCredentials' => false,
+			);
+		}
+
 		return array_merge(
 			array(
 				'hasPlan'   => $has_plan,
 				'canIgnore' => self::allows_ignoring(),
-				'url'       => $has_plan
-					? Redirect::get_url( 'jetpack-settings-security-credentials' )
-					: Dashboard::get_scan_upgrade_url(),
 			),
-			$has_plan ? array( 'hasCredentials' => self::has_credentials() ) : array(
-				'upsellVariant'       => self::get_upsell_variant(),
-				'upsellVariantForced' => (bool) has_filter( 'jetpack_protect_dashboard_scan_upsell_variant' ),
-			),
+			$plan_state,
 			$report
 		);
+	}
+
+	/**
+	 * Whether Scan needs server credentials to auto-fix threats; not on WoA, where WordPress.com auto-fixes without them.
+	 *
+	 * @return bool
+	 */
+	private static function needs_credentials() {
+		return ! ( new Host() )->is_woa_site();
 	}
 
 	/**
@@ -262,7 +285,7 @@ class Scan implements Dashboard_Section {
 	/**
 	 * Whether the host lets site owners ignore threats.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @return bool
 	 */
@@ -270,7 +293,7 @@ class Scan implements Dashboard_Section {
 		/**
 		 * Filters whether site owners can ignore threats; they can still unignore them. Hosts that fix threats themselves can turn this off.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.4.0
 		 *
 		 * @param bool $allowed Whether threats can be ignored. Default true.
 		 */
@@ -792,12 +815,13 @@ class Scan implements Dashboard_Section {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$is_initializing = empty( $status->last_checked ) && in_array( $status->status, self::INITIALIZING_STATUSES, true );
+		$is_initializing = empty( $status->last_checked ) && empty( $status->last_scan_failed ) && in_array( $status->status, self::INITIALIZING_STATUSES, true );
 
 		return array(
 			'error'          => false,
 			'scanning'       => $is_initializing || in_array( $status->status, self::SCANNING_STATUSES, true ),
 			'lastChecked'    => $status->last_checked,
+			'lastScanFailed' => ! empty( $status->last_scan_failed ),
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),

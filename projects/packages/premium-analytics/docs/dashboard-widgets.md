@@ -245,7 +245,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. The field types the dashboard registers are part of the contract: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` since 1.0.0, `jpa/report-params` since 2.2.0, so a new name is a minor. A widget declares its chart type attribute itself; the SDK exports no helper for it.
 
 | Minor  | Added                                                                                                                                                                        |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -271,6 +271,7 @@ The major changes when a widget built against the previous contract stops workin
 | Minor | Added                                                                                                                                                      |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2.1.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own. |
+| 2.2.0 | `jpa/report-params`, a date range over the presets in `elements`, All time anchored on the item's `allTimeStart`                                           |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

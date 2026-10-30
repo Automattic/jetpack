@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.1] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [0.30.0] - 2026-10-26
 ### Added
 - Admin menu: Add the jetpack_masterbar_upsell_nudge filter so the rendered upsell nudge can be suppressed. [#51815]
@@ -15,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.29.4] - 2026-10-14
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [0.29.3] - 2026-10-12
 ### Changed
@@ -120,7 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.24] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.23] - 2026-05-04
 ### Changed
@@ -140,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.19] - 2026-04-06
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.18] - 2026-03-30
 ### Changed
@@ -187,7 +191,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.27.9] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.27.8] - 2026-01-19
 ### Changed
@@ -249,7 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.2] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.23.1] - 2025-09-19
 ### Changed
@@ -687,6 +691,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.30.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.5...v0.30.0
 [0.29.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.4...v0.29.5
 [0.29.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.29.3...v0.29.4
