@@ -385,6 +385,23 @@ describe( 'ComparativeBarChart', () => {
 		] );
 	} );
 
+	it( 'keeps previous-period values in the tooltip while their bars are hidden', () => {
+		setMockHiddenSeries( [ 'June', 'Visitors · June' ] );
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			readings(
+				tooltipModelFor( hoveredJuly( JULY_1 ), {
+					datum: { date: JULY_1, value: 40 },
+					key: 'Visitors',
+				} )
+			)
+		).toEqual( [
+			[ 'July', 100, 80 ],
+			[ 'Visitors', 40, 30 ],
+		] );
+	} );
+
 	it( 'draws an overlap layout with the tooltip and legend swatches in its opaque bar colors', () => {
 		render(
 			<ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } layout="overlap" />
