@@ -1,8 +1,7 @@
 import {
 	computePrimaryRange,
-	stepDateRange,
+	planDateStep,
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
-	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
@@ -158,25 +157,31 @@ function DateFiltersPanelStory( {
 		[ committedPrimary ]
 	);
 
-	// Stepping applies on click and takes the range off its preset, the way it
-	// commits through the report params in product.
-	const handleStep = useCallback( ( direction: StepDirection ) => {
-		const { range, presetId } = stagedPrimaryRef.current;
-		const stepped = stepDateRange( range, direction, { presetId } );
+	// Stepping applies on click, decided the way the report params decide it.
+	const stepContext = { presetId: committedPrimary.presetId, timeZone: STORYBOOK_TIMEZONE };
+	const handleStep = useCallback(
+		( direction: StepDirection ) => {
+			const step = planDateStep( committedPrimary.range, direction, {
+				...stepContext,
+				now: new Date(),
+			} );
 
-		if ( ! stepped?.from || ! stepped.to ) {
-			return;
-		}
+			if ( ! step ) {
+				return;
+			}
 
-		const nextPrimary: PrimaryFilterState = {
-			range: { from: stepped.from, to: stepped.to },
-			presetId: PRESET_CUSTOM,
-		};
-
-		stagedPrimaryRef.current = nextPrimary;
-		setStagedPrimary( nextPrimary );
-		setCommittedPrimary( nextPrimary );
-	}, [] );
+			stagedPrimaryRef.current = step;
+			setStagedPrimary( step );
+			setCommittedPrimary( step );
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `stepContext` is rebuilt from `committedPrimary` each render.
+		[ committedPrimary ]
+	);
+	const now = new Date();
+	const canStepBackward =
+		planDateStep( committedPrimary.range, 'previous', { ...stepContext, now } ) !== undefined;
+	const canStepForward =
+		planDateStep( committedPrimary.range, 'next', { ...stepContext, now } ) !== undefined;
 
 	const canApplyPrimary =
 		stagedPrimary.range.from !== committedPrimary.range.from ||
@@ -218,6 +223,8 @@ function DateFiltersPanelStory( {
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
 				onStep={ handleStep }
+				canStepBackward={ canStepBackward }
+				canStepForward={ canStepForward }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }

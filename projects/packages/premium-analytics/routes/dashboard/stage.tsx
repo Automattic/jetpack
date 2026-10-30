@@ -253,7 +253,7 @@ function Dashboard(): JSX.Element {
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals } );
+	const dateFilters = useReportDateFilters( '/', { lockedIntervals, dateLimits } );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
@@ -386,7 +386,10 @@ function Dashboard(): JSX.Element {
 			const stepped = stepDateRange( direction );
 
 			if ( stepped ) {
-				trackedOnChange( stepped.range, stepped.presetId, { exactRange: true } );
+				trackedOnChange( stepped.range, stepped.presetId, {
+					exactRange: true,
+					interval: stepped.interval,
+				} );
 				trackedOnApply();
 				rememberOnChange( stepped.range, stepped.presetId );
 				rememberOnApply();

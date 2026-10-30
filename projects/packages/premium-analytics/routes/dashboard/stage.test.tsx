@@ -1191,7 +1191,11 @@ describe( 'Dashboard header date control', () => {
 		const trackedOnChange = jest.fn();
 		const trackedOnApply = jest.fn();
 		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
-		mockStepDateRange.mockReturnValue( { range: JULY_2026, presetId: 'last-month' } );
+		mockStepDateRange.mockReturnValue( {
+			range: JULY_2026,
+			presetId: 'last-month',
+			interval: 'week',
+		} );
 		mockSection( { date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
@@ -1200,7 +1204,11 @@ describe( 'Dashboard header date control', () => {
 		} );
 
 		expect( mockStepDateRange ).toHaveBeenCalledWith( 'previous' );
-		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', { exactRange: true } );
+		// The interval the step kept, which the preset's own default would misreport.
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
+			exactRange: true,
+			interval: 'week',
+		} );
 		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
 		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
 			'last-month'

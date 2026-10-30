@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz';
-import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { planDateStep } from '@jetpack-premium-analytics/datetime';
 import { subDays } from 'date-fns';
 import { useState } from 'react';
 import { DatePeriodNavigation } from '../date-period-navigation';
@@ -57,16 +57,21 @@ function weekEnding( endingDaysAgo: number ): DateRange {
 function DatePeriodNavigationWithState( { initialEndsAgo }: { initialEndsAgo: number } ) {
 	const [ range, setRange ] = useState( () => weekEnding( initialEndsAgo ) );
 
+	const context = { timeZone: 'UTC', now: new Date() };
 	const step = ( direction: StepDirection ) => {
-		const next = stepDateRange( range, direction );
+		const next = planDateStep( range, direction, context );
 
 		if ( next ) {
-			setRange( next );
+			setRange( next.range );
 		}
 	};
 
 	return (
-		<DatePeriodNavigation canStepForward={ canStepForward( range, new Date() ) } onStep={ step } />
+		<DatePeriodNavigation
+			canStepBackward={ planDateStep( range, 'previous', context ) !== undefined }
+			canStepForward={ planDateStep( range, 'next', context ) !== undefined }
+			onStep={ step }
+		/>
 	);
 }
 

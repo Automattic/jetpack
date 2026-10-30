@@ -45,17 +45,11 @@ describe( 'DateFiltersPanel', () => {
 	} );
 
 	describe( 'period navigation', () => {
-		// A window whose next one has fully happened, so both arrows are live.
-		const steppedBack = {
-			from: new TZDate( '2020-07-01T00:00:00.000Z', 'UTC' ),
-			to: new TZDate( '2020-07-30T23:59:59.999Z', 'UTC' ),
-		};
-
 		it( 'steps the applied window from the arrows', async () => {
 			const onStep = jest.fn();
 			const user = userEvent.setup();
 
-			renderPanel( { onStep, appliedRange: steppedBack } );
+			renderPanel( { onStep } );
 
 			await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 			expect( onStep ).toHaveBeenCalledWith( 'previous' );
@@ -70,56 +64,19 @@ describe( 'DateFiltersPanel', () => {
 			expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'disables the forward arrow on the latest window', () => {
-			jest.useFakeTimers().setSystemTime( Date.parse( '2020-07-30T12:00:00.000Z' ) );
+		// Availability is the date filters' call, which see the plan's limits
+		// wherever they render; the panel only draws the edge they report.
+		it.each( [
+			[ 'Next period', 'Previous period', { canStepForward: false } ],
+			[ 'Previous period', 'Next period', { canStepBackward: false } ],
+		] )( 'disables %s when the filters say it has nowhere to go', ( disabled, live, props ) => {
+			renderPanel( { onStep: jest.fn(), ...props } );
 
-			renderPanel( { onStep: jest.fn(), appliedRange: steppedBack } );
-
-			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+			expect( screen.getByRole( 'button', { name: disabled } ) ).toHaveAttribute(
 				'aria-disabled',
 				'true'
 			);
-			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).not.toHaveAttribute(
-				'aria-disabled',
-				'true'
-			);
-			jest.useRealTimers();
-		} );
-
-		// The route would redirect a window before the plan's earliest date, so
-		// the arrow stops at it.
-		it( 'disables the back arrow at the earliest date the plan allows', () => {
-			render(
-				<ReportScopeProvider
-					dateLimits={ {
-						lockedPresetIds: [],
-						lockedIntervals: [],
-						earliestDate: steppedBack.from,
-					} }
-				>
-					{ panel( { onStep: jest.fn(), appliedRange: steppedBack } ) }
-				</ReportScopeProvider>
-			);
-
-			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveAttribute(
-				'aria-disabled',
-				'true'
-			);
-		} );
-
-		it( 'disables both arrows on all time', () => {
-			renderPanel( {
-				onStep: jest.fn(),
-				appliedPresetId: 'all-time',
-				presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
-				appliedRange: steppedBack,
-			} );
-
-			expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toHaveAttribute(
-				'aria-disabled',
-				'true'
-			);
-			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+			expect( screen.getByRole( 'button', { name: live } ) ).not.toHaveAttribute(
 				'aria-disabled',
 				'true'
 			);

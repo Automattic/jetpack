@@ -441,7 +441,11 @@ describe( 'useReportDateFilters', () => {
 		} );
 		expect( result.current.appliedPresetId ).toBe( 'custom' );
 		// What was committed, for the caller to track as applied.
-		expect( stepped ).toEqual( { range: result.current.appliedRange, presetId: 'custom' } );
+		expect( stepped ).toEqual( {
+			range: result.current.appliedRange,
+			presetId: 'custom',
+			interval: 'hour',
+		} );
 	} );
 
 	it( 'reads as the preset again when a step lands back on its window', () => {
@@ -472,6 +476,9 @@ describe( 'useReportDateFilters', () => {
 	it( 'ignores a step without a measurable window', () => {
 		const { result } = renderDateFilters();
 
+		expect( result.current.canStepBackward ).toBe( false );
+		expect( result.current.canStepForward ).toBe( false );
+
 		let stepped;
 		act( () => {
 			stepped = result.current.onStep( 'previous' );
@@ -481,8 +488,78 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
+	// Turning the page keeps the reader's bucket; only a new pick resets it.
+	it( 'keeps the interval across a step that lands back on a preset, and reports it', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-22T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'next' );
+		} );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
+		expect( stepped ).toMatchObject( { presetId: 'last-30-days', interval: 'week' } );
+	} );
+
 	// The route redirects a window before the plan's earliest date to the
-	// fallback preset with a notice, so the step has to refuse it first.
+	// fallback preset with a notice, so the step refuses it first. The dashboard
+	// renders above its scope and hands the limits in; report pages read them.
+	it.each( [
+		[
+			'passed in',
+			{
+				dateLimits: {
+					lockedPresetIds: [],
+					lockedIntervals: [],
+					earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+				},
+			},
+			undefined,
+		],
+		[
+			'declared by the report scope',
+			undefined,
+			( { children }: { children: ReactNode } ) => (
+				<ReportScopeProvider
+					dateLimits={ {
+						lockedPresetIds: [],
+						lockedIntervals: [],
+						earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+					} }
+				>
+					{ children }
+				</ReportScopeProvider>
+			),
+		],
+	] )( 'refuses a step before the earliest date, with limits %s', ( _name, options, wrapper ) => {
+		mockSearch = {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'custom',
+		};
+		const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
+
+		expect( result.current.canStepBackward ).toBe( false );
+		expect( result.current.canStepForward ).toBe( true );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.onStep( 'previous' );
+		} );
+
+		expect( stepped ).toBeUndefined();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
 	it( 'keeps a stepped window custom when the plan locks the preset it lands on', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const scope = ( { children }: { children: ReactNode } ) => (

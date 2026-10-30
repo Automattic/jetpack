@@ -3,8 +3,6 @@
  */
 import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
-	canStepBackward,
-	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
@@ -112,6 +110,14 @@ export type DateFiltersPanelProps = {
 	onStep?: ( direction: StepDirection ) => void;
 
 	/**
+	 * Whether each arrow has somewhere to go, as the date filters decided it:
+	 * the plan's earliest date behind, today ahead. An arrow with nowhere to go
+	 * is disabled, not hidden.
+	 */
+	canStepBackward?: boolean;
+	canStepForward?: boolean;
+
+	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -168,6 +174,8 @@ export function DateFiltersPanel( {
 	onComparisonChange,
 	onIntervalChange,
 	onStep,
+	canStepBackward = true,
+	canStepForward = true,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -265,37 +273,18 @@ export function DateFiltersPanel( {
 		]
 	);
 
-	/*
-	 * Reads the applied range, not the staged one: the arrows commit on click,
-	 * so a drafted range must not decide whether a step is available.
-	 */
-	const navigationControl = useMemo( () => {
-		if ( ! onStep ) {
-			return null;
-		}
-
-		const committedRange = appliedRange ?? range;
-		const stepOptions = { presetId: validatedAppliedPresetId };
-
-		return (
-			<DatePeriodNavigation
-				canStepBackward={ canStepBackward( committedRange, {
-					...stepOptions,
-					earliestDate: dateLimits?.earliestDate,
-				} ) }
-				canStepForward={ canStepForward( committedRange, new Date(), stepOptions ) }
-				disabled={ disabled }
-				onStep={ onStep }
-			/>
-		);
-	}, [
-		appliedRange,
-		dateLimits?.earliestDate,
-		disabled,
-		onStep,
-		range,
-		validatedAppliedPresetId,
-	] );
+	const navigationControl = useMemo(
+		() =>
+			onStep ? (
+				<DatePeriodNavigation
+					canStepBackward={ canStepBackward }
+					canStepForward={ canStepForward }
+					disabled={ disabled }
+					onStep={ onStep }
+				/>
+			) : null,
+		[ canStepBackward, canStepForward, disabled, onStep ]
+	);
 
 	const intervalControl = useMemo(
 		() =>

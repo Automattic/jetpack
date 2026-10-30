@@ -102,12 +102,35 @@ describe( 'stepDateRange', () => {
 		);
 	} );
 
-	it( 'steps a "Last N days" window on whole months by its days', () => {
-		const range = wholeDays( at( 2026, 4, 1 ), at( 2026, 4, 30 ) );
-
-		expect( stepDateRange( range, 'previous', { presetId: 'last-30-days' } ) ).toEqual(
-			wholeDays( at( 2026, 3, 2 ), at( 2026, 3, 31 ) )
-		);
+	// Measured as the comparison measures its previous period, so the arrow and
+	// "Previous period" agree: only whole months step by months.
+	it.each( [
+		[
+			'a "Last N days" window on whole months',
+			wholeDays( at( 2026, 4, 1 ), at( 2026, 4, 30 ) ),
+			'last-30-days',
+			wholeDays( at( 2026, 3, 2 ), at( 2026, 3, 31 ) ),
+		],
+		[
+			'a hand-picked window starting mid-month',
+			wholeDays( at( 2026, 1, 15 ), at( 2026, 3, 14 ) ),
+			'custom',
+			wholeDays( at( 2025, 11, 17 ), at( 2026, 1, 14 ) ),
+		],
+		[
+			'"Last 90 days" read on the last day of a month',
+			wholeDays( at( 2025, 12, 1 ), at( 2026, 2, 28 ) ),
+			'last-90-days',
+			wholeDays( at( 2025, 9, 2 ), at( 2025, 11, 30 ) ),
+		],
+		[
+			'"Last 365 days" read on New Year\'s Eve',
+			wholeDays( at( 2029, 1, 1 ), at( 2029, 12, 31 ) ),
+			'last-365-days',
+			wholeDays( at( 2028, 1, 2 ), at( 2028, 12, 31 ) ),
+		],
+	] as const )( 'steps %s by its days', ( _name, range, presetId, expected ) => {
+		expect( stepDateRange( range, 'previous', { presetId } ) ).toEqual( expected );
 	} );
 
 	it( 'steps the year to date back to the whole year before', () => {

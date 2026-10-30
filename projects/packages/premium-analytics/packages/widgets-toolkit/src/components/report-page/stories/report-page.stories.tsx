@@ -102,6 +102,8 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},
+	canStepBackward: true,
+	canStepForward: false,
 	onStep: () => undefined,
 	onApply: () => {},
 	onCancel: () => {},

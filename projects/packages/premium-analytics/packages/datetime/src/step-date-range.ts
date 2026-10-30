@@ -95,8 +95,10 @@ function completeForStep< T extends DateRange >( range: T, presetId?: PrimaryPre
 }
 
 /**
- * How far a step moves. Unlike `getDateRangeSpan`, a single whole month counts
- * as a month, so "Last month" steps to the month before rather than 30 days back.
+ * How far a step moves, measured the way the comparison measures its previous
+ * period: whole calendar months as months, any other day-aligned window by its
+ * days. `getDateRangeSpan` is for labels, so it would read a window starting
+ * mid-month as months and a single whole month as days.
  *
  * @param from     - Window start.
  * @param to       - Window end.
@@ -106,7 +108,17 @@ function completeForStep< T extends DateRange >( range: T, presetId?: PrimaryPre
 function getStepSpan( from: TZDate, to: TZDate, presetId?: PrimaryPresetId ): DateRangeSpan | null {
 	const months = getPreviousPeriodMonthCount( from, to, presetId );
 
-	return months ? { unit: 'month', value: months } : getDateRangeSpan( { from, to } );
+	if ( months ) {
+		return { unit: 'month', value: months };
+	}
+
+	const span = getDateRangeSpan( { from, to } );
+
+	if ( ! span || span.unit === 'hour' ) {
+		return span;
+	}
+
+	return { unit: 'day', value: differenceInCalendarDays( to, from ) + 1 };
 }
 
 /**
