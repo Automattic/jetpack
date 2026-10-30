@@ -16,9 +16,11 @@ require_once ABSPATH . 'wp-admin/includes/post.php';
  * Class SharePostTest.
  *
  * @covers ::wpcomsh_insert_shared_post_data
+ * @covers ::wpcomsh_get_shared_post_arg
  * @covers ::wpcomsh_get_embed_content
  */
 #[CoversFunction( 'wpcomsh_insert_shared_post_data' )]
+#[CoversFunction( 'wpcomsh_get_shared_post_arg' )]
 #[CoversFunction( 'wpcomsh_get_embed_content' )]
 class SharePostTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
