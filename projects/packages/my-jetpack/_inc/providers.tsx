@@ -8,7 +8,7 @@ interface ProvidersProps {
 	children: ReactNode;
 }
 
-// One client for the page: the stage and the inspector are separate React trees that read the same data.
+// One client per page load: a client made in render would drop its cache whenever Providers re-renders.
 export const queryClient = new QueryClient();
 
 const Providers: FC< ProvidersProps > = ( { children } ) => {

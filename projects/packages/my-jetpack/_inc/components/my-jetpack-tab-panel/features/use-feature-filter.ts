@@ -3,7 +3,6 @@ import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
-import type { FeaturesView } from './toolbar';
 import type { MyJetpackModule } from '../../../types';
 
 export type FeatureFilter =
@@ -13,30 +12,6 @@ const PLANS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
-
-/**
- * Reads the grid's state out of a URL query.
- *
- * @param searchParams - The query.
- * @return The active filter, search term, layout, and the feature whose details are open.
- */
-export function readFeaturesParams( searchParams: URLSearchParams ): {
-	search: string;
-	moduleTag: string;
-	filter: FeatureFilter;
-	openSlug: string | null;
-	view: FeaturesView;
-} {
-	const filterParam = searchParams.get( 'filter' ) || 'all';
-
-	return {
-		search: searchParams.get( 'search' ) || '',
-		moduleTag: searchParams.get( 'module_tag' ) || '',
-		filter: isFeatureFilter( filterParam ) ? filterParam : 'all',
-		openSlug: searchParams.get( 'feature' ),
-		view: searchParams.get( 'view' ) === 'list' ? 'list' : 'grid',
-	};
-}
 
 /**
  * The filters offered as pills, in the order they are shown.

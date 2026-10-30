@@ -15,20 +15,4 @@ export const route = {
 			throw redirect( { href, replace: true } );
 		}
 	},
-
-	/**
-	 * Show the inspector while a feature is open on the Features tab.
-	 *
-	 * @param props        - The route's state.
-	 * @param props.params - The path parameters.
-	 * @param props.search - The search parameters.
-	 * @return Whether to show the inspector.
-	 */
-	inspector: ( {
-		params,
-		search,
-	}: {
-		params: Record< string, unknown >;
-		search: Record< string, unknown >;
-	} ) => params?._splat === 'features' && Boolean( search?.feature ),
 };

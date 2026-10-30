@@ -34,12 +34,4 @@ describe( 'dashboard route', () => {
 			expect( route.beforeLoad() ).toBeUndefined();
 		}
 	);
-
-	it.each( [
-		[ 'features', 'stats', true ],
-		[ 'features', undefined, false ],
-		[ 'overview', 'stats', false ],
-	] )( 'on /%s with feature %p shows the inspector: %p', ( splat, feature, shown ) => {
-		expect( route.inspector( { params: { _splat: splat }, search: { feature } } ) ).toBe( shown );
-	} );
 } );

@@ -1,8 +1,5 @@
 import App from '../../_inc/app';
-import { showFeatureDetailsInInspector } from '../../_inc/components/my-jetpack-tab-panel/features/feature-inspector';
 import './route.scss';
-
-showFeatureDetailsInInspector();
 
 /**
  * Boot stage for the My Jetpack dashboard.

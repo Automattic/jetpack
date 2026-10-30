@@ -7,7 +7,6 @@ import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { ConnectResume, useConnectResume } from './connect-resume';
 import { FeaturesEmptyState } from './empty-state';
-import { areFeatureDetailsInInspector } from './feature-inspector';
 import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
 import { FeatureModal } from './feature-modal';
@@ -21,9 +20,9 @@ import { Toolbar } from './toolbar';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import {
 	getFeatureFilters,
+	isFeatureFilter,
 	matchesFilter,
 	matchesModuleTag,
-	readFeaturesParams,
 } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
@@ -43,12 +42,25 @@ const SEARCH_TRACKING_DELAY = 500;
 /**
  * Reads the grid's state out of the URL.
  *
- * @return The active filter, search term, layout, and the feature whose details are open.
+ * @return The active filter, search term, layout, and the feature whose modal is open.
  */
-function useFeaturesParams() {
+function useFeaturesParams(): {
+	search: string;
+	moduleTag: string;
+	filter: FeatureFilter;
+	openSlug: string | null;
+	view: FeaturesView;
+} {
 	const [ searchParams ] = useSearchParams();
+	const filterParam = searchParams.get( 'filter' ) || 'all';
 
-	return readFeaturesParams( searchParams );
+	return {
+		search: searchParams.get( 'search' ) || '',
+		moduleTag: searchParams.get( 'module_tag' ) || '',
+		filter: isFeatureFilter( filterParam ) ? filterParam : 'all',
+		openSlug: searchParams.get( 'feature' ),
+		view: searchParams.get( 'view' ) === 'list' ? 'list' : 'grid',
+	};
 }
 
 /**
@@ -504,7 +516,7 @@ function FeaturesTabContent() {
 				isSearching={ Boolean( search ) }
 			/>
 
-			{ open && ! areFeatureDetailsInInspector() && (
+			{ open && (
 				<FeatureModal
 					state={ open }
 					previous={ openIndex > 0 ? stepOrder[ openIndex - 1 ] : undefined }
