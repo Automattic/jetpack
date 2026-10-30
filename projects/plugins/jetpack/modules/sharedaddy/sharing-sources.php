@@ -3140,9 +3140,20 @@ class Share_Mastodon extends Sharing_Source {
 
 		check_admin_referer( 'jetpack_share_mastodon_instance' );
 
-		$mastodon_instance = isset( $_POST['jetpack-mastodon-instance'] )
-			? trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) )
+		require_once dirname( __DIR__, 2 ) . '/_inc/lib/class-jetpack-share-destination-helper.php';
+
+		$share_endpoint = is_string( $_POST['jetpack-mastodon-instance'] )
+			? Jetpack_Share_Destination_Helper::get_endpoint(
+				wp_unslash( $_POST['jetpack-mastodon-instance'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The helper validates and rebuilds the URL.
+				'share',
+				Jetpack_Share_Destination_Helper::UPGRADE_HTTP
+			)
 			: null;
+
+		if ( null === $share_endpoint ) {
+			wp_safe_redirect( Jetpack_Share_Destination_Helper::get_prompt_url( $post->ID, $this->shortname ) );
+			exit( 0 );
+		}
 
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link  = $this->get_share_url( $post->ID );
@@ -3166,8 +3177,8 @@ class Share_Mastodon extends Sharing_Source {
 		);
 
 		$share_url = sprintf(
-			'%1$sshare?text=%2$s',
-			$mastodon_instance,
+			'%1$s?text=%2$s',
+			$share_endpoint,
 			rawurlencode( $shared_message )
 		);
 
