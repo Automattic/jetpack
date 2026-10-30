@@ -716,7 +716,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sort the Jetpack submenu A to Z between My Jetpack and Settings, on every platform.
+	 * Sort the Jetpack submenu A to Z between My Jetpack (Activity Log on Simple) and Settings, on every platform.
 	 *
 	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
@@ -744,6 +744,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu['jetpack'] = array(
+			array( 'Abonnés', 'manage_options', 'jetpack-abonnes' ),
 			array( 'Social', 'manage_options', 'jetpack-social' ),
 			array( 'Beta Tester', 'manage_options', 'jetpack-beta' ),
 			array( 'SEO', 'manage_options', 'jetpack-seo' ),
@@ -825,8 +826,8 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_jetpack_menu_environments() {
-		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Scan', 'SEO', 'Social', 'Settings' );
-		$simple = array( 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)' );
+		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Scan', 'SEO', 'Social', 'Settings' );
+		$simple = array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
