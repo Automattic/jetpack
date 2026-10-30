@@ -74,6 +74,7 @@
 		"align": [ "left", "center", "right" ],
 		"anchor": true,
 		"__experimentalExposeControlsToChildren": true,
+		"listView": true,
 		"layout": {
 			"allowSwitching": false,
 			"allowInheriting": false,
@@ -101,6 +102,11 @@
 				"blockGap": true,
 				"margin": true,
 				"padding": false
+			}
+		},
+		"__experimentalStyle": {
+			"spacing": {
+				"blockGap": "0"
 			}
 		}
 	},

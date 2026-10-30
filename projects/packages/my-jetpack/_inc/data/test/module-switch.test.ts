@@ -5,7 +5,7 @@ import type { MyJetpackModule } from '../../types';
 
 jest.mock( '../../utils/block-theme-migration', () => ( {
 	getBlockThemeMigration: ( $module: { module: string } ) =>
-		$module.module === 'sharedaddy' ? { editorUrl: '' } : null,
+		$module.module === 'sharedaddy' ? { settingsUrl: '' } : null,
 } ) );
 
 const buildModule = ( overrides: Partial< MyJetpackModule > = {} ) =>

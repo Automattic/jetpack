@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the error when connecting from the pricing table fails in a notice above the table, so it no longer pushes the paid plan's button out of line.

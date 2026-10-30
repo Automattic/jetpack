@@ -790,6 +790,23 @@ describe( 'FeaturesContent after connecting the account', () => {
 		expect( requests() ).toEqual( [] );
 	} );
 
+	it.each( [
+		[
+			'turns on an available module that is off',
+			monitor,
+			[ [ 'monitor', true, { reload: false } ] ],
+		],
+		[ 'leaves off a module still waiting for an account', { ...monitor, accountNeeded: true }, [] ],
+	] as const )( "%s after Jetpack's reload, with no account linked", ( _, state, expected ) => {
+		mockConnected = false;
+		mockStates = [ state ] as FeatureState[];
+		const id = rememberConnectIntent( 'monitor', 'reload' );
+
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( expected );
+	} );
+
 	it( 'forgets the click on a return with the flag off, so a reload with it on turns nothing on', () => {
 		mockStates = [ monitor ];
 		const id = rememberConnectIntent( 'monitor' );
@@ -858,6 +875,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 	} );
 
 	it( 'finds a More Features row after loading and never replays the click', () => {
+		mockStates = [];
 		mockIsLoading = true;
 		mockGroups = [ { label: 'Other', states: [ monitor ] } ];
 		const id = rememberConnectIntent( 'monitor' );

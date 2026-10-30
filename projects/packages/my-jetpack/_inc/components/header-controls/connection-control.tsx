@@ -75,7 +75,14 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const triggerRef = useRef< HTMLButtonElement >( null );
+	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
+	// Any open except from the keyboard (a click, tap or pen) focuses the panel, since its first link shows a focus ring even then.
+	// Opening from the keyboard still focuses that first link, as the library does by default.
+	const initialFocus = useCallback(
+		( type: string ) => ( type === 'keyboard' ? true : popupRef.current ),
+		[]
+	);
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
 	const isAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { data: purchases = null, isError: hasPurchasesError } = useSitePurchases( {
@@ -128,7 +135,11 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					/>
 					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
-				<Popover.Popup positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }>
+				<Popover.Popup
+					ref={ popupRef }
+					initialFocus={ initialFocus }
+					positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }
+				>
 					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
