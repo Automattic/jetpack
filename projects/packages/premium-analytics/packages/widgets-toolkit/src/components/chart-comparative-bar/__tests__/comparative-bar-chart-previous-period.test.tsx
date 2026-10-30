@@ -113,7 +113,7 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 	it.each( [ false, true ] )(
 		'draws the previous period only when previousPeriodShown is true (%s)',
 		shown => {
-			renderChart( { previousPeriodShown: shown } );
+			renderChart( { previousPeriodShown: shown, onPreviousPeriodShownChange: jest.fn() } );
 
 			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', String( shown ) );
 			expect( drawnLabels() ).toEqual(
@@ -140,21 +140,38 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 	it( "hides a hidden metric's previous bar while the previous period is on", async () => {
 		const user = setupUser();
-		renderChart( { previousPeriodShown: true } );
+		renderChart( { previousPeriodShown: true, onPreviousPeriodShownChange: jest.fn() } );
 
 		await user.click( visitorsItem() );
 
 		expect( drawnLabels() ).toEqual( [ 'Views', 'Previous views', 'Visitors' ] );
 	} );
 
-	it( "draws a revealed metric's previous period when the metric started hidden", () => {
+	it( "draws a revealed metric's previous period when the metric started hidden", async () => {
+		const user = setupUser();
 		renderChart( {
 			previousPeriodShown: true,
-			defaultHiddenSeries: [ 'Views', 'Previous views' ],
+			onPreviousPeriodShownChange: jest.fn(),
+			defaultHiddenSeries: [ 'Visitors', 'Previous visitors' ],
 		} );
+		expect( drawnLabels() ).not.toContain( 'Previous visitors' );
 
-		expect( lastBarChart().defaultHiddenSeries ).toEqual( [ 'Views' ] );
+		await user.click( visitorsItem() );
+
+		expect( drawnLabels() ).toContain( 'Previous visitors' );
+		expect( lastBarChart().defaultHiddenSeries ).toEqual( [ 'Visitors' ] );
 	} );
+
+	it.each( [ false, true ] )(
+		'keeps the item static without onPreviousPeriodShownChange (%s)',
+		shown => {
+			renderChart( { previousPeriodShown: shown } );
+
+			expect( screen.queryByLabelText( /^Prev\. 7 days/ ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByText( 'Prev. 7 days' ) ).toHaveLength( shown ? 1 : 0 );
+			expect( drawnLabels().includes( 'Previous views' ) ).toBe( shown );
+		}
+	);
 
 	it( 'keeps previous-period values in the tooltip while the bars are off', () => {
 		renderChart( { previousPeriodShown: false } );

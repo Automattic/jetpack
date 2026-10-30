@@ -179,7 +179,8 @@ export function ComparativeBarChart( {
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 	const previousPeriodToggle = overlapLayout !== undefined && previousPeriodShown !== undefined;
-	const interactiveLegend = legendInteractive || previousPeriodToggle;
+	const interactiveLegend =
+		legendInteractive || ( previousPeriodToggle && onPreviousPeriodShownChange !== undefined );
 
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
@@ -304,16 +305,24 @@ export function ComparativeBarChart( {
 			if ( pickedComparisonIndex === undefined ) {
 				return ownSeriesItems;
 			}
-			return [
-				...ownSeriesItems,
-				{
-					label: previousPeriodLabel,
-					color: seriesStyles[ pickedComparisonIndex ].stroke,
-					shapeStyle: metricItems[ 0 ]?.shapeStyle,
-					pressed: previousPeriodShown,
-					onToggle: () => onPreviousPeriodShownChange?.( ! previousPeriodShown ),
-				},
-			];
+			const previousPeriodItem = {
+				label: previousPeriodLabel,
+				color: seriesStyles[ pickedComparisonIndex ].stroke,
+				shapeStyle: metricItems[ 0 ]?.shapeStyle,
+			};
+			if ( onPreviousPeriodShownChange ) {
+				return [
+					...ownSeriesItems,
+					{
+						...previousPeriodItem,
+						pressed: previousPeriodShown,
+						onToggle: () => onPreviousPeriodShownChange( ! previousPeriodShown ),
+					},
+				];
+			}
+			return previousPeriodShown
+				? [ ...ownSeriesItems, { ...previousPeriodItem, interactive: false } ]
+				: ownSeriesItems;
 		}
 
 		const pickedGroup = alignedSeries.find( item => item.label === primarySeries )?.group;
