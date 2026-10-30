@@ -123,19 +123,30 @@ describe( 'AbbreviatedValue', () => {
 
 	describe( 'with preferExact', () => {
 		let boxWidth = 0;
+		let figureWidth = 0;
+		let fontSize = '';
 		let resize: () => void = () => {};
 		const rect = ( left: number, right: number ) => ( { left, right } ) as DOMRect;
 		const GlobalResizeObserver = window.ResizeObserver;
+		const computedStyle = window.getComputedStyle.bind( window );
 
 		beforeEach( () => {
 			boxWidth = 200;
-			// The figure is 120px wide; the box is as wide as `boxWidth`.
+			figureWidth = 120;
+			fontSize = '24px';
 			jest
 				.spyOn( HTMLSpanElement.prototype, 'getBoundingClientRect' )
-				.mockImplementation( () => rect( 0, 120 ) );
+				.mockImplementation( () => rect( 0, figureWidth ) );
 			jest
 				.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
 				.mockImplementation( () => rect( 0, boxWidth ) );
+			jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
+				const style = computedStyle( element );
+				if ( element instanceof HTMLSpanElement ) {
+					Object.defineProperty( style, 'fontSize', { value: fontSize, configurable: true } );
+				}
+				return style;
+			} );
 			Object.defineProperty( HTMLDivElement.prototype, 'clientWidth', {
 				configurable: true,
 				get: () => boxWidth,
@@ -177,6 +188,26 @@ describe( 'AbbreviatedValue', () => {
 
 			act( () => {
 				boxWidth = 300;
+				resize();
+			} );
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'retries the exact figure when the type shrinks, though no box grew', () => {
+			boxWidth = 100;
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+
+			act( () => {
+				fontSize = '18px';
+				figureWidth = 90;
 				resize();
 			} );
 

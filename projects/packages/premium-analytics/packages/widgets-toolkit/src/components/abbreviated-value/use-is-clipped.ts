@@ -49,14 +49,14 @@ function watchedBoxes( box: HTMLElement ): HTMLElement[] {
 	return boxes;
 }
 
-type Clip = { text: string; widths: number[] };
+type Clip = { text: string; fontSize: string; widths: number[] };
 
 /**
  * Whether `text`, rendered in the element the returned ref is on, gets clipped
  * by the nearest ancestor that hides overflow. Once clipped it stays so until
- * that box or one of its ancestors grows past the width it clipped at, so a
- * shorter text swapped in cannot bounce back. Never clipped where there is no
- * ResizeObserver.
+ * that box or one of its ancestors grows past the width it clipped at, or the
+ * type changes size, so a shorter text swapped in cannot bounce back. Never
+ * clipped where there is no ResizeObserver.
  *
  * @param text    - The text being measured; a new text is measured afresh.
  * @param enabled - Skip measuring (and the layout it forces) when false.
@@ -78,18 +78,25 @@ export function useIsClipped( text: string, enabled: boolean ) {
 		}
 		const boxes = watchedBoxes( box );
 		const widths = () => boxes.map( node => node.clientWidth );
+		// A layout switch can shrink the type without widening any box, as the
+		// metric tiles' compact layout does, so a type change earns a retry too.
+		const fontSize = () => getComputedStyle( element ).fontSize;
 		const check = () => {
 			if ( isClipped ) {
-				if ( widths().some( ( width, i ) => width > ( clip as Clip ).widths[ i ] ) ) {
+				const at = clip as Clip;
+				if (
+					fontSize() !== at.fontSize ||
+					widths().some( ( width, i ) => width > at.widths[ i ] )
+				) {
 					setClip( null );
 				}
 			} else if ( runsPast( element, box ) ) {
-				setClip( { text, widths: widths() } );
+				setClip( { text, fontSize: fontSize(), widths: widths() } );
 			}
 		};
 		check();
 		const observer = new ResizeObserver( check );
-		boxes.forEach( node => observer.observe( node ) );
+		[ element, ...boxes ].forEach( node => observer.observe( node ) );
 		return () => observer.disconnect();
 	}, [ enabled, text, isClipped, clip ] );
 

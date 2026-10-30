@@ -82,19 +82,24 @@ $metric-tile-list-header-min: 7rem;
 .grid[data-layout="compact"] .tile .value,
 .grid[data-layout="stacked"] .tile .value,
 .grid[data-layout="compact"] .tile .placeholder,
-.grid[data-layout="stacked"] .tile .placeholder {
+.grid[data-layout="stacked"] .tile .placeholder,
+.grid[data-layout="compact"] .comparison,
+.grid[data-layout="stacked"] .comparison {
 	flex-shrink: 1;
 	min-inline-size: 0;
 }
 
 /* Comparison tiles render value + delta through MetricWithComparison, which
- * manages its own value font size, so this cell only handles placement. */
+ * manages its own value font size, so this cell only handles placement. It
+ * hides its overflow so a `preferExact` figure clips here, not at the grid
+ * edge, and falls back to compact; the delta wraps under the figure first. */
 .comparison {
 	display: flex;
 	flex: 0 0 auto;
 	justify-content: center;
 	min-inline-size: 0;
 	max-inline-size: 100%;
+	overflow: hidden;
 }
 
 /* MetricValue emits the font-size token without a fallback, and the dashboard
