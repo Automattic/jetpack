@@ -20,9 +20,7 @@ use Automattic\Jetpack\Modules;
 final class Enablement {
 
 	/**
-	 * Whether Stats v2 should boot. It reads what the Stats module collects, so it stays off while the module is.
-	 *
-	 * Once classic Stats is retired, a site with no connection boots it anyway: the module turns on only with the connection, which Stats v2 then offers.
+	 * Whether Stats v2 should boot. It waits for the Stats module, whose data it reads, except on a site with no connection: the module turns on only with the connection that Stats v2 offers.
 	 *
 	 * @return bool
 	 */
