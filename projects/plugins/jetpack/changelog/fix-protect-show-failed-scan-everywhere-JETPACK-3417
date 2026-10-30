@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Show when the last scan didn't complete on the Protect page and My Jetpack, instead of treating it as a clean scan.

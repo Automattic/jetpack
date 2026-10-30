@@ -13,6 +13,7 @@ export const useLastScanText = ( data: ProtectData ) => {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		last_checked: lastScanTime = null,
+		last_scan_failed: lastScanFailed = false,
 	} = data?.scanData || {};
 
 	const pluginsCount = fromScanPlugins?.length || Object.keys( plugins ).length;
@@ -22,6 +23,9 @@ export const useLastScanText = ( data: ProtectData ) => {
 
 	return useMemo( () => {
 		if ( isPluginActive ) {
+			if ( lastScanFailed ) {
+				return __( 'Last scan didn’t complete', 'jetpack-my-jetpack' );
+			}
 			if ( timeSinceLastScan ) {
 				return sprintf(
 					/* translators: %s is how long ago since the last scan took place, i.e.- "17 hours ago" */
@@ -47,5 +51,5 @@ export const useLastScanText = ( data: ProtectData ) => {
 				themesCount
 			).replace( ' ', '\xa0' ) // `\xa0` is a non-breaking space.
 		);
-	}, [ isPluginActive, timeSinceLastScan, pluginsCount, themesCount ] );
+	}, [ isPluginActive, lastScanFailed, timeSinceLastScan, pluginsCount, themesCount ] );
 };
