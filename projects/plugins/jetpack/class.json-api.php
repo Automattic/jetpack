@@ -818,7 +818,7 @@ class WPCOM_JSON_API {
 	 * @return array|object Filtered response.
 	 */
 	public function filter_fields( $response ) {
-		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) ) {
+		if ( empty( $this->query['fields'] ) || ! is_string( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) ) {
 			return $response;
 		}
 
