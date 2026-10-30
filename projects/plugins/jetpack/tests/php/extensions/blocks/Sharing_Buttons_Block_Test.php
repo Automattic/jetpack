@@ -52,10 +52,7 @@ class Sharing_Buttons_Block_Test extends WP_UnitTestCase {
 	/**
 	 * A theme's flex gap must not spread the buttons apart on the front end.
 	 *
-	 * The theme's `.is-layout-flex` gap has the same specificity as the block's
-	 * stylesheet and loads after it, so the block's default gap has to come from
-	 * global styles, after the theme's rule.
-	 *
+	 * The theme's `.is-layout-flex` gap ties the block stylesheet's specificity and prints later.
 	 * Isolated because it registers the block and filters the theme's global styles.
 	 *
 	 * @runInSeparateProcess
@@ -79,7 +76,8 @@ class Sharing_Buttons_Block_Test extends WP_UnitTestCase {
 		);
 		wp_clean_theme_json_cache();
 
-		$css = WP_Theme_JSON_Resolver::get_merged_data()->get_stylesheet( array( 'styles' ) );
+		wp_enqueue_global_styles();
+		$css = implode( '', wp_styles()->get_data( 'global-styles', 'after' ) );
 
 		$this->assertSame( 1, preg_match( '/:where\(\.is-layout-flex\)\s*\{[^}]*gap:\s*1\.2rem/', $css, $theme_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no theme flex gap rule.' );
 		$this->assertSame( 1, preg_match( '/:where\(\.wp-block-jetpack-sharing-buttons-is-layout-flex\)\s*\{[^}]*gap:\s*0\s*[;}]/', $css, $block_gap, PREG_OFFSET_CAPTURE ), 'Global styles have no default gap rule for the block.' );
