@@ -27,6 +27,7 @@ declare module '@automattic/jetpack-script-data' {
 			stats_settings?: {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
+				features_screen: 'features' | 'modules' | null;
 				consent?: {
 					api_active: boolean;
 					api_installed: boolean;
