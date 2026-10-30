@@ -17,6 +17,7 @@ use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+require_once __DIR__ . '/simple-my-jetpack.php';
 
 /**
  * Feature flag gating the native Activity Log page on Simple sites.
@@ -535,13 +536,17 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
+	if ( $is_simple_site ) {
+		wpcom_add_simple_my_jetpack_page();
+	}
+
 	wpcom_sort_jetpack_submenu();
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first, then Settings,
- * then the upgrade link at the bottom.
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first, then Settings, then the upgrade
+ * link at the bottom.
  *
  * WordPress points the top-level Jetpack link at the first item, hidden ones included, so a hidden item
  * sorts after the visible ones in its tier. A hidden item alone in the first tier, like My Jetpack on
@@ -561,12 +566,6 @@ function wpcom_sort_jetpack_submenu() {
 		'jetpack-settings'                              => 998,
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
-
-	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$named_tiers['jetpack-activity-log'] = -5;
-		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
-	}
 
 	$keyed = array();
 	foreach ( $submenu['jetpack'] as $item ) {

@@ -11,3 +11,97 @@
 body.is-nav-unification .inline-icon {
 	right: 16px;
 }
+
+/**
+ * The lightweight My Jetpack page on Simple sites
+ */
+.wpcom-my-jetpack__header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-left: -20px;
+	padding: 20px 32px;
+	background: #fff;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.wpcom-my-jetpack__header h1 {
+	margin: 0;
+	padding: 0;
+	font-size: 24px;
+	line-height: 1.2;
+	font-weight: 600;
+}
+
+.wpcom-my-jetpack__header span {
+	color: #50575e;
+}
+
+.wpcom-my-jetpack__content {
+	max-width: 1040px;
+	box-sizing: border-box;
+	padding: 28px 12px 48px;
+}
+
+.wpcom-my-jetpack__tools {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+	gap: 8px;
+}
+
+.wpcom-my-jetpack__tool {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 64px;
+	box-sizing: border-box;
+	padding: 10px 14px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	color: #1e1e1e;
+	text-decoration: none;
+}
+
+.wpcom-my-jetpack__tool:hover,
+.wpcom-my-jetpack__tool:focus {
+	border-color: #1e1e1e;
+	color: #1e1e1e;
+}
+
+.wpcom-my-jetpack__tool svg {
+	flex: none;
+	color: #50575e;
+}
+
+.wpcom-my-jetpack__tool-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	color: #50575e;
+}
+
+.wpcom-my-jetpack__tool-text strong {
+	color: #1e1e1e;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.wpcom-my-jetpack__plan {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0 8px;
+	margin: 8px 0 0;
+	color: #50575e;
+}
+
+.wpcom-my-jetpack__plan a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: #00701a;
+	font-weight: 600;
+}

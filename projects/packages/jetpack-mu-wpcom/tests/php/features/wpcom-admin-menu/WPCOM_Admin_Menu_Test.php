@@ -716,7 +716,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sort the Jetpack submenu A to Z between My Jetpack (Activity Log on Simple) and Settings, on every platform.
+	 * Sort the Jetpack submenu A to Z between My Jetpack and Settings, on every platform.
 	 *
 	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
@@ -769,6 +769,103 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$submenu['jetpack']
 		);
 		$this->assertSame( $expected, $titles );
+	}
+
+	/**
+	 * Sets up the Jetpack menu a Simple site's My Jetpack page reads.
+	 */
+	private function set_up_simple_my_jetpack_menu() {
+		global $submenu;
+		wp_set_current_user( self::$admin_id );
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'My Jetpack', 'edit_posts', 'my-jetpack' ),
+			array( 'Akismet Anti-spam <span class="awaiting-mod"><span class="count">2</span></span>', 'manage_options', 'akismet-key-config' ),
+			array( 'Activity Log', 'manage_options', 'jetpack-activity-log', '', 'hide-if-js' ),
+			array( 'Scan', 'manage_options', 'https://wordpress.com/scan/' . self::$domain ),
+			array( 'New Tool', 'manage_options', 'jetpack-new-tool' ),
+		);
+	}
+
+	/**
+	 * The page registers on a site without My Jetpack, and leaves a sticker site's real page alone.
+	 */
+	public function test_simple_my_jetpack_page_registers_only_when_the_slug_is_free() {
+		global $submenu;
+		wp_set_current_user( self::$admin_id );
+
+		wpcom_add_simple_my_jetpack_page();
+		$this->assertSame( array( 'my-jetpack' ), array_column( $submenu['jetpack'], 2 ) );
+
+		wpcom_add_simple_my_jetpack_page();
+		$this->assertSame( array( 'my-jetpack' ), array_column( $submenu['jetpack'], 2 ) );
+	}
+
+	/**
+	 * The page lists visible items only, with clean titles and the right destinations.
+	 */
+	public function test_simple_my_jetpack_items_list_the_visible_menu() {
+		$this->set_up_simple_my_jetpack_menu();
+
+		$this->assertSame(
+			array(
+				array(
+					'title'       => 'Akismet Anti-spam',
+					'description' => 'Filter spam from comments and forms',
+					'url'         => admin_url( 'admin.php?page=akismet-key-config' ),
+					'external'    => false,
+				),
+				array(
+					'title'       => 'Scan',
+					'description' => 'Check your site for malware and threats',
+					'url'         => 'https://wordpress.com/scan/' . self::$domain,
+					'external'    => true,
+				),
+				array(
+					'title'       => 'New Tool',
+					'description' => '',
+					'url'         => admin_url( 'admin.php?page=jetpack-new-tool' ),
+					'external'    => false,
+				),
+			),
+			wpcom_get_simple_my_jetpack_items()
+		);
+	}
+
+	/**
+	 * A site's own domain can't pick a tool's description.
+	 */
+	public function test_simple_my_jetpack_description_comes_from_the_tool_alone() {
+		$this->assertSame( '', wpcom_get_simple_my_jetpack_description( 'jetpack-new-tool' ) );
+		$this->assertSame( 'Analytics and site verification', wpcom_get_simple_my_jetpack_description( 'https://wordpress.com/marketing/traffic/' ) );
+	}
+
+	/**
+	 * Admins get the plan link and Editors don't.
+	 */
+	public function test_simple_my_jetpack_page_shows_the_plan_link_to_admins_only() {
+		$this->set_up_simple_my_jetpack_menu();
+
+		ob_start();
+		wpcom_render_simple_my_jetpack_page();
+		$this->assertStringContainsString( 'https://wordpress.com/plans/' . self::$domain, ob_get_clean() );
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'editor_user',
+					'user_pass'  => 'pass',
+					'user_email' => 'editor@example.com',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		ob_start();
+		wpcom_render_simple_my_jetpack_page();
+		$html = ob_get_clean();
+		$this->assertStringNotContainsString( 'wordpress.com/plans/', $html );
+		$this->assertStringContainsString( 'Akismet Anti-spam', $html );
 	}
 
 	/**
@@ -828,7 +925,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_jetpack_menu_environments() {
 		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Scan', 'SEO', 'Social', 'Settings' );
-		$simple = array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic' );
+		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
