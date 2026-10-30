@@ -88,7 +88,7 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
- * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
+ * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice for its kind.
  *
  * @param threat    - The threat.
  * @param canDelete - Whether the threat's option can be deleted from the details.
@@ -128,6 +128,27 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 			),
 			threat.database.table
 		);
+	}
+	if ( ! threat.filename && threat.status !== 'fixed' ) {
+		const type = threat.extension?.type;
+		if ( type === 'plugins' ) {
+			return __(
+				'No version of this plugin fixes this vulnerability yet. Deactivate and delete it, or replace it with another plugin, until an update fixes it.',
+				'jetpack-protect-pkg'
+			);
+		}
+		if ( type === 'themes' ) {
+			return __(
+				'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
+				'jetpack-protect-pkg'
+			);
+		}
+		if ( type === 'core' ) {
+			return __(
+				'No version of WordPress fixes this vulnerability yet. Keep WordPress up to date, and update as soon as a release fixes it.',
+				'jetpack-protect-pkg'
+			);
+		}
 	}
 	return __(
 		'Jetpack can’t fix this automatically. Review the affected code and remove it if you don’t recognize it, or contact Jetpack support for help.',

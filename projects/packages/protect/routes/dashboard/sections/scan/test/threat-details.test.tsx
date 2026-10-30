@@ -45,6 +45,32 @@ describe( 'ThreatDetails', () => {
 		expect( !! screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).toBe( confirms );
 	} );
 
+	it.each( [
+		[ 'a vulnerable plugin', 'plugins', undefined, 'current', 'Deactivate and delete it' ],
+		[ 'a vulnerable theme', 'themes', undefined, 'current', 'Switch to another theme' ],
+		[ 'vulnerable WordPress', 'core', undefined, 'current', 'update as soon as' ],
+		[ 'a fixed vulnerable plugin', 'plugins', undefined, 'fixed', 'Review the affected' ],
+		[
+			'a file in a plugin',
+			'plugins',
+			'wp-content/plugins/akismet/x.php',
+			'current',
+			'Review the affected',
+		],
+	] as const )( 'advises on unfixable %s', ( _name, type, filename, status, advice ) => {
+		const threat: ScanThreat = {
+			id: 4,
+			signature: 'Vulnerable.WP.Extension',
+			title: 'Vulnerable plugin',
+			status,
+			filename,
+			extension: { type, slug: 'akismet', name: 'Akismet', version: '1.0' },
+		};
+		render( <ThreatDetails threat={ threat } canAct={ false } /> );
+
+		expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
+	} );
+
 	it( 'disables Confirm deletion while another action runs on the threat', async () => {
 		const threat = threatIn( 3, 'delete' );
 		render( <ThreatDetails threat={ threat } canAct /> );
