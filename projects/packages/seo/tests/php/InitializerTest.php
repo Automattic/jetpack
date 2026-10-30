@@ -318,24 +318,23 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Run init() with the given deliberate-off flag state and surface visibility, and
-	 * report whether it suppressed WordPress core's own sitemap (registered the
-	 * `wp_sitemaps_enabled` → false filter). Mirrors the schema/GEO test setup.
+	 * Run init() and report whether it suppresses WordPress core sitemaps.
 	 *
 	 * @param bool $user_disabled   Whether SUPPRESS_WP_SITEMAP_OPTION (deliberate off) is set.
-	 * @param bool $surface_visible Whether the SEO dashboard surface is visible. Sitemap
-	 *                              suppression is tied to the feature, not the surface, so
-	 *                              a set flag must be honored either way.
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 * @param bool $available       Whether the SEO feature is available.
 	 * @return bool Whether init() registered the core-sitemap-suppression filter.
 	 */
-	private function init_and_report_core_sitemaps_disabled( $user_disabled, $surface_visible = true ) {
+	private function init_and_report_core_sitemaps_disabled( $user_disabled, $surface_visible = true, $available = true ) {
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
 		}
 		$initialized->setValue( null, false );
 
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		if ( $available ) {
+			add_filter( 'rsm_jetpack_seo', '__return_true' );
+		}
 		if ( $surface_visible ) {
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
 		} else {
@@ -400,6 +399,12 @@ class InitializerTest extends TestCase {
 	 */
 	public function test_init_suppresses_core_sitemaps_when_off_even_if_surface_hidden() {
 		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true, false ) );
+	}
+
+	public function test_init_preserves_sitemap_opt_out_when_feature_unavailable() {
+		$this->assertFalse( Initializer::is_available() );
+		$this->assertTrue( $this->init_and_report_core_sitemaps_disabled( true, false, false ) );
+		$this->assertFalse( $this->init_and_report_core_sitemaps_disabled( false, false, false ) );
 	}
 
 	/**

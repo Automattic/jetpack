@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Preserve the saved sitemap opt-out when SEO becomes unavailable. The new SEO page is still gated.
