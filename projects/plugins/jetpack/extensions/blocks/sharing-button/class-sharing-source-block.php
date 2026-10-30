@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\Sharing_Likes\Share_Destination;
 use WP_Post;
 
 /**
@@ -886,19 +887,22 @@ class Share_Mastodon_Block extends Sharing_Source_Block {
 
 		check_admin_referer( 'jetpack_share_mastodon_instance' );
 
-		require_once dirname( __DIR__, 3 ) . '/_inc/lib/class-jetpack-share-destination-helper.php';
+		// Another plugin's autoloader can serve a jetpack-sharing-likes release from before Share_Destination.
+		if ( class_exists( Share_Destination::class ) ) {
+			$share_endpoint = is_string( $_POST['jetpack-mastodon-instance'] )
+				? Share_Destination::get_endpoint(
+					wp_unslash( $_POST['jetpack-mastodon-instance'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Share_Destination validates and rebuilds the URL.
+					'share',
+					Share_Destination::UPGRADE_HTTP
+				)
+				: null;
 
-		$share_endpoint = is_string( $_POST['jetpack-mastodon-instance'] )
-			? \Jetpack_Share_Destination_Helper::get_endpoint(
-				wp_unslash( $_POST['jetpack-mastodon-instance'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The helper validates and rebuilds the URL.
-				'share',
-				\Jetpack_Share_Destination_Helper::UPGRADE_HTTP
-			)
-			: null;
-
-		if ( null === $share_endpoint ) {
-			wp_safe_redirect( \Jetpack_Share_Destination_Helper::get_prompt_url( $post->ID, $this->shortname ) );
-			exit( 0 );
+			if ( null === $share_endpoint ) {
+				wp_safe_redirect( Share_Destination::get_prompt_url( $post->ID, $this->shortname ) );
+				exit( 0 );
+			}
+		} else {
+			$share_endpoint = trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) ) . 'share';
 		}
 
 		$post_title = $this->get_share_title( $post->ID );

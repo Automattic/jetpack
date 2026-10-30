@@ -1,32 +1,39 @@
 <?php
 /**
- * Helper for sharing buttons that send readers to an address they enter, such as a Mastodon instance.
+ * Share URLs for sharing buttons that send readers to an address they enter, such as a Mastodon instance.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
+namespace Automattic\Jetpack\Sharing_Likes;
+
 /**
- * Class Jetpack_Share_Destination_Helper
+ * Builds an endpoint URL on a site a reader names, and the prompt URL to ask them again.
+ *
+ * @since $$next-version$$
  */
-class Jetpack_Share_Destination_Helper {
+final class Share_Destination {
+
 	/**
 	 * Rewrite http:// addresses to https://.
 	 *
 	 * @var bool
 	 */
-	const UPGRADE_HTTP = true;
+	public const UPGRADE_HTTP = true;
 
 	/**
 	 * Keep http:// addresses as entered.
 	 *
 	 * @var bool
 	 */
-	const KEEP_HTTP = false;
+	public const KEEP_HTTP = false;
 
 	/**
 	 * Build an endpoint URL on the site at the address a reader entered.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $address      Address the reader entered, with or without a scheme.
 	 * @param string $path         Path to append to the address, e.g. 'share'.
@@ -77,6 +84,8 @@ class Jetpack_Share_Destination_Helper {
 
 	/**
 	 * URL of a service's address prompt for a post, where a reader can try another address.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param int    $post_id Post ID.
 	 * @param string $service Sharing service short name, e.g. 'mastodon'.

@@ -1,23 +1,23 @@
 <?php
 /**
- * Tests for the sharing button destination helper.
+ * Tests for Share_Destination.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-sharing-likes
  */
 
 declare( strict_types = 1 );
 
+namespace Automattic\Jetpack\Sharing_Likes;
+
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-share-destination-helper.php';
+use WorDBless\BaseTestCase;
 
 /**
- * @covers \Jetpack_Share_Destination_Helper
+ * @covers \Automattic\Jetpack\Sharing_Likes\Share_Destination
  */
-#[CoversClass( Jetpack_Share_Destination_Helper::class )]
-class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
-	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+#[CoversClass( Share_Destination::class )]
+class Share_Destination_Test extends BaseTestCase {
 
 	private const MASTODON  = 'share';
 	private const WORDPRESS = 'wp-admin/post-new.php';
@@ -32,7 +32,7 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_accepted_addresses' )]
 	public function test_get_endpoint_normalizes_address( $address, $path, $upgrade_http, $expected ) {
-		$this->assertSame( $expected, Jetpack_Share_Destination_Helper::get_endpoint( $address, $path, $upgrade_http ) );
+		$this->assertSame( $expected, Share_Destination::get_endpoint( $address, $path, $upgrade_http ) );
 	}
 
 	/**
@@ -41,8 +41,8 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 	 * @return array<string, array{string, string, bool, string}>
 	 */
 	public static function provide_accepted_addresses() {
-		$upgrade = Jetpack_Share_Destination_Helper::UPGRADE_HTTP;
-		$keep    = Jetpack_Share_Destination_Helper::KEEP_HTTP;
+		$upgrade = Share_Destination::UPGRADE_HTTP;
+		$keep    = Share_Destination::KEEP_HTTP;
 
 		return array(
 			'bare host'                     => array( 'mastodon.social', self::MASTODON, $upgrade, 'https://mastodon.social/share' ),
@@ -73,7 +73,7 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_refused_addresses' )]
 	public function test_get_endpoint_refuses_address( $address, $path, $upgrade_http ) {
-		$this->assertNull( Jetpack_Share_Destination_Helper::get_endpoint( $address, $path, $upgrade_http ) );
+		$this->assertNull( Share_Destination::get_endpoint( $address, $path, $upgrade_http ) );
 	}
 
 	/**
@@ -82,8 +82,8 @@ class Jetpack_Share_Destination_Helper_Test extends WP_UnitTestCase {
 	 * @return array<string, array{string, string, bool}>
 	 */
 	public static function provide_refused_addresses() {
-		$upgrade = Jetpack_Share_Destination_Helper::UPGRADE_HTTP;
-		$keep    = Jetpack_Share_Destination_Helper::KEEP_HTTP;
+		$upgrade = Share_Destination::UPGRADE_HTTP;
+		$keep    = Share_Destination::KEEP_HTTP;
 
 		return array(
 			'empty'                 => array( '', self::MASTODON, $upgrade ),
