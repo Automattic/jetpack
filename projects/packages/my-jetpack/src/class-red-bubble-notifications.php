@@ -99,7 +99,12 @@ class Red_Bubble_Notifications {
 				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
 			}
 			// Within a bundle the missing plugin is a recommendation, so it leaves the menu count alone.
-			if ( isset( $plugin_requirements[ $purchase->product_slug ] ) && ! in_array( $purchase->product_slug, $product_class::get_paid_plan_product_slugs(), true ) ) {
+			// Match by substring, as get_paid_plan_purchase_for_product() does, so prefixed slugs still count as standalone.
+			$is_standalone = array_filter(
+				$product_class::get_paid_plan_product_slugs(),
+				fn( $plan ) => false !== strpos( $purchase->product_slug, $plan )
+			);
+			if ( isset( $plugin_requirements[ $purchase->product_slug ] ) && ! $is_standalone ) {
 				$plugin_requirements[ $purchase->product_slug ]['is_silent'] = true;
 			}
 		}

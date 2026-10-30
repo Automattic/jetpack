@@ -222,8 +222,9 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	 */
 	public static function provide_plugins_needed_purchases() {
 		return array(
-			'standalone Boost' => array( 'jetpack_boost_yearly', false ),
-			'Complete bundle'  => array( 'jetpack_complete', true ),
+			'standalone Boost'    => array( 'jetpack_boost_yearly', false ),
+			'prefixed standalone' => array( 'a4a_jetpack_boost_yearly', false ),
+			'Complete bundle'     => array( 'jetpack_complete', true ),
 		);
 	}
 
