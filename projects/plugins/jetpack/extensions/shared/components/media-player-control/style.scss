@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .media-player-control__current-time {
 	display: flex;
@@ -8,7 +8,7 @@
 	font-size: 14px;
 
 	&.is-disabled {
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 		cursor: default;
 	}
 }

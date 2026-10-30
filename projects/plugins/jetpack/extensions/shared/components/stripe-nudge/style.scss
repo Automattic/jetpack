@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .jetpack-stripe-nudge__banner .block-editor-warning__contents {
 	align-items: center;
@@ -9,8 +9,8 @@
 	background: var(--wpds-color-background-interactive-brand-strong);
 	border-radius: 50%;
 	box-sizing: content-box;
-	color: gb.$white;
-	fill: gb.$white;
+	color: colors.$white;
+	fill: colors.$white;
 	flex-shrink: 0;
 	margin-right: 16px;
 	padding: 6px;
