@@ -12,13 +12,16 @@ import analytics from 'lib/analytics';
 
 export const Likes = withModuleSettingsFormHelpers(
 	class extends Component {
-		trackClickConfigure() {
+		trackClickConfigure = () => {
 			analytics.tracks.recordJetpackClick( {
-				target: 'configure-like-block',
+				target:
+					this.props.isBlockTheme && this.props.hasLikeBlock
+						? 'configure-like-block'
+						: 'configure-likes',
 				page: 'sharing',
 				platform: isWpcomPlatformSite() ? 'wpcom' : 'jetpack',
 			} );
-		}
+		};
 
 		switchToLikeBlock = () => {
 			analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
@@ -44,6 +47,8 @@ export const Likes = withModuleSettingsFormHelpers(
 
 			const shouldShowLikeBlock = isBlockTheme && hasLikeBlock;
 			const isForcedActive = isActive && this.props.getModule?.( 'likes' )?.override === 'active';
+			const showConfigCard =
+				( shouldShowLikeBlock ? ! isActive : isActive ) && ! unavailableInOfflineMode;
 			let description = __(
 				'The Like button is a way for people on WordPress.com to show their appreciation for your content.',
 				'jetpack'
@@ -123,7 +128,7 @@ export const Likes = withModuleSettingsFormHelpers(
 						{ moduleAction() }
 					</SettingsGroup>
 
-					{ shouldShowLikeBlock && ! isActive && ! unavailableInOfflineMode && (
+					{ showConfigCard && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"

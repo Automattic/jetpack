@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Sharing: On block themes, link the Sharing and Like buttons settings in Jetpack and My Jetpack to Settings > Sharing, where the blocks can be placed in a click, instead of the Site Editor.
+Sharing: Add a link to configure Like buttons in Jetpack > Settings > Sharing, and on block themes, point the Sharing and Like buttons settings in Jetpack and My Jetpack to Settings > Sharing instead of the Site Editor.

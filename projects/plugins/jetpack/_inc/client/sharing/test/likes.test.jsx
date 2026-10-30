@@ -148,7 +148,8 @@ describe( 'Like buttons settings', () => {
 		expect( screen.getByRole( 'button', { name: 'Switching…' } ) ).toBeDisabled();
 	} );
 
-	it( 'keeps the legacy toggle on classic themes', () => {
+	it( 'keeps the legacy toggle and configuration link on classic themes', async () => {
+		const user = userEvent.setup();
 		render(
 			<Likes { ...defaultProps } getOptionValue={ getActiveOptionValue } isBlockTheme={ false } />
 		);
@@ -157,6 +158,26 @@ describe( 'Like buttons settings', () => {
 		expect(
 			screen.queryByRole( 'button', { name: 'Switch to the Like block' } )
 		).not.toBeInTheDocument();
+		const configureLink = screen.getByRole( 'link', { name: 'Configure your Like buttons' } );
+		expect( configureLink ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/options-general.php?page=sharing#likes'
+		);
+		configureLink.addEventListener( 'click', event => event.preventDefault() );
+
+		await user.click( configureLink );
+
+		expect( analytics.tracks.recordJetpackClick ).toHaveBeenCalledWith( {
+			target: 'configure-likes',
+			page: 'sharing',
+			platform: 'jetpack',
+		} );
+	} );
+
+	it( 'hides the configuration link while legacy likes are off on classic themes', () => {
+		render( <Likes { ...defaultProps } isBlockTheme={ false } /> );
+
+		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
 		expect(
 			screen.queryByRole( 'link', { name: 'Configure your Like buttons' } )
 		).not.toBeInTheDocument();
