@@ -21,7 +21,6 @@ afterAll( () => {
 } );
 
 describe( 'findSelectablePresetForRange', () => {
-
 	it.each( [ [ 'last-7-days' ], [ 'last-month' ], [ 'month-to-date' ] ] as const )(
 		'names the window "%s" covers today',
 		presetId => {
