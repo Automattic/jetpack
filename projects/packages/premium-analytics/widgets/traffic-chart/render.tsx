@@ -43,6 +43,7 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 type TrafficChartInnerProps = {

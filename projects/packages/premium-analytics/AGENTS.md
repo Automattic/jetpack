@@ -836,13 +836,16 @@ above the leaderboard or chart content.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
   Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
   restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
-  `<AbbreviatedValue>` to get the same.
-  `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
-  ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
-  beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;
-  whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
-  leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
-  label — at the 370px tile a long name ellipsizes where the compact form left it room.
+  `<AbbreviatedValue>` to get the same. A widget whose job is one figure — metric tiles, metric
+  cards, a headline, and the headline figure above a single-series chart (Post views,
+  Subscribers chart, Email time series, Most popular day, Traffic summary) — adds
+  `preferExact: true`, which shows the exact figure and falls back to the compact one only where
+  it would be clipped (STATS-549). Breakdown widgets (leaderboards, tables, chart axes) stay
+  compact, exact on hover and in the report: the leaderboard grid is `minmax(0, 1fr) auto`, so a
+  wider value permanently takes width from the label — at the 370px tile a long name ellipsizes
+  where the compact form left it room. `widgets/tags` is the one breakdown widget printing in
+  full — it passes `useMultipliers: false` because compacting ("1,240" → "1K") was reported as a
+  data mismatch against the Jetpack Stats module it is read beside (WOOA7S-2018).
 - Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the row builder for you,
   and `LeaderboardChart` derives the shares and deltas. The notes below are for the few widgets
   that must drive `LeaderboardChart` themselves.

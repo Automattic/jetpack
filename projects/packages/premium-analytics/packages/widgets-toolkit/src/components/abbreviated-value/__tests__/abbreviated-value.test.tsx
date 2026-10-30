@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { AbbreviatedValue } from '../abbreviated-value';
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
+const PREFER_EXACT = { ...COMPACT, preferExact: true };
 const withOpens = ( exact: string ) => `${ exact } opens`;
 
 describe( 'AbbreviatedValue', () => {
@@ -118,5 +119,100 @@ describe( 'AbbreviatedValue', () => {
 
 		expect( screen.getByText( '$1.5K' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$1,500.00' ) ).toBeInTheDocument();
+	} );
+
+	describe( 'with preferExact', () => {
+		let boxWidth = 0;
+		let figureWidth = 0;
+		let fontSize = '';
+		let resize: () => void = () => {};
+		const rect = ( left: number, right: number ) => ( { left, right } ) as DOMRect;
+		const GlobalResizeObserver = window.ResizeObserver;
+		const computedStyle = window.getComputedStyle.bind( window );
+
+		beforeEach( () => {
+			boxWidth = 200;
+			figureWidth = 120;
+			fontSize = '24px';
+			jest
+				.spyOn( HTMLSpanElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( () => rect( 0, figureWidth ) );
+			jest
+				.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( () => rect( 0, boxWidth ) );
+			jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
+				const style = computedStyle( element );
+				if ( element instanceof HTMLSpanElement ) {
+					Object.defineProperty( style, 'fontSize', { value: fontSize, configurable: true } );
+				}
+				return style;
+			} );
+			Object.defineProperty( HTMLDivElement.prototype, 'clientWidth', {
+				configurable: true,
+				get: () => boxWidth,
+			} );
+			window.ResizeObserver = class {
+				constructor( callback: ResizeObserverCallback ) {
+					resize = () => callback( [], this );
+				}
+				observe() {}
+				unobserve() {}
+				disconnect() {}
+			};
+		} );
+
+		afterEach( () => {
+			jest.restoreAllMocks();
+			window.ResizeObserver = GlobalResizeObserver;
+			// @ts-expect-error restoring jsdom's own getter.
+			delete HTMLDivElement.prototype.clientWidth;
+		} );
+
+		it( 'shows the exact figure, and the compact one only while the exact one is clipped', () => {
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+
+			act( () => {
+				boxWidth = 100;
+				resize();
+			} );
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+			expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+
+			act( () => {
+				boxWidth = 300;
+				resize();
+			} );
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'retries the exact figure when the type shrinks, though no box grew', () => {
+			boxWidth = 100;
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+
+			act( () => {
+				fontSize = '18px';
+				figureWidth = 90;
+				resize();
+			} );
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

@@ -114,6 +114,7 @@ function MetricTileValue( {
 				<MetricWithComparison
 					value={ tile.value as number }
 					previousValue={ tile.previousValue }
+					wrap="wrap"
 					dataFormat={
 						tileCurrencyCode === undefined
 							? format

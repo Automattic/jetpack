@@ -34,6 +34,7 @@ type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRe
 const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
+	preferExact: true,
 };
 
 const DAYS_AGO = [ 30, 60, 90 ] as const;

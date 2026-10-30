@@ -27,7 +27,6 @@ import {
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
-import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
@@ -550,12 +549,12 @@ function MetricTabContent( {
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
 	hideLabelFromVision?: boolean;
-	/** Spell the value out in full, for a layout with room for it. */
+	/** Spell the value out in full, for a layout with room for it; compact only where even that layout clips it. */
 	exact?: boolean;
 } ) {
 	const format = metric.dataFormat ?? dataFormat;
 	const valueFormat = useMemo(
-		() => ( exact ? exactFormatOf( format ) : format ),
+		() => ( exact ? { ...format, preferExact: true } : format ),
 		[ exact, format ]
 	);
 	// The description is opt-in: a tab already carries it on `title`, and in the

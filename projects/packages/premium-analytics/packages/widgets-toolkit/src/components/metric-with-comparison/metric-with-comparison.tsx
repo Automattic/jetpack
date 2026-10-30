@@ -38,6 +38,12 @@ export type MetricWithComparisonProps = {
 	align?: ComponentProps< typeof Stack >[ 'align' ];
 
 	/**
+	 * Whether the delta wraps under the value where the row runs out of room
+	 * @default 'nowrap'
+	 */
+	wrap?: ComponentProps< typeof Stack >[ 'wrap' ];
+
+	/**
 	 * Font size token for the primary value
 	 * @default 'xl'
 	 */
@@ -75,6 +81,7 @@ export function MetricWithComparison( {
 	dataFormat = { type: 'number' },
 	direction = 'row',
 	align = 'baseline',
+	wrap,
 	fontSize = 'xl',
 	invertDeltaColors = false,
 	hideDeltaOnZero = false,
@@ -87,7 +94,7 @@ export function MetricWithComparison( {
 	const absoluteFormat = dataFormat.type === 'currency' ? 'currency' : 'number';
 
 	return (
-		<Stack className={ className } direction={ direction } align={ align } gap="xs">
+		<Stack className={ className } direction={ direction } align={ align } wrap={ wrap } gap="xs">
 			<MetricValue value={ value } dataFormat={ dataFormat } fontSize={ fontSize } />
 
 			{ showDelta && (

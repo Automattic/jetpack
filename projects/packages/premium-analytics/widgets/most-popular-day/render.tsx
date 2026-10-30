@@ -43,7 +43,11 @@ type MostPopularDayHighlightProps = {
 	share?: number;
 };
 
-const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
+const VIEWS_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true },
+	preferExact: true,
+};
 
 /**
  * Presentational body for the "Most popular day" widget. Loading / error / empty

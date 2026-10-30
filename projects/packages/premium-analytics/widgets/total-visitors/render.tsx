@@ -44,7 +44,11 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
 // only 13 across 13 weekly ones). Views are additive and unaffected.
 const PERIOD = 'day';
 
-const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
+const HEADLINE_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true },
+	preferExact: true,
+};
 
 /**
  * The period's visitor total over an area sparkline of the trend.
