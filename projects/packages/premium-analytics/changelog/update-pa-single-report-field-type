@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Single-report pages: add the `jpa/report-params` field type to the widget SDK (2.2.0).
