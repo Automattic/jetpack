@@ -73,6 +73,15 @@ const POST_PAGE = {
 	],
 };
 
+// A plugin's page behind a plan feature, with no reports page to fall back on.
+const CLIP_PAGE = {
+	...VIDEO_PAGE,
+	id: 'demo/clip',
+	path: 'clip',
+	label: 'Clip',
+	reports_page: null,
+};
+
 const settledSearch = {
 	from: '2026-06-01T00:00:00',
 	to: '2026-06-16T23:59:59',
@@ -89,7 +98,9 @@ describe( 'single-report route.beforeLoad', () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
 			value: {
-				premium_analytics: { single_report_pages: [ VIDEO_PAGE, AUTHOR_PAGE, POST_PAGE ] },
+				premium_analytics: {
+					single_report_pages: [ VIDEO_PAGE, AUTHOR_PAGE, POST_PAGE, CLIP_PAGE ],
+				},
 			},
 		} );
 	} );
@@ -142,6 +153,14 @@ describe( 'single-report route.beforeLoad', () => {
 			to: '/reports/$report',
 			params: { report: 'videos' },
 			search: { from: search.ref_from, to: search.ref_to, ds: 'traffic' },
+		} );
+	} );
+
+	it( 'sends a plan-locked page without a reports page home', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'videos' );
+
+		await expect( beforeLoad( { kind: 'clip', id: '42' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/',
 		} );
 	} );
 

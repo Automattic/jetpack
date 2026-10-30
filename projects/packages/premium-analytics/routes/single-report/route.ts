@@ -55,16 +55,17 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
-		if (
-			page.feature &&
-			page.reports_page &&
-			isStatsFeatureLocked( page.feature as StatsFeatureKey )
-		) {
-			throw redirect( {
-				to: '/reports/$report',
-				params: { report: page.reports_page } as unknown as never,
-				search: pickReportNavigationParams( search ) as unknown as never,
-			} );
+		if ( page.feature && isStatsFeatureLocked( page.feature as StatsFeatureKey ) ) {
+			// The locked reports page offers the upgrade; a page without one goes home.
+			throw redirect(
+				page.reports_page
+					? {
+							to: '/reports/$report',
+							params: { report: page.reports_page } as unknown as never,
+							search: pickReportNavigationParams( search ) as unknown as never,
+						}
+					: { to: '/' }
+			);
 		}
 
 		const id = params?.id;
