@@ -236,7 +236,7 @@ class Initializer {
 		// Sets up JITMS.
 		JITM::configure();
 
-		// Add "Jetpack Manage" menu item.
+		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
 
 		/**
