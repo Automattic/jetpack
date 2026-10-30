@@ -29,7 +29,7 @@ class Stats {
 		);
 
 		if ( is_array( $args ) && ! empty( $args ) ) {
-			$endpoint .= '&' . http_build_query( $args );
+			$endpoint .= '&' . http_build_query( $args, '', '&' );
 		}
 
 		$result = Client::wpcom_json_api_request_as_blog( $endpoint );
