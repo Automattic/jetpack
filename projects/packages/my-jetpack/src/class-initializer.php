@@ -145,7 +145,7 @@ class Initializer {
 	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
 
 	/**
-	 * Feature flag for opening a small feature's settings from Configure in Features.
+	 * Feature flag for moving settings out of the Settings screen: the settings panel, removed cards and new placement.
 	 *
 	 * @var string
 	 */
@@ -1465,7 +1465,7 @@ class Initializer {
 			self::SETTINGS_PANEL_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Open a small feature\'s settings in a panel from Configure in Features, and replace its card on the Settings screen with a pointer.',
+				'description' => 'Move settings out of the Settings screen to their new homes: open small features\' settings in a panel from Configure in Features, remove or replace their Settings cards with pointers, and show settings in their new places.',
 				'owner'       => 'my-jetpack',
 			)
 		);
