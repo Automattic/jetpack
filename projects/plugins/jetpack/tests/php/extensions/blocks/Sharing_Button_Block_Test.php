@@ -131,15 +131,15 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The repost link prefills a WordPress.com draft, without the text of a gated post.
-	 *
-	 * @dataProvider provide_reposted_posts
-	 * @param array  $post_args     Post fields on top of the title.
-	 * @param string $expected_text Expected `text` argument.
+	 * The repost link hands WordPress.com the title and URL, and none of the post's text.
 	 */
-	#[DataProvider( 'provide_reposted_posts' )]
-	public function test_repost_url_prefills_wpcom_draft( $post_args, $expected_text ) {
-		$post = self::factory()->post->create_and_get( array_merge( array( 'post_title' => 'Tips & tricks' ), $post_args ) );
+	public function test_repost_url_prefills_wpcom_draft() {
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_title'   => 'Tips & tricks',
+				'post_excerpt' => 'A short summary.',
+			)
+		);
 
 		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
@@ -149,7 +149,6 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			array(
 				'url'           => get_permalink( $post ),
 				'title'         => 'Tips & tricks',
-				'text'          => $expected_text,
 				'is_post_share' => 'true',
 			),
 			$args
@@ -157,38 +156,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @return array
-	 */
-	public static function provide_reposted_posts() {
-		return array(
-			'excerpt'            => array( array( 'post_excerpt' => 'A short summary.' ), 'A short summary.' ),
-			'no excerpt'         => array(
-				array(
-					'post_excerpt' => '',
-					'post_content' => '<!-- wp:paragraph --><p>Words from the post body.</p><!-- /wp:paragraph -->',
-				),
-				'Words from the post body.',
-			),
-			'password-protected' => array(
-				array(
-					'post_excerpt'  => 'A short summary.',
-					'post_password' => 'secret',
-				),
-				'',
-			),
-			'subscribers only'   => array(
-				array(
-					'post_excerpt' => '',
-					'post_content' => 'Words for subscribers.',
-					'meta_input'   => array( '_jetpack_newsletter_access' => 'subscribers' ),
-				),
-				'',
-			),
-		);
-	}
-
-	/**
-	 * The own-site link opens the reader's editor, filled in for sites with or without Jetpack.
+	 * The own-site link opens the reader's editor, with only the URL as core's content.
 	 *
 	 * @dataProvider provide_reader_sites
 	 * @param string $site          Site address the reader entered.
@@ -196,12 +164,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_reader_sites' )]
 	public function test_site_repost_url_opens_the_readers_editor( $site, $expected_base ) {
-		$post = self::factory()->post->create_and_get(
-			array(
-				'post_title'   => 'Tips & tricks',
-				'post_excerpt' => 'A short summary.',
-			)
-		);
+		$post = self::factory()->post->create_and_get( array( 'post_title' => 'Tips & tricks' ) );
 
 		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
@@ -209,7 +172,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( $expected_base, strtok( $url, '?' ) );
 		$this->assertSame( 'true', $args['is_post_share'] );
 		$this->assertSame( 'Tips & tricks', $args['post_title'] );
-		$this->assertSame( "A short summary.\n\n" . get_permalink( $post ), $args['content'] );
+		$this->assertSame( get_permalink( $post ), $args['content'] );
 	}
 
 	/**
@@ -218,32 +181,18 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public static function provide_reader_sites() {
 		return array(
 			'bare domain'  => array( ' example.com ', 'https://example.com/wp-admin/post-new.php' ),
-			'subdirectory' => array( 'http://example.com/blog', 'http://example.com/blog/wp-admin/post-new.php' ),
+			'http'         => array( 'http://example.com', 'http://example.com/wp-admin/post-new.php' ),
+			'subdirectory' => array( 'https://example.com/wordpress/', 'https://example.com/wordpress/wp-admin/post-new.php' ),
 		);
 	}
 
 	/**
-	 * Anything but an http(s) site address gets no link.
-	 *
-	 * @dataProvider provide_refused_sites
-	 * @param string $site Site address the reader entered.
+	 * An address Share_Destination refuses gets no link.
 	 */
-	#[DataProvider( 'provide_refused_sites' )]
-	public function test_site_repost_url_refuses_other_addresses( $site ) {
+	public function test_site_repost_url_refuses_unusable_addresses() {
 		$post = self::factory()->post->create_and_get();
 
-		$this->assertSame( '', ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function provide_refused_sites() {
-		return array(
-			'script' => array( 'javascript:alert(1)' ),
-			'ftp'    => array( 'ftp://example.com' ),
-			'empty'  => array( '' ),
-		);
+		$this->assertNull( ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, 'javascript:alert(1)' ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 	}
 
 	/**

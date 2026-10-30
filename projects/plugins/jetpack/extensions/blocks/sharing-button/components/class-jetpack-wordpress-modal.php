@@ -58,35 +58,48 @@ class Jetpack_WordPress_Modal {
 	<meta name="referrer" content="no-referrer">
 		<?php rel_canonical(); ?>
 	<title><?php esc_html_e( 'Repost on WordPress', 'jetpack' ); ?></title>
+	<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- This standalone page has no wp_head(). ?>
+	<link rel="stylesheet" href="https://s1.wp.com/i/fonts/recoleta/css/400.min.css" />
 	<style type="text/css">
 		.sd-wordpress-modal {
-			background: #f6f7f7;
-			color: #1e1e1e;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			background: #fcfcfc;
+			color: #2c3338;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 			margin: 0;
 		}
 
 		.sd-wordpress-modal__inner {
-			background: #fff;
-			border-radius: 8px;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 			box-sizing: border-box;
-			margin: 48px auto;
-			max-width: 440px;
-			padding: 32px;
-			width: calc(100% - 32px);
+			margin: 0 auto;
+			max-inline-size: 480px;
+			padding: 32px 16px;
+		}
+
+		.sd-wordpress-modal__logo {
+			text-align: center;
 		}
 
 		.sd-wordpress-modal__logo svg {
+			block-size: 48px;
 			fill: #3858e9;
-			height: 40px;
-			width: 40px;
+			inline-size: 48px;
 		}
 
 		.sd-wordpress-modal__title {
-			font-size: 22px;
-			line-height: 1.3;
-			margin: 12px 0 24px;
+			color: #101517;
+			font-family: Recoleta, Georgia, "Times New Roman", Times, serif;
+			font-size: 36px;
+			font-weight: 400;
+			line-height: 1.2;
+			margin: 16px 0 12px;
+			text-align: center;
+		}
+
+		.sd-wordpress-modal__description {
+			font-size: 16px;
+			line-height: 1.5;
+			margin: 0 0 32px;
+			text-align: center;
 		}
 
 		.sd-wordpress-modal__inner form {
@@ -97,7 +110,7 @@ class Jetpack_WordPress_Modal {
 			display: block;
 			font-size: 14px;
 			font-weight: 500;
-			margin: 24px 0 8px;
+			margin: 32px 0 8px;
 		}
 
 		.sd-wordpress-modal__site {
@@ -106,32 +119,53 @@ class Jetpack_WordPress_Modal {
 		}
 
 		.sd-wordpress-modal__inner input {
-			border: 1px solid #949494;
-			border-radius: 4px;
+			background: #fff;
+			border: 1px solid #c3c4c7;
+			border-radius: 2px;
 			box-sizing: border-box;
+			color: #101517;
 			flex: 1;
 			font-size: 16px;
-			min-width: 0;
-			padding: 10px;
+			min-inline-size: 0;
+			padding: 11px 12px;
 		}
 
 		.sd-wordpress-modal__inner button {
 			background: #3858e9;
-			border: 0;
-			border-radius: 4px;
+			border: 1px solid #3858e9;
+			border-radius: 2px;
 			color: #fff;
 			cursor: pointer;
 			font-size: 16px;
 			font-weight: 500;
-			padding: 12px 16px;
+			padding: 11px 16px;
 		}
 
 		.sd-wordpress-modal__inner button:hover {
 			background: #2145e6;
+			border-color: #2145e6;
 		}
 
-		.sd-wordpress-modal__wpcom {
-			width: 100%;
+		.sd-wordpress-modal__inner .sd-wordpress-modal__wpcom {
+			inline-size: 100%;
+			padding-block: 14px;
+		}
+
+		.sd-wordpress-modal__inner .sd-wordpress-modal__go {
+			background: #fff;
+			color: #3858e9;
+		}
+
+		.sd-wordpress-modal__inner .sd-wordpress-modal__go:hover {
+			background: #f0f0f1;
+			color: #2145e6;
+		}
+
+		.sd-wordpress-modal__help {
+			color: #646970;
+			font-size: 13px;
+			line-height: 1.5;
+			margin: 8px 0 0;
 		}
 	</style>
 </head>
@@ -141,6 +175,7 @@ class Jetpack_WordPress_Modal {
 			<?php echo get_social_logo( 'wordpress' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.CapitalPDangit.MisspelledInText -- SVG is safe. ?>
 		</div>
 		<h1 class="sd-wordpress-modal__title"><?php esc_html_e( 'Repost this on your WordPress site', 'jetpack' ); ?></h1>
+		<p class="sd-wordpress-modal__description"><?php esc_html_e( 'Start a new post on your site with this one embedded.', 'jetpack' ); ?></p>
 		<form method="post">
 			<input type="hidden" name="_wpnonce" value="<?php echo esc_attr( $nonce ); ?>" />
 			<input type="hidden" name="jetpack-wordpress-destination" value="wordpress.com" />
@@ -154,6 +189,7 @@ class Jetpack_WordPress_Modal {
 				<input
 					required
 					aria-required="true"
+					aria-describedby="jetpack-wordpress-site-help"
 					type="text"
 					inputmode="url"
 					autocomplete="url"
@@ -161,8 +197,9 @@ class Jetpack_WordPress_Modal {
 					name="jetpack-wordpress-site"
 					placeholder="<?php echo esc_attr( 'https://example.com' ); ?>"
 				/>
-				<button type="submit"><?php esc_html_e( 'Go', 'jetpack' ); ?></button>
+				<button type="submit" class="sd-wordpress-modal__go"><?php esc_html_e( 'Go', 'jetpack' ); ?></button>
 			</div>
+			<p id="jetpack-wordpress-site-help" class="sd-wordpress-modal__help"><?php esc_html_e( 'If WordPress is installed in its own folder, include it, like example.com/wordpress.', 'jetpack' ); ?></p>
 		</form>
 	</main>
 </body>
