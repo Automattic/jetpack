@@ -13,6 +13,7 @@ export function ownsPath( current: string, route: string ): boolean {
 	);
 }
 
+// TODO: wp-build (boot) should capture wp-admin sidebar clicks and route them itself, so this workaround can go.
 /**
  * Make the Jetpack sidebar entries that point at the SPA page navigate the router, and keep the open menu and highlight in step.
  *
