@@ -10,44 +10,95 @@ body.jetpack_page_my-jetpack {
 }
 
 .wpcom-my-jetpack__body {
-	max-width: 1040px;
 	box-sizing: border-box;
-	padding: 24px;
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
+// Two columns like My Jetpack's Features tab. 782px is where wp-admin itself
+// collapses the sidebar.
 .wpcom-my-jetpack__tools {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-	gap: 8px;
+	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+@media (max-width: 782px) {
+
+	.wpcom-my-jetpack__tools {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+// The card from My Jetpack's Features tab: icon, title and description,
+// trailing arrow, the whole card one target.
 .wpcom-my-jetpack__tool {
-	display: block;
-	height: 100%;
-	text-decoration: none;
-	color: inherit;
-}
+	align-items: flex-start;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-xl);
+	position: relative;
 
-.wpcom-my-jetpack__tool-card {
-	height: 100%;
-	box-sizing: border-box;
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&:focus-within {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: calc(var(--wpds-border-width-focus) * -1);
+	}
 }
 
 // The product tile from jetpack.com's menu.
 .wpcom-my-jetpack__tool-icon {
-	flex: none;
-	display: flex;
 	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 8px;
 	background: #073f12;
+	block-size: 2.25rem;
+	border-radius: var(--wpds-border-radius-md);
 	color: #0ced57;
+	display: flex;
 	fill: currentColor;
+	flex: none;
+	inline-size: 2.25rem;
+	justify-content: center;
 }
 
 .wpcom-my-jetpack__tool-text {
-	flex: 1 1 auto;
-	min-width: 0;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+}
+
+.wpcom-my-jetpack__tool-title {
+	color: var(--wpds-color-foreground-content-neutral);
+	text-decoration: none;
+
+	// Stretched over the card, so anywhere on it follows the link. The card
+	// draws the focus ring.
+	&::after {
+		content: "";
+		inset: 0;
+		position: absolute;
+	}
+
+	&:focus-visible {
+		box-shadow: none;
+		outline: none;
+	}
+}
+
+.wpcom-my-jetpack__tool-description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.wpcom-my-jetpack__tool-arrow {
+	align-self: center;
+	color: var(--wpds-color-foreground-content-neutral);
+	display: flex;
+	flex: none;
 }

@@ -1,15 +1,16 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	arrowUpRight,
 	audio,
 	backup,
+	chevronLeft,
 	chevronRight,
 	currencyDollar,
 	globe,
 	trendingUp,
 } from '@wordpress/icons';
-import { Card, Icon, Link, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Icon, Link, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import {
 	akismet,
 	blaze,
@@ -43,35 +44,45 @@ const ICONS: Record< string, ReactElement > = {
 };
 
 /**
- * One tool in the list, linking to wherever the menu sends it.
+ * One tool in the list, laid out like a card on My Jetpack's Features tab.
+ *
+ * The title carries the link and stretches over the whole card.
  *
  * @param props      - Component props.
  * @param props.tool - The tool.
- * @return The rendered link.
+ * @return The rendered card.
  */
-function ToolLink( { tool }: { tool: Tool } ) {
+function ToolCard( { tool }: { tool: Tool } ) {
+	const chevron = isRTL() ? chevronLeft : chevronRight;
+
 	return (
-		<Link className="wpcom-my-jetpack__tool" variant="unstyled" href={ tool.url }>
-			<Card.Root className="wpcom-my-jetpack__tool-card">
-				<Card.Content>
-					<Stack direction="row" gap="md" align="center">
-						<span className="wpcom-my-jetpack__tool-icon">
-							<Icon icon={ ICONS[ tool.icon ] ?? jetpack } size={ 24 } />
-						</span>
-						<Stack className="wpcom-my-jetpack__tool-text" direction="column">
-							<Text variant="heading-sm">{ tool.title }</Text>
-							{ tool.description && <Text variant="body-sm">{ tool.description }</Text> }
-						</Stack>
-						{ tool.external && (
-							<VisuallyHidden>
-								{ __( '(opens on WordPress.com)', 'jetpack-mu-wpcom' ) }
-							</VisuallyHidden>
-						) }
-						<Icon icon={ tool.external ? arrowUpRight : chevronRight } size={ 20 } />
-					</Stack>
-				</Card.Content>
-			</Card.Root>
-		</Link>
+		<div className="wpcom-my-jetpack__tool">
+			<span className="wpcom-my-jetpack__tool-icon" aria-hidden="true">
+				<Icon icon={ ICONS[ tool.icon ] ?? jetpack } size={ 20 } />
+			</span>
+			<span className="wpcom-my-jetpack__tool-text">
+				<Text
+					variant="heading-lg"
+					className="wpcom-my-jetpack__tool-title"
+					render={ <Link variant="unstyled" href={ tool.url } /> }
+				>
+					{ tool.title }
+					{ tool.external && (
+						<VisuallyHidden>
+							{ __( '(opens on WordPress.com)', 'jetpack-mu-wpcom' ) }
+						</VisuallyHidden>
+					) }
+				</Text>
+				{ tool.description && (
+					<Text variant="body-md" className="wpcom-my-jetpack__tool-description">
+						{ tool.description }
+					</Text>
+				) }
+			</span>
+			<span className="wpcom-my-jetpack__tool-arrow" aria-hidden="true">
+				<Icon icon={ tool.external ? arrowUpRight : chevron } size={ 24 } />
+			</span>
+		</div>
 	);
 }
 
@@ -81,18 +92,17 @@ function ToolLink( { tool }: { tool: Tool } ) {
  * @return The rendered page.
  */
 export function App() {
-	const { domain, tools, plan }: InitialState = window.wpcomMyJetpackInitialState ?? {
-		domain: '',
+	const { tools, plan }: InitialState = window.wpcomMyJetpackInitialState ?? {
 		tools: [],
 		plan: null,
 	};
 
 	return (
-		<AdminPage title={ __( 'My Jetpack', 'jetpack-mu-wpcom' ) } subTitle={ domain } unwrapped>
+		<AdminPage title={ __( 'My Jetpack', 'jetpack-mu-wpcom' ) } unwrapped>
 			<Stack className="wpcom-my-jetpack__body" direction="column" gap="lg">
 				<div className="wpcom-my-jetpack__tools">
 					{ tools.map( tool => (
-						<ToolLink key={ tool.url } tool={ tool } />
+						<ToolCard key={ tool.url } tool={ tool } />
 					) ) }
 				</div>
 				{ plan && (

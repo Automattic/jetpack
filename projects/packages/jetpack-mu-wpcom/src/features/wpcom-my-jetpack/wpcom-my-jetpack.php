@@ -75,9 +75,8 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 		}
 
 		return array(
-			'domain' => $domain,
-			'tools'  => static::get_tools(),
-			'plan'   => $plan,
+			'tools' => static::get_tools(),
+			'plan'  => $plan,
 		);
 	}
 

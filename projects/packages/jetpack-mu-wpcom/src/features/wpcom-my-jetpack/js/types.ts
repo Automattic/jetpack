@@ -7,7 +7,6 @@ export interface Tool {
 }
 
 export interface InitialState {
-	domain: string;
 	tools: Tool[];
 	plan: { name: string | null; url: string } | null;
 }
