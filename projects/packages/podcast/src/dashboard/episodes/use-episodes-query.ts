@@ -34,6 +34,7 @@ export function useEpisodesQuery( args: EpisodesQueryArgs ): {
 	const query = useMemo(
 		() => ( {
 			categories: args.categoryId,
+			podcast_episodes: 1,
 			page: args.page ?? 1,
 			per_page: args.perPage ?? 20,
 			orderby: args.orderBy ?? 'date',
