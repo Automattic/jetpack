@@ -716,7 +716,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sort the Jetpack submenu into the self-hosted tiers, each A to Z, on every platform.
+	 * Sort the Jetpack submenu A to Z between My Jetpack and Settings, on every platform.
 	 *
 	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
@@ -730,7 +730,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_jetpack_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_sorts_into_tiers( $simple, $address, $expected, $atomic = true ) {
+	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
@@ -825,8 +825,8 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_jetpack_menu_environments() {
-		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'SEO', 'Social', 'Backup', 'Monetize', 'Scan', 'Beta Tester', 'Settings' );
-		$simple = array( 'Akismet Anti-spam 2', 'Podcast', 'SEO', 'Social', 'Activity Log (hidden)', 'Activity Log', 'Backup', 'Monetize', 'Scan', 'Traffic', 'Beta Tester' );
+		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
+		$simple = array( 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),

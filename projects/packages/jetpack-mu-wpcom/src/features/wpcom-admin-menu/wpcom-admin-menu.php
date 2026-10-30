@@ -540,12 +540,12 @@ function wpcom_add_jetpack_submenu() {
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu into the tiers the self-hosted sidebar uses (Admin_Menu in the admin-ui package).
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first, then Beta Tester and Settings, then
+ * the upgrade link at the bottom.
  *
- * My Jetpack first, then wp-admin pages, then links that leave the site, then Beta Tester and Settings,
- * then the upgrade link, each tier A to Z by title. WordPress points the top-level Jetpack link at the
- * first item, hidden ones included, so a hidden item sorts last within its tier. A hidden item alone
- * in the first tier, like My Jetpack on some Atomic plans, still takes that link.
+ * WordPress points the top-level Jetpack link at the first item, hidden ones included, so a hidden item
+ * sorts after the visible ones in its tier. A hidden item alone in the first tier, like My Jetpack on
+ * some Atomic plans, still takes that link.
  */
 function wpcom_sort_jetpack_submenu() {
 	global $submenu;
@@ -553,8 +553,8 @@ function wpcom_sort_jetpack_submenu() {
 		return;
 	}
 
-	// The Admin_Menu::POSITION_* values (FIRST -10, FIRST_FALLBACK -5, DEFAULT 0, EXTERNAL 100,
-	// LAST 998, UPGRADE 999); this package doesn't depend on admin-ui.
+	// The Admin_Menu::POSITION_* values (FIRST -10, FIRST_FALLBACK -5, DEFAULT 0, LAST 998,
+	// UPGRADE 999); this package doesn't depend on admin-ui.
 	$named_tiers = array(
 		'my-jetpack'                                    => -10,
 		'jetpack_modules'                               => -5,
@@ -562,21 +562,14 @@ function wpcom_sort_jetpack_submenu() {
 		'jetpack-settings'                              => 998,
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
-	$site_hosts  = array(
-		wp_parse_url( home_url(), PHP_URL_HOST ),
-		wp_parse_url( admin_url(), PHP_URL_HOST ),
-	);
 
 	$keyed = array();
 	foreach ( $submenu['jetpack'] as $item ) {
-		$host = wp_parse_url( $item[2], PHP_URL_HOST );
 		if ( isset( $named_tiers[ $item[2] ] ) ) {
 			$tier = $named_tiers[ $item[2] ];
 		} elseif ( str_contains( $item[2], 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item' ) ) {
 			// Admin_Menu::UPGRADE_MENU_SLUG, sent through a jetpack.com redirect.
 			$tier = 999;
-		} elseif ( $host && ! in_array( $host, $site_hosts, true ) ) {
-			$tier = 100;
 		} else {
 			$tier = 0;
 		}
