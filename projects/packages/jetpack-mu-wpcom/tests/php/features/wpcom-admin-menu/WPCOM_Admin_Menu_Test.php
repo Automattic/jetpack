@@ -716,7 +716,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sort the Jetpack submenu A to Z between My Jetpack (Activity Log on Simple) and Settings, on every platform.
+	 * Sort the Jetpack submenu A to Z between its pinned top and bottom items, on every platform.
 	 *
 	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
