@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { BlockEditorProvider, BlockInspector, BlockList } from '@wordpress/block-editor';
 import { createBlock, registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 import { SlotFillProvider } from '@wordpress/components';
@@ -39,8 +40,10 @@ describe( 'sharing buttons block inspector', () => {
 			</SlotFillProvider>
 		);
 
-		await expect( screen.findByRole( 'tab', { name: 'List View' } ) ).resolves.toBeInTheDocument();
-		const tree = screen.getByRole( 'treegrid', { name: 'Block navigation structure' } );
+		await userEvent.click( await screen.findByRole( 'tab', { name: 'List View' } ) );
+		const tree = within( screen.getByRole( 'tabpanel' ) ).getByRole( 'treegrid', {
+			name: 'Block navigation structure',
+		} );
 		expect( within( tree ).getByRole( 'link', { name: /Facebook/ } ) ).toBeInTheDocument();
 		expect( within( tree ).getByRole( 'link', { name: /Mastodon/ } ) ).toBeInTheDocument();
 		await expect(
