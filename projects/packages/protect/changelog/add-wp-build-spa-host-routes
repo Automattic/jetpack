@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a route, tabs included, that the Jetpack plugin's top-level admin page can load, so switching between Jetpack products no longer reloads the page.
