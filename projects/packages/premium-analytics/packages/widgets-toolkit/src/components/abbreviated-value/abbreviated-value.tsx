@@ -5,14 +5,14 @@ import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './abbreviated-value.module.scss';
 import { useIsClipped } from './use-is-clipped';
 import type { DataFormat } from '../../types';
-import type { Ref } from 'react';
+import type { ForwardedRef } from 'react';
 
 export type AbbreviatedTextProps = {
 	/** The shortened text to show, e.g. `'18.4K'`. */
@@ -22,21 +22,21 @@ export type AbbreviatedTextProps = {
 	/** Restored in place of `exact`, e.g. `'18,432 opens'`; assistive tech only when nothing was shortened. */
 	restored?: string;
 	className?: string;
-	/** The element holding the text, for a caller that measures it. */
-	ref?: Ref< HTMLSpanElement >;
 };
 
 /**
  * Shows the shortened text and restores the full one in a tooltip and for
  * assistive tech; no tooltip when nothing was shortened.
+ *
+ * @param {AbbreviatedTextProps}          props - The text to show and restore.
+ * @param {ForwardedRef<HTMLSpanElement>} ref   - Forwarded to the element holding the text, for a caller that measures it.
+ * @return The abbreviated text element.
  */
-export function AbbreviatedText( {
-	display,
-	exact,
-	restored,
-	className,
-	ref,
-}: AbbreviatedTextProps ) {
+function UnforwardedAbbreviatedText(
+	props: AbbreviatedTextProps,
+	ref: ForwardedRef< HTMLSpanElement >
+) {
+	const { display, exact, restored, className } = props;
 	const full = restored ?? exact;
 
 	if ( display === full ) {
@@ -68,6 +68,8 @@ export function AbbreviatedText( {
 		</Tooltip>
 	);
 }
+
+export const AbbreviatedText = forwardRef( UnforwardedAbbreviatedText );
 
 export type AbbreviatedValueProps = {
 	value: number;
