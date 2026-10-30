@@ -35,6 +35,7 @@ Main chart component with responsive behavior by default.
 | `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
 | `renderTooltip` | `(params: RenderTooltipParams<DataPointDate> & { bucketInfo?: BucketInfo }) => ReactNode?` | - | Custom tooltip render function. `bucketInfo` carries the chart's date bucket classification |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
+| `compactWhenShort` | `boolean?` | `false` | Below `theme.sparkline.compactBelow` (140px by default), drop the axes, grid and legend and default to `theme.sparkline.margin`. See [Compact When Short](./?path=/docs/js-packages-charts-library-charts-line-chart--docs#compact-when-short) |
 | `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
 | `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
 | `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |

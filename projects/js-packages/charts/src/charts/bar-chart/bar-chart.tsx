@@ -27,6 +27,7 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -133,6 +134,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	animation,
 	children,
 	gap = 'md',
+	compactWhenShort = false,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -206,10 +208,28 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ dataSorted, isSeriesRendered ]
 	);
 
+	const { isCompact, compactMargin } = useCompactWhenShort(
+		compactWhenShort && ! horizontal,
+		height
+	);
+	const resolvedOptions = useMemo(
+		() =>
+			isCompact
+				? {
+						...options,
+						axis: {
+							...options.axis,
+							x: { ...options.axis?.x, display: false },
+							y: { ...options.axis?.y, display: false },
+						},
+					}
+				: options,
+		[ isCompact, options ]
+	);
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
 		horizontal,
-		options,
+		resolvedOptions,
 		isSeriesRendered
 	);
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
@@ -583,10 +603,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
-	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const gridVisibility = isCompact ? 'none' : ( gridVisibilityProp ?? chartOptions.gridVisibility );
 
 	const legendPosition = legend.position ?? 'bottom';
-	const legendElement = showLegend && (
+	const legendElement = showLegend && ! isCompact && (
 		<Legend
 			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
@@ -614,7 +634,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
-				legendChildren={ legendChildren }
+				legendChildren={ isCompact ? [] : legendChildren }
 				gap={ gap }
 				className={ clsx(
 					'bar-chart',
@@ -654,6 +674,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										height={ chartHeight }
 										margin={ {
 											...defaultMargin,
+											...compactMargin,
 											...margin,
 										} }
 										xScale={ xScale }

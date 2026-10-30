@@ -55,6 +55,7 @@ const defaultTheme: CompleteChartTheme = {
 	sparkline: {
 		margin: { top: 2, right: 2, bottom: 2, left: 2 },
 		strokeWidth: 1.5,
+		compactBelow: 140,
 	},
 	// The compact 11px square / 2px gap is the contribution-graph rhythm, which has no WPDS dimension.
 	heatmapChart: {

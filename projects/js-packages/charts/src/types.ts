@@ -436,6 +436,8 @@ export type ChartTheme = {
 		};
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
+		/** Height (px) below which a `compactWhenShort` chart drops to a sparkline */
+		compactBelow?: number;
 	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
@@ -707,6 +709,17 @@ export interface SeriesVisibilityProps {
 	 * Omit to retain the provider's existing visibility for the chart ID.
 	 */
 	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Sparkline fallback for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to the sparkline margin, while the chart is
+	 * shorter than `theme.sparkline.compactBelow`. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
 }
 
 /**
