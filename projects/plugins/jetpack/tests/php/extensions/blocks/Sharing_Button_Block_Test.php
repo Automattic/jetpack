@@ -187,12 +187,83 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An address Share_Destination refuses gets no link.
+	 * The handler waits for a choice, and showing the prompt is not a share.
 	 */
-	public function test_site_repost_url_refuses_unusable_addresses() {
+	public function test_process_request_asks_first() {
 		$post = self::factory()->post->create_and_get();
 
-		$this->assertNull( ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, 'javascript:alert(1)' ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, array() ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+
+		$this->assertSame( 10, has_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) ) );
+		$this->assertSame( 0, did_action( 'sharing_bump_stats' ) );
+	}
+
+	/**
+	 * A choice sends the reader to that destination, and only a real share counts in stats.
+	 *
+	 * @dataProvider provide_repost_choices
+	 * @param array  $form     Form fields the reader submitted.
+	 * @param string $expected Expected part of the redirect.
+	 * @param int    $shares   Expected number of counted shares.
+	 */
+	#[DataProvider( 'provide_repost_choices' )]
+	public function test_process_request_follows_the_readers_choice( $form, $expected, $shares ) {
+		$post                 = self::factory()->post->create_and_get();
+		$superglobals         = array( $_POST, $_REQUEST );
+		$_POST                = $form;
+		$_REQUEST['_wpnonce'] = wp_create_nonce( Jetpack_WordPress_Modal::NONCE_ACTION );
+		// Throwing stops the handler before it sends headers and dies.
+		add_filter(
+			'wp_redirect',
+			/**
+			 * @param string $location Redirect location.
+			 * @return never
+			 */
+			function ( $location ) {
+				throw new RuntimeException( $location );
+			}
+		);
+
+		$location = '';
+		try {
+			( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, $form ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		} catch ( RuntimeException $redirect ) {
+			$location = $redirect->getMessage();
+		} finally {
+			list( $_POST, $_REQUEST ) = $superglobals;
+		}
+
+		$this->assertStringContainsString( $expected, $location );
+		$this->assertSame( $shares, did_action( 'sharing_bump_stats' ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_repost_choices() {
+		return array(
+			'WordPress.com'    => array(
+				array( 'jetpack-wordpress-destination' => 'wordpress.com' ),
+				'https://wordpress.com/post?',
+				1,
+			),
+			'own site'         => array(
+				array(
+					'jetpack-wordpress-destination' => 'site',
+					'jetpack-wordpress-site'        => 'http://example.com/blog',
+				),
+				'http://example.com/blog/wp-admin/post-new.php?',
+				1,
+			),
+			'unusable address' => array(
+				array(
+					'jetpack-wordpress-destination' => 'site',
+					'jetpack-wordpress-site'        => 'javascript:alert(1)',
+				),
+				'share=wordpress&nb=1',
+				0,
+			),
+		);
 	}
 
 	/**
