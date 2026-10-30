@@ -23,11 +23,6 @@ jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
 );
 
-jest.mock(
-	'@wordpress/compose',
-	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
-);
-
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );

@@ -71,7 +71,8 @@ export type ComparativeBarChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Draw a sparkline (no axes, grid, or legend) below `theme.sparkline.compactBelow`.
+	 * Draw a sparkline (no axes, grid, or legend) while the chart is shorter than
+	 * `theme.sparkline.compactBelow`.
 	 * Forwarded to `BarChart`. Defaults to false.
 	 */
 	compactWhenShort?: boolean;

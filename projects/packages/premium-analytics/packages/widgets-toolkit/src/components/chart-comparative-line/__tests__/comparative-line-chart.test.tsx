@@ -21,11 +21,6 @@ jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
 );
 
-jest.mock(
-	'@wordpress/compose',
-	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
-);
-
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 
 // A tooltip label reads its point as the instant it is, in the site's timezone, so

@@ -112,7 +112,8 @@ export type ComparativeLineChartProps = {
 	tickResolution?: TickResolution;
 
 	/**
-	 * Draw a sparkline (no axes, grid, or legend) below `theme.sparkline.compactBelow`.
+	 * Draw a sparkline (no axes, grid, or legend) while the chart is shorter than
+	 * `theme.sparkline.compactBelow`.
 	 * Forwarded to `LineChart`.
 	 */
 	compactWhenShort?: boolean;
