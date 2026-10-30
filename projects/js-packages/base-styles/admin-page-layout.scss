@@ -434,8 +434,6 @@ $jp-breakpoint-mobile: 782px;
 	}
 }
 
-// The Jetpack SPA host page is a hidden page, so no product's own `body.<page>` scope matches it.
-// Apply the layout here too, or AdminPage's legacy -20px shift is never cancelled.
 body.admin_page_jetpack-spa-wp-admin,
 body.jetpack_page_jetpack-spa-wp-admin {
 
