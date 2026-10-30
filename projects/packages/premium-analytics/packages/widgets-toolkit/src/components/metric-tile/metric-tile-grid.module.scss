@@ -69,6 +69,24 @@ $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	white-space: nowrap;
 }
 
+/* In a list row the figure gives way before the label: the header keeps at
+ * least this much and the value box shrinks instead, clipping a figure that is
+ * too long, which a `preferExact` format then shows compact. */
+$metric-tile-list-header-min: 7rem;
+
+.grid[data-layout="compact"] .header,
+.grid[data-layout="stacked"] .header {
+	min-inline-size: min(100%, #{$metric-tile-list-header-min});
+}
+
+.grid[data-layout="compact"] .tile .value,
+.grid[data-layout="stacked"] .tile .value,
+.grid[data-layout="compact"] .tile .placeholder,
+.grid[data-layout="stacked"] .tile .placeholder {
+	flex-shrink: 1;
+	min-inline-size: 0;
+}
+
 /* Comparison tiles render value + delta through MetricWithComparison, which
  * manages its own value font size, so this cell only handles placement. */
 .comparison {
