@@ -1,3 +1,26 @@
+// Every block in a step is a full-width row. grunion.scss has said so since
+// multistep shipped, with `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
+// but it says it on the wrong axis: a multistep form is vertical, which makes
+// the step `flex-direction: column` (below), so that `100%` is a height basis
+// and the width falls to `align-items: flex-start`, i.e. shrink to fit. This is
+// the same axis mistake the container-block rule below corrects, and it
+// applies to every other child too: a paragraph or heading in a step ends up as
+// wide as its text, on the front end as well as in the editor, so aligning its
+// text does nothing visible.
+// This lives here rather than in grunion.scss because grunion.scss is front-end
+// only (registered in class-contact-form-plugin.php, not among the block's
+// `style_handles`), and the editor needs the same rule.
+// One class of specificity is deliberate: high enough to beat a theme styling
+// a bare element, low enough that a field's own width setting still wins
+// (`.grunion-field-width-50-wrap` front end, `.jetpack-field__width-50` editor,
+// both two classes). A button cannot be a step child — `form-step`'s
+// ALLOWED_BLOCKS is the field blocks, the step nav and CORE_BLOCKS — so `*`
+// carries none of the risk it would at form level.
+.wp-block-jetpack-form-step > * {
+	box-sizing: border-box;
+	width: 100%;
+}
+
 // Gutenberg versions will use different classname strategies
 // for layout flex support, make it backwards compatible using both.
 .wp-block-jetpack-contact-form-container.is-layout-flex,
@@ -9,31 +32,35 @@
 	// container, so otherwise they are flex items defaulting to `flex: 0 1 auto`
 	// and shrink to fit their content, which keeps any field nested inside them
 	// from ever reaching 100%.
-	// `width` rather than `flex-basis`, because a form can be laid out either
-	// horizontally or vertically: in a vertical form `flex-basis` sizes the main
-	// axis (the height) and the width is left to `align-items`, while in a
-	// horizontal form a 100%-wide item still wraps onto its own row.
-	// `core/row` and `core/stack` are `core/group` variations, so they come
-	// along with `.wp-block-group`.
+	// ---
+	// Why `width` and not `flex-basis`: a form can be laid out horizontally or
+	// vertically. In a vertical form `flex-basis` sizes the main axis (the
+	// height) and the width is left to `align-items`, while in a horizontal form
+	// a 100%-wide item still wraps onto its own row. Nor `align-self: stretch` on
+	// `> *`, which sizes the cross axis and respects the margin box, but applies
+	// to every child — it would stretch a button in a left-justified vertical
+	// form instead of letting it hug its label.
+	// ---
+	// The list mirrors the container blocks in CORE_BLOCKS
+	// (blocks/shared/util/constants.js, and class-form-editor.php). Nothing links
+	// the two, so a container block added there needs adding here too. `core/row`
+	// and `core/stack` are `core/group` variations and come along with
+	// `.wp-block-group`.
+	// ---
+	// In a horizontal form this gives a container its own row rather than a place
+	// beside a field. That is deliberate: a container exists to lay out the
+	// blocks inside it.
+	// ---
 	// In a multistep form the containers sit inside the step instead, three
 	// levels down — `.jetpack-form-steps-wrapper` >
 	// `.wp-block-jetpack-form-step-container` > `.wp-block-jetpack-form-step` —
-	// so the second set of selectors matches the step as a descendant, not a
-	// child.
-	// grunion.scss does set `.wp-block-jetpack-form-step > * { flex: 0 0 100% }`,
-	// but that does not make the containers full width here: a multistep form is
-	// vertical, which gives the step `flex-direction: column` (below), so that
-	// `100%` is a height basis and the width falls to `align-items` — which
-	// `is-content-justification-left` sets to `flex-start`, i.e. shrink to fit.
-	// The same axis caveat as above, one level down.
-	> .wp-block-group,
-	> .wp-block-columns,
-	> .wp-block-details,
-	> .wp-block-accordion,
-	.wp-block-jetpack-form-step > .wp-block-group,
-	.wp-block-jetpack-form-step > .wp-block-columns,
-	.wp-block-jetpack-form-step > .wp-block-details,
-	.wp-block-jetpack-form-step > .wp-block-accordion {
+	// so the second selector matches the step as a descendant, not a child.
+	// The step half overlaps the rule at the top of this file, which already
+	// stretches every step child. It stays because it is four classes rather
+	// than one, so a container block keeps its full width even against a theme
+	// that sizes `.wp-block-group` directly.
+	> :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion),
+	.wp-block-jetpack-form-step > :is(.wp-block-group, .wp-block-columns, .wp-block-details, .wp-block-accordion) {
 		box-sizing: border-box;
 		width: 100%;
 	}
