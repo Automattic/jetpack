@@ -200,30 +200,19 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A choice sends the reader to that destination, and only a real share counts in stats.
+	 * A choice sends the reader to that destination, and counts as a share.
 	 *
 	 * @dataProvider provide_repost_choices
 	 * @param array  $form     Form fields the reader submitted.
-	 * @param string $expected Expected part of the redirect.
-	 * @param int    $shares   Expected number of counted shares.
+	 * @param string $expected Expected start of the redirect.
 	 */
 	#[DataProvider( 'provide_repost_choices' )]
-	public function test_process_request_follows_the_readers_choice( $form, $expected, $shares ) {
+	public function test_process_request_follows_the_readers_choice( $form, $expected ) {
 		$post                 = self::factory()->post->create_and_get();
 		$superglobals         = array( $_POST, $_REQUEST );
 		$_POST                = $form;
 		$_REQUEST['_wpnonce'] = wp_create_nonce( Jetpack_WordPress_Modal::NONCE_ACTION );
-		// Throwing stops the handler before it sends headers and dies.
-		add_filter(
-			'wp_redirect',
-			/**
-			 * @param string $location Redirect location.
-			 * @return never
-			 */
-			function ( $location ) {
-				throw new RuntimeException( $location );
-			}
-		);
+		$this->throw_on_redirect();
 
 		$location = '';
 		try {
@@ -234,8 +223,8 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			list( $_POST, $_REQUEST ) = $superglobals;
 		}
 
-		$this->assertStringContainsString( $expected, $location );
-		$this->assertSame( $shares, did_action( 'sharing_bump_stats' ) );
+		$this->assertStringStartsWith( $expected, $location );
+		$this->assertSame( 1, did_action( 'sharing_bump_stats' ) );
 	}
 
 	/**
@@ -243,27 +232,68 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_repost_choices() {
 		return array(
-			'WordPress.com'    => array(
+			'WordPress.com' => array(
 				array( 'jetpack-wordpress-destination' => 'wordpress.com' ),
 				'https://wordpress.com/post?',
-				1,
 			),
-			'own site'         => array(
+			'own site'      => array(
 				array(
 					'jetpack-wordpress-destination' => 'site',
 					'jetpack-wordpress-site'        => 'http://example.com/blog',
 				),
 				'http://example.com/blog/wp-admin/post-new.php?',
-				1,
 			),
-			'unusable address' => array(
-				array(
-					'jetpack-wordpress-destination' => 'site',
-					'jetpack-wordpress-site'        => 'javascript:alert(1)',
-				),
-				'share=wordpress&nb=1',
-				0,
-			),
+		);
+	}
+
+	/**
+	 * A refused address brings the prompt back with an error and what the reader typed, without counting a share.
+	 */
+	public function test_process_request_shows_the_prompt_again_for_a_refused_address() {
+		$post                 = self::factory()->post->create_and_get();
+		$superglobals         = array( $_POST, $_REQUEST );
+		$_POST                = array(
+			'jetpack-wordpress-destination' => 'site',
+			'jetpack-wordpress-site'        => 'my "site"',
+		);
+		$_REQUEST['_wpnonce'] = wp_create_nonce( Jetpack_WordPress_Modal::NONCE_ACTION );
+		$this->throw_on_redirect();
+
+		$html = '';
+		try {
+			( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, $_POST ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+			ob_start();
+			Jetpack_WordPress_Modal::render_modal();
+			$html = (string) ob_get_clean();
+		} finally {
+			list( $_POST, $_REQUEST ) = $superglobals;
+		}
+
+		$this->assertSame( 10, has_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) ) );
+		$this->assertSame( 0, did_action( 'sharing_bump_stats' ) );
+		$this->assertStringContainsString( 'id="jetpack-wordpress-site-error"', $html );
+
+		$tags = new WP_HTML_Tag_Processor( $html );
+		while ( $tags->next_tag( 'INPUT' ) && 'jetpack-wordpress-site' !== $tags->get_attribute( 'id' ) ) {
+			continue;
+		}
+		$this->assertSame( 'my "site"', $tags->get_attribute( 'value' ) );
+		$this->assertSame( 'true', $tags->get_attribute( 'aria-invalid' ) );
+	}
+
+	/**
+	 * Throwing stops the handler before it sends headers and dies.
+	 */
+	private function throw_on_redirect() {
+		add_filter(
+			'wp_redirect',
+			/**
+			 * @param string $location Redirect location.
+			 * @return never
+			 */
+			function ( $location ) {
+				throw new RuntimeException( $location );
+			}
 		);
 	}
 
@@ -273,7 +303,10 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public function test_modal_offers_both_destinations_with_a_nonce() {
 		ob_start();
 		Jetpack_WordPress_Modal::render_modal();
-		$tags = new WP_HTML_Tag_Processor( ob_get_clean() );
+		$html = (string) ob_get_clean();
+		$tags = new WP_HTML_Tag_Processor( $html );
+
+		$this->assertStringNotContainsString( 'id="jetpack-wordpress-site-error"', $html );
 
 		$destinations = array();
 		$nonces       = array();

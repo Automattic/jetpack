@@ -1559,16 +1559,9 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 			$url  = $this->get_site_repost_url( $post, $site );
 
 			if ( null === $url ) {
-				wp_safe_redirect(
-					add_query_arg(
-						array(
-							'share' => $this->shortname,
-							'nb'    => 1,
-						),
-						get_permalink( $post )
-					)
-				);
-				exit( 0 );
+				// The prompt reads the refused address from the form, to show it again with an error.
+				add_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) );
+				return;
 			}
 		}
 

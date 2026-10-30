@@ -48,6 +48,11 @@ class Jetpack_WordPress_Modal {
 	 */
 	public static function render_modal() {
 		$nonce = wp_create_nonce( self::NONCE_ACTION );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Only posted back here once process_request() has checked the nonce and refused the address.
+		$refused_site = isset( $_POST['jetpack-wordpress-site'] ) && is_string( $_POST['jetpack-wordpress-site'] )
+			? sanitize_text_field( wp_unslash( $_POST['jetpack-wordpress-site'] ) )
+			: null;
+		// phpcs:enable
 		?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -167,6 +172,17 @@ class Jetpack_WordPress_Modal {
 			line-height: 1.5;
 			margin: 8px 0 0;
 		}
+
+		.sd-wordpress-modal__error {
+			color: #cc1818;
+			font-size: 13px;
+			line-height: 1.5;
+			margin: 8px 0 0;
+		}
+
+		.sd-wordpress-modal__inner input[aria-invalid="true"] {
+			border-color: #cc1818;
+		}
 	</style>
 </head>
 <body class="sd-wordpress-modal">
@@ -189,16 +205,21 @@ class Jetpack_WordPress_Modal {
 				<input
 					required
 					aria-required="true"
-					aria-describedby="jetpack-wordpress-site-help"
+					aria-describedby="<?php echo esc_attr( null === $refused_site ? 'jetpack-wordpress-site-help' : 'jetpack-wordpress-site-error jetpack-wordpress-site-help' ); ?>"
+					aria-invalid="<?php echo esc_attr( null === $refused_site ? 'false' : 'true' ); ?>"
 					type="text"
 					inputmode="url"
 					autocomplete="url"
 					id="jetpack-wordpress-site"
 					name="jetpack-wordpress-site"
 					placeholder="<?php echo esc_attr( 'https://example.com' ); ?>"
+					value="<?php echo esc_attr( (string) $refused_site ); ?>"
 				/>
 				<button type="submit" class="sd-wordpress-modal__go"><?php esc_html_e( 'Go', 'jetpack' ); ?></button>
 			</div>
+			<?php if ( null !== $refused_site ) : ?>
+				<p id="jetpack-wordpress-site-error" class="sd-wordpress-modal__error" role="alert"><?php esc_html_e( 'That doesn’t look like a site address. Check it and try again.', 'jetpack' ); ?></p>
+			<?php endif; ?>
 			<p id="jetpack-wordpress-site-help" class="sd-wordpress-modal__help"><?php esc_html_e( 'If WordPress is installed in its own folder, include it, like example.com/wordpress.', 'jetpack' ); ?></p>
 		</form>
 	</main>
