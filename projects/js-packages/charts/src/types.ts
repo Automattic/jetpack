@@ -717,7 +717,8 @@ export interface SeriesVisibilityProps {
 export interface CompactWhenShortProps {
 	/**
 	 * Drop the axes, grid and legend, and default to the sparkline margin, while the chart is
-	 * shorter than `theme.sparkline.compactBelow`. Horizontal bar charts ignore it.
+	 * shorter than `theme.sparkline.compactBelow`. Series hidden through the legend stay hidden
+	 * until the chart is tall again. Horizontal bar charts ignore it.
 	 */
 	compactWhenShort?: boolean;
 }

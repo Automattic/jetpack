@@ -152,7 +152,7 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 
 ### Compact When Short
 
-Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.sparkline.compactBelow` (140px by default). What remains is a sparkline that keeps its tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back.
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.sparkline.compactBelow` (140px by default). What remains is a sparkline that keeps its tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back. Series hidden through the legend stay hidden until the chart is tall enough to show the legend again.
 
 <Canvas of={ AreaChartStories.CompactWhenShort } />
 
