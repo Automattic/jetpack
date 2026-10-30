@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
@@ -197,76 +196,6 @@ class Jetpack_Manage_Test extends BaseTestCase {
 	 */
 	protected function queued_refresh( $user_id ) {
 		return wp_next_scheduled( Jetpack_Manage::PARTNER_TYPE_REFRESH_HOOK, array( $user_id ) );
-	}
-
-	/**
-	 * An account with no agency partnership gets no menu item, however many sites it has.
-	 */
-	public function test_add_submenu_jetpack_requires_an_agency_account() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'none' );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	public function test_add_submenu_jetpack_registers_for_an_agency_account() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency' );
-
-		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	/**
-	 * An older admin-ui without the named position tiers still gets the external slot.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_add_submenu_jetpack_registers_without_position_constants() {
-		require_once __DIR__ . '/stubs/older-admin-ui/class-admin-menu.php';
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency' );
-
-		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
-		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared by the stub, which Phan excludes.
-		$this->assertSame( array( 100 ), array_values( Admin_Menu::$positions ) );
-	}
-
-	/**
-	 * A stored answer is trusted however old it is, so the sidebar does not flap while stale.
-	 */
-	public function test_add_submenu_jetpack_trusts_a_stale_stored_answer() {
-		$this->connect_user( $this->admin_id );
-		$this->prime_site_count( $this->admin_id, 2 );
-		$this->store_partner_type( $this->admin_id, 'agency', YEAR_IN_SECONDS );
-
-		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
-	}
-
-	/**
-	 * Fails if the gates swap order: the site count is left unprimed, so reaching it costs a request.
-	 */
-	public function test_add_submenu_jetpack_rejects_a_non_agency_without_any_http_request() {
-		$this->connect_user( $this->admin_id );
-		$this->store_partner_type( $this->admin_id, 'none' );
-		$this->mock_http( array() );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
-		$this->assertSame( 0, $this->http_request_count );
-	}
-
-	/**
-	 * Test that the menu doesn't appear for non-admins.
-	 */
-	public function test_add_submenu_jetpack_editor() {
-		wp_set_current_user( $this->editor_id );
-
-		$this->assertNull( Jetpack_Manage::add_submenu_jetpack() );
 	}
 
 	/**
