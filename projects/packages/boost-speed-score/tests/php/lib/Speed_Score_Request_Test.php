@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
@@ -390,6 +391,59 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$this->assertTrue( $this->autoload[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] );
 	}
 
+	public function test_filtered_home_recovers_scores_without_dispatching_and_preserves_default_language() {
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'rest_ensure_response' )->returnArg();
+		Functions\when( 'add_query_arg' )->alias(
+			function ( $key, $value, $url ) {
+				return $url . '?' . $key . '=' . $value;
+			}
+		);
+		$scores  = array( 'mobile' => 89, 'desktop' => 99 );
+		$default = array( 'mobile' => 67, 'desktop' => 63 );
+		$this->seed_old_record( self::URL . '/', $default, 2000 );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record( self::URL . '/fr/' . $query, $scores, 1000 );
+		}
+
+		$service = $this->getMockBuilder( Speed_Score::class )
+			->setConstructorArgs( array( array(), 'test' ) )
+			->onlyMethods( array( 'dispatch_speed_score_request' ) )
+			->getMock();
+		$service->expects( $this->never() )->method( 'dispatch_speed_score_request' );
+		$request = new class() {
+			public function get_json_params() {
+				return array( 'url' => 'http://example.com/fr/' );
+			}
+		};
+
+		$response = $service->fetch_speed_score( $request );
+		$this->assertSame( $scores, $response['scores']['current'] );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . '/fr/' . $query ), $this->options );
+		}
+		Functions\when( 'home_url' )->justReturn( self::URL );
+		$this->assertSame( $default, $this->stored_history()->latest_scores() );
+	}
+
+	public function test_empty_home_history_recovers_newest_site_url_spelling() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'get_site_url' )->justReturn( self::URL . '/wp' );
+		$scores = array( 'mobile' => 89, 'desktop' => 99 );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record( self::URL . '/fr/' . $query, array( 'mobile' => 60, 'desktop' => 70 ), 2000 );
+			$this->seed_old_record( self::URL . '/wp' . $query, $scores, 1000 );
+			$this->seed_old_record( self::URL . '/wp/' . $query, $scores, 1500 );
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			foreach ( array( '/fr/', '/wp', '/wp/' ) as $path ) {
+				$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . $path . $query ), $this->options );
+			}
+		}
+	}
+
 	/**
 	 * A newer record on the new key survives the migration.
 	 */
@@ -430,8 +484,10 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	/**
 	 * Once the marker is set, a build reads only its own record.
 	 */
-	public function test_build_reads_no_old_keys_once_migrated() {
+	public function test_populated_history_reads_no_old_keys_once_migrated() {
 		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+
+		$this->seed_old_record( self::URL, array( 'mobile' => 89, 'desktop' => 99 ), 1000 );
 
 		$reads = array();
 		Functions\when( 'get_option' )->alias(

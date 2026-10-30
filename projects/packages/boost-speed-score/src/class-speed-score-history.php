@@ -52,6 +52,24 @@ class Speed_Score_History {
 
 		$this->url     = $url;
 		$this->entries = get_option( $this->get_option_name(), array() );
+
+		if ( empty( $this->entries ) ) {
+			$path_length = strcspn( $url, '?#' );
+			$base_url    = rtrim( substr( $url, 0, $path_length ), '/' );
+			$suffix      = substr( $url, $path_length );
+			$legacy_urls = array( $base_url . '/' . $suffix );
+
+			if ( $base_url === rtrim( home_url(), '/' ) ) {
+				$site_url = rtrim( get_site_url(), '/' );
+				if ( $site_url !== $base_url && $site_url !== rtrim( get_option( 'home' ), '/' ) ) {
+					$legacy_urls[] = $site_url . $suffix;
+					$legacy_urls[] = $site_url . '/' . $suffix;
+				}
+			}
+
+			self::migrate_legacy_record( $url, $legacy_urls );
+			$this->entries = get_option( $this->get_option_name(), array() );
+		}
 	}
 
 	/**
