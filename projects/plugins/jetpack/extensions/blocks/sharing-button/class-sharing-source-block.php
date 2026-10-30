@@ -24,14 +24,14 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param int $id       Sharing source ID.
+	 * @param string $id Sharing source ID, the service name.
 	 */
 	public function __construct( $id ) {
 		$this->id = $id;
@@ -49,7 +49,7 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get unique sharing ID.
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_id() {
 		return $this->id;
@@ -58,7 +58,7 @@ abstract class Sharing_Source_Block {
 	/**
 	 * Get unique sharing ID. Similar to get_id().
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_class() {
 		return $this->id;
@@ -1450,6 +1450,123 @@ class Share_Threads_Block extends Sharing_Source_Block {
 
 		$url  = 'https://www.threads.net/intent/post/?text=';
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
+	}
+}
+
+/**
+ * WordPress sharing button.
+ */
+class Share_WordPress_Block extends Sharing_Source_Block {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'WordPress', 'jetpack' );
+	}
+
+	/**
+	 * Get the arguments that let the reader's site start a draft embedding the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return array
+	 */
+	private function get_repost_args( $post ) {
+		$title = $this->get_share_title( $post->ID );
+
+		return array(
+			'url'           => $this->get_share_url( $post->ID ),
+			// Core fills a new post's title from post_title, and wpcomsh's share-post from title.
+			'title'         => $title,
+			'post_title'    => $title,
+			// WordPress.com only builds the draft from these arguments when this flag is set.
+			'is_post_share' => 'true',
+		);
+	}
+
+	/**
+	 * Get the WordPress.com link that lets readers pick one of their sites and opens a draft embedding the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_repost_url( $post ) {
+		return add_query_arg( rawurlencode_deep( $this->get_repost_args( $post ) ), 'https://wordpress.com/post' );
+	}
+
+	/**
+	 * Get the link to a new post on the reader's own WordPress site, embedding the post.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param string  $site WordPress address the reader entered, with or without a scheme.
+	 *
+	 * @return string|null Null when the address is not usable.
+	 */
+	public function get_site_repost_url( $post, $site ) {
+		// Same guard as the Mastodon button.
+		if ( ! class_exists( Share_Destination::class ) ) {
+			return null;
+		}
+
+		$editor_url = Share_Destination::get_endpoint( $site, 'wp-admin/post-new.php', Share_Destination::KEEP_HTTP );
+		if ( null === $editor_url ) {
+			return null;
+		}
+
+		$args = $this->get_repost_args( $post );
+		// Core fills a new post from this, for sites without Jetpack to embed the post.
+		$args['content'] = $args['url'];
+
+		return add_query_arg( rawurlencode_deep( $args ), $editor_url );
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		require_once __DIR__ . '/components/class-jetpack-wordpress-modal.php';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Only decides whether to ask first; the nonce is checked below.
+		if ( empty( $_POST['jetpack-wordpress-destination'] ) ) {
+			add_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) );
+			return;
+		}
+
+		check_admin_referer( Jetpack_WordPress_Modal::NONCE_ACTION );
+
+		$url = $this->get_repost_url( $post );
+		if ( 'site' === sanitize_key( wp_unslash( $_POST['jetpack-wordpress-destination'] ) ) ) {
+			$site = isset( $_POST['jetpack-wordpress-site'] ) && is_string( $_POST['jetpack-wordpress-site'] )
+				? wp_unslash( $_POST['jetpack-wordpress-site'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Share_Destination validates and rebuilds the URL.
+				: '';
+			$url  = $this->get_site_repost_url( $post, $site );
+
+			if ( null === $url ) {
+				// The prompt reads the refused address from the form, to show it again with an error.
+				add_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) );
+				return;
+			}
+		}
+
+		// Record stats
+		parent::process_request( $post, $post_data );
 
 		parent::redirect_request( $url );
 	}
