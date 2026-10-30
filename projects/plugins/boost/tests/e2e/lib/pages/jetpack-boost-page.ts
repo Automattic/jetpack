@@ -98,7 +98,7 @@ export default class JetpackBoostPage {
 			timeout: 80000,
 		} );
 
-		return Number( await meter.getAttribute( 'value' ) );
+		return Number( await meter.getAttribute( 'aria-valuenow' ) );
 	}
 
 	/**
