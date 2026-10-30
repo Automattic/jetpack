@@ -202,19 +202,11 @@ class Initializer {
 		// runs on and capability-gates writes itself; module activation, the one thing
 		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
-			// Front-end JSON-LD schema output and author profile schema fields.
-			// Intentionally NOT gated: every site keeps emitting its structured data —
-			// a plan-gated site loses the schema *settings* card (a paid control), but
-			// stripping the schema its pages already carry would hurt SEO it has today.
-			// (Finer per-type gating — e.g. sitewide LocalBusiness to paid plans on
-			// self-hosted — is a separate follow-up, tracked in the schema project.)
+			// Register schema on every plan; its emitter separately checks SEO output eligibility.
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
-			// Paid front-end output. A plan-gated WordPress.com site has these controls
-			// hidden from its dashboard, so it must not keep emitting their output either —
-			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
-			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
+			// Pause paid output after a downgrade while retaining its saved preferences.
 			if ( ! self::is_gated() ) {
 				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off

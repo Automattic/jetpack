@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 
 import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+// eslint-disable-next-line @wordpress/use-recommended-components -- Retain the existing controls and styling while changing their plan restrictions.
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -67,6 +68,14 @@ const canonicalHelp = __(
 	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
 	'jetpack-seo'
 );
+const canonicalPlanPausedHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to change this setting. Your saved preference is kept, but archive canonical URLs are paused.',
+	'jetpack-seo'
+);
+const canonicalPlanActiveHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to change this setting. Your saved preference still applies.',
+	'jetpack-seo'
+);
 const canonicalConflictHelp = __(
 	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
 	'jetpack-seo'
@@ -91,6 +100,35 @@ const frontPageLockedHelp = __(
 // Keep in step with the 155 quoted in `frontPageHelp`.
 const descriptionSearchLength = 155;
 const descriptionMaxLength = 300;
+
+const planLockedReason = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit these settings. Your saved settings are kept.',
+	'jetpack-seo'
+);
+const savedSchemaActiveHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit these settings. Your saved settings still apply.',
+	'jetpack-seo'
+);
+const savedSchemaPausedHelp = __(
+	"Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit these settings. Your saved settings are kept, but Jetpack's structured data is paused.",
+	'jetpack-seo'
+);
+const savedDescriptionActiveHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit this description. Your saved description still applies.',
+	'jetpack-seo'
+);
+const savedDescriptionPausedHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit this description. Your saved description is kept but is not currently used by Jetpack.',
+	'jetpack-seo'
+);
+const savedTitlesActiveHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit your title structures. Your saved title structures still apply.',
+	'jetpack-seo'
+);
+const savedTitlesPausedHelp = __(
+	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit your title structures. Your saved title structures are kept but are not currently used by Jetpack.',
+	'jetpack-seo'
+);
 
 interface Props {
 	form: SettingsForm;
@@ -222,18 +260,23 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		canonicalHelpText = canonicalConflictHelp;
 	}
 
-	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
-	// the two always-valid sections (site visibility + verification, both backed by
-	// core WordPress options) topped with the upsell banner. Schema, author profile,
-	// canonical URLs, title structure and social previews are paid surfaces, hidden
-	// here. The front-page description is the one exception: a site that set it back
-	// when it was free for all WordPress.com Simple sites keeps editing it even when
-	// gated (the value stays live), so its card is shown below in that case too.
+	// Keep saved paid settings visible after a downgrade, without allowing changes.
 	const gated = isGated();
+	if ( gated && local.canonical_switchable && ! local.canonical_conflicted ) {
+		canonicalHelpText = simpleSite ? canonicalPlanPausedHelp : canonicalPlanActiveHelp;
+	}
+	const descriptionPlanLocked = gated && ! local.has_legacy_front_page_meta;
+	const descriptionPlanHelp = local.title_formats_editable
+		? savedDescriptionActiveHelp
+		: savedDescriptionPausedHelp;
+	const titlePlanHelp = local.title_formats_editable
+		? savedTitlesActiveHelp
+		: savedTitlesPausedHelp;
 
-	// Another SEO plugin owns the output these fields feed, so they're locked. Gated sites
-	// report the output off too, but keep their grandfathered description editable.
-	const outputLocked = ! gated && ! local.title_formats_editable;
+	// Plan gating alone must not lock a grandfathered description. Plugin conflicts still do.
+	const outputLocked =
+		local.seo_tools_disabled ??
+		( !! local.conflicting_seo_plugin || ( ! gated && ! local.title_formats_editable ) );
 	const lockedNotice = local.conflicting_seo_plugin
 		? sprintf(
 				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
@@ -248,7 +291,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				'jetpack-seo'
 			);
 
-	const schemaDisabledReason = local.conflicting_seo_plugin
+	let schemaDisabledReason: string = local.conflicting_seo_plugin
 		? sprintf(
 				/* translators: %1$s: name of the active SEO plugin. */
 				__(
@@ -261,6 +304,20 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				'Jetpack SEO is disabled on this site. Your saved settings are shown here but are not being used. Editing is unavailable while SEO tools are disabled.',
 				'jetpack-seo'
 			);
+
+	if ( gated ) {
+		if ( outputLocked ) {
+			schemaDisabledReason += ' ' + planLockedReason;
+		} else {
+			schemaDisabledReason = local.title_formats_editable
+				? savedSchemaActiveHelp
+				: savedSchemaPausedHelp;
+		}
+	}
+	let descriptionHelp: string = outputLocked ? frontPageLockedHelp : frontPageHelp;
+	if ( descriptionPlanLocked ) {
+		descriptionHelp = descriptionPlanHelp;
+	}
 
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -285,12 +342,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ outputLocked ? frontPageLockedHelp : frontPageHelp }
+						help={ descriptionHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
 						maxLength={ descriptionMaxLength }
 						rows={ 3 }
-						disabled={ isSaving || outputLocked }
+						disabled={ isSaving || outputLocked || descriptionPlanLocked }
 						__nextHasNoMarginBottom
 					/>
 					{ /* Count and Save share a row, matching the title-structure footer. */ }
@@ -313,7 +370,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						</Text>
 						<Button
 							onClick={ () => commitFields( [ 'front_page_description' ] ) }
-							disabled={ isSaving || outputLocked || ! isDirty( [ 'front_page_description' ] ) }
+							disabled={
+								isSaving ||
+								outputLocked ||
+								descriptionPlanLocked ||
+								! isDirty( [ 'front_page_description' ] )
+							}
 						>
 							{ saveLabel }
 						</Button>
@@ -325,7 +387,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ outputLocked && (
+			{ gated && (
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ __(
+							'Some controls are disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit these settings. Your saved settings are kept. AI crawler rules and llms.txt are paused on this plan.',
+							'jetpack-seo'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ ( outputLocked || ( gated && local.conflicting_seo_plugin ) ) && (
 				<Notice.Root intent="warning">
 					<Notice.Description>{ lockedNotice }</Notice.Description>
 				</Notice.Root>
@@ -434,81 +506,75 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				/>
 			</div>
 
-			{ ! gated && (
-				<>
-					{ /* Container for the site-level schema controls delivered by later
+			{ /* Container for the site-level schema controls delivered by later
 				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
-					<div id="schema" className={ styles.section }>
-						<SchemaCard
-							initialSettings={ local.schema }
-							onSave={ setSchemaSettings }
-							disabled={ outputLocked }
-							disabledReason={ schemaDisabledReason }
-						/>
-					</div>
+			<div id="schema" className={ styles.section }>
+				<SchemaCard
+					initialSettings={ local.schema }
+					onSave={ setSchemaSettings }
+					disabled={ gated || outputLocked }
+					disabledReason={ schemaDisabledReason }
+				/>
+			</div>
 
-					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
+			{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
-					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard disabled={ outputLocked } disabledReason={ schemaDisabledReason } />
-					</div>
+			<div id="author-profile" className={ styles.section }>
+				<AuthorProfileCard
+					disabled={ gated || outputLocked }
+					disabledReason={ schemaDisabledReason }
+				/>
+			</div>
 
-					<CollapsibleCard.Root defaultOpen={ false }>
-						<CollapsibleCard.Header render={ <h2 /> }>
-							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								<Card.Title>
-									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
-								</Card.Title>
-								<CollapsibleCard.HeaderDescription>
-									<StatusIndicator status={ canonicalStatus } />
-								</CollapsibleCard.HeaderDescription>
-							</Stack>
-						</CollapsibleCard.Header>
-						<CollapsibleCard.Content>
-							<ToggleControl
-								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={ canonicalHelpText }
-								checked={ local.canonical_active }
-								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
-								__nextHasNoMarginBottom
-							/>
-						</CollapsibleCard.Content>
-					</CollapsibleCard.Root>
-
-					<TitleStructureField
-						formats={ local.title_formats }
-						onChange={ ( pageType, next ) =>
-							setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+			<CollapsibleCard.Root defaultOpen={ false }>
+				<CollapsibleCard.Header render={ <h2 /> }>
+					<Stack direction="row" justify="space-between" align="center" gap="sm">
+						<Card.Title>
+							<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+						</Card.Title>
+						<CollapsibleCard.HeaderDescription>
+							<StatusIndicator status={ canonicalStatus } />
+						</CollapsibleCard.HeaderDescription>
+					</Stack>
+				</CollapsibleCard.Header>
+				<CollapsibleCard.Content>
+					<ToggleControl
+						label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+						help={ canonicalHelpText }
+						checked={ local.canonical_active }
+						onChange={ next => commit( { canonical_active: next } ) }
+						disabled={
+							gated || isSaving || ! local.canonical_switchable || local.canonical_conflicted
 						}
-						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
-						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
-						titleSeparator={ local.title_separator }
-						editable={ local.title_formats_editable }
-						disabled={ isSaving }
+						__nextHasNoMarginBottom
 					/>
+				</CollapsibleCard.Content>
+			</CollapsibleCard.Root>
 
-					{ frontPageDescriptionCard }
+			<TitleStructureField
+				formats={ local.title_formats }
+				onChange={ ( pageType, next ) =>
+					setField( { title_formats: { ...local.title_formats, [ pageType ]: next } } )
+				}
+				onSaveFormat={ pageType => commitTitleFormat( pageType ) }
+				isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
+				titleSeparator={ local.title_separator }
+				editable={ ! gated && local.title_formats_editable }
+				disabledReason={ gated ? titlePlanHelp : undefined }
+				disabled={ isSaving }
+			/>
 
-					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
-					{ ! outputLocked && (
-						<SocialPreviewsCard
-							description={ local.front_page_description }
-							frontPageTitleFormat={ local.title_formats.front_page ?? [] }
-							titleSeparator={ local.title_separator }
-						/>
-					) }
-				</>
+			{ frontPageDescriptionCard }
+
+			{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
+			{ ! gated && ! outputLocked && (
+				<SocialPreviewsCard
+					description={ local.front_page_description }
+					frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+					titleSeparator={ local.title_separator }
+				/>
 			) }
 
-			{ /* Grandfathered exception: a gated site that kept a front-page description
-			   from the era it was free for all Simple sites keeps editing that one
-			   field — the value is still live, and the platform still reads/writes it. */ }
-			{ gated && local.has_legacy_front_page_meta && (
-				<div id="front-page-description" className={ styles.section }>
-					{ frontPageDescriptionCard }
-				</div>
-			) }
 			{ /* Higher-risk settings last, after everything routine. Hidden on
 			   WordPress.com Simple, where `Modules::is_active()` reports every module
 			   active regardless of stored state, so turning SEO tools off would appear
