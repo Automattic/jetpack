@@ -6,9 +6,9 @@ import { registerFieldType } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import { ArrayCheckboxField } from './field-array-checkbox';
+import { ReportParamsField } from './field-report-params';
 import { SelectField } from './field-select';
 import { ToggleGroupField } from './field-toggle-group';
-import { ReportParamsField } from './report-params-field/report-params-field';
 import type { FieldTypeDefinition } from '@wordpress/widget-primitives';
 
 /**
