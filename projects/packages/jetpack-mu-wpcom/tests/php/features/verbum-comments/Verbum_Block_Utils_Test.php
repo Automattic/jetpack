@@ -46,7 +46,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure blocks are filtered when 'render_verbum_blocks' is applied
 	 */
 	public function test_comment_text_block_sanitization() {
-		$comment_content  = '<!-- wp:paragraph -->Testing<!-- /wp:paragraph --><!-- wp:latest-posts -->';
+		$comment_content  = '<!-- wp:paragraph -->Testing<!-- /wp:paragraph --><!-- wp:latest-posts /-->';
 		$filtered_content = Verbum_Block_Utils::render_verbum_blocks( $comment_content );
 		$this->assertEquals( 'Testing', $filtered_content );
 	}

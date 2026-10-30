@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Test-only change: use a self-closing block in a Verbum test so it passes on WordPress trunk.
+
+
