@@ -69,4 +69,23 @@ class FileRestorerTest extends WP_UnitTestCase {
 			$this->assertArrayHasKey( 'message', $exclusion );
 		}
 	}
+
+	/**
+	 * Tests that restore_files moves files into place instead of copying them.
+	 */
+	public function test_restore_files_moves_files() {
+		$root   = get_temp_dir() . 'file-restorer-' . wp_generate_password( 8, false );
+		$source = $root . '/source/';
+		$dest   = $root . '/dest/';
+		wp_mkdir_p( $source . 'wp-content/uploads' );
+		wp_mkdir_p( $dest );
+		file_put_contents( $source . 'wp-content/uploads/photo.jpg', 'photo' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		$restorer = new FileRestorer( $source, $dest );
+		$restorer->enqueue_files();
+		$this->assertTrue( $restorer->restore_files() );
+
+		$this->assertSame( 'photo', file_get_contents( $dest . 'wp-content/uploads/photo.jpg' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertFileDoesNotExist( $source . 'wp-content/uploads/photo.jpg' );
+	}
 }

@@ -105,7 +105,8 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	/**
 	 * Restores files from the source directory to the destination directory.
 	 *
-	 * This method dequeues files from the queue and copies them from the source directory to the destination directory.
+	 * This method dequeues files from the queue and moves them from the source directory to the destination directory,
+	 * copying any that cannot be moved.
 	 * It skips files that are inside a symlinked theme or plugin, or that are symbolic links themselves.
 	 * It also creates any necessary directories in the destination directory.
 	 * If a file cannot be copied for any reason, it is logged and the copy operation continues with the next file.
@@ -152,7 +153,11 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 				}
 			}
 
-			if ( ! copy( $file_path, $dest_path ) ) {
+			// The unpacked backup is deleted after the import, so move each file into place rather
+			// than copy it: the site never has to hold the backup's contents twice. A move fails
+			// across filesystems, so copy where the file cannot be moved.
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.rename_rename
+			if ( ! @rename( $file_path, $dest_path ) && ! copy( $file_path, $dest_path ) ) {
 				++$failed_count;
 				$this->log( "$file_seen_count/$this->total_count entries seen. Failed to copy: $relative_path" );
 			} else {
