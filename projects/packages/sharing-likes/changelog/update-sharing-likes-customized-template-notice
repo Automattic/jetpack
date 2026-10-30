@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Show a notice above the block placement cards for a template saved in the Site Editor, which they no longer change, with a link to edit it there.
+Once a template is saved in the Site Editor, replace the block placement cards with a notice linking to the post and page templates there.

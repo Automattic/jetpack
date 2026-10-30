@@ -74,10 +74,11 @@ placements" below): "Don't add it automatically" first, then a card for each sid
 of the content. Picking a card saves a one-item list, and the first option an
 empty one. It falls back to the Site Editor link only where `settings` does not
 offer the key and no write is pending; while one is, the group shows disabled.
-A template that manages the block (see `managed_templates` under "REST API")
-gets a notice above the cards linking to it. The cards stay even when both
-templates manage the block: `singular`, `page-*` and custom templates still
-follow the choice, and hiding it would leave no way to turn it off.
+Once either template manages the block (see `managed_templates` under "REST
+API"), the section shows only a notice, linking to both templates. Next to a
+saved template, cards read as if they still moved its block. The stored choice
+keeps applying to the templates the Site Editor hasn't taken over (`singular`,
+`page-*`, custom ones), with no control for it here until the notice goes.
 
 ## Per-post switches
 

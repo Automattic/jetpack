@@ -53,15 +53,15 @@ function copyFor( feature: Feature ) {
 			),
 			managed: {
 				both: __(
-					'Your post and page templates were saved in the Site Editor, so these choices no longer change them, and won’t bring back a Sharing Buttons block you removed there.',
+					'Your post and page templates were saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
 					'jetpack-sharing-likes'
 				),
 				single: __(
-					'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Sharing Buttons block you removed there.',
+					'Your post template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
 					'jetpack-sharing-likes'
 				),
 				page: __(
-					'Your page template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Sharing Buttons block you removed there.',
+					'Your page template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
 					'jetpack-sharing-likes'
 				),
 			},
@@ -73,15 +73,15 @@ function copyFor( feature: Feature ) {
 		legend: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
 		managed: {
 			both: __(
-				'Your post and page templates were saved in the Site Editor, so these choices no longer change them, and won’t bring back a Like block you removed there.',
+				'Your post and page templates were saved in the Site Editor, so that’s where you place the Like block now.',
 				'jetpack-sharing-likes'
 			),
 			single: __(
-				'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
+				'Your post template was saved in the Site Editor, so that’s where you place the Like block now.',
 				'jetpack-sharing-likes'
 			),
 			page: __(
-				'Your page template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
+				'Your page template was saved in the Site Editor, so that’s where you place the Like block now.',
 				'jetpack-sharing-likes'
 			),
 		},
@@ -94,7 +94,7 @@ function copyFor( feature: Feature ) {
  * @param props          - Props.
  * @param props.feature  - Feature.
  * @param props.fallback - Shown where the settings do not offer the placements.
- * @return Cards, after a notice for the templates that manage the block, or the fallback.
+ * @return Cards, a notice linking to the templates once one manages the block, or the fallback.
  */
 export function TemplatePlacements( {
 	feature,
@@ -129,78 +129,74 @@ export function TemplatePlacements( {
 		single: status?.site_editor_url ?? '',
 		page: status?.page_template_editor_url ?? '',
 	};
-	const managed = TEMPLATES.filter(
-		template => urls[ template ] && status?.[ feature ].managed_templates.includes( template )
+	const linked = TEMPLATES.filter( template => urls[ template ] );
+	const managed = linked.filter( template =>
+		status?.[ feature ].managed_templates.includes( template )
 	);
-	// Preview a template the cards still change, where there is one.
-	const previewable = TEMPLATES.filter(
-		template => urls[ template ] && ! managed.includes( template )
-	);
-	const previewUrl = previewable.length ? urls[ previewable[ 0 ] ] : '';
 
-	const notice = managed.length > 0 && (
-		<SettingGroup>
-			<Notice.Root intent="info">
-				<Notice.Description>
-					{ copy.managed[ managed.length === 1 ? managed[ 0 ] : 'both' ] }
-				</Notice.Description>
-				<Notice.Actions>
-					{ managed.map( template => (
-						<Notice.ActionLink key={ template } href={ urls[ template ] }>
-							{ copy.editTemplate[ template ] }
-						</Notice.ActionLink>
-					) ) }
-				</Notice.Actions>
-			</Notice.Root>
-		</SettingGroup>
-	);
+	// Once a template is saved in the Site Editor, that's where the block is placed: cards here would only mislead.
+	if ( managed.length > 0 ) {
+		return (
+			<SettingGroup>
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ copy.managed[ managed.length === 1 ? managed[ 0 ] : 'both' ] }
+					</Notice.Description>
+					<Notice.Actions>
+						{ linked.map( template => (
+							<Notice.ActionLink key={ template } href={ urls[ template ] }>
+								{ copy.editTemplate[ template ] }
+							</Notice.ActionLink>
+						) ) }
+					</Notice.Actions>
+				</Notice.Root>
+			</SettingGroup>
+		);
+	}
 
 	return (
-		<>
-			{ notice }
-			<Field.Root>
-				<Fieldset.Root
-					className="jetpack-sharing-likes__placements"
-					aria-busy={ ! offered }
-					render={
-						<RadioGroup value={ selected } onValueChange={ handleChange } disabled={ ! offered } />
-					}
-				>
-					<SettingGroup>
-						<Fieldset.Legend>{ copy.legend }</Fieldset.Legend>
-						<Field.Item render={ NONE_ITEM_RENDER }>
-							<Radio value={ NONE } />
-							<Field.Label variant="plain">{ copy.none }</Field.Label>
-						</Field.Item>
-						<RadioCardGrid>
-							{ PLACEMENTS.map( placement => (
-								<RadioCard
-									key={ placement }
-									id={ `${ block }-${ placement.replace( '_', '-' ) }` }
-									value={ placement }
-									title={ placement === 'before_content' ? copy.before : copy.after }
-									illustration={ <PlacementIllustration block={ block } placement={ placement } /> }
-									previewUrl={
-										// The template only has the block once the save has gone through.
-										selected === placement && ! saving ? previewUrl : undefined
-									}
-								/>
-							) ) }
-						</RadioCardGrid>
-						{ urls.page && ! managed.includes( 'page' ) && (
-							<Text render={ <p /> }>
-								{ createInterpolateElement(
-									__(
-										'Want pages to look different? <link>Edit the page template</link>.',
-										'jetpack-sharing-likes'
-									),
-									{ link: <Link href={ urls.page } /> }
-								) }
-							</Text>
-						) }
-					</SettingGroup>
-				</Fieldset.Root>
-			</Field.Root>
-		</>
+		<Field.Root>
+			<Fieldset.Root
+				className="jetpack-sharing-likes__placements"
+				aria-busy={ ! offered }
+				render={
+					<RadioGroup value={ selected } onValueChange={ handleChange } disabled={ ! offered } />
+				}
+			>
+				<SettingGroup>
+					<Fieldset.Legend>{ copy.legend }</Fieldset.Legend>
+					<Field.Item render={ NONE_ITEM_RENDER }>
+						<Radio value={ NONE } />
+						<Field.Label variant="plain">{ copy.none }</Field.Label>
+					</Field.Item>
+					<RadioCardGrid>
+						{ PLACEMENTS.map( placement => (
+							<RadioCard
+								key={ placement }
+								id={ `${ block }-${ placement.replace( '_', '-' ) }` }
+								value={ placement }
+								title={ placement === 'before_content' ? copy.before : copy.after }
+								illustration={ <PlacementIllustration block={ block } placement={ placement } /> }
+								previewUrl={
+									// The template only has the block once the save has gone through.
+									selected === placement && ! saving ? urls.single : undefined
+								}
+							/>
+						) ) }
+					</RadioCardGrid>
+					{ urls.page && (
+						<Text render={ <p /> }>
+							{ createInterpolateElement(
+								__(
+									'Want pages to look different? <link>Edit the page template</link>.',
+									'jetpack-sharing-likes'
+								),
+								{ link: <Link href={ urls.page } /> }
+							) }
+						</Text>
+					) }
+				</SettingGroup>
+			</Fieldset.Root>
+		</Field.Root>
 	);
 }

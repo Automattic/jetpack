@@ -52,7 +52,7 @@ function renderCards(
 }
 
 /**
- * Render the cards for a feature whose block some saved templates manage.
+ * Render the section for a feature whose block some saved templates manage.
  *
  * @param feature - Feature.
  * @param managed - Templates managing the block.
@@ -202,47 +202,38 @@ describe( 'TemplatePlacements', () => {
 			'sharing',
 			[ 'single' ],
 			PAGE_TEMPLATE_URL,
-			'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Sharing Buttons block you removed there.',
-			PAGE_TEMPLATE_URL,
+			'Your post template was saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
 		],
 		[
 			'likes',
 			[ 'page' ],
 			PAGE_TEMPLATE_URL,
-			'Your page template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
-			baseStatus.site_editor_url,
+			'Your page template was saved in the Site Editor, so that’s where you place the Like block now.',
 		],
 		[
 			'sharing',
 			[ 'single', 'page' ],
 			PAGE_TEMPLATE_URL,
-			'Your post and page templates were saved in the Site Editor, so these choices no longer change them, and won’t bring back a Sharing Buttons block you removed there.',
-			'',
+			'Your post and page templates were saved in the Site Editor, so that’s where you place the Sharing Buttons block now.',
 		],
 		[
 			'likes',
 			[ 'single' ],
 			'',
-			'Your post template was saved in the Site Editor, so these choices no longer change it, and won’t bring back a Like block you removed there.',
-			'',
+			'Your post template was saved in the Site Editor, so that’s where you place the Like block now.',
 		],
-	] as [ Feature, PlacementTemplate[], string, string, string ][] )(
-		'%s managed by %j, page template "%s": a notice above the cards',
-		( feature, managed, pageUrl, notice, previewUrl ) => {
+	] as [ Feature, PlacementTemplate[], string, string ][] )(
+		'%s managed by %j, page template "%s": only a notice linking to the templates',
+		( feature, managed, pageUrl, notice ) => {
 			renderManaged( feature, managed, pageUrl );
 
 			expect( screen.getByText( notice ) ).toBeInTheDocument();
 			expect( noticeLinks( notice ) ).toEqual(
-				managed.map( template => ( template === 'single' ? baseStatus.site_editor_url : pageUrl ) )
+				pageUrl ? [ baseStatus.site_editor_url, pageUrl ] : [ baseStatus.site_editor_url ]
 			);
-			// Other templates, such as `singular` or a custom one, still follow the choice.
-			expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
-			expect( screen.queryByText( 'Preview and edit' )?.getAttribute( 'href' ) ?? '' ).toBe(
-				previewUrl
-			);
-			expect( screen.queryByText( /Want pages to look different/ ) !== null ).toBe(
-				pageUrl !== '' && ! managed.includes( 'page' )
-			);
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Preview and edit' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Want pages to look different/ ) ).not.toBeInTheDocument();
 		}
 	);
 
@@ -254,7 +245,7 @@ describe( 'TemplatePlacements', () => {
 				name: 'Where should the Like block go on posts and pages?',
 			} )
 		).toBeInTheDocument();
-		expect( screen.queryByText( /no longer change/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /saved in the Site Editor/ ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
 			'href',
 			baseStatus.site_editor_url
