@@ -1,0 +1,254 @@
+[
+	{
+		"slug": "cloudflare",
+		"name": "Cloudflare",
+		"rank": 1,
+		"nsPatterns": [ ".ns.cloudflare.com" ],
+		"dnsPageUrlTemplate": "https://dash.cloudflare.com/?to=/:account/:zone/dns/records",
+		"dnsPageUrlVerified": true,
+		"domainConnect": true,
+		"domainConnectHost": "api.cloudflare.com/client/v4/dns/domainconnect",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Name",
+			"valueCname": "Target",
+			"valueTxt": "Content",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "bluehost",
+		"name": "Bluehost",
+		"rank": 2,
+		"nsPatterns": [
+			"ns1.bluehost.com",
+			"ns2.bluehost.com",
+			".bluehost.com",
+			".mybluehost.me",
+			".bluehost.in",
+			".hostmonster.com",
+			".justhost.com"
+		],
+		"dnsPageUrlTemplate": null,
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host record",
+			"valueCname": "Points to",
+			"valueTxt": "TXT Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "hostinger",
+		"name": "Hostinger",
+		"rank": 3,
+		"nsPatterns": [ ".dns-parking.com" ],
+		"dnsPageUrlTemplate": "https://hpanel.hostinger.com/domain/{domain}/dns",
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Name",
+			"valueCname": "Points to",
+			"valueTxt": "TXT value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "godaddy",
+		"name": "GoDaddy",
+		"rank": 4,
+		"nsPatterns": [ ".domaincontrol.com" ],
+		"dnsPageUrlTemplate": "https://dcc.godaddy.com/control/portfolio/{domain}/settings?tab=dns",
+		"dnsPageUrlVerified": false,
+		"domainConnect": true,
+		"domainConnectHost": "domainconnect.api.godaddy.com",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Name",
+			"valueCname": "Value",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "hostgator",
+		"name": "HostGator",
+		"rank": 5,
+		"nsPatterns": [ ".hostgator.com", ".hostgator.com.br", ".hostgator.mx", ".websitewelcome.com" ],
+		"dnsPageUrlTemplate": null,
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host record",
+			"valueCname": "Points to",
+			"valueTxt": "TXT Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "siteground",
+		"name": "SiteGround",
+		"rank": 6,
+		"nsPatterns": [ ".siteground.net" ],
+		"dnsPageUrlTemplate": null,
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-blank",
+		"fieldLabels": {
+			"type": "Type tab",
+			"host": "Name",
+			"valueCname": "Resolves to",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "ionos",
+		"name": "IONOS",
+		"rank": 7,
+		"nsPatterns": [ ".ui-dns.com", ".ui-dns.de", ".ui-dns.org", ".ui-dns.biz" ],
+		"dnsPageUrlTemplate": "https://my.ionos.com/domain-dns-settings/{domain}",
+		"dnsPageUrlVerified": false,
+		"domainConnect": true,
+		"domainConnectHost": "api.domainconnect.ionos.com",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host name",
+			"valueCname": "Points to",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "namecheap",
+		"name": "Namecheap",
+		"rank": 8,
+		"nsPatterns": [ ".registrar-servers.com", ".namecheaphosting.com" ],
+		"dnsPageUrlTemplate": "https://ap.www.namecheap.com/Domains/DomainControlPanel/{domain}/advancedns",
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host",
+			"valueCname": "Target",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "ovhcloud",
+		"name": "OVHcloud",
+		"rank": 9,
+		"nsPatterns": [ ".ovh.net", ".anycast.me", ".ovh.ca" ],
+		"dnsPageUrlTemplate": "https://www.ovh.com/manager/#/web/domain/{domain}/zone",
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-blank",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Subdomain",
+			"valueCname": "Target",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "dreamhost",
+		"name": "DreamHost",
+		"rank": 10,
+		"nsPatterns": [ ".dreamhost.com" ],
+		"dnsPageUrlTemplate": "https://panel.dreamhost.com/index.cgi?tree=domain.dashboard",
+		"dnsPageUrlVerified": false,
+		"domainConnect": false,
+		"hostFieldRule": "relative-blank",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host",
+			"valueCname": "Value",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "route53",
+		"name": "Amazon Route 53",
+		"rank": 11,
+		"nsPatterns": [ ".awsdns-" ],
+		"nsMatch": "substring",
+		"dnsPageUrlTemplate": "https://console.aws.amazon.com/route53/v2/hostedzones",
+		"dnsPageUrlVerified": true,
+		"domainConnect": false,
+		"hostFieldRule": "relative-blank",
+		"fieldLabels": {
+			"type": "Record type",
+			"host": "Record name",
+			"valueCname": "Value",
+			"valueTxt": "Value",
+			"ttl": "TTL (seconds)"
+		}
+	},
+	{
+		"slug": "squarespace",
+		"name": "Squarespace (incl. former Google Domains)",
+		"rank": 12,
+		"nsPatterns": [ ".squarespacedns.com", ".googledomains.com" ],
+		"dnsPageUrlTemplate": "https://account.squarespace.com/domains/managed/{domain}/dns/dns-settings",
+		"dnsPageUrlVerified": false,
+		"domainConnect": "unknown",
+		"domainConnectHost": "domains.squarespace.com",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host",
+			"valueCname": "Data",
+			"valueTxt": "Data",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "wordpresscom",
+		"name": "WordPress.com",
+		"rank": 13,
+		"nsPatterns": [ ".wordpress.com" ],
+		"dnsPageUrlTemplate": null,
+		"dnsPageUrlVerified": false,
+		"domainConnect": true,
+		"domainConnectHost": "public-api.wordpress.com/rest/v1.3/domain-connect",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Name",
+			"valueCname": "Alias of",
+			"valueTxt": "Text",
+			"ttl": "TTL"
+		}
+	},
+	{
+		"slug": "other",
+		"name": "Other or not sure",
+		"rank": 99,
+		"nsPatterns": [],
+		"dnsPageUrlTemplate": null,
+		"dnsPageUrlVerified": false,
+		"domainConnect": "unknown",
+		"hostFieldRule": "relative-at",
+		"fieldLabels": {
+			"type": "Type",
+			"host": "Host / Name",
+			"valueCname": "Value / Target / Points to",
+			"valueTxt": "Value",
+			"ttl": "TTL"
+		}
+	}
+]

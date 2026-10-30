@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add search, filters and resend to the email log, a setting for how long it keeps emails, plain reasons and next steps when an email fails, a debug log, and a date range for the dashboard's email activity. The dashboard's numbers now stay when emails are deleted from the log.

@@ -1,0 +1,243 @@
+@use "@wordpress/base-styles/breakpoints";
+
+// The subject's padded box starts outside the cell by its padding, so the
+// column stays aligned.
+.jetpack-send-log__subject {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	margin-inline-start: calc(-1 * var(--wpds-dimension-padding-sm));
+	padding-block: var(--wpds-dimension-padding-xs);
+	padding-inline: var(--wpds-dimension-padding-sm);
+	border-radius: var(--wpds-border-radius-sm);
+}
+
+// The open email's row in DataViews' selected colours, without ticking its
+// checkbox (that's bulk delete); the sticky actions cell paints its own.
+.jetpack-send-log .dataviews-view-table .dataviews-view-table__row:has([data-open]) > td,
+.jetpack-send-log
+.dataviews-view-table
+.dataviews-view-table__row:has([data-open]) > td.dataviews-view-table__actions-column--sticky,
+.jetpack-send-log
+.dataviews-view-list
+div[role="row"]:has([data-open])
+.dataviews-view-list__item-wrapper,
+.jetpack-send-log__pinned-row:has([data-open]) {
+	background-color: var(--wpds-color-background-interactive-brand-weak-active);
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.jetpack-send-log .dataviews-view-table .dataviews-view-table__row:has([data-open]),
+.jetpack-send-log .dataviews-view-table .dataviews-view-table__row:has([data-open]) + tr {
+	border-block-start-color: var(--wpds-color-stroke-surface-brand);
+}
+
+.jetpack-send-log__pinned-row:has([data-open]) {
+	border-color: var(--wpds-color-stroke-surface-brand);
+}
+
+// The title's focus ring goes round the subject's own padded box, so it
+// doesn't cut into the first letter (the subject starts outside the cell).
+.jetpack-send-log .dataviews-title-field--clickable:focus-visible {
+	box-shadow: none;
+	// Shows only in forced-colors mode, where box shadows are dropped.
+	outline: var(--wpds-border-width-focus) solid transparent;
+
+	.jetpack-send-log__subject {
+		box-shadow: 0 0 0 var(--wpds-border-width-focus) var(--wpds-color-stroke-focus);
+	}
+}
+
+// The list layout gives the title one line beside the ⋮ button, so a long
+// subject ends in an ellipsis. The padded box counts its padding in that
+// line, so it never overflows the field and shows the field's own ellipsis.
+.jetpack-send-log .dataviews-view-list__title-field .jetpack-send-log__subject {
+	flex-wrap: nowrap;
+	box-sizing: border-box;
+	max-inline-size: 100%;
+}
+
+.jetpack-send-log .dataviews-view-list__title-field .jetpack-send-log__subject-text {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jetpack-send-log__badge {
+	flex: none;
+}
+
+// Room under the row, so its edge and focus ring clear the toolbar.
+.jetpack-send-log__pinned {
+	padding-block: var(--wpds-dimension-padding-lg);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+}
+
+// The table's columns: subject takes the rest, then recipients, status, date.
+.jetpack-send-log__pinned-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(18ch, 32%) 18ch 16ch;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-md);
+	inline-size: 100%;
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	text-align: start;
+	cursor: var(--wpds-cursor-control);
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	}
+
+	// Each cell keeps its own width, so the status badge doesn't stretch.
+	> * {
+		justify-self: start;
+		min-inline-size: 0;
+		max-inline-size: 100%;
+	}
+
+	@media ( max-width: breakpoints.$break-medium ) {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+
+	// Beside the side panel the list is narrow, so the row takes two columns.
+	.jetpack-send-log--panel-open & {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}
+
+// The subject reads as the row's title, as it does in the table below.
+.jetpack-send-log__pinned-row .jetpack-send-log__subject-text {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// Search, the date and the chips start the toolbar; how long emails are kept
+// and the view options end it, staying at the end when the row wraps.
+.jetpack-send-log__toolbar {
+	min-block-size: var(--wpds-dimension-size-lg);
+}
+
+.jetpack-send-log__find {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+}
+
+.jetpack-send-log__find .dataviews-search {
+	inline-size: var(--wpds-dimension-surface-width-xs);
+
+	@media ( max-width: breakpoints.$break-medium ) {
+		inline-size: 100%;
+	}
+}
+
+.jetpack-send-log__tools {
+	flex: none;
+	margin-inline-start: auto;
+
+	// Beside the panel the chips wrap often, and DataViews' hidden Reset can
+	// take a line of its own, so the cog ends the search's line instead.
+	.jetpack-send-log--panel-open & {
+		align-self: flex-start;
+	}
+}
+
+// The date popover says it too, so the line leaves when there's no room for it.
+.jetpack-send-log__kept {
+	display: none;
+
+	@media ( min-width: breakpoints.$break-wide ) {
+		display: block;
+	}
+
+	.jetpack-send-log--panel-open & {
+		display: none;
+	}
+}
+
+// Beside the side panel the list is narrow, so a long subject wraps instead
+// of pushing the other columns under the sticky actions.
+.jetpack-send-log--panel-open .dataviews-view-table .dataviews-title-field {
+	white-space: normal;
+}
+
+.jetpack-send-log .dataviews-view-table time {
+	white-space: nowrap;
+}
+
+// Avatar, then who it went to on one line, cut short with an ellipsis.
+.jetpack-send-log__recipients {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+.jetpack-send-log__recipients-text,
+.jetpack-send-log__origin-text {
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// The Source column: the plugin's icon, then its name, at the recipients' size.
+.jetpack-send-log__origin {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	min-inline-size: 0;
+}
+
+.jetpack-send-log__empty {
+	margin-inline: auto;
+	padding-block: var(--wpds-dimension-padding-3xl);
+}
+
+// Fits its text, so the focus ring it gets on opening hugs the subject,
+// clear of the letters, as other controls' rings are.
+.jetpack-send-panel__title {
+	align-self: flex-start;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
+}
+
+.jetpack-send-panel__loading {
+	min-block-size: var(--wpds-dimension-surface-width-xs);
+}
+
+.jetpack-send-panel__sender-text {
+	min-inline-size: 0;
+	overflow-wrap: anywhere;
+}
+
+.jetpack-send-panel__source {
+	display: inline-flex;
+}
+
+.jetpack-send-panel__skeleton {
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.jetpack-send-panel__skeleton--avatar {
+	inline-size: var(--wpds-dimension-size-lg);
+	block-size: var(--wpds-dimension-size-lg);
+	border-radius: 50%;
+}
+
+.jetpack-send-panel__skeleton--name {
+	inline-size: var(--wpds-dimension-surface-width-xs);
+	max-inline-size: 100%;
+	block-size: var(--wpds-typography-line-height-md);
+}
+
+.jetpack-send-panel__skeleton--address {
+	inline-size: var(--wpds-dimension-surface-width-xs);
+	max-inline-size: 100%;
+	block-size: var(--wpds-typography-line-height-sm);
+}

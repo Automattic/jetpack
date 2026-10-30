@@ -1,0 +1,60 @@
+// The side panel, built like Newsletter › Subscribers' own: a bar with the
+// actions and Close over a padded body. Boot draws the surface and its motion.
+.jetpack-send-panel__header {
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}
+
+.jetpack-send-panel__body {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Card's own padding is 24, a step too roomy in a 400 column (as Newsletter's).
+.jetpack-send-panel__section {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+}
+
+.jetpack-send-panel__rows {
+	margin: 0;
+}
+
+.jetpack-send-panel__value {
+	min-inline-size: 0;
+	margin: 0;
+	// A short value that wraps under its label still ends on the right.
+	margin-inline-start: auto;
+	overflow-wrap: anywhere;
+	text-align: end;
+}
+
+.jetpack-send-panel__row--stacked .jetpack-send-panel__value {
+	margin-inline-start: 0;
+	text-align: start;
+}
+
+// A value's chip keeps its own width (it can still shrink and wrap a long ID).
+.jetpack-send-panel__value .jetpack-send-code {
+	flex: 0 1 auto;
+}
+
+.jetpack-send-email__raw {
+	margin: 0;
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	border-radius: var(--wpds-border-radius-sm);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	font-family: var(--wpds-typography-font-family-mono);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+// The page layout sizes Boot's stage from its content, which squeezes the
+// panel beside a wide table; sized from zero, like the panel, it keeps 400.
+// Any screen with a side panel open sets `jetpack-send-has-panel` on its root.
+:is(body.jetpack_page_jetpack-send, body.toplevel_page_jetpack-send)
+#wpbody-content
+:is(.boot-layout__stage, [class*="__stage"]):has(.jp-admin-page .jetpack-send-has-panel) {
+	flex-basis: 0;
+	min-inline-size: 0;
+}

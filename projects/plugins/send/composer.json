@@ -1,0 +1,51 @@
+{
+	"name": "automattic/jetpack-send-plugin",
+	"description": "Reliable delivery for the emails your site sends.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-send": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-zip": [
+			"bash bin/build-zip.sh"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": false,
+		"beta-plugin-slug": "jetpack-send",
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"version-constants": {
+			"JETPACK_SEND__VERSION": "jetpack-send.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "f06f57bd65827e63cee687fd7739a024_sendⓥ0_1_0_alpha"
+	}
+}

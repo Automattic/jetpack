@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Explain emails that couldn't be sent in plain words, with a support link when the problem is on our side, and only point to the domain's records when they are the cause.

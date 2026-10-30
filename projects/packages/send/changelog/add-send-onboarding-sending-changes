@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sign every email with your domain's key so inboxes can tell it came from your domain. Turn sending on by itself once your domain is ready (you can turn this off in Settings) and email you a test if that happens while you're away, add a "Replies go to" address, and only send test emails to your own address, up to five an hour.

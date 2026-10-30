@@ -1,0 +1,11 @@
+// Link rendered as a button: drop the button chrome so it reads and
+// aligns like a link.
+.jetpack-send-text-action {
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-align: start;
+	text-decoration-line: underline;
+	cursor: var(--wpds-cursor-control);
+}

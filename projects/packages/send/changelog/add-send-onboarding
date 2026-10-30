@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Set up sending from a checklist on the Send overview: choose who your emails come from, add two records where your domain's DNS is managed, shown in your host's own words and checked automatically, then send yourself a test email. Sites whose DNS is at Cloudflare can paste a one-time token to have the records added for them; the token is never stored.
