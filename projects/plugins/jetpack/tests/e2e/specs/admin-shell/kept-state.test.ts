@@ -44,6 +44,9 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 			.locator( '#wpbody-content input[type="search"]' )
 			.filter( { visible: true } );
 		await search.fill( 'shell-regression' );
+		await expect
+			.poll( () => where( page ), 'search reaches the URL' )
+			.toContain( 'shell-regression' );
 		const url = await where( page );
 
 		await switchTo( page, 'jetpack-newsletter' );
