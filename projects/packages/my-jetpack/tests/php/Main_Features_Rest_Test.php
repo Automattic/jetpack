@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -230,7 +231,6 @@ class Main_Features_Rest_Test extends TestCase {
 		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$attempts = array();
 		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
 			$attempts[] = $url;
@@ -302,7 +302,6 @@ class Main_Features_Rest_Test extends TestCase {
 	#[PreserveGlobalState( false )]
 	public function test_offline_module_activation_respects_connection_requirement( $plugin_route, $module, $active ) {
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		\Automattic\Jetpack\Status\Cache::clear();
 		require __DIR__ . '/fixtures/offline-module-info.php';
 		\Automattic\Jetpack\Connection\Utils::init_default_constants();
@@ -433,7 +432,7 @@ class Main_Features_Rest_Test extends TestCase {
 	 * @dataProvider remaining_carriers
 	 * @param array $versions Bundled versions or fixture types, in active plugin order.
 	 * @param bool  $offline Whether the site is offline.
-	 * @param bool  $enabled Whether offline Features is opted in.
+	 * @param bool  $enabled Whether offline Features is enabled.
 	 * @param bool  $refused Whether the hosting plugin must stay active.
 	 * @param bool  $network Whether the remaining carriers are network active.
 	 * @param array $excluded_folders Other plugin folders being deactivated in the same request.
@@ -468,18 +467,21 @@ class Main_Features_Rest_Test extends TestCase {
 	/** @return array Remaining carrier cases. */
 	public static function remaining_carriers() {
 		return array(
-			'offline capable'     => array( array( '6.10.0' ), true, true, false ),
-			'offline excluded'    => array( array( '6.10.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
-			'offline older'       => array( array( '6.7.0' ), true, true, true ),
-			'online older'        => array( array( '6.7.0' ), false, true, false ),
-			'offline unknown'     => array( array( null ), true, true, true ),
-			'offline opt out'     => array( array( '6.7.0' ), true, false, false ),
-			'last older release'  => array( array( '6.9.1' ), true, true, true ),
-			'older before newer'  => array( array( '6.7.0', '6.10.0' ), true, true, false ),
-			'prerelease suffix'   => array( array( '6.13.0-alpha' ), true, true, false ),
-			'network active'      => array( array( '6.10.0' ), true, true, false, true ),
-			'package initializer' => array( array( 'package' ), true, true, false ),
-			'directory'           => array( array( 'directory' ), true, true, true ),
+			'offline capable'      => array( array( '6.15.0' ), true, true, false ),
+			'offline excluded'     => array( array( '6.15.0' ), true, true, true, false, array( 'my-jetpack-carrier-0' ) ),
+			'offline older'        => array( array( '6.7.0' ), true, true, true ),
+			'first opt-in release' => array( array( '6.10.0' ), true, true, true ),
+			'later opt-in release' => array( array( '6.12.0' ), true, true, true ),
+			'online older'         => array( array( '6.7.0' ), false, true, false ),
+			'offline unknown'      => array( array( null ), true, true, true ),
+			'offline opt out'      => array( array( '6.7.0' ), true, false, false ),
+			'last older release'   => array( array( '6.14.0' ), true, true, true ),
+			'older before newer'   => array( array( '6.7.0', '6.15.0' ), true, true, false ),
+			'prerelease boundary'  => array( array( '6.15.0-alpha' ), true, true, true ),
+			'prerelease suffix'    => array( array( '6.16.0-alpha' ), true, true, false ),
+			'network active'       => array( array( '6.15.0' ), true, true, false, true ),
+			'package initializer'  => array( array( 'package' ), true, true, version_compare( Initializer::PACKAGE_VERSION, Main_Features::MINIMUM_OFFLINE_FEATURES_VERSION, '<' ) ),
+			'directory'            => array( array( 'directory' ), true, true, true ),
 		);
 	}
 
@@ -818,6 +820,156 @@ class Main_Features_Rest_Test extends TestCase {
 
 		$this->assertSame( array(), $response->get_data()['failed'] );
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * @dataProvider protect_page_bulk_switches
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $dashboard Whether the Protect page owns the security modules.
+	 * @param bool   $active Whether to activate the modules.
+	 * @param bool   $can_manage Whether the user can manage modules.
+	 * @param bool   $security_active Whether security modules start active.
+	 * @param array  $expected_failed Expected failed module slugs.
+	 * @param string $expected_message Expected failure message.
+	 * @param bool   $expected_security_active Expected security module state.
+	 * @param bool   $expected_stats_active Expected stats module state.
+	 * @param bool   $include_dashboard Whether the batch also switches the Protect page.
+	 * @param bool   $force_dashboard Whether the host forces the Protect page on.
+	 */
+	#[DataProvider( 'protect_page_bulk_switches' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_bulk_respects_protect_page_ownership( $dashboard, $active, $can_manage, $security_active, $expected_failed, $expected_message, $expected_security_active, $expected_stats_active, $include_dashboard = false, $force_dashboard = false ) {
+		$security = array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' );
+		$modules  = array_merge( $security, array( 'stats' ) );
+		if ( $include_dashboard ) {
+			if ( $active ) {
+				array_unshift( $modules, 'protect-dashboard' );
+			} else {
+				$modules[] = 'protect-dashboard';
+			}
+		}
+		$offer = fn( $available ) => array_values( array_unique( array_merge( $available, $modules ) ) );
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		if ( $can_manage ) {
+			add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		}
+		$initial_modules = array_merge( $security_active ? $security : array(), $active ? array() : array( 'stats' ) );
+		if ( $include_dashboard ) {
+			$initial_modules[] = 'protect-dashboard';
+		}
+		Jetpack_Options::update_option( 'active_modules', $initial_modules );
+		if ( $force_dashboard ) {
+			add_filter( 'jetpack_active_modules', fn( $active_modules ) => array_values( array_unique( array_merge( $active_modules, array( 'protect-dashboard' ) ) ) ) );
+		}
+		if ( $dashboard ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => $active,
+				'modules' => $modules,
+			)
+		);
+		$this->assertSame( 200, $response->get_status() );
+		$failed = $response->get_data()['failed'];
+		$this->assertSame( $expected_failed, array_column( $failed, 'slug' ) );
+		foreach ( $failed as $failure ) {
+			$this->assertSame( 'module', $failure['type'] );
+			$message = $force_dashboard && 'protect-dashboard' === $failure['slug']
+				? 'Stays on: enabled by your host or site administrator.'
+				: $expected_message;
+			$this->assertSame( $message, $failure['message'] );
+		}
+		$saved = Jetpack_Options::get_option( 'active_modules', array() );
+		foreach ( $security as $slug ) {
+			$this->assertSame( $expected_security_active, in_array( $slug, $saved, true ), $slug );
+		}
+		$this->assertSame( $expected_stats_active, in_array( 'stats', $saved, true ) );
+		if ( $include_dashboard ) {
+			$this->assertSame( $active || $force_dashboard, ( new Modules() )->is_active( 'protect-dashboard' ) );
+		}
+	}
+
+	public static function protect_page_bulk_switches() {
+		return array(
+			'Protect page on, already active'     => array(
+				'dashboard'                => true,
+				'active'                   => true,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => true,
+				'expected_stats_active'    => true,
+			),
+			'Protect page on, deactivate'         => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => true,
+				'expected_stats_active'    => false,
+			),
+			'Protect page deactivated in batch'   => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array(),
+				'expected_message'         => '',
+				'expected_security_active' => false,
+				'expected_stats_active'    => false,
+				'include_dashboard'        => true,
+			),
+			'Protect page forced on in batch'     => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => true,
+				'security_active'          => true,
+				'expected_failed'          => array( 'protect-dashboard', 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => true,
+				'expected_stats_active'    => false,
+				'include_dashboard'        => true,
+				'force_dashboard'          => true,
+			),
+			'Protect page included in activation' => array(
+				'dashboard'                => true,
+				'active'                   => true,
+				'can_manage'               => true,
+				'security_active'          => false,
+				'expected_failed'          => array( 'waf', 'protect', 'account-protection', 'sso', 'monitor' ),
+				'expected_message'         => 'Managed in Protect. Change these settings on the Protect page.',
+				'expected_security_active' => false,
+				'expected_stats_active'    => true,
+				'include_dashboard'        => true,
+			),
+			'Protect page off, activate'          => array(
+				'dashboard'                => false,
+				'active'                   => true,
+				'can_manage'               => true,
+				'security_active'          => false,
+				'expected_failed'          => array(),
+				'expected_message'         => '',
+				'expected_security_active' => true,
+				'expected_stats_active'    => true,
+			),
+			'capability refusal wins'             => array(
+				'dashboard'                => true,
+				'active'                   => false,
+				'can_manage'               => false,
+				'security_active'          => true,
+				'expected_failed'          => array( 'waf', 'protect', 'account-protection', 'sso', 'monitor', 'stats' ),
+				'expected_message'         => 'You are not allowed to manage Jetpack modules on this site.',
+				'expected_security_active' => true,
+				'expected_stats_active'    => true,
+			),
+		);
 	}
 
 	/**

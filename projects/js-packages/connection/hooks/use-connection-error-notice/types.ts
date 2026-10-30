@@ -1,9 +1,10 @@
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 import type { ConnectionOwner } from '../../types.ts';
 import type { ReactElement } from 'react';
 
-// Part of this hook's public result contract, so re-export it: the package
+// Part of this hook's public contract, so re-export them: the package
 // barrel forwards this module's types to consumers.
-export type { ConnectionOwner };
+export type { ConnectionOwner, ConnectionPlacement };
 
 export interface ConnectionErrorData {
 	action?: string;
@@ -99,6 +100,11 @@ export interface ConnectionErrorProps {
 	 * from `context` below, which is a display title line.
 	 */
 	trackingContext?: string;
+	/**
+	 * Where on the page the notice sits, reported as `placement` when set (e.g. 'header').
+	 * Only needed when one page renders the notice in more than one place.
+	 */
+	trackingPlacement?: ConnectionPlacement;
 	/** Navigation handler for URL-based actions. Defaults to setting `window.location.href`. */
 	navigate?: ( url: string ) => void;
 	/** Where the reconnect CTA returns after reauthorizing the user. Defaults to My Jetpack. */

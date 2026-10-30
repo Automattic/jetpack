@@ -6,10 +6,15 @@ import { useDispatch } from '@wordpress/data';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CONNECTION_EVENTS, trackConnectionEvent } from '../../helpers/connection-tracking.ts';
+import {
+	CONNECTION_EVENTS,
+	placementProps,
+	trackConnectionEvent,
+} from '../../helpers/connection-tracking.ts';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 import { STORE_ID } from '../../state/store';
 import type { ConnectionOwnerCandidate } from './types';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 
 /** What `checkStatus` throws: an Error carrying the REST body it could not return. */
 interface ApiError {
@@ -116,6 +121,8 @@ export interface UseOwnershipTransferArgs {
 	onTransferred?: ( newOwnerId: number ) => void;
 	/** Surface to report Tracks events as. Sent as null when omitted. */
 	trackingContext?: string;
+	/** Where on the page the flow sits, sent as `placement` when set. */
+	trackingPlacement?: ConnectionPlacement;
 }
 
 export type { ConnectionOwnerCandidate };
@@ -131,6 +138,7 @@ export default function useOwnershipTransfer( {
 	apiNonce,
 	onTransferred,
 	trackingContext,
+	trackingPlacement,
 }: UseOwnershipTransferArgs ) {
 	const [ candidates, setCandidates ] = useState< ConnectionOwnerCandidate[] | null >( null );
 	const [ selectedId, setSelectedId ] = useState< number | null >( null );
@@ -178,6 +186,7 @@ export default function useOwnershipTransfer( {
 			.catch( () => {
 				if ( ! ignore ) {
 					trackConnectionEvent( CONNECTION_EVENTS.ownerTransferError, trackingContext, {
+						...placementProps( trackingPlacement ),
 						reason: 'candidates_load_failed',
 					} );
 					setCandidates( [] );
@@ -219,7 +228,11 @@ export default function useOwnershipTransfer( {
 
 		setIsTransferring( true );
 		setError( '' );
-		trackConnectionEvent( CONNECTION_EVENTS.ownerTransferAttempt, trackingContext );
+		trackConnectionEvent(
+			CONNECTION_EVENTS.ownerTransferAttempt,
+			trackingContext,
+			placementProps( trackingPlacement )
+		);
 
 		restApi
 			.setConnectionOwner( id )
@@ -227,7 +240,11 @@ export default function useOwnershipTransfer( {
 				// Tell the store who owns the connection now, so every surface reading it
 				// stops describing an owner the user no longer is.
 				setConnectionOwner( { id, displayName } );
-				trackConnectionEvent( CONNECTION_EVENTS.ownerTransferSuccess, trackingContext );
+				trackConnectionEvent(
+					CONNECTION_EVENTS.ownerTransferSuccess,
+					trackingContext,
+					placementProps( trackingPlacement )
+				);
 
 				if ( ! isMounted.current ) {
 					return;
@@ -240,6 +257,7 @@ export default function useOwnershipTransfer( {
 			.catch( ( err: unknown ) => {
 				const code = getRefusalCode( err );
 				trackConnectionEvent( CONNECTION_EVENTS.ownerTransferError, trackingContext, {
+					...placementProps( trackingPlacement ),
 					reason: isKnownRefusal( code ) ? code : 'unknown',
 				} );
 
@@ -250,7 +268,7 @@ export default function useOwnershipTransfer( {
 				setError( transferErrorMessage( err ) );
 				setIsTransferring( false );
 			} );
-	}, [ selectedCandidate, onTransferred, setConnectionOwner, trackingContext ] );
+	}, [ selectedCandidate, onTransferred, setConnectionOwner, trackingContext, trackingPlacement ] );
 
 	return {
 		candidates,

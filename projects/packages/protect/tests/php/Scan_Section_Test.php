@@ -45,6 +45,8 @@ class Scan_Section_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( Scan_Status::OPTION_NAME );
 		Scan_Status::$status = null;
+		\Automattic\Jetpack\Constants::clear_constants();
+		\Automattic\Jetpack\Status\Cache::clear();
 		if ( self::$row_lookup ) {
 			remove_filter( 'wordbless_wpdb_query_results', self::$row_lookup );
 			self::$row_lookup = null;
@@ -66,6 +68,43 @@ class Scan_Section_Test extends BaseTestCase {
 			$reflection->setAccessible( true );
 		}
 		return $reflection->invoke( null, ...$args );
+	}
+
+	/**
+	 * A WoA site with Scan gets no credentials link or status, since WordPress.com runs Scan without them.
+	 *
+	 * @dataProvider provide_credentials_hosts
+	 *
+	 * @param bool $is_woa Whether the site is on WoA.
+	 */
+	#[DataProvider( 'provide_credentials_hosts' )]
+	public function test_credentials_follow_the_host( $is_woa ) {
+		if ( $is_woa ) {
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+
+		$state = ( new Scan() )->get_state();
+
+		$this->assertTrue( $state['hasPlan'] );
+		$this->assertSame( ! $is_woa, $state['needsCredentials'] );
+		$this->assertSame( $is_woa, '' === $state['url'] );
+		$this->assertSame( ! $is_woa, array_key_exists( 'hasCredentials', $state ) );
+	}
+
+	/**
+	 * Data provider for test_credentials_follow_the_host.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_credentials_hosts() {
+		return array(
+			'WoA'     => array( true ),
+			'not WoA' => array( false ),
+		);
 	}
 
 	/**

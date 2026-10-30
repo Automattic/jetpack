@@ -1065,7 +1065,7 @@ class Jetpack_Carousel {
 			return $html;
 		}
 
-		if ( isset( $post ) ) {
+		if ( $post instanceof WP_Post ) {
 			$blog_id = (int) get_current_blog_id();
 
 			$extra_data = array(

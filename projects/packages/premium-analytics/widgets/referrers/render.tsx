@@ -15,12 +15,9 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
 	getReferrerSpamDomain,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
 	useMarkAsSpam,
 	useWidgetDrillDown,
 	useReportActions,
@@ -102,18 +99,10 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
  */
 function buildLeaderboardData(
 	rows: ReferrerRow[],
-	withComparison: boolean,
 	onDrillDown?: ( row: ReferrerRow ) => void,
 	onMarkAsSpam?: ( domain: string ) => Promise< void >
 ): LeaderboardChartData {
-	const maxViews = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -142,10 +131,7 @@ function buildLeaderboardData(
 					) : undefined,
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxViews ),
-			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
-			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -171,7 +157,7 @@ export function ReferrersLeaderboard( {
 	return (
 		<LeaderboardChart
 			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown, onMarkAsSpam ) }
+			data={ buildLeaderboardData( rows, onDrillDown, onMarkAsSpam ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
