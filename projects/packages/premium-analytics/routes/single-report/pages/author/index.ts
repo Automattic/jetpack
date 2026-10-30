@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { authorHeaderSlots } from './author-header-slots';
@@ -13,6 +17,7 @@ import type { AuthorSummary } from './use-author-summary';
 export const authorAdapter: SingleReportAdapter< AuthorSummary > = {
 	useSummary: useAuthorSummary,
 	headerSlots: authorHeaderSlots,
+	notFoundDescription: () => __( "We couldn't find this author.", 'jetpack-premium-analytics-pkg' ),
 };
 
 export { useAuthorSummary, authorHeaderSlots, type AuthorSummary };
