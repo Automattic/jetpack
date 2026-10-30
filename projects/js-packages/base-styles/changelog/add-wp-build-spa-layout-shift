@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin page layout: Add a temporary start margin to the page and tabs strip to offset a layout shift to the left.
