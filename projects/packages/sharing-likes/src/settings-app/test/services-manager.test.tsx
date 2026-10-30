@@ -330,6 +330,17 @@ describe( 'ServicesManager', () => {
 		expect( within( dialog ).queryByRole( 'button', { name: 'Pocket' } ) ).not.toBeInTheDocument();
 		// The legacy Twitter service is named X too.
 		expect( within( dialog ).getAllByRole( 'button', { name: 'X' } ) ).toHaveLength( 1 );
+
+		await user.click( within( dialog ).getByRole( 'button', { name: 'X' } ) );
+		await waitFor( () =>
+			expect( apiCalls( 'PUT' ) ).toEqual( [
+				{
+					path: '/wpcom/v2/sharing-likes/services',
+					method: 'PUT',
+					data: { visible: [ 'facebook', 'x' ], hidden: [ 'email' ] },
+				},
+			] )
+		);
 	} );
 
 	it( 'creates a custom service once every field is filled in', async () => {
