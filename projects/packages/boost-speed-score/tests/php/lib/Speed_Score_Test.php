@@ -130,4 +130,21 @@ class Speed_Score_Test extends Base_TestCase {
 			$this->assertSame( $no_boost_scores, $response['scores']['noBoost'] );
 		}
 	}
+
+	public function test_progress_ignores_a_comparison_left_running_from_an_earlier_test() {
+		$speed_score = new Speed_Score( array(), 'test' );
+		$method      = new \ReflectionMethod( Speed_Score::class, 'prepare_speed_score_response' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$response = $method->invoke(
+			$speed_score,
+			self::URL,
+			new Speed_Score_Request( self::URL, array( 'critical_css' ), microtime( true ) - 10, 'pending' ),
+			new Speed_Score_Request( self::URL_NO_BOOST, array(), microtime( true ) - 60, 'pending' )
+		);
+
+		$this->assertSame( 10, $response['progress']['elapsed'] );
+	}
 }
