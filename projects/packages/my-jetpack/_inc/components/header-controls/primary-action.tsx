@@ -1,8 +1,8 @@
 import { getUserConnectionUrl, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Button, Link, Stack } from '@wordpress/ui';
 import { MyJetpackRoutes } from '../../constants';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
 
@@ -28,7 +28,7 @@ const PrimaryAction: FC< {
 
 	if ( action === 'CONNECT_SITE' ) {
 		return (
-			<Link href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Connection }` ) }>
+			<Link href={ getMyJetpackRouteUrl( MyJetpackRoutes.Connection ) }>
 				{ __( 'Connect site', 'jetpack-my-jetpack' ) }
 			</Link>
 		);

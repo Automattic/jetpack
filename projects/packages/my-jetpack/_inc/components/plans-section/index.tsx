@@ -1,5 +1,4 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
@@ -14,6 +13,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
 import styles from './style.module.scss';
 import type { FC } from 'react';
@@ -261,7 +261,7 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?filter=included` ) }
+						href={ getMyJetpackRouteUrl( `${ MyJetpackRoutes.Features }?filter=included` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>
@@ -278,7 +278,9 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ activateLicenseClickHandler }
-						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
+						href={
+							isUserConnected ? getMyJetpackRouteUrl( '/add-license' ) : getUserConnectionUrl()
+						}
 					>
 						{ activateLicenceDescription }
 					</Link>
