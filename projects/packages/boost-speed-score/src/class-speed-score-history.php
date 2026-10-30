@@ -54,6 +54,11 @@ class Speed_Score_History {
 		$this->entries = get_option( $this->get_option_name(), array() );
 
 		if ( empty( $this->entries ) ) {
+			$migrated_option = $this->get_option_name() . '_legacy_migrated';
+			if ( get_option( $migrated_option ) ) {
+				return;
+			}
+
 			$path_length = strcspn( $url, '?#' );
 			$base_url    = rtrim( substr( $url, 0, $path_length ), '/' );
 			$suffix      = substr( $url, $path_length );
@@ -69,6 +74,7 @@ class Speed_Score_History {
 
 			self::migrate_legacy_record( $url, $legacy_urls );
 			$this->entries = get_option( $this->get_option_name(), array() );
+			update_option( $migrated_option, 1, true );
 		}
 	}
 

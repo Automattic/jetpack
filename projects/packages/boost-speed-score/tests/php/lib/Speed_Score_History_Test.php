@@ -33,7 +33,9 @@ class Speed_Score_History_Test extends Base_TestCase {
 
 		Functions\when( 'update_option' )->alias(
 			function ( $option_name, $data ) {
-				$this->data = $data;
+				if ( Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com' ) === $option_name ) {
+					$this->data = $data;
+				}
 			}
 		);
 
@@ -77,6 +79,33 @@ class Speed_Score_History_Test extends Base_TestCase {
 	 */
 	public function test_history_is_limited() {
 		$this->assertTrue( $this->history->count() === 20 );
+	}
+
+	public function test_empty_history_checks_legacy_records_only_once() {
+		$options      = array( Speed_Score_History::LEGACY_MIGRATED_OPTION => 1 );
+		$legacy_key   = Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/?jb-disable-modules=all' );
+		$legacy_reads = 0;
+
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default = false ) use ( &$options, $legacy_key, &$legacy_reads ) {
+				if ( $name === $legacy_key ) {
+					++$legacy_reads;
+				}
+				return $options[ $name ] ?? $default;
+			}
+		);
+		Functions\when( 'update_option' )->alias(
+			function ( $name, $value ) use ( &$options ) {
+				$options[ $name ] = $value;
+			}
+		);
+
+		$first  = new Speed_Score_History( 'http://example.com?jb-disable-modules=all' );
+		$second = new Speed_Score_History( 'http://example.com/?jb-disable-modules=all' );
+
+		$this->assertSame( 0, $first->count() );
+		$this->assertSame( 0, $second->count() );
+		$this->assertSame( 1, $legacy_reads );
 	}
 
 	/**
