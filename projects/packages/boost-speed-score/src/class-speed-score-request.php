@@ -107,7 +107,7 @@ class Speed_Score_Request extends Cacheable {
 	}
 
 	/**
-	 * Remove the trailing slash of the URL's path, so every spelling of a page shares one record.
+	 * Remove trailing path slashes while preserving the query string and fragment.
 	 *
 	 * Url::normalize() is no use here: it also removes the query argument that keeps the
 	 * "without Boost" scores apart from the regular ones.
