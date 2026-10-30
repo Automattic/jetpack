@@ -15,6 +15,7 @@ return make_phan_config(
 	array(
 		'exclude_file_regex'    => array(
 			'tests/lib/mocks',
+			'tests/stubs',
 		),
 		'exclude_file_list'     => array(
 			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
