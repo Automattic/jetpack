@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Keep native video playback and poster settings valid in the editor.
