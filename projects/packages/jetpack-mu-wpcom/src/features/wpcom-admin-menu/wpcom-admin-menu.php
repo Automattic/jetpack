@@ -535,32 +535,74 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	wpcom_reorder_submenu(
-		'jetpack',
-		array(
-			'my-jetpack',
-			'stats',
-			'advertising',
-			'boost',
-			'social',
-			'akismet-key-config',
-			'activity-log',
-			'scan',
-			'backup',
-			'forms',
-			'earn',
-			'search',
-			'subscribers',
-			'newsletter',
-			'podcast',
-			'traffic',
-			'jetpack-seo',
-			'jetpack#/settings',
-			'jetpack-settings',
-		)
-	);
+	wpcom_sort_jetpack_submenu();
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
+
+/**
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first;
+ * Beta Tester, Settings and the upgrade link go at the bottom, as on self-hosted.
+ *
+ * WordPress points the top-level Jetpack link at the first item, so a `hide-if-js` item sorts after the visible
+ * ones in its tier. Items admin-ui hides only leave on admin_head, so they sort as visible here.
+ */
+function wpcom_sort_jetpack_submenu() {
+	global $submenu;
+	if ( empty( $submenu['jetpack'] ) ) {
+		return;
+	}
+
+	// Admin_Menu::POSITION_* values, as this package doesn't depend on admin-ui. There is no
+	// POSITION_EXTERNAL tier: links that leave wp-admin sort in with everything else.
+	$named_tiers = array(
+		'my-jetpack'                                    => -10,
+		'jetpack_modules'                               => -5,
+		'jetpack-beta'                                  => 998,
+		'jetpack-settings'                              => 998,
+		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
+	);
+
+	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$named_tiers['jetpack-activity-log'] = -5;
+		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
+	}
+
+	$keyed = array();
+	foreach ( $submenu['jetpack'] as $item ) {
+		// Drop exact duplicates: Simple can register Akismet twice.
+		if ( in_array( $item, array_column( $keyed, 'item' ), true ) ) {
+			continue;
+		}
+
+		if ( isset( $named_tiers[ $item[2] ] ) ) {
+			$tier = $named_tiers[ $item[2] ];
+		} elseif ( str_contains( $item[2], 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item' ) ) {
+			// Admin_Menu::UPGRADE_MENU_SLUG, sent through a jetpack.com redirect; admin-ui never adds it on WordPress.com.
+			$tier = 999;
+		} else {
+			$tier = 0;
+		}
+
+		$keyed[] = array(
+			'tier'   => $tier,
+			'hidden' => str_contains( $item[4] ?? '', 'hide-if-js' ),
+			'title'  => wp_strip_all_tags( $item[0] ),
+			'item'   => $item,
+		);
+	}
+
+	usort(
+		$keyed,
+		function ( $a, $b ) {
+			$result = array( $a['tier'], $a['hidden'] ) <=> array( $b['tier'], $b['hidden'] );
+			return 0 !== $result ? $result : strnatcasecmp( $a['title'], $b['title'] );
+		}
+	);
+
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$submenu['jetpack'] = array_column( $keyed, 'item' );
+}
 
 /**
  * Registers the native Activity Log page under Jetpack on a Simple site.
