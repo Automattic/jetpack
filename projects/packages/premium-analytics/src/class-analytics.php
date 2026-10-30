@@ -390,6 +390,12 @@ class Analytics {
 			configure_dashboard_sections_script_data();
 		}
 
+		// Single-report page API; other plugins and, later, the package register pages through it.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_single_report_page' ) ) {
+			require_once __DIR__ . '/single-report-pages.php';
+		}
+		configure_single_report_pages_script_data();
+
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
 			require_once __DIR__ . '/csv-exports.php';

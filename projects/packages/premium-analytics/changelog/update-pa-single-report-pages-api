@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Single-report pages: add a registry other plugins can register pages on, published to the client in script data and over REST.
