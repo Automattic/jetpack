@@ -39,10 +39,11 @@ test.describe( 'Admin shell: history', () => {
 	} );
 
 	test( 'Back after a framed page (Stats) needs one press', async ( { page } ) => {
-		test.fail(
-			true,
-			'Known spike bug: Stats adds its own history entry, so Back needs an extra press.'
-		);
+		// Intermittent on the spike, so not test.fail(): an unexpected pass would fail the run.
+		test.info().annotations.push( {
+			type: 'spike bug',
+			description: 'Stats adds its own history entry, so Back needs an extra press.',
+		} );
 		await openMember( page, 'my-jetpack' );
 		const start = await historyLength( page );
 		await page.locator( '#adminmenu a[href$="page=stats"]' ).first().click();

@@ -9,7 +9,17 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 	} );
 
 	for ( const via of [ 'jetpack-newsletter', 'jetpack-settings' ] ) {
+		const notes = [ 'jetpack-settings' ].includes( via )
+			? [
+					{
+						type: 'spike bug',
+						description: 'Intermittent: My Jetpack on the wrong tab after Settings.',
+					},
+				]
+			: [];
+
 		test( `My Jetpack keeps its tab after visiting ${ via }`, async ( { page } ) => {
+			test.info().annotations.push( ...notes );
 			// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
 			await openMember( page, 'jetpack-podcast' );
 			await switchTo( page, 'my-jetpack' );
