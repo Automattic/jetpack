@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import {
-	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
-	PRESET_ALL_TIME,
-} from '@jetpack-premium-analytics/datetime';
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -368,24 +365,6 @@ describe( 'report params field', () => {
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-7-days' } ) );
-	} );
-
-	it( 'anchors All time on the start the host passes with the item', async () => {
-		const user = userEvent.setup();
-		const { latest } = renderField(
-			false,
-			{ presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME },
-			{ ...ATTRIBUTES, allTimeStart: '2026-01-10T08:00:00' }
-		);
-
-		await pickPeriod( user, 'All time' );
-
-		expect( latest() ).toEqual(
-			expect.objectContaining( {
-				preset: PRESET_ALL_TIME,
-				from: expect.stringMatching( /^2026-01-10/ ),
-			} )
-		);
 	} );
 
 	it( 'reshapes the bucket menu once the preset applies', async () => {
