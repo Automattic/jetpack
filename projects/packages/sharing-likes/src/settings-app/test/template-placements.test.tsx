@@ -70,11 +70,6 @@ function renderManaged( feature: Feature, managed: PlacementTemplate[], pageUrl:
 	} );
 }
 
-const templateUrls: Record< PlacementTemplate, string > = {
-	single: baseStatus.site_editor_url,
-	page: PAGE_TEMPLATE_URL,
-};
-
 /**
  * Where the "Edit the … template" links go, post template first.
  *
@@ -196,25 +191,42 @@ describe( 'TemplatePlacements', () => {
 		[
 			'sharing',
 			[ 'single' ],
-			'Your post template was saved in the Site Editor, so the Sharing Buttons block on posts is managed there now.',
-			'Where should the Sharing Buttons block go on pages?',
+			PAGE_TEMPLATE_URL,
+			'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Sharing Buttons block there.',
 			PAGE_TEMPLATE_URL,
 		],
 		[
 			'likes',
 			[ 'page' ],
-			'Your page template was saved in the Site Editor, so the Like block on pages is managed there now.',
-			'Where should the Like block go on posts?',
+			PAGE_TEMPLATE_URL,
+			'Your page template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
+			baseStatus.site_editor_url,
+		],
+		[
+			'sharing',
+			[ 'single', 'page' ],
+			PAGE_TEMPLATE_URL,
+			'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Sharing Buttons block there.',
+			baseStatus.site_editor_url,
+		],
+		[
+			'likes',
+			[ 'single' ],
+			'',
+			'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
 			baseStatus.site_editor_url,
 		],
 	] as [ Feature, PlacementTemplate[], string, string, string ][] )(
-		'%s managed by %j: a notice, and cards for the other template',
-		( feature, managed, notice, legend, previewUrl ) => {
-			renderManaged( feature, managed, PAGE_TEMPLATE_URL );
+		'%s managed by %j, page template "%s": a notice above the cards',
+		( feature, managed, pageUrl, notice, previewUrl ) => {
+			renderManaged( feature, managed, pageUrl );
 
 			expect( screen.getByText( notice ) ).toBeInTheDocument();
-			expect( templateLinks() ).toEqual( managed.map( template => templateUrls[ template ] ) );
-			expect( screen.getByRole( 'radiogroup', { name: legend } ) ).toBeInTheDocument();
+			expect( templateLinks() ).toEqual(
+				managed.map( template => ( template === 'single' ? baseStatus.site_editor_url : pageUrl ) )
+			);
+			// Other templates, such as `singular` or a custom one, still follow the choice.
+			expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 3 );
 			expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
 				'href',
 				previewUrl
@@ -223,39 +235,19 @@ describe( 'TemplatePlacements', () => {
 		}
 	);
 
-	it.each( [
-		[
-			'sharing',
-			[ 'single', 'page' ],
-			PAGE_TEMPLATE_URL,
-			'Your post and page templates were saved in the Site Editor, so the Sharing Buttons block is managed there now.',
-		],
-		[
-			'likes',
-			[ 'single' ],
-			'',
-			'Your post template was saved in the Site Editor, so the Like block on posts is managed there now.',
-		],
-	] as [ Feature, PlacementTemplate[], string, string ][] )(
-		'%s managed by %j, page template "%s": a notice instead of the cards',
-		( feature, managed, pageUrl, notice ) => {
-			renderManaged( feature, managed, pageUrl );
-
-			expect( screen.getByText( notice ) ).toBeInTheDocument();
-			expect( templateLinks() ).toEqual( managed.map( template => templateUrls[ template ] ) );
-			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
-		}
-	);
-
-	it( 'keeps the cards for posts and pages while neither template manages the block', () => {
-		renderCards( 'likes', [], { page_template_editor_url: PAGE_TEMPLATE_URL } );
+	it( 'shows no notice and previews the post template while neither template manages the block', () => {
+		renderCards( 'likes', [ 'after_content' ], { page_template_editor_url: PAGE_TEMPLATE_URL } );
 
 		expect(
 			screen.getByRole( 'radiogroup', {
 				name: 'Where should the Like block go on posts and pages?',
 			} )
 		).toBeInTheDocument();
-		expect( screen.queryByText( /managed there now/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /no longer change/ ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
+			'href',
+			baseStatus.site_editor_url
+		);
 	} );
 
 	it( 'shows the cards disabled, not the Site Editor button, while settings catch up with a switch', async () => {

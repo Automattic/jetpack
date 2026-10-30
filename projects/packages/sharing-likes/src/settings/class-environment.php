@@ -285,6 +285,10 @@ final class Environment {
 	 * @param string $slug Template slug.
 	 */
 	public static function saved_template_content( string $slug ): ?string {
+		if ( ! self::is_block_theme() ) {
+			return null;
+		}
+
 		$stylesheet = get_stylesheet();
 		$template   = $stylesheet ? get_block_template( $stylesheet . '//' . $slug ) : null;
 		$post       = $template && $template->wp_id ? get_post( $template->wp_id ) : null;

@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Sharing_Likes\REST;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Template_Placements;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_State;
 use Jetpack_Options;
@@ -49,12 +51,15 @@ class Status_Controller_Test extends BaseTestCase {
 	 * Leave no options or constants behind.
 	 */
 	public function tear_down() {
-		foreach ( array( 'sharing-services', 'disabled_likes', 'disabled_reblogs' ) as $option ) {
+		foreach ( array_merge( array( 'sharing-services', 'disabled_likes', 'disabled_reblogs' ), Template_Placements::OPTIONS ) as $option ) {
 			delete_option( $option );
 		}
 
 		remove_all_filters( 'get_block_template' );
 		remove_all_filters( 'pre_get_block_template' );
+		remove_all_filters( 'hooked_block_types' );
+		remove_all_filters( 'hooked_block_' . Block_Names::SHARING_BUTTONS );
+		remove_all_filters( 'hooked_block_' . Block_Names::LIKE );
 		$this->tear_down_rest();
 		$this->tear_down_site();
 		Constants::clear_constants();
@@ -171,15 +176,17 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Save a template in the Site Editor, as core stores it: a post the template then points at.
+	 * Save a template in the Site Editor, as core stores it: a post the template then points at,
+	 * whose content `get_block_template()` returns with the blocks already hooked in.
 	 *
 	 * @param string $slug    Template slug.
 	 * @param string $content Saved content.
 	 */
 	private function given_saved_template( string $slug, string $content ): void {
-		$template        = new WP_Block_Template();
-		$template->slug  = $slug;
-		$template->wp_id = wp_insert_post(
+		$template          = new WP_Block_Template();
+		$template->slug    = $slug;
+		$template->content = $content . '<!-- wp:jetpack/sharing-buttons /--><!-- wp:jetpack/like /-->';
+		$template->wp_id   = wp_insert_post(
 			array(
 				'post_type'    => 'wp_template',
 				'post_name'    => $slug,
@@ -243,6 +250,10 @@ class Status_Controller_Test extends BaseTestCase {
 	#[DataProvider( 'provide_saved_templates' )]
 	public function test_status_lists_the_saved_templates_that_manage_each_block( array $saved, array $sharing, array $likes ): void {
 		$this->given_block_routes();
+		$this->given_modules( array( 'blocks' ) );
+		Template_Placements::update( Template_Placements::FEATURE_SHARING, array( Template_Placements::AFTER_CONTENT ) );
+		Template_Placements::update( Template_Placements::FEATURE_LIKES, array( Template_Placements::AFTER_CONTENT ) );
+		Hooked_Blocks::init();
 		foreach ( $saved as $slug => $content ) {
 			$this->given_saved_template( $slug, $content );
 		}

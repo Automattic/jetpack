@@ -75,8 +75,9 @@ of the content. Picking a card saves a one-item list, and the first option an
 empty one. It falls back to the Site Editor link only where `settings` does not
 offer the key and no write is pending; while one is, the group shows disabled.
 A template that manages the block (see `managed_templates` under "REST API")
-gets a notice linking to it instead: the cards stay for the other template, or
-go when no template is left for them to change.
+gets a notice above the cards linking to it. The cards stay even when both
+templates manage the block: `singular`, `page-*` and custom templates still
+follow the choice, and hiding it would leave no way to turn it off.
 
 ## Per-post switches
 
@@ -340,8 +341,8 @@ Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
 `get_block_template()`, `Environment::single_template_editor_url()`,
-`Environment::page_template_editor_url()` and the sections' `state()` all
-recurse from there.
+`Environment::page_template_editor_url()`, `Environment::saved_template_content()`
+and the sections' `state()` all recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on

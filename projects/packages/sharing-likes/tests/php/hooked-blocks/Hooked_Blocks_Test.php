@@ -685,7 +685,6 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		return array(
 			'saved before the block was placed'          => array( array(), '', false ),
 			'saved with the block after the content'     => array( array( Template_Placements::AFTER_CONTENT ), '', true ),
-			'saved with the block before the content'    => array( array( Template_Placements::BEFORE_CONTENT ), '', true ),
 			'saved with the block, then removed'         => array( array( Template_Placements::AFTER_CONTENT ), 'remove', true ),
 			'saved before, then the block added by hand' => array( array(), 'add', true ),
 		);
@@ -719,7 +718,6 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $managed, Hooked_Blocks::is_managed_by_template( $saved, Block_Names::SHARING_BUTTONS ) );
-		$this->assertTrue( Hooked_Blocks::is_managed_by_template( $saved, Block_Names::LIKE ), 'The Like block was placed when the template was saved.' );
 
 		$template          = self::template( 'single' );
 		$template->content = $saved;

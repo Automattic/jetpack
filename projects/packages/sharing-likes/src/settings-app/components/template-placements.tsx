@@ -47,28 +47,21 @@ function copyFor( feature: Feature ) {
 	if ( feature === 'sharing' ) {
 		return {
 			...shared,
-			legend: {
-				both: __(
-					'Where should the Sharing Buttons block go on posts and pages?',
-					'jetpack-sharing-likes'
-				),
-				single: __(
-					'Where should the Sharing Buttons block go on posts?',
-					'jetpack-sharing-likes'
-				),
-				page: __( 'Where should the Sharing Buttons block go on pages?', 'jetpack-sharing-likes' ),
-			},
+			legend: __(
+				'Where should the Sharing Buttons block go on posts and pages?',
+				'jetpack-sharing-likes'
+			),
 			managed: {
 				both: __(
-					'Your post and page templates were saved in the Site Editor, so the Sharing Buttons block is managed there now.',
+					'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 				single: __(
-					'Your post template was saved in the Site Editor, so the Sharing Buttons block on posts is managed there now.',
+					'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 				page: __(
-					'Your page template was saved in the Site Editor, so the Sharing Buttons block on pages is managed there now.',
+					'Your page template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Sharing Buttons block there.',
 					'jetpack-sharing-likes'
 				),
 			},
@@ -77,36 +70,22 @@ function copyFor( feature: Feature ) {
 
 	return {
 		...shared,
-		legend: {
-			both: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
-			single: __( 'Where should the Like block go on posts?', 'jetpack-sharing-likes' ),
-			page: __( 'Where should the Like block go on pages?', 'jetpack-sharing-likes' ),
-		},
+		legend: __( 'Where should the Like block go on posts and pages?', 'jetpack-sharing-likes' ),
 		managed: {
 			both: __(
-				'Your post and page templates were saved in the Site Editor, so the Like block is managed there now.',
+				'Your post and page templates were saved in the Site Editor, so these choices no longer change them. Add, move or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 			single: __(
-				'Your post template was saved in the Site Editor, so the Like block on posts is managed there now.',
+				'Your post template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 			page: __(
-				'Your page template was saved in the Site Editor, so the Like block on pages is managed there now.',
+				'Your page template was saved in the Site Editor, so these choices no longer change it. Add, move or remove the Like block there.',
 				'jetpack-sharing-likes'
 			),
 		},
 	};
-}
-
-/**
- * Which copy a set of templates takes.
- *
- * @param templates - One or both templates.
- * @return Copy key.
- */
-function copyKey( templates: PlacementTemplate[] ): PlacementTemplate | 'both' {
-	return templates.length === 1 ? templates[ 0 ] : 'both';
 }
 
 /**
@@ -115,7 +94,7 @@ function copyKey( templates: PlacementTemplate[] ): PlacementTemplate | 'both' {
  * @param props          - Props.
  * @param props.feature  - Feature.
  * @param props.fallback - Shown where the settings do not offer the placements.
- * @return Cards, a notice for the templates that manage the block, or the fallback.
+ * @return Cards, after a notice for the templates that manage the block, or the fallback.
  */
 export function TemplatePlacements( {
 	feature,
@@ -150,19 +129,21 @@ export function TemplatePlacements( {
 		single: status?.site_editor_url ?? '',
 		page: status?.page_template_editor_url ?? '',
 	};
-	// Once a template saved in the Site Editor manages the block, picking a card no longer changes that template.
 	const managed = TEMPLATES.filter(
 		template => urls[ template ] && status?.[ feature ].managed_templates.includes( template )
 	);
-	const placeable = managed.length
-		? TEMPLATES.filter( template => urls[ template ] && ! managed.includes( template ) )
-		: TEMPLATES;
-	const previewUrl = placeable.includes( 'single' ) ? urls.single : urls.page;
+	// Preview a template the cards still change, where there is one.
+	const previewUrl =
+		managed.includes( 'single' ) && ! managed.includes( 'page' ) && urls.page
+			? urls.page
+			: urls.single;
 
 	const notice = managed.length > 0 && (
 		<SettingGroup>
 			<Notice.Root intent="info">
-				<Notice.Description>{ copy.managed[ copyKey( managed ) ] }</Notice.Description>
+				<Notice.Description>
+					{ copy.managed[ managed.length === 1 ? managed[ 0 ] : 'both' ] }
+				</Notice.Description>
 				<Notice.Actions>
 					{ managed.map( template => (
 						<Notice.ActionLink key={ template } href={ urls[ template ] }>
@@ -173,10 +154,6 @@ export function TemplatePlacements( {
 			</Notice.Root>
 		</SettingGroup>
 	);
-
-	if ( ! placeable.length ) {
-		return <>{ notice }</>;
-	}
 
 	return (
 		<>
@@ -190,7 +167,7 @@ export function TemplatePlacements( {
 					}
 				>
 					<SettingGroup>
-						<Fieldset.Legend>{ copy.legend[ copyKey( placeable ) ] }</Fieldset.Legend>
+						<Fieldset.Legend>{ copy.legend }</Fieldset.Legend>
 						<Field.Item render={ NONE_ITEM_RENDER }>
 							<Radio value={ NONE } />
 							<Field.Label variant="plain">{ copy.none }</Field.Label>
