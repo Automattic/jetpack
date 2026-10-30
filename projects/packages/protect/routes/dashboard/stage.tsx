@@ -6,6 +6,7 @@ import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
 import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
+import WelcomeModal from './components/welcome-modal';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
@@ -138,6 +139,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<WelcomeModal />
 		</AdminPage>
 	);
 };
