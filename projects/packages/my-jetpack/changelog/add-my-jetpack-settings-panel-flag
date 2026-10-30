@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a feature flag for moving settings out of the Settings screen, off by default.
