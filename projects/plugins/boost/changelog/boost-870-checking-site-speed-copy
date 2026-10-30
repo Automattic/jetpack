@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Say "Checking site speed…" instead of "Calculating…" while a speed test runs, on the Boost dashboard and on the Boost card in My Jetpack.

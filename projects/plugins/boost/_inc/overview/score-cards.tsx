@@ -83,7 +83,7 @@ export default function ScoreCards( {
 				isGenerating={ showOverlay }
 				live
 			>
-				{ showOverlay && announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }
+				{ showOverlay && announceCalculating && __( 'Checking site speed…', 'jetpack-boost' ) }
 			</IndeterminateProgress>
 		</Card.Content>
 	);

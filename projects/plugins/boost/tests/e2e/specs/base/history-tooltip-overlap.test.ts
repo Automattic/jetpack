@@ -709,8 +709,11 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 		.all();
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
 	const status = calculating.getByRole( 'status' );
-	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
-	await expect( status ).toHaveText( 'Calculating…' );
+	await expect( status.getByText( 'Checking site speed…' ) ).toHaveCSS(
+		'color',
+		'rgb(112, 112, 112)'
+	);
+	await expect( status ).toHaveText( 'Checking site speed…' );
 	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );
 	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 0 );
 	const progress = calculating.getByRole( 'progressbar', { name: 'Testing site speed' } );
