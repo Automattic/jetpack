@@ -83,15 +83,8 @@ class WP_Dashboard_Odyssey_Widget {
 	}
 
 	/**
-	 * Renders the widget's skeleton for the time its script takes to load: an Overview card
-	 * with two totals and a chart, a lists card, on Jetpack sites a card with two counts, and
-	 * the footer. Styled inline, since its stylesheet arrives with its script. The widget's
-	 * loader swaps in its own copy of the skeleton as soon as it runs, and the widget replaces
-	 * that when it mounts, so this one covers the time before any script runs.
-	 *
-	 * Each card is laid out as the widget's section is, a 48px header then a padded body, so
-	 * the box is the height the widget takes when it mounts. Kept in step with the loader's
-	 * copy in wp-calypso (apps/odyssey-stats/src/widget/loading-skeleton.ts).
+	 * Renders the widget's skeleton for the time before its script runs; the loader then swaps in
+	 * its own copy. Kept in step with wp-calypso's apps/odyssey-stats/src/widget/loading-skeleton.ts.
 	 */
 	private function render_loading_skeleton() {
 		// The gates the widget applies to its Site protection card: not on Simple sites, nor on
@@ -100,97 +93,100 @@ class WP_Dashboard_Odyssey_Widget {
 		?>
 		<div class="jp-stats-widget-skeleton" role="status" aria-label="<?php esc_attr_e( 'Loading', 'jetpack-stats-admin' ); ?>">
 			<style>
-				.jp-stats-widget-skeleton{container-type:inline-size;margin:-11px -12px -12px;padding:8px;display:flex;flex-direction:column;gap:8px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
+				.jp-stats-widget-skeleton{container-type:inline-size;margin:-11px -12px -12px;border-radius:0 0 8px 8px;background:#f6f7f7;font-size:0}
+				.jp-stats-widget-skeleton__inner{display:flex;flex-direction:column;gap:8px;padding:8px}
 				.jp-stats-widget-skeleton__card{border-radius:7px;box-shadow:0 0 0 1px rgba(0,0,0,.1);background:#fff}
-				.jp-stats-widget-skeleton__header{display:flex;justify-content:space-between;align-items:center;min-height:32px;padding:8px}
+				.jp-stats-widget-skeleton__header{display:flex;justify-content:space-between;align-items:center;min-block-size:32px;padding:8px}
 				.jp-stats-widget-skeleton__body{padding:8px 12px 12px}
-				.jp-stats-widget-skeleton__body.is-tabbed{padding-top:0}
+				.jp-stats-widget-skeleton__body.is-tabbed{padding-block-start:0}
 				.jp-stats-widget-skeleton__metrics{display:flex;gap:16px}
 				.jp-stats-widget-skeleton__metric{display:flex;flex-direction:column;flex:1 1 0}
-				.jp-stats-widget-skeleton__tabs{display:flex;margin:0 -12px;border-bottom:1px solid #dbdbdb}
-				.jp-stats-widget-skeleton__tab{flex:1;display:flex;justify-content:center;padding:18px 0}
-				.jp-stats-widget-skeleton__rows{display:flex;flex-direction:column;margin-top:8px}
-				.jp-stats-widget-skeleton__row{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:32px}
-				.jp-stats-widget-skeleton__link{display:flex;align-items:center;height:18.2px;margin-top:16px}
-				.jp-stats-widget-skeleton__link.is-view-all{margin-top:8px}
+				.jp-stats-widget-skeleton__tabs{display:flex;margin-inline:-12px;border-block-end:1px solid #dbdbdb}
+				.jp-stats-widget-skeleton__tab{flex:1;display:flex;justify-content:center;padding-block:18px}
+				.jp-stats-widget-skeleton__rows{display:flex;flex-direction:column;margin-block-start:8px}
+				.jp-stats-widget-skeleton__row{display:flex;justify-content:space-between;align-items:center;gap:16px;min-block-size:32px}
+				.jp-stats-widget-skeleton__link{display:flex;align-items:center;block-size:18.2px;margin-block-start:16px}
+				.jp-stats-widget-skeleton__link.is-view-all{margin-block-start:8px}
 				.jp-stats-widget-skeleton__footer{display:flex;justify-content:space-between;align-items:center;padding:8px}
-				.jp-stats-widget-skeleton__bar{display:block;height:12px;border-radius:4px;background:#f4f4f4}
-				.jp-stats-widget-skeleton__bar.is-title{width:140px;height:16px}
-				.jp-stats-widget-skeleton__bar.is-control{width:112px;height:32px}
-				.jp-stats-widget-skeleton__bar.is-label{width:72px;height:14px;margin:3px 0}
-				.jp-stats-widget-skeleton__bar.is-value{width:64px;height:28px;margin:8px 0 4px}
-				.jp-stats-widget-skeleton__bar.is-chart{height:160px;border-radius:8px;margin-top:16px}
-				.jp-stats-widget-skeleton__bar.is-tab{width:96px}
-				.jp-stats-widget-skeleton__bar.is-row-title{width:60%}
-				.jp-stats-widget-skeleton__bar.is-row-value{width:46px}
-				.jp-stats-widget-skeleton__bar.is-link{width:72px}
-				.jp-stats-widget-skeleton__bar.is-logo{width:88px;height:20px}
-				.jp-stats-widget-skeleton__bar.is-footer-link{width:80px}
-				@container (max-width:360px){.jp-stats-widget-skeleton__metrics{flex-direction:column}.jp-stats-widget-skeleton__metric{flex:none}}
+				.jp-stats-widget-skeleton__bar{display:block;block-size:12px;border-radius:4px;background:#f4f4f4}
+				.jp-stats-widget-skeleton__bar.is-title{inline-size:140px;block-size:16px}
+				.jp-stats-widget-skeleton__bar.is-control{inline-size:112px;block-size:32px}
+				.jp-stats-widget-skeleton__bar.is-label{inline-size:72px;block-size:14px;margin-block:3px}
+				.jp-stats-widget-skeleton__bar.is-value{inline-size:64px;block-size:28px;margin-block:8px 4px}
+				.jp-stats-widget-skeleton__bar.is-chart{block-size:160px;border-radius:8px;margin-block-start:16px}
+				.jp-stats-widget-skeleton__bar.is-tab{inline-size:96px}
+				.jp-stats-widget-skeleton__bar.is-row-title{inline-size:60%}
+				.jp-stats-widget-skeleton__bar.is-row-value{inline-size:46px}
+				.jp-stats-widget-skeleton__bar.is-link{inline-size:72px}
+				.jp-stats-widget-skeleton__bar.is-logo{inline-size:88px;block-size:20px}
+				.jp-stats-widget-skeleton__bar.is-footer-link{inline-size:80px}
+				@container (max-inline-size:360px){.jp-stats-widget-skeleton__metrics{flex-direction:column}.jp-stats-widget-skeleton__metric{flex:none}}
 				@media not (prefers-reduced-motion){.jp-stats-widget-skeleton__bar{animation:jp-stats-widget-skeleton-pulse 1.5s ease-in-out infinite}}
 				@media (forced-colors:active){.jp-stats-widget-skeleton__bar{outline:1px solid CanvasText;outline-offset:-1px}}
 				@keyframes jp-stats-widget-skeleton-pulse{0%,100%{opacity:1}50%{opacity:.4}}
 			</style>
-			<div class="jp-stats-widget-skeleton__card">
-				<div class="jp-stats-widget-skeleton__header">
-					<span class="jp-stats-widget-skeleton__bar is-title"></span>
-					<span class="jp-stats-widget-skeleton__bar is-control"></span>
-				</div>
-				<div class="jp-stats-widget-skeleton__body">
-					<div class="jp-stats-widget-skeleton__metrics">
-						<div class="jp-stats-widget-skeleton__metric">
-							<span class="jp-stats-widget-skeleton__bar is-label"></span>
-							<span class="jp-stats-widget-skeleton__bar is-value"></span>
-						</div>
-						<div class="jp-stats-widget-skeleton__metric">
-							<span class="jp-stats-widget-skeleton__bar is-label"></span>
-							<span class="jp-stats-widget-skeleton__bar is-value"></span>
-						</div>
+			<div class="jp-stats-widget-skeleton__inner">
+				<div class="jp-stats-widget-skeleton__card">
+					<div class="jp-stats-widget-skeleton__header">
+						<span class="jp-stats-widget-skeleton__bar is-title"></span>
+						<span class="jp-stats-widget-skeleton__bar is-control"></span>
 					</div>
-					<span class="jp-stats-widget-skeleton__bar is-chart"></span>
-					<div class="jp-stats-widget-skeleton__link"><span class="jp-stats-widget-skeleton__bar is-link"></span></div>
-				</div>
-			</div>
-			<div class="jp-stats-widget-skeleton__card">
-				<div class="jp-stats-widget-skeleton__header">
-					<span class="jp-stats-widget-skeleton__bar is-title"></span>
-				</div>
-				<div class="jp-stats-widget-skeleton__body is-tabbed">
-					<div class="jp-stats-widget-skeleton__tabs">
-						<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
-						<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
-					</div>
-					<div class="jp-stats-widget-skeleton__rows">
-						<div class="jp-stats-widget-skeleton__row">
-							<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
-							<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
+					<div class="jp-stats-widget-skeleton__body">
+						<div class="jp-stats-widget-skeleton__metrics">
+							<div class="jp-stats-widget-skeleton__metric">
+								<span class="jp-stats-widget-skeleton__bar is-label"></span>
+								<span class="jp-stats-widget-skeleton__bar is-value"></span>
+							</div>
+							<div class="jp-stats-widget-skeleton__metric">
+								<span class="jp-stats-widget-skeleton__bar is-label"></span>
+								<span class="jp-stats-widget-skeleton__bar is-value"></span>
+							</div>
 						</div>
-					</div>
-					<div class="jp-stats-widget-skeleton__link is-view-all"><span class="jp-stats-widget-skeleton__bar is-link"></span></div>
-				</div>
-			</div>
-			<?php if ( $has_site_protection ) : ?>
-			<div class="jp-stats-widget-skeleton__card">
-				<div class="jp-stats-widget-skeleton__header">
-					<span class="jp-stats-widget-skeleton__bar is-title"></span>
-				</div>
-				<div class="jp-stats-widget-skeleton__body">
-					<div class="jp-stats-widget-skeleton__metrics">
-						<div class="jp-stats-widget-skeleton__metric">
-							<span class="jp-stats-widget-skeleton__bar is-label"></span>
-							<span class="jp-stats-widget-skeleton__bar is-value"></span>
-						</div>
-						<div class="jp-stats-widget-skeleton__metric">
-							<span class="jp-stats-widget-skeleton__bar is-label"></span>
-							<span class="jp-stats-widget-skeleton__bar is-value"></span>
-						</div>
+						<span class="jp-stats-widget-skeleton__bar is-chart"></span>
+						<div class="jp-stats-widget-skeleton__link"><span class="jp-stats-widget-skeleton__bar is-link"></span></div>
 					</div>
 				</div>
-			</div>
-			<?php endif; ?>
-			<div class="jp-stats-widget-skeleton__footer">
-				<span class="jp-stats-widget-skeleton__bar is-logo"></span>
-				<span class="jp-stats-widget-skeleton__bar is-footer-link"></span>
+				<div class="jp-stats-widget-skeleton__card">
+					<div class="jp-stats-widget-skeleton__header">
+						<span class="jp-stats-widget-skeleton__bar is-title"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__body is-tabbed">
+						<div class="jp-stats-widget-skeleton__tabs">
+							<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
+							<div class="jp-stats-widget-skeleton__tab"><span class="jp-stats-widget-skeleton__bar is-tab"></span></div>
+						</div>
+						<div class="jp-stats-widget-skeleton__rows">
+							<div class="jp-stats-widget-skeleton__row">
+								<span class="jp-stats-widget-skeleton__bar is-row-title"></span>
+								<span class="jp-stats-widget-skeleton__bar is-row-value"></span>
+							</div>
+						</div>
+						<div class="jp-stats-widget-skeleton__link is-view-all"><span class="jp-stats-widget-skeleton__bar is-link"></span></div>
+					</div>
+				</div>
+				<?php if ( $has_site_protection ) : ?>
+				<div class="jp-stats-widget-skeleton__card">
+					<div class="jp-stats-widget-skeleton__header">
+						<span class="jp-stats-widget-skeleton__bar is-title"></span>
+					</div>
+					<div class="jp-stats-widget-skeleton__body">
+						<div class="jp-stats-widget-skeleton__metrics">
+							<div class="jp-stats-widget-skeleton__metric">
+								<span class="jp-stats-widget-skeleton__bar is-label"></span>
+								<span class="jp-stats-widget-skeleton__bar is-value"></span>
+							</div>
+							<div class="jp-stats-widget-skeleton__metric">
+								<span class="jp-stats-widget-skeleton__bar is-label"></span>
+								<span class="jp-stats-widget-skeleton__bar is-value"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<?php endif; ?>
+				<div class="jp-stats-widget-skeleton__footer">
+					<span class="jp-stats-widget-skeleton__bar is-logo"></span>
+					<span class="jp-stats-widget-skeleton__bar is-footer-link"></span>
+				</div>
 			</div>
 		</div>
 		<?php
