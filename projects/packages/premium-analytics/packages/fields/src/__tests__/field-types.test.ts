@@ -6,6 +6,11 @@ import { SelectField } from '../field-select';
 import { FIELD_TYPES, registerFieldTypes, resolveFieldTypes } from '../field-types';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
+jest.mock( '@wordpress/widget-primitives', () => {
+	const actual = jest.requireActual( '@wordpress/widget-primitives' );
+	return { ...actual, registerFieldType: jest.fn( actual.registerFieldType ) };
+} );
+
 type Attributes = { contentView?: 'posts' | 'archives' };
 
 const contentView: WidgetAttributeField< Attributes > = {
@@ -27,13 +32,13 @@ describe( 'registerFieldTypes', () => {
 		}
 	} );
 
-	it( 'claims every name', () => {
+	it( 'registers every field type upstream', () => {
+		jest.mocked( registerFieldType ).mockClear();
 		registerFieldTypes();
 
-		// The names are valid (above), so `undefined` here means the name is taken.
-		for ( const fieldType of FIELD_TYPES ) {
-			expect( registerFieldType( { ...fieldType } ) ).toBeUndefined();
-		}
+		expect(
+			jest.mocked( registerFieldType ).mock.calls.map( ( [ fieldType ] ) => fieldType )
+		).toEqual( FIELD_TYPES );
 	} );
 
 	it( 'gives every field type a base type DataViews knows', () => {
