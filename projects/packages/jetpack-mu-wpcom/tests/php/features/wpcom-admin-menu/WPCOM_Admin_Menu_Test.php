@@ -716,7 +716,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sort the Jetpack submenu A to Z between My Jetpack and Settings, on every platform.
+	 * Sort the Jetpack submenu A to Z between its pinned top and bottom items, on every platform.
 	 *
 	 * @dataProvider provide_jetpack_menu_environments
 	 * @runInSeparateProcess
@@ -942,8 +942,8 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_jetpack_menu_environments() {
-		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Scan', 'SEO', 'Social', 'Settings' );
-		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)' );
+		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
+		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
