@@ -825,8 +825,8 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_jetpack_menu_environments() {
-		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
-		$simple = array( 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
+		$atomic = array( 'My Jetpack', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Scan', 'SEO', 'Social', 'Settings' );
+		$simple = array( 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Beta Tester', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),

@@ -540,8 +540,8 @@ function wpcom_add_jetpack_submenu() {
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu A to Z by title, with My Jetpack first, then Beta Tester and Settings, then
- * the upgrade link at the bottom.
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first, then Settings, then the upgrade
+ * link at the bottom.
  *
  * WordPress points the top-level Jetpack link at the first item, hidden ones included, so a hidden item
  * sorts after the visible ones in its tier. A hidden item alone in the first tier, like My Jetpack on
@@ -558,7 +558,6 @@ function wpcom_sort_jetpack_submenu() {
 	$named_tiers = array(
 		'my-jetpack'                                    => -10,
 		'jetpack_modules'                               => -5,
-		'jetpack-beta'                                  => 998,
 		'jetpack-settings'                              => 998,
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
