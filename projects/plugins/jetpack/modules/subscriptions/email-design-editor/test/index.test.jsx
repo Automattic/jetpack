@@ -197,14 +197,38 @@ jest.mock( '@wordpress/plugins', () => ( {
 	registerPlugin: ( ...args ) => mockRegisterPlugin( ...args ),
 } ) );
 
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: jest.fn(),
+		assignSuperProps: jest.fn(),
+		tracks: { recordEvent: ( ...args ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getSiteType: () => 'jetpack',
+} ) );
+
 // The real stores rather than mocks. Mocking `@wordpress/data` wholesale drops `combineReducers`,
 // which `@wordpress/components` needs at import time by way of `@wordpress/rich-text`.
-const { render, screen } = require( '@testing-library/react' );
+const { act, render, screen } = require( '@testing-library/react' );
 const userEvent = require( '@testing-library/user-event' ).default;
 
 const { select, dispatch } = jest.requireActual( '@wordpress/data' );
 const { store: noticesStore } = jest.requireActual( '@wordpress/notices' );
 const { store: coreStore } = jest.requireActual( '@wordpress/core-data' );
+
+// The cases below exercise the entry's exports directly rather than through `loadEntryPoint()`,
+// which means nothing has told this copy of the analytics module that the page may record. A mount
+// does it for the isolated copy itself. {@see pageData}
+jest.requireActual( '../src/analytics' ).initializeTracks( {
+	canSend: true,
+	userData: { userid: 7, username: 'creator' },
+	blogId: 12345,
+} );
 
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
@@ -278,6 +302,11 @@ function pageData( overrides = {} ) {
 		},
 		userEmail: 'creator@example.com',
 		globalStylesPostId: 878,
+		tracks: {
+			canSend: true,
+			userData: { userid: 7, username: 'creator' },
+			blogId: 12345,
+		},
 		...overrides,
 	};
 }
@@ -349,6 +378,7 @@ describe( 'Email design editor entry point', () => {
 		mockDispatchLog.length = 0;
 		mockEnabledAreas.length = 0;
 		mockRegisterPlugin.mockClear();
+		mockRecordEvent.mockClear();
 		dispatch( 'core/interface' ).setActiveComplementaryArea( undefined );
 		dispatch( 'core/preferences' ).resetPreferences();
 		dispatch( 'core/editor' ).resetPanels();
@@ -462,6 +492,31 @@ describe( 'Email design editor entry point', () => {
 			await loadEntryPoint();
 
 			expect( renderedTheErrorState() ).toBe( true );
+		} );
+
+		// The arrival is recorded server-side, so this is the difference between a creator who
+		// reached the screen and one who got an editor. NL-1088.
+		it( 'records a load that failed', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'network' ) );
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_load_error',
+				{ site_type: 'jetpack' }
+			);
+		} );
+
+		it( 'records nothing when the site may not send', async () => {
+			mockApiFetch.mockRejectedValue( new Error( 'network' ) );
+			window.JetpackEmailDesignEditor = pageData( {
+				tracks: { canSend: false, userData: null, blogId: null },
+			} );
+
+			await loadEntryPoint();
+
+			expect( mockRecordEvent ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -903,9 +958,9 @@ describe( 'Email design editor entry point', () => {
 			expect( mockCreatePreloadingMiddleware ).not.toHaveBeenCalled();
 			expect( renderedTheErrorState() ).toBe( false );
 
-			// The save and test-send middlewares still install: the page named a record even
-			// though the bundle carried none, and a write to it is still ours to catch.
-			expect( mockUse ).toHaveBeenCalledTimes( 2 );
+			// The save, test-send and read-only middlewares still install: the page named a
+			// record even though the bundle carried none, and a write to it is still ours to catch.
+			expect( mockUse ).toHaveBeenCalledTimes( 3 );
 		} );
 
 		describe( 'the Allow header the preloaded responses carry', () => {
@@ -1473,7 +1528,7 @@ describe( 'Email design editor entry point', () => {
 				};
 
 				const writes = () =>
-					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'PUT' === options.method );
+					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'POST' === options.method );
 
 				/**
 				 * Mount the panel as the editor's plugin area would, for a given record.
@@ -1576,7 +1631,7 @@ describe( 'Email design editor entry point', () => {
 				} );
 
 				it( 'clears both halves, rather than writing today’s defaults into them', async () => {
-					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
 					renderPanelFor( ourId );
 
 					await userEvent.click( resetButton() );
@@ -1588,18 +1643,96 @@ describe( 'Email design editor entry point', () => {
 
 					const [ [ write ] ] = writes();
 
-					expect( write.path ).toBe( `/wp/v2/global-styles/${ ourId }` );
+					expect( write.path ).toBe( '/wpcom/v2/email-editor-bootstrap' );
 
 					// Each half exactly, rather than the pair as a subset: an empty object is a
 					// subset of any object, so a half full of defaults would satisfy that.
-					expect( write.data.styles ).toEqual( {} );
-					expect( write.data.settings ).toEqual( {} );
+					expect( write.data.design.styles ).toEqual( {} );
+					expect( write.data.design.settings ).toEqual( {} );
+				} );
+
+				/**
+				 * Start a reset and stop while WordPress.com has not answered yet.
+				 *
+				 * @param {number} id - The global-styles id the bundle named.
+				 * @return {Promise<Function>} The function that lets the request answer.
+				 */
+				const resetUntilWpcomAnswers = async id => {
+					let storeDesignOnWpcom;
+
+					mockApiFetch.mockReturnValue(
+						new Promise( resolve => {
+							storeDesignOnWpcom = resolve;
+						} )
+					);
+					renderPanelFor( id );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					return () =>
+						act( async () => storeDesignOnWpcom( { design: { styles: {}, settings: {} } } ) );
+				};
+
+				// The store's own save reads the record it is about to replace, so clearing it there
+				// first is what a creator would watch revert while the save and the reload run.
+				it( 'leaves the design on screen while it clears it on WordPress.com', async () => {
+					const answer = await resetUntilWpcomAnswers( ourId );
+
+					expect(
+						select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', ourId ).styles
+					).toEqual( { color: { background: '#c0ffee' } } );
+
+					await answer();
+				} );
+
+				// The save and the reload both take a moment on a hosted blog, and the editor goes on
+				// drawing the design being thrown away for all of it.
+				it( 'covers the screen for as long as the reset is running', async () => {
+					const answer = await resetUntilWpcomAnswers( ourId );
+
+					expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Resetting your email design' );
+
+					await answer();
+
+					// The page has not been replaced yet, so the cover stays.
+					expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+				} );
+
+				// `UnsavedChangesWarning` turns the reload into a browser prompt while a half is
+				// pending, and backing out of that prompt leaves the screen covered for good.
+				it( 'clears what the creator had pending, so nothing blocks the reload', async () => {
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
+					dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', ourId, {
+						styles: { color: { background: '#decaf0' } },
+					} );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect(
+						select( coreStore ).hasEditsForEntityRecord( 'root', 'globalStyles', ourId )
+					).toBe( false );
+					expect( mockReload ).toHaveBeenCalled();
+				} );
+
+				// Uncovering it would show the design the creator still has, under an error saying it
+				// could not be reset.
+				it( 'uncovers the screen when the reset fails', async () => {
+					mockApiFetch.mockRejectedValue( new Error( 'no' ) );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 				} );
 
 				// The canvas draws previews WordPress.com rendered against the stored design and sent
 				// once, at mount, so the reset one only appears on a fresh fetch.
 				it( 'fetches the canvas again, rather than leaving the old design on screen', async () => {
-					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
 					renderPanelFor( ourId );
 
 					await userEvent.click( resetButton() );
@@ -1898,6 +2031,52 @@ describe( 'Email design editor entry point', () => {
 			] );
 		} );
 
+		// The silent half of NL-939: a creator told nothing and a dashboard told nothing either.
+		it( 'records a save that kept nothing, with the halves it was sent', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
+
+			storeDesign( {
+				styles: { color: { background: '#c0ffee' }, typography: { fontSize: '16px' } },
+				settings: {},
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: { styles: {}, settings: {} },
+				},
+				jest.fn()
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_email_design_save', {
+				site_type: 'jetpack',
+				outcome: 'discarded',
+				style_keys: 'color,typography',
+				setting_keys: '',
+			} );
+		} );
+
+		it( 'records a save the route refused, and still raises it', async () => {
+			mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
+
+			await expect(
+				createDesignSaveMiddleware( ourId )(
+					{
+						path: `/wp/v2/global-styles/${ ourId }`,
+						method: 'PUT',
+						data: { styles: {}, settings: {} },
+					},
+					jest.fn()
+				)
+			).rejects.toThrow( 'nope' );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_save',
+				expect.objectContaining( { outcome: 'error' } )
+			);
+		} );
+
 		it( 'stays quiet when the design was kept', async () => {
 			mockApiFetch.mockResolvedValueOnce( {
 				blog_id: 1,
@@ -1996,6 +2175,122 @@ describe( 'Email design editor entry point', () => {
 
 			expect( mockApiFetch ).not.toHaveBeenCalled();
 			expect( next ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( "when core offers the site's own Styles panel", () => {
+		const { createSiteStylesReadOnlyMiddleware } = jest.requireActual( '../src/index' );
+		const ourId = 999999999;
+		const siteId = 12;
+		const sitePath = `/wp/v2/global-styles/${ siteId }`;
+		const everything = 'GET, POST, PUT, PATCH, DELETE';
+
+		/**
+		 * What WordPress answers with for the site's own record.
+		 *
+		 * Shaped like a `parse: false` response, which is the only kind that carries the header
+		 * core-data derives the capability from.
+		 *
+		 * @param {string} allow - The `Allow` header it arrives with.
+		 * @return {object} A stand-in for the response.
+		 */
+		const siteResponse = allow => ( {
+			ok: true,
+			status: 200,
+			json: async () => ( { id: siteId, styles: { color: { text: '#abcdef' } } } ),
+			headers: {
+				get: name =>
+					'allow' === name.toLowerCase()
+						? allow
+						: ( { 'x-wp-totalpages': '3' }[ name.toLowerCase() ] ?? null ),
+			},
+		} );
+
+		it.each( [
+			[ 'the capability check', { path: sitePath, method: 'OPTIONS' } ],
+			[ 'the read the canvas paints from', { path: `${ sitePath }?context=view` } ],
+		] )( 'reports reads alone to %s', async ( _subject, options ) => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			// Both answers set the same permission and core-data keeps the last to arrive, so
+			// rewriting either one alone leaves the sidebar rendering.
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ ...options, parse: false },
+				next
+			);
+
+			expect( answer.headers.get( 'Allow' ) ).toBe( 'GET' );
+		} );
+
+		it( 'hands back the record and its other headers untouched', async () => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ path: sitePath, parse: false },
+				next
+			);
+
+			// The canvas takes the site's design from this body, so a stand-in that answers the
+			// capability but drops the record repaints the email.
+			await expect( answer.json() ).resolves.toEqual( {
+				id: siteId,
+				styles: { color: { text: '#abcdef' } },
+			} );
+			expect( answer.headers.get( 'X-WP-TotalPages' ) ).toBe( '3' );
+			expect( answer.status ).toBe( 200 );
+		} );
+
+		it( "leaves the email's own record editable", async () => {
+			const original = siteResponse( 'GET, POST, PUT' );
+			const next = jest.fn( async () => original );
+
+			const answer = await createSiteStylesReadOnlyMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }?context=edit`, parse: false },
+				next
+			);
+
+			// Our own record shares the path these are matched on. Catching it would take the
+			// Styles panel this screen exists for with it.
+			expect( answer ).toBe( original );
+		} );
+
+		it( 'leaves a parsed request alone', async () => {
+			const next = jest.fn( async () => ( { id: siteId } ) );
+
+			// A parsed response is the body itself: callers read its keys, not headers, and a
+			// stand-in for one would hand them a response object instead of the record.
+			await expect(
+				createSiteStylesReadOnlyMiddleware( ourId )( { path: sitePath }, next )
+			).resolves.toEqual( { id: siteId } );
+		} );
+
+		it( 'denies the site record when the bundle named no design of its own', async () => {
+			const next = jest.fn( async () => siteResponse( everything ) );
+
+			// Nothing here is ours to edit then, but core still offers the site's panel.
+			const answer = await createSiteStylesReadOnlyMiddleware( null )(
+				{ path: sitePath, method: 'OPTIONS', parse: false },
+				next
+			);
+
+			expect( answer.headers.get( 'Allow' ) ).toBe( 'GET' );
+		} );
+
+		it( 'installs the middleware on the screen', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			const options = { path: sitePath, method: 'OPTIONS', parse: false };
+			const next = async () => siteResponse( everything );
+			const answers = await Promise.all(
+				mockUse.mock.calls
+					// The preloading middleware is mocked as the map it was built from.
+					.filter( ( [ middleware ] ) => 'function' === typeof middleware )
+					.map( ( [ middleware ] ) => middleware( options, next ) )
+			);
+
+			expect( answers.map( answer => answer?.headers?.get( 'Allow' ) ) ).toContain( 'GET' );
 		} );
 	} );
 
@@ -2127,6 +2422,48 @@ describe( 'Email design editor entry point', () => {
 			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
 
 			expect( paths ).not.toContain( '/wpcom/v2/send-email-preview' );
+		} );
+
+		// The two failures are a product problem and a plumbing problem, and the package's own send
+		// events name neither: it records one error whatever happened, and carries the address.
+		it( 'records a refusal for want of a post as its own reason', async () => {
+			arrangeSend( [] );
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: expect.stringContaining( 'Publish a post' ) } );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_error',
+				{ site_type: 'jetpack', reason: 'no_post' }
+			);
+		} );
+
+		it( 'records a send the route refused separately from one it never attempted', async () => {
+			mockApiFetch.mockReset();
+			mockApiFetch.mockImplementation( options =>
+				options.path.startsWith( '/wp/v2/posts' )
+					? Promise.resolve( [ { id: 42 } ] )
+					: Promise.reject( { message: 'Sending failed.' } )
+			);
+
+			await expect(
+				createTestSendMiddleware( ourId )( sendRequest, jest.fn() )
+			).rejects.toMatchObject( { error: 'Sending failed.' } );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_error',
+				{ site_type: 'jetpack', reason: 'send_failed' }
+			);
+		} );
+
+		it( 'records a send that went through, without the address it went to', async () => {
+			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_newsletter_email_design_test_email_send',
+				{ site_type: 'jetpack' }
+			);
 		} );
 
 		it( 'reshapes a failure into the key the editor prints', async () => {

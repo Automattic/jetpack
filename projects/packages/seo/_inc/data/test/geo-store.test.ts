@@ -29,7 +29,13 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the llms.txt state on setLlmsTxt without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { enabled: true, url: SEEDED_GEO.llmsTxt.url, canServe: true };
+		const next = {
+			enabled: true,
+			url: SEEDED_GEO.llmsTxt.url,
+			canServe: true,
+			disabled: false,
+			conflictingPlugin: '',
+		};
 		registry.dispatch( geoStore ).setLlmsTxt( next );
 		expect( registry.select( geoStore ).getLlmsTxt() ).toEqual( next );
 		expect( registry.select( geoStore ).getEnhancer() ).toEqual( SEEDED_GEO.enhancer );
@@ -42,7 +48,10 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the crawler state on setCrawlers without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { ...SEEDED_GEO.crawlers, overrides: { gptbot: false, perplexitybot: true } };
+		const next = {
+			...SEEDED_GEO.crawlers,
+			blocked: { answer: [ 'perplexitybot' ], training: 'all' as const },
+		};
 		registry.dispatch( geoStore ).setCrawlers( next );
 		expect( registry.select( geoStore ).getCrawlers() ).toEqual( next );
 		expect( registry.select( geoStore ).getLlmsTxt() ).toEqual( SEEDED_GEO.llmsTxt );

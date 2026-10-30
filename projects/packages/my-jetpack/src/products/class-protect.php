@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Waf\Waf_Runner;
@@ -465,6 +466,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
 	 *
 	 * @return boolean
@@ -506,7 +516,6 @@ class Protect extends Hybrid_Product {
 	public static function get_protect_page_module_urls() {
 		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
 		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
 		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
 			return array();
 		}
@@ -544,9 +553,62 @@ class Protect extends Hybrid_Product {
 			parent::get_info(),
 			array(
 				'has_protect_page' => static::has_protect_page(),
-				'scan_results_url' => Scan::get_manage_url(),
+				'scan_results_url' => static::get_manage_url(),
 			)
 		);
+	}
+
+	/**
+	 * Where the card's upgrade goes: a host's plans when it sends them, else the Protect interstitial.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		if ( static::has_paid_plan_for_product() ) {
+			return parent::get_purchase_url();
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : parent::get_purchase_url();
+	}
+
+	/**
+	 * Where a host has a paying site manage Scan, so the card, Scan results and Features tab agree.
+	 *
+	 * @return string The host's URL, or an empty string when the host sends none.
+	 */
+	private static function get_host_manage_url() {
+		// The standalone plugin's own page keeps the card, as its menu entry does on WoA.
+		if ( static::is_standalone_plugin_active() || ! static::has_paid_plan_for_product() ) {
+			return '';
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			true
+		);
+
+		return is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['manage_url'] ?? '' ) ) : '';
 	}
 
 	/**
@@ -555,6 +617,11 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		$host_url = static::get_host_manage_url();
+		if ( $host_url ) {
+			return $host_url;
+		}
+
 		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
@@ -599,14 +666,16 @@ class Protect extends Hybrid_Product {
 	public static function get_site_protect_data() {
 		$scan_data = Protect_Status::get_status();
 
-		$waf_config     = array();
-		$waf_supported  = false;
-		$is_waf_enabled = false;
+		$waf_config          = array();
+		$waf_supported       = false;
+		$is_waf_enabled      = false;
+		$is_provided_by_host = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
-			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
+			$waf_config          = Waf_Runner::get_config();
+			$is_waf_enabled      = Waf_Runner::is_enabled();
+			$waf_supported       = Waf_Runner::is_supported_environment();
+			$is_provided_by_host = method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host();
 		}
 
 		return rest_ensure_response(
@@ -615,8 +684,9 @@ class Protect extends Hybrid_Product {
 				'wafConfig' => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
-						'waf_supported' => $waf_supported,
-						'waf_enabled'   => $is_waf_enabled,
+						'waf_supported'        => $waf_supported,
+						'waf_enabled'          => $is_waf_enabled,
+						'waf_provided_by_host' => $is_provided_by_host,
 					),
 					array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 				),

@@ -97,7 +97,7 @@ export function Locations( {
 		[ rows, country, hasComparison, maxRows ]
 	);
 	const listData = useMemo(
-		() => buildLeaderboardChartData( data.rows, { hasComparison: data.comparing, maxRows } ),
+		() => buildLeaderboardChartData( data.rows, { maxRows } ),
 		[ data, maxRows ]
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );

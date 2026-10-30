@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the components under test dynamically after the mocks are registered.
@@ -22,13 +22,25 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 // its completion threshold is one of the rules under test — but the Google field
 // inside it reaches for the verify endpoint, so that one field is stubbed.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
-	default: () => <div>author</div>,
+	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+		<div data-testid="author" aria-disabled={ disabled }>
+			{ disabled && disabledReason }author
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../schema-card', () => ( {
-	default: () => <div>schema</div>,
+	default: ( { disabled, disabledReason }: { disabled?: boolean; disabledReason?: string } ) => (
+		<div data-testid="schema" aria-disabled={ disabled }>
+			{ disabled && disabledReason }schema
+		</div>
+	),
 } ) );
+// Records its props so the wiring into it (the live title format) can be checked.
+const SocialPreviewsCard = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
+	<div>social previews</div>
+) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
-	default: () => <div>social previews</div>,
+	default: SocialPreviewsCard,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
@@ -69,6 +81,8 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
+		site_is_coming_soon: false,
+		site_visibility_url: '',
 		sitemap_active: false,
 		sitemap_switchable: true,
 		sitemap_url: '',
@@ -130,7 +144,7 @@ describe( 'Another SEO plugin owning the output', () => {
 	// A plugin can switch Jetpack's output off without naming itself; the lock can't depend on the name.
 	it.each( [
 		[ 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
-		[ '', /^Another SEO plugin is managing your SEO/ ],
+		[ '', /^Jetpack SEO is disabled on this site, so its title/ ],
 	] )(
 		'with "%s" in charge, locks the description and hides the previews',
 		async ( plugin, notice ) => {
@@ -143,7 +157,7 @@ describe( 'Another SEO plugin owning the output', () => {
 			expect( screen.getByText( notice ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'social previews' ) ).not.toBeInTheDocument();
 			await expect( openDescription() ).resolves.toBeDisabled();
-			expect( screen.getByText( /^Locked while another SEO plugin/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /^Locked while Jetpack SEO is disabled/ ) ).toBeInTheDocument();
 		}
 	);
 
@@ -157,26 +171,66 @@ describe( 'Another SEO plugin owning the output', () => {
 } );
 
 describe( 'Indexing toggle on an unpublished site', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	const indexingToggle = () =>
 		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
 
-	// WordPress.com stores a private or coming-soon site as a negative `blog_public`.
-	// Such a site isn't hidden from search by a setting, so no SEO toggle can reveal
-	// it — turning this on would have to publish the site, which isn't this surface's
-	// decision. Disabled and explained, rather than appearing to work.
-	it( 'is disabled and explains why when the site is private', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: true } ) } /> );
+	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
+	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
+
+	it.each( [
+		[ 'private', { site_is_private: true }, /Your site is private/i ],
+		[
+			'Coming Soon',
+			{ site_is_private: true, site_is_coming_soon: true },
+			/Your site is in Coming Soon mode/i,
+		],
+	] )( 'is disabled, explained and linked when the site is %s', ( _, overrides, help ) => {
+		render(
+			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
+		);
 
 		expect( indexingToggle() ).toBeDisabled();
-		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+		expect( screen.getByText( help ) ).toBeInTheDocument();
+		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
 	} );
 
+	it.each( [
+		[ 'shows', true ],
+		[ 'hides', false ],
+	] )( '%s the managed-elsewhere tooltip on hover', ( _, locked ) => {
+		jest.useFakeTimers();
+		render( <SettingsScreen form={ buildForm( { site_is_private: locked } ) } /> );
+
+		// A real pointer enters the toggle's wrapper on its way in and rests there.
+		// eslint-disable-next-line testing-library/no-node-access -- the tooltip wrapper has no role or name.
+		const wrapper = indexingToggle().closest(
+			'[data-base-ui-tooltip-trigger], [data-trigger-disabled]'
+		) as Element;
+		/* eslint-disable testing-library/prefer-user-event -- Match the package's existing interaction tests without adding a dependency. */
+		fireEvent.pointerMove( wrapper, { pointerType: 'mouse' } );
+		fireEvent.mouseEnter( wrapper );
+		fireEvent.mouseMove( wrapper );
+		/* eslint-enable testing-library/prefer-user-event */
+		act( () => jest.runAllTimers() );
+
+		expect( Boolean( screen.queryByText( 'Managed in your site visibility settings' ) ) ).toBe(
+			locked
+		);
+	} );
+
 	it( 'is enabled with the usual help text on a public site', () => {
-		render( <SettingsScreen form={ buildForm( { site_is_private: false } ) } /> );
+		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
 		expect( indexingToggle() ).toBeEnabled();
-		expect( screen.queryByText( /Your site is private/i ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByText( /Your site is (private|in Coming Soon)/i )
+		).not.toBeInTheDocument();
+		expect( visibilityLink() ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -328,15 +382,15 @@ describe( 'Settings module completion status', () => {
 	} );
 } );
 
-describe( 'Settings module title chips', () => {
-	// The chip must not swallow the title text: the header is how these modules are
+describe( 'Settings module title icons', () => {
+	// The icon must not swallow the title text: the header is how these modules are
 	// found by assistive tech, and by every other test in this file.
 	it.each( [ 'Site visibility', 'Site verification', 'Canonical URLs', 'Front-page description' ] )(
-		'renders %s with its title text and a leading icon chip',
+		'renders %s with its title text and a leading icon',
 		moduleTitle => {
 			render( <SettingsScreen form={ buildForm() } /> );
 
-			// `getByText` resolves to the chip wrapper, whose text content is the title
+			// `getByText` resolves to the title wrapper, whose text content is the title
 			// alone — the glyph beside it is a decorative SVG with no role.
 			const title = screen.getByText( moduleTitle );
 
@@ -465,11 +519,9 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
-			expect(
-				screen.getByText(
-					'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
-				)
-			).toBeInTheDocument();
+			expect( toggle ).toHaveAccessibleDescription(
+				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
+			);
 			expect( screen.getByRole( 'link', { name: /Explore hosting options/ } ) ).toHaveAttribute(
 				'href',
 				'https://wordpress.com/support/activate-your-plan/'
@@ -514,5 +566,63 @@ describe( 'Settings module text hierarchy', () => {
 		// `body-md` is also `Text`'s default, so the class alone would still pass if the
 		// `variant` prop were deleted outright. The `<p>` pins that it's a real paragraph.
 		expect( description.tagName ).toBe( 'P' );
+	} );
+} );
+
+describe( 'Schema output ownership', () => {
+	it( 'keeps schema and author editors visible and disabled while another plugin owns the output', () => {
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats_editable: false, conflicting_seo_plugin: 'Yoast SEO' } ) }
+			/>
+		);
+		for ( const card of [ 'schema', 'author' ] ) {
+			expect( screen.getByTestId( card ) ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Yoast SEO is managing your structured data'
+			);
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Your saved Jetpack settings are shown here but are not being used.'
+			);
+			expect( screen.getByTestId( card ) ).toHaveTextContent(
+				'Deactivate Yoast SEO to edit these settings in Jetpack.'
+			);
+		}
+	} );
+} );
+
+describe( 'Search & social previews', () => {
+	// Earlier tests render the card too. Clear their calls so each assertion reads
+	// this test's render, and fails if the card isn't rendered at all.
+	beforeEach( () => {
+		SocialPreviewsCard.mockClear();
+	} );
+
+	// The previews show the home page's title, so they are fed the Front page
+	// format being edited in Title structure, not only the saved one.
+	it( 'passes the Front page title format and the separator to the previews', () => {
+		const frontPage = [
+			{ type: 'token', value: 'site_name' },
+			{ type: 'string', value: ' | ' },
+			{ type: 'token', value: 'tagline' },
+		] as SettingsResponse[ 'title_formats' ][ string ];
+
+		render(
+			<SettingsScreen
+				form={ buildForm( { title_formats: { front_page: frontPage }, title_separator: '–' } ) }
+			/>
+		);
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: frontPage, titleSeparator: '–' } )
+		);
+	} );
+
+	it( 'passes an empty format when the Front page keeps the default title', () => {
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { frontPageTitleFormat: [] } )
+		);
 	} );
 } );

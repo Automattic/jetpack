@@ -214,19 +214,18 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 

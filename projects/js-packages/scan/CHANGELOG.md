@@ -5,10 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-10-28
+### Changed
+- Update dependencies.
+
+## [1.5.0] - 2026-10-26
+### Added
+- Support React 19. [#53882]
+
+### Changed
+- Update package dependencies. [#53951]
+
+### Fixed
+- Threats list: Show a default icon for threats of an unknown type instead of crashing the list layout. [#53818]
+
 ## [1.4.25] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ### Fixed
 - Threats data views: Stop requesting two stylesheets that do not exist on pages built with wp-build. [#53565]
@@ -60,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.13] - 2026-08-03
 ### Changed
-- Update dependencies. [#50841]
+- Update dependencies.
 
 ## [1.4.12] - 2026-07-27
 ### Changed
@@ -261,46 +274,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Make build usable in projects using tsc with `moduleResolution` set to 'nodenext'. [#35453]
-- Updated package dependencies. [#35384]
-- Updated package dependencies. [#35385]
-- Updated package dependencies. [#35608]
-- Updated package dependencies. [#35793]
-- Updated package dependencies. [#36095]
-- Updated package dependencies. [#36097]
-- Updated package dependencies. [#36142]
-- Updated package dependencies. [#36143]
-- Updated package dependencies. [#36325]
-- Updated package dependencies. [#36539]
-- Updated package dependencies. [#36585]
-- Updated package dependencies. [#36756]
-- Updated package dependencies. [#36760]
-- Updated package dependencies. [#36761]
-- Updated package dependencies. [#37147]
-- Updated package dependencies. [#37148]
-- Updated package dependencies. [#37160]
-- Updated package dependencies. [#37379]
-- Updated package dependencies. [#37382]
-- Updated package dependencies. [#37669]
-- Updated package dependencies. [#37779]
-- Updated package dependencies. [#37796]
-- Updated package dependencies. [#38132]
-- Updated package dependencies. [#38662]
-- Updated package dependencies. [#38665]
-- Updated package dependencies. [#38893]
-- Updated package dependencies. [#39004]
-- Updated package dependencies. [#39176]
-- Updated package dependencies. [#39302]
-- Updated package dependencies. [#39332]
-- Updated package dependencies. [#39594]
-- Updated package dependencies. [#39669]
-- Updated package dependencies. [#39707]
-- Updated package dependencies. [#39999]
-- Updated package dependencies. [#40000]
-- Updated package dependencies. [#40060]
+- Updated package dependencies. [#35384] [#35385] [#35608] [#35793] [#36095] [#36097] [#36142] [#36143] [#36325] [#36539] [#36585] [#36756] [#36760] [#36761] [#37147] [#37148] [#37160] [#37379] [#37382] [#37669] [#37779] [#37796] [#38132] [#38662] [#38665] [#38893] [#39004] [#39176] [#39302] [#39332] [#39594] [#39669] [#39707] [#39999] [#40000] [#40060]
 
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.5.1]: https://github.com/Automattic/jetpack-scan/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-scan/compare/v1.4.25...v1.5.0
 [1.4.25]: https://github.com/Automattic/jetpack-scan/compare/v1.4.24...v1.4.25
 [1.4.24]: https://github.com/Automattic/jetpack-scan/compare/v1.4.23...v1.4.24
 [1.4.23]: https://github.com/Automattic/jetpack-scan/compare/v1.4.22...v1.4.23

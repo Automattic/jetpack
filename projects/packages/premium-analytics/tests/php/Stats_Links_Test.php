@@ -32,10 +32,11 @@ class Stats_Links_Test extends BaseTestCase {
 	const DETAIL_URL    = 'http://example.org/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Fpost%2F123';
 
 	/**
-	 * Hook the capability mapping, the way an entry point would.
+	 * Hook the capability mapping, the way an entry point would, on a connected site.
 	 */
 	public function set_up() {
 		Capabilities::register();
+		$this->connect_site();
 	}
 
 	/**
@@ -46,6 +47,8 @@ class Stats_Links_Test extends BaseTestCase {
 		remove_all_actions( 'admin_page_access_denied' );
 		remove_all_filters( 'wp_redirect' );
 		unset( $_GET['page'], $_GET[ Stats_Links::ROUTE_QUERY_ARG ], $GLOBALS['_parent_pages']['stats'] );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 

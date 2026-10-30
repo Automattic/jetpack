@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect dashboard: Ask for the plugin or theme slug before an auto-fix deletes it, and warn when it is active or not on WordPress.org.

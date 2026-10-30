@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Dashboard: Add search, filters, view options, and bulk Auto-fix and Ignore to the Scan card's threat list, under a heading that collapses it, with each threat on one line beside its severity.

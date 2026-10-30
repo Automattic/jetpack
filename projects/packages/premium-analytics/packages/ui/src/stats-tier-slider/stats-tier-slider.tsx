@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { formatCurrency, formatNumberCompact } from '@automattic/number-formatters';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
+import { formatMonthlyPrice } from '@jetpack-premium-analytics/formatters';
 import { RangeControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -19,20 +20,6 @@ export interface StatsTierSliderProps {
 	/** The index of the selected tier. */
 	value: number;
 	onChange: ( index: number ) => void;
-}
-
-/**
- * Formats a yearly price, in the currency's smallest unit, as a monthly price.
- *
- * @param yearlyPrice  - The yearly price.
- * @param currencyCode - The price's currency.
- * @return The monthly price.
- */
-function formatMonthly( yearlyPrice: number, currencyCode: string ): string {
-	return formatCurrency( yearlyPrice / 12, currencyCode, {
-		isSmallestUnit: true,
-		stripZeros: true,
-	} );
 }
 
 /**
@@ -56,8 +43,9 @@ export function StatsTierSlider( { tiers, currencyCode, value, onChange }: Stats
 	}
 
 	const viewsLabel = formatNumberCompact( tier.views );
-	const price = formatMonthly( tier.price, currencyCode );
-	const payable = tier.upgradePrice > 0 ? formatMonthly( tier.upgradePrice, currencyCode ) : price;
+	const price = formatMonthlyPrice( tier.price, currencyCode );
+	const payable =
+		tier.upgradePrice > 0 ? formatMonthlyPrice( tier.upgradePrice, currencyCode ) : price;
 	const perUnitFee = tiers[ lastIndex ].perUnitFee;
 
 	let note: string | undefined;
@@ -73,7 +61,7 @@ export function StatsTierSlider( { tiers, currencyCode, value, onChange }: Stats
 				'Beyond 1 million, we’ll charge an extra %s per million views per month.',
 				'jetpack-premium-analytics-pkg'
 			),
-			formatMonthly( perUnitFee, currencyCode )
+			formatMonthlyPrice( perUnitFee, currencyCode )
 		);
 	}
 

@@ -32,7 +32,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.4.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -59,7 +59,7 @@ class Dashboard {
 	/**
 	 * The settings section that owns each Jetpack security module, for links from other screens.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @var array<string, string>
 	 */
@@ -234,7 +234,7 @@ class Dashboard {
 	/**
 	 * The Settings tab's URL, scrolled to a section's card.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $section Section key, such as `firewall`; empty for the top of the tab.
 	 * @return string
@@ -251,7 +251,7 @@ class Dashboard {
 	/**
 	 * Each security module's card on the Settings tab, for screens that link here instead of offering the setting.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @return array<string, string> Settings URLs keyed by module slug.
 	 */
@@ -262,7 +262,7 @@ class Dashboard {
 	/**
 	 * Point a security module's Configure link at its card on the Settings tab.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param string $url The URL Jetpack would use.
 	 * @return string
@@ -289,7 +289,21 @@ class Dashboard {
 	 * @return string
 	 */
 	public static function get_scan_upgrade_url() {
-		return admin_url( 'admin.php?page=my-jetpack#/add-scan' );
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-scan',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=' . self::MENU_SLUG ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : admin_url( 'admin.php?page=my-jetpack#/add-scan' );
 	}
 
 	/**
@@ -394,7 +408,7 @@ class Dashboard {
 	 *
 	 * The wp-build router reads search params only from inside `p`, so links name the ids at the top level instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @param array $query The request's query args.
 	 * @return string|null The URL, or null when the request needs no redirect.
@@ -510,7 +524,7 @@ class Dashboard {
 	/**
 	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @return bool
 	 */
@@ -523,7 +537,7 @@ class Dashboard {
 	/**
 	 * Print the flag the page's Tracks client records under, only when Tracks is allowed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 *
 	 * @return void
 	 */

@@ -44,7 +44,7 @@ const SiteVisibilityCard: FC< Props > = ( { data, onManage } ) => {
 							label={ sitemapActive ? sitemapActiveLabel : sitemapDisabledLabel }
 						/>
 					) }
-					{ /* No "SEO tools active" row: the Overview renders `EnableSeoCard`
+					{ /* No "SEO tools active" row: the page shows the enable prompt
 					     instead of these cards whenever SEO tools are off, so the row could
 					     only ever read "active" — a line that never varies. */ }
 				</Stack>

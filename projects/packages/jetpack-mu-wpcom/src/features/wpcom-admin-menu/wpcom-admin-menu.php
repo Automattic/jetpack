@@ -424,6 +424,11 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
+	// Jetpack > Protect, hidden with a class so Calypso's sidebar drops it too; the standalone plugin keeps its entry.
+	if ( ! class_exists( 'Jetpack_Protect' ) ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-protect' );
+	}
+
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
@@ -549,6 +554,7 @@ function wpcom_add_jetpack_submenu() {
 			'newsletter',
 			'podcast',
 			'traffic',
+			'jetpack-seo',
 			'jetpack#/settings',
 			'jetpack-settings',
 		)

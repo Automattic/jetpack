@@ -1,9 +1,6 @@
 /**
  * Internal dependencies
  */
-import { calculateDelta } from '../../helpers/calculate-delta';
-import { getCombinedPeriodMax } from '../../helpers/get-combined-period-max';
-import { sharePercentage } from '../../helpers/share-percentage';
 import {
 	buildLeaderboardRow,
 	type LeaderboardRowAction,
@@ -84,10 +81,6 @@ export type LeaderboardDrillDownOptions = {
 
 export type BuildLeaderboardChartDataOptions = {
 	/**
-	 * Whether the comparison period is on: shares and deltas read `previousValue` only then.
-	 */
-	hasComparison?: boolean;
-	/**
 	 * Rows past this count are dropped; `0` keeps every row.
 	 */
 	maxRows?: number;
@@ -133,53 +126,32 @@ function resolveAction(
 }
 
 /**
- * Turn ranked rows into what `LeaderboardChart` draws: shares against the largest value
- * of either period, deltas where a comparison value exists, and the shared row chrome.
+ * Turn ranked rows into what `LeaderboardChart` draws: both period values and the shared
+ * row chrome. The chart derives the shares and deltas.
  *
- * @param rows                  - Ranked rows, in display order.
- * @param options               - Comparison, row limit, the detail-link window and the drill-down.
- * @param options.hasComparison - Whether the comparison period is on.
- * @param options.maxRows       - Rows past this count are dropped; `0` keeps every row.
- * @param options.detailSearch  - The dashboard window a detail link carries when the row declares none.
- * @param options.drillDown     - Makes every row with children a drill-down button.
- * @param options.variant       - The look the rows draw with.
+ * @param rows                 - Ranked rows, in display order.
+ * @param options              - Row limit, the detail-link window and the drill-down.
+ * @param options.maxRows      - Rows past this count are dropped; `0` keeps every row.
+ * @param options.detailSearch - The dashboard window a detail link carries when the row declares none.
+ * @param options.drillDown    - Makes every row with children a drill-down button.
+ * @param options.variant      - The look the rows draw with.
  * @return The chart rows.
  */
 export function buildLeaderboardChartData(
 	rows: readonly LeaderboardRowInput[],
-	{
-		hasComparison = false,
-		maxRows = 0,
-		detailSearch = {},
-		drillDown,
-		variant,
-	}: BuildLeaderboardChartDataOptions = {}
+	{ maxRows = 0, detailSearch = {}, drillDown, variant }: BuildLeaderboardChartDataOptions = {}
 ): LeaderboardChartData {
 	const visible = maxRows > 0 ? rows.slice( 0, maxRows ) : rows;
-	const maxValue = getCombinedPeriodMax(
-		visible.map( row => row.value ),
-		hasComparison ? visible.map( row => row.previousValue ) : []
-	);
 
-	return visible.map( row => {
-		const compared = hasComparison && row.previousValue !== undefined;
-
-		return {
-			id: row.id,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: row.media ?? NO_MEDIA,
-				action: resolveAction( row, detailSearch, drillDown ),
-				variant,
-			} ),
-			currentValue: row.value,
-			// A negative value, net revenue after refunds say, draws as an empty bar.
-			currentShare: sharePercentage( Math.max( row.value, 0 ), maxValue ),
-			previousValue: row.previousValue,
-			previousShare: compared
-				? sharePercentage( Math.max( row.previousValue as number, 0 ), maxValue )
-				: undefined,
-			delta: compared ? calculateDelta( row.value, row.previousValue as number ) : undefined,
-		};
-	} );
+	return visible.map( row => ( {
+		id: row.id,
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: row.media ?? NO_MEDIA,
+			action: resolveAction( row, detailSearch, drillDown ),
+			variant,
+		} ),
+		currentValue: row.value,
+		previousValue: row.previousValue,
+	} ) );
 }

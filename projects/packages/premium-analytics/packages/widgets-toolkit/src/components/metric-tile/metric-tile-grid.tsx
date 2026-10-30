@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { Icon, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { MetricNoteTooltip } from '../metric-note-tooltip';
 import { MetricValue } from '../metric-value';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tile-grid.module.scss';
@@ -43,8 +44,7 @@ type MetricTileGridItem = {
 	previousValue?: number | null;
 
 	/**
-	 * Caveat about how the value is aggregated. Shown as a hover tooltip on the
-	 * tile header and mirrored as visually hidden text for assistive technology.
+	 * Caveat about how the value is aggregated, shown in a tooltip on the tile header.
 	 */
 	note?: string;
 
@@ -158,13 +158,10 @@ export function MetricTileGrid( {
 			<div className={ styles.grid } data-layout={ layout } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
-						<div className={ styles.header } title={ tile.note }>
+						<MetricNoteTooltip note={ tile.note } className={ styles.header }>
 							{ tile.icon && <Icon icon={ tile.icon } size={ 20 } className={ styles.icon } /> }
 							<Text className={ styles.label }>{ tile.label }</Text>
-							{ /* The `title` tooltip is invisible to keyboard and screen-reader
-							     users, so the caveat is repeated as visually hidden text. */ }
-							{ tile.note && <VisuallyHidden>{ tile.note }</VisuallyHidden> }
-						</div>
+						</MetricNoteTooltip>
 						<MetricTileValue
 							tile={ tile }
 							dataFormat={ dataFormat }

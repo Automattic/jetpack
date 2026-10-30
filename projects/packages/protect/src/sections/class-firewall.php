@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect\Sections;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
@@ -66,6 +67,7 @@ class Firewall implements Dashboard_Section {
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),
+				'providedByHost' => method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host(),
 			)
 		);
 	}
@@ -160,7 +162,7 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * The visitor's IP address as the firewall sees it, for "Add it to the list" on the always-allowed list.
+	 * The visitor's IP address as the firewall sees it, to offer on the allow list and keep off the block list.
 	 *
 	 * Empty when it may be a proxy's: allowing that address would let every visitor behind the proxy past the rules.
 	 *
@@ -188,6 +190,73 @@ class Firewall implements Dashboard_Section {
 		}
 
 		return $ip;
+	}
+
+	/**
+	 * Refuse a block list that covers the visitor's own address, which would lock them out of the site.
+	 *
+	 * A list is allowed when the address is unknown, so a wrong guess can't stop a legitimate save.
+	 *
+	 * @param string $list The block list being saved: addresses, ranges or CIDR blocks.
+	 * @return true|WP_Error
+	 */
+	public static function validate_ip_block_list( $list ) {
+		$ip = self::get_current_ip();
+		if ( '' === $ip ) {
+			return true;
+		}
+
+		if ( ! self::ip_list_covers( $list, $ip ) ) {
+			return true;
+		}
+
+		// The firewall checks the allow list first, so this address would never actually be blocked.
+		if (
+			class_exists( Waf_Rules_Manager::class )
+			&& Waf_Rules_Manager::ip_allow_list_enabled()
+			&& self::ip_list_covers( (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ), $ip )
+		) {
+			return new WP_Error(
+				'ip_block_list_includes_allowed_ip',
+				sprintf(
+					/* translators: %s is the visitor's IP address. */
+					__( 'Your IP address (%s) is on your allow list, so it can\'t be added to the block list. Remove it, or the range that includes it, from the block list and try again.', 'jetpack-protect-pkg' ),
+					$ip
+				)
+			);
+		}
+
+		return new WP_Error(
+			'ip_block_list_includes_current_ip',
+			sprintf(
+				/* translators: %s is the visitor's IP address. */
+				__( 'Your IP address (%s) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.', 'jetpack-protect-pkg' ),
+				$ip
+			)
+		);
+	}
+
+	/**
+	 * Whether an IP list includes an address, through the address itself, a range or a CIDR block.
+	 *
+	 * @param string $list Addresses, ranges or CIDR blocks.
+	 * @param string $ip   The address to look for.
+	 * @return bool
+	 */
+	private static function ip_list_covers( $list, $ip ) {
+		foreach ( IP_Utils::get_ip_addresses_from_string( $list ) as $entry ) {
+			// Split as the firewall does: a CIDR block, a hyphenated range or a single address.
+			$range    = strpos( $entry, '/' ) !== false ? array( $entry, null ) : explode( '-', $entry );
+			$is_match = count( $range ) === 2
+				? IP_Utils::ip_address_is_in_range( $ip, $range[0], $range[1] )
+				: inet_pton( $entry ) === inet_pton( $ip );
+
+			if ( $is_match ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

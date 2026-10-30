@@ -4,7 +4,7 @@ The WooCommerce section of the Premium Analytics dashboard. This package registe
 
 It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes.
 
-It hands the dashboard the store currency too: `premium_analytics.store_currency` in `JetpackScriptData` carries the code and symbol, so store money prints in it rather than US dollars.
+It hands the dashboard the store currency too: `premium_analytics.store_currency` in `JetpackScriptData` carries the code, symbol and price decimals (`precision`), so store money prints in it rather than US dollars, with the store's number of decimals.
 
 The widgets read those reports with the client in `src/reports/`: one hook per report, built on `useReport` from the dashboard SDK, so every query runs in the dashboard's query client.
 

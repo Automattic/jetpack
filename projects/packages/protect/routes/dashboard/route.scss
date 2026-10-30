@@ -93,6 +93,10 @@ body.toplevel_page_jetpack-protect {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
+	&__error {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
 	&__title {
 		margin: 0;
 	}
@@ -149,6 +153,13 @@ body.toplevel_page_jetpack-protect {
 	&__heading,
 	&__title {
 		font-weight: 500;
+	}
+
+	// Text's default `pretty` still strands single words in these narrow columns.
+	&__heading,
+	&__title,
+	&__features .jp-protect-card__muted {
+		text-wrap: balance;
 	}
 
 	&__body {

@@ -25,7 +25,7 @@ body.jetpack-subscribe-modal-open {
 	visibility: hidden;
 	overflow: hidden;
 	top: 100%;
-	background-color: #fefefe;
+	background-color: var(--jetpack-subscribe-modal--page-background, #fefefe);
 	margin: 15% auto;
 	width: 100%;
 	max-width: 600px;
@@ -38,6 +38,10 @@ body.jetpack-subscribe-modal-open {
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
 	top: 0;
 	visibility: visible;
+}
+
+.jetpack-subscribe-modal__modal-content:focus {
+	outline: none;
 }
 
 /*

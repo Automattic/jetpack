@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Clean up unnecessary external dependencies in wp-build package.json files after fixing eslint `import/no-extraneous-dependencies` configuration.
-
-

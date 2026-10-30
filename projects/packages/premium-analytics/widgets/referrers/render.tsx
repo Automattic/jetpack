@@ -9,16 +9,16 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
+	MarkAsSpamButton,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
+	getReferrerSpamDomain,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
+	useMarkAsSpam,
 	useWidgetDrillDown,
 	useReportActions,
 	useWidgetRootContext,
@@ -61,11 +61,13 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Used for row identity, comparison matching, and to
-	 * render leaf rows (no children) as an outbound link.
+	 * External referrer URL. Used for row identity, comparison matching, and for
+	 * the "View in new tab" action on leaf rows (no children).
 	 */
 	href?: string;
 	icon?: string | null;
+	/** Domain the row can be marked as spam under; absent when it can't be. */
+	spamDomain?: string;
 	/**
 	 * Child referrers for drill-down. Referrer groups can nest twice
 	 * (e.g. Search Engines → Google Search → google.com).
@@ -86,6 +88,7 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 		previousValue: item.previousValue,
 		href: safeHttpUrl( item.link ) ?? undefined,
 		icon: item.icon,
+		spamDomain: getReferrerSpamDomain( item ),
 		children: item.children?.map( toReferrerRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
@@ -96,17 +99,10 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
  */
 function buildLeaderboardData(
 	rows: ReferrerRow[],
-	withComparison: boolean,
-	onDrillDown?: ( row: ReferrerRow ) => void
+	onDrillDown?: ( row: ReferrerRow ) => void,
+	onMarkAsSpam?: ( domain: string ) => Promise< void >
 ): LeaderboardChartData {
-	const maxViews = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -116,6 +112,7 @@ function buildLeaderboardData(
 				media: { kind: 'favicon', url: row.icon ?? undefined },
 				action: resolveLeaderboardRowAction( {
 					href: row.href,
+					hrefAs: 'viewLink',
 					hasChildren,
 					drillDown: onDrillDown
 						? {
@@ -128,12 +125,13 @@ function buildLeaderboardData(
 							}
 						: undefined,
 				} ),
+				trailingAction:
+					row.spamDomain && onMarkAsSpam ? (
+						<MarkAsSpamButton domain={ row.spamDomain } onConfirm={ onMarkAsSpam } />
+					) : undefined,
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxViews ),
-			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
-			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -142,6 +140,8 @@ export type ReferrersLeaderboardProps = {
 	rows?: ReferrerRow[];
 	withComparison?: boolean;
 	onDrillDown?: ( row: ReferrerRow ) => void;
+	/** Marks a row's domain as spam; without it, rows offer no such action. */
+	onMarkAsSpam?: ( domain: string ) => Promise< void >;
 };
 
 /**
@@ -152,11 +152,12 @@ export function ReferrersLeaderboard( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	onMarkAsSpam,
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
 			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, onDrillDown, onMarkAsSpam ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
@@ -178,9 +179,15 @@ function ReferrersInner() {
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
+	// A domain marked from this widget hides at once; the refetch that marking
+	// triggers then drops it from the data itself.
+	const { markAsSpam, spammedDomains } = useMarkAsSpam();
 	const rows = useMemo(
-		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
-		[ comparisonRows ]
+		() =>
+			( comparisonRows?.rows ?? [] )
+				.map( toReferrerRow )
+				.filter( row => ! row.spamDomain || ! spammedDomains.has( row.spamDomain ) ),
+		[ comparisonRows, spammedDomains ]
 	);
 
 	// Referrer groups nest twice (group → source → domain), so the drill-down
@@ -307,6 +314,7 @@ function ReferrersInner() {
 					rows={ activeRows }
 					withComparison={ withComparison }
 					onDrillDown={ drillInto }
+					onMarkAsSpam={ markAsSpam }
 				/>
 			</WidgetState>
 		</div>

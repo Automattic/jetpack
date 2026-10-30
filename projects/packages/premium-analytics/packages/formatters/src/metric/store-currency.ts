@@ -4,7 +4,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { createNumberFormatters } from '@automattic/number-formatters';
 
-type StoreCurrency = { code: string; symbol: string };
+type StoreCurrency = { code: string; symbol: string; precision?: number };
 
 // Private, so the store's symbol override never reaches other users of the default formatters.
 const formatters = createNumberFormatters();
@@ -34,7 +34,7 @@ function readStoreCurrency(): StoreCurrency | undefined {
  *
  * Read on every call rather than at import, like the site locale and time zone.
  *
- * @return The store's currency code (USD without a store) and the formatters to use.
+ * @return The store's currency code (USD without a store), its price decimals, and the formatters to use.
  */
 export function storeCurrencyFormatters() {
 	const store = readStoreCurrency();
@@ -48,6 +48,7 @@ export function storeCurrencyFormatters() {
 
 	return {
 		code: store?.code ?? 'USD',
+		decimals: store?.precision,
 		formatCurrency: formatters.formatCurrency,
 		getCurrencyObject: formatters.getCurrencyObject,
 	};

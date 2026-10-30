@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a get-calypso-origin subpath export, so a bundle can get the Calypso origin without loading the connection store.

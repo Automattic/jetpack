@@ -34,6 +34,8 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	site_is_private: false,
+	site_is_coming_soon: false,
+	site_visibility_url: '',
 	sitemap_active: false,
 	sitemap_switchable: true,
 	sitemap_url: '',
@@ -45,7 +47,13 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 
 export const SEEDED_GEO: GeoState = {
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
+	llmsTxt: {
+		enabled: false,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+		disabled: false,
+		conflictingPlugin: '',
+	},
 	crawlers: {
 		catalog: [
 			{
@@ -67,11 +75,12 @@ export const SEEDED_GEO: GeoState = {
 				type: 'training',
 			},
 		],
-		overrides: {},
+		blocked: { answer: [], training: [] },
 		searchEnginesVisible: true,
 		restrictedSubdomain: false,
 		staticRobotsTxt: false,
 		dataSharingOptOut: false,
+		dataSharingBlocked: [],
 		pathBasedMultisite: false,
 		privacySettingsUrl: 'http://example.com/wp-admin/options-reading.php',
 		robotsTxtUrl: 'http://example.com/robots.txt',

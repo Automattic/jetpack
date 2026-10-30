@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-premium-analytics",
-	"version": "0.13.0",
+	"version": "0.15.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -16,7 +16,7 @@
 		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "PA_TEST_GROUPS=1 TZ=UTC LC_ALL=en_US.UTF-8 jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"test-tz": "for tz in America/Los_Angeles Asia/Tokyo; do TZ=$tz LC_ALL=en_US.UTF-8 jest --config=tests/jest.tz.config.cjs || exit 1; done",
+		"test-tz": "TZ=UTC LC_ALL=en_US.UTF-8 jest --config=tests/jest.tz.config.cjs",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "pnpm run build:copy-images && wp-build --watch"

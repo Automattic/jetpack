@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Modules: Fix a fatal error when the module information link in the address is not plain text.

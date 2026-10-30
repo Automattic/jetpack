@@ -14,6 +14,7 @@ import {
 	resetToDefaults,
 	turnGateOff,
 	withCurrency,
+	withPrimaryDimension,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
 const blockAttributes = {
@@ -269,7 +270,8 @@ describe( 'getResourceAttributeUpdates', () => {
 		expect( getResourceAttributeUpdates( current, fromResource ) ).toEqual( {} );
 	} );
 
-	it( 'treats editor keys and empty per-option amounts as no difference', () => {
+	// The save flags the first group for PayPal, so the flag comes back on an unpriced group.
+	it( 'treats editor keys, empty amounts and an unpriced primary flag as no difference', () => {
 		const current = {
 			...blockAttributes,
 			variantsEnabled: true,
@@ -278,7 +280,7 @@ describe( 'getResourceAttributeUpdates', () => {
 					{
 						_key: 'vb-1',
 						name: 'Size',
-						primary: true,
+						primary: false,
 						options: [
 							{ _key: 'vb-2', label: 'Small', unit_amount: { currency_code: 'USD', value: '' } },
 							{ _key: 'vb-3', label: 'Large', unit_amount: { currency_code: 'USD', value: '' } },
@@ -409,11 +411,57 @@ describe( 'normalizeResourceVariants', () => {
 		const normalized = normalizeResourceVariants( {
 			dimensions: [
 				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
-				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+				{
+					name: 'Size',
+					primary: true,
+					options: [ { label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } } ],
+				},
 			],
 		} );
 
 		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, true ] );
+	} );
+
+	// PayPal flags a group on every payment, priced or not, and the save flags the first
+	// one itself, so an unpriced flag must not reopen the form with pricing on.
+	it( 'drops the flag from a group that carries no price', () => {
+		const normalized = normalizeResourceVariants( {
+			dimensions: [
+				{ name: 'Color', primary: true, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: false, options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( normalized.dimensions.map( dim => dim.primary ) ).toEqual( [ false, false ] );
+	} );
+} );
+
+describe( 'withPrimaryDimension', () => {
+	it( 'flags the first group when none is', () => {
+		const variants = withPrimaryDimension( {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', options: [ { label: 'Small' } ] },
+			],
+		} );
+
+		expect( variants.dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+	} );
+
+	it( 'leaves a flagged group where it is', () => {
+		const variants = {
+			dimensions: [
+				{ name: 'Color', primary: false, options: [ { label: 'Red' } ] },
+				{ name: 'Size', primary: true, options: [ { label: 'Small' } ] },
+			],
+		};
+
+		expect( withPrimaryDimension( variants ) ).toBe( variants );
+	} );
+
+	it( 'passes empty variants through', () => {
+		expect( withPrimaryDimension( null ) ).toBeNull();
+		expect( withPrimaryDimension( { dimensions: [] } ) ).toEqual( { dimensions: [] } );
 	} );
 } );
 

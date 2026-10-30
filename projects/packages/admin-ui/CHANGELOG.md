@@ -5,13 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.10] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.14.9] - 2026-10-26
+### Fixed
+- Keep the Akismet Anti-spam item in sorted order when the menu is set up after Akismet registers it. [#53943]
+
 ## [0.14.8] - 2026-10-20
 ### Changed
 - Internal updates.
 
 ## [0.14.7] - 2026-10-19
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.14.6] - 2026-10-15
 ### Changed
@@ -19,11 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.5] - 2026-10-14
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.14.4] - 2026-10-12
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.14.3] - 2026-10-05
 ### Changed
@@ -38,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.1] - 2026-09-28
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.14.0] - 2026-09-23
 ### Added
@@ -100,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.12] - 2026-07-22
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.11] - 2026-07-20
 ### Changed
@@ -108,11 +116,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.10] - 2026-07-15
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.9] - 2026-07-13
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.8] - 2026-07-09
 ### Changed
@@ -124,7 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.6] - 2026-06-26
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.5] - 2026-06-23
 ### Changed
@@ -136,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.3] - 2026-06-15
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.9.2] - 2026-06-09
 ### Changed
@@ -156,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.8] - 2026-06-02
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [0.8.7] - 2026-06-01
 ### Added
@@ -420,6 +428,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.14.10]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.9...0.14.10
+[0.14.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.8...0.14.9
 [0.14.8]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.7...0.14.8
 [0.14.7]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.6...0.14.7
 [0.14.6]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.5...0.14.6

@@ -6,6 +6,13 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 	source?: string | null;
 	context?: { line: number; code: string }[];
 	vulnerabilities?: { id?: string; title?: string; source?: string }[];
+	/** The table and row a database threat was found in. */
+	database?: {
+		table: string;
+		pkColumn?: string | null;
+		pkValue?: string | number | null;
+		details?: Record< string, unknown >;
+	} | null;
 	extension?: Threat[ 'extension' ] & {
 		icon?: string | null;
 		/** Whether the installed plugin or theme is in use; `parent` is the active theme's parent. */
@@ -17,7 +24,14 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 
 export type ScanState = {
 	hasPlan: boolean;
+	/** False when the host doesn't let the site ignore threats. */
+	canIgnore?: boolean;
+	/** Where to set Scan's server credentials with a plan, or to buy Scan without one; empty when credentials aren't needed. */
 	url: string;
+	/** False where the host lets Scan auto-fix threats without server credentials. Only with a plan. */
+	needsCredentials?: boolean;
+	/** Whether Scan has server credentials to auto-fix with; null when unknown. Only when they're needed. */
+	hasCredentials?: boolean | null;
 	/** Which upsell copy this site sees, without Scan. */
 	upsellVariant?: number;
 	/** Whether a filter chose `upsellVariant`, so it's shown without rotating. */
@@ -25,6 +39,8 @@ export type ScanState = {
 	error: boolean;
 	scanning?: boolean;
 	lastChecked?: string | null;
+	/** Whether the last scan started but failed, so `lastChecked` is when it tried, not when it vouched for the site. */
+	lastScanFailed?: boolean;
 	/** How far a running scan has got, as a percentage, when Scan reports it. */
 	progress?: number | null;
 	pluginsChecked?: number;

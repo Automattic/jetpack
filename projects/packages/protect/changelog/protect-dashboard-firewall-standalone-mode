@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Dashboard: Show whether the firewall runs in standalone mode and how to set it up on the Firewall settings card, and explain firewall file and rules errors in plain words.

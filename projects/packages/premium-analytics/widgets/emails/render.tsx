@@ -13,7 +13,9 @@ import {
 	LeaderboardSkeleton,
 	MetricList,
 	PostTitleLink,
+	ViewLiveLink,
 	WIDGET_ROW_LIMIT,
+	toViewLiveUrl,
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
@@ -164,6 +166,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 
 	const items: MetricListItem[] = rows.map( row => {
 		const { count, rate, formatRestored, description } = metricValues( row, metric );
+		const liveUrl = toViewLiveUrl( 'post', row.postId, row.link );
 
 		return {
 			id: row.id,
@@ -176,6 +179,8 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
+			action:
+				liveUrl === undefined ? undefined : <ViewLiveLink href={ liveUrl } label={ row.label } />,
 			value: [
 				<span key="count" aria-hidden="true">
 					<AbbreviatedValue

@@ -648,10 +648,10 @@ class Main_Features_Test extends TestCase {
 		$send_to_host = static function ( $upgrade ) use ( $url ) {
 			return array_merge( $upgrade, array( 'url' => $url ) );
 		};
-		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+		add_filter( 'jetpack_feature_upgrade', $send_to_host );
 
 		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
 
 		$this->assertSame( $expected, $upgrades['backup']['url'] ?? null );
 	}
@@ -670,14 +670,85 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A host's manage URL replaces the feature's only for a site that has it, without the standalone plugin, and only as a web address.
+	 *
+	 * @dataProvider provide_host_manage_urls
+	 *
+	 * @param string[] $owned      The products the site pays for.
+	 * @param string   $url        The URL the host sends.
+	 * @param bool     $to_host    Whether the feature's manage link becomes the host's.
+	 * @param bool     $standalone Whether the standalone Backup plugin is active.
+	 */
+	#[DataProvider( 'provide_host_manage_urls' )]
+	public function test_host_manage_url( $owned, $url, $to_host, $standalone = false ) {
+		$this->own( $owned );
+		if ( $standalone ) {
+			$plugin_dir = WP_PLUGIN_DIR . '/' . Products\Backup::$plugin_slug;
+			if ( ! file_exists( $plugin_dir ) ) {
+				mkdir( $plugin_dir, 0777, true );
+			}
+			copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
+			wp_cache_delete( 'plugins', 'plugins' );
+			activate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
+		}
+		$default      = array_column( Main_Features::get_features(), 'manage_url', 'slug' )['backup'];
+		$send_to_host = static function ( $upgrade ) use ( $url ) {
+			return array_merge( $upgrade, array( 'manage_url' => $url ) );
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host );
+
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
+
+		if ( $standalone ) {
+			deactivate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
+		}
+
+		$this->assertSame( $to_host ? $url : $default, $features['backup']['manage_url'] );
+		$this->assertArrayNotHasKey( 'manage_url', $features['backup']['upgrade'] );
+	}
+
+	/**
+	 * Data provider for test_host_manage_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_manage_urls() {
+		return array(
+			'owns Complete'            => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
+			'no plan'                  => array( array(), 'https://example.com/backup', false ),
+			'javascript: URL'          => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
+			'standalone plugin active' => array( array( 'jetpack_complete' ), 'https://example.com/backup', false, true ),
+		);
+	}
+
+	/**
+	 * A host is told the link is on My Jetpack's Features tab, and that address stays out of the feature's data.
+	 */
+	public function test_upgrade_filter_gets_the_features_tab_as_back_url() {
+		$back_urls = array();
+		$record    = static function ( $upgrade ) use ( &$back_urls ) {
+			$back_urls[] = $upgrade['back_url'] ?? null;
+			return $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $record );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_feature_upgrade', $record );
+
+		$this->assertSame( array( admin_url( 'admin.php?page=my-jetpack#/features' ) ), array_values( array_unique( $back_urls ) ) );
+		$this->assertArrayNotHasKey( 'back_url', $upgrades['backup'] );
+	}
+
+	/**
 	 * A filter that returns something other than an array leaves the upgrade as it was.
 	 */
 	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
 		$before = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		add_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+		add_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
 
 		$after = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
-		remove_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+		remove_filter( 'jetpack_feature_upgrade', '__return_empty_string' );
 
 		$this->assertSame( $before, $after );
 	}

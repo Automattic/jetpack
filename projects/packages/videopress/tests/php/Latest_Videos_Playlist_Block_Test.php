@@ -526,6 +526,10 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 			array( VideoPress_Initializer::class, 'render_videopress_latest_videos_playlist_block' ),
 			$block_type->render_callback
 		);
+		$this->assertSame(
+			array( VideoPress\Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+			$block_type->render_email_callback
+		);
 		$this->assertTrue( $block_type->skip_inner_blocks );
 
 		// A second call must not fatal on the already-registered block.

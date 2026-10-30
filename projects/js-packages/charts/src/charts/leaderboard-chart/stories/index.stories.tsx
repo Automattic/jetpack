@@ -13,6 +13,7 @@ import {
 	revenueMetricsData as largeValues,
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
+	netSalesBySourceData as netSalesData,
 	themeArgTypes,
 } from '../../../stories';
 import {
@@ -105,6 +106,14 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
+		negativeBars: {
+			control: 'inline-radio',
+			options: [ 'diverge', 'clamp' ],
+			description: 'How a negative value draws: from a shared zero point, or as an empty bar',
+			table: {
+				defaultValue: { summary: 'diverge' },
+			},
+		},
 		legendLabels: {
 			control: 'object',
 			description: 'Custom labels for legend items',
@@ -185,9 +194,6 @@ const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
 				...entry,
 				currentValue: 0,
 				previousValue: 0,
-				currentShare: 0,
-				previousShare: 0,
-				delta: 0,
 			}
 		: entry
 );
@@ -219,8 +225,6 @@ const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index 
 		? {
 				...entry,
 				previousValue: 0,
-				previousShare: 0,
-				delta: undefined,
 			}
 		: entry
 );
@@ -259,7 +263,6 @@ const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
 				id: entry.id,
 				label: entry.label,
 				currentValue: entry.currentValue,
-				currentShare: entry.currentShare,
 			}
 		: entry
 );
@@ -274,7 +277,7 @@ export const MissingComparisonRows: Story = {
 		docs: {
 			description: {
 				story:
-					'Rows without a matching comparison-period value ("Social Media" and "Referral" here) omit `previousValue`/`previousShare`/`delta`. Those rows render no comparison bar and show a placeholder in the delta column instead of a fabricated value.',
+					'Rows without a matching comparison-period value ("Social Media" and "Referral" here) omit `previousValue`. Those rows render no comparison bar and show a placeholder in the delta column instead of a fabricated value.',
 			},
 		},
 	},
@@ -571,6 +574,27 @@ export const NegativeGrowth: Story = {
 	},
 };
 
+export const NegativeValues: Story = {
+	args: {
+		data: netSalesData,
+		withComparison: true,
+		loading: false,
+		valueFormatter: ( value: number ) =>
+			formatMetricValue( value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			} ),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A negative value puts every row on a shared zero point, placed in proportion to the range of shares derived from the values: negative bars extend toward the inline start and positive bars toward the inline end.',
+			},
+		},
+	},
+};
+
 export const CurrencyFormatting: Story = {
 	args: {
 		data: sampleData,
@@ -688,7 +712,23 @@ const LeaderboardChartWithOverlayLabel = ( args: StoryArgs ) => {
 
 export const OverlayLabelWithImage: Story = {
 	args: {
-		data: dataWithImageColor.map( entry => ( {
+		data: [
+			...dataWithImageColor,
+			{
+				id: 'affiliate',
+				label: 'Affiliate',
+				currentValue: 2100,
+				previousValue: -400,
+				imageColor: '#00A32A',
+			},
+			{
+				id: 'email',
+				label: 'Email',
+				currentValue: -1200,
+				previousValue: 800,
+				imageColor: '#D63638',
+			},
+		].map( entry => ( {
 			...entry,
 			label: (
 				<CustomLabelComponent
@@ -700,6 +740,7 @@ export const OverlayLabelWithImage: Story = {
 		} ) ),
 		withComparison: true,
 		withOverlayLabel: true,
+		negativeBars: 'clamp',
 		loading: false,
 		style: {
 			'--a8c-charts-border-radius-leaderboard-bar': '4px',

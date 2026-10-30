@@ -693,7 +693,7 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 **Loading / error / empty state**
 
 A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
-component owns the states, the skeleton, the shares and deltas, and the detail-link window
+component owns the states, the skeleton, and the detail-link window
 (`widgets/search-terms/render.tsx` is the reference). A breakdown widget renders `<Donut>` with its
 segments and the hook's status; it owns the states, the total, the legend and the deltas
 (the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
@@ -781,15 +781,12 @@ at least one primary row has a matching comparison row.
 Widgets should consume `comparisonRows?.rows` and the hook-level `hasComparison`; do not call
 `mergeStats*ComparisonRows()` or duplicate the row-overlap guard from render/view code.
 Widget-level mapping may still add presentation-only fields such as labels, icons, links,
-shares, or chart colors. Leave missing `previousValue`/`previousShare`/`delta` values as
-`undefined` so charts show the missing-data placeholder, instead of coercing them to `0` and
-implying a real zero previous period.
+or chart colors. Leave a missing `previousValue` as `undefined` so charts show the missing-data
+placeholder, instead of coercing it to `0` and implying a real zero previous period.
 
-For comparison leaderboards, calculate one denominator from the largest value represented in
-either period with `getCombinedPeriodMax()`. Use that denominator for both `currentShare` and
-`previousShare`; separate per-period maxima make equal-width bars represent different values and
-can contradict the displayed delta. Only include visible primary rows and their matched comparison
-values in the denominator. Missing comparison values remain `undefined` and are ignored.
+Comparison leaderboard entries pass `currentValue` and `previousValue` only. `LeaderboardChart`
+derives the shares and deltas, so do not compute `currentShare`, `previousShare`, or `delta` in a
+widget.
 
 **Remote URLs in links**
 
@@ -814,7 +811,10 @@ URLs do not need the guard.
 
 Rows with children may be interactive and drill into a second-level leaderboard. Rows without
 children must not look like drill-down rows. If a row has an external `href` and no children,
-render it as a normal external link even when sibling rows drill down.
+render it as a normal external link even when sibling rows drill down, unless the widget passes
+`hrefAs: 'viewLink'` on purpose: then the label stays plain text and the URL is offered from the
+"View in new tab" action beside it (the Top referrers widget does this, see STATS-565). A widget
+adds further row actions, such as "Mark as spam", through `trailingAction`, never by linking the row.
 
 When a leaderboard drills down, use `WidgetBackLink` from `widgets-toolkit` in the widget body
 to navigate back to the parent list. Keep the static widget title/icon in the framed widget host
@@ -839,8 +839,8 @@ above the leaderboard or chart content.
   whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
   leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
   label — at the 370px tile a long name ellipsizes where the compact form left it room.
-- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the combined-period
-  denominator, the deltas and the row builder for you. The notes below are for the few widgets
+- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the row builder for you,
+  and `LeaderboardChart` derives the shares and deltas. The notes below are for the few widgets
   that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use

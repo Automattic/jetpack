@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( WPCOM_Online_Subscription_Service::class )]
 class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use Without_WPCOM_Include_Warning;
 
 	/**
 	 * Email used for both the current user and the Blog_Subscriber mock.
@@ -89,36 +90,12 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Runs a callback while silencing the "failed to open stream" warning from
-	 * include_once()'ing a WPCOM-only file that doesn't exist in the Jetpack test
-	 * environment. This suite fails on any warning, so the expected one needs to
-	 * be swallowed rather than left to bubble up.
-	 *
-	 * @param callable $callback The code to run.
-	 *
-	 * @return mixed
-	 */
-	private function without_wpcom_include_warning( callable $callback ) {
-		set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
-			static function ( $errno, $errstr ) {
-				return str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
-			},
-			E_WARNING
-		);
-		try {
-			return $callback();
-		} finally {
-			restore_error_handler();
-		}
-	}
-
-	/**
 	 * Calls is_current_user_subscribed() on a fresh service instance.
 	 *
 	 * @return boolean
 	 */
 	private function is_current_user_subscribed() {
-		return $this->without_wpcom_include_warning(
+		return $this->run_without_wpcom_include_warning(
 			static function () {
 				return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
 			}
@@ -185,7 +162,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		$service         = new WPCOM_Online_Subscription_Service();
 
 		$this->assertTrue(
-			$this->without_wpcom_include_warning(
+			$this->run_without_wpcom_include_warning(
 				static function () use ( $service ) {
 					return $service->is_current_user_subscribed();
 				}
@@ -194,7 +171,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse(
-			$this->without_wpcom_include_warning(
+			$this->run_without_wpcom_include_warning(
 				static function () use ( $service ) {
 					return $service->visitor_can_view_content(
 						array( 999999 ),

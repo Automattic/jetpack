@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
-import PageBreadcrumbs, { hasJetpackCrumb } from './components/page-breadcrumbs';
+import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
@@ -101,13 +101,11 @@ const Stage = () => {
 		);
 	}
 
-	const showTrail = hasJetpackCrumb();
 	return (
 		<AdminPage
 			className="jp-protect-dashboard"
-			breadcrumbs={ showTrail ? <PageBreadcrumbs /> : undefined }
 			// "Protect" is a product name and is not translated.
-			title={ showTrail ? undefined : 'Protect' }
+			title="Protect"
 			ariaLabel="Protect"
 			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>

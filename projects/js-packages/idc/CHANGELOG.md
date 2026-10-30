@@ -2,13 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.1.1 - 2026-10-28
+### Changed
+- Update dependencies.
+
+## 1.1.0 - 2026-10-26
+### Added
+- Support React 19. [#53882]
+
 ## 1.0.107 - 2026-10-20
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.106 - 2026-10-19
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.105 - 2026-10-15
 ### Changed
@@ -16,35 +24,35 @@
 
 ## 1.0.104 - 2026-10-14
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.103 - 2026-10-12
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.102 - 2026-10-06
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.101 - 2026-10-05
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.100 - 2026-09-28
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.99 - 2026-09-23
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.98 - 2026-09-23
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.97 - 2026-09-21
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.96 - 2026-09-18
 ### Changed
@@ -52,15 +60,15 @@
 
 ## 1.0.95 - 2026-09-15
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.94 - 2026-09-14
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.93 - 2026-09-09
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.92 - 2026-09-08
 ### Changed
@@ -72,23 +80,23 @@
 
 ## 1.0.90 - 2026-08-19
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.89 - 2026-08-06
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.88 - 2026-08-03
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.87 - 2026-07-27
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.86 - 2026-07-22
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.85 - 2026-07-20
 ### Changed
@@ -96,11 +104,11 @@
 
 ## 1.0.84 - 2026-07-13
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.83 - 2026-07-09
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.82 - 2026-07-06
 ### Changed
@@ -112,7 +120,7 @@
 
 ## 1.0.80 - 2026-06-25
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.79 - 2026-06-24
 ### Changed
@@ -120,7 +128,7 @@
 
 ## 1.0.78 - 2026-06-23
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.77 - 2026-06-22
 ### Changed
@@ -132,7 +140,7 @@
 
 ## 1.0.75 - 2026-06-15
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.74 - 2026-06-09
 ### Changed
@@ -140,27 +148,27 @@
 
 ## 1.0.73 - 2026-06-08
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.72 - 2026-06-08
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.71 - 2026-06-03
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.70 - 2026-06-02
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.69 - 2026-06-01
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.68 - 2026-05-25
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.67 - 2026-05-21
 ### Changed
@@ -172,11 +180,11 @@
 
 ## 1.0.65 - 2026-05-14
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.64 - 2026-05-11
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.63 - 2026-05-04
 ### Changed
@@ -185,7 +193,7 @@
 
 ## 1.0.62 - 2026-04-27
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.61 - 2026-04-20
 ### Changed
@@ -193,7 +201,7 @@
 
 ## 1.0.60 - 2026-04-15
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.59 - 2026-04-09
 ### Changed
@@ -201,11 +209,11 @@
 
 ## 1.0.58 - 2026-04-06
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.57 - 2026-03-30
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.56 - 2026-03-23
 ### Changed
@@ -217,7 +225,7 @@
 
 ## 1.0.54 - 2026-03-09
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.53 - 2026-02-26
 ### Changed
@@ -225,11 +233,11 @@
 
 ## 1.0.52 - 2026-02-23
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.51 - 2026-02-18
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.50 - 2026-02-16
 ### Changed
@@ -237,15 +245,15 @@
 
 ## 1.0.49 - 2026-02-10
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.48 - 2026-02-04
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.47 - 2026-02-03
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.46 - 2026-02-02
 ### Changed
@@ -253,11 +261,11 @@
 
 ## 1.0.45 - 2026-01-26
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.44 - 2026-01-23
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.43 - 2026-01-19
 ### Changed
@@ -265,7 +273,7 @@
 
 ## 1.0.42 - 2026-01-14
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.41 - 2026-01-07
 ### Changed
@@ -277,15 +285,15 @@
 
 ## 1.0.39 - 2025-12-15
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.38 - 2025-12-11
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.37 - 2025-12-08
 ### Changed
-- Update dependencies. [#46035]
+- Update dependencies.
 
 ## 1.0.36 - 2025-12-01
 ### Changed
@@ -297,7 +305,7 @@
 
 ## 1.0.34 - 2025-11-18
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## 1.0.33 - 2025-11-17
 ### Changed
@@ -305,15 +313,15 @@
 
 ## 1.0.32 - 2025-11-10
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## 1.0.31 - 2025-11-03
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## 1.0.30 - 2025-10-28
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## 1.0.29 - 2025-10-14
 ### Changed
@@ -325,7 +333,7 @@
 
 ## 1.0.27 - 2025-09-22
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.26 - 2025-09-19
 ### Changed
@@ -337,23 +345,23 @@
 
 ## 1.0.24 - 2025-09-01
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.23 - 2025-08-25
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.22 - 2025-08-25
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.21 - 2025-08-18
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.20 - 2025-08-14
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.19 - 2025-08-13
 ### Changed
@@ -369,7 +377,7 @@
 
 ## 1.0.16 - 2025-07-30
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## 1.0.15 - 2025-07-23
 ### Changed

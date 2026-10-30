@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-10-26
+### Changed
+- Internal updates.
+
 ## [0.10.0] - 2026-09-01
 ### Security
 - Harden post meta handling so imported values are only restored as plain data. [#51830]
@@ -30,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.15] - 2026-02-23
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## [0.9.14] - 2026-02-02
 ### Changed
@@ -102,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.9] - 2024-09-23
 ### Changed
-- Update dependencies. [#39303]
+- Update dependencies.
 
 ## [0.8.8] - 2024-09-09
 ### Changed
@@ -209,6 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed various imported resources hierarchies [#29012]
 
+[0.10.1]: https://github.com/Automattic/jetpack-import/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-import/compare/v0.9.19...v0.10.0
 [0.9.19]: https://github.com/Automattic/jetpack-import/compare/v0.9.18...v0.9.19
 [0.9.18]: https://github.com/Automattic/jetpack-import/compare/v0.9.17...v0.9.18

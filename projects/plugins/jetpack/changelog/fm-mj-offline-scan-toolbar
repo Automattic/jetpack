@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Scan: Stop toolbar status requests and sidebar Scan and Rewind cache refreshes while the site is in offline mode.

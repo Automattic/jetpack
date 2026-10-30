@@ -539,7 +539,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Whether My Jetpack's AI feature controls are waiting only for the site's owner to connect.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.13.0
 	 *
 	 * @return bool True when Jetpack is active with its AI module and settings, the site is registered,
 	 *              it is self-hosted or an Atomic internal testing environment, and no owner is connected yet.

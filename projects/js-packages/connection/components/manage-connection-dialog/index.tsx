@@ -15,6 +15,7 @@ import DisconnectUserDialog from '../disconnect-user-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import TransferConnectionOwnership from '../transfer-connection-ownership';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 import type { ConnectionUserPermissions } from '../use-connection/types';
 import type { MouseEvent } from 'react';
 import './style.scss';
@@ -51,8 +52,10 @@ interface ManageConnectionDialogProps {
 	onDisconnected?: () => void;
 	/** The callback to be called upon user unlink success. */
 	onUnlinked: () => void;
-	/** The context in which this component is being used. */
+	/** The context in which this component is being used, e.g. 'my-jetpack'. Sent as null when omitted. */
 	context?: string;
+	/** Where on the page the dialog was opened from, e.g. 'header'. Sent as `placement` when set. */
+	placement?: ConnectionPlacement;
 	/** An object representing the connected user. */
 	connectedUser?: ManageConnectionUser;
 	/** ID of the currently connected site. */
@@ -76,7 +79,8 @@ const ManageConnectionDialog = ( {
 	connectedPlugins,
 	onDisconnected,
 	onUnlinked,
-	context = 'jetpack-dashboard',
+	context,
+	placement,
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
 	isOpen = false,
@@ -222,6 +226,8 @@ const ManageConnectionDialog = ( {
 									apiNonce={ apiNonce }
 									onTransferred={ recordNewOwner }
 									onBusyChange={ setIsTransferring }
+									trackingContext={ context }
+									trackingPlacement={ placement }
 								/>
 							) }
 							{ ! transferView &&
@@ -271,6 +277,7 @@ const ManageConnectionDialog = ( {
 							isOpen={ isDisconnectDialogOpen }
 							onClose={ closeDisconnectDialog }
 							context={ context }
+							placement={ placement }
 						/>
 
 						{ /* Mounted only while open, so a failed attempt cannot survive a reopen. */ }
@@ -283,6 +290,7 @@ const ManageConnectionDialog = ( {
 								onUnlinked={ handleUnlinked }
 								onTransferOwnership={ openTransferFromOwnerDialog }
 								context={ context }
+								placement={ placement }
 							/>
 						) }
 					</Modal>
