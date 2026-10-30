@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.2] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
 ## [0.13.1] - 2026-10-26
 ### Fixed
 - Stop telling editors and authors that PayPal is disconnected when they simply do not manage the connection, and stop offering them a reconnect flow they cannot complete. [#53793]
@@ -18,8 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts. [#53639]
 - Show the PayPal logo and a clearer connect message in the block's placeholder before PayPal is connected. [#53689]
 - Show the style controls under a saved payment link's details instead of in a Styles tab. [#53638]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ### Fixed
 - Keep the fields of a payment link that the block does not edit when the block is saved. [#53776]
@@ -66,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1] - 2026-09-29
 ### Changed
-- Update dependencies. [#50841]
+- Update dependencies.
 
 ## [0.11.0] - 2026-09-28
 ### Added
@@ -114,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a "Manage PayPal Payment Links" link to the block, opening the new admin page. [#52270] [#52273] [#52279]
 - Add a feature flag for the API-managed payment buttons; the block keeps the paste-code editor while it is off. [#51982]
 - Add a live editor preview and a "Styles" tab for each button format. [#52210]
-- Add API-managed payment buttons behind a feature flag that is not yet enabled. [#52210] [#52170] [#52172]
+- Add API-managed payment buttons behind a feature flag that is not yet enabled. [#52170] [#52172] [#52210]
 - Add to every payment button a warning that changes apply to every button sharing the same payment link, wherever it is used. [#52022]
 - Complete PayPal onboarding with PayPal's SDK, discarding connections that fail its final checks. [#51656]
 - Connect a PayPal account from the block settings sidebar without reloading the editor. [#51656] [#52334]
@@ -161,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.11] - 2026-08-03
 ### Changed
-- Update dependencies. [#50841]
+- Update dependencies.
 
 ## [0.7.10] - 2026-07-27
 ### Changed
@@ -275,7 +278,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.8] - 2026-03-02
 ### Changed
-- Update dependencies. [#47038]
+- Update dependencies.
 
 ## [0.6.7] - 2026-02-26
 ### Changed
@@ -338,7 +341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.13] - 2025-11-18
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.5.12] - 2025-11-17
 ### Changed
@@ -346,7 +349,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.11] - 2025-11-10
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.5.10] - 2025-11-03
 ### Changed
@@ -365,11 +368,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.7] - 2025-09-29
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.5.6] - 2025-09-22
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.5.5] - 2025-09-19
 ### Changed
@@ -398,7 +401,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.3] - 2025-08-18
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [0.4.2] - 2025-08-14
 ### Changed
@@ -442,6 +445,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.13.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.2...v0.13.0
 [0.12.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.1...v0.12.2

@@ -929,7 +929,7 @@ function sharing_process_requests() {
 	global $post;
 
 	// Only process if: single post and share=X defined
-	if ( ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( $post instanceof WP_Post && ( is_page() || is_single() ) && isset( $_GET['share'] ) && is_string( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sharer = new Sharing_Service();
 
 		$service = $sharer->get_service( sanitize_text_field( wp_unslash( $_GET['share'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1111,7 +1111,7 @@ function sharing_display( $text = '', $echo = false ) {
 		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
-		if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) ) {
+		if ( ! empty( $enabled['all'] ) ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.

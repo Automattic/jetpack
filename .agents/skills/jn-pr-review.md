@@ -155,12 +155,13 @@ From the worktree, build with package deps so package changes compile into the p
 pnpm jetpack build --deps plugins/<slug>
 ```
 
-Then rsync (SSH key auth — test once with
-`ssh -o BatchMode=yes ... <domain>@ssh.atomicsites.net exit`; fall back to the site SFTP
-password only if key auth fails, per the JN skill):
+Then rsync. Test key auth once first, per Check 6 of the JN skill, and use the command from
+that skill's Workflow step 4 ("Run the rsync"): this one with key auth, the `--password` one
+otherwise. With password auth, syncing more than one plugin goes over the two-login budget,
+so ask the user first.
 
 ```bash
-pnpm jetpack rsync <slug> <domain>@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/<slug> --non-interactive
+RSYNC_RSH='ssh -o BatchMode=yes' pnpm jetpack rsync <slug> <domain>@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/<slug> --non-interactive
 ```
 
 **Reliability — the A8C proxy drops long transfers.** rsync over `proxy.automattic.com`
@@ -169,10 +170,21 @@ operation`. Two rules:
 
 1. **Don't trust the exit code through a pipe.** Piping rsync into `tail`/`head` makes the
    shell report the pipe's exit, not rsync's. Redirect to a log and capture the real code:
-   `pnpm jetpack rsync ... > /tmp/jn-rsync.log 2>&1; echo "RSYNC_EXIT=$?"`.
-2. **Retry — rsync resumes.** On a non-zero exit (or a log containing `rsync error` /
-   `Broken pipe` / `There was a problem`), re-run the same command; already-transferred
-   files are skipped. Allow up to ~3 attempts before surfacing the failure to the user.
+   `RSYNC_RSH=... pnpm jetpack rsync ... > /tmp/jn-rsync.log 2>&1; echo "RSYNC_EXIT=$?"`.
+2. **With key auth, retry — rsync resumes.** On a non-zero exit (or a log containing
+   `rsync error` / `Broken pipe` / `There was a problem`), re-run the same command;
+   already-transferred files are skipped. Allow up to ~3 attempts before surfacing the
+   failure to the user. `agent refused operation` usually means a missed key approval: ask
+   the user to approve before rerunning. Otherwise, don't retry on
+   `@ssh.atomicsites.net: Permission denied`: that's a key refusal, so set `SSH_OK=false` and
+   take the password fallback in Check 6. With password auth, every attempt is a login, so
+   follow the JN skill's lockout rules instead of retrying.
+
+With key auth, the `ssh ...` in steps 6 and 7 is `ssh -o BatchMode=yes`. With password auth,
+the rsync was one of the two logins, so steps 6 and 7, including the grep, run as one
+`expect` session (the JN skill's "Running commands on the site"). Their quoting won't
+survive inside `expect`: write them as one local script, base64 it, and send
+`echo <base64> | base64 -d | bash` as the remote command.
 
 ### 6. Force dev autoloading (required for package changes)
 
@@ -220,7 +232,8 @@ Report concisely:
 - **The autologin link: `https://<domain>/?auto_login`** and a hint at where to look
   (the wp-admin page the PR affects).
 - If the PR body has `<!-- rehearsal v1 -->` blocks, say they can now be installed and run on
-  this site (see the `jetpack-rehearsal` skill).
+  this site (see the `jetpack-rehearsal` skill). With password auth, both logins are spent,
+  so point to its by-hand paths.
 - JN sites expire after 7 days of inactivity.
 - Cleanup hint: `git worktree remove "$WT"` (the repo-namespaced path from step 2) when
   done — branch `pr-<PR>` is not auto-deleted. Removing the worktree leaves the site and

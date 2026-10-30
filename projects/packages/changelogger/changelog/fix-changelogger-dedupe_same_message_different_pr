@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sort and deduplicate entries that have the same text from different PRs.

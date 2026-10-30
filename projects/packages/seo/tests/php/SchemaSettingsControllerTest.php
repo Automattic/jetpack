@@ -23,6 +23,95 @@ use WP_REST_Response;
 #[CoversClass( Schema_Settings_Controller::class )]
 #[CoversClass( Author_Schema_Node::class )]
 class SchemaSettingsControllerTest extends TestCase {
+	/**
+	 * @dataProvider unauthorized_write_requests
+	 */
+	#[DataProvider( 'unauthorized_write_requests' )]
+	public function test_writes_require_administrator_access( $route, $role, $status ) {
+		$user = $this->make_user( array( 'role' => 'editor' ) );
+		wp_set_current_user( 'editor' === $role ? $user->ID : 0 );
+		Schema_Settings::update( array( 'organization' => array( 'name' => 'Stored organization' ) ) );
+		Author_Schema_Node::update_profile( $user->ID, array( 'jobTitle' => 'Stored job title' ) );
+		$schema          = Schema_Settings::get_editable();
+		$profile         = Author_Schema_Node::get_profile( $user->ID );
+		$register_routes = array( Schema_Settings_Controller::class, 'register_routes' );
+		add_action( 'rest_api_init', $register_routes );
+		try {
+			do_action( 'rest_api_init' );
+			$request = new WP_REST_Request( 'POST', '/jetpack/v4/seo/' . $route );
+			$request->set_body_params(
+				array(
+					'organization' => array( 'name' => 'Changed organization' ),
+					'jobTitle'     => 'Changed job title',
+				)
+			);
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( $status, $response->get_status() );
+			$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+			$this->assertSame( $schema, Schema_Settings::get_editable() );
+			$this->assertSame( $profile, Author_Schema_Node::get_profile( $user->ID ) );
+		} finally {
+			remove_action( 'rest_api_init', $register_routes );
+		}
+	}
+
+	public static function unauthorized_write_requests() {
+		return array(
+			'schema editor' => array( 'schema-settings', 'editor', 403 ),
+			'schema guest'  => array( 'schema-settings', 'guest', 401 ),
+			'author editor' => array( 'author-profile', 'editor', 403 ),
+			'author guest'  => array( 'author-profile', 'guest', 401 ),
+		);
+	}
+
+	/**
+	 * @dataProvider conflicted_write_requests
+	 */
+	#[DataProvider( 'conflicted_write_requests' )]
+	public function test_disabled_seo_rejects_writes_but_keeps_saved_values_readable( $route, $method, $payload, $filter, $callback ) {
+		$admin = $this->make_user( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin->ID );
+		Schema_Settings::update( array( 'organization' => array( 'name' => 'Stored organization' ) ) );
+		Author_Schema_Node::update_profile( $admin->ID, array( 'jobTitle' => 'Stored job title' ) );
+		$schema          = Schema_Settings::get_editable();
+		$profile         = Author_Schema_Node::get_profile( $admin->ID );
+		$register_routes = array( Schema_Settings_Controller::class, 'register_routes' );
+		add_action( 'rest_api_init', $register_routes );
+		add_filter( $filter, $callback );
+		try {
+			do_action( 'rest_api_init' );
+			$request = new WP_REST_Request( $method, '/jetpack/v4/seo/' . $route );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body( wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
+			$response = rest_get_server()->dispatch( $request );
+			$this->assertSame( 409, $response->get_status() );
+			$this->assertSame( 'jetpack_seo_tools_disabled', $response->get_data()['code'] );
+			$this->assertSame( $schema, Schema_Settings::get_editable() );
+			$this->assertSame( $profile, Author_Schema_Node::get_profile( $admin->ID ) );
+			$read = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/seo/' . $route ) );
+			$this->assertSame( 200, $read->get_status() );
+			remove_filter( $filter, $callback );
+			$this->assertSame( 200, rest_get_server()->dispatch( $request )->get_status() );
+		} finally {
+			remove_filter( $filter, $callback );
+			remove_action( 'rest_api_init', $register_routes );
+		}
+	}
+
+	public static function conflicted_write_requests() {
+		$cases = array();
+		foreach ( array( 'POST', 'PUT', 'PATCH' ) as $method ) {
+			foreach ( array( 'general disable', 'plugin conflict' ) as $reason ) {
+				$filter                            = 'general disable' === $reason ? 'jetpack_disable_seo_tools' : 'jetpack_seo_conflicting_plugin';
+				$callback                          = 'general disable' === $reason ? '__return_true' : static function () {
+					return 'Yoast SEO';
+				};
+				$cases[ "schema $method $reason" ] = array( 'schema-settings', $method, array( 'organization' => array( 'name' => 'Changed organization' ) ), $filter, $callback );
+				$cases[ "author $method $reason" ] = array( 'author-profile', $method, array( 'jobTitle' => 'Changed job title' ), $filter, $callback );
+			}
+		}
+		return $cases;
+	}
 
 	/**
 	 * Users created during the test.

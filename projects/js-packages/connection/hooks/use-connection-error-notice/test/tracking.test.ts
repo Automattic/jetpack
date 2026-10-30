@@ -36,6 +36,7 @@ describe( 'trackConnectionErrorNoticeEvent', () => {
 		trackConnectionErrorNoticeEvent( CONNECTION_ERROR_NOTICE_EVENTS.supportLink, {
 			trackingCallback,
 			trackingContext: 'my-jetpack',
+			trackingPlacement: 'header',
 			error: { error_message: 'Broken', error_code: 'xmlrpc_request_blocked', audience: 'owner' },
 		} );
 
@@ -43,6 +44,7 @@ describe( 'trackConnectionErrorNoticeEvent', () => {
 			context: 'my-jetpack',
 			error_code: 'xmlrpc_request_blocked',
 			audience: 'owner',
+			placement: 'header',
 		} );
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );

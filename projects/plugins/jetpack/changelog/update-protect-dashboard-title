@@ -1,4 +1,4 @@
 Significance: patch
-Type: enhancement
+Type: other
+Comment: Protect page change; the combined Protect page entry in CHANGELOG.md covers it.
 
-Protect: Title the Protect page "Protect" instead of "Jetpack / Protect", to match other feature pages.
