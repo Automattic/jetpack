@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Inbox: Provide localized fallback display name and hide empty IP row when submission author details are missing.

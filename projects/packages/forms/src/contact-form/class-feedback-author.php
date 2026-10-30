@@ -150,12 +150,20 @@ class Feedback_Author {
 	 * Get the display name of the author.
 	 *
 	 * If the name is not set, it will return the email.
+	 * If both name and email are empty, it will return the optional fallback default.
 	 *
+	 * @param string $default Fallback display name if neither name nor email is available. Default empty string.
 	 * @return string The display name of the author.
 	 */
-	public function get_display_name(): string {
+	public function get_display_name( string $default = '' ): string {
 		$name = $this->get_name();
-		return empty( $name ) ? $this->email : $name;
+		if ( ! empty( $name ) ) {
+			return $name;
+		}
+		if ( ! empty( $this->email ) ) {
+			return $this->email;
+		}
+		return $default;
 	}
 
 	/**

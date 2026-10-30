@@ -528,7 +528,11 @@ function StageInner() {
 				label: __( 'From', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					const displayName = decodeEntities(
-						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous'
+						item.author_name ||
+							item.author_email ||
+							item.author_url ||
+							item.ip ||
+							__( 'Anonymous', 'jetpack-forms' )
 					);
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
@@ -581,7 +585,11 @@ function StageInner() {
 					);
 				},
 				getValue: ( { item } ) =>
-					item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous',
+					item.author_name ||
+					item.author_email ||
+					item.author_url ||
+					item.ip ||
+					__( 'Anonymous', 'jetpack-forms' ),
 				enableSorting: false,
 				enableHiding: false,
 			},
