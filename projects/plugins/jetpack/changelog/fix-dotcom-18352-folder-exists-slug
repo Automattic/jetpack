@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Plugin upload: identify the already-installed plugin when a zip is rejected for a duplicate folder, so an update can be offered instead of a dead end.
