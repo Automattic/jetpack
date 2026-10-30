@@ -1,19 +1,16 @@
 <?php
 /**
  * Tools to manage things related to "Jetpack Manage"
- * - Add Jetpack Manage menu item.
- * - Keep track of whether a user is an agency (used by the menu item and the banner)
+ * - Keep track of whether a user is an agency (used by the Automattic for Agencies banner)
  *
  * @package automattic/my-jetpack
  */
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils;
-use Automattic\Jetpack\Redirect;
 use WP_Error;
 use WP_Rest_Response;
 
@@ -25,7 +22,7 @@ class Jetpack_Manage {
 	 * User meta holding the partner type WordPress.com last reported for that user.
 	 *
 	 * Keyed per user because the lookup is signed as one, and stored rather than cached because
-	 * the sidebar needs an answer on every admin page load without waiting for a request.
+	 * the banner payload needs an answer without waiting for a request.
 	 *
 	 * @var string
 	 */
@@ -114,8 +111,6 @@ class Jetpack_Manage {
 	 * Initialize the class and hooks needed.
 	 */
 	public static function init() {
-		add_action( 'admin_menu', array( self::class, 'add_submenu_jetpack' ) );
-
 		// Both only schedule. `admin_init` also covers older sessions, and SSO, whose `wp_login`
 		// fires on a GET that the Jetpack plugin does not load this package for.
 		add_action( 'wp_login', array( self::class, 'schedule_partner_type_refresh_on_login' ), 10, 2 );
@@ -165,42 +160,6 @@ class Jetpack_Manage {
 	}
 
 	/**
-	 * The page to be added to submenu
-	 *
-	 * @return void|null|string The resulting page's hook_suffix
-	 */
-	public static function add_submenu_jetpack() {
-		// Before could_use_jp_manage(): this reads meta, that can call WordPress.com.
-		if ( ! self::is_agency_account() ) {
-			return;
-		}
-
-		// Do not display the menu if the user has < 2 sites.
-		if ( ! self::could_use_jp_manage( 2 ) ) {
-			return;
-		}
-
-		$args = array();
-
-		$blog_id = Connection_Manager::get_site_id( true );
-		if ( $blog_id ) {
-			$args = array( 'site' => $blog_id );
-		}
-
-		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
-
-		return Admin_Menu::add_menu(
-			__( 'Jetpack Manage', 'jetpack-my-jetpack' ),
-			_x( 'Jetpack Manage', 'product name shown in menu', 'jetpack-my-jetpack' ) . ' <span aria-hidden="true">↗</span>',
-			'manage_options',
-			esc_url( Redirect::get_url( 'cloud-manage-dashboard-wp-menu', $args ) ),
-			null,
-			$position,
-			array( 'key' => 'jetpack-manage' )
-		);
-	}
-
-	/**
 	 * Check if the user has enough sites to be able to use Jetpack Manage.
 	 *
 	 * @param int $min_sites Minimum number of sites to be able to use Jetpack Manage.
@@ -235,8 +194,8 @@ class Jetpack_Manage {
 	/**
 	 * Check if the user is a partner/agency.
 	 *
-	 * Answers from what the last lookup stored and never makes a request, because the sidebar
-	 * asks on every admin page load. A user nobody has looked up yet reads as not an agency.
+	 * Answers from what the last lookup stored and never makes a request. A user nobody has
+	 * looked up yet reads as not an agency.
 	 *
 	 * @return bool Return true if the user is a partner/agency, otherwise false.
 	 */
@@ -442,8 +401,8 @@ class Jetpack_Manage {
 	/**
 	 * Whether anything on this site could ever show this user the answer.
 	 *
-	 * The same cheap conditions the menu item and the REST payload require, minus the site count,
-	 * which can itself call WordPress.com.
+	 * The same cheap conditions the REST payload requires, minus the site count, which can
+	 * itself call WordPress.com.
 	 *
 	 * @param int $user_id User to check.
 	 * @return bool
