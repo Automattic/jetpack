@@ -218,6 +218,7 @@ class Admin_Menu {
 			add_action( 'admin_head', array( __CLASS__, 'remove_hidden_menu_items' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_design_tokens' ) );
+			Instant_Nav::init();
 		}
 	}
 
