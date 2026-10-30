@@ -21,6 +21,7 @@ const jetpackSettingSelectors = {
 	isReaderChatAvailable: state =>
 		Object.prototype.hasOwnProperty.call( state.jetpackSettings, 'reader_chat' ),
 	isReaderChatEnabled: state => state.jetpackSettings.reader_chat,
+	getReaderChatBrand: state => state.jetpackSettings.reader_chat_brand ?? {},
 	isAiAnswersEnabled: state => !! state.jetpackSettings.ai_answers_enabled,
 	// The stored choice, ungated — shown while the master switch is off so a
 	// saved setting isn't misreported back to the user as off.

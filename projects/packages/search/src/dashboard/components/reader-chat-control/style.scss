@@ -1,0 +1,275 @@
+.jp-reader-chat-control__brand {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+	gap: var(--wpds-dimension-gap-xl);
+	align-items: start;
+	margin-block-start: var(--wpds-dimension-padding-lg);
+
+	section {
+		display: grid;
+		gap: var(--wpds-dimension-gap-md);
+	}
+
+	h3,
+	p {
+		margin: 0;
+	}
+
+	h3 {
+		font-size: 16px;
+		font-weight: 600;
+		line-height: 1.4;
+	}
+
+	section > p {
+		max-inline-size: 62ch;
+		color: #646970;
+		line-height: 1.5;
+	}
+
+	fieldset {
+		min-inline-size: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	legend {
+		margin-block-end: var(--wpds-dimension-gap-sm);
+		font-weight: 500;
+	}
+}
+
+.jp-reader-chat-control__brand-fields {
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+}
+
+.jp-reader-chat-control__colors {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.jp-reader-chat-control__color-toggle.components-button {
+	display: grid;
+	grid-template-columns: 48px minmax(0, 1fr);
+	gap: var(--wpds-dimension-gap-sm);
+	block-size: auto;
+	inline-size: 100%;
+	padding: 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	color: #1e1e1e;
+	text-align: start;
+
+	&:hover,
+	&:focus-visible {
+		border-color: #8c8f94;
+	}
+
+	.components-color-indicator {
+		inline-size: 48px;
+		block-size: 48px;
+		margin: 0;
+		border-radius: 6px;
+	}
+}
+
+.jp-reader-chat-control__color-copy {
+	display: flex;
+	flex-direction: column;
+	align-self: center;
+	min-inline-size: 0;
+	font-weight: 500;
+	line-height: 1.4;
+
+	code {
+		overflow: hidden;
+		color: #646970;
+		font-family: inherit;
+		font-size: 12px;
+		font-weight: 400;
+		text-overflow: ellipsis;
+	}
+}
+
+.jp-reader-chat-control__color-popover {
+	display: grid;
+	gap: var(--wpds-dimension-gap-sm);
+	inline-size: 260px;
+	padding: var(--wpds-dimension-padding-md);
+}
+
+.jp-reader-chat-control__contrast-help {
+	margin-block-start: var(--wpds-dimension-gap-sm);
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.jp-reader-chat-control__reset-appearance {
+	justify-self: start;
+}
+
+.jp-reader-chat-control__preview {
+	display: grid;
+	gap: var(--wpds-dimension-gap-sm);
+	inline-size: 100%;
+}
+
+// Fixed metrics keep this compact mock visually close to the public widget;
+// dashboard spacing tokens continue to control the surrounding layout.
+.jp-reader-chat-control__preview-widget {
+	overflow: hidden;
+	border: 1px solid var(--jp-reader-chat-preview-outline);
+	border-radius: 24px;
+	background: var(--jp-reader-chat-preview-background);
+	color: var(--jp-reader-chat-preview-foreground);
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+// Keep this stack aligned with Site Chat's serif preset in
+// wp-calypso/apps/agents-manager/reader-chat.js.
+.jp-reader-chat-control__preview-widget[data-font="serif"] {
+	font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.jp-reader-chat-control__preview-widget[data-font="site"] {
+	font-family: var(--jp-reader-chat-preview-site-font-family, inherit);
+}
+
+.jp-reader-chat-control__preview-header {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	padding: 16px 18px;
+}
+
+.jp-reader-chat-control__preview-identity {
+	display: flex;
+	align-items: center;
+	min-inline-size: 0;
+	gap: 10px;
+
+	strong {
+		min-inline-size: 0;
+		overflow: hidden;
+		font-weight: 600;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+.jp-reader-chat-control__preview-logo {
+	display: grid;
+	flex: 0 0 28px;
+	place-items: center;
+	inline-size: 28px;
+	block-size: 28px;
+	overflow: hidden;
+	border-radius: 50%;
+	color: var(--jp-reader-chat-preview-accent);
+	font-size: 22px;
+
+	img {
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+	}
+}
+
+.jp-reader-chat-control__preview-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-family: sans-serif;
+	font-size: 25px;
+	line-height: 1;
+}
+
+.jp-reader-chat-control__preview-body {
+	display: grid;
+	gap: 18px;
+	padding: 22px 18px 16px;
+}
+
+.jp-reader-chat-control__preview-greeting,
+.jp-reader-chat-control__preview-help,
+.jp-reader-chat-control__preview-footer {
+	margin: 0;
+}
+
+.jp-reader-chat-control__preview-greeting {
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+.jp-reader-chat-control__preview-prompts {
+	overflow: hidden;
+	border: 1px solid var(--jp-reader-chat-preview-outline);
+	border-radius: 10px;
+
+	span {
+		display: block;
+		padding: 12px;
+	}
+
+	span + span {
+		border-block-start: 1px solid var(--jp-reader-chat-preview-outline);
+	}
+}
+
+.jp-reader-chat-control__preview-composer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-block-size: 52px;
+	padding: 8px;
+	padding-inline-start: 14px;
+	border: 1px solid var(--jp-reader-chat-preview-outline);
+	border-radius: 18px;
+}
+
+.jp-reader-chat-control__preview-send {
+	display: grid;
+	flex: 0 0 36px;
+	place-items: center;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 50%;
+	background: var(--jp-reader-chat-preview-accent);
+	color: var(--jp-reader-chat-preview-accent-foreground);
+	font-family: sans-serif;
+	font-size: 22px;
+	line-height: 1;
+}
+
+.jp-reader-chat-control__preview-footer {
+	padding: 0 18px 16px;
+	font-size: 12px;
+	text-align: center;
+}
+
+@media ( max-width: 960px ) {
+
+	.jp-reader-chat-control__brand {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.jp-reader-chat-control__preview {
+		grid-column: 1;
+		max-inline-size: 420px;
+	}
+}
+
+@media ( max-width: 480px ) {
+
+	.jp-reader-chat-control__colors {
+		grid-template-columns: 1fr;
+	}
+}

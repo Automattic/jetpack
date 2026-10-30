@@ -71,6 +71,8 @@ class Initial_State {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'adminUrl'                   => esc_url( admin_url() ),
 				'readerChatGuidelinesUrl'    => $this->get_reader_chat_guidelines_url(),
+				'readerChatBrand'            => $this->get_reader_chat_brand(),
+				'readerChatBrandPalette'     => $this->get_reader_chat_brand_palette(),
 				'aiAgentAccessAvailable'     => $this->is_ai_agent_access_available(),
 				'aiAgentAccessGuidelinesUrl' => $this->get_ai_agent_access_guidelines_url(),
 				'blogId'                     => Jetpack_Options::get_option( 'id', 0 ),
@@ -190,6 +192,32 @@ class Initial_State {
 	 */
 	protected function get_reader_chat_guidelines_url() {
 		return $this->get_guidelines_url();
+	}
+
+	/**
+	 * Get the resolved Reader Chat brand defaults for the settings UI.
+	 *
+	 * The Reader Chat implementation lives in the Jetpack plugin, while this
+	 * package also runs independently. Return an empty value when that optional
+	 * integration is unavailable.
+	 *
+	 * @return array Resolved Reader Chat brand defaults.
+	 */
+	protected function get_reader_chat_brand() {
+		$class = '\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_Reader_Chat';
+
+		return is_callable( array( $class, 'get_brand' ) ) ? $class::get_brand() : array();
+	}
+
+	/**
+	 * Get theme palette entries available to the Reader Chat accent control.
+	 *
+	 * @return array Reader Chat theme palette.
+	 */
+	protected function get_reader_chat_brand_palette() {
+		$class = '\Automattic\Jetpack\Extensions\AiAssistantPlugin\Jetpack_Reader_Chat';
+
+		return is_callable( array( $class, 'get_brand_palette' ) ) ? $class::get_brand_palette() : array();
 	}
 
 	/**
