@@ -19,19 +19,36 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Heavy child cards are paid surfaces hidden when gated; stub them so the screen
-// renders in isolation and the presence of the front-page field is unambiguous.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
-	default: () => <div>author</div>,
+	default: ( { disabled }: { disabled: boolean } ) => (
+		<input aria-label="Author job title" value="Saved role" disabled={ disabled } readOnly />
+	),
 } ) );
 jest.unstable_mockModule( '../schema-card', () => ( {
-	default: () => <div>schema</div>,
+	default: ( { disabled }: { disabled: boolean } ) => (
+		<input
+			aria-label="Organization name"
+			value="Saved organization"
+			disabled={ disabled }
+			readOnly
+		/>
+	),
 } ) );
 jest.unstable_mockModule( '../social-previews-card', () => ( {
 	default: () => <div>social previews</div>,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
-	default: () => <div>title structure</div>,
+	default: ( { editable, disabledReason }: { editable: boolean; disabledReason?: string } ) => (
+		<div>
+			<input
+				aria-label="Saved title structure"
+				value="Saved title"
+				disabled={ ! editable }
+				readOnly
+			/>
+			{ disabledReason && <p>{ disabledReason }</p> }
+		</div>
+	),
 } ) );
 jest.unstable_mockModule( '../verification-card', () => ( {
 	default: () => <div>verification</div>,
@@ -87,34 +104,52 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 	} as unknown as SettingsForm;
 };
 
-describe( 'SettingsScreen — gated front-page description', () => {
+describe( 'SettingsScreen plan restrictions', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'hides the front-page description on a gated site with no legacy value', () => {
+	it( 'shows saved paid controls disabled on a gated site', () => {
 		isGated.mockReturnValue( true );
 
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
-		expect( screen.queryByLabelText( FRONT_PAGE_LABEL ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveValue( 'Live description.' );
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Organization name' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Author job title' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
+		expect( screen.getByLabelText( 'Add canonical URLs to archive pages' ) ).toBeDisabled();
+		expect( screen.getByText( /AI crawler rules and llms.txt are paused/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /saved title structures still apply/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the front-page description on a gated site that has a legacy value', () => {
-		isGated.mockReturnValue( true );
+	it.each( [ false, true ] )(
+		'only allows a grandfathered description when SEO output is not disabled (%s)',
+		outputDisabled => {
+			isGated.mockReturnValue( true );
+			const form = buildForm( true );
+			form.local.title_formats_editable = false;
+			form.local.seo_tools_disabled = outputDisabled;
 
-		render( <SettingsScreen form={ buildForm( true ) } /> );
+			render( <SettingsScreen form={ form } /> );
 
-		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveAttribute( 'maxlength', '300' );
-	} );
+			expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toHaveAttribute( 'maxlength', '300' );
+			expect( screen.getByLabelText( FRONT_PAGE_LABEL ) )[
+				outputDisabled ? 'toBeDisabled' : 'toBeEnabled'
+			]();
+			expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
+		}
+	);
 
 	it( 'shows the front-page description on an ungated site regardless of the legacy flag', () => {
 		isGated.mockReturnValue( false );
 
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
-		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeEnabled();
+		expect( screen.getByLabelText( 'Organization name' ) ).toBeEnabled();
 	} );
 
 	it( 'keeps the Advanced module on a gated site', () => {
@@ -122,10 +157,6 @@ describe( 'SettingsScreen — gated front-page description', () => {
 
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
-		// Deliberately outside the `gated` branch in the screen: gating removes paid
-		// *settings*, but a gated site still has SEO tools and must keep the way to
-		// switch them off. Without this, tucking the card into the gated branch would
-		// go unnoticed.
 		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
 	} );
 } );

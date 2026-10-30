@@ -649,6 +649,20 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
 	}
 
+	public function test_plan_gated_simple_site_can_read_its_saved_paid_description() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = array();
+		self::set_plan( 'free_plan' );
+		\Jetpack_SEO_Utils::$enabled = false;
+		update_option( Dashboard_Data::FRONT_PAGE_META_OPTION, 'Saved paid description.' );
+
+		$this->assertTrue( Initializer::is_gated() );
+		$this->assertSame( 'Saved paid description.', Dashboard_Data::get_settings_data()['front_page_description'] );
+		$this->assertSame( 'Saved paid description.', get_option( Dashboard_Data::FRONT_PAGE_META_OPTION ) );
+		$this->assertFalse( Dashboard_Data::get_settings_data()['has_legacy_front_page_meta'] );
+	}
+
 	/**
 	 * The site's plan does not get a vote where the plugin helper is loaded.
 	 *
