@@ -12,7 +12,7 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Notice } from '@wordpress/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
@@ -71,6 +71,14 @@ export default function PricingUpsell() {
 		}
 	}, [ checkoutError, createErrorNotice ] );
 
+	// Below the large breakpoint the table stacks, so the notice can be off screen.
+	const noticeRef = useRef< HTMLDivElement >( null );
+	useEffect( () => {
+		if ( registrationError ) {
+			noticeRef.current?.scrollIntoView?.( { block: 'nearest' } );
+		}
+	}, [ registrationError ] );
+
 	if ( ! pricing ) {
 		return null;
 	}
@@ -85,7 +93,12 @@ export default function PricingUpsell() {
 		>
 			<div className="vp-connection-gate__upsell">
 				{ registrationError && (
-					<Notice.Root intent="error" role="alert" className="vp-connection-gate__notice">
+					<Notice.Root
+						ref={ noticeRef }
+						intent="error"
+						role="alert"
+						className="vp-connection-gate__notice"
+					>
 						<Notice.Description>
 							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 								__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
