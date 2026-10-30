@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Overview showing a product's old status after a feature is switched on or off on the Features tab.
