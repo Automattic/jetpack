@@ -278,6 +278,16 @@ export function ComparativeBarChart( {
 		[ previousPeriodToggle, alignedSeries, previousPeriodShown, isPrimaryVisible ]
 	);
 
+	const barChartHiddenSeries = useMemo( () => {
+		if ( ! previousPeriodToggle ) {
+			return defaultHiddenSeries;
+		}
+		const comparisonLabels = new Set(
+			alignedSeries.flatMap( item => ( item.options?.type === 'comparison' ? [ item.label ] : [] ) )
+		);
+		return defaultHiddenSeries?.filter( label => ! comparisonLabels.has( label ) );
+	}, [ previousPeriodToggle, defaultHiddenSeries, alignedSeries ] );
+
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
 		if ( ! overlapLayout ) {
@@ -464,7 +474,7 @@ export function ComparativeBarChart( {
 				data={ drawnSeries }
 				layout={ layout }
 				options={ chartOptions }
-				defaultHiddenSeries={ defaultHiddenSeries }
+				defaultHiddenSeries={ barChartHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }

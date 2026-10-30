@@ -15,6 +15,7 @@ import type { ComponentProps } from 'react';
 type RecordedBarChart = {
 	data: ComparativeBarChartSeries[];
 	colors: string[];
+	defaultHiddenSeries?: string[];
 	renderTooltip: ( params: unknown ) => { props: DatedTooltipProps } | null;
 };
 
@@ -144,6 +145,15 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		await user.click( visitorsItem() );
 
 		expect( drawnLabels() ).toEqual( [ 'Views', 'Previous views', 'Visitors' ] );
+	} );
+
+	it( "draws a revealed metric's previous period when the metric started hidden", () => {
+		renderChart( {
+			previousPeriodShown: true,
+			defaultHiddenSeries: [ 'Views', 'Previous views' ],
+		} );
+
+		expect( lastBarChart().defaultHiddenSeries ).toEqual( [ 'Views' ] );
 	} );
 
 	it( 'keeps previous-period values in the tooltip while the bars are off', () => {
