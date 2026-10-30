@@ -77,6 +77,25 @@ export async function createMessage( isFailure ) {
 		buttons.push( getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
 	}
 
+	if ( eventName === 'workflow_dispatch' ) {
+		target = `for manual run on ${ refType } _*${ refName }*_`;
+
+		if ( payload.inputs?.sha ) {
+			const upstreamSha = payload.inputs.sha;
+			msgId = `workflow_dispatch-${ upstreamSha }`;
+			contextElements.push(
+				getTextContextElement( `Last commit: ${ upstreamSha.substring( 0, 8 ) }` )
+			);
+
+			if ( payload.inputs?.repository ) {
+				const commitUrl = `${ serverUrl }/${ payload.inputs.repository }/commit/${ upstreamSha }`;
+				buttons.push( getButton( `Commit ${ upstreamSha.substring( 0, 8 ) }`, commitUrl ) );
+			}
+		} else {
+			msgId = `workflow_dispatch-${ Date.now() }`;
+		}
+	}
+
 	if ( eventName === 'repository_dispatch' ) {
 		target = `for event _*${ payload.action }*_`;
 
