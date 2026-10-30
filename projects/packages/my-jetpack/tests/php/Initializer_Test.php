@@ -1629,6 +1629,22 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The settings panel is off by default and on with its flag.
+	 */
+	public function test_my_jetpack_flags_enable_the_settings_panel_only_when_the_flag_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['settingsPanel'] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_PANEL_FLAG, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()['settingsPanel'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_PANEL_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
 	 * Overview v1 shows only with its flag on.
 	 */
 	public function test_my_jetpack_flags_show_overview_v1_only_when_the_flag_is_on() {

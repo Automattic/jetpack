@@ -145,6 +145,13 @@ class Initializer {
 	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
 
 	/**
+	 * Feature flag for opening a small feature's settings from Configure in Features.
+	 *
+	 * @var string
+	 */
+	public const SETTINGS_PANEL_FLAG = 'my-jetpack-settings-panel';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -1454,6 +1461,14 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+		Feature_Flags::register(
+			self::SETTINGS_PANEL_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Open a small feature\'s settings in a panel from Configure in Features, and replace its card on the Settings screen with a pointer.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -1511,6 +1526,7 @@ class Initializer {
 			'headerControls'           => self::is_header_controls_enabled(),
 			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
+			'settingsPanel'            => Feature_Flags::is_enabled( self::SETTINGS_PANEL_FLAG ),
 		);
 
 		if ( $flags['accountConnect'] ) {

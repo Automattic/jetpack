@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a feature flag for the Features settings panel, off by default.
