@@ -99,29 +99,32 @@ export function App() {
 
 	return (
 		<AdminPage title={ __( 'My Jetpack', 'jetpack-mu-wpcom' ) } unwrapped>
-			<Stack className="wpcom-my-jetpack__body" direction="column" gap="lg">
-				<div className="wpcom-my-jetpack__tools">
-					{ tools.map( tool => (
-						<ToolCard key={ tool.url } tool={ tool } />
-					) ) }
-				</div>
-				{ plan && (
-					<Stack direction="row" gap="sm" align="center" wrap="wrap">
-						{ plan.name && (
-							<Text variant="body-md">
-								{ sprintf(
-									/* translators: %s: the name of the site's WordPress.com plan, such as Free or Premium. */
-									__( 'You’re on the %s plan.', 'jetpack-mu-wpcom' ),
-									plan.name
-								) }
-							</Text>
-						) }
-						<Link href={ plan.url } openInNewTab>
-							{ __( 'Compare plans', 'jetpack-mu-wpcom' ) }
-						</Link>
-					</Stack>
-				) }
-			</Stack>
+			{ /* AdminPage's layout restyles the page's direct child and that child's children, so the grid sits one level below them. */ }
+			<div className="wpcom-my-jetpack__body">
+				<Stack direction="column" gap="lg">
+					<div className="wpcom-my-jetpack__tools">
+						{ tools.map( tool => (
+							<ToolCard key={ tool.url } tool={ tool } />
+						) ) }
+					</div>
+					{ plan && (
+						<Stack direction="row" gap="sm" align="center" wrap="wrap">
+							{ plan.name && (
+								<Text variant="body-md">
+									{ sprintf(
+										/* translators: %s: the name of the site's WordPress.com plan, such as Free or Premium. */
+										__( 'You’re on the %s plan.', 'jetpack-mu-wpcom' ),
+										plan.name
+									) }
+								</Text>
+							) }
+							<Link href={ plan.url } openInNewTab>
+								{ __( 'Compare plans', 'jetpack-mu-wpcom' ) }
+							</Link>
+						</Stack>
+					) }
+				</Stack>
+			</div>
 		</AdminPage>
 	);
 }
