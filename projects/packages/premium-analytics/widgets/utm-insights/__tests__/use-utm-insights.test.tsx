@@ -41,7 +41,16 @@ describe( 'useUtmInsights', () => {
 						value: 12,
 						href: 'https://example.com/landing/',
 						page: '/stats/post/41',
-						actions: [],
+						actions: [
+							{
+								type: 'url-builder',
+								data: {
+									url: 'https://example.com/landing/',
+									utm_source: 'newsletter',
+									utm_medium: 'email',
+								},
+							},
+						],
 						children: null,
 					},
 				],
@@ -73,6 +82,11 @@ describe( 'useUtmInsights', () => {
 						postId: 41,
 						label: 'Landing page',
 						href: 'https://example.com/landing/',
+						urlBuilder: {
+							destination: 'https://example.com/landing/',
+							source: 'newsletter',
+							medium: 'email',
+						},
 					} ),
 				],
 			} ),

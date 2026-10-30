@@ -21,9 +21,11 @@ import {
 	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderButton,
 	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -55,11 +57,25 @@ type UtmInsightsInnerProps = {
 	showReportLink: boolean;
 };
 
+type PostBuilderButtonProps = {
+	label: string;
+	values: Partial< UtmUrlBuilderValues >;
+	onOpen: ( values: Partial< UtmUrlBuilderValues > ) => void;
+};
+
+function PostBuilderButton( { label, values, onOpen }: PostBuilderButtonProps ) {
+	const open = useCallback( () => onOpen( values ), [ onOpen, values ] );
+
+	return <UtmUrlBuilderButton label={ label } onClick={ open } />;
+}
+
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
-	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
-	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
+	const [ builderValues, setBuilderValues ] = useState< Partial< UtmUrlBuilderValues > | null >(
+		null
+	);
+	const openBuilder = useCallback( () => setBuilderValues( {} ), [] );
+	const closeBuilder = useCallback( () => setBuilderValues( null ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -117,6 +133,15 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 										report: 'utm',
 										section: reportSection,
 									} }
+									extraAction={
+										postRow.urlBuilder ? (
+											<PostBuilderButton
+												label={ postRow.label }
+												values={ postRow.urlBuilder }
+												onOpen={ setBuilderValues }
+											/>
+										) : undefined
+									}
 								/>
 							),
 						}
@@ -217,7 +242,9 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					/>
 				</WidgetState>
 			</div>
-			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
+			{ builderValues && (
+				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
+			) }
 		</>
 	);
 }

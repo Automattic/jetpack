@@ -117,6 +117,32 @@ it( 'drops a UTM value the destination carries when its field is left empty', as
 	expect( shared.searchParams.has( 'utm_medium' ) ).toBe( false );
 } );
 
+it( 'fills the fields and the tracked URL from initialValues', () => {
+	render(
+		<UtmUrlBuilderDialog
+			onClose={ jest.fn() }
+			initialValues={ {
+				destination: 'https://example.com/post',
+				campaign: 'spring',
+				source: 'google',
+				medium: 'cpc',
+			} }
+		/>
+	);
+
+	expect( screen.getByRole( 'textbox', { name: 'Destination URL' } ) ).toHaveValue(
+		'https://example.com/post'
+	);
+	expect( screen.getByRole( 'textbox', { name: 'UTM campaign' } ) ).toHaveValue( 'spring' );
+	expect( screen.getByRole( 'textbox', { name: 'UTM source' } ) ).toHaveValue( 'google' );
+	expect( screen.getByRole( 'textbox', { name: 'UTM medium' } ) ).toHaveValue( 'cpc' );
+	expect(
+		screen.getByText(
+			'https://example.com/post?utm_campaign=spring&utm_source=google&utm_medium=cpc'
+		)
+	).toBeInTheDocument();
+} );
+
 it( 'asks for the destination when only UTM parameters are filled', async () => {
 	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 	render( <UtmUrlBuilderDialog onClose={ jest.fn() } /> );

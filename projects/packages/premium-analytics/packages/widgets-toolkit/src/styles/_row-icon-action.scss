@@ -1,0 +1,29 @@
+// An icon-only action beside a row title, drawn quiet and sized to a
+// comfortable target. The focus ring is drawn inset because the chart's scroll
+// container clips an outward one.
+@mixin row-icon-action {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	min-inline-size: var(--wpds-dimension-size-sm);
+	min-block-size: var(--wpds-dimension-size-sm);
+	border-radius: var(--wpds-border-radius-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	&:hover,
+	&:focus {
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus-visible {
+		outline:
+			var(--wpds-border-width-focus) solid
+			var(--wpds-color-stroke-focus);
+		outline-offset: calc(-1 * var(--wpds-border-width-focus));
+	}
+}

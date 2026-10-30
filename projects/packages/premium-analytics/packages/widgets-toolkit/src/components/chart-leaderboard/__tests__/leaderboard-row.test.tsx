@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { category, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -361,6 +362,46 @@ describe( 'buildLeaderboardRow', () => {
 		expect( wrapper ).toContainElement( title );
 		// The title stretches over the row, so the click target stays the row.
 		expect( title ).toHaveClass( 'titleLink' );
+	} );
+
+	it.each( [
+		[
+			'with a live URL',
+			{ id: 5, href: 'https://example.com/hello/' },
+			[ 'Hello', 'View "Hello" in a new tab' ],
+		],
+		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
+		[ 'without a detail route', { href: 'https://example.com/hello/' }, [ 'Hello' ] ],
+	] )( 'renders the extra action after the title %s', async ( _name, target, expectedLinks ) => {
+		const onExtraClick = jest.fn();
+		render(
+			buildLeaderboardRow( {
+				label: 'Hello',
+				media: { kind: 'none' },
+				action: {
+					kind: 'postLink',
+					...target,
+					search: {},
+					extraAction: (
+						<button type="button" onClick={ onExtraClick }>
+							Extra
+						</button>
+					),
+				},
+			} ).label
+		);
+
+		expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveClass( 'titleLink' );
+		const links = screen.getAllByRole( 'link' );
+		expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
+			expectedLinks
+		);
+		expect(
+			links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Extra' } ) );
+		expect( onExtraClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {

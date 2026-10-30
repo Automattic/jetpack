@@ -18,7 +18,7 @@ import styles from './utm-url-builder-dialog.module.scss';
 
 const COPIED_LABEL_DURATION = 4000;
 
-type UtmValues = {
+export type UtmUrlBuilderValues = {
 	destination: string;
 	campaign: string;
 	source: string;
@@ -40,7 +40,7 @@ function parseDestination( destination: string ): URL | null {
 
 function buildTrackedUrl(
 	url: URL | null,
-	{ campaign, source, medium }: Omit< UtmValues, 'destination' >
+	{ campaign, source, medium }: Omit< UtmUrlBuilderValues, 'destination' >
 ): string | null {
 	if ( ! url ) {
 		return null;
@@ -65,12 +65,18 @@ function buildTrackedUrl(
 	return url.toString();
 }
 
-export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
-	const [ values, setValues ] = useState< UtmValues >( {
-		destination: '',
-		campaign: '',
-		source: '',
-		medium: '',
+export function UtmUrlBuilderDialog( {
+	onClose,
+	initialValues,
+}: {
+	onClose: () => void;
+	initialValues?: Partial< UtmUrlBuilderValues >;
+} ) {
+	const [ values, setValues ] = useState< UtmUrlBuilderValues >( {
+		destination: initialValues?.destination ?? '',
+		campaign: initialValues?.campaign ?? '',
+		source: initialValues?.source ?? '',
+		medium: initialValues?.medium ?? '',
 	} );
 	const [ copiedUrl, setCopiedUrl ] = useState< string | null >( null );
 	const copiedTimeout = useRef< ReturnType< typeof setTimeout > >( undefined );
@@ -94,7 +100,7 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		value.trim()
 	);
 
-	const setField = useCallback( ( field: keyof UtmValues, value: string ) => {
+	const setField = useCallback( ( field: keyof UtmUrlBuilderValues, value: string ) => {
 		setValues( current => ( { ...current, [ field ]: value } ) );
 	}, [] );
 	const setDestination = useCallback(

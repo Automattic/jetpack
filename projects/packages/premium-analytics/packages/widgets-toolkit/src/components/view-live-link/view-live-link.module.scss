@@ -1,19 +1,8 @@
-/* An icon-only link, drawn quiet beside the title and sized to a comfortable
-   target. */
-.link {
-	display: inline-flex;
-	flex: none;
-	align-items: center;
-	justify-content: center;
-	min-inline-size: var(--wpds-dimension-size-sm);
-	min-block-size: var(--wpds-dimension-size-sm);
-	border-radius: var(--wpds-border-radius-sm);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
+@use "../../styles/row-icon-action" as *;
 
-.link:hover,
-.link:focus {
-	color: var(--wpds-color-foreground-interactive-brand);
+.link {
+
+	@include row-icon-action;
 }
 
 /* The design system appends its new-tab marker to the icon; the link's own

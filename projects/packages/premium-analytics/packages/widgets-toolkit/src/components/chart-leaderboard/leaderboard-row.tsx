@@ -37,6 +37,8 @@ export type LeaderboardRowAction =
 			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
+			/** A trailing action beside "View", revealed with it. */
+			extraAction?: ReactElement;
 	  }
 	| {
 			/** A video with a detail page inside the dashboard. */
@@ -50,6 +52,8 @@ export type LeaderboardRowAction =
 			 * default range. Pass `{}` to navigate without a window on purpose.
 			 */
 			search: Record< string, unknown >;
+			/** A trailing action beside "View", revealed with it. */
+			extraAction?: ReactElement;
 	  }
 	| {
 			kind: 'drillDown';
@@ -191,21 +195,28 @@ export function LeaderboardRow( {
 			title: label,
 		};
 
-		// A row with a "View" action holds two links, so the row chrome goes on a
+		// A row with a trailing action holds two controls, so the row chrome goes on a
 		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined ) {
+		if ( liveUrl !== undefined || action.extraAction ) {
 			return (
 				<span className={ rowClassName }>
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {
 							internal: clsx( styles.labelLink, styles.titleLink ),
+							external: clsx( styles.labelLink, styles.titleLink ),
+							plain: styles.plainLabel,
 							text: styles.label,
 						} }
 					>
 						{ content }
 					</TitleLink>
-					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
+					{ liveUrl !== undefined && (
+						<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
+					) }
+					{ action.extraAction && (
+						<span className={ styles.rowAction }>{ action.extraAction }</span>
+					) }
 				</span>
 			);
 		}
