@@ -39,7 +39,7 @@ function activateSentry() {
 function activateLogstash() {
 	const JS_ERROR_ENDPOINT = 'https://public-api.wordpress.com/rest/v1.1/js-error';
 
-	const reportError = ( { error } ) => {
+	const reportError = ( { error, filename, lineno, colno } ) => {
 		// Sanitized error event objects do not include a nested error attribute. In
 		// that case, we return early to prevent a needless TypeError when defining
 		// `data`, below. Also, sanitized errors don't include any useful information,
@@ -53,6 +53,11 @@ function activateLogstash() {
 			trace: error.stack,
 			url: document.location.href,
 			feature: 'wp-admin',
+			blog_id: window.WPcom_Error_Reporting_Config?.blogId,
+			host: window.WPcom_Error_Reporting_Config?.siteSlug,
+			file: filename,
+			line: lineno,
+			extra: colno ? { column: colno } : undefined,
 		};
 
 		// Send as direct `fetch` request with `x-www-form-urlencoded` content type and no extra
