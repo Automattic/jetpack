@@ -366,6 +366,10 @@ class Speed_Score {
 			// Only include noBoost scores if at least one module is enabled.
 			if ( $score_request && ! empty( $score_request->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
+				// Keeps the dashboard polling: only a poll collects the comparison result.
+				if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
+					$response['scores']['noBoostPending'] = true;
+				}
 			}
 
 			$response['scores']['isStale'] = $history->is_stale();
@@ -379,7 +383,7 @@ class Speed_Score {
 				$response = $score_request_no_boost->jsonSerialize();
 			}
 		} else {
-			// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
+			// The request with Boost is still pending.
 			$response['status']   = 'pending';
 			$response['progress'] = $this->get_progress( $score_request );
 		}

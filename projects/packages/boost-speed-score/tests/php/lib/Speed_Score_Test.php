@@ -83,7 +83,24 @@ class Speed_Score_Test extends Base_TestCase {
 	}
 
 	/**
-	 * Request statuses, and the response status and comparison scores that follow.
+	 * Build the response for a pair of requests.
+	 *
+	 * @param Speed_Score_Request $boosted  The request with Boost.
+	 * @param Speed_Score_Request $no_boost The request without Boost.
+	 * @return array
+	 */
+	private function prepare_response( $boosted, $no_boost ) {
+		$method = new \ReflectionMethod( Speed_Score::class, 'prepare_speed_score_response' );
+		// Required to reach the private method before PHP 8.1, a deprecated no-op from 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( new Speed_Score( array(), 'test' ), self::URL, $boosted, $no_boost );
+	}
+
+	/**
+	 * Request statuses, and the response status, comparison scores and pending flag that follow.
 	 *
 	 * @return array
 	 */
@@ -94,33 +111,25 @@ class Speed_Score_Test extends Base_TestCase {
 		);
 
 		return array(
-			'own score ready, comparison still running' => array( 'success', 'pending', 'success', $previous ),
-			'both ready'                                => array( 'success', 'success', 'success', $previous ),
-			'own score still running'                   => array( 'pending', 'success', 'pending', null ),
-			'comparison failed'                         => array( 'success', 'error', 'error', null ),
+			'own score ready, comparison still running' => array( 'success', 'pending', 'success', $previous, true ),
+			'both ready'                                => array( 'success', 'success', 'success', $previous, false ),
+			'own score still running'                   => array( 'pending', 'success', 'pending', null, false ),
+			'comparison failed'                         => array( 'success', 'error', 'error', null, false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_request_states
 	 *
-	 * @param string     $boosted  Status of the request with Boost.
-	 * @param string     $no_boost Status of the request without Boost.
-	 * @param string     $status   Expected response status.
-	 * @param array|null $no_boost_scores Expected comparison scores on success.
+	 * @param string     $boosted          Status of the request with Boost.
+	 * @param string     $no_boost         Status of the request without Boost.
+	 * @param string     $status           Expected response status.
+	 * @param array|null $no_boost_scores  Expected comparison scores on success.
+	 * @param bool       $no_boost_pending Whether the dashboard should keep polling for the comparison.
 	 */
 	#[DataProvider( 'provide_request_states' )]
-	public function test_the_site_score_does_not_wait_for_the_comparison_run( $boosted, $no_boost, $status, $no_boost_scores ) {
-		$speed_score = new Speed_Score( array(), 'test' );
-		$method      = new \ReflectionMethod( Speed_Score::class, 'prepare_speed_score_response' );
-		// Required to reach the private method before PHP 8.1, a deprecated no-op from 8.5.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$response = $method->invoke(
-			$speed_score,
-			self::URL,
+	public function test_the_site_score_does_not_wait_for_the_comparison_run( $boosted, $no_boost, $status, $no_boost_scores, $no_boost_pending ) {
+		$response = $this->prepare_response(
 			new Speed_Score_Request( self::URL, array( 'critical_css' ), null, $boosted ),
 			new Speed_Score_Request( self::URL_NO_BOOST, array(), null, $no_boost )
 		);
@@ -128,19 +137,12 @@ class Speed_Score_Test extends Base_TestCase {
 		$this->assertSame( $status, $response['status'] );
 		if ( 'success' === $status ) {
 			$this->assertSame( $no_boost_scores, $response['scores']['noBoost'] );
+			$this->assertSame( $no_boost_pending, $response['scores']['noBoostPending'] ?? false );
 		}
 	}
 
 	public function test_progress_ignores_a_comparison_left_running_from_an_earlier_test() {
-		$speed_score = new Speed_Score( array(), 'test' );
-		$method      = new \ReflectionMethod( Speed_Score::class, 'prepare_speed_score_response' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$response = $method->invoke(
-			$speed_score,
-			self::URL,
+		$response = $this->prepare_response(
 			new Speed_Score_Request( self::URL, array( 'critical_css' ), microtime( true ) - 10, 'pending' ),
 			new Speed_Score_Request( self::URL_NO_BOOST, array(), microtime( true ) - 60, 'pending' )
 		);
