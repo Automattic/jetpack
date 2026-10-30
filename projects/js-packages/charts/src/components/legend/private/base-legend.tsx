@@ -221,7 +221,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
-				return onToggle ?? ( () => handleLegendClick( seriesLabels ) );
+				return onToggle ? () => onToggle() : () => handleLegendClick( seriesLabels );
 			},
 			[ handleLegendClick ]
 		);
@@ -235,7 +235,9 @@ export const BaseLegend: ForwardRefExoticComponent<
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						toggle();
+						if ( ! event.repeat ) {
+							toggle();
+						}
 					}
 				};
 			},
@@ -281,7 +283,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 								: [ label.text ];
 							const itemInteractive = interactive && matchedItem?.interactive !== false;
 							const onToggle = itemInteractive ? matchedItem?.onToggle : undefined;
-							const visible = onToggle
+							const visible = matchedItem?.onToggle
 								? matchedItem.pressed === true
 								: matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
 							const handleClick = createClickHandler( seriesLabels, itemInteractive, onToggle );

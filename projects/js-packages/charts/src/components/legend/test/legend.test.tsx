@@ -954,27 +954,64 @@ describe( 'BaseLegend', () => {
 				}
 
 				expect( onToggle ).toHaveBeenCalledTimes( 1 );
+				expect( onToggle ).toHaveBeenCalledWith();
 				expect( screen.getByTestId( 'views-visible' ) ).toHaveTextContent( 'true' );
 			}
 		);
 
-		it( 'stays static in a legend that is not interactive', async () => {
+		it( 'ignores key repeats while Enter is held', async () => {
 			const user = userEvent.setup();
 			const onToggle = jest.fn();
 			render(
 				<GlobalChartsProvider>
 					<BaseLegend
-						items={ [ { label: 'Previous period', color: '#000', pressed: true, onToggle } ] }
-						interactive={ false }
+						items={ [ { label: 'Previous period', color: '#000', onToggle } ] }
+						interactive
 						chartId="test-chart"
 					/>
 				</GlobalChartsProvider>
 			);
 
-			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'legend-item' ) );
-			expect( onToggle ).not.toHaveBeenCalled();
+			screen.getByRole( 'button', { name: /Previous period/ } ).focus();
+			await user.keyboard( '{Enter>3/}' );
+
+			expect( onToggle ).toHaveBeenCalledTimes( 1 );
 		} );
+
+		it.each( [
+			[ true, false, undefined ],
+			[ false, true, 'Previous period: hidden' ],
+		] )(
+			'stays static but shows pressed %s in a legend that is not interactive',
+			async ( pressed, inactive, ariaLabel ) => {
+				const user = userEvent.setup();
+				const onToggle = jest.fn();
+				render(
+					<GlobalChartsProvider>
+						<BaseLegend
+							items={ [
+								{
+									label: 'Previous period',
+									color: '#000',
+									seriesLabels: [ 'Views' ],
+									pressed,
+									onToggle,
+								},
+							] }
+							interactive={ false }
+							chartId="test-chart"
+						/>
+					</GlobalChartsProvider>
+				);
+
+				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+				const item = screen.getByTestId( 'legend-item' );
+				expect( item ).not.toHaveClass( 'legend-item--inactive' );
+				expect( item.getAttribute( 'aria-label' ) ?? undefined ).toBe( ariaLabel );
+				await user.click( item );
+				expect( onToggle ).not.toHaveBeenCalled();
+			}
+		);
 	} );
 
 	describe( 'Non-interactive legend reflects hidden state', () => {
