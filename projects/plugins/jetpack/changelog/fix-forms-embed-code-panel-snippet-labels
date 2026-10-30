@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Label the embed code and shortcode snippets in the form editor sidebar for screen readers and add usage hints.
