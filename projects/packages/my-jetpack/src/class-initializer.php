@@ -1265,7 +1265,8 @@ class Initializer {
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
-			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
+			$data['myJetpack']['modulesManagementUrl']  = self::get_modules_management_url();
+			$data['myJetpack']['settingsConsolidation'] = Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG );
 		}
 
 		// Only administrators can open the pages this points at, so spare everyone else the lookup.

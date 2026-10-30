@@ -68,6 +68,28 @@ class Script_Data_Test extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * The Settings screen reads the settings flag from script data; other admin pages do not get it.
+	 */
+	public function test_settings_consolidation_flag_is_seeded_for_the_settings_screen_only() {
+		\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+		Initializer::register_feature_flags();
+		$_GET['page'] = 'jetpack-settings';
+		try {
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['settingsConsolidation'] );
+
+			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, '__return_true' );
+			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['settingsConsolidation'] );
+
+			$_GET['page'] = 'edit.php';
+			$this->assertArrayNotHasKey( 'settingsConsolidation', Initializer::add_admin_script_data( array() )['myJetpack'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, '__return_true' );
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+			unset( $_GET['page'] );
+		}
+	}
+
 	public function test_offline_features_seed_respects_host_veto_and_editor_permissions() {
 		$_GET['page'] = 'my-jetpack';
 		\Automattic\Jetpack\Status\Cache::clear();

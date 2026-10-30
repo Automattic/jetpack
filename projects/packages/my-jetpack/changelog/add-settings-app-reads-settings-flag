@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the settings flag to the script data the Settings screen reads, off by default.
