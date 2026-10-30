@@ -116,6 +116,10 @@ class Jetpack_Debug_Data {
 	public static function core_debug_data( $debug ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_section' );
 
+		if ( ! class_exists( Debug_Data::class ) ) {
+			return $debug;
+		}
+
 		$debug['jetpack'] = Debug_Data::get_section();
 
 		return $debug;
@@ -132,6 +136,6 @@ class Jetpack_Debug_Data {
 	public static function debug_data() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_fields' );
 
-		return Debug_Data::get_fields();
+		return class_exists( Debug_Data::class ) ? Debug_Data::get_fields() : array();
 	}
 }
