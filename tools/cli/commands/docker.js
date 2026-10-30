@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'child_process';
+import { Resolver } from 'dns/promises';
 import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
@@ -813,6 +814,16 @@ async function retry( action, { times, delay = 5000 } ) {
 	}
 }
 
+// Try to resolve ghcr.io as a test for whether we're online.
+const hasConnection = async () => {
+	try {
+		await new Resolver( { timeout: 1000, tries: 1 } ).resolve( 'ghcr.io' );
+		return true;
+	} catch {
+		return false;
+	}
+};
+
 /**
  * Default handler for the monorepo Docker commands.
  *
@@ -856,6 +867,10 @@ const defaultDockerCmdHandler = async argv => {
 
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
+	// Unset PULL_POLICY falls back to each service's default in the compose files.
+	if ( argv._[ 1 ] === 'up' && ! ( await hasConnection() ) ) {
+		envOpts.PULL_POLICY = 'never';
+	}
 	composeExecutor( argv, opts, envOpts );
 	if ( argv.type === 'dev' && argv.ngrok ) {
 		executor( argv, launchNgrok );

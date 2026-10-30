@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'child_process';
+import { Resolver } from 'dns/promises';
 import fs, { readFileSync } from 'fs';
 import net from 'net';
 import os from 'os';
@@ -29,6 +30,16 @@ notifier.notify( {
 		'Run {updateCommand} to update',
 	isGlobal: true,
 } );
+
+// Try to resolve ghcr.io as a test for whether we're online.
+const hasConnection = async () => {
+	try {
+		await new Resolver( { timeout: 1000, tries: 1 } ).resolve( 'ghcr.io' );
+		return true;
+	} catch {
+		return false;
+	}
+};
 
 /**
  * Check if a directory is the monorepo root.
@@ -704,6 +715,11 @@ const main = async () => {
 					if ( ! envVars.COMPOSER_VERSION ) envVars.COMPOSER_VERSION = versionVars.COMPOSER_VERSION;
 					if ( ! envVars.NODE_VERSION ) envVars.NODE_VERSION = versionVars.NODE_VERSION;
 					if ( ! envVars.PNPM_VERSION ) envVars.PNPM_VERSION = versionVars.PNPM_VERSION;
+				}
+
+				// Unset PULL_POLICY falls back to each service's default in the compose files.
+				if ( args[ 1 ] === 'up' && ! envVars.PULL_POLICY && ! ( await hasConnection() ) ) {
+					envVars.PULL_POLICY = 'never';
 				}
 
 				// Always set HOST_CWD as it's required for Docker context

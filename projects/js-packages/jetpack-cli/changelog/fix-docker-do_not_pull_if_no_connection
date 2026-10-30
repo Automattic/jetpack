@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not attempt to pull new Docker images if no connection.
