@@ -351,6 +351,9 @@ class Red_Bubble_Notifications {
 
 		foreach ( $plugins_needing_installed_activated as $plan_slug => $plugins_requirements ) {
 			if ( empty( $_COOKIE[ "$plan_slug--plugins_needing_installed_dismissed" ] ) ) {
+				// A recommendation, not a problem: show the notice but leave the menu count alone.
+				$plugins_requirements['is_silent'] = true;
+
 				$red_bubble_slugs[ "$plan_slug--plugins_needing_installed_activated" ] = $plugins_requirements;
 			}
 		}

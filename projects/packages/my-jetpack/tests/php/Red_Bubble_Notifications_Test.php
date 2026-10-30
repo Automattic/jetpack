@@ -214,4 +214,27 @@ class Red_Bubble_Notifications_Test extends TestCase {
 
 		$this->assertArrayNotHasKey( 'missing-connection', $alerts );
 	}
+
+	/**
+	 * A plan's missing plugin is a recommendation, so its notice must not add to the menu count.
+	 */
+	public function test_plugins_needed_alert_is_silent() {
+		$this->log_in_as( 'administrator' );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => 'jetpack_boost_yearly',
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_requires_plugin_install_or_activation( array() );
+
+		$this->assertArrayHasKey( 'jetpack_boost_yearly--plugins_needing_installed_activated', $alerts );
+		$this->assertTrue( $alerts['jetpack_boost_yearly--plugins_needing_installed_activated']['is_silent'] );
+	}
 }
