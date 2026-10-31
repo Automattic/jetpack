@@ -402,7 +402,7 @@ class Scan implements Dashboard_Section {
 		// Threats the site resolved itself, until Scan's next scan lists them as fixed.
 		$status = class_exists( Status::class ) ? Status::get_cached_status() : null;
 		$listed = array_flip( array_map( 'strval', array_column( $threats, 'id' ) ) );
-		return array_merge( array_values( array_diff_key( Dashboard_Threats::get_resolved( $status ? $status->last_checked : null ), $listed ) ), $threats );
+		return array_merge( array_values( array_diff_key( Dashboard_Threats::get_resolved( Dashboard_Threats::get_scanned_at( $status ) ), $listed ) ), $threats );
 	}
 
 	/**
@@ -825,7 +825,7 @@ class Scan implements Dashboard_Section {
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),
-			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) ),
+			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) ) ),
 		);
 	}
 }

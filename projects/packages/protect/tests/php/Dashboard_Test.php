@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -44,6 +45,10 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'add_option_' . Scan_Status::OPTION_NAME );
+		remove_all_actions( 'update_option_' . Scan_Status::OPTION_NAME );
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
 		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
@@ -541,5 +546,46 @@ class Dashboard_Test extends BaseTestCase {
 		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
 
 		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
+	}
+
+	/**
+	 * Whether a scan stored after the fix failed, and which fixes stay recorded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_stored_scans() {
+		return array(
+			'a first completed scan clears the fix' => array( false, false, array() ),
+			'a first failed scan keeps it'          => array( true, false, array( '1' ) ),
+			'a later completed scan clears the fix' => array( false, true, array() ),
+			'a later failed scan keeps it'          => array( true, true, array( '1' ) ),
+		);
+	}
+
+	/**
+	 * Test that storing a completed scan clears the fixes it answers for, even before anything reads it.
+	 *
+	 * @dataProvider provide_stored_scans
+	 *
+	 * @param bool     $failed   Whether the stored scan failed.
+	 * @param bool     $replaces Whether an earlier scan is already stored, so update_option fires instead of add_option.
+	 * @param string[] $expected Ids still recorded.
+	 */
+	#[DataProvider( 'provide_stored_scans' )]
+	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $replaces, $expected ) {
+		if ( $replaces ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( (object) array( 'most_recent' => (object) array( 'timestamp' => gmdate( 'c', time() - DAY_IN_SECONDS ) ) ) ) );
+		}
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$scan = (object) array(
+			'most_recent' => (object) array(
+				'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+				'error'     => $failed,
+			),
+		);
+
+		Scan_Status::update_status_option( $scan );
+
+		$this->assertSame( $expected, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

@@ -71,6 +71,18 @@ class Dashboard_Threats {
 	}
 
 	/**
+	 * When Scan last finished a scan, for get_resolved(); null when the most recent one failed, so it can't clear fixes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object|null $status The cached scan status.
+	 * @return string|null
+	 */
+	public static function get_scanned_at( $status ) {
+		return empty( $status->last_scan_failed ) ? ( $status->last_checked ?? null ) : null;
+	}
+
+	/**
 	 * Scan's current threats without the ones the site resolved since Scan last scanned.
 	 *
 	 * @param iterable    $threats      Scan's current threats.
@@ -83,6 +95,24 @@ class Dashboard_Threats {
 			return array();
 		}
 
+		$pending = self::prune_resolved( $last_checked );
+
+		$open = array();
+		foreach ( $threats as $threat ) {
+			if ( ! isset( $pending[ (string) ( $threat->id ?? '' ) ] ) ) {
+				$open[] = $threat;
+			}
+		}
+		return $open;
+	}
+
+	/**
+	 * Drop the fixes a scan at the given time answers for.
+	 *
+	 * @param string|null $last_checked When Scan last finished a scan.
+	 * @return array The fixes still pending, keyed by threat id.
+	 */
+	private static function prune_resolved( $last_checked ) {
 		$all     = self::get_resolved();
 		$pending = self::get_resolved( $last_checked );
 		if ( count( $pending ) !== count( $all ) ) {
@@ -92,14 +122,23 @@ class Dashboard_Threats {
 				delete_option( self::RESOLVED_OPTION );
 			}
 		}
+		return $pending;
+	}
 
-		$open = array();
-		foreach ( $threats as $threat ) {
-			if ( ! isset( $pending[ (string) ( $threat->id ?? '' ) ] ) ) {
-				$open[] = $threat;
-			}
+	/**
+	 * Prune as soon as a completed scan is stored, so a failed one fetched before any page reads it can't strand fixes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $old_value The previous value, or the option name when the option is added.
+	 * @param mixed $value     Scan's response, as Scan_Status stores it.
+	 * @return void
+	 */
+	public static function prune_on_stored_scan( $old_value, $value ) {
+		$scan = maybe_unserialize( $value );
+		if ( is_object( $scan ) && ! empty( $scan->most_recent->timestamp ) && empty( $scan->most_recent->error ) ) {
+			self::prune_resolved( $scan->most_recent->timestamp );
 		}
-		return $open;
 	}
 
 	/**

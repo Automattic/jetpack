@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Protect_Models\Status_Model;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -16,6 +17,14 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard_Threats::class )]
 class Dashboard_Threats_Test extends BaseTestCase {
+
+	/**
+	 * Forget the fixes each test records.
+	 */
+	public function tear_down() {
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		parent::tear_down();
+	}
 
 	/**
 	 * Threats, and the part of the formatted threat each one decides.
@@ -381,6 +390,23 @@ class Dashboard_Threats_Test extends BaseTestCase {
 
 		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
 		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	/**
+	 * Test that a scan that failed after the delete keeps the threat hidden.
+	 */
+	public function test_without_resolved_ignores_a_failed_scan() {
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$status = new Status_Model(
+			array(
+				'last_checked'     => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+				'last_scan_failed' => true,
+			)
+		);
+
+		$open = Dashboard_Threats::without_resolved( array( (object) array( 'id' => '1' ) ), Dashboard_Threats::get_scanned_at( $status ) );
+
+		$this->assertSame( array(), $open );
+		$this->assertSame( array( '1' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }
