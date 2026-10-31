@@ -209,10 +209,14 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				// A liker with a default avatar has no Gravatar profile, so their profile URL leads to a 404.
-				const profileLink = liker.default_avatar
-					? ''
-					: ` href="${ encodeURI( liker.profile_URL ) }"`;
+				// A liker with a default avatar usually has no Gravatar profile, so their profile URL leads to a 404.
+				// Link to their site instead when it is visible, and otherwise render the avatar without a link.
+				let likerUrl = liker.profile_URL;
+				if ( liker.default_avatar ) {
+					likerUrl =
+						liker.site_visible && 0 === ( liker.URL || '' ).indexOf( 'http' ) ? liker.URL : '';
+				}
+				const profileLink = likerUrl ? ` href="${ encodeURI( likerUrl ) }"` : '';
 				const avatarLink = encodeURI( liker.avatar_URL );
 				element.innerHTML = `<a${ profileLink } rel="nofollow" target="_parent" class="wpl-liker">
 						<img src="${ avatarLink }"
