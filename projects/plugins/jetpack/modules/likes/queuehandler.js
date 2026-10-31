@@ -229,20 +229,32 @@ function JetpackLikesMessageListener( event ) {
 
 			// Tabbing past the last linked liker closes the popover and returns focus to the likes count.
 			// Likers without a link can't take focus, so the listener goes on the last one that can.
+			// When no liker has a link, focus stays on the popover itself, so the listener goes there.
+			const closeOnTab = e => {
+				if ( e.key === 'Tab' && ! e.shiftKey ) {
+					e.preventDefault();
+					hideLikersPopover();
+
+					JetpackLikesPostMessage(
+						{ event: 'focusLikesCount', parent: data.parent },
+						window.frames[ 'likes-master' ]
+					);
+				}
+			};
+
+			// The popover element outlives each opening, so drop the listener a previous opening left on it.
+			if ( container.__tabHandler ) {
+				container.removeEventListener( 'keydown', container.__tabHandler );
+				delete container.__tabHandler;
+			}
+
 			const focusableLikers = list.querySelectorAll( 'a[href]' );
 			const lastFocusableLiker = focusableLikers[ focusableLikers.length - 1 ];
 			if ( lastFocusableLiker ) {
-				lastFocusableLiker.addEventListener( 'keydown', e => {
-					if ( e.key === 'Tab' && ! e.shiftKey ) {
-						e.preventDefault();
-						hideLikersPopover();
-
-						JetpackLikesPostMessage(
-							{ event: 'focusLikesCount', parent: data.parent },
-							window.frames[ 'likes-master' ]
-						);
-					}
-				} );
+				lastFocusableLiker.addEventListener( 'keydown', closeOnTab );
+			} else {
+				container.addEventListener( 'keydown', closeOnTab );
+				container.__tabHandler = closeOnTab;
 			}
 
 			if ( data.remainingLikesLabel ) {
