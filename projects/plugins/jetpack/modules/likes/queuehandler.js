@@ -215,8 +215,15 @@ function JetpackLikesMessageListener( event ) {
 				if ( liker.default_avatar ) {
 					likerUrl = 0 === ( liker.site_URL || '' ).indexOf( 'http' ) ? liker.site_URL : '';
 				}
+				// encodeURI escapes the quotes and angle brackets that could break out of the attribute.
+				// The replace undoes the double encoding of an escape the URL already had, so %20 doesn't become %2520.
+				const likerLink = likerUrl
+					? encodeURI( likerUrl ).replace( /%25([0-9a-f]{2})/gi, '%$1' )
+					: '';
 				const avatarLink = encodeURI( liker.avatar_URL );
-				element.innerHTML = `<a rel="nofollow" target="_parent" class="wpl-liker">
+				element.innerHTML = `<a ${
+					likerLink ? `href="${ likerLink }" ` : ''
+				}rel="nofollow" target="_parent" class="wpl-liker">
 						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
@@ -224,10 +231,6 @@ function JetpackLikesMessageListener( event ) {
 					</a>`;
 
 				// Add some extra attributes through native methods, to ensure strings are sanitized.
-				// Setting href this way also keeps percent escapes in the URL as they are.
-				if ( likerUrl ) {
-					element.querySelector( 'a' ).setAttribute( 'href', likerUrl );
-				}
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
 				element.querySelector( 'span' ).innerText = liker.name;
