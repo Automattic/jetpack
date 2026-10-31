@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boot Stats v2 on a site with no connection once classic Stats is retired, so it replaces the pre-connection Stats page.
