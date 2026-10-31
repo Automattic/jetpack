@@ -43,6 +43,7 @@ import { formatReading, isInvalidReading, isReading } from '../private/readings'
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -267,6 +268,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			children,
 			gridVisibility,
 			gap = 'md',
+			compactWhenShort = false,
 		},
 		ref
 	) => {
@@ -301,6 +303,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 		// Process children for composition API (Legend, etc.)
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
+		const { isCompact, compactMargin } = useCompactWhenShort( compactWhenShort, height );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		// Callback for ChartLayout to notify us when the measured content height changes.
@@ -447,22 +450,26 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 			return {
 				axis: {
-					x: buildTimeAxisOptions( {
-						dataSorted,
-						width,
-						axisOptions: options?.axis?.x,
-						scaleDomain: options?.xScale?.domain,
-						zoomDomain: zoom.domain,
-						formatting,
-						// A hidden line is unmounted, so visx scales to the rest.
-						isSeriesRendered: series => isSeriesVisible( series.label ),
-					} ),
+					x: {
+						...buildTimeAxisOptions( {
+							dataSorted,
+							width,
+							axisOptions: options?.axis?.x,
+							scaleDomain: options?.xScale?.domain,
+							zoomDomain: zoom.domain,
+							formatting,
+							// A hidden line is unmounted, so visx scales to the rest.
+							isSeriesRendered: series => isSeriesVisible( series.label ),
+						} ),
+						...( isCompact && { display: false } ),
+					},
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
 						...options?.axis?.y,
+						...( isCompact && { display: false } ),
 					},
 				},
 				xScale: {
@@ -488,6 +495,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			visibleReadingExtent,
 			formatting,
 			isSeriesVisible,
+			isCompact,
 		] );
 
 		// Classified from the rendered series, like the axis above: a hidden
@@ -588,7 +596,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
 
-		const legendElement = showLegend && (
+		const legendElement = showLegend && ! isCompact && (
 			<Legend
 				orientation={ legend.orientation ?? 'horizontal' }
 				alignment={ legend.alignment ?? 'center' }
@@ -617,7 +625,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ legendElement }
-					legendChildren={ legendChildren }
+					legendChildren={ isCompact ? [] : legendChildren }
 					gap={ gap }
 					className={ clsx(
 						'line-chart',
@@ -655,6 +663,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											height={ chartHeight }
 											margin={ {
 												...defaultMargin,
+												...compactMargin,
 												...margin,
 											} }
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
@@ -677,7 +686,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											>
 												{ tickValues => (
 													<>
-														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+														{ ! allSeriesHidden && gridVisibility !== 'none' && ! isCompact && (
 															<Grid
 																columns={ false }
 																numTicks={ chartOptions.axis.y.numTicks }
@@ -704,7 +713,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

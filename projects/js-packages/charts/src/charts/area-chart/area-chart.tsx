@@ -38,6 +38,7 @@ import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -82,6 +83,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			children,
 			gridVisibility,
 			gap = 'md',
+			compactWhenShort = false,
 		},
 		ref
 	) => {
@@ -109,6 +111,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		} );
 
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'AreaChart' );
+		const { isCompact, compactMargin } = useCompactWhenShort( compactWhenShort, height );
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		const handleContentHeightChange = useCallback(
@@ -227,22 +230,26 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const chartOptions = useMemo( () => {
 			return {
 				axis: {
-					x: buildTimeAxisOptions( {
-						dataSorted,
-						width,
-						axisOptions: options?.axis?.x,
-						scaleDomain: options?.xScale?.domain,
-						zoomDomain: zoom.domain,
-						formatting,
-						// No `isSeriesRendered`: a hidden area stays mounted with a zeroed
-						// yAccessor, so it still contributes to the x domain.
-					} ),
+					x: {
+						...buildTimeAxisOptions( {
+							dataSorted,
+							width,
+							axisOptions: options?.axis?.x,
+							scaleDomain: options?.xScale?.domain,
+							zoomDomain: zoom.domain,
+							formatting,
+							// No `isSeriesRendered`: a hidden area stays mounted with a zeroed
+							// yAccessor, so it still contributes to the x domain.
+						} ),
+						...( isCompact && { display: false } ),
+					},
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
 						...options?.axis?.y,
+						...( isCompact && { display: false } ),
 					},
 				},
 				xScale: {
@@ -259,7 +266,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting, isCompact ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -357,7 +364,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			return <div className={ clsx( 'area-chart', styles[ 'area-chart' ] ) }>{ error }</div>;
 		}
 
-		const legendElement = showLegend && (
+		const legendElement = showLegend && ! isCompact && (
 			<Legend
 				orientation={ legend.orientation ?? 'horizontal' }
 				alignment={ legend.alignment ?? 'center' }
@@ -416,7 +423,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ legendElement }
-					legendChildren={ legendChildren }
+					legendChildren={ isCompact ? [] : legendChildren }
 					gap={ gap }
 					className={ clsx(
 						'area-chart',
@@ -451,7 +458,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
-											margin={ { ...defaultMargin, ...margin } }
+											margin={ { ...defaultMargin, ...compactMargin, ...margin } }
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
 											onPointerDown={ zoom.handlers.onPointerDown }
@@ -474,7 +481,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											>
 												{ tickValues => (
 													<>
-														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+														{ ! allSeriesHidden && gridVisibility !== 'none' && ! isCompact && (
 															<Grid
 																columns={ false }
 																numTicks={ chartOptions.axis.y.numTicks }
@@ -501,7 +508,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ getAllHiddenMessage( legendInteractive, 'series' ) }
+													{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 

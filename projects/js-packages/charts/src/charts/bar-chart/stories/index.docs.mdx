@@ -532,6 +532,22 @@ By default, charts **fill their parent container's dimensions**. The parent must
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
+### Compact When Short
+
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.sparkline.compactBelow` (140px by default). What remains is a sparkline that keeps its tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back. Series hidden through the legend stay hidden until the chart is tall enough to show the legend again. Horizontal bar charts ignore it.
+
+<Canvas of={ BarChartStories.CompactWhenShort } />
+
+In compact mode the margin defaults to `theme.sparkline.margin`, and any side you pass through `margin` still wins. To change the threshold, set it on the theme:
+
+<Source
+	language="jsx"
+	code={ `// Applies to every chart under this provider
+	<GlobalChartsProvider theme={ { sparkline: { compactBelow: 180 } } }>
+		<BarChart data={ data } compactWhenShort />
+	</GlobalChartsProvider>` }
+/>
+
 ## Animation
 
 The Bar Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
