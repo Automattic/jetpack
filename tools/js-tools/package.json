@@ -55,7 +55,7 @@
 		"eslint-plugin-storybook": "10.6.3",
 		"eslint-plugin-testing-library": "7.16.2",
 		"eslint-plugin-you-dont-need-lodash-underscore": "6.14.0",
-		"glob": "13.0.6",
+		"glob": "14.0.2",
 		"globals": "16.5.0",
 		"ignore": "7.0.0",
 		"jest": "30.5.2",

@@ -40,6 +40,8 @@ minimumReleaseAgeExclude:
   - 'wpcom-proxy-request'
   # Renovate security update: zod@4.6.6
   - zod@4.6.6
+  # Renovate security update: glob@14.0.2
+  - glob@14.0.2
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
