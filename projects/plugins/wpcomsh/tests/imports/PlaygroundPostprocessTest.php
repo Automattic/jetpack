@@ -147,6 +147,35 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the imported rewrite rules are dropped, since the destination's permalink structure is kept.
+	 */
+	public function test_remove_options_drops_imported_rewrite_rules() {
+		global $wpdb;
+
+		$processor = new SQL_Postprocessor( 'test', 'test', self::TEMPORARY_PREFIX );
+		$options   = $processor->tmp_table_name( 'options' );
+
+		$wpdb->replace(
+			$options,
+			array(
+				'option_name'  => 'rewrite_rules',
+				'option_value' => serialize( array( '([^/]+)(?:/([0-9]+))?/?$' => 'index.php?name=$matches[1]' ) ),
+			)
+		);
+		$wpdb->replace(
+			$options,
+			array(
+				'option_name'  => 'blogname',
+				'option_value' => 'Imported',
+			)
+		);
+
+		$this->assertTrue( $processor->remove_options() );
+		$this->assertSame( '0', $wpdb->get_var( "SELECT COUNT(*) FROM {$options} WHERE option_name = 'rewrite_rules'" ) );
+		$this->assertSame( 'Imported', $wpdb->get_var( "SELECT option_value FROM {$options} WHERE option_name = 'blogname'" ) );
+	}
+
+	/**
 	 * Test an app with no scoped posts.
 	 */
 	public function test_get_no_app_scope() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground import: rebuild rewrite rules after import so that imported posts resolve under the preserved permalink structure.

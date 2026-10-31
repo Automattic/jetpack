@@ -260,6 +260,9 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		// A list of options to remove.
 		$remove = array(
 			'new_admin_email', // This option is saved by default in Playground, not needed.
+			// Compiled for the imported site's permalink structure, but the destination's
+			// permalink_structure is preserved above. WordPress rebuilds this on the next request.
+			'rewrite_rules',
 		);
 
 		// Substitute the options.
