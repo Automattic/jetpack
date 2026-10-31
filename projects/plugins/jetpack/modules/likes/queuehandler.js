@@ -210,7 +210,7 @@ function JetpackLikesMessageListener( event ) {
 				list.append( element );
 
 				// A liker with a default avatar usually has no Gravatar profile, so their profile URL leads to a 404.
-				// Link to the visible site WordPress.com returns as site_URL instead, and otherwise render the avatar without a link.
+				// Link to the public site WordPress.com returns as site_URL instead, and otherwise render the avatar without a link.
 				let likerUrl = liker.profile_URL;
 				if ( liker.default_avatar ) {
 					likerUrl = 0 === ( liker.site_URL || '' ).indexOf( 'http' ) ? liker.site_URL : '';
