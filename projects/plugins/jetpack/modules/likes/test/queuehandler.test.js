@@ -383,6 +383,17 @@ describe( 'Likes queue handler master iframe handshake', () => {
 			);
 		} );
 
+		it( 'keeps percent escapes in a site_URL as they are', () => {
+			const items = showLikers( 1, {}, [ 0 ], {
+				0: { site_URL: 'https://example.org/my%20site/' },
+			} );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.org/my%20site/'
+			);
+		} );
+
 		it( 'does not link a default-avatar liker without a web site_URL', () => {
 			const items = showLikers( 4, {}, [ 0, 1, 2, 3 ], {
 				0: { URL: 'https://liker-0.example.org', site_visible: true },
