@@ -407,7 +407,19 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 			return (array) $membership_settings;
 		} else {
-			return $this->proxy_request_to_wpcom_as_user( $request, 'status' );
+			$result = $this->proxy_request_to_wpcom_as_user( $request, 'status' );
+
+			// Keep the has-connected-account site option in sync with the actual
+			// Stripe connection state reported by WPCOM. This covers two failure modes:
+			// (1) A Stripe account breaks silently — WPCOM returns an empty
+			//     connected_account_id but the option still says true from a prior sync.
+			// (2) Sync is delayed — WPCOM reports a valid connected_account_id but the
+			//     option has not yet propagated to this site.
+			if ( ! is_wp_error( $result ) && is_array( $result ) ) {
+				update_option( 'jetpack-memberships-has-connected-account', ! empty( $result['connected_account_id'] ) );
+			}
+
+			return $result;
 		}
 	}
 
