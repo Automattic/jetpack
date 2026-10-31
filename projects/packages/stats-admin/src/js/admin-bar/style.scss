@@ -1,0 +1,134 @@
+// Colors come from the admin bar, which the user's admin color scheme styles:
+// text inherits the bar's color, and the sparkline and bars use currentColor.
+#wpadminbar #wp-admin-bar-stats {
+
+	> .ab-item {
+		display: flex;
+		align-items: center;
+		height: 32px;
+		padding-inline: 10px;
+	}
+
+	.jp-stats-admin-bar-chart {
+		display: block;
+		inline-size: 88px;
+		block-size: 20px;
+		line-height: 0;
+
+		svg {
+			display: block;
+		}
+	}
+
+	// Scoped to the node to outweigh core's submenu spacing.
+	.jp-stats-admin-bar-panel__footer {
+		padding: 0;
+		border-block-start: 1px solid color-mix(in sRGB, currentColor 10%, transparent);
+
+		.ab-item {
+			height: auto;
+			padding: 10px 12px;
+			font-size: 13px;
+			line-height: 20px;
+		}
+	}
+}
+
+#wpadminbar .jp-stats-admin-bar-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	box-sizing: border-box;
+	min-inline-size: 200px;
+	padding: 10px 12px;
+	color: inherit;
+	font-size: 13px;
+	line-height: 1.4;
+
+	* {
+		line-height: inherit;
+	}
+
+	&__title {
+		font-size: 11px;
+		font-weight: 500;
+		line-height: 16px;
+		text-transform: uppercase;
+		opacity: 0.75;
+	}
+
+	// The bars are a span.ab-label so they take the color scheme's
+	// highlight color when the menu is open, like core's labels do.
+	// Undo the rest of what core gives .ab-label, including hiding it
+	// visually on small screens.
+	.jp-stats-admin-bar-panel__bars {
+		display: flex;
+		position: static;
+		align-items: flex-end;
+		gap: 4px;
+		inline-size: auto;
+		block-size: 32px;
+		margin: 0;
+		overflow: visible;
+		clip-path: none;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	&__bar {
+		flex: 1;
+		border-radius: 2px 2px 0 0;
+		background: currentColor;
+		transform-origin: bottom;
+
+		// Replays on each open, as the panel goes from display: none to shown.
+		@media (prefers-reduced-motion: no-preference) {
+			animation: jp-stats-admin-bar-grow 400ms cubic-bezier(0.2, 0, 0, 1) both;
+			animation-delay: calc(var(--jp-stats-bar-index, 0) * 30ms);
+		}
+	}
+
+	&__metrics {
+		display: flex;
+		margin: 0;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	&__metric {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+
+		dt {
+			font-size: 12px;
+			line-height: 16px;
+			opacity: 0.75;
+		}
+
+		dd {
+			margin: 0;
+			color: inherit;
+			font-size: 20px;
+			font-weight: 500;
+			line-height: 24px;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+
+	&__error {
+		margin: 0;
+		opacity: 0.75;
+	}
+}
+
+@keyframes jp-stats-admin-bar-grow {
+
+	from {
+		transform: scaleY(0);
+	}
+}

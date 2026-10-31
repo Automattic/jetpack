@@ -4132,7 +4132,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "f117ff4d25339780312adb1b0521f184097cc3c4"
+                "reference": "a50388c725c9fe6834004ae338111281eb7d5c84"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -4179,11 +4179,18 @@
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
+                "test-js": [
+                    "pnpm run test"
+                ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

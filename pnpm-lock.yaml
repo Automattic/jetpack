@@ -5360,7 +5360,32 @@ importers:
         specifier: 30.5.2
         version: 30.5.2
 
-  projects/packages/stats-admin: {}
+  projects/packages/stats-admin:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@wordpress/browserslist-config':
+        specifier: 6.57.0
+        version: 6.57.0
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+      webpack:
+        specifier: 5.112.2
+        version: 5.112.2(webpack-cli@7.2.1)
+      webpack-cli:
+        specifier: 7.2.1
+        version: 7.2.1(webpack@5.112.2)
 
   projects/packages/transport-helper: {}
 

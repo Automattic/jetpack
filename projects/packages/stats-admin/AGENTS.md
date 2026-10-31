@@ -22,7 +22,8 @@ src/
 ├── class-notices.php                 # Admin notices handling
 ├── class-admin-bar.php               # Admin bar views chart and Stats link
 ├── class-admin-post-list-column.php  # Post list view count column
-└── class-wp-dashboard-odyssey-widget.php # WP Dashboard widget
+├── class-wp-dashboard-odyssey-widget.php # WP Dashboard widget
+└── js/admin-bar/                     # Opt-in 7-day admin bar chart, built to build/ with webpack
 ```
 
 ## Commands

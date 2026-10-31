@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -31,6 +32,13 @@ class Admin_Bar {
 	const CHART_ACTION = 'jetpack_stats_admin_bar_chart';
 
 	/**
+	 * The handle of the 7-day chart script and style.
+	 *
+	 * @var string
+	 */
+	const SCRIPT_HANDLE = 'jetpack-stats-admin-bar';
+
+	/**
 	 * Register the hooks.
 	 *
 	 * @return void
@@ -51,6 +59,22 @@ class Admin_Bar {
 	 */
 	private static function can_see_chart() {
 		return is_user_logged_in() && Stats_Options::get_option( 'admin_bar' ) && current_user_can( 'view_stats' );
+	}
+
+	/**
+	 * Whether the admin bar shows the 7-day chart instead of the 48-hour image.
+	 *
+	 * @return bool
+	 */
+	private static function use_seven_day_chart() {
+		/**
+		 * Filters whether the admin bar shows the 7-day views chart, with views and visitors on hover.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to show the 7-day chart. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_stats_admin_bar_seven_day_chart', false );
 	}
 
 	/**
@@ -77,6 +101,11 @@ class Admin_Bar {
 			return;
 		}
 
+		if ( self::use_seven_day_chart() ) {
+			self::enqueue_seven_day_chart();
+			return;
+		}
+
 		wp_add_inline_style(
 			'admin-bar',
 			'#wpadminbar .quicklinks li#wp-admin-bar-stats { height: 32px; }
@@ -94,6 +123,22 @@ class Admin_Bar {
 	 * @return void
 	 */
 	public static function add_chart_node( $wp_admin_bar ) {
+		if ( self::use_seven_day_chart() ) {
+			$wp_admin_bar->add_menu(
+				array(
+					'id'    => 'stats',
+					'href'  => self::get_dashboard_url(),
+					'title' => '<span id="jetpack-stats-admin-bar-chart" class="jp-stats-admin-bar-chart" aria-hidden="true"></span><span class="screen-reader-text">' . esc_html__( 'Stats', 'jetpack-stats-admin' ) . '</span>',
+					'meta'  => array(
+						'menu_title' => __( 'Stats', 'jetpack-stats-admin' ),
+						'class'      => 'menupop',
+						'html'       => self::get_seven_day_panel_html(),
+					),
+				)
+			);
+			return;
+		}
+
 		$img_src    = esc_attr( self::get_chart_src( 'admin-bar-hours-scale' ) );
 		$img_src_2x = esc_attr( self::get_chart_src( 'admin-bar-hours-scale-2x' ) );
 		$alt        = esc_attr__( 'Stats', 'jetpack-stats-admin' );
@@ -107,6 +152,88 @@ class Admin_Bar {
 				// A client that reads the admin bar as data, like the omnibar, shows this instead of the image markup.
 				'meta'  => array( 'menu_title' => __( 'Stats', 'jetpack-stats-admin' ) ),
 			)
+		);
+	}
+
+	/**
+	 * The hover panel of the 7-day chart. The script fills in the bars and totals once stats load.
+	 *
+	 * @return string
+	 */
+	private static function get_seven_day_panel_html() {
+		$metric = static function ( $key, $label ) {
+			return sprintf( '<div class="jp-stats-admin-bar-panel__metric"><dt>%s</dt><dd data-metric="%s">–</dd></div>', esc_html( $label ), esc_attr( $key ) );
+		};
+
+		return '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel" class="jp-stats-admin-bar-panel" aria-live="polite">'
+			. '<div class="jp-stats-admin-bar-panel__title">' . esc_html__( 'Last 7 days', 'jetpack-stats-admin' ) . '</div>'
+			. '<span class="ab-label jp-stats-admin-bar-panel__bars" aria-hidden="true"></span>'
+			. '<dl class="jp-stats-admin-bar-panel__metrics">'
+			. $metric( 'views', __( 'Views', 'jetpack-stats-admin' ) )
+			. $metric( 'visitors', __( 'Visitors', 'jetpack-stats-admin' ) )
+			. '</dl>'
+			. '<p class="jp-stats-admin-bar-panel__error" hidden>' . esc_html__( 'Stats are unavailable right now.', 'jetpack-stats-admin' ) . '</p>'
+			. '</div>'
+			. '<ul class="ab-submenu jp-stats-admin-bar-panel__footer"><li><a class="ab-item" href="' . esc_url( self::get_seven_day_traffic_url() ) . '">' . esc_html__( 'View all stats', 'jetpack-stats-admin' ) . '</a></li></ul>'
+			. '</div>';
+	}
+
+	/**
+	 * The Traffic page for the same 7 days the chart shows, ending today in the site's timezone.
+	 *
+	 * @return string
+	 */
+	private static function get_seven_day_traffic_url() {
+		$today = new \DateTimeImmutable( 'now', wp_timezone() );
+		$start = $today->modify( '-6 days' )->format( 'Y-m-d' );
+		$end   = $today->format( 'Y-m-d' );
+		$url   = admin_url( 'admin.php?page=stats#!/stats/day/' . (int) \Jetpack_Options::get_option( 'id' ) . "?chartStart=$start&chartEnd=$end" );
+
+		/** This filter is documented in src/class-admin-bar.php */
+		return apply_filters(
+			'jetpack_stats_url',
+			$url,
+			array(
+				'view'  => 'traffic',
+				'start' => $start,
+				'end'   => $end,
+			)
+		);
+	}
+
+	/**
+	 * Enqueue the script that draws the 7-day chart and fills the hover panel.
+	 *
+	 * @return void
+	 */
+	private static function enqueue_seven_day_chart() {
+		Assets::register_script(
+			self::SCRIPT_HANDLE,
+			'../build/admin-bar.js',
+			__FILE__,
+			array(
+				'in_footer' => true,
+				'css_path'  => '../build/admin-bar.css',
+				'enqueue'   => true,
+			)
+		);
+
+		$config = array(
+			'restUrl' => add_query_arg(
+				array(
+					'unit'        => 'day',
+					'quantity'    => 7,
+					'stat_fields' => 'views,visitors',
+				),
+				rest_url( 'jetpack/v4/stats-app/sites/' . (int) \Jetpack_Options::get_option( 'id' ) . '/stats/visits' )
+			),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+		);
+
+		wp_add_inline_script(
+			self::SCRIPT_HANDLE,
+			'window.jetpackStatsAdminBar = ' . wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
 		);
 	}
 
@@ -147,7 +274,8 @@ class Admin_Bar {
 		/**
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *
-		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
+		 * `$args['view']` names the page the link opens: `dashboard`, `post` with the post in `$args['id']`,
+		 * or `traffic` with the first and last days, as `Y-m-d`, in `$args['start']` and `$args['end']`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
