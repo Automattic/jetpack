@@ -97,6 +97,17 @@
 	background-color: var(--wpds-color-background-surface-brand);
 }
 
+/* The Tab paints its hover fill and focus ring on `::after`, sized for a 48px
+ * tab. Stretch it to the card so the ring follows the card edge, and drop its
+ * fill, which the card fill above replaces. */
+.tab::after {
+	inset: 0;
+	border-radius: inherit;
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+	background-color: transparent;
+	box-shadow: none;
+}
+
 /* A lone metric has nothing to switch to: it reads as the widget's headline
  * figure rather than a control, so it drops the card fill and the pointer. */
 .singleMetric .tab {
