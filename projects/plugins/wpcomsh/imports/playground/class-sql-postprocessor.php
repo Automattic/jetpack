@@ -213,6 +213,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			// http:// until a later web request syncs it again.
 			'jetpack_sync_https_history_home_url',
 			'jetpack_sync_https_history_site_url',
+			'jetpack_sync_https_history_main_network_site_url',
 		);
 
 		// Substitute the options.

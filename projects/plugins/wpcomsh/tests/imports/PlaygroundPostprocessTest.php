@@ -229,14 +229,16 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		global $wpdb;
 
 		$tmp_options = self::TEMPORARY_PREFIX . $wpdb->prefix . 'options';
-		update_option( 'jetpack_sync_https_history_home_url', array( 'https' ) );
-		update_option( 'jetpack_sync_https_history_site_url', array( 'https' ) );
+		$urls        = array( 'home_url', 'site_url', 'main_network_site_url' );
+		foreach ( $urls as $url ) {
+			update_option( "jetpack_sync_https_history_{$url}", array( 'https' ) );
+		}
 		$wpdb->query( "DELETE FROM {$tmp_options} WHERE option_name LIKE 'jetpack_sync_https_history_%'" );
 
 		$processor = new SQL_Postprocessor( 'https://word.press', 'https://word.press', self::TEMPORARY_PREFIX, true );
 		$processor->save_whitelist_options();
 
-		foreach ( array( 'home_url', 'site_url' ) as $url ) {
+		foreach ( $urls as $url ) {
 			$saved = $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'jetpack_sync_https_history_{$url}'" );
 			$this->assertSame( array( 'https' ), maybe_unserialize( $saved ) );
 		}
