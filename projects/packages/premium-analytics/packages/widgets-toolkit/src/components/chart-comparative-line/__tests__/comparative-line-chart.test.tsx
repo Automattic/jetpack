@@ -9,9 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockLineChartLegendSpy,
 	mockLineChartSpy,
-	mockSparklineMargin,
 	resetMockCharts,
-	setMockChartHeight,
 	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
@@ -21,11 +19,6 @@ import type { ComparativeLineChartSeries } from '../types';
 
 jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
-);
-
-jest.mock(
-	'@wordpress/compose',
-	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
 );
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
@@ -107,6 +100,7 @@ type RecordedLineProps = {
 		interactive: boolean;
 	};
 	margin?: Record< string, number >;
+	compactWhenShort?: boolean;
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
 		axis: {
@@ -204,15 +198,16 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps().options.axis.y.display ).toBeUndefined();
 	} );
 
-	it( 'draws a short tile as a sparkline the pointer can reach edge to edge', () => {
-		setMockChartHeight( 80 );
+	it.each( [ true, false ] )( 'forwards compactWhenShort=%s to the chart', compactWhenShort => {
 		render(
-			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				compactWhenShort={ compactWhenShort }
+			/>
 		);
 
-		expect( recordedProps().options.axis.x.display ).toBe( false );
-		expect( recordedProps().options.axis.y.display ).toBe( false );
-		expect( recordedProps().margin ).toBe( mockSparklineMargin );
+		expect( recordedProps().compactWhenShort ).toBe( compactWhenShort );
 	} );
 
 	describe( 'value axis baseline', () => {

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -10,9 +10,7 @@ import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
 	mockOverlapBarColor,
-	mockSparklineMargin,
 	resetMockCharts,
-	setMockChartHeight,
 	setMockElementStyles,
 	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
@@ -23,11 +21,6 @@ import type { ComparativeBarChartSeries } from '../types';
 
 jest.mock( '@jetpack-premium-analytics/externals', () =>
 	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
-);
-
-jest.mock(
-	'@wordpress/compose',
-	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
 );
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
@@ -120,6 +113,7 @@ function recordedProps(): {
 		interactive: boolean;
 	};
 	gridVisibility?: string;
+	compactWhenShort?: boolean;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
 	renderTooltip: ( params: unknown ) => { props: DatedTooltipProps } | null;
@@ -529,40 +523,16 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
-	describe( 'compactWhenShort', () => {
-		it( 'degrades to a sparkline on a short tile', () => {
-			setMockChartHeight( 80 );
-			render(
-				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
-			);
+	it.each( [ true, false ] )( 'forwards compactWhenShort=%s to the chart', compactWhenShort => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				compactWhenShort={ compactWhenShort }
+			/>
+		);
 
-			expect( recordedOptions().axis.x.display ).toBe( false );
-			expect( recordedOptions().axis.y.display ).toBe( false );
-			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			expect( recordedProps().margin ).toBe( mockSparklineMargin );
-			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'keeps the axis, grid, and legend when the tile is tall enough', () => {
-			setMockChartHeight( 400 );
-			render(
-				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
-			);
-
-			expect( recordedOptions().axis.x ).not.toHaveProperty( 'display' );
-			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
-			expect( recordedProps().gridVisibility ).toBeUndefined();
-			expect( recordedProps().margin ).toBeUndefined();
-			expect( screen.getByTestId( 'bar-chart-legend' ) ).toBeInTheDocument();
-		} );
-
-		it( 'ignores the breakpoint when not opted in', () => {
-			setMockChartHeight( 80 );
-			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
-			expect( recordedProps().gridVisibility ).toBeUndefined();
-		} );
+		expect( recordedProps().compactWhenShort ).toBe( compactWhenShort );
 	} );
 } );
 

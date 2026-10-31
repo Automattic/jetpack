@@ -38,7 +38,7 @@ second current-period series keeps its own dates.
 | `series`              | `ComparativeBarChartSeries[]` | Yes      | Series to draw                                                                                                                            |
 | `dataFormat`          | `DataFormat`                  | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                             |
 | `tickFormat`          | `DateFormatName`              | No       | Named X-axis date format; uses the chart default when omitted                                                                             |
-| `compactWhenShort`    | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area                                                                                          |
+| `compactWhenShort`    | `boolean`                     | No       | Draw a sparkline while the chart is shorter than `theme.sparkline.compactBelow` (140px by default)                                        |
 | `maxWidth`            | `number`                      | No       | Maximum chart width                                                                                                                       |
 | `className`           | `string`                      | No       | CSS class for the chart container                                                                                                         |
 | `chartTitle`          | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                       |

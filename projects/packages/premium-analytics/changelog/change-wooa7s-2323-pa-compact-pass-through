@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Forward compactWhenShort to the charts library instead of measuring height in the comparative charts.
