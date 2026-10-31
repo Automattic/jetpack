@@ -127,6 +127,10 @@ function Dashboard(): JSX.Element {
 		switchSearch
 	);
 	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	const openSettings = useCallback(
+		() => setActiveSection( SETTINGS_SECTION ),
+		[ setActiveSection ]
+	);
 	const widgetSection = widgetSectionOf( activeSection, sections );
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
@@ -548,7 +552,7 @@ function Dashboard(): JSX.Element {
 												<DashboardSectionProvider section={ section.slug }>
 													<div className={ styles.body }>
 														<RefreshFailureNotice />
-														{ ! editMode && <DashboardNotices /> }
+														{ ! editMode && <DashboardNotices onOpenSettings={ openSettings } /> }
 
 														{ /* Behind the onboarding journey: it introduces the tabs
 														     the banner asks about. */ }
