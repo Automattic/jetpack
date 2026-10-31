@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Imports: Keep the Jetpack Sync HTTPS history when restoring a Playground backup, so WordPress.com keeps the site's https:// address.
