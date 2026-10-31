@@ -370,7 +370,7 @@ describe( 'Likes queue handler master iframe handshake', () => {
 
 		it( 'links a default-avatar liker to their site when it is visible', () => {
 			const items = showLikers( 2, {}, [ 1 ], {
-				1: { URL: 'https://liker-1.example.org', site_visible: true },
+				1: { site_URL: 'https://liker-1.example.org' },
 			} );
 
 			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
@@ -383,12 +383,12 @@ describe( 'Likes queue handler master iframe handshake', () => {
 			);
 		} );
 
-		it( 'does not link a default-avatar liker whose site is hidden or not a web URL', () => {
+		it( 'does not link a default-avatar liker without a web site_URL', () => {
 			const items = showLikers( 4, {}, [ 0, 1, 2, 3 ], {
-				0: { URL: 'https://liker-0.example.org', site_visible: false },
-				1: { URL: '', site_visible: true },
-				2: { URL: 'javascript:alert(1)', site_visible: true },
-				3: { URL: 'https://liker-3.example.org', site_visible: null },
+				0: { URL: 'https://liker-0.example.org', site_visible: true },
+				1: { site_URL: '' },
+				2: { site_URL: 'javascript:alert(1)' },
+				3: { site_URL: null },
 			} );
 
 			items.forEach( item => expect( item.querySelector( 'a' ) ).not.toHaveAttribute( 'href' ) );
@@ -396,7 +396,7 @@ describe( 'Likes queue handler master iframe handshake', () => {
 
 		it( 'keeps linking a liker without a default avatar to their profile, even with a site', () => {
 			const items = showLikers( 1, {}, [], {
-				0: { URL: 'https://liker-0.example.org', site_visible: true },
+				0: { site_URL: 'https://liker-0.example.org' },
 			} );
 
 			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
