@@ -1,19 +1,8 @@
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import {
-	Button,
-	Card,
-	Field,
-	Input,
-	Notice,
-	Spinner,
-	Stack,
-	SwitchControl,
-	Text,
-} from '@wordpress/ui';
+import { Button, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow, suggestName } from '../api';
-import { noAutofill } from '../no-autofill';
 import { FlowCanvas } from './flow-canvas';
 import { FlowPage } from './flow-page';
 import { PromptBox } from './prompt-box';
@@ -170,36 +159,6 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 						/>
 
 						<FlowCanvas flow={ flow } catalog={ catalog } busy={ planning } onChange={ setFlow } />
-
-						{ flow.steps.length > 0 && (
-							<Card.Root className="jetpack-flow-settings">
-								<Card.Content>
-									<Stack direction="column" gap="lg">
-										<Field.Root>
-											<Field.Label>{ __( 'Description', 'jetpack-flow-pkg' ) }</Field.Label>
-											<Input
-												{ ...noAutofill }
-												value={ flow.name }
-												placeholder={ __( 'Describe this flow', 'jetpack-flow-pkg' ) }
-												onValueChange={ name => {
-													setNameTouched( true );
-													setFlow( { ...flow, name } );
-												} }
-											/>
-										</Field.Root>
-										<SwitchControl
-											label={
-												flow.enabled
-													? __( 'Flow enabled', 'jetpack-flow-pkg' )
-													: __( 'Flow disabled', 'jetpack-flow-pkg' )
-											}
-											checked={ flow.enabled }
-											onCheckedChange={ ( enabled: boolean ) => setFlow( { ...flow, enabled } ) }
-										/>
-									</Stack>
-								</Card.Content>
-							</Card.Root>
-						) }
 					</Stack>
 				) }
 			</div>

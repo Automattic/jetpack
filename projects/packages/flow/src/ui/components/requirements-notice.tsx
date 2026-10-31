@@ -1,15 +1,16 @@
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Notice } from '@wordpress/ui';
+import { Button, Dialog, Notice, Text } from '@wordpress/ui';
 import { installAndActivate } from '../api';
 import type { Catalog, Flow } from '../types';
 
 type Props = { flow: Flow; catalog: Catalog; onInstalled: () => void };
 
-/** One banner per plugin that the flow's triggers and actions need but the site lacks. */
+/** A friendly prompt to set up the first plugin the flow needs but the site lacks. */
 export function RequirementsNotice( { flow, catalog, onInstalled }: Props ) {
-	const [ busy, setBusy ] = useState< string | null >( null );
+	const [ busy, setBusy ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
+	const [ skipped, setSkipped ] = useState< string[] >( [] );
 
 	const used = [
 		...flow.triggers.map( id => catalog.triggers.find( t => t.id === id ) ),
@@ -23,9 +24,16 @@ export function RequirementsNotice( { flow, catalog, onInstalled }: Props ) {
 		}
 	}
 
-	const install = async ( slug: string ) => {
-		const plugin = catalog.plugins[ slug ];
-		setBusy( slug );
+	const slug = [ ...needs.keys() ].find(
+		key => catalog.plugins[ key ] && ! skipped.includes( key )
+	);
+	const plugin = slug ? catalog.plugins[ slug ] : undefined;
+
+	const install = async () => {
+		if ( ! slug || ! plugin ) {
+			return;
+		}
+		setBusy( true );
 		setError( null );
 		try {
 			await installAndActivate( slug, plugin.file, plugin.status );
@@ -38,50 +46,67 @@ export function RequirementsNotice( { flow, catalog, onInstalled }: Props ) {
 				)
 			);
 		} finally {
-			setBusy( null );
+			setBusy( false );
 		}
 	};
 
+	const skip = () => {
+		if ( slug && ! busy ) {
+			setError( null );
+			setSkipped( [ ...skipped, slug ] );
+		}
+	};
+
+	const installed = plugin?.status === 'inactive';
+	let actionLabel: string = __( 'Install & activate now', 'jetpack-flow-pkg' );
+	if ( busy ) {
+		actionLabel = __( 'Working…', 'jetpack-flow-pkg' );
+	} else if ( installed ) {
+		actionLabel = __( 'Activate now', 'jetpack-flow-pkg' );
+	}
+
 	return (
-		<>
-			{ [ ...needs.entries() ].map( ( [ slug, labels ] ) => {
-				const plugin = catalog.plugins[ slug ];
-				if ( ! plugin ) {
-					return null;
-				}
-				return (
-					<Notice.Root key={ slug } intent="warning">
-						<Notice.Title>
-							{
-								/* translators: %s: plugin name. */ sprintf(
-									__( '%s is needed', 'jetpack-flow-pkg' ),
-									plugin.name
-								)
-							}
-						</Notice.Title>
-						<Notice.Description>
-							{
-								/* translators: %s: list of trigger and action names. */ sprintf(
-									__( 'Needed by: %s.', 'jetpack-flow-pkg' ),
-									labels.join( ', ' )
-								)
-							}
-						</Notice.Description>
-						<Notice.Actions>
-							<Notice.ActionButton disabled={ busy === slug } onClick={ () => install( slug ) }>
-								{ busy === slug
-									? __( 'Working…', 'jetpack-flow-pkg' )
-									: __( 'Install & activate', 'jetpack-flow-pkg' ) }
-							</Notice.ActionButton>
-						</Notice.Actions>
-					</Notice.Root>
-				);
-			} ) }
-			{ error && (
-				<Notice.Root intent="error">
-					<Notice.Description>{ error }</Notice.Description>
-				</Notice.Root>
-			) }
-		</>
+		<Dialog.Root open={ !! plugin } onOpenChange={ open => ! open && skip() }>
+			<Dialog.Popup size="small">
+				<Dialog.Header>
+					<Dialog.Title>
+						{ plugin &&
+							( installed
+								? /* translators: %s: plugin name. */ sprintf(
+										__( 'Turn on %s to use this', 'jetpack-flow-pkg' ),
+										plugin.name
+									)
+								: /* translators: %s: plugin name. */ sprintf(
+										__( 'Add %s to use this', 'jetpack-flow-pkg' ),
+										plugin.name
+									) ) }
+					</Dialog.Title>
+				</Dialog.Header>
+				<Dialog.Content>
+					<Text>
+						{ plugin &&
+							slug &&
+							/* translators: 1: list of trigger and action names, 2: plugin name. */ sprintf(
+								__( '%1$s works with %2$s. It only takes a moment.', 'jetpack-flow-pkg' ),
+								( needs.get( slug ) ?? [] ).join( ', ' ),
+								plugin.name
+							) }
+					</Text>
+					{ error && (
+						<Notice.Root intent="error">
+							<Notice.Description>{ error }</Notice.Description>
+						</Notice.Root>
+					) }
+				</Dialog.Content>
+				<Dialog.Footer>
+					<Button variant="minimal" tone="neutral" disabled={ busy } onClick={ skip }>
+						{ __( 'Skip for now', 'jetpack-flow-pkg' ) }
+					</Button>
+					<Button disabled={ busy } onClick={ install }>
+						{ actionLabel }
+					</Button>
+				</Dialog.Footer>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

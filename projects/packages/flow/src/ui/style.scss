@@ -168,7 +168,7 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 		z-index: -1;
 		border-radius: var(--wpds-border-radius-xl);
 		background: $jetpack-flow-glow;
-		filter: blur(var(--wpds-dimension-gap-md));
+		filter: blur(calc(var(--wpds-dimension-gap-md) * 2 / 3));
 		opacity: 0;
 		transition: opacity var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced);
 		animation: jetpack-flow-spin calc(var(--wpds-motion-duration-xl) * 6) linear infinite;
@@ -193,7 +193,7 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 		block-size: var(--wpds-dimension-size-md);
 		border-inline-start:
 			var(--wpds-border-width-sm) solid
-			var(--wpds-color-stroke-surface-neutral-strong);
+			var(--wpds-color-stroke-surface-neutral);
 	}
 }
 
@@ -210,11 +210,6 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 		flex: 1;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
-}
-
-.jetpack-flow-settings {
-	inline-size: min(100%, 680px);
-	margin-inline: auto;
 }
 
 // Everything that gets added to the flow eases in.
@@ -271,7 +266,7 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 	gap: var(--wpds-dimension-gap-sm);
 	padding: var(--wpds-dimension-padding-sm);
 	padding-inline-start: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-strong);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-xl);
 	background: var(--wpds-color-background-surface-neutral);
 

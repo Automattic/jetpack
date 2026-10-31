@@ -42,6 +42,18 @@ const micIcon = (
 	</svg>
 );
 
+const stopIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		fill="currentColor"
+		stroke="currentColor"
+		strokeWidth="1.5"
+		strokeLinejoin="round"
+	>
+		<rect x="7" y="7" width="10" height="10" rx="2" />
+	</svg>
+);
+
 /** The "What should happen?" bar, pinned above the footer. */
 export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 	const id = useId();
@@ -94,6 +106,11 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 
 	const hasText = value.trim() !== '';
 
+	const submit = () => {
+		recognition.current?.stop();
+		onSubmit();
+	};
+
 	return (
 		<div className="jetpack-flow-prompt">
 			<div className="jetpack-flow-prompt__border">
@@ -112,7 +129,7 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 						onKeyDown={ event => {
 							if ( event.key === 'Enter' && ! event.shiftKey && hasText && ! busy ) {
 								event.preventDefault();
-								onSubmit();
+								submit();
 							}
 						} }
 					/>
@@ -120,25 +137,26 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 						{ canDictate && (
 							<IconButton
 								variant="minimal"
+								tone="neutral"
 								label={
 									listening
 										? __( 'Stop dictating', 'jetpack-flow-pkg' )
 										: __( 'Dictate with your voice', 'jetpack-flow-pkg' )
 								}
-								icon={ micIcon }
+								icon={ listening ? stopIcon : micIcon }
 								className={ listening ? 'is-listening' : undefined }
 								disabled={ busy }
 								onClick={ dictate }
 							/>
 						) }
-						{ hasText && (
+						{
 							<IconButton
 								label={ __( 'Build my flow', 'jetpack-flow-pkg' ) }
 								icon={ arrowUp }
-								disabled={ busy }
-								onClick={ onSubmit }
+								disabled={ busy || ! hasText }
+								onClick={ submit }
 							/>
-						) }
+						}
 					</div>
 				</div>
 			</div>

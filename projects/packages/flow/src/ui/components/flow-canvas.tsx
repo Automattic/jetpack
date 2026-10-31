@@ -43,7 +43,8 @@ function Wire( { onAdd }: { onAdd?: () => void } ) {
 			<span className="jetpack-flow-wire__line" />
 			{ onAdd && (
 				<IconButton
-					variant="outline"
+					variant="minimal"
+					tone="neutral"
 					label={ __( 'Add an action', 'jetpack-flow-pkg' ) }
 					icon={ plus }
 					onClick={ onAdd }
@@ -125,7 +126,8 @@ function TriggerCard( { flow, catalog, busy, onChange }: Props ) {
 						{ flow.triggers.length > 0 && remaining.length > 0 && ! picking && (
 							<Stack justify="center" className="jetpack-flow-enter">
 								<IconButton
-									variant="outline"
+									variant="minimal"
+									tone="neutral"
 									label={ __( 'Add another trigger', 'jetpack-flow-pkg' ) }
 									icon={ plus }
 									onClick={ () => setPicking( true ) }
