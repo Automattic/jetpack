@@ -51,6 +51,10 @@ class Jetpack_Forms {
 
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
+
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
+			\WP_CLI::add_command( 'jetpack-forms', CLI::class );
+		}
 	}
 
 	/**
