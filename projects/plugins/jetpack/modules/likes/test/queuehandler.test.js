@@ -379,6 +379,28 @@ describe( 'Likes queue handler master iframe handshake', () => {
 			expect( container ).toHaveStyle( { display: 'none' } );
 		} );
 
+		it( 'closes the popover on Tab when no liker has a link', () => {
+			showLikers( 2, {}, [ 0, 1 ] );
+			const container = document.querySelector( '#likes-other-gravatars' );
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+
+			container.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).toHaveStyle( { display: 'none' } );
+		} );
+
+		it( 'drops the popover Tab listener when it reopens with linked likers', () => {
+			showLikers( 2, {}, [ 0, 1 ] );
+			const items = showLikers( 3 );
+			const container = document.querySelector( '#likes-other-gravatars' );
+
+			items[ 0 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+		} );
+
 		it( 'keeps the popover open on Tab from an earlier liker', () => {
 			const items = showLikers( 3 );
 			const container = document.querySelector( '#likes-other-gravatars' );
