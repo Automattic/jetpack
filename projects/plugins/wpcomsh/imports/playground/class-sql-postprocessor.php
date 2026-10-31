@@ -208,6 +208,11 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 			'jetpack_private_options',
 			'permalink_structure',
 			'db_version',
+			// The schemes Jetpack Sync has seen for the site URLs. The restore runs in WP-CLI, where
+			// is_ssl() is false, so without this history Sync reports the site to WordPress.com as
+			// http:// until a later web request syncs it again.
+			'jetpack_sync_https_history_home_url',
+			'jetpack_sync_https_history_site_url',
 		);
 
 		// Substitute the options.

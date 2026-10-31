@@ -221,4 +221,24 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 		$this->assertEquals( $previous_home, get_option( 'home' ) );
 		$this->assertEquals( $previous_site, get_option( 'siteurl' ) );
 	}
+
+	/**
+	 * The restore keeps the site's Jetpack Sync HTTPS history, so Sync keeps reporting https:// URLs.
+	 */
+	public function test_save_whitelist_options_keeps_sync_https_history(): void {
+		global $wpdb;
+
+		$tmp_options = self::TEMPORARY_PREFIX . $wpdb->prefix . 'options';
+		update_option( 'jetpack_sync_https_history_home_url', array( 'https' ) );
+		update_option( 'jetpack_sync_https_history_site_url', array( 'https' ) );
+		$wpdb->query( "DELETE FROM {$tmp_options} WHERE option_name LIKE 'jetpack_sync_https_history_%'" );
+
+		$processor = new SQL_Postprocessor( 'https://word.press', 'https://word.press', self::TEMPORARY_PREFIX, true );
+		$processor->save_whitelist_options();
+
+		foreach ( array( 'home_url', 'site_url' ) as $url ) {
+			$saved = $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'jetpack_sync_https_history_{$url}'" );
+			$this->assertSame( array( 'https' ), maybe_unserialize( $saved ) );
+		}
+	}
 }
