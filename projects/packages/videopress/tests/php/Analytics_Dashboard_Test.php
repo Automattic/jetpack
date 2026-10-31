@@ -118,6 +118,21 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The player registers from the manifest under the videos plan feature.
+	 */
+	public function test_registers_the_video_player_type_from_the_manifest() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$player = $registry->get_registered( Analytics_Dashboard::VIDEO_PLAYER_TYPE );
+		$this->assertNotNull( $player );
+		$this->assertSame( 'jetpack-videopress/widgets/video-player/render', $player->render_module );
+		$this->assertSame( 'full-bleed', $player->presentation );
+		$this->assertSame( 'videos', $player->plan_feature );
+	}
+
+	/**
 	 * The Traffic section serves the instance where the dashboard used to seed it.
 	 */
 	public function test_seeds_the_top_videos_instance_into_the_traffic_default_layout() {

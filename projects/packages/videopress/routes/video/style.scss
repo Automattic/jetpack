@@ -141,31 +141,6 @@
 	min-height: 320px;
 }
 
-// Playable preview at the head of the right-hand column. The frame is pinned
-// to 16:9 — the canonical player shape — and the embed letterboxes any
-// other aspect ratio inside it against the black background, so the page
-// doesn't reflow based on the video's own dimensions (which the media
-// record doesn't expose anyway). At the column's 380px that is a 214px
-// frame; the width comes entirely from the grid track, so there is nothing
-// to cap here.
-.vp-video-details__player {
-	grid-area: preview;
-	position: relative;
-	width: 100%;
-	aspect-ratio: 16 / 9;
-	background: #000;
-	border-radius: 4px;
-	overflow: hidden;
-
-	iframe,
-	video {
-		display: block;
-		width: 100%;
-		height: 100%;
-		border: 0;
-	}
-}
-
 // The Thumbnail card's picker: the current poster followed by the two ways to
 // replace it, all at the same 16:9 size so the row reads as one set of
 // options rather than an image with buttons stuck to it.
@@ -330,6 +305,9 @@
 	border-radius: var(--wpds-border-radius-sm);
 }
 
+// Playable preview at the head of the right-hand column, pinned to 16:9 so
+// the page never reflows on the video's own dimensions; the player letterboxes
+// inside it.
 .vp-video-details__player-slot {
 	grid-area: preview;
 	position: relative;
@@ -338,17 +316,6 @@
 	border-radius: 4px;
 	background: #000;
 	overflow: hidden;
-}
-
-.vp-video-details__conversion-failed {
-	position: absolute;
-	inset: 0;
-	display: grid;
-	place-items: center;
-	margin: 0;
-	padding: var(--wpds-dimension-padding-lg);
-	color: #fff;
-	text-align: center;
 }
 
 .vp-video-details__upload-progress {

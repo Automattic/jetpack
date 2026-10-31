@@ -1,20 +1,24 @@
-import { PA_COLUMN_COUNT } from '../../grid';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * Fixed widget composition for the video detail page (not user-customizable,
- * WOOA7S-1625): two full-width rows on the three-column detail grid.
+ * Fixed widget composition for the video detail page (WOOA7S-1625): the
+ * performance chart full width, then the player beside the embeds list.
  */
 export const VIDEO_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
 		uuid: 'video-detail-views-performance',
 		type: 'jpa/video-detail-views-performance',
 		attributes: { chartType: 'bar' },
-		placement: { width: PA_COLUMN_COUNT, height: 2, order: 1 },
+		placement: { width: 'full', height: 2, order: 10 },
+	},
+	{
+		uuid: 'videopress-video-player',
+		type: 'videopress/video-player',
+		placement: { width: 1, height: 2, order: 20 },
 	},
 	{
 		uuid: 'video-detail-embeds',
 		type: 'jpa/video-detail-embeds',
-		placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+		placement: { width: 'fill', height: 2, order: 30 },
 	},
 ];

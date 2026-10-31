@@ -52,7 +52,7 @@ Your widgets import the dashboard through `@automattic/jetpack-premium-analytics
 
 `projects/packages/ads`: the Ads section and its three widgets, called by the WordAds module of the Jetpack plugin and by `jetpack-mu-wpcom`. The shape for a feature that brings its own section.
 
-`projects/packages/videopress`: the Top videos widget, registered with its former name `jpa/videopress` and seeded into the bundled Traffic section's default layout, called by the package's initializer and by `jetpack-mu-wpcom`. The shape for a widget inside a section this package owns, and for a widget that moved out of this package.
+`projects/packages/videopress`: the Top videos widget, registered with its former name `jpa/videopress` and seeded into the bundled Traffic section's default layout, and the video player the video report composes, both called by the package's initializer and by `jetpack-mu-wpcom`. The shape for a widget inside a section this package owns, for a widget that moved out of this package, and for a widget a detail page composes.
 
 Report pages and detail routes are the next contract; today they are the package's own.
 
