@@ -200,7 +200,7 @@ function JetpackLikesMessageListener( event ) {
 				.querySelectorAll( '.likes-text span' )
 				.forEach( item => ( item.textContent = data.totalLikesLabel ) );
 
-			( data.likers || [] ).forEach( async ( liker, index ) => {
+			( data.likers || [] ).forEach( async liker => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
@@ -209,9 +209,12 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				const profileLink = encodeURI( liker.profile_URL );
+				// A liker with a default avatar has no Gravatar profile, so their profile URL leads to a 404.
+				const profileLink = liker.default_avatar
+					? ''
+					: ` href="${ encodeURI( liker.profile_URL ) }"`;
 				const avatarLink = encodeURI( liker.avatar_URL );
-				element.innerHTML = `<a href="${ profileLink }" rel="nofollow" target="_parent" class="wpl-liker">
+				element.innerHTML = `<a${ profileLink } rel="nofollow" target="_parent" class="wpl-liker">
 						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
@@ -222,21 +225,25 @@ function JetpackLikesMessageListener( event ) {
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
 				element.querySelector( 'span' ).innerText = liker.name;
-
-				if ( index === data.likers.length - 1 ) {
-					element.addEventListener( 'keydown', e => {
-						if ( e.key === 'Tab' && ! e.shiftKey ) {
-							e.preventDefault();
-							hideLikersPopover();
-
-							JetpackLikesPostMessage(
-								{ event: 'focusLikesCount', parent: data.parent },
-								window.frames[ 'likes-master' ]
-							);
-						}
-					} );
-				}
 			} );
+
+			// Tabbing past the last linked liker closes the popover and returns focus to the likes count.
+			// Likers without a link can't take focus, so the listener goes on the last one that can.
+			const focusableLikers = list.querySelectorAll( 'a[href]' );
+			const lastFocusableLiker = focusableLikers[ focusableLikers.length - 1 ];
+			if ( lastFocusableLiker ) {
+				lastFocusableLiker.addEventListener( 'keydown', e => {
+					if ( e.key === 'Tab' && ! e.shiftKey ) {
+						e.preventDefault();
+						hideLikersPopover();
+
+						JetpackLikesPostMessage(
+							{ event: 'focusLikesCount', parent: data.parent },
+							window.frames[ 'likes-master' ]
+						);
+					}
+				} );
+			}
 
 			if ( data.remainingLikesLabel ) {
 				const remaining = document.createElement( 'li' );

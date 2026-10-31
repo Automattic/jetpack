@@ -286,12 +286,13 @@ describe( 'Likes queue handler master iframe handshake', () => {
 	} );
 
 	describe( 'likers popover', () => {
-		const showLikers = ( likerCount, extra = {} ) => {
+		const showLikers = ( likerCount, extra = {}, defaultAvatarIndexes = [] ) => {
 			const likers = Array.from( { length: likerCount }, ( _, i ) => ( {
 				profile_URL: `https://example.com/liker-${ i }`,
 				avatar_URL: `https://example.com/avatar-${ i }.png`,
 				name: `Liker ${ i }`,
 				css_class: 'wpl-liker',
+				default_avatar: defaultAvatarIndexes.includes( i ),
 			} ) );
 
 			window.dispatchEvent(
@@ -345,6 +346,48 @@ describe( 'Likes queue handler master iframe handshake', () => {
 
 			const remaining = document.querySelector( '.wpl-likes-remaining' );
 			expect( remaining.querySelector( 'img' ) ).toBeNull();
+		} );
+
+		it( 'does not link likers who have a default avatar', () => {
+			const items = showLikers( 3, {}, [ 1 ] );
+
+			expect( items[ 0 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-0'
+			);
+			expect( items[ 1 ].querySelector( 'a' ) ).not.toHaveAttribute( 'href' );
+			expect( items[ 1 ].querySelector( 'img' ) ).toHaveAttribute(
+				'src',
+				'https://example.com/avatar-1.png'
+			);
+			expect( items[ 1 ].querySelector( 'img' ) ).toHaveAttribute( 'alt', "Liker 1's avatar" );
+			expect( items[ 2 ].querySelector( 'a' ) ).toHaveAttribute(
+				'href',
+				'https://example.com/liker-2'
+			);
+		} );
+
+		it( 'closes the popover on Tab from the last linked liker', () => {
+			const items = showLikers( 3, {}, [ 2 ] );
+			const container = document.querySelector( '#likes-other-gravatars' );
+			expect( container ).not.toHaveStyle( { display: 'none' } );
+
+			items[ 1 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).toHaveStyle( { display: 'none' } );
+		} );
+
+		it( 'keeps the popover open on Tab from an earlier liker', () => {
+			const items = showLikers( 3 );
+			const container = document.querySelector( '#likes-other-gravatars' );
+
+			items[ 0 ]
+				.querySelector( 'a' )
+				.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true } ) );
+
+			expect( container ).not.toHaveStyle( { display: 'none' } );
 		} );
 	} );
 } );

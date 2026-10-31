@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Likes: Stop linking likers who have no Gravatar profile in the likes popover, since the link led to a 404.
