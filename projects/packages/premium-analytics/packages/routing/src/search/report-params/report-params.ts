@@ -70,7 +70,9 @@ const ORIGIN_WINDOW_PREFIX = 'ref_';
 /**
  * Store the linking page's window under the origin-window params, keeping only
  * what `expandOriginWindow()` cannot rebuild: a named range is its preset alone.
- * All time keeps its bounds too, since its start is the linking surface's own.
+ * All time keeps its bounds too, since its start is the linking surface's own. A
+ * linking page without a window stores its default preset, so the way back can
+ * tell an origin from none.
  *
  * @param search - The search params the detail page was linked with.
  * @return The origin-window params.
@@ -89,6 +91,9 @@ export function toReportOriginWindowParams(
 				};
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
+	if ( linked.preset === undefined && linked.from === undefined && linked.to === undefined ) {
+		origin.preset = rebuilt.preset;
+	}
 	if ( linked.interval !== undefined && linked.interval !== rebuilt.interval ) {
 		origin.interval = linked.interval;
 	}
@@ -155,8 +160,9 @@ export function pickReportOriginWindowParams(
 }
 
 /**
- * Pick the window a link out of the current page returns to: on a detail page
- * (scoped by `post_id`), the one it was opened from; elsewhere, the page's own.
+ * Pick the window a link out of the current page returns to: on a page opened from
+ * another, the origin window its seed stored under the `ref_*` params, whichever
+ * param scopes the page; elsewhere, the page's own.
  *
  * @param search - The current route search params.
  * @return The unprefixed report-window params to carry.
@@ -164,18 +170,16 @@ export function pickReportOriginWindowParams(
 function pickReturnDateParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
-	if ( search?.post_id === undefined ) {
-		return pickReportDateParams( search );
-	}
-
 	const origin: Record< string, unknown > = {};
 	for ( const key of REPORT_DATE_PARAM_KEYS ) {
-		const value = search[ ORIGIN_WINDOW_PREFIX + key ];
+		const value = search?.[ ORIGIN_WINDOW_PREFIX + key ];
 		if ( value !== undefined ) {
 			origin[ key ] = value;
 		}
 	}
-	return expandOriginWindow( origin );
+	return Object.keys( origin ).length
+		? expandOriginWindow( origin )
+		: pickReportDateParams( search );
 }
 
 /**

@@ -10,10 +10,11 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Status\Host;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 
 /**
- * Registers the Top videos widget type on the Premium Analytics dashboard and seeds it into the
- * Traffic section's default layout.
+ * Registers the Top videos widget type on the Premium Analytics dashboard, seeds it into the
+ * Traffic section's default layout, and registers the video single-report page.
  *
  * The package decides nothing about who gets the widget: `Initializer` calls `init()` where
  * VideoPress is active outside the WordPress.com platform, jetpack-mu-wpcom calls the registrants
@@ -42,10 +43,16 @@ class Analytics_Dashboard {
 	const TOP_VIDEOS_INSTANCE_UUID = 'default-videopress-widget-instance';
 
 	/**
-	 * Registry action and default-layout filter of the dashboard package.
+	 * The video single-report page, served by the dashboard at `/report/video/{id}`.
 	 */
-	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
-	const DEFAULT_LAYOUT_FILTER        = 'jetpack_premium_analytics_dashboard_default_layout';
+	const VIDEO_PAGE_ID = 'videopress/video';
+
+	/**
+	 * Registry actions and default-layout filter of the dashboard package.
+	 */
+	const REGISTER_WIDGET_TYPES_ACTION        = 'jetpack_premium_analytics_register_widget_types';
+	const REGISTER_SINGLE_REPORT_PAGES_ACTION = 'jetpack_premium_analytics_register_single_report_pages';
+	const DEFAULT_LAYOUT_FILTER               = 'jetpack_premium_analytics_dashboard_default_layout';
 
 	/**
 	 * Text domain of the widget metadata and of the built widget bundle.
@@ -57,6 +64,11 @@ class Analytics_Dashboard {
 	 * primitives the SDK shares, which the dashboard ships from 2.1.0.
 	 */
 	const MIN_WIDGET_API_VERSION = '2.1.0';
+
+	/**
+	 * Lowest widget contract with the single-report page API and the generic route that serves it.
+	 */
+	const MIN_SINGLE_REPORT_API_VERSION = '2.2.0';
 
 	/**
 	 * Hook the registrant on the dashboard's registry action and the seed on its layout filter.
@@ -73,7 +85,44 @@ class Analytics_Dashboard {
 		}
 
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
+		add_action( self::REGISTER_SINGLE_REPORT_PAGES_ACTION, array( __CLASS__, 'register_single_report_pages' ), 20 );
 		add_filter( self::DEFAULT_LAYOUT_FILTER, array( __CLASS__, 'add_default_layout_instance' ), 10, 2 );
+	}
+
+	/**
+	 * Register the video single-report page: the dashboard renders it from this record at
+	 * `/report/video/{id}`, with the arrangements readers saved on the page it served before.
+	 *
+	 * The layout names the dashboard's own video detail widget types until those move here too.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object $registry The single-report page registry being hydrated.
+	 * @return void
+	 */
+	public static function register_single_report_pages( $registry ) {
+		if ( ! self::widget_contract_is_supported( self::MIN_SINGLE_REPORT_API_VERSION ) || ! method_exists( $registry, 'register' ) ) {
+			return;
+		}
+
+		$registry->register(
+			DASHBOARD_NAME,
+			self::VIDEO_PAGE_ID,
+			array(
+				'path'              => 'video',
+				'label'             => __( 'Video', 'jetpack-videopress-pkg' ),
+				'dashboard_section' => 'traffic',
+				'feature'           => 'videos',
+				'scope_param'       => 'post_id',
+				'icon'              => 'jpa/video',
+				'reports_page'      => 'videos',
+				'default_layout'    => array(
+					get_dashboard_default_widget_instance( 'video-detail-views-performance', 'jpa/video-detail-views-performance', 1, 3, 2, array( 'chartType' => 'bar' ) ),
+					get_dashboard_default_widget_instance( 'video-detail-embeds', 'jpa/video-detail-embeds', 2, 3, 2 ),
+				),
+				'preferences_scope' => 'jetpack-premium-analytics/video-detail',
+			)
+		);
 	}
 
 	/**
@@ -148,16 +197,17 @@ class Analytics_Dashboard {
 	 * Undefined is a request that never loaded the dashboard's widget types, such as the sections
 	 * REST route: the widgets wait for one that does.
 	 *
+	 * @param string $minimum The lowest contract the caller needs.
 	 * @return bool
 	 */
-	private static function widget_contract_is_supported() {
+	private static function widget_contract_is_supported( $minimum = self::MIN_WIDGET_API_VERSION ) {
 		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) ) {
 			return false;
 		}
 
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
 
-		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '3', '<' );
+		return version_compare( $version, $minimum, '>=' ) && version_compare( $version, '3', '<' );
 	}
 
 	/**

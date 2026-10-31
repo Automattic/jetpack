@@ -1,0 +1,133 @@
+/**
+ * External dependencies
+ */
+import { usePostThumbnail, useStatsPost, useSiteHomeUrl } from '@jetpack-premium-analytics/data';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { POST_URL_SEARCH_PARAM } from '@jetpack-premium-analytics/widgets-toolkit';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
+import { useSearch } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import type { EntitySummary } from '../adapter';
+
+export type PostSummary = EntitySummary & {
+	/** Post type slug (e.g. `post`, `page`). */
+	type?: string;
+	/** Published date as a datetime string, when available. */
+	publishedDate?: string;
+	/** Featured image URL, when available. */
+	imageUrl?: string;
+	/** Public URL of the post/page, when available. */
+	url?: string;
+};
+
+/**
+ * Resolve the public URL a list surface carried into this route. Kept
+ * detailed: this is a security-relevant origin check, not a plain lookup.
+ *
+ * A `show_in_rest: false` post type has no core-data entity, so list surfaces
+ * pass the Stats-report URL through as a search param instead — honoured only
+ * for an http(s) URL matching the site's own origin (falling back to the
+ * dashboard's own origin when the site URL is unreadable), so a crafted link
+ * can't point the header out at another host.
+ *
+ * @return The carried URL when it is safe to use, otherwise `undefined`.
+ */
+function useCarriedPostUrl(): string | undefined {
+	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	const siteUrl = useSiteHomeUrl();
+	const carried = search?.[ POST_URL_SEARCH_PARAM ];
+
+	return useMemo( () => {
+		const candidate = safeHttpUrl( carried );
+		if ( ! candidate ) {
+			return undefined;
+		}
+
+		try {
+			const allowedOrigin = siteUrl ? new URL( siteUrl ).origin : window.location.origin;
+			return new URL( candidate ).origin === allowedOrigin ? candidate : undefined;
+		} catch {
+			return undefined;
+		}
+	}, [ carried, siteUrl ] );
+}
+
+/**
+ * Resolve the header summary for a single post/page. Title, type, and
+ * published date come from the Stats `post` payload; the featured image
+ * isn't in that payload, so it's read separately from core-data.
+ *
+ * @param id - The post/page ID, as the URL carries it.
+ * @return The resolved post summary.
+ */
+export function usePostSummary( id: string ): PostSummary {
+	const postId = Number( id );
+	// The header only needs the post row, so scope the query to the `post` field
+	// instead of pulling the full stats payload.
+	const { data, isLoading, isPending, isPaused, isError, error, refetch } = useStatsPost( {
+		postId,
+		fields: [ 'post' ],
+	} );
+	const post = data?.post;
+	// A failed background refetch keeps the loaded post, so only a missing one is an error.
+	const hasFailed = isError && ! post;
+	const type = post?.post_type;
+	const imageUrl = usePostThumbnail( postId, type );
+
+	// Reads the same already-resolved post entity as the image (no extra
+	// request); its own selector avoids re-rendering on every store change.
+	const url = useSelect(
+		select => {
+			if ( ! type || ! Number.isInteger( postId ) || postId <= 0 ) {
+				return undefined;
+			}
+
+			const core = select( coreStore ) as unknown as {
+				getEntityRecord: (
+					kind: string,
+					name: string,
+					key: number,
+					query: Record< string, unknown >
+				) => unknown;
+			};
+
+			const entity = core.getEntityRecord( 'postType', type, postId, { context: 'view' } ) as
+				{ link?: string } | undefined;
+
+			return entity?.link;
+		},
+		[ postId, type ]
+	);
+
+	const carriedUrl = useCarriedPostUrl();
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
+
+	// GMT fallback gets an explicit `Z` suffix so downstream code doesn't
+	// mistake it for a site-timezone wall time.
+	const publishedDate =
+		post?.post_date ?? ( post?.post_date_gmt ? `${ post.post_date_gmt }Z` : undefined );
+
+	return {
+		title: post?.post_title,
+		type,
+		publishedDate,
+		allTimeStart: publishedDate,
+		imageUrl,
+		// The entity permalink is authoritative; the carried URL only covers the
+		// post types core data cannot resolve.
+		url: url ?? carriedUrl,
+		// React Query calls a first load paused offline or in a hidden tab not loading.
+		isLoading: isLoading || ( isPending && isPaused ),
+		isError: hasFailed,
+		error: hasFailed ? error : null,
+		// The Stats report answers for any id; a missing post reads as an error, as before.
+		isNotFound: false,
+		refetch: retry,
+	};
+}

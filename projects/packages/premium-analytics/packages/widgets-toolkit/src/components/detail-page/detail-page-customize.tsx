@@ -1,5 +1,4 @@
-import { Badge, Stack } from '@jetpack-premium-analytics/externals';
-import { __ } from '@wordpress/i18n';
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
 import { PageOptionsMenu } from '../page-options-menu';
@@ -133,34 +132,6 @@ export function useDetailPageCustomize(
 		onEditChange,
 		onLayoutChange: handleLayoutChange,
 	};
-}
-
-export type DetailPageBreadcrumbsProps = {
-	isCustomizing: boolean;
-	/** The page's breadcrumbs. */
-	children: ReactNode;
-};
-
-/**
- * The breadcrumbs slot of a detail page: the trail, with a Customizing badge
- * beside it while customize mode is on.
- *
- * @param props               - Component props.
- * @param props.isCustomizing - Whether the page is in customize mode.
- * @param props.children      - The page's breadcrumbs.
- * @return The slot content.
- */
-export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBreadcrumbsProps ) {
-	if ( ! isCustomizing ) {
-		return <>{ children }</>;
-	}
-
-	return (
-		<Stack direction="row" align="center" gap="sm">
-			{ children }
-			<Badge intent="informational">{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }</Badge>
-		</Stack>
-	);
 }
 
 export type DetailPageActionsProps = {

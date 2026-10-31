@@ -1,0 +1,5 @@
+// A flex item of the admin frame: without this the page grows past it
+// instead of scrolling inside it.
+.page {
+	min-block-size: 0;
+}

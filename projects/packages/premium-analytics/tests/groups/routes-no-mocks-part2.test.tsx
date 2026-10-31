@@ -1,7 +1,6 @@
 // See README.md before adding a suite to this group.
 
-import '../../routes/author-detail/components/author-header-slots/author-header-slots.test';
-import '../../routes/post-detail/config/widget-variants.test';
+import '../../routes/single-report/pages/author/author-header-slots.test';
 import '../../routes/reports/clicks/config/fields.test';
 import '../../routes/reports/count-fields.test';
 import '../../routes/reports/downloads/config/fields.test';

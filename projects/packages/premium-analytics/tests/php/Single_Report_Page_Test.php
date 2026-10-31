@@ -79,6 +79,9 @@ class Single_Report_Page_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		register_single_report_pages_rest_routes();
 		Capabilities::register();
+
+		// The package's own video page would take the `video` path these tests register.
+		remove_action( Single_Report_Page_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_single_report_pages' );
 	}
 
 	/**
@@ -102,6 +105,10 @@ class Single_Report_Page_Test extends BaseTestCase {
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		wp_set_current_user( 0 );
 		$this->reset_analytics_capabilities();
+
+		if ( function_exists( __NAMESPACE__ . '\\register_default_single_report_pages' ) ) {
+			add_action( Single_Report_Page_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_single_report_pages' );
+		}
 
 		parent::tear_down();
 	}
