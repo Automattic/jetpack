@@ -200,7 +200,7 @@ function JetpackLikesMessageListener( event ) {
 				.querySelectorAll( '.likes-text span' )
 				.forEach( item => ( item.textContent = data.totalLikesLabel ) );
 
-			( data.likers || [] ).forEach( async ( liker, index ) => {
+			( data.likers || [] ).forEach( async liker => {
 				if ( liker.profile_URL.substr( 0, 4 ) !== 'http' ) {
 					// We only display gravatars with http or https schema
 					return;
@@ -209,9 +209,21 @@ function JetpackLikesMessageListener( event ) {
 				const element = document.createElement( 'li' );
 				list.append( element );
 
-				const profileLink = encodeURI( liker.profile_URL );
+				// A liker with a default avatar usually has no Gravatar profile, so their profile URL leads to a 404.
+				// Link to the public site WordPress.com returns as site_URL instead, and otherwise render the avatar without a link.
+				let likerUrl = liker.profile_URL;
+				if ( liker.default_avatar ) {
+					likerUrl = 0 === ( liker.site_URL || '' ).indexOf( 'http' ) ? liker.site_URL : '';
+				}
+				// encodeURI escapes the quotes and angle brackets that could break out of the attribute.
+				// The replace undoes the double encoding of an escape the URL already had, so %20 doesn't become %2520.
+				const likerLink = likerUrl
+					? encodeURI( likerUrl ).replace( /%25([0-9a-f]{2})/gi, '%$1' )
+					: '';
 				const avatarLink = encodeURI( liker.avatar_URL );
-				element.innerHTML = `<a href="${ profileLink }" rel="nofollow" target="_parent" class="wpl-liker">
+				element.innerHTML = `<a ${
+					likerLink ? `href="${ likerLink }" ` : ''
+				}rel="nofollow" target="_parent" class="wpl-liker">
 						<img src="${ avatarLink }"
 							alt=""
 							style="width: 28px; height: 28px;" />
@@ -222,21 +234,37 @@ function JetpackLikesMessageListener( event ) {
 				element.classList.add( liker.css_class );
 				element.querySelector( 'img' ).alt = data.avatarAltTitle.replace( '%s', liker.name );
 				element.querySelector( 'span' ).innerText = liker.name;
-
-				if ( index === data.likers.length - 1 ) {
-					element.addEventListener( 'keydown', e => {
-						if ( e.key === 'Tab' && ! e.shiftKey ) {
-							e.preventDefault();
-							hideLikersPopover();
-
-							JetpackLikesPostMessage(
-								{ event: 'focusLikesCount', parent: data.parent },
-								window.frames[ 'likes-master' ]
-							);
-						}
-					} );
-				}
 			} );
+
+			// Tabbing past the last linked liker closes the popover and returns focus to the likes count.
+			// Likers without a link can't take focus, so the listener goes on the last one that can.
+			// When no liker has a link, focus stays on the popover itself, so the listener goes there.
+			const closeOnTab = e => {
+				if ( e.key === 'Tab' && ! e.shiftKey ) {
+					e.preventDefault();
+					hideLikersPopover();
+
+					JetpackLikesPostMessage(
+						{ event: 'focusLikesCount', parent: data.parent },
+						window.frames[ 'likes-master' ]
+					);
+				}
+			};
+
+			// The popover element outlives each opening, so drop the listener a previous opening left on it.
+			if ( container.__tabHandler ) {
+				container.removeEventListener( 'keydown', container.__tabHandler );
+				delete container.__tabHandler;
+			}
+
+			const focusableLikers = list.querySelectorAll( 'a[href]' );
+			const lastFocusableLiker = focusableLikers[ focusableLikers.length - 1 ];
+			if ( lastFocusableLiker ) {
+				lastFocusableLiker.addEventListener( 'keydown', closeOnTab );
+			} else {
+				container.addEventListener( 'keydown', closeOnTab );
+				container.__tabHandler = closeOnTab;
+			}
 
 			if ( data.remainingLikesLabel ) {
 				const remaining = document.createElement( 'li' );
