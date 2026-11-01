@@ -376,18 +376,24 @@ function MetricChart( {
 			metrics.some( candidate => candidate.key === item.counterpartKey )
 	);
 
-	const { series, defaultHiddenSeries } = useMemo( () => {
+	// The previous period's label is seeded even before it arrives, as the chart applies its hidden series only on first sight of the chart ID.
+	const defaultHiddenSeries = useMemo(
+		() =>
+			counterpart && metric.counterpartHidden
+				? [ counterpart.label, formatComparisonSeriesLabel( counterpart.label ) ]
+				: undefined,
+		[ counterpart, metric.counterpartHidden ]
+	);
+
+	const series = useMemo( () => {
 		// An unstroked current period is toned by charts from the accent: the back metric takes the tint and a front metric the shade.
 		if ( isOverlap && ! counterpart ) {
-			return {
-				series: buildSeries(
-					metric,
-					chartType,
-					pairsMetrics ? shades.barFront : shades.accent,
-					pairsMetrics ? PREVIOUS_PERIOD_GRAYS.front : PREVIOUS_PERIOD_GRAYS.alone
-				),
-				defaultHiddenSeries: undefined,
-			};
+			return buildSeries(
+				metric,
+				chartType,
+				pairsMetrics ? shades.barFront : shades.accent,
+				pairsMetrics ? PREVIOUS_PERIOD_GRAYS.front : PREVIOUS_PERIOD_GRAYS.alone
+			);
 		}
 
 		if ( isOverlap && counterpart ) {
@@ -395,29 +401,18 @@ function MetricChart( {
 				sumOf( counterpart.current ) > sumOf( metric.current )
 					? [ counterpart, metric ]
 					: [ metric, counterpart ];
-			const backSeries = buildSeries( back, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back );
-			const frontSeries = buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front );
-			const counterpartSeries = back === counterpart ? backSeries : frontSeries;
 
-			return {
-				series: [ ...backSeries, ...frontSeries ],
-				defaultHiddenSeries: metric.counterpartHidden
-					? counterpartSeries.map( item => item.label )
-					: undefined,
-			};
+			return [
+				...buildSeries( back, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back ),
+				...buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front ),
+			];
 		}
 
 		const active = buildSeries( metric, chartType, shades.accent );
 
-		if ( ! counterpart ) {
-			return { series: active, defaultHiddenSeries: undefined };
-		}
-
-		const paired = buildSeries( counterpart, chartType, shades.lineCounterpart );
-		return {
-			series: [ ...active, ...paired ],
-			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
-		};
+		return counterpart
+			? [ ...active, ...buildSeries( counterpart, chartType, shades.lineCounterpart ) ]
+			: active;
 	}, [ metric, counterpart, chartType, shades, isOverlap, pairsMetrics ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
