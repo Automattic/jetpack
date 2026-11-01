@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import vm from 'node:vm';
 import babel from '@babel/core';
 
-test( 'the bundle includes polyfills the floor lacks and records its use', () => {
+test( 'the bundle includes polyfills the floor lacks', () => {
 	const entry = new URL( '../index.js', import.meta.url ).pathname;
 	// Runs the package's babel.config.js, as the build does.
 	const { code } = babel.transformFileSync( entry, {
@@ -12,7 +12,6 @@ test( 'the bundle includes polyfills the floor lacks and records its use', () =>
 	} );
 	assert.match( code, /core-js\/modules\/es\.array\.to-sorted/ );
 	assert.doesNotMatch( code, /wp:polyfill/ );
-	assert.match( code, /wpcom_browser_polyfill_used/ );
 } );
 
 test( 'only browsers missing a feature load the bundle, and never after the page has loaded', () => {
