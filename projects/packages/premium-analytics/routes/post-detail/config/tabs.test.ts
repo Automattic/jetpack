@@ -16,6 +16,14 @@ describe( 'post-detail tabs', () => {
 		expect( __ ).toHaveBeenCalledWith( 'Post traffic', 'jetpack-premium-analytics-pkg' );
 	} );
 
+	it.each( [
+		[ undefined, 'Post traffic' ],
+		[ 'page', 'Page traffic' ],
+		[ 'product', 'Product traffic' ],
+	] )( 'labels the first tab for a %s post type', ( postType, label ) => {
+		expect( getPostDetailTabs( postType )[ 0 ] ).toEqual( { id: 'post-traffic', label } );
+	} );
+
 	it( 'keeps the default tab first', () => {
 		expect( DEFAULT_TAB_ID ).toBe( 'post-traffic' );
 		expect( POST_DETAIL_TAB_IDS[ 0 ] ).toBe( DEFAULT_TAB_ID );

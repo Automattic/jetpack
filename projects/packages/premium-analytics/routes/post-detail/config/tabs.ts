@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { getPostTypeCopy } from './post-type-copy';
 
 /**
  * Ordered list of the post-detail tab IDs — the single source of truth for
@@ -32,7 +36,7 @@ export type PostDetailTab = {
  */
 const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
-	getLabel: () => string;
+	getLabel: ( postType?: string ) => string;
 	/**
 	 * Which window the tab reports over: the URL date range, or the fixed
 	 * send window pinned by `useEmailTabScope`. `send-window` tabs also take
@@ -42,7 +46,7 @@ const TAB_DEFINITIONS: ReadonlyArray< {
 } > = [
 	{
 		id: 'post-traffic',
-		getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+		getLabel: postType => getPostTypeCopy( postType ).traffic,
 		scope: 'url',
 	},
 	{
@@ -70,20 +74,22 @@ export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = TAB_DEFINITIONS.filter(
 /**
  * Get the translated display label for a tab.
  *
- * @param id - The tab identifier.
+ * @param id       - The tab identifier.
+ * @param postType - The post type slug, once known.
  * @return Translated label for the tab.
  */
-export function getTabLabel( id: PostDetailTabId ): string {
-	return TAB_DEFINITIONS.find( tab => tab.id === id )?.getLabel() ?? id;
+export function getTabLabel( id: PostDetailTabId, postType?: string ): string {
+	return TAB_DEFINITIONS.find( tab => tab.id === id )?.getLabel( postType ) ?? id;
 }
 
 /**
  * Build the ordered list of tab definitions ({ id, label }).
  *
+ * @param postType - The post type slug, once known.
  * @return Ordered list of tab definitions.
  */
-export function getPostDetailTabs(): PostDetailTab[] {
-	return TAB_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
+export function getPostDetailTabs( postType?: string ): PostDetailTab[] {
+	return TAB_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel( postType ) } ) );
 }
 
 /**

@@ -98,7 +98,7 @@ export function usePostDetailTabs(
 	const isEmailSendPending = gateEnabled && ! gate.isSuccess && ! gate.isError;
 
 	const tabs = useMemo( () => {
-		const allTabs = getPostDetailTabs();
+		const allTabs = getPostDetailTabs( postType );
 		const withContent = allTabs.filter(
 			tab =>
 				POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0 &&
@@ -107,7 +107,7 @@ export function usePostDetailTabs(
 
 		// Keep the page renderable if all compositions are temporarily empty.
 		return withContent.length > 0 ? withContent : allTabs;
-	}, [ showEmailTabs ] );
+	}, [ showEmailTabs, postType ] );
 
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 
