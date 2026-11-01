@@ -33,6 +33,16 @@ type PostViewsInnerProps = {
 	chartType?: PostViewsChartType;
 };
 
+function getChartTitle( postType?: string ): string {
+	if ( postType === 'page' ) {
+		return __( 'Page views', 'jetpack-premium-analytics-pkg' );
+	}
+	if ( postType === 'product' ) {
+		return __( 'Product views', 'jetpack-premium-analytics-pkg' );
+	}
+	return __( 'Post views', 'jetpack-premium-analytics-pkg' );
+}
+
 /**
  * Without a post scope (e.g. the widget added outside a post detail page) the
  * query never enables and the empty state shows.
@@ -42,7 +52,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
+	const { current, postType, isLoading, isFetching, isError, refetch } = usePostViews(
 		postId,
 		reportParams,
 		period
@@ -92,7 +102,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ getChartTitle( postType ) }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>

@@ -33,6 +33,7 @@ export type PostViewsPoint = {
  */
 export interface PostViewsState {
 	current: PostViewsPoint[];
+	postType?: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -147,7 +148,7 @@ export default function usePostViews(
 ): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'data' ],
+		fields: [ 'data', 'post' ],
 	} );
 
 	const current = useMemo( () => {
@@ -160,6 +161,7 @@ export default function usePostViews(
 
 	return {
 		current,
+		postType: data?.post?.post_type,
 		isLoading,
 		isFetching,
 		isError,
