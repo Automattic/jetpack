@@ -47,7 +47,12 @@ import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, getPostTypeCopy, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import {
+	EMAIL_TAB_IDS,
+	getPostTypeCopy,
+	POST_DETAIL_WIDGET_TYPE_ALIASES,
+	withPostTypeTitles,
+} from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -175,8 +180,12 @@ function PostDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const pageWidgetTypes = useMemo(
-		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-		[ widgetTypes ]
+		() =>
+			withPostTypeTitles(
+				withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
+				summary.type
+			),
+		[ widgetTypes, summary.type ]
 	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
