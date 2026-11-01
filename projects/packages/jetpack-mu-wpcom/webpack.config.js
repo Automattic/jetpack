@@ -1,13 +1,11 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const browserPolyfillsConfig = require( './browser-polyfills.webpack.config.js' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
 	return [
-		browserPolyfillsConfig.config,
 		...verbumConfig,
 		moduleConfig,
 		{
@@ -15,6 +13,7 @@ module.exports = async () => {
 				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.jsx',
 				'block-inserter-modifications': './src/features/block-inserter-modifications/index.jsx',
+				'browser-polyfills': './src/features/browser-polyfills/index.js',
 				'core-customizer-css':
 					'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 				'core-customizer-css-preview':

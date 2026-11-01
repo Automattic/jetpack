@@ -3,11 +3,13 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import vm from 'node:vm';
 import babel from '@babel/core';
-import polyfillsConfig from '../../../../browser-polyfills.webpack.config.js';
 
 test( 'the bundle includes polyfills the floor lacks and records its use', () => {
 	const entry = new URL( '../index.js', import.meta.url ).pathname;
-	const { code } = babel.transformFileSync( entry, polyfillsConfig.babelOpts );
+	// Runs the package's babel.config.js, as the build does.
+	const { code } = babel.transformFileSync( entry, {
+		cwd: new URL( '../../../../', import.meta.url ).pathname,
+	} );
 	assert.match( code, /core-js\/modules\/es\.array\.to-sorted/ );
 	assert.doesNotMatch( code, /wp:polyfill/ );
 	assert.match( code, /wpcom_browser_polyfill_used/ );
