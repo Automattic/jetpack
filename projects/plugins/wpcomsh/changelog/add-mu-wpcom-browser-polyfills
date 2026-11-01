@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Block editor: Prevent editor crashes on Chrome < 110, Safari < 16 and Firefox < 115.
+Block editor: Load polyfills for missing JavaScript features on older browsers to prevent editor crashes.

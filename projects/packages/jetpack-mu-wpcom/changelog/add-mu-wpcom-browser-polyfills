@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Block editor: Polyfill modern JavaScript features down to Chrome 103, Firefox 115 and Safari 15.6, so the editor no longer crashes on browsers that can't upgrade.
+Block editor: Load polyfills for missing JavaScript features on older browsers to prevent editor crashes.
