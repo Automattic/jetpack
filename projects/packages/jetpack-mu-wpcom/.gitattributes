@@ -17,6 +17,7 @@ src/**/*.ts                production-exclude
 src/**/*.tsx               production-exclude
 src/**/*.jsx               production-exclude
 src/**/tsconfig.*.json     production-exclude
+browser-polyfills.webpack.config.js  production-exclude
 verbum.webpack.config.js   production-exclude
 webpack.config.modules.js  production-exclude
 webpack-plugins/**         production-exclude

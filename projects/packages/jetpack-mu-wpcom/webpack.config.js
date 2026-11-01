@@ -1,11 +1,13 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const browserPolyfillsConfig = require( './browser-polyfills.webpack.config.js' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
 	return [
+		browserPolyfillsConfig.config,
 		...verbumConfig,
 		moduleConfig,
 		{
