@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Show no paid plan price instead of $0 and NaN on the Protect upgrade page when prices cannot be loaded.

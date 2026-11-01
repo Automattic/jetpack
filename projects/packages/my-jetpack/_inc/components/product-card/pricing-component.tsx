@@ -20,6 +20,11 @@ const PriceComponent = ( { slug }: { slug: string } ) => {
 			</div>
 		);
 	}
+	// No catalog price: a paid product must not read as $0.
+	if ( fullPrice == null && ! isFreeFeature ) {
+		return null;
+	}
+
 	return (
 		<div className={ styles.priceContainer }>
 			{ discountPrice && (

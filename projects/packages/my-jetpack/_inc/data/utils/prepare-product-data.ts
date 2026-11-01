@@ -12,6 +12,15 @@ const perMonth = ( price: number | null | undefined, months: number ) => {
 	return Number.isFinite( monthly ) ? monthly : undefined;
 };
 
+// Tier prices are yearly and missing when the catalog fails. Not rounded: that would change the "% off" figure.
+export const tierPricePerMonth = ( price: number | null | undefined ) => {
+	if ( price == null ) {
+		return undefined;
+	}
+	const monthly = price / 12;
+	return Number.isFinite( monthly ) ? monthly : undefined;
+};
+
 const preparePricing = ( pricing: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const months = monthsByTerm[ pricing.productTerm ] || 1;
 	return {

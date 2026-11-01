@@ -9,6 +9,7 @@ import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
@@ -29,7 +30,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
 			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
-			fullPrice: fullPrice ? fullPrice / 12 : 0,
+			fullPrice: tierPricePerMonth( fullPrice ),
 			currencyCode: currencyCode ?? 'USD',
 		};
 	}
@@ -50,7 +51,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		discountPrice:
 			// Only display discount if site is elgible
 			hasDiscount && eligibleForIntroDiscount ? discountPricePerMonth : null,
-		fullPrice: fullPricePerMonth ?? 0,
+		fullPrice: fullPricePerMonth,
 		currencyCode: currencyCode ?? 'USD',
 	};
 };
