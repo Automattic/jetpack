@@ -7,17 +7,13 @@ import {
 	type DetailPageHeaderSlots,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	box as productIcon,
-	envelope as envelopeIcon,
-	page as pageIcon,
-	post as postIcon,
-} from '@wordpress/icons';
+import { envelope as envelopeIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
+import { getPostTypeCopy } from '../../config';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
@@ -32,42 +28,6 @@ type PostHeaderSlotsArgs = {
 	/** The committed report date range, stated as the performance window. */
 	performanceRange?: DateRange;
 };
-
-/**
- * The header wording for a post type slug; any type without its own reads as a post.
- *
- * @param type - The post type slug.
- * @return The type's label, fallback titles, view action and placeholder icon.
- */
-export function getPostTypeCopy( type?: string ) {
-	if ( type === 'page' ) {
-		return {
-			label: __( 'Page', 'jetpack-premium-analytics-pkg' ),
-			untitled: __( 'Untitled page', 'jetpack-premium-analytics-pkg' ),
-			unavailable: __( 'Page unavailable', 'jetpack-premium-analytics-pkg' ),
-			view: __( 'View page', 'jetpack-premium-analytics-pkg' ),
-			icon: pageIcon,
-		};
-	}
-
-	if ( type === 'product' ) {
-		return {
-			label: __( 'Product', 'jetpack-premium-analytics-pkg' ),
-			untitled: __( 'Untitled product', 'jetpack-premium-analytics-pkg' ),
-			unavailable: __( 'Product unavailable', 'jetpack-premium-analytics-pkg' ),
-			view: __( 'View product', 'jetpack-premium-analytics-pkg' ),
-			icon: productIcon,
-		};
-	}
-
-	return {
-		label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
-		untitled: __( 'Untitled post', 'jetpack-premium-analytics-pkg' ),
-		unavailable: __( 'Post unavailable', 'jetpack-premium-analytics-pkg' ),
-		view: __( 'View post', 'jetpack-premium-analytics-pkg' ),
-		icon: postIcon,
-	};
-}
 
 /**
  * The post/page identity for the page header: featured-image thumbnail (or a

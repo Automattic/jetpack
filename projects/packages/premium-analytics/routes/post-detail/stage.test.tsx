@@ -241,7 +241,6 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	getPostTypeCopy: jest.requireActual( './components' ).getPostTypeCopy,
 	postHeaderSlots: ( {
 		summary,
 		variant,
