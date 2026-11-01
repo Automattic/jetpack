@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -385,8 +386,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	public static function is_dashboard_request() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
-		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		return Protect_Status::is_protect_page();
 	}
 
 	/**

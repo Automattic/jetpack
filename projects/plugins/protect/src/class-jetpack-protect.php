@@ -350,12 +350,14 @@ class Jetpack_Protect {
 
 		$total = Status::get_total_threats();
 
-		if ( $total > 0 ) {
+		// On the Protect page the app updates the count, so a hidden node is kept for a later scan to reveal.
+		if ( $total > 0 || ( method_exists( Status::class, 'is_protect_page' ) && Status::is_protect_page() ) ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
 				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
+					'class' => $total > 0 ? '' : 'hidden',
 					// translators: %d is the number of threats found.
 					'title' => sprintf( _n( '%d threat found by Jetpack Protect', '%d threats found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
 				),

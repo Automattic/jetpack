@@ -239,8 +239,7 @@ class Admin_Bar_Notice {
 	 * @return bool
 	 */
 	private function is_protect_dashboard_page() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only compared, to pick which script loads.
-		return is_admin() && $this->has_protect_dashboard() && isset( $_GET['page'] ) && 'jetpack-protect' === $_GET['page'];
+		return is_admin() && $this->has_protect_dashboard() && method_exists( Protect_Status::class, 'is_protect_page' ) && Protect_Status::is_protect_page();
 	}
 
 	/**
