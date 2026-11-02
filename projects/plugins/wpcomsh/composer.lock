@@ -658,7 +658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "a0f3cd7226e013bd3827b26bd270bad854549544"
+                "reference": "6f1ef42429e85eb9afec39c7bdeb8294d89d1079"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -667,6 +667,11 @@
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -703,6 +708,15 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ]
             },
             "license": [
