@@ -599,4 +599,13 @@ class Speed_Score_Request_Test extends Base_TestCase {
 
 		$this->assertSame( $stored, $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
 	}
+
+	public function test_a_pending_poll_keeps_the_request_until_the_result_can_arrive() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL );
+		$this->assertTrue( $request->poll_update() );
+
+		$stored = $this->options[ Transient::key( 'jetpack_boost_speed_scores_' . $request->get_cache_id() ) ];
+		$this->assertGreaterThanOrEqual( time() + 3600 - 5, $stored['expire'] );
+	}
 }
