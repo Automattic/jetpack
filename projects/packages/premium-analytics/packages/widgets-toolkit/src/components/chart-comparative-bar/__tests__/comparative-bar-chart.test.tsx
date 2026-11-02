@@ -192,6 +192,7 @@ describe( 'ComparativeBarChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'names the chart from chartTitle', () => {
@@ -213,7 +214,6 @@ describe( 'ComparativeBarChart', () => {
 			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
 		} as unknown as typeof window.JetpackScriptData;
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
-		delete window.JetpackScriptData;
 
 		expect( recordedOptions().axis.y.tickDecimals ).toBe( 3 );
 	} );
