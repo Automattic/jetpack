@@ -186,6 +186,18 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a failed unignore still drops the cached history, since WordPress.com may have applied it.
+	 */
+	public function test_failed_unignore_still_drops_the_cached_history() {
+		set_transient( Scan::HISTORY_CACHE, array( array( 'id' => 1 ) ), MINUTE_IN_SECONDS );
+
+		$result = self::call( 'set_ignored', 1, false );
+
+		$this->assertSame( 'threat_not_unignored', $result->get_error_code() );
+		$this->assertFalse( get_transient( Scan::HISTORY_CACHE ) );
+	}
+
+	/**
 	 * Test that a held request lock refuses a second scan, and a released one allows a retry.
 	 */
 	public function test_request_lock_refuses_a_second_claim_until_released() {
