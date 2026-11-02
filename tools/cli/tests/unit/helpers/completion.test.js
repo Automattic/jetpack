@@ -144,14 +144,15 @@ describe( 'completionHook', () => {
 		expect( error ).toHaveBeenCalledWith( expect.any( TypeError ) );
 		error.mockRestore();
 	} );
-	test( "prefers the command's own completer and escapes colons for zsh", async () => {
+	test( "prefers the command's own completer and escapes colons and backslashes for zsh", async () => {
 		process.env.SHELL = '/bin/zsh';
 		const rsync = hook( [ 'rsync' ], [ 'rsync [plugin] [dest]' ], {
-			rsync: { dest: () => [ 'site:a', 'other' ] },
+			rsync: { dest: () => [ 'site:a', 'site\\b', 'other' ] },
 		} );
 		await expect( run( rsync, 's', [ 'jetpack', 'rsync', 'jetpack', 's' ] ) ).resolves.toEqual( [
 			'--help',
 			'site\\:a',
+			'site\\\\b',
 		] );
 	} );
 } );

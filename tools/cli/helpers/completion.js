@@ -106,7 +106,7 @@ function positionalCompletions( yargs, perCommand, current, argv ) {
 	const zsh = /zsh/.test( process.env.SHELL ?? '' ) || /zsh/.test( process.env.ZSH_NAME ?? '' );
 	return candidates
 		.filter( c => c.startsWith( current ) && ! ( positional.variadic && earlier.includes( c ) ) )
-		.map( c => ( zsh ? c.replace( /:/g, '\\:' ) : c ) );
+		.map( c => ( zsh ? c.replace( /[\\:]/g, '\\$&' ) : c ) );
 }
 
 /**
