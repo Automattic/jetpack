@@ -1,16 +1,20 @@
 import { parseVisits } from '../visits';
 
 const fields = [ 'period', 'views', 'visitors' ];
+const days = 7;
 
 describe( 'parseVisits', () => {
 	it( 'reads views and visitors by column name, oldest first', () => {
 		const data = [ 1, 2, 3, 4, 5, 6, 7 ].map( day => [ `2026-10-2${ day }`, day * 10, day ] );
 
 		expect(
-			parseVisits( {
-				fields: [ 'visitors', 'period', 'views' ],
-				data: data.map( ( [ p, v, u ] ) => [ u, p, v ] ),
-			} )
+			parseVisits(
+				{
+					fields: [ 'visitors', 'period', 'views' ],
+					data: data.map( ( [ p, v, u ] ) => [ u, p, v ] ),
+				},
+				days
+			)
 		).toEqual( {
 			views: [ 10, 20, 30, 40, 50, 60, 70 ],
 			visitors: [ 1, 2, 3, 4, 5, 6, 7 ],
@@ -24,7 +28,7 @@ describe( 'parseVisits', () => {
 			[ '2026-10-28', 31, 15 ],
 		];
 
-		expect( parseVisits( { fields, data } ).views ).toEqual( [ 0, 0, 0, 0, 4, 18, 31 ] );
+		expect( parseVisits( { fields, data }, days ).views ).toEqual( [ 0, 0, 0, 0, 4, 18, 31 ] );
 	} );
 
 	it.each( [
@@ -32,6 +36,6 @@ describe( 'parseVisits', () => {
 		[ 'no fields', { data: [] } ],
 		[ 'no visitors column', { fields: [ 'period', 'views' ], data: [] } ],
 	] )( 'throws on a response with %s, instead of showing zero traffic', ( _, body ) => {
-		expect( () => parseVisits( body ) ).toThrow();
+		expect( () => parseVisits( body, days ) ).toThrow();
 	} );
 } );

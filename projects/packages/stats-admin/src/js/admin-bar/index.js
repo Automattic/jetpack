@@ -1,6 +1,7 @@
 import { parseVisits } from './visits';
 import './style.scss';
 
+// The sparkline's drawing units; CSS sets its size on the page.
 const WIDTH = 88;
 const HEIGHT = 20;
 const STROKE_WIDTH = 1.5;
@@ -11,9 +12,10 @@ const CACHE_TTL = 5 * 60 * 1000;
  *
  * @param {string} url   - The visits endpoint, with its query string.
  * @param {string} nonce - The REST API nonce.
+ * @param {number} days  - How many days to return.
  * @return {Promise<{views: number[], visitors: number[]}>} Daily values, oldest first.
  */
-async function fetchVisits( url, nonce ) {
+async function fetchVisits( url, nonce, days ) {
 	const cacheKey = `jetpack-stats-admin-bar:${ url }`;
 	try {
 		const cached = JSON.parse( window.sessionStorage.getItem( cacheKey ) );
@@ -29,10 +31,11 @@ async function fetchVisits( url, nonce ) {
 		headers: { 'X-WP-Nonce': nonce },
 	} );
 	if ( ! response.ok ) {
-		throw new Error( response.statusText );
+		const body = await response.json().catch( () => null );
+		throw new Error( body?.code ?? `HTTP ${ response.status }` );
 	}
 
-	const visits = parseVisits( await response.json() );
+	const visits = parseVisits( await response.json(), days );
 	try {
 		window.sessionStorage.setItem( cacheKey, JSON.stringify( { time: Date.now(), visits } ) );
 	} catch {
@@ -96,10 +99,6 @@ function monotonePath( ys, h ) {
  * @param {number[]}    values - Daily values, oldest first.
  */
 function drawSparkline( el, values ) {
-	if ( values.length < 2 ) {
-		return;
-	}
-
 	const min = Math.min( ...values );
 	const range = Math.max( ...values ) - min || 1;
 	const inset = STROKE_WIDTH / 2;
@@ -108,13 +107,13 @@ function drawSparkline( el, values ) {
 	);
 	const line = monotonePath( ys, WIDTH / ( values.length - 1 ) );
 
-	el.innerHTML = `<svg width="${ WIDTH }" height="${ HEIGHT }" viewBox="0 0 ${ WIDTH } ${ HEIGHT }" focusable="false">
+	el.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 ${ WIDTH } ${ HEIGHT }" preserveAspectRatio="none" focusable="false">
 		<defs><linearGradient id="jp-stats-admin-bar-fill" x1="0" y1="0" x2="0" y2="1">
 			<stop offset="0" stop-color="currentColor" stop-opacity="0.5"/>
 			<stop offset="1" stop-color="currentColor" stop-opacity="0"/>
 		</linearGradient></defs>
 		<path d="${ line }L${ WIDTH },${ HEIGHT }L0,${ HEIGHT }Z" fill="url(#jp-stats-admin-bar-fill)"/>
-		<path d="${ line }" fill="none" stroke="currentColor" stroke-width="${ STROKE_WIDTH }" stroke-linecap="round"/>
+		<path d="${ line }" fill="none" stroke="currentColor" stroke-width="${ STROKE_WIDTH }" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
 	</svg>`;
 }
 
@@ -143,7 +142,7 @@ function drawBars( el, values ) {
 function init() {
 	const chartEl = document.getElementById( 'jetpack-stats-admin-bar-chart' );
 	const panelEl = document.getElementById( 'jetpack-stats-admin-bar-panel' );
-	const { restUrl, nonce } = window.jetpackStatsAdminBar ?? {};
+	const { restUrl, nonce, days } = window.jetpackStatsAdminBar ?? {};
 
 	if ( ! chartEl || ! panelEl || ! restUrl ) {
 		return;
@@ -154,7 +153,7 @@ function init() {
 	linkEl.setAttribute( 'aria-haspopup', 'true' );
 	linkEl.setAttribute( 'aria-expanded', 'false' );
 
-	fetchVisits( restUrl, nonce )
+	fetchVisits( restUrl, nonce, days )
 		.then( ( { views, visitors } ) => {
 			// Shortened like Stats does: 999, then 1K, 1.2K, 13.8M.
 			const formatCompact = numberFormatter( { notation: 'compact', maximumFractionDigits: 1 } );
@@ -162,8 +161,9 @@ function init() {
 			const sum = values => values.reduce( ( total, value ) => total + value, 0 );
 			const showMetric = ( name, values ) => {
 				const el = panelEl.querySelector( `[data-metric="${ name }"]` );
-				el.textContent = formatCompact( sum( values ) );
-				el.title = format( sum( values ) );
+				const total = sum( values );
+				el.textContent = formatCompact( total );
+				el.title = format( total );
 			};
 
 			drawSparkline( chartEl, views );
@@ -173,7 +173,9 @@ function init() {
 			showMetric( 'views', views );
 			showMetric( 'visitors', visitors );
 		} )
-		.catch( () => {
+		.catch( error => {
+			// eslint-disable-next-line no-console
+			console.warn( 'Jetpack Stats admin bar:', error );
 			panelEl.querySelector( '.jp-stats-admin-bar-panel__bars' ).hidden = true;
 			panelEl.querySelector( '.jp-stats-admin-bar-panel__metrics' ).hidden = true;
 			panelEl.querySelector( '.jp-stats-admin-bar-panel__error' ).hidden = false;

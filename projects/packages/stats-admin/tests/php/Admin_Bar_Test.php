@@ -161,7 +161,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		add_filter(
 			'jetpack_stats_url',
 			function ( $url, $args ) use ( &$traffic ) {
-				if ( 'traffic' !== $args['view'] ) {
+				if ( ! isset( $args['range'] ) ) {
 					return $url;
 				}
 				$traffic = array( $url, $args );
@@ -171,21 +171,21 @@ class Admin_Bar_Test extends Stats_TestCase {
 			2
 		);
 
-		$node = $this->render_chart_node();
+		$site_today = static function () {
+			return ( new \DateTimeImmutable( 'now', new \DateTimeZone( 'Pacific/Kiritimati' ) ) )->format( 'Y-m-d' );
+		};
+		$before     = $site_today();
+		$node       = $this->render_chart_node();
+		$after      = $site_today();
 
-		$today = new \DateTimeImmutable( 'now', new \DateTimeZone( 'Pacific/Kiritimati' ) );
-		$start = $today->modify( '-6 days' )->format( 'Y-m-d' );
-		$end   = $today->format( 'Y-m-d' );
 		$this->assertNotNull( $traffic, 'The traffic link does not go through the jetpack_stats_url filter.' );
-		$this->assertStringEndsWith( "#!/stats/day/999?chartStart=$start&chartEnd=$end", $traffic[0] );
-		$this->assertSame(
-			array(
-				'view'  => 'traffic',
-				'start' => $start,
-				'end'   => $end,
-			),
-			$traffic[1]
-		);
+		list( $url, $args ) = $traffic;
+		$from               = $args['range']['from'];
+		$to                 = $args['range']['to'];
+		$this->assertSame( array( 'dashboard', 'traffic' ), array( $args['view'], $args['section'] ) );
+		$this->assertContains( $to, array( $before, $after ) );
+		$this->assertSame( 6, ( new \DateTimeImmutable( $from ) )->diff( new \DateTimeImmutable( $to ) )->days );
+		$this->assertStringEndsWith( "#!/stats/day/999?chartStart=$from&chartEnd=$to", $url );
 		$this->assertStringContainsString( 'href="https://example.org/new-traffic"', $node->meta['html'] );
 	}
 

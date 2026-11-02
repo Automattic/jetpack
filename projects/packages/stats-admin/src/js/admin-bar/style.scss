@@ -5,7 +5,7 @@
 	> .ab-item {
 		display: flex;
 		align-items: center;
-		height: 32px;
+		block-size: 32px;
 		padding-inline: 10px;
 	}
 
@@ -30,7 +30,7 @@
 		border-block-start: 1px solid color-mix(in sRGB, currentColor 10%, transparent);
 
 		.ab-item {
-			height: auto;
+			block-size: auto;
 			padding: 10px 12px;
 			font-size: 13px;
 			line-height: 20px;

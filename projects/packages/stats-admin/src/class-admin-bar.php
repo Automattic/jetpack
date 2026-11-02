@@ -47,6 +47,13 @@ class Admin_Bar {
 	const SEVEN_DAY_CHART_FLAG = 'jetpack-stats-admin-bar-seven-day-chart';
 
 	/**
+	 * How many days the chart shows, ending today.
+	 *
+	 * @var int
+	 */
+	const SEVEN_DAY_CHART_DAYS = 7;
+
+	/**
 	 * Register the hooks.
 	 *
 	 * @return void
@@ -176,7 +183,13 @@ class Admin_Bar {
 		};
 
 		return '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel" class="jp-stats-admin-bar-panel">'
-			. '<div class="jp-stats-admin-bar-panel__title">' . esc_html__( 'Last 7 days', 'jetpack-stats-admin' ) . '</div>'
+			. '<div class="jp-stats-admin-bar-panel__title">' . esc_html(
+				sprintf(
+					/* translators: %d: Number of days. */
+					_n( 'Last %d day', 'Last %d days', self::SEVEN_DAY_CHART_DAYS, 'jetpack-stats-admin' ),
+					self::SEVEN_DAY_CHART_DAYS
+				)
+			) . '</div>'
 			. '<span class="ab-label jp-stats-admin-bar-panel__bars" aria-hidden="true"></span>'
 			. '<dl class="jp-stats-admin-bar-panel__metrics">'
 			. $metric( 'views', __( 'Views', 'jetpack-stats-admin' ) )
@@ -189,13 +202,13 @@ class Admin_Bar {
 	}
 
 	/**
-	 * The Traffic page for the same 7 days the chart shows, ending today in the site's timezone.
+	 * The Traffic page for the days the chart shows, ending today in the site's timezone.
 	 *
 	 * @return string
 	 */
 	private static function get_seven_day_traffic_url() {
 		$today = new \DateTimeImmutable( 'now', wp_timezone() );
-		$start = $today->modify( '-6 days' )->format( 'Y-m-d' );
+		$start = $today->modify( '-' . ( self::SEVEN_DAY_CHART_DAYS - 1 ) . ' days' )->format( 'Y-m-d' );
 		$end   = $today->format( 'Y-m-d' );
 		$url   = admin_url( 'admin.php?page=stats#!/stats/day/' . (int) \Jetpack_Options::get_option( 'id' ) . "?chartStart=$start&chartEnd=$end" );
 
@@ -204,9 +217,12 @@ class Admin_Bar {
 			'jetpack_stats_url',
 			$url,
 			array(
-				'view'  => 'traffic',
-				'start' => $start,
-				'end'   => $end,
+				'view'    => 'dashboard',
+				'section' => 'traffic',
+				'range'   => array(
+					'from' => $start,
+					'to'   => $end,
+				),
 			)
 		);
 	}
@@ -232,12 +248,13 @@ class Admin_Bar {
 			'restUrl' => add_query_arg(
 				array(
 					'unit'        => 'day',
-					'quantity'    => 7,
+					'quantity'    => self::SEVEN_DAY_CHART_DAYS,
 					'stat_fields' => 'views,visitors',
 				),
 				rest_url( 'jetpack/v4/stats-app/sites/' . (int) \Jetpack_Options::get_option( 'id' ) . '/stats/visits' )
 			),
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'days'    => self::SEVEN_DAY_CHART_DAYS,
 		);
 
 		wp_add_inline_script(
@@ -284,8 +301,8 @@ class Admin_Bar {
 		/**
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *
-		 * `$args['view']` names the page the link opens: `dashboard`, `post` with the post in `$args['id']`,
-		 * or `traffic` with the first and last days, as `Y-m-d`, in `$args['start']` and `$args['end']`.
+		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
+		 * Since $$next-version$$, `dashboard` may carry a `section` and a `range` of `from`/`to` days as `Y-m-d`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
