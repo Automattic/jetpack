@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Proxy_Request, the forward to WordPress.com as a class that needs no route and no request object, and build the WPCOM_REST_API_Proxy_Request trait on it.
