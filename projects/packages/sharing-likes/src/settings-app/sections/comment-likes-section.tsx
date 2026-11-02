@@ -1,12 +1,13 @@
-import { useMemo } from '@wordpress/element';
+import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Text } from '@wordpress/ui';
+import { Link, Text } from '@wordpress/ui';
 import { COMMENT_LIKES_ANCHOR } from '../anchors';
 import { AutoSaveFields } from '../components/auto-save-fields';
 import { ToggleEdit } from '../components/controls';
 import { PlacementSummary } from '../components/placement-summary';
 import { SectionCard, SettingGroup } from '../components/section-card';
 import { useStatus } from '../data/queries';
+import { commentsClosedByDefault, getDiscussionSettingsUrl } from '../script-data';
 import { configures, type Settings } from '../types';
 import { sitewideLikesField } from './like-buttons-section';
 import type { Field } from '@wordpress/dataviews';
@@ -24,6 +25,32 @@ function commentLikesField(): Field< Settings > {
 		type: 'boolean',
 		Edit: ToggleEdit,
 	};
+}
+
+/**
+ * Points to Settings > Discussion when new posts start with comments closed.
+ *
+ * @return Hint, or null while new posts allow comments.
+ */
+function CommentsClosedHint(): JSX.Element | null {
+	const url = getDiscussionSettingsUrl();
+	if ( ! commentsClosedByDefault() || ! url ) {
+		return null;
+	}
+
+	return (
+		<SettingGroup>
+			<Text render={ <p /> }>
+				{ createInterpolateElement(
+					__(
+						'Comments are turned off for new posts. <link>Change this in Discussion settings</link>.',
+						'jetpack-sharing-likes'
+					),
+					{ link: <Link href={ url } /> }
+				) }
+			</Text>
+		</SettingGroup>
+	);
 }
 
 /**
@@ -70,6 +97,7 @@ export function CommentLikesSection(): JSX.Element | null {
 	return (
 		<SectionCard id={ COMMENT_LIKES_ANCHOR } title={ title }>
 			{ follows && <PlacementSummary feature="comment-likes" /> }
+			<CommentsClosedHint />
 			<AutoSaveFields fields={ fields } />
 		</SectionCard>
 	);

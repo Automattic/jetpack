@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .wrapper {
 
@@ -8,7 +8,7 @@
 
 		&:not(:last-child) {
 			border-radius: 0;
-			border-bottom: 1px solid gb.$gray-100;
+			border-bottom: 1px solid colors.$gray-100;
 		}
 	}
 

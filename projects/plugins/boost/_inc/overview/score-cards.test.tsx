@@ -111,11 +111,11 @@ test.each( [
 		expect( card.getByText( '+10 points' ) ).toBeVisible();
 		const progress = card.getByRole( 'progressbar', { name: device } );
 		expect( progress ).toHaveValue( Number( score ) );
-		// eslint-disable-next-line testing-library/no-node-access -- ProgressBar applies color classes to its wrapper.
-		expect( progress.parentElement ).toHaveClass(
-			'jetpack-boost-overview__progress',
-			`jetpack-boost-overview__progress--${ tier }`
-		);
+		expect( progress ).toHaveClass( 'jetpack-boost-overview__progress' );
+		expect(
+			// eslint-disable-next-line testing-library/no-node-access -- The tier color is on the indicator, which has no role.
+			progress.querySelector( `.jetpack-boost-overview__progress--${ tier }` )
+		).toBeInTheDocument();
 	}
 } );
 

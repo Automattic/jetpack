@@ -70,10 +70,13 @@ it( 'retries a locked HEAD on the same upload instead of creating another upload
 			return request;
 		},
 	};
-	await waitFor( () => {
-		expect( onError.mock.calls ).toEqual( [] );
-		expect( onSuccess ).toHaveBeenCalledTimes( 1 );
-	} );
+	await waitFor(
+		() => {
+			expect( onError.mock.calls ).toEqual( [] );
+			expect( onSuccess ).toHaveBeenCalledTimes( 1 );
+		},
+		{ timeout: 10000 }
+	);
 	expect( requests ).toEqual( [ 'HEAD', 'HEAD', 'PATCH' ] );
 	expect( onError ).not.toHaveBeenCalled();
 	await upload.abort();

@@ -30,18 +30,18 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
-		"@wordpress/components": "42.0.0",
-		"@wordpress/data": "10.57.0",
-		"@wordpress/element": "9.0.0",
-		"@wordpress/i18n": "6.30.0"
+		"@wordpress/components": "43.0.0",
+		"@wordpress/data": "11.0.0",
+		"@wordpress/element": "10.0.0",
+		"@wordpress/i18n": "7.0.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
 		"@types/react": "19.3.0",
-		"@wordpress/browserslist-config": "6.57.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
+		"@wordpress/browserslist-config": "7.0.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "7.0.0",
 		"c8": "^11.0.0",
 		"glob": "13.0.6",
 		"jest": "30.5.2",

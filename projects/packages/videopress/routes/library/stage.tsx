@@ -8,6 +8,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
@@ -520,6 +521,10 @@ const StageInner = () => {
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</Tooltip>
+						<RecordVideoButton
+							onRecorded={ file => handleFilesSelected( [ file ] ) }
+							disabled={ isAtLimit }
+						/>
 					</>
 				)
 			}
