@@ -7,7 +7,7 @@ _{{name}}() {
 	local entry ret=1
 
 	# yargs formats the candidates for the shell named by $SHELL, which may not be the one running.
-	reply=( ${(f)"$( SHELL=zsh {{name}} --get-yargs-completions "${words[@]}" 2>/dev/null )"} )
+	reply=( ${(f)"$( SHELL=zsh {{name}} --get-yargs-completions "${(@)words[1,CURRENT]}" 2>/dev/null )"} )
 	for entry in "${reply[@]}"; do
 		if [[ -z $entry ]]; then
 			continue

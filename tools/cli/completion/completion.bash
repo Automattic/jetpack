@@ -7,7 +7,7 @@ _{{name}}() {
 	local IFS=$'\n'
 
 	# yargs formats the candidates for the shell named by $SHELL, which may not be the one running.
-	mapfile -t reply < <( SHELL=bash {{name}} --get-yargs-completions "${COMP_WORDS[@]}" 2>/dev/null )
+	mapfile -t reply < <( SHELL=bash {{name}} --get-yargs-completions "${COMP_WORDS[@]:0:COMP_CWORD+1}" 2>/dev/null )
 	if (( ${#reply[@]} == 0 )); then
 		return 0
 	fi
