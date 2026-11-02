@@ -28,7 +28,7 @@ export function FallbackSettings( { module: $module }: { module: MyJetpackModule
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Activate this feature', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } ariaLabelledBy={ labelId } />
+				<ModuleToggle module={ $module } labelledby={ labelId } />
 			</Stack>
 
 			{ $module.configure_url && (
