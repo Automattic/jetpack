@@ -92,7 +92,7 @@ type SettingChange = { setting: keyof StatsSettings; enabled: boolean; role?: st
  * @return One entry per change.
  */
 function getSettingChanges(
-	before: StatsSettings,
+	before: Partial< StatsSettings >,
 	edits: Partial< StatsSettings >
 ): SettingChange[] {
 	return ( Object.keys( edits ) as ( keyof StatsSettings )[] ).flatMap( setting => {
@@ -100,7 +100,7 @@ function getSettingChanges(
 		if ( ! Array.isArray( value ) ) {
 			return [ { setting, enabled: Boolean( value ) } ];
 		}
-		const previous = before[ setting ] as string[];
+		const previous = ( before[ setting ] ?? [] ) as string[];
 		return [
 			...value
 				.filter( role => ! previous.includes( role ) )
@@ -145,12 +145,16 @@ function StatsSettingsContent(): JSX.Element {
 	const offered = premiumAnalytics?.stats_settings?.fields;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
 	const cardGroups = useMemo( () => getCardGroups( offered ), [ offered ] );
+	const offeredSettings = useMemo(
+		() => cardGroups.flatMap( group => group.children ),
+		[ cardGroups ]
+	);
 	const formLayout = useMemo< Form >(
 		() => ( { layout: { type: 'card', isCollapsible: false }, fields: cardGroups } ),
 		[ cardGroups ]
 	);
 
-	const { settings, isError, saveChange } = useStatsSettings();
+	const { settings, isError, saveChange } = useStatsSettings( offeredSettings );
 	const trackEvent = useTrackEvent();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
 
@@ -172,8 +176,7 @@ function StatsSettingsContent(): JSX.Element {
 				);
 				return;
 			}
-			// DataForm only renders once the settings have loaded.
-			getSettingChanges( settings as StatsSettings, edits ).forEach( change =>
+			getSettingChanges( settings ?? {}, edits ).forEach( change =>
 				trackEvent( 'jetpack_premium_analytics_settings_changed', change )
 			);
 			createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
@@ -196,8 +199,10 @@ function StatsSettingsContent(): JSX.Element {
 		);
 	}
 
-	let form: JSX.Element;
-	if ( settings ) {
+	let form: JSX.Element | null;
+	if ( cardGroups.length === 0 ) {
+		form = null;
+	} else if ( settings ) {
 		form = (
 			<DataForm data={ settings } fields={ fields } form={ formLayout } onChange={ onChange } />
 		);

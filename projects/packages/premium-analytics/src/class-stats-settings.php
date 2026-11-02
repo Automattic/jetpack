@@ -185,8 +185,6 @@ final class Stats_Settings {
 		/**
 		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer, and whether the tab shows the visitor consent card.
 		 *
-		 * Keep at least one `stats_options` field with the Reader setting: the tab cannot load the Reader setting alone.
-		 *
 		 * @since $$next-version$$
 		 *
 		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled` and `consent`.

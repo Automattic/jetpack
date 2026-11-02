@@ -252,5 +252,25 @@ describe( 'StatsSettingsPanel', () => {
 		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'WordPress.com Reader' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Manage permissions' ) ).not.toBeInTheDocument();
+		expect( useStatsSettingsMock ).toHaveBeenCalledWith( [
+			'admin_bar',
+			'wpcom_reader_views_enabled',
+		] );
+	} );
+
+	it( 'draws no form, and no load error, when the site offers no setting', () => {
+		setScriptData( null, { fields: [ 'consent' ] } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: undefined,
+			isError: true,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect(
+			screen.queryByText( 'Your Stats settings could not be loaded. Reload the page to try again.' )
+		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
 	} );
 } );
