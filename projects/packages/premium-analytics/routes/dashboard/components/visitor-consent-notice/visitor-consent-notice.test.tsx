@@ -142,11 +142,11 @@ describe( 'VisitorConsentNotice', () => {
 	} );
 
 	it.each( [
-		[ 'by name', {}, 'Stats doesn’t know what visitors choose in Complianz yet.' ],
+		[ 'by name', {}, 'follow what visitors choose in Complianz.' ],
 		[
 			'when its plugin is not one Stats knows',
 			{ banner_plugin: null, consent_type_declared: true },
-			'Stats doesn’t know what visitors choose in your cookie banner yet.',
+			'follow what visitors choose in your cookie banner.',
 		],
 	] )( 'invites the site to connect its cookie banner, %s', async ( _title, consent, text ) => {
 		setSite( consent );
@@ -156,6 +156,10 @@ describe( 'VisitorConsentNotice', () => {
 
 		expect( screen.getByText( 'Connect your cookie banner to Stats' ) ).toBeInTheDocument();
 		expect( screen.getByText( text, { exact: false } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/support/jetpack-stats/'
+		);
 		expect( recordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_visitor_consent_notice_view',
 			undefined
