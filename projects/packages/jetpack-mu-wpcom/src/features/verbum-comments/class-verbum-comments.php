@@ -208,8 +208,8 @@ class Verbum_Comments {
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
-		// The sig covers this nonce, which old Jetpack only sends to users with unfiltered_html (the closest signed proxy for admin).
-		$retirement_notice_url = is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] )
+		// The sig covers this nonce, which old Jetpack only sends to users with unfiltered_html (the closest signed proxy for admin). Only once the latest Jetpack release has the new form.
+		$retirement_notice_url = is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' )
 			? trailingslashit( get_blog_option( $this->blog_id, 'siteurl' ) ) . 'wp-admin/plugins.php'
 			: '';
 
