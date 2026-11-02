@@ -27,10 +27,14 @@ export class Performance extends Component {
 
 		// Once settings move out, Search and VideoPress show here only in search results, as links to their new homes.
 		const consolidated = isSettingsConsolidationEnabled(),
-			foundVideoPress =
-				this.props.isModuleFound( 'videopress' ) && ( ! consolidated || !! this.props.searchTerm ),
+			isFound = module =>
+				this.props.isModuleFound( module ) && ( ! consolidated || !! this.props.searchTerm ),
+			foundSearch = isFound( 'search' ),
+			foundVideoPress = isFound( 'videopress' ),
 			found =
-				foundVideoPress || [ 'photon', 'photon-cdn', 'search' ].some( this.props.isModuleFound );
+				foundSearch ||
+				foundVideoPress ||
+				[ 'photon', 'photon-cdn' ].some( this.props.isModuleFound );
 
 		if ( ! found ) {
 			return null;
@@ -43,7 +47,7 @@ export class Performance extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
 				) }
-				{ ( ! consolidated || this.props.searchTerm ) && <Search { ...commonProps } /> }
+				{ ( ! consolidated || foundSearch ) && <Search { ...commonProps } /> }
 				<SpeedUpSite { ...commonProps } />
 				{ consolidated ? (
 					foundVideoPress && (

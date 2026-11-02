@@ -12,7 +12,7 @@ jest.mock( 'components/search', () => ( {
 	default: () => null,
 } ) );
 
-const buildInitialState = protectPage => ( {
+const buildInitialState = ( protectPage, extraModules = {} ) => ( {
 	jetpack: {
 		initialState: {
 			userData: {
@@ -30,6 +30,7 @@ const buildInitialState = protectPage => ( {
 				sso: { activated: true },
 				stats: { activated: true },
 				waf: { activated: true },
+				...extraModules,
 			},
 		},
 		pluginsData: { items: {} },
@@ -60,5 +61,30 @@ describe( 'SettingsNavTabs', () => {
 		expect( screen.queryAllByRole( 'tab', { name: 'Security' } ) ).toHaveLength(
 			hasSecurityTab ? 1 : 0
 		);
+	} );
+
+	const searchAndVideoPress = { search: { activated: true }, videopress: { activated: true } };
+
+	it.each( [
+		[ 'shows', 'while the settings flag is off', false, searchAndVideoPress, 1 ],
+		[ 'hides', 'once the flag is on', true, searchAndVideoPress, 0 ],
+		[
+			'shows',
+			'with the image CDN once the flag is on',
+			true,
+			{ ...searchAndVideoPress, photon: { activated: true } },
+			1,
+		],
+	] )( '%s the Performance tab %s', ( _verb, _when, flag, modules, tabs ) => {
+		window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+
+		render(
+			<MemoryRouter initialEntries={ [ '/traffic' ] }>
+				<SettingsNavTabs />
+			</MemoryRouter>,
+			{ initialState: buildInitialState( true, modules ) }
+		);
+
+		expect( screen.queryAllByRole( 'tab', { name: 'Performance' } ) ).toHaveLength( tabs );
 	} );
 } );

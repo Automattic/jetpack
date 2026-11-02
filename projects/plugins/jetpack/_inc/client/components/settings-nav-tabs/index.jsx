@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
@@ -103,7 +104,12 @@ const SettingsNavTabs = props => {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		if ( hasPerformanceFeature ) {
+		// Once settings move out, only the image CDN fills this tab outside a search.
+		if (
+			isSettingsConsolidationEnabled()
+				? hasModules( [ 'photon', 'photon-cdn' ] )
+				: hasPerformanceFeature
+		) {
 			visibleTabs.push( '/performance' );
 		}
 		if (
