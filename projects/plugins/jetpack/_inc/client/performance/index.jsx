@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { isMovedOut } from 'lib/settings-consolidation';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -9,7 +10,7 @@ import Media from './media';
 import Search from './search';
 import SpeedUpSite from './speed-up-site';
 
-class Performance extends Component {
+export class Performance extends Component {
 	render() {
 		const commonProps = {
 			getModule: this.props.module,
@@ -23,9 +24,9 @@ class Performance extends Component {
 			return null;
 		}
 
-		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
-			this.props.isModuleFound
-		);
+		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ]
+			.filter( module => ! isMovedOut( module ) )
+			.some( this.props.isModuleFound );
 
 		if ( ! found ) {
 			return null;
@@ -40,7 +41,7 @@ class Performance extends Component {
 				) }
 				<Search { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />
-				<Media { ...commonProps } />
+				{ ! isMovedOut( 'videopress' ) && <Media { ...commonProps } /> }
 			</div>
 		);
 	}

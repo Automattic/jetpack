@@ -20,7 +20,7 @@ export function getMovedOutModules( canManageModules ) {
 	if ( ! isSettingsConsolidationEnabled() ) {
 		return [];
 	}
-	return [ 'blaze', 'earn', ...( canManageModules ? [ 'publicize' ] : [] ) ];
+	return [ 'blaze', 'earn', 'videopress', ...( canManageModules ? [ 'publicize' ] : [] ) ];
 }
 
 /**
