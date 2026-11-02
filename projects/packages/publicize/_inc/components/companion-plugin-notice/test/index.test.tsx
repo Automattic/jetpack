@@ -99,9 +99,9 @@ describe( 'CompanionPluginNotice', () => {
 			await userEvent.click( screen.getByRole( 'button', { name: button } ) );
 
 			expect( mockedApiFetch ).toHaveBeenCalledWith( request );
-			await expect(
-				screen.findByRole( 'link', { name: 'Finish setting it up' } )
-			).resolves.toHaveAttribute( 'href', plugin.settings_url );
+			const link = await screen.findByRole( 'link', { name: 'Finish setting it up' } );
+			expect( link ).toHaveAttribute( 'href', plugin.settings_url );
+			expect( link ).toHaveFocus();
 			expect( mockRecordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 				'jetpack_social_companion_plugin_notice_view',
 				'jetpack_social_companion_plugin_notice_cta_click',

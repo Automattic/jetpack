@@ -1,6 +1,12 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
-import { createInterpolateElement, useCallback, useEffect, useMemo } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
 import { markViewed, useCompanionPlugin } from './use-companion-plugin';
@@ -123,9 +129,20 @@ export function CompanionPluginNotice( {
 		}
 	}, [ isVisible, eventProps, context, recordEvent ] );
 
+	// Only the notice whose button was pressed takes focus, since the button unmounts on success.
+	const focusOnSuccess = useRef( false );
+	const focusSettingsLink = useCallback( ( node: HTMLAnchorElement | null ) => {
+		if ( node && focusOnSuccess.current ) {
+			focusOnSuccess.current = false;
+			node.focus();
+		}
+	}, [] );
+
 	const onInstall = useCallback( async () => {
 		recordEvent( 'jetpack_social_companion_plugin_notice_cta_click', eventProps );
+		focusOnSuccess.current = true;
 		const result = await install();
+		focusOnSuccess.current = false;
 		if ( result?.status !== 'active' && result?.status !== 'error' ) {
 			return;
 		}
@@ -170,7 +187,7 @@ export function CompanionPluginNotice( {
 							__( '%s is active. <link>Finish setting it up</link>.', 'jetpack-publicize-pkg' ),
 							name
 						),
-						{ link: <Link href={ plugin.settings_url } /> }
+						{ link: <Link href={ plugin.settings_url } ref={ focusSettingsLink } /> }
 					) }
 				</Notice.Description>
 			</Notice.Root>
