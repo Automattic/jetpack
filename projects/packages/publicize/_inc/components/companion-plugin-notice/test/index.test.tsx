@@ -53,7 +53,7 @@ describe( 'CompanionPluginNotice', () => {
 	} );
 
 	it( 'renders nothing when no plugin is offered for the network', () => {
-		const { container } = setup( [] );
+		const { container } = setup( [ atmosphere() ], 'mastodon' );
 
 		expect( container ).toBeEmptyDOMElement();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();

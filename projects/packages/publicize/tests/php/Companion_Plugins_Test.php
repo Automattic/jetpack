@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use WorDBless\Options as WorDBless_Options;
@@ -73,6 +75,11 @@ class Companion_Plugins_Test extends TestCase {
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
+		remove_all_filters( 'map_meta_cap' );
+		if ( file_exists( WP_PLUGIN_DIR . '/activitypub/activitypub.php' ) ) {
+			unlink( WP_PLUGIN_DIR . '/activitypub/activitypub.php' );
+			rmdir( WP_PLUGIN_DIR . '/activitypub' );
+		}
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
@@ -143,6 +150,60 @@ class Companion_Plugins_Test extends TestCase {
 	 */
 	public function test_skips_active_plugins() {
 		update_option( 'active_plugins', array( 'activitypub/activitypub.php' ) );
+		$this->log_in( 'administrator' );
+
+		$this->assertSame( array( 'atmosphere' => 'install' ), $this->offered() );
+	}
+
+	/**
+	 * A plugin already on disk is activated, unless the user cannot manage plugins at all.
+	 *
+	 * @param bool        $can_manage Whether the user keeps `activate_plugins`, which wpcomsh denies on plans without plugins.
+	 * @param string|null $expected   The ActivityPub action.
+	 * @dataProvider provide_installed_plugin
+	 */
+	#[DataProvider( 'provide_installed_plugin' )]
+	public function test_activates_an_installed_plugin( bool $can_manage, ?string $expected ) {
+		// `wp_mkdir_p()` refuses WorDBless's `WP_PLUGIN_DIR`, which contains `../`.
+		wp_mkdir_p( realpath( WP_PLUGIN_DIR ) . '/activitypub' );
+		file_put_contents( WP_PLUGIN_DIR . '/activitypub/activitypub.php', '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		if ( ! $can_manage ) {
+			add_filter(
+				'map_meta_cap',
+				static function ( $caps, $cap ) {
+					return 'activate_plugins' === $cap ? array( 'do_not_allow' ) : $caps;
+				},
+				10,
+				2
+			);
+		}
+		$this->log_in( 'administrator' );
+
+		$this->assertSame( $expected, $this->offered()['activitypub'] ?? null );
+	}
+
+	/**
+	 * Whether the user can manage plugins, and the action offered for an installed plugin.
+	 *
+	 * @return array<string, array{bool, string|null}>
+	 */
+	public static function provide_installed_plugin(): array {
+		return array(
+			'admin activates it'            => array( true, 'activate' ),
+			'plan without plugins hides it' => array( false, null ),
+		);
+	}
+
+	/**
+	 * A plugin loaded some other way, e.g. bundled on WordPress.com, is not offered again.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_skips_plugins_loaded_without_activation() {
+		define( 'ACTIVITYPUB_PLUGIN_VERSION', '1.0.0' );
 		$this->log_in( 'administrator' );
 
 		$this->assertSame( array( 'atmosphere' => 'install' ), $this->offered() );

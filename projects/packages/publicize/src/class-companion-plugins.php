@@ -90,14 +90,14 @@ class Companion_Plugins {
 	/**
 	 * How the current user can turn a plugin on through core, mirroring the checks core's `wp/v2/plugins` route makes.
 	 *
-	 * On WoA, wpcomsh already denies these capabilities on plans that cannot install plugins.
+	 * On WoA, wpcomsh denies the primitive capabilities on plans that cannot install plugins, but not `activate_plugin`.
 	 *
 	 * @param string $file The plugin file.
 	 * @return string|null `install`, `activate`, or null when the user cannot.
 	 */
 	private static function get_plugin_action( string $file ): ?string {
 		if ( file_exists( WP_PLUGIN_DIR . '/' . $file ) ) {
-			return current_user_can( 'activate_plugin', $file ) ? 'activate' : null;
+			return current_user_can( 'activate_plugins' ) && current_user_can( 'activate_plugin', $file ) ? 'activate' : null;
 		}
 
 		return current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' ) ? 'install' : null;
