@@ -72,10 +72,30 @@
 	}
 }
 
+.jp-forms__export-modal-card-status {
+	display: grid;
+
+	> * {
+		grid-area: 1 / 1;
+	}
+
+	> .is-hidden {
+		visibility: hidden;
+	}
+}
+
 .jp-forms__export-modal-card-progress {
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	margin-block-start: 16px;
-	font-size: 13px;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+// One line, so the progress never outgrows the hidden description.
+.jp-forms__export-modal-card-progress-label {
+	white-space: nowrap;
+}
+
+.jp-forms__export-modal-card-progress-track {
+	flex: 1;
 }
