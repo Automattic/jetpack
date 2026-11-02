@@ -3008,7 +3008,18 @@ class Contact_Form_Plugin {
 	 * @return \Generator<array> Yields nothing when no response qualifies.
 	 */
 	public function get_export_rows( $feedback_ids, $include_test_responses = false ) {
-		// The header needs every response's field names, so the first pass collects only those.
+		yield from $this->get_prepared_export_rows( $this->prepare_export( $feedback_ids, $include_test_responses ) );
+	}
+
+	/**
+	 * Runs the export's first pass: which responses qualify, and every field column the header needs.
+	 *
+	 * @param int[] $feedback_ids           Feedback IDs to export.
+	 * @param bool  $include_test_responses Whether to include responses submitted from form preview.
+	 *
+	 * @return array{ids: int[], field_names: string[]}
+	 */
+	private function prepare_export( $feedback_ids, $include_test_responses ) {
 		$field_names = array();
 		$export_ids  = array();
 		foreach ( $this->get_export_feedback_batches( $feedback_ids, $include_test_responses ) as $feedback_id => $feedback ) {
@@ -3018,11 +3029,24 @@ class Contact_Form_Plugin {
 				$field_names[ trim( $field_name ) ] = true;
 			}
 		}
-		$field_names = array_map( 'strval', array_keys( $field_names ) );
 
+		return array(
+			'ids'         => $export_ids,
+			'field_names' => array_map( 'strval', array_keys( $field_names ) ),
+		);
+	}
+
+	/**
+	 * Yields the header row, then one row per response, for a prepare_export() result.
+	 *
+	 * @param array $export Result of prepare_export().
+	 *
+	 * @return \Generator<array> Yields nothing when no response qualifies.
+	 */
+	private function get_prepared_export_rows( $export ) {
 		$is_first_row = true;
-		foreach ( $this->get_export_feedback_batches( $export_ids, true ) as $feedback_id => $feedback ) {
-			$row = $this->get_export_row( $feedback_id, $feedback, $field_names );
+		foreach ( $this->get_export_feedback_batches( $export['ids'], true ) as $feedback_id => $feedback ) {
+			$row = $this->get_export_row( $feedback_id, $feedback, $export['field_names'] );
 			if ( $is_first_row ) {
 				$is_first_row = false;
 				yield array_keys( $row );
@@ -3317,10 +3341,14 @@ class Contact_Form_Plugin {
 	public function download_feedback_as_csv() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_export_feedback_ids_from_post function
 		$post_data = wp_unslash( $_POST );
-		$rows      = $this->get_export_rows_from_post();
+		$request   = $this->get_export_feedback_ids_from_post();
+		if ( null === $request ) {
+			return;
+		}
 
-		// Runs the first pass and stops at the header row, before any output is sent.
-		if ( null === $rows || ! $rows->valid() ) {
+		$export = $this->prepare_export( $request['ids'], $request['include_test_responses'] );
+		$rows   = $this->get_prepared_export_rows( $export );
+		if ( ! $rows->valid() ) {
 			return;
 		}
 
@@ -3344,6 +3372,8 @@ class Contact_Form_Plugin {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 		header( 'Content-Type: text/csv; charset=utf-8' );
+		// Lets the dashboard show a percentage, since a streamed file has no Content-Length.
+		header( 'X-Jetpack-Forms-Export-Count: ' . count( $export['ids'] ) );
 
 		$output = fopen( 'php://output', 'w' );
 		$this->write_export_csv( $output, $rows );
