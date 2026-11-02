@@ -470,7 +470,7 @@ TickDecimals.parameters = {
 	docs: {
 		description: {
 			story:
-				'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same; when every value is under a dollar, the axis widens to read $0 and $1.',
+				'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same.',
 		},
 	},
 };

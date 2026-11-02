@@ -522,8 +522,8 @@ export type AxisOptions = {
 	tickValues?: ScaleInput< AxisScale >[];
 	/**
 	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never repeat;
-	 * an axis holding fewer than two steps widens to show two. Ignored when `tickValues` or the value
-	 * scale's `domain` is set. Line and bar charts only.
+	 * an axis holding fewer than two steps widens to show two. Whole-number data always uses 0. Ignored
+	 * when `tickValues` or the value scale's `domain` is set. Line and bar charts only.
 	 */
 	tickDecimals?: number;
 	axisClassName?: string;

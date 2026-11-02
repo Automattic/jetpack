@@ -41,7 +41,7 @@ const isOnDecimals = ( value: number, decimals: number ): boolean => {
 /**
  * The scale's ticks with those finer than `decimals` places dropped.
  *
- * d3 steps by 1, 2 or 5 times a power of ten, so every multiple of 10^-decimals inside the domain is one of its ticks.
+ * d3 steps by 1, 2 or 5 times a power of ten, so a step finer than 10^-decimals puts a tick on every multiple of it.
  *
  * @param scale    - The value scale visx built.
  * @param count    - Ticks to ask the scale for; undefined uses the scale's own default, as visx does.
@@ -85,7 +85,7 @@ export const getTickDecimalsDomain = (
 };
 
 /**
- * The decimals a value axis's ticks are held to: none for whole-number data, else the caller's `tickDecimals`.
+ * The decimals a value axis's ticks are held to: 0 for whole-number data, else the caller's `tickDecimals`.
  *
  * @param hasWholeNumberValues - Whether every plotted value is a whole number.
  * @param tickDecimals         - The axis's `tickDecimals`.
