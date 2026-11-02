@@ -141,22 +141,25 @@ type ThreatFieldOptions = {
 	getDate: ( item: ScanThreat ) => string;
 	/** Show each threat on one line, with its severity, for a list without a Severity column. */
 	inline?: boolean;
+	/** Blank the date column's heading and sorting, for threats with no dates to show. */
+	hideDateHeader?: boolean;
 };
 
 /**
  * A threats table's columns: severity, the threat, then a date.
  *
- * @param open                - Opens a threat in the inspector.
- * @param options             - The columns' labels and date.
- * @param options.threatLabel - The threat column's heading.
- * @param options.dateLabel   - The date column's heading.
- * @param options.getDate     - The ISO date the date column shows.
- * @param options.inline      - Whether each threat takes one line, with its severity.
+ * @param open                   - Opens a threat in the inspector.
+ * @param options                - The columns' labels and date.
+ * @param options.threatLabel    - The threat column's heading.
+ * @param options.dateLabel      - The date column's heading.
+ * @param options.getDate        - The ISO date the date column shows.
+ * @param options.inline         - Whether each threat takes one line, with its severity.
+ * @param options.hideDateHeader - Whether the date column has no heading or sorting.
  * @return The fields.
  */
 export function getThreatFields(
 	open: ( item: ScanThreat ) => void,
-	{ threatLabel, dateLabel, getDate, inline = false }: ThreatFieldOptions
+	{ threatLabel, dateLabel, getDate, inline = false, hideDateHeader = false }: ThreatFieldOptions
 ): Field< ScanThreat >[] {
 	return [
 		{
@@ -184,6 +187,8 @@ export function getThreatFields(
 		{
 			id: 'date',
 			label: dateLabel,
+			// DataViews shows the label, then the id, when the header is empty.
+			...( hideDateHeader && { header: <span />, enableSorting: false } ),
 			type: 'datetime',
 			enableHiding: false,
 			getValue: ( { item } ) => getDate( item ),
@@ -318,9 +323,10 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		() => [
 			...getThreatFields( open, {
 				threatLabel: __( 'Vulnerabilities', 'jetpack-protect-pkg' ),
-				dateLabel: hasDates ? __( 'Detected on', 'jetpack-protect-pkg' ) : '',
+				dateLabel: __( 'Detected on', 'jetpack-protect-pkg' ),
 				getDate: item => item.firstDetected ?? '',
 				inline: true,
+				hideDateHeader: ! hasDates,
 			} ),
 			...FILTER_FIELDS,
 		],

@@ -43,6 +43,7 @@ describe( 'ThreatsList', () => {
 			firstDetected,
 		};
 		render( <ThreatsList threats={ [ threat ] } canAct={ false } /> );
-		expect( !! screen.queryByText( 'Detected on' ) ).toBe( !! firstDetected );
+		const header = screen.queryByRole( 'columnheader', { name: /detected on|date/i } );
+		expect( !! header ).toBe( !! firstDetected );
 	} );
 } );
