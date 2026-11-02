@@ -123,7 +123,7 @@
 		"@babel/core": "7.29.7",
 		"@babel/plugin-transform-react-jsx": "7.29.7",
 		"@babel/preset-react": "7.29.7",
-		"@babel/runtime": "7.29.7",
+		"@babel/runtime": "7.29.10",
 		"@lezer/generator": "1.8.1",
 		"@playwright/test": "1.60.0",
 		"@tsconfig/strictest": "2.0.5",
