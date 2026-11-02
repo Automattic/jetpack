@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
@@ -275,6 +276,42 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A dashboard that has never been on waits for the connection rather than reading as turned off.
+	 *
+	 * @param bool   $was_on    Whether the dashboard has been on before.
+	 * @param bool   $connected Whether the site is connected.
+	 * @param string $expected  The resolved state.
+	 *
+	 * @dataProvider provide_awaiting_connection_sites
+	 */
+	#[DataProvider( 'provide_awaiting_connection_sites' )]
+	public function test_woa_protect_page_waits_for_the_connection( $was_on, $connected, $expected ) {
+		$this->set_up_protect_dashboard( true, false );
+		$this->set_connected( $connected );
+		if ( $was_on ) {
+			update_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION, true );
+		}
+
+		$state = WPCOM_Scan::get_initial_state();
+
+		$this->assertSame( $expected, $state['state'] );
+		$this->assertSame( WPCOM_Scan::STATE_IN_PROGRESS === $expected, ! empty( $state['awaitingConnection'] ) );
+	}
+
+	/**
+	 * Data provider for test_woa_protect_page_waits_for_the_connection.
+	 *
+	 * @return array
+	 */
+	public static function provide_awaiting_connection_sites() {
+		return array(
+			'never on, connecting'     => array( false, false, WPCOM_Scan::STATE_IN_PROGRESS ),
+			'never on, connected'      => array( false, true, WPCOM_Scan::STATE_ENABLE ),
+			'turned off, disconnected' => array( true, false, WPCOM_Scan::STATE_ENABLE ),
+		);
+	}
+
+	/**
 	 * The prompt only names failure reasons handle_enable() sends.
 	 *
 	 * @param string|null $param    The `enable_failed` query arg, or null for none.
@@ -309,25 +346,28 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * On WoA, Protect's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
 	 *
-	 * @param bool $has_plan Whether the plan includes Scan.
-	 * @param bool $hidden   Whether the entry is hidden.
+	 * @param string[] $plan_features The plan's features.
+	 * @param bool     $hidden        Whether the entry is hidden.
 	 *
 	 * @dataProvider provide_protect_entry_states
 	 */
 	#[DataProvider( 'provide_protect_entry_states' )]
-	public function test_protect_entry_hides_only_on_the_enable_prompt( $has_plan, $hidden ) {
+	public function test_protect_entry_hides_only_on_the_enable_prompt( $plan_features, $hidden ) {
 		global $submenu;
 
 		$this->set_up_admin_menu();
 		$this->set_up_protect_dashboard( true, false );
-		if ( ! $has_plan ) {
-			$this->grant_feature();
-		}
+		$this->grant_feature( ...$plan_features );
+		$GLOBALS['pagenow']     = 'admin.php';
+		$GLOBALS['plugin_page'] = WPCOM_Scan::MENU_SLUG;
+		$_GET['page']           = WPCOM_Scan::MENU_SLUG;
 
 		WPCOM_Scan::register_page();
 
 		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
 		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+		// Core's access check runs before admin_head, so a link into the page must still land.
+		$this->assertTrue( user_can_access_admin_page() );
 
 		// Run directly rather than through admin_head, which would fire other features' callbacks in this suite.
 		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( WPCOM_Scan::class, 'remove_menu_entry' ) ) );
@@ -344,8 +384,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_protect_entry_states() {
 		return array(
-			'enable prompt'  => array( true, true ),
-			'upgrade prompt' => array( false, false ),
+			'enable prompt'  => array( array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
+			'upgrade prompt' => array( array(), false ),
 		);
 	}
 
@@ -379,10 +419,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		if ( ! $site['feature'] ) {
 			$this->grant_feature();
 		}
-		if ( $site['connected'] ) {
-			\Jetpack_Options::update_option( 'id', 1234 );
-			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
-		}
+		$this->set_connected( $site['connected'] );
 		if ( ! $site['sticks'] ) {
 			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
 		}
@@ -449,7 +486,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Put a WoA admin request on a site whose plan includes Scan, with the Protect dashboard module in the given state.
+	 * Put a WoA admin request on a connected site whose plan includes Scan, with the Protect dashboard module in the given state.
 	 *
 	 * @param bool $available Whether the Jetpack plugin offers the module.
 	 * @param bool $active    Whether the module is on.
@@ -463,6 +500,23 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
 		}
 		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'protect-dashboard' ) : array() );
+		$this->set_connected( true );
+	}
+
+	/**
+	 * Connect the site to WordPress.com, or disconnect it.
+	 *
+	 * @param bool $connected Whether the site is connected.
+	 * @return void
+	 */
+	private function set_connected( $connected ) {
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		} else {
+			\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		}
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**

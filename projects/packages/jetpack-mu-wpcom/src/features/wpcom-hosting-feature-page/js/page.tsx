@@ -28,7 +28,7 @@ export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
 			>
 				<div className="wpcom-hosting-feature__body">
 					<div className="wpcom-hosting-feature__stage">
-						{ initialState.state === 'in_progress' && <InProgressScreen /> }
+						{ initialState.state === 'in_progress' && <InProgressScreen state={ initialState } /> }
 						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
 						{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
 						{ initialState.state === 'enable' && <EnableScreen state={ initialState } /> }

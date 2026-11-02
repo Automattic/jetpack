@@ -60,7 +60,7 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	const STATE_UPGRADE = 'upgrade';
 
 	/**
-	 * A transfer to WoA is already running or queued. Offer nothing; report status.
+	 * A transfer to WoA is already running or queued, or on WoA the dashboard waits for the connection. Offer nothing; report status.
 	 */
 	const STATE_IN_PROGRESS = 'in_progress';
 

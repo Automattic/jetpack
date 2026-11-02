@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Features: Stop reading a host's `manage_url` from the `jetpack_feature_upgrade` filter, so Protect and Backup open their own pages.
+Protect: Open the Protect page from My Jetpack on WordPress.com sites that have it, rather than WordPress.com's Scan. The `jetpack_feature_upgrade` filter no longer reads `manage_url`.

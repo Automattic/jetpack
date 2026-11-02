@@ -104,10 +104,21 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 */
 	public static function get_state( $blog_id ) {
 		if ( self::is_atomic() && self::has_feature() && self::is_dashboard_module_off() ) {
-			return self::STATE_ENABLE;
+			return self::is_awaiting_connection() ? self::STATE_IN_PROGRESS : self::STATE_ENABLE;
 		}
 
 		return parent::get_state( $blog_id );
+	}
+
+	/**
+	 * Whether a dashboard that has never been on is waiting for the connection, as just after a transfer.
+	 *
+	 * Nobody turned it off: maybe_activate_protect_dashboard_module() turns it on once the connection is ready.
+	 *
+	 * @return bool
+	 */
+	public static function is_awaiting_connection() {
+		return ! get_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION ) && ! ( new Connection_Manager() )->is_connected();
 	}
 
 	/**
@@ -117,6 +128,10 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 */
 	public static function get_initial_state() {
 		$state = parent::get_initial_state();
+
+		if ( self::STATE_IN_PROGRESS === $state['state'] && self::is_atomic() ) {
+			$state['awaitingConnection'] = true;
+		}
 
 		if ( self::STATE_ENABLE === $state['state'] ) {
 			$state['enableUrl'] = add_query_arg(

@@ -61,6 +61,8 @@ export type InitialState = {
 	enableUrl?: string;
 	/** Why the last attempt to turn the dashboard on failed, if it did. Only in the `enable` state. */
 	enableError?: 'connection' | 'unknown' | null;
+	/** Whether a WoA site's dashboard waits for the connection rather than a transfer. Only in the `in_progress` state. */
+	awaitingConnection?: boolean;
 };
 
 /**
@@ -95,6 +97,11 @@ export type FeatureConfig = {
 	inProgress: {
 		title: string;
 		description: string;
+		/** Copy for a WoA site whose dashboard waits for the connection, for a feature that has one. */
+		awaitingConnection?: {
+			description: string;
+			note: string;
+		};
 	};
 	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
 	enable?: {

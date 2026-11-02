@@ -411,7 +411,7 @@ function wpcom_add_jetpack_submenu() {
 	}
 	// @codeCoverageIgnoreEnd
 
-	// Jetpack > Scan, shown above Protect until Scan's entry is retired.
+	// Jetpack > Scan, beside Protect until Protect replaces it.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(

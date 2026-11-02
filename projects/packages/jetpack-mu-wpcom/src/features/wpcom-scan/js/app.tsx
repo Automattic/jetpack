@@ -62,6 +62,16 @@ function getScanConfig(): FeatureConfig {
 				'Your site is being moved to our hosting platform so Protect can be switched on.',
 				'jetpack-mu-wpcom'
 			),
+			awaitingConnection: {
+				description: __(
+					'Protect is almost ready. It turns on as soon as your site finishes connecting to WordPress.com.',
+					'jetpack-mu-wpcom'
+				),
+				note: __(
+					'This usually takes a minute or two. Reload this page to check.',
+					'jetpack-mu-wpcom'
+				),
+			},
 		},
 		modal: {
 			blockedTitle: __( 'Protect cannot be activated', 'jetpack-mu-wpcom' ),
