@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: Add a title to YouTube embed iframes so screen readers can announce them.

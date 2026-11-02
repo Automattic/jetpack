@@ -65,7 +65,7 @@ class Status_Model {
 	/**
 	 * Whether the most recent scan started but failed, so it can't vouch for the site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.7.3
 	 *
 	 * @var bool
 	 */

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Comments: Only redirect to safe URLs after a comment is posted.
