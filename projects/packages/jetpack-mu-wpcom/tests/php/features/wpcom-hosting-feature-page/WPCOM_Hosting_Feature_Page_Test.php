@@ -562,6 +562,26 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Turned on from the Protect page itself, the page reloads so the dashboard serves it rather than this page's prompt.
+	 */
+	public function test_protect_dashboard_turned_on_from_its_page_reloads_it() {
+		$this->set_up_protect_dashboard( true, false );
+		$GLOBALS['pagenow'] = 'admin.php';
+		$_GET['page']       = WPCOM_Scan::MENU_SLUG;
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$this->expectExceptionMessage( WPCOM_Scan::get_page_url() );
+
+		WPCOM_Scan::maybe_activate_protect_dashboard_module();
+	}
+
+	/**
 	 * Data provider for test_protect_dashboard_is_turned_on_once.
 	 *
 	 * @return array

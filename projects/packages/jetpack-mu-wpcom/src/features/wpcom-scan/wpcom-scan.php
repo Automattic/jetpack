@@ -209,13 +209,22 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 			return;
 		}
 
-		if ( ! $modules->is_active( self::DASHBOARD_MODULE ) ) {
+		$was_active = $modules->is_active( self::DASHBOARD_MODULE );
+		if ( ! $was_active ) {
 			$modules->activate( self::DASHBOARD_MODULE, false, false );
 		}
 
 		// Checked again rather than trusting activate(), which also refuses while the connection is not ready.
-		if ( $modules->is_active( self::DASHBOARD_MODULE ) ) {
-			update_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION, true, false );
+		if ( ! $modules->is_active( self::DASHBOARD_MODULE ) ) {
+			return;
+		}
+
+		update_option( self::DASHBOARD_MODULE_ACTIVATED_OPTION, true, false );
+
+		// This page already claimed the slug at init 10, but the dashboard only loads on the next request.
+		if ( ! $was_active && self::is_page_request() ) {
+			wp_safe_redirect( self::get_page_url() );
+			exit( 0 );
 		}
 	}
 
