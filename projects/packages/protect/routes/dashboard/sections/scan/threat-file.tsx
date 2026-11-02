@@ -1,6 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { dispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import {
 	useCallback,
@@ -12,7 +11,6 @@ import {
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { arrowDown, check, copySmall } from '@wordpress/icons';
-import { store as noticesStore } from '@wordpress/notices';
 import {
 	AlertDialog,
 	Button,
@@ -24,10 +22,15 @@ import {
 	Text,
 	Tooltip,
 } from '@wordpress/ui';
-import { loadHistory } from '../history/store';
 import SeverityBadge from './severity-badge';
-import { SCAN_PATH, THREAT_PARAM, createStore, editScan, useSearchParam } from './store';
-import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
+import { SCAN_PATH, THREAT_PARAM, createStore, useCanIgnore, useSearchParam } from './store';
+import {
+	changeThreatFile,
+	fixThreat,
+	ignoreThreat,
+	unignoreThreat,
+	useThreatAction,
+} from './threat-actions';
 import type { ScanThreat } from './types';
 
 const COPIED_DURATION = 15000;
@@ -49,6 +52,7 @@ type ThreatFile = {
 	canDelete: boolean;
 	canRestore: boolean;
 	contents: string;
+	hash: string;
 };
 
 /** A flagged stretch of the file, as first and last line indexes. */
@@ -88,7 +92,7 @@ export const getThreatFileTitle = ( threat: ScanThreat, isLoading = false ) =>
 
 /**
  * Where Scan's flagged lines are in the file: at their line numbers when those still match, else
- * wherever the whole block matches, so a common line like `}` alone can't flag the file.
+ * wherever the whole block matches, so a common line of a longer block like `}` can't flag the file.
  *
  * @param lines   - The file's lines.
  * @param context - The flagged lines Scan reported.
@@ -172,12 +176,8 @@ export function getSegments( count: number, runs: Run[], expanded: Set< number >
  * @return Their indexes.
  */
 export function getEncodedLines( lines: string[] ): number[] {
-	return lines.reduce< number[] >(
-		( found, line, index ) =>
-			/[A-Za-z0-9+/]{200,}={0,2}|(?:\\x[0-9a-f]{2}){20,}/i.test( line )
-				? [ ...found, index ]
-				: found,
-		[]
+	return lines.flatMap( ( line, index ) =>
+		/[A-Za-z0-9+/]{200,}={0,2}|(?:\\x[0-9a-f]{2}){20,}/i.test( line ) ? [ index ] : []
 	);
 }
 
@@ -351,38 +351,6 @@ function useThreatFile( threat: ScanThreat ): ThreatFileState {
 }
 
 /**
- * Run a file action, resolving to `{ error }` when it failed, as AlertDialog's onConfirm takes.
- *
- * @param threat  - The threat.
- * @param action  - `delete` or `restore`.
- * @param message - The snackbar once done.
- * @return The result.
- */
-async function runFileAction( threat: ScanThreat, action: 'delete' | 'restore', message: string ) {
-	try {
-		await apiFetch( {
-			path: `${ SCAN_PATH }/threats/${ threat.id }/file/${ action }`,
-			method: 'POST',
-		} );
-		const isOther = ( item: ScanThreat ) => item.id !== threat.id;
-		editScan( current => ( {
-			...current,
-			threats: ( current.threats ?? [] ).filter( isOther ),
-			ignored: current.ignored?.filter( isOther ),
-		} ) );
-		loadHistory( true );
-	} catch ( e ) {
-		return {
-			error:
-				( e as { message?: string } )?.message ||
-				__( 'That didn’t work. Try again in a few minutes.', 'jetpack-protect-pkg' ),
-		};
-	}
-	dispatch( noticesStore ).createNotice( 'success', message, { type: 'snackbar' } );
-	return undefined;
-}
-
-/**
  * What can be done about the threat from the viewer, pinned to its bottom.
  *
  * @param props         - Component props.
@@ -404,6 +372,7 @@ function FileActions( {
 	reload: () => void;
 } ) {
 	const { busy } = useThreatAction( threat.id );
+	const canIgnore = useCanIgnore();
 	const [ selected, setSelected ] = useSearchParam( THREAT_PARAM );
 	const name = getThreatFileName( threat );
 	// The threat leaves the lists once its file is dealt with, so the inspector can't show it.
@@ -423,38 +392,45 @@ function FileActions( {
 		onClose();
 	}, [ threat, onClose ] );
 	const onDelete = useCallback( async () => {
-		const result = await runFileAction(
+		const { error } = await changeThreatFile(
 			threat,
 			'delete',
+			file.hash,
 			sprintf(
 				/* translators: %s is a file name, such as "index.php". */
 				__( 'Deleted %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
 				name
 			)
 		);
-		if ( ! result ) {
+		if ( ! error ) {
 			closeInspector();
 			onClose();
 		}
-		return result;
-	}, [ threat, name, onClose, closeInspector ] );
+		return error ? { error } : undefined;
+	}, [ threat, file, name, onClose, closeInspector ] );
 	const onRestore = useCallback( async () => {
-		const result = await runFileAction(
+		const { error, threat: fixed } = await changeThreatFile(
 			threat,
 			'restore',
+			file.hash,
 			sprintf(
 				/* translators: %s is a file name, such as "index.php". */
 				__( 'Restored the original %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
 				name
 			)
 		);
-		if ( ! result ) {
+		if ( fixed ) {
 			closeInspector();
+			// Stays on the restored file, whose threat is fixed now so its actions go.
+			openThreatFile( fixed );
 			reload();
 		}
-		return result;
-	}, [ threat, name, reload, closeInspector ] );
+		return error ? { error } : undefined;
+	}, [ threat, file, name, reload, closeInspector ] );
 
+	if ( threat.status === 'fixed' ) {
+		return null;
+	}
 	return (
 		<Stack
 			className="jp-protect-threat-file__actions"
@@ -463,11 +439,13 @@ function FileActions( {
 			justify="end"
 			wrap="wrap"
 		>
-			<Button variant="minimal" tone="neutral" onClick={ onIgnore } disabled={ !! busy }>
-				{ isIgnored
-					? __( 'Unignore it', 'jetpack-protect-pkg' )
-					: __( 'Ignore it', 'jetpack-protect-pkg' ) }
-			</Button>
+			{ ( isIgnored || canIgnore ) && (
+				<Button variant="minimal" tone="neutral" onClick={ onIgnore } disabled={ !! busy }>
+					{ isIgnored
+						? __( 'Unignore it', 'jetpack-protect-pkg' )
+						: __( 'Ignore it', 'jetpack-protect-pkg' ) }
+				</Button>
+			) }
 			{ file.canRestore && (
 				<AlertDialog.Root onConfirm={ onRestore }>
 					<AlertDialog.Trigger render={ <Button variant="outline" disabled={ !! busy } /> }>
@@ -725,7 +703,13 @@ function ThreatFileDialogContents( {
 				<Dialog.CloseIconButton />
 			</Dialog.Header>
 			<Dialog.Content>
-				<ThreatFileBody threat={ threat } onClose={ onClose } { ...state } />
+				{ /* Keyed by contents, so a restored file starts with fresh folds and position. */ }
+				<ThreatFileBody
+					key={ state.file?.hash }
+					threat={ threat }
+					onClose={ onClose }
+					{ ...state }
+				/>
 			</Dialog.Content>
 		</>
 	);

@@ -13,7 +13,9 @@ import type { ScanState, ScanThreat } from './types';
 type FixStatus = { status: string; error?: string | null; scan?: ScanState };
 
 /** The action running on a threat, if any. */
-export type ThreatActionState = { busy?: 'fixing' | 'ignoring' | 'unignoring' | 'deleting' };
+export type ThreatActionState = {
+	busy?: 'fixing' | 'ignoring' | 'unignoring' | 'deleting' | 'restoring';
+};
 
 const threatPath = ( id: string | number, action: string ) =>
 	`${ SCAN_PATH }/threats/${ id }/${ action }`;
@@ -759,5 +761,49 @@ export function deleteThreatRow( threat: ScanThreat ): Promise< string | null > 
 			( e: { message?: string } ) =>
 				e?.message || __( 'The option couldn’t be deleted.', 'jetpack-protect-pkg' )
 		)
+		.finally( () => setBusy( threat.id ) );
+}
+
+/**
+ * Delete a threat's stray file or restore its core file, which the server refuses if it changed since it was shown.
+ *
+ * @param threat  - The threat.
+ * @param action  - `delete` or `restore`.
+ * @param hash    - The SHA-256 hash of the contents shown.
+ * @param message - The snackbar once done.
+ * @return The threat, now fixed, or why it failed.
+ */
+export function changeThreatFile(
+	threat: ScanThreat,
+	action: 'delete' | 'restore',
+	hash: string,
+	message: string
+): Promise< { threat?: ScanThreat; error?: string } > {
+	if ( isBusy( threat.id ) ) {
+		return Promise.resolve( {
+			error: __( 'This threat is busy. Try again once that finishes.', 'jetpack-protect-pkg' ),
+		} );
+	}
+	setBusy( threat.id, action === 'delete' ? 'deleting' : 'restoring' );
+
+	return apiFetch< { threat: ScanThreat } >( {
+		path: threatPath( threat.id, `file/${ action }` ),
+		method: 'POST',
+		data: { hash },
+	} )
+		.then( response => {
+			editScan( current => ( {
+				...current,
+				threats: ( current.threats ?? [] ).filter( otherThan( threat ) ),
+				ignored: current.ignored?.filter( otherThan( threat ) ),
+			} ) );
+			show( threat, message, 'success' );
+			loadHistory( true );
+			return { threat: response.threat };
+		} )
+		.catch( ( e: { message?: string } ) => ( {
+			error:
+				e?.message || __( 'That didn’t work. Try again in a few minutes.', 'jetpack-protect-pkg' ),
+		} ) )
 		.finally( () => setBusy( threat.id ) );
 }

@@ -1,7 +1,6 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { useSearch } from '@wordpress/route';
 import { getScan, setScan } from '../store';
 import { ThreatFileViewer, openThreatFile } from '../threat-file';
 
@@ -24,7 +23,6 @@ window.jetpackProtectDashboard = {
 
 describe( 'Deleting a threat file', () => {
 	it( 'drops the threat from the lists', async () => {
-		( useSearch as unknown as jest.Mock ).mockReturnValue( {} );
 		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method } ) =>
 			Promise.resolve(
 				method === 'POST'
@@ -37,6 +35,7 @@ describe( 'Deleting a threat file', () => {
 							canDelete: true,
 							canRestore: false,
 							contents: '<?php echo 1;',
+							hash: 'abc',
 						}
 			)
 		);
@@ -49,6 +48,7 @@ describe( 'Deleting a threat file', () => {
 		await userEvent.click( confirm as HTMLElement );
 
 		await waitFor( () => expect( getScan()?.threats ).toEqual( [ other ] ) );
+		expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { data: { hash: 'abc' } } ) );
 		expect( getScan()?.ignored ).toEqual( [] );
 	} );
 } );

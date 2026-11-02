@@ -234,25 +234,24 @@ class Scan implements Dashboard_Section {
 			)
 		);
 
-		register_rest_route(
-			'jetpack/v4',
-			'/protect-dashboard/scan/threats/(?P<id>\d+)/file/delete',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'delete_threat_file' ),
-				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/protect-dashboard/scan/threats/(?P<id>\d+)/file/restore',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'restore_threat_file' ),
-				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
-			)
-		);
+		foreach ( array( 'delete', 'restore' ) as $action ) {
+			register_rest_route(
+				'jetpack/v4',
+				"/protect-dashboard/scan/threats/(?P<id>\\d+)/file/$action",
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, "{$action}_threat_file" ),
+					'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+					'args'                => array(
+						'hash' => array(
+							'description' => __( 'The SHA-256 hash of the file as the viewer showed it.', 'jetpack-protect-pkg' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+					),
+				)
+			);
+		}
 
 		register_rest_route(
 			'jetpack/v4',
@@ -430,10 +429,10 @@ class Scan implements Dashboard_Section {
 	 * The whole file a threat was found in, looked up by threat so the client can't name a path.
 	 *
 	 * @param WP_REST_Request $request The request, with the threat `id`.
-	 * @return array|WP_Error The file's site-relative `path`, `modified` time, `owner`, what can be done with it, and its `contents`.
+	 * @return array|WP_Error The file's site-relative `path`, `modified` time, `owner`, what can be done with it, and its `contents` and their `hash`.
 	 */
 	public static function get_threat_file( WP_REST_Request $request ) {
-		$path = self::resolve_threat_file( (int) $request['id'] );
+		$path = self::resolve_threat_file( self::find_threat( (int) $request['id'] ) );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
@@ -458,8 +457,9 @@ class Scan implements Dashboard_Section {
 			'inUploads'  => Threat_File::is_code_in_uploads( $path ),
 			'canDelete'  => Threat_File::can_delete( $path, $owner ),
 			'canRestore' => Threat_File::can_restore( $path, $owner ),
+			'hash'       => hash( 'sha256', $contents ),
 			// JSON can't carry invalid UTF-8, which obfuscated code often has.
-			'contents'   => wp_check_invalid_utf8( $contents, true ),
+			'contents'   => wp_scrub_utf8( $contents ),
 		);
 	}
 
@@ -470,7 +470,8 @@ class Scan implements Dashboard_Section {
 	 * @return array|WP_Error The fixed `threat`.
 	 */
 	public static function delete_threat_file( WP_REST_Request $request ) {
-		$path = self::resolve_threat_file( (int) $request['id'] );
+		$threat = self::find_threat( (int) $request['id'] );
+		$path   = self::resolve_file_to_change( $threat, (string) $request['hash'] );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
@@ -483,7 +484,7 @@ class Scan implements Dashboard_Section {
 		if ( file_exists( $path ) ) {
 			return new WP_Error( 'threat_file_not_deleted', __( 'WordPress couldn’t delete the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
 		}
-		return self::resolve_file_threat( (int) $request['id'] );
+		return self::resolve_file_threat( $threat );
 	}
 
 	/**
@@ -493,7 +494,8 @@ class Scan implements Dashboard_Section {
 	 * @return array|WP_Error The fixed `threat`.
 	 */
 	public static function restore_threat_file( WP_REST_Request $request ) {
-		$path = self::resolve_threat_file( (int) $request['id'] );
+		$threat = self::find_threat( (int) $request['id'] );
+		$path   = self::resolve_file_to_change( $threat, (string) $request['hash'] );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
@@ -504,41 +506,51 @@ class Scan implements Dashboard_Section {
 		if ( is_wp_error( $restored ) ) {
 			return $restored;
 		}
-		return self::resolve_file_threat( (int) $request['id'] );
+		return self::resolve_file_threat( $threat );
 	}
 
 	/**
 	 * Mark a threat fixed now its file was deleted or restored, since Scan only notices on its next scan.
 	 *
-	 * @param int $id The threat id.
+	 * @param object|array $threat The threat, from find_threat().
 	 * @return array The fixed `threat`.
 	 */
-	private static function resolve_file_threat( $id ) {
-		$threat = self::find_threat( $id );
+	private static function resolve_file_threat( $threat ) {
 		return array( 'threat' => Dashboard_Threats::resolve( is_array( $threat ) ? $threat : Dashboard_Threats::format( $threat ) ) );
+	}
+
+	/**
+	 * The file to delete or restore, refused once the threat is fixed or the file changed since the viewer showed it.
+	 *
+	 * @param object|array|null $threat The threat, from find_threat().
+	 * @param string            $hash   The SHA-256 hash of the contents shown.
+	 * @return string|WP_Error The file's real path.
+	 */
+	private static function resolve_file_to_change( $threat, $hash ) {
+		// History lists fixed threats too, whose file may be a clean one by now.
+		if ( is_array( $threat ) && 'ignored' !== ( $threat['status'] ?? null ) ) {
+			return new WP_Error( 'threat_not_open', __( 'This threat is already fixed.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
+		}
+		$path = self::resolve_threat_file( $threat );
+		if ( is_wp_error( $path ) ) {
+			return $path;
+		}
+		if ( ! hash_equals( (string) hash_file( 'sha256', $path ), $hash ) ) {
+			return new WP_Error( 'threat_file_changed', __( 'This file changed since you opened it, so nothing was done. Open it again to see what’s in it now.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
+		}
+		return $path;
 	}
 
 	/**
 	 * The real path of the file a threat was found in.
 	 *
-	 * @param int $id The threat id.
+	 * @param object|array|null $threat The threat, from find_threat().
 	 * @return string|WP_Error
 	 */
-	private static function resolve_threat_file( $id ) {
-		$filename = self::get_threat_filename( $id );
+	private static function resolve_threat_file( $threat ) {
+		$filename = is_array( $threat ) ? $threat['filename'] ?? null : $threat->filename ?? null;
 		$path     = $filename ? self::locate_threat_file( $filename ) : null;
-		return $path ? $path : new WP_Error( 'threat_file_not_found', __( 'This file is no longer on your site.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
-	}
-
-	/**
-	 * The file Scan reported a threat in.
-	 *
-	 * @param int $id The threat id.
-	 * @return string|null The path as Scan names it, or null when the threat isn't in a file.
-	 */
-	private static function get_threat_filename( $id ) {
-		$threat = self::find_threat( $id );
-		return is_array( $threat ) ? $threat['filename'] ?? null : $threat->filename ?? null;
+		return $path ? $path : new WP_Error( 'threat_file_not_found', __( 'This file couldn’t be found on your site. It may have been moved or deleted since the scan.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
 	}
 
 	/**
@@ -576,18 +588,15 @@ class Scan implements Dashboard_Section {
 	 * @return string|null The file's real path, only ever inside the site's directories.
 	 */
 	private static function locate_threat_file( $filename ) {
-		$roots = self::get_site_roots();
 		$parts = array_values( array_filter( explode( '/', wp_normalize_path( $filename ) ), 'strlen' ) );
+		$roots = array_merge( self::get_site_roots(), array( untrailingslashit( wp_normalize_path( ABSPATH ) ), wp_normalize_path( dirname( WP_CONTENT_DIR ) ) ) );
 
-		// Anchored at wp-content, so a deleted plugin file can't fall back to a same-named file higher up.
-		$anchor     = array_search( 'wp-content', $parts, true );
+		// Strip only a prefix the site's root ends with, such as `/htdocs` for `/srv/htdocs`, so a missing or nested file can't map to a same-named one elsewhere.
 		$candidates = array();
-		if ( false !== $anchor ) {
-			$candidates[] = WP_CONTENT_DIR . '/' . implode( '/', array_slice( $parts, $anchor + 1 ) );
-		} else {
-			// Scan's root has a different path here, so try the longest tail first.
-			for ( $i = 0, $count = count( $parts ); $i < $count; $i++ ) {
-				foreach ( $roots as $root ) {
+		foreach ( array_unique( $roots ) as $root ) {
+			$root_parts = array_values( array_filter( explode( '/', $root ), 'strlen' ) );
+			for ( $i = min( count( $parts ) - 1, count( $root_parts ) ); $i >= 0; $i-- ) {
+				if ( array_slice( $parts, 0, $i ) === array_slice( $root_parts, count( $root_parts ) - $i ) ) {
 					$candidates[] = $root . '/' . implode( '/', array_slice( $parts, $i ) );
 				}
 			}
@@ -618,8 +627,8 @@ class Scan implements Dashboard_Section {
 	 * @return string|null The directory, or null when the file is outside the site.
 	 */
 	private static function get_site_root( $path ) {
-		foreach ( array_merge( self::get_site_roots(), array_filter( array( realpath( WP_CONTENT_DIR ) ) ) ) as $root ) {
-			if ( 0 === strpos( $path, trailingslashit( $root ) ) ) {
+		foreach ( array_merge( self::get_site_roots(), array( WP_CONTENT_DIR ) ) as $root ) {
+			if ( null !== Threat_File::get_relative( $path, $root ) ) {
 				return $root;
 			}
 		}
@@ -634,7 +643,7 @@ class Scan implements Dashboard_Section {
 	 */
 	private static function get_site_relative_path( $path ) {
 		$root = self::get_site_root( $path );
-		return $root ? substr( $path, strlen( trailingslashit( $root ) ) ) : basename( $path );
+		return $root ? Threat_File::get_relative( $path, $root ) : basename( $path );
 	}
 
 	/**
@@ -648,7 +657,7 @@ class Scan implements Dashboard_Section {
 			return $threats;
 		}
 
-		// Threats the site resolved itself, until Scan's next scan; newer than an ignored entry Scan still has for one.
+		// Threats the site resolved itself win over Scan's entry for them until its next scan.
 		$status   = class_exists( Status::class ) ? Status::get_cached_status() : null;
 		$resolved = Dashboard_Threats::get_resolved( $status ? $status->last_checked : null );
 		$threats  = array_filter(

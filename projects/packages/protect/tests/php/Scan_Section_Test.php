@@ -30,9 +30,19 @@ class Scan_Section_Test extends BaseTestCase {
 	private static $row_lookup;
 
 	/**
+	 * Files written by a test, removed afterwards.
+	 *
+	 * @var string[]
+	 */
+	private $files = array();
+
+	/**
 	 * Release the scan request lock between tests.
 	 */
 	public function tear_down() {
+		foreach ( $this->files as $file ) {
+			wp_delete_file( $file );
+		}
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
 		wp_set_current_user( 0 );
@@ -645,31 +655,88 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Write a `<?php` test file, removed after the test.
+	 *
+	 * @param string $path The path.
+	 */
+	private function write_file( $path ) {
+		if ( ! is_dir( dirname( $path ) ) ) {
+			mkdir( dirname( $path ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		}
+		file_put_contents( $path, '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		$this->files[] = $path;
+	}
+
+	/**
+	 * A path as Scan reports it, with `{root}` and `{content}` standing for the site root's and content directory's names.
+	 *
+	 * @param string $path The path with placeholders.
+	 * @return string
+	 */
+	private static function scan_path( $path ) {
+		return str_replace( array( '{root}', '{content}' ), array( basename( realpath( dirname( WP_CONTENT_DIR ) ) ), basename( WP_CONTENT_DIR ) ), $path );
+	}
+
+	/**
+	 * Delete the uploaded test file of a threat History lists, as the viewer would.
+	 *
+	 * @param string $status The threat's status in History.
+	 * @param string $shown  The contents the viewer showed.
+	 * @return array|\WP_Error The response.
+	 */
+	private function delete_history_threat_file( $status, $shown ) {
+		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
+		$threat              = array(
+			'id'       => 9,
+			'status'   => $status,
+			'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+		);
+		set_transient( Scan::HISTORY_CACHE, array( $threat ), MINUTE_IN_SECONDS );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
+		$request->set_url_params( array( 'id' => '9' ) );
+		$request->set_param( 'hash', hash( 'sha256', $shown ) );
+		return Scan::delete_threat_file( $request );
+	}
+
+	/**
 	 * Test that deleting an ignored threat's file moves it from Ignored to History as fixed.
 	 */
 	public function test_delete_threat_file_marks_an_ignored_threat_fixed() {
-		$dir = WP_CONTENT_DIR . '/uploads';
-		if ( ! is_dir( $dir ) ) {
-			mkdir( $dir, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		}
-		file_put_contents( "$dir/protect-ignored-threat.php", '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
-		$ignored             = array(
-			'id'       => 9,
-			'status'   => 'ignored',
-			'filename' => '/htdocs/wp-content/uploads/protect-ignored-threat.php',
-		);
-		set_transient( Scan::HISTORY_CACHE, array( $ignored ), MINUTE_IN_SECONDS );
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
-		$request->set_url_params( array( 'id' => '9' ) );
+		$response = $this->delete_history_threat_file( 'ignored', '<?php' );
 
-		$response = Scan::delete_threat_file( $request );
-
-		$this->assertFileDoesNotExist( "$dir/protect-ignored-threat.php" );
+		$this->assertFileDoesNotExist( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
 		$this->assertSame( 'fixed', $response['threat']['status'] );
 		$this->assertSame( array(), Scan::get_ignored_threats() );
 		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	/**
+	 * Why deleting a file is refused: a threat History lists as fixed, or a file changed since the viewer showed it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_refused_deletes() {
+		return array(
+			'threat already fixed'           => array( 'fixed', '<?php', 'threat_not_open' ),
+			'file changed since it was seen' => array( 'ignored', '<?php echo 1;', 'threat_file_changed' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_refused_deletes
+	 *
+	 * @param string $status   The threat's status in History.
+	 * @param string $shown    The contents the viewer showed.
+	 * @param string $expected The error code.
+	 */
+	#[DataProvider( 'provide_refused_deletes' )]
+	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $shown, $expected ) {
+		$response = $this->delete_history_threat_file( $status, $shown );
+
+		$this->assertSame( $expected, $response->get_error_code() );
+		$this->assertFileExists( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
 	}
 
 	/**
@@ -679,27 +746,29 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	public static function provide_threat_files() {
 		return array(
-			'Scan root differs from ours'        => array( '/htdocs/wp-content/uploads/protect-threat-file.php', true ),
-			'deleted plugin file, same basename' => array( '/htdocs/wp-content/plugins/gone/protect-threat-file.php', false ),
-			'traversal out of the site'          => array( '/htdocs/wp-content/../../../../../../../etc/passwd', false ),
+			'Scan root above ours'                => array( 'uploads', '/{root}/{content}/uploads/protect-threat-file.php', true ),
+			'deleted plugin file, same basename'  => array( 'uploads', '/{root}/{content}/plugins/gone/protect-threat-file.php', false ),
+			'nested copy of the site'             => array( 'uploads', '/{root}/staging/{content}/uploads/protect-threat-file.php', false ),
+			'Scan root unrelated to ours'         => array( 'uploads', '/var/www/elsewhere/{content}/uploads/protect-threat-file.php', false ),
+			'traversal out of the site'           => array( 'uploads', '/{root}/{content}/../../../../../../../etc/passwd', false ),
+			'file in the site root'               => array( 'root', '/{root}/protect-threat-file.php', true ),
+			'deleted folder, same basename above' => array( 'root', '/{root}/gone/protect-threat-file.php', false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_threat_files
 	 *
+	 * @param string $where    Where the test file is: `uploads` or the site `root`.
 	 * @param string $filename The path as Scan reports it.
-	 * @param bool   $is_found Whether it resolves to the uploaded test file.
+	 * @param bool   $is_found Whether it resolves to the test file.
 	 */
 	#[DataProvider( 'provide_threat_files' )]
-	public function test_threat_files_are_found_only_inside_the_site( $filename, $is_found ) {
-		$dir = WP_CONTENT_DIR . '/uploads';
-		if ( ! is_dir( $dir ) ) {
-			mkdir( $dir, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		}
-		file_put_contents( "$dir/protect-threat-file.php", '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		$path = self::call( 'locate_threat_file', $filename );
-		wp_delete_file( "$dir/protect-threat-file.php" );
+	public function test_threat_files_are_found_only_inside_the_site( $where, $filename, $is_found ) {
+		$dir = 'root' === $where ? dirname( WP_CONTENT_DIR ) : WP_CONTENT_DIR . '/uploads';
+		$this->write_file( "$dir/protect-threat-file.php" );
+
+		$path = self::call( 'locate_threat_file', self::scan_path( $filename ) );
 
 		$this->assertSame( $is_found ? realpath( $dir ) . '/protect-threat-file.php' : null, $path );
 	}

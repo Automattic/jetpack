@@ -62,8 +62,7 @@ class Threat_File {
 			return array( 'type' => 'mu-plugin' );
 		}
 
-		$relative = self::get_relative( $path, ABSPATH );
-		$checksum = null === $relative ? null : ( self::get_core_checksums()[ $relative ] ?? null );
+		$checksum = self::get_core_checksum( $path );
 		if ( $checksum ) {
 			return array(
 				'type'     => 'core',
@@ -84,6 +83,10 @@ class Threat_File {
 	 */
 	public static function can_delete( $path, $owner ) {
 		if ( 'none' !== $owner['type'] || in_array( basename( $path ), self::PROTECTED_FILES, true ) ) {
+			return false;
+		}
+		// Without WordPress.org's checksums, a core file outside wp-content looks like a stray one.
+		if ( null !== self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) && ! self::get_core_checksums() ) {
 			return false;
 		}
 		// Drop-ins such as object-cache.php sit loose in wp-content but run the site.
@@ -123,8 +126,8 @@ class Threat_File {
 	 */
 	public static function restore( $path ) {
 		$relative = self::get_relative( $path, ABSPATH );
-		$checksum = null === $relative ? null : ( self::get_core_checksums()[ $relative ] ?? null );
-		if ( null === $relative || ! $checksum ) {
+		$checksum = self::get_core_checksum( $path );
+		if ( ! $checksum ) {
 			return new WP_Error( 'not_core_file', __( 'This isn’t a WordPress core file.', 'jetpack-protect-pkg' ), array( 'status' => 400 ) );
 		}
 
@@ -137,6 +140,11 @@ class Threat_File {
 		if ( false === file_put_contents( $path, $original ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Checked writable, and verified against WordPress.org.
 			return new WP_Error( 'file_not_written', __( 'WordPress couldn’t write the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
 		}
+		// Else PHP can keep running the modified file's compiled code.
+		if ( ! function_exists( 'wp_opcache_invalidate' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		wp_opcache_invalidate( $path, true );
 		return true;
 	}
 
@@ -169,26 +177,40 @@ class Threat_File {
 	}
 
 	/**
-	 * WordPress.org's checksums for the installed core files, cached for a day.
+	 * WordPress.org's checksum for a core file.
+	 *
+	 * @param string $path The file's real path.
+	 * @return string|null Null when it isn't a core file.
+	 */
+	private static function get_core_checksum( $path ) {
+		$relative = self::get_relative( $path, ABSPATH );
+		return null === $relative ? null : self::get_core_checksums()[ $relative ] ?? null;
+	}
+
+	/**
+	 * WordPress.org's checksums for the installed core files and language package, cached for a day.
 	 *
 	 * @return array MD5 checksums keyed by path from ABSPATH; empty when WordPress.org is unreachable.
 	 */
 	private static function get_core_checksums() {
+		global $wp_local_package;
 		$version = get_bloginfo( 'version' );
+		$locale  = empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
 		$cached  = get_transient( self::CHECKSUMS_CACHE );
-		if ( is_array( $cached ) && ( $cached['version'] ?? null ) === $version ) {
+		if ( is_array( $cached ) && ( $cached['version'] ?? null ) === $version && ( $cached['locale'] ?? null ) === $locale ) {
 			return $cached['checksums'];
 		}
 
 		if ( ! function_exists( 'get_core_checksums' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/update.php';
 		}
-		$checksums = get_core_checksums( $version, 'en_US' );
+		$checksums = get_core_checksums( $version, $locale );
 		$checksums = is_array( $checksums ) ? $checksums : array();
 		set_transient(
 			self::CHECKSUMS_CACHE,
 			array(
 				'version'   => $version,
+				'locale'    => $locale,
 				'checksums' => $checksums,
 			),
 			$checksums ? DAY_IN_SECONDS : HOUR_IN_SECONDS
@@ -203,7 +225,7 @@ class Threat_File {
 	 * @param string $directory The directory.
 	 * @return string|null Null when the path isn't inside it.
 	 */
-	private static function get_relative( $path, $directory ) {
+	public static function get_relative( $path, $directory ) {
 		$directory = $directory ? realpath( $directory ) : false;
 		if ( ! $directory || 0 !== strpos( $path, trailingslashit( $directory ) ) ) {
 			return null;

@@ -62,6 +62,8 @@ class Threat_File_Test extends BaseTestCase {
 			'a plugin file'                => array( 'plugin', 'plugin', false ),
 			'loose file in plugins folder' => array( 'loose-plugin-file', 'none', true ),
 			'unchanged core file'          => array( 'core', 'core', false ),
+			'stray file among core files'  => array( 'stray-core', 'none', true ),
+			'core file, checksums unknown' => array( 'core', 'none', false, false ),
 			'site configuration'           => array( 'wp-config', 'none', false ),
 		);
 	}
@@ -72,14 +74,16 @@ class Threat_File_Test extends BaseTestCase {
 	 * @param string $where      Which file to write.
 	 * @param string $owner      The owner type it should get.
 	 * @param bool   $can_delete Whether the dashboard may delete it.
+	 * @param bool   $checksums  Whether WordPress.org's checksums could be fetched.
 	 */
 	#[DataProvider( 'provide_files' )]
-	public function test_only_stray_files_can_be_deleted( $where, $owner, $can_delete ) {
+	public function test_only_stray_files_can_be_deleted( $where, $owner, $can_delete, $checksums = true ) {
 		set_transient(
 			Threat_File::CHECKSUMS_CACHE,
 			array(
 				'version'   => get_bloginfo( 'version' ),
-				'checksums' => array( 'wp-includes/protect-test-core.php' => md5( '<?php' ) ),
+				'locale'    => 'en_US',
+				'checksums' => $checksums ? array( 'wp-includes/protect-test-core.php' => md5( '<?php' ) ) : array(),
 			)
 		);
 		$paths = array(
@@ -87,6 +91,7 @@ class Threat_File_Test extends BaseTestCase {
 			'plugin'            => WP_PLUGIN_DIR . '/protect-test-plugin/includes/helper.php',
 			'loose-plugin-file' => WP_PLUGIN_DIR . '/protect-test-loose.php',
 			'core'              => ABSPATH . 'wp-includes/protect-test-core.php',
+			'stray-core'        => ABSPATH . 'wp-includes/protect-test-stray.php',
 			'wp-config'         => ABSPATH . 'protect-test/wp-config.php',
 		);
 		if ( 'plugin' === $where ) {
