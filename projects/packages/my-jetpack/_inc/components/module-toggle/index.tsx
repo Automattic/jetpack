@@ -18,7 +18,7 @@ export type ModuleToggleProps = {
 	module: MyJetpackModule;
 	describedby?: string;
 	/** The id of the text that names the switch, in place of its default label. */
-	ariaLabelledBy?: string;
+	labelledby?: string;
 	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
 	reloadAfterToggle?: boolean;
 	/** Called with what the click asked for, for surfaces that record their own events. */
@@ -141,7 +141,7 @@ export function useModuleActivation(
 export function ModuleToggle( {
 	module: $module,
 	describedby,
-	ariaLabelledBy,
+	labelledby,
 	reloadAfterToggle = true,
 	onSwitch,
 }: ModuleToggleProps ) {
@@ -190,7 +190,7 @@ export function ModuleToggle( {
 			checked={ isActive }
 			onChange={ onChange }
 			aria-label={
-				ariaLabelledBy
+				labelledby
 					? undefined
 					: sprintf(
 							/* translators: %s is the module name */
@@ -198,7 +198,7 @@ export function ModuleToggle( {
 							$module.name
 						)
 			}
-			aria-labelledby={ ariaLabelledBy }
+			aria-labelledby={ labelledby }
 			aria-describedby={ describedby }
 		/>
 	);
