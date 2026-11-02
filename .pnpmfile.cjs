@@ -166,6 +166,10 @@ async function fixDeps( pkg ) {
 	}
 
 	// Clear GHSA-3g3m-2fjr-6pw4 for various deps. Historically the process has taken a while.
+	// https://github.com/istanbuljs/test-exclude/issues/78
+	// https://github.com/jestjs/jest/issues/16529
+	// https://github.com/joshwooding/vite-plugin-react-docgen-typescript/issues/92
+	// (plus a few more upstreams with no report yet)
 	if ( pkg.dependencies?.glob?.startsWith( '^13' ) ) {
 		pkg.dependencies.glob += ' || ^14';
 	}
