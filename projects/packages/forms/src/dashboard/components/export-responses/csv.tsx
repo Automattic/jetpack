@@ -14,6 +14,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import countCsvRows from './count-csv-rows';
+import ProgressRing from './progress-ring';
 
 const NOTICE_ID = 'jetpack-forms-export-csv';
 
@@ -69,6 +70,20 @@ async function readWithProgress(
 }
 
 /**
+ * Percentage of responses received, held at 99 until the file is complete.
+ *
+ * @param {DownloadProgress|null} progress - Progress so far, or null before the first byte.
+ * @param {number}                total    - Responses in the export, or 0 when unknown.
+ * @return {number|null} The percentage, or null when it can't be known yet.
+ */
+function getPercent( progress: DownloadProgress | null, total: number ): number | null {
+	if ( ! progress || ! total ) {
+		return null;
+	}
+	return Math.min( 99, Math.floor( ( Math.max( 0, progress.rows - 1 ) / total ) * 100 ) );
+}
+
+/**
  * Describes how far a download has got: a percentage of responses when the total is known, otherwise megabytes.
  *
  * @param {DownloadProgress|null} progress - Progress so far, or null before the first byte.
@@ -87,15 +102,14 @@ function getProgressLabel( progress: DownloadProgress | null, total: number ): s
 		);
 	}
 
-	const done = Math.max( 0, progress.rows - 1 );
-	const percent = Math.min( 99, Math.floor( ( done / total ) * 100 ) );
+	const percent = getPercent( progress, total );
 	// The stream speeds up over its first seconds, so earlier estimates run long.
 	if ( ! progress.rate || percent < 10 ) {
 		/* translators: %d: percentage of responses downloaded so far */
 		return sprintf( __( '%d%% downloaded', 'jetpack-forms' ), percent );
 	}
 
-	const secondsLeft = ( total - done ) / progress.rate;
+	const secondsLeft = ( total - Math.max( 0, progress.rows - 1 ) ) / progress.rate;
 	if ( secondsLeft < 5 ) {
 		/* translators: %d: percentage of responses downloaded so far */
 		return sprintf( __( '%d%% downloaded, almost done', 'jetpack-forms' ), percent );
@@ -193,6 +207,7 @@ const CSVExport = ( { onExport } ) => {
 		createErrorNotice,
 	] );
 
+	const percent = getPercent( progress, total );
 	const buttonClasses = clsx( 'button', 'export-button', 'export-csv' );
 
 	return (
@@ -224,7 +239,7 @@ const CSVExport = ( { onExport } ) => {
 					</span>
 					{ isDownloading && (
 						<span className="jp-forms__export-modal-card-progress">
-							<Spinner />
+							{ percent === null ? <Spinner /> : <ProgressRing value={ percent } /> }
 							{ getProgressLabel( progress, total ) }
 						</span>
 					) }
