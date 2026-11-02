@@ -9,7 +9,10 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RequiresMethod;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
@@ -133,6 +136,120 @@ class SSO_Test extends BaseTestCase {
 		$instance_a = SSO::get_instance();
 		$instance_b = SSO::get_instance();
 		$this->assertSame( $instance_a, $instance_b );
+	}
+
+	public function test_add_standalone_module_lists_sso_once() {
+		$this->assertSame( array( 'monitor', 'sso' ), array_values( SSO::add_standalone_module( array( 'monitor', 'sso' ) ) ) );
+		$this->assertSame( array( 'monitor', 'sso' ), SSO::add_standalone_module( array( 'monitor' ) ) );
+	}
+
+	/**
+	 * A standalone plugin starts SSO only where the Jetpack plugin's module loader would.
+	 *
+	 * @dataProvider provide_standalone_sites
+	 *
+	 * @param bool $connected Whether the site has a connected owner.
+	 * @param bool $offline   Whether the site is in offline mode.
+	 * @param bool $active    Whether the `sso` module is on.
+	 * @param bool $starts    Whether SSO should start.
+	 */
+	#[DataProvider( 'provide_standalone_sites' )]
+	public function test_maybe_start_standalone_needs_a_connected_owner_and_the_module( $connected, $offline, $active, $starts ) {
+		self::set_up_standalone_site( $connected, $offline, $active );
+
+		SSO::maybe_start_standalone();
+		$started = null !== SSO::$instance;
+
+		self::clear_standalone_site();
+		$this->assertSame( $starts, $started );
+	}
+
+	/**
+	 * Defining the Jetpack class can't be undone, so this runs in its own process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_maybe_start_standalone_leaves_sso_to_the_jetpack_plugin() {
+		self::set_up_standalone_site( true, false, true );
+		class_alias( \stdClass::class, 'Jetpack' );
+
+		SSO::maybe_start_standalone();
+
+		$this->assertNull( SSO::$instance );
+	}
+
+	public function test_init_standalone_waits_for_after_setup_theme() {
+		global $wp_actions;
+		$fired = $wp_actions['after_setup_theme'] ?? null;
+		unset( $wp_actions['after_setup_theme'] );
+		self::set_up_standalone_site( true, false, true );
+
+		SSO::init_standalone();
+		$priority = has_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ) );
+		$started  = null !== SSO::$instance;
+
+		remove_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ), -2 );
+		if ( null !== $fired ) {
+			$wp_actions['after_setup_theme'] = $fired;
+		}
+		self::clear_standalone_site();
+		$this->assertSame( -2, $priority );
+		$this->assertFalse( $started );
+	}
+
+	/**
+	 * Make the site a standalone plugin would see, with SSO not yet started.
+	 *
+	 * @param bool $connected Whether the site has a connected owner.
+	 * @param bool $offline   Whether the site is in offline mode.
+	 * @param bool $active    Whether the `sso` module is on.
+	 */
+	private static function set_up_standalone_site( $connected, $offline, $active ) {
+		if ( $connected ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'sso_owner',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			);
+			\Jetpack_Options::update_option( 'id', 123 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+			\Jetpack_Options::update_option( 'master_user', $user_id );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'sso' ) : array() );
+		add_filter( 'jetpack_get_available_standalone_modules', array( SSO::class, 'add_standalone_module' ) );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+		( new Manager() )->reset_connection_status();
+		\Automattic\Jetpack\Status\Cache::clear();
+		SSO::$instance = null;
+	}
+
+	/**
+	 * Undo set_up_standalone_site().
+	 */
+	private static function clear_standalone_site() {
+		remove_all_filters( 'jetpack_get_available_standalone_modules' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token', 'user_tokens', 'master_user', 'active_modules' ) );
+	}
+
+	/**
+	 * Data provider for test_maybe_start_standalone_needs_a_connected_owner_and_the_module.
+	 *
+	 * @return array
+	 */
+	public static function provide_standalone_sites() {
+		return array(
+			'connected, module on'     => array( true, false, true, true ),
+			'not connected, module on' => array( false, false, true, false ),
+			'offline, module on'       => array( true, true, true, false ),
+			'connected, module off'    => array( true, false, false, false ),
+		);
 	}
 
 	// ──────────────────────────────────────────────
