@@ -7,6 +7,7 @@ import enquirer from 'enquirer';
 import * as yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
+import { COMPLETION_COMMAND, completionHook } from '../helpers/completion.js';
 import { doesRepoExist } from '../helpers/github.js';
 import {
 	readPackageJson,
@@ -27,10 +28,6 @@ import {
 import { promptForType, promptForName } from '../helpers/promptForProject.js';
 import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-
-export const completions = {
-	type: () => projectTypes.map( type => pluralize.singular( type ) ),
-};
 
 /**
  * Entry point for the CLI.
@@ -65,6 +62,13 @@ export function generateDefine( yargs ) {
 		'Creates a new project',
 		yarg => {
 			yarg
+				.completion(
+					COMPLETION_COMMAND,
+					false,
+					completionHook( yarg, {
+						type: () => projectTypes.map( type => pluralize.singular( type ) ),
+					} )
+				)
 				.positional( 'type', {
 					describe: 'Type of project being worked on, e.g. package, plugin, etc',
 					type: 'string',

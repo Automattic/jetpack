@@ -7,7 +7,7 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
-import { completeProject } from '../helpers/completion.js';
+import { COMPLETION_COMMAND, completeProject, completionHook } from '../helpers/completion.js';
 import { getInstallArgs, getComposerInstallArgsForDir, projectDir } from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
@@ -16,14 +16,6 @@ import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'phan [project...]';
 export const describe = 'Run Phan on a monorepo project';
-export const completions = {
-	project: current => [
-		...completeProject( current ),
-		'monorepo',
-		...Object.keys( monorepoPseudoProjects() ),
-	],
-};
-
 /**
  * Load list of monorepo pseudo-projects.
  *
@@ -45,6 +37,17 @@ function monorepoPseudoProjects() {
  */
 export function builder( yargs ) {
 	return yargs
+		.completion(
+			COMPLETION_COMMAND,
+			false,
+			completionHook( yargs, {
+				project: current => [
+					...completeProject( current ),
+					'monorepo',
+					...Object.keys( monorepoPseudoProjects() ),
+				],
+			} )
+		)
 		.positional( 'project', {
 			describe:
 				// prettier-ignore

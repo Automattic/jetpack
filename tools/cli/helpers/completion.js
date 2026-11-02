@@ -81,12 +81,12 @@ export function positionalFor( command, words, depth ) {
  * Candidates for the positional being completed, if any.
  *
  * @param {object} yargs      - The yargs instance.
- * @param {object} perCommand - Per-command completers, see `completionHook()`.
+ * @param {object} completers - The command's own completers, see `completionHook()`.
  * @param {string} current    - The word being completed.
  * @param {object} argv       - Parsed arguments.
  * @return {string[]} Candidates, filtered to the typed prefix.
  */
-function positionalCompletions( yargs, perCommand, current, argv ) {
+function positionalCompletions( yargs, completers, current, argv ) {
 	// The resolved command chain is only exposed through yargs' internal context; the integration
 	// tests catch a yargs upgrade changing that.
 	const { commands, fullCommands } = yargs.getInternalMethods().getContext();
@@ -94,9 +94,7 @@ function positionalCompletions( yargs, perCommand, current, argv ) {
 		return [];
 	}
 	const positional = positionalFor( fullCommands.at( -1 ), argv._, commands.length );
-	const completer =
-		positional &&
-		( perCommand[ commands.join( ' ' ) ]?.[ positional.name ] ?? byName[ positional.name ] );
+	const completer = positional && ( completers[ positional.name ] ?? byName[ positional.name ] );
 	if ( ! completer ) {
 		return [];
 	}
@@ -118,21 +116,20 @@ function positionalCompletions( yargs, perCommand, current, argv ) {
 /**
  * Create the hook for `yargs.completion()` that completes positionals.
  *
- * Adds `byName` to every command, plus each command's own `completions`. Completers must be
- * synchronous: until the hook prints, yargs may run the half-typed command.
+ * `byName` covers every command; a builder registers the hook again with its own completers.
+ * Completers must be synchronous: until the hook prints, yargs may run the half-typed command.
  *
- * @param {object} yargs      - The yargs instance the commands are registered on.
- * @param {object} perCommand - Command path (`'changelog add'`) to its `completions`: positional
- *                            name to `current => string[]`.
+ * @param {object} yargs      - The yargs instance, the root or the one a builder receives.
+ * @param {object} completers - Positional name to `current => string[]`, overriding `byName`.
  * @return {Function} The hook, in yargs' "fallback" form.
  */
-export function completionHook( yargs, perCommand ) {
+export function completionHook( yargs, completers = {} ) {
 	return ( current, argv, completionFilter, done ) => {
 		completionFilter( ( err, defaults = [] ) => {
 			let extra = [];
 			if ( ! err && ! current.startsWith( '-' ) ) {
 				try {
-					extra = positionalCompletions( yargs, perCommand, current, argv );
+					extra = positionalCompletions( yargs, completers, current, argv );
 				} catch ( error ) {
 					console.error( error );
 				}

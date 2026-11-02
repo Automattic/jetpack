@@ -85,10 +85,10 @@ describe( 'completeProject', () => {
 } );
 
 describe( 'completionHook', () => {
-	const hook = ( commands, fullCommands, perCommand = {} ) =>
+	const hook = ( commands, fullCommands, completers = {} ) =>
 		completionHook(
 			{ getInternalMethods: () => ( { getContext: () => ( { commands, fullCommands } ) } ) },
-			perCommand
+			completers
 		);
 	const run = ( fn, current, _, defaults = [ '--help' ] ) =>
 		new Promise( resolve => fn( current, { _ }, cb => cb( null, defaults ), resolve ) );
@@ -125,7 +125,7 @@ describe( 'completionHook', () => {
 	test( 'rejects an async completer, which would let yargs run the half-typed command', async () => {
 		const error = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		const rsync = hook( [ 'rsync' ], [ 'rsync [plugin] [dest]' ], {
-			rsync: { dest: async () => [ 'site' ] },
+			dest: async () => [ 'site' ],
 		} );
 		await expect( run( rsync, 's', [ 'jetpack', 'rsync', 'jetpack', 's' ] ) ).resolves.toEqual( [
 			'--help',
@@ -136,7 +136,7 @@ describe( 'completionHook', () => {
 	test( "prefers the command's own completer and escapes colons and backslashes for zsh", async () => {
 		process.env.SHELL = '/bin/zsh';
 		const rsync = hook( [ 'rsync' ], [ 'rsync [plugin] [dest]' ], {
-			rsync: { dest: () => [ 'site:a', 'site\\b', 'other' ] },
+			dest: () => [ 'site:a', 'site\\b', 'other' ],
 		} );
 		await expect( run( rsync, 's', [ 'jetpack', 'rsync', 'jetpack', 's' ] ) ).resolves.toEqual( [
 			'--help',

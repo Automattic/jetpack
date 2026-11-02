@@ -9,7 +9,7 @@ import { glob } from 'glob';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
-import { completeProject } from '../helpers/completion.js';
+import { COMPLETION_COMMAND, completeProject, completionHook } from '../helpers/completion.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { readComposerJson, readPackageJson } from '../helpers/json.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
@@ -19,12 +19,6 @@ import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'test [test] [project...]';
 export const describe = 'Run tests on a monorepo project';
-export const completions = {
-	test: () =>
-		[ ...new Set( allProjects().flatMap( project => availableTests( project, false ) ) ) ].sort(),
-	project: current => [ ...completeProject( current ), 'monorepo' ],
-};
-
 /**
  * Options definition for the test subcommand.
  *
@@ -33,6 +27,17 @@ export const completions = {
  */
 export async function builder( yargs ) {
 	return yargs
+		.completion(
+			COMPLETION_COMMAND,
+			false,
+			completionHook( yargs, {
+				test: () =>
+					[
+						...new Set( allProjects().flatMap( project => availableTests( project, false ) ) ),
+					].sort(),
+				project: current => [ ...completeProject( current ), 'monorepo' ],
+			} )
+		)
 		.positional( 'test', {
 			describe:
 				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project.',

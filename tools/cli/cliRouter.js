@@ -10,14 +10,14 @@ import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
-import { completions as generateCompletions, generateDefine } from './commands/generate.js';
+import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
 import * as playgroundCommand from './commands/playground.js';
 import * as pnpmCommand from './commands/pnpm.js';
 import { releaseDefine } from './commands/release.js';
-import { completions as rsyncCompletions, rsyncDefine } from './commands/rsync.js';
+import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
 import { COMPLETION_COMMAND, completionHook } from './helpers/completion.js';
@@ -76,18 +76,9 @@ export async function cli() {
 			},
 		} );
 
-	// Every TAB runs `jetpack --get-yargs-completions <words>` (see `completion/`); the hook adds the
-	// positionals that yargs' own completion does not know.
-	argv.completion(
-		COMPLETION_COMMAND,
-		false,
-		completionHook( argv, {
-			generate: generateCompletions,
-			phan: phanCommand.completions,
-			rsync: rsyncCompletions,
-			test: testCommand.completions,
-		} )
-	);
+	// Every TAB runs `jetpack --get-yargs-completions <words>` (see `completion/`); the hook completes
+	// the positionals yargs does not know, and a builder registers its own the same way.
+	argv.completion( COMPLETION_COMMAND, false, completionHook( argv ) );
 	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
 	// so stop the half-typed command before its handler runs.
 	if ( process.argv.includes( '--get-yargs-completions' ) ) {
