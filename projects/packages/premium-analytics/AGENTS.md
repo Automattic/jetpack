@@ -221,14 +221,10 @@ connected-site-only (e.g. the local data proxy, notices) can stay under
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
 (widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
-repo — it names the class and lets the Jetpack autoloader resolve it, never a path.
+repo — it calls `::register()` by class name, never by path.
 
-**Renaming the class or this method, or changing its signature, requires a matching WPCOM-side update.**
+**Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
 See Automattic/jetpack#50266 for the PR that established this contract.
-
-**Never `require` a file of this package by path from outside it.** The autoloader picks one copy of
-the package per request, and a path require can load a second copy's file-scope functions, which
-fatals on redeclaration (Automattic/jetpack#50936).
 
 ## Pitfalls
 
