@@ -2,14 +2,12 @@
 /**
  * Keep the canonical URL on the post when the request didn't ask for a comment page.
  *
- * Core's `comments_template()` fills in `cpage` when comments are paged, and block themes
- * render it before `wp_head`. See https://core.trac.wordpress.org/ticket/58257.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 
 /**
- * `get_canonical_url` filter: rebuild the canonical without a `cpage` the request didn't ask for.
+ * Block themes run `comments_template()` before `wp_head`, which fills in `cpage`.
+ * See https://core.trac.wordpress.org/ticket/58257.
  *
  * @param string  $canonical_url The canonical URL.
  * @param WP_Post $post          The post.
@@ -19,7 +17,7 @@ function wpcom_comment_page_canonical_url( $canonical_url, $post ) {
 	global $wp;
 
 	$cpage = get_query_var( 'cpage' );
-	if ( ! $cpage || ! empty( $wp->query_vars['cpage'] ) || get_queried_object_id() !== $post->ID ) {
+	if ( ! $cpage || ! empty( $wp->query_vars['cpage'] ) ) {
 		return $canonical_url;
 	}
 
