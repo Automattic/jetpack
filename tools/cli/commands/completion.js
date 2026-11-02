@@ -10,11 +10,16 @@ export const describe = 'Generate bash/zsh completions';
  * @return {object} Yargs with the completion commands defined.
  */
 export function builder( yargs ) {
-	return yargs.positional( 'shell', {
-		describe: 'Shell to generate the script for. Defaults to the login shell, from $SHELL.',
-		type: 'string',
-		choices: [ 'bash', 'zsh' ],
-	} );
+	return yargs
+		.positional( 'shell', {
+			describe: 'Shell to generate the script for. Defaults to the login shell, from $SHELL.',
+			type: 'string',
+			choices: [ 'bash', 'zsh' ],
+		} )
+		.option( 'name', {
+			describe: 'Command the script completes, for a wrapper such as `jp`.',
+			type: 'string',
+		} );
 }
 
 /**
@@ -30,5 +35,10 @@ export function handler( argv ) {
 		);
 		process.exit( 1 );
 	}
-	process.stdout.write( completionScript( shell, argv.$0 ) );
+	const name = argv.name ?? argv.$0;
+	if ( ! /^[\w-]+$/.test( name ) ) {
+		console.error( `Cannot complete a command named "${ name }".` );
+		process.exit( 1 );
+	}
+	process.stdout.write( completionScript( shell, name ) );
 }

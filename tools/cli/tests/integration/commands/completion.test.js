@@ -22,6 +22,15 @@ describe( 'completion command', () => {
 		const { stdout } = await execa( bin, [ 'completion', 'zsh' ], { encoding: 'utf8' } );
 		expect( stdout ).toMatch( /^#compdef jetpack\n/ );
 	} );
+	test( 'names the command the script completes', async () => {
+		const { stdout } = await execa( bin, [ 'completion', 'zsh', '--name', 'jp' ], {
+			encoding: 'utf8',
+		} );
+		expect( stdout ).toMatch( /^#compdef jp\n/ );
+		await expect(
+			execa( bin, [ 'completion', 'zsh', '--name', 'rm -rf' ], { encoding: 'utf8' } )
+		).rejects.toMatchObject( { exitCode: 1 } );
+	} );
 	test( 'falls back to the login shell', async () => {
 		const { stdout } = await execa( bin, [ 'completion' ], {
 			encoding: 'utf8',
