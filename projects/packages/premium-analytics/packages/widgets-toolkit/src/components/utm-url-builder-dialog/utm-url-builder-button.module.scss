@@ -3,4 +3,5 @@
 .button {
 
 	@include row-icon-action;
+	cursor: pointer;
 }
