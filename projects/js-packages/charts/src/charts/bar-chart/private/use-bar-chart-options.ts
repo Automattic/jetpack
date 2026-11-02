@@ -188,6 +188,7 @@ export function useBarChartOptions(
 		const [ valueAxisOptions, valueTickDecimals ] = horizontal
 			? [ xAxisOptions, xTickDecimals ]
 			: [ yAxisOptions, yTickDecimals ];
+		const valueScaleType = ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
 
 		return {
 			xLabelOverflow,
@@ -199,8 +200,9 @@ export function useBarChartOptions(
 			// The dates sit on the x axis normally, and on the y axis when the
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
-			// A caller's own `tickValues` turn `tickDecimals` off, domain widening included.
-			valueTickDecimals: valueAxisOptions.tickValues ? undefined : valueTickDecimals,
+			// A caller's own `tickValues` or a log scale turn `tickDecimals` off, domain widening included.
+			valueTickDecimals:
+				valueAxisOptions.tickValues || valueScaleType === 'log' ? undefined : valueTickDecimals,
 		};
 	}, [ stableOptions, horizontal ] );
 	const { tickResolution } = axisConfig;
@@ -279,12 +281,7 @@ export function useBarChartOptions(
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
 		const domain = valueScaleOptions?.domain
 			? null
-			: getValueScaleDomain(
-					data,
-					includeZero,
-					isSeriesRendered,
-					valueScaleOptions?.type === 'log' ? undefined : axisConfig.valueTickDecimals
-				);
+			: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {

@@ -41,7 +41,7 @@ const isOnDecimals = ( value: number, decimals: number ): boolean => {
 /**
  * The scale's ticks with those finer than `decimals` places dropped.
  *
- * d3 steps by 1, 2 or 5 times a power of ten, so a step finer than 10^-decimals puts a tick on every multiple of it.
+ * d3 steps by 1, 2 or 5 times a power of ten, so every multiple of 10^-decimals inside the domain is one of its ticks.
  *
  * @param scale    - The value scale visx built.
  * @param count    - Ticks to ask the scale for; undefined uses the scale's own default, as visx does.
@@ -62,7 +62,7 @@ export const getTickDecimalValues = (
 };
 
 /**
- * A value domain widened to the nearest `decimals` steps when fewer than two fit inside it, so the axis keeps two ticks.
+ * A value domain widened to the nearest `decimals` steps when fewer than two fit inside it, so the axis shows at least two ticks.
  *
  * @param domain   - The domain the chart would scale to.
  * @param decimals - The axis's `tickDecimals`.
@@ -104,8 +104,7 @@ export const getTickDecimals = (
 type TickDecimalsProps = {
 	axis: 'x' | 'y';
 	numTicks?: number;
-	enabled: boolean;
-	decimals?: number;
+	decimals: number | undefined;
 	children: ( tickValues: number[] | undefined ) => ReactNode;
 };
 
@@ -115,21 +114,15 @@ type TickDecimalsProps = {
  * @param props          - Component props.
  * @param props.axis     - Which scale carries the values.
  * @param props.numTicks - Ticks to ask the scale for.
- * @param props.enabled  - Whether ticks are held to `decimals` and the caller pinned neither the ticks nor the value domain.
- * @param props.decimals - Decimal places a tick may carry; 0 keeps whole numbers.
+ * @param props.decimals - Decimal places a tick may carry, or undefined to keep visx's ticks.
  * @param props.children - Renders the axis and grid with the tick values.
  * @return The rendered children.
  */
-export const TickDecimals = ( {
-	axis,
-	numTicks,
-	enabled,
-	decimals = 0,
-	children,
-}: TickDecimalsProps ) => {
+export const TickDecimals = ( { axis, numTicks, decimals, children }: TickDecimalsProps ) => {
 	const { xScale, yScale } = useContext( DataContext );
-	const tickValues = enabled
-		? getTickDecimalValues( axis === 'x' ? xScale : yScale, numTicks, decimals )
-		: undefined;
+	const tickValues =
+		decimals === undefined
+			? undefined
+			: getTickDecimalValues( axis === 'x' ? xScale : yScale, numTicks, decimals );
 	return <>{ children( tickValues ) }</>;
 };

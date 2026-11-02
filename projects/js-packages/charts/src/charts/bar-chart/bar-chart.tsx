@@ -218,8 +218,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const tickDecimalsProps = {
 		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
 		numTicks: valueAxis.numTicks,
-		enabled: valueTickDecimals !== undefined && ! valueAxis.tickValues && ! callerValueDomain,
-		decimals: valueTickDecimals,
+		decimals: ! valueAxis.tickValues && ! callerValueDomain ? valueTickDecimals : undefined,
 	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );

@@ -366,6 +366,39 @@ describe( 'LineChart', () => {
 			);
 		} );
 
+		test( 'widens with the decimals it ticks at when a hidden series keeps its place in the domain', () => {
+			renderWithTheme( {
+				rescaleYOnVisibilityChange: false,
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.001, 0.003, 0.004 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: { y: { tickDecimals: 2, tickFormat: ( value: number ) => value.toFixed( 2 ) } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0.00', '1.00' ] );
+		} );
+
 		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
 			renderWithTheme( {
 				defaultHiddenSeries: [ 'Series B' ],

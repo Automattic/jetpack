@@ -632,7 +632,7 @@ When every visible value is a whole number, the value axis places ticks only on 
 
 <Canvas of={ BarChartStories.SmallWholeNumberRange } />
 
-When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` (`axis.x` on a horizontal chart) with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When fewer than two steps fall inside the values' range, the axis widens to show two ticks. A pinned value domain or `tickValues` turns the option off.
+When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` (`axis.x` on a horizontal chart) with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When fewer than two steps fall inside the values' range, the axis widens to the nearest steps, so at least two ticks show. A pinned value domain, `tickValues` or a log scale turns the option off.
 
 <Canvas of={ BarChartStories.TickDecimals } />
 

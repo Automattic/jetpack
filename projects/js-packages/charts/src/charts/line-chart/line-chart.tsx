@@ -443,18 +443,23 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			() => hasOnlyWholeNumbers( visibleSeries ),
 			[ visibleSeries ]
 		);
-		const yTickDecimals = getTickDecimals( hasWholeNumberValues, options?.axis?.y?.tickDecimals );
+		const isLogScale = options?.yScale?.type === 'log';
+		// A log axis has no decimal steps to hold ticks to.
+		const callerTickDecimals = isLogScale ? undefined : options?.axis?.y?.tickDecimals;
+		const yTickDecimals = getTickDecimals( hasWholeNumberValues, callerTickDecimals );
 
 		const chartOptions = useMemo( () => {
-			const isLogScale = options?.yScale?.type === 'log';
 			const fallbackYDomain = getFallbackYDomain( visibleReadingExtent, isLogScale );
 			const { tickDecimals, ...yAxisOptions } = options?.axis?.y ?? {};
 			const tickDecimalsDomain =
-				isLogScale || options?.yScale?.domain || yAxisOptions.tickValues
+				isLogScale ||
+				tickDecimals === undefined ||
+				options?.yScale?.domain ||
+				yAxisOptions.tickValues
 					? undefined
 					: getTickDecimalsDomain(
 							yDomain ?? fallbackYDomain ?? visibleReadingExtent,
-							tickDecimals
+							yTickDecimals
 						);
 
 			return {
@@ -499,6 +504,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			zoom.domain,
 			yDomain,
 			visibleReadingExtent,
+			isLogScale,
+			yTickDecimals,
 			formatting,
 			isSeriesVisible,
 		] );
@@ -682,12 +689,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
-												enabled={
-													yTickDecimals !== undefined &&
-													! chartOptions.axis.y.tickValues &&
-													! options?.yScale?.domain
+												decimals={
+													! chartOptions.axis.y.tickValues && ! options?.yScale?.domain
+														? yTickDecimals
+														: undefined
 												}
-												decimals={ yTickDecimals }
 											>
 												{ tickValues => (
 													<>

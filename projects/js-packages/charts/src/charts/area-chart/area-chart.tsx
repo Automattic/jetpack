@@ -466,10 +466,12 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
-												enabled={
+												decimals={
 													hasWholeNumberValues &&
 													! chartOptions.axis.y.tickValues &&
 													! options?.yScale?.domain
+														? 0
+														: undefined
 												}
 											>
 												{ tickValues => (
