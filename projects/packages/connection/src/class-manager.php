@@ -885,6 +885,21 @@ class Manager {
 	}
 
 	/**
+	 * Whether the current user may take a vacant connection owner slot.
+	 *
+	 * Requires `jetpack_connect` and administrator: the `jetpack_disconnect_cap` filter can narrow eligibility, never widen it.
+	 * Current user only: callbacks on that filter, such as Jetpack's multisite one, check the current user.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function current_user_can_become_connection_owner() {
+		return current_user_can( 'jetpack_connect' )
+			&& current_user_can( ( new Roles() )->translate_role_to_cap( 'administrator' ) );
+	}
+
+	/**
 	 * Returns true if the site is connected only at a site level.
 	 *
 	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
@@ -1434,9 +1449,7 @@ class Manager {
 			&& Utils::get_wpcom_user_id( $current_id ) === (int) $anchor['wpcom_user_id'];
 
 		if ( ! $anchor ) {
-			$roles = new Roles();
-
-			if ( ! current_user_can( 'jetpack_connect' ) || ! current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
+			if ( ! $this->current_user_can_become_connection_owner() ) {
 				// Eligibility is being an admin, not holding the master slot.
 				$status = self::PO_STATE_NOT_ELIGIBLE;
 			} elseif ( ! $this->is_user_connected( $current_id ) ) {
@@ -2821,6 +2834,8 @@ class Manager {
 	/**
 	 * Sets the Connection custom capabilities.
 	 *
+	 * @since $$next-version$$ Without a connection owner, `jetpack_connect_user` requires `jetpack_connect`'s caps and administrator.
+	 *
 	 * @param string[] $caps    Array of the user's capabilities.
 	 * @param string   $cap     Capability name.
 	 * @param int      $user_id The user ID.
@@ -2853,8 +2868,17 @@ class Manager {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				// With site connections in mind, non-admin users can connect their account only if a connection owner exists.
-				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
+				// Anyone can link once an owner exists; until then only users eligible to become the owner can.
+				$caps = $this->has_connected_owner()
+					? array( 'read' )
+					: array_values(
+						array_unique(
+							array_merge(
+								$this->jetpack_connection_custom_caps( $caps, 'jetpack_connect', $user_id, $args ),
+								array( ( new Roles() )->translate_role_to_cap( 'administrator' ) )
+							)
+						)
+					);
 				break;
 			case 'jetpack_unlink_user':
 				$is_offline_mode = ( new Status() )->is_offline_mode();
@@ -3404,6 +3428,7 @@ class Manager {
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 * @since $$next-version$$ The user must also be an administrator, whatever the `jetpack_disconnect_cap` filter allows.
 	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error Returns a string on success.
@@ -3465,8 +3490,8 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
-		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
+		// Only an administrator who may manage the site connection takes a vacant owner slot; others link as secondary users.
+		$is_connection_owner = ! $this->has_connected_owner() && $this->current_user_can_become_connection_owner();
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only show the missing user connection alert to administrators who can become the connection owner.

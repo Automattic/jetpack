@@ -557,7 +557,7 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
+	 * Test that only an administrator with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
 	 *
 	 * @param string $role            The authorizing user's role.
 	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.
@@ -622,7 +622,8 @@ class ManagerTest extends TestCase {
 		return array(
 			'administrator takes the slot' => array( 'administrator', true, 'authorized' ),
 			'editor links as secondary'    => array( 'editor', false, 'linked' ),
-			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
+			'editor granted connection rights links as secondary' => array( 'editor', false, 'linked', array( 'edit_others_posts' ) ),
+			'administrator denied connection rights links as secondary' => array( 'administrator', false, 'linked', array( 'do_not_allow' ) ),
 		);
 	}
 
@@ -758,6 +759,26 @@ class ManagerTest extends TestCase {
 			'not offline mode, no owner, jetpack_unlink_user' => array( false, false, 'jetpack_unlink_user', array( 'read' ) ),
 			'not offline mode, owner exists, unknown cap'  => array( false, true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
 		);
+	}
+
+	/**
+	 * Without a connection owner, `jetpack_connect_user` needs the `jetpack_disconnect_cap` caps and administrator.
+	 */
+	public function test_jetpack_connect_user_without_owner_requires_connection_rights_and_admin() {
+		StatusCache::clear();
+		$this->manager->method( 'get_connection_owner_id' )->willReturn( false );
+		$filter_disconnect_cap = static function () {
+			return array( 'edit_others_posts' );
+		};
+		add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+
+		try {
+			$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, 'jetpack_connect_user', 1, array() );
+		} finally {
+			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+		}
+
+		$this->assertSame( array( 'edit_others_posts', 'manage_options' ), $caps );
 	}
 
 	/**
