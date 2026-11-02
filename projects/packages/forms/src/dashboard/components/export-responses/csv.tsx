@@ -2,20 +2,16 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Path, SVG } from '@wordpress/primitives';
-import { Progress } from '@wordpress/ui';
 import clsx from 'clsx';
 
 const NOTICE_ID = 'jetpack-forms-export-csv';
-
-// A plain div instead of Progress's default column Stack, whose inline styles can't be overridden.
-const renderProgressRoot = props => <div { ...props } />;
 
 /**
  * Reads a response body into a Blob, reporting how many bytes have arrived so far.
@@ -144,24 +140,16 @@ const CSVExport = ( { onExport } ) => {
 						{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
 					</span>
 					{ isDownloading && (
-						<Progress.Root
-							value={ null }
-							className="jp-forms__export-modal-card-progress"
-							render={ renderProgressRoot }
-						>
-							<Progress.Label className="jp-forms__export-modal-card-progress-label">
-								{ receivedBytes > 0
-									? sprintf(
-											/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
-											__( '%s MB downloaded', 'jetpack-forms' ),
-											( receivedBytes / 1000000 ).toFixed( 1 )
-										)
-									: __( 'Preparing your export…', 'jetpack-forms' ) }
-							</Progress.Label>
-							<Progress.Track className="jp-forms__export-modal-card-progress-track">
-								<Progress.Indicator />
-							</Progress.Track>
-						</Progress.Root>
+						<span className="jp-forms__export-modal-card-progress">
+							<Spinner />
+							{ receivedBytes > 0
+								? sprintf(
+										/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
+										__( '%s MB downloaded', 'jetpack-forms' ),
+										( receivedBytes / 1000000 ).toFixed( 1 )
+									)
+								: __( 'Preparing your export…', 'jetpack-forms' ) }
+						</span>
 					) }
 					{ isDone && ! isDownloading && (
 						<span className="jp-forms__export-modal-card-done">

@@ -84,29 +84,29 @@
 	}
 }
 
-.jp-forms__export-modal-card-progress {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	width: 100%;
-}
-
-// One line, so the progress never outgrows the hidden description.
-.jp-forms__export-modal-card-progress-label {
-	white-space: nowrap;
-}
-
-.jp-forms__export-modal-card-progress-track {
-	flex: 1;
-}
-
+.jp-forms__export-modal-card-progress,
 .jp-forms__export-modal-card-done {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 8px;
+}
 
-	svg {
+// One line, equal-width digits: the growing byte count shifts nothing.
+.jp-forms__export-modal-card-progress {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+
+	.components-spinner {
 		flex-shrink: 0;
-		color: #008710; // The check icon is drawn with stroke="currentColor".
+		margin: 0;
 	}
+}
+
+.jp-forms__export-modal-card-done {
+	gap: 0; // The check's padding aligns its text with the spinner's.
+}
+
+.jp-forms__export-modal-card-done svg {
+	flex-shrink: 0;
+	color: #008710; // The check icon is drawn with stroke="currentColor".
 }
