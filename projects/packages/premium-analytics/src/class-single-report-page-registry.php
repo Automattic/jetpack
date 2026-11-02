@@ -12,7 +12,7 @@ require_once __DIR__ . '/dashboard-grammar.php';
 /**
  * Holds the single-report pages per dashboard, hydrated once after `init`.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  */
 final class Single_Report_Page_Registry {
 
@@ -52,19 +52,19 @@ final class Single_Report_Page_Registry {
 	 */
 	public function register( $dashboard_name, $id, $args = array() ) {
 		if ( ! is_string( $dashboard_name ) || 1 !== preg_match( '/^' . get_dashboard_name_pattern() . '$/', $dashboard_name ) ) {
-			_doing_it_wrong( __METHOD__, esc_html__( 'Dashboard names must be lowercase strings of letters, numbers, and hyphens, optionally separated by underscores.', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html__( 'Dashboard names must be lowercase strings of letters, numbers, and hyphens, optionally separated by underscores.', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-0.16.0' );
 			return false;
 		}
 
 		if ( ! is_string( $id ) || 1 !== preg_match( '/^' . get_dashboard_section_id_pattern() . '$/', $id ) ) {
-			_doing_it_wrong( __METHOD__, esc_html__( 'Single-report page IDs must contain a namespace prefix. Example: my-plugin/my-entity', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html__( 'Single-report page IDs must contain a namespace prefix. Example: my-plugin/my-entity', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-0.16.0' );
 			return false;
 		}
 
 		if ( $this->is_registered( $dashboard_name, $id ) ) {
 			/* translators: 1: Dashboard name. 2: Page ID. */
 			$message = sprintf( __( 'Single-report page "%2$s" is already registered for dashboard "%1$s".', 'jetpack-premium-analytics-pkg' ), $dashboard_name, $id );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.16.0' );
 			return false;
 		}
 
@@ -75,7 +75,7 @@ final class Single_Report_Page_Registry {
 		if ( $holder ) {
 			/* translators: 1: Dashboard name. 2: Page path. 3: ID of the page already using the path. */
 			$message = sprintf( __( 'Single-report page path "%2$s" is already used on dashboard "%1$s" by "%3$s".', 'jetpack-premium-analytics-pkg' ), $dashboard_name, $page->path, $holder->id );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.16.0' );
 			return false;
 		}
 
@@ -181,7 +181,7 @@ final class Single_Report_Page_Registry {
 
 		// Latching this early would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) ) {
-			_doing_it_wrong( __METHOD__, esc_html__( 'Single-report pages are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html__( 'Single-report pages are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' ), 'jetpack-premium-analytics-0.16.0' );
 			return;
 		}
 
@@ -191,7 +191,7 @@ final class Single_Report_Page_Registry {
 		/**
 		 * Fires once when the single-report page registry hydrates.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.16.0
 		 *
 		 * @param Single_Report_Page_Registry $registry The registry being hydrated.
 		 */

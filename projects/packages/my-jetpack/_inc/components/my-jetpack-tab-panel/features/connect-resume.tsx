@@ -81,7 +81,7 @@ export function isSetupResumeEnabled(): boolean {
 export function reloadToTurnOn( feature: string ) {
 	const id = rememberConnectIntent( feature, 'reload' );
 	if ( id ) {
-		const url = getFeatureConnectReturnUrl( window.location.hash, {
+		const url = getFeatureConnectReturnUrl( undefined, {
 			[ CONNECT_INTENT_PARAM ]: id,
 		} );
 		// Set the return address before reloading: changing only the part after # does not reload the page.

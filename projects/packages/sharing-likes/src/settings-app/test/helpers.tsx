@@ -8,8 +8,8 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 
 export const baseStatus: Status = {
-	sharing: { state: 'configure' },
-	likes: { state: 'configure', supported: true },
+	sharing: { state: 'configure', managed_templates: [] },
+	likes: { state: 'configure', supported: true, managed_templates: [] },
 	comment_likes: { supported: true, follows_likes_settings: false },
 	placement: true,
 	site_editor_url: 'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template',
@@ -45,6 +45,8 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 			placement_choices: placementChoices,
 			multibyte_supported: true,
 			private_site: false,
+			comments_closed_by_default: false,
+			discussion_settings_url: 'https://example.com/wp-admin/options-discussion.php',
 			...overrides,
 		},
 	};

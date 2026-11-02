@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * The record is declarative: the client renders the page from it. What a record cannot
  * express, the entity's summary and header, lives in a client-side page adapter keyed by `path`.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  */
 class Single_Report_Page {
 
@@ -202,7 +202,7 @@ class Single_Report_Page {
 		/**
 		 * Filters the default layout of a single-report page, or of one of its inner sections.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.16.0
 		 *
 		 * @param array              $layout       Widget instances.
 		 * @param string             $page_id      Page identifier.
