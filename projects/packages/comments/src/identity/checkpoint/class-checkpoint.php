@@ -28,6 +28,10 @@ class Checkpoint {
 	const META_ID     = 'jetpack_comment_identity_id';
 	const META_AVATAR = 'jetpack_comment_identity_avatar';
 
+	const META_WPCOM_POST_AS = 'hc_post_as';
+	const META_WPCOM_USER_ID = 'hc_foreign_user_id';
+	const META_WPCOM_ID_SIG  = 'hc_wpcom_id_sig';
+
 	/**
 	 * Singleton instance.
 	 *
@@ -172,7 +176,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, name, email, avatar, wpcom_user_id.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar, wpcom_user_id, wpcom_id_sig.
 	 */
 	public static function exchange( $code ) {
 		// The client stops verifying certificates for good on a host whose first request failed to.
@@ -212,6 +216,7 @@ class Checkpoint {
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
 				'wpcom_user_id'     => absint( $body['wpcom_user_id'] ?? 0 ),
+				'wpcom_id_sig'      => sanitize_text_field( (string) ( $body['wpcom_id_sig'] ?? '' ) ),
 			);
 		}
 
@@ -444,6 +449,15 @@ class Checkpoint {
 
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );
+		}
+
+		$wpcom_user_id = absint( $this->identity['wpcom_user_id'] ?? 0 );
+		$wpcom_id_sig  = (string) ( $this->identity['wpcom_id_sig'] ?? '' );
+
+		if ( $wpcom_user_id && '' !== $wpcom_id_sig && ! ( new Host() )->is_wpcom_simple() ) {
+			add_comment_meta( $comment_id, self::META_WPCOM_POST_AS, 'wordpress', true ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
+			add_comment_meta( $comment_id, self::META_WPCOM_USER_ID, (string) $wpcom_user_id, true );
+			add_comment_meta( $comment_id, self::META_WPCOM_ID_SIG, $wpcom_id_sig, true );
 		}
 	}
 }
