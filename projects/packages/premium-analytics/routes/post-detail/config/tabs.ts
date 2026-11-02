@@ -72,17 +72,6 @@ export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = TAB_DEFINITIONS.filter(
 ).map( tab => tab.id );
 
 /**
- * Get the translated display label for a tab.
- *
- * @param id       - The tab identifier.
- * @param postType - The post type slug, once known.
- * @return Translated label for the tab.
- */
-export function getTabLabel( id: PostDetailTabId, postType?: string ): string {
-	return TAB_DEFINITIONS.find( tab => tab.id === id )?.getLabel( postType ) ?? id;
-}
-
-/**
  * Build the ordered list of tab definitions ({ id, label }).
  *
  * @param postType - The post type slug, once known.
