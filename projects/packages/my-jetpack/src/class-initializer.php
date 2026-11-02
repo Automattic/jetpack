@@ -1263,7 +1263,7 @@ class Initializer {
 		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
 		$data['myJetpack']['productsSection']       = self::get_products_section();
-		$data['myJetpack']['settingsConsolidation'] = Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG );
+		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
@@ -1528,7 +1528,6 @@ class Initializer {
 			'headerControls'           => self::is_header_controls_enabled(),
 			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
-			'settingsConsolidation'    => Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ),
 		);
 
 		if ( $flags['accountConnect'] ) {
@@ -1546,6 +1545,19 @@ class Initializer {
 	 */
 	public static function is_overview_v1_enabled() {
 		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether settings move to My Jetpack: the flag is on and My Jetpack's page is available.
+	 *
+	 * Without the page, moved settings would have nowhere to go, so they stay on the Settings screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_settings_consolidation_enabled() {
+		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) && self::is_admin_page_available();
 	}
 
 	/**
