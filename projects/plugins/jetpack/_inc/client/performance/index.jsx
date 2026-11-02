@@ -2,7 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
-import { isMovedOut, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -24,9 +25,12 @@ export class Performance extends Component {
 			return null;
 		}
 
-		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ]
-			.filter( module => ! isMovedOut( module ) )
-			.some( this.props.isModuleFound );
+		// Once settings move out, Search and VideoPress show here only in search results, as links to their new homes.
+		const consolidated = isSettingsConsolidationEnabled(),
+			foundVideoPress =
+				this.props.isModuleFound( 'videopress' ) && ( ! consolidated || !! this.props.searchTerm ),
+			found =
+				foundVideoPress || [ 'photon', 'photon-cdn', 'search' ].some( this.props.isModuleFound );
 
 		if ( ! found ) {
 			return null;
@@ -39,12 +43,19 @@ export class Performance extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
 				) }
-				{ /* Once settings move out, Search shows only in search results, as a link to its page. */ }
-				{ ( ! isSettingsConsolidationEnabled() || this.props.searchTerm ) && (
-					<Search { ...commonProps } />
-				) }
+				{ ( ! consolidated || this.props.searchTerm ) && <Search { ...commonProps } /> }
 				<SpeedUpSite { ...commonProps } />
-				{ ! isMovedOut( 'videopress' ) && <Media { ...commonProps } /> }
+				{ consolidated ? (
+					foundVideoPress && (
+						<FeaturesPointer
+							header={ __( 'VideoPress', 'jetpack' ) }
+							name="VideoPress"
+							search="videopress"
+						/>
+					)
+				) : (
+					<Media { ...commonProps } />
+				) }
 			</div>
 		);
 	}

@@ -14,10 +14,10 @@ jest.mock( 'sharing', () => () => null );
 jest.mock( 'traffic', () => () => null );
 jest.mock( 'writing', () => () => null );
 
-const buildState = ( module, canManageModules ) => ( {
+const buildState = module => ( {
 	jetpack: {
 		initialState: {
-			userData: { currentUser: { permissions: { manage_modules: canManageModules } } },
+			userData: { currentUser: { permissions: { manage_modules: true } } },
 		},
 		modules: { items: { [ module ]: { module, name: module, activated: true } } },
 		search: { searchTerm: module },
@@ -29,22 +29,22 @@ describe( 'Settings search', () => {
 		delete window.JetpackScriptData;
 	} );
 
+	// VideoPress and Social keep a pointer to Features, so a search for them still finds something.
 	it.each( [
-		[ 'earn', false, true, false ],
-		[ 'earn', true, true, true ],
-		[ 'publicize', true, true, true ],
-		[ 'publicize', true, false, false ],
-		[ 'videopress', true, true, true ],
+		[ 'earn', false, false ],
+		[ 'earn', true, true ],
+		[ 'videopress', true, false ],
+		[ 'publicize', true, false ],
 	] )(
-		'searching %s with the flag on: %s, as an admin: %s, shows no matching settings: %s',
-		( module, flag, canManageModules, isEmpty ) => {
+		'searching %s with the settings flag %s shows no matching settings: %s',
+		( module, flag, isEmpty ) => {
 			window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
 
 			render(
 				<MemoryRouter>
-					<Settings searchTerm={ module } userCanManageModules={ canManageModules } />
+					<Settings searchTerm={ module } userCanManageModules />
 				</MemoryRouter>,
-				{ initialState: buildState( module, canManageModules ) }
+				{ initialState: buildState( module ) }
 			);
 
 			expect( Boolean( screen.queryByText( 'No matching settings' ) ) ).toBe( isEmpty );

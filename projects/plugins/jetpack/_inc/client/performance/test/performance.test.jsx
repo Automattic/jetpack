@@ -2,6 +2,9 @@ import { render, screen } from 'test/test-utils';
 import { Performance } from '../index';
 
 jest.mock( 'components/data/query-site', () => () => null );
+jest.mock( 'components/pointer-card', () => ( {
+	FeaturesPointer: ( { search } ) => <div>{ `Features pointer: ${ search }` }</div>,
+} ) );
 jest.mock( '../media', () => () => <div>VideoPress card</div> );
 jest.mock( '../search', () => () => <div>Search card</div> );
 jest.mock( '../speed-up-site', () => () => null );
@@ -33,13 +36,12 @@ describe( 'Performance settings', () => {
 		expect( CARDS.filter( card => screen.queryByText( card ) ) ).toEqual( expected );
 	} );
 
-	it( 'renders nothing for a VideoPress search once the settings flag is on', () => {
+	it( 'points a VideoPress search to Features once the settings flag is on', () => {
 		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
 
-		const { container } = render(
-			<Performance searchTerm="videopress" isModuleFound={ findsOnlyVideoPress } />
-		);
+		render( <Performance searchTerm="videopress" isModuleFound={ findsOnlyVideoPress } /> );
 
-		expect( container ).toBeEmptyDOMElement();
+		expect( screen.getByText( 'Features pointer: videopress' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'VideoPress card' ) ).not.toBeInTheDocument();
 	} );
 } );

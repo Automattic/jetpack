@@ -1,8 +1,9 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
-import { isMovedOut } from 'lib/settings-consolidation';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -49,9 +50,11 @@ export class Sharing extends Component {
 			return null;
 		}
 
-		const foundPublicize =
-				! isMovedOut( 'publicize', this.props.userCanManageModules ) &&
-				this.props.isModuleFound( 'publicize' ),
+		// Once settings move out, admins find Social in Features, and a search here points them there.
+		const socialInFeatures = isSettingsConsolidationEnabled() && this.props.userCanManageModules,
+			foundPublicize =
+				this.props.isModuleFound( 'publicize' ) &&
+				( ! socialInFeatures || !! this.props.searchTerm ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 
@@ -66,7 +69,16 @@ export class Sharing extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
 				) }
-				{ foundPublicize && <Publicize { ...commonProps } /> }
+				{ foundPublicize &&
+					( socialInFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
+							name="Jetpack Social"
+							search="social"
+						/>
+					) : (
+						<Publicize { ...commonProps } />
+					) ) }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }
 			</div>
