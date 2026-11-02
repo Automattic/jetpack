@@ -18,6 +18,10 @@
 		svg {
 			display: block;
 		}
+
+		&:empty {
+			display: none;
+		}
 	}
 
 	// Scoped to the node to outweigh core's submenu spacing.

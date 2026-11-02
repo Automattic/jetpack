@@ -149,6 +149,11 @@ function init() {
 		return;
 	}
 
+	// The node has no child nodes, so core leaves these out; its admin-bar.js then keeps aria-expanded in sync.
+	const linkEl = chartEl.closest( 'a' );
+	linkEl.setAttribute( 'aria-haspopup', 'true' );
+	linkEl.setAttribute( 'aria-expanded', 'false' );
+
 	fetchVisits( restUrl, nonce )
 		.then( ( { views, visitors } ) => {
 			// Shortened like Stats does: 999, then 1K, 1.2K, 13.8M.
@@ -162,6 +167,8 @@ function init() {
 			};
 
 			drawSparkline( chartEl, views );
+			// The visible label stands in while loading and after a failure.
+			linkEl.querySelector( '.jp-stats-admin-bar-label' ).classList.add( 'screen-reader-text' );
 			drawBars( panelEl.querySelector( '.jp-stats-admin-bar-panel__bars' ), views );
 			showMetric( 'views', views );
 			showMetric( 'visitors', visitors );

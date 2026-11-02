@@ -138,7 +138,7 @@ class Admin_Bar {
 				array(
 					'id'    => 'stats',
 					'href'  => self::get_dashboard_url(),
-					'title' => '<span id="jetpack-stats-admin-bar-chart" class="jp-stats-admin-bar-chart" aria-hidden="true"></span><span class="screen-reader-text">' . esc_html__( 'Stats', 'jetpack-stats-admin' ) . '</span>',
+					'title' => '<span id="jetpack-stats-admin-bar-chart" class="jp-stats-admin-bar-chart" aria-hidden="true"></span><span class="jp-stats-admin-bar-label">' . esc_html__( 'Stats', 'jetpack-stats-admin' ) . '</span>',
 					'meta'  => array(
 						'menu_title' => __( 'Stats', 'jetpack-stats-admin' ),
 						'class'      => 'menupop',
@@ -175,7 +175,7 @@ class Admin_Bar {
 			return sprintf( '<div class="jp-stats-admin-bar-panel__metric"><dt>%s</dt><dd data-metric="%s">–</dd></div>', esc_html( $label ), esc_attr( $key ) );
 		};
 
-		return '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel" class="jp-stats-admin-bar-panel" aria-live="polite">'
+		return '<div class="ab-sub-wrapper"><div id="jetpack-stats-admin-bar-panel" class="jp-stats-admin-bar-panel">'
 			. '<div class="jp-stats-admin-bar-panel__title">' . esc_html__( 'Last 7 days', 'jetpack-stats-admin' ) . '</div>'
 			. '<span class="ab-label jp-stats-admin-bar-panel__bars" aria-hidden="true"></span>'
 			. '<dl class="jp-stats-admin-bar-panel__metrics">'
