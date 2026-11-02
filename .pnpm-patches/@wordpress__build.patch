@@ -6,7 +6,7 @@ index 96c4627..48fcf28 100644
  	// same fields in the same order, or the preload is never consumed.
  	$preload_paths = array(
  		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
-+		// WordPress cores whose bundled core-data predates that field request this list instead.
++		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
 +		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
  		array( '/wp/v2/settings', 'OPTIONS' ),
  	);
@@ -49,7 +49,7 @@ diff --git a/templates/page.php.template b/templates/page.php.template
  	// same fields in the same order, or the preload is never consumed.
  	$preload_paths = array(
  		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
-+		// WordPress cores whose bundled core-data predates that field request this list instead.
++		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
 +		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
  		array( '/wp/v2/settings', 'OPTIONS' ),
  	);
