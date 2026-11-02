@@ -27,7 +27,6 @@ import {
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
-import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
@@ -233,6 +232,10 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
+	/** Bars only; see `ComparativeBarChart`. */
+	previousPeriodShown?: boolean;
+	/** Bars only: called when the reader shows or hides the previous period from the legend. */
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 }
 
 /**
@@ -308,6 +311,8 @@ function MetricChart( {
 	baseline,
 	comparisonLabel,
 	empty,
+	previousPeriodShown,
+	onPreviousPeriodShownChange,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -322,6 +327,8 @@ function MetricChart( {
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
 	empty?: ReactNode;
+	previousPeriodShown?: boolean;
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
@@ -368,18 +375,24 @@ function MetricChart( {
 			metrics.some( candidate => candidate.key === item.counterpartKey )
 	);
 
-	const { series, defaultHiddenSeries } = useMemo( () => {
+	// The previous period's label is seeded even before it arrives, as the chart applies its hidden series only on first sight of the chart ID.
+	const defaultHiddenSeries = useMemo(
+		() =>
+			counterpart && metric.counterpartHidden
+				? [ counterpart.label, formatComparisonSeriesLabel( counterpart.label ) ]
+				: undefined,
+		[ counterpart, metric.counterpartHidden ]
+	);
+
+	const series = useMemo( () => {
 		// An unstroked current period is toned by charts from the accent: the back metric takes the tint and a front metric the shade.
 		if ( isOverlap && ! counterpart ) {
-			return {
-				series: buildSeries(
-					metric,
-					chartType,
-					pairsMetrics ? shades.barFront : shades.accent,
-					pairsMetrics ? PREVIOUS_PERIOD_GRAYS.front : PREVIOUS_PERIOD_GRAYS.alone
-				),
-				defaultHiddenSeries: undefined,
-			};
+			return buildSeries(
+				metric,
+				chartType,
+				pairsMetrics ? shades.barFront : shades.accent,
+				pairsMetrics ? PREVIOUS_PERIOD_GRAYS.front : PREVIOUS_PERIOD_GRAYS.alone
+			);
 		}
 
 		if ( isOverlap && counterpart ) {
@@ -387,29 +400,18 @@ function MetricChart( {
 				sumOf( counterpart.current ) > sumOf( metric.current )
 					? [ counterpart, metric ]
 					: [ metric, counterpart ];
-			const backSeries = buildSeries( back, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back );
-			const frontSeries = buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front );
-			const counterpartSeries = back === counterpart ? backSeries : frontSeries;
 
-			return {
-				series: [ ...backSeries, ...frontSeries ],
-				defaultHiddenSeries: metric.counterpartHidden
-					? counterpartSeries.map( item => item.label )
-					: undefined,
-			};
+			return [
+				...buildSeries( back, chartType, undefined, PREVIOUS_PERIOD_GRAYS.back ),
+				...buildSeries( front, chartType, undefined, PREVIOUS_PERIOD_GRAYS.front ),
+			];
 		}
 
 		const active = buildSeries( metric, chartType, shades.accent );
 
-		if ( ! counterpart ) {
-			return { series: active, defaultHiddenSeries: undefined };
-		}
-
-		const paired = buildSeries( counterpart, chartType, shades.lineCounterpart );
-		return {
-			series: [ ...active, ...paired ],
-			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
-		};
+		return counterpart
+			? [ ...active, ...buildSeries( counterpart, chartType, shades.lineCounterpart ) ]
+			: active;
 	}, [ metric, counterpart, chartType, shades, isOverlap, pairsMetrics ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
@@ -507,6 +509,8 @@ function MetricChart( {
 			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
+			previousPeriodShown={ previousPeriodShown }
+			onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 			layout="overlap"
 			primarySeries={ metric.label }
 			compactWhenShort
@@ -550,12 +554,12 @@ function MetricTabContent( {
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
 	hideLabelFromVision?: boolean;
-	/** Spell the value out in full, for a layout with room for it. */
+	/** Spell the value out in full, for a layout with room for it; compact only where even that layout clips it. */
 	exact?: boolean;
 } ) {
 	const format = metric.dataFormat ?? dataFormat;
 	const valueFormat = useMemo(
-		() => ( exact ? exactFormatOf( format ) : format ),
+		() => ( exact ? { ...format, preferExact: true } : format ),
 		[ exact, format ]
 	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
@@ -627,6 +631,8 @@ export function MetricTabsChart( {
 	tooltipMetrics = 'active',
 	baseline,
 	empty,
+	previousPeriodShown,
+	onPreviousPeriodShownChange,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 	const reportParams = useContext( WidgetRootContext )?.reportParams;
@@ -735,6 +741,8 @@ export function MetricTabsChart( {
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
 						empty={ empty }
+						previousPeriodShown={ previousPeriodShown }
+						onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 					/>
 				</div>
 			</div>
@@ -812,6 +820,8 @@ export function MetricTabsChart( {
 							onDatumClick={ onDatumClick }
 							comparisonLabel={ comparisonLabel }
 							empty={ empty }
+							previousPeriodShown={ previousPeriodShown }
+							onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 						/>
 					) }
 				</div>
@@ -870,6 +880,8 @@ export function MetricTabsChart( {
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
 						empty={ empty }
+						previousPeriodShown={ previousPeriodShown }
+						onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 					/>
 				</Tabs.Panel>
 			) ) }

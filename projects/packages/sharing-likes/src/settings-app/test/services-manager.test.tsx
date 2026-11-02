@@ -202,7 +202,10 @@ describe( 'ServicesManager', () => {
 		respond( { ...services, visible: [ 'x' ], hidden: [] } );
 		const user = userEvent.setup();
 		await renderManager( {
-			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+			status: {
+				...baseStatus,
+				sharing: { ...baseStatus.sharing, state: 'configure_with_block_nudge' },
+			},
 		} );
 
 		await runToolbarAction( user, 'X', 'Remove' );
@@ -225,7 +228,10 @@ describe( 'ServicesManager', () => {
 		);
 		const user = userEvent.setup();
 		await renderManager( {
-			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+			status: {
+				...baseStatus,
+				sharing: { ...baseStatus.sharing, state: 'configure_with_block_nudge' },
+			},
 		} );
 
 		await runToolbarAction( user, 'Facebook', 'Remove' );
@@ -246,7 +252,10 @@ describe( 'ServicesManager', () => {
 		);
 		const user = userEvent.setup();
 		await renderManager( {
-			status: { ...baseStatus, sharing: { state: 'configure_with_block_nudge' } },
+			status: {
+				...baseStatus,
+				sharing: { ...baseStatus.sharing, state: 'configure_with_block_nudge' },
+			},
 		} );
 
 		await runToolbarAction( user, 'Lobsters', 'Delete custom service' );

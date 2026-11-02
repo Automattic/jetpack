@@ -1,6 +1,6 @@
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
 import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { PlanUsageCard } from './plan-usage-card';
 
@@ -160,15 +160,13 @@ describe( 'PlanUsageCard', () => {
 	it.each( [
 		[ 'no limit', null ],
 		[ 'a zero limit', 0 ],
-	] )( 'shows no meter when the plan reports %s', async ( _title, viewsLimit ) => {
+	] )( 'leaves the card out when the plan reports %s', async ( _title, viewsLimit ) => {
 		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, views_limit: viewsLimit } );
 
 		renderCard();
 
-		await expect(
-			screen.findByText( "Plan usage isn't available for your current plan." )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		await waitForElementToBeRemoved( () => screen.queryByText( 'Loading your plan usage…' ) );
+		expect( screen.queryByText( 'Your current plan' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers Retry when the request fails', async () => {

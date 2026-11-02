@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats widget: render a loading skeleton instead of a spinner while the script loads.
