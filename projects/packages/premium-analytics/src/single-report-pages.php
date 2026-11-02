@@ -13,17 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-single-report-page.php';
 require_once __DIR__ . '/class-single-report-page-registry.php';
-
-// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
-if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
-	require_once __DIR__ . '/dashboard-layout.php';
-}
-
+require_once __DIR__ . '/dashboard-layout.php';
 // A page icon is a widget icon: the same registered-name grammar, the same sanitizer.
-if ( ! function_exists( __NAMESPACE__ . '\\sanitize_widget_icon' ) ) {
-	require_once __DIR__ . '/widget-types.php';
-}
-
+require_once __DIR__ . '/widget-types.php';
 require_once __DIR__ . '/rest-namespace.php';
 
 /**
