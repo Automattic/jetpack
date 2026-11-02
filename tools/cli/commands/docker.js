@@ -1285,7 +1285,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit <target>',
 					description:
-						'Run PHPUnit tests inside container for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.',
+						'Run PHPUnit tests inside container for plugins that require a WordPress install.',
 					builder: yargCmd =>
 						defaultOpts( yargCmd )
 							.option( 'php', {
@@ -1297,7 +1297,10 @@ export function dockerDefine( yargs ) {
 									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
 								choices: [ 'jetpack', 'jp-multisite', 'jp-wpcomsh', 'wpcomsh' ],
-							} ),
+							} )
+							.epilogue(
+								'Most projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.'
+							),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {

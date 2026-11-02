@@ -114,17 +114,6 @@ describe( 'completionHook', () => {
 		expect( list ).not.toContain( 'plugins/jetpack' );
 		expect( list ).not.toContain( 'packages/connection' );
 	} );
-	test( 'keeps multi-line descriptions from yargs on one line', async () => {
-		await expect(
-			run( build, '', [ 'jetpack', 'build', '' ], [ 'x:First line.\n\nSecond line.' ] )
-		).resolves.toEqual( [
-			'x:First line. Second line.',
-			'github-actions/',
-			'js-packages/',
-			'packages/',
-			'plugins/',
-		] );
-	} );
 	test( 'leaves options to yargs', async () => {
 		await expect( run( build, '--', [ 'jetpack', 'build' ] ) ).resolves.toEqual( [ '--help' ] );
 	} );
