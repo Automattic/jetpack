@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the class attribute on field wrappers that use the inset label layout.

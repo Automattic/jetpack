@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.15.0';
+	const PACKAGE_VERSION = '0.16.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -112,7 +112,7 @@ class Analytics {
 	/**
 	 * Whether Stats v2 booted in this request, whichever plugin or platform booted it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.16.0
 	 *
 	 * @return bool
 	 */

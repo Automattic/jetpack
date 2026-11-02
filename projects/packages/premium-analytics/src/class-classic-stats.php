@@ -12,7 +12,7 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 /**
  * Owns the classic Stats retirement flag, so every plugin that bundles Stats v2 reads the same switch.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  */
 final class Classic_Stats {
 

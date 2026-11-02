@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: Offer a single X button when adding sharing services. Sites that already use the older X (Twitter) button keep it.
