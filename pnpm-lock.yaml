@@ -1396,9 +1396,6 @@ importers:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
-      '@automattic/jetpack-base-styles':
-        specifier: workspace:*
-        version: link:../base-styles
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../components
@@ -1417,6 +1414,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 8.0.0
         version: 8.0.0
+      '@wordpress/base-styles':
+        specifier: 14.0.0
+        version: 14.0.0
       '@wordpress/block-editor':
         specifier: 19.0.0
         version: 19.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
