@@ -1,3 +1,6 @@
+import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import { execa } from 'execa';
 
@@ -75,4 +78,24 @@ describe( 'completion', () => {
 		);
 		await expect( complete( 'generate', '' ) ).resolves.toContain( 'js-package' );
 	} );
+	test.each( [ 'composer', 'pnpm' ] )(
+		'never runs %s for the half-typed command',
+		async command => {
+			const dir = await fs.mkdtemp( path.join( os.tmpdir(), 'jetpack-completion-' ) );
+			await fs.writeFile( path.join( dir, command ), '#!/bin/sh\necho ran\n', { mode: 0o755 } );
+			try {
+				const { stdout } = await execa(
+					bin,
+					[ '--get-yargs-completions', 'jetpack', command, 'up' ],
+					{
+						encoding: 'utf8',
+						env: { SHELL: '/bin/bash', PATH: `${ dir }:${ process.env.PATH }` },
+					}
+				);
+				expect( stdout ).not.toContain( 'ran' );
+			} finally {
+				await fs.rm( dir, { recursive: true, force: true } );
+			}
+		}
+	);
 } );

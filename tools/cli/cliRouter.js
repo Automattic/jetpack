@@ -54,6 +54,11 @@ export async function cli() {
 			test: testCommand.completions,
 		} )
 	);
+	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
+	// so stop the half-typed command before its handler runs.
+	if ( process.argv.includes( '--get-yargs-completions' ) ) {
+		argv.middleware( () => process.exit( 0 ), true );
+	}
 	argv.command( composerCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
