@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { shield } from '@wordpress/icons';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { caution, shield } from '@wordpress/icons';
+import { Button, EmptyState, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -101,30 +101,49 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats && ( scan.lastScanFailed || ! scan.lastChecked ) ) {
-		let message: string = __( 'Your site hasn’t been scanned yet.', 'jetpack-protect-pkg' );
+		let copy: { icon: typeof shield; title: string; description: string } = {
+			icon: shield,
+			title: __( 'Your site hasn’t been scanned yet', 'jetpack-protect-pkg' ),
+			description: __(
+				'Run a scan to check your site for malware and vulnerabilities.',
+				'jetpack-protect-pkg'
+			),
+		};
 		if ( scan.lastScanFailed ) {
-			message = __(
-				'Your last scan didn’t complete, so we can’t confirm your site is free of threats.',
-				'jetpack-protect-pkg'
-			);
+			copy = {
+				icon: caution,
+				title: __( 'Your last scan didn’t complete', 'jetpack-protect-pkg' ),
+				description: __(
+					'We can’t confirm your site is free of threats until a scan finishes.',
+					'jetpack-protect-pkg'
+				),
+			};
 		} else if ( ! hasPlan ) {
-			message = __(
-				'Your site hasn’t been checked for vulnerabilities yet.',
-				'jetpack-protect-pkg'
-			);
+			copy = {
+				icon: shield,
+				title: __( 'Your site hasn’t been checked yet', 'jetpack-protect-pkg' ),
+				description: __(
+					'Check your plugins and themes for known vulnerabilities.',
+					'jetpack-protect-pkg'
+				),
+			};
 		}
 		body = (
 			<CardRow className="jp-protect-scan__state">
-				<Stack direction="column" gap="sm" align="start">
-					<Text variant="body-md">{ message }</Text>
-					<ScanButton
-						scan={ scan }
-						isStarting={ isStarting }
-						onScan={ startScan }
-						label={ __( 'Scan site', 'jetpack-protect-pkg' ) }
-						variant="outline"
-					/>
-				</Stack>
+				<EmptyState.Root className="jp-protect-scan__empty">
+					<EmptyState.Icon icon={ copy.icon } />
+					<EmptyState.Title render={ <h3 /> }>{ copy.title }</EmptyState.Title>
+					<EmptyState.Description>{ copy.description }</EmptyState.Description>
+					<EmptyState.Actions>
+						<ScanButton
+							scan={ scan }
+							isStarting={ isStarting }
+							onScan={ startScan }
+							label={ __( 'Scan site', 'jetpack-protect-pkg' ) }
+							size="compact"
+						/>
+					</EmptyState.Actions>
+				</EmptyState.Root>
 			</CardRow>
 		);
 	} else if ( ! hasThreats ) {

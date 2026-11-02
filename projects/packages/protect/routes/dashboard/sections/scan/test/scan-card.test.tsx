@@ -106,14 +106,16 @@ describe( 'ScanCard with Scan', () => {
 	} );
 
 	it.each( [
-		[ true, 'Your site hasn’t been scanned yet.' ],
-		[ false, 'Your site hasn’t been checked for vulnerabilities yet.' ],
+		[ true, 'Your site hasn’t been scanned yet' ],
+		[ false, 'Your site hasn’t been checked yet' ],
 	] )(
 		'with hasPlan %s, offers a first scan instead of an all clear when none is on record',
-		async ( hasPlan, message ) => {
+		async ( hasPlan, title ) => {
 			renderCard( { hasPlan, lastChecked: null } );
 
-			await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByRole( 'heading', { level: 3, name: title } )
+			).resolves.toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
 			expect(
 				screen.queryByText( /^No (threats|vulnerabilities) found$/ )
