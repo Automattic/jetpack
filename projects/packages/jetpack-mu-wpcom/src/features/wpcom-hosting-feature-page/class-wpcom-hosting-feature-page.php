@@ -70,6 +70,11 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	const STATE_ACTIVATE = 'activate';
 
 	/**
+	 * A WoA site has the plan, but the Jetpack plugin's dashboard for it is turned off. Offer to turn it on.
+	 */
+	const STATE_ENABLE = 'enable';
+
+	/**
 	 * Whether the site's plan includes FEATURE. Without one it offers the upgrade, the one
 	 * prompt that is never wrong for a site of unknown plan.
 	 *

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Swap a WordPress size for its original image when the URL has a query string.

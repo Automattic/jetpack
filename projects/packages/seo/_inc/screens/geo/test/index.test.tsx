@@ -30,7 +30,13 @@ const { default: GeoScreen } = await import( '../index' );
  */
 const formWith = ( canServe: boolean ): GeoForm => ( {
 	enhancer: { available: false, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe,
+		disabled: false,
+		conflictingPlugin: '',
+	},
 	crawlers: null,
 	isSaving: false,
 	setEnhancerEnabled: () => {},
@@ -125,6 +131,32 @@ describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 			screen.queryByRole( 'link', { name: /view your llms\.txt/i } )
 		).not.toBeInTheDocument();
 	} );
+
+	it.each( [ 'Yoast SEO', 'Rank Math SEO', '' ] )(
+		'explains a plugin conflict without file or host advice (%s)',
+		conflictingPlugin => {
+			const form = formWith( false );
+			form.llmsTxt = { ...form.llmsTxt!, disabled: true, conflictingPlugin };
+			jest.spyOn( form, 'setLlmsTxtEnabled' );
+			render( <GeoScreen form={ form } searchEnginesVisible /> );
+			expect( screen.getByText( /Jetpack is not generating llms.txt/ ) ).toHaveTextContent(
+				conflictingPlugin
+					? `Deactivate ${ conflictingPlugin }`
+					: 'SEO tools are disabled on this site'
+			);
+			expect( screen.queryByText( /hosting setup is already handling/ ) ).not.toBeInTheDocument();
+			const toggle = screen.getByRole( 'checkbox', { name: /generate an llms.txt file/i } );
+			expect( toggle ).toBeDisabled();
+			expect( toggle ).not.toBeChecked();
+			expect(
+				screen.queryByRole( 'link', { name: /view your llms.txt/i } )
+			).not.toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( toggle );
+			expect( form.setLlmsTxtEnabled ).not.toHaveBeenCalled();
+			expect( form.llmsTxt.enabled ).toBe( true );
+		}
+	);
 
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
 		render( <GeoScreen form={ formWith( true ) } searchEnginesVisible={ false } /> );
@@ -286,7 +318,13 @@ const allModulesForm = (): GeoForm => ( {
 	// Training crawlers blocked, so the two crawler groups show different badges.
 	...crawlerForm( { blocked: { answer: [], training: 'all' } } ),
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
+	llmsTxt: {
+		enabled: true,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+		disabled: false,
+		conflictingPlugin: '',
+	},
 } );
 
 describe( 'GeoScreen (GEO tab) — module titles', () => {

@@ -175,8 +175,8 @@ export function ModuleToggle( {
 
 		return (
 			<SecondaryButton
-				href={ blockThemeMigration.editorUrl }
-				label={ __( 'Open Site Editor', 'jetpack-my-jetpack' ) }
+				href={ blockThemeMigration.settingsUrl }
+				label={ __( 'Configure', 'jetpack-my-jetpack' ) }
 			/>
 		);
 	}

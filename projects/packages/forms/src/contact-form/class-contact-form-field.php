@@ -3471,7 +3471,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				array_push( $inset_label_class, 'grunion-field-width-' . $field_width . '-wrap' );
 			}
 
-			$field              .= "\n<div class='" . implode( ' ', $inset_label_class ) . "' {$interactivity_attrs} {$visibility_attrs} >\n";
+			$field              .= "\n<div class='" . esc_attr( implode( ' ', $inset_label_class ) ) . "' {$interactivity_attrs} {$visibility_attrs} >\n";
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
 			$visibility_attrs    = ''; // The outer wrapper owns visibility for this layout.
 		}

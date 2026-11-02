@@ -63,6 +63,9 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
+		if ( ! function_exists( __NAMESPACE__ . '\\register_single_report_page' ) ) {
+			require_once __DIR__ . '/single-report-pages.php';
+		}
 		// Copies from before dashboard-sections.php loaded the policy file leave it unloaded.
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
 			require_once __DIR__ . '/dashboard-policy.php';
@@ -75,5 +78,6 @@ class Dashboard_Support_Routes {
 
 		register_widget_modules_rest_route();
 		register_dashboard_sections_rest_routes();
+		register_single_report_pages_rest_routes();
 	}
 }

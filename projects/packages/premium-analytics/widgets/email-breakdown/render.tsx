@@ -12,7 +12,6 @@ import {
 	flagUrl,
 	formatMapName,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LeaderboardRowMedia,
@@ -59,17 +58,10 @@ function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMet
 	];
 }
 
-/**
- * Shares are relative to the highest value in the set so the top row always
- * fills. The breakdown endpoints return no comparison period, so the comparison
- * fields are zeroed and the chart renders without deltas.
- */
 function buildLeaderboardData(
 	rows: EmailBreakdownRow[],
 	view: EmailBreakdownView
 ): LeaderboardChartData {
-	const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
 	return rows.map( row => {
 		const media: LeaderboardRowMedia =
 			view === 'countries'
@@ -91,10 +83,6 @@ function buildLeaderboardData(
 				action: safeUrl ? { kind: 'link', href: safeUrl } : { kind: 'static' },
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
-			previousValue: 0,
-			previousShare: 0,
-			delta: 0,
 		};
 	} );
 }

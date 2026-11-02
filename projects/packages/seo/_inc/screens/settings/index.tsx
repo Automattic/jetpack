@@ -85,7 +85,7 @@ const frontPageHelp = __(
 	'jetpack-seo'
 );
 const frontPageLockedHelp = __(
-	'Locked while another SEO plugin manages your SEO. Jetpack uses this again once it’s deactivated.',
+	'Locked while Jetpack SEO is disabled. Your saved description is retained.',
 	'jetpack-seo'
 );
 // Keep in step with the 155 quoted in `frontPageHelp`.
@@ -238,13 +238,27 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		? sprintf(
 				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
 				__(
-					'%s is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+					'%s is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.',
 					'jetpack-seo'
 				),
 				local.conflicting_seo_plugin
 			)
 		: __(
-				'Another SEO plugin is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
+				'Jetpack SEO is disabled on this site, so its title, description, schema and author profile settings are locked.',
+				'jetpack-seo'
+			);
+
+	const schemaDisabledReason = local.conflicting_seo_plugin
+		? sprintf(
+				/* translators: %1$s: name of the active SEO plugin. */
+				__(
+					'%1$s is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate %1$s to edit these settings in Jetpack.',
+					'jetpack-seo'
+				),
+				local.conflicting_seo_plugin
+			)
+		: __(
+				'Jetpack SEO is disabled on this site. Your saved settings are shown here but are not being used. Editing is unavailable while SEO tools are disabled.',
 				'jetpack-seo'
 			);
 
@@ -425,13 +439,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ /* Container for the site-level schema controls delivered by later
 				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
 					<div id="schema" className={ styles.section }>
-						<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
+						<SchemaCard
+							initialSettings={ local.schema }
+							onSave={ setSchemaSettings }
+							disabled={ outputLocked }
+							disabledReason={ schemaDisabledReason }
+						/>
 					</div>
 
 					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
 					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard />
+						<AuthorProfileCard disabled={ outputLocked } disabledReason={ schemaDisabledReason } />
 					</div>
 
 					<CollapsibleCard.Root defaultOpen={ false }>
