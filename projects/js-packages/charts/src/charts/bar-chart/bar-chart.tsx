@@ -48,6 +48,7 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
+	getStackLayout,
 	isSameCategory,
 	membersAt,
 } from './private';
@@ -139,6 +140,19 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	onPointerUp,
 	onDatumActivate,
 } ) => {
+	if ( layout === 'stacked' && showZeroValues ) {
+		warnOnce(
+			'bar-chart-stacked-zero-values',
+			'BarChart: showZeroValues has no effect in a stacked layout.'
+		);
+	}
+	if ( layout === 'stacked' && data?.some( series => series.options?.type === 'comparison' ) ) {
+		warnOnce(
+			'bar-chart-stacked-comparison',
+			'BarChart: a stacked layout does not draw comparison series yet.'
+		);
+	}
+
 	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
 		warnOnce(
 			'bar-chart-band-highlight-without-tooltips',
@@ -152,6 +166,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 	const horizontal = orientation === 'horizontal';
 	const isOverlap = layout === 'overlap';
+	const isStacked = layout === 'stacked';
 	const chartId = useChartId( providedChartId );
 	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
 	const isSeriesVisible = useCallback(
@@ -165,7 +180,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// Transform data to add a small value for zero bars to make them visible
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
-		enabled: showZeroValues,
+		enabled: showZeroValues && ! isStacked,
 		valueAxisLength: horizontal ? width : height,
 	} );
 
@@ -230,7 +245,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		dataWithVisibleZeros,
 		horizontal,
 		resolvedOptions,
-		isSeriesRendered
+		isSeriesRendered,
+		layout
 	);
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
 	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
@@ -282,7 +298,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
-	const overlapSlots = useOverlapSlots( isOverlap, seriesWithVisibility );
+	const overlapSlots = useOverlapSlots( layout, seriesWithVisibility );
+	const stackLayout = useMemo(
+		() =>
+			isStacked && overlapSlots
+				? getStackLayout( overlapSlots.entries.map( ( { series } ) => series ) )
+				: undefined,
+		[ isStacked, overlapSlots ]
+	);
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
@@ -326,8 +349,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const comparisonEntries = useMemo( () => {
-		// An overlap layout draws its comparisons as slotted bars, not as shadows.
-		if ( isOverlap ) {
+		// An overlap layout draws its comparisons as slotted bars, and a stacked one does not draw them yet.
+		if ( overlapSlots ) {
 			return [];
 		}
 
@@ -354,7 +377,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			entries.push( { series, index, primaryKey: primary.label } );
 		} );
 		return entries;
-	}, [ isOverlap, seriesWithVisibility, primaryEntries, primaryKeys ] );
+	}, [ overlapSlots, seriesWithVisibility, primaryEntries, primaryKeys ] );
 
 	// Comparison widthFactor (how much wider the shadow is than the primary) drives both the
 	// shadow width (in ComparisonBars) and the primary narrowing.
@@ -763,6 +786,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										<BarLayer
 											chartId={ chartId }
 											overlapSlots={ overlapSlots }
+											stackLayout={ stackLayout }
 											selectedBar={ selectedBar }
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }

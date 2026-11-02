@@ -4,7 +4,7 @@ import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-b
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
 import type { SlotMember } from './slot-tooltip-members';
-import type { DataPointDate, SeriesData } from '../../../types';
+import type { BarChartLayout, DataPointDate, SeriesData } from '../../../types';
 
 type SeriesEntry = { series: SeriesData; index: number };
 
@@ -31,22 +31,39 @@ export type StopPosition = {
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
 /**
- * Lays out the visible series of an overlap layout in slots and layers.
+ * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one.
  *
- * @param enabled              - Whether the chart draws an overlap layout.
+ * @param layout               - How the chart places its series in a category.
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
- * @return The layout, or undefined when the chart is not an overlap layout.
+ * @return The slots, or undefined for a grouped layout.
  */
 export function useOverlapSlots(
-	enabled: boolean,
+	layout: BarChartLayout,
 	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
 ): OverlapSlots | undefined {
 	return useMemo( () => {
-		if ( ! enabled ) {
+		if ( layout === 'grouped' ) {
 			return undefined;
 		}
 
 		const visible = seriesWithVisibility.filter( ( { isVisible } ) => isVisible );
+
+		if ( layout === 'stacked' ) {
+			// Bottom to top, so the top segment names each keyboard stop.
+			const entries = visible
+				.filter( ( { series } ) => series.options?.type !== 'comparison' )
+				.map( ( { series, index } ) => ( { series, index } ) );
+			const slotKeys = [ PRIMARY_SLOT ];
+			const slotOf = () => PRIMARY_SLOT;
+			return {
+				entries,
+				keys: entries.map( ( { series } ) => series.label ),
+				slotKeys,
+				slotOf,
+				thicknessOf: () => 1,
+				positions: getStopPositions( entries, slotKeys, slotOf ),
+			};
+		}
 		const placements = getOverlapPlacements( visible.map( ( { series } ) => series ) );
 		const placed = visible
 			.map( ( { series, index }, position ) => ( {
@@ -79,7 +96,7 @@ export function useOverlapSlots(
 			thicknessOf,
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
-	}, [ enabled, seriesWithVisibility ] );
+	}, [ layout, seriesWithVisibility ] );
 }
 
 /**

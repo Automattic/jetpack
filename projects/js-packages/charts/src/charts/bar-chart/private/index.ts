@@ -7,6 +7,8 @@ export { SelectedBarRing, type SelectedBar } from './selected-bar-ring';
 export { SlotTooltipMembers, type SlotMember } from './slot-tooltip-members';
 export { useOverlapSlots, getSelectedSlot, membersAt } from './use-overlap-slots';
 export { isSameCategory } from './category';
+export { getStackLayout } from './stack-layout';
+export type { StackLayout } from './stack-layout';
 export { useBarStops } from './use-bar-stops';
 export { ComparisonBars } from './comparison-bars';
 export type { ComparisonSeriesEntry } from './comparison-bars';

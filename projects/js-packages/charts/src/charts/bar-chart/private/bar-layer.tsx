@@ -2,7 +2,9 @@ import { BarGroup, BarSeries } from '@visx/xychart';
 import ClassifiedBarSeries from './classified-bar-series';
 import { SelectedBarRing } from './selected-bar-ring';
 import SlottedBarSeries from './slotted-bar-series';
+import StackedBarSeries from './stacked-bar-series';
 import type { SelectedBar } from './selected-bar-ring';
+import type { StackLayout } from './stack-layout';
 import type { OverlapSlots } from './use-overlap-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { BarChartProps } from '../types';
@@ -18,6 +20,7 @@ type Accessors = Pick<
 type Props = Accessors & {
 	chartId: string;
 	overlapSlots: OverlapSlots | undefined;
+	stackLayout: StackLayout | undefined;
 	selectedBar: SelectedBar | undefined;
 	primaryEntries: { series: SeriesData; index: number }[];
 	primaryKeys: string[];
@@ -28,11 +31,12 @@ type Props = Accessors & {
 };
 
 /**
- * Draws the bars in front of any comparison shadows, slotted for an overlap layout and grouped by visx otherwise, then the selected bar's ring.
+ * Draws the bars in front of any comparison shadows, stacked or slotted in the layout's slots and grouped by visx otherwise, then the selected bar's ring.
  *
  * @param props                  - Component props.
  * @param props.chartId          - The chart's id, which keeps the ring's clip path unique on a page with several charts.
- * @param props.overlapSlots     - The overlap layout, or undefined for a grouped one.
+ * @param props.overlapSlots     - The overlap or stacked slots, or undefined for a grouped layout.
+ * @param props.stackLayout      - Where each stacked bar runs, for a stacked layout.
  * @param props.selectedBar      - The bar or slot the keyboard has selected.
  * @param props.primaryEntries   - The visible primary series, for a grouped layout.
  * @param props.primaryKeys      - Their labels, in group order.
@@ -47,6 +51,7 @@ type Props = Accessors & {
 export const BarLayer: FC< Props > = ( {
 	chartId,
 	overlapSlots,
+	stackLayout,
 	selectedBar,
 	primaryEntries,
 	primaryKeys,
@@ -58,7 +63,27 @@ export const BarLayer: FC< Props > = ( {
 	yAccessor,
 } ) => {
 	let bars;
-	if ( overlapSlots ) {
+	if ( overlapSlots && stackLayout ) {
+		bars = (
+			<g className="visx-bar-group">
+				{ overlapSlots.entries.map( ( { series, index } ) => (
+					<StackedBarSeries
+						key={ series.label }
+						dataKey={ series.label }
+						data={ series.data as DataPointDate[] }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+						colorAccessor={ getBarBackground( index ) }
+						barClassName={ barClassName }
+						slotKeys={ overlapSlots.slotKeys }
+						slotKey={ overlapSlots.slotOf( series.label ) }
+						groupPadding={ groupPadding }
+						segmentOf={ stackLayout.segmentOf }
+					/>
+				) ) }
+			</g>
+		);
+	} else if ( overlapSlots ) {
 		bars = (
 			<g className="visx-bar-group">
 				{ overlapSlots.entries.map( ( { series, index } ) => (
