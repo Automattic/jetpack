@@ -192,16 +192,25 @@ export function InProgressScreen() {
  */
 export function EnableScreen( { state }: { state: InitialState } ) {
 	const { icon, illustration, enable } = useFeature();
+	const { tracksFeatureId, recordTracksEvent } = useTracks();
 
 	if ( ! enable || ! state.enableUrl ) {
 		return null;
 	}
 
+	const tracksProps = { feature_id: tracksFeatureId, enable_error: state.enableError ?? null };
+
 	return (
 		<>
-			{ state.enableFailed && (
+			<ViewTracker
+				eventName="calypso_dashboard_hosting_feature_enable_impression"
+				properties={ tracksProps }
+			/>
+			{ state.enableError && (
 				<Notice.Root intent="error">
-					<Notice.Description>{ enable.failed }</Notice.Description>
+					<Notice.Description>
+						{ 'connection' === state.enableError ? enable.connectionFailed : enable.failed }
+					</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
 							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
@@ -215,7 +224,14 @@ export function EnableScreen( { state }: { state: InitialState } ) {
 				image={ illustration }
 				description={ <Text>{ enable.description }</Text> }
 				actions={
-					<ButtonLink variant="solid" size="compact" href={ state.enableUrl }>
+					<ButtonLink
+						variant="solid"
+						size="compact"
+						href={ state.enableUrl }
+						onClick={ () =>
+							recordTracksEvent( 'calypso_dashboard_hosting_feature_enable_click', tracksProps )
+						}
+					>
 						{ enable.action }
 					</ButtonLink>
 				}

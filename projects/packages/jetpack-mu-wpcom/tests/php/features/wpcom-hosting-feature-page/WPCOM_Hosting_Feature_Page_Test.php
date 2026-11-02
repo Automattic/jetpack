@@ -253,9 +253,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_protect_dashboard( $available, $active );
 
 		$this->assertSame( $registers, WPCOM_Scan::should_register() );
+		$this->assertSame( $registers, WPCOM_Scan::STATE_ENABLE === WPCOM_Scan::get_state( 1 ) );
 		if ( $registers ) {
 			$state = WPCOM_Scan::get_initial_state();
-			$this->assertSame( WPCOM_Scan::STATE_ENABLE, $state['state'] );
 			$this->assertStringContainsString( 'admin-post.php?action=' . WPCOM_Scan::ENABLE_ACTION, $state['enableUrl'] );
 		}
 	}
@@ -275,22 +275,85 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Turning the dashboard on lands back on its page, flagged when activation did not stick.
+	 * The prompt only names failure reasons handle_enable() sends.
 	 *
-	 * @param bool   $activates Whether activation succeeds.
-	 * @param string $expected  The redirect target, relative to the page URL.
+	 * @param string|null $param    The `enable_failed` query arg, or null for none.
+	 * @param string|null $expected The `enableError` handed to the page.
+	 *
+	 * @dataProvider provide_enable_failed_params
+	 */
+	#[DataProvider( 'provide_enable_failed_params' )]
+	public function test_protect_prompt_reports_why_turning_it_on_failed( $param, $expected ) {
+		$this->set_up_protect_dashboard( true, false );
+		if ( null !== $param ) {
+			$_GET['enable_failed'] = $param;
+		}
+
+		$this->assertSame( $expected, WPCOM_Scan::get_initial_state()['enableError'] );
+	}
+
+	/**
+	 * Data provider for test_protect_prompt_reports_why_turning_it_on_failed.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_failed_params() {
+		return array(
+			'none'       => array( null, null ),
+			'connection' => array( 'connection', WPCOM_Scan::ENABLE_ERROR_CONNECTION ),
+			'unknown'    => array( 'unknown', WPCOM_Scan::ENABLE_ERROR_UNKNOWN ),
+			'anything'   => array( 'nope', null ),
+		);
+	}
+
+	/**
+	 * Turning the dashboard on lands back on its page, with why when activation did not stick, and only for those it is offered to.
+	 *
+	 * @param array  $site      Overrides for the request, as read below.
+	 * @param string $expected  The redirect target relative to the page URL, or `die` when refused outright.
+	 * @param bool   $activated Whether the module ends up on.
 	 *
 	 * @dataProvider provide_enable_outcomes
 	 */
 	#[DataProvider( 'provide_enable_outcomes' )]
-	public function test_turning_on_the_dashboard_returns_to_its_page( $activates, $expected ) {
+	public function test_turning_on_the_dashboard_returns_to_its_page( $site, $expected, $activated ) {
+		$site = array_merge(
+			array(
+				'atomic'    => true,
+				'feature'   => true,
+				'active'    => false,
+				'connected' => true,
+				'sticks'    => true,
+				'can'       => true,
+				'nonce'     => true,
+			),
+			$site
+		);
+
 		$this->set_up_admin_menu();
-		$this->set_up_protect_dashboard( true, false );
-		add_filter( 'user_has_cap', fn( $caps ) => array_merge( $caps, array( 'jetpack_activate_modules' => true ) ) );
-		$_REQUEST['_wpnonce'] = wp_create_nonce( WPCOM_Scan::ENABLE_ACTION );
-		if ( ! $activates ) {
+		$this->set_up_protect_dashboard( true, $site['active'] );
+		Constants::set_constant( 'IS_ATOMIC', $site['atomic'] );
+		if ( ! $site['feature'] ) {
+			$this->grant_feature();
+		}
+		if ( $site['connected'] ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		}
+		if ( ! $site['sticks'] ) {
 			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
 		}
+		add_filter(
+			'user_has_cap',
+			fn( $caps ) => array_merge(
+				$caps,
+				array(
+					'jetpack_activate_modules' => $site['can'],
+					'manage_options'           => $site['can'],
+				)
+			)
+		);
+		$_REQUEST['_wpnonce'] = $site['nonce'] ? wp_create_nonce( WPCOM_Scan::ENABLE_ACTION ) : 'stale';
 		add_filter(
 			'wp_redirect',
 			/** @return never */
@@ -298,14 +361,23 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 				throw new \RuntimeException( $location );
 			}
 		);
+		add_filter(
+			'wp_die_handler',
+			fn() => /** @return never */ static function () {
+				throw new \RuntimeException( 'die' );
+			}
+		);
 
+		$exit = null;
 		try {
 			WPCOM_Scan::handle_enable();
-		} catch ( \RuntimeException $redirect ) {
-			$this->assertSame( WPCOM_Scan::get_page_url() . $expected, $redirect->getMessage() );
+		} catch ( \RuntimeException $e ) {
+			$exit = $e->getMessage();
 		}
 
-		$this->assertSame( $activates, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
+		$this->assertSame( 'die' === $expected ? 'die' : WPCOM_Scan::get_page_url() . $expected, $exit );
+
+		$this->assertSame( $activated, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
 	}
 
 	/**
@@ -315,8 +387,21 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_enable_outcomes() {
 		return array(
-			'turned on' => array( true, '' ),
-			'refused'   => array( false, '&enable_failed=1' ),
+			'turned on'             => array( array(), '', true ),
+			'refused, connected'    => array( array( 'sticks' => false ), '&enable_failed=unknown', false ),
+			'refused, disconnected' => array(
+				array(
+					'sticks'    => false,
+					'connected' => false,
+				),
+				'&enable_failed=connection',
+				false,
+			),
+			'already on'            => array( array( 'active' => true ), '', true ),
+			'without Scan'          => array( array( 'feature' => false ), '', false ),
+			'on Simple'             => array( array( 'atomic' => false ), '', false ),
+			'without permission'    => array( array( 'can' => false ), 'die', false ),
+			'stale nonce'           => array( array( 'nonce' => false ), 'die', false ),
 		);
 	}
 
@@ -731,7 +816,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['current_screen'],
 			$GLOBALS['pagenow'],
 			$GLOBALS['plugin_page'],
-			$_GET['page']
+			$_GET['page'],
+			$_GET['enable_failed']
 		);
 		Constants::clear_constants();
 		remove_all_filters( WPCOM_Backup::MODERNIZATION_FILTER );

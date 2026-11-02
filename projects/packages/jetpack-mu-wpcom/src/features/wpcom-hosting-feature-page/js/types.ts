@@ -59,8 +59,8 @@ export type InitialState = {
 	transferFailed: boolean;
 	/** Link that turns the Jetpack plugin's dashboard on. Only in the `enable` state. */
 	enableUrl?: string;
-	/** Whether the last attempt to turn the dashboard on failed. Only in the `enable` state. */
-	enableFailed?: boolean;
+	/** Why the last attempt to turn the dashboard on failed, if it did. Only in the `enable` state. */
+	enableError?: 'connection' | 'unknown' | null;
 };
 
 /**
@@ -103,6 +103,8 @@ export type FeatureConfig = {
 		action: string;
 		/** Notice shown when turning it on failed. */
 		failed: string;
+		/** Notice shown when turning it on failed because the site is not connected. */
+		connectionFailed: string;
 	};
 	/** Rendered below the upgrade prompt, for anything only this feature offers there. */
 	UpgradeExtra?: ComponentType< { state: InitialState } >;
