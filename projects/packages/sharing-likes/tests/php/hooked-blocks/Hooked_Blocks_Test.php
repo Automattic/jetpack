@@ -507,8 +507,8 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'<!-- wp:post-content {"layout":{"type":"constrained"}} /-->'
 			. '<!-- wp:group {"layout":{"type":"constrained"}} --><div class="wp-block-group">'
 			. '<!-- wp:jetpack/sharing-buttons --><ul class="wp-block-jetpack-sharing-buttons has-normal-icon-size jetpack-sharing-buttons__services-list" id="jetpack-sharing-serivces-list">'
-			. '<!-- wp:jetpack/sharing-button {"service":"facebook","label":"Facebook"} /-->'
 			. '<!-- wp:jetpack/sharing-button {"service":"x","label":"X"} /-->'
+			. '<!-- wp:jetpack/sharing-button {"service":"facebook","label":"Facebook"} /-->'
 			. '<!-- wp:jetpack/sharing-button {"service":"mastodon","label":"Mastodon"} /-->'
 			. '</ul><!-- /wp:jetpack/sharing-buttons -->'
 			. '</div><!-- /wp:group -->',
@@ -561,8 +561,8 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 */
 	public static function provide_legacy_services(): array {
 		$defaults = array(
-			'facebook' => 'Facebook',
 			'x'        => 'X',
+			'facebook' => 'Facebook',
 			'mastodon' => 'Mastodon',
 		);
 
@@ -584,6 +584,20 @@ class Hooked_Blocks_Test extends BaseTestCase {
 					'bluesky'  => 'Bluesky',
 				),
 				'icon',
+			),
+			'Press This, now WordPress'       => array(
+				array(
+					'sharing-services' => array(
+						'visible' => array( 'press-this', 'twitter', 'facebook' ),
+						'hidden'  => array(),
+					),
+				),
+				array(
+					'wordpress' => 'WordPress',
+					'x'         => 'X',
+					'facebook'  => 'Facebook',
+				),
+				null,
 			),
 			'X under its old name'            => array(
 				array(
@@ -657,23 +671,48 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Simple switches to the block by removing every legacy service, so the block reads the copy kept then.
+	 * @return array<string, array{0: array<string, mixed>|null, 1: array<string, string>}>
 	 */
-	public function test_carries_simple_services_over_after_the_switch_to_the_block(): void {
-		update_option(
-			'sharing-services',
-			array(
-				'visible' => array( 'linkedin' ),
-				'hidden'  => array( 'reddit' ),
-			)
+	public static function provide_simple_services(): array {
+		return array(
+			'services kept at the switch' => array(
+				array(
+					'visible' => array( 'linkedin' ),
+					'hidden'  => array( 'reddit' ),
+				),
+				array( 'linkedin' => 'LinkedIn' ),
+			),
+			'none to keep'                => array(
+				null,
+				array(
+					'wordpress' => 'WordPress',
+					'x'         => 'X',
+					'facebook'  => 'Facebook',
+				),
+			),
 		);
+	}
+
+	/**
+	 * Simple switches to the block by removing every legacy service, so the block reads the copy kept then.
+	 *
+	 * @dataProvider provide_simple_services
+	 *
+	 * @param array<string, mixed>|null $services Legacy services before the switch, or null for none saved.
+	 * @param array<string, string>     $buttons  Expected labels, keyed by service.
+	 */
+	#[DataProvider( 'provide_simple_services' )]
+	public function test_carries_simple_services_over_after_the_switch_to_the_block( ?array $services, array $buttons ): void {
+		if ( null !== $services ) {
+			update_option( 'sharing-services', $services );
+		}
 		$this->given_connection( false );
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		Feature_Actions::switch_to_block( Placement_Section::FEATURE_SHARING );
 
 		$this->assertSame(
-			array( 'linkedin' => 'LinkedIn' ),
+			$buttons,
 			array_column( array_column( $this->placed_sharing_buttons()['innerBlocks'], 'attrs' ), 'label', 'service' )
 		);
 	}
