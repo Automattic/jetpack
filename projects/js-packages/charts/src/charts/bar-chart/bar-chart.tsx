@@ -473,6 +473,40 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
+	// Lists the hovered stack top segment first, as it is drawn, then its total.
+	const renderStackedTooltip = useCallback(
+		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+			const nearestDatum = tooltipData?.nearestDatum?.datum;
+			if ( ! nearestDatum ) return null;
+
+			const datumByKey = tooltipData?.datumByKey ?? {};
+			const categoryLabel = chartOptions.tooltip.labelFormatter(
+				nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
+				0,
+				[]
+			);
+			const rows = [ ...( overlapSlots?.entries ?? [] ) ].reverse().flatMap( ( { series } ) => {
+				const datum = datumByKey[ series.label ]?.datum;
+				return datum && isBarRendered( datum ) ? [ { label: series.label, datum } ] : [];
+			} );
+			const total = rows.reduce( ( sum, { datum } ) => sum + Number( datum.value ), 0 );
+
+			return (
+				<div className={ styles[ 'bar-chart__tooltip' ] }>
+					<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ categoryLabel }</div>
+					{ rows.map( ( { label, datum } ) => (
+						<Fragment key={ label }>
+							{ renderTooltipRow( label, formatReading( datum.value ) ) }
+						</Fragment>
+					) ) }
+					{ rows.length > 1 &&
+						renderTooltipRow( __( 'Total', 'jetpack-charts' ), formatReading( total ) ) }
+				</div>
+			);
+		},
+		[ chartOptions.tooltip, overlapSlots ]
+	);
+
 	const renderDefaultTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -591,13 +625,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
 		if ( overlapSlots ) {
-			return selectedSlot;
+			return selectedSlot && stackLayout
+				? { ...selectedSlot, valueExtent: stackLayout.extentAt( selectedSlot.data[ 0 ] ) }
+				: selectedSlot;
 		}
 		const bar = selectedIndex === undefined ? undefined : barAt( selectedIndex );
 		return bar && isBarRendered( bar.datum )
 			? { data: [ bar.datum ], slotKey: bar.key, thickness: 1 }
 			: undefined;
-	}, [ overlapSlots, selectedSlot, selectedIndex, barAt ] );
+	}, [ overlapSlots, stackLayout, selectedSlot, selectedIndex, barAt ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -851,6 +887,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												snapTooltipToDatumY
 												renderTooltip={
 													renderTooltip ||
+													( isStacked && renderStackedTooltip ) ||
 													( isOverlap ? renderOverlapTooltip : renderDefaultTooltip )
 												}
 												selectedIndex={ selectedIndex }

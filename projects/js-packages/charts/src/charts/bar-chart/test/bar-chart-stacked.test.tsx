@@ -1,5 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
+import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
 import type { SeriesData } from '../../../types';
 import type { BarChartProps } from '../types';
@@ -8,6 +10,20 @@ const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
+
+// The anchor the tooltip snaps to, before the box is placed against bounds jsdom cannot measure.
+const anchors: Array< { left?: number; top?: number } > = [];
+jest.mock( '../../../components/tooltip/private/bounded-tooltip', () => {
+	const actual = jest.requireActual( '../../../components/tooltip/private/bounded-tooltip' );
+	return {
+		...actual,
+		BoundedTooltip: ( props: { left?: number; top?: number } ) => {
+			anchors.push( { left: props.left, top: props.top } );
+			return actual.BoundedTooltip( props );
+		},
+	};
+} );
+const lastAnchor = () => anchors[ anchors.length - 1 ];
 
 const day = ( label: string, value: number | null ) => ( { label, value } );
 
@@ -25,6 +41,12 @@ const barRects = () =>
 	Array.from( screen.getByRole( 'application' ).querySelectorAll( '.visx-bar-group rect' ) );
 
 // The x axis renders first; the value axis is the y axis unless the bars run horizontally.
+const pointer = ( type: string, clientX: number, clientY = 150 ) =>
+	fireEvent(
+		screen.getByRole( 'application' ).querySelector( 'svg > rect[fill="transparent"]' ),
+		new MouseEvent( type, { bubbles: true, clientX, clientY } )
+	);
+
 const valueTicks = ( horizontal = false ) =>
 	Array.from(
 		screen
@@ -76,7 +98,32 @@ const renderStacked = ( props: Partial< BarChartProps > = {} ) =>
 		</GlobalChartsProvider>
 	);
 
+const center = ( { x, width }: Rect ) => x + width / 2;
+
+const encloses = ( outer: Rect, inner: Rect ) =>
+	outer.x <= inner.x + 0.01 &&
+	outer.y <= inner.y + 0.01 &&
+	outer.x + outer.width >= inner.x + inner.width - 0.01 &&
+	outer.y + outer.height >= inner.y + inner.height - 0.01;
+
 describe( 'BarChart stacked layout', () => {
+	const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
+	beforeAll( () => {
+		// jsdom lacks the SVG transform used by visx to convert pointer coordinates.
+		Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+			configurable: true,
+			value: () => null,
+		} );
+	} );
+
+	afterAll( () => {
+		if ( screenTransform ) {
+			Object.defineProperty( SVGElement.prototype, 'getScreenCTM', screenTransform );
+		} else {
+			Reflect.deleteProperty( SVGElement.prototype, 'getScreenCTM' );
+		}
+	} );
+
 	it( 'stacks each category bottom to top in data order, one bar wide', () => {
 		renderStacked();
 
@@ -138,5 +185,86 @@ describe( 'BarChart stacked layout', () => {
 		} );
 
 		expect( barRects().filter( bar => bar.classList.contains( 'is-monday' ) ) ).toHaveLength( 3 );
+	} );
+
+	it( 'lists every series at the hovered category, top first, with a total', async () => {
+		renderStacked();
+
+		pointer( 'pointermove', center( barOf( 'Desktop' ) ) );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( /Mon.*Tablet: 20.*Mobile: 60.*Desktop: 100.*Total: 180/ );
+	} );
+
+	it( 'leaves a series without a reading out of the tooltip', async () => {
+		const user = userEvent.setup();
+		renderStacked();
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		const tooltip = screen.getByTestId( 'chart-tooltip-1' );
+		expect( tooltip ).toHaveTextContent( /Tue.*Tablet: 10.*Desktop: 50.*Total: 60/ );
+		expect( tooltip ).not.toHaveTextContent( 'Mobile' );
+	} );
+
+	it.each( [ 'vertical', 'horizontal' ] as const )(
+		'steps the keyboard one category at a time, outlining the whole %s stack',
+		async orientation => {
+			const user = userEvent.setup();
+			renderStacked( { orientation } );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			[ 'Desktop', 'Mobile', 'Tablet' ].forEach( label =>
+				expect( encloses( selectedRing(), barOf( label ) ) ).toBe( true )
+			);
+
+			await user.keyboard( '{ArrowRight}' );
+			[ 'Desktop', 'Tablet' ].forEach( label =>
+				expect( encloses( selectedRing(), barOf( label, 1 ) ) ).toBe( true )
+			);
+		}
+	);
+
+	// Monday's top segment is the shorter one, but Monday's stack is the taller one.
+	const ANCHOR_DATA: SeriesData[] = [
+		{ label: 'Desktop', data: [ day( 'Mon', 100 ), day( 'Tue', 20 ) ] },
+		{ label: 'Tablet', data: [ day( 'Mon', 5 ), day( 'Tue', 10 ) ] },
+	];
+
+	it.each( [
+		[ 'vertical', 'top', ( mon: number, tue: number ) => expect( mon ).toBeLessThan( tue ) ],
+		[ 'horizontal', 'left', ( mon: number, tue: number ) => expect( mon ).toBeGreaterThan( tue ) ],
+	] as const )(
+		'anchors the keyboard tooltip at the top of the %s stack',
+		async ( orientation, side, compare ) => {
+			const user = userEvent.setup();
+			renderStacked( { orientation, data: ANCHOR_DATA } );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			const mon = Number( lastAnchor()[ side ] );
+			await user.keyboard( '{ArrowRight}' );
+			const tue = Number( lastAnchor()[ side ] );
+
+			compare( mon, tue );
+		}
+	);
+
+	it( 'restacks and rescales when a series is hidden from the legend, and again when restored', async () => {
+		const user = userEvent.setup();
+		renderStacked( { showLegend: true, legend: { interactive: true } } );
+		const mobile = screen.getByRole( 'button', { name: /Mobile/ } );
+		const topTick = Math.max( ...valueTicks() );
+
+		await user.click( mobile );
+		const withoutMobile = DATA.filter( series => series.label !== 'Mobile' );
+		const tablet = barIn( withoutMobile, 'Tablet' );
+		expect( tablet.y + tablet.height ).toBeCloseTo( barIn( withoutMobile, 'Desktop' ).y );
+		expect( Math.max( ...valueTicks() ) ).not.toBe( topTick );
+
+		await user.click( mobile );
+		const restored = barOf( 'Mobile' );
+		expect( restored.y + restored.height ).toBeCloseTo( barOf( 'Desktop' ).y );
+		expect( Math.max( ...valueTicks() ) ).toBe( topTick );
 	} );
 } );

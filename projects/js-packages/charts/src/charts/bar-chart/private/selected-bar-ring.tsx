@@ -15,6 +15,8 @@ export type SelectedBar = {
 	slotKey: string;
 	/** The thickness of the slot's widest bar, as a share of the slot. */
 	thickness: number;
+	/** The values the ring spans instead of the baseline and each bar's value, for a stack. */
+	valueExtent?: [ number, number ];
 };
 
 type AnyScale = ( ( input: unknown ) => number ) &
@@ -61,16 +63,21 @@ export const SelectedBarRing: FC< {
 		return null;
 	}
 
-	const valuePositions = selected.data.map( datum =>
-		Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
-	);
+	const valuePositions = selected.valueExtent
+		? selected.valueExtent.map( value => Number( valueScale( value as never ) ) )
+		: [
+				getValueScaleBaseline( valueScale ),
+				...selected.data.map( datum =>
+					Number( valueScale( Number( ( horizontal ? xAccessor : yAccessor )( datum ) ) as never ) )
+				),
+			];
 
 	const rect = computeSlotRect( {
 		horizontal,
 		bandPosition,
 		slotOffset,
 		slotThickness: groupScale.bandwidth(),
-		valuePositions: [ getValueScaleBaseline( valueScale ), ...valuePositions ],
+		valuePositions,
 		widthFactor: selected.thickness,
 	} );
 	return (
