@@ -209,9 +209,11 @@ class Verbum_Comments {
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin. Gated until 16.4 is out.
-		$retirement_notice_url = is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' )
-			? esc_url_raw( trailingslashit( get_blog_option( $this->blog_id, 'siteurl' ) ) . 'wp-admin/plugins.php' )
-			: '';
+		$retirement_notice_url = '';
+		$site_url              = get_blog_option( $this->blog_id, 'siteurl' );
+		if ( $site_url && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' ) ) {
+			$retirement_notice_url = esc_url_raw( trailingslashit( $site_url ) . 'wp-admin/plugins.php' );
+		}
 
 		$hovercard_i18n = array(
 			'Edit your profile →'      => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
