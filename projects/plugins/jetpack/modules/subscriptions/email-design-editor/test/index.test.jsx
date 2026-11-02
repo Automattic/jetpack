@@ -1630,7 +1630,6 @@ describe( 'Email design editor entry point', () => {
 					).toEqual( { color: { background: '#c0ffee' } } );
 				} );
 
-				// The dialog closes after a confirm as well, which is not the creator backing out.
 				it.each( [
 					[
 						'Cancel',
@@ -1643,7 +1642,7 @@ describe( 'Email design editor entry point', () => {
 						() => userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) ),
 						'reset',
 					],
-				] )( 'records %s as the one outcome it is', async ( _, close, outcome ) => {
+				] )( 'records a single reset outcome for %s', async ( _, close, outcome ) => {
 					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
 					renderPanelFor( ourId );
 
