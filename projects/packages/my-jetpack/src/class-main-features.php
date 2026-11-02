@@ -52,7 +52,7 @@ class Main_Features {
 	 * First My Jetpack release with offline Features enabled by default.
 	 *
 	 * @since 6.14.0
-	 * @since $$next-version$$ Raised to the first default-on release.
+	 * @since 6.15.0 Raised to the first default-on release.
 	 */
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 

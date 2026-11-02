@@ -1,5 +1,5 @@
 import { __, _x } from '@wordpress/i18n';
-import { PointerCard } from 'components/pointer-card';
+import PointerCard from 'components/pointer-card';
 import { getProtectSettingsUrl } from './protect-page';
 
 /**

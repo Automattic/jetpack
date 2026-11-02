@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Legend: Let an interactive legend item own its pressed state and toggle handler.

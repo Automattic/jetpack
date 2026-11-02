@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Jetpack Search: Remove the AI Agent Access setting and stop registering and syncing the `jetpack_ai_agents_enabled` option.

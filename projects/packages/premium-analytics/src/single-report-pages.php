@@ -38,7 +38,7 @@ add_filter( SINGLE_REPORT_PAGE_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_
 /**
  * Registers a single-report page.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @param string $id             Page identifier, namespaced.
@@ -52,7 +52,7 @@ function register_single_report_page( $dashboard_name, $id, $args = array() ) {
 /**
  * A registered single-report page.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @param string $id             Page identifier.
@@ -65,7 +65,7 @@ function get_registered_single_report_page( $dashboard_name, $id ) {
 /**
  * The single-report pages available to the current reader.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @return Single_Report_Page[]

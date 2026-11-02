@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { PointerCard } from 'components/pointer-card';
+import PointerCard from 'components/pointer-card';
 
 /**
  * Search result that sends the Related Posts settings to the panel in Features.

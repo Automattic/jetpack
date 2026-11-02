@@ -1087,7 +1087,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Verify that user can view the Scan state, the same users who see the Protect menu and the admin bar notice.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.4
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'manage_options'.
 	 */
