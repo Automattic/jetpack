@@ -13,6 +13,7 @@ class Cleanup_Transients {
 
 	const FOLLOWUP_HOOK = 'jetpack_boost_general_cleanup_followup';
 
+	// Larger than the stored-paths batch so a large backlog clears in few runs; rows are small.
 	private const BATCH_SIZE    = 1000;
 	private const CURSOR_OPTION = 'jetpack_boost_general_cleanup_last_processed_option_id';
 
