@@ -6,9 +6,11 @@ import { useChartFormatting } from '../../../providers';
 import { getBucketResolution } from '../../../utils/bucket-info';
 import { createDateFormatter } from '../../../utils/date-formatting';
 import { getBandTickValues, getFormatter } from '../../private/time-axis';
+import { getStackedValueDomain } from './stack-layout';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import { getBarValue, getValueScaleDomain } from './value-domain';
 import type {
+	BarChartLayout,
 	DataPointDate,
 	BaseChartProps,
 	ChartFormatting,
@@ -152,13 +154,15 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
  * @param horizontal       - Whether the chart is horizontal or vertical.
  * @param options          - The options for the chart.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @param layout           - How series share a category.
  * @return The merged options for the chart.
  */
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {},
-	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
+	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED,
+	layout: BarChartLayout = 'grouped'
 ) {
 	// Callers reasonably pass an object literal, which is a fresh reference every
 	// render and would defeat every memo below.
@@ -279,9 +283,13 @@ export function useBarChartOptions(
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
 		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
-		const domain = valueScaleOptions?.domain
-			? null
-			: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
+		let domain: [ number, number ] | null = null;
+		if ( ! valueScaleOptions?.domain ) {
+			domain =
+				layout === 'stacked'
+					? getStackedValueDomain( data, isSeriesRendered )
+					: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
+		}
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {
@@ -350,5 +358,5 @@ export function useBarChartOptions(
 			},
 			valueTickDecimals: axisConfig.valueTickDecimals,
 		};
-	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered, layout ] );
 }

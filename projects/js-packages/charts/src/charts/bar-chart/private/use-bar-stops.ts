@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { isSameCategory } from './use-overlap-slots';
+import { isSameCategory } from './category';
 import type { OverlapSlots } from './use-overlap-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
 

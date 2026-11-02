@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { categoryKey, isSameCategory } from './category';
 import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
@@ -28,20 +29,6 @@ export type StopPosition = {
 };
 
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
-
-/**
- * Whether two data points sit at the same category: the same label, or the same date.
- *
- * @param point    - A data point.
- * @param category - The data point naming the category.
- * @return Whether `point` is at `category`.
- */
-export function isSameCategory( point: DataPointDate, category: DataPointDate ): boolean {
-	// An empty label falls back to the date, as the band axis's accessor does.
-	return category.label
-		? point.label === category.label
-		: !! category.date && !! point.date && point.date.getTime() === category.date.getTime();
-}
 
 /**
  * Lays out the visible series of an overlap layout in slots and layers.
@@ -93,16 +80,6 @@ export function useOverlapSlots(
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
 	}, [ enabled, seriesWithVisibility ] );
-}
-
-/**
- * The category a data point sits at, as a key two points share when `isSameCategory` holds.
- *
- * @param point - A data point.
- * @return The category key.
- */
-function categoryKey( point: DataPointDate ): string {
-	return point.label ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
 }
 
 /**
