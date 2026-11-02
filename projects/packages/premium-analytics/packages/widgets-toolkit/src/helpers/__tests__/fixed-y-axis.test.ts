@@ -81,9 +81,9 @@ describe( 'getYTickDecimals', () => {
 	} );
 
 	it.each( [
-		[ 'store money', 'currency', undefined, 2 ],
-		[ 'money in its own currency', 'currency', 'USD', undefined ],
-		[ 'a count', 'number', undefined, undefined ],
+		[ 'store money', 'currency' as const, undefined, 2 ],
+		[ 'money in its own currency', 'currency' as const, 'USD', undefined ],
+		[ 'a count', 'number' as const, undefined, undefined ],
 	] )( 'holds %s to the right decimals', ( _, metricType, currencyCode, expected ) => {
 		window.JetpackScriptData = {
 			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 2 } },

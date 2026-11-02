@@ -131,6 +131,9 @@ export function getYTickFormat(
  * @param currencyCode - Explicit currency, which keeps its own decimals as `formatMetricValue` does.
  * @return The decimals, or undefined to keep the chart's own ticks.
  */
-export function getYTickDecimals( metricType: string, currencyCode?: string ): number | undefined {
+export function getYTickDecimals(
+	metricType: Parameters< typeof formatMetricValue >[ 1 ],
+	currencyCode?: string
+): number | undefined {
 	return metricType === 'currency' && currencyCode === undefined ? getStoreDecimals() : undefined;
 }
