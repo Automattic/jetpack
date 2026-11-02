@@ -17,7 +17,13 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
@@ -63,6 +69,9 @@ const getCardGroups = ( offered?: string[] ): CardGroup[] => {
 		} ) )
 		.filter( group => group.children.length > 0 );
 };
+
+// Long enough for a usual plan usage answer, short enough that a slow one leaves the settings usable.
+const PLAN_USAGE_HOLD_MS = 2000;
 
 // apiFetch writes these itself when the request never reached the site.
 const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
@@ -132,12 +141,20 @@ export function StatsSettingsPanel(): JSX.Element {
  * @return The Settings tab content.
  */
 function StatsSettingsContent(): JSX.Element {
-	const { isLoading: isLoadingPlanUsage } = usePlanUsage();
+	const { isLoading: isLoadingPlanUsage, failureCount } = usePlanUsage();
 	// Latched: the card refetches a failed usage on mount, which must not swap the tab back and unmount it.
-	const [ hasPlanUsageAnswered, setPlanUsageAnswered ] = useState( ! isLoadingPlanUsage );
-	if ( ! isLoadingPlanUsage && ! hasPlanUsageAnswered ) {
-		setPlanUsageAnswered( true );
+	const [ isHolding, setHolding ] = useState( isLoadingPlanUsage );
+	// After a failed attempt, the card shows the retries rather than the whole tab waiting them out.
+	if ( isHolding && ( ! isLoadingPlanUsage || failureCount > 0 ) ) {
+		setHolding( false );
 	}
+	useEffect( () => {
+		if ( ! isHolding ) {
+			return;
+		}
+		const timer = setTimeout( () => setHolding( false ), PLAN_USAGE_HOLD_MS );
+		return () => clearTimeout( timer );
+	}, [ isHolding ] );
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
@@ -187,8 +204,8 @@ function StatsSettingsContent(): JSX.Element {
 		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
 
-	// A plan without a view limit has no usage card, so hold the whole tab until that is known rather than shift it.
-	if ( ! hasPlanUsageAnswered ) {
+	// A plan without a view limit has no usage card, so briefly hold the whole tab rather than shift it once that is known.
+	if ( isHolding ) {
 		return (
 			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
 				<Spinner />

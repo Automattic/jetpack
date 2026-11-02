@@ -1,5 +1,5 @@
 import { useStatsSettings } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StatsSettingsPanel } from './stats-settings';
 
@@ -130,7 +130,7 @@ describe( 'StatsSettingsPanel', () => {
 			async () => userEvent.click( screen.getByRole( 'button', { name: 'Remove' } ) ),
 			[ { setting: 'roles', enabled: false, role: 'editor' } ],
 		],
-	] )( 'records %s', async ( _title, stored, act, events ) => {
+	] )( 'records %s', async ( _title, stored, interact, events ) => {
 		useStatsSettingsMock.mockReturnValue( {
 			settings: { ...SETTINGS, ...stored },
 			isError: false,
@@ -138,7 +138,7 @@ describe( 'StatsSettingsPanel', () => {
 		} );
 
 		render( <StatsSettingsPanel /> );
-		await act();
+		await interact();
 
 		expect( mockTrackEvent.mock.calls ).toEqual(
 			events.map( event => [ 'jetpack_premium_analytics_settings_changed', event ] )
@@ -220,6 +220,35 @@ describe( 'StatsSettingsPanel', () => {
 
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Loading your Stats settings…' );
 		expect( screen.queryByText( 'Admin bar widget' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the cards once the first plan usage attempt fails, leaving the retries to the card', () => {
+		mockUsePlanUsage.mockReturnValue( { isLoading: true, failureCount: 1 } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+	} );
+
+	it( 'draws the cards when the plan usage is still loading after two seconds', () => {
+		jest.useFakeTimers();
+		mockUsePlanUsage.mockReturnValue( { isLoading: true, failureCount: 0 } );
+		useStatsSettingsMock.mockReturnValue( {
+			settings: SETTINGS,
+			isError: false,
+			saveChange: jest.fn(),
+		} );
+		render( <StatsSettingsPanel /> );
+
+		act( () => jest.advanceTimersByTime( 2000 ) );
+
+		expect( screen.getByText( 'Admin bar widget' ) ).toBeInTheDocument();
+		jest.useRealTimers();
 	} );
 
 	it( 'keeps the cards once the plan usage has answered, while the card retries a failed usage', () => {
