@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Remove the next-scan countdown from the Scan card and the Scan site button.

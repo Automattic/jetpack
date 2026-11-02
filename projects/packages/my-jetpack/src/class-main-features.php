@@ -49,11 +49,12 @@ class Main_Features {
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
 
 	/**
-	 * First My Jetpack release with the opt-in offline Features page.
+	 * First My Jetpack release with offline Features enabled by default.
 	 *
 	 * @since 6.14.0
+	 * @since $$next-version$$ Raised to the first default-on release.
 	 */
-	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.10.0';
+	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
 	 * Whether module metadata proves it can run without either connection.
@@ -1063,6 +1064,10 @@ class Main_Features {
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
+			// A host's manage link doesn't replace an active standalone plugin's own page.
+			if ( is_array( $upgrade ) && $product_class && method_exists( $product_class, 'is_standalone_plugin_active' ) && $product_class::is_standalone_plugin_active() ) {
+				unset( $upgrade['manage_url'] );
+			}
 
 			$feature = array(
 				'slug'             => $slug,

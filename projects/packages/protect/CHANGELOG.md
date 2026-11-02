@@ -63,8 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Protect dashboard: Delete unused plugins and themes without leaving the page, step through threats with the arrow keys, show a placeholder while Scan history loads, close threat details when switching tabs, name the threat in each notice, show threats on two lines with a narrower Severity column, show whether the affected plugin or theme is active, keep the threat actions at the bottom of the sidebar, and keep Scan progress and error notices until they are dismissed, with a View button that opens the threat while an action runs. [#53439]
 - Protect dashboard: Tell the Monitor card's failures apart, with a link to connect a WordPress.com account and a way to retry. [#53382]
 - Show the Downtime monitoring card with an uptime percentage, per-day tooltips, and an on/off toggle like the Firewall card. [#53740]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 
 ## 0.1.0 - 2026-10-12
 ### Added

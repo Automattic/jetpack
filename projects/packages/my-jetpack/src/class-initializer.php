@@ -1038,7 +1038,8 @@ class Initializer {
 	public static function get_header_state() {
 		return array(
 			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
-			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+			// `connector` names the connection package's card, which opens its details for it.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php?connector=wordpress_com' ) : null,
 		);
 	}
 
@@ -1059,7 +1060,6 @@ class Initializer {
 				&& $block_availability['sharing-buttons']['available'],
 			'isLikeBlockAvailable'    => isset( $block_availability['like'] )
 				&& $block_availability['like']['available'],
-			'activeThemeStylesheet'   => get_stylesheet(),
 		);
 
 		return $data;
@@ -1426,7 +1426,7 @@ class Initializer {
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
 				'default'     => true,
-				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, hide Active and Inactive where the control already shows the state, exclude features from Available when their only action is an install the user cannot make, and show host restrictions below card descriptions.',
+				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, turn the chosen module on once Install Jetpack or Activate Jetpack finishes setup, hide Active and Inactive where the control already shows the state, exclude features from Available when their only action is an install the user cannot make, and show host restrictions below card descriptions.',
 				'owner'       => 'my-jetpack',
 			)
 		);
@@ -1701,9 +1701,10 @@ class Initializer {
 		 * Enable local Features data and entry in offline mode.
 		 *
 		 * @since 6.10.0
-		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 * @since $$next-version$$ Enabled by default.
+		 * @param bool $enabled Whether to enable offline Features. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', true );
 	}
 
 	/**

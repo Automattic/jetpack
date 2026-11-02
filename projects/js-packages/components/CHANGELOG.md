@@ -259,8 +259,7 @@
 ## [1.11.3] - 2026-05-21
 ### Changed
 - Mark ContextualUpgradeTrigger as @deprecated. Use Notice from @wordpress/ui instead. The implementation is unchanged. [#48909]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.11.2] - 2026-05-19
 ### Changed

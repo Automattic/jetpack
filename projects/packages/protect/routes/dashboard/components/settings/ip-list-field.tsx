@@ -9,23 +9,23 @@ type Props = {
 	data: ProtectSettingsData;
 	name: string;
 	label: string;
-	/** Shown under the field; without one the label is hidden, for a toggle above that names the list. */
-	description?: string;
+	/** Show the label; hide it when a toggle above already names the list. */
+	showLabel?: boolean;
 	currentIp?: string;
 };
 
 /**
  * An editable list of IP addresses, saved with its own button.
  *
- * @param props             - Component props.
- * @param props.data        - The settings and their save function.
- * @param props.name        - The setting holding the list.
- * @param props.label       - The field's label.
- * @param props.description - What the list does; defaults to the format hint.
- * @param props.currentIp   - When set, offers to add the visitor's own address.
+ * @param props           - Component props.
+ * @param props.data      - The settings and their save function.
+ * @param props.name      - The setting holding the list.
+ * @param props.label     - The field's label.
+ * @param props.showLabel - Whether the label is visible.
+ * @param props.currentIp - When set, offers to add the visitor's own address.
  * @return The field.
  */
-export default function IpListField( { data, name, label, description, currentIp }: Props ) {
+export default function IpListField( { data, name, label, showLabel, currentIp }: Props ) {
 	const saved = getIpList( data.settings, name );
 	const [ draft, setDraft ] = useState( saved );
 
@@ -69,14 +69,11 @@ export default function IpListField( { data, name, label, description, currentIp
 		<Stack direction="column" gap="sm">
 			<TextareaControl
 				label={ label }
-				hideLabelFromVision={ ! description }
-				description={
-					description ??
-					__(
-						'Separate addresses or ranges with commas, spaces or new lines.',
-						'jetpack-protect-pkg'
-					)
-				}
+				hideLabelFromVision={ ! showLabel }
+				description={ __(
+					'Separate addresses or ranges with commas, spaces or new lines.',
+					'jetpack-protect-pkg'
+				) }
 				value={ draft }
 				onChange={ onChange }
 				rows={ 4 }

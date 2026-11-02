@@ -1,11 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { commentAuthorAvatar } from '@wordpress/icons';
-import { Card, CollapsibleCard, Stack } from '@wordpress/ui';
+import { Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { useAuthorProfile } from '../../data/use-author-profile';
 import AuthorProfileSection from './schema-settings/author-profile-section';
 import type { SettingStatus } from '../../components/status-indicator';
+
+interface Props {
+	disabled?: boolean;
+	disabledReason?: string;
+}
 
 /**
  * Per-user Author profile settings card.
@@ -19,9 +24,12 @@ import type { SettingStatus } from '../../components/status-indicator';
  * matching the other Settings modules (Canonical URLs, Title structure, Site
  * verification, Schema).
  *
+ * @param props                - Component props.
+ * @param props.disabled       - Whether another plugin controls structured data.
+ * @param props.disabledReason - Explanation shown while editing is disabled.
  * @return The Author profile settings card.
  */
-function AuthorProfileCard() {
+function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 	const form = useAuthorProfile();
 	const { profile, isLoading, hasLoadError } = form;
 
@@ -61,7 +69,20 @@ function AuthorProfileCard() {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<AuthorProfileSection form={ form } />
+				<Stack
+					direction="column"
+					gap="lg"
+					role="group"
+					aria-label={ __( 'Author profile settings', 'jetpack-seo' ) }
+					aria-describedby={ disabled ? 'jetpack-seo-author-profile-disabled' : undefined }
+				>
+					{ disabled && disabledReason && (
+						<Notice.Root intent="warning" id="jetpack-seo-author-profile-disabled">
+							<Notice.Description>{ disabledReason }</Notice.Description>
+						</Notice.Root>
+					) }
+					<AuthorProfileSection form={ form } disabled={ disabled } />
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

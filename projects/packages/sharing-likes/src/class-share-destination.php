@@ -1,0 +1,103 @@
+<?php
+/**
+ * Share URLs for sharing buttons that send readers to an address they enter, such as a Mastodon instance.
+ *
+ * @package automattic/jetpack-sharing-likes
+ */
+
+declare( strict_types = 1 );
+
+namespace Automattic\Jetpack\Sharing_Likes;
+
+/**
+ * Builds an endpoint URL on a site a reader names, and the prompt URL to ask them again.
+ *
+ * @since $$next-version$$
+ */
+final class Share_Destination {
+
+	/**
+	 * Rewrite http:// addresses to https://.
+	 *
+	 * @var bool
+	 */
+	public const UPGRADE_HTTP = true;
+
+	/**
+	 * Keep http:// addresses as entered.
+	 *
+	 * @var bool
+	 */
+	public const KEEP_HTTP = false;
+
+	/**
+	 * Build an endpoint URL on the site at the address a reader entered.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $address      Address the reader entered, with or without a scheme.
+	 * @param string $path         Path to append to the address, e.g. 'share'.
+	 * @param bool   $upgrade_http self::UPGRADE_HTTP or self::KEEP_HTTP.
+	 * @return string|null Endpoint URL without a query string, or null if the address is not usable.
+	 */
+	public static function get_endpoint( string $address, string $path, bool $upgrade_http ): ?string {
+		// Pasted addresses can carry invisible characters, like a zero-width space, that trim() misses.
+		$address = preg_replace( '/^[\s\p{Cf}]+|[\s\p{Cf}]+$/u', '', $address ) ?? trim( $address );
+		if ( ! preg_match( '#^[a-z][a-z0-9+.-]*://#i', $address ) ) {
+			$address = 'https://' . $address;
+		}
+
+		$parts = wp_parse_url( $address );
+		if ( ! is_array( $parts ) || empty( $parts['host'] ) || empty( $parts['scheme'] ) ) {
+			return null;
+		}
+
+		$scheme = strtolower( $parts['scheme'] );
+		if ( 'https' !== $scheme && 'http' !== $scheme ) {
+			return null;
+		}
+		if ( $upgrade_http ) {
+			$scheme = 'https';
+		}
+
+		// In https://example.com@example.org the host is example.org, not the name the reader sees first.
+		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
+			return null;
+		}
+
+		// IDNA treats these full-width and ideographic full stops as dots, as in mstdn。jp.
+		$host = str_replace( array( "\u{3002}", "\u{FF0E}", "\u{FF61}" ), '.', $parts['host'] );
+		if ( ! preg_match( '/^[\p{L}\p{M}\p{N}.-]+$/u', $host ) ) {
+			return null;
+		}
+
+		$url = $scheme . '://' . $host;
+		if ( isset( $parts['port'] ) ) {
+			$url .= ':' . $parts['port'];
+		}
+		$url .= rtrim( $parts['path'] ?? '', '/' ) . '/' . ltrim( $path, '/' );
+
+		$url = esc_url_raw( $url, array( $scheme ) );
+
+		return '' === $url ? null : $url;
+	}
+
+	/**
+	 * URL of a service's address prompt for a post, where a reader can try another address.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $service Sharing service short name, e.g. 'mastodon'.
+	 * @return string
+	 */
+	public static function get_prompt_url( int $post_id, string $service ): string {
+		return add_query_arg(
+			array(
+				'share' => $service,
+				'nb'    => 1,
+			),
+			get_permalink( $post_id )
+		);
+	}
+}

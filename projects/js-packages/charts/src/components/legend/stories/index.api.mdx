@@ -102,7 +102,16 @@ type BaseLegendItem = {
 
 	/** Set to false for a static item that cannot be toggled or dimmed. */
 	interactive?: boolean;
-};
+} & (
+	| {
+			/** Pressed state of the toggle. */
+			pressed: boolean;
+
+			/** Makes an interactive legend item a toggle the consumer controls, instead of a series toggle. */
+			onToggle: () => void;
+	  }
+	| { pressed?: never; onToggle?: never }
+);
 ```
 
 ### BaseLegendItem Properties
@@ -115,6 +124,8 @@ type BaseLegendItem = {
 - **`shapeStyle`** (optional): Additional CSS and line styles to apply to the shape. Supports standard CSSProperties plus visx LineStyles
 - **`seriesLabels`** (optional): The series labels this item controls. Auto-derived items set it to just the item's own series, unless `legend.collapseGroups` is on, in which case a group collapses to one item carrying every series it toggles (primary first). An interactive legend toggles all of these together
 - **`interactive`** (optional): Set to `false` to keep this item static inside an interactive legend. It renders without a button role, ignores clicks, and never dims; the `comparisonItem` option uses this for the "Comparison period" item
+- **`onToggle`** (optional, with `pressed`): Makes the item a toggle the consumer controls. In an interactive legend, a click, Enter or Space calls `onToggle` and leaves series visibility alone, and `seriesLabels` is ignored. In a legend that is not interactive the item renders as a static item
+- **`pressed`** (required with `onToggle`, not allowed without it): The pressed state of the toggle. It sets the visible or hidden accessible name and the dimmed styling, and in an interactive legend also `aria-pressed`
 - **`describesSeries`** (optional): For a static item, the label of the series it describes. The item is left out while that series is hidden; `comparisonSeriesItems` sets it on each comparison item
 
 ## GlyphProps Type

@@ -66,6 +66,10 @@ const VStack = components.__experimentalVStack || components.VStack;
 const Text = components.__experimentalText || components.Text;
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
+const CONNECTOR_ID = 'wordpress_com';
+// Links such as My Jetpack's "Manage connection" add ?connector=wordpress_com to open the details.
+const isLinkedTo =
+	new URLSearchParams( window.location.search ).get( 'connector' ) === CONNECTOR_ID;
 const dataEl = document.getElementById( `wp-script-module-data-${ MODULE_ID }` );
 const data = JSON.parse( dataEl?.textContent ?? '{}' );
 
@@ -1900,7 +1904,7 @@ function ExpandedDetails( {
 function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const connectorName = name || label;
 	const connectorLogo = logo || icon || CONNECTOR_LOGO;
-	const [ isExpanded, setIsExpanded ] = useState( false );
+	const [ isExpanded, setIsExpanded ] = useState( isLinkedTo );
 	const {
 		isConnected,
 		isRegistered: isSiteRegistered,
@@ -2112,7 +2116,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	);
 }
 
-registerConnector( 'wordpress_com', {
+registerConnector( CONNECTOR_ID, {
 	name: data.connectorName ?? 'Jetpack Connection',
 	label: data.connectorName ?? 'Jetpack Connection',
 	description:

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Respect the connections chosen for sharing when a post is published through the API.

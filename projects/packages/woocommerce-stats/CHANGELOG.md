@@ -37,8 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show the WooCommerce tab on every site running WooCommerce, to readers of the store reports. [#53588]
 - Store visitors by location: Remove the region toggle and list countries worldwide. [#53653]
 - Top performing products and bookings: Show the rows as soon as the report answers; the thumbnails fill in behind. [#53589]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53806]
 - Widgets: Use the dashboard's generic empty state for a period with no data, instead of a copy and icon per widget. [#53426]
 
 ### Fixed

@@ -39,4 +39,19 @@ describe( 'ScanSettingsCard', () => {
 			'https://example.com'
 		);
 	} );
+
+	it( 'leaves out server credentials where the host needs none', () => {
+		render(
+			<ScanSettingsCard
+				state={ { url: '', error: false, hasPlan: true, needsCredentials: false } as ScanState }
+				settings={ {} as ProtectSettingsData }
+				openTab={ jest.fn() }
+			/>
+		);
+
+		expect(
+			screen.getByText( 'Scan checks your site for malware every day.' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
 } );

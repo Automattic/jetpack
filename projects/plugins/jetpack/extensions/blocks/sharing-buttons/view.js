@@ -44,7 +44,8 @@ if ( typeof window !== 'undefined' ) {
 					return;
 				}
 
-				if ( service === 'mail' ) {
+				// A WordPress repost goes through sign-in and a full editor, so it keeps the link's new tab.
+				if ( service === 'mail' || service === 'wordpress' ) {
 					return;
 				}
 

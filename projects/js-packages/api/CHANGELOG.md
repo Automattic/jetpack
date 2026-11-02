@@ -64,8 +64,7 @@
 
 ## [1.0.26] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.0.25] - 2026-05-19
 ### Changed

@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show PayPal's debug ID in API error messages so failed requests can be traced with PayPal support. [#53021]
 - Show the result of deleting a link, disconnecting, or picking an existing link in a snackbar. [#52464]
 - Tested up to WordPress 7.1. [#48114] [#51370]
-- Updated package dependencies. [#48735] [#48064] [#48106] [#48405] [#48683] [#49012] [#49218] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50529] [#50751] [#51399] [#51701] [#52028] [#52187] [#52297] [#52999]
+- Updated package dependencies. [#48064] [#48106] [#48405] [#48683] [#48735] [#49012] [#49218] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50529] [#50751] [#51399] [#51701] [#52028] [#52187] [#52297] [#52999]
 - Use PayPal's official logos, unmodified, and match the connect wizard to the design. [#53118]
 - Use PayPal's prescribed wording in the disconnect and log out confirmations. [#53089]
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show store money with the store's number of decimals setting, as WooCommerce Analytics does.

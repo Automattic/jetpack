@@ -54,8 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 4.1.4 - 2026-09-04
 ### Changed
-- Update package dependencies. [#51701]
-- Update package dependencies. [#51853]
+- Update package dependencies. [#51701] [#51853]
 
 ### Fixed
 - Bundled WP packages: rewrite the text domain of `@wordpress/admin-ui` i18n calls too, so webpack builds that bundle it pass the i18n check. [#51701]
@@ -282,8 +281,7 @@ Add `watchOptions` to shared config. [#45235]
 
 ## 3.7.8 - 2025-09-19
 ### Changed
-- Update package dependencies. [#45173]
-- Update package dependencies. [#45229]
+- Update package dependencies. [#45173] [#45229]
 
 ## 3.7.7 - 2025-09-08
 ### Changed
