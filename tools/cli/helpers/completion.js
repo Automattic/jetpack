@@ -122,6 +122,10 @@ function positionalCompletions( yargs, perCommand, current, argv ) {
  * @return {Function} The hook, in yargs' "fallback" form.
  */
 export function completionHook( yargs, perCommand ) {
+	// yargs passes command descriptions through verbatim, newlines included, which the shell would
+	// take for extra candidates.
+	const oneLine = candidate => candidate.replace( /\s*[\r\n]+\s*/g, ' ' );
+
 	return ( current, argv, completionFilter, done ) => {
 		completionFilter( ( err, defaults = [] ) => {
 			let extra = [];
@@ -132,7 +136,7 @@ export function completionHook( yargs, perCommand ) {
 					console.error( error );
 				}
 			}
-			done( [ ...defaults, ...extra ] );
+			done( [ ...defaults, ...extra ].map( oneLine ) );
 		} );
 	};
 }
