@@ -1,13 +1,9 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import {
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalConfirmDialog as ConfirmDialog,
-	Button,
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useReducer } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { AlertDialog, Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { Retry } from '../../share-status/retry';
 import { ScheduledActivityItem, SharedActivityItem, SharingActivityItem } from './types';
@@ -27,7 +23,9 @@ interface ActivityActionProps {
 export function ActivityAction( { item }: ActivityActionProps ) {
 	const { recordEvent } = useAnalytics();
 	const { deleteScheduledShare } = useDispatch( socialStore );
-	const [ showConfirmation, toggleConfirmation ] = useReducer( state => ! state, false );
+	const [ showConfirmation, setShowConfirmation ] = useState( false );
+
+	const openConfirmation = useCallback( () => setShowConfirmation( true ), [] );
 
 	const handleViewClick = useCallback( () => {
 		if ( item.activityType === 'shared' ) {
@@ -46,7 +44,6 @@ export function ActivityAction( { item }: ActivityActionProps ) {
 				location: 'modal',
 			} );
 			deleteScheduledShare( scheduledItem.scheduleId );
-			toggleConfirmation();
 		}
 	}, [ recordEvent, item, deleteScheduledShare ] );
 
@@ -70,17 +67,24 @@ export function ActivityAction( { item }: ActivityActionProps ) {
 	if ( item.activityType === 'scheduled' ) {
 		return (
 			<div>
-				<Button variant="link" isDestructive onClick={ toggleConfirmation }>
+				<Button variant="link" isDestructive onClick={ openConfirmation }>
 					{ __( 'Delete', 'jetpack-publicize-pkg' ) }
 				</Button>
-				<ConfirmDialog
-					isOpen={ showConfirmation }
+				<AlertDialog.Root
+					open={ showConfirmation }
+					onOpenChange={ setShowConfirmation }
 					onConfirm={ handleDelete }
-					onCancel={ toggleConfirmation }
-					confirmButtonText={ __( 'Delete', 'jetpack-publicize-pkg' ) }
 				>
-					{ __( 'Are you sure you want to delete this scheduled share?', 'jetpack-publicize-pkg' ) }
-				</ConfirmDialog>
+					<AlertDialog.Popup
+						intent="irreversible"
+						title={ __( 'Delete scheduled share', 'jetpack-publicize-pkg' ) }
+						description={ __(
+							'Are you sure you want to delete this scheduled share?',
+							'jetpack-publicize-pkg'
+						) }
+						confirmButtonText={ __( 'Delete', 'jetpack-publicize-pkg' ) }
+					/>
+				</AlertDialog.Root>
 			</div>
 		);
 	}
