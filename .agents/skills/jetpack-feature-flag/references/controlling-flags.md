@@ -99,7 +99,7 @@ Companion renders a feature-flags section on **its own** settings subpage — `o
 
 Same option, a radio per flag storing `default` / `on` / `off`, labelled "Default (on)" / "Default (off)" / "On" / "Off". The section is hidden when the Jetpack package is absent, though the option still sanitizes and stores. Use it when clicking is easier than a shell; the CLI is the same data.
 
-The page disappears entirely when Jetpack Beta above v3 is active — a common Jurassic Ninja configuration, and precisely when someone goes looking for it. Use the CLI there.
+The page stays available while Jetpack Beta is active. Companion's check for Jetpack Beta looks for the global `Jetpack_Beta` class, which Jetpack Beta 4.x no longer defines, so it never hides the page.
 
 ## Local Docker
 
@@ -131,6 +131,7 @@ This is a different option from Companion's, but both answer the same generic fi
 | Testing on a Jurassic Ninja site | `wp companion feature-flag enable <flag>` |
 | Automated setup / scripted test runs | Same CLI, with `--format=json` and `--yes` |
 | Clicking through on a site you already have open | Companion settings section |
+| A tester's site with no SSH and no Companion (shared test hosts) | The `add_filter( 'jetpack_feature_flag_enabled_<flag>', '__return_true' )` one-liner in the Code Snippets plugin, set to run everywhere |
 | A wpcom Simple or Atomic site, as an Automattician | Tools → Feature Flags (a8c) |
 | PHPUnit | `add_filter( 'jetpack_feature_flag_enabled_<flag>', '__return_true' )`, removed in teardown |
 | Rollout policy, cohorts, staff-only | Generic `jetpack_feature_flag_enabled` filter in code |
