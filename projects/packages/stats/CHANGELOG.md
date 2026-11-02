@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.2] - 2026-10-28
+### Fixed
+- Abilities: Fix the views, visitors, streak, followers, top content and post views the Stats abilities report, reject dates that do not exist, and return get-followers' `publicize` as an object. [#53385]
+
 ## [0.23.1] - 2026-10-26
 ### Changed
 - Internal updates.
@@ -113,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.8] - 2026-02-02
 ### Changed
-- Update dependencies. [#39260]
+- Update dependencies.
 
 ## [0.17.7] - 2025-12-15
 ### Changed
@@ -197,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.2] - 2025-02-24
 ### Changed
-- Update dependencies. [#39260]
+- Update dependencies.
 
 ## [0.15.1] - 2025-02-03
 ### Fixed
@@ -404,6 +408,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.23.2]: https://github.com/Automattic/jetpack-stats/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/Automattic/jetpack-stats/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/jetpack-stats/compare/v0.22.1...v0.23.0
 [0.22.1]: https://github.com/Automattic/jetpack-stats/compare/v0.22.0...v0.22.1

@@ -59,6 +59,23 @@ describe( 'useThreatRowActions', () => {
 		expect( eligibleIds( result.current, item ) ).toEqual( expected );
 	} );
 
+	it.each( [
+		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix' ] ],
+		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
+		[
+			'a fix left out of bulk fixes',
+			{ fixer: 'update', extras: { isBulkFixable: false } },
+			[ 'auto-fix' ],
+		],
+	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
+		const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
+		const { result } = renderHook( () => useThreatRowActions( open, true ) );
+
+		expect(
+			eligibleIds( result.current, item ).filter( id => id.startsWith( 'auto-fix' ) )
+		).toEqual( expected );
+	} );
+
 	it( 'gives a row its actions back when the fix fails', async () => {
 		let reject: ( e: unknown ) => void = () => {};
 		mockApiFetch.mockReturnValue( new Promise( ( _resolve, fail ) => ( reject = fail ) ) );

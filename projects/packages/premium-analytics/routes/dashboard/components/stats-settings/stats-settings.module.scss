@@ -22,3 +22,42 @@
 .usageWarning {
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
+
+.consentSteps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.consentStep {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-lg);
+	margin: 0;
+	padding: var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+// Focused only programmatically, after the one-click install;
+// the ring shows for keyboard users.
+.consentStep:focus {
+	outline: none;
+}
+
+.consentStep:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: calc(-1 * var(--wpds-border-width-focus));
+}
+
+.consentStepBody {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.consentStepTitle {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}

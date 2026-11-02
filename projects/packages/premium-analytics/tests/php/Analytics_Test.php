@@ -25,9 +25,11 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
  * discards lines outside declared @covers units — omitting it would mark the manifest require dead.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Classic_Stats
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
  */
 #[CoversClass( Analytics::class )]
+#[CoversClass( Classic_Stats::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
 	use Analytics_Capabilities_Trait;
@@ -93,6 +95,7 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_stats_admin_pre_connection_dashboard' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
 		Constants::clear_constants();
 		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
@@ -204,15 +207,17 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it.
+	 * The stats-admin pre-connection Stats page stays unless the host asks this dashboard to replace it, or classic Stats is retired.
 	 *
 	 * @param array $options Options passed to init().
+	 * @param bool  $retired Whether the classic Stats page is retired.
 	 * @param bool  $kept    Whether stats-admin still registers its page.
 	 * @dataProvider provide_pre_connection_stats_page_cases
 	 */
 	#[DataProvider( 'provide_pre_connection_stats_page_cases' )]
-	public function test_init_replaces_the_pre_connection_stats_page_on_request( $options, $kept ) {
+	public function test_when_init_replaces_the_pre_connection_stats_page( $options, $retired, $kept ) {
 		$this->reset_analytics_init_state();
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
 
 		Analytics::init( $options );
 
@@ -220,14 +225,15 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Data for test_init_replaces_the_pre_connection_stats_page_on_request.
+	 * Data for test_when_init_replaces_the_pre_connection_stats_page.
 	 *
 	 * @return array
 	 */
 	public static function provide_pre_connection_stats_page_cases() {
 		return array(
-			'kept by default'     => array( array(), true ),
-			'replaced on request' => array( array( 'replaces_pre_connection_stats_page' => true ), false ),
+			'kept by default'                  => array( array(), false, true ),
+			'replaced on request'              => array( array( 'replaces_pre_connection_stats_page' => true ), false, false ),
+			'replaced once classic is retired' => array( array(), true, false ),
 		);
 	}
 
@@ -711,11 +717,31 @@ class Analytics_Test extends TestCase {
 	/**
 	 * With no caller override the label comes from the package itself, so nobody has
 	 * to translate it before the textdomain can load.
+	 *
+	 * @dataProvider provide_classic_stats_states
+	 *
+	 * @param bool   $retired  Whether the classic Stats page is retired.
+	 * @param string $expected Expected menu label.
 	 */
-	public function test_register_admin_menu_labels_the_page_from_the_package() {
+	#[DataProvider( 'provide_classic_stats_states' )]
+	public function test_register_admin_menu_labels_the_page_from_the_package( $retired, $expected ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
 		$menu_item = $this->register_admin_menu_without_build();
 
-		$this->assertSame( 'Stats v2', $menu_item[0] ?? null );
+		$this->assertSame( $expected, $menu_item[0] ?? null );
+	}
+
+	/**
+	 * Menu labels by classic Stats state.
+	 *
+	 * @return array
+	 */
+	public static function provide_classic_stats_states() {
+		return array(
+			'classic Stats beside it' => array( false, 'Stats v2' ),
+			'classic Stats retired'   => array( true, 'Stats' ),
+		);
 	}
 
 	/**

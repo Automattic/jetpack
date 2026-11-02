@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Media: Prevent warnings when a large number of shortcodes are registered.

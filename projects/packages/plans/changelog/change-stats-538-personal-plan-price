@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Allow a caller fetching the plan list to pass its own request arguments, such as a shorter timeout.

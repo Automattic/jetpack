@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Conversion funnel chart: Add `getTooltipContent` to set what each step's tooltip shows, which screen readers also read, and show the default tooltip's count and conversion rate as labeled lines.

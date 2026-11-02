@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Protect;
 /**
  * WordPress core's and Jetpack's options, which stay even when Scan flags them, because the site or Jetpack needs them.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 class Protected_Options {
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+My Jetpack: Keep a plugin's switch on the Features tab busy until its card has refreshed after turning the plugin on or off, and show the success message once the card is up to date.

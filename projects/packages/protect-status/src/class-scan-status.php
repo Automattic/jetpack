@@ -192,6 +192,7 @@ class Scan_Status extends Status {
 				'num_plugins_threats' => 0,
 				'has_unchecked_items' => false,
 				'current_progress'    => $scan_data->current->progress ?? null,
+				'last_scan_failed'    => ! empty( $scan_data->most_recent->error ),
 			)
 		);
 

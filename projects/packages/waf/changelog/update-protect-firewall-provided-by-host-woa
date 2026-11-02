@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the `jetpack_protect_firewall_provided_by_host` filter, which lets a host report its own firewall as active where Jetpack's can't run.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Refresh the Scan card with a last-scan badge, a live countdown to the next automatic scan, and a shorter upgrade tooltip.

@@ -124,7 +124,10 @@ class UI {
 			'isDevelopmentSite'              => $is_development_site,
 
 			/**
-			 * Use the filter to provide custom HTML elecontainer ID.
+			 * Use the filter to provide custom HTML container element ID.
+			 *
+			 * The element may be added after the page loads, within 60 seconds of it;
+			 * the screen is rendered into it once.
 			 *
 			 * @since 0.10.0
 			 *
@@ -186,7 +189,7 @@ class UI {
 	/**
 	 * Get the site platform.
 	 *
-	 * @since $$next-version$$ Public, so the Connectors card can send the same value to Tracks.
+	 * @since 9.15.0 Public, so the Connectors card can send the same value to Tracks.
 	 *
 	 * @return string
 	 */

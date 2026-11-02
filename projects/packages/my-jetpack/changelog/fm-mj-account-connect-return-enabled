@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Features: Turn a feature on when its account connection, started from its Connect button, returns to Features.

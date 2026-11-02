@@ -125,7 +125,7 @@ class Waf_Runner {
 	/**
 	 * Whether the host runs its own firewall where Jetpack's can't run.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.31.0
 	 *
 	 * @return bool
 	 */
@@ -139,7 +139,7 @@ class Waf_Runner {
 		 *
 		 * Only changes how the firewall's status is reported, as active rather than unavailable; it blocks nothing.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.31.0
 		 *
 		 * @param bool $provided Whether the host provides the firewall. Default false.
 		 */

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Draw the previous period in the Traffic summary only when it is switched on from the chart legend.

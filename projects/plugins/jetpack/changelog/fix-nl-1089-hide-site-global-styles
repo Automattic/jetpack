@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Email Design: stop the screen offering the site's Styles panel, which changed the site's design rather than the email's.

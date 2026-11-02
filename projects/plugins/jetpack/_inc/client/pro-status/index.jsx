@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _n, _x } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
@@ -21,7 +21,6 @@ import {
 import { isOfflineMode } from 'state/connection';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
-import { getScanStatus } from 'state/scan';
 import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import styles from './style.module.scss';
@@ -184,7 +183,7 @@ class ProStatus extends Component {
 	};
 
 	render() {
-		const { purchasedVaultPressBackups, purchasedVaultPressScan, scanStatus } = this.props;
+		const { purchasedVaultPressBackups, purchasedVaultPressScan } = this.props;
 		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
@@ -232,25 +231,8 @@ class ProStatus extends Component {
 						} else if ( purchasedVaultPressBackups && ! usingVPBackups && ! this.props.isCompact ) {
 							return this.getSetUpButton( 'backups' );
 						}
-						return '';
-					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
-						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
-							return (
-								<StatusIndicator
-									status="error"
-									label={ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
-								/>
-							);
-						}
-						if ( ! scanStatus.credentials ) {
-							return '';
-						}
-						if ( scanStatus.credentials.length === 0 ) {
-							return <StatusIndicator status="action" label={ DEFAULT_LABELS.action } />;
-						}
-						return this.getProActions( 'secure', 'scan' );
 					}
-					break;
+					return '';
 
 				case 'search':
 					return '';
@@ -317,7 +299,6 @@ export default connect( state => {
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		rewindStatus: getRewindStatus( state ),
-		scanStatus: getScanStatus( state ),
 		purchasedVaultPressBackups: siteHasFeature( state, 'vaultpress-backups' ),
 		purchasedVaultPressScan: siteHasFeature( state, 'vaultpress-security-scanning' ),
 	};

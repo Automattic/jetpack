@@ -170,6 +170,30 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A bare YouTube URL in post content should go through Jetpack's embed handler,
+	 * and the iframe it outputs should have a title so screen readers can name it.
+	 */
+	public function test_shortcodes_youtube_bare_url_iframe_has_title() {
+		global $post;
+
+		$youtube_id = 'JaNH56Vpg-A';
+		$post       = self::factory()->post->create_and_get( array( 'post_content' => "https://www.youtube.com/watch?v=$youtube_id" ) );
+
+		// The bootstrap loads the shortcodes module after `init`, so the handler isn't registered yet.
+		wpcom_youtube_embed_crazy_url_init();
+
+		setup_postdata( $post );
+		ob_start();
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
+		the_content();
+		remove_all_filters( 'wp_lazy_loading_enabled' );
+		$actual = ob_get_clean();
+		wp_reset_postdata();
+		$this->assertStringContainsString( '<iframe class="youtube-player" title="YouTube video player"', $actual );
+		$this->assertStringContainsString( "https://www.youtube.com/embed/$youtube_id", $actual );
+	}
+
+	/**
 	 * Gets the test data for jetpack_shortcode_youtube_args().
 	 *
 	 * @return array[] The test data.
@@ -245,12 +269,12 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 			'valid_url'               => array(
 				'https://www.youtube.com/watch?v=SVRiktFlWxI',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="SVRiktFlWxI" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="' . $width . '" height="' . $height . '" layout="responsive"><a href="https://www.youtube.com/watch?v=SVRiktFlWxI" placeholder><amp-img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="360" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="360" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'short_youtube_url'       => array(
 				'https://youtu.be/gS6_xOABTWo',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="gS6_xOABTWo" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="' . $width . '" height="' . $height . '" layout="responsive"><a href="https://www.youtube.com/watch?v=gS6_xOABTWo" placeholder><amp-img src="https://i.ytimg.com/vi/gS6_xOABTWo/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/gS6_xOABTWo/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="360" src="https://www.youtube.com/embed/gS6_xOABTWo?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="360" src="https://www.youtube.com/embed/gS6_xOABTWo?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'url_without_id'          => array(
 				'https://youtube.com',
@@ -259,28 +283,28 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 			),
 			'videoseries_url'         => array(
 				'https://www.youtube.com/videoseries?list=PL56C3506BBE979C1B',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="360" layout="responsive" src="https://www.youtube.com/embed?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent&#038;listType=playlist&#038;list=PL56C3506BBE979C1B" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="360" src="https://www.youtube.com/embed?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent&#038;listType=playlist&#038;list=PL56C3506BBE979C1B" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="360" layout="responsive" src="https://www.youtube.com/embed?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent&#038;listType=playlist&#038;list=PL56C3506BBE979C1B" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="360" src="https://www.youtube.com/embed?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent&#038;listType=playlist&#038;list=PL56C3506BBE979C1B" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'with_v_query_param'      => array(
 				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="WVbQ-oro7FQ" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="' . $width . '" height="' . $height . '" layout="responsive"><a href="https://www.youtube.com/watch?v=WVbQ-oro7FQ" placeholder><amp-img src="https://i.ytimg.com/vi/WVbQ-oro7FQ/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/WVbQ-oro7FQ/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="360" src="https://www.youtube.com/embed/WVbQ-oro7FQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="360" src="https://www.youtube.com/embed/WVbQ-oro7FQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'only_width_in_url'       => array(
 				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=850"',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="SVRiktFlWxI" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="850" height="479" layout="responsive"><a href="https://www.youtube.com/watch?v=SVRiktFlWxI" placeholder><amp-img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="850" height="479" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="850" height="479" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'only_height_in_url'      => array(
 				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&h=550"',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="SVRiktFlWxI" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="' . $width . '" height="550" layout="responsive"><a href="https://www.youtube.com/watch?v=SVRiktFlWxI" placeholder><amp-img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="640" height="550" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="640" height="550" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 			'width_and_height_in_url' => array(
 				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=600&h=400"',
 				'<span class="embed-youtube" style="text-align:center; display: block;"><amp-youtube data-videoid="SVRiktFlWxI" data-param-rel="1" data-param-showsearch="0" data-param-showinfo="1" data-param-iv_load_policy="1" data-param-fs="1" data-param-hl="en-US" data-param-autohide="2" data-param-wmode="transparent" width="600" height="400" layout="responsive"><a href="https://www.youtube.com/watch?v=SVRiktFlWxI" placeholder><amp-img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" alt="YouTube Poster" layout="fill" object-fit="cover"><noscript><img src="https://i.ytimg.com/vi/SVRiktFlWxI/hqdefault.jpg" loading="lazy" decoding="async" alt="YouTube Poster"></noscript></amp-img></a></amp-youtube></span>',
-				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" width="600" height="400" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
+				'<span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" title="YouTube video player" width="600" height="400" src="https://www.youtube.com/embed/SVRiktFlWxI?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>',
 			),
 		);
 	}

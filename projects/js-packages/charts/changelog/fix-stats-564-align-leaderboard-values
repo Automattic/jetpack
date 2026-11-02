@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Leaderboard chart: Line the values up on the right edge and the deltas in a column of their own when a comparison is shown, instead of letting a wide delta push its row's value out of line.

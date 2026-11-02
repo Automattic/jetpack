@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plan: Count every Scan product, including bi-yearly and legacy real-time ones, and on WordPress.com count only plans that include Scan's UI as having Scan.

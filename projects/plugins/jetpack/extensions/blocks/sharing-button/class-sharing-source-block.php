@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Post_Media\Images;
-use Automattic\Jetpack\SEO\Content_Gate;
+use Automattic\Jetpack\Sharing_Likes\Share_Destination;
 use WP_Post;
 
 /**
@@ -887,9 +887,23 @@ class Share_Mastodon_Block extends Sharing_Source_Block {
 
 		check_admin_referer( 'jetpack_share_mastodon_instance' );
 
-		$mastodon_instance = isset( $_POST['jetpack-mastodon-instance'] )
-			? trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) )
-			: null;
+		// Another plugin's autoloader can serve a jetpack-sharing-likes release from before Share_Destination.
+		if ( class_exists( Share_Destination::class ) ) {
+			$share_endpoint = is_string( $_POST['jetpack-mastodon-instance'] )
+				? Share_Destination::get_endpoint(
+					wp_unslash( $_POST['jetpack-mastodon-instance'] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Share_Destination validates and rebuilds the URL.
+					'share',
+					Share_Destination::UPGRADE_HTTP
+				)
+				: null;
+
+			if ( null === $share_endpoint ) {
+				wp_safe_redirect( Share_Destination::get_prompt_url( $post->ID, $this->shortname ) );
+				exit( 0 );
+			}
+		} else {
+			$share_endpoint = trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) ) . 'share';
+		}
 
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link  = $this->get_share_url( $post->ID );
@@ -913,8 +927,8 @@ class Share_Mastodon_Block extends Sharing_Source_Block {
 		);
 
 		$share_url = sprintf(
-			'%1$sshare?text=%2$s',
-			$mastodon_instance,
+			'%1$s?text=%2$s',
+			$share_endpoint,
 			rawurlencode( $shared_message )
 		);
 
@@ -1462,29 +1476,27 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 	}
 
 	/**
-	 * Get the arguments that let the reader's site start a draft quoting the post.
+	 * Get the arguments that let the reader's site start a draft embedding the post.
 	 *
 	 * @param WP_Post $post Post object.
 	 *
 	 * @return array
 	 */
 	private function get_repost_args( $post ) {
-		$text = '';
-		if ( ! Content_Gate::is_gated( $post ) ) {
-			$text = wp_trim_words( strip_shortcodes( has_excerpt( $post ) ? $post->post_excerpt : $post->post_content ) );
-		}
+		$title = $this->get_share_title( $post->ID );
 
 		return array(
 			'url'           => $this->get_share_url( $post->ID ),
-			'title'         => $this->get_share_title( $post->ID ),
-			'text'          => $text,
+			// Core fills a new post's title from post_title, and wpcomsh's share-post from title.
+			'title'         => $title,
+			'post_title'    => $title,
 			// WordPress.com only builds the draft from these arguments when this flag is set.
 			'is_post_share' => 'true',
 		);
 	}
 
 	/**
-	 * Get the WordPress.com link that lets readers pick one of their sites and opens a draft quoting the post.
+	 * Get the WordPress.com link that lets readers pick one of their sites and opens a draft embedding the post.
 	 *
 	 * @param WP_Post $post Post object.
 	 *
@@ -1495,30 +1507,29 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 	}
 
 	/**
-	 * Get the link to a new post on the reader's own WordPress site, quoting the post.
+	 * Get the link to a new post on the reader's own WordPress site, embedding the post.
 	 *
 	 * @param WP_Post $post Post object.
-	 * @param string  $site Site address the reader entered, with or without a scheme.
+	 * @param string  $site WordPress address the reader entered, with or without a scheme.
 	 *
-	 * @return string Empty when the address is not a usable http(s) URL.
+	 * @return string|null Null when the address is not usable.
 	 */
 	public function get_site_repost_url( $post, $site ) {
-		$site = trim( $site );
-		if ( false === strpos( $site, '://' ) ) {
-			$site = 'https://' . $site;
+		// Same guard as the Mastodon button.
+		if ( ! class_exists( Share_Destination::class ) ) {
+			return null;
 		}
 
-		$site = esc_url_raw( $site, array( 'http', 'https' ) );
-		if ( '' === $site || ! wp_parse_url( $site, PHP_URL_HOST ) ) {
-			return '';
+		$editor_url = Share_Destination::get_endpoint( $site, 'wp-admin/post-new.php', Share_Destination::KEEP_HTTP );
+		if ( null === $editor_url ) {
+			return null;
 		}
 
 		$args = $this->get_repost_args( $post );
-		// Core fills a new post from these two, for sites without Jetpack to read the arguments above.
-		$args['post_title'] = $args['title'];
-		$args['content']    = trim( $args['text'] . "\n\n" . $args['url'] );
+		// Core fills a new post from this, for sites without Jetpack to embed the post.
+		$args['content'] = $args['url'];
 
-		return add_query_arg( rawurlencode_deep( $args ), trailingslashit( $site ) . 'wp-admin/post-new.php' );
+		return add_query_arg( rawurlencode_deep( $args ), $editor_url );
 	}
 
 	/**
@@ -1542,20 +1553,15 @@ class Share_WordPress_Block extends Sharing_Source_Block {
 
 		$url = $this->get_repost_url( $post );
 		if ( 'site' === sanitize_key( wp_unslash( $_POST['jetpack-wordpress-destination'] ) ) ) {
-			$site = isset( $_POST['jetpack-wordpress-site'] ) ? sanitize_text_field( wp_unslash( $_POST['jetpack-wordpress-site'] ) ) : '';
+			$site = isset( $_POST['jetpack-wordpress-site'] ) && is_string( $_POST['jetpack-wordpress-site'] )
+				? wp_unslash( $_POST['jetpack-wordpress-site'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Share_Destination validates and rebuilds the URL.
+				: '';
 			$url  = $this->get_site_repost_url( $post, $site );
 
-			if ( '' === $url ) {
-				wp_safe_redirect(
-					add_query_arg(
-						array(
-							'share' => 'wordpress',
-							'nb'    => 1,
-						),
-						get_permalink( $post )
-					)
-				); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-				exit( 0 );
+			if ( null === $url ) {
+				// The prompt reads the refused address from the form, to show it again with an error.
+				add_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) );
+				return;
 			}
 		}
 

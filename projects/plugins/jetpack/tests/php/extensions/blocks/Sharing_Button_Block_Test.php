@@ -131,15 +131,15 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The repost link prefills a WordPress.com draft, without the text of a gated post.
-	 *
-	 * @dataProvider provide_reposted_posts
-	 * @param array  $post_args     Post fields on top of the title.
-	 * @param string $expected_text Expected `text` argument.
+	 * The repost link hands WordPress.com the title and URL, and none of the post's text.
 	 */
-	#[DataProvider( 'provide_reposted_posts' )]
-	public function test_repost_url_prefills_wpcom_draft( $post_args, $expected_text ) {
-		$post = self::factory()->post->create_and_get( array_merge( array( 'post_title' => 'Tips & tricks' ), $post_args ) );
+	public function test_repost_url_prefills_wpcom_draft() {
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_title'   => 'Tips & tricks',
+				'post_excerpt' => 'A short summary.',
+			)
+		);
 
 		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_repost_url( $post ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
@@ -149,7 +149,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 			array(
 				'url'           => get_permalink( $post ),
 				'title'         => 'Tips & tricks',
-				'text'          => $expected_text,
+				'post_title'    => 'Tips & tricks',
 				'is_post_share' => 'true',
 			),
 			$args
@@ -157,38 +157,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @return array
-	 */
-	public static function provide_reposted_posts() {
-		return array(
-			'excerpt'            => array( array( 'post_excerpt' => 'A short summary.' ), 'A short summary.' ),
-			'no excerpt'         => array(
-				array(
-					'post_excerpt' => '',
-					'post_content' => '<!-- wp:paragraph --><p>Words from the post body.</p><!-- /wp:paragraph -->',
-				),
-				'Words from the post body.',
-			),
-			'password-protected' => array(
-				array(
-					'post_excerpt'  => 'A short summary.',
-					'post_password' => 'secret',
-				),
-				'',
-			),
-			'subscribers only'   => array(
-				array(
-					'post_excerpt' => '',
-					'post_content' => 'Words for subscribers.',
-					'meta_input'   => array( '_jetpack_newsletter_access' => 'subscribers' ),
-				),
-				'',
-			),
-		);
-	}
-
-	/**
-	 * The own-site link opens the reader's editor, filled in for sites with or without Jetpack.
+	 * The own-site link opens the reader's editor, with only the URL as core's content.
 	 *
 	 * @dataProvider provide_reader_sites
 	 * @param string $site          Site address the reader entered.
@@ -196,12 +165,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_reader_sites' )]
 	public function test_site_repost_url_opens_the_readers_editor( $site, $expected_base ) {
-		$post = self::factory()->post->create_and_get(
-			array(
-				'post_title'   => 'Tips & tricks',
-				'post_excerpt' => 'A short summary.',
-			)
-		);
+		$post = self::factory()->post->create_and_get( array( 'post_title' => 'Tips & tricks' ) );
 
 		$url = ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
@@ -209,7 +173,7 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 		$this->assertSame( $expected_base, strtok( $url, '?' ) );
 		$this->assertSame( 'true', $args['is_post_share'] );
 		$this->assertSame( 'Tips & tricks', $args['post_title'] );
-		$this->assertSame( "A short summary.\n\n" . get_permalink( $post ), $args['content'] );
+		$this->assertSame( get_permalink( $post ), $args['content'] );
 	}
 
 	/**
@@ -218,31 +182,118 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public static function provide_reader_sites() {
 		return array(
 			'bare domain'  => array( ' example.com ', 'https://example.com/wp-admin/post-new.php' ),
-			'subdirectory' => array( 'http://example.com/blog', 'http://example.com/blog/wp-admin/post-new.php' ),
+			'http'         => array( 'http://example.com', 'http://example.com/wp-admin/post-new.php' ),
+			'subdirectory' => array( 'https://example.com/wordpress/', 'https://example.com/wordpress/wp-admin/post-new.php' ),
 		);
 	}
 
 	/**
-	 * Anything but an http(s) site address gets no link.
-	 *
-	 * @dataProvider provide_refused_sites
-	 * @param string $site Site address the reader entered.
+	 * The handler waits for a choice, and showing the prompt is not a share.
 	 */
-	#[DataProvider( 'provide_refused_sites' )]
-	public function test_site_repost_url_refuses_other_addresses( $site ) {
+	public function test_process_request_asks_first() {
 		$post = self::factory()->post->create_and_get();
 
-		$this->assertSame( '', ( new Share_WordPress_Block( 'wordpress' ) )->get_site_repost_url( $post, $site ) ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, array() ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+
+		$this->assertSame( 10, has_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) ) );
+		$this->assertSame( 0, did_action( 'sharing_bump_stats' ) );
+	}
+
+	/**
+	 * A choice sends the reader to that destination, and counts as a share.
+	 *
+	 * @dataProvider provide_repost_choices
+	 * @param array  $form     Form fields the reader submitted.
+	 * @param string $expected Expected start of the redirect.
+	 */
+	#[DataProvider( 'provide_repost_choices' )]
+	public function test_process_request_follows_the_readers_choice( $form, $expected ) {
+		$post                 = self::factory()->post->create_and_get();
+		$superglobals         = array( $_POST, $_REQUEST );
+		$_POST                = $form;
+		$_REQUEST['_wpnonce'] = wp_create_nonce( Jetpack_WordPress_Modal::NONCE_ACTION );
+		$this->throw_on_redirect();
+
+		$location = '';
+		try {
+			( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, $form ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+		} catch ( RuntimeException $redirect ) {
+			$location = $redirect->getMessage();
+		} finally {
+			list( $_POST, $_REQUEST ) = $superglobals;
+		}
+
+		$this->assertStringStartsWith( $expected, $location );
+		$this->assertSame( 1, did_action( 'sharing_bump_stats' ) );
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function provide_refused_sites() {
+	public static function provide_repost_choices() {
 		return array(
-			'script' => array( 'javascript:alert(1)' ),
-			'ftp'    => array( 'ftp://example.com' ),
-			'empty'  => array( '' ),
+			'WordPress.com' => array(
+				array( 'jetpack-wordpress-destination' => 'wordpress.com' ),
+				'https://wordpress.com/post?',
+			),
+			'own site'      => array(
+				array(
+					'jetpack-wordpress-destination' => 'site',
+					'jetpack-wordpress-site'        => 'http://example.com/blog',
+				),
+				'http://example.com/blog/wp-admin/post-new.php?',
+			),
+		);
+	}
+
+	/**
+	 * A refused address brings the prompt back with an error and what the reader typed, without counting a share.
+	 */
+	public function test_process_request_shows_the_prompt_again_for_a_refused_address() {
+		$post                 = self::factory()->post->create_and_get();
+		$superglobals         = array( $_POST, $_REQUEST );
+		$_POST                = array(
+			'jetpack-wordpress-destination' => 'site',
+			'jetpack-wordpress-site'        => 'my "site"',
+		);
+		$_REQUEST['_wpnonce'] = wp_create_nonce( Jetpack_WordPress_Modal::NONCE_ACTION );
+		$this->throw_on_redirect();
+
+		$html = '';
+		try {
+			( new Share_WordPress_Block( 'wordpress' ) )->process_request( $post, $_POST ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
+			ob_start();
+			Jetpack_WordPress_Modal::render_modal();
+			$html = (string) ob_get_clean();
+		} finally {
+			list( $_POST, $_REQUEST ) = $superglobals;
+		}
+
+		$this->assertSame( 10, has_action( 'template_redirect', array( Jetpack_WordPress_Modal::class, 'modal' ) ) );
+		$this->assertSame( 0, did_action( 'sharing_bump_stats' ) );
+		$this->assertStringContainsString( 'id="jetpack-wordpress-site-error"', $html );
+
+		$tags = new WP_HTML_Tag_Processor( $html );
+		while ( $tags->next_tag( 'INPUT' ) && 'jetpack-wordpress-site' !== $tags->get_attribute( 'id' ) ) {
+			continue;
+		}
+		$this->assertSame( 'my "site"', $tags->get_attribute( 'value' ) );
+		$this->assertSame( 'true', $tags->get_attribute( 'aria-invalid' ) );
+	}
+
+	/**
+	 * Throwing stops the handler before it sends headers and dies.
+	 */
+	private function throw_on_redirect() {
+		add_filter(
+			'wp_redirect',
+			/**
+			 * @param string $location Redirect location.
+			 * @return never
+			 */
+			function ( $location ) {
+				throw new RuntimeException( $location );
+			}
 		);
 	}
 
@@ -252,7 +303,10 @@ class Sharing_Button_Block_Test extends WP_UnitTestCase {
 	public function test_modal_offers_both_destinations_with_a_nonce() {
 		ob_start();
 		Jetpack_WordPress_Modal::render_modal();
-		$tags = new WP_HTML_Tag_Processor( ob_get_clean() );
+		$html = (string) ob_get_clean();
+		$tags = new WP_HTML_Tag_Processor( $html );
+
+		$this->assertStringNotContainsString( 'id="jetpack-wordpress-site-error"', $html );
 
 		$destinations = array();
 		$nonces       = array();

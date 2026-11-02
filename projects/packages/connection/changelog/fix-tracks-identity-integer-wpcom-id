@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking: Identify a connected user by their WordPress.com ID when it has not been saved yet, instead of falling back to an anonymous ID.

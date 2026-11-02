@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: Make the subscribe pop-up a labelled dialog that takes keyboard focus and keeps Tab inside it until it closes.
