@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Hide the empty "Detected on" heading when the free vulnerability check reports no detection dates.

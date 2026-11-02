@@ -312,17 +312,19 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		[ getItemId ]
 	);
 
+	// The free check reports no detection dates; the column stays for the busy label alone.
+	const hasDates = threats.some( item => item.firstDetected );
 	const fields = useMemo(
 		() => [
 			...getThreatFields( open, {
 				threatLabel: __( 'Vulnerabilities', 'jetpack-protect-pkg' ),
-				dateLabel: __( 'Detected on', 'jetpack-protect-pkg' ),
+				dateLabel: hasDates ? __( 'Detected on', 'jetpack-protect-pkg' ) : '',
 				getDate: item => item.firstDetected ?? '',
 				inline: true,
 			} ),
 			...FILTER_FIELDS,
 		],
-		[ open ]
+		[ open, hasDates ]
 	);
 	const actions = useThreatRowActions( open, canAct, deselect );
 

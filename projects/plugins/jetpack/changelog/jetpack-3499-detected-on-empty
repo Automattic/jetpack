@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Hide the empty "Detected on" heading in the threats list on sites without Scan.

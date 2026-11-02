@@ -32,4 +32,17 @@ describe( 'ThreatsList', () => {
 		expect( screen.getByText( status ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Aug 15, 7:00 AM' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'shows', '2026-08-15T07:00:00Z' ],
+		[ 'hides', undefined ],
+	] )( '%s the Detected on heading by whether threats have dates', ( _, firstDetected ) => {
+		const threat: ScanThreat = {
+			id: 3,
+			title: 'Vulnerable plugin: Contact Form 7 (version 5.3.1)',
+			firstDetected,
+		};
+		render( <ThreatsList threats={ [ threat ] } canAct={ false } /> );
+		expect( !! screen.queryByText( 'Detected on' ) ).toBe( !! firstDetected );
+	} );
 } );
