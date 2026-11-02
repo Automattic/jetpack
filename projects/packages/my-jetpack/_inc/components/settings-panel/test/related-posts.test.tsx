@@ -22,8 +22,8 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( { myJetpack: { siteEditor: { isBlockTheme: mockIsBlockTheme } } } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
-	ModuleToggle: ( { ariaLabelledBy }: { ariaLabelledBy?: string } ) => (
-		<input type="checkbox" aria-labelledby={ ariaLabelledBy } />
+	ModuleToggle: ( { labelledby }: { labelledby?: string } ) => (
+		<input type="checkbox" aria-labelledby={ labelledby } />
 	),
 } ) );
 

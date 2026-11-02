@@ -79,7 +79,7 @@ export function RelatedPostsSettings( { module: $module }: ModuleSettingsProps )
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Show related content after posts', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } ariaLabelledBy={ labelId } />
+				<ModuleToggle module={ $module } labelledby={ labelId } />
 			</Stack>
 
 			<SwitchControl
