@@ -1296,6 +1296,7 @@ export function dockerDefine( yargs ) {
 								describe:
 									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
+								choices: [ 'jetpack', 'jp-multisite', 'jp-wpcomsh', 'wpcomsh' ],
 							} ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
