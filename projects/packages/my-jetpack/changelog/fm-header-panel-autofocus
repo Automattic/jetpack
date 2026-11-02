@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Header: Stop showing a focus ring on the account panel's first link when it is opened with the mouse.

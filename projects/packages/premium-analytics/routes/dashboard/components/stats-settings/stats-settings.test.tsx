@@ -41,9 +41,14 @@ const ROLES = [
 	{ slug: 'editor', name: 'Editor', count: null },
 ];
 
-const setScriptData = ( featuresUrl: string | null ) => {
+const setScriptData = (
+	featuresUrl: string | null,
+	featuresScreen: 'features' | 'modules' | null = null
+) => {
 	window.JetpackScriptData = {
-		premium_analytics: { stats_settings: { roles: ROLES, features_url: featuresUrl } },
+		premium_analytics: {
+			stats_settings: { roles: ROLES, features_url: featuresUrl, features_screen: featuresScreen },
+		},
 	} as typeof window.JetpackScriptData;
 };
 
@@ -171,4 +176,23 @@ describe( 'StatsSettingsPanel', () => {
 
 		expect( screen.queryByText( 'Activation' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'features', 'Jetpack features', 'admin.php?page=my-jetpack#/features?search=stats' ],
+		[ 'modules', 'Jetpack modules', 'admin.php?page=jetpack_modules&s=stats' ],
+	] as const )(
+		'names the %s screen the Activation card links to',
+		( featuresScreen, name, url ) => {
+			useStatsSettingsMock.mockReturnValue( {
+				settings: SETTINGS,
+				isError: false,
+				saveChange: jest.fn(),
+			} );
+			setScriptData( url, featuresScreen );
+
+			render( <StatsSettingsPanel /> );
+
+			expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute( 'href', url );
+		}
+	);
 } );

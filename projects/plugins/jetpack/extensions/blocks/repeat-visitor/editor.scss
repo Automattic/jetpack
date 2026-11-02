@@ -1,10 +1,10 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .wp-block-jetpack-repeat-visitor {
 
 	.components-notice {
 		margin: 1em 0 0;
-		color: gb.$gray-900;
+		color: colors.$gray-900;
 	}
 
 	.components-radio-control__option {
@@ -44,7 +44,7 @@
 	}
 
 	.components-base-control__help {
-		color: gb.$alert-red;
+		color: colors.$alert-red;
 		font-size: 13px;
 	}
 }

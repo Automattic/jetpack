@@ -42,6 +42,8 @@ const buildLlms = ( overrides: Partial< LlmsTxt > = {} ): LlmsTxt => ( {
 	enabled: true,
 	url: 'https://example.test/llms.txt',
 	canServe: true,
+	disabled: false,
+	conflictingPlugin: '',
 	...overrides,
 } );
 
@@ -106,10 +108,26 @@ describe( 'AiCrawlerCard', () => {
 		}
 	);
 
+	it.each( [ true, false ] )(
+		'reports paused Jetpack generation during a plugin conflict (saved: %s)',
+		enabled => {
+			renderCard( {
+				llmsTxt: buildLlms( {
+					disabled: true,
+					conflictingPlugin: 'Yoast SEO',
+					canServe: false,
+					enabled,
+				} ),
+			} );
+			expect(
+				screen.getByText( 'Jetpack llms.txt paused while Yoast SEO is active' )
+			).toHaveAttribute( 'data-status', 'warn' );
+			expect( screen.queryByText( 'llms.txt published' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'still reports llms.txt when the crawler settings are the thing that cannot apply', () => {
-		// `Llms_Txt::maybe_serve()` gates only on the setting and `blog_public`. A static
-		// robots.txt stops the *crawler* settings applying but leaves llms.txt working,
-		// so reporting llms.txt inside the crawler branch hid it on those sites.
+		// Static robots.txt only affects crawler controls, independently of llms.txt availability.
 		renderCard( { crawlers: buildCrawlers( { staticRobotsTxt: true } ) } );
 
 		expect( screen.getByText( /static robots.txt file exists/ ) ).toBeInTheDocument();

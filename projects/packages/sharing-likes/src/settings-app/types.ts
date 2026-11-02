@@ -45,6 +45,9 @@ export interface SharingLikesScriptData {
 	placement_choices: PlacementChoice[];
 	multibyte_supported: boolean;
 	private_site: boolean;
+	/** Whether new posts start with comments closed (Settings > Discussion). */
+	comments_closed_by_default: boolean;
+	discussion_settings_url: string;
 }
 
 /** The two rows of enabled services: shown as buttons, or behind "More". */
@@ -61,6 +64,7 @@ export interface Service {
 	name: string;
 	custom: boolean;
 	deprecated: boolean;
+	legacy?: boolean;
 	url?: string;
 	icon?: string;
 }

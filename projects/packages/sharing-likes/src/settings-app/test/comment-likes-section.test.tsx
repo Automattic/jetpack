@@ -40,7 +40,29 @@ describe( 'CommentLikesSection', () => {
 		}
 	);
 
+	it( 'links to Discussion settings when comments are closed on new posts', () => {
+		setScriptData( { comments_closed_by_default: true } );
+		renderWithData( <CommentLikesSection /> );
+
+		expect( screen.getByText( /Comments are turned off for new posts\./ ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Change this in Discussion settings' } )
+		).toHaveAttribute( 'href', 'https://example.com/wp-admin/options-discussion.php' );
+		// Each post can still turn comments on, so the switch stays usable.
+		expect( screen.getByLabelText( 'Allow readers to like individual comments' ) ).toBeEnabled();
+	} );
+
+	it( 'says nothing about comments when new posts allow them', () => {
+		renderWithData( <CommentLikesSection /> );
+
+		expect( screen.queryByText( /Comments are turned off/ ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Change this in Discussion settings' } )
+		).not.toBeInTheDocument();
+	} );
+
 	it( 'only explains offline mode when Comment Likes cannot run', () => {
+		setScriptData( { comments_closed_by_default: true } );
 		renderWithData( <CommentLikesSection />, {
 			status: { ...baseStatus, comment_likes: { supported: false, follows_likes_settings: false } },
 		} );
@@ -53,5 +75,6 @@ describe( 'CommentLikesSection', () => {
 		expect(
 			screen.queryByLabelText( 'Allow readers to like individual comments' )
 		).not.toBeInTheDocument();
+		expect( screen.queryByText( /Comments are turned off/ ) ).not.toBeInTheDocument();
 	} );
 } );

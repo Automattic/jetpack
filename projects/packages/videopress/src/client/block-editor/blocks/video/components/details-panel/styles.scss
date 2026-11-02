@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 .details-panel__error,
 .not-belong-to-site-notice,
@@ -16,7 +16,7 @@
 
 .incomplete-chapters-notice {
 	margin: 0;
-	margin-block-start: gb.$grid-unit-10;
+	margin-block-start: variables.$grid-unit-10;
 }
 
 .learn-how-notice {

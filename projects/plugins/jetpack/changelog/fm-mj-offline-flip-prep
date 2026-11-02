@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+My Jetpack: Open My Jetpack instead of Settings for administrators on sites in Offline Mode, without connecting to WordPress.com.
