@@ -782,6 +782,37 @@ export const SmallWholeNumberRange: Story = {
 	},
 };
 
+export const TickDecimals: Story = {
+	args: {
+		...Default.args,
+		data: [
+			{
+				label: 'Average order value',
+				data: [ 0.4, 1.2, 2.1, 1.8, 2.4, 2.6 ].map( ( value, month ) => ( {
+					date: new Date( 2026, month, 1 ),
+					value,
+				} ) ),
+			},
+		],
+		options: {
+			axis: {
+				y: { tickDecimals: 0, tickFormat: ( value: number ) => `$${ Math.round( value ) }` },
+			},
+		},
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same; when every value is under a dollar, the axis widens to read $0 and $1.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{

@@ -43,7 +43,12 @@ import { formatReading, isInvalidReading, isReading } from '../private/readings'
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
+import {
+	getTickDecimals,
+	getTickDecimalsDomain,
+	hasOnlyWholeNumbers,
+	WholeNumberTicks,
+} from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -438,12 +443,19 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			() => hasOnlyWholeNumbers( visibleSeries ),
 			[ visibleSeries ]
 		);
+		const yTickDecimals = getTickDecimals( hasWholeNumberValues, options?.axis?.y?.tickDecimals );
 
 		const chartOptions = useMemo( () => {
-			const fallbackYDomain = getFallbackYDomain(
-				visibleReadingExtent,
-				options?.yScale?.type === 'log'
-			);
+			const isLogScale = options?.yScale?.type === 'log';
+			const fallbackYDomain = getFallbackYDomain( visibleReadingExtent, isLogScale );
+			const { tickDecimals, ...yAxisOptions } = options?.axis?.y ?? {};
+			const tickDecimalsDomain =
+				isLogScale || options?.yScale?.domain
+					? undefined
+					: getTickDecimalsDomain(
+							yDomain ?? fallbackYDomain ?? visibleReadingExtent,
+							tickDecimals
+						);
 
 			return {
 				axis: {
@@ -462,7 +474,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
-						...options?.axis?.y,
+						...yAxisOptions,
 					},
 				},
 				xScale: {
@@ -476,6 +488,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					zero: false,
 					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
 					...( yDomain ? { domain: yDomain } : {} ),
+					...( tickDecimalsDomain ? { domain: tickDecimalsDomain } : {} ),
 					...options?.yScale,
 				},
 			};
@@ -670,10 +683,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
 												enabled={
-													hasWholeNumberValues &&
+													yTickDecimals !== undefined &&
 													! chartOptions.axis.y.tickValues &&
 													! options?.yScale?.domain
 												}
+												decimals={ yTickDecimals }
 											>
 												{ tickValues => (
 													<>

@@ -159,6 +159,8 @@ type ChartOptions = {
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
 			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
+			// Value axis only: most decimal places a tick may carry.
+			tickDecimals?: number;
 		};
 	};
 };

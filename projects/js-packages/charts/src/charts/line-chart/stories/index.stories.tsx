@@ -444,6 +444,37 @@ SmallWholeNumberRange.parameters = {
 	},
 };
 
+const centsAmounts: SeriesData[] = [
+	{
+		label: 'Average order value',
+		data: [ 0.4, 1.2, 2.1, 1.8, 2.4, 2.6 ].map( ( value, month ) => ( {
+			date: new Date( 2026, month, 1 ),
+			value,
+		} ) ),
+	},
+];
+
+export const TickDecimals: StoryObj< StoryArgs > = Template.bind( {} );
+TickDecimals.args = {
+	...Default.args,
+	data: centsAmounts,
+	options: {
+		yScale: { zero: true },
+		axis: { y: { tickDecimals: 0, tickFormat: ( value: number ) => `$${ Math.round( value ) }` } },
+	},
+};
+TickDecimals.argTypes = {
+	seriesCount: { table: { disable: true } },
+};
+TickDecimals.parameters = {
+	docs: {
+		description: {
+			story:
+				'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same; when every value is under a dollar, the axis widens to read $0 and $1.',
+		},
+	},
+};
+
 export const WithoutSmoothing: StoryObj< StoryArgs > = Template.bind( {} );
 WithoutSmoothing.args = {
 	...lineChartStoryArgs,

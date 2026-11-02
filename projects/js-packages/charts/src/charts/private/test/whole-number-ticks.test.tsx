@@ -1,5 +1,9 @@
 import { createScale } from '@visx/scale';
-import { getWholeNumberTickValues, hasOnlyWholeNumbers } from '../whole-number-ticks';
+import {
+	getTickDecimalsDomain,
+	getWholeNumberTickValues,
+	hasOnlyWholeNumbers,
+} from '../whole-number-ticks';
 import type { SeriesData } from '../../../types';
 
 const linear = ( domain: [ number, number ] ) =>
@@ -38,6 +42,23 @@ describe( 'getWholeNumberTickValues', () => {
 
 	it( 'leaves a range with only one whole tick to visx', () => {
 		expect( getWholeNumberTickValues( linear( [ 0, 0.8 ] ), 4 ) ).toBeUndefined();
+	} );
+
+	it( 'keeps ticks at the given decimal places', () => {
+		expect( getWholeNumberTickValues( linear( [ 0, 0.025 ] ), 4, 2 ) ).toEqual( [ 0, 0.01, 0.02 ] );
+	} );
+} );
+
+describe( 'getTickDecimalsDomain', () => {
+	it.each( [
+		[ 'widens a range inside one step', [ 0.3, 0.73 ], 0, [ 0, 1 ] ],
+		[ 'widens a range between two steps', [ 1.2, 1.8 ], 0, [ 1, 2 ] ],
+		[ 'widens at two decimals', [ 0.031, 0.034 ], 2, [ 0.03, 0.04 ] ],
+		[ 'widens a flat value on a step', [ 2, 2 ], 0, [ 2, 3 ] ],
+		[ 'keeps a range holding two steps', [ 0, 1.2 ], 0, undefined ],
+		[ 'keeps a range without tickDecimals', [ 0.3, 0.73 ], undefined, undefined ],
+	] )( '%s', ( _, domain, decimals, expected ) => {
+		expect( getTickDecimalsDomain( domain as [ number, number ], decimals ) ).toEqual( expected );
 	} );
 } );
 

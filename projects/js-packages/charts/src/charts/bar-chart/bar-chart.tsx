@@ -27,7 +27,11 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
+import {
+	getTickDecimals,
+	hasOnlyWholeNumbers,
+	WholeNumberTicks,
+} from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
@@ -214,10 +218,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
 	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
+	const valueTickDecimals = getTickDecimals( hasWholeNumberValues, chartOptions.valueTickDecimals );
 	const wholeNumberTicksProps = {
 		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
 		numTicks: valueAxis.numTicks,
-		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
+		enabled: valueTickDecimals !== undefined && ! valueAxis.tickValues && ! callerValueDomain,
+		decimals: valueTickDecimals,
 	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );

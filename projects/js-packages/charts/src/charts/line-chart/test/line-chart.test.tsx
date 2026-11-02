@@ -313,6 +313,32 @@ describe( 'LineChart', () => {
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
 		} );
 
+		test.each( [
+			[ 'small amounts', [ 0.4, 1.2, 2.1, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', [ 0.31, 0.55, 0.73 ], [ '0', '1' ] ],
+		] )( 'holds ticks to tickDecimals for %s', ( _, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { date: new Date( 2024, i + 2, 1 ), value } ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: {
+						y: { tickDecimals: 0, tickFormat: ( value: number ) => `${ Math.round( value ) }` },
+					},
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
 		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
 			renderWithTheme( {
 				defaultHiddenSeries: [ 'Series B' ],

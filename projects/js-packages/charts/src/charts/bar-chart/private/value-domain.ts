@@ -1,3 +1,4 @@
+import { getTickDecimalsDomain } from '../../private/whole-number-ticks';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 
@@ -37,12 +38,14 @@ export const isBarRendered = ( point: DataPoint | DataPointDate | EnhancedDataPo
  * @param data             - Every series handed to the chart.
  * @param includeZero      - Whether the domain must span zero.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @param tickDecimals     - The value axis's `tickDecimals`.
  * @return Value domain, or null when visx should fit its own.
  */
 export const getValueScaleDomain = (
 	data: SeriesData[],
 	includeZero: boolean,
-	isSeriesRendered: ( series: SeriesData ) => boolean
+	isSeriesRendered: ( series: SeriesData ) => boolean,
+	tickDecimals?: number
 ): [ number, number ] | null => {
 	let min = Infinity;
 	let max = -Infinity;
@@ -67,14 +70,13 @@ export const getValueScaleDomain = (
 		return [ ...EMPTY_DOMAIN ];
 	}
 
+	let domain: [ number, number ] | null = null;
 	// A flat series fitted by visx collapses to zero height, so it is anchored at zero regardless.
 	if ( min === max ) {
-		return min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+		domain = min === 0 ? [ ...EMPTY_DOMAIN ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+	} else if ( includeZero ) {
+		domain = [ Math.min( 0, min ), Math.max( 0, max ) ];
 	}
 
-	if ( includeZero ) {
-		return [ Math.min( 0, min ), Math.max( 0, max ) ];
-	}
-
-	return null;
+	return getTickDecimalsDomain( domain ?? [ min, max ], tickDecimals ) ?? domain;
 };

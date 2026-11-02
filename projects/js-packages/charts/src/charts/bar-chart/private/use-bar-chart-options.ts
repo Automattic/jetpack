@@ -165,7 +165,7 @@ export function useBarChartOptions(
 	const stableOptions = useDeepMemo( options );
 	const formatting = useChartFormatting();
 
-	// `labelOverflow` and `tickResolution` are consumed by this hook rather than
+	// `labelOverflow`, `tickResolution` and `tickDecimals` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for neither — and `tickFormat` is merged
 	// with the derived default explicitly, so an `undefined` passed by a caller
 	// cannot clobber it through the spread. They are split off the caller's axis
@@ -175,12 +175,14 @@ export function useBarChartOptions(
 			labelOverflow: xLabelOverflow,
 			tickResolution: xTickResolution,
 			tickFormat: xTickFormat,
+			tickDecimals: xTickDecimals,
 			...xAxisOptions
 		} = stableOptions.axis?.x || {};
 		const {
 			labelOverflow: yLabelOverflow,
 			tickResolution: yTickResolution,
 			tickFormat: yTickFormat,
+			tickDecimals: yTickDecimals,
 			...yAxisOptions
 		} = stableOptions.axis?.y || {};
 
@@ -194,6 +196,7 @@ export function useBarChartOptions(
 			// The dates sit on the x axis normally, and on the y axis when the
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
+			valueTickDecimals: horizontal ? xTickDecimals : yTickDecimals,
 		};
 	}, [ stableOptions, horizontal ] );
 	const { tickResolution } = axisConfig;
@@ -272,7 +275,7 @@ export function useBarChartOptions(
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
 		const domain = valueScaleOptions?.domain
 			? null
-			: getValueScaleDomain( data, includeZero, isSeriesRendered );
+			: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {
@@ -339,6 +342,7 @@ export function useBarChartOptions(
 			tooltip: {
 				labelFormatter: dateAxisTickFormat || defaultTooltipLabelFormatter,
 			},
+			valueTickDecimals: axisConfig.valueTickDecimals,
 		};
 	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered ] );
 }

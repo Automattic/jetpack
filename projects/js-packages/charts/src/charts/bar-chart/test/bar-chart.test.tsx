@@ -550,6 +550,30 @@ describe( 'BarChart', () => {
 			}
 		);
 
+		test.each( [
+			[ 'small amounts', [ 0.4, 1.2, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', [ 0.31, 0.73 ], [ '0', '1' ] ],
+		] )( 'holds value ticks to tickDecimals for %s', ( _, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+					},
+				],
+				options: {
+					axis: {
+						y: { tickDecimals: 0, tickFormat: ( value: number ) => `${ Math.round( value ) }` },
+					},
+				},
+			} );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
 		test( "keeps a caller's value tickValues", () => {
 			renderWithTheme( {
 				data: wholeNumberData,

@@ -520,6 +520,11 @@ export type AxisOptions = {
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
 	tickValues?: ScaleInput< AxisScale >[];
+	/**
+	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never
+	 * repeat. When the data spans less than one step, the axis widens to show two. Line and bar charts only.
+	 */
+	tickDecimals?: number;
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
