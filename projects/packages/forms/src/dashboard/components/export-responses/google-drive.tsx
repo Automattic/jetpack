@@ -83,7 +83,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			.catch( () => {
 				createErrorNotice(
 					__(
-						'Could not export your responses to Google Sheets. Please try again.',
+						'Could not export to Google Sheets. For a large number of responses, download a CSV file instead.',
 						'jetpack-forms'
 					),
 					{ type: 'snackbar', id: noticeId }
