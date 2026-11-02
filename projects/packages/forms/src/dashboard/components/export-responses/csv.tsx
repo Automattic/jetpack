@@ -5,41 +5,121 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
+/**
+ * Internal dependencies
+ */
+import countCsvRows from './count-csv-rows';
 
 const NOTICE_ID = 'jetpack-forms-export-csv';
 
+type DownloadProgress = {
+	bytes: number;
+	/** CSV rows completed so far, header included. */
+	rows: number;
+	/** Responses per second over the last few seconds, or 0 until there is enough data. */
+	rate: number;
+};
+
+const RATE_WINDOW_MS = 3000;
+
 /**
- * Reads a response body into a Blob, reporting how many bytes have arrived so far.
+ * Reads a response body into a Blob, reporting progress after each chunk.
  *
- * @param {Response}                response   - The export response.
- * @param {(bytes: number) => void} onProgress - Called after each chunk.
+ * @param {Response}                             response   - The export response.
+ * @param {(progress: DownloadProgress) => void} onProgress - Called after each chunk.
  * @return {Promise<Blob>} The whole body.
  */
 async function readWithProgress(
 	response: Response,
-	onProgress: ( bytes: number ) => void
+	onProgress: ( progress: DownloadProgress ) => void
 ): Promise< Blob > {
 	if ( ! response.body ) {
 		return response.blob();
 	}
 	const reader = response.body.getReader();
 	const chunks: BlobPart[] = [];
-	let received = 0;
+	let bytes = 0;
+	let count = { rows: 0, inQuotes: false };
+	// A recent window, not the whole download: the first seconds trickle in and would skew the rate.
+	const samples: { time: number; rows: number }[] = [];
 	for (;;) {
 		const { done, value } = await reader.read();
 		if ( done ) {
 			break;
 		}
 		chunks.push( value as Uint8Array< ArrayBuffer > );
-		received += value.length;
-		onProgress( received );
+		bytes += value.length;
+		count = countCsvRows( value, count );
+
+		const now = Date.now();
+		samples.push( { time: now, rows: count.rows } );
+		while ( samples.length > 1 && now - samples[ 1 ].time >= RATE_WINDOW_MS ) {
+			samples.shift();
+		}
+		const span = now - samples[ 0 ].time;
+		const rate = span >= 2000 ? ( ( count.rows - samples[ 0 ].rows ) * 1000 ) / span : 0;
+		onProgress( { bytes, rows: count.rows, rate } );
 	}
 	return new Blob( chunks, { type: response.headers.get( 'Content-Type' ) ?? 'text/csv' } );
+}
+
+/**
+ * Describes how far a download has got: a percentage of responses when the total is known, otherwise megabytes.
+ *
+ * @param {DownloadProgress|null} progress - Progress so far, or null before the first byte.
+ * @param {number}                total    - Responses in the export, or 0 when unknown.
+ * @return {string} The progress copy.
+ */
+function getProgressLabel( progress: DownloadProgress | null, total: number ): string {
+	if ( ! progress ) {
+		return __( 'Preparing your export…', 'jetpack-forms' );
+	}
+	if ( ! total ) {
+		return sprintf(
+			/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
+			__( '%s MB downloaded', 'jetpack-forms' ),
+			( progress.bytes / 1000000 ).toFixed( 1 )
+		);
+	}
+
+	const done = Math.max( 0, progress.rows - 1 );
+	const percent = Math.min( 99, Math.floor( ( done / total ) * 100 ) );
+	// The stream speeds up over its first seconds, so earlier estimates run long.
+	if ( ! progress.rate || percent < 10 ) {
+		/* translators: %d: percentage of responses downloaded so far */
+		return sprintf( __( '%d%% downloaded', 'jetpack-forms' ), percent );
+	}
+
+	const secondsLeft = ( total - done ) / progress.rate;
+	if ( secondsLeft < 5 ) {
+		/* translators: %d: percentage of responses downloaded so far */
+		return sprintf( __( '%d%% downloaded, almost done', 'jetpack-forms' ), percent );
+	}
+	if ( secondsLeft < 60 ) {
+		return sprintf(
+			/* translators: 1: percentage of responses downloaded so far, 2: seconds left, a multiple of 5 */
+			__( '%1$d%% downloaded, about %2$d seconds left', 'jetpack-forms' ),
+			percent,
+			Math.ceil( secondsLeft / 5 ) * 5
+		);
+	}
+	const minutes = Math.round( secondsLeft / 60 );
+	return sprintf(
+		/* translators: 1: percentage of responses downloaded so far, 2: minutes left */
+		_n(
+			'%1$d%% downloaded, about %2$d minute left',
+			'%1$d%% downloaded, about %2$d minutes left',
+			minutes,
+			'jetpack-forms'
+		),
+		percent,
+		minutes
+	);
 }
 
 const CSVExport = ( { onExport } ) => {
@@ -47,7 +127,8 @@ const CSVExport = ( { onExport } ) => {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const [ isDownloading, setIsDownloading ] = useState( false );
 	const [ isDone, setIsDone ] = useState( false );
-	const [ receivedBytes, setReceivedBytes ] = useState( 0 );
+	const [ progress, setProgress ] = useState< DownloadProgress | null >( null );
+	const [ total, setTotal ] = useState( 0 );
 
 	const downloadCSV = useCallback( async () => {
 		if ( isDownloading ) {
@@ -60,7 +141,8 @@ const CSVExport = ( { onExport } ) => {
 
 		setIsDownloading( true );
 		setIsDone( false );
-		setReceivedBytes( 0 );
+		setProgress( null );
+		setTotal( 0 );
 		createInfoNotice( __( 'Preparing your export…', 'jetpack-forms' ), {
 			type: 'snackbar',
 			id: NOTICE_ID,
@@ -71,7 +153,8 @@ const CSVExport = ( { onExport } ) => {
 			if ( ! response.ok ) {
 				throw new Error( response.statusText );
 			}
-			const blob = await readWithProgress( response, setReceivedBytes );
+			setTotal( Number( response.headers.get( 'X-Jetpack-Forms-Export-Count' ) ) || 0 );
+			const blob = await readWithProgress( response, setProgress );
 
 			const a = document.createElement( 'a' );
 			a.href = window.URL.createObjectURL( blob );
@@ -142,13 +225,7 @@ const CSVExport = ( { onExport } ) => {
 					{ isDownloading && (
 						<span className="jp-forms__export-modal-card-progress">
 							<Spinner />
-							{ receivedBytes > 0
-								? sprintf(
-										/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
-										__( '%s MB downloaded', 'jetpack-forms' ),
-										( receivedBytes / 1000000 ).toFixed( 1 )
-									)
-								: __( 'Preparing your export…', 'jetpack-forms' ) }
+							{ getProgressLabel( progress, total ) }
 						</span>
 					) }
 					{ isDone && ! isDownloading && (
