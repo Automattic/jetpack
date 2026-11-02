@@ -450,7 +450,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			const fallbackYDomain = getFallbackYDomain( visibleReadingExtent, isLogScale );
 			const { tickDecimals, ...yAxisOptions } = options?.axis?.y ?? {};
 			const tickDecimalsDomain =
-				isLogScale || options?.yScale?.domain
+				isLogScale || options?.yScale?.domain || yAxisOptions.tickValues
 					? undefined
 					: getTickDecimalsDomain(
 							yDomain ?? fallbackYDomain ?? visibleReadingExtent,

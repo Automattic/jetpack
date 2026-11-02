@@ -340,6 +340,32 @@ describe( 'LineChart', () => {
 			expect( ticks.sort() ).toEqual( expected );
 		} );
 
+		test( "leaves a caller's tickValues axis unwidened by tickDecimals", () => {
+			const linePath = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.55, 0.73 ].map( ( value, i ) => ( {
+								date: new Date( 2024, i + 2, 1 ),
+								value,
+							} ) ),
+						},
+					],
+					options: { axis: { y } },
+				} );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
+				// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">.
+				const d = chart.querySelector( 'path.visx-line' )?.getAttribute( 'd' );
+				unmount();
+				return d;
+			};
+
+			expect( linePath( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toBe(
+				linePath( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
+
 		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
 			renderWithTheme( {
 				defaultHiddenSeries: [ 'Series B' ],

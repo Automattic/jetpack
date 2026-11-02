@@ -575,6 +575,27 @@ describe( 'BarChart', () => {
 			expect( ticks.sort() ).toEqual( expected );
 		} );
 
+		test( "leaves a caller's value tickValues axis unwidened by tickDecimals", () => {
+			const barHeights = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+						},
+					],
+					options: { yScale: { zero: false }, axis: { y } },
+				} );
+				const heights = Array.from( getBarRects(), rect => rect.getAttribute( 'height' ) );
+				unmount();
+				return heights;
+			};
+
+			expect( barHeights( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toEqual(
+				barHeights( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
+
 		test( "keeps a caller's value tickValues", () => {
 			renderWithTheme( {
 				data: wholeNumberData,

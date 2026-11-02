@@ -166,7 +166,7 @@ export function useBarChartOptions(
 	const formatting = useChartFormatting();
 
 	// `labelOverflow`, `tickResolution` and `tickDecimals` are consumed by this hook rather than
-	// forwarded — visx has an axis prop for neither — and `tickFormat` is merged
+	// forwarded — visx has an axis prop for none of them — and `tickFormat` is merged
 	// with the derived default explicitly, so an `undefined` passed by a caller
 	// cannot clobber it through the spread. They are split off the caller's axis
 	// options once, here, and only the rest reaches visx below.
@@ -185,6 +185,9 @@ export function useBarChartOptions(
 			tickDecimals: yTickDecimals,
 			...yAxisOptions
 		} = stableOptions.axis?.y || {};
+		const [ valueAxisOptions, valueTickDecimals ] = horizontal
+			? [ xAxisOptions, xTickDecimals ]
+			: [ yAxisOptions, yTickDecimals ];
 
 		return {
 			xLabelOverflow,
@@ -196,7 +199,8 @@ export function useBarChartOptions(
 			// The dates sit on the x axis normally, and on the y axis when the
 			// chart is horizontal, so the hint follows them.
 			tickResolution: horizontal ? yTickResolution : xTickResolution,
-			valueTickDecimals: horizontal ? xTickDecimals : yTickDecimals,
+			// A caller's own `tickValues` turn `tickDecimals` off, domain widening included.
+			valueTickDecimals: valueAxisOptions.tickValues ? undefined : valueTickDecimals,
 		};
 	}, [ stableOptions, horizontal ] );
 	const { tickResolution } = axisConfig;
