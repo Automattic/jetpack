@@ -81,8 +81,7 @@ export const getTickDecimalsDomain = (
 		return undefined;
 	}
 	const low = Math.floor( min * scale + EPSILON );
-	const high = Math.max( Math.ceil( max * scale - EPSILON ), low + 1 );
-	return [ low / scale, high / scale ];
+	return [ low / scale, Math.ceil( max * scale - EPSILON ) / scale ];
 };
 
 /**

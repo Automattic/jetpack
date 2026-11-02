@@ -208,6 +208,16 @@ describe( 'ComparativeBarChart', () => {
 		);
 	} );
 
+	it( "holds store money ticks to the store's decimals", () => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
+		} as unknown as typeof window.JetpackScriptData;
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
+		delete window.JetpackScriptData;
+
+		expect( recordedOptions().axis.y.tickDecimals ).toBe( 3 );
+	} );
+
 	it( 'passes no x tickFormat when no tick format is requested', () => {
 		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 

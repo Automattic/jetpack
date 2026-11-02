@@ -314,9 +314,10 @@ describe( 'LineChart', () => {
 		} );
 
 		test.each( [
-			[ 'small amounts', [ 0.4, 1.2, 2.1, 2.6 ], [ '0', '1', '2' ] ],
-			[ 'amounts under one step', [ 0.31, 0.55, 0.73 ], [ '0', '1' ] ],
-		] )( 'holds ticks to tickDecimals for %s', ( _, values, expected ) => {
+			[ 'small amounts', 0, [ 0.4, 1.2, 2.1, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', 0, [ 0.31, 0.55, 0.73 ], [ '0', '1' ] ],
+			[ 'cents', 2, [ 0.4, 1.2, 1.6 ], [ '0.00', '0.50', '1.00', '1.50' ] ],
+		] )( 'holds ticks to tickDecimals for %s', ( _, tickDecimals, values, expected ) => {
 			renderWithTheme( {
 				data: [
 					{
@@ -327,7 +328,7 @@ describe( 'LineChart', () => {
 				options: {
 					yScale: { zero: true },
 					axis: {
-						y: { tickDecimals: 0, tickFormat: ( value: number ) => `${ Math.round( value ) }` },
+						y: { tickDecimals, tickFormat: ( value: number ) => value.toFixed( tickDecimals ) },
 					},
 				},
 			} );

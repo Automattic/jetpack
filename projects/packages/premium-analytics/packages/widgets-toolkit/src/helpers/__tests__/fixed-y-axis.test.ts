@@ -81,12 +81,12 @@ describe( 'getYTickDecimals', () => {
 	} );
 
 	it.each( [
-		[ 'store money', 'currency', undefined, 0 ],
+		[ 'store money', 'currency', undefined, 2 ],
 		[ 'money in its own currency', 'currency', 'USD', undefined ],
 		[ 'a count', 'number', undefined, undefined ],
 	] )( 'holds %s to the right decimals', ( _, metricType, currencyCode, expected ) => {
 		window.JetpackScriptData = {
-			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 0 } },
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 2 } },
 		} as unknown as typeof window.JetpackScriptData;
 
 		expect( getYTickDecimals( metricType, currencyCode ) ).toBe( expected );

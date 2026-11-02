@@ -711,7 +711,7 @@ When every visible value is a whole number, the value axis places ticks only on 
 
 <Canvas of={ LineChartStories.SmallWholeNumberRange } />
 
-When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When every value fits inside one step, the axis widens to show two ticks.
+When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When fewer than two steps fall inside the values' range, the axis widens to show two ticks. A pinned value domain or `tickValues` turns the option off.
 
 <Canvas of={ LineChartStories.TickDecimals } />
 
