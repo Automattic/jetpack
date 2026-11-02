@@ -4,7 +4,6 @@
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -34,22 +33,6 @@ const VISITORS: MetricTab = {
 	counterpartKey: 'views',
 };
 
-function Wrapper() {
-	const [ shown, setShown ] = useState( false );
-
-	return (
-		<GlobalChartsProvider>
-			<MetricTabsChart
-				metrics={ [ VIEWS, VISITORS ] }
-				dataFormat={ DATA_FORMAT }
-				chartType="bar"
-				defaultPreviousPeriodShown={ shown }
-				onPreviousPeriodShownChange={ setShown }
-			/>
-		</GlobalChartsProvider>
-	);
-}
-
 describe( 'MetricTabsChart previous-period toggle', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -59,21 +42,26 @@ describe( 'MetricTabsChart previous-period toggle', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'keeps the previous period the reader last chose across metric tabs', async () => {
+	it( "passes the previous period and its callback to each metric's bar chart", async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render( <Wrapper /> );
+		const onPreviousPeriodShownChange = jest.fn();
+		render(
+			<GlobalChartsProvider>
+				<MetricTabsChart
+					metrics={ [ VIEWS, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					chartType="bar"
+					previousPeriodShown
+					onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
+				/>
+			</GlobalChartsProvider>
+		);
 		const previousPeriodItem = () => screen.getByLabelText( /^Previous period/ );
-
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
-		await user.click( previousPeriodItem() );
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'true' );
 
 		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
 		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'true' );
-		await user.click( previousPeriodItem() );
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
 
-		await user.click( screen.getByRole( 'tab', { name: /Views/ } ) );
-		expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', 'false' );
+		await user.click( previousPeriodItem() );
+		expect( onPreviousPeriodShownChange ).toHaveBeenCalledWith( false );
 	} );
 } );
