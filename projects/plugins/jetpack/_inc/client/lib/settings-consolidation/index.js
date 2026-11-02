@@ -9,3 +9,20 @@ import { getScriptData } from '@automattic/jetpack-script-data';
  */
 export const isSettingsConsolidationEnabled = () =>
 	Boolean( getScriptData()?.myJetpack?.settingsConsolidation );
+
+/**
+ * Modules whose Settings card is gone once settings move out, so a search for them finds nothing here.
+ *
+ * @return {string[]} Module slugs, none while the flag is off.
+ */
+export function getMovedOutModules() {
+	return isSettingsConsolidationEnabled() ? [ 'earn' ] : [];
+}
+
+/**
+ * Whether a module's Settings card is gone once settings move out.
+ *
+ * @param {string} module - Module slug.
+ * @return {boolean} True when the card no longer renders.
+ */
+export const isMovedOut = module => getMovedOutModules().includes( module );
