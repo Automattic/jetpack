@@ -14,10 +14,10 @@ interface useConnectSiteProps {
 		event: TracksEvent;
 		properties: TracksProperties;
 	};
-	skipPricing?: boolean;
+	from?: string;
 }
 
-const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
+const useConnectSite = ( { tracksInfo, from }: useConnectSiteProps ) => {
 	const { event, properties: tracksEventData } = tracksInfo;
 
 	const { setNotice, resetNotice } = useContext( NoticeContext );
@@ -26,16 +26,17 @@ const useConnectSite = ( { tracksInfo }: useConnectSiteProps ) => {
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
 
 	const { siteSuffix, adminUrl, myJetpackCheckoutUri } = getMyJetpackWindowInitialState();
-	const redirectUri = `&redirect_to=${ myJetpackCheckoutUri }`;
+	const redirectToQuery = `&redirect_to=${ myJetpackCheckoutUri }`;
 
 	const connectAfterCheckoutUrl = `?connect_after_checkout=true&admin_url=${ encodeURIComponent(
 		adminUrl
 	) }&from_site_slug=${ siteSuffix }&source=my-jetpack`;
-	const query = `${ connectAfterCheckoutUrl }${ redirectUri }&unlinked=1`;
+	const query = `${ connectAfterCheckoutUrl }${ redirectToQuery }&unlinked=1`;
 	const jetpackPlansPath = getRedirectUrl( 'jetpack-my-jetpack-site-only-plans', { query } );
+	// No redirectUri: registering must not navigate, so checkout below is the only navigation.
 	const { handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri,
+		from,
 	} );
 
 	const connectSite = useCallback(
