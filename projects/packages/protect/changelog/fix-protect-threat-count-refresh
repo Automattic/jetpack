@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Update the menu badge and admin bar threat count as soon as threats are fixed, ignored, or deleted.

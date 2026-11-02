@@ -7,18 +7,21 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { PanelBody, RangeControl } from '@wordpress/components';
+import { PanelBody, RangeControl, SelectControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
+import ServerPreview from '../../channel/server-preview';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from '../playlist/inspector-controls';
 import usePublishTracking from '../playlist/use-publish-tracking';
 import { LATEST_VIDEOS_PLAYLIST_CONTEXT } from './context';
 import {
 	clampVideoCount,
 	fetchLatestVideos,
+	MAX_PAGED_VIDEO_COUNT,
 	MAX_VIDEO_COUNT,
 	MIN_VIDEO_COUNT,
 } from './fetch-latest-videos';
@@ -26,7 +29,7 @@ import {
  * Types
  */
 import type { LatestVideosPlaylistContext, LatestVideosStatus } from './context';
-import type { LatestVideosPlaylistAttributes } from './types';
+import type { LatestVideosOrder, LatestVideosPlaylistAttributes } from './types';
 import type { PlaylistEntry } from '../playlist/types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
@@ -52,7 +55,16 @@ export default function LatestVideosPlaylistEdit( {
 	setAttributes,
 	clientId,
 }: BlockEditProps< LatestVideosPlaylistAttributes > ) {
-	const { count, layout } = attributes;
+	const { count, layout, orderBy, showBrowseControls, pagination, excludeCurrent, showMeta } =
+		attributes;
+	const maxCount = 'numbered' === pagination ? MAX_PAGED_VIDEO_COUNT : MAX_VIDEO_COUNT;
+	// The canvas only knows the newest videos; anything else previews the site's own render.
+	const isServerPreview =
+		( !! orderBy && 'newest' !== orderBy ) ||
+		!! showBrowseControls ||
+		'numbered' === pagination ||
+		!! excludeCurrent ||
+		!! showMeta;
 
 	const [ videos, setVideos ] = useState< PlaylistEntry[] >( [] );
 	const [ status, setStatus ] = useState< LatestVideosStatus >( 'loading' );
@@ -93,7 +105,7 @@ export default function LatestVideosPlaylistEdit( {
 		[ videos, status, attributes ]
 	);
 
-	const innerBlocksProps = useInnerBlocksProps(
+	const { children: innerBlocks, ...wrapperProps } = useInnerBlocksProps(
 		useBlockProps( { className: 'videopress-latest-videos-playlist' } ),
 		{ template: TEMPLATE, templateLock: 'all', renderAppender: false }
 	);
@@ -105,11 +117,67 @@ export default function LatestVideosPlaylistEdit( {
 					<RangeControl
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
-						label={ __( 'Number of videos', 'jetpack-videopress-pkg' ) }
+						label={
+							'numbered' === pagination
+								? __( 'Videos per page', 'jetpack-videopress-pkg' )
+								: _x( 'Number of videos', '', 'jetpack-videopress-pkg' )
+						}
 						min={ MIN_VIDEO_COUNT }
-						max={ MAX_VIDEO_COUNT }
-						value={ clampVideoCount( count ) }
-						onChange={ ( value?: number ) => setAttributes( { count: clampVideoCount( value ) } ) }
+						max={ maxCount }
+						value={ clampVideoCount( count, maxCount ) }
+						onChange={ ( value?: number ) =>
+							setAttributes( { count: clampVideoCount( value, maxCount ) } )
+						}
+					/>
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						label={ __( 'Order', 'jetpack-videopress-pkg' ) }
+						value={ orderBy ?? 'newest' }
+						options={ [
+							{ value: 'newest', label: __( 'Newest first', 'jetpack-videopress-pkg' ) },
+							{ value: 'popular', label: __( 'Most viewed first', 'jetpack-videopress-pkg' ) },
+							{ value: 'oldest', label: __( 'Oldest first', 'jetpack-videopress-pkg' ) },
+						] }
+						onChange={ value => setAttributes( { orderBy: value as LatestVideosOrder } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Search, sort and length filters', 'jetpack-videopress-pkg' ) }
+						checked={ !! showBrowseControls }
+						onChange={ ( value: boolean ) => setAttributes( { showBrowseControls: value } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Numbered pages', 'jetpack-videopress-pkg' ) }
+						checked={ 'numbered' === pagination }
+						onChange={ ( value: boolean ) =>
+							setAttributes( {
+								pagination: value ? 'numbered' : 'none',
+								count: clampVideoCount( count, value ? MAX_PAGED_VIDEO_COUNT : MAX_VIDEO_COUNT ),
+							} )
+						}
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Views and upload date', 'jetpack-videopress-pkg' ) }
+						checked={ !! showMeta }
+						onChange={ ( value: boolean ) => setAttributes( { showMeta: value } ) }
+					/>
+					<EmptyStateControl
+						kind="videos"
+						value={ attributes.emptyState }
+						onChange={ emptyState => setAttributes( { emptyState } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Hide the video being viewed', 'jetpack-videopress-pkg' ) }
+						help={ __(
+							'For channel video pages, e.g. an “Up next” list.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ !! excludeCurrent }
+						onChange={ ( value: boolean ) => setAttributes( { excludeCurrent: value } ) }
 					/>
 					<p className="videopress-playlist-editor__help">
 						{ __(
@@ -124,7 +192,21 @@ export default function LatestVideosPlaylistEdit( {
 			<PlaylistStylesControls attributes={ attributes } setAttributes={ setAttributes } />
 
 			<BlockContextProvider value={ context }>
-				<div { ...innerBlocksProps } />
+				<div { ...wrapperProps }>
+					{ isServerPreview && (
+						<ServerPreview
+							block="videopress/latest-videos-playlist"
+							attributes={ attributes }
+							label={ __( 'Latest Videos Playlist', 'jetpack-videopress-pkg' ) }
+							emptyInstructions={ __(
+								'Upload a VideoPress video to see it here.',
+								'jetpack-videopress-pkg'
+							) }
+						/>
+					) }
+					{ /* The locked inner playlist stays in the tree so the saved markup keeps it. */ }
+					<div hidden={ isServerPreview }>{ innerBlocks }</div>
+				</div>
 			</BlockContextProvider>
 		</>
 	);

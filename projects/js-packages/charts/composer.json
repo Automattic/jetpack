@@ -26,7 +26,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/charts/compare/v${old}...v${new}"

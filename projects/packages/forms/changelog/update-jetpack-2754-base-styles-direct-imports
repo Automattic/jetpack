@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Import @wordpress/base-styles modules directly instead of through the jetpack-base-styles wrapper. No change to the built CSS.
+
+

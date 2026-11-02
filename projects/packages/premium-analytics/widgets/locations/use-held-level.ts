@@ -31,7 +31,7 @@ export default function useHeldLevel< Row >( {
 	isLoading,
 	drillDepth,
 	reportParams,
-}: HeldLevelArgs< Row > ): Level< Row > & { isHeld: boolean } {
+}: HeldLevelArgs< Row > ): Level< Row > & { isHeld: boolean; drillDepth: number } {
 	const paramsKey = JSON.stringify( reportParams );
 	const [ settled, setSettled ] = useState< SettledLevel< Row > | null >( null );
 
@@ -53,8 +53,13 @@ export default function useHeldLevel< Row >( {
 		drillDepth > settled.drillDepth &&
 		settled.data.length > 0
 	) {
-		return { data: settled.data, hasComparison: settled.hasComparison, isHeld: true };
+		return {
+			data: settled.data,
+			hasComparison: settled.hasComparison,
+			isHeld: true,
+			drillDepth: settled.drillDepth,
+		};
 	}
 
-	return { data, hasComparison, isHeld: false };
+	return { data, hasComparison, isHeld: false, drillDepth };
 }

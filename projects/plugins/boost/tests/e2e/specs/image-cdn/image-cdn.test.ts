@@ -23,7 +23,9 @@ test.describe( 'Image CDN', () => {
 		await jetpackBoostPage.visit();
 
 		await expect(
-			page.getByRole( 'button', { name: 'Auto-resize lazy images and' } ),
+			page
+				.getByTestId( 'module-image_cdn' )
+				.getByText( 'Auto-resize lazy images and adjust their quality.' ),
 			'Image CDN upgrade section should be visible'
 		).toBeHidden();
 	} );
@@ -54,7 +56,9 @@ test.describe( 'Image CDN', () => {
 		await jetpackBoostPage.visit();
 
 		await expect(
-			page.getByRole( 'button', { name: 'Auto-resize lazy images and' } ),
+			page
+				.getByTestId( 'module-image_cdn' )
+				.getByText( 'Auto-resize lazy images and adjust their quality.' ),
 			'Image CDN upgrade section should be visible'
 		).toBeVisible();
 	} );

@@ -1472,6 +1472,10 @@ That was a cool video.';
 	 */
 	#[DataProvider( 'provider_jetpack_published_post_no_action' )]
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
+		// WP Core from r64402 adds this function which fatals when the action is passed invalid values. Unhook it for this test.
+		// @todo If they fix that upstream to no longer fatal, we could drop this.
+		remove_action( 'wp_after_insert_post', 'wp_random_content_flush_rewrite_rules_for_post' );
+
 		$this->server_event_storage->reset();
 		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 

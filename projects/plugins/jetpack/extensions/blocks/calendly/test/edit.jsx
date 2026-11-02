@@ -59,6 +59,7 @@ describe( 'CalendlyEdit', () => {
 		createErrorNotice.mockClear();
 		removeAllNotices.mockClear();
 		setAttributes.mockClear();
+		testEmbedUrl.mockClear();
 	} );
 
 	test( 'validates block attributes', () => {
@@ -101,6 +102,19 @@ describe( 'CalendlyEdit', () => {
 
 			expect( removeAllNotices ).toHaveBeenCalled();
 			expect( createErrorNotice ).toHaveBeenCalled();
+		} );
+
+		// The embed-code regex accepts this host; the allowlist does not.
+		test( 'displays error notice and skips the server check for a host outside the allowlist', async () => {
+			const user = userEvent.setup();
+			render( <CalendlyEdit { ...propsWithoutUrl } /> );
+
+			await user.click( screen.getByPlaceholderText( 'Calendly web address or embed code…' ) );
+			await user.paste( 'https://calendly.com.other.example.com/username' );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+
+			expect( createErrorNotice ).toHaveBeenCalled();
+			expect( testEmbedUrl ).not.toHaveBeenCalled();
 		} );
 
 		test( 'parsed embed code is tested before updating attributes', async () => {
@@ -163,5 +177,28 @@ describe( 'CalendlyEdit', () => {
 		expect( link ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( link.parentElement ).toHaveClass( 'wp-block-jetpack-calendly-learn-more' );
+	} );
+
+	describe( 'does not embed stored urls that are not allowed', () => {
+		test.each( [
+			[ 'javascript scheme', 'javascript:void(0)' ],
+			[ 'mixed-case javascript scheme', 'JavaScript:void(0)' ],
+			[ 'leading-whitespace javascript scheme', '  javascript:void(0)' ],
+			[ 'data scheme', 'data:text/html,<p>hello</p>' ],
+			[ 'non-Calendly https host', 'https://other.example.com/username' ],
+			[ 'longer host with the same prefix', 'https://calendly.com.other.example.com/username' ],
+		] )( 'does not render an iframe for %s', async ( _label, url ) => {
+			const attributes = { ...defaultAttributes, url };
+			render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
+
+			expect( screen.queryByTitle( 'Calendly' ) ).not.toBeInTheDocument();
+			expect(
+				screen.getByPlaceholderText( 'Calendly web address or embed code…' )
+			).toBeInTheDocument();
+			// The value is rejected without the server round-trip.
+			expect( testEmbedUrl ).not.toHaveBeenCalledWith( url, expect.anything() );
+			await waitFor( () => expect( setAttributes ).toHaveBeenCalledWith( { url: undefined } ) );
+			expect( createErrorNotice ).toHaveBeenCalled();
+		} );
 	} );
 } );

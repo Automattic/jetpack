@@ -15,7 +15,7 @@ use Automattic\Jetpack\VideoPress\Analytics_Dashboard;
 /**
  * Whether the site's plan includes VideoPress, and the package that owns the widget is here.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @return bool
  */
@@ -28,7 +28,7 @@ function wpcom_premium_analytics_site_has_videopress() {
 /**
  * Register the Top videos widget type on a site whose plan includes VideoPress.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param \Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry $registry The registry being hydrated.
  * @return void
@@ -44,7 +44,7 @@ function wpcom_premium_analytics_register_videopress_widget_types( $registry ) {
 /**
  * Seed the Top videos instance into the Traffic default layout on a site whose plan includes VideoPress.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param array  $layout     The section's default widget instances.
  * @param string $section_id Namespaced section identifier.

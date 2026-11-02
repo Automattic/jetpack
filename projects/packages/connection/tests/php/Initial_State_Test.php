@@ -145,6 +145,13 @@ class Initial_State_Test extends TestCase {
 			array(
 				'id'          => $owner_id,
 				'displayName' => 'Connection Owner',
+				'avatar'      => get_avatar_url(
+					$owner_id,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
 			),
 			$data['connectionOwner']
 		);

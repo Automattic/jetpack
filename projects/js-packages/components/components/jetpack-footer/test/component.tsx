@@ -92,23 +92,8 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'should link to the products tab My Jetpack publishes', () => {
-			window.JetpackScriptData = {
-				site: { admin_url: '/wp-admin/' },
-				myJetpack: { isAvailable: true, productsSection: { slug: 'features', label: 'Features' } },
-			} as unknown as typeof window.JetpackScriptData;
-
-			render( <JetpackFooter /> );
-
-			expect( screen.getByRole( 'link', { name: 'Features' } ) ).toHaveAttribute(
-				'href',
-				'/wp-admin/admin.php?page=my-jetpack#/features'
-			);
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
 		} );
 
 		it.each( [ undefined, false ] )( 'hides unavailable My Jetpack links (%s)', isAvailable => {
@@ -116,7 +101,7 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter menu={ menu } /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Link' } ) ).toBeInTheDocument();
 		} );
@@ -126,7 +111,7 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 		} );
 
@@ -135,9 +120,9 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.getByRole( 'link', { name: 'Products' } ) ).toHaveAttribute(
+			expect( screen.getByRole( 'link', { name: 'Features' } ) ).toHaveAttribute(
 				'href',
-				'/wp-admin/admin.php?page=my-jetpack#/products'
+				'/wp-admin/admin.php?page=my-jetpack#/features'
 			);
 			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toHaveAttribute(
 				'href',
@@ -150,7 +135,7 @@ describe( 'JetpackFooter', () => {
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 		} );
 

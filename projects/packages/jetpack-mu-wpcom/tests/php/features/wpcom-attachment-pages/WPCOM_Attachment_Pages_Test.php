@@ -98,16 +98,10 @@ class WPCOM_Attachment_Pages_Test extends \WorDBless\BaseTestCase {
 	public function test_wpcom_attachment_pages_settings_init() {
 		wpcom_attachment_pages_settings_init();
 
-		$expected_settings = array(
-			'type'              => 'string',
-			'group'             => 'media',
-			'label'             => '',
-			'description'       => '',
-			'sanitize_callback' => 'wpcom_attachment_pages_setting_sanitization',
-			'show_in_rest'      => false,
-		);
+		$setting = $GLOBALS['wp_registered_settings']['wp_attachment_pages_enabled'];
 
-		$this->assertSame( $expected_settings, $GLOBALS['wp_registered_settings']['wp_attachment_pages_enabled'] );
+		$this->assertSame( 'media', $setting['group'] );
+		$this->assertSame( 'wpcom_attachment_pages_setting_sanitization', $setting['sanitize_callback'] );
 		$this->assertTrue( isset( $GLOBALS['wp_settings_sections']['media']['wpcom_attachment_pages'] ) );
 	}
 }

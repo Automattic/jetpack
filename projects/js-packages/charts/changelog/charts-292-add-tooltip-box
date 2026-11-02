@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add `TooltipBox`, the chart tooltip box, and `XYChartTooltip`, the new name for `AccessibleTooltip`.

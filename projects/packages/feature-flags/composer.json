@@ -38,7 +38,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-feature-flags",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-feature-flags/compare/v${old}...v${new}"

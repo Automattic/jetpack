@@ -1,5 +1,4 @@
 export {
-	combineStatsNormalizedReports,
 	flattenStatsLeaves,
 	getStatsReportItems,
 	mergeStatsComparisonRows,
@@ -44,7 +43,6 @@ export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
-	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
@@ -68,6 +66,7 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
+export { sanitizeStatsAuthorResponse } from './author';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
 export type { StatsSummaryResponse } from './summary';

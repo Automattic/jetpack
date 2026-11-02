@@ -1,6 +1,6 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -79,14 +79,14 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	if ( href && ! isDisabled && ! isLoading ) {
 		return (
-			<LinkButton
+			<ButtonLink
 				variant="solid"
 				href={ href }
 				openInNewTab={ isExternalLink }
 				onClick={ mainCheckoutRedirect }
 			>
 				{ label }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 

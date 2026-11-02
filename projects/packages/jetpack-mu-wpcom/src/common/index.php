@@ -82,3 +82,34 @@ function wpcom_record_tracks_event( $event_name, $event_properties ) {
 		tracks_record_event( get_current_user_id(), $event_name, $event_properties );
 	}
 }
+
+/**
+ * The Calypso launch-flow URL for this site.
+ *
+ * @param array $args Query args to add, or to override `siteSlug` and `ref` with.
+ * @return string
+ */
+function wpcom_get_launch_site_url( array $args = array() ): string {
+	$args = array_merge(
+		array(
+			'siteSlug' => (string) wp_parse_url( home_url(), PHP_URL_HOST ),
+			'ref'      => 'wp-admin',
+		),
+		$args
+	);
+
+	return add_query_arg( array_map( 'rawurlencode', $args ), 'https://wordpress.com/setup/launch-site' );
+}
+
+/**
+ * The current request's URL on the site's own host, for the launch flow's `back_to`.
+ *
+ * Calypso drops a `back_to` unless it is https on the launched site's host, so the request host is not used.
+ *
+ * @return string
+ */
+function wpcom_get_launch_site_back_to(): string {
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/';
+
+	return 'https://' . wp_parse_url( home_url(), PHP_URL_HOST ) . $request_uri;
+}

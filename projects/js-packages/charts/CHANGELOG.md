@@ -5,6 +5,84 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.13.0] - 2026-10-28
+### Added
+- Conversion funnel chart: Add `getTooltipContent` to set what each step's tooltip shows, which screen readers also read, and show the default tooltip's count and conversion rate as labeled lines. [#53637]
+- Leaderboard Chart: Show negative values as bars extending left of a shared zero point. [#53794]
+
+### Fixed
+- Conversion funnel chart: Select a step and show its tooltip when it takes keyboard focus, move between steps with the arrow keys, and have screen readers read the tooltip as the step's description. [#53637]
+- Leaderboard chart: Line the values up on the right edge and the deltas in a column of their own when a comparison is shown, instead of letting a wide delta push its row's value out of line. [#54162]
+- Read every series at the selected or hovered date in tooltips, so series that skip a date no longer pair points from different dates. [#54132]
+
+## [4.12.0] - 2026-10-26
+### Added
+- Bar chart: Add an overlap layout that draws each group inside the one before it, with comparisons in a slot beside them, and expose its bar colors through a `useBarColors` hook. [#53836]
+
+### Changed
+- Bar chart: Draw comparison bars opaque, in a tint of their primary's color that keeps 3:1 contrast, and deprecate the theme's `barChart.barStyles.comparison.opacity`. [#53836]
+- Bar chart: Mark the keyboard-selected bar with a two-tone focus ring in the design system's focus color, so it shows on any bar color. [#53830]
+- Update package dependencies. [#53951] [#54001]
+
+### Fixed
+- Line chart: Leave hidden series out of the keyboard tooltip. [#53910]
+
+## [4.11.1] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [4.11.0] - 2026-10-19
+### Changed
+- Geo chart: Draw tooltips on the same dark surface, and at the same distance from the cursor, as the other chart tooltips. [#53515]
+- Heatmap chart: Lighten the color scale to 2.5:1 contrast at the lowest step and 6:1 at the highest, and keep the two ends apart when the empty-cell color sits far from the background. [#53450]
+- Heatmap chart: Offset the grid's focus ring by the design system focus width. [#53522]
+- Legend: Set wrapped rows of a horizontal legend closer together than items on one row, and expose both gaps as CSS variables. [#53704]
+- Update package dependencies. [#53004] [#53678] [#53806]
+
+### Fixed
+- Conversion funnel chart: Show a focus ring on the focused step bar. [#53522]
+
+## [4.10.0] - 2026-10-14
+### Added
+- Give the geo, leaderboard, conversion funnel and bar list charts an accessible name, and accept `ariaLabel` on every chart except Sparkline. [#53516]
+- Legend: Add a comparisonSeriesItems option that adds one static item per comparison series, named after its metric and hidden along with it. [#53457]
+
+### Changed
+- Reject invalid values like `12.px` when resolving theme font sizes. [#53475]
+
+### Fixed
+- Conversion funnel chart: Tighten the spacing on a short chart so its bars stay visible. [#53554]
+- Ignore invalid theme label font sizes, such as negative values, so axis labels no longer clip. Accept a leading `+` sign, as CSS does. [#53498]
+- Pie Chart, Pie Semi-Circle Chart: Paint the tooltip above content passed as children, such as a center total. [#53449]
+
+## [4.9.0] - 2026-10-12
+### Added
+- Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger, and draw column group labels at 13px in the body text color. [#53341]
+- Leaderboard chart: Let a clickable row hold a link in its label with the new `hasInteractiveLabel` entry option. [#53307]
+- Line, Area and Bar charts: Add an `ariaLabel` prop to name each chart for screen readers. [#53202]
+
+### Changed
+- Heatmap chart: Start the legend with a swatch in the empty-cell color. [#53338]
+- Line, Area and Bar charts: Change the chart container's role from `grid` to `application`, so it is valid for screen readers, and drop the inner svg's `aria-label="XYChart"`. Update any selector that targets `[role="grid"]` or `[aria-label="XYChart"]`. [#53202]
+
+### Fixed
+- Pie and semi-circle charts: Let keyboard users move through segments with the arrow keys, and give the chart an accessible name with a new `ariaLabel` prop. [#53274]
+
+## [4.8.0] - 2026-10-07
+### Added
+- Add `TooltipBox`, the chart tooltip box, and `XYChartTooltip`, the new name for `AccessibleTooltip`. [#53075]
+- Bar Chart: Add the `--a8c-charts-border-radius-bar-chart` role to round bar corners. Bars stay square by default. [#53132]
+
+### Deprecated
+- Deprecate `AccessibleTooltip` in favor of `XYChartTooltip`, and `BaseTooltip`'s `data`, `component`, `renderContainer`, `top` and `left` props in favor of `TooltipBox`. [#53075]
+
+### Fixed
+- Bar chart: Stop drawing an axis set to display: false. [#53203]
+- ConversionFunnelChart: Give the tooltip content `role="tooltip"`, like the other charts. [#53075]
+- Heatmap chart: Keep the lowest step of the color scale at 3:1 contrast against the chart background and empty cells in every theme, deepen the highest step to 9:1, and draw zeros in data without negative values as empty cells. [#53085]
+- Line, bar and area charts: Reserve no margin for a hidden x axis, matching a hidden y axis. [#53265]
+- Tooltip: Keep the tooltip as wide as its content when the host page caps the width of visx tooltips. [#53135]
+
 ## [4.7.0] - 2026-10-05
 ### Added
 - Conversion funnel chart: Add `tooltipStyle` to restyle the tooltip box. [#52850]
@@ -71,8 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, `tooltipStyle` for inline box overrides, and a `variant="bar"` legend that joins the scale steps into one continuous band. [#52368]
 
 ### Changed
-- Update package dependencies. [#52187]
-- Update package dependencies. [#52401]
+- Update package dependencies. [#52187] [#52401]
 
 ### Fixed
 - Bar chart: Align grid lines with axis ticks (explicit or derived). [#52234]
@@ -311,12 +388,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.3] - 2026-05-25
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [1.4.2] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.4.1] - 2026-05-19
 ### Changed
@@ -333,7 +409,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] - 2026-05-11
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [1.3.0] - 2026-05-04
 ### Added
@@ -513,7 +589,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.1] - 2026-01-26
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [0.54.0] - 2026-01-21
 ### Added
@@ -544,8 +620,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Change Geo Chart data format to handle all Google Charts data [#46330]
-- Update package dependencies. [#46362]
-- Update package dependencies. [#46363]
+- Update package dependencies. [#46362] [#46363]
 
 ### Fixed
 - Charts: Add documentation and API references of animation feature. [#46326]
@@ -678,7 +753,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.38.2] - 2025-09-22
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [0.38.1] - 2025-09-19
 ### Changed
@@ -951,16 +1026,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add dynamic chart margin calculation and improve Y-axis tick formatting [#43679]
 - Refactor BarChart to use @visx/xychart [#43677]
 - Update dependencies. [#43068]
-- Update package dependencies. [#43326]
-- Update package dependencies. [#43354]
-- Update package dependencies. [#43398]
-- Update package dependencies. [#43399]
-- Update package dependencies. [#43400]
-- Update package dependencies. [#43516]
-- Update package dependencies. [#43578]
-- Update package dependencies. [#43718]
-- Update package dependencies. [#43734]
-- Update package dependencies. [#43766]
+- Update package dependencies. [#43326] [#43354] [#43398] [#43399] [#43400] [#43516] [#43578] [#43718] [#43734] [#43766]
 
 ### Removed
 - Removed animation for line and bar charts [#43809]
@@ -990,8 +1056,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Code: First pass of style coding standards. [#42734]
-- Update package dependencies. [#42762]
-- Update package dependencies. [#42809]
+- Update package dependencies. [#42762] [#42809]
 
 ### Fixed
 - Code: Update stylesheets to use hex instead of named colors. [#42920]
@@ -1007,8 +1072,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduce Theme seriesLineStyles property [#42530]
 
 ### Changed
-- Update package dependencies. [#42509]
-- Update package dependencies. [#42511]
+- Update package dependencies. [#42509] [#42511]
 
 ### Fixed
 - Bar chart: fix tickFormat not working issue [#42524]
@@ -1016,8 +1080,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.10.0] - 2025-03-17
 ### Changed
 - Bar chart: align options with line chart [#42448]
-- Update package dependencies. [#42163]
-- Update package dependencies. [#42384]
+- Update package dependencies. [#42163] [#42384]
 
 ## [0.9.0] - 2025-03-02
 ### Added
@@ -1146,6 +1209,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.13.0]: https://github.com/Automattic/charts/compare/v4.12.0...v4.13.0
+[4.12.0]: https://github.com/Automattic/charts/compare/v4.11.1...v4.12.0
+[4.11.1]: https://github.com/Automattic/charts/compare/v4.11.0...v4.11.1
+[4.11.0]: https://github.com/Automattic/charts/compare/v4.10.0...v4.11.0
+[4.10.0]: https://github.com/Automattic/charts/compare/v4.9.0...v4.10.0
+[4.9.0]: https://github.com/Automattic/charts/compare/v4.8.0...v4.9.0
+[4.8.0]: https://github.com/Automattic/charts/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0
 [4.6.0]: https://github.com/Automattic/charts/compare/v4.5.0...v4.6.0
 [4.5.0]: https://github.com/Automattic/charts/compare/v4.4.0...v4.5.0

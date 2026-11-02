@@ -319,3 +319,14 @@ describe( 'TitleCell — grid Details access', () => {
 		expect( screen.getByText( longName ) ).toHaveAttribute( 'title', longName );
 	} );
 } );
+
+it( 'shows failed conversion guidance without an upload retry button', () => {
+	renderField(
+		<ThumbnailField item={ item( { conversionFailed: true, isProcessing: false } ) } />,
+		makeActions()
+	);
+	expect( screen.getByText( 'Conversion failed' ) ).toBeInTheDocument();
+	expect( screen.getByText( 'Delete this video and upload it again.' ) ).toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+} );

@@ -26,7 +26,7 @@ const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 /****** Functions ******/
 
 const i18nFilterFunction = file => {
-	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
+	if ( ! /\.(?:jsx?|tsx?|cjs|mjs)$/.test( file ) ) {
 		return false;
 	}
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;

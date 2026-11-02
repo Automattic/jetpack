@@ -21,7 +21,8 @@
 				attachment.get( 'type' ) === 'video' &&
 				attachment.get( 'subtype' ) === 'videopress' &&
 				attachment.get( 'videopress_status' ) &&
-				attachment.get( 'videopress_status' ) !== 'complete'
+				attachment.get( 'videopress_status' ) !== 'complete' &&
+				attachment.get( 'videopress_status' ) !== 'failed'
 			) {
 				ids.push( attachment.get( 'id' ) );
 			}
@@ -82,9 +83,13 @@
 
 		$.each( data.videopress_processing_status, function ( id, status ) {
 			const attachment = library.get( id );
-			if ( attachment && status === 'complete' ) {
+			if (
+				attachment &&
+				( status === 'complete' || status === 'failed' ) &&
+				attachment.get( 'videopress_status' ) !== status
+			) {
 				// Prevent duplicate fetches on subsequent ticks.
-				attachment.set( 'videopress_status', 'complete' );
+				attachment.set( 'videopress_status', status );
 
 				wp.ajax
 					.send( 'get-attachment', {

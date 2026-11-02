@@ -251,7 +251,7 @@ it( 'submits the current edits against their loaded revision and waits for the c
 	expect( save ).toHaveBeenCalledWith( {
 		guid: video.guid,
 		baseRevision: 2,
-		operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
+		operations: [ { type: 'cut', start_ms: 0, end_ms: 4000 } ],
 	} );
 	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
@@ -270,7 +270,7 @@ it( 'submits the current edits against their loaded revision and waits for the c
 	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
 	setEdits( {
 		revision: 3,
-		operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
+		operations: [ { type: 'cut', start_ms: 0, end_ms: 4000 } ],
 		job: { ...processingJob, status: 'complete' },
 	} );
 	refresh();
@@ -279,7 +279,8 @@ it( 'submits the current edits against their loaded revision and waits for the c
 		'aria-disabled',
 		'true'
 	);
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
+	fireEvent.keyDown( screen.getByRole( 'slider', { name: 'Trim start' } ), { key: 'ArrowRight' } );
+	expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
 		'aria-disabled',
 		'true'
 	);
@@ -347,7 +348,7 @@ it( 'keeps a modified draft saveable without retrying older stored instructions'
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	expect( save ).toHaveBeenCalledWith(
-		expect.objectContaining( { operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ] } )
+		expect.objectContaining( { operations: [ { type: 'cut', start_ms: 0, end_ms: 4000 } ] } )
 	);
 } );
 

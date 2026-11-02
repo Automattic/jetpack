@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Verbum: Only resolve listed oEmbed providers in embed previews, and build their HTML like the core oEmbed proxy.

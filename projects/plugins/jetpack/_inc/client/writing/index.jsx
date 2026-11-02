@@ -123,14 +123,9 @@ export class Writing extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Writing Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Writing', 'jetpack' )
-						: __(
-								'Compose content the way you want to and streamline your publishing experience.',
-								'jetpack'
-							) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Writing', 'jetpack' ) }</h2>
+				) }
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />

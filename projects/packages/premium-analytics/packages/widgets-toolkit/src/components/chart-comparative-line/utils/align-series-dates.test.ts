@@ -170,6 +170,19 @@ describe( 'alignSeriesDates', () => {
 			// When dates already align, comparison should be returned as-is
 			expect( result[ 1 ] ).toBe( comparison );
 		} );
+
+		it( 'leaves a comparison its producer already placed where it is', () => {
+			const primary = createSeries( 'Series A', [
+				new Date( '2024-01-01' ),
+				new Date( '2024-01-02' ),
+			] );
+			const comparison = {
+				...createComparison( 'Series B', [ new Date( '2024-01-02' ) ] ),
+				aligned: true,
+			};
+
+			expect( alignSeriesDates( [ primary, comparison ] )[ 1 ] ).toBe( comparison );
+		} );
 	} );
 
 	describe( 'series with different lengths', () => {
@@ -260,12 +273,14 @@ describe( 'alignSeriesDates', () => {
 				[ new Date( '2024-01-01' ), new Date( '2024-01-02' ) ],
 				[ 50, 75 ]
 			);
+			comparison.data[ 0 ].endDate = new Date( '2024-01-01T23:59:59Z' );
 
 			const result = alignSeriesDates( [ primary, comparison ] );
 
 			expect( result[ 1 ] ).not.toBe( comparison );
 			expect( result[ 1 ].data[ 0 ].date ).toEqual( new Date( '2024-01-08' ) );
 			expect( result[ 1 ].data[ 0 ].realDate ).toEqual( new Date( '2024-01-01' ) );
+			expect( result[ 1 ].data[ 0 ].endDate ).toEqual( new Date( '2024-01-01T23:59:59Z' ) );
 			// Values should be preserved
 			expect( result[ 1 ].data[ 0 ].value ).toBe( 50 );
 			expect( result[ 1 ].data[ 1 ].value ).toBe( 75 );

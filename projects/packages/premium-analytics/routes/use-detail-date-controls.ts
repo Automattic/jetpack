@@ -3,7 +3,7 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import {
-	DETAIL_SURFACE_PRESETS,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	PRESET_ALL_TIME,
 	computePrimaryRange,
 	parseSiteDateTime,
@@ -12,7 +12,7 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 
 type DetailDateControls = {
-	presetIds: typeof DETAIL_SURFACE_PRESETS;
+	presetIds: typeof MENU_SURFACE_PRESETS_WITH_ALL_TIME;
 	allTimeStart: Date | undefined;
 	withIntervalControl: false;
 };
@@ -24,6 +24,8 @@ type DetailDateControls = {
 type DetailDateFilters = {
 	appliedPresetId?: PrimaryPresetId;
 	appliedRange: { from?: Date; to?: Date };
+	presetId?: PrimaryPresetId;
+	range: { from?: Date; to?: Date };
 	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 	timeZone: string;
 };
@@ -38,6 +40,8 @@ type DetailDateFilters = {
  * @param dateFilters                 - The page's date-filter controller.
  * @param dateFilters.appliedPresetId - The applied preset, if any.
  * @param dateFilters.appliedRange    - The applied range.
+ * @param dateFilters.presetId        - The staged preset, if any.
+ * @param dateFilters.range           - The staged range.
  * @param dateFilters.replaceRange    - Commits a range in place of the current history entry.
  * @param dateFilters.timeZone        - The site timezone.
  * @param isStartPending              - Whether the start is loading or can be retried.
@@ -45,7 +49,7 @@ type DetailDateFilters = {
  */
 export function useDetailDateControls(
 	publishedDate: string | undefined,
-	{ appliedPresetId, appliedRange, replaceRange, timeZone }: DetailDateFilters,
+	{ appliedPresetId, appliedRange, presetId, range, replaceRange, timeZone }: DetailDateFilters,
 	isStartPending = false
 ): { dateControls: DetailDateControls; isAnchoringAllTime: boolean } {
 	// Read in the site timezone, matching the header subtitle, so the pill and
@@ -60,22 +64,20 @@ export function useDetailDateControls(
 	);
 
 	const appliedFrom = appliedRange.from?.getTime();
+	const stagedFrom = range.from?.getTime();
 
 	useEffect( () => {
 		// Only the start can be stale: the end is today either way. Replacing
 		// rather than pushing, so Back does not return to the unanchored range.
-		if (
-			anchored &&
-			appliedPresetId === PRESET_ALL_TIME &&
-			anchored.from.getTime() !== appliedFrom
-		) {
+		// Read the draft: the applied range lags the router, and asking again meanwhile loops forever.
+		if ( anchored && presetId === PRESET_ALL_TIME && anchored.from.getTime() !== stagedFrom ) {
 			replaceRange( anchored, PRESET_ALL_TIME );
 		}
-	}, [ anchored, appliedFrom, appliedPresetId, replaceRange ] );
+	}, [ anchored, stagedFrom, presetId, replaceRange ] );
 
 	const dateControls = useMemo< DetailDateControls >(
 		() => ( {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			allTimeStart,
 			withIntervalControl: false,
 		} ),

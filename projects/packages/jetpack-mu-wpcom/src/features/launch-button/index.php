@@ -59,25 +59,6 @@ function wpcom_should_show_launch_button(): bool {
 }
 
 /**
- * The URL of the screen the launch button was rendered on.
- *
- * Sent as `back_to`, so the launch flow's Back button returns to that screen. Calypso only honours it
- * when its host is the launched site's own.
- *
- * @return string
- */
-function wpcom_get_launch_button_back_to(): string {
-	$host        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/';
-
-	if ( '' === $host ) {
-		return admin_url();
-	}
-
-	return set_url_scheme( 'http://' . $host . $request_uri, 'https' );
-}
-
-/**
  * Adds a "launch site" button to the admin bar.
  *
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
@@ -96,21 +77,15 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		<path d="M0.498047 13.3962C0.498047 12.2341 1.44011 11.2921 2.60221 11.2921C3.76431 11.2921 4.70638 12.2341 4.70638 13.3962C4.70638 14.5583 3.76431 15.5004 2.60221 15.5004H1.06055C0.749887 15.5004 0.498047 15.2486 0.498047 14.9379V13.3962Z" />
 	</svg>';
 
-	$blog_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	$admin_bar->add_menu(
 		array(
 			'id'     => 'launch-site',
 			'parent' => null,
 			'group'  => null,
 			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
-			'href'   => add_query_arg(
-				array(
-					'siteSlug' => $blog_domain,
-					'ref'      => 'wp-admin',
-					'back_to'  => rawurlencode( wpcom_get_launch_button_back_to() ),
-				),
-				'https://wordpress.com/start/launch-site'
-			),
+			// The JS button reuses this href, refreshing only its `back_to`.
+			// The Omnibar fetches this node over REST, where the request URL is no page to go back to.
+			'href'   => Common\wpcom_get_launch_site_url( defined( 'REST_REQUEST' ) && REST_REQUEST ? array() : array( 'back_to' => Common\wpcom_get_launch_site_back_to() ) ),
 			'meta'   => array(
 				// Use `admin-color-modern` to keep the button always in blueberry (modern scheme).
 				'class' => 'launch-site admin-color-modern',

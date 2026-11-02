@@ -114,9 +114,15 @@
 	background-color: #e9f0f5;
 }
 
-.jetpack-connector__status-badge--safe-mode {
+.jetpack-connector__status-badge--safe-mode,
+.jetpack-connector__status-badge--warning {
 	color: #4f3500;
 	background-color: #fcf0e5;
+}
+
+.jetpack-connector__status-badge--error {
+	color: #8a2424;
+	background-color: #fcf0f1;
 }
 
 .jetpack-connector__section {
@@ -173,6 +179,7 @@
 }
 
 .jetpack-connector__modal .components-button:focus:not(:focus-visible),
+.jetpack-connector__transfer-modal .components-button:focus:not(:focus-visible),
 .jetpack-connector__confirm-modal .components-button:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;
@@ -251,8 +258,13 @@
 	margin-inline: 0;
 }
 
+.jetpack-connector__notice-detail {
+	margin-block: 4px 0;
+}
+
 .jetpack-connector__tos-notice {
 	margin-block-start: 8px;
+	color: var(--jp-gray-50, #646970);
 }
 
 .jetpack-connector__tos-notice a {

@@ -350,10 +350,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$request->set_body_params(
 			array(
 				'subscription_options' => array(
-					// The free tier description stores plain markdown source, so all
-					// HTML tags are stripped via `wp_kses( ..., array() )`. kses removes
-					// the tags themselves but keeps their text content, so the `<script>`
-					// wrapper is gone while the inner `alert(1)` text remains.
+					// The free tier description stores plain markdown source, so `wp_kses( ..., array() )` strips all tags.
 					'free_tier_description' => '<script>alert(1)</script>Just the **markdown** text',
 				),
 			)
@@ -364,7 +361,14 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		$this->assertSame( 200, $result->get_status() );
 		$stored = get_option( 'subscription_options' );
 		$this->assertStringNotContainsString( '<script', $stored['free_tier_description'] );
-		$this->assertSame( 'alert(1)Just the **markdown** text', $stored['free_tier_description'] );
+		// @todo First option is WP <7.2, second is 7.2+. Change back to `assertSame()` when we drop support for WP 7.1.
+		$this->assertThat(
+			$stored['free_tier_description'],
+			$this->logicalOr(
+				$this->identicalTo( 'alert(1)Just the **markdown** text' ),
+				$this->identicalTo( 'Just the **markdown** text' )
+			)
+		);
 	}
 
 	/**

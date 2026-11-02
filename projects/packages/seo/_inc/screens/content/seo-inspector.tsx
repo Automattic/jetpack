@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
@@ -9,7 +10,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, IconButton, Stack, Text } from '@wordpress/ui';
+import { Button, IconButton, Stack } from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
 import styles from './style.module.scss';
@@ -226,27 +227,23 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 	const permalink = ( editedRecord as { link?: string } | undefined )?.link ?? '';
 
 	return (
-		<Stack
-			direction="column"
-			gap="lg"
+		<Page
 			className={ styles.inspector }
-			aria-label={ __( 'Edit SEO', 'jetpack-seo' ) }
-		>
-			<Stack direction="row" align="center" justify="space-between" gap="sm">
-				<Text variant="heading-lg" render={ <h2 /> }>
-					{ __( 'Edit SEO', 'jetpack-seo' ) }
-				</Text>
+			headingLevel={ 2 }
+			hasPadding={ false }
+			title={ __( 'Edit SEO', 'jetpack-seo' ) }
+			actions={
 				<IconButton
 					icon={ close }
 					label={ __( 'Close', 'jetpack-seo' ) }
 					onClick={ onClose }
 					disabled={ isSaving }
-					size="small"
 					variant="minimal"
 					tone="neutral"
 				/>
-			</Stack>
-			<Stack direction="column" gap="lg">
+			}
+		>
+			<Stack direction="column" gap="lg" className={ styles.inspectorBody }>
 				<TextControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
 					help={ __(
@@ -295,7 +292,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					description={ local.advanced_seo_description }
 				/>
 			</Stack>
-			<Stack direction="row" justify="flex-end" gap="sm">
+			<div className={ styles.inspectorFooter }>
 				<Button variant="minimal" tone="neutral" onClick={ onClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-seo' ) }
 				</Button>
@@ -310,8 +307,8 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 				>
 					{ __( 'Save', 'jetpack-seo' ) }
 				</Button>
-			</Stack>
-		</Stack>
+			</div>
+		</Page>
 	);
 };
 

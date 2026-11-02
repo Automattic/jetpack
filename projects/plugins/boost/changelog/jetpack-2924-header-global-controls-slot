@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Opt the dashboard into the shared header's global controls, hidden behind a feature flag.
+

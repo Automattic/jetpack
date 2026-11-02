@@ -1,6 +1,6 @@
-import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { parseRestoreWhen } from '../api/restore';
+import { formatDateTime } from '../date-format';
 import type { ActivityItem } from '../../types/activity';
 import type { ActivitySortOrder } from '../api/activity-log';
 import type { RecentRestore } from '../api/restore';
@@ -52,7 +52,7 @@ function restoreSummary( rewindId: string ): string | undefined {
 	return sprintf(
 		/* translators: %s: date and time of the backup that was restored. */
 		__( 'Restore to %s', 'jetpack-backup-pkg' ),
-		dateI18n( 'M j, Y, g:i A', new Date( seconds * 1000 ).toISOString(), undefined )
+		formatDateTime( new Date( seconds * 1000 ).toISOString() )
 	);
 }
 

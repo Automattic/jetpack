@@ -44,6 +44,8 @@ const stubs = [
 		'focal-point-picker',
 		'font-size-picker',
 		'gradient-picker',
+		// The new Menu, which DropdownMenu does not use.
+		'menu',
 		'modal',
 		'navigator',
 		'palette-edit',
@@ -73,13 +75,14 @@ const stubs = [
 	...[ 'advanced', 'background', 'color', 'filters', 'typography' ].map(
 		name => `@wordpress/block-editor/build-module/components/global-styles/${ name }-panel.mjs`
 	),
-	...[ 'constrained', 'flex', 'grid' ].map(
-		name => `@wordpress/block-editor/build-module/layouts/${ name }.mjs`
-	),
+	// Not constrained: the align toolbar of every aligned block, paragraphs included, looks it up.
+	...[ 'flex', 'grid' ].map( name => `@wordpress/block-editor/build-module/layouts/${ name }.mjs` ),
 	...[ 'autocomplete', 'combobox', 'searchable-chip-select', 'searchable-select', 'select' ].map(
 		name => `@wordpress/ui/build-module/form/primitives/${ name }/index.mjs`
 	),
-	'@wordpress/ui/build-module/tabs/index.mjs',
+	...[ 'tabs', 'tooltip', 'form', 'link', 'button' ].map(
+		name => `@wordpress/ui/build-module/${ name }/index.mjs`
+	),
 	'@wordpress/block-editor/build-module/components/block-tools/empty-block-inserter.mjs',
 	// Scrolls the page to keep a moved block in place, which jumps a page with a small editor.
 	'@wordpress/block-editor/build-module/components/use-moving-animation/index.mjs',
@@ -90,6 +93,9 @@ const isStubbed = target =>
 		stub =>
 			target.endsWith( `node_modules/${ stub }` ) || target.includes( `node_modules/${ stub }/` )
 	);
+// Its warning would swallow a block's crash; the editor's own boundary puts the textarea back instead.
+const crashBoundary =
+	'node_modules/@wordpress/block-editor/build-module/components/block-list/block-crash-boundary.mjs';
 
 export default new webpack.NormalModuleReplacementPlugin( /./, resource => {
 	// A relative import is matched by the file it names, so a stub reaches every copy pnpm installed.
@@ -97,7 +103,9 @@ export default new webpack.NormalModuleReplacementPlugin( /./, resource => {
 		? path.join( resource.context, resource.request )
 		: 'node_modules/' + resource.request;
 
-	if ( isStubbed( target ) ) {
+	if ( target.endsWith( crashBoundary ) ) {
+		resource.request = path.join( import.meta.dirname, 'block-crash-boundary.js' );
+	} else if ( isStubbed( target ) ) {
 		resource.request = path.join( import.meta.dirname, 'stub.cjs' );
 	}
 } );

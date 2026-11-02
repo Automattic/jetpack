@@ -2,12 +2,10 @@
  * External dependencies
  */
 import { ReportDrilldownTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { useAuthorsReportRecords } from './config';
 import AuthorsReportPage from './page';
 import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -91,32 +89,5 @@ describe( 'AuthorsReportPage', () => {
 				defaultExpanded: 'none',
 			} )
 		);
-	} );
-
-	it( 'replaces stale rows with an error that refetches on Retry', async () => {
-		const records = buildRecords( {
-			rows: [
-				{
-					id: 'id:42',
-					label: 'Ada Lovelace',
-					avatarUrl: null,
-					isGroup: true,
-					views: 12,
-				},
-			],
-			isError: true,
-		} );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <AuthorsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load authors. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

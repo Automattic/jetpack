@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Fatal error: log recovery-mode email dispatches (sent, disabled, no recipient) and post-login recovery-mode entry to logstash.

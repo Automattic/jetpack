@@ -17,12 +17,6 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
-// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
-// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
-jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
-	default: () => ( { isToggling: false, setActive: jest.fn() } ),
-} ) );
-
 const { default: OverviewScreen } = await import( '../index' );
 
 const OFF_RAMP_TEXT = 'Using a different SEO solution?';
@@ -56,6 +50,8 @@ const buildOverview = (): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
+	conflicting_seo_plugin: '',
+	verification_switchable: true,
 } );
 
 describe( 'OverviewScreen', () => {
@@ -84,5 +80,20 @@ describe( 'OverviewScreen', () => {
 
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Site verification' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'names the plugin that owns the output', 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
+		[ 'falls back when no plugin is named', '', /^SEO tools are not enabled/ ],
+	] )( 'with SEO output off, %s', ( _, plugin, notice ) => {
+		getOverview.mockReturnValue( {
+			...buildOverview(),
+			plan: { seo_enabled_for_site: false },
+			conflicting_seo_plugin: plugin,
+		} );
+
+		render( <OverviewScreen /> );
+
+		expect( screen.getByText( notice ) ).toBeInTheDocument();
 	} );
 } );

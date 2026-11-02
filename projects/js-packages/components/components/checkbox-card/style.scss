@@ -1,0 +1,26 @@
+@use "../selectable-card/selectable-card";
+
+.jp-checkbox-card-grid {
+
+	@include selectable-card.grid;
+}
+
+.jp-checkbox-card {
+
+	@include selectable-card.card('[data-checked="true"]');
+}
+
+.jp-checkbox-card__surface {
+
+	@include selectable-card.surface;
+}
+
+.jp-checkbox-card__illustration {
+
+	@include selectable-card.illustration;
+}
+
+.jp-checkbox-card__checkbox {
+
+	@include selectable-card.control;
+}

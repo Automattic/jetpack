@@ -1,9 +1,15 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import {
+	chartInterval,
+	useReportScope,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	bucketRange,
 	ChartEmptyState,
 	MetricTabsChart,
@@ -11,7 +17,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -19,7 +24,10 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
+import { trafficIntervalExtension } from './interval-extension';
 import styles from './style.module.css';
+import { usePreviousPeriodShown } from './use-previous-period-shown';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
@@ -34,34 +42,37 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 type TrafficChartInnerProps = {
 	/**
 	 * How to draw the selected metric.
 	 */
 	chartType: TrafficChartType;
+
+	/**
+	 * The saved bucket size, if any.
+	 */
+	interval?: TrafficChartGranularity;
 };
 
 /**
- * The bucket size follows the dashboard's chart interval control, clamped to what
- * this chart supports; which metric is plotted is the chart's own tab selection.
+ * The bucket size is the widget's own, clamped to what the range allows; which
+ * metric is plotted is the chart's own tab selection.
  */
-function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
+function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const period: TrafficChartGranularity = defaultPeriodForInterval(
-		reportParams.interval,
-		TRAFFIC_PERIODS
-	);
-
 	// A host without a period to set leaves the bars inert.
 	const { openPeriod } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
+	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown();
+	const period: TrafficChartGranularity = chartInterval(
+		{ ...reportParams, interval },
+		TRAFFIC_PERIODS,
+		lockedIntervals,
+		trafficIntervalExtension( reportParams, chartType )
+	);
 
-	// Names the bucket size drawn, not the page interval: a year page interval
-	// clamps to months here, and the click must open the bar it hit.
+	// Names the bucket size drawn, not the saved one: the range may clamp it,
+	// and the click must open the bar it hit.
 	const openBucket = useMemo( () => {
 		if ( ! openPeriod ) {
 			return undefined;
@@ -89,17 +100,23 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
+	const views = metricTabs.find( metric => metric.key === 'views' );
+	const viewsAreEmpty =
+		! isLoading &&
+		! isError &&
+		views?.value === 0 &&
+		views.current.every( point => point.value === 0 || point.value === null ) &&
+		( views.previous?.every( point => point.value === 0 || point.value === null ) ?? true );
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( viewsAreEmpty );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ isLoading || isChecking }
 				isFetching={ isFetching }
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				// `stats/visits` zero-fills every bucket of an idle window, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
@@ -111,12 +128,30 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
-					empty={ <ChartEmptyState /> }
+					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
+					previousPeriodShown={ previousPeriodShown }
+					onPreviousPeriodShownChange={ setPreviousPeriodShown }
+					empty={
+						noPublishedPosts ? (
+							<ChartEmptyState
+								text={ __(
+									"You haven't published any posts yet. Get started by creating your first one.",
+									'jetpack-premium-analytics-pkg'
+								) }
+								action={ {
+									label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+									href: getAdminUrl( 'post-new.php' ),
+								} }
+							/>
+						) : (
+							<ChartEmptyState />
+						)
+					}
 				/>
 			</WidgetState>
 		</div>
@@ -126,7 +161,10 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType() } />
+			<TrafficChartInner
+				chartType={ attributes.chartType ?? defaultChartType() }
+				interval={ attributes.chartInterval }
+			/>
 		</WidgetRoot>
 	);
 }

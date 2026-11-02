@@ -8,6 +8,7 @@ import { file as categoryGlyph, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
 import TagsWidget from '../render';
 import type { ReactElement } from 'react';
@@ -69,6 +70,14 @@ function rowLink( label: string ) {
 	return screen.getByText( label ).closest( 'a' );
 }
 
+/** The query string of every `stats/tags` request so far. */
+function tagsRequests(): URLSearchParams[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => String( options?.path ?? '' ) )
+		.filter( path => path.includes( 'stats/tags' ) )
+		.map( path => new URLSearchParams( path.split( '?' )[ 1 ] ) );
+}
+
 describe( 'TagsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -123,28 +132,50 @@ describe( 'TagsWidget', () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( '1,240' ) ).resolves.toBeInTheDocument();
-		// A compacted count is drawn aria-hidden, with the full figure left to screen readers.
-		expect(
-			screen.queryByText(
-				( text, node ) => !! text && node?.getAttribute( 'aria-hidden' ) === 'true'
-			)
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( '1.2K' ) ).not.toBeInTheDocument();
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
-	it( 'asks for the row count Jetpack Stats gets by default', async () => {
+	it( 'asks for the row count Jetpack Stats gets by default, over the dashboard window', async () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
-		const requestedPaths = mockApiFetch.mock.calls
-			.map( ( [ options ] ) => String( options?.path ?? '' ) )
-			.filter( path => path.includes( 'stats/tags' ) );
-
-		expect( requestedPaths ).not.toHaveLength( 0 );
-		requestedPaths.forEach( path => {
-			expect( new URLSearchParams( path.split( '?' )[ 1 ] ).get( 'max' ) ).toBe( '10' );
+		const requested = tagsRequests();
+		expect( requested ).not.toHaveLength( 0 );
+		requested.forEach( params => {
+			expect( params.get( 'max' ) ).toBe( '10' );
+			expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
+			expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
+			expect( params.get( 'summarize' ) ).toBe( '1' );
 		} );
+	} );
+
+	it( 'refetches with the new window when the dashboard period changes', async () => {
+		const { rerender } = render(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+
+		rerender(
+			<TagsWidget
+				attributes={ {
+					reportParams: {
+						...getDefaultQueryParams(),
+						preset: undefined,
+						from: '2026-01-01T00:00:00.000+00:00',
+						to: '2026-01-31T23:59:59.999+00:00',
+					},
+				} }
+			/>
+		);
+
+		await waitFor( () =>
+			expect( tagsRequests().map( params => params.get( 'start_date' ) ) ).toContain(
+				'2026-01-01T00:00:00.000+00:00'
+			)
+		);
+		expect( tagsRequests().at( -1 )?.get( 'date' ) ).toBe( '2026-01-31T23:59:59.999+00:00' );
 	} );
 } );
 
@@ -180,7 +211,9 @@ describe( 'TagsWidget CSV export', () => {
 	} );
 
 	it( 'downloads the whole Tags report while drilled into a group', async () => {
-		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+		const { findDeclaredAction } = renderWithActionsHost(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 		fireEvent.click(
@@ -191,14 +224,71 @@ describe( 'TagsWidget CSV export', () => {
 		await expect(
 			screen.findByRole( 'button', { name: /all tags & categories/i } )
 		).resolves.toBeInTheDocument();
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
 		const lines = await downloads.lines();
 		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );
 		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
 		expect( lines ).toHaveLength( 13 );
-		expect( downloads.files[ 0 ].filename ).toBe( 'tags-and-categories.csv' );
+	} );
+} );
+
+describe( 'TagsWidget empty state', () => {
+	const NONE_RECORDED = 'You don’t have tags or categories recorded yet.';
+	const GENERIC_TEXT = 'We couldn’t find results for this time period.';
+
+	/** Whether any request so far asked core for a published post. */
+	function askedForPosts() {
+		return mockApiFetch.mock.calls.some( ( [ options ] ) =>
+			String( options?.path ?? '' ).startsWith( '/wp/v2/posts' )
+		);
+	}
+
+	/**
+	 * Answer the tags report with no rows and the published-post lookup with the given posts.
+	 *
+	 * @param posts - The `/wp/v2/posts` response.
+	 */
+	function mockEmptyTags( posts: unknown[] ) {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? posts : { ...TAGS_RESPONSE, tags: [] } )
+		);
+	}
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'says nothing is recorded yet when the site has no published post', async () => {
+		mockEmptyTags( [] );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( NONE_RECORDED ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the period text when the site has a published post', async () => {
+		mockEmptyTags( [ { id: 1 } ] );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( GENERIC_TEXT ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( NONE_RECORDED ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not ask for a published post when the list has rows', async () => {
+		mockApiFetch.mockResolvedValue( TAGS_RESPONSE );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+		expect( askedForPosts() ).toBe( false );
 	} );
 } );

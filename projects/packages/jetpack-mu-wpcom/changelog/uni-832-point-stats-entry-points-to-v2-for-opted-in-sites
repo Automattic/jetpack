@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Stats: Pass the admin bar Stats link and the My Jetpack redirect on Atomic Personal and Premium plans through the jetpack_stats_url filter.

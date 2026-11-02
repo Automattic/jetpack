@@ -28,11 +28,9 @@ describe( 'resolvePresetForSurface', () => {
 		} );
 
 		it( 'takes over from a year-surface preset with the default preset', () => {
-			expect( resolvePresetForSurface( DATE_FILTER_RANGE, PRESET_ALL_TIME ) ).toBe(
-				'last-30-days'
-			);
+			expect( resolvePresetForSurface( DATE_FILTER_RANGE, PRESET_ALL_TIME ) ).toBe( 'last-7-days' );
 			expect( resolvePresetForSurface( DATE_FILTER_RANGE, toYearPresetId( 2024 ) ) ).toBe(
-				'last-30-days'
+				'last-7-days'
 			);
 		} );
 	} );

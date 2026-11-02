@@ -3,7 +3,7 @@
  * Tests for the Jetpack AI admin page script data.
  *
  * The Overview and AI Features views are public on self-hosted sites, gated on
- * Atomic and VIP, and remain filterable by the host.
+ * Atomic, and remain filterable by the host.
  *
  * @package automattic/jetpack
  */
@@ -11,6 +11,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -55,8 +56,48 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
 		unset( $GLOBALS['wp_styles'] );
 		Constants::clear_constants();
+		Jetpack_Options::delete_option( 'id' );
+		delete_site_transient( 'jetpack_activity_log_has_access_1234' );
+		// Current_Plan memoises the plan in statics that the DB rollback does not reset.
+		$this->set_current_plan_cache( 'active_plan_cache', null );
+		$this->set_current_plan_cache( 'simple_site_specific_features', array() );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Overwrite one of Current_Plan's private static caches.
+	 *
+	 * @param string $property Static property name.
+	 * @param mixed  $value    Value to store.
+	 */
+	private function set_current_plan_cache( $property, $value ) {
+		$cache = new \ReflectionProperty( \Automattic\Jetpack\Current_Plan::class, $property );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, $value );
+	}
+
+	/**
+	 * Look like a Simple site with no site-specific features.
+	 *
+	 * Seeds the feature cache because the billing store that fills it exists only on WordPress.com.
+	 */
+	private function given_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->set_current_plan_cache(
+			'simple_site_specific_features',
+			array(
+				get_current_blog_id() => array(
+					'full' => array(
+						'active'    => array(),
+						'available' => array(),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -180,7 +221,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
 	 */
 	public function test_add_actions_skips_standalone_styles_on_simple() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 
@@ -358,6 +399,43 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The SEO row opens the Jetpack SEO page only where that page registers.
+	 *
+	 * @dataProvider seo_settings_url_cases
+	 *
+	 * @param string[] $features   Active plan features.
+	 * @param bool     $is_visible Whether this install shows the SEO page.
+	 * @param string   $expected   Admin path the link should open.
+	 */
+	#[DataProvider( 'seo_settings_url_cases' )]
+	public function test_seo_settings_url_follows_the_seo_page( array $features, $is_visible, $expected ) {
+		\Automattic\Jetpack\Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $features ),
+				),
+			)
+		);
+		update_option( \Automattic\Jetpack\SEO\Initializer::VISIBILITY_OPTION, $is_visible );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( $expected ), $settings['seoSettingsUrl'] );
+	}
+
+	/**
+	 * @return array Plan features, visibility, and the expected link.
+	 */
+	public static function seo_settings_url_cases() {
+		return array(
+			'plan has the SEO page'         => array( array( 'seo-admin-ui' ), true, 'admin.php?page=jetpack-seo' ),
+			'existing install not opted in' => array( array( 'seo-admin-ui' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'plan lacks the SEO page'       => array( array(), true, 'admin.php?page=jetpack-settings#/traffic' ),
+		);
+	}
+
+	/**
 	 * Every notice input reaches the page. Each one defaults permissive in the
 	 * client, so a dropped key silences the notice instead of erring.
 	 */
@@ -466,7 +544,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/features', $settings['manageUrl'] );
 	}
 
 	/**
@@ -510,24 +588,23 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The views remain hidden from VIP sites, including internal requests.
+	 * VIP sites get the views like any other self-hosted site.
 	 */
-	public function test_features_view_flag_is_off_for_vip_site() {
+	public function test_features_view_flag_is_on_for_vip_site() {
 		$this->given_woa( false );
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertFalse( $settings['showFeaturesView'] );
-		$this->assertTrue( $settings['isTest'] );
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
 	}
 
 	/**
 	 * The views remain hidden from Simple sites, including internal requests.
 	 */
 	public function test_features_view_flag_is_off_for_simple_site() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		$this->given_woa( false );
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
@@ -571,6 +648,54 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertFalse( $settings['showFeaturesView'] );
 		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Only sites off the WordPress.com platform count as self-hosted.
+	 *
+	 * @param string $host            Host to simulate: self-hosted, vip, woa or simple.
+	 * @param mixed  $filtered_value  Value a host filter sets, or null for no filter.
+	 * @param bool   $expected        Expected isSelfHosted setting.
+	 *
+	 * @dataProvider is_self_hosted_provider
+	 */
+	#[DataProvider( 'is_self_hosted_provider' )]
+	public function test_is_self_hosted_setting( $host, $filtered_value, $expected ) {
+		$this->given_woa( 'woa' === $host );
+		if ( 'vip' === $host ) {
+			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		}
+		if ( 'simple' === $host ) {
+			$this->given_simple_site();
+		}
+		if ( null !== $filtered_value ) {
+			add_filter(
+				'jetpack_ai_admin_config',
+				function ( $config ) use ( $filtered_value ) {
+					$config['isSelfHosted'] = $filtered_value;
+
+					return $config;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, $this->get_injected_settings()['isSelfHosted'] );
+	}
+
+	/**
+	 * Data provider for test_is_self_hosted_setting.
+	 *
+	 * @return array
+	 */
+	public static function is_self_hosted_provider() {
+		return array(
+			'self-hosted'                    => array( 'self-hosted', null, true ),
+			'VIP'                            => array( 'vip', null, true ),
+			'WoA'                            => array( 'woa', null, false ),
+			'Simple'                         => array( 'simple', null, false ),
+			'host switches to WordPress.com' => array( 'vip', false, false ),
+			'unknown filtered value'         => array( 'self-hosted', 'yes', false ),
+		);
 	}
 
 	/**
@@ -996,11 +1121,57 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The self-hosted Activity Log page exists only while its module is on.
+	 * Answer the Activity Log access check from its cache instead of WordPress.com.
+	 *
+	 * @param bool $has_access Whether the site has the full-activity-log feature.
 	 */
-	public function test_activity_log_url_points_at_the_local_page_when_the_module_is_active() {
+	private function given_activity_log_access( $has_access ) {
+		Jetpack_Options::update_option( 'id', 1234 );
+		set_site_transient( 'jetpack_activity_log_has_access_1234', $has_access ? 'yes' : 'no' );
+	}
+
+	/**
+	 * Link the current user to WordPress.com, which the Activity log row needs.
+	 */
+	private function given_connected_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'activity_log_user',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+	}
+
+	/**
+	 * With paid access, the local page opens filtered to AI agent actions.
+	 */
+	public function test_activity_log_url_filters_to_ai_agents_on_the_local_page_with_access() {
 		$this->given_woa( false );
 		$this->given_active_modules( array( 'activity-log' ) );
+		$this->given_connected_user();
+		$this->given_activity_log_access( true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-activity-log&actor=mcp%3A%2A' ),
+			$settings['activityLogUrl']
+		);
+		$this->assertTrue( $settings['activityLogFiltered'] );
+	}
+
+	/**
+	 * Without paid access the page drops filters, so the link stays plain.
+	 */
+	public function test_activity_log_url_is_plain_on_the_local_page_without_access() {
+		$this->given_woa( false );
+		$this->given_active_modules( array( 'activity-log' ) );
+		$this->given_connected_user();
+		$this->given_activity_log_access( false );
 
 		$settings = $this->get_injected_settings();
 
@@ -1008,6 +1179,39 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			admin_url( 'admin.php?page=jetpack-activity-log' ),
 			$settings['activityLogUrl']
 		);
+		$this->assertFalse( $settings['activityLogFiltered'] );
+	}
+
+	/**
+	 * Without a linked user the row can't show, so the page skips the WordPress.com access check.
+	 */
+	public function test_activity_log_access_is_not_checked_without_a_connected_user() {
+		$this->given_woa( false );
+		$this->given_active_modules( array( 'activity-log' ) );
+		Jetpack_Options::update_option( 'id', 1234 );
+
+		$settings = $this->get_injected_settings();
+
+		// The access check caches every answer, so an empty cache means it never ran.
+		$this->assertFalse( get_site_transient( 'jetpack_activity_log_has_access_1234' ) );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-activity-log' ), $settings['activityLogUrl'] );
+		$this->assertFalse( $settings['activityLogFiltered'] );
+	}
+
+	/**
+	 * Offline mode can't reach WordPress.com, so the page skips the access check.
+	 */
+	public function test_activity_log_access_is_not_checked_in_offline_mode() {
+		$this->given_woa( false );
+		$this->given_active_modules( array( 'activity-log' ) );
+		$this->given_connected_user();
+		add_filter( 'jetpack_offline_mode', '__return_true', 20 );
+		Jetpack_Options::update_option( 'id', 1234 );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( get_site_transient( 'jetpack_activity_log_has_access_1234' ) );
+		$this->assertFalse( $settings['activityLogFiltered'] );
 	}
 
 	/**
@@ -1021,21 +1225,78 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( '', $settings['activityLogUrl'] );
+		$this->assertFalse( $settings['activityLogFiltered'] );
 	}
 
 	/**
-	 * Atomic links to WordPress.com, which the native module never gates.
+	 * Give the stored plan the full Activity Log, or not.
+	 *
+	 * @param bool $has_it Whether the plan includes full-activity-log.
 	 */
-	public function test_activity_log_url_stays_on_wpcom_for_woa_regardless_of_the_module() {
+	private function given_full_activity_log( $has_it ) {
+		\Automattic\Jetpack\Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $has_it ? array( 'full-activity-log' ) : array() ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Skip when wpcomsh answers plan features from real purchases, which tests can't fake.
+	 */
+	private function skip_when_wpcomsh_is_active() {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			self::markTestSkipped( 'Plan features resolve through WPCOM feature gating when wpcomsh is active and cannot be simulated.' );
+		}
+	}
+
+	/**
+	 * Atomic links to WordPress.com, filtered when the plan allows it.
+	 */
+	public function test_activity_log_url_filters_to_ai_agents_on_wpcom_for_woa() {
+		$this->skip_when_wpcomsh_is_active();
 		$this->given_woa( true );
 		$this->given_active_modules( array() );
+		$this->given_full_activity_log( true );
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertStringStartsWith(
-			'https://wordpress.com/activity-log/',
-			$settings['activityLogUrl']
-		);
+		$this->assertStringStartsWith( 'https://wordpress.com/activity-log/', $settings['activityLogUrl'] );
+		$this->assertStringEndsWith( '?actor=mcp%3A%2A', $settings['activityLogUrl'] );
+		$this->assertTrue( $settings['activityLogFiltered'] );
+	}
+
+	/**
+	 * Simple sites use the WordPress.com Activity Log too, never the wp-admin page.
+	 */
+	public function test_activity_log_url_filters_to_ai_agents_on_wpcom_for_simple() {
+		$this->skip_when_wpcomsh_is_active();
+		$this->given_simple_site();
+		$this->given_active_modules( array( 'activity-log' ) );
+		$this->given_full_activity_log( true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertStringStartsWith( 'https://wordpress.com/activity-log/', $settings['activityLogUrl'] );
+		$this->assertStringEndsWith( '?actor=mcp%3A%2A', $settings['activityLogUrl'] );
+		$this->assertTrue( $settings['activityLogFiltered'] );
+	}
+
+	/**
+	 * A WordPress.com plan without the full Activity Log gets the plain link.
+	 */
+	public function test_activity_log_url_is_plain_on_wpcom_without_full_activity_log() {
+		$this->given_simple_site();
+		$this->given_full_activity_log( false );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertStringStartsWith( 'https://wordpress.com/activity-log/', $settings['activityLogUrl'] );
+		$this->assertStringNotContainsString( 'actor=', $settings['activityLogUrl'] );
+		$this->assertFalse( $settings['activityLogFiltered'] );
 	}
 
 	public function test_wp_build_loads_only_on_the_ai_page() {

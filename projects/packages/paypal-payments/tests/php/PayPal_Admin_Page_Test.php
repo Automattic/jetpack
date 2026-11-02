@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
@@ -205,7 +206,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
 		$this->assertSame( 'success', $notice['type'] );
-		$this->assertStringContainsString( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertStringContainsString( 'Payment button deleted successfully.', $notice['message'] );
 		$this->assertStringContainsString( '1 published post still embeds it and now shows nothing', $notice['message'] );
 		$this->assertCount( 1, $notice['links'] );
 		// make_post() gives the post no title.
@@ -221,7 +222,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
-		$this->assertSame( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertSame( 'Payment button deleted successfully.', $notice['message'] );
 		$this->assertSame( array(), $notice['links'] );
 	}
 
@@ -235,7 +236,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'success',
-				'message' => 'Payment link deleted successfully. 1 published post still embeds it:',
+				'message' => 'Payment button deleted successfully. 1 published post still embeds it:',
 				'links'   => array(
 					array(
 						'url'   => 'http://example.org/wp-admin/post.php?post=12&action=edit',
@@ -261,8 +262,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 	public function test_delete_confirm_text_warns_about_orphaned_blocks() {
 		$text = PayPal_Admin_Page::delete_confirm_text();
 
-		$this->assertStringContainsString( 'permanently delete your payment link', $text );
-		$this->assertStringContainsString( 'embedded buttons using this payment will stop working', $text );
+		$this->assertStringContainsString( 'permanently delete your payment button', $text );
+		$this->assertStringContainsString( 'embedded buttons using it will stop working', $text );
 		$this->assertStringNotContainsString( 'published post', $text );
 	}
 
@@ -325,18 +326,21 @@ class PayPal_Admin_Page_Test extends TestCase {
 	/**
 	 * Build a post object with the given content.
 	 *
-	 * @param string $content   Post content.
-	 * @param string $post_type Post type.
+	 * @param string $content    Post content.
+	 * @param string $post_type  Post type.
+	 * @param string $post_title Post title.
+	 * @param string $status     Post status.
 	 * @return \WP_Post The post.
 	 */
-	private function make_post( $content, $post_type = 'post' ) {
+	private function make_post( $content, $post_type = 'post', $post_title = '', $status = 'publish' ) {
 		static $next_id = 1000;
 
 		return new \WP_Post(
 			(object) array(
 				'ID'           => $next_id++,
 				'post_type'    => $post_type,
-				'post_status'  => 'publish',
+				'post_status'  => $status,
+				'post_title'   => $post_title,
 				'post_content' => $content,
 				'filter'       => 'raw',
 			)
@@ -408,7 +412,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$this->assertStringContainsString( 'Connected', $output );
 		$this->assertStringContainsString( 'Production', $output );
-		$this->assertStringContainsString( 'PayPal Payment Links', $output );
+		$this->assertStringContainsString( 'PayPal Payment Buttons', $output );
 	}
 
 	/**
@@ -488,7 +492,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'success',
-				'message' => 'Payment link deleted successfully.',
+				'message' => 'Payment button deleted successfully.',
 			),
 			30
 		);
@@ -498,7 +502,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-success', $output );
-		$this->assertStringContainsString( 'Payment link deleted successfully.', $output );
+		$this->assertStringContainsString( 'Payment button deleted successfully.', $output );
 
 		// Transient should be consumed.
 		$this->assertFalse( get_transient( 'paypal_admin_notice_' . get_current_user_id() ) );
@@ -515,7 +519,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'error',
-				'message' => 'Failed to delete payment link: Resource not found.',
+				'message' => 'Failed to delete payment button: Resource not found.',
 			),
 			30
 		);
@@ -582,7 +586,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
-		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment link', $output );
+		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment button', $output );
 		$this->assertStringContainsString( 'id="paypal-delete-acknowledge"', $output );
 		$this->assertStringContainsString( 'I understand this cannot be undone.', $output );
 		$this->assertStringContainsString( 'id="paypal-delete-confirm" disabled', $output );
@@ -661,7 +665,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		// Should show product name as heading.
 		$this->assertStringContainsString( 'Premium Widget', $output );
 		// Should show breadcrumb back link.
-		$this->assertStringContainsString( 'Back to Payment Links', $output );
+		$this->assertStringContainsString( 'Back to Payment Buttons', $output );
 		// Should show resource ID.
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
 	}
@@ -921,7 +925,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-error', $output );
-		$this->assertStringContainsString( 'Back to Payment Links', $output );
+		$this->assertStringContainsString( 'Back to Payment Buttons', $output );
 	}
 
 	/**
@@ -1027,6 +1031,249 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$this->assertStringContainsString( '8.25 (PERCENTAGE)', $output );
 		$this->assertStringNotContainsString( ': 8.25', $output );
+	}
+
+	/**
+	 * Test the detail view lists the posts embedding the button, drafts typed as such, with edit and view links.
+	 *
+	 * The card asks for the one button, the delete warning scans every published
+	 * block post; the mock answers each by the query's search term.
+	 */
+	public function test_detail_view_lists_the_posts_embedding_the_button() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$block     = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"%s"} /-->';
+		$embedding = $this->make_post( sprintf( $block, 'PLB-ABC123' ), 'page', 'Shop' );
+		$draft     = $this->make_post( sprintf( $block, 'PLB-ABC123' ), 'post', 'Coming soon', 'draft' );
+		$other     = $this->make_post( sprintf( $block, 'PLB-OTHER1' ), 'post', 'Unrelated' );
+		$queries   = array();
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( $embedding, $draft, $other, &$queries ) {
+				$queries[] = $query->query_vars;
+				if ( '"resourceId":"PLB-ABC123"' === $query->get( 's' ) ) {
+					return array( $embedding, $draft );
+				}
+				return array( $embedding, $other );
+			},
+			10,
+			2
+		);
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Button Locations', $output );
+		$this->assertStringContainsString( '<td>Shop</td><td>Page</td>', $output );
+		$this->assertStringContainsString( 'post=' . $embedding->ID . '&#038;action=edit', $output );
+		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ) . '" target="_blank" rel="noopener noreferrer">View</a>', $output );
+		$this->assertStringContainsString( '<td>Coming soon</td><td>Draft Post</td>', $output );
+		$this->assertStringContainsString( 'preview=true" target="_blank" rel="noopener noreferrer">Preview</a>', $output );
+		$this->assertStringNotContainsString( 'Unrelated', $output );
+		$this->assertStringNotContainsString( 'paypal-link-locations-more', $output );
+		// The delete warning still counts published posts only.
+		$this->assertStringContainsString( 'embedded in 1 published post', $output );
+
+		$location_queries = array_values( array_filter( $queries, fn( $vars ) => '"resourceId":"PLB-ABC123"' === $vars['s'] ) );
+		$this->assertCount( 1, $location_queries );
+		$this->assertContains( 'draft', $location_queries[0]['post_status'] );
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE + 1, $location_queries[0]['posts_per_page'] );
+		$this->assertSame( 0, $location_queries[0]['offset'] );
+	}
+
+	/**
+	 * Test the detail view shows a More button, with what the next request needs, past the first page.
+	 */
+	public function test_detail_view_offers_more_past_the_first_page_of_locations() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) {
+				return '"resourceId":"PLB-ABC123"' === $query->get( 's' ) ? $this->embedding_posts( PayPal_Admin_Page::LOCATIONS_PER_PAGE + 1 ) : array();
+			},
+			10,
+			2
+		);
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE, substr_count( $output, '<td>Embed ' ) );
+		$this->assertMatchesRegularExpression(
+			'/<button type="button" class="button" id="paypal-link-locations-more" data-resource-id="PLB-ABC123" data-page="2" data-nonce="[a-f0-9]+">More<\/button>/',
+			$output
+		);
+	}
+
+	/**
+	 * Test the AJAX handler returns the requested page of rows and whether more follow.
+	 */
+	public function test_handle_locations_request_returns_the_requested_page() {
+		$offsets = array();
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( &$offsets ) {
+				$offsets[] = $query->get( 'offset' );
+				return $this->embedding_posts( PayPal_Admin_Page::LOCATIONS_PER_PAGE );
+			},
+			10,
+			2
+		);
+
+		$response = $this->request_locations( array( 'page' => '3' ) );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertSame( array( 2 * PayPal_Admin_Page::LOCATIONS_PER_PAGE ), $offsets );
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE, substr_count( $response['data']['rows'], '<tr>' ) );
+		$this->assertStringContainsString( '<td>Embed 0</td><td>Post</td>', $response['data']['rows'] );
+		$this->assertFalse( $response['data']['has_more'] );
+	}
+
+	/**
+	 * Test the AJAX handler refuses a bad nonce, a non-admin, and a malformed resource id.
+	 *
+	 * @dataProvider provide_rejected_locations_requests
+	 *
+	 * @param array  $overrides Request fields to change.
+	 * @param string $message   Expected error message.
+	 */
+	#[DataProvider( 'provide_rejected_locations_requests' )]
+	public function test_handle_locations_request_rejects_bad_requests( array $overrides, $message ) {
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$response = $this->request_locations( $overrides );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( $message, $response['data']['message'] );
+	}
+
+	/**
+	 * Requests the locations handler must refuse.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_rejected_locations_requests() {
+		return array(
+			'bad nonce'    => array( array( '_wpnonce' => 'nope' ), 'Security check failed.' ),
+			'subscriber'   => array( array( 'role' => 'subscriber' ), 'You do not have permission to view payment buttons.' ),
+			'malformed id' => array( array( 'resource_id' => 'PLB-<script>' ), 'Invalid payment button.' ),
+		);
+	}
+
+	/**
+	 * Published posts embedding PLB-ABC123, titled "Embed 0" onwards.
+	 *
+	 * @param int $count How many.
+	 * @return \WP_Post[]
+	 */
+	private function embedding_posts( $count ) {
+		$posts = array();
+		for ( $i = 0; $i < $count; $i++ ) {
+			$posts[] = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'post', 'Embed ' . $i );
+		}
+		return $posts;
+	}
+
+	/**
+	 * Post a Button Locations page request and return the JSON response.
+	 *
+	 * @param array $overrides Request fields to change; 'role' swaps the admin for another user.
+	 * @return array<string, mixed> Decoded response.
+	 * @throws \RuntimeException When the handler throws anything but the wp_die() stand-in.
+	 */
+	private function request_locations( array $overrides = array() ) {
+		if ( isset( $overrides['role'] ) ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'locations_' . wp_generate_password( 6, false ),
+						'user_pass'  => 'pw',
+						'role'       => $overrides['role'],
+					)
+				)
+			);
+			unset( $overrides['role'] );
+		} else {
+			wp_set_current_user( $this->create_admin_user() );
+		}
+
+		$_POST    = array_merge(
+			array(
+				'action'      => PayPal_Admin_Page::LOCATIONS_AJAX_ACTION,
+				'_wpnonce'    => wp_create_nonce( PayPal_Admin_Page::LOCATIONS_AJAX_ACTION ),
+				'resource_id' => 'PLB-ABC123',
+				'page'        => '1',
+			),
+			$overrides
+		);
+		$_REQUEST = $_POST;
+
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		// Throw from wp_die() so wp_send_json_*() returns to the test instead of exiting.
+		$expected_exception = new \RuntimeException( 'wp_die' );
+		$throw_die_handler  = /** @return never */ static function () use ( $expected_exception ) {
+			throw $expected_exception;
+		};
+		add_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
+
+		ob_start();
+		try {
+			PayPal_Admin_Page::handle_locations_request();
+		} catch ( \RuntimeException $caught_exception ) {
+			if ( $caught_exception !== $expected_exception ) {
+				throw $caught_exception;
+			}
+		}
+		$output = ob_get_clean();
+
+		remove_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$_POST    = array();
+		$_REQUEST = array();
+
+		$response = json_decode( $output, true );
+		$this->assertNotNull( $response, 'handle_locations_request did not return valid JSON. Output: ' . substr( $output, 0, 200 ) );
+
+		return $response;
+	}
+
+	/**
+	 * Test the detail view says when nothing embeds the button instead of printing an empty table.
+	 */
+	public function test_detail_view_says_when_nothing_embeds_the_button() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'not used on any post or page yet', $output );
+		$this->assertStringNotContainsString( 'paypal-link-locations', $output );
 	}
 
 	/**

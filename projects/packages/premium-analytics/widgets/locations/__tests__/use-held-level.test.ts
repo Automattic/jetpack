@@ -39,11 +39,21 @@ describe( 'useHeldLevel', () => {
 			drillDepth: 1,
 		} );
 
-		expect( result.current ).toEqual( { data: COUNTRIES, hasComparison: true, isHeld: true } );
+		expect( result.current ).toEqual( {
+			data: COUNTRIES,
+			hasComparison: true,
+			isHeld: true,
+			drillDepth: 0,
+		} );
 
 		rerender( { ...SETTLED_COUNTRIES, data: REGIONS, hasComparison: false, drillDepth: 1 } );
 
-		expect( result.current ).toEqual( { data: REGIONS, hasComparison: false, isHeld: false } );
+		expect( result.current ).toEqual( {
+			data: REGIONS,
+			hasComparison: false,
+			isHeld: false,
+			drillDepth: 1,
+		} );
 	} );
 
 	it( 'holds the rows a level refreshed to', () => {

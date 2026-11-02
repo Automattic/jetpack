@@ -277,8 +277,8 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( bars.first() ).toHaveCSS( 'fill', emptyColor );
 		await expect( bars.first() ).toHaveCSS( 'height', '4px' );
 		await expect( bars.first() ).toHaveCSS( 'stroke-dasharray', 'none' );
-		const grid = chart.getByRole( 'grid' );
-		await grid.focus();
+		const chartContainer = chart.getByRole( 'application' );
+		await chartContainer.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		const surface = page.locator(
 			'.boost-daily-history__popover .jetpack-boost-overview__history-tooltip'
@@ -325,7 +325,10 @@ for ( const [ label, query, copy, height ] of [
 		for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 			await expect( chart.locator( '.visx-rows line' ) ).toHaveCount( 3 );
-			await expect( chart.getByLabel( 'XYChart' ) ).toHaveCSS( 'height', '96px' );
+			await expect( chart.getByRole( 'application' ).locator( 'svg' ).first() ).toHaveCSS(
+				'height',
+				'96px'
+			);
 		}
 
 		const desktop = page.getByRole( 'region', { name: 'Desktop score history' } );
@@ -337,7 +340,11 @@ for ( const [ label, query, copy, height ] of [
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
 		const secondPanel = ( await mobile.boundingBox() )!;
-		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
+		const secondSvg = ( await mobile
+			.getByRole( 'application' )
+			.locator( 'svg' )
+			.first()
+			.boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
 		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
@@ -382,8 +389,12 @@ test( 'an all-zero window paints recorded scores separately from empty slots', a
 test( 'Tabbing between daily charts preserves focus and resets the previous tooltip', async ( {
 	page,
 } ) => {
-	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
-	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } ).getByRole( 'grid' );
+	const desktop = page
+		.getByRole( 'region', { name: 'Desktop score history' } )
+		.getByRole( 'application' );
+	const mobile = page
+		.getByRole( 'region', { name: 'Mobile score history' } )
+		.getByRole( 'application' );
 	const tooltip = page.getByRole( 'tooltip' );
 	await desktop.focus();
 	await page.keyboard.press( 'ArrowRight' );
@@ -408,7 +419,7 @@ test( 'Rings a keyboard-selected day but not a hovered one', async ( { page } ) 
 	await hoverDay( chart, 21 );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
 	await page.mouse.move( 0, 0 );
-	await chart.getByRole( 'grid' ).focus();
+	await chart.getByRole( 'application' ).focus();
 	for ( const [ presses, date ] of [
 		[ 1, 'August 11, 2026' ],
 		[ 21, 'September 1, 2026' ],
@@ -428,8 +439,8 @@ test( 'Clicking back into a keyboard-navigated chart focuses the chart without t
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
-	await grid.focus();
+	const chartContainer = chart.getByRole( 'application' );
+	await chartContainer.focus();
 	for ( let press = 0; press < 22; press++ ) {
 		await page.keyboard.press( 'ArrowRight' );
 	}
@@ -438,7 +449,7 @@ test( 'Clicking back into a keyboard-navigated chart focuses the chart without t
 	await hoverDay( chart, 21 );
 	await page.mouse.down();
 	await page.mouse.up();
-	await expect( grid ).toBeFocused();
+	await expect( chartContainer ).toBeFocused();
 	await expect( page.locator( '.boost-daily-history__popover' ) ).toContainText(
 		'September 1, 2026'
 	);
@@ -449,18 +460,18 @@ test( 'Hovering a day ends the keyboard selection, and arrows continue from it',
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
+	const chartContainer = chart.getByRole( 'application' );
 	const highlight = page.getByTestId( 'history-highlight' );
 	const popoverDate = page.locator(
 		'.boost-daily-history__popover .jetpack-boost-overview__tooltip-date'
 	);
-	await grid.focus();
+	await chartContainer.focus();
 	for ( let press = 0; press < 6; press++ ) {
 		await page.keyboard.press( 'ArrowRight' );
 	}
 	await expect( page.getByRole( 'tooltip' ) ).toBeFocused();
 	await hoverDay( chart, 23 );
-	await expect( grid ).toBeFocused();
+	await expect( chartContainer ).toBeFocused();
 	await expect( popoverDate ).toHaveText( 'September 3, 2026' );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
 	await expect( chart.locator( '.visx-bar' ).nth( 5 ) ).toHaveCSS( 'stroke', 'none' );
@@ -475,7 +486,7 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 	page,
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
-	const grid = chart.getByRole( 'grid' );
+	const chartContainer = chart.getByRole( 'application' );
 	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
 	const popover = page.locator( '.boost-daily-history__popover' );
 	const openByPointer = async () => {
@@ -484,7 +495,7 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 		await page.mouse.move( 0, 0 );
 	};
 	const openByKeyboard = async () => {
-		await grid.focus();
+		await chartContainer.focus();
 		for ( let day = 0; day <= 21; day++ ) {
 			await page.keyboard.press( 'ArrowRight' );
 		}
@@ -497,7 +508,7 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 		await expect( page.locator( '[data-base-ui-focus-guard]' ) ).toHaveCount( 0 );
 		await next.focus();
 		await page.keyboard.press( 'Tab' );
-		await expect( grid ).toBeFocused();
+		await expect( chartContainer ).toBeFocused();
 	}
 } );
 
@@ -530,7 +541,7 @@ test( 'Tab moves straight through the charts while a hovered day shows its detai
 } ) => {
 	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
 	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
-	const grids = page.getByRole( 'grid' );
+	const charts = page.getByRole( 'application' );
 	const popover = page.locator( '.boost-daily-history__popover' );
 	const press = async ( key: string, target: Locator ) => {
 		await page.keyboard.press( key );
@@ -540,23 +551,25 @@ test( 'Tab moves straight through the charts while a hovered day shows its detai
 	await hoverDay( chart, 21 );
 	await expect( popover ).toBeVisible();
 	await next.focus();
-	await press( 'Tab', grids.first() );
-	await press( 'Tab', grids.last() );
+	await press( 'Tab', charts.first() );
+	await press( 'Tab', charts.last() );
 	// Nothing on the fixture page follows the chart, so leaving it focuses no element.
 	await page.keyboard.press( 'Tab' );
 	await expect( page.locator( ':focus' ) ).toHaveCount( 0 );
 	await expect( popover ).toBeVisible();
-	await press( 'Shift+Tab', grids.last() );
-	await press( 'Shift+Tab', grids.first() );
+	await press( 'Shift+Tab', charts.last() );
+	await press( 'Shift+Tab', charts.first() );
 	await press( 'Shift+Tab', next );
 } );
 
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
-	const grid = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const chartContainer = page
+		.getByRole( 'region', { name: 'Desktop score history' } )
+		.getByRole( 'application' );
 	const popover = page.locator( '.boost-daily-history__popover' );
-	await grid.focus();
+	await chartContainer.focus();
 	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
 	await expect( popover ).toBeVisible();
@@ -566,7 +579,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
 	await expect( popover ).toHaveCount( 0 );
-	await grid.focus();
+	await chartContainer.focus();
 	await page.keyboard.press( 'ArrowRight' );
 	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 1 );
 	await expect( popover ).toBeVisible();
@@ -588,13 +601,17 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 		'rgb(147, 99, 0)'
 	);
 	for ( const [ card, score, color ] of [
-		[ desktop.first(), 90, 'color(srgb 0 0.501961 0.188235 / 0.9)' ],
-		[ mobile, 60, 'color(srgb 0.980392 0.654902 0.329412 / 0.9)' ],
-		[ desktop.nth( 1 ), 40, 'color(srgb 0.8 0.0941176 0.0941176 / 0.9)' ],
+		[ desktop.first(), 90, 'rgb(0, 128, 48)' ],
+		[ mobile, 60, 'rgb(250, 167, 84)' ],
+		[ desktop.nth( 1 ), 40, 'rgb(204, 24, 24)' ],
 	] as const ) {
-		await expect( card.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', score );
-		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'max', '100' );
-		const track = card.locator( '.jetpack-boost-overview__progress' );
+		// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute(
+			'aria-valuenow',
+			String( score )
+		);
+		await expect( card.getByRole( 'progressbar' ) ).toHaveAttribute( 'aria-valuemax', '100' );
+		const track = card.locator( '.jetpack-boost-overview__progress-track' );
 		await expect( track.locator( ':scope > div' ) ).toHaveCSS( 'background-color', color );
 		await expect( track ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
 		await expect( track ).toHaveCSS( 'height', '4px' );
@@ -645,15 +662,11 @@ test( 'Score cards show gain badges, points help, and responsive dividers', asyn
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-right', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'gap', '8px' );
-	await expect( page.locator( '.jetpack-boost-overview__scores-header' ).first() ).toHaveCSS(
-		'height',
-		'64px'
-	);
-	const headerDivider = page.locator( '.jetpack-boost-overview__scores-divider' ).first();
-	await expect( headerDivider ).toBeVisible();
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-width', '1px' );
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-style', 'solid' );
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-color', 'rgb(219, 219, 219)' );
+	const header = page.locator( '.jetpack-boost-overview__scores-header' ).first();
+	await expect( header ).toHaveCSS( 'height', '65px' );
+	await expect( header ).toHaveCSS( 'border-bottom-width', '1px' );
+	await expect( header ).toHaveCSS( 'border-bottom-style', 'solid' );
+	await expect( header ).toHaveCSS( 'border-bottom-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-style', 'solid' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-color', 'rgb(219, 219, 219)' );
@@ -696,16 +709,18 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 		.all();
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
 	const status = calculating.getByRole( 'status' );
-	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
-	await expect( status ).toHaveText( 'Calculating…' );
+	await expect( status.getByText( 'Checking site speed…' ) ).toHaveCSS(
+		'color',
+		'rgb(112, 112, 112)'
+	);
+	await expect( status ).toHaveText( 'Checking site speed…' );
 	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );
 	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 0 );
 	const progress = calculating.getByRole( 'progressbar', { name: 'Testing site speed' } );
 	await expect( progress ).toHaveCount( 1 );
-	await expect( progress ).not.toHaveAttribute( 'value' );
 	await expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
-	await expect( progress ).toHaveJSProperty( 'position', -1 );
-	const track = ( await progress.locator( '..' ).boundingBox() )!;
+	await expect( progress ).toHaveAttribute( 'data-indeterminate', '' );
+	const track = ( await progress.boundingBox() )!;
 	const label = ( await status.boundingBox() )!;
 	expect( track.width ).toBeGreaterThan( 0 );
 	expect( track.height ).toBeGreaterThan( 0 );
@@ -726,7 +741,8 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	await expect( failed.getByRole( 'region' ) ).toHaveCount( 0 );
 	const notice = ( await failedRefresh.getByText( 'Failed to load speed scores' ).boundingBox() )!;
 	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
-	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
+	// eslint-disable-next-line jest-dom/prefer-to-have-value -- Playwright's toHaveValue only reads form fields.
+	await expect( desktop.getByRole( 'progressbar' ) ).toHaveAttribute( 'aria-valuenow', '80' );
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
 } );
 

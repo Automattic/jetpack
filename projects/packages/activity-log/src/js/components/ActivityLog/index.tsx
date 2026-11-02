@@ -19,6 +19,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { config } from '../../config';
 import {
 	activityLogQuery,
 	activityLogGroupCountsQuery,
@@ -26,11 +27,13 @@ import {
 } from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
-import { DateRangePicker } from '../DateRangePicker';
+import { usePresetFilters } from '../../hooks/use-preset-filters';
+import { DateRangePicker, DateRangePickerPlaceholder } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
+import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
 import { useActivityFields } from './fields';
 import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
@@ -170,7 +173,11 @@ const buildErrorNotice = (
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
-	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
+	const presetFilters = usePresetFilters( hasActivityLogsAccess );
+	const { view, setView, resetView, isViewModified } = usePersistentView(
+		DEFAULT_VIEW,
+		presetFilters
+	);
 	const { tracks } = useAnalytics();
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
@@ -264,6 +271,9 @@ export default function ActivityLog() {
 			after: afterIso,
 			before: beforeIso,
 		};
+		if ( config.hiddenGroups.length ) {
+			params.not_group = config.hiddenGroups;
+		}
 		if ( searchTerm ) {
 			params.text_search = searchTerm;
 		}
@@ -312,6 +322,7 @@ export default function ActivityLog() {
 			number: 1000,
 			after: afterIso,
 			before: beforeIso,
+			...( config.hiddenGroups.length && { not_group: config.hiddenGroups } ),
 		} )
 	);
 
@@ -376,6 +387,7 @@ export default function ActivityLog() {
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
 		actors: actorsData?.actors,
+		isAllAiAgentsActive: actorIdValues.includes( ALL_AI_AGENTS_ACTOR_ID ),
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );
@@ -473,10 +485,9 @@ export default function ActivityLog() {
 
 	// Mounting the picker as an admin-ui `actions` slot places it in the
 	// AdminPage header alongside the title/subtitle — matches MSD's
-	// layout for the logs pages. On free tier the picker renders as a
-	// disabled upgrade affordance (no popover, hover tooltip), keeping
-	// the page surface visually consistent with the paid version.
-	const headerActions = (
+	// layout for the logs pages. The free tier ignores dates server-side,
+	// so it gets an empty, disabled picker rather than a range.
+	const headerActions = hasActivityLogsAccess ? (
 		<DateRangePicker
 			start={ dateRange.start }
 			end={ dateRange.end }
@@ -484,8 +495,10 @@ export default function ActivityLog() {
 			timezoneString={ timezoneString }
 			gmtOffset={ gmtOffset }
 			locale={ locale }
-			disabled={ ! hasActivityLogsAccess }
-			disabledTooltipText={ __( 'Upgrade your plan to use this feature.', 'jetpack-activity-log' ) }
+		/>
+	) : (
+		<DateRangePickerPlaceholder
+			tooltipText={ __( 'Upgrade your plan to filter by date.', 'jetpack-activity-log' ) }
 		/>
 	);
 
@@ -504,7 +517,8 @@ export default function ActivityLog() {
 				ref={ wrapperRef }
 				className={
 					'jp-activity-log__dataviews-wrapper' +
-					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' )
+					( hasActivityLogsAccess ? '' : ' jp-activity-log__dataviews-wrapper--free-tier' ) +
+					( config.apiSource === 'wpcom' ? ' jp-activity-log__dataviews-wrapper--wpcom' : '' )
 				}
 			>
 				{ /*

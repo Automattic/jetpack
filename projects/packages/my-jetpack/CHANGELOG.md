@@ -5,6 +5,151 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.14.0] - 2026-10-28
+### Added
+- Let people pick the Overview v1 Stats period and step through earlier periods, shown only while the Overview v1 feature flag is on. [#54106]
+- Overview: Type out the welcome heading and fade the sections in on first load, behind the `my-jetpack-overview-v1` flag. [#54104]
+
+### Changed
+- Header: Keep the tabs and the divider under them in view while scrolling, behind the `my-jetpack-header-controls` flag. [#54105]
+- Modules: Open supported Modules links in Features. [#53992]
+- Overview: Show skeletons for the Stats totals and chart while they load. [#54100]
+- Protect card: Show the firewall as on where the host provides its own. [#53954]
+- Rename the `jetpack_my_jetpack_feature_upgrade` filter to `jetpack_feature_upgrade`, which can also change a feature's manage link. [#54068]
+- Setup wizard: Start the connection with the standard my_jetpack_onboarding entry point, so WordPress.com shows its unified connection screen. This is behind the default-off `my-jetpack-onboarding-wizard` flag. [#54112]
+- Show shared header controls by default in My Jetpack and the modern Boost dashboard, with an avatar, connection status, and access to connection and plan details. [#54225]
+- Stats: Reuse visit counts loaded in the last minute instead of fetching them again. [#54154]
+- Tabs: Build the tab bar with the WordPress UI Tabs component. [#54109]
+- Update package dependencies. [#54118]
+
+### Fixed
+- Backup: Keep the dashboard available after a Jetpack Pro plan expires. [#54108]
+- Features: Bring the first results into view after changing the filter or search while scrolled down. [#54201]
+- Features tab: Let administrators who can manage Jetpack modules but not plugins switch modules on and off in bulk. [#54033]
+- Fix a fatal error when activating a Jetpack plugin beside an older one. [#54012]
+- Overview: Keep the Stats chart line at or above 0 before a sharp rise, while the Overview v1 feature flag is on. [#54199]
+- Overview: Name the Stats period dropdown for screen readers. [#54209]
+- Protect: Fix the URL of the upgrade screen opened from the Protect details page. [#54205]
+- Protect: Use the Protect page's Scan plan check, so WordPress.com plans without Scan's UI are offered the upgrade. [#54071]
+- Record the right previous tab in tab click analytics when arrow keys switch tabs in quick succession. [#54217]
+- Return to the tab you came from with the back link on product upgrade screens. [#54101]
+- Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
+- Show no paid plan price instead of $0 and NaN on upgrade pages with one price per plan, such as Stats, Backup, Social and VideoPress, when prices cannot be loaded. [#54024]
+
+## [6.13.0] - 2026-10-26
+### Added
+- Add a "What's new in Jetpack?" section with recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on. [#53629]
+- Add the Overview v1 sections with Stats, Protect and Boost, shown only while the Overview v1 feature flag is on. [#53628]
+- Add the `jetpack_my_jetpack_feature_upgrade` filter, so a host can send a feature's Upgrade button to its own plans. [#53726]
+- Features: Add the default-off `my-jetpack-account-connect` flag, which starts the account connection from the Install or Connect button of features that need a WordPress.com account. [#53757]
+- Features: Offer Connect on Jetpack AI behind the default-off `my-jetpack-account-connect` flag when a WordPress.com account is all it is missing. [#53760]
+- Features: Turn a feature on when its account connection, started from its Connect button, returns to Features. This is behind the default-off `my-jetpack-account-connect` flag. [#53758]
+- Fill the Overview v1 sections with the remaining products and replace the old Overview content, shown only while the Overview v1 feature flag is on. [#53977]
+
+### Changed
+- Backup: Show Backup's state from the site's plan on its Features card instead of a switch, offering an upgrade, or a renewal for an expired plan. [#53726]
+- Greet the current user by name in the Overview heading, shown only while the Overview v1 feature flag is on. [#54041]
+- Header: Float the connection panel inside the page and tighten its spacing. [#54102]
+- Header: Leave the plan and connection out of the Overview, since the header shows them, while the header controls feature flag is on. [#53977]
+- Onboarding: Size the terms of service line through its Text variant instead of overriding the shared styles. [#53892]
+- Overview: Draw the sections as a compact bordered grid with a divider under each heading, shown only while the Overview v1 feature flag is on. [#54040]
+- Overview: Greet the user by their first name when their profile has one. [#54099]
+- Overview: Rename the "What's new in Jetpack?" closing link to "Read more", behind the Overview v1 feature flag. [#54042]
+- Overview: Show the Stats tabs as plain totals above an area chart, while the Overview v1 feature flag is on. [#54043]
+- Overview: Show the Welcome heading above notices and banners, behind the Overview v1 feature flag. [#54098]
+- Say "Your site is in Offline Mode" in the connection status, and name Offline Mode consistently with the Connectors screen. [#54034]
+- Speed up the dashboard by removing duplicate product and plan requests on page load. [#53946]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Boost card: Fetch a new speed score when the saved one is incomplete, instead of showing an empty score. [#53918]
+- Features: Leave the menu badge count out of the name shown when a feature is added to the menu. [#54067]
+- Features: Retry loading the feature list after a rate-limited or unreadable response, and say the list is incomplete when it cannot be loaded. [#53988]
+- Header: Stop offering to purchase a plan or activate a license to sites with Jetpack Complete, shown only while the header controls feature flag is on. [#53977]
+- Help: Keep the help cards inside their column on narrow screens. [#53847]
+- Onboarding: Explain why connecting failed, with the underlying cause underneath when it helps. [#53289]
+- Overview: Line up the lock icon with the label on locked upgrade links. [#54038]
+- Products: Show the correct status and use the active plugin copy when turning products on or off with both stable and Beta or development copies installed. [#53994]
+- Protect card: Show the firewall as on whenever it is running, matching the Protect page. [#54055]
+- Stop offering retired Security and Growth plans while preserving existing subscriptions. [#53854]
+- Update the Account Protection activation message to describe what the feature does. [#53987]
+
+## [6.12.0] - 2026-10-20
+### Added
+- Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
+- Recognize Jetpack Pro subscriptions and licenses. [#53424]
+
+### Changed
+- Features: Link the five security modules to their card on the Protect page, in place of their switches, while that page owns their settings. Point the Protect card's settings links there too. [#53744]
+- Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
+- Plans: Refresh Pro availability while preserving existing offers. [#53425]
+
+### Fixed
+- Protect: Keep the Protect card active when Brute force protection is off on sites with the Protect page. [#53727]
+
+## [6.11.0] - 2026-10-19
+### Added
+- Add a feature flag for the shared header's global controls. [#53631]
+- Add the shared header's connection control, behind a feature flag. [#53655]
+- Features: Show unavailable modules with their reasons and add an available-only filter. [#53308]
+- Onboarding: Add a full-screen setup wizard behind a feature flag, off by default. It connects the site, asks what the site is for, and records that setup was finished or skipped. [#52765]
+
+### Changed
+- Expiring plan notice: Show WordPress.com's own notice for its plans instead of the generated one. [#53711]
+- Scan: Open the Protect page in WP Admin instead of Jetpack Cloud when the site has one, and leave the threats alert out of the My Jetpack menu count when the Protect menu item shows the number of threats. [#53566]
+- Update package dependencies. [#53004] [#53806]
+
+### Removed
+- Remove the `jetpack_my_jetpack_overview_v1` filter; the `my-jetpack-overview-v1` feature flag now turns on Overview v1, which is still in development. [#53781]
+
+### Fixed
+- Connection: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
+- Features: Hide the legacy Custom Content Types module. [#53402]
+- Onboarding: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
+- Update the Post List activation message to describe what the feature does. [#52921]
+
+## [6.10.0] - 2026-10-14
+### Added
+- Add an opt-in Features page for managing local features in offline mode. [#53280]
+- Add a `jetpack_my_jetpack_overview_v1` filter that turns on Overview v1. [#53627]
+- Add shared data for the header's connection status. [#53243]
+- Print where Jetpack AI is managed in the admin script data, so other screens can link to it. [#53519]
+
+### Changed
+- Connection card: Show a connection error while your account is still to be connected, instead of only asking you to connect it. [#53409]
+
+### Deprecated
+- Deprecate `get_features_by_tier()` on every product except Boost, and remove the unused `features_by_tier` and `is_tiered_pricing` fields from the product data. [#53199]
+
+### Fixed
+- Notices: Show the highest-priority notice first when several are set at once. [#53400]
+
+## [6.9.1] - 2026-10-12
+### Changed
+- Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on. [#53182]
+- Overview: Stop asking to connect a WordPress.com account when nothing in use needs one. [#53242]
+
+### Fixed
+- Connection card: Ask for a user connection as soon as a plugin that needs one is switched on, without a reload. [#53356]
+- Connection card: Stop asking for a user connection as soon as the plugin that needed one is switched off, without a reload. [#53367]
+- Features: Stop requesting the Jetpack module list when the Jetpack plugin is not active. [#53249]
+- Products: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Report a bundle the site has no plan for as needing a plan, rather than as switched off or needing a user connection. [#53287]
+
+## [6.9.0] - 2026-10-07
+### Changed
+- Features tab: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. VideoPress plan comparison: Show the ad-free, customizable player as included in the free plan. [#53181]
+- Features tab: Use the illustrated VideoPress artwork in the feature details window. [#53191]
+
+### Removed
+- Remove the my-jetpack-features-tab feature flag, along with Initializer::register_feature_flags() and Initializer::is_features_tab_enabled(). [#52778]
+- Remove the Products page and route all links to it to the Features tab. [#52778]
+- Point the footer's Modules link and Help's "All Jetpack modules" link back to the Modules page. [#52778]
+
+### Fixed
+- Make the "plugins needed" notice for paid plans translatable as full sentences in both singular and plural forms. [#53213]
+- Stop counting products that are off as needing a user connection. [#53247]
+
 ## [6.8.0] - 2026-10-05
 ### Added
 - Search: Grant the free Search product directly instead of routing through a $0 checkout. [#52655]
@@ -194,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.42.2] - 2026-08-11
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.42.1] - 2026-08-11
 ### Changed
@@ -219,7 +364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.41.1] - 2026-08-03
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.41.0] - 2026-07-27
 ### Changed
@@ -276,7 +421,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.4] - 2026-06-29
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.40.3] - 2026-06-26
 ### Changed
@@ -291,7 +436,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.1] - 2026-06-24
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.40.0] - 2026-06-23
 ### Changed
@@ -316,7 +461,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.38.4] - 2026-06-15
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.38.3] - 2026-06-10
 ### Changed
@@ -325,7 +470,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.38.2] - 2026-06-08
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.38.1] - 2026-06-08
 ### Changed
@@ -358,8 +503,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.37.3] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
 - Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
@@ -572,7 +716,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.11] - 2025-12-15
 ### Changed
-- Update dependencies. [#46157]
+- Update dependencies.
 
 ## [5.28.10] - 2025-12-11
 ### Changed
@@ -603,11 +747,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.5] - 2025-11-19
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.4] - 2025-11-18
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.3] - 2025-11-17
 ### Changed
@@ -618,7 +762,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.2] - 2025-11-12
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.1] - 2025-11-10
 ### Changed
@@ -642,7 +786,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.8] - 2025-10-21
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.27.7] - 2025-10-20
 ### Fixed
@@ -657,7 +801,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.5] - 2025-10-13
 ### Changed
-- Update dependencies. [#45466]
+- Update dependencies.
 
 ## [5.27.4] - 2025-10-10
 ### Changed
@@ -670,11 +814,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.2] - 2025-09-29
 ### Changed
-- Update dependencies. [#45179]
+- Update dependencies.
 
 ## [5.27.1] - 2025-09-22
 ### Changed
-- Update dependencies. [#45179]
+- Update dependencies.
 
 ## [5.27.0] - 2025-09-19
 ### Changed
@@ -691,7 +835,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.26.1] - 2025-09-08
 ### Changed
-- Update dependencies. [#45050]
+- Update dependencies.
 
 ## [5.26.0] - 2025-09-08
 ### Changed
@@ -726,7 +870,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.23.1] - 2025-08-18
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [5.23.0] - 2025-08-14
 ### Added
@@ -799,7 +943,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.17.3] - 2025-07-07
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.17.2] - 2025-07-03
 ### Changed
@@ -824,11 +968,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.16.7] - 2025-06-24
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.6] - 2025-06-23
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.5] - 2025-06-23
 ### Changed
@@ -844,7 +988,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.16.2] - 2025-06-10
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.1] - 2025-06-06
 ### Changed
@@ -977,7 +1121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.9.1] - 2025-03-24
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.9.0] - 2025-03-24
 ### Added
@@ -993,7 +1137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.7.3] - 2025-03-19
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.7.2] - 2025-03-18
 ### Changed
@@ -1202,7 +1346,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.3] - 2024-11-26
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.0.2] - 2024-11-25
 ### Added
@@ -1218,7 +1362,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.1] - 2024-11-18
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.0.0] - 2024-11-14
 ### Removed
@@ -1253,7 +1397,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.35.14] - 2024-10-15
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [4.35.13] - 2024-10-14
 ### Changed
@@ -1286,7 +1430,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.35.8] - 2024-09-25
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [4.35.7] - 2024-09-23
 ### Changed
@@ -2563,7 +2707,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tiered pricing copy and update titles for Jetpack Search [#24357]
 - Hide Activate a license link if there is no user connection since user connection is required [#24251]
 - My Jetpack Hybrid products: Install Jetpack if stand-alone plugin installation fails [#24335]
-- Updated Jetpack Scan feature list. [#23863] [#23795] [#24361] [#24372]
+- Updated Jetpack Scan feature list. [#23795] [#23863] [#24361] [#24372]
 
 ## [1.3.0] - 2022-05-10
 ### Changed
@@ -2655,7 +2799,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: remove dropdown from CTA button in Product cards
 - My Jetpack: Use Text and CSS vars on ProductCard
 - Updated Boost product icon for clarity
-- Updated package dependencies.
 - Updated package dependencies.
 - Updated styles for each product card status
 - Update organization and copy of the Plans section
@@ -3023,6 +3166,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0
+[6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0
+[6.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.11.0...6.12.0
+[6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0
+[6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0
+[6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1
+[6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
 [6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0
 [6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.6.0...6.7.0

@@ -129,6 +129,8 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 					)
 				: summary,
 		};
+	} else if ( item.conversionFailed ) {
+		pill = { intent: 'high', label: __( 'Conversion failed', 'jetpack-videopress-pkg' ) };
 	} else if ( isProcessing ) {
 		pill = {
 			intent: 'informational',

@@ -8,6 +8,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
@@ -26,6 +27,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
@@ -126,6 +128,7 @@ const StageInner = () => {
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -467,6 +470,7 @@ const StageInner = () => {
 								onFiles={ handleFilesSelected }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
+								onUpgrade={ runUpgrade }
 							/>
 						</Card.Content>
 					</Card.Root>
@@ -517,6 +521,10 @@ const StageInner = () => {
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</Tooltip>
+						<RecordVideoButton
+							onRecorded={ file => handleFilesSelected( [ file ] ) }
+							disabled={ isAtLimit }
+						/>
 					</>
 				)
 			}

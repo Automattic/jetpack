@@ -107,7 +107,7 @@ export function FeedbackModal( { source, onSubmit, onClose }: FeedbackModalProps
 					<Dialog.Title>
 						{ __( 'Share your feedback', 'jetpack-premium-analytics-pkg' ) }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 
 				{ hasSubmitted ? (

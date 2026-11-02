@@ -4,6 +4,7 @@
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell } from '@jetpack-premium-analytics/ui';
 import {
+	AuthorDetailLink,
 	MetricWithComparison,
 	PostDetailLink,
 	getAuthorName,
@@ -78,7 +79,13 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							) }
 							className={ styles.avatar }
 						/>
-						<span className={ styles.name }>{ name }</span>
+						<span className={ styles.name }>
+							{ item.authorId ? (
+								<AuthorDetailLink authorId={ item.authorId }>{ name }</AuthorDetailLink>
+							) : (
+								name
+							) }
+						</span>
 					</Stack>
 				);
 			},

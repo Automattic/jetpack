@@ -9,11 +9,12 @@ import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
 import type { JSX, ReactNode } from 'react';
 
-export type NewsletterTab = 'overview' | 'stats' | 'subscribers' | 'settings';
+export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
 	actions?: ReactNode;
+	hasUnsavedChanges?: boolean;
 	/**
 	 * Whether the active tab's CONTENT should sit inside a horizontally-padded
 	 * container. The tab nav itself is always padded the same way regardless
@@ -39,7 +40,6 @@ const PRODUCT_NAME = 'Newsletter'; /** "Newsletter" is a product name, do not tr
 
 const SUBTITLES: Record< NewsletterTab, () => string > = {
 	overview: () => __( 'View a summary of your newsletter.', 'jetpack-newsletter' ),
-	stats: () => __( 'Follow how your subscriber audience is growing.', 'jetpack-newsletter' ),
 	subscribers: () => __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ),
 	settings: () =>
 		__(
@@ -64,6 +64,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
  * @param props                   - Component props.
  * @param props.activeTab         - Which tab the current route represents.
  * @param props.actions           - Optional actions slot (top-right of the Page header).
+ * @param props.hasUnsavedChanges - Whether Settings has unsaved changes or pending autosaves.
  * @param props.contentHasPadding - Whether the active tab's content gets the page's horizontal padding (defaults to true).
  * @param props.hideFooter        - When true, suppresses the `JetpackFooter` rendered beneath the body slot.
  * @param props.children          - Tab content.
@@ -72,6 +73,7 @@ const SUBTITLES: Record< NewsletterTab, () => string > = {
 export default function NewsletterPage( {
 	activeTab,
 	actions,
+	hasUnsavedChanges = false,
 	contentHasPadding = true,
 	hideFooter = false,
 	children,
@@ -91,8 +93,21 @@ export default function NewsletterPage( {
 		( next: string | null ) => {
 			if (
 				( next === 'overview' && ! overviewEnabled ) ||
-				( next === 'stats' && ! overviewEnabled ) ||
-				( next !== 'overview' && next !== 'stats' && next !== 'subscribers' && next !== 'settings' )
+				( next !== 'overview' && next !== 'subscribers' && next !== 'settings' )
+			) {
+				return;
+			}
+			if (
+				activeTab === 'settings' &&
+				next !== activeTab &&
+				hasUnsavedChanges &&
+				// eslint-disable-next-line no-alert
+				! window.confirm(
+					__(
+						'You have unsaved changes. Are you sure you want to leave this tab?',
+						'jetpack-newsletter'
+					)
+				)
 			) {
 				return;
 			}
@@ -105,7 +120,7 @@ export default function NewsletterPage( {
 				},
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, overviewEnabled ]
+		[ activeTab, hasUnsavedChanges, navigate, overviewEnabled ]
 	);
 
 	const contentClass = contentHasPadding
@@ -138,9 +153,6 @@ export default function NewsletterPage( {
 						<Tabs.List variant="minimal">
 							{ overviewEnabled ? (
 								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
-							) : null }
-							{ overviewEnabled ? (
-								<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-newsletter' ) }</Tabs.Tab>
 							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>

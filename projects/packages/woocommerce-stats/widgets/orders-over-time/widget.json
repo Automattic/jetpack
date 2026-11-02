@@ -1,0 +1,32 @@
+{
+	"name": "woocommerce-analytics/orders-over-time",
+	"icon": "jpa/chart-bar",
+	"title": "Orders over time",
+	"description": "See a breakdown of when orders are placed to identify peak selling periods.",
+	"help": {
+		"content": "See a breakdown of when orders are placed to identify peak selling periods."
+	},
+	"category": "orders",
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "line",
+					"label": "Line chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	],
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

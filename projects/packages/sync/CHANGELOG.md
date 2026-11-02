@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.4] - 2026-10-26
+### Fixed
+- Activity Log: Match the Activity Log events REST route case-insensitively. [#53967]
+
+## [5.4.3] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [5.4.2] - 2026-10-15
+### Fixed
+- WooCommerce Analytics: Avoid a PHP 8.1+ deprecation notice when syncing refunds without a cost of goods value. [#53592]
+
+## [5.4.1] - 2026-10-07
+### Removed
+- Comments: Stop syncing the comment identity provider meta. [#53296]
+
+### Fixed
+- WooCommerce Analytics: Match WooCommerce's own order stats for refunds, so a full refund after a partial refund is no longer counted twice and refunds of never-paid orders no longer show as returns. [#53159]
+
 ## [5.4.0] - 2026-10-05
 ### Added
 - Sync the VideoPress site setting that turns off sharing for every video. [#52991]
@@ -98,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.41.0] - 2026-06-08
 ### Added
-- Add options from Advanced WooCommerce settings pages to sync whitelist. [#49435] [#49371]
+- Add options from Advanced WooCommerce settings pages to sync whitelist. [#49371] [#49435]
 
 ## [4.40.0] - 2026-06-08
 ### Added
@@ -140,7 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.38.0] - 2026-05-11
 ### Added
 - Activity Log: Add custom event support with a non-public custom post type, guarded REST route, and class API for creating entries. [#48567]
-- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48638] [#48540]
+- Sync: Whitelist the `jetpack_social_message_template` and `jetpack_search_experience` options so they propagate to WordPress.com. [#48540] [#48638]
 
 ## [4.37.0] - 2026-05-04
 ### Added
@@ -1868,6 +1887,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[5.4.4]: https://github.com/Automattic/jetpack-sync/compare/v5.4.3...v5.4.4
+[5.4.3]: https://github.com/Automattic/jetpack-sync/compare/v5.4.2...v5.4.3
+[5.4.2]: https://github.com/Automattic/jetpack-sync/compare/v5.4.1...v5.4.2
+[5.4.1]: https://github.com/Automattic/jetpack-sync/compare/v5.4.0...v5.4.1
 [5.4.0]: https://github.com/Automattic/jetpack-sync/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/Automattic/jetpack-sync/compare/v5.2.0...v5.3.0
 [5.2.0]: https://github.com/Automattic/jetpack-sync/compare/v5.1.3...v5.2.0

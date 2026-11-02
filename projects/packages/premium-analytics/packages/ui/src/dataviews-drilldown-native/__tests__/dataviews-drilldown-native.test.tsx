@@ -41,7 +41,7 @@ function renderTable( props: Partial< DataViewsDrilldownNativeProps< Row > > = {
 			fields={ fields }
 			getItemId={ item => item.id }
 			getItemParentId={ item => item.parentId }
-			initialView={ { fields: [ 'referrer', 'views' ], perPage: 25 } }
+			initialView={ { fields: [ 'referrer', 'views' ] } }
 			searchLabel="Search referrers"
 			{ ...props }
 		/>
@@ -54,7 +54,7 @@ const inlineFieldsTable = () => (
 		fields={ fields.map( field => ( { ...field } ) ) }
 		getItemId={ item => item.id }
 		getItemParentId={ item => item.parentId }
-		initialView={ { fields: [ 'referrer', 'views' ], perPage: 25 } }
+		initialView={ { fields: [ 'referrer', 'views' ] } }
 		searchLabel="Search referrers"
 		collapsible
 	/>
@@ -157,7 +157,6 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 			defaultExpanded: 'none',
 			initialView: {
 				fields: [ 'referrer', 'views' ],
-				perPage: 25,
 				filters: [ { field: 'referrer', operator: 'isAny', value: [] } ],
 			},
 		} );
@@ -185,56 +184,43 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.queryByText( 'Google Search' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'reveals a match that sits under a folded parent when searching', async () => {
-		const user = userEvent.setup();
-		renderTable( { collapsible: true, defaultExpanded: 'none' } );
+	describe( 'searching', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
 
-		await user.type( screen.getByRole( 'searchbox' ), 'Google Search' );
+		it( 'reveals a match that sits under a folded parent when searching', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderTable( { collapsible: true, defaultExpanded: 'none' } );
 
-		await expect( screen.findByText( 'Google Search' ) ).resolves.toBeInTheDocument();
-		// The ancestors come back as context, not as a flat result list.
-		expect( screen.getByText( 'Search Engines' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
-		// A branch the search never touched stays folded.
-		expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
-		// A forced-open ancestor is still a group, so it keeps its control and
-		// its state — it just cannot be used to write a fold yet.
-		const forced = screen.getByRole( 'button', { name: 'Search Engines' } );
-		expect( forced ).toHaveAttribute( 'aria-expanded', 'true' );
-		expect( forced ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( screen.getByRole( 'button', { name: 'Google' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+			await user.type( screen.getByRole( 'searchbox' ), 'Google Search' );
 
-		// Clicking it writes nothing, so clearing the search folds everything
-		// back instead of surfacing a fold the reader never saw take effect.
-		await user.click( forced );
-		await user.clear( screen.getByRole( 'searchbox' ) );
+			await expect( screen.findByText( 'Google Search' ) ).resolves.toBeInTheDocument();
+			// The ancestors come back as context, not as a flat result list.
+			expect( screen.getByText( 'Search Engines' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Google' ) ).toBeInTheDocument();
+			// A branch the search never touched stays folded.
+			expect( screen.queryByText( 'Facebook' ) ).not.toBeInTheDocument();
+			// A forced-open ancestor is still a group, so it keeps its control and
+			// its state — it just cannot be used to write a fold yet.
+			const forced = screen.getByRole( 'button', { name: 'Search Engines' } );
+			expect( forced ).toHaveAttribute( 'aria-expanded', 'true' );
+			expect( forced ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByRole( 'button', { name: 'Google' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 
-		await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );
-		expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toHaveAttribute(
-			'aria-expanded',
-			'false'
-		);
-	} );
+			// Clicking it writes nothing, so clearing the search folds everything
+			// back instead of surfacing a fold the reader never saw take effect.
+			await user.click( forced );
+			await user.clear( screen.getByRole( 'searchbox' ) );
 
-	it( 'counts only the visible rows when paginating', async () => {
-		const user = userEvent.setup();
-		renderTable( {
-			collapsible: true,
-			initialView: { fields: [ 'referrer', 'views' ], perPage: 2 },
+			await waitFor( () => expect( screen.queryByText( 'Google' ) ).not.toBeInTheDocument() );
+			expect( screen.getByRole( 'button', { name: 'Search Engines' } ) ).toHaveAttribute(
+				'aria-expanded',
+				'false'
+			);
 		} );
-
-		expect( screen.getByText( 'of 3' ) ).toBeInTheDocument();
-
-		await user.click( screen.getByRole( 'button', { name: 'Search Engines' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'Social' } ) );
-
-		// The folded children stop consuming pages, rather than paginating rows
-		// nobody can see.
-		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
-		expect( renderedRows() ).toHaveLength( 2 );
 	} );
 } );
 
@@ -247,74 +233,23 @@ function flatRows( count: number ): Row[] {
 	} ) );
 }
 
-const flatTable = ( count: number ) => (
-	<DataViewsDrilldownNative< Row >
-		data={ flatRows( count ) }
-		fields={ fields }
-		getItemId={ item => item.id }
-		getItemParentId={ item => item.parentId }
-		initialView={ { fields: [ 'referrer', 'views' ], perPage: 10 } }
-		searchLabel="Search referrers"
-	/>
-);
+describe( 'DataViewsDrilldownNative paging', () => {
+	it( 'lists every row on one page with no page size menu', async () => {
+		render(
+			<DataViewsDrilldownNative< Row >
+				data={ flatRows( 25 ) }
+				fields={ fields }
+				getItemId={ item => item.id }
+				getItemParentId={ item => item.parentId }
+				initialView={ { fields: [ 'referrer', 'views' ] } }
+			/>
+		);
 
-describe( 'DataViewsDrilldownNative pagination', () => {
-	// This table slices its own rows, so the reader's page survives a refetch the
-	// same way the flat tables' does, and a smaller result strands them past the
-	// end with the pagination hidden.
-	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( flatTable( 25 ) );
+		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		expect( screen.getByText( 'Row 21' ) ).toBeInTheDocument();
-
-		rerender( flatTable( 8 ) );
-
-		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
-	} );
-
-	it( 'keeps the pagination controls agreeing with the rows it fell back to', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( flatTable( 25 ) );
-
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-
-		rerender( flatTable( 12 ) );
-
-		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
-	} );
-
-	it( 'stays where it fell back to when a later result grows again', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( flatTable( 25 ) );
-
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-
-		rerender( flatTable( 8 ) );
-		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
-
-		rerender( flatTable( 25 ) );
-
-		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Row 21' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'leaves a page that is still in range alone', async () => {
-		const user = userEvent.setup();
-		const { rerender } = render( flatTable( 25 ) );
-
-		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
-
-		rerender( flatTable( 22 ) );
-
-		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Items per page' ) ).not.toBeInTheDocument();
 	} );
 } );

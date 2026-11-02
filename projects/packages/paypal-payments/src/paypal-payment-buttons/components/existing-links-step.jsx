@@ -49,15 +49,15 @@ export function filterLinks( links, search ) {
 
 // The comments sit on the calls, where the minifier keeps them with the string.
 const titleReuse =
-	/* translators: %d: number of payment links the account already has */
-	__( 'Or reuse an existing link (%d)', 'jetpack-paypal-payments' );
+	/* translators: %d: number of payment buttons the account already has */
+	__( 'Or reuse an existing button (%d)', 'jetpack-paypal-payments' );
 const titleSwitch = __( 'Choose a button to change', 'jetpack-paypal-payments' );
 const helpSwitch = __(
-	'The button will take the name, price and details of the link you pick.',
+	'The block will take the name, price and details of the payment button you pick.',
 	'jetpack-paypal-payments'
 );
-const emptyNoMatch = __( 'No payment links match your search.', 'jetpack-paypal-payments' );
-const emptyNoOther = __( 'No other payment links available.', 'jetpack-paypal-payments' );
+const emptyNoMatch = __( 'No payment buttons match your search.', 'jetpack-paypal-payments' );
+const emptyNoOther = __( 'No other payment buttons available.', 'jetpack-paypal-payments' );
 
 /**
  * The name a link is listed under.
@@ -100,19 +100,19 @@ export default function ExistingLinksStep( {
 
 	if ( isLoading ) {
 		return (
-			<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Payment button', 'jetpack-paypal-payments' ) } initialOpen={ true }>
 				<Spinner />
 			</PanelBody>
 		);
 	}
 
 	return (
-		<PanelBody title={ __( 'Payment link', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+		<PanelBody title={ __( 'Payment button', 'jetpack-paypal-payments' ) } initialOpen={ true }>
 			{ ! isSwitch && (
 				<>
 					<p className="jetpack-paypal-payment-buttons__links-intro">
 						{ __(
-							'Create a new payment link for this block, or reuse one you already have.',
+							'Create a new payment button for this block, or reuse one you already have.',
 							'jetpack-paypal-payments'
 						) }
 					</p>
@@ -136,7 +136,7 @@ export default function ExistingLinksStep( {
 				) }
 				{ links.length > SEARCH_THRESHOLD && (
 					<SearchControl
-						label={ __( 'Search payment links', 'jetpack-paypal-payments' ) }
+						label={ __( 'Search payment buttons', 'jetpack-paypal-payments' ) }
 						placeholder={ __( 'Search by name, description or price', 'jetpack-paypal-payments' ) }
 						value={ search }
 						onChange={ setSearch }

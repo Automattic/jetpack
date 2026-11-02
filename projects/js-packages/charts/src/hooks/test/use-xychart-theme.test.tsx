@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react';
+import { GlobalChartsProvider } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { ChartScopeContext } from '../../providers/chart-scope';
 import { useXYChartTheme } from '../use-xychart-theme';
@@ -66,6 +67,27 @@ describe( 'useXYChartTheme', () => {
 		);
 
 		document.body.removeChild( scope );
+	} );
+
+	it.each( [
+		[ -12, 11 ],
+		[ Infinity, 11 ],
+		[ 14, 14 ],
+		[ '-12px', 11 ],
+		[ '12.px', 11 ],
+		[ '9'.repeat( 400 ) + 'px', 11 ],
+		[ '0.875rem', '0.875rem' ],
+		[ 'var(--size)', 'var(--size)' ],
+	] )( 'renders a theme fontSize of %p as %p', ( fontSize, expected ) => {
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<GlobalChartsProvider theme={ { svgLabelSmall: { fontSize } } }>
+				{ children }
+			</GlobalChartsProvider>
+		);
+
+		const { result } = renderHook( () => useXYChartTheme( [] ), { wrapper } );
+
+		expect( result.current.axisStyles.x.bottom.tickLabel.fontSize ).toBe( expected );
 	} );
 
 	it( 'gives the y axis its own roles, resolving to none', () => {

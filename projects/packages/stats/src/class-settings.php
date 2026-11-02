@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Stats;
 use WP_Error;
 
 /**
- * Reads and validates changes to the owner-facing keys of `stats_options`.
+ * Reads and validates changes to the owner-facing keys of `stats_options`, and saves the WordPress.com Reader setting.
  */
 class Settings {
 	const ERROR_PREFIX = 'jetpack_stats_';
@@ -62,7 +62,8 @@ class Settings {
 					/* translators: %s: comma-separated list of setting names. */
 					__( 'Unknown Stats settings: %s.', 'jetpack-stats-pkg' ),
 					implode( ', ', $unknown )
-				)
+				),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -74,7 +75,8 @@ class Settings {
 					/* translators: %s: comma-separated list of writable field names. */
 					__( 'Provide at least one of: %s.', 'jetpack-stats-pkg' ),
 					implode( ', ', $keys )
-				)
+				),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -98,14 +100,16 @@ class Settings {
 						/* translators: %s: the offending field name. */
 						__( 'Field `%s` must be an array of role slugs.', 'jetpack-stats-pkg' ),
 						$role_field
-					)
+					),
+					array( 'status' => 400 )
 				);
 			}
 			// Direct PHP callers skip the REST schema's `minItems` check.
 			if ( 'roles' === $role_field && empty( $provided[ $role_field ] ) ) {
 				return new WP_Error(
 					self::ERROR_PREFIX . 'invalid_roles',
-					__( 'Field `roles` must be a non-empty array of role slugs.', 'jetpack-stats-pkg' )
+					__( 'Field `roles` must be a non-empty array of role slugs.', 'jetpack-stats-pkg' ),
+					array( 'status' => 400 )
 				);
 			}
 			$sanitized = array();
@@ -118,7 +122,8 @@ class Settings {
 							__( 'Role slugs in `%1$s` must be non-empty strings. Known roles: %2$s.', 'jetpack-stats-pkg' ),
 							$role_field,
 							implode( ', ', $known_roles )
-						)
+						),
+						array( 'status' => 400 )
 					);
 				}
 				if ( ! in_array( $role, $known_roles, true ) && ! in_array( $role, $before[ $role_field ], true ) ) {
@@ -130,7 +135,8 @@ class Settings {
 							$role,
 							$role_field,
 							implode( ', ', $known_roles )
-						)
+						),
+						array( 'status' => 400 )
 					);
 				}
 				$sanitized[] = $role;
@@ -163,7 +169,8 @@ class Settings {
 			if ( $after[ $key ] !== $value ) {
 				return new WP_Error(
 					self::ERROR_PREFIX . 'save_failed',
-					__( 'The Stats settings could not be saved.', 'jetpack-stats-pkg' )
+					__( 'The Stats settings could not be saved.', 'jetpack-stats-pkg' ),
+					array( 'status' => 500 )
 				);
 			}
 		}
@@ -172,5 +179,28 @@ class Settings {
 			'changed'  => $after !== $before,
 			'settings' => $after,
 		);
+	}
+
+	/**
+	 * Save whether the WordPress.com Reader shows post views for this site.
+	 *
+	 * @since 0.23.0
+	 *
+	 * @param bool $enabled Whether the Reader shows post views.
+	 * @return true|WP_Error True once stored, or an error when the site kept another value.
+	 */
+	public static function update_reader_views( bool $enabled ) {
+		$value = (int) $enabled;
+		update_option( 'wpcom_reader_views_enabled', $value );
+		// update_option() also returns false for an unchanged value, so read the option back.
+		if ( (int) get_option( 'wpcom_reader_views_enabled', 1 ) !== $value ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'save_failed',
+				__( 'The Stats settings could not be saved.', 'jetpack-stats-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return true;
 	}
 }

@@ -270,7 +270,7 @@ class Jetpack_SEO {
 			$meta['description'] = wp_sprintf( $template, $post_count, $authors, $period );
 		}
 
-		$mark_as_noindex = Jetpack_SEO_Posts::get_post_noindex_setting( get_post() );
+		$mark_as_noindex = is_singular() && Jetpack_SEO_Posts::get_post_noindex_setting( get_post() );
 		if ( $mark_as_noindex ) {
 			$meta['robots'] = 'noindex';
 		}

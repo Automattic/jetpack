@@ -122,8 +122,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no stats for the email: the widget shows its empty state (the
- * envelope glyph and "No stats are available for this email yet.").
+ * Resolved with no stats for the email: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: args => renderEmailTopRow( args, 2003 ),

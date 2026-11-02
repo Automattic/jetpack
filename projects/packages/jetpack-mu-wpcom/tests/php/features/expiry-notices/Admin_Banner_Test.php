@@ -52,8 +52,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 			45  => array( 'notice-warning', $renew, false, false ),
 			5   => array( 'notice-error', $renew, false, false ),
 			0   => array( 'notice-error', $renew, false, false ),
-			-5  => array( 'notice-error', $renew, true, false ),
-			-45 => array( 'notice-error', $renew, true, false ),
+			-5  => array( 'notice-error', $renew, true, true ),
+			-45 => array( 'notice-error', $renew, true, true ),
 		);
 		foreach ( $cases as $days => list( $class, $primary, $has_plans, $has_dismiss ) ) {
 			$this->set_purchase( $days );
@@ -161,7 +161,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	public function test_a_non_owner_admin_is_told_why_there_is_nothing_to_click(): void {
+	public function test_a_non_owner_admin_is_told_why_there_is_no_cta(): void {
 		$this->act_as_non_owner();
 		$this->set_purchase( 5 );
 		$out = $this->render();
@@ -173,7 +173,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$out = $this->render();
 		$this->assertStringContainsString( '<strong>Your plan has expired</strong>', $out );
 		$this->assertStringNotContainsString( 'Restore site', $out );
-		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
 	}
 
 	public function test_the_script_carries_the_track_props(): void {

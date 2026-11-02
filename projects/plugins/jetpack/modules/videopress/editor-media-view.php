@@ -59,7 +59,6 @@ function videopress_handle_editor_view_js() {
 				'autoplay'  => esc_html__( 'Autoplay video on page load', 'jetpack' ),
 				'loop'      => esc_html__( 'Loop video playback', 'jetpack' ),
 				'freedom'   => esc_html__( 'Use only Open Source codecs (may degrade performance)', 'jetpack' ),
-				'flashonly' => esc_html__( 'Use legacy Flash Player (not recommended)', 'jetpack' ),
 			),
 		)
 	);

@@ -78,7 +78,7 @@ function wpcom_enable_rtc() {
 	 * at priority 20 on HTTP polling, which does not use `wp.sync`, so they are
 	 * unaffected.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param bool $enabled Whether the rollout is active. Default false.
 	 */

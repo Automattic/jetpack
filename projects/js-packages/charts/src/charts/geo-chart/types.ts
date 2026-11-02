@@ -31,7 +31,7 @@ export interface GeoChartError {
 
 export interface GeoChartProps extends Pick<
 	BaseChartProps,
-	'className' | 'chartId' | 'width' | 'height'
+	'className' | 'chartId' | 'ariaLabel' | 'width' | 'height'
 > {
 	/**
 	 * Data in Google Charts native format for maximum flexibility.

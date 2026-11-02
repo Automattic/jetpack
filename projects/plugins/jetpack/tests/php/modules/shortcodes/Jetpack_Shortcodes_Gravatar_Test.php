@@ -16,14 +16,14 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_gravatar() {
 		$content = '[gravatar]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertSame( '', $shortcode_content );
@@ -39,7 +39,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 		$size    = 48;
 		$content = "[gravatar email='$email' size='$size']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$avatar_url        = wptexturize( get_avatar_url( $email, array( 'size' => $size ) ) );
 		$this->assertStringContainsString( "<img alt='' src='$avatar_url'", $shortcode_content );
 		$this->assertStringContainsString( "class='avatar avatar-$size photo' height='$size' width='$size'", $shortcode_content );
@@ -80,7 +80,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 
 		add_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$avatar_url        = wptexturize( get_avatar_url( $email, array( 'size' => 96 ) ) );
 		$this->assertStringContainsString( '<div class="grofile vcard" id="grofile-embed-0">', $shortcode_content );
 		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
@@ -113,7 +113,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 
 		add_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$avatar_url        = wptexturize( get_avatar_url( $email, array( 'size' => 96 ) ) );
 		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
 
@@ -138,7 +138,7 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 
 		add_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertSame( '', $shortcode_content );
 
 		remove_filter( 'pre_http_request', $http_request_filter, 10 );

@@ -4,7 +4,6 @@ import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import { detectMode } from '$lib/modern/mode';
-import LicenseKeyLink from '$features/upgrade-cta/license-key-link';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -12,9 +11,12 @@ import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import { upgradeHref } from '../../../../../../_inc/overview/lib/upgrade-bridge';
+import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
 import type { FC } from 'react';
 
 const GettingStarted: FC = () => {
+	const isModern = detectMode() === 'modern';
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 	const { returnToSettings } = useBoostNavigation();
@@ -35,11 +37,10 @@ const GettingStarted: FC = () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href = getUpgradeURL(
-					domain,
-					userConnected,
-					wpcomBlogId ? wpcomBlogId.toString() : null
-				);
+				window.location.href =
+					isModern && canOfferUpgrade()
+						? upgradeHref
+						: getUpgradeURL( domain, userConnected, wpcomBlogId ? wpcomBlogId.toString() : null );
 			} else {
 				if ( ! isPremium ) {
 					setCriticalCssState( true );
@@ -49,6 +50,7 @@ const GettingStarted: FC = () => {
 		}
 	}, [
 		domain,
+		isModern,
 		isPremium,
 		returnToSettings,
 		selectedPlan,
@@ -82,7 +84,7 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<BoostAdminPage showActivateLicense={ detectMode() !== 'modern' }>
+		<BoostAdminPage showActivateLicense={ ! isModern }>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
@@ -93,7 +95,6 @@ const GettingStarted: FC = () => {
 								chosenFreePlan={ selectedPlan === 'free' }
 								chosenPaidPlan={ selectedPlan === 'premium' }
 							/>
-							<LicenseKeyLink className={ styles[ 'license-key-link' ] } />
 							{ snackbarMessage !== '' && (
 								<Snackbar
 									children={ snackbarMessage }

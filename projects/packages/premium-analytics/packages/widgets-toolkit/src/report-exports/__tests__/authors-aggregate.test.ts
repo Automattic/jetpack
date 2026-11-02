@@ -104,10 +104,25 @@ const comparisonReport: StatsDrilldownSourceReport< StatsTopAuthorsComparisonIte
 };
 
 describe( 'report authors aggregate', () => {
+	it( 'gives an author without a usable user ID no author page to link to', () => {
+		const [ row ] = aggregateAuthorRows( {
+			...report,
+			data: [
+				{
+					...report.data[ 0 ],
+					items: [ { id: 0, label: 'Untracked Authors', views: 3, icon: null } ],
+				},
+			],
+		} );
+
+		expect( row ).not.toHaveProperty( 'authorId' );
+	} );
+
 	it( 'aggregates authors and nests their posts in descending views order', () => {
 		expect( aggregateAuthorRows( report ) ).toEqual( [
 			{
 				id: 'id:42',
+				authorId: '42',
 				label: 'Ada Lovelace',
 				avatarUrl: 'https://example.com/ada.png',
 				isGroup: true,
@@ -186,6 +201,7 @@ describe( 'report authors aggregate', () => {
 		expect( aggregateAuthorRows( comparisonReport ) ).toEqual( [
 			{
 				id: 'id:42',
+				authorId: '42',
 				label: 'Ada Lovelace',
 				avatarUrl: 'https://example.com/ada.png',
 				isGroup: true,

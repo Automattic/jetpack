@@ -130,12 +130,12 @@ class Admin_Post_List_Column {
 				 * Filters where the post list table's views column links to.
 				 *
 				 * @since 0.34.0
-				 * @deprecated $$next-version$$ Use jetpack_stats_url instead.
+				 * @deprecated 0.39.0 Use jetpack_stats_url instead.
 				 *
 				 * @param string $stats_post_url Stats URL for the post.
 				 * @param int    $post_id        The post the row belongs to.
 				 */
-				$stats_post_url = apply_filters_deprecated( 'jetpack_stats_post_list_column_url', array( $stats_post_url, $post_id ), 'jetpack-stats-admin-$$next-version$$', 'jetpack_stats_url' );
+				$stats_post_url = apply_filters_deprecated( 'jetpack_stats_post_list_column_url', array( $stats_post_url, $post_id ), 'jetpack-stats-admin-0.39.0', 'jetpack_stats_url' );
 
 				/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
 				$stats_post_url = apply_filters(
@@ -150,8 +150,8 @@ class Admin_Post_List_Column {
 				static $post_views = null;
 
 				/**
-				 * Jetpack_stats_get_post_page_views_for_current_list makes a request with all post ids in the current $wp_query.
-				 * This way, we'll make a single API request instead of making one for each post.
+				 * The get_post_page_views_for_current_list() call requests all post ids in the current $wp_query, 100 per request.
+				 * This way, we avoid making one API request for each post.
 				 *
 				 * For this reason, we'll cache the result with the static $post_views variable.
 				 */
@@ -265,21 +265,28 @@ class Admin_Post_List_Column {
 		}
 
 		$wpcom_stats = $this->get_stats();
-		$post_views  = $wpcom_stats->get_total_post_views(
-			array(
-				'num'      => 30,
-				'post_ids' => implode( ',', $post_ids ),
-			)
-		);
+		$views       = array();
 
-		if ( is_wp_error( $post_views ) || empty( $post_views ) ) {
-			return array();
-		}
+		// The endpoint takes at most 100 post IDs, and hierarchical lists load every post at once.
+		foreach ( array_chunk( $post_ids, 100 ) as $batch ) {
+			$post_views = $wpcom_stats->get_total_post_views(
+				array(
+					'num'      => 30,
+					'post_ids' => implode( ',', $batch ),
+				)
+			);
 
-		$views = array();
+			if ( is_wp_error( $post_views ) && in_array( $post_views->get_error_code(), array( 'site_not_connected', 'http_request_failed' ), true ) ) {
+				break;
+			}
 
-		foreach ( $post_views['posts'] as $post ) {
-			$views[ $post['ID'] ] = $post['views'];
+			if ( is_wp_error( $post_views ) || empty( $post_views['posts'] ) ) {
+				continue;
+			}
+
+			foreach ( $post_views['posts'] as $post ) {
+				$views[ $post['ID'] ] = $post['views'];
+			}
 		}
 
 		return $views;

@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/total-returns",
+	"icon": "jpa/chart-bar",
+	"title": "Total returns",
+	"description": "Shows refunds and net sales over the selected time period.",
+	"help": {
+		"content": "Total value of returns issued for physical products over the selected time period."
+	},
+	"category": "store",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

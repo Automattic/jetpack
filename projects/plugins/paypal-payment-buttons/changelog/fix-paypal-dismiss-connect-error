@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the PayPal connection error dismissed, instead of showing it again and asking PayPal for another onboarding link.

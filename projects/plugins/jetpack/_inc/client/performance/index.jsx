@@ -35,14 +35,9 @@ class Performance extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Performance Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Performance', 'jetpack' )
-						: __(
-								'Load pages faster, optimize images, and speed up your visitors’ experience.',
-								'jetpack'
-							) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
+				) }
 				<Search { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />
 				<Media { ...commonProps } />

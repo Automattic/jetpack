@@ -6,7 +6,7 @@ The frontend code lives in the Calypso repo (`packages/agents-manager/` and `app
 
 ## Concepts
 
-- **Block-editor mode** = Agents Manager replaces Big Sky's native block-editor UI. Gated by `agents_manager_enabled_in_block_editor` (hooked by Big Sky). Help Center remains available independently.
+- **Block-editor mode** = Agents Manager is the chat in the block editor. Gated by `agents_manager_enabled_in_block_editor`, which hosts hook (jetpack-mu-wpcom on WordPress.com sites, the Jetpack AI Sidebar on its surfaces). Help Center remains available independently.
 - **Requested shell** = An integration can load Agents Manager outside the block editor with `agents_manager_should_load`.
 
 ## Cross-Repo Relationship
@@ -32,4 +32,3 @@ These filters control behavior and are used by other plugins (like Big Sky) to i
 - **Node presence is the eligibility signal**: `add_admin_bar_nodes()` bails when `get_active_context()` is `null`, so a client that receives these nodes is already eligible. Consumers should not re-check the rollout — a second gate can only drift from this one.
 - **Node `meta` is a client contract**: `menu_title` is the label, because `title` is wp-admin markup — keep it unescaped, since core escapes it again for the group `aria-label`. `icon` is the custom `sparkle` glyph name. `html` is wp-admin only.
 - **Feature gating has two entry points**: `is_enabled()` accepts either block-editor enablement or an explicit shell request.
-- **Router history cleanup**: The `calypso_preferences_update` filter silently limits history to 50 entries. If debugging missing history state, check this.

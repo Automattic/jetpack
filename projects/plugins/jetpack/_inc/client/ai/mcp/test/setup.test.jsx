@@ -41,3 +41,30 @@ describe( 'McpSetup: Cursor quick setup', () => {
 		expect( screen.getByRole( 'heading', { name: 'Manual setup' } ) ).toBeInTheDocument();
 	} );
 } );
+
+describe( 'McpSetup: ChatGPT and Claude quick setup', () => {
+	afterEach( () => {
+		delete window.jetpackAiSettings;
+	} );
+
+	test.each( [
+		[ 'chatgpt', true, 'Jetpack plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'chatgpt', false, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'chatgpt', undefined, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'claude', true, 'Claude connector', 'jetpack-ai-hub-mcp-setup-claude-self-hosted' ],
+		[ 'claude', false, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],
+		[ 'claude', undefined, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],
+	] )( '%s with isSelfHosted %s links to the %s', async ( client, isSelfHosted, name, source ) => {
+		window.jetpackAiSettings = { isSelfHosted };
+		render( <McpSetup /> );
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Choose your AI agent' } ),
+			client
+		);
+
+		expect( screen.getByRole( 'link', { name: new RegExp( name ) } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
+		);
+	} );
+} );

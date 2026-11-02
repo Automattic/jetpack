@@ -1,0 +1,401 @@
+@use "../chapters-editor/tokens";
+@use "sass:meta";
+
+.videopress-recording.components-modal__frame {
+	inline-size: min(1080px, calc(100vw - 32px));
+	max-block-size: calc(100dvh - 40px);
+	max-inline-size: none;
+}
+
+.videopress-recording__workspace {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.videopress-recording__stage {
+
+	@include meta.load-css( "video.js/dist/video-js.css" );
+
+	position: relative;
+	inline-size: 100%;
+	block-size: clamp(360px, calc(100dvh - 300px), 640px);
+	aspect-ratio: 16 / 9;
+	background: #000;
+	border-radius: 12px;
+	overflow: hidden;
+	font-family: inherit;
+
+	.video-js {
+		inline-size: 100%;
+		block-size: 100%;
+		font-family: inherit;
+		font-size: 13px;
+	}
+
+	.vjs-tech {
+		object-fit: contain;
+	}
+}
+
+.videopress-recording__stage .video-js {
+
+	.videopress-recording__overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		color: #fff;
+		pointer-events: none;
+		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 24%, transparent 45%, rgba(0, 0, 0, 0.8));
+
+		button {
+			pointer-events: auto;
+			cursor: pointer;
+			font: inherit;
+			transition:
+				background-color 180ms ease,
+				border-color 180ms ease,
+				box-shadow 180ms ease,
+				opacity 180ms ease,
+				transform 180ms ease;
+
+			&:active:not(:disabled) {
+				transform: scale(0.96);
+			}
+		}
+
+		button:focus-visible {
+			outline: 2px solid #fff;
+			outline-offset: 4px;
+		}
+
+		button:disabled {
+			opacity: 0.5;
+			cursor: default;
+		}
+	}
+
+	.videopress-recording__overlay-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 16px;
+		animation: videopress-recording-controls-enter 240ms ease-out backwards;
+	}
+
+	.videopress-recording__status {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 12px;
+		border-radius: 999px;
+		background: rgba(0, 0, 0, 0.65);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.videopress-recording__status-dot {
+		inline-size: 10px;
+		block-size: 10px;
+		border-radius: 50%;
+		background: #f43f47;
+		animation: videopress-recording-status-pulse 1600ms ease-in-out infinite;
+	}
+
+	.videopress-recording__overlay-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-block-size: 44px;
+		padding: 10px 16px;
+		color: #fff;
+		background: rgba(0, 0, 0, 0.65);
+		border: 1px solid rgba(255, 255, 255, 0.5);
+		border-radius: 999px;
+
+		&[aria-pressed="true"],
+		&[aria-expanded="true"] {
+			border-color: #fff;
+			box-shadow: inset 0 0 0 1px #fff;
+		}
+
+		&:hover:not(:disabled) {
+			background: rgba(255, 255, 255, 0.2);
+			border-color: #fff;
+		}
+	}
+
+	.videopress-recording__overlay-bottom {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+		padding: 16px 20px 20px;
+		animation: videopress-recording-controls-enter 280ms 60ms ease-out backwards;
+	}
+
+	.videopress-recording__camera-actions {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		inline-size: 100%;
+		max-inline-size: 560px;
+	}
+
+	.videopress-recording__effect-picker {
+		justify-self: start;
+	}
+
+	.videopress-recording__effects {
+		position: absolute;
+		inset-block-end: calc(100% + 16px);
+		inset-inline: 0;
+		display: flex;
+		gap: 12px;
+		inline-size: max-content;
+		max-inline-size: 100%;
+		box-sizing: border-box;
+		margin-inline: auto;
+		padding: 12px;
+		overflow-x: auto;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 16px;
+		background: rgba(0, 0, 0, 0.8);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(12px);
+		transition:
+			opacity 220ms ease,
+			transform 220ms ease,
+			visibility 220ms;
+
+		&.is-open {
+			opacity: 1;
+			visibility: visible;
+			transform: translateY(0);
+			pointer-events: auto;
+		}
+	}
+
+	.videopress-recording__effect {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		padding: 4px;
+		min-inline-size: 56px;
+		color: #fff;
+		border: 0;
+		background: transparent;
+
+		&[aria-pressed="true"] .videopress-recording__effect-swatch {
+			outline: 2px solid #fff;
+			outline-offset: 3px;
+			transform: scale(1.05);
+		}
+
+		&:hover:not(:disabled) .videopress-recording__effect-swatch {
+			transform: translateY(-3px);
+		}
+	}
+
+	.videopress-recording__effect-swatch {
+		display: block;
+		inline-size: 44px;
+		block-size: 44px;
+		border-radius: 50%;
+		background: linear-gradient(145deg, #91bbdf 0%, #91bbdf 35%, #e7ba9a 36%, #cb8061 72%, #487152 73%);
+		transition: transform 180ms ease;
+	}
+
+	.videopress-recording__record-toggle {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		color: #fff;
+		border: 0;
+		background: transparent;
+		padding: 0 12px;
+	}
+
+	.videopress-recording__record-ring {
+		position: relative;
+		display: grid;
+		place-items: center;
+		inline-size: 64px;
+		block-size: 64px;
+		border: 3px solid #fff;
+		border-radius: 50%;
+		transition: transform 220ms ease;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: -4px;
+			border: 2px solid #f43f47;
+			border-radius: 50%;
+			opacity: 0;
+		}
+
+		span {
+			inline-size: 50px;
+			block-size: 50px;
+			border-radius: 50%;
+			background: #f43f47;
+			transition:
+				inline-size 220ms ease,
+				block-size 220ms ease,
+				border-radius 220ms ease;
+		}
+	}
+
+	.videopress-recording__record-toggle:hover:not(:disabled) .videopress-recording__record-ring {
+		transform: scale(1.05);
+	}
+
+	.videopress-recording__record-toggle.is-recording .videopress-recording__record-ring::after {
+		animation: videopress-recording-ring-pulse 1600ms ease-out infinite;
+	}
+
+	.videopress-recording__record-toggle.is-recording .videopress-recording__record-ring span,
+	.videopress-recording__record-toggle.is-stopping .videopress-recording__record-ring span {
+		inline-size: 26px;
+		block-size: 26px;
+		border-radius: 5px;
+	}
+
+	.videopress-recording__overlay-message {
+		position: absolute;
+		inset-block-start: 25%;
+		inset-inline: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		padding: 12px;
+		text-align: center;
+		pointer-events: auto;
+	}
+
+	.videopress-recording__review-actions {
+		flex-direction: row;
+		justify-content: space-between;
+		flex-wrap: wrap;
+
+		.videopress-recording__upload {
+			background: #fff;
+			color: #1e1e1e;
+			font-weight: 600;
+		}
+	}
+}
+
+@keyframes videopress-recording-controls-enter {
+
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes videopress-recording-ring-pulse {
+
+	0% {
+		opacity: 0.85;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(1.35);
+	}
+}
+
+@keyframes videopress-recording-status-pulse {
+
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.5;
+		transform: scale(0.85);
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.videopress-recording__stage .video-js {
+
+		.videopress-recording__overlay-top,
+		.videopress-recording__overlay-bottom,
+		.videopress-recording__status-dot,
+		.videopress-recording__record-toggle.is-recording .videopress-recording__record-ring::after {
+			animation: none;
+		}
+
+		.videopress-recording__overlay button,
+		.videopress-recording__effects,
+		.videopress-recording__effect-swatch,
+		.videopress-recording__record-ring,
+		.videopress-recording__record-ring span {
+			transition: none;
+		}
+	}
+}
+
+@media ( max-width: 600px ) {
+
+	.videopress-recording.components-modal__frame {
+		inline-size: 100%;
+		block-size: 100dvh;
+		max-block-size: 100dvh;
+		border-radius: 0;
+	}
+
+	.videopress-recording__stage {
+		block-size: calc(100dvh - 144px);
+		min-block-size: 360px;
+	}
+
+	.videopress-recording__stage .video-js {
+
+		.videopress-recording__overlay-top {
+			padding: 10px;
+			gap: 6px;
+		}
+
+		.videopress-recording__overlay-bottom {
+			padding-inline: 10px;
+		}
+
+		.videopress-recording__effects {
+			gap: 3px;
+		}
+
+		.videopress-recording__effect {
+			min-inline-size: 44px;
+			padding: 2px;
+			font-size: 12px;
+		}
+
+		.videopress-recording__effect-swatch {
+			inline-size: 36px;
+			block-size: 36px;
+		}
+	}
+}

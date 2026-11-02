@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fall back to the numeric menu position when an older admin-ui package without the named constants is loaded.
-

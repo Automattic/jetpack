@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Backup: Add a Backup page to wp-admin, offering an upgrade or activation for sites whose backups are not available yet.

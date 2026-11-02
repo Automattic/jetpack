@@ -87,7 +87,7 @@ class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 	 */
 	#[Group( 'external-http' )]
 	public function test_smartframe_shortcode() {
-		$parsed = do_shortcode( self::SMARTFRAME_SHORTCODE );
+		$parsed = apply_shortcodes( self::SMARTFRAME_SHORTCODE );
 
 		$doc = new DOMDocument();
 		$doc->loadHTML( $parsed );
@@ -122,7 +122,7 @@ class Jetpack_Shortcodes_SmartFrame_Test extends WP_UnitTestCase {
 		$image_id          = self::SMARTFRAME_IDENTIFIER;
 		$script_id         = self::SMARTFRAME_SCRIPT_ID;
 		$content           = "[smartframe script-id='$script_id' image-id='$image_id']";
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}

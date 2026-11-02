@@ -8,3 +8,5 @@
 /build/**/*.map     production-exclude
 types/**            production-exclude
 widgets/**          production-exclude
+src/components/**   production-exclude
+src/reports/**      production-exclude

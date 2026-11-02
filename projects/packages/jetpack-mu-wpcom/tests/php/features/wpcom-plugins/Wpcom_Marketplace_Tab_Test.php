@@ -7,6 +7,9 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-tab.php';
 
@@ -76,6 +79,16 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		);
 
 		return $catalog['gravityforms'];
+	}
+
+	/**
+	 * Registers the flag again: the feature flags tests reset the registry it joined on load.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+		wpcom_marketplace_register_flag();
 	}
 
 	/**
@@ -264,11 +277,11 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With the flag off nothing about the screen changes.
+	 * Every site gets the tab unless the flag is turned off.
 	 */
-	public function test_tab_is_absent_by_default() {
+	public function test_tab_is_shown_by_default() {
 		$this->assertSame(
-			array( 'featured' ),
+			array( WPCOM_MARKETPLACE_TAB, 'featured' ),
 			array_keys( wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) ) )
 		);
 	}
@@ -325,7 +338,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * Core has no query for a tab it does not know, so the tab asks for the whole catalog.
 	 */
 	public function test_table_args_ask_for_the_whole_catalog_on_one_page() {
-		$this->assertFalse( wpcom_marketplace_table_args( false ), 'Flag off.' );
+		add_filter( self::FLAG_FILTER, '__return_false' );
+		$off = wpcom_marketplace_table_args( false );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
+		$this->assertFalse( $off, 'Flag off.' );
 
 		$this->enable_tab();
 		$this->seed_catalog( array( 'gravityforms' => $this->priced_card() ) );
@@ -364,6 +380,23 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$GLOBALS['pagenow'] = 'plugin-install.php';
 		$result             = wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'gravityforms' ) );
 		unset( $GLOBALS['pagenow'] );
+
+		$this->assertIsObject( $result );
+		$this->assertSame( 'gravityforms', $result->slug );
+	}
+
+	/**
+	 * Simple sites draw the screen from plugins.php, under core's screen id.
+	 */
+	public function test_details_are_served_on_the_simple_screen() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+
+		$GLOBALS['pagenow']        = 'plugins.php';
+		$GLOBALS['current_screen'] = WP_Screen::get( 'plugin-install' );
+		$result                    = wpcom_marketplace_serve_plugins_api( false, 'plugin_information', (object) array( 'slug' => 'gravityforms' ) );
+		unset( $GLOBALS['pagenow'], $GLOBALS['current_screen'] );
 
 		$this->assertIsObject( $result );
 		$this->assertSame( 'gravityforms', $result->slug );
@@ -731,6 +764,33 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Simple sites supply the store catalog, since their API client cannot request it.
+	 */
+	public function test_the_store_catalog_can_be_supplied() {
+		$supplied = static function () {
+			return array(
+				'gravityforms_yearly' => array(
+					'product_id'   => 2509,
+					'cost_display' => '$132.00',
+					'cost'         => 132,
+				),
+			);
+		};
+		$fetch    = new ReflectionMethod( Marketplace_Catalog::class, 'fetch_store_products' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$fetch->setAccessible( true );
+		}
+
+		add_filter( 'wpcom_marketplace_store_products', $supplied );
+		$store = $fetch->invoke( null );
+		remove_filter( 'wpcom_marketplace_store_products', $supplied );
+
+		$this->assertSame( 'gravityforms_yearly', $store[2509]['slug'] );
+		$this->assertSame( '$132.00', $store[2509]['price'] );
+	}
+
+	/**
 	 * The button goes straight to checkout, which is what the Calypso product page's
 	 * own button does. Landing there is the whole point of skipping that page.
 	 */
@@ -782,6 +842,49 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'checkoutBackUrl', $button );
 		$this->assertStringContainsString( rawurlencode( 'plugin-install.php' ), $button );
+	}
+
+	/**
+	 * Simple sends a purchase that checkout alone cannot complete through Calypso.
+	 */
+	public function test_purchase_can_be_sent_elsewhere() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		$calypso = static function () {
+			return 'https://wordpress.com/plugins/gravityforms/example.org';
+		};
+
+		add_filter( 'wpcom_marketplace_checkout_url', $calypso );
+		$button = wpcom_marketplace_card_button( $this->priced_card() );
+		remove_filter( 'wpcom_marketplace_checkout_url', $calypso );
+
+		$this->assertStringContainsString( 'href="https://wordpress.com/plugins/gravityforms/example.org"', $button );
+	}
+
+	/**
+	 * A site whose plan lacks purchased plugins buys a plan with the plugin, so the button says so.
+	 *
+	 * Separate: the stubbed function would otherwise outlive the test and relabel every later button.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_button_says_when_the_purchase_needs_a_plan_too() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( true );
+		$purchase = wpcom_marketplace_card_button( $this->priced_card() );
+
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+		$upgrade = wpcom_marketplace_card_button( $this->priced_card() );
+
+		$this->assertStringContainsString( '>Purchase</a>', $purchase );
+		$this->assertStringNotContainsString( 'wpcom-marketplace-card__upgrade', $purchase );
+		$this->assertStringContainsString( '>Upgrade and purchase</a>', $upgrade );
+		$this->assertStringContainsString( 'wpcom-marketplace-card__upgrade', $upgrade );
 	}
 
 	/**
@@ -958,6 +1061,34 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '$13.00/month if billed monthly', $html );
 		$this->assertStringContainsString( 'wpcom-marketplace-card__note', $html );
 		$this->assertStringNotContainsString( 'or $13.00', $html );
+	}
+
+	/**
+	 * A site that buys a plan with the product is told so where the monthly price was.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_note_names_the_plan_a_purchase_needs() {
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+
+		$html = $this->price_html( $this->priced_card() );
+		$this->assertStringContainsString( '<span class="wpcom-marketplace-card__note">Needs a paid plan</span>', $html );
+		$this->assertStringNotContainsString( 'if billed monthly', $html );
+
+		$personal = static function () {
+			return 'Plus a <Personal> plan';
+		};
+		add_filter( 'wpcom_marketplace_plan_note', $personal );
+		$this->assertStringContainsString( 'Plus a &lt;Personal&gt; plan', $this->price_html( $this->priced_card() ) );
+		remove_filter( 'wpcom_marketplace_plan_note', $personal );
+
+		$referral                                     = $this->priced_card();
+		$referral['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$referral['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$this->assertStringNotContainsString( 'Needs a paid plan', $this->price_html( $referral ), 'Bought from the vendor.' );
 	}
 
 	/**

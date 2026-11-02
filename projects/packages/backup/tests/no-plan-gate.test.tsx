@@ -56,6 +56,7 @@ const PRICED_PRODUCT = {
 	introductory_offer: {
 		interval_unit: 'year',
 		interval_count: 1,
+		transition_after_renewal_count: 0,
 		cost_per_interval: 275.4,
 	},
 };
@@ -189,7 +190,6 @@ describe( 'No-plan gate', () => {
 		// The legacy screen hardcodes `$` in one of its price strings,
 		// which is wrong for every site this fixture represents.
 		expect( price ).toHaveTextContent( 'R$' );
-		expect( screen.getByText( '14 day money back guarantee.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'leads with the introductory price and explains the renewal', async () => {
@@ -203,7 +203,7 @@ describe( 'No-plan gate', () => {
 
 		// Two amounts on screen is only honest if the screen says which
 		// one recurs.
-		expect( screen.getByText( /all renewals are at full price/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /per month for the first year, billed yearly/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not read the superseded price out as a second price', async () => {
@@ -231,6 +231,25 @@ describe( 'No-plan gate', () => {
 		const renewal = await screen.findByText( /Renews at .*44[.,]95 per month/ );
 		expect( renewal ).not.toHaveAttribute( 'aria-hidden' );
 	} );
+
+	it.each( [
+		[ 'a first-year offer', PRICED_PRODUCT.introductory_offer, true ],
+		[
+			'a monthly offer',
+			{ interval_unit: 'month', interval_count: 1, cost_per_interval: 9.99 },
+			false,
+		],
+	] )(
+		'shows the renewal line visibly only when the price line does not imply it: %s',
+		async ( _label, offer, hidden ) => {
+			mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: offer } );
+
+			renderScreen( NoBackupPlanScreen );
+
+			const renewal = await screen.findByText( /Renews at .*44[.,]95 per month/ );
+			expect( renewal.matches( '.components-visually-hidden' ) ).toBe( hidden );
+		}
+	);
 
 	it( 'says nothing about renewal when there is no introductory offer', async () => {
 		// One price, nothing superseded, nothing to explain.
@@ -260,6 +279,46 @@ describe( 'No-plan gate', () => {
 
 		await expect( screen.findByText( /9[.,]99/ ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /0[.,]83/ ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'one year',
+			{
+				interval_unit: 'year',
+				interval_count: 1,
+				transition_after_renewal_count: 0,
+				cost_per_interval: 275.4,
+			},
+			'per month for the first year, billed yearly',
+		],
+		[
+			'an offer that outlasts the first year',
+			{
+				interval_unit: 'year',
+				interval_count: 1,
+				transition_after_renewal_count: 1,
+				cost_per_interval: 275.4,
+			},
+			'per month, billed yearly',
+		],
+		[
+			'a fractional year count',
+			{ interval_unit: 'year', interval_count: 1.5, cost_per_interval: 413.1 },
+			'per month, billed yearly',
+		],
+		[
+			'a monthly offer',
+			{ interval_unit: 'month', interval_count: 1, cost_per_interval: 9.99 },
+			'per month, billed yearly',
+		],
+		[ 'no offer', null, 'per month, billed yearly' ],
+	] )( 'words the price line for %s', async ( _label, offer, line ) => {
+		mockApiFetch.mockResolvedValue( { ...PRICED_PRODUCT, introductory_offer: offer } );
+
+		renderScreen( NoBackupPlanScreen );
+
+		await expect( screen.findByText( line ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'still offers the purchase path when the catalogue cannot be read', async () => {

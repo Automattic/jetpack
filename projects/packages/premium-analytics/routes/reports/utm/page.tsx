@@ -1,21 +1,21 @@
 /**
  * External dependencies
  */
+import { Button } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	PageNotice,
-	describeError,
 	ReportDrilldownTable,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ExporterCsvAction,
-	useReportRetry,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type UtmReportRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -77,46 +77,44 @@ function UtmReport(): JSX.Element {
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load UTM data. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
+	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
+	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ utmCsvExporters[ activeTab ] }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<Button variant="outline" size="compact" onClick={ openBuilder }>
+						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+					<ExporterCsvAction
+						exporter={ utmCsvExporters[ activeTab ] }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</>
 			}
 		>
 			<ReportPageLayout
 				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ tableReplacement ?? (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load UTM data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -131,8 +129,9 @@ function UtmReport(): JSX.Element {
 						collapsible
 						defaultExpanded="none"
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
+			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
 		</ReportPageShell>
 	);
 }

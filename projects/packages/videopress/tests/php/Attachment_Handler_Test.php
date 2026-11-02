@@ -343,4 +343,19 @@ class Attachment_Handler_Test extends BaseTestCase {
 
 		$this->assertSame( $allcaps, $result );
 	}
+	/**
+	 * Failed conversions show recovery guidance rather than the processing icon.
+	 */
+	public function test_failed_conversion_media_library_details() {
+		$id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $id, 'videopress_status', 'failed' );
+		$this->assertSame( 'video.png', Attachment_Handler::wp_mime_type_icon( 'video.png', 'video/videopress', $id ) );
+		$fields = Attachment_Handler::conversion_failure_field( array(), get_post( $id ) );
+		$this->assertStringContainsString( 'Delete this video and upload it again.', $fields['videopress_conversion_error']['html'] );
+	}
 }

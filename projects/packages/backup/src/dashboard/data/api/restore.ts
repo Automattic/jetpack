@@ -39,7 +39,7 @@ export type RestoreStatusResponse = {
 	/** 0–100. */
 	progress: number;
 	rewind_id: string;
-	/** Machine identifier such as `checksum_mismatch`. Never shown to users. */
+	/** Machine identifier such as `checksum_mismatch`. Shown only as the error reference. */
 	error_code: string;
 	message: string;
 };
@@ -267,18 +267,23 @@ export function pickLiveRestore(
  * backup than the reader picked. It stays in *our* route's path only
  * because the client keys its poll cache on it.
  *
- * @param rewindId - The backup's rewind id, in full.
- * @param types    - Which categories to restore (themes/plugins/roots/contents/sqls/uploads).
+ * @param rewindId           - The backup's rewind id, in full.
+ * @param types              - Which categories to restore (themes/plugins/roots/contents/sqls/uploads).
+ * @param acknowledgeThreats - Whether the reader acknowledged the backup's known threats.
  * @return The restore id, which may be null while WPCOM has not named one.
  */
 export async function initiateRestore(
 	rewindId: string,
-	types: RestoreItems
+	types: RestoreItems,
+	acknowledgeThreats?: boolean
 ): Promise< InitiateRestoreResponse > {
 	return apiCall< InitiateRestoreResponse >( {
 		path: apiPath( `/rewind/to/${ rewindId }` ),
 		method: 'POST',
-		data: { types: requireTypes( types ) },
+		data: {
+			types: requireTypes( types ),
+			...( acknowledgeThreats === true ? { acknowledge_threats: true } : {} ),
+		},
 	} );
 }
 

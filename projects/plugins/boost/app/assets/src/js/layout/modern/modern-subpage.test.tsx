@@ -4,6 +4,17 @@ import { render, screen } from '@testing-library/react';
 import ModernSubpage from './modern-subpage';
 import type { Subpage } from '../../../../../../_inc/runtime-contract';
 
+let mockPendingNotice = false;
+const mockSetPendingNotice = jest.fn();
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => ( {
+	useCloudCssUpgradeNotice: () => [ { data: mockPendingNotice }, { mutate: mockSetPendingNotice } ],
+} ) );
+
+beforeEach( () => {
+	mockPendingNotice = false;
+	mockSetPendingNotice.mockClear();
+} );
+
 jest.mock( '../../pages/cache-debug-log/cache-debug-log-card', () => ( {
 	__esModule: true,
 	default: () => <div>cache debug log</div>,
@@ -35,6 +46,16 @@ jest.mock( '../../pages/purchase-success/purchase-success', () => ( {
 } ) );
 
 describe( 'ModernSubpage', () => {
+	it.each( [ 'purchase-successful', 'getting-started' ] as const )(
+		'consumes the pending confirmation only on the modern success page: %s',
+		subpage => {
+			mockPendingNotice = true;
+			render( <ModernSubpage subpage={ subpage } /> );
+			expect( mockSetPendingNotice.mock.calls ).toEqual(
+				subpage === 'purchase-successful' ? [ [ false ] ] : []
+			);
+		}
+	);
 	it.each( [
 		[ 'cache-debug-log', 'cache debug log' ],
 		[ 'critical-css-advanced', 'critical css advanced' ],

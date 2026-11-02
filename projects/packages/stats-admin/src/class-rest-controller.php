@@ -850,21 +850,14 @@ class REST_Controller {
 		if ( ! empty( $stats_values ) ) {
 			$result = Stats_Settings::update( $stats_values, $keys );
 			if ( is_wp_error( $result ) ) {
-				$result->add_data( array( 'status' => 400 ) );
 				return $result;
 			}
 		}
 
 		if ( isset( $params['wpcom_reader_views_enabled'] ) ) {
-			$reader_views = (int) $params['wpcom_reader_views_enabled'];
-			update_option( 'wpcom_reader_views_enabled', $reader_views );
-			// update_option() also returns false for an unchanged value, so read the option back.
-			if ( (int) get_option( 'wpcom_reader_views_enabled', 1 ) !== $reader_views ) {
-				return new WP_Error(
-					'jetpack_stats_save_failed',
-					__( 'The Stats settings could not be saved.', 'jetpack-stats-admin' ),
-					array( 'status' => 400 )
-				);
+			$result = Stats_Settings::update_reader_views( (bool) $params['wpcom_reader_views_enabled'] );
+			if ( is_wp_error( $result ) ) {
+				return $result;
 			}
 		}
 

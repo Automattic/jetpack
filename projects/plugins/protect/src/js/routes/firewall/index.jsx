@@ -1,4 +1,5 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { speak } from '@wordpress/a11y';
 import { Popover, ToggleControl } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
@@ -47,7 +48,7 @@ const FirewallPage = () => {
 		toggleIpBlockList,
 		saveIpBlockList,
 		toggleBruteForceProtection,
-		toggleWaf,
+		enableWaf,
 	} = useWafData();
 	const { hasPlan } = usePlan();
 	const { upgradePlan } = usePlan( { redirectUrl: `${ ADMIN_URL }#/firewall` } );
@@ -211,6 +212,18 @@ const FirewallPage = () => {
 		},
 	} );
 
+	useEffect( () => {
+		if ( wafSupported && ! isWafModuleEnabled ) {
+			speak(
+				__(
+					'Jetpack Firewall is currently disabled. Re-enable the Firewall to continue.',
+					'jetpack-protect'
+				),
+				'assertive'
+			);
+		}
+	}, [ wafSupported, isWafModuleEnabled ] );
+
 	/**
 	 * Module Disabled Notice
 	 */
@@ -223,7 +236,7 @@ const FirewallPage = () => {
 				<Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text>
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ toggleWaf } loading={ isToggling } disabled={ isToggling }>
+				<Notice.ActionButton onClick={ enableWaf } loading={ isToggling } disabled={ isToggling }>
 					{ __( 'Enable Firewall', 'jetpack-protect' ) }
 				</Notice.ActionButton>
 			</Notice.Actions>

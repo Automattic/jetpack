@@ -7,6 +7,7 @@ import {
 	type LineStyles,
 } from '@jetpack-premium-analytics/externals';
 import type { CountLabel, DataFormat } from '../../types';
+import type { ReactElement } from 'react';
 
 /**
  * Types
@@ -14,6 +15,12 @@ import type { CountLabel, DataFormat } from '../../types';
 export type ComparativeDatePointDate = DataPointDate & {
 	date: Date; // <- date is required by the comparative line chart.
 	realDate?: Date;
+	/** The last instant of the point's own bucket, which `alignSeriesDates` never moves. */
+	endDate?: Date;
+	/** Read out by the tooltip for a bucket with no reading, e.g. why it is missing. */
+	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
@@ -21,6 +28,8 @@ export type ComparativeLineChartSeries = SeriesData & {
 	data: ComparativeDatePointDate[];
 	/** A comparison series reads its group's, as it does the group's name. */
 	countLabel?: CountLabel;
+	/** A comparison whose points already sit on the dates they compare with, which `alignSeriesDates` keeps. */
+	aligned?: boolean;
 };
 
 /**
@@ -29,9 +38,11 @@ export type ComparativeLineChartSeries = SeriesData & {
  */
 export type TooltipExtraSeries = {
 	label: string;
+	/** A `@wordpress/icons` icon, drawn in place of a series swatch since the chart draws no mark for the row. */
+	icon?: ReactElement;
 	/**
 	 * The comparison period's points, each placed on the current period's date with
-	 * its own in `realDate`. Read right after the current row, under the same label.
+	 * its own in `realDate`. Read beside the current reading, in the comparison column.
 	 */
 	previous?: ComparativeDatePointDate[];
 	data: ComparativeDatePointDate[];

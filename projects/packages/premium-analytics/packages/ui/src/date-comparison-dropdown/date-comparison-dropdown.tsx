@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { findComparisonOption } from '@jetpack-premium-analytics/datetime';
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
@@ -78,10 +79,7 @@ export function DateComparisonDropdown( {
 	// range cannot produce leaves the trigger with nothing to name, so the
 	// control falls back to its additive state.
 	const selectedPreset = useMemo(
-		() =>
-			enabled && presetId
-				? presets.find( preset => preset.id === presetId || preset.aliases.includes( presetId ) )
-				: undefined,
+		() => ( enabled && presetId ? findComparisonOption( presets, presetId ) : undefined ),
 		[ enabled, presetId, presets ]
 	);
 

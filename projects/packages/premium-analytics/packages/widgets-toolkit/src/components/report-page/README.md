@@ -41,8 +41,8 @@ const label = __( 'All pages' );
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
-- **`ReportRecordsTable`** — a Core DataViews table over the module's
-  summarized rows; search, sorting, column config, and pagination run
+- **`ReportRecordsTable`** — a Core DataViews table listing every one of the
+  module's summarized rows on one page; search, sorting, and column config run
   client-side via `filterSortAndPaginate`.
 - **`ReportThumbnail`** — a records-table row thumbnail for the view's
   `mediaField`, falling back to `fallbackIcon` when there is none or it fails
@@ -105,7 +105,7 @@ These components do not fetch: the page owns the data hooks and the
 results in as props.
 
 They also mount no providers. The `/reports/$report` stage provides the
-surface's context once — React Query, global errors, and the chart theme
+surface's context once — React Query and the chart theme
 (`GlobalChartsProvider`). That is why a page can compose a chart the same way a
 widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
 Outside the stage (Storybook), mount `GlobalChartsProvider` with

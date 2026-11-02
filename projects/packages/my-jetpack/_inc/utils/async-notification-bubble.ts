@@ -24,13 +24,13 @@ apiFetch< RedBubbleAlerts >( {
 		if ( typeof window.jetpackMenuBadges?.setCount !== 'function' ) {
 			return;
 		}
-		// Count the alerts that would show a badge (server-side registration skips
-		// `is_silent` ones). This is a transient client-side estimate; the next page
-		// load re-registers the authoritative count server-side, which also handles
-		// the Protect-standalone de-dup this can't see.
+		// Count the alerts that would show a badge, skipping the same ones as the
+		// server-side registration; the next page load re-registers the authoritative count.
+		const excluded = window.myJetpackNotificationBubble?.excludedAlerts ?? [];
 		const count = alerts
-			? Object.values( alerts ).filter(
-					alert => ! ( alert as { is_silent?: boolean } | null )?.is_silent
+			? Object.entries( alerts ).filter(
+					( [ slug, alert ] ) =>
+						! excluded.includes( slug ) && ! ( alert as { is_silent?: boolean } | null )?.is_silent
 				).length
 			: 0;
 		window.jetpackMenuBadges.setCount( 'my-jetpack', count );

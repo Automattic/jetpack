@@ -16,6 +16,23 @@ const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
 const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
+const SET_CONNECTION_OWNER = 'SET_CONNECTION_OWNER';
+
+/**
+ * Record that ownership of the connection has moved.
+ *
+ * Patched from the transfer rather than refetched: nothing else in the user connection
+ * data turns on ownership — the permissions it reports are plain capability checks — so
+ * a request would only confirm what the caller already knows.
+ *
+ * @param {object} owner             - The new owner.
+ * @param {number} owner.id          - Their local user ID.
+ * @param {string} owner.displayName - Their display name.
+ * @return {object} The action.
+ */
+const setConnectionOwner = owner => {
+	return { type: SET_CONNECTION_OWNER, owner };
+};
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -37,8 +54,18 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
-const disconnectUserSuccess = () => {
-	return { type: DISCONNECT_USER_SUCCESS };
+/**
+ * Record that the current user is no longer connected to WordPress.com.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.wasConnectionOwner] - Whether the unlinked user owned the connection.
+ *                                               Disconnecting the owner deletes the
+ *                                               `master_user` option, so the site is left with
+ *                                               no owner of record either.
+ * @return {object} The action.
+ */
+const disconnectUserSuccess = ( { wasConnectionOwner = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, wasConnectionOwner };
 };
 
 const setRegistrationError = registrationError => {
@@ -136,7 +163,49 @@ const refreshConnectedPlugins =
 		} );
 	};
 
+/**
+ * Read the site's connection status from the server again and record it in the store.
+ *
+ * The store is otherwise filled once, from the page's initial state, so it cannot see a connection made in another tab.
+ *
+ * @return {Function} Thunk that resolves with the fresh status.
+ */
+const refreshConnectionStatus =
+	() =>
+	async ( { dispatch } ) => {
+		const status = await restApi.fetchSiteConnectionStatus();
+		dispatch( setConnectionStatus( status ) );
+
+		return status;
+	};
+
+/**
+ * Unlink the current user from WordPress.com and record it in the store.
+ *
+ * The one place an unlink happens, so every surface reflects it the same way rather than
+ * patching its own copy of the connection state afterwards. Rejects with the API's error so
+ * the caller can word the failure for its own audience.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.force]              - Force the disconnection. An administrator
+ *                                               unlinking themselves needs it.
+ * @param {boolean} [options.disconnectAllUsers] - Also unlink every other user, which
+ *                                               disconnecting the owner requires.
+ * @return {Function} Thunk.
+ */
+const unlinkUser =
+	( { force = false, disconnectAllUsers = false } = {} ) =>
+	async ( { dispatch, select } ) => {
+		// Read before the request: what the unlink means for the store follows from who the
+		// viewer is, not from what the caller asked the endpoint to do.
+		const wasConnectionOwner = Boolean( select.getUserConnectionData()?.currentUser?.isMaster );
+
+		await restApi.unlinkUser( force, { disconnectAllUsers } );
+		dispatch( disconnectUserSuccess( { wasConnectionOwner } ) );
+	};
+
 const actions = {
+	setConnectionOwner,
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
 	fetchConnectionStatus,
@@ -149,8 +218,10 @@ const actions = {
 	registerSite,
 	connectUser,
 	disconnectUserSuccess,
+	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	refreshConnectionStatus,
 	setConnectionErrors,
 	runConnectionHealthCheck,
 	setIsOfflineMode,
@@ -173,5 +244,6 @@ export {
 	REFRESH_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
 	SET_IS_OFFLINE_MODE,
+	SET_CONNECTION_OWNER,
 	actions as default,
 };

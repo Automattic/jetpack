@@ -202,7 +202,7 @@ class Stats extends Hybrid_Product {
 	}
 	/**
 	 * Checks whether the product can be upgraded to a different product.
-	 * Stats Commercial plan (highest tier) & Jetpack Complete are not upgradable.
+	 * Stats Commercial's highest tier and bundle subscriptions are not upgradable here.
 	 * Also we don't push PWYW users to upgrade.
 	 *
 	 * @return boolean
@@ -216,9 +216,10 @@ class Stats extends Hybrid_Product {
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( ! is_wp_error( $purchases_data ) && is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				// Jetpack complete includes Stats commercial & cannot be upgraded
+				// Stats changes for bundle owners go through plan management.
 				if (
 					str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_pro_' ) ||
 					str_starts_with( $purchase->product_slug, 'jetpack_growth' )
 				) {
 					return false;
@@ -313,15 +314,19 @@ class Stats extends Hybrid_Product {
 	/**
 	 * Whether the Premium Analytics dashboard is the site's analytics UI.
 	 *
-	 * Guarded like the other `class_exists( 'Jetpack' )` checks here: My Jetpack
-	 * also ships in plugins without the Jetpack plugin. Public so the UI flags
-	 * report the same answer the URLs are built from.
+	 * Asks the package, so a dashboard the standalone Stats plugin booted counts too. The Jetpack
+	 * check covers a package too old to answer. Public so the UI flags report the same answer the URLs are built from.
 	 *
 	 * @since 5.42.0
 	 *
 	 * @return bool
 	 */
 	public static function is_premium_analytics_enabled() {
+		$analytics = 'Automattic\Jetpack\PremiumAnalytics\Analytics';
+		if ( method_exists( $analytics, 'is_initialized' ) && $analytics::is_initialized() ) {
+			return true;
+		}
+
 		return class_exists( 'Jetpack' )
 			&& method_exists( 'Jetpack', 'is_premium_analytics_enabled' )
 			&& \Jetpack::is_premium_analytics_enabled();

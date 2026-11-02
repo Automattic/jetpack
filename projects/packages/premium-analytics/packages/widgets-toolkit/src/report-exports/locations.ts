@@ -13,6 +13,7 @@ import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 import type { LocationsGeoMode } from '../components/locations-geo-chart';
 
@@ -36,6 +37,35 @@ export type LocationsScope = { country: string; region?: string };
 
 export function getLocationsReportSection( geoMode: LocationsGeoMode ): LocationsReportSection {
 	return SECTIONS_BY_GEO_MODE[ geoMode ];
+}
+
+/**
+ * Name the location column after the section's place type, in the table and the CSV alike.
+ *
+ * @param section - The Locations section.
+ * @return The column label.
+ */
+export function getLocationColumnLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Region', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'City', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Country', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
+/** The section's plural place type, which heads its report tab, widget header and dropdown option. */
+export function getLocationsSectionLabel( section: LocationsReportSection ): string {
+	switch ( section ) {
+		case 'regions':
+			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
+		case 'cities':
+			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
 }
 
 /** Countries is already the full country list, so only the other sections take a country. */
@@ -96,6 +126,7 @@ export function getLocationsReportQueryParams(
 		period: 'day',
 		geoMode: LOCATIONS_GEO_MODES[ section ],
 		...getLocationsScopeParams( scope ),
+		...getReportWindowParams( reportParams ),
 	};
 }
 
@@ -131,7 +162,7 @@ export function locationsCsvExporter(
 		// Match the table's own default order, so the file reads like the screen.
 		toCsvRows: items => [ ...items ].sort( byViewsDescending ),
 		getColumns: () => [
-			{ label: __( 'Location', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: getLocationColumnLabel( section ), getValue: row => row.label },
 			// Region and city names repeat across countries. On screen the flag tells
 			// them apart; a CSV needs its own column.
 			...( supportsLocationsCountryFilter( section )

@@ -10,13 +10,13 @@ describe( 'Stats search terms normalizer', () => {
 			summarize: true,
 		} );
 
-		expect( result.summary ).toEqual(
-			expect.objectContaining( {
-				total_search_terms: 0,
-				encrypted_search_terms: 31,
-				other_search_terms: -34,
-			} )
-		);
+		expect( result.summary ).toEqual( {
+			total_search_terms: 0,
+			encrypted_search_terms: 31,
+			other_search_terms: -34,
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
+		} );
 		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				label: 'delete revisions for wordpress',

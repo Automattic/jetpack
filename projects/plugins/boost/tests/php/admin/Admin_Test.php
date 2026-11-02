@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -46,6 +47,7 @@ class Admin_Test extends Base_TestCase {
 		}
 
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'sanitize_text_field' )->returnArg();
 
 		// Boost only reports its count to users who can reach the menu; default the
 		// capability to true so the registration path runs. Overridden per-test below.
@@ -102,7 +104,6 @@ class Admin_Test extends Base_TestCase {
 
 	public function test_modern_dashboard_defaults_on() {
 		$_GET['page'] = JETPACK_BOOST_SLUG;
-		Functions\when( 'sanitize_text_field' )->returnArg();
 		\Patchwork\redefine( Admin::class . '::dashboard_build_is_available', \Patchwork\always( true ) );
 		\Patchwork\redefine( WP_Build_Polyfills::class . '::register', \Patchwork\always( null ) );
 		Functions\expect( 'jetpack_boost_register_script_modules' )->once();
@@ -112,12 +113,17 @@ class Admin_Test extends Base_TestCase {
 		$this->assertSame( 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page', $this->last_menu_callback() );
 	}
 
+	public function test_modernization_filter_is_deprecated() {
+		Functions\expect( 'apply_filters_deprecated' )
+			->once()
+			->with( Admin::MODERNIZATION_FILTER, array( true ), \Mockery::type( 'string' ), '', \Mockery::type( 'string' ) )
+			->andReturn( true );
+
+		$this->assertTrue( Admin::is_modernization_enabled() );
+	}
+
 	public function test_modern_dashboard_can_be_filtered_off() {
-		Functions\when( 'apply_filters' )->alias(
-			function ( $hook, $value = null ) {
-				return 'rsm_jetpack_ui_modernization_boost' === $hook ? false : $value;
-			}
-		);
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( false );
 		$_GET['page'] = JETPACK_BOOST_SLUG;
 		// set_up() stubs is_admin(), and Brain Monkey ignores expect()->never() on a stubbed function.
 		Functions\when( 'is_admin' )->alias(
@@ -642,12 +648,7 @@ class Admin_Test extends Base_TestCase {
 	}
 
 	private function enable_modern_dashboard() {
-		Functions\when( 'apply_filters' )->alias(
-			function ( $hook, $value = null ) {
-				return 'rsm_jetpack_ui_modernization_boost' === $hook ? true : $value;
-			}
-		);
-		Functions\when( 'sanitize_text_field' )->returnArg();
+		Filters\expectApplied( Admin::MODERNIZATION_FILTER )->andReturn( true );
 		$_GET['page'] = JETPACK_BOOST_SLUG;
 	}
 

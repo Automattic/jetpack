@@ -8,9 +8,8 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportDrilldownTable,
@@ -18,7 +17,7 @@ import {
 	ExporterCsvAction,
 	archivesCsvExporter,
 	postsPagesCsvExporter,
-	useReportRetry,
+	toViewLiveUrl,
 	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -29,6 +28,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import {
 	getArchivesFields,
 	getPostsFields,
@@ -106,7 +106,6 @@ function PostsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 
 	const records = usePostsReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
 		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
@@ -127,6 +126,14 @@ function PostsReport(): JSX.Element {
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
 		[ records.archives.hasComparison ]
+	);
+	const postActions = useMemo(
+		() => [
+			createViewLiveAction< StatsTopPostsComparisonItem >( item =>
+				toViewLiveUrl( 'post', item.id, item.link )
+			),
+		],
+		[]
 	);
 
 	// One element per tab: the two exporters' row types cannot share one generic call.
@@ -166,6 +173,7 @@ function PostsReport(): JSX.Element {
 				isFetching={ records.posts.isFetching }
 				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				actions={ postActions }
 				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
@@ -180,26 +188,12 @@ function PostsReport(): JSX.Element {
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
+				collapsible
+				defaultExpanded="none"
 			/>
 		);
 
 	const { getLabel } = REPORTS.posts;
-
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load posts. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
 
 	return (
 		<ReportPageShell
@@ -211,8 +205,17 @@ function PostsReport(): JSX.Element {
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ tableReplacement ?? recordsTable }
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load posts. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ recordsTable }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

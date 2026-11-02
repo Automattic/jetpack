@@ -1,10 +1,13 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useCallback, useRef, useState } from 'react';
+import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
 import { AccessibleTooltip, XYChartTooltip, useKeyboardNavigation } from '../xy-chart-tooltip';
+import type { DataPointDate } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -42,10 +45,50 @@ const renderChart = ( scope?: HTMLElement, tooltipPlacement?: 'auto' | 'below-ax
 const openTooltip = async () => {
 	const user = userEvent.setup();
 
-	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+	screen.getByRole( 'application', { name: /line chart/i } ).focus();
 	await user.keyboard( '{ArrowRight}' );
 
 	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+};
+
+const individualItems = [ 'First', 'Second' ].map( label => ( {
+	label,
+	data: [ { label: 'Jan', value: 10 } ],
+	options: {},
+} ) );
+const xAccessor = ( d: DataPointDate ) => d.label;
+const yAccessor = ( d: DataPointDate ) => d.value;
+const xScale = { type: 'band' } as const;
+const yScale = { type: 'linear' } as const;
+const renderKeys = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="keys">{ Object.keys( tooltipData?.datumByKey ?? {} ).join( ',' ) }</div>
+);
+
+const IndividualHarness = () => {
+	const [ selectedIndex, setSelectedIndex ] = useState( 0 );
+	const selectSecond = useCallback( () => setSelectedIndex( 1 ), [] );
+	return (
+		<GlobalChartsProvider>
+			<button onClick={ selectSecond }>next</button>
+			<XYChart width={ 300 } height={ 200 } xScale={ xScale } yScale={ yScale }>
+				{ individualItems.map( item => (
+					<BarSeries
+						key={ item.label }
+						dataKey={ item.label }
+						data={ item.data }
+						xAccessor={ xAccessor }
+						yAccessor={ yAccessor }
+					/>
+				) ) }
+				<XYChartTooltip
+					mode="individual"
+					series={ individualItems }
+					selectedIndex={ selectedIndex }
+					renderTooltip={ renderKeys }
+				/>
+			</XYChart>
+		</GlobalChartsProvider>
+	);
 };
 
 describe( 'XYChartTooltip', () => {
@@ -99,7 +142,7 @@ describe( 'XYChartTooltip', () => {
 		const user = userEvent.setup();
 		renderChart( undefined, 'below-axis' );
 		await openTooltip();
-		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		const focus = jest.spyOn( screen.getByRole( 'application' ), 'focus' );
 		try {
 			await user.keyboard( keys );
 			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
@@ -115,7 +158,7 @@ describe( 'XYChartTooltip', () => {
 		const user = userEvent.setup();
 		renderChart();
 		await openTooltip();
-		const focus = jest.spyOn( screen.getByRole( 'grid' ), 'focus' );
+		const focus = jest.spyOn( screen.getByRole( 'application' ), 'focus' );
 		try {
 			await user.keyboard( keys );
 			expect( focus ).toHaveBeenCalledWith();
@@ -129,9 +172,100 @@ describe( 'XYChartTooltip', () => {
 
 		await expect( openTooltip() ).resolves.toHaveAttribute( 'stroke', '#dbdbdb' );
 	} );
+
+	it( 'lists only the selected item in individual mode as the selection moves', async () => {
+		const user = userEvent.setup();
+
+		render( <IndividualHarness /> );
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^First$/ );
+
+		await user.click( screen.getByRole( 'button', { name: 'next' } ) );
+
+		await expect( screen.findByTestId( 'keys' ) ).resolves.toHaveTextContent( /^Second$/ );
+	} );
+
+	// Between April and May, visx hands Views its April point and Previous period, which has no April, its May point.
+	it.each( [
+		[ 'leaves out a series with no point at the nearest date', 0, 90, 'Views=10', false ],
+		[
+			'reads every series at the nearest date, not at its own nearest point',
+			90,
+			0,
+			'Views=40,Previous period=30',
+			true,
+		],
+	] )( '%s', async ( _name, viewsDistance, previousDistance, rows, previousGlyph ) => {
+		render(
+			<PointerHarness viewsDistance={ viewsDistance } previousDistance={ previousDistance } />
+		);
+
+		await expect( screen.findByTestId( 'rows' ) ).resolves.toHaveTextContent( rows );
+		expect( screen.getByTestId( 'xy-chart-tooltip-glyph-Views' ) ).toBeInTheDocument();
+		expect( !! screen.queryByTestId( 'xy-chart-tooltip-glyph-Previous period' ) ).toBe(
+			previousGlyph
+		);
+	} );
 } );
 
-// Mirrors the charts' markup: the focusable grid wraps the element `chartRef` points at.
+const april = { date: new Date( '2025-04-01' ), value: 10 };
+const may = { date: new Date( '2025-05-01' ), value: 40 };
+const previousMay = { date: new Date( '2025-05-01' ), value: 30 };
+const dateAccessor = ( d: DataPointDate ) => d.date;
+const timeScale = { type: 'time' } as const;
+const renderRows = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div data-testid="rows">
+		{ Object.entries( tooltipData?.datumByKey ?? {} )
+			.map( ( [ key, { datum } ] ) => `${ key }=${ datum.value }` )
+			.join( ',' ) }
+	</div>
+);
+
+type PointerDistances = { viewsDistance: number; previousDistance: number };
+
+const ReportPointer = ( { viewsDistance, previousDistance }: PointerDistances ) => {
+	const tooltipContext = useContext( TooltipContext );
+	useEffect( () => {
+		tooltipContext?.showTooltip( {
+			key: 'Views',
+			datum: april,
+			index: 0,
+			distanceX: viewsDistance,
+			distanceY: 0,
+		} );
+		tooltipContext?.showTooltip( {
+			key: 'Previous period',
+			datum: previousMay,
+			index: 0,
+			distanceX: previousDistance,
+			distanceY: 0,
+		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+	return null;
+};
+
+const PointerHarness = ( distances: PointerDistances ) => (
+	<GlobalChartsProvider>
+		<XYChart width={ 300 } height={ 200 } xScale={ timeScale } yScale={ yScale }>
+			<LineSeries
+				dataKey="Views"
+				data={ [ april, may ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<LineSeries
+				dataKey="Previous period"
+				data={ [ previousMay ] }
+				xAccessor={ dateAccessor }
+				yAccessor={ yAccessor }
+			/>
+			<ReportPointer { ...distances } />
+			<XYChartTooltip renderTooltip={ renderRows } showSeriesGlyphs />
+		</XYChart>
+	</GlobalChartsProvider>
+);
+
+// Mirrors the charts' markup: the focusable chart container wraps the element `chartRef` points at.
 const NavigationHarness = ( {
 	totalPoints,
 	trackBlur = false,
@@ -155,8 +289,9 @@ const NavigationHarness = ( {
 
 	return (
 		<>
+			{ /* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- mirrors the charts' container. */ }
 			<div
-				role="grid"
+				role="application"
 				aria-label="Harness"
 				tabIndex={ 0 }
 				onKeyDown={ onChartKeyDown }
@@ -179,7 +314,7 @@ describe( 'useKeyboardNavigation', () => {
 		const user = userEvent.setup();
 		const view = render( <NavigationHarness totalPoints={ 6 } /> );
 
-		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		screen.getByRole( 'application', { name: 'Harness' } ).focus();
 		for ( let i = 0; i < presses; i++ ) {
 			await user.keyboard( '{ArrowRight}' );
 		}
@@ -188,13 +323,13 @@ describe( 'useKeyboardNavigation', () => {
 		return { user, view };
 	};
 
-	it( 'moves the selection to the last point when the count shrinks while the grid has focus', async () => {
+	it( 'moves the selection to the last point when the count shrinks while the chart has focus', async () => {
 		const { view } = await navigate( 6 );
 
 		view.rerender( <NavigationHarness totalPoints={ 3 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	// In range rather than past the end: the effect reconciles on any count change, not only an overflow.
@@ -207,24 +342,24 @@ describe( 'useKeyboardNavigation', () => {
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
 	} );
 
-	it( 'returns focus to the grid on Escape when there are no points', async () => {
+	it( 'returns focus to the chart on Escape when there are no points', async () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 0 } /> );
 
 		screen.getByRole( 'button', { name: 'Inside' } ).focus();
 		await user.keyboard( '{Escape}' );
 
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
-	it( 'returns focus to the grid when the count drops to zero while focus is in the chart', async () => {
+	it( 'returns focus to the chart when the count drops to zero while focus is in the chart', async () => {
 		const { view } = await navigate( 2 );
 
 		screen.getByRole( 'button', { name: 'Inside' } ).focus();
 		view.rerender( <NavigationHarness totalPoints={ 0 } /> );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 	} );
 
 	it( 'hands a keyboard selection to the pointer and continues from where the pointer is', async () => {
@@ -234,7 +369,7 @@ describe( 'useKeyboardNavigation', () => {
 		await user.hover( screen.getByTestId( 'point-4' ) );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( 'none' );
-		expect( screen.getByRole( 'grid', { name: 'Harness' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'application', { name: 'Harness' } ) ).toHaveFocus();
 
 		await user.keyboard( '{ArrowRight}' );
 
@@ -254,13 +389,13 @@ describe( 'useKeyboardNavigation', () => {
 	it( 'restarts from the first point once focus leaves after the pointer took over', async () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 6 } trackBlur /> );
-		const grid = screen.getByRole( 'grid', { name: 'Harness' } );
+		const chart = screen.getByRole( 'application', { name: 'Harness' } );
 
-		act( () => grid.focus() );
+		act( () => chart.focus() );
 		await user.keyboard( '{ArrowRight}{ArrowRight}' );
 		await user.hover( screen.getByTestId( 'point-4' ) );
 		act( () => screen.getByRole( 'button', { name: 'Outside' } ).focus() );
-		act( () => grid.focus() );
+		act( () => chart.focus() );
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '0' );
@@ -281,7 +416,7 @@ describe( 'useKeyboardNavigation', () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 6 } /> );
 
-		screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+		screen.getByRole( 'application', { name: 'Harness' } ).focus();
 		await user.hover( screen.getByTestId( 'point-4' ) );
 		await user.keyboard( '{ArrowRight}' );
 
@@ -301,7 +436,7 @@ describe( 'useKeyboardNavigation', () => {
 		const { onKeyDown, stop } = recordPageKeyDown();
 
 		try {
-			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			screen.getByRole( 'application', { name: 'Harness' } ).focus();
 			await user.keyboard( '{ArrowDown}{PageDown}[Space]' );
 
 			expect( onKeyDown ).toHaveBeenCalledTimes( 3 );
@@ -320,7 +455,7 @@ describe( 'useKeyboardNavigation', () => {
 		const { onKeyDown, stop } = recordPageKeyDown();
 
 		try {
-			screen.getByRole( 'grid', { name: 'Harness' } ).focus();
+			screen.getByRole( 'application', { name: 'Harness' } ).focus();
 			await user.keyboard( '{Escape}' );
 
 			expect( onKeyDown.mock.calls[ 0 ][ 0 ].defaultPrevented ).toBe( false );

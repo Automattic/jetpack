@@ -9,6 +9,7 @@
  * External dependencies
  */
 import '@automattic/charts/style.css';
+import '@automattic/jetpack-components/jetpack-footer/style.scss';
 
 /**
  * Charts
@@ -31,11 +32,14 @@ export {
 	buildCalendarHeatmapData,
 	getBucketInfo,
 	lightenHexColor,
+	mixHexColors,
 	normalizeColorToHex,
+	useBarColors,
+	useBarLegendItems,
 	useCalendarHeatmapData,
-	useChartLegendItems,
 	useGlobalChartsContext,
 	useMonthCalendarHeatmapData,
+	type BarChartLayout,
 	type BaseLegendItem,
 	type BucketInfo,
 	type ChartTheme,
@@ -69,26 +73,33 @@ export {
 	AlertDialog,
 	Badge,
 	Button,
+	Card,
 	Dialog,
 	EmptyState,
-	LinkButton,
+	ButtonLink,
 	Field as FormField,
 	Fieldset,
 	Icon,
 	IconButton,
 	Input,
+	InputControl,
 	Link,
 	Menu,
+	Meter,
 	Notice,
 	Popover,
+	Progress,
 	RangeCalendar,
+	SearchableChipSelectControl,
 	SelectControl,
 	Skeleton,
+	Spinner,
 	Stack,
 	Tabs,
 	Text,
 	TextareaControl,
 	Tooltip,
+	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 
@@ -96,14 +107,21 @@ export {
  * DataViews
  */
 export {
+	DataForm,
 	DataViews,
 	filterSortAndPaginate,
 	type Action,
 	type DataFormControlProps,
 	type DataViewRenderFieldProps,
 	type Field,
+	type Form,
 	type Option,
 	type SupportedLayouts,
 	type View,
 	type ViewBaseProps,
 } from '@wordpress/dataviews';
+
+/**
+ * Jetpack components
+ */
+export { default as JetpackFooter } from '@automattic/jetpack-components/jetpack-footer/unstyled';

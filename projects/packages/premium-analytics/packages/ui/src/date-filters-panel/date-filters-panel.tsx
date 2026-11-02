@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -18,6 +18,7 @@ import { useMemo, useCallback, useState } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
@@ -51,8 +52,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * The periods the menu offers. Defaults to every selectable preset; a detail
-	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
-	 * order whatever order they arrive in, so its grouping by scale holds.
+	 * or report page adds all time (`MENU_SURFACE_PRESETS_WITH_ALL_TIME`). The menu keeps
+	 * its own order whatever order they arrive in, so its grouping by scale holds.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 
@@ -61,6 +62,9 @@ export type DateFiltersPanelProps = {
 	 * `presetIds` includes it.
 	 */
 	allTimeStart?: Date;
+
+	/** Whether WPCOM picks where all time starts; see `DatePeriodDropdown`. */
+	allTimeStartsOnServer?: boolean;
 
 	/**
 	 * Whether to offer Custom range at the end of the menu. On by default; a
@@ -86,6 +90,9 @@ export type DateFiltersPanelProps = {
 	 * a widget that owns its control, from what its chart draws.
 	 */
 	intervalOptions?: readonly IntervalType[];
+
+	/** The buckets the range would allow but the plan locks, listed with a lock. */
+	lockedIntervalOptions?: readonly LockableInterval[];
 
 	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
@@ -140,10 +147,12 @@ export function DateFiltersPanel( {
 	comparisonPresetId,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer,
 	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
+	lockedIntervalOptions,
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
@@ -167,7 +176,7 @@ export function DateFiltersPanel( {
 	 * Read rather than a prop, so this and the widgets share one declaration —
 	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
-	const { offersComparison } = useReportScope();
+	const { offersComparison, dateLimits } = useReportScope();
 
 	// Unknown values (e.g. garbage from the URL) become undefined, which the
 	// dropdown reads as the custom preset.
@@ -185,20 +194,24 @@ export function DateFiltersPanel( {
 	const comparisonEnabled = !! validatedComparisonPresetId;
 
 	/*
-	 * Tracks whether the picker popover is open so the comparison label mirrors
-	 * it: previews the draft range while open, reverts to applied when closed
-	 * (like the picker's own trigger) — otherwise it'd show a stale draft.
+	 * The draft's preset, caught on its way out through `onChange`. Cleared on
+	 * every open and close, so the comparison previews only a draft the picker
+	 * has staged, measured by that draft's own preset.
 	 */
-	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
-	const comparisonSourceRange = isPrimaryPickerOpen ? range : ( appliedRange ?? range );
-	// The draft's preset never reaches the panel, so an open draft is measured
-	// as read; the applied preset decides how a to-date window is measured.
-	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;
-
-	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed)
-	// and from its preset, which decides how a to-date window is measured.
+	const [ draft, setDraft ] = useState< { presetId?: PrimaryPresetId } | null >( null );
+	const comparisonSourceRange = draft ? range : ( appliedRange ?? range );
+	const comparisonSourcePresetId = draft ? draft.presetId : validatedAppliedPresetId;
 	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
+
+	const stageDraft = useCallback(
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
+			setDraft( { presetId: nextPresetId } );
+			onChange( nextRange, nextPresetId );
+		},
+		[ onChange ]
+	);
+
+	const clearDraft = useCallback( () => setDraft( null ), [] );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -245,13 +258,24 @@ export function DateFiltersPanel( {
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
 					options={ intervalOptions }
+					lockedOptions={ lockedIntervalOptions }
+					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
 					disabled={ disabled }
 					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
+		[
+			withIntervalControl,
+			interval,
+			intervalOptions,
+			lockedIntervalOptions,
+			dateLimits?.intervalUpsell,
+			disabled,
+			triggerProps,
+			onIntervalChange,
+		]
 	);
 
 	return (
@@ -271,18 +295,22 @@ export function DateFiltersPanel( {
 							onChange( nextRange, nextPresetId );
 							onApply();
 						} }
-						onChange={ onChange }
+						onChange={ stageDraft }
 						onApply={ onApply }
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
 						disabled={ disabled }
 						triggerProps={ triggerProps }
-						onOpenChange={ setIsPrimaryPickerOpen }
+						onOpenChange={ clearDraft }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
+						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
+						lockedPresetIds={ dateLimits?.lockedPresetIds }
+						earliestDate={ dateLimits?.earliestDate }
+						lockNotice={ dateLimits?.upsell && <DateLimitUpsell upsell={ dateLimits.upsell } /> }
 					/>
 				</BaseControl>
 

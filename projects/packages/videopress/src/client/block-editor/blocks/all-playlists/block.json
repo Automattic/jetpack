@@ -37,6 +37,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"layout": {
 			"type": "string",
 			"enum": [ "gallery", "list" ],
@@ -52,7 +57,7 @@
 		},
 		"orderBy": {
 			"type": "string",
-			"enum": [ "newest", "oldest", "title" ],
+			"enum": [ "newest", "oldest", "title", "updated" ],
 			"default": "newest"
 		},
 		"showDescription": {
@@ -67,6 +72,14 @@
 			"type": "string",
 			"enum": [ "numbered", "load-more" ],
 			"default": "numbered"
+		},
+		"excludeCurrent": {
+			"type": "boolean",
+			"default": false
+		},
+		"showUpdated": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

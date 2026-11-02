@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -9,6 +9,8 @@ import userEvent from '@testing-library/user-event';
 import { AbbreviatedValue } from '../abbreviated-value';
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
+const PREFER_EXACT = { ...COMPACT, preferExact: true };
+const withOpens = ( exact: string ) => `${ exact } opens`;
 
 describe( 'AbbreviatedValue', () => {
 	beforeEach( () => {
@@ -65,7 +67,9 @@ describe( 'AbbreviatedValue', () => {
 
 	it( 'restores a labelled figure in place of the bare one', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } restored="18,432 opens" /> );
+		render(
+			<AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '18,432' ) ).not.toBeInTheDocument();
@@ -77,11 +81,19 @@ describe( 'AbbreviatedValue', () => {
 		).resolves.toHaveTextContent( '18,432 opens' );
 	} );
 
-	it( 'keeps the tooltip when a label is the only thing the display omits', () => {
-		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
+	it( 'reads a label to assistive tech without a tooltip when nothing was shortened', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render(
+			<AbbreviatedValue value={ 432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
+
+		await user.hover( screen.getByText( '432' ) );
+		act( () => jest.advanceTimersByTime( 3000 ) );
+
+		expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {
@@ -107,5 +119,122 @@ describe( 'AbbreviatedValue', () => {
 
 		expect( screen.getByText( '$1.5K' ) ).toBeInTheDocument();
 		expect( screen.getByText( '$1,500.00' ) ).toBeInTheDocument();
+	} );
+
+	describe( 'with preferExact', () => {
+		let boxWidth = 0;
+		// A scrollbar the exact figure brings and the compact one removes.
+		let exactShrinksBox = false;
+		const exactShowing = () => screen.queryByText( '18.4K' ) === null;
+		const measuredBox = () => boxWidth - ( exactShrinksBox && exactShowing() ? 20 : 0 );
+		let figureWidth = 0;
+		let fontSize = '';
+		let resize: () => void = () => {};
+		const rect = ( left: number, right: number ) => ( { left, right } ) as DOMRect;
+		const GlobalResizeObserver = window.ResizeObserver;
+		const computedStyle = window.getComputedStyle.bind( window );
+
+		beforeEach( () => {
+			boxWidth = 200;
+			exactShrinksBox = false;
+			figureWidth = 120;
+			fontSize = '24px';
+			jest
+				.spyOn( HTMLSpanElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( () => rect( 0, figureWidth ) );
+			jest
+				.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
+				.mockImplementation( () => rect( 0, measuredBox() ) );
+			jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
+				const style = computedStyle( element );
+				if ( element instanceof HTMLSpanElement ) {
+					Object.defineProperty( style, 'fontSize', { value: fontSize, configurable: true } );
+				}
+				return style;
+			} );
+			Object.defineProperty( HTMLDivElement.prototype, 'clientWidth', {
+				configurable: true,
+				get: measuredBox,
+			} );
+			window.ResizeObserver = class {
+				constructor( callback: ResizeObserverCallback ) {
+					resize = () => callback( [], this );
+				}
+				observe() {}
+				unobserve() {}
+				disconnect() {}
+			};
+		} );
+
+		afterEach( () => {
+			jest.restoreAllMocks();
+			window.ResizeObserver = GlobalResizeObserver;
+			// @ts-expect-error restoring jsdom's own getter.
+			delete HTMLDivElement.prototype.clientWidth;
+		} );
+
+		it( 'shows the exact figure, and the compact one only while the exact one is clipped', () => {
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+
+			act( () => {
+				boxWidth = 100;
+				resize();
+			} );
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+			expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+
+			act( () => {
+				boxWidth = 300;
+				resize();
+			} );
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'settles on the compact figure when the exact one alone narrows the box', () => {
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			act( () => {
+				boxWidth = 130;
+				exactShrinksBox = true;
+				resize();
+			} );
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+			expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+		} );
+
+		it( 'retries the exact figure when the type shrinks, though no box grew', () => {
+			boxWidth = 100;
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+
+			act( () => {
+				fontSize = '18px';
+				figureWidth = 90;
+				resize();
+			} );
+
+			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
+			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
 	} );
 } );

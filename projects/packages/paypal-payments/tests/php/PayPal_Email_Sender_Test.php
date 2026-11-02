@@ -358,7 +358,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 		$response = $this->send_payment_link( 'PLB-U7XQRUHKESAZ' );
 
 		$this->assertFalse( $response['success'] );
-		$this->assertSame( 'This payment link has no price.', $response['data']['message'] );
+		$this->assertSame( 'This payment button has no price.', $response['data']['message'] );
 		$this->assertNull( $mail->to );
 		$this->assertFalse( get_transient( 'paypal_email_rate_' . get_current_user_id() ) );
 	}

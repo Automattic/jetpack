@@ -93,6 +93,34 @@ describe( 'useLocationsReportRecords', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'regions', 'region' ],
+		[ 'cities', 'city' ],
+	] as const )( 'does not request %s while the plan locks them', ( tab, geoMode ) => {
+		window.JetpackScriptData = {
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				plan_gates: {
+					tier: 'paid',
+					locked_features: {
+						'regions-cities': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} as unknown as typeof window.JetpackScriptData;
+
+		try {
+			renderHook( () => useLocationsReportRecords( tab, params ) );
+		} finally {
+			delete window.JetpackScriptData;
+		}
+
+		expect( mockUseStatsLocations ).toHaveBeenCalledWith( expect.objectContaining( { geoMode } ), {
+			enabled: false,
+		} );
+	} );
+
 	it( 'scopes the active tab to the selected country', () => {
 		renderHook( () => useLocationsReportRecords( 'regions', params, 'IN' ) );
 

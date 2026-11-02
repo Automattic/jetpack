@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.10] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.15.9] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.15.8] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.15.7] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.15.6] - 2026-10-12
+### Changed
+- Update dependencies.
+
 ## [0.15.5] - 2026-10-05
 ### Changed
 - Update package dependencies. [#52999]
@@ -14,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.4] - 2026-09-28
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [0.15.3] - 2026-09-21
 ### Changed
@@ -90,7 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.26] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.25] - 2026-05-04
 ### Changed
@@ -110,7 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.21] - 2026-04-06
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.20] - 2026-03-30
 ### Changed
@@ -154,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.11] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.10] - 2026-01-19
 ### Changed
@@ -216,7 +236,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.20] - 2025-09-22
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## [0.13.19] - 2025-09-19
 ### Changed
@@ -270,7 +290,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.8] - 2025-06-30
 ### Changed
-- Update dependencies. [#44061]
+- Update dependencies.
 
 ## [0.13.7] - 2025-06-23
 ### Changed
@@ -292,7 +312,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.3] - 2025-06-02
 ### Changed
-- Update dependencies. [#42876]
+- Update dependencies.
 
 ## [0.13.2] - 2025-05-26
 ### Changed
@@ -592,6 +612,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.15.10]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.9...v0.15.10
+[0.15.9]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.8...v0.15.9
+[0.15.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.7...v0.15.8
+[0.15.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.6...v0.15.7
+[0.15.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.5...v0.15.6
 [0.15.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.4...v0.15.5
 [0.15.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.3...v0.15.4
 [0.15.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.2...v0.15.3

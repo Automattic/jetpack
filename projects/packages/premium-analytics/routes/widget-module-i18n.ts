@@ -25,6 +25,10 @@ import {
 } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
+import { resolvePlanLockedWidgetModule, withPlanLockedRenderModules } from './plan-locked-widgets';
 import type {
 	ResolveWidgetModule,
 	WidgetModuleRecord,
@@ -234,8 +238,13 @@ export function createWidgetModuleResolver(
 			catalogs.set( record.widget_module, catalog );
 		}
 	}
-	return moduleId =>
-		resolveWidgetModuleWithI18n( moduleId, importModule, catalogs.get( moduleId ) );
+	return moduleId => {
+		const locked = resolvePlanLockedWidgetModule( moduleId );
+
+		return locked
+			? Promise.resolve( locked )
+			: resolveWidgetModuleWithI18n( moduleId, importModule, catalogs.get( moduleId ) );
+	};
 }
 
 /**
@@ -527,7 +536,8 @@ export function useWidgetTypesWithI18n(
 		gatedRecords = readyRecords === scopedRecords ? scopedRecords : null;
 	}
 
-	const [ types, resolving ] = useWidgetTypes( gatedRecords );
+	const [ resolvedTypes, resolving ] = useWidgetTypes( gatedRecords );
+	const types = useMemo( () => withPlanLockedRenderModules( resolvedTypes ), [ resolvedTypes ] );
 	// The gate closes during render — a render-phase `setNeededNames` widens the
 	// scope, which yields a new `scopedRecords` array the same pass — but
 	// `useWidgetTypes` only raises its own flag from an effect, one commit

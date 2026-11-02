@@ -1,3 +1,4 @@
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -6,14 +7,17 @@ import {
 	seriesLegendArgTypes,
 	extractLegendConfig,
 	medalCountsData,
+	temperatureData,
 	largeValuesData,
 	trafficData,
 	steadyTrafficData,
+	weeklyComparisonData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
-import type { ChartLegendConfig, SeriesData } from '../../../types';
+import type { ChartLegendConfig, DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -41,6 +45,12 @@ const meta: Meta< StoryArgs > = {
 			control: { type: 'radio' },
 			options: [ 'vertical', 'horizontal' ],
 			description: 'Bar orientation',
+			table: { category: 'Visual Style' },
+		},
+		layout: {
+			control: { type: 'radio' },
+			options: [ 'grouped', 'overlap' ],
+			description: 'How series share a category',
 			table: { category: 'Visual Style' },
 		},
 		gridVisibility: {
@@ -788,45 +798,18 @@ const longLabelData = [
 	},
 ];
 
-// Comparison mode: one primary series + one shadow series sharing the same group.
-// The shadow renders as a translucent bar (150% width, 50% opacity) centered behind
-// the primary bar, making it easy to compare the current period against a previous one.
 export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
 		legendCollapseGroups: false,
-		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-		],
+		data: weeklyComparisonData.slice( 0, 2 ),
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as an opaque bar at the standard slot width, in a light tint of the primary color, behind a primary bar narrowed to 60% in a shade that keeps 3:1 contrast against it. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
 			},
 		},
 	},
@@ -841,60 +824,54 @@ export const ComparisonMulti: Story = {
 		showLegend: true,
 		legendInteractive: true,
 		legendCollapseGroups: true,
-		data: [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-			{
-				label: 'Visitors',
-				group: 'visitors',
-				data: [
-					{ label: 'Mon', value: 280 },
-					{ label: 'Tue', value: 390 },
-					{ label: 'Wed', value: 220 },
-					{ label: 'Thu', value: 500 },
-					{ label: 'Fri', value: 430 },
-				],
-			},
-			{
-				label: 'Visitors — previous',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 340 },
-					{ label: 'Tue', value: 320 },
-					{ label: 'Wed', value: 290 },
-					{ label: 'Thu', value: 410 },
-					{ label: 'Fri', value: 460 },
-				],
-			},
-		],
+		data: weeklyComparisonData,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width comparison bar, an opaque tint of the group color, sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+const GAPS_BY_SERIES: Record< string, Record< string, number | null > > = {
+	Views: { Wed: null },
+	Visitors: { Wed: null, Sat: 0 },
+	'Previous views': { Tue: null, Fri: 0 },
+	'Previous visitors': { Tue: null, Fri: 0 },
+};
+
+const weeklyComparisonWithGaps = weeklyComparisonData.map( series => ( {
+	...series,
+	data: series.data.map( point => {
+		const gaps = GAPS_BY_SERIES[ series.label ] ?? {};
+		return point.label in gaps ? { ...point, value: gaps[ point.label ] } : point;
+	} ),
+} ) );
+
+export const ComparisonMultiOverlap: Story = {
+	args: {
+		...Default.args,
+		layout: 'overlap',
+		showLegend: true,
+		legendInteractive: true,
+		legendCollapseGroups: true,
+		showZeroValues: true,
+		data: weeklyComparisonWithGaps,
+	},
+	render: args => (
+		<BarChart
+			{ ...args }
+			legend={ { ...extractLegendConfig( args ), comparisonItem: 'Previous period' } }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time. Some days have gaps: Wednesday has no current reading and Tuesday no previous one, so those slots draw nothing and their tooltips read "No data". Saturday\'s current visitors and Friday\'s previous period are real zeros, drawn as stubs with `showZeroValues`.',
 			},
 		},
 	},
@@ -949,6 +926,81 @@ export const PaintedYAxis: Story = {
 	},
 };
 
+const radiusSeries: SeriesData[] = [
+	{ ...timeAxisSeries( yearlyPoints )[ 0 ], group: 'views' },
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: yearlyPoints.map( ( [ date, value ] ) => ( { date, value: value - 12 } ) ),
+	},
+];
+
+const findBars = ( panel: HTMLElement ) =>
+	waitFor( () => {
+		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
+		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		if ( ! primary ) {
+			throw new Error( 'No bar rendered yet.' );
+		}
+		return { primary, comparison };
+	} );
+
+export const BarRadius: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div data-testid="bar-radius-default">
+				<h3 style={ { marginBottom: '4px' } }>Default</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>0</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+			<div
+				data-testid="bar-radius-rounded"
+				style={
+					{
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Rounded</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-sm</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+		</div>
+	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const square = await findBars( canvas.getByTestId( 'bar-radius-default' ) );
+		const rounded = await findBars( canvas.getByTestId( 'bar-radius-rounded' ) );
+		const radius = getComputedStyle( rounded.primary )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
+
+		await expect( getComputedStyle( square.primary ).rx ).toBe( '0px' );
+		await expect( getComputedStyle( square.comparison ).rx ).toBe( '0px' );
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rounded.primary ).rx ).toBe( radius );
+		await expect( getComputedStyle( rounded.comparison ).rx ).toBe( radius );
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role anywhere inside the provider tree to round their corners.',
+			},
+		},
+	},
+};
+
 export const LabelOverflowEllipsis: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
@@ -992,4 +1044,38 @@ export const LabelOverflowEllipsis: Story = {
 			},
 		},
 	},
+};
+
+const [ newYork, london ] = temperatureData;
+const londonWithoutJanuary = [ newYork, { ...london, data: london.data.slice( 1 ) } ];
+
+const renderEverySeriesTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div style={ { padding: '8px' } }>
+		<strong>{ tooltipData?.nearestDatum?.datum.date?.toISOString().slice( 0, 7 ) }</strong>
+		{ Object.entries( tooltipData?.datumByKey ?? {} ).map( ( [ key, { datum } ] ) => (
+			<div key={ key }>
+				{ key }: { datum.value }
+			</div>
+		) ) }
+	</div>
+);
+
+export const GroupedTooltipWithMissingDates: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A custom `renderTooltip` that lists every series in `tooltipData.datumByKey`, which the default grouped tooltip does not. **London** has no point in January, so the January tooltip lists only **New York**.',
+			},
+		},
+	},
+	render: () => (
+		<div style={ { width: '600px', height: '350px' } }>
+			<BarChart
+				withTooltips
+				data={ londonWithoutJanuary }
+				renderTooltip={ renderEverySeriesTooltip }
+			/>
+		</div>
+	),
 };

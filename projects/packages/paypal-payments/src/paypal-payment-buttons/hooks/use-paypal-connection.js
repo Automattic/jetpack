@@ -34,7 +34,8 @@ import {
 	waitForAnchorBinding,
 	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
-import { getUserFriendlyError } from '../utils/validation';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
+import { getUserFriendlyError, isForbidden } from '../utils/validation';
 
 /**
  * The PayPal connection is stored per-site, not per-block, so connecting or
@@ -88,6 +89,9 @@ export function broadcastConnectionChange( connected ) {
 export function usePayPalConnection() {
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
+	// Every PayPal route needs manage_options. A user without it is refused
+	// the connection read, which says nothing about whether the site is connected.
+	const [ canManageConnection, setCanManageConnection ] = useState( true );
 	const [ environment, setEnvironment ] = useState( 'production' );
 	const [ connectionLoading, setConnectionLoading ] = useState( true );
 	// PayPal partner attribution (BN) code, appended to links we hand out.
@@ -138,12 +142,12 @@ export function usePayPalConnection() {
 	const onboardingRequestedRef = useRef( onboardingRequested );
 	onboardingRequestedRef.current = onboardingRequested;
 
-	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
+	// Wizard step state: 'welcome' | 'dashboard' | 'credentials'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
 	const [ wizardStep, setWizardStep ] = useState( () => {
 		try {
 			const saved = window.localStorage.getItem( 'jetpack-paypal-wizard-step' );
-			if ( saved && [ 'welcome', 'dashboard', 'credentials', 'success' ].includes( saved ) ) {
+			if ( saved && [ 'welcome', 'dashboard', 'credentials' ].includes( saved ) ) {
 				return saved;
 			}
 		} catch {
@@ -156,7 +160,7 @@ export function usePayPalConnection() {
 	// Persist wizard step changes to localStorage.
 	useEffect( () => {
 		try {
-			if ( wizardStep === 'success' || isConnected ) {
+			if ( isConnected ) {
 				window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 			} else {
 				window.localStorage.setItem( 'jetpack-paypal-wizard-step', wizardStep );
@@ -210,7 +214,11 @@ export function usePayPalConnection() {
 					setWizardStep( 'dashboard' );
 				}
 			} )
-			.catch( () => {
+			.catch( err => {
+				if ( isForbidden( err ) ) {
+					setCanManageConnection( false );
+					return;
+				}
 				setIsConnected( false );
 			} )
 			.finally( () => {
@@ -221,6 +229,9 @@ export function usePayPalConnection() {
 	/**
 	 * Follow the site-wide connection state when another block changes it.
 	 *
+	 * A disconnect sends the wizard back to its first step and clears any
+	 * connect error.
+	 *
 	 * Block attributes are deliberately left alone: the payment links they hold
 	 * keep working for buyers after a disconnect, they just can't be edited
 	 * until the merchant reconnects.
@@ -230,6 +241,9 @@ export function usePayPalConnection() {
 			setIsConnected( !! event.detail?.connected );
 			if ( event.detail?.connected ) {
 				setShowReconnect( false );
+			} else {
+				setWizardStep( 'welcome' );
+				setConnectError( null );
 			}
 		};
 
@@ -307,7 +321,6 @@ export function usePayPalConnection() {
 				setClientId( '' );
 				setClientSecret( '' );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				broadcastConnectionChange( response.connected );
 			} )
 			.catch( err => {
@@ -369,7 +382,6 @@ export function usePayPalConnection() {
 				setOnboardingRequested( false );
 				setIsConnected( true );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				setAccountEmail( response?.account_email || '' );
 				broadcastConnectionChange( true );
 				loadMerchantStatus();
@@ -491,6 +503,18 @@ export function usePayPalConnection() {
 				setIsGeneratingSignupLink( false );
 			} );
 	}, [ environment ] );
+
+	/**
+	 * Without the sandbox flag, a disconnected site connects to production only.
+	 *
+	 * The environment option outlives a disconnect, so a site that once used the
+	 * sandbox would otherwise reconnect to it with no control left to say otherwise.
+	 */
+	useEffect( () => {
+		if ( ! isConnected && environment === 'sandbox' && ! isSandboxAllowed() ) {
+			setEnvironment( 'production' );
+		}
+	}, [ isConnected, environment ] );
 
 	/**
 	 * A different environment needs a different referral link.
@@ -720,6 +744,7 @@ export function usePayPalConnection() {
 	return {
 		isConnected,
 		setIsConnected,
+		canManageConnection,
 		environment,
 		setEnvironment,
 		connectionLoading,

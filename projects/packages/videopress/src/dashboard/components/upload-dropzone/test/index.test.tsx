@@ -4,6 +4,10 @@ import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-fi
 import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
+jest.mock( '../../../../client/components/video-recording/recording-stage', () =>
+	jest.requireActual( '../../../../client/components/video-recording/fixtures/recording-stage' )
+);
+
 const mockCreateErrorNotice = jest.fn();
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
@@ -23,12 +27,7 @@ jest.mock( '@wordpress/data', () => ( {
 	} ),
 } ) );
 
-// The real hook pulls in the connection package's checkout workflow, which
-// wants an initial state this component test has no business hydrating.
 const mockRunUpgrade = jest.fn();
-jest.mock( '../../../hooks/use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => mockRunUpgrade,
-} ) );
 
 const AT_LIMIT_MESSAGE = 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.';
 
@@ -41,6 +40,17 @@ beforeEach( () => {
 } );
 
 describe( 'UploadDropzone', () => {
+	it( 'does not open the file picker when interacting with the recording modal portal', async () => {
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The file input has no accessible label.
+		const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+		const clickPicker = jest.spyOn( input, 'click' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Record a video' } ) );
+		await userEvent.click( await screen.findByLabelText( 'Camera preview' ) );
+		expect( clickPicker ).not.toHaveBeenCalled();
+		clickPicker.mockRestore();
+	} );
+
 	it( 'renders the single-file copy by default', () => {
 		render( <UploadDropzone onFiles={ jest.fn() } /> );
 
@@ -92,6 +102,7 @@ describe( 'UploadDropzone', () => {
 		await waitFor( () => expect( onFiles ).toHaveBeenCalledTimes( 1 ) );
 
 		rerender( <UploadDropzone onFiles={ onFiles } disabled /> );
+		expect( screen.getByRole( 'button', { name: 'Record a video' } ) ).toBeDisabled();
 		expect( dropzone ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByRole( 'button', { name: 'Select a video to upload' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -107,7 +118,9 @@ describe( 'UploadDropzone', () => {
 		// here", the drop handler was simply unbound, and the file vanished
 		// with no error, no toast and no state change.
 		const onFiles = jest.fn();
-		const { container } = render( <UploadDropzone onFiles={ onFiles } disabled /> );
+		const { container } = render(
+			<UploadDropzone onFiles={ onFiles } disabled onUpgrade={ mockRunUpgrade } />
+		);
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
@@ -144,7 +157,9 @@ describe( 'UploadDropzone', () => {
 	} );
 
 	it( 'offers the upgrade route from the rejected-drop notice', async () => {
-		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+		const { container } = render(
+			<UploadDropzone onFiles={ jest.fn() } disabled onUpgrade={ mockRunUpgrade } />
+		);
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
 		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
@@ -157,6 +172,21 @@ describe( 'UploadDropzone', () => {
 		];
 		options.actions[ 0 ].onClick();
 		expect( mockRunUpgrade ).toHaveBeenCalled();
+	} );
+
+	it( 'carries no action in the at-limit notice without an upgrade route', async () => {
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'two.mp4' ) ] } } );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				AT_LIMIT_MESSAGE,
+				expect.objectContaining( { actions: [] } )
+			)
+		);
 	} );
 
 	it( 'refuses from the picker button in the same voice as the surface', async () => {

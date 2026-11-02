@@ -137,6 +137,15 @@ describe( 'ThumbnailCard — update flow', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'renders no editing controls after conversion fails', () => {
+		const { container } = render(
+			<ThumbnailCard video={ { ...baseVideo, isProcessing: false, conversionFailed: true } } />,
+			{ wrapper }
+		);
+		expect( container ).toBeEmptyDOMElement();
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders nothing for local (non-VideoPress) items', () => {
 		const { container } = render(
 			<ThumbnailCard video={ { ...baseVideo, type: 'local', guid: '' } } />,

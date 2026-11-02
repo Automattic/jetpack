@@ -1,0 +1,17 @@
+// The scrim and glyph sit on a photo, not a themed surface, so they
+// keep fixed colors.
+.poster {
+	display: grid;
+	position: relative;
+	inline-size: 100%;
+	block-size: 100%;
+}
+
+.playOverlay {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	background: rgba(0, 0, 0, 0.28);
+	color: #fff;
+}

@@ -4,7 +4,7 @@ import { createInterpolateElement, useCallback, useMemo, useState } from '@wordp
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight } from '@wordpress/icons';
-import { IconButton, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { IconButton, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 
 // Set by the Write editor when someone leaves it for the Block editor, in both
@@ -210,14 +210,14 @@ const PromptPanel = ( { prompts, siteType, readerUrl, openReaderInNewTab, onRead
 				</Stack>
 			</Stack>
 			<Stack direction="row" justify="space-between" align="center" gap="sm" wrap="wrap">
-				<LinkButton
+				<ButtonLink
 					variant="outline"
 					size="compact"
 					href={ postAnswerHref }
 					onClick={ recordPostAnswerClick }
 				>
 					{ __( 'Post your answer', 'jetpack-newsletter' ) }
-				</LinkButton>
+				</ButtonLink>
 				{ prompt.answered_users_sample.length > 0 && (
 					<Stack
 						className="wpcom-daily-writing-prompt--answered-users"

@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove five unused SVGs from assets/images that were ported from the ETK NUX feature but never referenced or bundled.

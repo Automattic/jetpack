@@ -1,19 +1,27 @@
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { wordpress } from '@wordpress/icons';
 import { Card, Stack, Text, Icon } from '@wordpress/ui';
+import SubscriberStatsChart from '../subscriber-stats-chart';
 import GuidesCard from './guides-card';
 import OnboardingChecklist from './onboarding-checklist';
+import {
+	isOnboardingDone,
+	isStoredOnboardingDone,
+	onboardingTasksQueryOptions,
+} from './task-list-api';
 import type { JSX } from 'react';
 import './style.scss';
 
 /**
- * Render the content of the Newsletter Overview tab.
+ * Render the onboarding view: the intro, the checklist and the guides.
  *
- * @return The Overview tab content.
+ * @return The onboarding view.
  */
-export default function OverviewBody(): JSX.Element {
+function OnboardingView(): JSX.Element {
 	const displayName = getScriptData()?.user.current_user?.display_name ?? '';
 	const title = displayName
 		? sprintf(
@@ -22,6 +30,13 @@ export default function OverviewBody(): JSX.Element {
 				displayName
 			)
 		: __( 'Welcome', 'jetpack-newsletter' );
+	const introTitle = isWpcomPlatformSite()
+		? sprintf(
+				/* translators: %s: Product name, "Jetpack Newsletter". Do not translate. */
+				__( '%s on WordPress.com', 'jetpack-newsletter' ),
+				'Jetpack Newsletter'
+			)
+		: 'Jetpack Newsletter';
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">
@@ -47,7 +62,7 @@ export default function OverviewBody(): JSX.Element {
 								/>
 								<JetpackIcon className="jetpack-newsletter-overview__jetpack-icon" size={ 22 } />
 							</span>
-							{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
+							{ introTitle }
 						</Stack>
 					</Card.Title>
 				</Stack>
@@ -64,4 +79,22 @@ export default function OverviewBody(): JSX.Element {
 			<GuidesCard />
 		</Stack>
 	);
+}
+
+/**
+ * Render the content of the Newsletter Overview tab: Stats once WP.com marks onboarding as done,
+ * the onboarding view until then. A done onboarding is remembered in localStorage, so later visits
+ * go straight to Stats without asking WP.com.
+ *
+ * @return The Overview tab content.
+ */
+export default function OverviewBody(): JSX.Element {
+	const [ storedDone ] = useState( isStoredOnboardingDone );
+	const tasksQuery = useQuery( { ...onboardingTasksQueryOptions, enabled: ! storedDone } );
+
+	if ( storedDone || ( tasksQuery.data && isOnboardingDone( tasksQuery.data ) ) ) {
+		return <SubscriberStatsChart />;
+	}
+
+	return <OnboardingView />;
 }

@@ -25,6 +25,12 @@ export async function checkAnalyticsEnabled() {
 			return false;
 		}
 
+		// Without a terminal on both ends (a script, an agent, `jp` running Docker without -it, output
+		// sent to a file) nobody sees or answers it. Skip it unsaved, so a later terminal run asks.
+		if ( ! ( process.stdin.isTTY && process.stdout.isTTY ) ) {
+			return false;
+		}
+
 		const prompt = await enquirer.prompt( [
 			{
 				type: 'confirm',

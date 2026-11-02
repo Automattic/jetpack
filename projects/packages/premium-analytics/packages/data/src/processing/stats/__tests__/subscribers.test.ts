@@ -2,39 +2,9 @@ import { sanitizeStatsSubscribersCountsResponse, sanitizeStatsSubscribersRespons
 import {
 	emptySubscribersCountsFixture,
 	subscribersCountsFixture,
-	subscribersFixture,
 } from '../__fixtures__/subscribers';
 
 describe( 'Stats subscribers normalizers', () => {
-	it( 'normalizes raw subscribers matrix rows into time-series data points', () => {
-		const result = sanitizeStatsSubscribersResponse( subscribersFixture );
-
-		expect( result.summary ).toEqual(
-			expect.objectContaining( {
-				subscribers: 22,
-				subscribers_paid: 5,
-				date_start: '2026-06-24T00:00:00',
-				date_end: '2026-06-25T23:59:59',
-			} )
-		);
-		expect( result.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-06-24',
-				value: 10,
-				subscribers: 10,
-				subscribers_paid: 2,
-				items: [],
-			} ),
-			expect.objectContaining( {
-				time_interval: '2026-06-25',
-				value: 12,
-				subscribers: 12,
-				subscribers_paid: 3,
-				items: [],
-			} ),
-		] );
-	} );
-
 	it( 'keeps a null count as null rather than parsing it to zero', () => {
 		const result = sanitizeStatsSubscribersResponse( {
 			unit: 'month',

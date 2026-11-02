@@ -1,5 +1,5 @@
 import { sanitizeStatsPostResponse } from '..';
-import { postStatsFixture, postStatsViewsFixture } from '../__fixtures__/post';
+import { postStatsFixture } from '../__fixtures__/post';
 
 describe( 'Stats post normalizer', () => {
 	it( 'normalizes a raw post stats payload without dropping detail fields', () => {
@@ -59,12 +59,6 @@ describe( 'Stats post normalizer', () => {
 				post_status: 'publish',
 				comment_count: 8,
 			},
-		} );
-	} );
-
-	it( 'normalizes a fields=views response', () => {
-		expect( sanitizeStatsPostResponse( postStatsViewsFixture ) ).toEqual( {
-			views: 128,
 		} );
 	} );
 

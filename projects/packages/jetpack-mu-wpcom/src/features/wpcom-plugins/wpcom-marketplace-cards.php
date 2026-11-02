@@ -22,7 +22,7 @@ const WPCOM_MARKETPLACE_SEARCH_LIMIT = 2;
 const WPCOM_MARKETPLACE_DEPENDENCY_PREFIX = 'wpcom_marketplace_dependency_';
 
 /**
- * Hooks the cards in on the first page of the Add Plugins screen.
+ * Hooks the cards in on the first page of the Add Plugins screen, and their assets on every page.
  *
  * Core's live search runs through admin-ajax.php but sets this same screen first, so one
  * check covers the page and the Ajax results.
@@ -34,7 +34,14 @@ function wpcom_marketplace_cards_start( $screen ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only reads which page of results this is.
 	$page = isset( $_GET['paged'] ) ? (int) $_GET['paged'] : 1;
 
-	if ( ! isset( $screen->base ) || 'plugin-install' !== $screen->base || $page > 1 || ! wpcom_marketplace_tab_enabled() ) {
+	if ( ! isset( $screen->base ) || 'plugin-install' !== $screen->base || ! wpcom_marketplace_tab_enabled() ) {
+		return;
+	}
+
+	// On every page: the script also keeps checkout's Back working, and any page can lead there.
+	add_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' );
+
+	if ( $page > 1 ) {
 		return;
 	}
 
@@ -43,7 +50,6 @@ function wpcom_marketplace_cards_start( $screen ) {
 	add_filter( 'plugin_install_description', 'wpcom_marketplace_card_description_markup', 10, 2 );
 	add_filter( 'plugins_api', 'wpcom_marketplace_cached_dependency', 11, 3 );
 	add_filter( 'plugins_api_result', 'wpcom_marketplace_remember_dependency', 10, 3 );
-	add_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' );
 }
 add_action( 'current_screen', 'wpcom_marketplace_cards_start' );
 
@@ -180,7 +186,7 @@ function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 		return $description;
 	}
 
-	$installed = 'install' !== install_plugin_install_status( $plugin )['status'];
+	$installed = wpcom_marketplace_is_installed( $plugin );
 	$referral  = Marketplace_Catalog::is_referral( $plugin );
 
 	// Checkout installs everything a product needs, so its card says so rather than core's "required".
@@ -191,12 +197,13 @@ function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 
 	// The data attributes are what the tab's Tracks and kept details modals read off a card.
 	return sprintf(
-		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s"%s>%s</template>',
+		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s" data-needs-plan="%s"%s>%s</template>',
 		esc_html__( 'WordPress.com Marketplace', 'jetpack-mu-wpcom' ),
 		esc_html( wpcom_marketplace_card_description( $plugin ) ),
 		esc_attr( (string) ( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ?? '' ) ),
 		$referral ? 'true' : 'false',
 		$installed ? 'true' : 'false',
+		! $installed && ! $referral && wpcom_marketplace_needs_plan() ? 'true' : 'false',
 		$requires_label,
 		wpcom_marketplace_card_strip( $plugin ) // Built from escaped parts.
 	);
@@ -302,7 +309,7 @@ function wpcom_marketplace_remember_dependency( $result, $action, $args ) {
  */
 function wpcom_marketplace_card_strip( array $plugin ) {
 	// Calypso drops the price once a plugin is installed.
-	$rows = 'install' === install_plugin_install_status( $plugin )['status']
+	$rows = ! wpcom_marketplace_is_installed( $plugin )
 		? wpcom_marketplace_price_rows( $plugin )
 		: array(
 			'headline' => '',

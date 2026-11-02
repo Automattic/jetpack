@@ -1,18 +1,4 @@
 /**
- * Mocks – break the dependency chain to `@wordpress/core-data`.
- */
-jest.mock( '../../defaults', () => ( {
-	getDefaultQueryParams: jest.fn(),
-} ) );
-
-jest.mock( '../preset-date-range', () => ( {
-	computeDateRangeFromPreset: jest.fn(),
-} ) );
-
-jest.mock( '../interval', () => ( {
-	resolveIntervalForRange: jest.fn(),
-} ) );
-/**
  * Internal dependencies
  */
 import { hasComparisonEnabled } from '../search';
@@ -73,9 +59,5 @@ describe( 'hasComparisonEnabled', () => {
 				compare_to: '  ',
 			} )
 		).toBe( false );
-	} );
-
-	it( 'returns false for empty object', () => {
-		expect( hasComparisonEnabled( {} ) ).toBe( false );
 	} );
 } );

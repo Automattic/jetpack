@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Leave the plan usage card out of the Settings tab when the plan has no view limit, as on WordPress.com, instead of saying usage isn't available.

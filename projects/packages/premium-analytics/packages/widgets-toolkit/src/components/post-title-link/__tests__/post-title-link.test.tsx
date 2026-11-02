@@ -57,6 +57,21 @@ describe.each( [
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Sketchy' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'detail link', { id: 12 } ],
+		[ 'external link', { link: 'https://example.com/launch/' } ],
+		[ 'plain wrapper', {} ],
+	] )( 'renders custom content in place of the label inside the %s', ( _branch, props ) => {
+		render(
+			<TitleLink label="Launch" title="Launch" { ...props }>
+				<span>custom</span>
+			</TitleLink>
+		);
+
+		expect( screen.getByTitle( 'Launch' ) ).toContainElement( screen.getByText( 'custom' ) );
+		expect( screen.queryByText( 'Launch' ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'PostTitleLink', () => {
@@ -70,5 +85,31 @@ describe( 'PostTitleLink', () => {
 		expect( new URL( href, 'https://example.com' ).searchParams.get( 'post_url' ) ).toBe(
 			'https://example.com/hello-world/'
 		);
+	} );
+
+	describe( 'when the reader cannot open post details', () => {
+		beforeEach( () => {
+			Object.defineProperty( window, 'JetpackScriptData', {
+				configurable: true,
+				value: { premium_analytics: { sections: [ 'woocommerce' ] } },
+			} );
+		} );
+
+		afterEach( () => {
+			delete window.JetpackScriptData;
+		} );
+
+		it( 'links a row with an ID to its public page instead', () => {
+			render( <PostTitleLink id={ 41 } label="Hoodie" link="https://example.com/hoodie/" /> );
+
+			expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'href', 'https://example.com/hoodie/' );
+		} );
+
+		it( 'renders plain text for a row with an ID but no usable URL', () => {
+			render( <PostTitleLink id={ 41 } label="Hoodie" link="" /> );
+
+			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Hoodie' ) ).toBeInTheDocument();
+		} );
 	} );
 } );

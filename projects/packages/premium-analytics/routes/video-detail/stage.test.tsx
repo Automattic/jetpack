@@ -22,7 +22,6 @@ let mockDashboardProps: {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -30,14 +29,21 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// resolve, and `buildReportLink`/`pickReportDateParams` build real hrefs below.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
-	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
-		replaceRange: () => {},
-		timeZone: 'UTC',
-		interval: 'day',
-		intervalOptions: [ 'day', 'week' ],
-		...mockDateFilterOverrides,
-	} ),
+	useReportDateFilters: () => {
+		const filters: Record< string, unknown > = {
+			appliedRange: {
+				from: new Date( Date.UTC( 2026, 5, 1 ) ),
+				to: new Date( Date.UTC( 2026, 5, 16 ) ),
+			},
+			replaceRange: () => {},
+			timeZone: 'UTC',
+			interval: 'day',
+			intervalOptions: [ 'day', 'week' ],
+			...mockDateFilterOverrides,
+		};
+		// Nothing staged: the draft is what the URL applied.
+		return { presetId: filters.appliedPresetId, range: filters.appliedRange, ...filters };
+	},
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
@@ -131,6 +137,7 @@ const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
+	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 // The report registry is deliberately not mocked so the breadcrumb exercises
@@ -334,7 +341,6 @@ describe( 'video detail stage', () => {
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
 		);
-		expect( placeholderGlyph() ).not.toBeInTheDocument();
 
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.

@@ -3,7 +3,10 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { resolveIntervalForPresetChange } from '@jetpack-premium-analytics/data';
+import {
+	resolveIntervalForPresetChange,
+	type LockableInterval,
+} from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import {
 	deriveComparisonRange,
@@ -168,6 +171,9 @@ type DateRangeApplyContext = {
 
 	/** Whether the surface shows the comparison; detail pages keep it in the URL but never draw it. */
 	offersComparison: boolean;
+
+	/** The buckets the plan locks, as the date filters were given them. */
+	lockedIntervals?: readonly LockableInterval[];
 };
 
 type DateRangeState = Pick<
@@ -187,7 +193,7 @@ type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
  */
 export function useTrackedDateRangeApply(
 	{ presetId, range, interval, comparisonPresetId, appliedComparisonRange }: DateRangeState,
-	{ surface, section, offersComparison }: DateRangeApplyContext
+	{ surface, section, offersComparison, lockedIntervals }: DateRangeApplyContext
 ) {
 	const trackEvent = useTrackEvent();
 	const staged = useRef< StagedRange | null >( null );
@@ -230,7 +236,14 @@ export function useTrackedDateRangeApply(
 			...( section ? { section } : {} ),
 			range_type: isCustom ? 'custom' : 'preset',
 			...( isCustom ? {} : { preset: appliedPresetId } ),
-			interval: resolveIntervalForPresetChange( presetId, appliedPresetId, from, to, interval ),
+			interval: resolveIntervalForPresetChange(
+				presetId,
+				appliedPresetId,
+				from,
+				to,
+				interval,
+				lockedIntervals
+			),
 			comparison: comparison ?? 'none',
 		} );
 	}, [
@@ -243,6 +256,7 @@ export function useTrackedDateRangeApply(
 		surface,
 		section,
 		offersComparison,
+		lockedIntervals,
 	] );
 
 	return { trackedOnChange, trackedOnApply };

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-26
+### Added
+- Add getScoreTier, which groups a speed score into good, medium or poor. [#53884]
+
+### Changed
+- Update package dependencies. [#54072]
+
+## [1.2.3] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [1.2.2] - 2026-10-19
+### Changed
+- Update package dependencies. [#53806]
+
+## [1.2.1] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
 ## [1.2.0] - 2026-10-05
 ### Added
 - Add an `onPending` option to `requestSpeedScores()`, called when the site is still measuring. [#53056]
@@ -39,11 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.54] - 2026-07-13
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [1.0.53] - 2026-07-09
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [1.0.52] - 2026-07-06
 ### Changed
@@ -63,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.48] - 2026-06-15
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [1.0.47] - 2026-06-09
 ### Changed
@@ -79,12 +98,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.44] - 2026-06-02
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [1.0.43] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.0.42] - 2026-05-19
 ### Changed
@@ -96,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.40] - 2026-05-11
 ### Changed
-- Update dependencies. [#47157]
+- Update dependencies.
 
 ## [1.0.39] - 2026-05-04
 ### Changed
@@ -112,7 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.36] - 2026-04-06
 ### Changed
-- Update dependencies. [#47157]
+- Update dependencies.
 
 ## [1.0.35] - 2026-03-30
 ### Changed
@@ -153,7 +171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.26] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [1.0.25] - 2026-01-19
 ### Changed
@@ -173,11 +191,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.21] - 2025-12-11
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.20] - 2025-12-08
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.19] - 2025-12-01
 ### Changed
@@ -193,11 +211,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.16] - 2025-10-02
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.15] - 2025-09-22
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.14] - 2025-09-19
 ### Changed
@@ -229,7 +247,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.7] - 2025-07-21
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.6] - 2025-07-08
 ### Changed
@@ -241,7 +259,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4] - 2025-06-30
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [1.0.3] - 2025-06-23
 ### Changed
@@ -261,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.67] - 2025-06-02
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.1.66] - 2025-05-26
 ### Changed
@@ -269,7 +287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.65] - 2025-05-22
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.1.64] - 2025-05-05
 ### Changed
@@ -537,6 +555,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Create package for the boost score bar API [#30781]
 
+[1.3.0]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.3...v1.3.0
+[1.2.3]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.0.60...v1.1.0
 [1.0.60]: https://github.com/Automattic/jetpack-boost-score-api/compare/v1.0.59...v1.0.60

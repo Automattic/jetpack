@@ -18,6 +18,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
@@ -35,7 +36,6 @@ import {
 import {
 	setInitialState,
 	getSiteRawUrl,
-	getSiteId,
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
@@ -46,6 +46,7 @@ import {
 	getPluginBaseUrl,
 	userIsSubscriber,
 } from 'state/initial-state';
+import { hasProtectPage } from 'state/modules';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -63,7 +64,7 @@ const settingsRoutes = [
 	'/privacy',
 ];
 
-class Main extends Component {
+export class Main extends Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
@@ -126,6 +127,7 @@ class Main extends Component {
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
+			nextProps.hasProtectPage !== this.props.hasProtectPage ||
 			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
 			nextProps.isReconnectingSite !== this.props.isReconnectingSite
 		);
@@ -236,8 +238,13 @@ class Main extends Component {
 			case '/newsletter':
 				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
-			case '/settings':
 			case '/security':
+				if ( this.props.hasProtectPage ) {
+					openProtectSettings( this.props.siteAdminUrl );
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
@@ -250,7 +257,6 @@ class Main extends Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
-						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
@@ -391,7 +397,6 @@ export default connect(
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			blogID: getSiteId( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
@@ -408,6 +413,7 @@ export default connect(
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
+			hasProtectPage: hasProtectPage( state ),
 		};
 	},
 	dispatch => ( {

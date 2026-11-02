@@ -87,7 +87,7 @@ export const ManageConnectionsModal = () => {
 				>
 					<Dialog.Header className={ styles[ 'modal-header' ] }>
 						<Dialog.Title>{ title }</Dialog.Title>
-						<Dialog.CloseIcon />
+						<Dialog.CloseIconButton />
 					</Dialog.Header>
 					{ hasKeyringResult ? (
 						/*

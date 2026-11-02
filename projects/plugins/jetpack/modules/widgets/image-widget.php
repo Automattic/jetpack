@@ -118,7 +118,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 					<figcaption class="wp-caption-text">' . $caption . '</figcaption>
 				</figure>'; // wp_kses_post caption on update.
 			}
-			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
+			echo '<div class="jetpack-image-container">' . apply_shortcodes( $output ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- https://github.com/WordPress/WordPress-Coding-Standards/pull/2782
 		} elseif ( current_user_can( 'edit_theme_options' ) ) {
 			echo '<p>' . wp_kses(
 				sprintf(

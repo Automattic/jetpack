@@ -2,18 +2,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
-import {
-	useLibrary,
-	viewToQueryArgs,
-	privacyStringToInt,
-	libraryRefetchInterval,
-	nextProcessingPoll,
-	toLibraryItem,
-	LIBRARY_POLL_INTERVAL_MS,
-	PROCESSING_POLL_SLOW_INTERVAL_MS,
-	PROCESSING_POLL_BACKOFF_MS,
-	PROCESSING_POLL_MAX_MS,
-} from '../use-library';
+import { toLibraryItem } from '../../utils/library-item';
+import { LIBRARY_POLL_INTERVAL_MS } from '../../utils/processing-poll';
+import { useLibrary, viewToQueryArgs } from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -25,14 +16,6 @@ const DEFAULT_VIEW: View = {
 	filters: [],
 	search: '',
 };
-
-describe( 'privacyStringToInt', () => {
-	it( 'maps UI privacy strings to WPCOM integer codes', () => {
-		expect( privacyStringToInt( 'public' ) ).toBe( 0 );
-		expect( privacyStringToInt( 'private' ) ).toBe( 1 );
-		expect( privacyStringToInt( 'site-default' ) ).toBe( 2 );
-	} );
-} );
 
 describe( 'viewToQueryArgs', () => {
 	it( 'maps the default view to core media query args', () => {
@@ -75,83 +58,6 @@ describe( 'viewToQueryArgs', () => {
 		expect( viewToQueryArgs( { ...DEFAULT_VIEW, search: 'foo' } ) ).toMatchObject( {
 			search: 'foo',
 		} );
-	} );
-} );
-
-describe( 'libraryRefetchInterval', () => {
-	it( 'backs off after the first minute', () => {
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS - 1 ) ).toBe( 5000 );
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS ) ).toBe( 15000 );
-	} );
-
-	it( 'does not poll when nothing is processing', () => {
-		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
-		// Elapsed time is irrelevant once processing has cleared.
-		expect( libraryRefetchInterval( false, PROCESSING_POLL_MAX_MS * 2 ) ).toBe( false );
-	} );
-
-	it( 'polls while processing and under the cap', () => {
-		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
-			PROCESSING_POLL_SLOW_INTERVAL_MS
-		);
-	} );
-
-	it( 'stops polling once the cap is reached, even while still processing (VIDP-298)', () => {
-		// An orphaned record stuck isProcessing forever must not poll unbounded.
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS ) ).toBe( false );
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS + 1 ) ).toBe( false );
-	} );
-} );
-
-describe( 'nextProcessingPoll', () => {
-	it( 'stamps a fresh anchor on first sighting and polls', () => {
-		const { anchor, interval } = nextProcessingPoll( null, [ '7' ], 1_000 );
-		expect( anchor ).toEqual( { idsKey: '7', startedAt: 1_000 } );
-		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
-	} );
-
-	it( 'keeps the anchor while the same set is processing and caps on its budget', () => {
-		const stamped = nextProcessingPoll( null, [ '7' ], 1_000 ).anchor;
-		const underCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS - 1 );
-		expect( underCap.anchor ).toBe( stamped );
-		expect( underCap.interval ).toBe( PROCESSING_POLL_SLOW_INTERVAL_MS );
-		const atCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
-		expect( atCap.interval ).toBe( false );
-	} );
-
-	it( 'restamps when the processing set changes, so a new upload is polled after a stuck orphan hit the cap', () => {
-		// Orphan "7" alone burned its budget…
-		const orphanOnly = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		expect( nextProcessingPoll( orphanOnly, [ '7' ], PROCESSING_POLL_MAX_MS ).interval ).toBe(
-			false
-		);
-		// …then a new upload "9" appears at t=16min: fresh budget, polling resumes.
-		const later = PROCESSING_POLL_MAX_MS + 60_000;
-		const { anchor, interval } = nextProcessingPoll( orphanOnly, [ '9', '7' ], later );
-		expect( anchor ).toEqual( { idsKey: '7,9', startedAt: later } );
-		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
-	} );
-
-	it( 'treats the set as order-insensitive', () => {
-		const stamped = nextProcessingPoll( null, [ '9', '7' ], 0 ).anchor;
-		expect( nextProcessingPoll( stamped, [ '7', '9' ], 5_000 ).anchor ).toBe( stamped );
-	} );
-
-	it( 'keeps one budget for the same stuck set across view changes (set-keyed, not view-keyed)', () => {
-		// The library ref survives filter/search/page changes; only the ids
-		// identify the budget, so a capped orphan stays capped on a new view.
-		const stamped = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		const afterViewChange = nextProcessingPoll( stamped, [ '7' ], PROCESSING_POLL_MAX_MS );
-		expect( afterViewChange.anchor ).toBe( stamped );
-		expect( afterViewChange.interval ).toBe( false );
-	} );
-
-	it( 'drops the anchor when processing clears, so the next processing item gets a fresh budget', () => {
-		const stamped = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		const cleared = nextProcessingPoll( stamped, [], 5_000 );
-		expect( cleared.anchor ).toBeNull();
-		expect( cleared.interval ).toBe( false );
 	} );
 } );
 
@@ -247,34 +153,6 @@ describe( 'useLibrary', () => {
 
 			expect( getApiFetchMock() ).toHaveBeenCalledTimes( expectedFetches );
 		} );
-	} );
-} );
-
-describe( 'toLibraryItem', () => {
-	it( 'maps a video/videopress attachment whose guid has not arrived yet to a processing VideoPress item', () => {
-		const item = toLibraryItem(
-			{
-				id: 11,
-				title: { rendered: 'Just uploaded' },
-				mime_type: 'video/videopress',
-				media_details: {},
-				jetpack_videopress: { guid: '' },
-			},
-			false
-		);
-
-		expect( item.type ).toBe( 'videopress' );
-		expect( item.isProcessing ).toBe( true );
-	} );
-
-	it( 'keeps a guid-less attachment with a regular video mime local', () => {
-		const item = toLibraryItem(
-			{ id: 12, title: { rendered: 'On disk' }, mime_type: 'video/mp4', media_details: {} },
-			false
-		);
-
-		expect( item.type ).toBe( 'local' );
-		expect( item.isProcessing ).toBe( false );
 	} );
 } );
 

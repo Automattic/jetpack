@@ -294,7 +294,7 @@ class AI_Launchpad_Task_Registry {
 		 * its shipped entries — which is what makes it testable with a second definition at all. Callbacks
 		 * must be cheap: this map is rebuilt on every has() / task_ids() / is_complete() / is_visible() call.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param array $definitions Task definitions keyed by task id. See the docblock above for the shape.
 		 */

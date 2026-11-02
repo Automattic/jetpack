@@ -48,7 +48,7 @@ describe( 'normalizeRestore', () => {
 	} );
 
 	test( 'names the backup it was aiming at', () => {
-		expect( normalizeRestore( restore() )?.summary ).toBe( 'Restore to Aug 12, 2026, 5:20 AM' );
+		expect( normalizeRestore( restore() )?.summary ).toBe( 'Restore to August 12, 2026 5:20 am' );
 	} );
 
 	test( 'leaves the summary off a rewind id that is not a timestamp', () => {

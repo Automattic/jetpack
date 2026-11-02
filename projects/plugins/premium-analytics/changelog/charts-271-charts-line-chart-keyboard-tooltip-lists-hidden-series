@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Leave hidden series out of a line chart's tooltip when you move through the chart with the arrow keys.

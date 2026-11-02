@@ -6,9 +6,10 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef, type ComponentProps } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
-import LineChart, { LineChartUnresponsive } from '../line-chart';
+import LineChart, { LineChartUnresponsive, renderDefaultTooltip } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { RenderLineGlyphProps } from '../types';
 
@@ -120,7 +121,7 @@ describe( 'LineChart', () => {
 				tooltipPlacement,
 				tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
 			} );
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
@@ -143,7 +144,7 @@ describe( 'LineChart', () => {
 	test( 'passes a color-only tooltipStyle through with no background added', async () => {
 		const user = userEvent.setup();
 		renderWithTheme( { tooltipStyle: { color: 'white' } } );
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		const box = screen.getByTestId( 'bounded-tooltip' );
@@ -154,7 +155,7 @@ describe( 'LineChart', () => {
 	test( 'paints a tooltipStyle background on the box, not on the default content', async () => {
 		const user = userEvent.setup();
 		renderWithTheme( { tooltipStyle: { background: 'black' } } );
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'black' } );
@@ -164,7 +165,7 @@ describe( 'LineChart', () => {
 	test( 'preserves the existing tooltip colors for noncolor overrides', async () => {
 		const user = userEvent.setup();
 		renderWithTheme( { tooltipStyle: { boxShadow: 'none' } } );
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		screen.getByRole( 'application', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
 		const content = screen.getByTestId( 'line-chart-tooltip-content' );
@@ -179,13 +180,13 @@ describe( 'LineChart', () => {
 	} );
 
 	test.each( [ [ 'Escape', '{Escape}' ] ] )(
-		'returns focus to the grid after %s',
+		'returns focus to the chart after %s',
 		async ( _name, keys ) => {
 			jest.useFakeTimers();
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -225,7 +226,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 			// Should render without crashing and show the single point
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
@@ -241,7 +242,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'tooltip reads No data for a bucket with no reading', async () => {
@@ -258,7 +259,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -282,7 +283,7 @@ describe( 'LineChart', () => {
 
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent ?? '' );
@@ -305,7 +306,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -333,7 +334,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			const ticks = within( chart )
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
@@ -353,7 +354,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
 		} );
 
@@ -368,7 +369,7 @@ describe( 'LineChart', () => {
 				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
 		} );
 
@@ -389,7 +390,7 @@ describe( 'LineChart', () => {
 				},
 			} );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
 		} );
 
@@ -544,9 +545,9 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const grid = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">; the axis and grid lines are plain <line> elements sharing that class.
-			const linePath = grid.querySelector( 'path.visx-line' );
+			const linePath = chart.querySelector( 'path.visx-line' );
 			const gapCount = linePath?.getAttribute( 'd' )?.match( /M/g )?.length;
 			expect( gapCount ).toBe( 2 );
 		} );
@@ -615,7 +616,7 @@ describe( 'LineChart', () => {
 			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			const html = document.body.innerHTML;
 			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
-				html.indexOf( 'role="grid"' )
+				html.indexOf( 'role="application"' )
 			);
 		} );
 	} );
@@ -805,7 +806,7 @@ describe( 'LineChart', () => {
 			expect( gradient ).toBeInTheDocument();
 
 			// Verify that the chart container exists
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			expect( chart ).toBeInTheDocument();
 		} );
 	} );
@@ -821,7 +822,7 @@ describe( 'LineChart', () => {
 				},
 			} );
 			// The chart should render with the custom axis configuration
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -1067,7 +1068,7 @@ describe( 'LineChart', () => {
 
 			// Instead of checking styles, verify the chart renders
 			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -1605,17 +1606,18 @@ describe( 'LineChart', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
-				expect( chart ).toHaveAttribute( 'role', 'grid' );
+				expect( chart ).toHaveAttribute( 'role', 'application' );
 				expect( chart ).toHaveAttribute( 'aria-label', 'Line chart' );
+				expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'chart container can receive focus', async () => {
 				const user = userEvent.setup();
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -1646,7 +1648,7 @@ describe( 'LineChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { data: [ SERIES_A, SERIES_B ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
@@ -1657,15 +1659,115 @@ describe( 'LineChart', () => {
 				} );
 			} );
 
+			test.each( [
+				[ 'the first is hidden', [ { ...SERIES_A, data: SERIES_A.data.slice( 0, 1 ) }, SERIES_B ] ],
+				[
+					'the first visible series is empty',
+					[ SERIES_A, { ...SERIES_A, label: 'Empty', data: [] }, SERIES_B ],
+				],
+			] )( 'Enter reaches every visible point when %s', async ( _, data ) => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( {
+					data,
+					defaultHiddenSeries: [ 'Series A' ],
+					chartId: 'activation-hidden-first',
+					onDatumActivate,
+				} );
+
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_B.data[ 1 ],
+					index: 1,
+					key: 'Series B',
+				} );
+			} );
+
 			test( 'Enter with no point selected activates nothing', async () => {
 				const user = userEvent.setup();
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe( 'Keyboard stops by date', () => {
+			const point = ( day: number, value: number | null ) => ( {
+				date: new Date( `2024-01-0${ day }` ),
+				value,
+			} );
+			const rowsTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+				<div data-testid="rows-tooltip">
+					{ Object.values( tooltipData?.datumByKey ?? {} )
+						.map( ( { key, datum } ) => `${ key }=${ datum.value }` )
+						.sort()
+						.join( ';' ) }
+				</div>
+			);
+			const renderRows = ( data: SeriesData[], props = {} ) => {
+				renderWithTheme( { data, withTooltips: true, renderTooltip: rowsTooltip, ...props } );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			};
+
+			it( 'stops at every date any series has and reads each series there', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
+					{ label: 'B', data: [ point( 2, 20 ), point( 4, 40 ) ] },
+				] );
+
+				const expected = [
+					{ text: 'A=1', stop: 0 },
+					{ text: 'A=2;B=20', stop: 1 },
+					{ text: 'A=3', stop: 2 },
+					{ text: 'B=40', stop: 3 },
+					{ text: 'B=40', stop: 3 },
+				];
+				for ( const { text, stop } of expected ) {
+					await user.keyboard( '{ArrowRight}' );
+					await waitFor( () => {
+						expect( screen.getByTestId( `chart-tooltip-${ stop }` ) ).toBeInTheDocument();
+						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
+							new RegExp( `^${ text }$` )
+						);
+					} );
+				}
+			} );
+
+			it( 'keeps a null point at the selected date', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ) ] },
+					{ label: 'B', data: [ point( 1, null ), point( 2, 20 ) ] },
+				] );
+
+				await user.keyboard( '{ArrowRight}' );
+				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
+					/^A=1;B=null$/
+				);
+			} );
+
+			it( 'activates the first visible series with a point at the selected date', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				const seriesB = { label: 'Series B', data: [ point( 1, 10 ), point( 2, 20 ) ] };
+				renderRows( [ { label: 'Series A', data: [ point( 2, 2 ) ] }, seriesB ], {
+					onDatumActivate,
+				} );
+
+				await user.keyboard( '{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					key: 'Series B',
+					index: 0,
+					datum: seriesB.data[ 0 ],
+				} );
 			} );
 		} );
 
@@ -1696,7 +1798,7 @@ describe( 'LineChart', () => {
 						],
 					} );
 
-					const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+					const chart = screen.getByRole( 'application', { name: /line chart/i } );
 					chart.focus();
 
 					// Single tab should focus on the first tooltip.
@@ -1741,7 +1843,7 @@ describe( 'LineChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 				chart.focus();
 
 				// Right arrow key should focus on the first tooltip.
@@ -1788,7 +1890,7 @@ describe( 'LineChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
 				chart.focus();
 
 				// Chart should be in focus.
@@ -1819,7 +1921,7 @@ describe( 'LineChart', () => {
 
 			renderWithTheme( { renderTooltip: customTooltipRenderer } );
 
-			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
 			chart.focus();
 
 			// Click on right arrow key to focus on the first tooltip.
@@ -1856,6 +1958,144 @@ describe( 'LineChart', () => {
 			// The series should now be hidden (aria-pressed = false)
 			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
 			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it.each( [ 'Series A', 'Series B' ] )(
+			'leaves %s out of the keyboard tooltip once it is hidden',
+			async hiddenLabel => {
+				const user = userEvent.setup();
+				const visibleLabel = hiddenLabel === 'Series A' ? 'Series B' : 'Series A';
+				const renderTooltip = jest.fn( renderDefaultTooltip );
+
+				render(
+					<GlobalChartsProvider>
+						<LineChartUnresponsive
+							width={ 500 }
+							height={ 300 }
+							data={ [
+								defaultProps.data[ 0 ],
+								{
+									label: 'Series B',
+									data: [
+										{ date: new Date( '2024-01-01' ), value: 15 },
+										{ date: new Date( '2024-01-02' ), value: 25 },
+									],
+								},
+							] }
+							withGradientFill={ false }
+							showLegend={ true }
+							legend={ { interactive: true } }
+							renderTooltip={ renderTooltip }
+							chartId={ `test-keyboard-tooltip-hidden-${ hiddenLabel }` }
+						/>
+					</GlobalChartsProvider>
+				);
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( hiddenLabel ) } ) );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = await screen.findByTestId( 'line-chart-tooltip-content' );
+				expect( tooltip ).toHaveTextContent( visibleLabel );
+				expect( tooltip ).not.toHaveTextContent( hiddenLabel );
+				expect( renderTooltip ).toHaveBeenLastCalledWith(
+					expect.objectContaining( {
+						tooltipData: expect.objectContaining( {
+							nearestDatum: expect.objectContaining( { key: visibleLabel } ),
+						} ),
+					} )
+				);
+			}
+		);
+
+		it( 'does not leave a series hidden mid-navigation in the keyboard tooltip', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						data={ [
+							defaultProps.data[ 0 ],
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-keyboard-tooltip-hide-mid-navigation"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			await user.click( screen.getByRole( 'button', { name: /Series A/ } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByTestId( 'line-chart-tooltip-content' ) ).not.toBeInTheDocument()
+			);
+		} );
+
+		it( 'drops a series hidden programmatically from an open keyboard tooltip', async () => {
+			const user = userEvent.setup();
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						chartId="test-keyboard-tooltip-programmatic-hide"
+						data={ [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10 },
+									{ date: new Date( '2024-01-02' ), value: 20 },
+									{ date: new Date( '2024-01-03' ), value: 30 },
+								],
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-keyboard-tooltip-programmatic-hide', 'Series A' );
+			} );
+
+			await waitFor( () => expect( screen.queryByText( 'Series A:' ) ).not.toBeInTheDocument() );
+			expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).toHaveTextContent( 'Series B' );
 		} );
 
 		it( 'does not filter series when legendInteractive is false', () => {
@@ -2049,8 +2289,9 @@ describe( 'LineChart', () => {
 
 		const pointer = ( type: string, clientX: number, clientY: number ) => {
 			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			const chart = screen.getByRole( 'application' );
 			// eslint-disable-next-line testing-library/no-node-access
-			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			const target = chart.querySelector( 'svg > rect[fill="transparent"]' );
 			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
 
@@ -2398,7 +2639,7 @@ describe( 'LineChart', () => {
 				options: {},
 			},
 		];
-		// Bare numbers inside the plot (scoped via the chart's grid role, away from visx's
+		// Bare numbers inside the plot (scoped via the chart's application role, away from visx's
 		// off-screen text-measurement SVGs) are value-axis ticks: the series labels carry no digits
 		// and the empty-state message is text-only.
 		const numericTick = /^[\d,]+$/;
@@ -2414,7 +2655,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			const ticksBefore = within( chart )
 				.getAllByText( numericTick )
 				.map( el => el.textContent )
@@ -2441,7 +2682,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			const ticksBefore = within( chart )
 				.getAllByText( numericTick )
 				.map( el => el.textContent )
@@ -2469,7 +2710,7 @@ describe( 'LineChart', () => {
 				data: twoSeries,
 			} );
 
-			const chart = screen.getByRole( 'grid' );
+			const chart = screen.getByRole( 'application' );
 			expect( within( chart ).getAllByText( numericTick ).length ).toBeGreaterThan( 0 );
 
 			const buttons = screen.getAllByRole( 'button' );

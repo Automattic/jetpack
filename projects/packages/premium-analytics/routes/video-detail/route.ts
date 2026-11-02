@@ -14,6 +14,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { seedDetailDateParams } from '../detail-date-seed';
+import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
@@ -56,6 +57,8 @@ export const route = {
 		if ( ! getReportDefinition( 'videos' ) ) {
 			throw redirect( { to: '/' } );
 		}
+
+		redirectIfReportLocked( 'videos', search );
 
 		const videoId = params?.videoId;
 		if ( ! isValidVideoId( videoId ) ) {

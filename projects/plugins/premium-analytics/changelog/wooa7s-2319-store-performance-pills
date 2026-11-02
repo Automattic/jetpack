@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep long figures in the metric cards above the charts from being cut off, spread the cards evenly over their rows, and show full figures when the cards collapse into a dropdown.

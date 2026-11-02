@@ -6,40 +6,34 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+require_once __DIR__ . '/fixtures/trait-stubs-marker-draft.php';
+
 /**
- * Every content task is created in the browser and completed on the server, and the two halves never
- * meet. The creator module POSTs a draft carrying a marker meta key written as an object-literal key;
- * the listener watches for that same key on publish, declared as a `META_KEY` constant. Nothing but
- * agreement between two independent strings connects them.
- *
- * That agreement had no test. Changing a listener's `META_KEY` alone left the entire suite green —
- * the PHP tests read the constant, the JS tests pin the literal, so each half stayed self-consistent
- * — while in production the draft would be created under one key and looked for under another: the
- * task never completes, the card never ticks, and nothing anywhere errors.
- *
- * So this reads both halves off disk and compares them, in the same spirit as
- * AI_Launchpad_Task_Menu_Test parsing prompts.ts. Listeners are discovered by glob rather than
- * listed, and each one's creator module is derived from its filename, so a content task added later
- * is covered without anyone remembering to come back here.
+ * A creator module (js/lib/<slug>.ts) tags its draft with a marker meta key that its listener
+ * (class-ai-launchpad-<slug>-listener.php) watches for; nothing but two matching strings connects them.
+ * Listeners are discovered by glob, so a new content task is covered without being listed here.
  */
 class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
+	use AI_Launchpad_Stubs_Marker_Draft;
 
 	/**
-	 * Marker meta keys are namespaced, which is what makes both halves greppable.
+	 * How a creator module sets its marker meta on the draft it POSTs.
 	 */
-	const MARKER_PREFIX = '_wpcom_ai_launchpad_';
+	const MARKER_PATTERN = '/meta:\s*\{\s*(_wpcom_ai_launchpad_[a-z0-9_]+)\s*:/';
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		$this->flush_marker_drafts();
+		parent::tear_down();
+	}
 
 	/**
 	 * Every listener's marker must be the key its creator module actually writes.
-	 *
-	 * This is the assertion the bug would have tripped: change either side's string and the two no
-	 * longer agree.
 	 */
 	public function test_every_listener_marker_matches_its_creator_module() {
-		$listeners = $this->marker_listeners();
-		$this->assertNotEmpty( $listeners, 'Found no listeners declaring a marker meta key — the feature directory could not be read.' );
-
-		foreach ( $listeners as $slug => $listener ) {
+		foreach ( $this->marker_listeners() as $slug => $listener ) {
 			$source = $this->creator_source( $slug );
 			$this->assertNotSame(
 				'',
@@ -49,7 +43,7 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 
 			$this->assertSame(
 				1,
-				preg_match( '/meta:\s*\{\s*(' . self::MARKER_PREFIX . '[a-z0-9_]+)\s*:/', $source, $found ),
+				preg_match( self::MARKER_PATTERN, $source, $found ),
 				"js/lib/{$slug}.ts sets no marker meta on the draft it creates, so {$listener['class']} can never complete its task."
 			);
 
@@ -62,11 +56,8 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * No creator may write a marker that no listener owns.
-	 *
-	 * The other direction, and not redundant: a creator whose filename breaks the convention, or one
-	 * shipped before its listener, is invisible to the forward test. Both produce a task that builds
-	 * a perfectly good page and then never ticks.
+	 * No creator may write a marker that no listener owns, which the forward test cannot see for a creator whose
+	 * filename breaks the convention.
 	 */
 	public function test_no_creator_writes_a_marker_no_listener_owns() {
 		$owned = array_column( $this->marker_listeners(), 'key' );
@@ -74,8 +65,7 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 		$written = array();
 		foreach ( glob( $this->feature_dir() . 'js/lib/*.ts' ) as $path ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local package file.
-			$source = (string) file_get_contents( $path );
-			if ( preg_match( '/meta:\s*\{\s*(' . self::MARKER_PREFIX . '[a-z0-9_]+)\s*:/', $source, $found ) ) {
+			if ( preg_match( self::MARKER_PATTERN, (string) file_get_contents( $path ), $found ) ) {
 				$written[ basename( $path ) ] = $found[1];
 			}
 		}
@@ -91,26 +81,14 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Each creator must POST to the post type its marker is registered for.
-	 *
-	 * The same silent break by a different route: `register_post_meta()` is per post type, and the
-	 * REST API drops meta it has no registration for on that type. A creator posting a page while its
-	 * marker is registered for posts writes nothing at all, and the draft arrives unmarked.
-	 *
-	 * The expected route is the type plus an `s`, which is core's own rest_base for `post` and `page`.
-	 * A future custom post type with its own rest_base would fail here and need this widened — loudly,
-	 * which is the point.
+	 * Each creator must POST to the post type its marker is registered for, or the REST API drops the meta.
 	 */
 	public function test_each_creator_posts_to_the_type_its_marker_is_registered_for() {
-		$listeners = $this->marker_listeners();
-		$this->assertNotEmpty( $listeners, 'Found no listeners declaring a marker meta key — the feature directory could not be read.' );
-
-		foreach ( $listeners as $slug => $listener ) {
+		foreach ( $this->marker_listeners() as $slug => $listener ) {
 			$this->assertNotSame( '', $listener['post_type'], "{$listener['class']} registers its marker for no post type." );
 
 			$source = $this->creator_source( $slug );
 			if ( '' === $source ) {
-				// Reported against the marker itself by test_every_listener_marker_matches_its_creator_module.
 				continue;
 			}
 
@@ -120,6 +98,7 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 				"js/lib/{$slug}.ts POSTs to no /wp/v2 route."
 			);
 
+			// Core's rest_base for `post` and `page` is the type plus an `s`.
 			$this->assertSame(
 				'/wp/v2/' . $listener['post_type'] . 's',
 				$found[1],
@@ -129,15 +108,30 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Every marker is distinct, registered on init, and the key its listener's draft lookup queries.
+	 */
+	public function test_every_listener_registers_and_queries_its_own_marker() {
+		$listeners = array_values( $this->marker_listeners() );
+		$keys      = array_column( $listeners, 'key' );
+		$this->assertSame( $keys, array_values( array_unique( $keys ) ) );
+
+		foreach ( $listeners as $index => $listener ) {
+			$listener['class']::register();
+			$this->stub_marker_draft( $listener['key'], 1000 + $index );
+		}
+		do_action( 'init' );
+
+		foreach ( $listeners as $index => $listener ) {
+			$this->assertTrue( registered_meta_key_exists( 'post', $listener['key'], $listener['post_type'] ), "{$listener['class']} does not register its marker." );
+			$this->assertSame( 1000 + $index, $listener['class']::get_draft_id(), "{$listener['class']} looks its draft up by another key." );
+		}
+	}
+
+	/**
 	 * The listeners that declare a marker, keyed by the slug their creator module shares.
 	 *
-	 * `class-ai-launchpad-gallery-page-listener.php` yields slug `gallery-page`, which is
-	 * `js/lib/gallery-page.ts`. Listeners with no marker (social, subscribers, theme…) watch other
-	 * signals entirely and have no creator half; they are skipped rather than failed.
-	 *
-	 * The key is read through the loaded constant rather than the source text, so this compares what
-	 * PHP actually runs. The post type is read from the source, since `register_post_meta()` only
-	 * runs on `init`.
+	 * The key is read through the loaded constant; the post type from the source, since register_post_meta()
+	 * only runs on `init`.
 	 *
 	 * @return array<string, array{class: string, key: string, post_type: string}>
 	 */
@@ -165,6 +159,8 @@ class AI_Launchpad_Markers_Test extends \WorDBless\BaseTestCase {
 				'post_type' => preg_match( "/register_post_meta\(\s*'([a-z0-9_-]+)'/", $source, $type ) ? $type[1] : '',
 			);
 		}
+
+		$this->assertNotEmpty( $listeners, 'Found no listeners declaring a marker meta key — the feature directory could not be read.' );
 
 		return $listeners;
 	}

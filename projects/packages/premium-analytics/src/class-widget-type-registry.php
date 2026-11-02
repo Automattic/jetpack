@@ -136,6 +136,14 @@ final class Widget_Type_Registry {
 			$args['former_names'] = $former_names;
 		}
 
+		// The plan gates use it as an array key, where anything but a string throws.
+		$plan_feature = $widget_type ? $widget_type->plan_feature : ( $args['plan_feature'] ?? null );
+		if ( null !== $plan_feature && ! is_string( $plan_feature ) ) {
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: %s: Widget type name. */ __( 'Widget type "%s" must declare its plan feature as a string.', 'jetpack-premium-analytics-pkg' ), $name ) ), 'jetpack-premium-analytics-0.13.0' );
+			return false;
+		}
+
 		if ( ! $widget_type ) {
 			$widget_type = new Widget_Type( $name, $args );
 		}

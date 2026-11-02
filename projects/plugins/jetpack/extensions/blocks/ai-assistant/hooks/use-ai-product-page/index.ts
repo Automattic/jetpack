@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite, getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { isSimpleSite, currentUserCan } from '@automattic/jetpack-script-data';
 import {
+	getJetpackAiManageUrl,
 	isMyJetpackAvailable,
 	useAutosaveAndRedirect,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -19,9 +20,11 @@ export default function useAiProductPage(): {
 	isMyJetpackAvailable: boolean;
 } {
 	const isMyJetpackReallyAvailable = isMyJetpackAvailable() && ! isSimpleSite();
-	const productPageUrl = isMyJetpackReallyAvailable
-		? getMyJetpackUrl( '#/jetpack-ai' )
-		: getRedirectUrl( 'org-ai' );
+	// The Jetpack AI Hub needs manage_options; everyone else gets the public page.
+	const productPageUrl =
+		isMyJetpackReallyAvailable && currentUserCan( 'manage_options' )
+			? getJetpackAiManageUrl()
+			: getRedirectUrl( 'org-ai' );
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( productPageUrl );
 

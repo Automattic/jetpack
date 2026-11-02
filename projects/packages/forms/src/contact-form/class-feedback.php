@@ -620,12 +620,59 @@ class Feedback {
 
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
-				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
+				return array_map( array( self::class, 'sanitize_text_value' ), wp_unslash( $post_data[ $key ] ) );
 			} else {
-				return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
+				return self::sanitize_text_value( wp_unslash( $post_data[ $key ] ) );
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Sanitize a submitted text value.
+	 *
+	 * @param mixed $value The unslashed submitted value.
+	 *
+	 * @return string The sanitized value.
+	 */
+	private static function sanitize_text_value( $value ) {
+		// Encoding first keeps tag-like text as typed instead of letting strip_tags() drop it.
+		return sanitize_textarea_field( self::encode_special_chars( $value ) );
+	}
+
+	/**
+	 * HTML-encode `<`, `>` and `&` in a string, or in each string of a nested array.
+	 *
+	 * Encoding `&` as well keeps the result reversible: a literally-typed `&lt;` becomes
+	 * `&amp;lt;`, distinct from an encoded `<` (`&lt;`), so decode_special_chars() restores it.
+	 *
+	 * @param mixed $value The value to encode.
+	 *
+	 * @return mixed The value, with the same shape.
+	 */
+	public static function encode_special_chars( $value ) {
+		if ( is_array( $value ) ) {
+			return array_map( array( self::class, 'encode_special_chars' ), $value );
+		}
+
+		// ENT_SUBSTITUTE keeps a value with invalid UTF-8 from becoming ''; this runs before
+		// sanitize_textarea_field(), which is what would otherwise have scrubbed those bytes.
+		return is_string( $value ) ? htmlspecialchars( $value, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8' ) : $value;
+	}
+
+	/**
+	 * Reverse encode_special_chars() for a value that is about to be shown as text.
+	 *
+	 * @param mixed $value The stored value.
+	 *
+	 * @return mixed The value, with the same shape.
+	 */
+	public static function decode_special_chars( $value ) {
+		if ( is_array( $value ) ) {
+			return array_map( array( self::class, 'decode_special_chars' ), $value );
+		}
+
+		return is_string( $value ) ? htmlspecialchars_decode( $value, ENT_NOQUOTES ) : $value;
 	}
 
 	/**
@@ -660,9 +707,9 @@ class Feedback {
 					$decoded = json_decode( stripslashes( $json_str ), true );
 					return array(
 						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
-						'name'    => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
+						'name'    => isset( $decoded['name'] ) ? self::encode_special_chars( sanitize_text_field( $decoded['name'] ) ) : '',
 						'size'    => isset( $decoded['size'] ) ? absint( $decoded['size'] ) : 0,
-						'type'    => isset( $decoded['type'] ) ? sanitize_text_field( $decoded['type'] ) : '',
+						'type'    => isset( $decoded['type'] ) ? self::encode_special_chars( sanitize_text_field( $decoded['type'] ) ) : '',
 					);
 				},
 				$raw_data
@@ -695,13 +742,13 @@ class Feedback {
 		$selection_data_array = is_array( $raw_data )
 			? array_map(
 				function ( $json_str ) {
-					return json_decode( stripslashes( $json_str ), true );
+					return is_string( $json_str ) ? json_decode( stripslashes( $json_str ), true ) : null;
 				},
 				$raw_data
-			) : array( json_decode( stripslashes( $raw_data ), true ) );
+			) : array( is_string( $raw_data ) ? json_decode( stripslashes( $raw_data ), true ) : null );
 
 		if ( ! empty( $selection_data_array ) ) {
-			$value['choices'] = $selection_data_array;
+			$value['choices'] = self::encode_special_chars( $selection_data_array );
 		}
 
 		return $value;
@@ -755,7 +802,7 @@ class Feedback {
 			$custom_text    = '';
 
 			if ( isset( $post_data[ $other_text_key ] ) ) {
-				$custom_text = sanitize_textarea_field( wp_unslash( $post_data[ $other_text_key ] ) );
+				$custom_text = self::sanitize_text_value( wp_unslash( $post_data[ $other_text_key ] ) );
 			}
 
 			$meta['is_other_option']  = true;

@@ -40,7 +40,7 @@ class Enablement_Setting {
 
 	/**
 	 * Preferences scope the dashboard stores its per-user state under. Mirrors
-	 * `routes/dashboard/hooks/constants.ts`.
+	 * `DASHBOARD_PREFERENCES_SCOPE` in `packages/data/src/defaults/remembered-preset.ts`.
 	 *
 	 * @since 0.6.0
 	 */

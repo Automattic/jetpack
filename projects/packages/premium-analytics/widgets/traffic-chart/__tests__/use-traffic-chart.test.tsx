@@ -185,8 +185,168 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.visitors.previousValue ).toBe( 400 );
 		expect( byKey.likes.previousValue ).toBe( 10 );
 		expect( byKey.comments.previousValue ).toBe( 4 );
-		expect( byKey.views.previous ).toHaveLength( 1 );
+		expect( byKey.views.previous?.filter( point => point.realDate ) ).toHaveLength( 1 );
 	} );
+
+	it.each( [
+		[
+			"skips a year-ago comparison's one-day opening week",
+			'week',
+			[ '2026-08-31', '2026-09-13' ],
+			[ '2025-08-31', '2025-09-13' ],
+			[
+				[ '2025W08W25', 1 ],
+				[ '2025W09W01', 132 ],
+				[ '2025W09W08', 326 ],
+			],
+			[
+				[ '2026W08W31', 2 ],
+				[ '2026W09W07', 4 ],
+			],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
+		],
+		[
+			"skips a previous period's one-day opening week",
+			'week',
+			[ '2026-09-07', '2026-09-14' ],
+			[ '2026-08-30', '2026-09-06' ],
+			[
+				[ '2026W08W24', 1 ],
+				[ '2026W08W31', 132 ],
+			],
+			[
+				[ '2026W09W07', 2 ],
+				[ '2026W09W14', 4 ],
+			],
+			[ [ 0, 132 ] ],
+		],
+		[
+			"skips a previous period's one-day opening month",
+			'month',
+			[ '2025-03-02', '2025-04-02' ],
+			[ '2025-01-29', '2025-03-01' ],
+			[
+				[ '2025-01-01', 1 ],
+				[ '2025-02-01', 132 ],
+				[ '2025-03-01', 326 ],
+			],
+			[
+				[ '2025-03-01', 2 ],
+				[ '2025-04-01', 4 ],
+			],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
+		],
+		[
+			'leaves the stub month the current period opens with uncompared',
+			'month',
+			[ '2025-04-29', '2025-09-23' ],
+			[ '2024-12-02', '2025-04-28' ],
+			[
+				[ '2024-12-01', 1 ],
+				[ '2025-01-01', 132 ],
+				[ '2025-02-01', 326 ],
+				[ '2025-03-01', 5 ],
+				[ '2025-04-01', 7 ],
+			],
+			[
+				[ '2025-04-01', 2 ],
+				[ '2025-05-01', 4 ],
+				[ '2025-06-01', 6 ],
+				[ '2025-07-01', 8 ],
+				[ '2025-08-01', 10 ],
+				[ '2025-09-01', 12 ],
+			],
+			[
+				[ 1, 1 ],
+				[ 2, 132 ],
+				[ 3, 326 ],
+				[ 4, 5 ],
+				[ 5, 7 ],
+			],
+		],
+		[
+			"skips a previous period's one-day opening year",
+			'year',
+			[ '2025-01-02', '2026-01-04' ],
+			[ '2023-12-31', '2025-01-01' ],
+			[
+				[ '2023-01-01', 1 ],
+				[ '2024-01-01', 132 ],
+				[ '2025-01-01', 326 ],
+			],
+			[
+				[ '2025-01-01', 2 ],
+				[ '2026-01-01', 4 ],
+			],
+			[
+				[ 0, 132 ],
+				[ 1, 326 ],
+			],
+		],
+	] as const )(
+		'%s',
+		async (
+			_name,
+			unit,
+			[ from, to ],
+			[ compareFrom, compareTo ],
+			comparisonRows,
+			primaryRows,
+			expected
+		) => {
+			const buckets = ( path: string, rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit,
+				fields: path.includes( 'views' )
+					? [ 'period', 'views', 'visitors' ]
+					: [ 'period', 'likes', 'comments' ],
+				data: rows.map( ( [ period, value ] ) => [ period, value, 1 ] ),
+			} );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					buckets( path, path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+				)
+			);
+
+			const { result } = renderHook(
+				() =>
+					useTrafficChart(
+						{
+							from,
+							to,
+							interval: unit,
+							comp: '1',
+							compare_from: compareFrom,
+							compare_to: compareTo,
+						},
+						unit
+					),
+				{ wrapper }
+			);
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			for ( const key of [ 'views', 'likes' ] ) {
+				const metric = result.current.metrics.find( tab => tab.key === key );
+				// Each paired comparison value as [ the current bucket it is drawn on, value ].
+				const placed = metric?.previous
+					?.filter( point => point.realDate )
+					.map( point => [
+						metric.current.findIndex( bucket => bucket.date.getTime() === point.date.getTime() ),
+						point.value,
+					] );
+				expect( placed ).toEqual( expected );
+				expect( metric?.previousValue ).toBe(
+					comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+				);
+			}
+		}
+	);
 
 	describe( 'hourly', () => {
 		const DAY_RANGE: ReportParams = {

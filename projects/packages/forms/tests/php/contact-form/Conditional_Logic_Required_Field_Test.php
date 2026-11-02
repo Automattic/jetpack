@@ -47,7 +47,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 	/**
 	 * Parse a form whose required second field is conditional on the first.
 	 *
-	 * Goes through do_shortcode(), so parse_contact_field() runs for real and decides for
+	 * Goes through apply_shortcodes(), so parse_contact_field() runs for real and decides for
 	 * itself whether to defer the dependent field's validation.
 	 *
 	 * @param string $trigger_value   Submitted value for the trigger field.
@@ -92,7 +92,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 			. ' conditionallogic="' . $attribute . '"/]'
 			. '[/contact-form]';
 
-		do_shortcode( $shortcode );
+		apply_shortcodes( $shortcode );
 
 		return Contact_Form::$last;
 	}

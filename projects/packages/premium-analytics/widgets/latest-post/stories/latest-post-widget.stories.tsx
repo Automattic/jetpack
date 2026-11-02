@@ -29,7 +29,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -197,8 +196,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no published posts: the widget shows its empty state (the
- * neutral post-list glyph and "Publish a post to see its stats here.").
+ * Resolved with no published posts: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
@@ -219,7 +217,7 @@ function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetContr
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

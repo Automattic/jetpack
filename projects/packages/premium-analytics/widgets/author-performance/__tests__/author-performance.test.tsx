@@ -28,6 +28,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			value: number;
 			current: { date: Date; value: number }[];
 			countLabel?: ( count: number ) => string;
+			unavailable?: string;
+			seriesUnavailable?: string;
 		}[];
 		chartType?: string;
 		empty?: ReactNode;
@@ -42,6 +44,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					value: metric.value,
 					values: metric.current.map( point => point.value ),
 					dates: metric.current.map( point => point.date.toISOString().slice( 0, 10 ) ),
+					hasReason: !! metric.seriesUnavailable,
+					unavailable: !! metric.unavailable,
 				} ) )
 			) }
 		>
@@ -63,6 +67,8 @@ function chartedMetrics( chart: HTMLElement ) {
 		value: number;
 		values: number[];
 		dates: string[];
+		hasReason: boolean;
+		unavailable: boolean;
 	}[];
 }
 
@@ -77,21 +83,20 @@ const WINDOW_PARAMS = {
 	author_id: 7,
 };
 
-// Raw `stats/top-authors` with `summarize=0`: one bucket per day, every author
-// in each. Author 7 is absent on the 2nd, which is a genuine zero.
-const TOP_AUTHORS_DAYS = {
+// `stats/author/7`: one bucket per period over the window, plus window totals.
+const AUTHOR_DAYS = {
 	date: '2026-07-03',
+	start_date: '2026-07-01',
 	period: 'day',
-	days: {
-		'2026-07-03': {
-			authors: [
-				{ name: 'Priya', author_id: 7, views: 5, posts: [] },
-				{ name: 'Other', author_id: 3, views: 9, posts: [] },
-			],
-		},
-		'2026-07-02': { authors: [ { name: 'Other', author_id: 3, views: 4, posts: [] } ] },
-		'2026-07-01': { authors: [ { name: 'Priya', author_id: 7, views: 2, posts: [] } ] },
-	},
+	views: 7,
+	fields: [ 'period', 'views' ],
+	data: [
+		[ '2026-07-01', 2 ],
+		[ '2026-07-02', 0 ],
+		[ '2026-07-03', 5 ],
+	],
+	likes: 3,
+	comments: 4,
 };
 
 describe( 'AuthorPerformanceWidget', () => {
@@ -100,37 +105,48 @@ describe( 'AuthorPerformanceWidget', () => {
 		mockApiFetch.mockReset();
 	} );
 
-	it( 'charts the author’s views per bucket, oldest first, and totals them', async () => {
-		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+	it( 'charts the author’s views per bucket and totals likes and comments without a series', async () => {
+		mockApiFetch.mockResolvedValue( AUTHOR_DAYS );
 
 		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		const [ metric ] = chartedMetrics( chart );
-		expect( metric.label ).toBe( 'Views' );
-		expect( metric.countLabels ).toEqual( [ '%s View', '%s Views' ] );
-		expect( metric.dates ).toEqual( [ '2026-07-01', '2026-07-02', '2026-07-03' ] );
-		expect( metric.values ).toEqual( [ 2, 0, 5 ] );
-		expect( metric.value ).toBe( 7 );
+		const [ views, likes, comments ] = chartedMetrics( chart );
+		expect( views ).toMatchObject( {
+			label: 'Views',
+			countLabels: [ '%s View', '%s Views' ],
+			dates: [ '2026-07-01', '2026-07-02', '2026-07-03' ],
+			values: [ 2, 0, 5 ],
+			value: 7,
+		} );
+		expect( likes ).toMatchObject( { label: 'Likes', value: 3, values: [], hasReason: true } );
+		expect( comments ).toMatchObject( {
+			label: 'Comments',
+			value: 4,
+			values: [],
+			hasReason: true,
+		} );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		const requestedPath = decodeURIComponent( mockApiFetch.mock.calls[ 0 ][ 0 ].path as string );
-		expect( requestedPath ).toContain( 'stats/top-authors' );
-		expect( requestedPath ).toContain( 'summarize=0' );
-		expect( requestedPath ).toContain( 'max=0' );
+		expect( requestedPath ).toContain( 'stats/author/7' );
 		expect( requestedPath ).toContain( 'period=day' );
+		expect( requestedPath ).toContain( 'start_date=2026-07-01' );
+		expect( requestedPath ).toContain( 'date=2026-07-03' );
+		expect( requestedPath ).not.toContain( 'days=' );
 	} );
 
 	it( 'asks the endpoint for the page’s chart bucket and keeps a partial first week', async () => {
 		// Week buckets are keyed at the calendar Monday, so the first one starts
 		// before a window that opens on a Thursday.
 		mockApiFetch.mockResolvedValue( {
-			...TOP_AUTHORS_DAYS,
+			...AUTHOR_DAYS,
 			period: 'week',
-			days: {
-				'2026-06-22': { authors: [ { name: 'Priya', author_id: 7, views: 3, posts: [] } ] },
-				'2026-06-15': { authors: [ { name: 'Priya', author_id: 7, views: 6, posts: [] } ] },
-			},
+			views: 9,
+			data: [
+				[ '2026-06-15', 6 ],
+				[ '2026-06-22', 3 ],
+			],
 		} );
 
 		// 28 days from a Thursday: the shortest window that keeps a weekly interval.
@@ -158,31 +174,46 @@ describe( 'AuthorPerformanceWidget', () => {
 	} );
 
 	it( 'drops a bucket keyed by an impossible calendar day', async () => {
-		// Shaped like a date, so it survives the window filter; not one, so it cannot chart.
 		mockApiFetch.mockResolvedValue( {
-			...TOP_AUTHORS_DAYS,
-			days: {
-				...TOP_AUTHORS_DAYS.days,
-				'2026-06-31': { authors: [ { name: 'Priya', author_id: 7, views: 99, posts: [] } ] },
-			},
+			...AUTHOR_DAYS,
+			data: [ [ '2026-06-31', 99 ], ...AUTHOR_DAYS.data ],
 		} );
 
-		render(
-			<AuthorPerformanceWidget
-				attributes={ { reportParams: { ...WINDOW_PARAMS, from: '2026-06-01T00:00:00.000+00:00' } } }
-			/>
-		);
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		const [ metric ] = chartedMetrics( await screen.findByTestId( 'metric-tabs-chart' ) );
 		expect( metric.dates ).toEqual( [ '2026-07-01', '2026-07-02', '2026-07-03' ] );
-		expect( metric.value ).toBe( 7 );
+	} );
+
+	it( 'marks likes and comments unavailable when the response carries no count', async () => {
+		mockApiFetch.mockResolvedValue( { ...AUTHOR_DAYS, likes: undefined, comments: undefined } );
+
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		const [ , likes, comments ] = chartedMetrics(
+			await screen.findByTestId( 'metric-tabs-chart' )
+		);
+		expect( likes.unavailable ).toBe( true );
+		expect( comments.unavailable ).toBe( true );
+	} );
+
+	it( 'names an author past the endpoint’s post limit without offering Retry', async () => {
+		mockApiFetch.mockRejectedValue( { error: 'too_many_posts', status: 400 } );
+
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'This author has too many posts to count their stats here.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it.each( [
 		[ 'line', 'line' ],
 		[ 'pie', 'bar' ],
 	] )( 'draws a chartType attribute of %s as a %s chart', async ( chartType, drawn ) => {
-		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+		mockApiFetch.mockResolvedValue( AUTHOR_DAYS );
 
 		render(
 			<AuthorPerformanceWidget
@@ -197,7 +228,7 @@ describe( 'AuthorPerformanceWidget', () => {
 	} );
 
 	it( 'hands the chart the no-results message as its empty state', async () => {
-		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+		mockApiFetch.mockResolvedValue( AUTHOR_DAYS );
 
 		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
@@ -211,7 +242,7 @@ describe( 'AuthorPerformanceWidget', () => {
 		render( <AuthorPerformanceWidget attributes={ { reportParams: DEFAULT_PARAMS } } /> );
 
 		await expect(
-			screen.findByText( 'Open an author to see their views here.' )
+			screen.findByText( 'Open an author to see their stats here.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
@@ -234,10 +265,10 @@ describe( 'AuthorPerformanceWidget', () => {
 		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
 
 		await expect(
-			screen.findByText( "We couldn't load this author's views. Please try again in a moment." )
+			screen.findByText( "We couldn't load this author's stats. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
 
-		mockApiFetch.mockResolvedValue( TOP_AUTHORS_DAYS );
+		mockApiFetch.mockResolvedValue( AUTHOR_DAYS );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();

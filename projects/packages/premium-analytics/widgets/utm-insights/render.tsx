@@ -1,29 +1,27 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
-import { useEffect, useMemo } from '@wordpress/element';
+import { search } from '@jetpack-premium-analytics/icons';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
-	ReportLink,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
-	sharePercentage,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
+	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -59,6 +57,9 @@ type UtmInsightsInnerProps = {
 
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
+	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -99,13 +100,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = getCombinedPeriodMax(
-			activeData.map( item => item.value ),
-			withComparison ? activeData.map( item => item.previousValue ) : []
-		);
-
 		return activeData.map( ( item, index ) => {
-			const previousValue = item.previousValue;
 			const postRow = 'postId' in item ? item : null;
 			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
@@ -141,19 +136,10 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 							} ),
 						} ) ),
 				currentValue: item.value,
-				currentShare: sharePercentage( item.value, maxValue ),
-				previousValue,
-				previousShare:
-					withComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					withComparison && previousValue !== undefined
-						? calculateDelta( item.value, previousValue )
-						: undefined,
+				previousValue: item.previousValue,
 			};
 		} );
-	}, [ activeData, isDrillDown, reportSection, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -163,6 +149,29 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			className={ styles.backLink }
 		/>
 	) : null;
+	const offersFooterBuildUrl = ! isLoading && ( isError || data.length > 0 );
+	useReportActions( {
+		...( showReportLink && {
+			report: 'utm',
+			section: reportSection,
+			csv: {
+				exporter: utmCsvExporters[ reportSection ],
+				status: { isLoading, isFetching, isError },
+				rowCount: data.length,
+			},
+		} ),
+		actions: offersFooterBuildUrl
+			? [
+					{
+						id: 'build-url',
+						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'medium',
+						callback: openBuilder,
+					},
+				]
+			: [],
+	} );
+
 	return (
 		<>
 			{ backLink }
@@ -172,6 +181,17 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
+					empty={ {
+						icon: search,
+						description: __(
+							'You don’t have UTM visits for this period. Build a URL to start tracking a campaign.',
+							'jetpack-premium-analytics-pkg'
+						),
+						action: {
+							label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+							onClick: openBuilder,
+						},
+					} }
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load UTM data. Please try again in a moment.",
@@ -182,24 +202,22 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top UTM', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withComparison={ withComparison }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: isDrillDown
+								? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+								: getUtmDimensionLabel( reportSection ),
+							metric: 'views',
+						} }
 					/>
 				</WidgetState>
 			</div>
-			{ showReportLink && (
-				<WidgetFooter>
-					<ReportLink report="utm" section={ reportSection } />
-					<ExporterCsvDownloadButton
-						exporter={ utmCsvExporters[ reportSection ] }
-						status={ { isLoading, isFetching, isError } }
-						rowCount={ data.length }
-					/>
-				</WidgetFooter>
-			) }
+			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
 		</>
 	);
 }

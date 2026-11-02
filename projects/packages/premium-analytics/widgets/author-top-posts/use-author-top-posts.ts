@@ -6,7 +6,7 @@ import {
 	useStatsTopAuthors,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
-import { sharePercentage } from '@jetpack-premium-analytics/widgets-toolkit';
+import { getAuthorPostsQueryParams } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 export type AuthorTopPostRow = {
@@ -15,7 +15,6 @@ export type AuthorTopPostRow = {
 	title: string;
 	link: string | null;
 	views: number;
-	share: number;
 };
 
 export interface AuthorTopPostsState {
@@ -44,7 +43,7 @@ export default function useAuthorTopPosts(
 	reportParams: ReportParams,
 	maxRows: number
 ): AuthorTopPostsState {
-	const statsParams = useMemo( () => ( { ...reportParams, max: 0 } ), [ reportParams ] );
+	const statsParams = useMemo( () => getAuthorPostsQueryParams( reportParams ), [ reportParams ] );
 
 	const { primary, comparisonRows, isLoading, isFetching, isError, error, refetch } =
 		useStatsTopAuthors( statsParams, { enabled: authorId > 0 } );
@@ -56,7 +55,6 @@ export default function useAuthorTopPosts(
 
 	const rows = useMemo( () => {
 		const posts = ( author?.children ?? [] ).slice( 0, maxRows );
-		const maxValue = Math.max( ...posts.map( post => post.views ), 0 );
 
 		return posts.map( ( post, index ) => ( {
 			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
@@ -64,7 +62,6 @@ export default function useAuthorTopPosts(
 			title: String( post.label ?? '' ),
 			link: post.link ?? null,
 			views: post.views,
-			share: sharePercentage( post.views, maxValue ),
 		} ) );
 	}, [ author, maxRows ] );
 

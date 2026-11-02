@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -56,6 +58,13 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	private const SIGNED_URL_BODY = '@signed-url-body';
 
 	/**
+	 * Like the above, but `https`: the download route refuses any other scheme.
+	 *
+	 * @var string
+	 */
+	private const HTTPS_SIGNED_URL_BODY = '@https-signed-url-body';
+
+	/**
 	 * REST Server.
 	 *
 	 * @var WP_REST_Server
@@ -75,6 +84,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
+
+		// A WoA site, so the known-threats route reaches WordPress.com.
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -82,7 +97,10 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		$this->reset_wpcom_request_mock();
+		Constants::clear_constants();
+		Status_Cache::clear();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -102,11 +120,11 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * minimal — a fixture carrying only the keys that survive cannot tell a forwarded
 	 * value from a default.
 	 *
-	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>, 3: array<int, array{body?: string, status?: int|string}>, 4: array<string, mixed>}>
+	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>, 3: array<int, array{body?: string, status?: int|string}>, 4: array<int|string, mixed>}>
 	 */
 	public static function provide_bridge_dispatches() {
 		return array(
-			'/jetpack/v4/site/capabilities'          => array(
+			'/jetpack/v4/site/capabilities'               => array(
 				'GET',
 				'/jetpack/v4/site/capabilities',
 				array(),
@@ -116,7 +134,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'hasScan'       => true,
 				),
 			),
-			'/jetpack/v4/site/rewindable-activity'   => array(
+			'/jetpack/v4/site/rewindable-activity'        => array(
 				'GET',
 				'/jetpack/v4/site/rewindable-activity',
 				array(
@@ -130,7 +148,30 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'totalPages' => 1,
 				),
 			),
-			'/jetpack/v4/rewind/backup/ls'           => array(
+			'/jetpack/v4/backups/sizes'                   => array(
+				'GET',
+				'/jetpack/v4/backups/sizes',
+				array( 'page' => 2 ),
+				array(
+					array(
+						'body' => '{"ok":true,"totalItems":"102","page":2,"totalPages":2,"itemsPerPage":100,"backups":[{"status":"success","object":{"type":"Backup","backup_type":"backup","backup_stats":"{\"size\":4456295019}","backup_period":"1791312007","backup_size":"4456295019"},"summary":"Backup complete","is_rewindable":true},{"status":"warning","object":{"type":"Backup","backup_period":"1791225607","backup_size":"0"}}]}',
+					),
+				),
+				array(
+					'totalPages' => 2,
+					'backups'    => array(
+						array(
+							'period' => 1791312007,
+							'size'   => 4456295019,
+						),
+						array(
+							'period' => 1791225607,
+							'size'   => 0,
+						),
+					),
+				),
+			),
+			'/jetpack/v4/rewind/backup/ls'                => array(
 				'POST',
 				'/jetpack/v4/rewind/backup/ls',
 				array(
@@ -148,7 +189,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					),
 				),
 			),
-			'/jetpack/v4/rewind/backup/path-info'    => array(
+			'/jetpack/v4/rewind/backup/path-info'         => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/path-info',
 				array(
@@ -162,7 +203,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'mtime' => 1748888135,
 				),
 			),
-			'/jetpack/v4/rewind/backup/file-content' => array(
+			'/jetpack/v4/rewind/backup/file-content'      => array(
 				'GET',
 				'/jetpack/v4/rewind/backup/file-content',
 				array(
@@ -179,6 +220,20 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'truncated' => false,
 				),
 			),
+			'/jetpack/v4/rewind/backup/file-download-url' => array(
+				'GET',
+				'/jetpack/v4/rewind/backup/file-download-url',
+				array(
+					'file_period'           => '1748888135',
+					'encoded_manifest_path' => 'ZjU6L3dwLWNvbmZpZy5waHA=',
+				),
+				array(
+					array( 'body' => self::HTTPS_SIGNED_URL_BODY ),
+				),
+				array(
+					'url' => 'https://example.org/signed-stream',
+				),
+			),
 			'/jetpack/v4/backups/download/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
 				'POST',
 				'/jetpack/v4/backups/download/1748888135.123',
@@ -193,11 +248,29 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 				array( array( 'body' => '{"downloadId":42,"progress":55}' ) ),
 				array(
 					'id'          => 42,
+					'rewind_id'   => '',
 					'status'      => 'running',
 					'progress'    => 55,
 					'url'         => '',
 					'valid_until' => '',
 					'error'       => '',
+				),
+			),
+			'/jetpack/v4/backups/downloads'               => array(
+				'GET',
+				'/jetpack/v4/backups/downloads',
+				array(),
+				array( array( 'body' => '[{"downloadId":42,"rewindId":"1748888135.123","progress":55}]' ) ),
+				array(
+					array(
+						'id'          => 42,
+						'rewind_id'   => '1748888135.123',
+						'status'      => 'running',
+						'progress'    => 55,
+						'url'         => '',
+						'valid_until' => '',
+						'error'       => '',
+					),
 				),
 			),
 			'/jetpack/v4/rewind/to/(?P<rewind_id>[A-Za-z0-9.\-]+)' => array(
@@ -224,6 +297,75 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'message'    => 'Restoring uploads',
 				),
 			),
+			'/jetpack/v4/rewind/backups/known-threats'    => array(
+				'GET',
+				'/jetpack/v4/rewind/backups/known-threats',
+				array(),
+				array( array( 'body' => '{"latest_without_known_threats":1748880000,"backups":[{"object":{"backup_period":"1748888000","known_threats":{"malware":1,"database":0,"vulnerable":0,"ignored":0,"flagged":1,"fixed":0}}}]}' ) ),
+				array(
+					'backups'                      => array(
+						array(
+							'period'        => 1748888000,
+							'known_threats' => array(
+								'malware'    => 1,
+								'database'   => 0,
+								'vulnerable' => 0,
+								'ignored'    => 0,
+								'flagged'    => 1,
+								'fixed'      => 0,
+							),
+						),
+					),
+					'latest_without_known_threats' => 1748880000,
+					'latest_without_known_threats_rewind_id' => null,
+				),
+			),
+			'/jetpack/v4/rewind/backups/(?P<rewind_id>[0-9.]+)/threats' => array(
+				'GET',
+				'/jetpack/v4/rewind/backups/1748888135.123/threats',
+				array(),
+				array( array( 'body' => '{"backup_id":"1748888135.123","summary":{"malware":1,"database":0,"vulnerable":0,"ignored":0,"flagged":1,"fixed":0},"threats":[{"id":3,"state":"open","kind":"malware"}],"count":1,"truncated":false}' ) ),
+				array(
+					'backup_id' => '1748888135.123',
+					'summary'   => array(
+						'malware'    => 1,
+						'database'   => 0,
+						'vulnerable' => 0,
+						'ignored'    => 0,
+						'flagged'    => 1,
+						'fixed'      => 0,
+					),
+					'threats'   => array(
+						array(
+							'id'    => 3,
+							'state' => 'open',
+							'kind'  => 'malware',
+						),
+					),
+					'count'     => 1,
+					'truncated' => false,
+				),
+			),
+			'/jetpack/v4/site/backup/schedule'            => array(
+				'POST',
+				'/jetpack/v4/site/backup/schedule',
+				array( 'schedule_hour' => 3 ),
+				array( array( 'body' => '{"ok":true}' ) ),
+				array(
+					'ok'             => true,
+					'scheduled_hour' => 3,
+				),
+			),
+			'/jetpack/v4/site/backup/retention'           => array(
+				'POST',
+				'/jetpack/v4/site/backup/retention',
+				array( 'retention_days' => 30 ),
+				array( array( 'body' => '{"success":true}' ) ),
+				array(
+					'ok'             => true,
+					'retention_days' => 30,
+				),
+			),
 		);
 	}
 
@@ -236,7 +378,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * @param string                                                $path     Route path to dispatch.
 	 * @param array<string, mixed>                                  $params   Request params.
 	 * @param array<int, array{body?: string, status?: int|string}> $answers WordPress.com's answers, in call order.
-	 * @param array<string, mixed>                                  $expected Payload the route should serve.
+	 * @param array<int|string, mixed>                              $expected Payload the route should serve.
 	 * @dataProvider provide_bridge_dispatches
 	 */
 	#[DataProvider( 'provide_bridge_dispatches' )]
@@ -261,7 +403,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * Every registered bridge route is dispatched by the provider above, so a tenth one
+	 * Every registered bridge route is dispatched by the provider above, so a new one
 	 * lands here as a failure naming itself.
 	 *
 	 * Bridge routes are identified by diffing the route table with the modernization
@@ -293,6 +435,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 
 		if ( ! $modernized ) {
 			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 		}
 
 		$wp_rest_server = new WP_REST_Server();
@@ -300,6 +443,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		$routes = array_keys( $wp_rest_server->get_routes() );
 
 		if ( ! $modernized ) {
+			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		}
 
@@ -336,6 +480,46 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
+	 * Offline mode refuses every bridge route before it reaches WordPress.com.
+	 *
+	 * @param string               $method Request method.
+	 * @param string               $path   Route path to dispatch.
+	 * @param array<string, mixed> $params Request params.
+	 * @dataProvider provide_bridge_requests
+	 */
+	#[DataProvider( 'provide_bridge_requests' )]
+	public function test_offline_mode_refuses_the_route( $method, $path, array $params ) {
+		$this->arrange_wpcom_answers( array() );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		Status_Cache::clear();
+
+		$request = new WP_REST_Request( $method, $path );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'offline_mode', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->captured_urls );
+	}
+
+	/**
+	 * Each bridge dispatch above, reduced to its method, path and params.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: array<string, mixed>}>
+	 */
+	public static function provide_bridge_requests() {
+		return array_map(
+			static function ( array $dispatch ) {
+				return array_slice( $dispatch, 0, 3 );
+			},
+			self::provide_bridge_dispatches()
+		);
+	}
+
+	/**
 	 * Replace provider placeholders with values only a running test can produce.
 	 *
 	 * @param array<int, array{body?: string, status?: int|string}> $answers Answers as the provider wrote them.
@@ -346,6 +530,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 			if ( isset( $answer['body'] ) && self::SIGNED_URL_BODY === $answer['body'] ) {
 				$answers[ $index ]['body'] = wp_json_encode(
 					array( 'url' => home_url( '/signed-stream' ) ),
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+			if ( isset( $answer['body'] ) && self::HTTPS_SIGNED_URL_BODY === $answer['body'] ) {
+				$answers[ $index ]['body'] = wp_json_encode(
+					array( 'url' => 'https://example.org/signed-stream' ),
 					JSON_UNESCAPED_SLASHES
 				);
 			}

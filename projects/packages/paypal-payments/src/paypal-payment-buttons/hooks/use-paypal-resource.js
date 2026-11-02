@@ -127,7 +127,7 @@ export function usePayPalResource( {
 	}, [ isConnected, isApiManaged, resourceId, clientId, setAttributes ] );
 
 	/**
-	 * Request delete confirmation via ConfirmDialog.
+	 * Request delete confirmation via DeleteLinkDialog.
 	 * Actual deletion runs in executeDeleteButton().
 	 */
 	const handleDeleteButton = useCallback( () => {

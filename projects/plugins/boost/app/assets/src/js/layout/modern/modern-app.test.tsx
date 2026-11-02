@@ -81,7 +81,10 @@ const renderApp = () => {
 
 	return {
 		slots,
-		...render( <ModernApp subpageSlot={ slots.subpage } />, { container: slots.settings } ),
+		...render( <ModernApp subpageSlot={ slots.subpage } />, {
+			container: slots.settings,
+			reactStrictMode: true,
+		} ),
 	};
 };
 

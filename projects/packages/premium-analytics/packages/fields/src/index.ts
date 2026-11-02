@@ -4,8 +4,13 @@
 export { registerFieldTypes, resolveFieldTypes } from './field-types';
 
 export {
+	chartIntervalAttributeField,
+	chartIntervalElements,
+	type ChartIntervalFieldAttributes,
+} from './field-chart-interval';
+export {
 	defaultReportParamsForGrain,
 	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,
-} from './report-params-field/report-params-field';
+} from './field-report-params';

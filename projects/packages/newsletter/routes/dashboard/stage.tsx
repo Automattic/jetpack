@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection/get-user-co
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { getSiteData, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import NewsletterPage, { type NewsletterTab } from '../../_inc/components/newsletter-page';
@@ -13,7 +13,6 @@ import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { NewsletterSettingsBody } from '../../src/settings/newsletter-settings';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import OverviewBody from './components/overview-body';
-import SubscriberStatsChart from './components/subscriber-stats-chart';
 import '../../src/settings/style.scss';
 import './route.scss';
 
@@ -39,8 +38,8 @@ function getRedirectUri(): string | undefined {
  * active-tab indicator slides between tabs instead of remounting on each
  * route hop.
  *
- * Active tab is read from `?tab=`. Overview is the default; the other tabs
- * load via `?tab=stats`, `?tab=subscribers`, and `?tab=settings`. Inactive panels stay empty so we don't pay
+ * Active tab is read from `?tab=`. Overview is the default, and shows Stats once onboarding is done;
+ * the other tabs load via `?tab=subscribers` and `?tab=settings`. Inactive panels stay empty so we don't pay
  * for the other view's data fetching until the user opens it.
  *
  * @return Stage content.
@@ -51,6 +50,7 @@ const Stage = () => {
 		from: '/' as unknown as never,
 		strict: false,
 	} ) as StageSearch;
+	const [ hasUnsavedChanges, setHasUnsavedChanges ] = useState( false );
 
 	// When `jetpack_wp_admin_subscriber_management_enabled` is filtered to
 	// false on the server, the page is Settings-only — pin `activeTab`
@@ -61,8 +61,6 @@ const Stage = () => {
 	let activeTab: NewsletterTab = overviewEnabled ? 'overview' : 'subscribers';
 	if ( ! subscribersEnabled || search.tab === 'settings' ) {
 		activeTab = 'settings';
-	} else if ( search.tab === 'stats' && overviewEnabled ) {
-		activeTab = 'stats';
 	} else if ( search.tab === 'subscribers' ) {
 		activeTab = 'subscribers';
 	}
@@ -156,6 +154,7 @@ const Stage = () => {
 					return (
 						<NewsletterPage
 							activeTab={ activeTab }
+							hasUnsavedChanges={ hasUnsavedChanges }
 							actions={ activeTab === 'subscribers' && canManageSubscribers ? actions : undefined }
 							contentHasPadding={ activeTab !== 'subscribers' }
 							hideFooter={ activeTab === 'subscribers' }
@@ -167,11 +166,6 @@ const Stage = () => {
 											{ activeTab === 'overview' ? <OverviewBody /> : null }
 										</Tabs.Panel>
 									) : null }
-									{ overviewEnabled ? (
-										<Tabs.Panel value="stats">
-											{ activeTab === 'stats' ? <SubscriberStatsChart /> : null }
-										</Tabs.Panel>
-									) : null }
 									<Tabs.Panel value="subscribers">
 										{ activeTab === 'subscribers' ? subscribersPanel : null }
 									</Tabs.Panel>
@@ -181,6 +175,7 @@ const Stage = () => {
 												isModernized
 												hasConnectedOwner={ settingsHasConnectedOwner }
 												connectUrl={ connectUrl }
+												onDirtyChange={ setHasUnsavedChanges }
 											/>
 										) : null }
 									</Tabs.Panel>
@@ -190,6 +185,7 @@ const Stage = () => {
 									isModernized
 									hasConnectedOwner={ settingsHasConnectedOwner }
 									connectUrl={ connectUrl }
+									onDirtyChange={ setHasUnsavedChanges }
 								/>
 							) }
 						</NewsletterPage>

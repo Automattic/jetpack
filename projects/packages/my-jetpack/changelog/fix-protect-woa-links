@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Send the card's manage and Scan results links wherever a host sends the Features tab's Protect link.

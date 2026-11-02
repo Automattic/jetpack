@@ -4,13 +4,12 @@
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
-	PageNotice,
-	describeError,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
 	emailsCsvExporter,
+	toViewLiveUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -19,6 +18,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
+import { createViewLiveAction } from '../view-live-action';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -62,7 +62,15 @@ function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
 	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
-	const retry = useReportRetry( records.refetch );
+	const actions = useMemo(
+		() => [
+			// The summary leaves `link` untyped; the URL gate only wants a string.
+			createViewLiveAction< StatsEmailSummaryItem >( email =>
+				toViewLiveUrl( 'post', email.id, typeof email.link === 'string' ? email.link : null )
+			),
+		],
+		[]
+	);
 
 	const { getLabel } = REPORTS.emails;
 
@@ -80,17 +88,13 @@ function EmailsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ records.isError ? (
-					<PageNotice
-						{ ...describeError( records.error, {
-							retryDescription: __(
-								"We couldn't load emails. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							onRetry: retry,
-						} ) }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load emails. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsEmailSummaryItem >
 						data={ records.rows }
 						fields={ fields }
@@ -99,8 +103,9 @@ function EmailsReport(): JSX.Element {
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+						actions={ actions }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

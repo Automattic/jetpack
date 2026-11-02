@@ -26,9 +26,3 @@ export const singleVideoAllMetricsFixture = {
 	pages: [],
 	total: { plays: 3, impressions: 14, watch_time: '0.5', retention_rate: 25.5 },
 };
-
-export const singleVideoEmptyFixture = {
-	data: [],
-	pages: [],
-	post: null,
-};

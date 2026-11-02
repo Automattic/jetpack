@@ -23,7 +23,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
@@ -34,11 +33,13 @@ use WP_Error;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
+use function admin_url;
 use function did_action;
 use function do_action;
 use function esc_url_raw;
 use function get_option;
 use function is_wp_error;
+use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
 use function wp_add_inline_script;
@@ -107,6 +108,9 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PRODUCT_IDS = array(
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2024, // JETPACK_PRO_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -127,13 +131,12 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Backup" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Blog sticker that takes a site out of the internal preview.
+	 * Blog sticker that puts a site back on the legacy dashboard.
 	 *
 	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
@@ -180,6 +183,8 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
+		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -541,15 +546,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -561,21 +592,18 @@ class Jetpack_Backup {
 	 * A WordPress.com blip then reaches the dashboard as an empty success, which
 	 * is how a paying customer ends up looking at the first-run screen. A
 	 * WP_Error makes the REST layer answer with a status, so every caller's
-	 * existing failure path runs.
+	 * existing failure path runs. WordPress.com's reason, when its reply has one,
+	 * rides along as `data.wpcom`; unlike preflight's, these routes' callers are all
+	 * in this package, so the extra key is safe.
 	 *
-	 * @param int $status The upstream response code, already cast to an int, or 0
-	 *                    when the request never reached WordPress.com.
+	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @return WP_Error
 	 */
-	private static function get_failed_fetch_error( $status = 0 ) {
-		return new WP_Error(
+	private static function get_failed_fetch_error( $response ) {
+		return REST\Rest_Controller::upstream_error(
+			$response,
 			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
-			array(
-				// A transport failure has no status at all, and `status_header( 0 )`
-				// emits an invalid status line — so anything falsy becomes a 500.
-				'status' => $status ? $status : 500,
-			)
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' )
 		);
 	}
 
@@ -601,7 +629,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -632,7 +660,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		$state = json_decode( wp_remote_retrieve_body( $response ) );
@@ -705,7 +733,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -734,7 +762,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -913,13 +941,13 @@ class Jetpack_Backup {
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return self::get_failed_fetch_error();
+			return self::get_failed_fetch_error( $response );
 		}
 
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -967,7 +995,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -994,7 +1022,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1107,7 +1135,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1134,7 +1162,7 @@ class Jetpack_Backup {
 		$response_code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response_code );
+			return self::get_failed_fetch_error( $response );
 		}
 
 		return rest_ensure_response(
@@ -1194,6 +1222,29 @@ class Jetpack_Backup {
 		echo '<script id="jetpack-backup-connection-initial-state">'
 			. Connection_Initial_State::render() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render() returns pre-escaped JSON.
 			. '</script>';
+
+		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
+			. wp_json_encode(
+				array(
+					'activityLogUrl'        => self::get_activity_log_url(),
+					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. ';</script>';
+	}
+
+	/**
+	 * The Activity Log admin page URL, or null when that page is not registered.
+	 *
+	 * Asks the admin menu rather than building the URL, so a site where the
+	 * Activity Log module is off or unavailable gets no link.
+	 *
+	 * @return string|null
+	 */
+	public static function get_activity_log_url() {
+		$url = menu_page_url( 'jetpack-activity-log', false );
+		return $url ? $url : null;
 	}
 
 	/**
@@ -1289,36 +1340,47 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the modernization filter's value, which defaults to the internal preview.
+	 * Sends the Activity Log's "Restore backup" to this dashboard's restore screen when it is on.
+	 *
+	 * @param string $template Restore URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_restore_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
+	}
+
+	/**
+	 * Sends the Activity Log's links to a backup to this dashboard's Overview, with that backup selected, when it is on.
+	 *
+	 * The router reads search values as JSON, so the rewind id is quoted to stay a string.
+	 *
+	 * @param string $template Backup URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_backup_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2F%3Fselected%3D%2522{rewindId}%2522' );
+	}
+
+	/**
+	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since 5.2.0 Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
-	}
+		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
 
-	/**
-	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
-	 *
-	 * The proxy is checked first, so other requests never make the connected-user lookup.
-	 *
-	 * @return bool
-	 */
-	private static function is_internal_preview() {
-		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
-			return false;
-		}
-
-		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
-			return false;
-		}
-
-		$user_data = ( new Connection_Manager() )->get_connected_user_data();
-		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
-
-		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**

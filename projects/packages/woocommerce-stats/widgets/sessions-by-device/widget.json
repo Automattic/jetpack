@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/sessions-by-device",
+	"icon": "jpa/chart-bar",
+	"title": "Sessions by device",
+	"description": "Shows the sessions breakdown by device type over the selected time period.",
+	"help": {
+		"content": "See how store sessions are split by device type."
+	},
+	"category": "store",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

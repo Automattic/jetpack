@@ -1,22 +1,21 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	LOCATIONS_GEO_MODES,
-	PageNotice,
-	describeError,
 	ReportLocationsMap,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
+	LockedPage,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
-	useReportRetry,
 	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -103,8 +102,8 @@ export default function LocationsReportPage(): JSX.Element {
 		setPickedCountry( { tab: activeTab, code: '' } );
 	}
 	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
+	const tabLocked = activeTab !== 'countries' && isStatsFeatureLocked( 'regions-cities' );
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() =>
 			getLocationFields(
@@ -162,42 +161,37 @@ export default function LocationsReportPage(): JSX.Element {
 	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
 	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<PageNotice
-				{ ...describeError( records.error, {
-					retryDescription: __(
-						"We couldn't load locations. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					onRetry: retry,
-				} ) }
-			/>
-		);
-	}
-
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ csvExporter }
-					items={ records.table.rows }
-					status={ records.table }
-					reportParams={ reportParams }
-				/>
+				tabLocked ? undefined : (
+					<ExporterCsvAction
+						exporter={ csvExporter }
+						items={ records.table.rows }
+						status={ records.table }
+						reportParams={ reportParams }
+					/>
+				)
 			}
 		>
 			<ReportPageLayout
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ tableReplacement ?? (
-					<>
+				{ tabLocked ? (
+					<LockedPage feature="regions-cities" />
+				) : (
+					<ReportErrorState
+						status={ records }
+						retryDescription={ __(
+							"We couldn't load locations. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						) }
+					>
 						{ showMap && (
 							<ReportLocationsMap
 								rows={ geoRows }
@@ -217,7 +211,7 @@ export default function LocationsReportPage(): JSX.Element {
 							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 							onChangeView={ handleChangeView }
 						/>
-					</>
+					</ReportErrorState>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

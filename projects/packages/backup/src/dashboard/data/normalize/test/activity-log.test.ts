@@ -63,6 +63,19 @@ const unknownEntry: WpcomActivityEntry = {
 };
 
 describe( 'normalizeEntry', () => {
+	test( 'maps a backup with warnings to a backup ActivityItem', () => {
+		expect( normalizeEntry( { ...backupEntry, gridicon: 'notice' } ) ).toMatchObject( {
+			kind: 'backup',
+			rewindId: '1777035492',
+		} );
+	} );
+
+	test( 'keeps a backup-named entry that cannot be restored as other', () => {
+		expect(
+			normalizeEntry( { ...backupEntry, gridicon: 'notice', is_rewindable: false } )
+		).toMatchObject( { kind: 'other' } );
+	} );
+
 	test( 'maps a backup entry to a backup ActivityItem', () => {
 		const item = normalizeEntry( backupEntry );
 		expect( item ).toMatchObject( {
@@ -74,6 +87,27 @@ describe( 'normalizeEntry', () => {
 			// would dump JSON into the UI.
 			stats: '4 plugins, 1 theme, 20 uploads, 4 posts, 1 page',
 		} );
+	} );
+
+	test.each( [
+		[ false, false ],
+		[ true, true ],
+		[ undefined, true ],
+	] )( 'reads is_rewindable %s as isRewindable %s', ( isRewindable, expected ) => {
+		const item = normalizeEntry( { ...backupEntry, is_rewindable: isRewindable } );
+		expect( item ).toMatchObject( { isRewindable: expected } );
+	} );
+
+	test.each( [
+		[ 1777033903, 1777033903 ],
+		[ false, null ],
+		[ undefined, null ],
+	] )( 'reads backup_period %s as backupPeriod %s', ( backupPeriod, expected ) => {
+		const item = normalizeEntry( {
+			...backupEntry,
+			object: { ...backupEntry.object, backup_period: backupPeriod },
+		} );
+		expect( item ).toMatchObject( { backupPeriod: expected } );
 	} );
 
 	test( 'maps a post entry to a post ActivityItem', () => {

@@ -2,13 +2,15 @@
  * The edit-overlay layer: an absolutely-positioned sheet spanning all timeline tracks that
  * renders the trim shrouds/handles and the cut segments on top of them.
  */
+import { useRef } from 'react';
 import StudioEditorCutSegment from './cut-segment';
 import StudioEditorTrimHandles from './trim-handles';
 import type { HistoryAction } from '../../../../client/components/chapters-editor/state/history';
 import type { EditSession, EditSessionAction } from '../state/edit-session';
-import type { ReactElement, RefObject } from 'react';
+import type { PointerEvent as ReactPointerEvent, ReactElement, RefObject } from 'react';
 
 type Props = {
+	scrollerEl?: HTMLElement | null;
 	onGestureStart?: () => void;
 	onGestureEnd?: () => void;
 	/** The edit session. */
@@ -21,8 +23,6 @@ type Props = {
 	contentRef: RefObject< HTMLElement | null >;
 	/** Dispatch into the history-wrapped session reducer. */
 	dispatch: ( action: HistoryAction< EditSessionAction > ) => void;
-	/** Seek the preview player to a master-timeline ms. */
-	onSeek: ( ms: number ) => void;
 };
 
 /**
@@ -34,9 +34,9 @@ type Props = {
  * @param props.session        - The edit session.
  * @param props.currentMs      - Live playhead position in ms.
  * @param props.pxPerMs        - Scale from `getPxPerMs`.
+ * @param props.scrollerEl     - Timeline viewport for drag scrolling.
  * @param props.contentRef     - The timeline's scaled content element.
  * @param props.dispatch       - Dispatch into the history-wrapped reducer.
- * @param props.onSeek         - Seek the preview player.
  * @return The overlay element.
  */
 export default function StudioEditorEditOverlay( {
@@ -46,32 +46,42 @@ export default function StudioEditorEditOverlay( {
 	currentMs,
 	pxPerMs,
 	contentRef,
+	scrollerEl,
 	dispatch,
-	onSeek,
 }: Props ): ReactElement {
+	const activePointerRef = useRef< number | null >( null );
+	const endGesture = ( event: ReactPointerEvent< HTMLElement > ) => {
+		if ( activePointerRef.current === event.pointerId ) {
+			activePointerRef.current = null;
+			onGestureEnd?.();
+		}
+	};
+
 	return (
 		<div
 			className="vp-studio-timeline__overlay"
 			data-testid="studio-timeline-overlay"
 			onPointerDownCapture={ event => {
-				if ( event.button === 0 ) {
+				if ( event.button === 0 && activePointerRef.current === null ) {
+					activePointerRef.current = event.pointerId;
 					onGestureStart?.();
 				}
 			} }
-			onPointerUpCapture={ onGestureEnd }
-			onPointerCancelCapture={ onGestureEnd }
+			onPointerUpCapture={ endGesture }
+			onPointerCancelCapture={ endGesture }
+			onLostPointerCaptureCapture={ endGesture }
 		>
 			<StudioEditorTrimHandles
 				session={ session }
 				pxPerMs={ pxPerMs }
 				contentRef={ contentRef }
 				dispatch={ dispatch }
-				onSeek={ onSeek }
 			/>
 			{ session.cuts.map( cut => (
 				<StudioEditorCutSegment
 					key={ cut.id }
 					cut={ cut }
+					scrollerEl={ scrollerEl }
 					session={ session }
 					currentMs={ currentMs }
 					pxPerMs={ pxPerMs }

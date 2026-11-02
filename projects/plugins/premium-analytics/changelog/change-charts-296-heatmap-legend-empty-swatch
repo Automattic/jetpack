@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the empty-cell color at the start of heatmap legends such as Posting activity.

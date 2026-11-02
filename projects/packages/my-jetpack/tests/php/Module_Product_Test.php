@@ -3,7 +3,9 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\My_Jetpack\Products\Security;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -170,5 +172,93 @@ class Module_Product_Test extends TestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'module_forced', $result->get_error_code() );
 		$this->assertStringContainsString( 'disabled by your host or site administrator', $result->get_error_message() );
+	}
+
+	/**
+	 * A bundle has no module of its own, so without a plan it needs one, whatever the connection.
+	 *
+	 * @param array  $purchases      The site's purchases.
+	 * @param bool   $has_owner      Whether the site has a connection owner.
+	 * @param bool   $jetpack_active Whether the Jetpack plugin is active.
+	 * @param string $expected       The Security bundle's expected status.
+	 * @dataProvider provide_bundle_status_cases
+	 */
+	#[DataProvider( 'provide_bundle_status_cases' )]
+	public function test_bundle_status( $purchases, $has_owner, $jetpack_active, $expected ) {
+		if ( $jetpack_active ) {
+			activate_plugins( 'jetpack/jetpack.php' );
+		}
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
+		if ( $has_owner ) {
+			( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		}
+
+		$this->assertSame( $expected, Security::get_status() );
+
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Purchases, connection owner, Jetpack, and the status a Security bundle reports with them.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_bundle_status_cases() {
+		return array(
+			'no plan, no owner'                     => array( array(), false, true, Products::STATUS_NEEDS_PLAN ),
+			'no plan, owner connected'              => array( array(), true, true, Products::STATUS_NEEDS_PLAN ),
+			'own plan, no owner'                    => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_security_t1_yearly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				false,
+				true,
+				Products::STATUS_USER_CONNECTION_ERROR,
+			),
+			'covered by Complete, no owner'         => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_complete_yearly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				false,
+				true,
+				Products::STATUS_USER_CONNECTION_ERROR,
+			),
+			// Only its own plan slugs count as a plan for the bundle, so Complete doesn't.
+			'covered by Complete, Jetpack inactive' => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_complete_yearly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				false,
+				false,
+				Products::STATUS_NEEDS_PLAN,
+			),
+		);
+	}
+
+	/**
+	 * A bundle whose plan lapsed leaves the historically active list, as it did when it reported module_disabled.
+	 */
+	public function test_lapsed_bundle_leaves_historically_active_modules() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		Jetpack_Options::update_option( 'historically_active_modules', array( Security::$slug ) );
+
+		Historically_Active_Modules::update_historically_active_jetpack_modules();
+
+		$this->assertNotContains( Security::$slug, Jetpack_Options::get_option( 'historically_active_modules' ) );
+
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 }

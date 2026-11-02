@@ -75,4 +75,74 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 		$filtered_stats = Waf_Blocklog_Manager::filter_last_30_days( $stats );
 		$this->assertEquals( $expected_stats, $filtered_stats );
 	}
+
+	/**
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testThirtyDayCountSkipsOlderDaysStillStored() {
+		add_test_option(
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY,
+			array(
+				gmdate( 'Y-m-d', strtotime( '-40 days' ) ) => 5,
+				gmdate( 'Y-m-d', strtotime( '-2 days' ) )  => 2,
+			)
+		);
+
+		$this->assertSame( 2, Waf_Blocklog_Manager::get_thirty_days_block_counts() );
+	}
+
+	/**
+	 * The firewall writes the counts around the object cache, and with the base prefix, so reads must match both.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testCountsReadTheStoredValueNotTheCachedOption() {
+		$today = gmdate( 'Y-m-d' );
+		add_test_option( Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT, 2 );
+		add_test_option( Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array( $today => 2 ) );
+
+		$GLOBALS['wpdb'] = new class( $today ) {
+			/** @var array */
+			private $rows;
+
+			/**
+			 * @param string $today Today's date.
+			 */
+			public function __construct( $today ) {
+				$this->rows = array(
+					Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => '3',
+					Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize( array( $today => 3 ) ),
+				);
+			}
+
+			/** @var string A multisite subsite's tables. */
+			public $prefix = 'wp_2_';
+
+			/** @var string */
+			public $options = 'wp_2_options';
+
+			/** @var string */
+			public $base_prefix = 'wp_';
+
+			/**
+			 * @param string $query Query.
+			 * @param mixed  ...$args Arguments.
+			 */
+			public function prepare( $query, ...$args ) {
+				return false === strpos( $query, 'FROM wp_options ' ) ? null : $args[0];
+			}
+
+			/**
+			 * @param string|null $option_name The prepared option name, or null for another table.
+			 */
+			public function get_var( $option_name ) {
+				return $this->rows[ $option_name ] ?? null;
+			}
+		};
+
+		$this->assertSame( 3, Waf_Blocklog_Manager::get_all_time_block_count() );
+		$this->assertSame( 3, Waf_Blocklog_Manager::get_current_day_block_count() );
+	}
 }

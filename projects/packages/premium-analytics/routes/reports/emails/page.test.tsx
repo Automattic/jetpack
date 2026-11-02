@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import EmailsReportPage from './page';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
@@ -53,6 +52,7 @@ const email: StatsEmailSummaryItem = {
 	clicks: 14,
 	opens_rate: 38.1,
 	clicks_rate: 3.81,
+	link: 'https://example.com/hello-world/',
 	unique_opens: 98,
 	unique_clicks: 11,
 	total_sends: 250,
@@ -61,25 +61,27 @@ const email: StatsEmailSummaryItem = {
 
 /**
  * Serve a one-email summary through the mocked data hook.
- *
- * @param isError - Whether the request failed.
- * @return The mocked refetch.
  */
-function mockEmailSummary( isError = false ) {
-	const refetch = jest.fn();
+function mockEmailSummary() {
 	useStatsEmailSummaryMock.mockReturnValue( {
 		data: { data: [ { items: [ email ] } ] },
 		isLoading: false,
 		isFetching: false,
-		isError,
+		isError: false,
 		error: null,
-		refetch,
+		refetch: jest.fn(),
 	} as unknown as ReturnType< typeof useStatsEmailSummary > );
-
-	return refetch;
 }
 
 describe( 'EmailsReportPage', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'renders the summary rows with their 0–100 open rate as a percentage', () => {
 		mockEmailSummary();
 
@@ -89,18 +91,15 @@ describe( 'EmailsReportPage', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'replaces the table with an error that refetches on Retry', async () => {
-		const refetch = mockEmailSummary( true );
+	it( 'offers the live email from the row menu', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		mockEmailSummary();
 
 		render( <EmailsReportPage /> );
+		await user.click( screen.getByRole( 'button', { name: 'Actions' } ) );
 
-		expect(
-			getNoticeText( "We couldn't load emails. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( screen.queryByText( 'Hello world' ) ).not.toBeInTheDocument();
-
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( refetch ).toHaveBeenCalledTimes( 1 );
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'View in new tab' } )
+		).resolves.toBeInTheDocument();
 	} );
 } );

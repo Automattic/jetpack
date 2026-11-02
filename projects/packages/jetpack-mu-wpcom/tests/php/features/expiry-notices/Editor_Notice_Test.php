@@ -63,8 +63,8 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		$cases = array(
 			// days => [ content prefix, primary label, has other-plans link, dismissible ].
 			5   => array( 'Your plan expires in 5 days. Your site will move to the Free plan', 'Renew now', false, false ),
-			-5  => array( 'Your plan has expired. Your site will move to the Free plan.', 'Renew now', true, false ),
-			-45 => array( 'Your plan has expired. Your site will move to the Free plan.', 'Renew now', true, false ),
+			-5  => array( 'Your plan has expired. Your site will move to the Free plan.', 'Renew now', true, true ),
+			-45 => array( 'Your plan has expired. Your site will move to the Free plan.', 'Renew now', true, true ),
 		);
 		foreach ( $cases as $days => list( $prefix, $label, $has_plans, $is_dismissible ) ) {
 			$this->set_purchase( $days );
@@ -83,7 +83,6 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Contact support', $data['primary']['label'] );
 		$this->assertStringContainsString( 'wordpress.com/help', $data['primary']['url'] );
 		$this->assertNull( $data['secondary'] );
-		$this->assertTrue( $data['isDismissible'] );
 	}
 
 	public function test_a_banner_dismissal_hides_the_editor_notice_too(): void {

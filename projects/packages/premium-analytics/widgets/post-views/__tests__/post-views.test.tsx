@@ -22,6 +22,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics,
 		chartType,
 		empty,
+		hideSingleMetricLabel,
 	}: {
 		metrics: {
 			key: string;
@@ -33,10 +34,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		}[];
 		chartType?: string;
 		empty?: ReactNode;
+		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -137,6 +140,7 @@ describe( 'PostViewsWidget', () => {
 		// defaults to bars.
 		expect( metrics[ 0 ].value ).toBe( 12 );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-hide-single-metric-label', 'true' );
 		expect(
 			within( chart ).getByText( 'We couldn’t find results for this time period.' )
 		).toBeInTheDocument();

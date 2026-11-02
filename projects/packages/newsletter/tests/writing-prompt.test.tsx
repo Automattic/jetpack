@@ -100,16 +100,13 @@ describe( 'WritingPrompt widget empty state', () => {
 		// widget stays useful instead of collapsing to a blank box.
 		// The message links "the Reader" inline to the WordPress.com Reader...
 		const inlineReaderLink = await screen.findByRole( 'link', { name: 'the Reader' } );
-		expect( inlineReaderLink ).toHaveAttribute(
-			'href',
-			'https://wordpress.com/reader?origin_site_id=12345'
-		);
+		expect( inlineReaderLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 		expect( screen.getByText( /No writing prompt to show right now/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
 		// ...and the always-on footer Reader link is still present alongside it.
 		expect(
 			screen.getByRole( 'link', { name: /Read the blogs and topics you follow/ } )
-		).toHaveAttribute( 'href', 'https://wordpress.com/reader?origin_site_id=12345' );
+		).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 
 		// None of the prompt-only controls should render without a prompt.
 		expect( screen.queryByRole( 'link', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
@@ -201,7 +198,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		expect( screen.queryByText( /^\+\d/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the Reader link in the footer with the origin_site_id', async () => {
+	it( 'renders the Reader link in the footer', async () => {
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
 		const { container } = render( <WritingPrompt /> );
@@ -209,10 +206,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		const readerLink = await screen.findByRole( 'link', {
 			name: /Read the blogs and topics you follow/,
 		} );
-		expect( readerLink ).toHaveAttribute(
-			'href',
-			'https://wordpress.com/reader?origin_site_id=12345'
-		);
+		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
@@ -245,33 +239,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).not.toHaveAttribute( 'target' );
-	} );
-
-	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
-		mockGetSiteData.mockReturnValue( undefined );
-		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
-
-		render( <WritingPrompt /> );
-
-		const readerLink = await screen.findByRole( 'link', {
-			name: /Read the blogs and topics you follow/,
-		} );
-		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
-	} );
-
-	it( 'falls back to the bare Reader URL on a self-hosted site with no wpcom data', async () => {
-		// On a self-hosted Jetpack site, getSiteData() returns a valid object with no wpcom key.
-		mockGetSiteData.mockReturnValue( { site: { title: 'My Blog' } } );
-		mockIsWpcomPlatformSite.mockReturnValue( false );
-		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
-
-		render( <WritingPrompt /> );
-
-		const readerLink = await screen.findByRole( 'link', {
-			name: /Read the blogs and topics you follow/,
-		} );
-		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
-		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );
 

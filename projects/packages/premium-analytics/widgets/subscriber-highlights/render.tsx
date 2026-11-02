@@ -6,11 +6,11 @@ import {
 	useStatsSubscribersDaysAgo,
 } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
@@ -19,18 +19,17 @@ import { envelope, payment, people, scheduled, share } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { SubscriberHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes. A `metrics` subset persisted by an earlier version is ignored.
+ */
+export type SubscriberHighlightsAttributes = Record< never, never >;
 
 // Report params arrive from the host but change nothing here: the counts are all-time or fixed days back.
 type SubscriberHighlightsRenderAttributes = SubscriberHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type SubscriberHighlightsWidgetProps = WidgetRenderProps< SubscriberHighlightsRenderAttributes >;
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 const DAYS_AGO = [ 30, 60, 90 ] as const;
 const MONTH_AGO = [ 30 ] as const;
@@ -199,8 +198,6 @@ function SubscriberHighlightsReport() {
 				isFetching={ counts.isFetching || past.isFetching || monthAgo.isFetching }
 				// `placeholderData` keeps the last counts on screen, so a transient refetch failure should not replace them with an error.
 				isError={ countsFailed || ( showsHistory && past.isError && ! hasHistory ) }
-				// Highlights have no empty state: a missing current count shows zero, a missing past count its placeholder.
-				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber highlights. Please try again in a moment.",
@@ -224,12 +221,15 @@ function SubscriberHighlightsReport() {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats Subscribers "All-time stats" card.
+ */
 export default function SubscriberHighlights( {
 	attributes = {},
 }: SubscriberHighlightsWidgetProps ) {

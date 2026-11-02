@@ -1,6 +1,7 @@
 import { useCallback, useState } from '@wordpress/element';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useFileContents } from '../../hooks/use-file-contents';
+import { useFileDownload } from '../../hooks/use-file-download';
 import { usePathInfo } from '../../hooks/use-path-info';
 import type { FileNodeFile } from '../../types/file-tree';
 
@@ -85,6 +86,16 @@ const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 ];
 
 /**
+ * Whether the manifest path is a database table dump (`dd:wp_users`).
+ *
+ * @param manifestPath - The volume-prefixed manifest path.
+ * @return True for a `dd:` path.
+ */
+function isTableDump( manifestPath: string | undefined ): boolean {
+	return Boolean( manifestPath?.toLowerCase().startsWith( 'dd:' ) );
+}
+
+/**
  * Whether the given manifest path matches one of the patterns above.
  *
  * The `5` in `f5:` is a data-type code, not identity, so the prefix goes.
@@ -124,9 +135,9 @@ export default function useFileInfo( file: FileNodeFile ) {
 		setRevealedFor( null );
 	}
 	const revealed = revealedFor === previewId;
-	// Withholding the fetch too, not just the `<pre>`: unrevealed secrets never
-	// reach the browser at all.
-	const awaitingReveal = Boolean( mimeType ) && isSensitivePath( file.manifestPath ) && ! revealed;
+	// From the path alone: a secret with no previewable extension (`.env`, `.sql.gz`)
+	// still waits for the click. Also withholds the fetch, not just the `<pre>`.
+	const awaitingReveal = isSensitivePath( file.manifestPath ) && ! revealed;
 	const showPreview = Boolean( mimeType ) && ! awaitingReveal;
 	const reveal = useCallback( () => {
 		setRevealedFor( previewId );
@@ -140,6 +151,7 @@ export default function useFileInfo( file: FileNodeFile ) {
 		error: contentsError,
 	} = useFileContents( file.period, file.manifestPath, showPreview );
 	const { size, hash, lastModified } = usePathInfo( file.period, file.manifestPath );
+	const fileDownload = useFileDownload( file.period, file.manifestPath );
 
 	return {
 		mimeType,
@@ -147,6 +159,7 @@ export default function useFileInfo( file: FileNodeFile ) {
 		hash,
 		modified: lastModified ?? file.lastModified,
 		awaitingReveal,
+		previewable: Boolean( mimeType ),
 		showPreview,
 		reveal,
 		content,
@@ -154,5 +167,11 @@ export default function useFileInfo( file: FileNodeFile ) {
 		truncated,
 		contentsLoading,
 		contentsError,
+		// Same reveal rule as the preview. The route itself does not enforce it.
+		// Table dumps need a granular download job, which is not implemented.
+		canDownload: fileDownload.canDownload && ! awaitingReveal && ! isTableDump( file.manifestPath ),
+		download: fileDownload.download,
+		isDownloading: fileDownload.isDownloading,
+		downloadFailed: fileDownload.downloadFailed,
 	};
 }

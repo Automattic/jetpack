@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Settings: Add a Visitor consent card that shows whether a cookie banner plugin and the WP Consent API are active, and installs the WP Consent API in one click.

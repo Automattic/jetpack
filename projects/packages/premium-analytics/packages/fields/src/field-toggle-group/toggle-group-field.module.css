@@ -10,9 +10,13 @@
 	border-color: var(--wpds-color-stroke-interactive-neutral);
 }
 
-/* Icon segments carry a fixed height instead of filling the control. */
+/*
+ * Icon segments carry a fixed height instead of filling the control, and text
+ * labels stay on one line.
+ */
 .control[role="radiogroup"] button {
 	block-size: 100%;
+	white-space: nowrap;
 }
 
 /*

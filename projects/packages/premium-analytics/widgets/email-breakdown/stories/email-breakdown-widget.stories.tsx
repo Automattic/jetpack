@@ -177,8 +177,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the envelope glyph
- * and the per-view "no data yet" copy).
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderEmailBreakdownForState( 5603 ),

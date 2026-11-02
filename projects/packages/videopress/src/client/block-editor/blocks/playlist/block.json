@@ -21,6 +21,11 @@
 		}
 	},
 	"attributes": {
+		"emptyState": {
+			"type": "string",
+			"enum": [ "none", "author", "all" ],
+			"default": "none"
+		},
 		"playlistId": {
 			"type": "string",
 			"default": ""
@@ -101,6 +106,19 @@
 		"entryTitleFontFamily": {
 			"type": "string",
 			"default": ""
+		},
+		"source": {
+			"type": "string",
+			"enum": [ "own", "queried", "index" ],
+			"default": "own"
+		},
+		"sourcePlaylistId": {
+			"type": "string",
+			"default": ""
+		},
+		"showMeta": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

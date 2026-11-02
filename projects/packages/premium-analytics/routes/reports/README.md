@@ -25,6 +25,8 @@ definition and lazily renders that report's page component. Adding a report does
    		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
+   		// Optional, for a paid Stats feature: a plan without it gets the locked page.
+   		// feature: 'utm',
    		load: () => import( './posts/page' ),
    	},
    };
@@ -45,8 +47,7 @@ the tab set's `getTabLabel( activeTab )`.
 ## Providers the stage mounts for every report
 
 The stage wraps every report page in `AnalyticsQueryClientProvider` (React
-Query), `GlobalErrorProvider`, and `GlobalChartsProvider` with the shared chart
-theme. Report pages therefore call data hooks and compose chart components
+Query) and `GlobalChartsProvider` with the shared chart theme. Report pages therefore call data hooks and compose chart components
 directly (`useSeriesStyles` + `ComparativeLineChart`, exactly like widgets do)
 without mounting any providers of their own.
 

@@ -1,3 +1,4 @@
+import type { EmptyStateMode } from '../../channel/editor-controls';
 import type { VideoGUID } from '../video/types';
 
 /**
@@ -66,4 +67,16 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	// Renders the title as a Heading inner block above the playlist.
 	showPlaylistTitle: boolean;
 	videos: PlaylistEntry[];
+	/*
+	 * Where the videos come from: the block's own list, the playlist a channel
+	 * page is showing, or an indexed playlist ( sourcePlaylistId, empty = latest ).
+	 */
+	source?: PlaylistSource;
+	sourcePlaylistId?: string;
+	// "12K views · 3 days ago" under each entry, for sourced playlists.
+	showMeta?: boolean;
+	// What an indexed playlist shows while the channel has no playlists.
+	emptyState?: EmptyStateMode;
 };
+
+export type PlaylistSource = 'own' | 'queried' | 'index';

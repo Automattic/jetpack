@@ -35,7 +35,7 @@ class All_Playlists_Block {
 	 *
 	 * @var string[]
 	 */
-	const ORDERS = array( 'newest', 'oldest', 'title' );
+	const ORDERS = array( 'newest', 'oldest', 'title', 'updated' );
 
 	/**
 	 * Supported pagination styles, the first being the default.
@@ -108,7 +108,7 @@ class All_Playlists_Block {
 	 *
 	 * @param mixed $block_attributes Block attributes; anything but an array counts as none.
 	 *
-	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string}
+	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string, exclude_current: bool, show_updated: bool}
 	 */
 	public static function settings( $block_attributes ) {
 		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
@@ -135,6 +135,8 @@ class All_Playlists_Block {
 			'show_description' => $flag( 'showDescription', true ),
 			'show_video_count' => $flag( 'showVideoCount', true ),
 			'pagination'       => $pick( 'pagination', self::PAGINATIONS ),
+			'exclude_current'  => $flag( 'excludeCurrent', false ),
+			'show_updated'     => $flag( 'showUpdated', false ),
 		);
 	}
 
@@ -186,9 +188,12 @@ class All_Playlists_Block {
 				}
 			);
 		} else {
-			// Newest first by the source post's publish date; playlists without a post go last.
-			$date_of = function ( $playlist ) {
-				return $playlist['post'] ? $playlist['post']->post_date_gmt : '';
+			// By the source post's publish ( or, for "updated", modified ) date; playlists without a post go last.
+			$date_of = function ( $playlist ) use ( $order_by ) {
+				if ( ! $playlist['post'] ) {
+					return '';
+				}
+				return 'updated' === $order_by ? $playlist['post']->post_modified_gmt : $playlist['post']->post_date_gmt;
 			};
 			usort(
 				$playlists,
@@ -198,7 +203,7 @@ class All_Playlists_Block {
 					if ( '' === $date_a || '' === $date_b ) {
 						$result = strcmp( $date_b, $date_a );
 					} else {
-						$result = 'newest' === $order_by ? strcmp( $date_b, $date_a ) : strcmp( $date_a, $date_b );
+						$result = 'oldest' === $order_by ? strcmp( $date_a, $date_b ) : strcmp( $date_b, $date_a );
 					}
 					return 0 !== $result ? $result : strcmp( $a['key'], $b['key'] );
 				}
@@ -315,9 +320,24 @@ class All_Playlists_Block {
 	public static function render( $block_attributes, $content = '' ) {
 		$settings  = self::settings( $block_attributes );
 		$playlists = self::ordered_playlists( $settings['order_by'] );
-		$total     = count( $playlists );
+		$has_any   = (bool) $playlists;
+		if ( $settings['exclude_current'] ) {
+			$current   = Channel::queried_playlist();
+			$playlists = $current
+				? array_values(
+					array_filter(
+						$playlists,
+						function ( $playlist ) use ( $current ) {
+							return $playlist['key'] !== $current['key'];
+						}
+					)
+				)
+				: $playlists;
+		}
+		$total = count( $playlists );
 		if ( ! $total ) {
-			return '';
+			// Only a site without any playlist is empty; "More playlists" next to the only one stays hidden.
+			return $has_any ? '' : Channel_Blocks::render_empty_state( 'playlists', $block_attributes, 'videopress-all-playlists' );
 		}
 
 		$per_page     = $settings['per_page'];
@@ -418,7 +438,7 @@ class All_Playlists_Block {
 	 */
 	private static function render_item( $playlist, $settings, $page, $hidden ) {
 		$title       = '' !== $playlist['title'] ? $playlist['title'] : __( 'Untitled playlist', 'jetpack-videopress-pkg' );
-		$permalink   = $playlist['post'] ? get_permalink( $playlist['post'] ) : '';
+		$permalink   = $playlist['post'] ? self::playlist_link( $playlist ) : '';
 		$video_count = count( $playlist['videos'] );
 		$first_guid  = $video_count && isset( $playlist['videos'][0]['guid'] ) && is_string( $playlist['videos'][0]['guid'] )
 			? $playlist['videos'][0]['guid']
@@ -473,6 +493,12 @@ class All_Playlists_Block {
 		if ( $settings['show_description'] && '' !== $playlist['description'] ) {
 			$body .= sprintf( '<p class="videopress-all-playlists__description">%s</p>', esc_html( $playlist['description'] ) );
 		}
+		if ( $settings['show_updated'] ) {
+			$meta = self::updated_meta( $playlist );
+			if ( '' !== $meta ) {
+				$body .= sprintf( '<span class="videopress-all-playlists__meta">%s</span>', esc_html( $meta ) );
+			}
+		}
 		$body .= sprintf(
 			'<span class="videopress-all-playlists__poster-note">%s</span>',
 			esc_html__( 'First video is private or was deleted.', 'jetpack-videopress-pkg' )
@@ -494,6 +520,44 @@ class All_Playlists_Block {
 			$poster,
 			$body
 		);
+	}
+
+	/**
+	 * Where a card links: the playlist's page on a channel site, else the post holding it.
+	 *
+	 * @param array $playlist A record from ordered_playlists() with a published post.
+	 *
+	 * @return string
+	 */
+	private static function playlist_link( $playlist ) {
+		return Channel::is_enabled() ? Channel::playlist_url( $playlist['key'] ) : (string) get_permalink( $playlist['post'] );
+	}
+
+	/**
+	 * "Updated 2 weeks ago · 1 hr 12 min" for a card.
+	 *
+	 * @param array $playlist A record from ordered_playlists().
+	 *
+	 * @return string
+	 */
+	public static function updated_meta( $playlist ) {
+		$parts = array();
+		if ( $playlist['post'] instanceof WP_Post ) {
+			$ago = Channel_Data::ago( (int) strtotime( $playlist['post']->post_modified_gmt . ' UTC' ) );
+			if ( '' !== $ago ) {
+				/* translators: %s: how long ago, e.g. "2 weeks ago". */
+				$parts[] = sprintf( __( 'Updated %s', 'jetpack-videopress-pkg' ), $ago );
+			}
+		}
+		$total_ms = 0;
+		foreach ( Initializer::sanitize_playlist_entries( $playlist['videos'] ) as $entry ) {
+			$total_ms += $entry['durationMs'];
+		}
+		$runtime = Initializer::playlist_runtime_label( $total_ms );
+		if ( '' !== $runtime ) {
+			$parts[] = $runtime;
+		}
+		return implode( ' · ', $parts );
 	}
 
 	/**

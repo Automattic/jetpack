@@ -218,11 +218,6 @@ class Jetpack_Infinite_Scroll_Extras {
 			$videopress->enqueue_scripts();
 		}
 
-		// VideoPress Jetpack module
-		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			wp_enqueue_script( 'videopress' );
-		}
-
 		// Fire the post_gallery action early so Carousel scripts are present.
 		if ( Jetpack::is_module_active( 'carousel' ) ) {
 			/** This filter is already documented in core/wp-includes/media.php */

@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
 /** The UTM report's tabs, one per endpoint dimension. */
@@ -57,14 +58,6 @@ export function getUtmReportSection( utmParam: StatsUtmParam ): UtmReportSection
 	);
 }
 
-/** The UTM dimensions as select options, in report tab order. */
-export function getUtmDimensionOptions(): { label: string; value: StatsUtmParam }[] {
-	return Object.values( UTM_DIMENSIONS ).map( ( { utmParam, getLabel } ) => ( {
-		label: getLabel(),
-		value: utmParam,
-	} ) );
-}
-
 /** The UTM report's query: every value with its top posts, as Calypso's full UTM report requests. */
 export function getUtmReportQueryParams(
 	reportParams: ReportParams,
@@ -77,6 +70,7 @@ export function getUtmReportQueryParams(
 		summarize: 0,
 		query_top_posts: true,
 		utmParam: UTM_DIMENSIONS[ section ].utmParam,
+		...getReportWindowParams( reportParams ),
 	} as StatsUtmParams;
 }
 

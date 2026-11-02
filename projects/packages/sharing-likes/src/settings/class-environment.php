@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -26,6 +27,20 @@ final class Environment {
 	 * @var string|null
 	 */
 	private static $single_template_editor_url = null;
+
+	/**
+	 * Memoised Site Editor URL for the page template, for the same reason.
+	 *
+	 * @var string|null
+	 */
+	private static $page_template_editor_url = null;
+
+	/**
+	 * Memoised templates, by blog and template ID, since building one applies block hooks.
+	 *
+	 * @var array<string, \WP_Block_Template|null>
+	 */
+	private static $block_templates = array();
 
 	/**
 	 * Whether the active theme is a block theme.
@@ -89,6 +104,21 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides:
+	 * a ready connection or offline mode, then the Blocks module, which its `jetpack_gutenberg` filter can override.
+	 *
+	 * True on Simple without asking for modules or a connection, both of which it lacks.
+	 */
+	public static function jetpack_blocks_load(): bool {
+		if ( ! self::is_simple_site() && ! self::is_connection_ready() && ! self::is_offline_mode() ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack-gutenberg.php */
+		return (bool) apply_filters( 'jetpack_gutenberg', self::module_active( 'blocks' ) );
+	}
+
+	/**
 	 * Whether this site can have Like buttons at all.
 	 *
 	 * The Likes module declares `Requires Connection: Yes`, so without a
@@ -106,6 +136,18 @@ final class Environment {
 	 */
 	private static function is_connected(): bool {
 		return ( new Connection_Manager( 'jetpack' ) )->is_connected();
+	}
+
+	/**
+	 * Whether the connection is ready for Jetpack's modules and blocks, as `Jetpack::is_connection_ready()` decides.
+	 *
+	 * WordPress.com's Atomic hosting filters it off on a site whose connection has no owner.
+	 */
+	private static function is_connection_ready(): bool {
+		$manager = new Connection_Manager( 'jetpack' );
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_is_connection_ready', $manager->is_connected(), $manager );
 	}
 
 	/**
@@ -202,14 +244,14 @@ final class Environment {
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function sharing_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/sharing-buttons' );
+		return self::block_is_registered( Block_Names::SHARING_BUTTONS );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
 	public static function like_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/like' );
+		return self::block_is_registered( Block_Names::LIKE );
 	}
 
 	/**
@@ -220,25 +262,81 @@ final class Environment {
 	 * block theme shipping only `index.html` is the case that hits this.
 	 */
 	public static function single_template_editor_url(): string {
-		if ( null !== self::$single_template_editor_url ) {
-			return self::$single_template_editor_url;
+		if ( null === self::$single_template_editor_url ) {
+			self::$single_template_editor_url = self::template_editor_url( 'single' );
 		}
 
-		$stylesheet = get_stylesheet();
-		$template   = $stylesheet ? $stylesheet . '//single' : '';
+		return self::$single_template_editor_url;
+	}
 
-		if ( ! $template || ! get_block_template( $template ) ) {
-			self::$single_template_editor_url = '';
+	/**
+	 * Site Editor URL for the active theme's page template, empty when it has none.
+	 *
+	 * @since 0.4.0
+	 */
+	public static function page_template_editor_url(): string {
+		if ( null === self::$page_template_editor_url ) {
+			self::$page_template_editor_url = self::template_editor_url( 'page' );
+		}
 
-			return self::$single_template_editor_url;
+		return self::$page_template_editor_url;
+	}
+
+	/**
+	 * Content of one of the active theme's templates as saved in the Site Editor; null while the theme's file serves it.
+	 *
+	 * Read from the post, since `get_block_template()` returns the content with block hooks already applied.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $slug Template slug.
+	 */
+	public static function saved_template_content( string $slug ): ?string {
+		if ( ! self::is_block_theme() ) {
+			return null;
+		}
+
+		$template = self::block_template( $slug );
+		$post     = $template && $template->wp_id ? get_post( $template->wp_id ) : null;
+
+		return $post instanceof \WP_Post ? $post->post_content : null;
+	}
+
+	/**
+	 * Site Editor URL for one of the active theme's templates, empty when it has none.
+	 *
+	 * @param string $slug Template slug.
+	 */
+	private static function template_editor_url( string $slug ): string {
+		if ( ! self::block_template( $slug ) ) {
+			return '';
 		}
 
 		// `add_query_arg()` does not encode, and the Site Editor router wants `p` percent-encoded.
-		self::$single_template_editor_url = admin_url(
-			'site-editor.php?p=' . rawurlencode( '/wp_template/' . $template ) . '&canvas=edit'
-		);
+		return admin_url( 'site-editor.php?p=' . rawurlencode( '/wp_template/' . get_stylesheet() . '//' . $slug ) . '&canvas=edit' );
+	}
 
-		return self::$single_template_editor_url;
+	/**
+	 * One of the active theme's templates, as `get_block_template()` resolves it.
+	 *
+	 * @param string $slug Template slug.
+	 */
+	private static function block_template( string $slug ): ?\WP_Block_Template {
+		$stylesheet = get_stylesheet();
+
+		if ( ! $stylesheet ) {
+			return null;
+		}
+
+		$id  = $stylesheet . '//' . $slug;
+		$key = get_current_blog_id() . ':' . $id;
+
+		if ( ! array_key_exists( $key, self::$block_templates ) ) {
+			$template                      = get_block_template( $id );
+			self::$block_templates[ $key ] = $template instanceof \WP_Block_Template ? $template : null;
+		}
+
+		return self::$block_templates[ $key ];
 	}
 
 	/**

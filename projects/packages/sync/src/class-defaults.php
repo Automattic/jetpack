@@ -837,7 +837,6 @@ class Defaults {
 		'hc_wpcom_id_sig',
 		'jetpack_comment_identity_avatar',
 		'jetpack_comment_identity_id',
-		'jetpack_comment_identity_provider',
 		'protocol',
 	);
 

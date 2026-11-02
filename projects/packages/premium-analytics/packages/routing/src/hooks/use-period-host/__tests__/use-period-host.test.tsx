@@ -14,7 +14,7 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { PeriodChangeSignalProvider } from '@jetpack-premium-analytics/data';
+import { PeriodChangeSignalProvider, type LockableInterval } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -34,16 +34,21 @@ const WEEK = {
 	to: new TZDate( '2026-09-27T23:59:59.999+00:00', 'UTC' ),
 };
 
+const MONTH = {
+	from: new TZDate( '2026-09-01T00:00:00.000+00:00', 'UTC' ),
+	to: new TZDate( '2026-09-30T23:59:59.999+00:00', 'UTC' ),
+};
+
 const wrapper = ( { children }: { children: ReactNode } ) => (
 	<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
 );
 
 // A stage: its date control reads the URL, and its widgets set the period through the host.
-function renderStage() {
+function renderStage( lockedIntervals?: readonly LockableInterval[] ) {
 	return renderHook(
 		() => {
 			const dateFilters = useReportDateFilters( '/' );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, lockedIntervals );
 
 			return { dateFilters, host };
 		},
@@ -84,6 +89,17 @@ describe( 'usePeriodHost', () => {
 			interval: 'day',
 		} );
 		expect( result.current.host.attentionId ).toEqual( expect.any( Number ) );
+	} );
+
+	it.each( [
+		[ 'carries the interval over', undefined, 'week' ],
+		[ 'skips a locked interval', [ 'week', 'month', 'year' ] as const, 'day' ],
+	] )( '%s to a period a widget set', ( _name, lockedIntervals, interval ) => {
+		const { result } = renderStage( lockedIntervals );
+
+		act( () => result.current.host.openPeriod( MONTH ) );
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', interval } );
 	} );
 
 	it( 'leaves the calendar on the new period when the picker closes after it', () => {

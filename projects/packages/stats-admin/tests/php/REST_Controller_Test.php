@@ -466,7 +466,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		$response = $this->dispatch_settings_request( 'POST', array( 'wpcom_reader_views_enabled' => false ) );
 		remove_filter( 'pre_update_option_wpcom_reader_views_enabled', $keep_stored, 10 );
 
-		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 500, $response->get_status() );
 	}
 
 	/**

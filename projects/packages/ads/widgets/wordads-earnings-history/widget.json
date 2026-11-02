@@ -1,5 +1,6 @@
 {
 	"name": "wordads/earnings-history",
+	"icon": "jpa/receipt",
 	"title": "WordAds earnings",
 	"description": "Your WordAds earnings by period, with amounts and payment status.",
 	"help": {
@@ -7,5 +8,13 @@
 	},
 	"category": "stats",
 	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fearnings"
+		}
+	],
 	"textdomain": "jetpack-ads-pkg"
 }

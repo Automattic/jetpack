@@ -168,7 +168,7 @@ class PayPal_Email_Sender {
 		// Email only a link with a price, on the product or its options.
 		if ( '' === $price ) {
 			wp_send_json_error(
-				array( 'message' => __( 'This payment link has no price.', 'jetpack-paypal-payments' ) ),
+				array( 'message' => __( 'This payment button has no price.', 'jetpack-paypal-payments' ) ),
 				400,
 				JSON_HEX_TAG | JSON_HEX_AMP
 			);
@@ -324,7 +324,7 @@ class PayPal_Email_Sender {
 		<p style="margin:0;font-size:12px;color:#999;">
 			' . sprintf(
 				/* translators: %s: site name */
-				esc_html__( 'Sent by %s via PayPal Payment Links', 'jetpack-paypal-payments' ),
+				esc_html__( 'Sent by %s via PayPal Payment Buttons', 'jetpack-paypal-payments' ),
 				$escaped_site
 			) . '
 		</p>

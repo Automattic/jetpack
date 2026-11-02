@@ -56,14 +56,19 @@ describe( 'Stats email breakdown normalizer', () => {
 		] );
 	} );
 
-	it( 'normalizes clients and pins the catch-all bucket last by flag', () => {
-		expect( itemsOf( emailClientsFixture ) ).toEqual( [
-			expect.objectContaining( { label: 'Apple Mail', value: 200 } ),
-			expect.objectContaining( { label: 'Thunderbird', value: 180 } ),
-			expect.objectContaining( { label: 'Other', value: 265, isOther: true } ),
-		] );
-		expect( itemsOf( emailClientsFixture )[ 0 ].isOther ).toBeUndefined();
-	} );
+	it.each( [ 'clients', 'devices' ] )(
+		'normalizes %s and pins the catch-all bucket last by flag',
+		key => {
+			const items = itemsOf( { [ key ]: emailClientsFixture.clients } );
+
+			expect( items ).toEqual( [
+				expect.objectContaining( { label: 'Apple Mail', value: 200 } ),
+				expect.objectContaining( { label: 'Thunderbird', value: 180 } ),
+				expect.objectContaining( { label: 'Other', value: 265, isOther: true } ),
+			] );
+			expect( items[ 0 ].isOther ).toBeUndefined();
+		}
+	);
 
 	it( 'maps internal link types, skips user_link, and buckets unknown types', () => {
 		expect( itemsOf( emailLinksFixture ) ).toEqual( [

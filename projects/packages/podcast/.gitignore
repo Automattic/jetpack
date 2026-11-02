@@ -2,7 +2,9 @@ vendor/
 node_modules/
 .cache/
 build/
+build-module/
 dist/
+build-module/
 composer.lock
 
 # wp-build generated entry files

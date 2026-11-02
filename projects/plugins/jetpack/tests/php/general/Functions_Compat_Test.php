@@ -201,4 +201,14 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( 'VIDEO_ID', $youtube_id );
 	}
+
+	/**
+	 * @author robertbpugh
+	 * @since 16.4
+	 */
+	public function test_jetpack_get_youtube_id_with_live_url() {
+		$youtube_id = jetpack_get_youtube_id( 'https://www.youtube.com/live/VIDEO_ID?si=SHARE_ID' );
+
+		$this->assertEquals( 'VIDEO_ID', $youtube_id );
+	}
 } // end class

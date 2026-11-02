@@ -174,6 +174,9 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$nudge = $this->get_upsell_nudge();
+
+		$nudge = apply_filters( 'jetpack_masterbar_upsell_nudge', $nudge );
+
 		if ( ! $nudge ) {
 			return;
 		}

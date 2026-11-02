@@ -1,5 +1,6 @@
 {
 	"name": "jpa/total-views",
+	"icon": "jpa/seen",
 	"title": "Total views",
 	"description": "Total views for the selected period, with the trend over time.",
 	"help": {

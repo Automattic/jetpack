@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Render the header's controls from My Jetpack's script instead of bundling them, behind a feature flag.
+

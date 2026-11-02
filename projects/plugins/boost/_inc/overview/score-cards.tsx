@@ -1,5 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { CardDivider } from '@wordpress/components';
+import { speak } from '@wordpress/a11y';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Popover, VisuallyHidden } from '@wordpress/ui';
@@ -52,12 +52,16 @@ export default function ScoreCards( {
 	}, [ showOverlay, titleRef ] );
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
+	const errorMessage =
+		error && isVisible ? __( 'Failed to load speed scores', 'jetpack-boost' ) : '';
+	useEffect( () => {
+		if ( errorMessage ) {
+			speak( errorMessage, 'assertive' );
+		}
+	}, [ errorMessage ] );
 	const notice = error && (
 		<Card.Content className="jetpack-boost-overview__scores-error">
-			<Notice.Root
-				intent="error"
-				spokenMessage={ isVisible ? __( 'Failed to load speed scores', 'jetpack-boost' ) : '' }
-			>
+			<Notice.Root intent="error">
 				<Notice.Title>{ __( 'Failed to load speed scores', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error.message }</Notice.Description>
 				<Notice.Actions>
@@ -79,7 +83,7 @@ export default function ScoreCards( {
 				isGenerating={ showOverlay }
 				live
 			>
-				{ showOverlay && announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }
+				{ showOverlay && announceCalculating && __( 'Checking site speed…', 'jetpack-boost' ) }
 			</IndeterminateProgress>
 		</Card.Content>
 	);
@@ -178,7 +182,6 @@ export default function ScoreCards( {
 					{ __( 'Your site speed', 'jetpack-boost' ) }
 				</Card.Title>
 			</Card.Header>
-			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			{ body }
 		</Card.Root>
 	);

@@ -3,7 +3,6 @@
  */
 import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
@@ -19,8 +18,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { PostCommentsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Latest comments widget has no configurable attributes: it always lists
+ * comments for the post the page is scoped to (via `reportParams.post_id`).
+ */
+export type PostCommentsAttributes = Record< never, never >;
 
 type PostCommentsRenderAttributes = PostCommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >;
@@ -74,14 +78,13 @@ function PostCommentsInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
 									'Open a post or page report to see its comments here.',
 									'jetpack-premium-analytics-pkg'
 								)
-							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
+							: __( 'This post has no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<SubscriberList
@@ -93,6 +96,10 @@ function PostCommentsInner() {
 	);
 }
 
+/**
+ * The post detail Traffic view's Latest comments card. The list is a lifetime
+ * roster and is not date-scoped.
+ */
 export default function PostComments( { attributes = {} }: PostCommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

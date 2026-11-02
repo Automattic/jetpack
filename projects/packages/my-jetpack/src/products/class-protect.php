@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Waf\Waf_Runner;
@@ -86,11 +88,18 @@ class Protect extends Hybrid_Product {
 	public static $slug = 'protect';
 
 	/**
-	 * The Jetpack module name
+	 * The Jetpack module name, used where the `protect-dashboard` module is not on offer.
 	 *
 	 * @var string
 	 */
 	public static $module_name = 'protect';
+
+	/**
+	 * The module that loads the Protect page.
+	 *
+	 * @var string
+	 */
+	const DASHBOARD_MODULE_NAME = 'protect-dashboard';
 
 	/**
 	 * The filename (id) of the plugin associated with this product.
@@ -111,18 +120,67 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
+	 *
+	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard (see JETPACK-3062).
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return string
+	 */
+	public static function get_module_name() {
+		if ( ! static::is_standalone_plugin_active() && self::is_dashboard_module_available() ) {
+			return self::DASHBOARD_MODULE_NAME;
+		}
+		return static::$module_name;
+	}
+
+	/**
+	 * Leave the standalone plugin alone where the Jetpack plugin already delivers the Protect page.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
+		return ! ( static::is_jetpack_plugin_active() && self::is_dashboard_module_available() );
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the module that loads the Protect page, which only happens while its flag is on.
+	 *
+	 * Not Modules::is_module(): it passes any slug.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_module_available() {
+		return in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true );
+	}
+
+	/**
+	 * Activate local product steps without scheduling connected modules offline.
+	 *
+	 * @since 6.10.0
+	 * @param bool|WP_Error $current_result The plugin activation result.
+	 * @param bool          $local          Whether to keep activation local.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result, $local = false ) {
+		if ( $local ) {
+			// Protect's deferred admin hook would activate connected modules on the next request.
+			delete_option( static::$plugin_slug . '_activated' );
+		}
+		return parent::do_product_specific_activation( $current_result, $local );
+	}
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
 	 */
 	public static $category = 'security';
-
-	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
 
 	/**
 	 * Whether this product requires a user connection
@@ -243,9 +301,13 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
+	 * @deprecated 6.10.0
+	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array(
 			array(
 				'name'  => __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
@@ -404,6 +466,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
 	 *
 	 * @return boolean
@@ -429,8 +500,115 @@ class Protect extends Hybrid_Product {
 	public static function get_post_checkout_urls_by_feature() {
 		return array(
 			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
-			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+			self::FIREWALL_FEATURE_SLUG => self::get_firewall_settings_url(),
 		);
+	}
+
+	/**
+	 * Where each Jetpack security module's settings live while the Protect package's dashboard is the Protect page.
+	 *
+	 * Screens that would offer one of these settings link there instead.
+	 *
+	 * @since 6.12.0
+	 *
+	 * @return array<string, string> Settings URLs keyed by module slug; empty without the dashboard.
+	 */
+	public static function get_protect_page_module_urls() {
+		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
+		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
+		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
+			return array();
+		}
+
+		return (array) $dashboard::get_module_settings_urls();
+	}
+
+	/**
+	 * The firewall's settings: the Protect page's Firewall card, or the standalone plugin's Firewall screen.
+	 *
+	 * @return string
+	 */
+	private static function get_firewall_settings_url() {
+		return self::get_protect_page_module_urls()['waf'] ?? admin_url( 'admin.php?page=jetpack-protect#/firewall' );
+	}
+
+	/**
+	 * Whether wp-admin has a Protect page, from the standalone plugin or the Protect package's dashboard.
+	 *
+	 * @since 6.11.0
+	 *
+	 * @return bool
+	 */
+	public static function has_protect_page() {
+		return static::is_standalone_plugin_active() || (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Get the product info, with whether the Protect page exists and where Scan's results are listed.
+	 *
+	 * @return array
+	 */
+	public static function get_info() {
+		return array_merge(
+			parent::get_info(),
+			array(
+				'has_protect_page' => static::has_protect_page(),
+				'scan_results_url' => static::get_manage_url(),
+			)
+		);
+	}
+
+	/**
+	 * Where the card's upgrade goes: a host's plans when it sends them, else the Protect interstitial.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		if ( static::has_paid_plan_for_product() ) {
+			return parent::get_purchase_url();
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			false
+		);
+
+		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
+
+		return $url ? $url : parent::get_purchase_url();
+	}
+
+	/**
+	 * Where a host has a paying site manage Scan, so the card, Scan results and Features tab agree.
+	 *
+	 * @return string The host's URL, or an empty string when the host sends none.
+	 */
+	private static function get_host_manage_url() {
+		// The standalone plugin's own page keeps the card, as its menu entry does on WoA.
+		if ( static::is_standalone_plugin_active() || ! static::has_paid_plan_for_product() ) {
+			return '';
+		}
+
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '/add-protect',
+				'name'     => 'Jetpack Scan', // Product name, do not translate.
+				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
+			),
+			'protect-dashboard',
+			true
+		);
+
+		return is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['manage_url'] ?? '' ) ) : '';
 	}
 
 	/**
@@ -439,7 +617,12 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		$host_url = static::get_host_manage_url();
+		if ( $host_url ) {
+			return $host_url;
+		}
+
+		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}
@@ -461,7 +644,7 @@ class Protect extends Hybrid_Product {
 	public static function get_manage_urls_by_feature() {
 		return array(
 			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
-			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+			self::FIREWALL_FEATURE_SLUG => self::get_firewall_settings_url(),
 		);
 	}
 
@@ -483,14 +666,16 @@ class Protect extends Hybrid_Product {
 	public static function get_site_protect_data() {
 		$scan_data = Protect_Status::get_status();
 
-		$waf_config     = array();
-		$waf_supported  = false;
-		$is_waf_enabled = false;
+		$waf_config          = array();
+		$waf_supported       = false;
+		$is_waf_enabled      = false;
+		$is_provided_by_host = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			$waf_config     = Waf_Runner::get_config();
-			$is_waf_enabled = Waf_Runner::is_enabled();
-			$waf_supported  = Waf_Runner::is_supported_environment();
+			$waf_config          = Waf_Runner::get_config();
+			$is_waf_enabled      = Waf_Runner::is_enabled();
+			$waf_supported       = Waf_Runner::is_supported_environment();
+			$is_provided_by_host = method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host();
 		}
 
 		return rest_ensure_response(
@@ -499,8 +684,9 @@ class Protect extends Hybrid_Product {
 				'wafConfig' => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
-						'waf_supported' => $waf_supported,
-						'waf_enabled'   => $is_waf_enabled,
+						'waf_supported'        => $waf_supported,
+						'waf_enabled'          => $is_waf_enabled,
+						'waf_provided_by_host' => $is_provided_by_host,
 					),
 					array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 				),

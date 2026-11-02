@@ -25,8 +25,7 @@ import { buildMetricTab, type MetricTab } from '@jetpack-premium-analytics/widge
 
 /**
  * Bucket size the chart draws. Sent to the visits endpoint as its `unit`; which
- * one applies comes from the dashboard's interval control, along with the range
- * and comparison.
+ * one applies comes from the widget's own interval control, clamped to the range.
  */
 export type TrafficPeriod = TrafficChartGranularity;
 
@@ -121,6 +120,9 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
+	// Both requests cover the same periods.
+	const { periodStarts } = viewsVisitors;
+
 	// Gate the error per query so a failed one surfaces beside the other's populated
 	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
 	const viewsVisitorsFailed = viewsVisitors.isError && ! vvPrimary?.data?.length;
@@ -137,7 +139,8 @@ export default function useTrafficChart(
 				vvZone,
 				vvHasComparison
 					? { views: vvComparison, posts: lcHasComparison ? lcComparison : undefined }
-					: undefined
+					: undefined,
+				periodStarts
 			),
 		[
 			vvPrimary,
@@ -148,6 +151,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			isHourly,
+			periodStarts,
 		]
 	);
 
@@ -167,6 +171,7 @@ export default function useTrafficChart(
 						label: metric.label,
 						countLabel: metric.countLabel,
 						zone: isFirst ? vvZone : lcZone,
+						periodStarts,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
@@ -202,6 +207,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			lcZone,
+			periodStarts,
 		]
 	);
 

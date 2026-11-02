@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Activity Log: Link backups to that backup in the Backup dashboard, which now opens any backup from a link, not only those on the activity page it shows. Backups that finished with warnings can now be opened and restored there too.

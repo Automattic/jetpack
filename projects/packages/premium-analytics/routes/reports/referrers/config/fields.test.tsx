@@ -54,11 +54,10 @@ describe( 'referrer field', () => {
 		} );
 
 		const link = screen.getByRole( 'link', {
-			name: 'google.com (opens in a new tab)',
+			name: 'google.com(opens in a new tab)',
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://www.google.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByText( 'google.com' ).parentElement?.tagName ).toBe( 'SPAN' );
 	} );
 

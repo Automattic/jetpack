@@ -1,5 +1,5 @@
 {
-	"description": "What text and each element need to be readable on a background: WPCOM_Email_Style_Manager::readable_text() and readable_element() on the renderer, and the design editor's port when a creator picks a background or clears a color. `readable` null means the color is kept; a null text `color` means there is none. `elements` is the list both manage. Change both copies together.",
+	"description": "What text and each element need to be readable on a background: WPCOM_Email_Style_Manager::readable_text() and readable_element() on the renderer (`button` is readable_text() applied to button text against the button's own background), and the design editor's port when a creator picks a background or clears a color. `readable` null means the color is kept; a null text `color` means there is none. `elements` is the list both manage. Change both copies together.",
 	"minimumContrast": 4.5,
 	"elements": [ "link", "heading", "h1", "h2", "h3", "h4", "h5", "h6" ],
 	"cases": [
@@ -172,6 +172,38 @@
 		{
 			"color": null,
 			"background": "var(--wp--preset--color--base)",
+			"readable": null
+		}
+	],
+	"button": [
+		{
+			"color": "#ffffff",
+			"background": "#dcdcdc",
+			"readable": "#262626"
+		},
+		{
+			"color": "#101517",
+			"background": "#113af5",
+			"readable": "#e7ebfe"
+		},
+		{
+			"color": "#ffffff",
+			"background": "#113af5",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "#dcdcdc",
+			"readable": "#262626"
+		},
+		{
+			"color": "var(--wp--preset--color--contrast)",
+			"background": "#dcdcdc",
+			"readable": null
+		},
+		{
+			"color": "#ffffff",
+			"background": "var(--wp--preset--color--accent)",
 			"readable": null
 		}
 	]

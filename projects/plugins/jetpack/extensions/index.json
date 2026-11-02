@@ -2,6 +2,7 @@
 	"production": [
 		"ai-assistant",
 		"ai-chat",
+		"subscriptions",
 		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
@@ -13,6 +14,7 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
+		"featured-image-duplicate",
 		"field-file",
 		"gif",
 		"google-calendar",
@@ -42,7 +44,6 @@
 		"slideshow",
 		"story",
 		"subscriber-login",
-		"subscriptions",
 		"tiled-gallery",
 		"tock",
 		"videopress",

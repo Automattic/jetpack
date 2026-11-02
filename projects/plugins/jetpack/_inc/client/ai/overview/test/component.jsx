@@ -276,6 +276,29 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
+	test( 'activity log: promises AI agent actions when the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'activity log: describes all actions when the link is not filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered={ false } /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Review recent actions taken by AI agents on your site.' )
+		).not.toBeInTheDocument();
+	} );
+
 	test( 'activity log: absent without the MCP preconditions', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -439,7 +462,27 @@ describe( 'AiOverview', () => {
 		] );
 	} );
 
+	test( 'tracks: an Activity log click records whether the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Activity log/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'activity_log',
+				link: 'activity_log',
+				filtered: 'true',
+			},
+		] );
+	} );
+
 	test( 'tracks: a quick start card click records the connector slug', async () => {
+		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -458,6 +501,7 @@ describe( 'AiOverview', () => {
 	} );
 
 	test( 'quick start: renders the two connector cards through the redirect service', async () => {
+		window.jetpackAiSettings.isSelfHosted = true;
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -469,19 +513,38 @@ describe( 'AiOverview', () => {
 		// The frame's Quick start row: Connect ChatGPT / Connect Claude, each a
 		// nav row whose destination lives in the redirect service.
 		const slugByName = {
-			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',
-			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt',
+			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
+			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		};
 		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
 			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
-			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+			expect( card ).toHaveAttribute( 'href', expect.stringMatching( `source=${ slug }(&|$)` ) );
 		}
 		expect(
 			screen.getByText( 'Give Claude access to your site by installing the connector.' )
 		).toBeInTheDocument();
 		expect(
-			screen.getByText( 'Give ChatGPT access to your site by installing the connector.' )
+			screen.getByText( 'Give ChatGPT access to your site by installing the plugin.' )
 		).toBeInTheDocument();
+	} );
+
+	test( 'quick start: WordPress.com sites keep the WordPress.com links', async () => {
+		window.jetpackAiSettings.isSelfHosted = false;
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		for ( const client of [ 'ChatGPT', 'Claude' ] ) {
+			expect(
+				screen.getByRole( 'link', { name: new RegExp( `Connect ${ client }` ) } )
+			).toHaveAttribute(
+				'href',
+				expect.stringMatching(
+					`source=jetpack-ai-hub-overview-quick-start-${ client.toLowerCase() }(&|$)`
+				)
+			);
+		}
 	} );
 
 	test( 'quick start: each card opens in a new tab and says so', async () => {

@@ -1,17 +1,9 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
 /** Which count and rate each row shows. Rows stay in newest-first order either way. */
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
- * Configurable attributes for the Emails widget. Mirrors the `attributes`
- * declared on the widget definition below; the host passes the selected values
- * through to `render.tsx`.
+ * Configurable attributes for the Emails widget. Mirrors the `attributes` in
+ * `widget.json`; the host passes the selected values through to `render.tsx`.
  */
 export type EmailsAttributes = {
 	metric?: EmailMetric;
@@ -23,25 +15,6 @@ export type EmailsAttributes = {
  * comparison period.
  */
 export default {
-	icon: envelope,
-	attributes: [
-		{
-			id: 'metric',
-			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/select',
-			elements: [
-				{
-					label: __( 'Opened', 'jetpack-premium-analytics-pkg' ),
-					value: 'opens',
-				},
-				{
-					label: __( 'Clicked', 'jetpack-premium-analytics-pkg' ),
-					value: 'clicks',
-				},
-			],
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< EmailsAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',

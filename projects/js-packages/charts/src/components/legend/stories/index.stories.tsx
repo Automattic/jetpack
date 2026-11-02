@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Button } from '@wordpress/components';
 import { Stack } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { BarChart } from '../../../charts/bar-chart';
 import { LineChart } from '../../../charts/line-chart';
 import { PieChart } from '../../../charts/pie-chart';
@@ -245,6 +245,72 @@ export const ProgrammaticVisibility: Story = {
 	render: () => <ProgrammaticVisibilityComponent />,
 };
 
+const PREVIOUS_PERIOD_COLOR = '#757575';
+const PREVIOUS_PERIOD_VALUES = [
+	[ 90, 120, 130 ],
+	[ 70, 85, 80 ],
+];
+const previousPeriodData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
+	label: `${ series.label } (previous period)`,
+	data: series.data.map( ( point, pointIndex ) => ( {
+		...point,
+		value: PREVIOUS_PERIOD_VALUES[ index ][ pointIndex ],
+	} ) ),
+	options: {
+		stroke: PREVIOUS_PERIOD_COLOR,
+		seriesLineStyle: { strokeDasharray: '4 4' },
+	},
+} ) );
+
+const ControlledItemComponent = () => {
+	const [ showPrevious, setShowPrevious ] = useState( false );
+	const togglePrevious = useCallback( () => setShowPrevious( current => ! current ), [] );
+	const { getElementStyles } = useGlobalChartsContext();
+
+	return (
+		<Stack direction="column" gap="md">
+			<LineChart
+				chartId="controlled-item-demo"
+				data={ showPrevious ? [ ...lineChartData, ...previousPeriodData ] : lineChartData }
+				showLegend={ false }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+			/>
+			<Legend
+				chartId="controlled-item-demo"
+				interactive
+				shape="line"
+				items={ [
+					...lineChartData.map( ( series, index ) => ( {
+						label: series.label,
+						color: getElementStyles( { index, data: series } ).color,
+					} ) ),
+					{
+						label: 'Previous period',
+						color: PREVIOUS_PERIOD_COLOR,
+						shapeStyle: { strokeDasharray: '4 4' },
+						pressed: showPrevious,
+						onToggle: togglePrevious,
+					},
+				] }
+			/>
+		</Stack>
+	);
+};
+
+export const ControlledItem: Story = {
+	render: () => <ControlledItemComponent />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Previous period item is not a series. It reports its pressed state and calls `onToggle` instead of changing series visibility, so the consumer decides what it controls: here, whether the dashed previous-period lines are passed to the chart.',
+			},
+		},
+	},
+};
+
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
@@ -479,6 +545,55 @@ export const ComparisonItem: Story = {
 			description: {
 				story:
 					'The comparison item deliberately shares the metric label. Only the solid metric item toggles the two series; the dashed comparison item stays visible.',
+			},
+		},
+	},
+};
+
+export const ComparisonSeriesItems: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 90 },
+						{ date: new Date( '2023-01-02' ), value: 110 },
+						{ date: new Date( '2023-01-03' ), value: 130 },
+					],
+				},
+				{ ...lineChartData[ 1 ], group: 'mobile' },
+				{
+					label: 'Previous mobile',
+					group: 'mobile',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 70 },
+						{ date: new Date( '2023-01-02' ), value: 95 },
+						{ date: new Date( '2023-01-03' ), value: 85 },
+					],
+				},
+			] }
+			legend={ {
+				collapseGroups: true,
+				comparisonSeriesItems: label => `${ label } (Prev. period)`,
+				interactive: true,
+			} }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each metric gets its own static comparison item, named by `legend.comparisonSeriesItems`. Hiding **Mobile** also removes **Mobile (Prev. period)**.',
 			},
 		},
 	},

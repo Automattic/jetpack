@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Allow product descriptions up to PayPal's real 2048-character limit, instead of cutting them off at 256.

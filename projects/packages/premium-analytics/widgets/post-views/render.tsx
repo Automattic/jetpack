@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -27,11 +27,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type PostViewsRenderAttributes = PostViewsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostViewsWidgetProps = WidgetRenderProps< PostViewsRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 type PostViewsInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
@@ -84,7 +79,6 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its views here.',
 						'jetpack-premium-analytics-pkg'
@@ -96,9 +90,11 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					chartTitle={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>

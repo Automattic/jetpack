@@ -17,8 +17,13 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import type { PostingActivityAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Monthly posting activity widget has no configurable settings: it always shows the
+ * last 12 months.
+ */
+export type PostingActivityAttributes = Record< never, never >;
 
 // The card reports on its own pinned window and reads nothing from the host's
 // `reportParams`, but the host still injects them and `WidgetRoot` still takes
@@ -70,8 +75,6 @@ function PostingActivityInner() {
 			// The query keeps the previous response via `placeholderData`, so only
 			// surface the error when there is nothing to show.
 			isError={ isError && ! data }
-			// A year without posts is still a calendar, drawn with every day empty.
-			isEmpty={ false }
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load posting activity. Please try again in a moment.",
@@ -84,7 +87,7 @@ function PostingActivityInner() {
 			<MonthCalendarHeatmap
 				valueByDay={ postsByDay }
 				range={ range }
-				ariaLabel={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
+				chartTitle={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ formatPostCount }
 				emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
 				icon={ postContent }
@@ -95,6 +98,10 @@ function PostingActivityInner() {
 	);
 }
 
+/**
+ * Ported from the Jetpack Stats "Posting activity" module: one mini calendar per
+ * month of the last 12, shaded by the posts published each day.
+ */
 export default function PostingActivity( { attributes = {} }: PostingActivityWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

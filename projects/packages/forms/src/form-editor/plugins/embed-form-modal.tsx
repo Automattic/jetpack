@@ -337,34 +337,49 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 					) }
 					{ step === 'copied' && (
 						<>
-							<Input
-								readOnly
-								value={ embedCode }
-								className="jetpack-form-embed-form__code-input"
-								suffix={
-									<InputLayout.Slot padding="minimal">
-										<CopyClipboardButton
-											text={ embedCode }
-											copyMessage={ __( 'Copy embed code', 'jetpack-forms' ) }
-											copiedMessage={ __( 'Embed code copied!', 'jetpack-forms' ) }
-										/>
-									</InputLayout.Slot>
-								}
-							/>
-							<Input
-								readOnly
-								value={ shortcode }
-								className="jetpack-form-embed-form__code-input"
-								suffix={
-									<InputLayout.Slot padding="minimal">
-										<CopyClipboardButton
-											text={ shortcode }
-											copyMessage={ __( 'Copy shortcode', 'jetpack-forms' ) }
-											copiedMessage={ __( 'Shortcode copied!', 'jetpack-forms' ) }
-										/>
-									</InputLayout.Slot>
-								}
-							/>
+							<Field.Root>
+								<Field.Label>{ __( 'Embed code', 'jetpack-forms' ) }</Field.Label>
+								<Input
+									readOnly
+									value={ embedCode }
+									className="jetpack-form-embed-form__code-input"
+									suffix={
+										<InputLayout.Slot padding="minimal">
+											<CopyClipboardButton
+												text={ embedCode }
+												copyMessage={ __( 'Copy embed code', 'jetpack-forms' ) }
+												copiedMessage={ __( 'Embed code copied!', 'jetpack-forms' ) }
+											/>
+										</InputLayout.Slot>
+									}
+								/>
+								<Field.Description>
+									{ __( 'Paste into the block editor or code editor.', 'jetpack-forms' ) }
+								</Field.Description>
+							</Field.Root>
+							<Field.Root>
+								<Field.Label>{ __( 'Shortcode', 'jetpack-forms' ) }</Field.Label>
+								<Input
+									readOnly
+									value={ shortcode }
+									className="jetpack-form-embed-form__code-input"
+									suffix={
+										<InputLayout.Slot padding="minimal">
+											<CopyClipboardButton
+												text={ shortcode }
+												copyMessage={ __( 'Copy shortcode', 'jetpack-forms' ) }
+												copiedMessage={ __( 'Shortcode copied!', 'jetpack-forms' ) }
+											/>
+										</InputLayout.Slot>
+									}
+								/>
+								<Field.Description>
+									{ __(
+										'Use in the classic editor, widgets, or anywhere shortcodes are supported.',
+										'jetpack-forms'
+									) }
+								</Field.Description>
+							</Field.Root>
 							<HStack spacing={ 3 }>
 								<Button
 									variant="secondary"

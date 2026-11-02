@@ -23,6 +23,7 @@ vendor/wikimedia/aho-corasick/**                production-include
 /app/assets/src/**                              production-exclude
 /app/modules/**/src/**                          production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
+/app/modules/image-guide/dist/**/*.map          production-exclude
 /docs/**                                        production-exclude
 /.editorconfig                                  production-exclude
 /.prettierrc.js                                 production-exclude

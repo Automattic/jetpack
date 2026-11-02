@@ -1,6 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { accessOptions } from './constants';
 
@@ -34,8 +33,36 @@ export const getPaidPlanLink = alreadyHasTierPlans => {
 	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };
 
+/**
+ * Whether "Paid subscribers" can be chosen, and whether to show it disabled.
+ * Shared by the Content access panel and the paywall block toolbar so they never disagree.
+ *
+ * @param {object}      props                  - Props.
+ * @param {string|null} props.stripeConnectUrl - Stripe connect URL, null once connected.
+ * @param {boolean}     props.hasTierPlans     - Whether a newsletter tier exists.
+ * @param {string}      [props.accessLevel]    - The post's saved access level; omit to get only isPaidAvailable.
+ * @param {boolean}     [props.isLoading]      - Whether the memberships status is still loading.
+ * @return {{isPaidAvailable: boolean, showPaidAsDisabled: boolean, showSetupPrompt: boolean}} Paid option state.
+ */
+export const getPaidAccessState = ( {
+	stripeConnectUrl,
+	hasTierPlans,
+	accessLevel,
+	isLoading = false,
+} ) => {
+	const isPaidAvailable = stripeConnectUrl === null && hasTierPlans;
+	// Keep the option selectable when it is already the saved value, so a post set to
+	// paid before Stripe was disconnected does not end up with nothing selected.
+	const showPaidAsDisabled =
+		! isPaidAvailable && accessLevel !== accessOptions.paid_subscribers.key;
+	// While the status is still loading the option stays disabled, but "not known yet" must
+	// not be presented as "not set up", so the setup prompt waits for the status.
+	const showSetupPrompt = showPaidAsDisabled && ! isLoading;
+	return { isPaidAvailable, showPaidAsDisabled, showSetupPrompt };
+};
+
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {
-	return postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
+	return postVisibility === 'private' && accessLevel !== accessOptions.everybody.key;
 };
 
 export const MisconfigurationWarning = () => (
@@ -44,14 +71,9 @@ export const MisconfigurationWarning = () => (
 		isDismissible={ false }
 		className="edit-post-post-misconfiguration__warning"
 	>
-		{ createInterpolateElement(
-			__(
-				'You’ll need to change the post’s access to Everybody or visibility to Public.<br/>' +
-					'<br/>' +
-					'Subscribers aren’t able to view private or password-protected posts.',
-				'jetpack'
-			),
-			{ br: <br /> }
+		{ __(
+			'Subscribers aren’t able to view private posts. To let them read it, change its visibility to Public or Password protected.',
+			'jetpack'
 		) }
 	</Notice>
 );

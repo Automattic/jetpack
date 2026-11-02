@@ -76,7 +76,7 @@ describe( 'PricingUpsell', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockRun = jest.fn();
-		mockRegisterSite = jest.fn();
+		mockRegisterSite = jest.fn().mockResolvedValue( undefined );
 		mockCheckoutWorkflow.mockReturnValue( { run: mockRun, hasCheckoutStarted: false } );
 		mockUseConnection.mockReturnValue( {
 			handleRegisterSite: mockRegisterSite,
@@ -130,6 +130,17 @@ describe( 'PricingUpsell', () => {
 				content: 'Checkout could not start. Please try again.',
 			} ),
 		] );
+	} );
+
+	it( 'explains why registering the site failed', () => {
+		mockUseConnection.mockReturnValue( {
+			handleRegisterSite: mockRegisterSite,
+			userIsConnecting: false,
+			registrationError: { response: { code: 'site_inaccessible_403', message: 'Blocked.' } },
+		} );
+		render( <PricingUpsell /> );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /blocked WordPress\.com/ );
 	} );
 
 	it( 'renders nothing when pricing data is absent', () => {

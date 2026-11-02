@@ -95,13 +95,12 @@ class Services_Config_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A site that has never saved placement still shows buttons somewhere, so
-	 * the defaults are what gets carried through rather than an empty list.
+	 * A site that has never saved placement keeps it unsaved, so each feature still applies its own default.
 	 */
-	public function test_services_save_carries_the_defaults_when_placement_was_never_saved(): void {
+	public function test_services_save_leaves_out_a_placement_that_was_never_saved(): void {
 		$saved = $this->submit_services_form( array( 'button_style' => 'icon' ) );
 
-		$this->assertSame( array( 'post', 'page' ), $saved['show'] );
+		$this->assertArrayNotHasKey( 'show', $saved );
 	}
 
 	/**
@@ -118,6 +117,14 @@ class Services_Config_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( 'page' ), $saved['show'] );
+	}
+
+	public function test_services_save_keeps_the_stored_open_links(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'open_links' => 'new' ) ) );
+
+		$saved = $this->submit_services_form( array( 'button_style' => 'icon' ) );
+
+		$this->assertSame( 'new', $saved['open_links'] );
 	}
 
 	/**

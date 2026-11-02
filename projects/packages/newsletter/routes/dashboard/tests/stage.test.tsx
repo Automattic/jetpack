@@ -16,6 +16,8 @@ const mockSearch = jest.fn< { tab?: string }, [] >();
 const mockIsSimpleSite = jest.fn< boolean, [] >();
 const mockConnection = jest.fn< Record< string, unknown >, [] >();
 const mockGetNewsletterScriptData = jest.fn();
+let mockOnDirtyChange: ( ( dirty: boolean ) => void ) | undefined;
+let mockHasUnsavedChanges: boolean | undefined;
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -90,23 +92,22 @@ jest.mock( '../../../src/settings/newsletter-settings', () => ( {
 	NewsletterSettingsBody: ( {
 		hasConnectedOwner,
 		connectUrl,
+		onDirtyChange,
 	}: {
 		hasConnectedOwner?: boolean;
 		connectUrl?: string;
-	} ) =>
-		hasConnectedOwner === false ? (
+		onDirtyChange?: ( dirty: boolean ) => void;
+	} ) => {
+		mockOnDirtyChange = onDirtyChange;
+		return hasConnectedOwner === false ? (
 			<div data-testid="settings-owner-warning" data-connect-url={ connectUrl } />
-		) : null,
+		) : null;
+	},
 } ) );
 
 jest.mock( '../components/overview-body', () => ( {
 	__esModule: true,
-	default: () => null,
-} ) );
-
-jest.mock( '../components/subscriber-stats-chart', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="subscriber-stats-chart" />,
+	default: () => <div data-testid="overview-body" />,
 } ) );
 
 jest.mock( '../../../src/settings/script-data', () => ( {
@@ -118,7 +119,16 @@ jest.mock( '../../../src/settings/script-data', () => ( {
 // shell's tab nav, AdminPage wiring, or SCSS imports.
 jest.mock( '../../../_inc/components/newsletter-page', () => ( {
 	__esModule: true,
-	default: ( { children }: { children: React.ReactNode } ) => <>{ children }</>,
+	default: ( {
+		children,
+		hasUnsavedChanges,
+	}: {
+		children: React.ReactNode;
+		hasUnsavedChanges?: boolean;
+	} ) => {
+		mockHasUnsavedChanges = hasUnsavedChanges;
+		return <>{ children }</>;
+	},
 } ) );
 
 // SCSS side-effect imports — no-op in jest.
@@ -126,7 +136,7 @@ jest.mock( '../../../src/settings/style.scss', () => ( {} ), { virtual: true } )
 jest.mock( '../route.scss', () => ( {} ), { virtual: true } );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { stage as Stage } from '../stage';
 
@@ -153,6 +163,8 @@ beforeEach( () => {
 		handleRegisterSite: jest.fn(),
 	} );
 	mockImportRefreshEnabled = undefined;
+	mockOnDirtyChange = undefined;
+	mockHasUnsavedChanges = undefined;
 } );
 
 const connected = {
@@ -219,7 +231,7 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		} );
 	} );
 
-	it( 'records the Stats tab without a previous tab when the route deep-links to ?tab=stats', () => {
+	it( 'records an old ?tab=stats link as the Overview tab', () => {
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
 		render( <Stage /> );
@@ -227,7 +239,7 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
 			site_type: 'jetpack',
-			tab: 'stats',
+			tab: 'overview',
 		} );
 	} );
 
@@ -308,14 +320,25 @@ describe( 'Newsletter dashboard Stage Settings owner warning', () => {
 		);
 	} );
 
-	it( 'does not warn when the owner is connected', () => {
-		mockConnection.mockReturnValue( connected );
-		mockSearch.mockReturnValue( { tab: 'settings' } );
+	it.each( [ true, false ] )(
+		'forwards dirty state from connected Settings when subscriber management is %s',
+		subscriberManagementEnabled => {
+			mockConnection.mockReturnValue( connected );
+			mockSearch.mockReturnValue( { tab: 'settings' } );
+			mockGetNewsletterScriptData.mockReturnValue( { subscriberManagementEnabled } );
 
-		render( <Stage /> );
+			render( <Stage /> );
 
-		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+			expect( mockHasUnsavedChanges ).toBe( false );
+
+			act( () => mockOnDirtyChange?.( true ) );
+			expect( mockHasUnsavedChanges ).toBe( true );
+
+			act( () => mockOnDirtyChange?.( false ) );
+			expect( mockHasUnsavedChanges ).toBe( false );
+		}
+	);
 
 	it( 'does not warn on a Simple site even without a Jetpack connection', () => {
 		mockIsSimpleSite.mockReturnValue( true );
@@ -357,34 +380,22 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 	} );
 } );
 
-describe( 'Newsletter dashboard Stage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so it must stay
-	// unreachable — not just hidden from nav — while the shared Overview flag
-	// that also gates it is off. Stats is a temporary standalone page that
-	// shares Overview's flag rather than getting its own.
-	it( 'does not render the Stats panel when overviewEnabled is false, even via ?tab=stats', () => {
+describe( 'Newsletter dashboard Stage old Stats links', () => {
+	// Stats now lives in the Overview tab, which exposes real subscriber data, so an old ?tab=stats
+	// link must stay behind the Overview flag.
+	it.each( [
+		[ 'opens the Overview', true, true ],
+		[ 'does not open the Overview while its flag is off', false, false ],
+	] )( '%s for ?tab=stats', ( _, overviewEnabled, shown ) => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: false,
+			overviewEnabled,
 			tracksUserData: { userid: 1, username: 'tester' },
 		} );
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
 		render( <Stage /> );
 
-		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the Stats panel when overviewEnabled is true and the route deep-links to ?tab=stats', () => {
-		mockGetNewsletterScriptData.mockReturnValue( {
-			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			tracksUserData: { userid: 1, username: 'tester' },
-		} );
-		mockSearch.mockReturnValue( { tab: 'stats' } );
-
-		render( <Stage /> );
-
-		expect( screen.getByTestId( 'subscriber-stats-chart' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'overview-body' ) !== null ).toBe( shown );
 	} );
 } );

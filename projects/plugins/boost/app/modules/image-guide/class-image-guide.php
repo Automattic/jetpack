@@ -37,7 +37,7 @@ class Image_Guide implements Feature {
 
 	public function enqueue_assets() {
 		$asset = file_exists( $this->asset_file ) ? require $this->asset_file : array(
-			'dependencies' => array( 'wp-data', 'wp-i18n', 'wp-polyfill' ),
+			'dependencies' => array( 'react', 'react-dom', 'react-jsx-runtime', 'wp-data', 'wp-i18n', 'wp-polyfill' ),
 			'version'      => JETPACK_BOOST_VERSION,
 		);
 		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.js', __FILE__ ), $asset['dependencies'], $asset['version'], true );

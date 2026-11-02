@@ -257,6 +257,23 @@ describe( 'useChartLegendItems', () => {
 				data: [ { label: 'Mon', value: 90 } ],
 			},
 		];
+		const twoMetricData: SeriesData[] = [
+			{ label: 'Views', group: 'views', data: [ { label: 'Mon', value: 100 } ] },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 90 } ],
+			},
+			{ label: 'Visitors', group: 'visitors', data: [ { label: 'Mon', value: 50 } ] },
+			{
+				label: 'Visitors — previous',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: [ { label: 'Mon', value: 40 } ],
+			},
+		];
+		const perMetricLabel = ( metric: string ) => `${ metric } (Prev. 7 days)`;
 
 		test( 'is off by default', () => {
 			const { result } = renderHook(
@@ -300,14 +317,57 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Previous period' ] );
 		} );
 
-		test( 'adds nothing when the comparison series already has its own item', () => {
+		test( 'names one static item per compared metric with comparisonSeriesItems', () => {
 			const { result } = renderHook(
-				() => useChartLegendItems( comparisonData, { comparisonItem: true } ),
+				() =>
+					useChartLegendItems(
+						twoMetricData,
+						{ collapseGroups: true, comparisonSeriesItems: perMetricLabel },
+						'line'
+					),
 				{ wrapper }
 			);
 
-			expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Views — previous' ] );
+			expect( result.current.map( item => item.label ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Views (Prev. 7 days)',
+				'Visitors (Prev. 7 days)',
+			] );
+			expect(
+				result.current.slice( 2 ).map( ( { interactive, describesSeries } ) => ( {
+					interactive,
+					describesSeries,
+				} ) )
+			).toEqual( [
+				{ interactive: false, describesSeries: 'Views — previous' },
+				{ interactive: false, describesSeries: 'Visitors — previous' },
+			] );
+			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+			expect( result.current[ 3 ].color ).toBe( result.current[ 1 ].color );
 		} );
+
+		test.each( [
+			[
+				'comparisonItem',
+				comparisonData,
+				{ comparisonItem: true },
+				[ 'Views', 'Views — previous' ],
+			],
+			[
+				'comparisonSeriesItems',
+				twoMetricData,
+				{ comparisonSeriesItems: perMetricLabel },
+				[ 'Views', 'Views — previous', 'Visitors', 'Visitors — previous' ],
+			],
+		] )(
+			'adds nothing for %s when the comparison series already has its own item',
+			( _name, data, options, expected ) => {
+				const { result } = renderHook( () => useChartLegendItems( data, options ), { wrapper } );
+
+				expect( result.current.map( item => item.label ) ).toEqual( expected );
+			}
+		);
 
 		test( 'styles a current-period series by its own line styles, not the theme index', () => {
 			const theme = {
@@ -359,6 +419,26 @@ describe( 'useChartLegendItems', () => {
 			] );
 			expect( result.current[ 0 ].color ).not.toBe( result.current[ 1 ].color );
 			expect( result.current[ 2 ].color ).toBe( result.current[ 0 ].color );
+		} );
+
+		test( 'colors each swatch, comparison items included, from seriesColors by series index', () => {
+			const seriesColors = [ '#111111', '#222222', '#333333', '#444444' ];
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( twoMetricData, {
+						collapseGroups: true,
+						comparisonSeriesItems: perMetricLabel,
+						seriesColors,
+					} ),
+				{ wrapper }
+			);
+
+			expect( result.current.map( item => item.color ) ).toEqual( [
+				'#111111',
+				'#333333',
+				'#222222',
+				'#444444',
+			] );
 		} );
 
 		test( 'adds nothing when no series is a comparison', () => {

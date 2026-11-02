@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import { getLaunchSiteUrl } from '../../../common/launch-site-url';
 import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
 import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
@@ -48,13 +48,11 @@ const LaunchSite = ( {
 	const isAnyComingSoonEnabled =
 		( 0 === blogPublic && wpcomPublicComingSoon ) || isPrivateAndUnlaunched || wpcomComingSoon;
 
-	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-		siteSlug: new URL( homeUrl ).host,
+	const launchUrl = getLaunchSiteUrl( new URL( homeUrl ).host, window.location.href, {
 		source: 'options-reading.php',
 		new: siteTitle,
 		search: 'yes',
 		ref: 'wp-admin/options-reading.php',
-		back_to: window.location.href,
 	} );
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;

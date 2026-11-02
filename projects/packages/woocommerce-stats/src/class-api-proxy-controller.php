@@ -18,11 +18,12 @@ use WP_REST_Server;
 /**
  * Serves `/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>`: a read of the same
  * path under the connected site on WordPress.com, signed with the blog token and cached briefly.
+ * Reports follow the store's WooCommerce Analytics date type unless the request names one.
  *
  * For now it carries its own forward. The route has the shape of the proxy controller the
  * connection package is getting, so this class can shrink to a registration on it.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Api_Proxy_Controller {
 
@@ -40,6 +41,11 @@ class Api_Proxy_Controller {
 	 * How long a successful response stays cached.
 	 */
 	private const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Option holding the cache generation, part of every cache key.
+	 */
+	private const CACHE_GENERATION_OPTION = 'jetpack_woocommerce_stats_proxy_cache_generation';
 
 	/**
 	 * Timeout of the request to WordPress.com, in seconds.
@@ -75,6 +81,17 @@ class Api_Proxy_Controller {
 	}
 
 	/**
+	 * Drop every cached report, such as the empty ones WordPress.com answers with during the
+	 * store's initial sync. Bumps the generation instead of deleting, since an object cache can't
+	 * list transients by prefix.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		update_option( self::CACHE_GENERATION_OPTION, (int) get_option( self::CACHE_GENERATION_OPTION, 0 ) + 1, false );
+	}
+
+	/**
 	 * Register the route. It only reads, and only below `analytics/reports/`.
 	 *
 	 * @return void
@@ -104,8 +121,7 @@ class Api_Proxy_Controller {
 	 * @return bool
 	 */
 	public function check_permission() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+		return Analytics_Dashboard::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -199,7 +215,10 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * The query params to forward: all but WordPress routing and the proxy's own.
+	 * The query params to forward: all but WordPress routing and the proxy's own, with the store's
+	 * date type when the caller names none.
+	 *
+	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
@@ -208,7 +227,27 @@ class Api_Proxy_Controller {
 		$params = $request->get_query_params();
 		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'] );
 
+		if ( ! isset( $params['date_type'] ) ) {
+			$params['date_type'] = $this->get_store_date_type();
+		}
+
 		return $params;
+	}
+
+	/**
+	 * The report API's name for the `woocommerce_date_type` option, defaulting to `paid` as WooCommerce does.
+	 *
+	 * @return string One of `created`, `paid`, or `completed`.
+	 */
+	private function get_store_date_type() {
+		$date_types = array(
+			'date_created'   => 'created',
+			'date_paid'      => 'paid',
+			'date_completed' => 'completed',
+		);
+		$option     = get_option( 'woocommerce_date_type' );
+
+		return is_string( $option ) && isset( $date_types[ $option ] ) ? $date_types[ $option ] : 'paid';
 	}
 
 	/**
@@ -233,7 +272,7 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Transient key of a path and its params, whatever their order.
+	 * Transient key of a path and its params, whatever their order, in the current cache generation.
 	 *
 	 * @param string $path   WordPress.com path, without the query string.
 	 * @param array  $params Forwarded query params.
@@ -242,6 +281,8 @@ class Api_Proxy_Controller {
 	private function get_cache_key( $path, array $params ) {
 		ksort( $params );
 
-		return self::CACHE_PREFIX . md5( $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = (int) get_option( self::CACHE_GENERATION_OPTION, 0 );
+
+		return self::CACHE_PREFIX . md5( $generation . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 	}
 }

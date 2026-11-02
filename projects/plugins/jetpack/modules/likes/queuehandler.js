@@ -238,6 +238,13 @@ function JetpackLikesMessageListener( event ) {
 				}
 			} );
 
+			if ( data.remainingLikesLabel ) {
+				const remaining = document.createElement( 'li' );
+				remaining.classList.add( 'wpl-likes-remaining' );
+				remaining.textContent = data.remainingLikesLabel;
+				list.append( remaining );
+			}
+
 			const positionPopup = function () {
 				const containerStyle = getComputedStyle( container );
 				const isRtl = containerStyle.direction === 'rtl';

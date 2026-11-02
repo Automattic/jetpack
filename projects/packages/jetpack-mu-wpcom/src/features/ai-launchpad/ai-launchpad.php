@@ -17,9 +17,11 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/wp-build-script-translations.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
+require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
@@ -56,15 +58,59 @@ class AI_Launchpad {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'load-index.php', array( __CLASS__, 'maybe_redirect_dashboard_to_site_setup' ) );
 
 		if ( ! self::is_ai_launchpad_request() ) {
 			return;
 		}
 
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
+
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
+	}
+
+	/**
+	 * Sends a Site Setup visit the page can't serve (done, dismissed, ineligible, not an admin) to the Dashboard
+	 * instead of core's "not allowed" screen, e.g. a refresh right after the last task or an old bookmark.
+	 *
+	 * @return never
+	 */
+	public static function redirect_to_dashboard() {
+		wp_safe_redirect( admin_url( 'index.php' ) );
+		exit;
+	}
+
+	/**
+	 * Sends an AI-built site's first Dashboard visit to Site Setup, e.g. from the builder's "Return to WP Admin".
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_dashboard_to_site_setup() {
+		if ( ! self::should_redirect_dashboard_to_site_setup() ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::MENU_SLUG ) );
+		exit;
+	}
+
+	/**
+	 * Whether this Dashboard visit goes to Site Setup: for an admin of an AI-built site where Site Setup never opened.
+	 *
+	 * Site Setup's first load records the builder's answers as the wizard option, so the redirect happens only once.
+	 *
+	 * @return bool
+	 */
+	public static function should_redirect_dashboard_to_site_setup() {
+		return ! get_option( \AI_Launchpad_REST::OPTION_WIZARD )
+			// A list without wizard answers never gets them, and a finished one hides Site Setup: both would loop.
+			&& ! get_option( \AI_Launchpad_REST::OPTION_AI_OUTPUT )
+			&& current_user_can( 'manage_options' )
+			&& self::is_eligible()
+			&& wpcom_ai_launchpad_is_ai_built();
 	}
 
 	/**
@@ -198,7 +244,7 @@ class AI_Launchpad {
 
 		// The same URL the generated route registrations use, so core resolves the same catalog names.
 		$build_constants = require $constants;
-		$translations    = wpcom_ai_launchpad_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'] );
+		$translations    = wpcom_wp_build_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'], 'site-setup' );
 
 		if ( null !== $translations ) {
 			wp_add_inline_script( $handle, $translations, 'before' );

@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
-import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
+import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -69,7 +69,6 @@ class CommentsComponent extends Component {
 				module="comments"
 				saveDisabled={ this.props.isSavingAnyOption( [
 					'highlander_comment_form_prompt',
-					'jetpack_comment_form_color_scheme',
 					'enable_blocks_comments',
 				] ) }
 			>
@@ -136,25 +135,6 @@ class CommentsComponent extends Component {
 							<span className="jp-form-setting-explanation">
 								{ __( 'A few catchy words to motivate your visitors to comment.', 'jetpack' ) }
 							</span>
-							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Color scheme', 'jetpack' ) }</span>
-								<FormSelect
-									name={ 'jetpack_comment_form_color_scheme' }
-									value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
-									disabled={
-										! isCommentsActive ||
-										commentsUnavailableInOfflineMode ||
-										this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' )
-									}
-									onChange={ this.props.onOptionChange }
-									{ ...this.props }
-									validValues={ this.props.validValues(
-										'jetpack_comment_form_color_scheme',
-										'comments'
-									) }
-									rna
-								/>
-							</FormLabel>
 						</FormFieldset>
 					</SettingsGroup>
 				) }

@@ -102,7 +102,7 @@ const NewsletterEditor = () => {
 
 	return (
 		<>
-			<SubscribePanels />
+			<SubscribePanels openPreviewModal={ () => openPreviewModal( 'newsletter_panel' ) } />
 			{ shouldShowNewsletterMenu() && (
 				<>
 					{ PluginPreviewMenuItem ? (

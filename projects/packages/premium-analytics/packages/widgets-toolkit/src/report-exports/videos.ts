@@ -36,13 +36,13 @@ export const videosCsvExporter: ReportCsvExporter<
 					? row.label
 					: __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 		},
-		{ label: __( 'Plays', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
+		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
 		{
 			label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 			getValue: row => row.impressions,
 		},
 		{
-			label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 			getValue: row => row.watch_time,
 		},
 		{

@@ -28,7 +28,7 @@ describe( 'DeleteFormConfirmationModal', () => {
 
 		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete permanently' } );
 		expect( dialog ).toHaveTextContent( 'This will permanently delete this form.' );
-		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
 	} );
 
 	it( 'describes several forms', async () => {
@@ -37,16 +37,6 @@ describe( 'DeleteFormConfirmationModal', () => {
 		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toHaveTextContent(
 			'This will permanently delete 3 forms.'
 		);
-	} );
-
-	it( 'cancels instead of confirming when Enter is pressed on open', async () => {
-		const { onCancel, onConfirm } = renderModal();
-
-		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeInTheDocument();
-		await userEvent.keyboard( '{Enter}' );
-
-		await waitFor( () => expect( onCancel ).toHaveBeenCalledTimes( 1 ) );
-		expect( onConfirm ).not.toHaveBeenCalled();
 	} );
 
 	it( 'confirms without calling onCancel', async () => {

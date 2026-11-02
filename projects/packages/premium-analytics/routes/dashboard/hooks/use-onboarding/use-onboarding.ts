@@ -8,21 +8,36 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
-import type { OnboardingDismissReason } from '@jetpack-premium-analytics/ui';
+import {
+	DASHBOARD_ONBOARDING_KEY,
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_STORE_ONBOARDING_KEY,
+} from '../constants';
+import type {
+	OnboardingDismissReason,
+	OnboardingWelcomeVariant,
+} from '@jetpack-premium-analytics/ui';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
+
+export type OnboardingFlow = OnboardingWelcomeVariant;
 
 export type OnboardingOptions = {
 	/** Whether the reader is on the surface the journey introduces; nothing opens until then. */
 	enabled: boolean;
 
-	/** Tour steps after the modal. Zero finishes the journey at Get started. */
-	stepCount?: number;
+	/** Whether the dashboard shows the WooCommerce tab, which has its own introduction. */
+	hasStoreSection?: boolean;
+
+	/** Tour steps after the modal, per journey. Zero finishes the journey at Get started. */
+	stepCounts?: Partial< Record< OnboardingFlow, number > >;
 };
 
 export type Onboarding = {
 	phase: OnboardingPhase;
+
+	/** The journey being shown, or the one about to open. */
+	flow: OnboardingFlow;
 
 	/** Zero-based tour step, meaningful while the phase is `tour`. */
 	step: number;
@@ -57,14 +72,40 @@ export function resetOnboardingForTesting() {
 }
 
 /**
+ * The journey a reader has not been through yet: the new Stats, with the
+ * WooCommerce tab when the dashboard shows it, or only the tab for a reader
+ * who already knows the new Stats.
+ *
+ * @param statsSeen       - Whether the reader has been through the Stats journey.
+ * @param storeSeen       - Whether the reader has been through the WooCommerce tab journey.
+ * @param hasStoreSection - Whether the dashboard shows the WooCommerce tab.
+ * @return The journey to show, or null when there is none left.
+ */
+function pendingFlow(
+	statsSeen: boolean,
+	storeSeen: boolean,
+	hasStoreSection: boolean
+): OnboardingFlow | null {
+	if ( ! statsSeen ) {
+		return hasStoreSection ? 'stats-and-store' : 'stats';
+	}
+
+	return hasStoreSection && ! storeSeen ? 'store' : null;
+}
+
+/**
  * Owns the onboarding journey: modal, then tour, then done. It opens once per
- * reader per site the first time the surface is ready, marking the preference
+ * reader per site the first time the surface is ready, marking the preferences
  * as it opens so the journey never comes back, and records each move to Tracks.
  *
  * @param {OnboardingOptions} options - Journey options.
- * @return The current phase and step, and the transitions the UI can trigger.
+ * @return The current phase, journey and step, and the transitions the UI can trigger.
  */
-export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): Onboarding {
+export function useOnboarding( {
+	enabled,
+	hasStoreSection = false,
+	stepCounts = {},
+}: OnboardingOptions ): Onboarding {
 	const trackEvent = useTrackEvent();
 
 	const completedAt = useSelect(
@@ -75,21 +116,42 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 			),
 		[]
 	);
+	const storeCompletedAt = useSelect(
+		select =>
+			( select( preferencesStore ) as unknown as PreferencesSelectors ).get(
+				DASHBOARD_PREFERENCES_SCOPE,
+				DASHBOARD_STORE_ONBOARDING_KEY
+			),
+		[]
+	);
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
+
+	const pending = pendingFlow( !! completedAt, !! storeCompletedAt, hasStoreSection );
 
 	const [ phase, setPhase ] = useState< OnboardingPhase >( 'closed' );
 	const [ step, setStep ] = useState( 0 );
+	// Held from the moment it opens: marking the preferences changes the pending journey.
+	const [ openedFlow, setOpenedFlow ] = useState< OnboardingFlow | null >( null );
+	const flow = openedFlow ?? pending ?? 'stats';
+	const stepCount = stepCounts[ flow ] ?? 0;
 
 	useEffect( () => {
-		if ( ! enabled || hasOpenedThisLoad || completedAt ) {
+		if ( ! enabled || hasOpenedThisLoad || ! pending ) {
 			return;
 		}
 
 		hasOpenedThisLoad = true;
+		setOpenedFlow( pending );
 		setPhase( 'modal' );
-		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_ONBOARDING_KEY, new Date().toISOString() );
-		trackEvent( 'jetpack_premium_analytics_onboarding_view' );
-	}, [ enabled, completedAt, set, trackEvent ] );
+		const now = new Date().toISOString();
+		if ( pending !== 'store' ) {
+			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_ONBOARDING_KEY, now );
+		}
+		if ( hasStoreSection ) {
+			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_STORE_ONBOARDING_KEY, now );
+		}
+		trackEvent( 'jetpack_premium_analytics_onboarding_view', { flow: pending } );
+	}, [ enabled, pending, hasStoreSection, set, trackEvent ] );
 
 	const complete = useCallback( () => {
 		setPhase( 'closed' );
@@ -97,40 +159,41 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 	}, [] );
 
 	const start = useCallback( () => {
-		trackEvent( 'jetpack_premium_analytics_onboarding_start' );
+		trackEvent( 'jetpack_premium_analytics_onboarding_start', { flow } );
 
 		if ( stepCount === 0 ) {
-			trackEvent( 'jetpack_premium_analytics_onboarding_finish' );
+			trackEvent( 'jetpack_premium_analytics_onboarding_finish', { flow } );
 			complete();
 			return;
 		}
 
 		setPhase( 'tour' );
 		setStep( 0 );
-		trackEvent( 'jetpack_premium_analytics_onboarding_step_view', { step: 1 } );
-	}, [ complete, stepCount, trackEvent ] );
+		trackEvent( 'jetpack_premium_analytics_onboarding_step_view', { flow, step: 1 } );
+	}, [ complete, flow, stepCount, trackEvent ] );
 
 	const next = useCallback( () => {
 		if ( step + 1 >= stepCount ) {
-			trackEvent( 'jetpack_premium_analytics_onboarding_finish' );
+			trackEvent( 'jetpack_premium_analytics_onboarding_finish', { flow } );
 			complete();
 			return;
 		}
 
 		setStep( step + 1 );
-		trackEvent( 'jetpack_premium_analytics_onboarding_step_view', { step: step + 2 } );
-	}, [ complete, step, stepCount, trackEvent ] );
+		trackEvent( 'jetpack_premium_analytics_onboarding_step_view', { flow, step: step + 2 } );
+	}, [ complete, flow, step, stepCount, trackEvent ] );
 
 	const dismiss = useCallback(
 		( reason: OnboardingDismissReason = 'other' ) => {
 			trackEvent( 'jetpack_premium_analytics_onboarding_dismiss', {
+				flow,
 				phase,
 				step: phase === 'tour' ? step + 1 : 0,
 				reason,
 			} );
 			complete();
 		},
-		[ complete, phase, step, trackEvent ]
+		[ complete, flow, phase, step, trackEvent ]
 	);
 
 	/*
@@ -138,7 +201,7 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 	 * anything that hides behind the journey has to know it is coming rather
 	 * than find out afterwards — a commit is long enough to paint and to count.
 	 */
-	const isOpening = enabled && ! hasOpenedThisLoad && ! completedAt;
+	const isOpening = enabled && ! hasOpenedThisLoad && !! pending;
 
-	return { phase: isOpening ? 'modal' : phase, step, start, next, dismiss };
+	return { phase: isOpening ? 'modal' : phase, flow, step, start, next, dismiss };
 }

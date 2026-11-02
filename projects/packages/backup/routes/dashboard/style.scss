@@ -32,13 +32,27 @@
 		outline: none;
 	}
 
+	// Focused only by script too, when a tap reveals the stacked detail pane.
+	h2:focus {
+		outline: none;
+	}
+
 	// At desktop widths, switch to the side-by-side activity-list + detail
 	// pane. Below this the two cells stack vertically; the grid's minimums
 	// (360px + 400px + 16px gap) would otherwise overflow the dashboard body
 	// on tablet and force horizontal scrolling.
 	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
 		grid-template-columns: minmax(360px, 1fr) minmax(400px, 1.5fr);
-		min-height: 600px;
+		grid-template-rows: minmax(0, 1fr);
+		flex: 1 1 0;
+		min-height: 400px;
+	}
+
+	// A failed log has no panes to fill the height or the second column.
+	&--failed {
+		grid-template-columns: 1fr;
+		min-height: 0;
+		flex: none;
 	}
 
 	&__detail--empty {
@@ -49,5 +63,27 @@
 		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
 		border-radius: 8px;
 		padding: 24px;
+	}
+}
+
+// From the two-column breakpoint up, the overview fills the body rather than
+// growing with its tallest pane, so each pane scrolls inside itself and the
+// list's footer stays on screen.
+@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+
+	.jpb-dashboard-body:has(.jpb-overview) {
+		display: flex;
+		flex-direction: column;
+
+		> .jpb-dashboard-body__inner {
+			display: flex;
+			flex: 1 0 auto;
+			flex-direction: column;
+		}
+	}
+
+	.jpb-overview > .jpb-backup-detail > .jpb-backup-detail__body {
+		flex: 1 1 auto;
+		overflow: auto;
 	}
 }

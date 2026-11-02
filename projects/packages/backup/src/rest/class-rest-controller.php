@@ -75,9 +75,12 @@ class Rest_Controller {
 
 		Capabilities_Bridge::register_routes();
 		Activity_Log_Bridge::register_routes();
+		Backup_Sizes_Bridge::register_routes();
 		File_Browser_Bridge::register_routes();
 		Download_Bridge::register_routes();
 		Restore_Bridge::register_routes();
+		Schedule_Bridge::register_routes();
+		Retention_Bridge::register_routes();
 	}
 
 	/**
@@ -94,6 +97,11 @@ class Rest_Controller {
 	public static function permission_check() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
+		}
+
+		$offline_mode_error = Jetpack_Backup::get_offline_mode_error();
+		if ( $offline_mode_error ) {
+			return $offline_mode_error;
 		}
 
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {

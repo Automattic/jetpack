@@ -655,7 +655,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A URL containing brackets survives the do_shortcode() pass a step's styles still
+	 * A URL containing brackets survives the apply_shortcodes() pass a step's styles still
 	 * sit in front of, instead of being stripped out of the attribute along with the
 	 * background — and without running the shortcode it looks like.
 	 */
@@ -674,7 +674,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 
 		$this->assertStringNotContainsString( '[', $result );
 		$this->assertStringContainsString( '%5Bcontact-field', $result );
-		$this->assertStringContainsString( 'background-image', do_shortcode( $result ) );
+		$this->assertStringContainsString( 'background-image', apply_shortcodes( $result ) );
 	}
 
 	/**

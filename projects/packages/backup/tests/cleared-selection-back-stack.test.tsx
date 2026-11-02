@@ -24,7 +24,6 @@ import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { stage as DownloadStage } from '../routes/download/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const PER_PAGE = 10;
@@ -146,10 +145,14 @@ function renderApp() {
  * The back link carries no search, which is what leaves the selection with no address —
  * see `screens/download.tsx`'s `<Link to="/">`.
  *
- * @param view - The app's router (a `renderApp` result), to read the address back off.
+ * @param view   - The app's router (a `renderApp` result), to read the address back off.
+ * @param expire - Remove the chosen backup while away.
  * @return The chosen row's rewind id.
  */
-async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Promise< string > {
+async function roundTripViaDownload(
+	view: ReturnType< typeof renderApp >,
+	expire = false
+): Promise< string > {
 	const chosen = rewindId( PER_PAGE - 1 );
 	await userEvent.click( await screen.findByRole( 'button', { name: named( chosen ) } ) );
 	await waitFor( () => expect( view.state.location.search ).toEqual( { selected: chosen } ) );
@@ -160,6 +163,9 @@ async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Pro
 	// One new row lands while they are away — a completed restore writes one, and so does a
 	// finished backup via `useRefreshActivityOnBackupComplete` — pushing their row onto page 2.
 	log.unshift( rewindId( -1 ) );
+	if ( expire ) {
+		log = log.filter( id => id !== chosen );
+	}
 
 	await userEvent.click( back );
 	return chosen;
@@ -168,7 +174,6 @@ async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Pro
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
-	resetListStateForTesting();
 
 	log = Array.from( { length: PER_PAGE }, ( _, index ) => rewindId( index ) );
 	mockApiFetch.mockReset();
@@ -202,10 +207,9 @@ describe( 'Coming back from Download with a row chosen', () => {
 
 	it( 'lets Back undo clearing a selection that came from memory', async () => {
 		const view = renderApp();
-		const chosen = await roundTripViaDownload( view );
+		const chosen = await roundTripViaDownload( view, true );
 
-		// The row is on page 2 now and the list is still on page 1, so the pane
-		// cannot resolve it and hedges instead of claiming it is gone.
+		// The backup disappeared while away, so the lookup cannot resolve the remembered selection.
 		await userEvent.click( await screen.findByRole( 'button', { name: CLEAR } ) );
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument()
@@ -215,11 +219,45 @@ describe( 'Coming back from Download with a row chosen', () => {
 			view.history.back();
 		} );
 
-		// The copy admits the row may still be fine, so the discard has to be
-		// undoable — landing back on the Overview with the selection restored,
-		// not on the Download screen the return trip came from.
+		// Clearing remains undoable: Back restores the selection instead of opening Download.
 		await expect( screen.findByRole( 'button', { name: CLEAR } ) ).resolves.toBeInTheDocument();
 		expect( view.state.location.search ).toEqual( { selected: chosen } );
+	} );
+} );
+
+describe( 'Choosing a row', () => {
+	let layout: HTMLStyleElement;
+	let scrollIntoView: jest.SpyInstance;
+
+	beforeEach( () => {
+		layout = document.createElement( 'style' );
+		document.head.append( layout );
+		scrollIntoView = jest.spyOn( window.HTMLElement.prototype, 'scrollIntoView' );
+	} );
+
+	afterEach( () => {
+		layout.remove();
+		scrollIntoView.mockRestore();
+	} );
+
+	// jsdom has no layout, so the grid's column count comes from this rule alone.
+	it.each( [
+		[ 'brings a stacked detail pane to its heading', '1fr', 2, true ],
+		[ 'brings a stacked pane to its heading for the row it already shows', '1fr', 0, true ],
+		[ 'leaves focus on the row when the panes sit side by side', '1fr 1.5fr', 2, false ],
+	] )( '%s', async ( _name, columns, index, reveals ) => {
+		layout.textContent = `.jpb-overview { grid-template-columns: ${ columns }; }`;
+		renderApp();
+		const id = rewindId( index );
+
+		const row = await screen.findByRole( 'button', { name: named( id ) } );
+		await userEvent.click( row );
+
+		const heading = await screen.findByRole( 'heading', { name: title( id ) } );
+		await waitFor( () => expect( reveals ? heading : row ).toHaveFocus() );
+		expect( scrollIntoView.mock.calls.some( ( [ options ] ) => options?.block === 'start' ) ).toBe(
+			reveals
+		);
 	} );
 } );
 
@@ -231,6 +269,39 @@ describe( 'A selection nobody chose', () => {
 
 		// The default renders, so a bare address below is not a pane that never resolved
 		// anything — it is genuinely nothing having been chosen.
+		await expect(
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
+		).resolves.toBeInTheDocument();
+		expect( view.state.location.search ).toEqual( {} );
+
+		await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ } ) );
+		await userEvent.click( await screen.findByRole( 'link', { name: /Back to overview/ } ) );
+
+		await expect(
+			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
+		).resolves.toBeInTheDocument();
+		expect( view.state.location.search ).toEqual( {} );
+	} );
+} );
+
+describe( 'Going Back past the first row chosen', () => {
+	it( 'shows the newest backup again, and forgets the rows picked since', async () => {
+		const view = renderApp();
+		const third = rewindId( 2 );
+		const fifth = rewindId( 4 );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: named( third ) } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: named( fifth ) } ) );
+		await waitFor( () => expect( view.state.location.search ).toEqual( { selected: fifth } ) );
+
+		await act( async () => {
+			view.history.back();
+		} );
+		await waitFor( () => expect( view.state.location.search ).toEqual( { selected: third } ) );
+		await act( async () => {
+			view.history.back();
+		} );
+
 		await expect(
 			screen.findByRole( 'heading', { name: title( rewindId( 0 ) ) } )
 		).resolves.toBeInTheDocument();

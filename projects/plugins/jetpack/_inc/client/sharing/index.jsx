@@ -10,7 +10,6 @@ import {
 } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
-	currentThemeStylesheet,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
@@ -43,7 +42,6 @@ class Sharing extends Component {
 			hasSharingBlock: this.props.hasSharingBlock,
 			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			themeStylesheet: this.props.themeStylesheet,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -62,14 +60,9 @@ class Sharing extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Sharing', 'jetpack' )
-						: __(
-								'Share your content to social media, reaching new audiences and increasing engagement.',
-								'jetpack'
-							) }
-				</h2>
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
+				) }
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }
@@ -95,6 +88,5 @@ export default connect( state => {
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		themeStylesheet: currentThemeStylesheet( state ),
 	};
 } )( Sharing );

@@ -5,6 +5,7 @@ export const MY_JETPACK_PRODUCT_CHECKOUT = 'my-jetpack-product-checkout';
 
 export const MyJetpackRoutes = {
 	Home: '/:section',
+	Features: '/features',
 	Connection: '/connection',
 	ConnectionSkipPricing: '/connection?skip_pricing=true',
 	AddAkismet: '/add-akismet',
@@ -12,6 +13,7 @@ export const MyJetpackRoutes = {
 	AddBackup: '/add-backup',
 	AddBoost: '/add-boost',
 	AddComplete: '/add-complete',
+	AddPro: '/add-pro',
 	AddCRM: '/add-crm',
 	AddJetpackAI: '/add-jetpack-ai',
 	AddExtras: '/add-extras',
@@ -64,6 +66,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 export const JETPACK_PRODUCTS_WITHOUT_CARD = [
 	'activity-log',
 	'complete',
+	'pro',
 	'creator',
 	'extras',
 	'newsletter',

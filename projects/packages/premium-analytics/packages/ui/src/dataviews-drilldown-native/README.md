@@ -27,8 +27,8 @@ The first field in the view's field list becomes the view's `titleField` — the
 
 - **Level markers, not indentation.** DataViews renders each row's level as a literal em-dash prefix (`— — google.com`) in an unstyled `dataviews-view-table__level` span. There is no upstream styling hook beyond that class; the `hideLevelMarkers` prop applies the one-line override (`visibility: hidden`) that turns the markers into plain whitespace indentation.
 - **No expand/collapse upstream.** Native level rendering is a static display — every row is always visible. The `collapsible` prop adds that locally; see [Collapsing branches](#collapsing-branches).
-- **Cell content styling is the consumer's.** DataViews renders whatever the field's `render` returns, so per-row treatments like bolding parent rows are a plain field-render concern (see the story's `ReferrerField`) — no override of DataViews internals needed.
-- **Flat search, filter, sort, and pagination.** DataViews' `filterSortAndPaginate` is hierarchy-blind: a matching child whose parent is filtered out renders indented but orphaned, a matching parent renders alone with the aggregate its (dropped) children explain, and sorting by any field re-orders the rows flat — visually breaking the grouping. This component re-runs that pipeline hierarchy-aware instead: it matches first, re-attaches each match's ancestors _and_ descendants (`withHierarchyContext`), sorts within levels, and paginates the hierarchy-ordered rows itself. Child rows still count as pagination items. Leave `sort` out of the initial view to preserve hierarchy order.
+- **Cell content styling is the consumer's.** DataViews renders whatever the field's `render` returns, so a per-row treatment is a plain field-render concern — no override of DataViews internals needed. The title column keeps DataViews' title weight at every depth; the chevron alone marks a parent.
+- **Flat search, filter, and sort.** DataViews' `filterSortAndPaginate` is hierarchy-blind: a matching child whose parent is filtered out renders indented but orphaned, a matching parent renders alone with the aggregate its (dropped) children explain, and sorting by any field re-orders the rows flat — visually breaking the grouping. This component re-runs that pipeline hierarchy-aware instead: it matches first, re-attaches each match's ancestors _and_ descendants (`withHierarchyContext`), sorts within levels, and lists every hierarchy-ordered row on one page. Leave `sort` out of the initial view to preserve hierarchy order.
 
 ## Siblings
 
@@ -40,7 +40,7 @@ This is the third of three comparison implementations of the same drill-down sur
 
 ## Collapsing branches
 
-`collapsible` puts a chevron after the title of every row that has children, and folds that row's whole subtree away when it is clicked. Folded rows leave the table entirely, so they stop counting towards pagination too.
+`collapsible` puts a chevron after the title of every row that has children, and folds that row's whole subtree away when it is clicked. Folded rows leave the table entirely.
 
 ```tsx
 <DataViewsDrilldownNative

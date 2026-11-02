@@ -8,10 +8,14 @@
 export const MIN_OUTPUT_MS = 1000;
 
 /**
- * Default half-span of a newly added cut: ADD_CUT removes ±2s around the playhead unless the
- * caller overrides it.
+ * Default duration of a newly added cut.
  */
-export const DEFAULT_CUT_HALF_SPAN_MS = 2000;
+export const DEFAULT_CUT_DURATION_MS = 4000;
+
+/**
+ * Minimum kept time between a new cut and its neighbors.
+ */
+const NEW_CUT_GAP_MS = 100;
 
 /**
  * A removed range on the original master timeline.
@@ -70,7 +74,7 @@ export type EditOperation = TrimOperation | CutOperation;
 export type EditSessionAction =
 	| { type: 'SET_TRIM_START'; ms: number }
 	| { type: 'SET_TRIM_END'; ms: number }
-	| { type: 'ADD_CUT'; atMs: number; halfSpanMs?: number; id?: string }
+	| { type: 'ADD_CUT'; atMs: number; durationMs?: number; id?: string }
 	| { type: 'UPDATE_CUT'; id: string; startMs?: number; endMs?: number }
 	| { type: 'MOVE_CUT'; id: string; startMs: number }
 	| { type: 'REMOVE_CUT'; id: string }
@@ -438,50 +442,69 @@ function setTrimEnd( state: EditSession, ms: number ): EditSession {
 }
 
 /**
- * Add a cut around the playhead.
+ * Fit a new cut near the playhead without overlapping or touching existing cuts.
  *
  * @param state      - Current session.
  * @param atMs       - Playhead position on the master timeline.
- * @param halfSpanMs - Half-span of the new cut (default ±2s).
+ * @param durationMs - Duration of the new cut (default 4s).
+ * @return Available range, or null when a cut cannot be added here.
+ */
+export function getNewCutRange(
+	state: EditSession,
+	atMs: number,
+	durationMs = DEFAULT_CUT_DURATION_MS
+): Pick< CutRange, 'startMs' | 'endMs' > | null {
+	const at = Math.round( atMs );
+	if ( at < state.trimStartMs || at > state.trimEndMs ) {
+		return null;
+	}
+
+	let availableStart = state.trimStartMs;
+	let availableEnd = state.trimEndMs;
+	for ( const cut of state.cuts ) {
+		if ( at >= cut.startMs && at < cut.endMs ) {
+			return null;
+		}
+		if ( cut.endMs <= at ) {
+			availableStart = cut.endMs + NEW_CUT_GAP_MS;
+		} else {
+			availableEnd = cut.startMs - NEW_CUT_GAP_MS;
+			break;
+		}
+	}
+
+	const maxDuration = Math.min(
+		Math.max( 1, Math.round( durationMs ) ),
+		getOutputDurationMs( state ) - requiredMinOutput( state )
+	);
+	const startMs =
+		at === state.trimEndMs
+			? Math.max( availableStart, at - maxDuration )
+			: Math.max( availableStart, at );
+	const endMs = at === state.trimEndMs ? at : Math.min( availableEnd, startMs + maxDuration );
+	return endMs > startMs ? { startMs, endMs } : null;
+}
+
+/**
+ * Add and select a separate cut within the available range.
+ *
+ * @param state      - Current session.
+ * @param atMs       - Playhead position on the master timeline.
+ * @param durationMs - Duration of the new cut (default 4s).
  * @param id         - Explicit id for the new cut (tests/UI).
  * @return Next session.
  */
-function addCut( state: EditSession, atMs: number, halfSpanMs?: number, id?: string ): EditSession {
-	const at = Math.round( atMs );
-	if ( at < state.trimStartMs || at > state.trimEndMs ) {
-		return state;
-	}
-	const maxHalf = Math.max( 1, Math.round( halfSpanMs ?? DEFAULT_CUT_HALF_SPAN_MS ) );
-	const minOutput = requiredMinOutput( state );
-
-	const candidateRange = ( half: number ) => ( {
-		startMs: Math.max( state.trimStartMs, at - half ),
-		endMs: Math.min( state.trimEndMs, at + half ),
-	} );
-	const pred = ( half: number ) =>
-		outputDuration( state.trimStartMs, state.trimEndMs, [
-			...state.cuts,
-			candidateRange( half ),
-		] ) >= minOutput;
-
-	const half = largestSatisfying( 1, maxHalf, pred );
-	if ( half === null ) {
-		return state;
-	}
-	const range = candidateRange( half );
-	if ( range.endMs <= range.startMs ) {
+function addCut( state: EditSession, atMs: number, durationMs?: number, id?: string ): EditSession {
+	const range = getNewCutRange( state, atMs, durationMs );
+	if ( ! range ) {
 		return state;
 	}
 
 	const newId = id ?? nextCutId();
-	// A cut that merely grows an existing cut keeps the existing id.
-	const chooseId = ( memberIds: string[] ) => memberIds.find( m => m !== newId ) ?? newId;
-	const cuts = mergeCuts( [ ...state.cuts, { id: newId, ...range } ], chooseId );
-	const containing = cuts.find( cut => cut.startMs <= at && at <= cut.endMs );
 	return {
 		...state,
-		cuts,
-		selectedCutId: containing ? containing.id : normalizeSelection( cuts, state.selectedCutId ),
+		cuts: [ ...state.cuts, { id: newId, ...range } ].sort( ( a, b ) => a.startMs - b.startMs ),
+		selectedCutId: newId,
 	};
 }
 
@@ -617,7 +640,7 @@ export function editSessionReducer( state: EditSession, action: EditSessionActio
 			break;
 
 		case 'ADD_CUT':
-			next = addCut( state, action.atMs, action.halfSpanMs, action.id );
+			next = addCut( state, action.atMs, action.durationMs, action.id );
 			break;
 
 		case 'UPDATE_CUT':

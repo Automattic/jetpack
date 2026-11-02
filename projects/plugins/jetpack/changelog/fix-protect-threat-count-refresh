@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Update the menu badge and the "Threats found" admin bar notice as soon as threats are fixed, ignored, or deleted.

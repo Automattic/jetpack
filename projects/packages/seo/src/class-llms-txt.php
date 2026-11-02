@@ -4,8 +4,8 @@
  *
  * Serves a root-level `/llms.txt` — the emerging convention (llmstxt.org) for
  * giving AI assistants a curated, Markdown map of a site's key content. Gated on
- * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through the
- * existing `/jetpack/v4/settings` endpoint by the AI tab).
+ * the durable option `jetpack_seo_llms_txt_enabled` (round-tripped through core's
+ * `/wp/v2/settings` endpoint by the GEO tab).
  *
  * Serving approach: this hooks `template_redirect` and inspects the raw request
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
@@ -58,23 +58,18 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Whether WordPress can actually serve the dynamic `/llms.txt` on this site.
+	 * Whether Jetpack can serve llms.txt without a plugin, static-file or hosting conflict.
 	 *
-	 * Two ways it can't, and the toggle then silently does nothing:
-	 *  - A physical `llms.txt` sits at the site root, so the web server delivers
-	 *    that file directly and WordPress never runs for the request. Detected
-	 *    here.
-	 *  - The host fronts WordPress for root-level paths (some managed hosts /
-	 *    static-file setups). PHP can't see that, so hosts can signal it via the
-	 *    `jetpack_seo_llms_txt_can_serve` filter.
-	 *
-	 * When this returns false the GEO tab shows an honest "can't take effect"
-	 * notice instead of letting the admin believe the file is live.
+	 * Hosts can signal path restrictions through the jetpack_seo_llms_txt_can_serve filter.
 	 *
 	 * @return bool
 	 */
 	public static function can_serve() {
-		$has_static_file = defined( 'ABSPATH' ) && file_exists( ABSPATH . 'llms.txt' );
+		if ( Seo_Tools::is_disabled() ) {
+			return false;
+		}
+
+		$has_static_file = defined( 'ABSPATH' ) && Static_Files::exists( 'llms.txt' );
 
 		/**
 		 * Filters whether WordPress can serve the dynamic `/llms.txt`. Hosts that
@@ -109,7 +104,7 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function maybe_serve() {
-		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() ) {
+		if ( ! self::is_enabled() || 'llms.txt' !== self::request_path() || ! self::can_serve() ) {
 			return;
 		}
 

@@ -2,12 +2,11 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
-import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
-import { reloadPage } from '../../my-jetpack-tab-panel/products/reload-page';
+import { setPendingSuccessNotice } from '../../../utils/pending-notice';
+import { reloadPage } from '../../../utils/reload-page';
 import { ModuleToggle } from '../index';
 
 const mockToggleModule = jest.fn( () => Promise.resolve( true ) );
-const mockTrackProductAction = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
@@ -57,22 +56,18 @@ jest.mock( '@wordpress/ui', () => {
 				? react.cloneElement( renderProp, props, children )
 				: react.createElement( 'button', props, children );
 		},
+		ButtonLink: Anchor,
 		Link: Anchor,
-		LinkButton: Anchor,
 	};
 } );
-
-jest.mock( '../../my-jetpack-tab-panel/products/products-tracking-context', () => ( {
-	useProductFiltersContext: () => ( { trackProductAction: mockTrackProductAction } ),
-} ) );
 
 jest.mock( '../../../utils/module-benefit-messages', () => ( {
 	getModuleActivationMessage: ( _slug: string, name: string ) => `${ name } activated.`,
 } ) );
 
 // window.location can't be mocked directly, so reloadPage is its own mockable wrapper.
-jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
-jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
+jest.mock( '../../../utils/reload-page' );
+jest.mock( '../../../utils/pending-notice' );
 
 const legacyModule = ( overrides = {} ) => ( {
 	module: 'sharedaddy',
@@ -109,24 +104,20 @@ describe( 'ModuleToggle', () => {
 					isBlockTheme: true,
 					isSharingBlockAvailable: true,
 					isLikeBlockAvailable: true,
-					activeThemeStylesheet: 'twentytwentyfour',
 				},
 			},
 		} as Window[ 'JetpackScriptData' ];
 	} );
 
-	it.each( blockThemeModules )(
-		'links inactive %s to the Single template on block themes',
-		module => {
-			render( <ModuleToggle module={ legacyModule( { module } ) } /> );
+	it.each( [
+		[ 'sharedaddy', 'https://example.com/wp-admin/options-general.php?page=sharing' ],
+		[ 'likes', 'https://example.com/wp-admin/options-general.php?page=sharing#likes' ],
+	] )( 'links inactive %s to Settings › Sharing on block themes', ( module, url ) => {
+		render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
-			expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
-				'href',
-				'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
-			);
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		}
-	);
+		expect( screen.getByRole( 'link', { name: 'Configure' } ) ).toHaveAttribute( 'href', url );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
 
 	it.each( blockThemeModules )(
 		'deactivates legacy %s when switching to the block',
@@ -141,15 +132,6 @@ describe( 'ModuleToggle', () => {
 
 			// Deactivating the legacy module reveals the Site Editor link ( two-step, no redirect ).
 			expect( mockToggleModule ).toHaveBeenCalledWith( { name: module, active: false } );
-
-			// The switch path tracks the deactivation, like the toggle path.
-			expect( mockTrackProductAction ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					action: 'deactivate',
-					productSlug: module,
-					productType: 'module',
-				} )
-			);
 		}
 	);
 

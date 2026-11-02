@@ -33,6 +33,16 @@ describe( 'buildLocationsGeoChart', () => {
 		] );
 	} );
 
+	it( 'names the figure as the caller says', () => {
+		const { data } = buildLocationsGeoChart( {
+			rows: [ row( 'Canada', 'CA', 'Canada', 12 ) ],
+			mode: 'country',
+			valueLabel: 'Store visitors',
+		} );
+
+		expect( data[ 0 ] ).toEqual( [ 'Country', 'Store visitors' ] );
+	} );
+
 	describe( 'region mode', () => {
 		it( 'sums each country regions onto one map row', () => {
 			const [ , ...rows ] = buildLocationsGeoChart( {

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/popular-days",
+	"icon": "jpa/calendar",
 	"title": "Popular days",
 	"description": "The day of the week that draws the most views, with the distribution across the week.",
 	"help": {

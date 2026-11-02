@@ -18,9 +18,9 @@
 |---|---|---|
 | PHP unit tests (PHPUnit) | 532 tests, 1289 assertions | ✅ All passing |
 | JS unit tests (Jest) | 509 tests, 20 suites | ✅ All passing |
-| E2E tests (Playwright) | 41 specs, 0 skipped | ✅ All passing |
+| E2E tests (Playwright) | 32 specs, 0 skipped | ✅ All passing |
 | Manual-only test points | 13 | Pending |
-| **Total** | **1082** | **PHPUnit + Jest + Playwright green** |
+| **Total** | **1073** | **PHPUnit + Jest + Playwright green** |
 
 ---
 
@@ -88,7 +88,7 @@ All files live in `projects/packages/paypal-payments/tests/js/`. Modules contain
 
 **Pass criteria:** 100% pass rate, zero skipped. ✅ Met
 
-### 2.3 E2E Tests — 41 specs (Playwright) ✅ 0 skipped
+### 2.3 E2E Tests — 32 specs (Playwright) ✅ 0 skipped
 
 **Run command:**
 ```bash
@@ -103,16 +103,16 @@ pnpm test:run
 
 | Section | Status | Covers | Ticket |
 |---|---|---|---|
-| Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
-| Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview | WOOPTP-154 |
+| Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → button form, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data | WOOPTP-162 |
+| Create Button Flow | ✅ | Form rendering, disabled state, link creation on save | WOOPTP-154 |
 | Frontend Rendering | ✅ | Published post "Buy Now" button + payment link | WOOPTP-154 |
-| Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
+| Error Flow | ✅ | Empty name and zero price hold the payment back, blur field error, API 400 snackbar | WOOPTP-154 |
 | Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
-| Disconnect Flow | ✅ | Disconnect and delete via sidebar InspectorControls | WOOPTP-154 |
+| Disconnect Flow | ✅ | Log out via the account menu, delete via the link details menu and the toolbar | WOOPTP-154 |
 | Production Default | ✅ | Connect request defaults to the production environment | WOOPTP-163 |
-| Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
+| Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
-| Format Switcher | ✅ | Button/Link/QR selection, switching format without recreating the product, front-end anchor and standalone QR canvas | WOOPTP-390 |
+| Format Switcher | ✅ | Switching from Button to QR once the link exists, switching format without recreating the product | WOOPTP-390 |
 | Button Style Controls | Jest only | Text and background color, Fill/Outline, font size, width on the card and border on the button, the "Powered by PayPal" checkbox. No Playwright spec yet | WOOPTP-495 |
 
 **WP 6.9 compatibility notes:**
@@ -120,7 +120,7 @@ pnpm test:run
 - Block inserter button: `aria-label="Block Inserter"` (was `"Toggle block inserter"`)
 - Publish flow uses snackbar notification for "View Post" link
 - Code editor toggle via Options menu (cross-platform)
-- API mock uses single `**/paypal/**` catch-all route to avoid glob pattern conflicts
+- API mock matches each route with `paypalRoute()`, under pretty and plain permalinks. A catch-all aborts unmocked PayPal calls and fails the test
 
 **Pass criteria:** 0 failures, 0 skipped. ✅ Met
 
@@ -135,7 +135,7 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 
 | Test Point | Coverage |
 |---|---|
-| Full wizard flow: Welcome → Dashboard → Credentials → Success → Create Button | ✅ Auto (E2E + Jest) |
+| Full wizard flow: Welcome → Dashboard → Credentials → button form | ✅ Auto (E2E + Jest) |
 | Pasted credentials with whitespace are auto-trimmed | ✅ Auto (E2E + PHPUnit) |
 | Client ID format warning for invalid-looking IDs | ✅ Auto (E2E) |
 | Show/hide toggle on Client Secret | ✅ Auto (E2E) |
@@ -144,7 +144,7 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 | "Open PayPal Dashboard" link points to correct URL | ✅ Auto (E2E) |
 | Environment defaults to Production | ✅ Auto (E2E + PHPUnit) |
 | Sandbox toggle switches environment and shows warning | ✅ Auto (E2E) |
-| Success step transitions to button creation form | ✅ Auto (E2E) |
+| Connect goes straight to the button form | ✅ Auto (E2E) |
 | Keyboard navigation through wizard steps (Tab, Enter) | 🔧 Manual |
 | Screen reader announces step changes (VoiceOver / NVDA) | 🔧 Manual |
 
@@ -163,9 +163,9 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 |---|---|
 | Valid credentials + Payment Links access succeeds normally | ✅ Auto (E2E) |
 | 403 (no Payment Links) shows specific guidance error | ✅ Auto (E2E) |
-| After 403, credentials are cleared — no partial connection state | ✅ Auto (E2E) |
-| 5xx from PayPal does NOT block connection | ✅ Auto (E2E) |
-| Network timeout does NOT block connection | ✅ Auto (PHPUnit — `PayPal_API_Client_Retry_Test`) |
+| After 403, credentials are cleared — no partial connection state | ✅ Auto (PHPUnit — `PayPal_REST_Controller_Test`) |
+| 5xx from PayPal does NOT block connection | ✅ Auto (PHPUnit — `PayPal_OAuth_Test`) |
+| Network timeout does NOT block connection | ✅ Auto (PHPUnit — `PayPal_OAuth_Test`) |
 | Error message names corrective action | ✅ Auto (E2E — asserts `Payment Links|Developer Dashboard` in notice) |
 
 ### WOOPTP-165 — Token Expiry Dual-Storage
@@ -242,7 +242,7 @@ All of the following must be true before the PR is submitted:
 |---|---|---|
 | PHP unit tests | 532/532 pass, 1289 assertions | ✅ |
 | JS unit tests | 509/509 pass, 20 suites | ✅ |
-| E2E tests | 41/41 pass, 0 skipped | ✅ |
+| E2E tests | 32/32 pass, 0 skipped | ✅ |
 | Manual checklist | All 13 points checked | Pending |
 | Zero critical security issues | From PHP adversarial council review (Priority 2) | Pending |
 | Product confirmations | BN code approach (WOOPTP-187) ✅ + RUB sanctions flag ✅ | ✅ Done — RUB confirmed NOT allowed on the Pay Links & Buttons API. Removed from readme. Never present in code. |

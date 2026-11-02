@@ -172,6 +172,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse );
 		},
 
+		fetchConnectionOwnerCandidates: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/owner/candidates`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		setConnectionOwner: ownerId =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/owner`, postParams, {
+				body: JSON.stringify( { owner: ownerId } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		reconnect: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )
 				.then( checkStatus )

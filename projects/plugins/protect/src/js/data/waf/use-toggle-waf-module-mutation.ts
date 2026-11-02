@@ -5,16 +5,16 @@ import { QUERY_WAF_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
 
 /**
- * Toggle WAF Mutatation
+ * Enable WAF Mutation
  *
  * @return {UseMutationResult} useMutation result.
  */
-export default function useToggleWafMutation(): UseMutationResult {
+export default function useToggleWafMutation(): UseMutationResult< unknown, Error, void > {
 	const queryClient = useQueryClient();
 	const { showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
-		mutationFn: API.toggleWaf,
+		mutationFn: () => API.toggleWaf( true ),
 		onSuccess: () => {
 			showSuccessNotice( __( 'WAF module enabled.', 'jetpack-protect' ) );
 		},

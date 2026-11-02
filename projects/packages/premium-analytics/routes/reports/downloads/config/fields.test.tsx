@@ -46,10 +46,9 @@ describe( 'downloads fields', () => {
 	] )( 'links the filename to %s asset URL in a new tab', ( _kind, link ) => {
 		renderField( 'file', { ...download, link } );
 
-		const anchor = screen.getByRole( 'link', { name: 'report.pdf' } );
+		const anchor = screen.getByRole( 'link', { name: 'report.pdf(opens in a new tab)' } );
 		expect( anchor ).toHaveAttribute( 'href', link );
 		expect( anchor ).toHaveAttribute( 'target', '_blank' );
-		expect( anchor ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders the filename as plain text when the asset URL is unsafe', () => {

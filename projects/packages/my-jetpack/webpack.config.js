@@ -8,6 +8,7 @@ export default [
 		entry: {
 			onboarding: './_inc/onboarding.jsx',
 			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
+			'header-controls': './_inc/header-controls-script.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

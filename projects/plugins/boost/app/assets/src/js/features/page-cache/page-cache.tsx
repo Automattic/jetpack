@@ -25,7 +25,7 @@ const DismissableNotice = ( { title, children }: { title: string; children: Reac
 			<Notice.Root intent="info">
 				<Notice.Title>{ title }</Notice.Title>
 				<Notice.Description>{ children }</Notice.Description>
-				<Notice.CloseIcon
+				<Notice.CloseIconButton
 					onClick={ () => setDismissed( true ) }
 					label={ __( 'Dismiss', 'jetpack-boost' ) }
 				/>

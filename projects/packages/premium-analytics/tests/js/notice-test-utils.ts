@@ -3,7 +3,7 @@ import { createReduxStore, createRegistry } from '@wordpress/data';
 
 /**
  * Find a `Notice` message in the a11y-speak live region it was announced to:
- * `@wordpress/ui` speaks `error` assertively and every other intent politely.
+ * an `error` notice speaks assertively and every other intent politely.
  *
  * @param text       - The announced message.
  * @param politeness - The live region it should land in.
@@ -27,21 +27,22 @@ export function getNoticeText( text: string ): HTMLElement {
 }
 
 /**
- * Build a registry whose `core/notices` store records `createErrorNotice` calls.
+ * Build a registry whose `core/notices` store records error and success notice calls.
  *
  * `@wordpress/notices` is not a dependency of this package; wp-admin registers it in production.
  *
- * @return The registry, and the action creator to assert on.
+ * @return The registry, and the action creators to assert on.
  */
 export function createNoticesRegistry() {
 	const createErrorNotice = jest.fn( () => ( { type: 'CREATE_ERROR_NOTICE' } ) );
+	const createSuccessNotice = jest.fn( () => ( { type: 'CREATE_SUCCESS_NOTICE' } ) );
 	const registry = createRegistry();
 	registry.register(
 		createReduxStore( 'core/notices', {
 			reducer: ( state = null ) => state,
-			actions: { createErrorNotice },
+			actions: { createErrorNotice, createSuccessNotice },
 		} )
 	);
 
-	return { registry, createErrorNotice };
+	return { registry, createErrorNotice, createSuccessNotice };
 }

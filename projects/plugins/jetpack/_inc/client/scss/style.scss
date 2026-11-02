@@ -27,6 +27,10 @@
 @use "shared/admin-static";
 
 // Components
+// PHP-rendered pages print these dops classes too.
+@include meta.load-css( "../components/banner/style" );
+@include meta.load-css( "../components/button/style" );
+@include meta.load-css( "../components/card/style" );
 @include meta.load-css( "../components/foldable-card/style2" );
 @include meta.load-css( "../components/footer/style" );
 @include meta.load-css( "../components/button-group/style" );

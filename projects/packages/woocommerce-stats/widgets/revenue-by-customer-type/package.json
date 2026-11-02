@@ -1,0 +1,6 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats-widget-revenue-by-customer-type",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module"
+}

@@ -1,0 +1,42 @@
+.value {
+	display: flex;
+	align-items: center;
+	min-block-size: 40px;
+}
+
+.dot {
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 50%;
+
+	&.is-good {
+		background: var(--jp-green-50);
+	}
+
+	&.is-warning {
+		background: var(--jp-yellow-30);
+	}
+
+	&.is-bad {
+		background: var(--jp-red-60);
+	}
+}
+
+.links {
+	margin-block-start: auto;
+
+	> * + * {
+		padding-inline-start: var(--spacing-base);
+		border-inline-start: 1px solid var(--jp-gray-10);
+	}
+}
+
+.locked {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--spacing-base) / 2);
+	// Otherwise the icon sets the baseline and lifts the label off its row.
+	vertical-align: top;
+	// A link's underline does not reach into an inline-flex box.
+	text-decoration: inherit;
+}

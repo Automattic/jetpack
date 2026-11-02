@@ -26,7 +26,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.2';
+	const PACKAGE_VERSION = '0.1.6';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.
@@ -45,6 +45,11 @@ class Analytics_Dashboard {
 	 */
 	const REGISTER_SECTIONS_ACTION     = 'jetpack_premium_analytics_register_dashboard_sections';
 	const REGISTER_WIDGET_TYPES_ACTION = 'jetpack_premium_analytics_register_widget_types';
+
+	/**
+	 * Lowest widget contract the build works against: 2.0.0, the start of the major it is built for.
+	 */
+	const MIN_WIDGET_API_VERSION = '2.0.0';
 
 	/**
 	 * Text domain of the widget metadata and of the built widget bundles.
@@ -120,7 +125,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) || self::widget_contract_moved_on() ) {
+		if ( ! self::widget_contract_is_supported() ) {
 			return;
 		}
 
@@ -140,6 +145,22 @@ class Analytics_Dashboard {
 	}
 
 	/**
+	 * Whether the dashboard's widget contract is one the widgets were built against: at least the
+	 * minimum, and not the next major.
+	 *
+	 * @return bool
+	 */
+	private static function widget_contract_is_supported() {
+		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) ) {
+			return false;
+		}
+
+		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
+
+		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '3', '<' );
+	}
+
+	/**
 	 * Whether the dashboard's widget contract moved to a major this package was not built against.
 	 *
 	 * Undefined is not a mismatch: the sections REST route hydrates the section registry before
@@ -149,7 +170,7 @@ class Analytics_Dashboard {
 	 */
 	private static function widget_contract_moved_on() {
 		return defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
-			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '2', '>=' );
+			&& version_compare( \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION, '3', '>=' );
 	}
 
 	/**

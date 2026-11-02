@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-protect",
+	"name": "automattic/jetpack-protect-plugin",
 	"description": "Social plugin",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -24,6 +24,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"autoload": {

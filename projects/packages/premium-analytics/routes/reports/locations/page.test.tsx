@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
@@ -11,17 +11,17 @@ import {
 	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useState, version as reactVersion } from 'react';
 /**
  * Internal dependencies
  */
-import { getNoticeText } from '../../../tests/js/notice-test-utils';
 import { getLocationFields, useLocationsReportRecords } from './config';
 import LocationsReportPage from './page';
 import type { LocationRow, ReportLocationsTabId } from './config';
 import type { View } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
+
+const isReact18 = reactVersion.startsWith( '18.' );
 
 jest.mock( './config', () => {
 	const actual = jest.requireActual( './config' );
@@ -35,6 +35,7 @@ jest.mock( './config', () => {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	isStatsFeatureLocked: jest.fn( () => false ),
 	usePrefetchViewerCountry: jest.fn(),
 } ) );
 
@@ -53,16 +54,21 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ExporterCsvAction: jest.fn( () => null ),
+	LockedPage: ( { feature }: { feature: string } ) => <div>{ `locked: ${ feature }` }</div>,
 	LOCATIONS_GEO_MODES: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.LOCATIONS_GEO_MODES,
+	getLocationColumnLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.getLocationColumnLabel,
+	getLocationsSectionLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.getLocationsSectionLabel,
 	locationsCsvExporter: jest.fn(
 		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).locationsCsvExporter
 	),
 	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	PageNotice: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).PageNotice,
-	describeError: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).describeError,
+	ReportErrorState: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.ReportErrorState,
 	ReportPageLayout: ( { tabs, children }: { tabs: ReactNode; children: ReactNode } ) => (
 		<>
 			{ tabs }
@@ -80,9 +86,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	// the props the page hands them matter.
 	ReportLocationsMap: jest.fn( () => <div data-testid="locations-map" /> ),
 	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
-	useReportRetry: ( refetch: () => unknown ) => () => {
-		void refetch();
-	},
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -208,7 +211,26 @@ function selectTab( tab: ReportLocationsTabId ) {
 describe( 'LocationsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		mockTabState( 'countries' );
+	} );
+
+	it( 'locks the Regions tab on a plan without it, and keeps Countries open', () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementation( key => key === 'regions-cities' );
+		mockRecords();
+		mockTabState( 'regions' );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByText( 'locked: regions-cities' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'records-table' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+		expect( exporterCsvActionMock ).not.toHaveBeenCalled();
+
+		selectTab( 'countries' );
+
+		expect( screen.getByTestId( 'records-table' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'locked: regions-cities' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'exports the active tab through its shared exporter', () => {
@@ -224,7 +246,7 @@ describe( 'LocationsReportPage', () => {
 				items: records.table.rows,
 				status: records.table,
 			} ),
-			expect.anything()
+			isReact18 ? expect.anything() : undefined // eslint-disable-line jest/no-conditional-expect
 		);
 	} );
 
@@ -271,35 +293,6 @@ describe( 'LocationsReportPage', () => {
 			expect.objectContaining( { isLoading: false, isFetching: true } )
 		);
 		expect( lastMapProps().isLoading ).toBe( true );
-	} );
-
-	it( 'renders the error state instead of the records table', () => {
-		mockRecords( { isError: true } );
-
-		render( <LocationsReportPage /> );
-
-		expect(
-			getNoticeText( "We couldn't load locations. Please try again in a moment." )
-		).toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-	} );
-
-	it( 'drops Retry when the request is denied', () => {
-		mockRecords( { isError: true, error: { error: 'unauthorized', status: 403 } } );
-
-		render( <LocationsReportPage /> );
-
-		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'refetches the active tab when Retry is clicked', async () => {
-		const records = mockRecords( { isError: true } );
-
-		render( <LocationsReportPage /> );
-		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
-
-		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'hides the map when the period has no rows', () => {

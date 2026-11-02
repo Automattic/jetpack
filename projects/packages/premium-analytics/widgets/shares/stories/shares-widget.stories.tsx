@@ -22,7 +22,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SharesRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -50,7 +49,7 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 
 // Build the story widget type from its manifest and module. `presentation`
 // comes from widget.json ( 'framed' ), so the host frames the widget.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 function renderShares() {
 	return <SharesRender attributes={ { reportParams: getDefaultQueryParams() } } />;
@@ -110,7 +109,7 @@ export const Error: Story = {
 
 /**
  * Resolved without positive share counts: the widget shows its empty-state
- * megaphone and guidance copy.
+ * copy and the Learn more link.
  */
 export const Empty: Story = {
 	render: renderShares,

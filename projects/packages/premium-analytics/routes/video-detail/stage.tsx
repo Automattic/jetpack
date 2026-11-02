@@ -1,12 +1,9 @@
 /**
  * External dependencies
  */
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	ReportScopeProvider,
-} from '@jetpack-premium-analytics/data';
-import {
+	DashboardWidgetHostProvider,
 	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
@@ -20,6 +17,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -166,64 +164,66 @@ function VideoDetail(): JSX.Element {
 	}
 
 	return (
-		<WidgetDashboard.Policy canPerform={ canPerform }>
-			<WidgetDashboard
-				widgetTypes={ widgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModule }
-				layout={ layout }
-				onLayoutChange={ onLayoutChange }
-				onLayoutReset={ resetLayout }
-				gridSettings={ DETAIL_GRID }
-				editMode={ isCustomizing }
-				onEditChange={ onEditChange }
-			>
-				<DetailPageShell
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={
-						<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
-							<StatsBreadcrumbs items={ breadcrumbs } />
-						</DetailPageBreadcrumbs>
-					}
-					actions={
-						<DetailPageActions
-							isCustomizing={ isCustomizing }
-							onCustomize={ canCustomize ? startCustomizing : undefined }
-							onReset={ resetToDefault }
-							editingActions={ <WidgetDashboard.Actions /> }
-						/>
-					}
+		<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ widgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModule }
+					layout={ layout }
+					onLayoutChange={ onLayoutChange }
+					onLayoutReset={ resetLayout }
+					gridSettings={ DETAIL_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
 				>
-					<DetailPageLayout
-						header={ videoHeaderSlots( {
-							summary,
-							performanceRange: dateFilters.appliedRange,
-						} ) }
-						// The presets render in every summary state, so the range stays
-						// adjustable while the video loads or errors.
-						controls={
-							<DateFiltersPanel
-								{ ...dateFilters }
-								{ ...dateControls }
-								onChange={ onDateChange }
-								onApply={ onDateApply }
+					<DetailPageShell
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={
+							<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+								<StatsBreadcrumbs items={ breadcrumbs } />
+							</DetailPageBreadcrumbs>
+						}
+						actions={
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ canCustomize ? startCustomizing : undefined }
+								onReset={ resetToDefault }
+								editingActions={ <WidgetDashboard.Actions /> }
 							/>
 						}
 					>
-						{ canRenderWidgets && ! isAnchoringAllTime ? (
-							<DetailPageSection>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
-						) : null }
-						{ notice ? (
-							<DetailPageSection>
-								<PageNotice { ...notice } />
-							</DetailPageSection>
-						) : null }
-					</DetailPageLayout>
-				</DetailPageShell>
-			</WidgetDashboard>
-		</WidgetDashboard.Policy>
+						<DetailPageLayout
+							header={ videoHeaderSlots( {
+								summary,
+								performanceRange: dateFilters.appliedRange,
+							} ) }
+							// The presets render in every summary state, so the range stays
+							// adjustable while the video loads or errors.
+							controls={
+								<DateFiltersPanel
+									{ ...dateFilters }
+									{ ...dateControls }
+									onChange={ onDateChange }
+									onApply={ onDateApply }
+								/>
+							}
+						>
+							{ canRenderWidgets && ! isAnchoringAllTime ? (
+								<DetailPageSection>
+									<WidgetDashboard.Widgets />
+								</DetailPageSection>
+							) : null }
+							{ notice ? (
+								<DetailPageSection>
+									<PageNotice { ...notice } />
+								</DetailPageSection>
+							) : null }
+						</DetailPageLayout>
+					</DetailPageShell>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
+		</DashboardWidgetHostProvider>
 	);
 }
 
@@ -235,15 +235,13 @@ function VideoDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				{ /*
-				 * The page names no compared period, so nothing below may fetch or draw
-				 * one, even when a hand-edited URL carries comparison params.
-				 */ }
-				<ReportScopeProvider offersComparison={ false }>
-					<VideoDetail />
-				</ReportScopeProvider>
-			</GlobalErrorProvider>
+			{ /*
+			 * The page names no compared period, so nothing below may fetch or draw
+			 * one, even when a hand-edited URL carries comparison params.
+			 */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<VideoDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

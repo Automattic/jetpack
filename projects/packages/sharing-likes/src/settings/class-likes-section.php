@@ -85,7 +85,7 @@ final class Likes_Section {
 		printf(
 			'<p>%s</p>',
 			Environment::is_offline_mode()
-				? esc_html__( 'Like buttons need a connection to WordPress.com, which is unavailable while your site is in offline mode.', 'jetpack-sharing-likes' )
+				? esc_html__( 'Like buttons need a connection to WordPress.com, which is unavailable while your site is in Offline Mode.', 'jetpack-sharing-likes' )
 				: esc_html__( 'Like buttons need a connection to WordPress.com. Connect your site to turn them on and choose where they appear.', 'jetpack-sharing-likes' )
 		);
 	}
@@ -125,7 +125,7 @@ final class Likes_Section {
 	}
 
 	/**
-	 * The way back. See `Post_Handler::activate_module()`.
+	 * The way back. See `Feature_Actions::activate()`.
 	 */
 	private static function render_activate_form(): void {
 		Post_Handler::render_action_form(

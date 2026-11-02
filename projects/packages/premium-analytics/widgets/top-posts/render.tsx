@@ -8,30 +8,25 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
-	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	archivesCsvExporter,
 	buildLeaderboardRow,
-	calculateDelta,
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
-	getCombinedPeriodMax,
 	postsPagesCsvExporter,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -115,45 +110,22 @@ function resolveRowAction(
 
 /**
  * Maps normalized top-posts rows onto the shape `LeaderboardChart` expects.
- * Shares use the largest value across both periods as one denominator, so
- * equal-width bars represent equal values.
  */
 function buildLeaderboardData(
 	rows: TopPostRow[],
-	withComparison: boolean,
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	const maxViews = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
-	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-
-		return {
-			id: `${ index }-${ row.href ?? row.label }`,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'none' },
-				action: resolveRowAction( row, detailSearch, onDrillDown ),
-			} ),
-			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxViews ),
-			// Rows without a comparison-period match keep `undefined` so the chart
-			// renders a placeholder instead of a fabricated delta (see AGENTS.md).
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxViews )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
-		};
-	} );
+	return rows.map( ( row, index ) => ( {
+		id: `${ index }-${ row.href ?? row.label }`,
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: resolveRowAction( row, detailSearch, onDrillDown ),
+		} ),
+		currentValue: row.value,
+		previousValue: row.previousValue,
+	} ) );
 }
 
 type TopPostsLeaderboardProps = {
@@ -177,6 +149,10 @@ type TopPostsLeaderboardProps = {
 	 * its breadcrumbs return to the date range the widget is showing.
 	 */
 	detailSearch?: Record< string, unknown >;
+	/**
+	 * What the rows are, named in the column header.
+	 */
+	rowsLabel: string;
 };
 
 /**
@@ -189,14 +165,17 @@ export const TopPostsLeaderboard = ( {
 	withComparison = false,
 	onDrillDown,
 	detailSearch = {},
+	rowsLabel,
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
+			chartTitle={ __( 'Top pages', 'jetpack-premium-analytics-pkg' ) }
+			data={ buildLeaderboardData( rows, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: rowsLabel, metric: 'views' } }
 		/>
 	);
 };
@@ -246,43 +225,42 @@ function TopPostsReport() {
 	} );
 	const withComparison = hasComparison;
 
+	useReportActions( {
+		report: 'posts',
+		section: 'posts-pages',
+		csv: {
+			exporter: postsPagesCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps stale rows visible after a failed range change;
-					// only surface the error when nothing is on screen.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ rows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load posts and pages. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<TopPostsLeaderboard
-						rows={ rows }
-						withComparison={ withComparison }
-						detailSearch={ detailSearch }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="posts" section="posts-pages" />
-				<ExporterCsvDownloadButton
-					exporter={ postsPagesCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps stale rows visible after a failed range change;
+				// only surface the error when nothing is on screen.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ rows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load posts and pages. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<TopPostsLeaderboard
+					rows={ rows }
+					withComparison={ withComparison }
+					detailSearch={ detailSearch }
+					rowsLabel={ __( 'Pages', 'jetpack-premium-analytics-pkg' ) }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 
@@ -395,44 +373,43 @@ function ArchivesReport() {
 			/>
 		);
 
+	useReportActions( {
+		report: 'posts',
+		section: 'archives',
+		csv: {
+			exporter: archivesCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ backLink }
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// As above: keep the drilled rows visible through a transient refetch
-					// failure and only surface the error when there is nothing to show.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ activeRows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load archives. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<TopPostsLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ handleDrillDown }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="posts" section="archives" />
-				<ExporterCsvDownloadButton
-					exporter={ archivesCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ backLink }
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// As above: keep the drilled rows visible through a transient refetch
+				// failure and only surface the error when there is nothing to show.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load archives. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<TopPostsLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ handleDrillDown }
+					rowsLabel={ __( 'Archives', 'jetpack-premium-analytics-pkg' ) }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 

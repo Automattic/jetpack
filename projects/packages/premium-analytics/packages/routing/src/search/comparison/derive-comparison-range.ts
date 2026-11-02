@@ -4,27 +4,16 @@
 import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	dateToISOStringWithLocalTZ,
+	findComparisonOption,
 	getComparisonOptions,
-	isComparisonPresetId,
 	isPrimaryPreset,
 	localTZDate,
 	reportingTimeZone,
+	toComparisonPresetId,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
-
-/**
- * Normalize URL/UI comparison preset IDs to canonical ComparisonPresetId.
- * Accepts variants with hyphen or underscore for robustness.
- *
- * @param value - Raw preset ID from URL or UI (e.g., 'previous_period' or 'previous-period')
- * @return Canonical ComparisonPresetId or undefined if invalid
- */
-const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined => {
-	const normalized = value?.replace( /_/g, '-' );
-	return isComparisonPresetId( normalized ) ? normalized : undefined;
-};
 
 /**
  * Resolve the comparison params for the main range, in the site timezone: the
@@ -75,10 +64,7 @@ export function deriveComparisonRange( opts: ReportParams ):
 	// range offers it again; one the range cannot offer at all — or an id from
 	// an old link — falls back to the previous period, which every range offers.
 	const option =
-		( presetId &&
-			options.find(
-				candidate => candidate.id === presetId || candidate.aliases.includes( presetId )
-			) ) ||
+		( presetId && findComparisonOption( options, presetId ) ) ||
 		options.find( candidate => candidate.id === 'previous-period' );
 
 	if ( ! option ) {

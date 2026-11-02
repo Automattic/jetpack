@@ -16,7 +16,7 @@ import { JetpackModuleSlug } from '../types';
 function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 	return {
 		'account-protection': __(
-			'Your login page now has rate-limiting and secure authentication safeguards.',
+			'Your site now checks logins for compromised passwords and flags weak new passwords.',
 			'jetpack-my-jetpack'
 		),
 		'activity-log': __(
@@ -108,7 +108,7 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'jetpack-my-jetpack'
 		),
 		'post-list': __(
-			'You can now display a customizable list of your latest posts anywhere on your site.',
+			'You can now see featured images and a copy link action in your WP Admin post and page lists.',
 			'jetpack-my-jetpack'
 		),
 		protect: __(

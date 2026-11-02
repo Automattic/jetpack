@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Say that nothing is recorded yet in eight empty Traffic widgets when the site has no views at all, and in Top tags & categories when no post is published, instead of the text about the selected period.

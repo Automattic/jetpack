@@ -48,11 +48,11 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	private const LIST_ROUTE = '/wpcom/v2/newsletter/task-lists/(?P<list_id>[a-z_-]+)';
 
 	/**
-	 * The task completion route pattern.
+	 * The task skip route pattern.
 	 *
 	 * @var string
 	 */
-	private const COMPLETE_ROUTE = '/wpcom/v2/newsletter/task-lists/(?P<list_id>[a-z_-]+)/tasks/(?P<task_id>[a-z_]+)/complete';
+	private const SKIP_ROUTE = '/wpcom/v2/newsletter/task-lists/(?P<list_id>[a-z_-]+)/tasks/(?P<task_id>[a-z_]+)/skip';
 
 	/**
 	 * Method of the last request proxied to WP.com, or '' when nothing was proxied.
@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 		$routes = $this->server->get_routes( 'wpcom/v2' );
 
 		$this->assertArrayHasKey( self::LIST_ROUTE, $routes );
-		$this->assertArrayHasKey( self::COMPLETE_ROUTE, $routes );
+		$this->assertArrayHasKey( self::SKIP_ROUTE, $routes );
 	}
 
 	/**
@@ -133,7 +133,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 
 		$routes = $this->server->get_routes( 'wpcom/v2' );
 		$this->assertArrayNotHasKey( self::LIST_ROUTE, $routes );
-		$this->assertArrayNotHasKey( self::COMPLETE_ROUTE, $routes );
+		$this->assertArrayNotHasKey( self::SKIP_ROUTE, $routes );
 	}
 
 	/**
@@ -144,19 +144,19 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ), 10, 3 );
 
 		$this->assertSame( 401, $this->get_list()->get_status() );
-		$this->assertSame( 401, $this->complete( 'subscribers' )->get_status() );
+		$this->assertSame( 401, $this->skip( 'subscribers' )->get_status() );
 		$this->assertSame( '', $this->proxied_url );
 	}
 
 	/**
-	 * The checklist is site management, so authors can't read or complete it either.
+	 * The checklist is site management, so authors can't read it or skip its tasks either.
 	 */
 	public function test_rejects_non_admin() {
 		wp_set_current_user( static::$author_id );
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ), 10, 3 );
 
 		$this->assertSame( 403, $this->get_list()->get_status() );
-		$this->assertSame( 403, $this->complete( 'subscribers' )->get_status() );
+		$this->assertSame( 403, $this->skip( 'subscribers' )->get_status() );
 		$this->assertSame( '', $this->proxied_url );
 	}
 
@@ -190,17 +190,17 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	}
 
 	/**
-	 * Completing a task forwards the list and task ids, and the `complete` action, as path segments.
+	 * Skipping a task forwards the list and task ids, and the `skip` action, as path segments.
 	 */
-	public function test_complete_task_is_proxied_to_wpcom() {
+	public function test_skip_task_is_proxied_to_wpcom() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ), 10, 3 );
 
-		$response = $this->complete( 'send_newsletter' );
+		$response = $this->skip( 'send_newsletter' );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( Requests::POST, $this->proxied_method );
 		$this->assertSame(
-			'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/newsletter/task-lists/onboarding/tasks/send_newsletter/complete',
+			'https://public-api.wordpress.com/wpcom/v2/sites/' . static::$blog_id . '/newsletter/task-lists/onboarding/tasks/send_newsletter/skip',
 			$this->proxied_url
 		);
 	}
@@ -215,7 +215,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 		foreach ( array(
 			array( Requests::GET, '/wpcom/v2/newsletter/task-lists/onboarding2' ),
 			array( Requests::GET, '/wpcom/v2/newsletter/task-lists/on%2Fboarding' ),
-			array( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/send-newsletter/complete' ),
+			array( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/send-newsletter/skip' ),
 			array( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/subscribers' ),
 		) as list( $method, $path ) ) {
 			$response = $this->server->dispatch( new WP_REST_Request( $method, $path ) );
@@ -230,9 +230,9 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	public function test_wpcom_error_is_passed_through() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_error' ), 10, 3 );
 
-		$response = $this->complete( 'start' );
+		$response = $this->skip( 'start' );
 
-		$this->assertErrorResponse( 'task_not_manual', $response, 400 );
+		$this->assertErrorResponse( 'task_not_skippable', $response, 400 );
 	}
 
 	/**
@@ -245,14 +245,14 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	}
 
 	/**
-	 * Dispatch a completion of an onboarding task.
+	 * Dispatch a skip of an onboarding task.
 	 *
 	 * @param string $task_id Task id.
 	 * @return WP_REST_Response
 	 */
-	private function complete( $task_id ) {
+	private function skip( $task_id ) {
 		return $this->server->dispatch(
-			new WP_REST_Request( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/' . $task_id . '/complete' )
+			new WP_REST_Request( Requests::POST, '/wpcom/v2/newsletter/task-lists/onboarding/tasks/' . $task_id . '/skip' )
 		);
 	}
 
@@ -309,7 +309,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Task_Lists_Test extends Jetpack_REST
 	public function mock_wpcom_error() {
 		return array(
 			'headers'  => array(),
-			'body'     => '{"code":"task_not_manual","message":"This task cannot be completed by hand.","data":{"status":400}}',
+			'body'     => '{"code":"task_not_skippable","message":"This task cannot be skipped.","data":{"status":400}}',
 			'response' => array(
 				'code' => 400,
 			),

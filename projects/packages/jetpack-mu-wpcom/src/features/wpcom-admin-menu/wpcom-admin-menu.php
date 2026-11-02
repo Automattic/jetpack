@@ -8,6 +8,8 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
@@ -15,6 +17,30 @@ use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
+
+/**
+ * Feature flag gating the native Activity Log page on Simple sites.
+ */
+const WPCOM_NATIVE_ACTIVITY_LOG_FLAG = 'wpcom-native-activity-log';
+
+/**
+ * Registers the feature flag.
+ *
+ * Runs as this file loads, so the flag is listed wherever flags are read or toggled.
+ *
+ * @return void
+ */
+function wpcom_register_native_activity_log_flag() {
+	Feature_Flags::register(
+		WPCOM_NATIVE_ACTIVITY_LOG_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show the native wp-admin Activity Log page on Simple sites instead of linking to Calypso.',
+			'owner'       => 'jetpack-mu-wpcom',
+		)
+	);
+}
+wpcom_register_native_activity_log_flag();
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -307,6 +333,36 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 }
 
 /**
+ * Whether the host replaces My Jetpack with Stats.
+ *
+ * @return bool
+ */
+function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		return false;
+	}
+	$plan = \Automattic\Jetpack\Current_Plan::get();
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+}
+add_filter(
+	'jetpack_my_jetpack_modules_management_available',
+	static function ( $available ) {
+		return $available && ! jetpack_mu_wpcom_redirects_my_jetpack_to_stats();
+	}
+);
+
+/**
+ * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
+ *
+ * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
+ *
+ * @return bool
+ */
+function wpcom_backup_opens_in_wp_admin() {
+	return class_exists( WPCOM_Backup::class ) && WPCOM_Backup::slug_is_claimed() && WPCOM_Backup::is_modernized();
+}
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
@@ -321,14 +377,7 @@ function wpcom_add_jetpack_submenu() {
 
 	// @codeCoverageIgnoreStart
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal_or_premium = false;
-	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class             = $current_plan['class'] ?? '';
-		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
-	}
-
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
+	if ( jetpack_mu_wpcom_redirects_my_jetpack_to_stats() ) {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
@@ -375,19 +424,26 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Backup. Calypso owns the nav, so hide the Jetpack plugin's own `jetpack-backup`
-	// entry; hidden rather than removed, so links into that page keep working.
+	// Jetpack > Protect, hidden with a class so Calypso's sidebar drops it too; the standalone plugin keeps its entry.
+	if ( ! class_exists( 'Jetpack_Protect' ) ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-protect' );
+	}
+
+	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
+	// is hidden rather than removed, so links into it keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
-	add_submenu_page(
-		'jetpack',
-		/** "Backup" is a product name, do not translate. */
-		'Backup',
-		'Backup',
-		'manage_options',
-		'https://wordpress.com/backup/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_backup_opens_in_wp_admin() ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
+		add_submenu_page(
+			'jetpack',
+			/** "Backup" is a product name, do not translate. */
+			'Backup',
+			'Backup',
+			'manage_options',
+			'https://wordpress.com/backup/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Monetize.
 	add_submenu_page(
@@ -465,8 +521,8 @@ function wpcom_add_jetpack_submenu() {
 	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
 	// interface the site uses, and behave like a self-hosted site when that page is
 	// not available: the Calypso Activity Log screen is being retired. Simple sites
-	// still hide the native page and link to wordpress.com/activity-log.
-	if ( $is_simple_site ) {
+	// get the native page behind a feature flag, and link to wordpress.com/activity-log otherwise.
+	if ( $is_simple_site && ! wpcom_add_native_activity_log_submenu() ) {
 		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
 		add_submenu_page(
 			'jetpack',
@@ -479,31 +535,94 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	wpcom_reorder_submenu(
-		'jetpack',
-		array(
-			'my-jetpack',
-			'stats',
-			'advertising',
-			'boost',
-			'social',
-			'akismet-key-config',
-			'activity-log',
-			'scan',
-			'backup',
-			'forms',
-			'earn',
-			'search',
-			'subscribers',
-			'newsletter',
-			'podcast',
-			'traffic',
-			'jetpack#/settings',
-			'jetpack-settings',
-		)
-	);
+	wpcom_sort_jetpack_submenu();
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
+
+/**
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first;
+ * Beta Tester, Settings and the upgrade link go at the bottom, as on self-hosted.
+ *
+ * WordPress points the top-level Jetpack link at the first item, so a `hide-if-js` item sorts after the visible
+ * ones in its tier. Items admin-ui hides only leave on admin_head, so they sort as visible here.
+ */
+function wpcom_sort_jetpack_submenu() {
+	global $submenu;
+	if ( empty( $submenu['jetpack'] ) ) {
+		return;
+	}
+
+	// Admin_Menu::POSITION_* values, as this package doesn't depend on admin-ui. There is no
+	// POSITION_EXTERNAL tier: links that leave wp-admin sort in with everything else.
+	$named_tiers = array(
+		'my-jetpack'                                    => -10,
+		'jetpack_modules'                               => -5,
+		'jetpack-beta'                                  => 998,
+		'jetpack-settings'                              => 998,
+		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
+	);
+
+	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$named_tiers['jetpack-activity-log'] = -5;
+		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
+	}
+
+	$keyed = array();
+	foreach ( $submenu['jetpack'] as $item ) {
+		// Drop exact duplicates: Simple can register Akismet twice.
+		if ( in_array( $item, array_column( $keyed, 'item' ), true ) ) {
+			continue;
+		}
+
+		if ( isset( $named_tiers[ $item[2] ] ) ) {
+			$tier = $named_tiers[ $item[2] ];
+		} elseif ( str_contains( $item[2], 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item' ) ) {
+			// Admin_Menu::UPGRADE_MENU_SLUG, sent through a jetpack.com redirect; admin-ui never adds it on WordPress.com.
+			$tier = 999;
+		} else {
+			$tier = 0;
+		}
+
+		$keyed[] = array(
+			'tier'   => $tier,
+			'hidden' => str_contains( $item[4] ?? '', 'hide-if-js' ),
+			'title'  => wp_strip_all_tags( $item[0] ),
+			'item'   => $item,
+		);
+	}
+
+	usort(
+		$keyed,
+		function ( $a, $b ) {
+			$result = array( $a['tier'], $a['hidden'] ) <=> array( $b['tier'], $b['hidden'] );
+			return 0 !== $result ? $result : strnatcasecmp( $a['title'], $b['title'] );
+		}
+	);
+
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$submenu['jetpack'] = array_column( $keyed, 'item' );
+}
+
+/**
+ * Registers the native Activity Log page under Jetpack on a Simple site.
+ *
+ * @return bool Whether the page was registered.
+ */
+function wpcom_add_native_activity_log_submenu() {
+	if ( ! Feature_Flags::is_enabled( WPCOM_NATIVE_ACTIVITY_LOG_FLAG ) ) {
+		return false;
+	}
+
+	// The package ships with Jetpack, which deploys separately from this one.
+	if ( ! class_exists( '\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' ) ) {
+		return false;
+	}
+
+	// A package predating Simple support returns null, which keeps the Calypso link.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+	return null !== \Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::add_wp_admin_submenu();
+}
 
 /*
  * Prevents the Jetpack menu from being overridden on Simple sites.

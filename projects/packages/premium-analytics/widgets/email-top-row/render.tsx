@@ -8,6 +8,7 @@ import {
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	WidgetRoot,
@@ -19,7 +20,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { envelope, link, people, percent, seen, send } from '@wordpress/icons';
+import { link, people, percent, seen, send } from '@wordpress/icons';
 import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -38,11 +39,6 @@ type EmailTopRowWidgetProps = WidgetRenderProps< EmailTopRowRenderAttributes >;
 type EmailRateSummary = StatsEmailBreakdown[ 'summary' ];
 
 type TileIcon = ComponentProps< typeof Icon >[ 'icon' ];
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 const RATE_FORMAT: DataFormat = {
 	type: 'percentage',
@@ -219,7 +215,7 @@ export function toEmailTopRowMetrics(
 		icon: spec.icon,
 		label: spec.label(),
 		value: readTile( spec, summary ),
-		dataFormat: spec.kind === 'rate' ? RATE_FORMAT : COUNT_FORMAT,
+		dataFormat: spec.kind === 'rate' ? RATE_FORMAT : HEADLINE_COUNT_FORMAT,
 	} ) );
 }
 
@@ -274,7 +270,6 @@ const EmailTopRowTiles = ( {
 							: undefined,
 					} }
 					empty={ {
-						icon: envelope,
 						description: hasSelection
 							? __( 'No stats are available for this email yet.', 'jetpack-premium-analytics-pkg' )
 							: __( 'Select an email to see its stats.', 'jetpack-premium-analytics-pkg' ),

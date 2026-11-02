@@ -137,3 +137,12 @@ describe( 'PreviewPlayer', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 } );
+
+it( 'shows conversion failure recovery without minting a token or loading a player', () => {
+	render( <PreviewPlayer video={ { ...baseVideo, isPrivate: true, conversionFailed: true } } /> );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		'Conversion failed. Delete this video and upload it again.'
+	);
+	expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+	expect( mockedGetMediaToken ).not.toHaveBeenCalled();
+} );

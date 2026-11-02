@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -62,7 +63,7 @@ class Sharing_Section_Test extends BaseTestCase {
 	 */
 	private function given_block_route_and_sharing_off(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 		$this->given_connection( true );
 		$this->given_modules( array() );
 	}
@@ -137,7 +138,7 @@ class Sharing_Section_Test extends BaseTestCase {
 	public function test_offers_the_switch_on_simple(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 
 		$markup = $this->render();
 
@@ -153,7 +154,7 @@ class Sharing_Section_Test extends BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_no_services();
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 
 		$markup = $this->render();
 

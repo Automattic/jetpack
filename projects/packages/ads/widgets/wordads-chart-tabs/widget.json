@@ -1,5 +1,6 @@
 {
 	"name": "wordads/chart-tabs",
+	"icon": "jpa/megaphone",
 	"title": "Ads summary",
 	"description": "Track ads served, average CPM, and revenue over the selected period.",
 	"help": {
@@ -13,5 +14,28 @@
 	},
 	"category": "stats",
 	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "reportParams"
+		},
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "line",
+					"label": "Line chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	],
 	"textdomain": "jetpack-ads-pkg"
 }

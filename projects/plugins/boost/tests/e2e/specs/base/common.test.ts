@@ -53,21 +53,8 @@ test.describe( 'Common tests', () => {
 		} );
 
 		await test.step( 'Navigate to Boost settings and verify Critical CSS generation', async () => {
-			/*
-			 * page.waitForResponse() only matches responses that arrive after it is
-			 * attached, so start listening before the navigation that kicks off
-			 * generation. This is a cold generation (fresh environment + module
-			 * activation), so use the 240s ceiling rather than the 60s default; the
-			 * wait still resolves as soon as the terminal state arrives — the ceiling
-			 * only guards against flakiness on slow CI runners.
-			 */
-			const criticalCssGenerated = jetpackBoostPage.waitForCriticalCssGeneration( 240000 );
 			await admin.visitAdminPage( 'admin.php', 'page=jetpack-boost' );
-			await expect(
-				page.locator( '.jb-critical-css-progress' ),
-				'Critical CSS generation progress indicator should be visible'
-			).toBeVisible();
-			await criticalCssGenerated;
+			await jetpackBoostPage.generateCriticalCss();
 			await expect(
 				page.getByTestId( 'critical-css-meta' ),
 				'Critical CSS meta information should be visible'

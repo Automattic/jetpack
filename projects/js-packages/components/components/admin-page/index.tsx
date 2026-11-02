@@ -34,14 +34,21 @@ const AdminPage: FC< AdminPageProps > = ( {
 	subTitle,
 	logo,
 	actions,
+	globalControls,
 	breadcrumbs,
+	ariaLabel,
 	tabs,
 	showBottomBorder = true,
 	unwrapped = false,
 } ) => {
+	// Only set what was passed: the client is shared, so an empty default would wipe what the page set.
 	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
+		if ( apiRoot ) {
+			restApi.setApiRoot( apiRoot );
+		}
+		if ( apiNonce ) {
+			restApi.setApiNonce( apiNonce );
+		}
 	}, [ apiRoot, apiNonce ] );
 
 	// `jp-admin-page` is a stable, non-hashed hook for global stylesheets and
@@ -79,15 +86,32 @@ const AdminPage: FC< AdminPageProps > = ( {
 					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
 					breadcrumbs={ breadcrumbs }
 					title={ title }
+					ariaLabel={ ariaLabel }
 					subTitle={ subTitle }
-					actions={ actions }
+					actions={
+						globalControls ? (
+							<>
+								{ actions }
+								{ actions && (
+									<span
+										role="separator"
+										aria-orientation="vertical"
+										className={ styles[ 'global-controls-separator' ] }
+									/>
+								) }
+								{ globalControls }
+							</>
+						) : (
+							actions
+						)
+					}
 					showSidebarToggle={ false }
 				>
 					{ tabs }
 					{ unwrapped ? (
 						children
 					) : (
-						<Container fluid horizontalSpacing={ 0 }>
+						<Container className="jp-admin-page__content" fluid horizontalSpacing={ 0 }>
 							<Col>{ children }</Col>
 						</Container>
 					) }
@@ -129,3 +153,4 @@ const AdminPage: FC< AdminPageProps > = ( {
 };
 
 export default AdminPage;
+export { default as PageActionButton } from './page-action-button.tsx';
