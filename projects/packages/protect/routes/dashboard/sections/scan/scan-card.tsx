@@ -100,16 +100,23 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats && scan.lastScanFailed ) {
+	} else if ( ! hasThreats && ( scan.lastScanFailed || ! scan.lastChecked ) ) {
+		let message: string = __( 'Your site hasn’t been scanned yet.', 'jetpack-protect-pkg' );
+		if ( scan.lastScanFailed ) {
+			message = __(
+				'Your last scan didn’t complete, so we can’t confirm your site is free of threats.',
+				'jetpack-protect-pkg'
+			);
+		} else if ( ! hasPlan ) {
+			message = __(
+				'Your site hasn’t been checked for vulnerabilities yet.',
+				'jetpack-protect-pkg'
+			);
+		}
 		body = (
 			<CardRow className="jp-protect-scan__state">
 				<Stack direction="column" gap="sm" align="start">
-					<Text variant="body-md">
-						{ __(
-							'Your last scan didn’t complete, so we can’t confirm your site is free of threats.',
-							'jetpack-protect-pkg'
-						) }
-					</Text>
+					<Text variant="body-md">{ message }</Text>
 					<ScanButton
 						scan={ scan }
 						isStarting={ isStarting }

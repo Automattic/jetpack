@@ -49,10 +49,11 @@ class Scan implements Dashboard_Section {
 
 	/**
 	 * Statuses that mean the first scan has not run yet when there is no report date.
+	 * Not `idle`: WordPress.com can stay idle with no scan on record, which isn't a scan running.
 	 *
 	 * @var string[]
 	 */
-	const INITIALIZING_STATUSES = array( 'idle', 'unavailable' );
+	const INITIALIZING_STATUSES = array( 'unavailable' );
 
 	/**
 	 * Lock held for a minute after a scan request, so repeated requests don't stack.
