@@ -12,6 +12,7 @@ import {
 	type PrimaryPresetId,
 	type SelectablePresetId,
 } from './presets/types';
+import type { DateRangeSpanUnit } from './date-range-span';
 import type { DateRange } from './get-comparison-range';
 
 /** The presets measured in whole months or years rather than a day count. */
@@ -28,11 +29,11 @@ const CALENDAR_PRESETS: readonly PrimaryPresetId[] = [
  */
 export type FindPresetOptions = {
 	/**
-	 * The preset the window was stepped from. From a calendar preset, a window
+	 * The unit the window was stepped by. Stepped by months or years, a window
 	 * two presets cover reads as the calendar one: the month to date, not
 	 * "Last 30 days", so the next step keeps moving by months.
 	 */
-	presetId?: PrimaryPresetId;
+	steppedBy?: DateRangeSpanUnit;
 	/** Presets the plan locks, which the window is never named as. */
 	exclude?: readonly PrimaryPresetId[];
 };
@@ -57,10 +58,10 @@ export function findSelectablePresetForRange(
 		return undefined;
 	}
 
-	const { presetId, exclude = [] } = options;
+	const { steppedBy, exclude = [] } = options;
 	const isCalendar = ( id: PrimaryPresetId ) => CALENDAR_PRESETS.includes( id );
 	const candidates =
-		presetId && isCalendar( presetId )
+		steppedBy === 'month' || steppedBy === 'year'
 			? [
 					...SELECTABLE_PRESETS.filter( isCalendar ),
 					...SELECTABLE_PRESETS.filter( id => ! isCalendar( id ) ),

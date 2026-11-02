@@ -7,12 +7,7 @@ import { TZDate } from '@date-fns/tz';
  */
 import { findSelectablePresetForRange } from './preset-for-range';
 import { PRESET_CUSTOM, type PrimaryPresetId } from './presets/types';
-import {
-	canStepBackward,
-	canStepForward,
-	stepDateRange,
-	type StepDirection,
-} from './step-date-range';
+import { endOfStepBucket, measureStep, shiftStep, type StepDirection } from './step-date-range';
 import { clampRangeEndToToday } from './to-date-range';
 import type { DateRange } from './get-comparison-range';
 
@@ -51,11 +46,15 @@ export type DateStep = {
  * and what the landing is called. The arrows that offer a step and the filters
  * that apply it read the same answer, so they cannot disagree.
  *
- * A forward step closes the unit the window was measured in, which can reach
- * past today, so the landing is pulled back to the end of today: stepping out
- * of "12 months" returns to its to-date window. The landing reads as a preset
- * when it is exactly that preset's window today, preferring the unit it was
- * stepped in, and never as a preset the plan locks.
+ * Backward, the step has to start on or after the plan's earliest date.
+ * Forward, the next window has to end within the bucket `now` sits in — the
+ * running hour, day, month or year — so a live preset stays reachable from the
+ * window behind it, and nothing steps past the latest one. A forward step
+ * closes the unit the window was measured in, which can reach past today, so
+ * the landing is pulled back to the end of today: stepping out of "12 months"
+ * returns to its to-date window. The landing reads as a preset when it is
+ * exactly that preset's window today, preferring a calendar preset when the
+ * step moved by months, and never as a preset the plan locks.
  *
  * @param range     - The applied window.
  * @param direction - Which way to move it.
@@ -68,15 +67,32 @@ export function planDateStep(
 	context: DateStepContext
 ): DateStep | undefined {
 	const { presetId, timeZone, earliestDate, lockedPresetIds } = context;
-	const now = new TZDate( context.now.getTime(), timeZone );
-	const stepOptions = { presetId };
-	const available =
-		direction === 'previous'
-			? canStepBackward( range, { ...stepOptions, earliestDate } )
-			: canStepForward( range, now, stepOptions );
-	const stepped = available ? stepDateRange( range, direction, stepOptions ) : undefined;
 
-	if ( ! stepped ) {
+	if ( ! range.from || ! range.to ) {
+		return undefined;
+	}
+
+	// Everything below cuts boundaries on the site's calendar, whatever clock the ends arrived on.
+	const now = new TZDate( context.now.getTime(), timeZone );
+	const measured = measureStep(
+		{
+			from: new TZDate( range.from.getTime(), timeZone ),
+			to: new TZDate( range.to.getTime(), timeZone ),
+		},
+		{ presetId, now }
+	);
+
+	if ( ! measured ) {
+		return undefined;
+	}
+
+	const stepped = shiftStep( measured, direction );
+	const reachable =
+		direction === 'previous'
+			? ! earliestDate || stepped.from.getTime() >= earliestDate.getTime()
+			: stepped.to.getTime() <= endOfStepBucket( now, measured.span.unit ).getTime();
+
+	if ( ! reachable ) {
 		return undefined;
 	}
 
@@ -85,7 +101,9 @@ export function planDateStep(
 	return {
 		range: landing,
 		presetId:
-			findSelectablePresetForRange( landing, timeZone, { presetId, exclude: lockedPresetIds } ) ??
-			PRESET_CUSTOM,
+			findSelectablePresetForRange( landing, timeZone, {
+				steppedBy: measured.span.unit,
+				exclude: lockedPresetIds,
+			} ) ?? PRESET_CUSTOM,
 	};
 }

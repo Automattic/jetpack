@@ -11,7 +11,7 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { planDateStep } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -175,7 +175,8 @@ describe( 'buildRangePatch', () => {
 	 * the forward arrow.
 	 */
 	it( 'steps a rolling window back and forward without changing its length', () => {
-		const previous = stepDateRange( { from, to }, 'previous' );
+		const stepContext = { timeZone: 'UTC', now: to };
+		const previous = planDateStep( { from, to }, 'previous', stepContext )?.range;
 		const back = buildRangePatch( {
 			nextRange: previous,
 			nextPresetId: 'custom',
@@ -194,11 +195,9 @@ describe( 'buildRangePatch', () => {
 			from: new TZDate( back?.from ?? '', 'UTC' ),
 			to: new TZDate( back?.to ?? '', 'UTC' ),
 		};
-		expect( canStepForward( backRange, to ) ).toBe( true );
-
-		const returned = stepDateRange( backRange, 'next' );
-		expect( returned?.from?.getTime() ).toBe( from.getTime() );
-		expect( returned?.to?.getTime() ).toBe( to.getTime() );
+		const returned = planDateStep( backRange, 'next', stepContext )?.range;
+		expect( returned?.from.getTime() ).toBe( from.getTime() );
+		expect( returned?.to.getTime() ).toBe( to.getTime() );
 	} );
 
 	it( 're-derives the comparison range from the new primary range when enabled', () => {

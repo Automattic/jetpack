@@ -22,6 +22,7 @@ import { buildRangePatch, type ReportQuerySearchParams } from './build-range-pat
 import type {
 	ComparisonPresetId,
 	DateRange,
+	DateStep,
 	IntervalType,
 	PrimaryPresetId,
 	StepDirection,
@@ -81,9 +82,7 @@ export type ReportDateFilters = {
 	 * it. Returns what was committed, so a caller can track it as applied: the
 	 * preset whose window the step landed on, or `custom`, and the interval kept.
 	 */
-	onStep: (
-		direction: StepDirection
-	) => { range: DateRange; presetId: PrimaryPresetId; interval: IntervalType } | undefined;
+	onStep: ( direction: StepDirection ) => ( DateStep & { interval: IntervalType } ) | undefined;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -147,7 +146,8 @@ export function useReportDateFilters< TFrom extends string >(
 
 	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass limits in.
 	const scopedLocks = useScopeLockedIntervals();
-	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks;
+	const lockedIntervals =
+		filterOptions.lockedIntervals ?? filterOptions.dateLimits?.lockedIntervals ?? scopedLocks;
 	const scopedDateLimits = useReportScope().dateLimits;
 	const { earliestDate, lockedPresetIds } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
@@ -285,26 +285,19 @@ export function useReportDateFilters< TFrom extends string >(
 
 	/*
 	 * One decision for the arrows and the step: the plan function says whether
-	 * the window moves, where it lands and what the landing is called.
+	 * the window moves, where it lands and what the landing is called. The clock
+	 * is read on each render, not memoised, so a tab left open past midnight
+	 * offers the new day as soon as anything re-renders.
 	 */
 	const stepContext = useMemo(
-		() => ( {
-			presetId: appliedPresetId,
-			timeZone,
-			now: new Date(),
-			earliestDate,
-			lockedPresetIds,
-		} ),
+		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds } ),
 		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds ]
 	);
-	const canStepBackward = useMemo(
-		() => planDateStep( appliedRange, 'previous', stepContext ) !== undefined,
-		[ appliedRange, stepContext ]
-	);
-	const canStepForward = useMemo(
-		() => planDateStep( appliedRange, 'next', stepContext ) !== undefined,
-		[ appliedRange, stepContext ]
-	);
+	const now = new Date();
+	const canStepBackward =
+		planDateStep( appliedRange, 'previous', { ...stepContext, now } ) !== undefined;
+	const canStepForward =
+		planDateStep( appliedRange, 'next', { ...stepContext, now } ) !== undefined;
 
 	/*
 	 * Commits and pushes a history entry so Back undoes the step. Steps the

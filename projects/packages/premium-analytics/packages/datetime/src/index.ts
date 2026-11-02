@@ -28,14 +28,7 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
-export {
-	stepDateRange,
-	canStepForward,
-	canStepBackward,
-	type StepDirection,
-} from './step-date-range';
-export { clampRangeEndToToday } from './to-date-range';
-export { findSelectablePresetForRange, type FindPresetOptions } from './preset-for-range';
+export type { StepDirection } from './step-date-range';
 export { planDateStep, type DateStep, type DateStepContext } from './plan-date-step';
 
 export { drillDateRange } from './drill-date-range';

@@ -796,6 +796,23 @@ describe( 'useReportDateFilters', () => {
 		} );
 	} );
 
+	it( 'offers the next window once the clock has moved on, without a new range', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:30:00.000Z' ) );
+		mockSearch = {
+			from: '2026-08-20T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'custom',
+		};
+		const { result, rerender } = renderHook( () => useReportDateFilters( '/' ) );
+
+		expect( result.current.canStepForward ).toBe( false );
+
+		jest.setSystemTime( Date.parse( '2026-08-21T01:00:00.000Z' ) );
+		rerender();
+
+		expect( result.current.canStepForward ).toBe( true );
+	} );
+
 	it( 'binds to the route it is given', () => {
 		renderDateFilters();
 
@@ -804,6 +821,11 @@ describe( 'useReportDateFilters', () => {
 
 	it.each( [
 		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
+		[
+			'passed in with the date limits',
+			{ dateLimits: { lockedPresetIds: [], lockedIntervals: LOCKED_INTERVALS } },
+			undefined,
+		],
 		[ 'declared by the report scope', undefined, scopeWithLocks ],
 	] )(
 		'offers and stages only the buckets the plan leaves open, listing the rest locked, with locks %s',

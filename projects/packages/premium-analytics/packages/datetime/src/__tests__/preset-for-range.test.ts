@@ -30,7 +30,7 @@ describe( 'findSelectablePresetForRange', () => {
 		}
 	);
 
-	it( 'names a window two presets cover as the calendar one when stepped from a calendar preset', () => {
+	it( 'names a window two presets cover as the calendar one when stepped by months', () => {
 		// On the 30th the month to date is also the last 30 days. Hand the clock
 		// back as found: a group sibling may have frozen it for its own run.
 		const now = Date.now();
@@ -39,7 +39,7 @@ describe( 'findSelectablePresetForRange', () => {
 			const range = computePrimaryRange( 'month-to-date', TIMEZONE )!;
 
 			expect( findSelectablePresetForRange( range, TIMEZONE ) ).toBe( 'last-30-days' );
-			expect( findSelectablePresetForRange( range, TIMEZONE, { presetId: 'last-month' } ) ).toBe(
+			expect( findSelectablePresetForRange( range, TIMEZONE, { steppedBy: 'month' } ) ).toBe(
 				'month-to-date'
 			);
 		} finally {

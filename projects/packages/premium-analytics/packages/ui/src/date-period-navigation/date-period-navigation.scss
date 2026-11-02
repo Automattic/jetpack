@@ -17,5 +17,5 @@
 	// wherever else it is mounted.
 	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
 
-	min-width: var(--wpds-dimension-size-lg);
+	min-inline-size: var(--wpds-dimension-size-lg);
 }

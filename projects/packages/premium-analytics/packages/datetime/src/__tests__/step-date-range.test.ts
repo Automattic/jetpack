@@ -6,7 +6,7 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { canStepBackward, canStepForward, stepDateRange } from '../step-date-range';
+import { stepDateRange } from '../step-date-range';
 import type { DateRange } from '../get-comparison-range';
 
 /**
@@ -150,6 +150,34 @@ describe( 'stepDateRange', () => {
 		);
 	} );
 
+	// Where a forward step pulled back to today leaves a reader: a hand-picked
+	// run of whole months and the running one, completed so Previous retraces Next.
+	it( 'steps a hand-picked run of months to date by its completed months', () => {
+		const range = wholeDays( at( 2026, 9, 1 ), at( 2026, 11, 2 ) );
+		const now = at( 2026, 11, 2, 12 );
+
+		expect( stepDateRange( range, 'previous', { presetId: 'custom', now } ) ).toEqual(
+			wholeDays( at( 2026, 6, 1 ), at( 2026, 8, 31 ) )
+		);
+	} );
+
+	it.each( [
+		[
+			'only the running month',
+			wholeDays( at( 2026, 11, 1 ), at( 2026, 11, 2 ) ),
+			wholeDays( at( 2026, 10, 30 ), at( 2026, 10, 31 ) ),
+		],
+		[
+			'months that ended yesterday',
+			wholeDays( at( 2026, 9, 1 ), at( 2026, 11, 1 ) ),
+			wholeDays( at( 2026, 7, 1 ), at( 2026, 8, 31 ) ),
+		],
+	] )( 'steps a hand-picked window covering %s by its days', ( _name, range, expected ) => {
+		expect( stepDateRange( range, 'previous', { now: at( 2026, 11, 2, 12 ) } ) ).toEqual(
+			expected
+		);
+	} );
+
 	it( 'does not step all time', () => {
 		const range = wholeDays( at( 2020, 1, 1 ), at( 2026, 8, 20 ) );
 
@@ -183,7 +211,7 @@ describe( 'stepDateRange', () => {
 		const walks = cases.filter( ( [ name ] ) => name !== 'months from a 31st' );
 
 		it.each( walks )( 'returns from several steps out across %s', ( _name, range ) => {
-			let moved: DateRange | undefined = range;
+			let moved: Required< DateRange > | undefined = range;
 
 			for ( let i = 0; i < 3; i++ ) {
 				moved = moved && stepDateRange( moved, 'previous' );
@@ -226,122 +254,5 @@ describe( 'stepDateRange', () => {
 			differenceInHours( range.to, range.from, { roundingMethod: 'round' } )
 		);
 		expect( stepDateRange( previous!, 'next' ) ).toEqual( range );
-	} );
-
-	it( 'returns undefined for a range it cannot measure', () => {
-		expect(
-			stepDateRange( { from: undefined, to: at( 2026, 7, 27 ) }, 'previous' )
-		).toBeUndefined();
-		expect( stepDateRange( { from: at( 2026, 7, 21 ), to: undefined }, 'next' ) ).toBeUndefined();
-		expect( stepDateRange( {}, 'next' ) ).toBeUndefined();
-	} );
-} );
-
-describe( 'canStepForward', () => {
-	const now = at( 2026, 7, 27, 12 );
-
-	/*
-	 * Live presets end in the future (`Last 24 hours`, `today`) or before the
-	 * present (`Last 7 days`), yet all are the latest window available.
-	 */
-	it( 'is false on a rolling window whose end has just gone stale', () => {
-		const to = at( 2026, 7, 27, 11, 59 );
-
-		expect( canStepForward( { from: at( 2026, 7, 26, 11, 59 ), to }, now ) ).toBe( false );
-	} );
-
-	// The live window ends in the future on purpose; counting that bucket is what
-	// keeps it reachable after a step back.
-	it( 'is true on the window right behind a live hour-snapped one', () => {
-		const live = { from: at( 2026, 7, 26, 13 ), to: endOfHourAt( 2026, 7, 27, 12 ) };
-		const back = stepDateRange( live, 'previous' );
-
-		expect( canStepForward( live, now ) ).toBe( false );
-		expect( canStepForward( back!, now ) ).toBe( true );
-	} );
-
-	it( 'is true on yesterday while today is still running', () => {
-		const today = wholeDays( at( 2026, 7, 27 ), at( 2026, 7, 27 ) );
-		const yesterday = stepDateRange( today, 'previous' );
-
-		expect( canStepForward( today, now ) ).toBe( false );
-		expect( canStepForward( yesterday!, now ) ).toBe( true );
-	} );
-
-	it( 'closes the bucket on the window timezone, not the machine one', () => {
-		const site = '+00:00';
-		const yesterday = {
-			from: new TZDate( 2026, 6, 26, 0, 0, 0, 0, site ),
-			to: new TZDate( 2026, 6, 26, 23, 59, 59, 999, site ),
-		};
-		// 02:00 UTC on the next site day, whatever timezone runs the tests.
-		const nowInstant = new Date( Date.UTC( 2026, 6, 27, 2, 0 ) );
-
-		expect( canStepForward( yesterday, nowInstant ) ).toBe( true );
-	} );
-
-	it( 'is false on a window ending at the end of yesterday', () => {
-		const range = wholeDays( at( 2026, 7, 20 ), at( 2026, 7, 26 ) );
-
-		expect( canStepForward( range, now ) ).toBe( false );
-	} );
-
-	it( 'is true once the window has been stepped back', () => {
-		const range = wholeDays( at( 2026, 7, 13 ), at( 2026, 7, 19 ) );
-
-		expect( canStepForward( range, now ) ).toBe( true );
-	} );
-
-	// Stepping forward from there lands on the latest window, which is where the
-	// control has to disable again.
-	it( 'turns false again on the window a forward step lands on', () => {
-		const range = wholeDays( at( 2026, 7, 13 ), at( 2026, 7, 19 ) );
-		const next = stepDateRange( range, 'next' );
-
-		expect( canStepForward( next!, now ) ).toBe( false );
-	} );
-
-	// The month or year in progress is the bucket `now` sits in, so the one
-	// before it can step forward into it; the month or year to date cannot.
-	it.each( [
-		[ 'the month before', wholeDays( at( 2026, 6, 1 ), at( 2026, 6, 30 ) ), 'last-month', true ],
-		[
-			'the month to date',
-			wholeDays( at( 2026, 7, 1 ), at( 2026, 7, 27 ) ),
-			'month-to-date',
-			false,
-		],
-		[ 'last year', wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) ), 'last-year', true ],
-		[ 'the year to date', wholeDays( at( 2026, 1, 1 ), at( 2026, 7, 27 ) ), 'year-to-date', false ],
-		[ 'all time', wholeDays( at( 2020, 1, 1 ), at( 2026, 7, 27 ) ), 'all-time', false ],
-	] as const )( 'is %s on %s', ( _name, range, presetId, expected ) => {
-		expect( canStepForward( range, now, { presetId } ) ).toBe( expected );
-	} );
-
-	it( 'is false without an end to step from', () => {
-		expect( canStepForward( { from: at( 2026, 7, 14 ), to: undefined }, now ) ).toBe( false );
-	} );
-} );
-
-describe( 'canStepBackward', () => {
-	const range = wholeDays( at( 2026, 7, 21 ), at( 2026, 7, 27 ) );
-
-	it( 'is true without a limit', () => {
-		expect( canStepBackward( range ) ).toBe( true );
-	} );
-
-	it.each( [
-		[ 'at the start of the previous window', at( 2026, 7, 14 ), true ],
-		[ 'inside the previous window', at( 2026, 7, 15 ), false ],
-	] )( 'follows the earliest date %s', ( _name, earliestDate, expected ) => {
-		expect( canStepBackward( range, { earliestDate } ) ).toBe( expected );
-	} );
-
-	it( 'is false on all time', () => {
-		expect( canStepBackward( range, { presetId: 'all-time' } ) ).toBe( false );
-	} );
-
-	it( 'is false without a start to step from', () => {
-		expect( canStepBackward( { from: undefined, to: at( 2026, 7, 27 ) } ) ).toBe( false );
 	} );
 } );

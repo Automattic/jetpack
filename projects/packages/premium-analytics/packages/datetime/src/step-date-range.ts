@@ -9,10 +9,13 @@ import {
 	addMonths,
 	addYears,
 	differenceInCalendarDays,
+	differenceInCalendarMonths,
 	endOfDay,
 	endOfHour,
 	endOfMonth,
 	endOfYear,
+	isFirstDayOfMonth,
+	startOfDay,
 	subMilliseconds,
 } from 'date-fns';
 /**
@@ -22,6 +25,7 @@ import { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './
 import { getPreviousPeriodMonthCount, type DateRange } from './get-comparison-range';
 import {
 	PRESET_ALL_TIME,
+	PRESET_CUSTOM,
 	PRESET_MONTH_TO_DATE,
 	PRESET_YEAR_TO_DATE,
 	type PrimaryPresetId,
@@ -39,10 +43,25 @@ export type StepDirection = 'previous' | 'next';
 export type StepOptions = {
 	/**
 	 * The preset the range came from. A to-date preset steps as its completed
-	 * month, and a "Last N days" preset always steps by days.
+	 * month or year, and a "Last N days" preset always steps by days.
 	 */
 	presetId?: PrimaryPresetId;
+
+	/**
+	 * The current instant on the window's clock. A hand-picked window running
+	 * from a month's first day to the end of today then steps as its completed
+	 * months, like the month to date.
+	 */
+	now?: TZDate;
 };
+
+/**
+ * A window measured for stepping: completed where it is still running, and
+ * the span it moves by.
+ */
+export type MeasuredStep = Required< DateRange > & { span: DateRangeSpan };
+
+const MONTHS_PER_YEAR = 12;
 
 /**
  * Calendar adders rather than a millisecond offset: twelve months back has to
@@ -58,11 +77,7 @@ const ADD_BY_UNIT: Record< DateRangeSpanUnit, Adder > = {
 	year: addYears,
 };
 
-/**
- * End of the bucket an instant sits in, at each granularity a window measures
- * in.
- */
-const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
+const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: TZDate ) => TZDate > = {
 	hour: endOfHour,
 	day: endOfDay,
 	month: endOfMonth,
@@ -70,18 +85,51 @@ const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
 };
 
 /**
- * The window a step measures: a to-date preset completed to its month or year
- * end, so "This month", "This year" and "12 months" move by whole units rather
- * than the days read so far.
+ * End of the bucket an instant sits in, at the granularity a window steps in.
+ * The next window qualifies once it ends within this bucket, so a live preset
+ * ending in the running hour, day, month or year stays reachable.
  *
- * @param range    - The window as applied.
- * @param presetId - The preset that produced it.
+ * @param now  - The instant, on the window's clock.
+ * @param unit - The unit the window steps in.
+ * @return The last instant of that bucket.
+ */
+export function endOfStepBucket( now: TZDate, unit: DateRangeSpanUnit ): TZDate {
+	return END_OF_BUCKET[ unit ]( now );
+}
+
+/**
+ * Whether a hand-picked window runs from a month's first day to the end of
+ * today and spans more than that month, so that it reads as months to date.
+ *
+ * @param range - The window.
+ * @param now   - The current instant, on the window's clock.
+ * @return Whether the window is a to-date run of months.
+ */
+function isMonthsToDate( range: Required< DateRange >, now: TZDate ): boolean {
+	const { from, to } = range;
+
+	return (
+		isFirstDayOfMonth( from ) &&
+		from.getTime() === startOfDay( from ).getTime() &&
+		to.getTime() === endOfDay( now ).getTime() &&
+		differenceInCalendarMonths( to, from ) >= 1
+	);
+}
+
+/**
+ * The window a step measures: a to-date window completed to its month or year
+ * end, so "This month", "This year", "12 months" and a hand-picked run of
+ * months to date move by whole units rather than the days read so far.
+ *
+ * @param range   - The window as applied.
+ * @param options - The context it was produced in.
  * @return The window to step.
  */
-function completeForStep< T extends DateRange >( range: T, presetId?: PrimaryPresetId ): T {
-	if ( ! range.to ) {
-		return range;
-	}
+function completeForStep(
+	range: Required< DateRange >,
+	options: StepOptions
+): Required< DateRange > {
+	const { presetId, now } = options;
 
 	if ( presetId === PRESET_MONTH_TO_DATE ) {
 		return { ...range, to: endOfMonth( range.to ) };
@@ -91,14 +139,23 @@ function completeForStep< T extends DateRange >( range: T, presetId?: PrimaryPre
 		return { ...range, to: endOfYear( range.to ) };
 	}
 
+	if (
+		( presetId === undefined || presetId === PRESET_CUSTOM ) &&
+		now &&
+		isMonthsToDate( range, now )
+	) {
+		return { ...range, to: endOfMonth( range.to ) };
+	}
+
 	return completeToDateRange( range, presetId );
 }
 
 /**
  * How far a step moves, measured the way the comparison measures its previous
- * period: whole calendar months as months, any other day-aligned window by its
- * days. `getDateRangeSpan` is for labels, so it would read a window starting
- * mid-month as months and a single whole month as days.
+ * period: whole calendar months as months (whole calendar years as years, so
+ * "Last year" looks ahead to the end of this one), any other day-aligned
+ * window by its days. `getDateRangeSpan` is for labels, so it would read a
+ * window starting mid-month as months and a single whole month as days.
  *
  * @param from     - Window start.
  * @param to       - Window end.
@@ -109,7 +166,9 @@ function getStepSpan( from: TZDate, to: TZDate, presetId?: PrimaryPresetId ): Da
 	const months = getPreviousPeriodMonthCount( from, to, presetId );
 
 	if ( months ) {
-		return { unit: 'month', value: months };
+		return from.getMonth() === 0 && months % MONTHS_PER_YEAR === 0
+			? { unit: 'year', value: months / MONTHS_PER_YEAR }
+			: { unit: 'month', value: months };
 	}
 
 	const span = getDateRangeSpan( { from, to } );
@@ -119,6 +178,29 @@ function getStepSpan( from: TZDate, to: TZDate, presetId?: PrimaryPresetId ): Da
 	}
 
 	return { unit: 'day', value: differenceInCalendarDays( to, from ) + 1 };
+}
+
+/**
+ * Measure a window for stepping. Both ends must sit on the window's own
+ * clock, so that day and month boundaries are cut on the site's calendar.
+ *
+ * @param range   - The window to move, both ends present.
+ * @param options - The context the window was produced in.
+ * @return The completed window and its span, or null when it cannot step: "All
+ *   time" has no neighbour, and a backwards range has no length.
+ */
+export function measureStep(
+	range: Required< DateRange >,
+	options: StepOptions = {}
+): MeasuredStep | null {
+	if ( options.presetId === PRESET_ALL_TIME ) {
+		return null;
+	}
+
+	const { from, to } = completeForStep( range, options );
+	const span = getStepSpan( from, to, options.presetId );
+
+	return span ? { from, to, span } : null;
 }
 
 /**
@@ -150,38 +232,17 @@ function shift(
 }
 
 /**
- * Shift a range backward or forward by its own length.
+ * Shift a measured window backward or forward by its span.
  *
  * Falls back to the day count where a calendar step will not undo — `addMonths`
  * clamps a day the target month is too short for, and reversibility wins.
  *
- * @param range     - The window to move.
+ * @param step      - The measured window.
  * @param direction - Which way to move it.
- * @param options   - The context the window was produced in.
- * @return The shifted range, or `undefined` when the range has no measurable span.
+ * @return The shifted range.
  */
-export function stepDateRange(
-	range: DateRange,
-	direction: StepDirection,
-	options: StepOptions = {}
-): Required< DateRange > | undefined {
-	// All time has no neighbour to step to.
-	if ( options.presetId === PRESET_ALL_TIME ) {
-		return undefined;
-	}
-
-	const { from, to } = completeForStep( range, options.presetId );
-
-	if ( ! from || ! to ) {
-		return undefined;
-	}
-
-	const span = getStepSpan( from, to, options.presetId );
-
-	if ( ! span ) {
-		return undefined;
-	}
-
+export function shiftStep( step: MeasuredStep, direction: StepDirection ): Required< DateRange > {
+	const { from, to, span } = step;
 	const sign = direction === 'previous' ? -1 : 1;
 	const stepped = shift( from, to, span.unit, sign * span.value );
 	const returned = shift( stepped.from, stepped.to, span.unit, -sign * span.value );
@@ -196,68 +257,19 @@ export function stepDateRange(
 }
 
 /**
- * Whether the window is one or more whole calendar years.
+ * Shift a range backward or forward by its own length.
  *
- * @param from - Start of the window.
- * @param to   - End of the window.
- * @return Whether the window runs from a January 1st to a December 31st.
+ * @param range     - The window to move, both ends on its own clock.
+ * @param direction - Which way to move it.
+ * @param options   - The context the window was produced in.
+ * @return The shifted range, or `undefined` when the range cannot step.
  */
-function isWholeCalendarYears( from: Date, to: Date ): boolean {
-	return (
-		from.getMonth() === 0 && from.getDate() === 1 && to.getMonth() === 11 && to.getDate() === 31
-	);
-}
+export function stepDateRange(
+	range: Required< DateRange >,
+	direction: StepDirection,
+	options: StepOptions = {}
+): Required< DateRange > | undefined {
+	const measured = measureStep( range, options );
 
-/**
- * Whether there is a later window to step into.
- *
- * The next window qualifies once it ends within the bucket `now` sits in, so a
- * live preset ending in the running hour or day stays reachable. A calendar
- * year looks ahead to the end of this year, so "Last year" can step into the
- * year to date.
- *
- * @param range   - The window to test.
- * @param now     - The instant to compare against.
- * @param options - The context the window was produced in.
- * @return Whether a forward step lands on a window already worth showing.
- */
-export function canStepForward( range: DateRange, now: Date, options: StepOptions = {} ): boolean {
-	const { from, to } = completeForStep( range, options.presetId );
-	const span = from && to ? getStepSpan( from, to, options.presetId ) : null;
-	const next = stepDateRange( range, 'next', options );
-
-	if ( ! span || ! next ) {
-		return false;
-	}
-
-	// Anchored to the window's own timezone, so a site offset from the browser
-	// closes its buckets on its own clock.
-	const timeZone = range.to && 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
-	const unit = isWholeCalendarYears( from as Date, to as Date ) ? 'year' : span.unit;
-	const horizon = END_OF_BUCKET[ unit ]( timeZone ? new TZDate( now.getTime(), timeZone ) : now );
-
-	return next.to.getTime() <= horizon.getTime();
-}
-
-/**
- * Whether there is an earlier window to step into.
- *
- * @param range                - The window to test.
- * @param options              - The context the window was produced in.
- * @param options.earliestDate - The first instant the plan lets the site read; a
- *                             window starting before it is refused rather than clamped.
- * @return Whether a backward step lands on a readable window.
- */
-export function canStepBackward(
-	range: DateRange,
-	options: StepOptions & { earliestDate?: Date } = {}
-): boolean {
-	const { earliestDate, ...stepOptions } = options;
-	const previous = stepDateRange( range, 'previous', stepOptions );
-
-	if ( ! previous ) {
-		return false;
-	}
-
-	return ! earliestDate || previous.from.getTime() >= earliestDate.getTime();
+	return measured ? shiftStep( measured, direction ) : undefined;
 }
