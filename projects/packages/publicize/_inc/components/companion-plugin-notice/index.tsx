@@ -168,6 +168,19 @@ export function CompanionPluginNotice( {
 							state.message
 						)
 					: PITCHES[ plugin.slug ]() }
+				{ plugin.action === 'marketplace' && (
+					<>
+						{ ' ' }
+						{ sprintf(
+							/* translators: %s: plugin name, e.g. ATmosphere. */
+							__(
+								'To install %s, we’ll need to move your site over to WordPress.com’s advanced managed cloud hosting.',
+								'jetpack-publicize-pkg'
+							),
+							name
+						) }
+					</>
+				) }
 			</Notice.Description>
 			<Notice.Actions>
 				{ plugin.action === 'marketplace' ? (

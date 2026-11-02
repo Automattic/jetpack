@@ -122,6 +122,9 @@ describe( 'CompanionPluginNotice', () => {
 		document.removeEventListener( 'click', preventNavigation );
 
 		expect( link ).toHaveAttribute( 'href', plugin.install_url );
+		expect(
+			screen.getByText( /To install ATmosphere, we’ll need to move your site over/ )
+		).toBeInTheDocument();
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_social_companion_plugin_notice_cta_click',
