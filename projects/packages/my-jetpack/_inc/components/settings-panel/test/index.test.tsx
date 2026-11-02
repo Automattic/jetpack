@@ -16,15 +16,15 @@ jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => 
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
 		module: $module,
-		ariaLabelledBy,
+		labelledby,
 	}: {
 		module: MyJetpackModule;
-		ariaLabelledBy?: string;
+		labelledby?: string;
 	} ) => (
 		<input
 			type="checkbox"
-			aria-label={ ariaLabelledBy ? undefined : `Toggle ${ $module.name }` }
-			aria-labelledby={ ariaLabelledBy }
+			aria-label={ labelledby ? undefined : `Toggle ${ $module.name }` }
+			aria-labelledby={ labelledby }
 		/>
 	),
 } ) );

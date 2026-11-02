@@ -333,7 +333,7 @@ describe( 'ModuleToggle', () => {
 		render(
 			<>
 				<span id="switch-name">Activate this feature</span>
-				<ModuleToggle module={ buildModule() } ariaLabelledBy="switch-name" />
+				<ModuleToggle module={ buildModule() } labelledby="switch-name" />
 			</>
 		);
 
