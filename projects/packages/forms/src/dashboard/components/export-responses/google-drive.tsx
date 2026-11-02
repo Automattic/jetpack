@@ -9,6 +9,7 @@ import { Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Path, SVG } from '@wordpress/primitives';
 import clsx from 'clsx';
 /**
@@ -34,6 +35,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		return { integration: list.find( ( i: Integration ) => i.id === 'google-drive' ) };
 	}, [] ) as { integration?: Integration };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
+	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const gdriveConnectSupportURL = useConfigValue( 'gdriveConnectSupportURL' );
 	const { tracks } = useAnalytics();
@@ -56,15 +58,41 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			screen: 'form-responses-inbox',
 		} );
 
+		const noticeId = 'jetpack-forms-export-gdrive';
+		createInfoNotice( __( 'Exporting to Google Sheets…', 'jetpack-forms' ), {
+			type: 'snackbar',
+			id: noticeId,
+		} );
+
 		onExport( 'grunion_export_to_gdrive', 'feedback_export_nonce_gdrive' )
 			.then( ( response: Response ) => response.json() )
-			.then( ( { data } ) => {
+			.then( ( { success, data } ) => {
+				if ( ! success || ! data?.sheet_link ) {
+					throw new Error( 'Google Sheets export failed' );
+				}
 				window.open( data.sheet_link, '_blank' );
+				createSuccessNotice(
+					__( 'Your responses were exported to Google Sheets.', 'jetpack-forms' ),
+					{
+						type: 'snackbar',
+						id: noticeId,
+						actions: [ { label: __( 'Open sheet', 'jetpack-forms' ), url: data.sheet_link } ],
+					}
+				);
+			} )
+			.catch( () => {
+				createErrorNotice(
+					__(
+						'Could not export your responses to Google Sheets. Please try again.',
+						'jetpack-forms'
+					),
+					{ type: 'snackbar', id: noticeId }
+				);
 			} )
 			.finally( () => {
 				setIsExporting( false );
 			} );
-	}, [ tracks, onExport, isExporting ] );
+	}, [ tracks, onExport, isExporting, createInfoNotice, createSuccessNotice, createErrorNotice ] );
 
 	const handleConnectClick = useCallback( () => {
 		if ( ! integration?.settingsUrl ) return;
