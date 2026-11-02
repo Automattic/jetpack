@@ -34,9 +34,9 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  - '@gravatar-com/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
   # Renovate security update: zod@4.6.6
