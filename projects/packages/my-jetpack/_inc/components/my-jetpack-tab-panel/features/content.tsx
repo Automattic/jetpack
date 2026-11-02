@@ -186,17 +186,7 @@ function FeaturesTabContent() {
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
 	const [ ownedView ] = useState( () => filter === 'included' );
-	// Badges follow the catalog, so a retired bundle's pill goes once no feature carries its badge.
-	const planSlugs = useMemo(
-		() => [
-			...new Set( allStates.flatMap( state => state.feature.plans.map( plan => plan.slug ) ) ),
-		],
-		[ allStates ]
-	);
-	const filters = useMemo(
-		() => getFeatureFilters( filter, ownedView, planSlugs ),
-		[ filter, ownedView, planSlugs ]
-	);
+	const filters = useMemo( () => getFeatureFilters( filter, ownedView ), [ filter, ownedView ] );
 	// Pill counts ignore the search so choosing a filter shows the total it promises.
 	const counts = useMemo(
 		() =>
