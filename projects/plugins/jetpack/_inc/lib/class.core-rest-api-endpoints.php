@@ -3368,9 +3368,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Remove options the current user cannot read.
 	 *
-	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
-	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
-	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 * Covers every `jetpack_waf_*` option, `jetpack_protect_global_whitelist` (populated from
+	 * `jetpack_waf_ip_allow_list`), the `jetpack_protect_key` shared secret, and
+	 * `wordpress_api_key`, the site's Akismet API key.
 	 *
 	 * @since 16.2
 	 *
@@ -3385,6 +3385,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$restricted = array(
 			'jetpack_protect_key',
 			'jetpack_protect_global_whitelist',
+			'wordpress_api_key',
 		);
 
 		return array_filter(
