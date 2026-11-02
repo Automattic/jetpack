@@ -16,7 +16,7 @@ export const isSettingsConsolidationEnabled = () =>
  * @return {string[]} Module slugs, none while the flag is off.
  */
 export function getMovedOutModules() {
-	return isSettingsConsolidationEnabled() ? [ 'earn' ] : [];
+	return isSettingsConsolidationEnabled() ? [ 'blaze', 'earn' ] : [];
 }
 
 /**

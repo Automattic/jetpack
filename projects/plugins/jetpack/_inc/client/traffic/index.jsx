@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { isMovedOut } from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -56,7 +57,7 @@ export class Traffic extends Component {
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
 			foundAnalytics = isWoASite(),
-			foundBlaze = this.props.isModuleFound( 'blaze' );
+			foundBlaze = ! isMovedOut( 'blaze' ) && this.props.isModuleFound( 'blaze' );
 
 		// Once the site is on the new SEO experience (fresh install / opted-in /
 		// WordPress.com), the SEO, Sitemaps, and Verification sections live in the

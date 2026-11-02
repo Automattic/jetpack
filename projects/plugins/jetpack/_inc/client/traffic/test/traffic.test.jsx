@@ -2,7 +2,7 @@ import { render, screen } from 'test/test-utils';
 import { Traffic } from '../index';
 
 jest.mock( 'components/data/query-site', () => () => null );
-jest.mock( '../blaze', () => () => null );
+jest.mock( '../blaze', () => () => 'Blaze card' );
 jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => null } ) );
 jest.mock( '../related-posts', () => ( { RelatedPosts: () => null } ) );
 jest.mock( '../seo', () => () => null );
@@ -14,8 +14,27 @@ jest.mock( '../verification-services', () => ( { VerificationServices: () => nul
 
 // Module scope keeps the prop reference stable (react/jsx-no-bind).
 const findsOnlySitemaps = module => module === 'sitemaps';
+const findsOnlyBlaze = module => module === 'blaze';
 
 describe( 'Traffic settings', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'renders the Blaze card for a Blaze search', () => {
+		render( <Traffic searchTerm="blaze" isModuleFound={ findsOnlyBlaze } /> );
+
+		expect( screen.getByText( 'Blaze card' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders nothing for a Blaze search once the settings flag is on', () => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+
+		const { container } = render( <Traffic searchTerm="blaze" isModuleFound={ findsOnlyBlaze } /> );
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'renders the SEO opt-in banner when a search finds only the sitemaps section', () => {
 		render( <Traffic searchTerm="sitemap" isModuleFound={ findsOnlySitemaps } /> );
 

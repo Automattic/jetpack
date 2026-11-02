@@ -32,6 +32,7 @@ describe( 'Settings search', () => {
 	it.each( [
 		[ 'earn', false, true, false ],
 		[ 'earn', true, true, true ],
+		[ 'blaze', true, true, true ],
 	] )(
 		'searching %s with the flag on: %s, as an admin: %s, shows no matching settings: %s',
 		( module, flag, canManageModules, isEmpty ) => {
