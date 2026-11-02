@@ -55,11 +55,11 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 		$default = 'https://example.org/settings#/settings?term=related-posts';
 
 		$this->assertSame( $default, apply_filters( self::CONFIGURE, $default ) );
-		$this->assertStringContainsString( 'page=jetpack#/traffic', Related_Posts::get_manage_url() );
+		$this->assertStringContainsString( 'page=jetpack#/traffic', (string) Related_Posts::get_manage_url() );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->assertStringContainsString( 'page=my-jetpack', apply_filters( self::CONFIGURE, $default ) );
-		$this->assertStringContainsString( 'page=my-jetpack', Related_Posts::get_manage_url() );
+		$this->assertStringContainsString( 'page=my-jetpack', (string) Related_Posts::get_manage_url() );
 	}
 }
