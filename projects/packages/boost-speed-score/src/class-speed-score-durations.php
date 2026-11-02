@@ -34,6 +34,12 @@ class Speed_Score_Durations {
 	const MAX_SECONDS = 240;
 
 	/**
+	 * A dashboard watching a run polls every 5 s, so a longer gap before the final poll means
+	 * nobody was watching when it finished.
+	 */
+	const WATCHED_POLL_GAP = 15;
+
+	/**
 	 * Record the run once the last of its requests succeeds, timed from the earliest dispatch.
 	 *
 	 * @param Speed_Score_Request[] $polled Requests that were pending before this poll.
@@ -45,7 +51,7 @@ class Speed_Score_Durations {
 
 		$started = microtime( true );
 		foreach ( $polled as $request ) {
-			if ( ! $request->is_success() ) {
+			if ( ! $request->is_success() || $request->get_poll_gap() > self::WATCHED_POLL_GAP ) {
 				return;
 			}
 			$started = min( $started, $request->get_created() );
