@@ -69,9 +69,9 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Every admin page gets the settings flag, so the Settings screen and the SEO tab agree.
+	 * The settings flag has no page check, so any screen that prints the script data gets it.
 	 */
-	public function test_settings_consolidation_flag_is_seeded_on_every_admin_page() {
+	public function test_settings_consolidation_flag_is_seeded_without_a_page_check() {
 		\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
 		Initializer::register_feature_flags();
 		$_GET['page'] = 'jetpack-settings';

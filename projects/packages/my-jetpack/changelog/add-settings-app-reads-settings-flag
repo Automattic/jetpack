@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Add the settings flag to the script data on every admin page, off by default.
+Add the settings flag to the script data, off by default.
