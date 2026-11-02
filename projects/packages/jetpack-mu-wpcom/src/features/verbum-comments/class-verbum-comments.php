@@ -272,6 +272,7 @@ class Verbum_Comments {
 					'Subscribe'                          => __( 'Subscribe', 'jetpack-mu-wpcom' ),
 					'Comment sent successfully'          => __( 'Comment sent successfully', 'jetpack-mu-wpcom' ),
 					'This comment form is being retired. Update Jetpack to keep comments working on your site.' => __( 'This comment form is being retired. Update Jetpack to keep comments working on your site.', 'jetpack-mu-wpcom' ),
+					'Update Jetpack'                     => __( 'Update Jetpack', 'jetpack-mu-wpcom' ),
 					'Save my name, email, and website in this browser for the next time I comment.' => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-mu-wpcom' ),
 					'hovercardi18n'                      => $hovercard_i18n,
 					'siteId'                             => $this->blog_id,

@@ -221,10 +221,11 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 			{ VerbumComments.retirementNoticeUrl && (
 				<div className="verbum-message">
 					<p>
+						{ translate(
+							'This comment form is being retired. Update Jetpack to keep comments working on your site.'
+						) }{ ' ' }
 						<a href={ VerbumComments.retirementNoticeUrl } target="_top">
-							{ translate(
-								'This comment form is being retired. Update Jetpack to keep comments working on your site.'
-							) }
+							{ translate( 'Update Jetpack' ) }
 						</a>
 					</p>
 				</div>
