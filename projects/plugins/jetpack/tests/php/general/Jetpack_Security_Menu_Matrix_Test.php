@@ -101,7 +101,7 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 			$this->activate_standalone_protect_plugin();
 		}
 
-		$expected = $expected ?? array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) );
+		$expected ??= array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) );
 
 		$this->assertSame( $expected, $this->security_entries( $this->render_jetpack_menu( $protect_page_on ) ) );
 	}
