@@ -1,8 +1,6 @@
 import { act, configure, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as ReactDOMClient from 'react-dom/client';
 
 jest.mock(
 	'@wordpress/connectors',
@@ -111,8 +109,6 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	// The card reads its data on import, so load it fresh, sharing React with Testing Library.
 	jest.resetModules();
 	jest.doMock( 'react', () => React );
-	jest.doMock( 'react-dom', () => ReactDOM );
-	jest.doMock( 'react-dom/client', () => ReactDOMClient );
 	const connection = require( '@automattic/jetpack-connection' );
 	if ( errorNotice ) {
 		connection.useConnectionErrorNotice.mockReturnValue( errorNotice );
