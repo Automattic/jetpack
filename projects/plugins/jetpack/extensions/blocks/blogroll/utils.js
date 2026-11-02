@@ -16,7 +16,7 @@ export function createBlockFromRecommendation( attrs ) {
 }
 
 export function createBlockFromSubscription( subscription ) {
-	const { blog_id, site_icon, URL, name, description, is_non_wpcom_site } = subscription;
+	const { blog_id, site_icon, URL, name, description, is_non_wpcom_site, feed_URL } = subscription;
 
 	return createBlockFromRecommendation( {
 		id: blog_id,
@@ -25,6 +25,7 @@ export function createBlockFromSubscription( subscription ) {
 		name,
 		description,
 		is_non_wpcom_site,
+		feed_url: feed_URL || ( is_non_wpcom_site ? undefined : getWpcomFeedUrl( URL ) ),
 	} );
 }
 
@@ -44,6 +45,23 @@ export function getValidDomain( siteURL ) {
 	} catch {
 		return siteURL.match( pattern )?.[ 2 ] ?? null;
 	}
+}
+
+/**
+ * The feed URL of a WordPress.com-hosted site, which always serves /feed/.
+ *
+ * Only safe for a site wpcom confirmed it hosts; anywhere else the feed has to be discovered
+ * or entered by hand, and a guess would be worse than no feed URL at all.
+ *
+ * @param {string} siteURL - Site URL.
+ * @return {string|undefined} Feed URL, or undefined without a site URL.
+ */
+export function getWpcomFeedUrl( siteURL ) {
+	if ( ! siteURL ) {
+		return undefined;
+	}
+
+	return `${ siteURL.replace( /\/$/, '' ) }/feed/`;
 }
 
 export function getSiteIcon( siteIconURL ) {

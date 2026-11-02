@@ -1,14 +1,34 @@
-import { RichText, MediaUpload, useBlockProps } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import {
+	RichText,
+	MediaUpload,
+	useBlockProps,
+	InspectorAdvancedControls,
+} from '@wordpress/block-editor';
+import { Button, TextControl } from '@wordpress/components';
 import './editor.scss';
 import { __ } from '@wordpress/i18n';
 
 function BlogrollItemEdit( { className, attributes, setAttributes } ) {
-	const { icon, name, description } = attributes;
+	const { icon, name, description, feed_url } = attributes;
 	const blockProps = useBlockProps( { className } );
 
 	return (
 		<>
+			<InspectorAdvancedControls>
+				<TextControl
+					type="url"
+					label={ __( 'Feed URL', 'jetpack' ) }
+					help={ __(
+						'The RSS or Atom feed for this site. Visitors can use this link to subscribe in a feed reader.',
+						'jetpack'
+					) }
+					value={ feed_url ?? '' }
+					onChange={ value => setAttributes( { feed_url: value || undefined } ) }
+					placeholder={ __( 'https://example.com/feed/', 'jetpack' ) }
+					__nextHasNoMarginBottom={ true }
+					__next40pxDefaultSize={ true }
+				/>
+			</InspectorAdvancedControls>
 			<hr className="wp-block-separator jetpack-blogroll-item-divider" />
 			<div { ...blockProps }>
 				<MediaUpload
