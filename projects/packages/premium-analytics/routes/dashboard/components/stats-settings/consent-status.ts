@@ -15,6 +15,8 @@ type ConsentChange = Partial< Pick< ConsentStatus, 'api_installed' | 'api_active
 let changes: ConsentChange = {};
 let cached: { loaded: ConsentStatus; changes: typeof changes; status: ConsentStatus } | undefined;
 const listeners = new Set< () => void >();
+// Set by the dashboard notice, so the card it opens takes focus once.
+let focusRequested = false;
 
 /**
  * The site's visitor consent setup as it stands now, the same object until it changes.
@@ -46,7 +48,7 @@ function subscribe( listener: () => void ) {
 }
 
 /**
- * Record a change the Settings card made, so it outlives the card when switching tabs remounts it.
+ * Record a change the Settings card made, for every component that shows the setup.
  *
  * @param change - The fields that changed.
  */
@@ -56,11 +58,30 @@ export function updateConsentStatus( change: ConsentChange ) {
 }
 
 /**
- * Forget the changes made this load. Test-only.
+ * Ask the Settings card to take focus when it next mounts.
+ */
+export function requestConsentCardFocus() {
+	focusRequested = true;
+}
+
+/**
+ * Whether the card was asked to take focus, clearing the request.
+ *
+ * @return Whether to take focus.
+ */
+export function takeConsentCardFocusRequest(): boolean {
+	const requested = focusRequested;
+	focusRequested = false;
+	return requested;
+}
+
+/**
+ * Forget the changes and focus request made this load. Test-only.
  */
 export function resetConsentStatusForTesting() {
 	changes = {};
 	cached = undefined;
+	focusRequested = false;
 }
 
 /**
