@@ -189,12 +189,12 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider data_widget_routes
+	 * @dataProvider data_wpcom_routes
 	 *
-	 * @param string $route Route a widget requests, forwarded exactly as sent.
+	 * @param string $route Route WordPress.com serves, forwarded exactly as sent.
 	 */
-	#[DataProvider( 'data_widget_routes' )]
-	public function test_forwards_every_route_the_widgets_read( $route ) {
+	#[DataProvider( 'data_wpcom_routes' )]
+	public function test_forwards_every_route_wordpress_com_serves( $route ) {
 		$this->assertSame( 200, $this->get_report( $route )->get_status() );
 		$this->assertStringContainsString( '/sites/4242/analytics/reports/' . $route . '?', $this->requests[0]['url'] );
 	}
@@ -202,7 +202,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	/**
 	 * @return array<string, array{0: string}>
 	 */
-	public static function data_widget_routes() {
+	public static function data_wpcom_routes() {
 		$routes = array(
 			'bookings/by-date',
 			'coupons/',
@@ -213,6 +213,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'order-attribution/source/summary',
 			'order-attribution/campaign/summary',
 			'order-attribution-by-product/channel/summary',
+			'order-attribution/channel/items',
+			'order-attribution/channel/compare',
 			'orders/by-date',
 			'orders-by-product-type/by-date',
 			'products',
@@ -220,6 +222,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'sessions/by-date',
 			'sessions/by-device',
 			'sessions/by-location',
+			'taxes/by-date',
+			'taxes/breakdown',
 		);
 
 		return array_combine( $routes, array_map( fn( $route ) => array( $route ), $routes ) );
