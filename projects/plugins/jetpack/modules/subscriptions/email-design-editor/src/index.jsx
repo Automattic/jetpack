@@ -24,8 +24,6 @@ import {
 	Disabled,
 	Notice,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalConfirmDialog as ConfirmDialog,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -37,12 +35,13 @@ import {
 	RawHTML,
 	StrictMode,
 	useCallback,
+	useRef,
 	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
-import { Progress } from '@wordpress/ui';
+import { AlertDialog, Progress } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { designKeys, forwardEditorEvents, initializeTracks, recordDesignEvent } from './analytics';
 import { watchDerivedTextColor } from './derived-text-color';
@@ -748,11 +747,20 @@ function ResetDesignControl( { id, container } ) {
 		[ id ]
 	);
 
-	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
+	// The dialog closes after a confirm too, and that close is not a cancellation.
+	const hasConfirmed = useRef( false );
 
-	const cancelConfirmation = useCallback( () => {
-		setIsConfirming( false );
-		recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+	const openConfirmation = useCallback( () => {
+		hasConfirmed.current = false;
+		setIsConfirming( true );
+	}, [] );
+
+	const onOpenChange = useCallback( open => {
+		setIsConfirming( open );
+
+		if ( ! open && ! hasConfirmed.current ) {
+			recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+		}
 	}, [] );
 
 	/**
@@ -761,7 +769,6 @@ function ResetDesignControl( { id, container } ) {
 	 * @return {Promise<void>} Resolves once the reload is under way, or the creator has been told.
 	 */
 	const confirmReset = useCallback( async () => {
-		setIsConfirming( false );
 		setIsResetting( true );
 
 		try {
@@ -791,6 +798,12 @@ function ResetDesignControl( { id, container } ) {
 		}
 	}, [ id ] );
 
+	// Not returned, so the dialog closes at once and the overlay covers the reset.
+	const startReset = useCallback( () => {
+		hasConfirmed.current = true;
+		confirmReset();
+	}, [ confirmReset ] );
+
 	return (
 		<>
 			{ isResetting && <ResetOverlay container={ container } /> }
@@ -803,19 +816,21 @@ function ResetDesignControl( { id, container } ) {
 			>
 				{ __( 'Reset to defaults', 'jetpack' ) }
 			</Button>
-			<ConfirmDialog
-				title={ __( 'Reset email design', 'jetpack' ) }
-				isOpen={ isConfirming }
-				onCancel={ cancelConfirmation }
-				onConfirm={ confirmReset }
-				confirmButtonText={ __( 'Reset', 'jetpack' ) }
-				size="medium"
+			<AlertDialog.Root
+				open={ isConfirming }
+				onOpenChange={ onOpenChange }
+				onConfirm={ startReset }
 			>
-				{ __(
-					'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
-					'jetpack'
-				) }
-			</ConfirmDialog>
+				<AlertDialog.Popup
+					intent="irreversible"
+					title={ __( 'Reset email design', 'jetpack' ) }
+					description={ __(
+						'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
+						'jetpack'
+					) }
+					confirmButtonText={ __( 'Reset', 'jetpack' ) }
+				/>
+			</AlertDialog.Root>
 		</>
 	);
 }
