@@ -23,6 +23,7 @@ import {
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
+	getYTickDecimals,
 	getYTickFormat,
 	formatBucketTooltipDate,
 } from '../../helpers';
@@ -271,6 +272,7 @@ export function ComparativeLineChart( {
 		() => getYTickFormat( dataFormat.type, yTicks, currencyCode ),
 		[ dataFormat.type, yTicks, currencyCode ]
 	);
+	const yTickDecimals = getYTickDecimals( dataFormat.type, currencyCode );
 
 	const xTickFormat = useCallback(
 		( date: number ) => formatDate( date, xTickFormatType ),
@@ -290,6 +292,7 @@ export function ComparativeLineChart( {
 				},
 				y: {
 					tickFormat: yTickFormat,
+					tickDecimals: yTickDecimals,
 					...( yTicks ? { tickValues: yTicks } : {} ),
 					...hiddenWhenCompact,
 				},
@@ -307,6 +310,7 @@ export function ComparativeLineChart( {
 		xTickFormatType,
 		tickResolution,
 		yTickFormat,
+		yTickDecimals,
 		yTicks,
 		pinnedYAxis,
 		isCompact,

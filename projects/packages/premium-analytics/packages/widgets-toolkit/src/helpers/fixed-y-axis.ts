@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { scaleLinear } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import { formatMetricValue, getStoreDecimals } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
@@ -122,4 +122,15 @@ export function getYTickFormat(
 		return compact;
 	}
 	return ( value: number ) => formatMetricValue( value, metricType, { currencyCode } );
+}
+
+/**
+ * The y-axis `tickDecimals`: store money is held to the store's decimals, so rounded labels never repeat.
+ *
+ * @param metricType   - The data format type (currency, number, percentage).
+ * @param currencyCode - Explicit currency, which keeps its own decimals as `formatMetricValue` does.
+ * @return The decimals, or undefined to keep the chart's own ticks.
+ */
+export function getYTickDecimals( metricType: string, currencyCode?: string ): number | undefined {
+	return metricType === 'currency' && currencyCode === undefined ? getStoreDecimals() : undefined;
 }

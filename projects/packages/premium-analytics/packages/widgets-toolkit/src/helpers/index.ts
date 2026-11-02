@@ -12,6 +12,7 @@ export {
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
+	getYTickDecimals,
 	getYTickFormat,
 	type ChartBaseline,
 	type FixedYAxis,
