@@ -2,7 +2,7 @@ import { DataContext, GlyphSeries } from '@visx/xychart';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
-import { computeSlotRect } from './comparison-bars-geometry';
+import { computeSlotRect, getValueScalePosition } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
 import type { StackLayout } from './stack-layout';
 import type { DataPointDate } from '../../../types';
@@ -37,7 +37,7 @@ const StackedBarSeries = ( {
 	const { xScale, yScale, horizontal } = useContext( DataContext );
 	const bandScale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const valueScale = ( horizontal ? xScale : yScale ) as
-		( ( value: number ) => number ) | undefined;
+		Parameters< typeof getValueScalePosition >[ 0 ] | undefined;
 	const groupScale = useMemo(
 		() => createGroupScale( slotKeys, bandScale?.bandwidth?.() ?? 0, groupPadding ),
 		[ slotKeys, bandScale, groupPadding ]
@@ -57,7 +57,9 @@ const StackedBarSeries = ( {
 				bandPosition: Number( bandScale( ( horizontal ? yAccessor : xAccessor )( datum ) ) ),
 				slotOffset: groupScale( slotKey ) ?? 0,
 				slotThickness: groupScale.bandwidth(),
-				valuePositions: [ valueScale( segment.start ), valueScale( segment.end ) ],
+				valuePositions: [ segment.start, segment.end ].map( value =>
+					getValueScalePosition( valueScale, value )
+				),
 				widthFactor: 1,
 			} );
 			return (

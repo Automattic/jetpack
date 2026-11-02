@@ -2,7 +2,11 @@ import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
 import { SelectedRing } from '../../private/selected-ring/selected-ring';
 import { createGroupScale } from './band-scale';
-import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
+import {
+	computeSlotRect,
+	getValueScaleBaseline,
+	getValueScalePosition,
+} from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
 import type { DataPointDate } from '../../../types';
 import type { FC } from 'react';
@@ -64,7 +68,7 @@ export const SelectedBarRing: FC< {
 	}
 
 	const valuePositions = selected.valueExtent
-		? selected.valueExtent.map( value => Number( valueScale( value as never ) ) )
+		? selected.valueExtent.map( value => getValueScalePosition( valueScale, value ) )
 		: [
 				getValueScaleBaseline( valueScale ),
 				...selected.data.map( datum =>

@@ -22,6 +22,18 @@ export function getValueScaleBaseline( scale: ValueScale ): number {
 }
 
 /**
+ * A value's position on a continuous scale, held inside its range so a domain that leaves the value out cannot push a bar off the plot.
+ *
+ * @param {ValueScale} scale - The continuous value scale.
+ * @param {number}     value - The value to place.
+ * @return {number} The position in pixels.
+ */
+export function getValueScalePosition( scale: ValueScale, value: number ): number {
+	const [ a, b ] = scale.range().map( r => Number( r ) || 0 );
+	return Math.min( Math.max( scale( value ), Math.min( a, b ) ), Math.max( a, b ) );
+}
+
+/**
  * Compute the rect that spans `valuePositions` along the value axis, centered on a slot and scaled by `widthFactor` across it.
  *
  * @param {object}   params                - Geometry inputs.

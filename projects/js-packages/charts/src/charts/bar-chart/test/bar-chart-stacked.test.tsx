@@ -54,6 +54,14 @@ const valueTicks = ( horizontal = false ) =>
 			[ horizontal ? 0 : 1 ].querySelectorAll( '.visx-axis-tick text' )
 	).map( tick => Number( tick.textContent?.replace( /,/g, '' ) ) );
 
+// The x axis sits on the bottom edge of the plot, placed by its group's transform.
+const plotBottom = () => {
+	const transform =
+		screen.getByRole( 'application' ).querySelector( '.visx-axis' )?.getAttribute( 'transform' ) ??
+		'';
+	return Number( transform.match( /translate\(\s*[-\d.]+,\s*([-\d.]+)\)/ )?.[ 1 ] );
+};
+
 const categoryTicks = () =>
 	Array.from(
 		screen
@@ -179,6 +187,13 @@ describe( 'BarChart stacked layout', () => {
 		// The tallest single bar is 100; the Monday stack reaches 180 and must not run off the top.
 		expect( Math.max( ...valueTicks() ) ).toBeGreaterThan( 100 );
 		expect( barOf( 'Tablet' ).y ).toBeGreaterThanOrEqual( 0 );
+	} );
+
+	it( 'keeps the stack inside a caller domain that leaves out zero', () => {
+		renderStacked( { options: { yScale: { domain: [ 50, 200 ] } } } );
+
+		const desktop = barOf( 'Desktop' );
+		expect( desktop.y + desktop.height ).toBeCloseTo( plotBottom() );
 	} );
 
 	it( 'draws no comparison series, and says so', () => {
