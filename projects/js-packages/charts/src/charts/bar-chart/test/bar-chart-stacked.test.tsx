@@ -35,18 +35,17 @@ const DATA: SeriesData[] = [
 
 type Rect = { x: number; y: number; width: number; height: number };
 
-// visx draws the bars and the axes; neither accepts a test id.
-/* eslint-disable testing-library/no-node-access */
-const barRects = () =>
-	Array.from( screen.getByRole( 'application' ).querySelectorAll( '.visx-bar-group rect' ) );
+const barRects = () => screen.getAllByTestId( 'bar-chart-stacked-bar' );
 
-// The x axis renders first; the value axis is the y axis unless the bars run horizontally.
+// visx draws the axes and the pointer target; neither accepts a test id.
+/* eslint-disable testing-library/no-node-access */
 const pointer = ( type: string, clientX: number, clientY = 150 ) =>
 	fireEvent(
 		screen.getByRole( 'application' ).querySelector( 'svg > rect[fill="transparent"]' ),
 		new MouseEvent( type, { bubbles: true, clientX, clientY } )
 	);
 
+// The x axis renders first; the value axis is the y axis unless the bars run horizontally.
 const valueTicks = ( horizontal = false ) =>
 	Array.from(
 		screen
@@ -54,6 +53,14 @@ const valueTicks = ( horizontal = false ) =>
 			.querySelectorAll( '.visx-axis' )
 			[ horizontal ? 0 : 1 ].querySelectorAll( '.visx-axis-tick text' )
 	).map( tick => Number( tick.textContent?.replace( /,/g, '' ) ) );
+
+const categoryTicks = () =>
+	Array.from(
+		screen
+			.getByRole( 'application' )
+			.querySelectorAll( '.visx-axis' )[ 0 ]
+			.querySelectorAll( '.visx-axis-tick line' )
+	).map( tick => Number( tick.getAttribute( 'x1' ) ) );
 /* eslint-enable testing-library/no-node-access */
 
 const geometry = ( element: Element ): Rect => ( {
@@ -144,16 +151,12 @@ describe( 'BarChart stacked layout', () => {
 		expect( tablet.y + tablet.height ).toBeCloseTo( barOf( 'Desktop', 1 ).y );
 	} );
 
-	it( 'places the stack in the slot the overlap layout gives a lone series', () => {
-		const view = renderStacked();
-		const stacked = barOf( 'Desktop' );
-		view.unmount();
+	it( 'centers each stack on its category', () => {
+		renderStacked();
 
-		renderStacked( { layout: 'overlap', data: DATA.slice( 0, 1 ) } );
-		const lone = geometry( barRects()[ 0 ] );
-
-		expect( stacked.x ).toBeCloseTo( lone.x );
-		expect( stacked.width ).toBeCloseTo( lone.width );
+		const [ monday, tuesday ] = categoryTicks();
+		expect( center( barOf( 'Desktop' ) ) ).toBeCloseTo( monday );
+		expect( center( barOf( 'Desktop', 1 ) ) ).toBeCloseTo( tuesday );
 	} );
 
 	it( 'scales the value axis to the tallest stack', () => {
@@ -179,6 +182,22 @@ describe( 'BarChart stacked layout', () => {
 		warn.mockRestore();
 	} );
 
+	it( 'ignores showZeroValues, so a zero adds nothing to the stack, and says so', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		const data: SeriesData[] = [
+			{ label: 'A', data: [ day( 'Mon', 100 ) ] },
+			{ label: 'B', data: [ day( 'Mon', 0 ) ] },
+			{ label: 'C', data: [ day( 'Mon', 20 ) ] },
+		];
+		renderStacked( { data, showZeroValues: true } );
+
+		expect( barIn( data, 'B' ).height ).toBeCloseTo( 0 );
+		const c = barIn( data, 'C' );
+		expect( c.y + c.height ).toBeCloseTo( barIn( data, 'A' ).y );
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'showZeroValues' ) );
+		warn.mockRestore();
+	} );
+
 	it( 'adds the barClassName classes to stacked bars', () => {
 		renderStacked( {
 			barClassName: datum => ( datum.label === 'Mon' ? 'is-monday' : undefined ),
@@ -195,15 +214,32 @@ describe( 'BarChart stacked layout', () => {
 		expect( tooltip ).toHaveTextContent( /Mon.*Tablet: 20.*Mobile: 60.*Desktop: 100.*Total: 180/ );
 	} );
 
-	it( 'leaves a series without a reading out of the tooltip', async () => {
+	it( 'lists a series without a reading as no data, and totals the readings', async () => {
 		const user = userEvent.setup();
 		renderStacked();
 
 		await user.tab();
 		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent(
+			/Tue.*Tablet: 10.*Mobile: No data.*Desktop: 50.*Total: 60/
+		);
+	} );
+
+	it( 'leaves the total out when a category has one reading', async () => {
+		const user = userEvent.setup();
+		renderStacked( {
+			data: [
+				{ label: 'A', data: [ day( 'Mon', 5 ), day( 'Tue', 7 ) ] },
+				{ label: 'B', data: [ day( 'Mon', 3 ), day( 'Tue', null ) ] },
+			],
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{ArrowRight}' );
 		const tooltip = screen.getByTestId( 'chart-tooltip-1' );
-		expect( tooltip ).toHaveTextContent( /Tue.*Tablet: 10.*Desktop: 50.*Total: 60/ );
-		expect( tooltip ).not.toHaveTextContent( 'Mobile' );
+		expect( tooltip ).toHaveTextContent( 'A: 7' );
+		expect( tooltip ).toHaveTextContent( 'B: No data' );
+		expect( tooltip ).not.toHaveTextContent( 'Total' );
 	} );
 
 	it.each( [ 'vertical', 'horizontal' ] as const )(
@@ -266,5 +302,21 @@ describe( 'BarChart stacked layout', () => {
 		const restored = barOf( 'Mobile' );
 		expect( restored.y + restored.height ).toBeCloseTo( barOf( 'Desktop' ).y );
 		expect( Math.max( ...valueTicks() ) ).toBe( topTick );
+	} );
+
+	it( 'anchors the hovered tooltip at the stack top when its top series has no reading there', async () => {
+		const data: SeriesData[] = [
+			{ label: 'Desktop', data: [ day( 'Mon', 100 ), day( 'Tue', 50 ) ] },
+			{ label: 'Mobile', data: [ day( 'Mon', 60 ), day( 'Tue', 40 ) ] },
+			{ label: 'Tablet', data: [ day( 'Mon', 20 ), day( 'Tue', null ) ] },
+		];
+		renderStacked( { data } );
+		const tuesday = barIn( data, 'Desktop', 1 );
+
+		for ( const clientY of [ 10, 250 ] ) {
+			pointer( 'pointermove', center( tuesday ), clientY );
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+			expect( Number( lastAnchor().top ) ).toBeCloseTo( barIn( data, 'Mobile', 1 ).y );
+		}
 	} );
 } );

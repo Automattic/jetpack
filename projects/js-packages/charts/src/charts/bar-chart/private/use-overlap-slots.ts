@@ -1,15 +1,17 @@
 import { useMemo } from 'react';
 import { categoryKey, isSameCategory } from './category';
 import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
+import { getStackLayout } from './stack-layout';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
 import type { SlotMember } from './slot-tooltip-members';
+import type { StackLayout } from './stack-layout';
 import type { BarChartLayout, DataPointDate, SeriesData } from '../../../types';
 
 type SeriesEntry = { series: SeriesData; index: number };
 
 export type OverlapSlots = {
-	/** The visible series, back to front. */
+	/** The visible series, back to front; bottom to top in a stack. */
 	entries: SeriesEntry[];
 	keys: string[];
 	/** The slots of a category, in the order the band lays them out. */
@@ -18,7 +20,7 @@ export type OverlapSlots = {
 	thicknessOf: ( key: string ) => number;
 	/** The keyboard stops: every category a slot draws a bar at, category by category. */
 	positions: StopPosition[];
-};
+} & ( { kind: 'overlap' } | { kind: 'stacked'; stack: StackLayout } );
 
 /** A slot at one category, named by its front-most bar there. */
 export type StopPosition = {
@@ -56,6 +58,8 @@ export function useOverlapSlots(
 			const slotKeys = [ PRIMARY_SLOT ];
 			const slotOf = () => PRIMARY_SLOT;
 			return {
+				kind: 'stacked',
+				stack: getStackLayout( entries.map( ( { series } ) => series ) ),
 				entries,
 				keys: entries.map( ( { series } ) => series.label ),
 				slotKeys,
@@ -89,6 +93,7 @@ export function useOverlapSlots(
 		];
 
 		return {
+			kind: 'overlap',
 			entries,
 			keys: entries.map( ( { series } ) => series.label ),
 			slotKeys,
@@ -203,5 +208,6 @@ export function getSelectedSlot(
 		slotKey,
 		thickness: Math.max( ...slotBars.map( ( { key } ) => slots.thicknessOf( key ) ) ),
 		members,
+		...( slots.kind === 'stacked' && { valueExtent: slots.stack.extentAt( category ) } ),
 	};
 }

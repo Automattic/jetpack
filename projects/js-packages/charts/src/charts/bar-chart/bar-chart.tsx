@@ -48,7 +48,6 @@ import {
 	useBarStops,
 	useOverlapSlots,
 	getSelectedSlot,
-	getStackLayout,
 	isSameCategory,
 	membersAt,
 } from './private';
@@ -299,13 +298,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const overlapSlots = useOverlapSlots( layout, seriesWithVisibility );
-	const stackLayout = useMemo(
-		() =>
-			isStacked && overlapSlots
-				? getStackLayout( overlapSlots.entries.map( ( { series } ) => series ) )
-				: undefined,
-		[ isStacked, overlapSlots ]
-	);
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
@@ -473,11 +465,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
-	// Lists the hovered stack top segment first, as it is drawn, then its total.
+	// Lists the stack last series first, a null reading as "No data", then the total.
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
-			if ( ! nearestDatum ) return null;
+			if ( ! nearestDatum || overlapSlots?.kind !== 'stacked' ) return null;
 
 			const datumByKey = tooltipData?.datumByKey ?? {};
 			const categoryLabel = chartOptions.tooltip.labelFormatter(
@@ -485,11 +477,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				0,
 				[]
 			);
-			const rows = [ ...( overlapSlots?.entries ?? [] ) ].reverse().flatMap( ( { series } ) => {
+
+			const rows = [ ...overlapSlots.entries ].reverse().flatMap( ( { series } ) => {
 				const datum = datumByKey[ series.label ]?.datum;
-				return datum && isBarRendered( datum ) ? [ { label: series.label, datum } ] : [];
+				return datum ? [ { label: series.label, datum } ] : [];
 			} );
-			const total = rows.reduce( ( sum, { datum } ) => sum + Number( datum.value ), 0 );
+			const readings = rows.filter( ( { datum } ) => isBarRendered( datum ) ).length;
+			const [ negative, positive ] = overlapSlots.stack.extentAt( nearestDatum );
 
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
@@ -499,8 +493,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							{ renderTooltipRow( label, formatReading( datum.value ) ) }
 						</Fragment>
 					) ) }
-					{ rows.length > 1 &&
-						renderTooltipRow( __( 'Total', 'jetpack-charts' ), formatReading( total ) ) }
+					{ readings > 1 &&
+						renderTooltipRow(
+							__( 'Total', 'jetpack-charts' ),
+							formatReading( negative + positive )
+						) }
 				</div>
 			);
 		},
@@ -625,15 +622,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
 		if ( overlapSlots ) {
-			return selectedSlot && stackLayout
-				? { ...selectedSlot, valueExtent: stackLayout.extentAt( selectedSlot.data[ 0 ] ) }
-				: selectedSlot;
+			return selectedSlot;
 		}
 		const bar = selectedIndex === undefined ? undefined : barAt( selectedIndex );
 		return bar && isBarRendered( bar.datum )
 			? { data: [ bar.datum ], slotKey: bar.key, thickness: 1 }
 			: undefined;
-	}, [ overlapSlots, stackLayout, selectedSlot, selectedIndex, barAt ] );
+	}, [ overlapSlots, selectedSlot, selectedIndex, barAt ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -823,7 +818,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										<BarLayer
 											chartId={ chartId }
 											overlapSlots={ overlapSlots }
-											stackLayout={ stackLayout }
 											selectedBar={ selectedBar }
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }

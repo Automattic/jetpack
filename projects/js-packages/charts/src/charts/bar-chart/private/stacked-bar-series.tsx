@@ -23,7 +23,7 @@ type Props = Pick<
 	/** The slot the stack sits in. */
 	slotKey: string;
 	groupPadding: number;
-	segmentOf: StackLayout[ 'segmentOf' ];
+	stack: StackLayout;
 };
 
 const StackedBarSeries = ( {
@@ -31,7 +31,7 @@ const StackedBarSeries = ( {
 	slotKeys,
 	slotKey,
 	groupPadding,
-	segmentOf,
+	stack,
 	...props
 }: Props ) => {
 	const { xScale, yScale, horizontal } = useContext( DataContext );
@@ -43,14 +43,14 @@ const StackedBarSeries = ( {
 		[ slotKeys, bandScale, groupPadding ]
 	);
 	const { dataKey, xAccessor, yAccessor } = props;
-	// Registering the stacked top is what lets the tooltip snap to the stack, not the raw value.
+	// The tooltip snaps to what a series registers, so every series registers its stack's top.
 	const stackTop = useCallback(
-		( datum: DataPointDate ) => segmentOf( dataKey, datum )?.end ?? NaN,
-		[ segmentOf, dataKey ]
+		( datum: DataPointDate ) => stack.extentAt( datum )[ 1 ],
+		[ stack ]
 	);
 	const renderGlyph = useCallback(
 		( { datum, color }: GlyphProps< DataPointDate > ) => {
-			const segment = segmentOf( dataKey, datum );
+			const segment = stack.segmentOf( dataKey, datum );
 			if ( ! segment || ! bandScale?.bandwidth || ! valueScale ) return null;
 			const rect = computeSlotRect( {
 				horizontal: !! horizontal,
@@ -63,13 +63,14 @@ const StackedBarSeries = ( {
 			return (
 				<rect
 					{ ...rect }
+					data-testid="bar-chart-stacked-bar"
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
 				/>
 			);
 		},
 		[
-			segmentOf,
+			stack,
 			dataKey,
 			bandScale,
 			valueScale,
