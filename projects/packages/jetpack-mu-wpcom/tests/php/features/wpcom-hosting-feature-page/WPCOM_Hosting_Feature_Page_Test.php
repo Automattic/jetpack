@@ -307,6 +307,42 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * On WoA, Protect's entry hides only while the page offers to turn a disabled dashboard back on.
+	 *
+	 * @param bool $has_plan Whether the plan includes Scan.
+	 * @param bool $hidden   Whether the entry is hidden.
+	 *
+	 * @dataProvider provide_protect_entry_states
+	 */
+	#[DataProvider( 'provide_protect_entry_states' )]
+	public function test_protect_entry_hides_only_on_the_enable_prompt( $has_plan, $hidden ) {
+		global $submenu;
+
+		$this->set_up_admin_menu();
+		$this->set_up_protect_dashboard( true, false );
+		if ( ! $has_plan ) {
+			$this->grant_feature();
+		}
+
+		WPCOM_Scan::register_page();
+
+		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+	}
+
+	/**
+	 * Data provider for test_protect_entry_hides_only_on_the_enable_prompt.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_entry_states() {
+		return array(
+			'enable prompt'  => array( true, true ),
+			'upgrade prompt' => array( false, false ),
+		);
+	}
+
+	/**
 	 * Turning the dashboard on lands back on its page, with why when activation did not stick, and only for those it is offered to.
 	 *
 	 * @param array  $site      Overrides for the request, as read below.

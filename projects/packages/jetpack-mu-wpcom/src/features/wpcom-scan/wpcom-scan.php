@@ -135,6 +135,30 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
+	 * Register the page, keeping its entry out of the sidebar while it only offers to turn the dashboard back on.
+	 *
+	 * Turning the module off hides the dashboard on purpose; hidden with a class, which Calypso's sidebar honors, so links still land.
+	 *
+	 * @return void
+	 */
+	public static function register_page() {
+		global $submenu;
+
+		parent::register_page();
+
+		if ( ! self::owns_page() || self::STATE_ENABLE !== self::get_state( get_current_blog_id() ) ) {
+			return;
+		}
+
+		foreach ( $submenu[ self::PARENT_SLUG ] ?? array() as $i => $item ) {
+			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ self::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
+			}
+		}
+	}
+
+	/**
 	 * Turn the Protect dashboard on, then return to its page, which it now serves.
 	 *
 	 * @return never

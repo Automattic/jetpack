@@ -531,7 +531,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Protect sits just below Calypso's Scan, whichever page serves it.
+	 * Protect shows beside Calypso's Scan, in the menu's A to Z order, whichever page serves it.
 	 *
 	 * @dataProvider provide_protect_entry_cases
 	 *
@@ -539,11 +539,10 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @param string[] $expected  The visible entries, in menu order.
 	 */
 	#[DataProvider( 'provide_protect_entry_cases' )]
-	public function test_jetpack_submenu_puts_protect_below_scan( $served_by, $expected ) {
+	public function test_jetpack_submenu_shows_protect_beside_scan( $served_by, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		// Registered before Protect, as Jetpack does, so only the reorder can put Protect above it.
 		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
 		if ( 'protect page' === $served_by ) {
 			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
@@ -572,9 +571,9 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_protect_entry_cases() {
 		return array(
-			'Protect page'   => array( 'protect page', array( 'calypso', 'jetpack-protect', 'jetpack-search' ) ),
-			'upgrade prompt' => array( 'upgrade prompt', array( 'calypso', 'jetpack-protect', 'jetpack-search' ) ),
-			// The Protect page's module is off on a plan that includes Scan.
+			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			// As while the dashboard's feature flag is off on a plan that includes Scan.
 			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
 		);
 	}
