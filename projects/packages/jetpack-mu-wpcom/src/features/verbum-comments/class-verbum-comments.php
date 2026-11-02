@@ -208,9 +208,9 @@ class Verbum_Comments {
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
-		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin. Gated until 16.4 is out.
+		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin.
 		$retirement_notice_url = '';
-		if ( ! $is_blog_atomic && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' ) ) {
+		if ( ! $is_blog_atomic && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) ) {
 			$retirement_notice_url = esc_url_raw( get_admin_url( $this->blog_id, 'plugins.php' ) );
 		}
 
