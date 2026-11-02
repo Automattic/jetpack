@@ -13,6 +13,9 @@ import clsx from 'clsx';
 
 const NOTICE_ID = 'jetpack-forms-export-csv';
 
+// A plain div instead of Progress's default column Stack, whose inline styles can't be overridden.
+const renderProgressRoot = props => <div { ...props } />;
+
 /**
  * Reads a response body into a Blob, reporting how many bytes have arrived so far.
  *
@@ -131,8 +134,31 @@ const CSVExport = ( { onExport } ) => {
 				</div>
 			</div>
 			<div className="jp-forms__export-modal-card-body">
-				<div className="jp-forms__export-modal-card-body-description">
-					{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
+				<div className="jp-forms__export-modal-card-body-description jp-forms__export-modal-card-status">
+					{ /* Stays laid out while hidden so the card keeps its height. */ }
+					<span className={ clsx( { 'is-hidden': isDownloading } ) }>
+						{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
+					</span>
+					{ isDownloading && (
+						<Progress.Root
+							value={ null }
+							className="jp-forms__export-modal-card-progress"
+							render={ renderProgressRoot }
+						>
+							<Progress.Label className="jp-forms__export-modal-card-progress-label">
+								{ receivedBytes > 0
+									? sprintf(
+											/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
+											__( '%s MB downloaded', 'jetpack-forms' ),
+											( receivedBytes / 1000000 ).toFixed( 1 )
+										)
+									: __( 'Preparing your export…', 'jetpack-forms' ) }
+							</Progress.Label>
+							<Progress.Track className="jp-forms__export-modal-card-progress-track">
+								<Progress.Indicator />
+							</Progress.Track>
+						</Progress.Root>
+					) }
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
 					<Button
@@ -149,22 +175,6 @@ const CSVExport = ( { onExport } ) => {
 					</Button>
 				</div>
 			</div>
-			{ isDownloading && (
-				<Progress.Root value={ null } className="jp-forms__export-modal-card-progress">
-					<Progress.Label>
-						{ receivedBytes > 0
-							? sprintf(
-									/* translators: %s: amount downloaded so far, in megabytes, e.g. 12.5 */
-									__( '%s MB downloaded', 'jetpack-forms' ),
-									( receivedBytes / 1000000 ).toFixed( 1 )
-								)
-							: __( 'Preparing your export…', 'jetpack-forms' ) }
-					</Progress.Label>
-					<Progress.Track>
-						<Progress.Indicator />
-					</Progress.Track>
-				</Progress.Root>
-			) }
 		</div>
 	);
 };
