@@ -305,11 +305,7 @@ importers:
         specifier: 30.5.2
         version: 30.5.2
 
-  projects/js-packages/base-styles:
-    devDependencies:
-      '@wordpress/base-styles':
-        specifier: 14.0.0
-        version: 14.0.0
+  projects/js-packages/base-styles: {}
 
   projects/js-packages/boost-score-api:
     dependencies:
