@@ -114,6 +114,7 @@ const renderStacked = ( props: Partial< BarChartProps > = {} ) =>
 	);
 
 const center = ( { x, width }: Rect ) => x + width / 2;
+const middle = ( { y, height }: Rect ) => y + height / 2;
 
 const union = ( rects: Rect[] ): Rect => {
 	const x = Math.min( ...rects.map( r => r.x ) );
@@ -362,5 +363,29 @@ describe( 'BarChart stacked layout', () => {
 			await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
 			expect( Number( lastAnchor().top ) ).toBeCloseTo( barIn( data, 'Mobile', 1 ).y );
 		}
+	} );
+
+	it.each( [
+		[ 'Desktop', ( data: SeriesData[] ) => middle( barIn( data, 'Desktop', 1 ) ) ],
+		[ 'Mobile', ( data: SeriesData[] ) => middle( barIn( data, 'Mobile', 1 ) ) ],
+		// Above the stack, where the top series has no reading on Tuesday.
+		[ 'Mobile', () => 5 ],
+	] as const )( 'reports %s for a pointer at that height on the stack', ( key, clientY ) => {
+		const onPointerUp = jest.fn();
+		const data: SeriesData[] = [
+			{ label: 'Desktop', data: [ day( 'Mon', 100 ), day( 'Tue', 50 ) ] },
+			{ label: 'Mobile', data: [ day( 'Mon', 60 ), day( 'Tue', 40 ) ] },
+			{ label: 'Tablet', data: [ day( 'Mon', 20 ), day( 'Tue', null ) ] },
+		];
+		renderStacked( { data, onPointerUp } );
+		const tuesday = barIn( data, 'Desktop', 1 );
+
+		pointer( 'pointerup', center( tuesday ), clientY( data ) );
+		expect( onPointerUp ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				key,
+				datum: data.find( series => series.label === key )?.data[ 1 ],
+			} )
+		);
 	} );
 } );

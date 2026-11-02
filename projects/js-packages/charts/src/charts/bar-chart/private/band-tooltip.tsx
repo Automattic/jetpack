@@ -1,7 +1,9 @@
 import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
+import { getValueScalePosition } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
+import type { StackLayout } from './stack-layout';
 import type { BarChartProps } from '../types';
 
 type PointerHandler = NonNullable< Parameters< typeof useEventEmitter >[ 1 ] >;
@@ -43,6 +45,7 @@ export function nearestBandIndex< Datum >(
  * @param root0.keys          - Visible series keys, back to front where bars overlap.
  * @param root0.slots         - Where series share slots: the slots of a category, in the order the band lays them out, and the slot each series sits in.
  * @param root0.groupPadding  - Padding between grouped bars.
+ * @param root0.stack         - Where each stacked bar runs, so a pointer picks the segment under it.
  * @param root0.withTooltips  - Whether pointer events update the tooltip.
  * @param root0.onPointerDown - Receives the corrected pointer-down datum.
  * @param root0.onPointerUp   - Receives the corrected pointer-up datum.
@@ -53,6 +56,7 @@ export function BandTooltip( {
 	keys,
 	slots,
 	groupPadding,
+	stack,
 	withTooltips,
 	onPointerDown,
 	onPointerUp,
@@ -61,11 +65,14 @@ export function BandTooltip( {
 	keys: string[];
 	slots?: { keys: string[]; slotOf: ( key: string ) => string };
 	groupPadding: number;
+	stack?: StackLayout;
 	onPointerMove?: ( selection: PointerSelection ) => void;
 } & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
 	const { showTooltip, hideTooltip, updateTooltip } = useContext( TooltipContext );
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
+	const valueScale = ( horizontal ? xScale : yScale ) as
+		Parameters< typeof getValueScalePosition >[ 0 ] | undefined;
 	const bandwidth = scale?.bandwidth?.() ?? 0;
 	const groupScale = useMemo(
 		() => createGroupScale( slots?.keys ?? keys, bandwidth, groupPadding ),
@@ -96,6 +103,21 @@ export function BandTooltip( {
 				const end = start + groupScale.step();
 				const distance =
 					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
+				// Stacked segments share a slot, so the value axis tells them apart; one with no reading is never nearest.
+				let valueDistance = 0;
+				if ( stack && valueScale ) {
+					const segment = stack.segmentOf( key, datum );
+					const [ low, high ] = segment
+						? [ segment.start, segment.end ]
+								.map( value => getValueScalePosition( valueScale, value ) )
+								.sort( ( a, b ) => a - b )
+						: [ Infinity, Infinity ];
+					const valuePosition = horizontal ? point.x : point.y;
+					valueDistance =
+						valuePosition >= low && valuePosition <= high
+							? 0
+							: Math.min( Math.abs( valuePosition - low ), Math.abs( valuePosition - high ) );
+				}
 				bands.push( band );
 				selections.push( {
 					event: params.event,
@@ -103,8 +125,8 @@ export function BandTooltip( {
 					datum,
 					index,
 					svgPoint: point,
-					distanceX: horizontal ? 0 : distance,
-					distanceY: horizontal ? distance : 0,
+					distanceX: horizontal ? valueDistance : distance,
+					distanceY: horizontal ? distance : valueDistance,
 				} );
 			}
 			if ( ! slots ) {
@@ -119,7 +141,7 @@ export function BandTooltip( {
 			);
 			return selections.filter( ( _, index ) => bands[ index ] === hoveredBand );
 		},
-		[ scale, dataRegistry, horizontal, keys, slots, groupScale ]
+		[ scale, valueScale, dataRegistry, horizontal, keys, slots, groupScale, stack ]
 	);
 	const handlePointer = useCallback< PointerHandler >(
 		params => {

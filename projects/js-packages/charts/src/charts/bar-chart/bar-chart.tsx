@@ -834,6 +834,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												keys={ overlapSlots?.keys ?? primaryKeys }
 												slots={ overlapBandSlots }
 												groupPadding={ groupPadding }
+												stack={ overlapSlots?.kind === 'stacked' ? overlapSlots.stack : undefined }
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }
