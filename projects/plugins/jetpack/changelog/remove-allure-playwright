@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Remove the unused allure-playwright reporter from E2E tests.
+

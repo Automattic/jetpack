@@ -107,7 +107,6 @@ Jetpack is updated monthly to work with the plugins and services you already use
 * [Jetpack Stats](https://jetpack.com/redirect?source=org-stats) - Track visits, popular posts, newsletter subscribers, and more.
 * [Jetpack Social](https://jetpack.com/redirect?source=org-social) - Share your posts to every major social network from one place.
 * [Jetpack Newsletter](https://jetpack.com/redirect?source=org-newsletter) - Turn posts into newsletters and earn from paid subscriptions.
-* [Jetpack Growth](https://jetpack.com/redirect?source=org-creator) - Grow your audience with Stats, Social, newsletters, paid content, and ads.
 * [Jetpack Search](https://jetpack.com/redirect?source=org-search) - Instant, relevant results for your visitors, with no ads and no tracking.
 * [Jetpack VideoPress](https://jetpack.com/redirect?source=org-video) - Ad-free video, uploaded right from the editor.
 * [Jetpack Boost](https://jetpack.com/redirect?source=org-boost) - Make your site faster, no developer required.

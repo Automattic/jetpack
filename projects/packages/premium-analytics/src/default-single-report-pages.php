@@ -17,14 +17,15 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 }
 
 /**
- * The video page's fixed composition: two full-width rows on the three-column detail grid.
+ * The video page's fixed composition: the performance chart full width, then the player beside the embeds list.
  *
  * @return array
  */
 function get_video_single_report_page_default_layout() {
 	return array(
-		get_dashboard_default_widget_instance( 'video-detail-views-performance', 'jpa/video-detail-views-performance', 1, 3, 2, array( 'chartType' => 'bar' ) ),
-		get_dashboard_default_widget_instance( 'video-detail-embeds', 'jpa/video-detail-embeds', 2, 3, 2 ),
+		get_dashboard_default_widget_instance( 'video-detail-views-performance', 'jpa/video-detail-views-performance', 10, 'full', 2, array( 'chartType' => 'bar' ) ),
+		get_dashboard_default_widget_instance( 'videopress-video-player', 'videopress/video-player', 20, 1, 2 ),
+		get_dashboard_default_widget_instance( 'video-detail-embeds', 'jpa/video-detail-embeds', 30, 'fill', 2 ),
 	);
 }
 

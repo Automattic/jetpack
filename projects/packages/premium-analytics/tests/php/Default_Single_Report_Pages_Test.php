@@ -78,7 +78,7 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		$this->assertSame( 'videos', $record['reports_page'] );
 		$this->assertSame( 'jetpack-premium-analytics/video-detail', $record['preferences_scope'] );
 		$this->assertSame(
-			array( 'jpa/video-detail-views-performance', 'jpa/video-detail-embeds' ),
+			array( 'jpa/video-detail-views-performance', 'videopress/video-player', 'jpa/video-detail-embeds' ),
 			array_column( $record['default_layout'], 'type' )
 		);
 		$this->assertSame( array( 'analytics/video' ), array_column( get_available_single_report_page_records(), 'id' ) );

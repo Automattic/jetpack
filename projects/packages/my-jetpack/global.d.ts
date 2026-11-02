@@ -563,6 +563,7 @@ interface Window {
 		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -594,6 +595,7 @@ interface Window {
 			headerControls?: boolean;
 			overviewV1: boolean;
 			premiumAnalyticsEnabled: boolean;
+			settingsConsolidation: boolean;
 			showAiModuleToggle: boolean;
 			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
