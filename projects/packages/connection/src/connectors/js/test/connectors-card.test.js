@@ -134,6 +134,15 @@ function respondWith( body, ok = true ) {
 	} );
 }
 
+/**
+ * Wait for the page to redirect or reload, which jsdom can't do, so it reports it as an error.
+ */
+async function expectNavigation() {
+	await waitFor( () =>
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' )
+	);
+}
+
 beforeEach( () => {
 	// eslint-disable-next-line jest/prefer-spy-on -- jsdom has no fetch to spy on.
 	window.fetch = jest.fn();
@@ -333,8 +342,7 @@ describe( 'Connectors card', () => {
 				expect.stringContaining( '/wp-json/' + endpoint ),
 				expect.any( Object )
 			);
-			// jsdom cannot navigate, so the redirect surfaces as its "Not implemented" error.
-			await waitFor( () => expect( console ).toHaveErrored() );
+			await expectNavigation();
 		} );
 
 		it( 'shows why registration failed and lets the admin retry', async () => {
@@ -405,7 +413,7 @@ describe( 'Connectors card', () => {
 			expect( console ).not.toHaveErrored();
 
 			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
-			await waitFor( () => expect( console ).toHaveErrored() );
+			await expectNavigation();
 		} );
 	} );
 
@@ -461,7 +469,7 @@ describe( 'Connectors card', () => {
 					body: JSON.stringify( { redirect_uri: 'options-connectors.php' } ),
 				} )
 			);
-			await waitFor( () => expect( console ).toHaveErrored() );
+			await expectNavigation();
 		} );
 
 		it( 'shows an error when a fresh connection returns no URL', async () => {
@@ -488,7 +496,7 @@ describe( 'Connectors card', () => {
 				'/wp-json/jetpack/v4/identity-crisis/confirm-safe-mode',
 				expect.objectContaining( { method: 'POST' } )
 			);
-			await waitFor( () => expect( console ).toHaveErrored() );
+			await expectNavigation();
 		} );
 
 		it( 'asks before disconnecting the site', async () => {
@@ -508,7 +516,7 @@ describe( 'Connectors card', () => {
 				'/wp-json/jetpack/v4/connection',
 				expect.objectContaining( { body: JSON.stringify( { isActive: false } ) } )
 			);
-			await waitFor( () => expect( console ).toHaveErrored() );
+			await expectNavigation();
 		} );
 
 		it.each( [
