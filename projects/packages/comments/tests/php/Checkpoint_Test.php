@@ -26,6 +26,7 @@ class Checkpoint_Test extends BaseTestCase {
 		add_filter(
 			'wp_die_handler',
 			function () {
+				/** @return never */
 				return function ( $message, $title, $args ) {
 					throw new RuntimeException( (string) $args['response'] );
 				};

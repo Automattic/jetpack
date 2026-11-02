@@ -23,6 +23,7 @@ class Comment_Form_Test extends BaseTestCase {
 		add_filter(
 			'wp_die_handler',
 			function () {
+				/** @return never */
 				return function () {
 					throw new RuntimeException();
 				};

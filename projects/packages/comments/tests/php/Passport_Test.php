@@ -56,6 +56,7 @@ class Passport_Test extends BaseTestCase {
 
 		$this->assertSame( $accepted, null !== $identity );
 		if ( $accepted ) {
+			$this->assertNotNull( $identity );
 			$this->assertSame( 'Ann', $identity['name'] );
 		}
 	}
