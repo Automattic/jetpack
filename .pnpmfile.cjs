@@ -165,6 +165,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'test-exclude' ] = '^8.0.0';
 	}
 
+	// Clear GHSA-3g3m-2fjr-6pw4 for various deps. Historically the process has taken a while.
+	// https://github.com/istanbuljs/test-exclude/issues/78
+	// https://github.com/jestjs/jest/issues/16529
+	// https://github.com/joshwooding/vite-plugin-react-docgen-typescript/issues/92
+	// (plus a few more upstreams with no report yet)
+	if ( pkg.dependencies?.glob?.startsWith( '^13' ) ) {
+		pkg.dependencies.glob += ' || ^14';
+	}
+
 	// Clear GHSA-g3hv-75wg-m249 for various deps. Historically the process has taken a while.
 	// https://github.com/eslint/eslint/issues/21463
 	// https://github.com/istanbuljs/test-exclude/issues/78

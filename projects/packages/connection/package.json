@@ -43,7 +43,7 @@
 		"@wordpress/browserslist-config": "7.0.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "7.0.0",
 		"c8": "^11.0.0",
-		"glob": "13.0.6",
+		"glob": "14.0.2",
 		"jest": "30.5.2",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",

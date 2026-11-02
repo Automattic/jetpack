@@ -35,7 +35,7 @@ export default function ScoreBar( {
 			) : displayState === 'generating' ? (
 				<div className="jetpack-boost-score-bar__message">
 					<IndeterminateProgress label={ __( 'Testing site speed', 'jetpack-boost' ) }>
-						{ __( 'Calculating score…', 'jetpack-boost' ) }
+						{ __( 'Checking site speed…', 'jetpack-boost' ) }
 					</IndeterminateProgress>
 				</div>
 			) : (
