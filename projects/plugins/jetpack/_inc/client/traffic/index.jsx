@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
 	isOfflineMode,
@@ -18,6 +19,7 @@ import { siteUsesWpAdminInterface } from 'state/site';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
+import { RelatedPostsMoved } from './related-posts-moved';
 import SEO from './seo';
 import SeoOptInBanner from './seo-optin-banner';
 import Shortlinks from './shortlinks';
@@ -89,7 +91,12 @@ export class Traffic extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Traffic', 'jetpack' ) }</h2>
 				) }
-				{ foundRelated && <RelatedPosts { ...commonProps } /> }
+				{ foundRelated &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && <RelatedPostsMoved getModule={ this.props.module } />
+					) : (
+						<RelatedPosts { ...commonProps } />
+					) ) }
 				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
