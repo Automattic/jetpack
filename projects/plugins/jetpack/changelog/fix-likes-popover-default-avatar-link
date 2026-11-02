@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Likes: In the likes popover, link a liker who has no Gravatar profile to their site instead of a Gravatar page that does not exist.

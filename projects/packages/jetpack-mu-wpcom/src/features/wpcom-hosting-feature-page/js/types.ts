@@ -5,7 +5,7 @@ import type { ComponentProps, ComponentType } from 'react';
  * The prompts this page can show. Kept in sync with the STATE_* constants in
  * class-wpcom-hosting-feature-page.php.
  */
-export type FeatureState = 'upgrade' | 'in_progress' | 'activate';
+export type FeatureState = 'upgrade' | 'in_progress' | 'activate' | 'enable';
 
 /**
  * One blocking eligibility error, in the shape the wpcom eligibility API
@@ -57,6 +57,10 @@ export type InitialState = {
 	hasRevertedTransfer: boolean;
 	/** Whether the site's last transfer failed. Only in the `activate` state. */
 	transferFailed: boolean;
+	/** Link that turns the Jetpack plugin's dashboard on. Only in the `enable` state. */
+	enableUrl?: string;
+	/** Why the last attempt to turn the dashboard on failed, if it did. Only in the `enable` state. */
+	enableError?: 'connection' | 'unknown' | null;
 };
 
 /**
@@ -91,6 +95,16 @@ export type FeatureConfig = {
 	inProgress: {
 		title: string;
 		description: string;
+	};
+	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
+	enable?: {
+		title: string;
+		description: string;
+		action: string;
+		/** Notice shown when turning it on failed. */
+		failed: string;
+		/** Notice shown when turning it on failed because the site is not connected. */
+		connectionFailed: string;
 	};
 	/** Rendered below the upgrade prompt, for anything only this feature offers there. */
 	UpgradeExtra?: ComponentType< { state: InitialState } >;

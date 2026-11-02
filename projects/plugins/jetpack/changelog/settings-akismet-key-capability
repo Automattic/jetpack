@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Settings: Return the Akismet key only to users who can manage options.

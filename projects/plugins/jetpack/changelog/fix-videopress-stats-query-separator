@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Fix incorrect video statistics on sites configured to use HTML query separators.

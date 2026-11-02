@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Internal: add a helper that reads the settings flag, with no visible change.
-
-
