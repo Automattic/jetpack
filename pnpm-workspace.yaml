@@ -74,8 +74,11 @@ ignoredOptionalDependencies:
 
 audit:
   ignore:
-    # "OMG it can throw an exception" is not a real vulnerability. See also https://github.com/github/advisory-database/pull/10132
-    - GHSA-vfj7-8cjw-p6xm
+    # Maintainer of various eslint plugins seems unwilling to upgrade from minimatch v3, and this one isn't going to be backported. Sigh.
+    # https://github.com/import-js/eslint-plugin-import/issues/3249
+    # https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1054
+    # https://github.com/jsx-eslint/eslint-plugin-react/issues/4066
+    - GHSA-g3hv-75wg-m249
 
 # Dependencies needing patching.
 patchedDependencies:
