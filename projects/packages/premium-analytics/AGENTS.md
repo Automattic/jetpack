@@ -685,8 +685,14 @@ above the leaderboard or chart content.
 - View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
   Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
   restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
-  `<AbbreviatedValue>` to get the same. `widgets/tags` is the one exception, printing full
-  figures to match the Jetpack Stats module it is read beside (WOOA7S-2018).
+  `<AbbreviatedValue>` to get the same. A widget whose job is one figure — a metric tile, a metric
+  card, a headline, the figure above a chart — uses `HEADLINE_COUNT_FORMAT` from the toolkit
+  instead, which shows the exact figure and falls back to the compact one only where it would be
+  clipped (STATS-549); `git grep HEADLINE_COUNT_FORMAT widgets/` lists them. Breakdown widgets
+  (leaderboards, tables, chart axes) stay compact, exact on hover and in the report: the
+  leaderboard grid is `minmax(0, 1fr) auto`, so a wider value permanently takes width from the
+  label. `widgets/tags` is the one breakdown widget printing full figures, to match the Jetpack
+  Stats module it is read beside (WOOA7S-2018).
 - Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the row builder for
   you. The notes below are for the few widgets that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
