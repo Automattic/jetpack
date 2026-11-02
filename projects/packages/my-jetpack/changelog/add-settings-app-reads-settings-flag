@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the settings consolidation flag to the admin script data, off by default.
