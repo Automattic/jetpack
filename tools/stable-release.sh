@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+. "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/proceed_p.sh"
+
+if [[ -n $(git status --porcelain) ]]; then
+	error 'Working tree not clean; commit or stash changes first.'
+	exit 1
+fi
+START_COMMIT=$(git rev-parse HEAD)
+
+# Prompt for PRs or commits to apply, committing each.
+function apply_patches {
+	local pr_or_commit
+
+	while true; do
+		read -rep 'PR or commit: ' pr_or_commit
+		[[ -n $pr_or_commit ]] || continue
+
+		if "$BASE/tools/apply-patch.sh" "$pr_or_commit"; then
+			git add -A
+			if ! git commit; then
+				error 'Commit aborted; changes left staged.'
+				exit 1
+			fi
+		fi
+
+		proceed_p '' 'Add another?' || break
+	done
+}
+
+# Output the changed projects
+function detect_changed_projects {
+	mapfile -t PROJECTS < <(
+		git -c core.quotepath=off diff --no-renames --name-only "$START_COMMIT..HEAD" -- projects/ \
+			| sed -n 's|^projects/\([^/]*/[^/]*\)/.*|\1|p' | sort -u
+	)
+
+	if [[ ${#PROJECTS[@]} -eq 0 ]]; then
+		error 'No projects changed.'
+		exit 1
+	fi
+	echo 'Changed projects:'
+	printf '  %s\n' "${PROJECTS[@]}"
+}
+
+apply_patches
+detect_changed_projects
