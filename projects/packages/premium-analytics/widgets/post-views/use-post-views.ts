@@ -148,7 +148,8 @@ export default function usePostViews(
 ): PostViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'data', 'post' ],
+		// Matches the highlights card's fields so both share one `stats/post` query.
+		fields: [ 'data', 'like_count', 'post' ],
 	} );
 
 	const current = useMemo( () => {
