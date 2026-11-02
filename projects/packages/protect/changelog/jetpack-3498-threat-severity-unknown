@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect page: Don't label vulnerabilities from the free check as Low severity when their severity is unknown.

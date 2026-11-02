@@ -71,7 +71,7 @@ function ThreatCell( { item, onOpen, inline = false }: RowProps ) {
 						{ subject }
 					</span>
 				</button>
-				<ThreatSeverityBadge severity={ item.severity } />
+				{ typeof item.severity === 'number' && <ThreatSeverityBadge severity={ item.severity } /> }
 			</span>
 		);
 	}
@@ -167,7 +167,10 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) => <ThreatSeverityBadge severity={ item.severity } />,
+			render: ( { item } ) =>
+				typeof item.severity === 'number' ? (
+					<ThreatSeverityBadge severity={ item.severity } />
+				) : null,
 		},
 		{
 			id: 'threat',
@@ -233,10 +236,13 @@ const TYPES = [
  * A threat's severity level, matching the badge: Critical from 5, High from 3, else Low.
  *
  * @param item - The threat.
- * @return The level.
+ * @return The level, or undefined when the threat has no severity, as with the free vulnerability check.
  */
-export function getLevel( item: ScanThreat ): string {
-	const severity = item.severity ?? 0;
+export function getLevel( item: ScanThreat ): string | undefined {
+	const severity = item.severity;
+	if ( typeof severity !== 'number' ) {
+		return undefined;
+	}
 	if ( severity >= 5 ) {
 		return 'critical';
 	}

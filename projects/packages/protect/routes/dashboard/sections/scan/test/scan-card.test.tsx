@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
 import { LEVELS, getLevel } from '../threats-list';
-import type { ScanState } from '../types';
+import type { ScanState, ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
@@ -233,13 +233,14 @@ describe( 'ScanCard threat list', () => {
 } );
 
 describe( 'Severity filter', () => {
-	it.each( [ undefined, 0, 2, 3, 4, 5, 9 ] )(
-		'puts severity %p in the same level as its badge',
-		severity => {
-			render( <ThreatSeverityBadge severity={ severity } /> );
-			const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
+	it.each( [ 0, 2, 3, 4, 5, 9 ] )( 'puts severity %p in the same level as its badge', severity => {
+		render( <ThreatSeverityBadge severity={ severity } /> );
+		const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
 
-			expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ undefined, null ] )( 'puts no level on a threat whose severity is %p', severity => {
+		expect( getLevel( { id: 1, severity } as ScanThreat ) ).toBeUndefined();
+	} );
 } );
