@@ -33,6 +33,7 @@ type PostViewsInnerProps = {
 	chartType?: PostViewsChartType;
 };
 
+// Mirrors `views` in routes/post-detail/config/post-type-copy.ts, which a widget cannot import.
 function getChartTitle( postType?: string ): string {
 	if ( postType === 'page' ) {
 		return __( 'Page views', 'jetpack-premium-analytics-pkg' );
