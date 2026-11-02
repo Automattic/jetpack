@@ -1,4 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { speak } from '@wordpress/a11y';
 import { createInterpolateElement, useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
@@ -56,6 +57,22 @@ const CTA_LABELS: Record<
 		sprintf( __( 'Turning on %s…', 'jetpack-publicize-pkg' ), name ),
 };
 
+const errorText = ( name: string, message: string ) =>
+	sprintf(
+		/* translators: 1: plugin name, e.g. ATmosphere. 2: the error message. */
+		__( '%1$s could not be set up: %2$s', 'jetpack-publicize-pkg' ),
+		name,
+		message
+	);
+
+// `@wordpress/ui` notices are not live regions, so the outcome is announced separately.
+const ANNOUNCEMENTS: Record< 'active' | 'error', ( name: string, message: string ) => string > = {
+	active: name =>
+		/* translators: %s: plugin name, e.g. ATmosphere. */
+		sprintf( __( '%s is active.', 'jetpack-publicize-pkg' ), name ),
+	error: errorText,
+};
+
 const IDLE_LABELS: Record< CompanionPlugin[ 'action' ], keyof typeof CTA_LABELS > = {
 	install: 'install',
 	activate: 'activate',
@@ -108,12 +125,23 @@ export function CompanionPluginNotice( {
 
 	const onInstall = useCallback( async () => {
 		recordEvent( 'jetpack_social_companion_plugin_notice_cta_click', eventProps );
-		const activated = await install();
+		const result = await install();
+		if ( result?.status !== 'active' && result?.status !== 'error' ) {
+			return;
+		}
+		const activated = result.status === 'active';
 		recordEvent(
 			activated
 				? 'jetpack_social_companion_plugin_notice_activated'
 				: 'jetpack_social_companion_plugin_notice_error',
 			eventProps
+		);
+		speak(
+			ANNOUNCEMENTS[ result.status ](
+				PLUGIN_NAMES[ eventProps.plugin ],
+				'message' in result ? result.message : ''
+			),
+			activated ? 'polite' : 'assertive'
 		);
 	}, [ install, recordEvent, eventProps ] );
 
@@ -159,14 +187,7 @@ export function CompanionPluginNotice( {
 				{ __( 'Bring the conversation back to your site', 'jetpack-publicize-pkg' ) }
 			</Notice.Title>
 			<Notice.Description>
-				{ state.status === 'error'
-					? sprintf(
-							/* translators: 1: plugin name, e.g. ATmosphere. 2: the error message. */
-							__( '%1$s could not be set up: %2$s', 'jetpack-publicize-pkg' ),
-							name,
-							state.message
-						)
-					: PITCHES[ plugin.slug ]() }
+				{ state.status === 'error' ? errorText( name, state.message ) : PITCHES[ plugin.slug ]() }
 				{ plugin.action === 'marketplace' && (
 					<>
 						{ ' ' }

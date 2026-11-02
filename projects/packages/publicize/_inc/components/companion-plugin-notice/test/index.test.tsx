@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { CompanionPluginNotice } from '..';
 import { clearMockedScriptData, mockScriptData } from '../../../utils/test-utils';
@@ -7,6 +8,7 @@ import { resetCompanionPluginStates } from '../use-companion-plugin';
 import type { CompanionPlugin } from '../../../types';
 
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/a11y' );
 
 const mockRecordEvent = jest.fn();
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -45,6 +47,7 @@ describe( 'CompanionPluginNotice', () => {
 	beforeEach( () => {
 		mockedApiFetch.mockReset();
 		mockRecordEvent.mockReset();
+		jest.mocked( speak ).mockReset();
 	} );
 
 	afterEach( () => {
@@ -104,6 +107,7 @@ describe( 'CompanionPluginNotice', () => {
 				'jetpack_social_companion_plugin_notice_cta_click',
 				'jetpack_social_companion_plugin_notice_activated',
 			] );
+			expect( speak ).toHaveBeenCalledWith( expect.stringMatching( / is active\.$/ ), 'polite' );
 		}
 	);
 
@@ -133,14 +137,18 @@ describe( 'CompanionPluginNotice', () => {
 	} );
 
 	it( 'shows the error and keeps the button when the install fails', async () => {
-		mockedApiFetch.mockRejectedValue( { message: 'Could not create directory.' } );
+		mockedApiFetch.mockRejectedValue( {
+			message:
+				'<p><strong>Error:</strong> Current PHP version does not meet requirements for ATmosphere&#8217;s update.</p>',
+		} );
 		setup( [ atmosphere() ] );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Install ATmosphere' } ) );
 
-		await expect(
-			screen.findByText( 'ATmosphere could not be set up: Could not create directory.' )
-		).resolves.toBeInTheDocument();
+		const message =
+			'ATmosphere could not be set up: Error: Current PHP version does not meet requirements for ATmosphere’s update.';
+		await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
+		expect( speak ).toHaveBeenCalledWith( message, 'assertive' );
 		expect( screen.getByRole( 'button', { name: 'Install ATmosphere' } ) ).toBeEnabled();
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_social_companion_plugin_notice_error',

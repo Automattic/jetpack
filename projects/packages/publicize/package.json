@@ -54,6 +54,7 @@
 		"@automattic/social-previews": "workspace:*",
 		"@jetpack-social/init": "link:packages/init",
 		"@tanstack/react-query": "5.102.8",
+		"@wordpress/a11y": "5.0.0",
 		"@wordpress/admin-ui": "3.0.0",
 		"@wordpress/api-fetch": "8.0.0",
 		"@wordpress/base-styles": "14.0.0",

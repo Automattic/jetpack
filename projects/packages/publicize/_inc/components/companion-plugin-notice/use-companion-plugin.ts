@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { getSocialScriptData } from '../../utils/script-data';
 import type { CompanionPlugin } from '../../types';
 
@@ -16,7 +17,14 @@ const viewed = new Set< string >();
 const setState = ( slug: string, state: CompanionPluginState ) => {
 	states.set( slug, state );
 	listeners.forEach( listener => listener() );
+	return state;
 };
+
+// Some core plugin errors, like the PHP version check, are HTML.
+const toPlainText = ( message: string ) =>
+	decodeEntities( message.replace( /<[^>]*>/g, ' ' ) )
+		.replace( /\s+/g, ' ' )
+		.trim();
 
 const subscribe = ( listener: () => void ) => {
 	listeners.add( listener );
@@ -87,6 +95,8 @@ function getActivationRequest( plugin: CompanionPlugin ) {
 /**
  * Install or activate, and dismiss, the plugin offered alongside a social network.
  *
+ * `install()` resolves to the plugin's new state, or null when there is nothing to install from here.
+ *
  * @param serviceName - The connection's service, e.g. `bluesky`.
  * @return The plugin, its state, and the actions.
  */
@@ -96,10 +106,10 @@ export function useCompanionPlugin( serviceName: string ) {
 
 	const state = useSyncExternalStore( subscribe, () => ( slug && states.get( slug ) ) || IDLE );
 
-	const install = useCallback( async () => {
+	const install = useCallback( async (): Promise< CompanionPluginState | null > => {
 		// `marketplace` is a link to WordPress.com, which does the install itself.
 		if ( ! plugin || plugin.action === 'marketplace' ) {
-			return false;
+			return null;
 		}
 
 		setState( plugin.slug, { status: 'busy' } );
@@ -107,14 +117,12 @@ export function useCompanionPlugin( serviceName: string ) {
 		try {
 			await apiFetch( getActivationRequest( plugin ) );
 
-			setState( plugin.slug, { status: 'active' } );
-			return true;
+			return setState( plugin.slug, { status: 'active' } );
 		} catch ( error ) {
-			setState( plugin.slug, {
+			return setState( plugin.slug, {
 				status: 'error',
-				message: ( error as { message?: string } )?.message ?? '',
+				message: toPlainText( ( error as { message?: string } )?.message ?? '' ),
 			} );
-			return false;
 		}
 	}, [ plugin ] );
 

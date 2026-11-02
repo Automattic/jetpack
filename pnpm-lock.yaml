@@ -4519,6 +4519,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@19.3.0)
+      '@wordpress/a11y':
+        specifier: 5.0.0
+        version: 5.0.0
       '@wordpress/admin-ui':
         specifier: 3.0.0
         version: 3.0.0(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

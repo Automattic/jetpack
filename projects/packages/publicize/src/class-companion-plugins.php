@@ -30,18 +30,20 @@ class Companion_Plugins {
 	/**
 	 * The plugins, by WordPress.org slug.
 	 *
-	 * @var array<string, array{file: string, version_constant: string, service: string, settings_page: string}>
+	 * @var array<string, array{file: string, version_constant: string, requires_php: string, service: string, settings_page: string}>
 	 */
 	const PLUGINS = array(
 		'atmosphere'  => array(
 			'file'             => 'atmosphere/atmosphere.php',
 			'version_constant' => 'ATMOSPHERE_VERSION',
+			'requires_php'     => '8.2',
 			'service'          => 'bluesky',
 			'settings_page'    => 'options-general.php?page=atmosphere',
 		),
 		'activitypub' => array(
 			'file'             => 'activitypub/activitypub.php',
 			'version_constant' => 'ACTIVITYPUB_PLUGIN_VERSION',
+			'requires_php'     => '7.4',
 			'service'          => 'mastodon',
 			'settings_page'    => 'options-general.php?page=activitypub',
 		),
@@ -65,7 +67,7 @@ class Companion_Plugins {
 				continue;
 			}
 
-			$action = $is_simple ? self::get_simple_action( $slug ) : self::get_plugin_action( $plugin['file'] );
+			$action = $is_simple ? self::get_simple_action( $slug ) : self::get_plugin_action( $plugin );
 
 			if ( null === $action ) {
 				continue;
@@ -92,10 +94,17 @@ class Companion_Plugins {
 	 *
 	 * On WoA, wpcomsh denies the primitive capabilities on plans that cannot install plugins, but not `activate_plugin`.
 	 *
-	 * @param string $file The plugin file.
-	 * @return string|null `install`, `activate`, or null when the user cannot.
+	 * @param array{file: string, requires_php: string} $plugin The plugin.
+	 * @return string|null `install`, `activate`, or null when the user cannot or the site's PHP is too old.
 	 */
-	private static function get_plugin_action( string $file ): ?string {
+	private static function get_plugin_action( array $plugin ): ?string {
+		// Core would refuse it, with an error that does not say why.
+		if ( ! is_php_version_compatible( $plugin['requires_php'] ) ) {
+			return null;
+		}
+
+		$file = $plugin['file'];
+
 		if ( file_exists( WP_PLUGIN_DIR . '/' . $file ) ) {
 			return current_user_can( 'activate_plugins' ) && current_user_can( 'activate_plugin', $file ) ? 'activate' : null;
 		}

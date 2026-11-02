@@ -48,6 +48,16 @@ class Companion_Plugins_Test extends TestCase {
 	}
 
 	/**
+	 * ATmosphere's offer off Simple, where it needs PHP 8.2. The CI matrix runs both sides of that line.
+	 *
+	 * @param string $action The action.
+	 * @return array<string, string>
+	 */
+	private static function atmosphere( string $action ): array {
+		return PHP_VERSION_ID >= 80200 ? array( 'atmosphere' => $action ) : array();
+	}
+
+	/**
 	 * The offered plugins, as slug => action.
 	 *
 	 * @return array<string, string>
@@ -98,10 +108,7 @@ class Companion_Plugins_Test extends TestCase {
 				false,
 				array(),
 				'administrator',
-				array(
-					'atmosphere'  => 'install',
-					'activitypub' => 'install',
-				),
+				self::atmosphere( 'install' ) + array( 'activitypub' => 'install' ),
 			),
 			'self-hosted editor cannot install'          => array( false, array(), 'editor', array() ),
 			'Simple turns ActivityPub on, no ATmosphere' => array( true, array(), 'administrator', array( 'activitypub' => 'enable' ) ),
@@ -152,7 +159,7 @@ class Companion_Plugins_Test extends TestCase {
 		update_option( 'active_plugins', array( 'activitypub/activitypub.php' ) );
 		$this->log_in( 'administrator' );
 
-		$this->assertSame( array( 'atmosphere' => 'install' ), $this->offered() );
+		$this->assertSame( self::atmosphere( 'install' ), $this->offered() );
 	}
 
 	/**
@@ -206,7 +213,7 @@ class Companion_Plugins_Test extends TestCase {
 		define( 'ACTIVITYPUB_PLUGIN_VERSION', '1.0.0' );
 		$this->log_in( 'administrator' );
 
-		$this->assertSame( array( 'atmosphere' => 'install' ), $this->offered() );
+		$this->assertSame( self::atmosphere( 'install' ), $this->offered() );
 	}
 
 	/**
@@ -220,13 +227,7 @@ class Companion_Plugins_Test extends TestCase {
 		$this->assertSame( array( 'activitypub' => 'install' ), $this->offered() );
 
 		$this->log_in( 'administrator' );
-		$this->assertSame(
-			array(
-				'atmosphere'  => 'install',
-				'activitypub' => 'install',
-			),
-			$this->offered()
-		);
+		$this->assertSame( self::atmosphere( 'install' ) + array( 'activitypub' => 'install' ), $this->offered() );
 	}
 
 	/**
