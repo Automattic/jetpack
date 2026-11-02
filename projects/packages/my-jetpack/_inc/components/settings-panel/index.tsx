@@ -1,8 +1,7 @@
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { IconButton, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { IconButton, Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouteSearch } from '../../router-bridge';
 import { ModuleToggle } from '../module-toggle';
@@ -10,6 +9,7 @@ import { useAllJetpackModules } from '../my-jetpack-tab-panel/features/use-all-j
 import { moduleSettings } from './registry';
 import styles from './styles.module.scss';
 import type { MyJetpackModule } from '../../types';
+import type { KeyboardEvent } from 'react';
 
 /**
  * What the panel shows for a module with no settings of its own yet: the switch and the old Settings link.
@@ -19,6 +19,8 @@ import type { MyJetpackModule } from '../../types';
  * @return The fallback content.
  */
 function FallbackSettings( { module: $module }: { module: MyJetpackModule } ) {
+	const labelId = useId();
+
 	return (
 		<Stack direction="column" gap="lg">
 			{ $module.description && <Text variant="body-md">{ $module.description }</Text> }
@@ -29,8 +31,10 @@ function FallbackSettings( { module: $module }: { module: MyJetpackModule } ) {
 				justify="space-between"
 				className={ styles[ 'settings-panel__toggle' ] }
 			>
-				<Text variant="body-md">{ __( 'Activate this feature', 'jetpack-my-jetpack' ) }</Text>
-				<ModuleToggle module={ $module } />
+				<Text variant="body-md" id={ labelId }>
+					{ __( 'Activate this feature', 'jetpack-my-jetpack' ) }
+				</Text>
+				<ModuleToggle module={ $module } ariaLabelledBy={ labelId } />
 			</Stack>
 
 			{ $module.configure_url && (
@@ -52,7 +56,9 @@ export function SettingsPanel() {
 	const slug = String( search.configure ?? '' );
 	const navigate = useNavigate();
 	const { modules, hasLoaded } = useAllJetpackModules();
-	const $module = modules?.[ slug as keyof typeof modules ];
+	// Own keys only: a slug such as `constructor` must not find an inherited property.
+	const $module =
+		modules && Object.hasOwn( modules, slug ) ? modules[ slug as keyof typeof modules ] : undefined;
 	const Settings = $module && moduleSettings[ slug ];
 	const headingId = useId();
 	const headingRef = useRef< HTMLHeadingElement >( null );
@@ -78,25 +84,26 @@ export function SettingsPanel() {
 		headingRef.current?.focus();
 	}, [ slug ] );
 
+	// Only when focus was lost with the panel; focus already elsewhere stays put.
 	useEffect(
 		() => () => {
-			if ( openerRef.current?.isConnected ) {
-				openerRef.current.focus();
+			const opener = openerRef.current;
+			const active = opener?.ownerDocument.activeElement;
+			if ( opener?.isConnected && ( ! active || active === opener.ownerDocument.body ) ) {
+				opener.focus();
 			}
 		},
 		[]
 	);
 
-	useEffect( () => {
-		const onKeyDown = ( event: KeyboardEvent ) => {
+	const onKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLElement > ) => {
 			if ( event.key === 'Escape' && ! event.defaultPrevented ) {
 				onClose();
 			}
-		};
-
-		document.addEventListener( 'keydown', onKeyDown );
-		return () => document.removeEventListener( 'keydown', onKeyDown );
-	}, [ onClose ] );
+		},
+		[ onClose ]
+	);
 
 	let body;
 	if ( $module ) {
@@ -114,7 +121,13 @@ export function SettingsPanel() {
 	}
 
 	return (
-		<section ref={ rootRef } className={ styles[ 'settings-panel' ] } aria-labelledby={ headingId }>
+		// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape from anywhere inside the panel closes it.
+		<section
+			ref={ rootRef }
+			className={ styles[ 'settings-panel' ] }
+			aria-labelledby={ headingId }
+			onKeyDown={ onKeyDown }
+		>
 			<Stack direction="column" gap="lg">
 				<Stack direction="row" align="center" justify="space-between">
 					<Text

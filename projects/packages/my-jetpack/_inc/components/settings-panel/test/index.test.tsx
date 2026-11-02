@@ -14,8 +14,18 @@ jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => 
 	useAllJetpackModules: () => mockModules,
 } ) );
 jest.mock( '../../module-toggle', () => ( {
-	ModuleToggle: ( { module: $module }: { module: MyJetpackModule } ) => (
-		<input type="checkbox" aria-label={ `Toggle ${ $module.name }` } />
+	ModuleToggle: ( {
+		module: $module,
+		ariaLabelledBy,
+	}: {
+		module: MyJetpackModule;
+		ariaLabelledBy?: string;
+	} ) => (
+		<input
+			type="checkbox"
+			aria-label={ ariaLabelledBy ? undefined : `Toggle ${ $module.name }` }
+			aria-labelledby={ ariaLabelledBy }
+		/>
 	),
 } ) );
 
@@ -47,7 +57,7 @@ describe( 'SettingsPanel', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'Carousel' } ) ).toHaveFocus();
 		expect( screen.getByText( carousel.description ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: 'Toggle Carousel' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
 			'href',
 			carousel.configure_url
@@ -78,6 +88,21 @@ describe( 'SettingsPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Configure' } ) ).toHaveFocus();
 	} );
 
+	it( 'leaves focus alone on close when it is already somewhere else', () => {
+		render(
+			<>
+				<button type="button">Configure</button>
+				<input aria-label="Search" />
+			</>
+		);
+		screen.getByRole( 'button', { name: 'Configure' } ).focus();
+		const { unmount } = render( <SettingsPanel /> );
+		screen.getByRole( 'textbox', { name: 'Search' } ).focus();
+		unmount();
+
+		expect( screen.getByRole( 'textbox', { name: 'Search' } ) ).toHaveFocus();
+	} );
+
 	it( 'swaps the content when another slug opens', () => {
 		const { rerender } = render( <SettingsPanel /> );
 		mockSearch = { configure: 'likes' };
@@ -96,6 +121,16 @@ describe( 'SettingsPanel', () => {
 		rerender( <SettingsPanel /> );
 		expect( screen.queryByText( 'Failed to get feature settings' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ 'constructor', '__proto__', 'toString' ] )(
+		'treats %s as a slug the site does not have',
+		slug => {
+			mockSearch = { configure: slug };
+			render( <SettingsPanel /> );
+
+			expect( screen.getByText( 'Failed to get feature settings' ) ).toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[
@@ -121,11 +156,20 @@ describe( 'SettingsPanel', () => {
 		[ 'any other key', 'Enter', false ],
 	] )( 'stays open for %s', ( _name, key, handled ) => {
 		render( <SettingsPanel /> );
-		const event = new KeyboardEvent( 'keydown', { key, cancelable: true } );
+		const event = new KeyboardEvent( 'keydown', { key, cancelable: true, bubbles: true } );
 		if ( handled ) {
 			event.preventDefault();
 		}
-		document.dispatchEvent( event );
+		screen.getByRole( 'heading', { name: 'Carousel' } ).dispatchEvent( event );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stays open for an Escape pressed outside the panel', async () => {
+		render( <input aria-label="Search" /> );
+		render( <SettingsPanel /> );
+		screen.getByRole( 'textbox', { name: 'Search' } ).focus();
+		await userEvent.keyboard( '{Escape}' );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );

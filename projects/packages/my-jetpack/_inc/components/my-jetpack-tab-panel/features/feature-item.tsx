@@ -49,9 +49,26 @@ export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undef
 
 	const url = $module.configure_url;
 	// Jetpack's fallback: a settings search, which for a module without options finds only its toggle.
-	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );
+	const isSettingsSearch = url?.includes( SETTINGS_SEARCH );
 
 	return isSettingsSearch && ! Object.keys( $module.options ?? {} ).length ? undefined : url;
+}
+
+const SETTINGS_SEARCH = 'page=jetpack-settings#/settings?term=';
+
+/**
+ * Whether a module's settings open in the panel: its URL is Jetpack's settings-search default or the panel's own.
+ *
+ * Any other URL, such as the SEO page an opted-in site is sent to, is the module's real home and stays a link.
+ *
+ * @param url - The module's `configure_url`.
+ * @return True when the panel replaces the link.
+ */
+export function opensInSettingsPanel( url: string ): boolean {
+	return (
+		url.includes( SETTINGS_SEARCH ) ||
+		( url.includes( 'page=my-jetpack' ) && /configure(=|%3D)/.test( url ) )
+	);
 }
 
 /**
@@ -241,7 +258,7 @@ export function FeatureItem( {
 
 			<span className={ styles[ 'feature-action-slot' ] }>
 				{ settingsUrl &&
-					( isSettingsConsolidationEnabled() ? (
+					( isSettingsConsolidationEnabled() && opensInSettingsPanel( settingsUrl ) ? (
 						<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
 					) : (
 						<Link
