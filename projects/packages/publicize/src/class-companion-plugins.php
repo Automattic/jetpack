@@ -107,7 +107,7 @@ class Companion_Plugins {
 			return null;
 		}
 
-		// Simple runs ActivityPub for every site and turns it on per site, through `wpcom/v2/activitypub/status`.
+		// Every Simple site can turn ActivityPub on, through `wpcom/v2/activitypub/status`; no plugin install.
 		if ( 'activitypub' === $slug ) {
 			return 'enable';
 		}

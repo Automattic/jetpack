@@ -83,6 +83,18 @@ function getActivationRequest( slug: CompanionPluginSlug, action: CompanionPlugi
 }
 
 /**
+ * Whether core reports a plugin as active.
+ *
+ * @param slug - The plugin slug.
+ * @return Whether it is active.
+ */
+const isPluginActive = ( slug: CompanionPluginSlug ) =>
+	apiFetch< { status: string } >( { path: `/wp/v2/plugins/${ slug }/${ slug }` } ).then(
+		( { status } ) => status === 'active',
+		() => false
+	);
+
+/**
  * Turn on, or dismiss, the plugin offered alongside a social network.
  *
  * `action` is undefined when the current user is not offered the plugin. `install()` resolves to
@@ -110,6 +122,11 @@ export function useCompanionPlugin( serviceName: string ) {
 
 			return setState( slug, { status: 'active' } );
 		} catch ( error ) {
+			// ActivityPub redirects to its welcome screen once activated, so the response is not JSON.
+			if ( action !== 'enable' && ( await isPluginActive( slug ) ) ) {
+				return setState( slug, { status: 'active' } );
+			}
+
 			return setState( slug, {
 				status: 'error',
 				message: toPlainText( ( error as { message?: string } )?.message ?? '' ),

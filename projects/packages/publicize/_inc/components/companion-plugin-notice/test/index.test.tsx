@@ -120,6 +120,25 @@ describe( 'CompanionPluginNotice', () => {
 		);
 	} );
 
+	it( 'treats a plugin that redirects on activation as active', async () => {
+		mockedApiFetch
+			.mockRejectedValueOnce( {
+				code: 'invalid_json',
+				message: 'The response is not a valid JSON response.',
+			} )
+			.mockResolvedValueOnce( { status: 'active' } );
+		setup( { activitypub: 'activate' }, 'mastodon' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Activate ActivityPub' } ) );
+
+		await expect(
+			screen.findByRole( 'link', { name: 'Finish setting it up' } )
+		).resolves.toBeInTheDocument();
+		expect( mockedApiFetch ).toHaveBeenLastCalledWith( {
+			path: '/wp/v2/plugins/activitypub/activitypub',
+		} );
+	} );
+
 	it( 'shows the error and keeps the button when the install fails', async () => {
 		mockedApiFetch.mockRejectedValue( {
 			message:
