@@ -46,6 +46,12 @@ class Speed_Score_Test extends Base_TestCase {
 				return array_key_exists( $name, $this->options ) ? $this->options[ $name ] : $default_value;
 			}
 		);
+		Functions\when( 'update_option' )->alias(
+			function ( $name, $value ) {
+				$this->options[ $name ] = $value;
+				return true;
+			}
+		);
 		Functions\when( 'add_query_arg' )->alias(
 			function ( $key, $value, $url ) {
 				return $url . '?' . $key . '=' . $value;
