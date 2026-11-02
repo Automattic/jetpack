@@ -2,9 +2,10 @@ import { ROW_HEIGHT_PRESETS } from '@wordpress/widget-dashboard';
 import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 
 /**
- * Narrowest tile the analytics widgets are designed for. A surface fits as
- * many columns as its container allows at this width (WOOA7S-2326): at the
- * default 24px gap, two from 624px, three from 948px and four from 1272px.
+ * Narrowest tile the detail-page compositions are designed for. A surface fits
+ * as many columns as its container allows at this width, counting the gap it
+ * renders with: at the 16px gap these pages set, two columns from 616px of
+ * container and three from 932px.
  */
 export const PA_MIN_COLUMN_WIDTH = 300;
 
