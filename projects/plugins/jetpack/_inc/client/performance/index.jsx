@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
-import { isMovedOut } from 'lib/settings-consolidation';
+import { isMovedOut, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -39,7 +39,10 @@ export class Performance extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Performance', 'jetpack' ) }</h2>
 				) }
-				<Search { ...commonProps } />
+				{ /* Once settings move out, Search shows only in search results, as a link to its page. */ }
+				{ ( ! isSettingsConsolidationEnabled() || this.props.searchTerm ) && (
+					<Search { ...commonProps } />
+				) }
 				<SpeedUpSite { ...commonProps } />
 				{ ! isMovedOut( 'videopress' ) && <Media { ...commonProps } /> }
 			</div>

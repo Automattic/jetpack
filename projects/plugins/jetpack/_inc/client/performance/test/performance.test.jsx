@@ -8,6 +8,7 @@ jest.mock( '../speed-up-site', () => () => null );
 
 const findsEverything = () => true;
 const findsOnlyVideoPress = module => module === 'videopress';
+const findsOnlySearch = module => module === 'search';
 const CARDS = [ 'Search card', 'VideoPress card' ];
 
 describe( 'Performance settings', () => {
@@ -17,7 +18,13 @@ describe( 'Performance settings', () => {
 
 	it.each( [
 		[ CARDS, 'on the tab while the settings flag is off', false, {} ],
-		[ [ 'Search card' ], 'on the tab once the settings flag is on', true, {} ],
+		[ [], 'on the tab once the settings flag is on', true, {} ],
+		[
+			[ 'Search card' ],
+			'for a Search search once the settings flag is on',
+			true,
+			{ searchTerm: 'search', isModuleFound: findsOnlySearch },
+		],
 	] )( 'shows %p %s', ( expected, _label, flag, props ) => {
 		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
 
