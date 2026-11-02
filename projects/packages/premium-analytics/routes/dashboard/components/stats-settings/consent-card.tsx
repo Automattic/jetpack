@@ -8,23 +8,39 @@ import {
 	Text,
 } from '@jetpack-premium-analytics/externals';
 import { intlLocale } from '@jetpack-premium-analytics/formatters';
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import {
 	createInterpolateElement,
 	useCallback,
 	useEffect,
+	useId,
 	useRef,
 	useState,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { updateConsentStatus, useConsentStatus } from './consent-status';
+import {
+	takeConsentCardFocusRequest,
+	updateConsentStatus,
+	useConsentStatus,
+} from './consent-status';
 import styles from './stats-settings.module.scss';
 import type { ConsentStatus } from './consent-status';
 import type { JSX, ReactNode, Ref } from 'react';
 
 const WP_CONSENT_API_URL = 'https://wordpress.org/plugins/wp-consent-api/';
 const WP_CONSENT_API_ROUTE = '/wp/v2/plugins/wp-consent-api/wp-consent-api';
+
+// Once per page load, not per mount: switching tabs remounts the card.
+let viewedThisLoad = false;
+
+/**
+ * Reset the once-per-load view latch. Test-only.
+ */
+export function resetConsentCardForTesting() {
+	viewedThisLoad = false;
+}
 
 /**
  * Install WP Consent API from WordPress.org and activate it, or activate the copy already installed.
@@ -129,6 +145,51 @@ function ConsentStep( {
 	);
 }
 
+type BlockedBy = 'activate_permission' | 'file_mods' | 'install_permission';
+
+/**
+ * What stops this user setting up WP Consent API from the card, if anything.
+ *
+ * @param status     - The setup.
+ * @param canConnect - Whether the user may install or activate it.
+ * @return The obstacle, or null when there is none.
+ */
+function getBlockedBy( status: ConsentStatus, canConnect: boolean ): BlockedBy | null {
+	if ( status.api_active || status.banner_blocks_stats || canConnect ) {
+		return null;
+	}
+	if ( status.api_installed ) {
+		return 'activate_permission';
+	}
+	return status.file_mods_allowed ? 'install_permission' : 'file_mods';
+}
+
+/**
+ * Why the card offers no button, and what to do instead.
+ *
+ * @param blockedBy - The obstacle.
+ * @return The explanation.
+ */
+function getBlockedReason( blockedBy: BlockedBy ): string {
+	switch ( blockedBy ) {
+		case 'activate_permission':
+			return __(
+				'You do not have permission to activate plugins here. Ask whoever manages plugins on this site to activate WP Consent API.',
+				'jetpack-premium-analytics-pkg'
+			);
+		case 'file_mods':
+			return __(
+				'Plugins cannot be installed here due to your site configuration. Install WP Consent API using your normal deployment workflow.',
+				'jetpack-premium-analytics-pkg'
+			);
+		case 'install_permission':
+			return __(
+				'You do not have permission to install plugins here. Ask whoever manages plugins on this site to install WP Consent API.',
+				'jetpack-premium-analytics-pkg'
+			);
+	}
+}
+
 /**
  * The Settings tab's "Visitor consent" card: both pieces Stats needs to honor a cookie banner, side by side.
  *
@@ -150,11 +211,34 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	// A ref, not state: React 18 renders a store update apart from state updates, so state would move focus a commit late.
 	const focusApiStepOnActive = useRef( false );
+	const cardRef = useRef< HTMLDivElement >( null );
+	const titleId = useId();
 	const apiStepRef = useRef< HTMLLIElement >( null );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
+	const trackEvent = useTrackEvent();
 	const hasBanner = status.consent_type_declared || status.banner_plugin !== null;
 	const connected = hasBanner && ( status.api_active || status.banner_blocks_stats );
 	const canConnect = status.api_installed ? status.can_activate : status.can_install;
+	const blockedBy = getBlockedBy( status, canConnect );
+
+	useEffect( () => {
+		if ( takeConsentCardFocusRequest() ) {
+			cardRef.current?.focus();
+		}
+	}, [] );
+
+	useEffect( () => {
+		if ( viewedThisLoad ) {
+			return;
+		}
+		viewedThisLoad = true;
+		trackEvent( 'jetpack_premium_analytics_visitor_consent_card_view', {
+			set_up: connected,
+			blocked_by: blockedBy ?? 'none',
+		} );
+		// Only the setup the card first showed.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ trackEvent ] );
 
 	// The action button unmounts once the plugin is active, so focus falls to <body> unless the user moved it.
 	useEffect( () => {
@@ -169,6 +253,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	}, [ status.api_active ] );
 
 	const connect = useCallback( async () => {
+		const action = status.api_installed ? 'activate' : 'install';
 		setIsConnecting( true );
 		let active = false;
 		let failure: unknown = null;
@@ -187,6 +272,10 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 			}
 		}
 		setIsConnecting( false );
+		trackEvent( 'jetpack_premium_analytics_visitor_consent_setup', {
+			action,
+			result: active ? 'success' : 'error',
+		} );
 
 		if ( active ) {
 			focusApiStepOnActive.current = true;
@@ -209,7 +298,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 				: __( 'WP Consent API could not be set up.', 'jetpack-premium-analytics-pkg' ),
 			{ id: 'stats-consent-api-failed', type: 'snackbar' }
 		);
-	}, [ status.api_installed, createSuccessNotice, createErrorNotice ] );
+	}, [ status.api_installed, createSuccessNotice, createErrorNotice, trackEvent ] );
 
 	let apiAction: ReactNode;
 	if ( canConnect ) {
@@ -238,25 +327,7 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 		);
 	}
 
-	let blockedReason: string | null = null;
-	if ( ! status.api_active && ! status.banner_blocks_stats && ! canConnect ) {
-		if ( status.api_installed ) {
-			blockedReason = __(
-				'You do not have permission to activate plugins here. Ask whoever manages plugins on this site to activate WP Consent API.',
-				'jetpack-premium-analytics-pkg'
-			);
-		} else if ( ! status.file_mods_allowed ) {
-			blockedReason = __(
-				'Plugins cannot be installed here due to your site configuration. Install WP Consent API using your normal deployment workflow.',
-				'jetpack-premium-analytics-pkg'
-			);
-		} else {
-			blockedReason = __(
-				'You do not have permission to install plugins here. Ask whoever manages plugins on this site to install WP Consent API.',
-				'jetpack-premium-analytics-pkg'
-			);
-		}
-	}
+	const blockedReason = blockedBy && getBlockedReason( blockedBy );
 
 	let apiDescription: string;
 	if ( status.api_active ) {
@@ -294,10 +365,18 @@ function ConsentCardContent( { status }: { status: ConsentStatus } ): JSX.Elemen
 	}
 
 	return (
-		<Card.Root>
+		<Card.Root
+			ref={ cardRef }
+			tabIndex={ -1 }
+			role="region"
+			aria-labelledby={ titleId }
+			className={ styles.consentCard }
+		>
 			<Card.Header>
 				<Stack direction="row" justify="space-between" align="center" gap="md">
-					<Card.Title>{ __( 'Visitor consent', 'jetpack-premium-analytics-pkg' ) }</Card.Title>
+					<Card.Title id={ titleId }>
+						{ __( 'Visitor consent', 'jetpack-premium-analytics-pkg' ) }
+					</Card.Title>
 					{ connected ? (
 						<Badge intent="stable">{ __( 'Set up', 'jetpack-premium-analytics-pkg' ) }</Badge>
 					) : (

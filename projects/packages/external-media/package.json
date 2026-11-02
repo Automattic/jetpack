@@ -25,12 +25,12 @@
 	"dependencies": {
 		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
-		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/request-external-access": "1.0.1",
 		"@wordpress/api-fetch": "8.0.0",
+		"@wordpress/base-styles": "14.0.0",
 		"@wordpress/block-editor": "19.0.0",
 		"@wordpress/components": "43.0.0",
 		"@wordpress/compose": "9.0.0",
