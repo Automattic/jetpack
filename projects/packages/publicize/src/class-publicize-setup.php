@@ -149,6 +149,7 @@ class Publicize_Setup {
 			REST_API\Social_Image_Generator_Controller::class,
 			REST_API\Render_Messages_Controller::class,
 			REST_API\Message_Templates_Placeholders_Controller::class,
+			REST_API\Companion_Plugins_Controller::class,
 			Jetpack_Social_Settings\Settings::class,
 		);
 

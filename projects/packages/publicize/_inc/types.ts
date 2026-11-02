@@ -54,9 +54,22 @@ export type SocialUpgrade = {
 	plan_name: string | null;
 };
 
+/**
+ * A plugin that brings replies from a network back to the site, offered to users who can install or activate it.
+ */
+export type CompanionPlugin = {
+	slug: 'atmosphere' | 'activitypub';
+	/** Core's REST plugin ID, e.g. `atmosphere/atmosphere`. */
+	plugin: string;
+	service: ConnectionService[ 'id' ];
+	is_installed: boolean;
+	settings_url: string;
+};
+
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	assets_url: string;
+	companion_plugins?: Array< CompanionPlugin >;
 	nonces?: {
 		refresh_plan: string;
 	};

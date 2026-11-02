@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronDown, info } from '@wordpress/icons';
 import { Collapsible, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { CompanionPluginNotice } from '../companion-plugin-notice';
 import ConnectionIcon from '../connection-icon';
 import { useServiceLabel } from '../services/use-service-label';
 import { ConnectionName } from './connection-name';
@@ -96,6 +97,11 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 			</div>
 			<Collapsible.Panel className={ styles[ 'connection-panel' ] }>
 				<div className={ styles[ 'connection-panel-inner' ] }>
+					<CompanionPluginNotice
+						serviceName={ connection.service_name }
+						context="admin-page"
+						className={ styles[ 'companion-plugin-notice' ] }
+					/>
 					{ canMarkAsShared && (
 						<Stack
 							direction="row"
