@@ -1,5 +1,10 @@
 import { createScale } from '@visx/scale';
-import { getTickDecimalsDomain, getTickDecimalValues, hasOnlyWholeNumbers } from '../tick-decimals';
+import {
+	getTickDecimals,
+	getTickDecimalsDomain,
+	getTickDecimalValues,
+	hasOnlyWholeNumbers,
+} from '../tick-decimals';
 import type { SeriesData } from '../../../types';
 
 const linear = ( domain: [ number, number ] ) =>
@@ -57,6 +62,16 @@ describe( 'getTickDecimalsDomain', () => {
 		[ 'keeps a range without tickDecimals', [ 0.3, 0.73 ], undefined, undefined ],
 	] )( '%s', ( _, domain, decimals, expected ) => {
 		expect( getTickDecimalsDomain( domain as [ number, number ], decimals ) ).toEqual( expected );
+	} );
+} );
+
+describe( 'getTickDecimals', () => {
+	it.each( [
+		[ 'whole-number data over a caller decimals', true, 2, 0 ],
+		[ 'fractional data at the caller decimals', false, 2, 2 ],
+		[ 'fractional data without tickDecimals', false, undefined, undefined ],
+	] )( 'holds %s', ( _, whole, decimals, expected ) => {
+		expect( getTickDecimals( whole, decimals ) ).toBe( expected );
 	} );
 } );
 
