@@ -32,7 +32,6 @@ describe( 'Settings search', () => {
 	it.each( [
 		[ 'earn', false, true, false ],
 		[ 'earn', true, true, true ],
-		[ 'blaze', true, true, true ],
 		[ 'publicize', true, true, true ],
 		[ 'publicize', true, false, false ],
 		[ 'videopress', true, true, true ],
