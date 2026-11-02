@@ -55,14 +55,20 @@ export type SocialUpgrade = {
 };
 
 /**
- * A plugin that brings replies from a network back to the site, offered to users who can install or activate it.
+ * A plugin that brings replies from a network back to the site, offered to users who can turn it on.
  */
 export type CompanionPlugin = {
 	slug: 'atmosphere' | 'activitypub';
 	/** Core's REST plugin ID, e.g. `atmosphere/atmosphere`. */
 	plugin: string;
 	service: ConnectionService[ 'id' ];
-	is_installed: boolean;
+	/**
+	 * `install` and `activate` go through core's plugins API, `enable` turns ActivityPub on for a
+	 * WordPress.com Simple site, and `marketplace` sends the user to install it from WordPress.com.
+	 */
+	action: 'install' | 'activate' | 'enable' | 'marketplace';
+	/** The WordPress.com plugin page, for the `marketplace` action. */
+	install_url: string;
 	settings_url: string;
 };
 

@@ -60,6 +60,31 @@ export function getCompanionPlugin( serviceName: string ): CompanionPlugin | und
 }
 
 /**
+ * The request that turns a plugin on.
+ *
+ * @param plugin - The plugin.
+ * @return The `apiFetch` options.
+ */
+function getActivationRequest( plugin: CompanionPlugin ) {
+	switch ( plugin.action ) {
+		case 'activate':
+			return {
+				path: `/wp/v2/plugins/${ plugin.plugin }`,
+				method: 'PUT',
+				data: { status: 'active' },
+			};
+		case 'enable':
+			return { path: '/wpcom/v2/activitypub/status', method: 'PUT', data: { enabled: true } };
+		default:
+			return {
+				path: '/wp/v2/plugins',
+				method: 'POST',
+				data: { slug: plugin.slug, status: 'active' },
+			};
+	}
+}
+
+/**
  * Install or activate, and dismiss, the plugin offered alongside a social network.
  *
  * @param serviceName - The connection's service, e.g. `bluesky`.
@@ -72,24 +97,15 @@ export function useCompanionPlugin( serviceName: string ) {
 	const state = useSyncExternalStore( subscribe, () => ( slug && states.get( slug ) ) || IDLE );
 
 	const install = useCallback( async () => {
-		if ( ! plugin ) {
+		// `marketplace` is a link to WordPress.com, which does the install itself.
+		if ( ! plugin || plugin.action === 'marketplace' ) {
 			return false;
 		}
 
 		setState( plugin.slug, { status: 'busy' } );
 
 		try {
-			await ( plugin.is_installed
-				? apiFetch( {
-						path: `/wp/v2/plugins/${ plugin.plugin }`,
-						method: 'PUT',
-						data: { status: 'active' },
-					} )
-				: apiFetch( {
-						path: '/wp/v2/plugins',
-						method: 'POST',
-						data: { slug: plugin.slug, status: 'active' },
-					} ) );
+			await apiFetch( getActivationRequest( plugin ) );
 
 			setState( plugin.slug, { status: 'active' } );
 			return true;

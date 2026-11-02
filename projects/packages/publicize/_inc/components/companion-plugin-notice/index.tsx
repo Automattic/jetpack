@@ -27,13 +27,13 @@ const PITCHES: Record< CompanionPlugin[ 'slug' ], () => string > = {
 		),
 	activitypub: () =>
 		__(
-			'With the ActivityPub plugin, the likes, boosts, and replies your posts get on Mastodon and the rest of the fediverse show up on your site, and you can reply to people without leaving WordPress.',
+			'With ActivityPub, the likes, boosts, and replies your posts get on Mastodon and the rest of the fediverse show up on your site, and you can reply to people without leaving WordPress.',
 			'jetpack-publicize-pkg'
 		),
 };
 
 const CTA_LABELS: Record<
-	'install' | 'installing' | 'activate' | 'activating',
+	'install' | 'installing' | 'activate' | 'activating' | 'enable' | 'enabling',
 	( name: string ) => string
 > = {
 	install: name =>
@@ -48,10 +48,30 @@ const CTA_LABELS: Record<
 	activating: name =>
 		/* translators: %s: plugin name, e.g. ATmosphere. */
 		sprintf( __( 'Activating %s…', 'jetpack-publicize-pkg' ), name ),
+	enable: name =>
+		/* translators: %s: feature name, e.g. ActivityPub. */
+		sprintf( __( 'Turn on %s', 'jetpack-publicize-pkg' ), name ),
+	enabling: name =>
+		/* translators: %s: feature name, e.g. ActivityPub. */
+		sprintf( __( 'Turning on %s…', 'jetpack-publicize-pkg' ), name ),
+};
+
+const IDLE_LABELS: Record< CompanionPlugin[ 'action' ], keyof typeof CTA_LABELS > = {
+	install: 'install',
+	activate: 'activate',
+	enable: 'enable',
+	marketplace: 'install',
+};
+
+const BUSY_LABELS: Record< CompanionPlugin[ 'action' ], keyof typeof CTA_LABELS > = {
+	install: 'installing',
+	activate: 'activating',
+	enable: 'enabling',
+	marketplace: 'installing',
 };
 
 /**
- * Invites people sharing to Bluesky or Mastodon to install the plugin that brings the replies back to their site.
+ * Invites people sharing to Bluesky or Mastodon to turn on the plugin that brings the replies back to their site.
  *
  * @param props             - Component props.
  * @param props.serviceName - The connection's service.
@@ -75,7 +95,7 @@ export function CompanionPluginNotice( {
 				plugin: plugin.slug,
 				service: plugin.service,
 				context,
-				is_installed: plugin.is_installed,
+				action: plugin.action,
 			},
 		[ plugin, context ]
 	);
@@ -97,6 +117,10 @@ export function CompanionPluginNotice( {
 			eventProps
 		);
 	}, [ install, recordEvent, eventProps ] );
+
+	const onMarketplaceClick = useCallback( () => {
+		recordEvent( 'jetpack_social_companion_plugin_notice_cta_click', eventProps );
+	}, [ recordEvent, eventProps ] );
 
 	const onDismiss = useCallback( () => {
 		recordEvent( 'jetpack_social_companion_plugin_notice_dismiss', eventProps );
@@ -128,10 +152,7 @@ export function CompanionPluginNotice( {
 
 	const isBusy = state.status === 'busy';
 
-	let ctaLabel: keyof typeof CTA_LABELS = plugin.is_installed ? 'activate' : 'install';
-	if ( isBusy ) {
-		ctaLabel = plugin.is_installed ? 'activating' : 'installing';
-	}
+	const ctaLabel = CTA_LABELS[ ( isBusy ? BUSY_LABELS : IDLE_LABELS )[ plugin.action ] ]( name );
 
 	return (
 		<Notice.Root intent={ state.status === 'error' ? 'error' : 'info' } className={ className }>
@@ -149,9 +170,15 @@ export function CompanionPluginNotice( {
 					: PITCHES[ plugin.slug ]() }
 			</Notice.Description>
 			<Notice.Actions>
-				<Notice.ActionButton onClick={ onInstall } loading={ isBusy } disabled={ isBusy }>
-					{ CTA_LABELS[ ctaLabel ]( name ) }
-				</Notice.ActionButton>
+				{ plugin.action === 'marketplace' ? (
+					<Notice.ActionLink href={ plugin.install_url } onClick={ onMarketplaceClick }>
+						{ ctaLabel }
+					</Notice.ActionLink>
+				) : (
+					<Notice.ActionButton onClick={ onInstall } loading={ isBusy } disabled={ isBusy }>
+						{ ctaLabel }
+					</Notice.ActionButton>
+				) }
 			</Notice.Actions>
 			{ ! isBusy && (
 				<Notice.CloseIconButton
