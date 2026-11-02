@@ -30,7 +30,11 @@ class Cleanup_Transients_Test extends Base_TestCase {
 		global $wpdb;
 		$this->original_wpdb = $wpdb;
 		$wpdb                = new class( $this->rows ) {
-			public $options = 'wp_options';
+			public $options    = 'wp_options';
+			public $last_error = '';
+			public $fail_batch = false;
+			public $after_batch;
+			public $single_reads = array();
 			private $rows;
 
 			public function __construct( &$rows ) {
@@ -41,14 +45,22 @@ class Cleanup_Transients_Test extends Base_TestCase {
 				return addcslashes( $text, '_%\\' );
 			}
 
-			public function prepare( $sql, $pattern, $cursor, $limit ) {
+			public function prepare( $sql, ...$args ) {
+				if ( 1 === count( $args ) ) {
+					return $args[0];
+				}
+				Assert::assertStringContainsString( 'option_id > %d', $sql );
 				Assert::assertStringContainsString( 'ORDER BY option_id ASC LIMIT %d', $sql );
-				Assert::assertSame( 'jb\\_transient\\_%', $pattern );
-				return array( $cursor, $limit );
+				Assert::assertSame( 'jb\\_transient\\_%', $args[0] );
+				return array( $args[1], $args[2] );
 			}
 
 			public function get_results( $query ) {
-				return array_slice(
+				$this->last_error = $this->fail_batch ? 'Query failed' : '';
+				if ( $this->fail_batch ) {
+					return array();
+				}
+				$rows = array_slice(
 					array_values(
 						array_filter(
 							$this->rows,
@@ -60,6 +72,20 @@ class Cleanup_Transients_Test extends Base_TestCase {
 					0,
 					$query[1]
 				);
+				if ( $this->after_batch ) {
+					call_user_func( $this->after_batch );
+				}
+				return $rows;
+			}
+
+			public function get_var( $id ) {
+				$this->single_reads[] = $id;
+				foreach ( $this->rows as $row ) {
+					if ( $row['option_id'] === $id ) {
+						return $row['option_value'];
+					}
+				}
+				return null;
 			}
 		};
 
@@ -131,10 +157,11 @@ class Cleanup_Transients_Test extends Base_TestCase {
 		);
 		$this->seed_row( 3, 'invalid' );
 		$this->seed_row( 4, array( 'data' => 'no expiry' ) );
+		$this->seed_row( 5, (object) array( 'expire' => 1 ) );
 
 		Cleanup_Transients::run_cleanup();
 
-		$this->assertSame( array( 'jb_transient_test_2', 'jb_transient_test_3', 'jb_transient_test_4' ), array_keys( $this->rows ) );
+		$this->assertSame( array( 'jb_transient_test_2', 'jb_transient_test_3', 'jb_transient_test_4', 'jb_transient_test_5' ), array_keys( $this->rows ) );
 		$this->assertSame( array( 'jetpack_boost_general_cleanup_last_processed_option_id' ), $this->option_reads );
 		$this->assertSame( 0, $this->cursor );
 		$this->assertSame( 0, $this->schedules );
@@ -142,15 +169,8 @@ class Cleanup_Transients_Test extends Base_TestCase {
 
 	public function test_followup_resumes_after_invalid_row_and_finishes_the_pass() {
 		for ( $i = 1; $i <= 1001; ++$i ) {
-			$this->seed_row(
-				$i,
-				array(
-					'expire' => 1,
-					'data'   => 'expired',
-				)
-			);
+			$this->seed_row( $i, 1000 === $i ? array( 'data' => 'no expiry' ) : array( 'expire' => 1 ) );
 		}
-		$this->seed_row( 1000, array( 'data' => 'no expiry' ) );
 
 		Cleanup_Transients::run_cleanup();
 		$this->assertSame( 1000, $this->cursor );
@@ -173,6 +193,42 @@ class Cleanup_Transients_Test extends Base_TestCase {
 
 		$this->assertCount( 1001, $this->rows );
 		$this->assertSame( 1000, $this->cursor );
+		$this->assertSame( 0, $this->schedules );
+	}
+
+	public function test_keeps_a_row_refreshed_after_the_batch_read() {
+		$this->seed_row( 1, array( 'expire' => 1 ) );
+		$this->seed_row( 2, array( 'expire' => 1 ) );
+		$this->seed_row( 3, array( 'expire' => PHP_INT_MAX ) );
+		global $wpdb;
+		$wpdb->after_batch = function () {
+			$this->seed_row( 2, array( 'expire' => PHP_INT_MAX ) );
+		};
+
+		Cleanup_Transients::run_cleanup();
+
+		$this->assertSame( array( 'jb_transient_test_2', 'jb_transient_test_3' ), array_keys( $this->rows ) );
+		$this->assertSame( array( 1, 2 ), $wpdb->single_reads );
+	}
+
+	public function test_requires_a_numeric_expiry() {
+		foreach ( array( false, '', 'abc', '1', 1.5 ) as $id => $expiry ) {
+			$this->seed_row( $id + 1, array( 'expire' => $expiry ) );
+		}
+
+		Cleanup_Transients::run_cleanup();
+
+		$this->assertSame( array( 'jb_transient_test_1', 'jb_transient_test_2', 'jb_transient_test_3' ), array_keys( $this->rows ) );
+	}
+
+	public function test_preserves_the_cursor_when_the_batch_query_fails() {
+		$this->cursor = 42;
+		global $wpdb;
+		$wpdb->fail_batch = true;
+
+		Cleanup_Transients::run_cleanup();
+
+		$this->assertSame( 42, $this->cursor );
 		$this->assertSame( 0, $this->schedules );
 	}
 }

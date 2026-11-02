@@ -37,7 +37,7 @@ class Cleanup_Transients {
 			ARRAY_A
 		);
 
-		if ( ! is_array( $rows ) ) {
+		if ( $wpdb->last_error || ! is_array( $rows ) ) {
 			return;
 		}
 
@@ -48,8 +48,18 @@ class Cleanup_Transients {
 
 		$now = time();
 		foreach ( $rows as $row ) {
-			$value = maybe_unserialize( $row['option_value'] );
-			if ( is_array( $value ) && isset( $value['expire'] ) && $value['expire'] < $now ) {
+			if ( ! self::is_expired( $row['option_value'], $now ) ) {
+				continue;
+			}
+
+			// A render may have renewed this option since the batch was read.
+			$current_value = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_id = %d", (int) $row['option_id'] )
+			);
+			if ( $wpdb->last_error ) {
+				return;
+			}
+			if ( self::is_expired( $current_value, $now ) ) {
 				delete_option( $row['option_name'] );
 			}
 		}
@@ -65,5 +75,17 @@ class Cleanup_Transients {
 		if ( false === wp_next_scheduled( self::FOLLOWUP_HOOK ) ) {
 			wp_schedule_single_event( time(), self::FOLLOWUP_HOOK );
 		}
+	}
+
+	/**
+	 * Treats nonnumeric expiry values as unexpired.
+	 *
+	 * @param mixed $raw_value Stored option value.
+	 * @param int   $now Current timestamp.
+	 * @return bool Whether the expiry is numeric and in the past.
+	 */
+	private static function is_expired( $raw_value, $now ) {
+		$value = maybe_unserialize( $raw_value );
+		return is_array( $value ) && isset( $value['expire'] ) && is_numeric( $value['expire'] ) && $value['expire'] < $now;
 	}
 }
