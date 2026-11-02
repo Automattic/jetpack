@@ -995,6 +995,9 @@ HTML;
 			return $url;
 		}
 
+		// We print this URL and exit before core's wp_safe_redirect() can check it.
+		$url = wp_validate_redirect( $url, home_url( '/' ) );
+
 		$should_show_subscription_modal = $this->should_show_subscription_modal();
 
 		// Track event when not showing the subscription modal
