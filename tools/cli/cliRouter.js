@@ -20,7 +20,7 @@ import { releaseDefine } from './commands/release.js';
 import { completions as rsyncCompletions, rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
-import { completionHook } from './helpers/completion.js';
+import { COMPLETION_COMMAND, completionHook } from './helpers/completion.js';
 
 /**
  * The main CLI router function.
@@ -43,22 +43,6 @@ export async function cli() {
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.command( completionCommand );
-	// yargs' own completion command prints its fixed script, so register the hook under a hidden name.
-	argv.completion(
-		'yargs-completion',
-		false,
-		completionHook( argv, {
-			generate: generateCompletions,
-			phan: phanCommand.completions,
-			rsync: rsyncCompletions,
-			test: testCommand.completions,
-		} )
-	);
-	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
-	// so stop the half-typed command before its handler runs.
-	if ( process.argv.includes( '--get-yargs-completions' ) ) {
-		argv.middleware( () => process.exit( 0 ), true );
-	}
 	argv.command( composerCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
@@ -91,6 +75,24 @@ export async function cli() {
 				global: true,
 			},
 		} );
+
+	// Every TAB runs `jetpack --get-yargs-completions <words>` (see `completion/`); the hook adds the
+	// positionals that yargs' own completion does not know.
+	argv.completion(
+		COMPLETION_COMMAND,
+		false,
+		completionHook( argv, {
+			generate: generateCompletions,
+			phan: phanCommand.completions,
+			rsync: rsyncCompletions,
+			test: testCommand.completions,
+		} )
+	);
+	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
+	// so stop the half-typed command before its handler runs.
+	if ( process.argv.includes( '--get-yargs-completions' ) ) {
+		argv.middleware( () => process.exit( 0 ), true );
+	}
 
 	// Parse the args!
 	argv.parse();

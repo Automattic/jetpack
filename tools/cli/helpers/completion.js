@@ -3,6 +3,12 @@ import path from 'path';
 import { allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
 
 /**
+ * Name of yargs' built-in completion command, registered only to carry the hook: `completion [shell]`
+ * is ours, and the NUL keeps this one off the command line.
+ */
+export const COMPLETION_COMMAND = '\0yargs-completion';
+
+/**
  * Complete a `type/name` project one segment at a time: the types first, then the projects of the typed type.
  *
  * @param {string} current - The word being completed.
