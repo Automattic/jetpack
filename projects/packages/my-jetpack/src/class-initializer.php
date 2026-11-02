@@ -1260,13 +1260,13 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
-		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
-		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
-		$data['myJetpack']['productsSection'] = self::get_products_section();
+		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
+		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
+		$data['myJetpack']['productsSection']       = self::get_products_section();
+		$data['myJetpack']['settingsConsolidation'] = Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
-			$data['myJetpack']['modulesManagementUrl']  = self::get_modules_management_url();
-			$data['myJetpack']['settingsConsolidation'] = Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG );
+			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
 		}
 
 		// Only administrators can open the pages this points at, so spare everyone else the lookup.
