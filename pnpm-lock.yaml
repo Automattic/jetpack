@@ -173,8 +173,8 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
       '@types/wordpress__block-editor':
-        specifier: 15.0.7
-        version: 15.0.7(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 15.0.8
+        version: 15.0.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/api-fetch':
         specifier: 8.0.0
         version: 8.0.0
@@ -2941,8 +2941,8 @@ importers:
         specifier: ^14.6.1
         version: 14.6.8(@testing-library/dom@10.4.2)
       '@types/lodash':
-        specifier: 4.17.26
-        version: 4.17.26
+        specifier: 4.17.27
+        version: 4.17.27
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -6465,8 +6465,8 @@ importers:
         specifier: 19.3.0
         version: 19.3.0
       '@types/wordpress__block-editor':
-        specifier: 15.0.7
-        version: 15.0.7(@date-fns/tz@1.5.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 15.0.8
+        version: 15.0.8(@date-fns/tz@1.5.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
@@ -10665,8 +10665,8 @@ packages:
   '@types/lodash-es@4.17.12':
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
 
-  '@types/lodash@4.17.26':
-    resolution: {integrity: sha512-48NWfiY6oNcKOh47Z4h+sIvwcQR91h6KPhaYKgeMIrkT2jV82Gy90SErj60vW8jQbeMSOSbhIv3bZ7JoqPPVhA==}
+  '@types/lodash@4.17.27':
+    resolution: {integrity: sha512-VenMRv/eKNrspX9v3H4dbmjsrnCOYdYBG3kxXKk3dG6X+urBGcj2Prww3xw1U5K4FV/mE4h5GbWd0szEKf+9ew==}
 
   '@types/markdown-it@14.2.0':
     resolution: {integrity: sha512-NoQ2yGlLWj4wpxMs+TYmRKk3thDrQ97agr7sFqfLsAlvoS8SNQuTrlObhFqG9iugdTtgOE9jpJ6FNM4ZGsa5xQ==}
@@ -10751,8 +10751,8 @@ packages:
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
 
-  '@types/wordpress__block-editor@15.0.7':
-    resolution: {integrity: sha512-py8WJ2p5txy6yaLnGFOzWhYJaoXEPsm1w1zRJxYRFVjertDcUDtsT7Lm0wy1HtaLBa2ty1hDjp7Y1V7NcRy3yA==}
+  '@types/wordpress__block-editor@15.0.8':
+    resolution: {integrity: sha512-TvC9JKOUiDc/S7JcU3S2ukPsMjIfTHe0Fa1JPQ0oQk/zIMjDoXfpnH7MJPifNIwphbKjHM6hY92tB8u5efdSCg==}
 
   '@types/ws@8.18.2':
     resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
@@ -22197,9 +22197,9 @@ snapshots:
 
   '@types/lodash-es@4.17.12':
     dependencies:
-      '@types/lodash': 4.17.26
+      '@types/lodash': 4.17.27
 
-  '@types/lodash@4.17.26': {}
+  '@types/lodash@4.17.27': {}
 
   '@types/markdown-it@14.2.0':
     dependencies:
@@ -22276,7 +22276,7 @@ snapshots:
 
   '@types/use-sync-external-store@0.0.6': {}
 
-  '@types/wordpress__block-editor@15.0.7(@date-fns/tz@1.5.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@types/wordpress__block-editor@15.0.8(@date-fns/tz@1.5.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@types/react': 19.3.0
       '@wordpress/blocks': 17.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -22297,7 +22297,7 @@ snapshots:
       - stylelint
       - vite
 
-  '@types/wordpress__block-editor@15.0.7(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@types/wordpress__block-editor@15.0.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@types/react': 19.3.0
       '@wordpress/blocks': 17.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -22358,8 +22358,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.71.2(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.72.0(typescript@6.0.3)
-      '@typescript-eslint/types': 8.72.0
+      '@typescript-eslint/tsconfig-utils': 8.71.2(typescript@6.0.3)
+      '@typescript-eslint/types': 8.71.2
       debug: 4.4.3
       typescript: 6.0.3
     transitivePeerDependencies:
