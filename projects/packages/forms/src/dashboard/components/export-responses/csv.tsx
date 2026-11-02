@@ -6,6 +6,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, check } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Path, SVG } from '@wordpress/primitives';
 import { Progress } from '@wordpress/ui';
@@ -49,6 +50,7 @@ const CSVExport = ( { onExport } ) => {
 	const { tracks } = useAnalytics();
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const [ isDownloading, setIsDownloading ] = useState( false );
+	const [ isDone, setIsDone ] = useState( false );
 	const [ receivedBytes, setReceivedBytes ] = useState( 0 );
 
 	const downloadCSV = useCallback( async () => {
@@ -61,6 +63,7 @@ const CSVExport = ( { onExport } ) => {
 		} );
 
 		setIsDownloading( true );
+		setIsDone( false );
 		setReceivedBytes( 0 );
 		createInfoNotice( __( 'Preparing your export…', 'jetpack-forms' ), {
 			type: 'snackbar',
@@ -86,6 +89,7 @@ const CSVExport = ( { onExport } ) => {
 			document.body.removeChild( a );
 			window.URL.revokeObjectURL( a.href );
 
+			setIsDone( true );
 			createSuccessNotice( __( 'Your responses were downloaded.', 'jetpack-forms' ), {
 				type: 'snackbar',
 				id: NOTICE_ID,
@@ -136,7 +140,7 @@ const CSVExport = ( { onExport } ) => {
 			<div className="jp-forms__export-modal-card-body">
 				<div className="jp-forms__export-modal-card-body-description jp-forms__export-modal-card-status">
 					{ /* Stays laid out while hidden so the card keeps its height. */ }
-					<span className={ clsx( { 'is-hidden': isDownloading } ) }>
+					<span className={ clsx( { 'is-hidden': isDownloading || isDone } ) }>
 						{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
 					</span>
 					{ isDownloading && (
@@ -158,6 +162,12 @@ const CSVExport = ( { onExport } ) => {
 								<Progress.Indicator />
 							</Progress.Track>
 						</Progress.Root>
+					) }
+					{ isDone && ! isDownloading && (
+						<span className="jp-forms__export-modal-card-done">
+							<Icon icon={ check } size={ 24 } />
+							{ __( "Done. Find the file in your browser's downloads.", 'jetpack-forms' ) }
+						</span>
 					) }
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">

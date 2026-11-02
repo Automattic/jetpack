@@ -99,3 +99,14 @@
 .jp-forms__export-modal-card-progress-track {
 	flex: 1;
 }
+
+.jp-forms__export-modal-card-done {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+
+	svg {
+		flex-shrink: 0;
+		color: #008710; // The check icon is drawn with stroke="currentColor".
+	}
+}
