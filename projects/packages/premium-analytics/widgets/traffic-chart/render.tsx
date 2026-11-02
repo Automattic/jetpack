@@ -26,6 +26,7 @@ import { useMemo } from 'react';
 import { useNoPublishedPosts } from '../use-no-published-posts';
 import { trafficIntervalExtension } from './interval-extension';
 import styles from './style.module.css';
+import { usePreviousPeriodShown } from './use-previous-period-shown';
 import useTrafficChart from './use-traffic-chart';
 import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
@@ -66,6 +67,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	// A host without a period to set leaves the bars inert.
 	const { openPeriod } = useReportScope();
 	const lockedIntervals = useScopeLockedIntervals();
+	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown();
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
 		TRAFFIC_PERIODS,
@@ -136,6 +138,8 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					tickResolution={ period }
 					onDatumClick={ openBucket }
 					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
+					defaultPreviousPeriodShown={ previousPeriodShown }
+					onPreviousPeriodShownChange={ setPreviousPeriodShown }
 					empty={
 						noPublishedPosts ? (
 							<ChartEmptyState

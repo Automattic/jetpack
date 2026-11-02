@@ -17,7 +17,7 @@ import {
 } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -126,6 +126,12 @@ export type ComparativeBarChartProps = {
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
+	/** Start the previous period shown or hidden, and let the reader toggle it from the legend. Read like `defaultValue`; see the README. */
+	defaultPreviousPeriodShown?: boolean;
+
+	/** Called whenever the previous period is shown or hidden, except when the default is applied. */
+	onPreviousPeriodShownChange?: ( shown: boolean ) => void;
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -160,6 +166,8 @@ export function ComparativeBarChart( {
 	tooltipExtras,
 	layout,
 	primarySeries,
+	defaultPreviousPeriodShown,
+	onPreviousPeriodShownChange,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -167,9 +175,12 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { isSeriesVisible, theme } = useGlobalChartsContext();
+	const { isSeriesVisible, setSeriesVisibility, theme } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
+	const previousPeriodToggle =
+		overlapLayout !== undefined && defaultPreviousPeriodShown !== undefined;
+	const interactiveLegend = legendInteractive || previousPeriodToggle;
 
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
@@ -226,12 +237,105 @@ export function ComparativeBarChart( {
 		comparisonLabel: previousPeriodLabel,
 	} = useComparativeLegend(
 		alignedSeries,
-		legendInteractive,
+		interactiveLegend,
 		comparisonLabel,
 		undefined,
 		layout ?? 'grouped',
 		primarySeries
 	);
+
+	const comparisonIndexes = useMemo(
+		() =>
+			alignedSeries.flatMap( ( item, index ) =>
+				item.options?.type === 'comparison' ? [ index ] : []
+			),
+		[ alignedSeries ]
+	);
+	const pickedOrFirstGroup = (
+		alignedSeries.find( item => item.label === primarySeries ) ?? alignedSeries[ 0 ]
+	)?.group;
+	const pickedComparisonIndex =
+		comparisonIndexes.find( index => alignedSeries[ index ].group === pickedOrFirstGroup ) ??
+		comparisonIndexes[ 0 ];
+	const pickedComparisonLabel =
+		pickedComparisonIndex === undefined ? undefined : alignedSeries[ pickedComparisonIndex ].label;
+
+	const isPrimaryVisible = useCallback(
+		( group?: string ) => {
+			const primaryLabel =
+				group !== undefined ? primarySeriesByGroup.get( group )?.label : undefined;
+			return ! primaryLabel || isSeriesVisible( chartId, primaryLabel );
+		},
+		[ primarySeriesByGroup, isSeriesVisible, chartId ]
+	);
+
+	// Keyed on the label too: a new date range renames the comparison, and the charts context shows an unseen label.
+	const defaultKey = `${ chartId }\u0000${ pickedComparisonLabel ?? '' }`;
+	const [ defaultAppliedKey, setDefaultAppliedKey ] = useState< string >();
+	const defaultApplied = defaultAppliedKey === defaultKey;
+	let previousPeriodShown: boolean | undefined;
+	if ( previousPeriodToggle && pickedComparisonLabel !== undefined ) {
+		previousPeriodShown = defaultApplied
+			? isSeriesVisible( chartId, pickedComparisonLabel )
+			: defaultPreviousPeriodShown;
+	}
+
+	// Waits for comparison series, which can arrive after mount when the reader turns comparison on.
+	useLayoutEffect( () => {
+		if ( ! previousPeriodToggle || pickedComparisonLabel === undefined || defaultApplied ) {
+			return;
+		}
+		setDefaultAppliedKey( defaultKey );
+		if ( isSeriesVisible( chartId, pickedComparisonLabel ) !== defaultPreviousPeriodShown ) {
+			setSeriesVisibility( chartId, pickedComparisonLabel, defaultPreviousPeriodShown );
+		}
+	}, [
+		previousPeriodToggle,
+		pickedComparisonLabel,
+		defaultApplied,
+		defaultKey,
+		isSeriesVisible,
+		defaultPreviousPeriodShown,
+		setSeriesVisibility,
+		chartId,
+	] );
+
+	useLayoutEffect( () => {
+		if ( previousPeriodShown === undefined ) {
+			return;
+		}
+		for ( const index of comparisonIndexes ) {
+			const { label, group } = alignedSeries[ index ];
+			const drawn = previousPeriodShown && isPrimaryVisible( group );
+			if ( index !== pickedComparisonIndex && isSeriesVisible( chartId, label ) !== drawn ) {
+				setSeriesVisibility( chartId, label, drawn );
+			}
+		}
+	}, [
+		previousPeriodShown,
+		comparisonIndexes,
+		alignedSeries,
+		pickedComparisonIndex,
+		isPrimaryVisible,
+		isSeriesVisible,
+		setSeriesVisibility,
+		chartId,
+	] );
+
+	const reportedPreviousPeriodShown = useRef( { key: defaultKey, shown: previousPeriodShown } );
+	useEffect( () => {
+		const reported = reportedPreviousPeriodShown.current;
+		reportedPreviousPeriodShown.current = { key: defaultKey, shown: previousPeriodShown };
+		if (
+			reported.key === defaultKey &&
+			reported.shown !== undefined &&
+			previousPeriodShown !== undefined &&
+			reported.shown !== previousPeriodShown
+		) {
+			onPreviousPeriodShownChange?.( previousPeriodShown );
+		}
+	}, [ defaultKey, previousPeriodShown, onPreviousPeriodShownChange ] );
+
 	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
 		if ( ! overlapLayout ) {
@@ -239,6 +343,32 @@ export function ComparativeBarChart( {
 		}
 
 		const metricItems = comparativeLegendItems.filter( item => ! item.describesSeries );
+
+		if ( previousPeriodToggle ) {
+			const ownSeriesItems = metricItems.map( item => ( {
+				...item,
+				seriesLabels: [ item.label ],
+			} ) );
+			if ( pickedComparisonIndex === undefined ) {
+				return ownSeriesItems;
+			}
+			const followingComparisons = comparisonIndexes.flatMap( index =>
+				index !== pickedComparisonIndex && isPrimaryVisible( alignedSeries[ index ].group )
+					? [ alignedSeries[ index ].label ]
+					: []
+			);
+			return [
+				...ownSeriesItems,
+				{
+					label: previousPeriodLabel,
+					color: seriesStyles[ pickedComparisonIndex ].stroke,
+					shapeStyle: metricItems[ 0 ]?.shapeStyle,
+					interactive: true,
+					seriesLabels: [ alignedSeries[ pickedComparisonIndex ].label, ...followingComparisons ],
+				},
+			];
+		}
+
 		const pickedGroup = alignedSeries.find( item => item.label === primarySeries )?.group;
 		const shownPrevious = alignedSeries.flatMap( ( item, index ) =>
 			item.options?.type === 'comparison' && isSeriesVisible( chartId, item.label ) ? [ index ] : []
@@ -263,6 +393,10 @@ export function ComparativeBarChart( {
 	}, [
 		overlapLayout,
 		comparativeLegendItems,
+		previousPeriodToggle,
+		pickedComparisonIndex,
+		comparisonIndexes,
+		isPrimaryVisible,
 		alignedSeries,
 		primarySeries,
 		isSeriesVisible,
@@ -412,7 +546,7 @@ export function ComparativeBarChart( {
 				{ ! isCompact && (
 					<BarChart.Legend
 						items={ legendItems }
-						interactive={ legendInteractive }
+						interactive={ interactiveLegend }
 						shape="rect"
 						className={ styles.legend }
 						itemClassName={ styles.legendItem }

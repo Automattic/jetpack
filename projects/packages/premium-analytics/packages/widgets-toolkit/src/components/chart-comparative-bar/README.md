@@ -33,25 +33,29 @@ second current-period series keeps its own dates.
 
 ## Props
 
-| Prop                  | Type                          | Required | Description                                                                                                                               |
-| --------------------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `series`              | `ComparativeBarChartSeries[]` | Yes      | Series to draw                                                                                                                            |
-| `dataFormat`          | `DataFormat`                  | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                             |
-| `tickFormat`          | `DateFormatName`              | No       | Named X-axis date format; uses the chart default when omitted                                                                             |
-| `compactWhenShort`    | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area                                                                                          |
-| `maxWidth`            | `number`                      | No       | Maximum chart width                                                                                                                       |
-| `className`           | `string`                      | No       | CSS class for the chart container                                                                                                         |
-| `chartTitle`          | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                       |
-| `chartId`             | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
-| `defaultHiddenSeries` | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
-| `legendInteractive`   | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
-| `comparisonLabel`     | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
-| `layout`              | `'grouped' \| 'overlap'`      | No       | The bar chart's layout; see below. Defaults to `grouped`                                                                                  |
-| `primarySeries`       | `string`                      | No       | Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked                   |
+| Prop                          | Type                          | Required | Description                                                                                                                                                                                                                                                       |
+| ----------------------------- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `series`                      | `ComparativeBarChartSeries[]` | Yes      | Series to draw                                                                                                                                                                                                                                                    |
+| `dataFormat`                  | `DataFormat`                  | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                                                                                                                                                     |
+| `tickFormat`                  | `DateFormatName`              | No       | Named X-axis date format; uses the chart default when omitted                                                                                                                                                                                                     |
+| `compactWhenShort`            | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area                                                                                                                                                                                                                  |
+| `maxWidth`                    | `number`                      | No       | Maximum chart width                                                                                                                                                                                                                                               |
+| `className`                   | `string`                      | No       | CSS class for the chart container                                                                                                                                                                                                                                 |
+| `chartTitle`                  | `string`                      | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                                                                                                                                               |
+| `chartId`                     | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again                                                                                                                         |
+| `defaultHiddenSeries`         | `readonly string[]`           | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` or `defaultPreviousPeriodShown`                                                                                                       |
+| `legendInteractive`           | `boolean`                     | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                                                                                                                                                       |
+| `comparisonLabel`             | `string`                      | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                                                                                                                                            |
+| `layout`                      | `'grouped' \| 'overlap'`      | No       | The bar chart's layout; see below. Defaults to `grouped`                                                                                                                                                                                                          |
+| `primarySeries`               | `string`                      | No       | Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked                                                                                                                                           |
+| `defaultPreviousPeriodShown`  | `boolean`                     | No       | Overlap layout only. Start the previous period shown or hidden, and let the reader toggle it from its legend item; see below. Omit it to keep the previous period always drawn |
+| `onPreviousPeriodShownChange` | `( shown: boolean ) => void`  | No       | Called whenever the previous period is shown or hidden, except when the default is applied |
 
 ## Overlap layout
 
 With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from the charts `useBarColors` hook instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of the picked metric's previous bar, or else of its widest shown bar.
+
+With `defaultPreviousPeriodShown`, that item becomes a toggle and the legend is interactive. Each time the chart mounts, or its `chartId` or comparison labels change, the previous period starts as the prop says, once comparison series exist, and the charts context owns it after that. A consumer that remounts the chart, such as `MetricTabsChart` switching metrics, keeps the reader's choice by feeding the value from `onPreviousPeriodShownChange` back into the prop. A metric's previous bar is drawn only while both the previous period and that metric are shown.
 
 ## Date alignment and tooltips
 
@@ -62,7 +66,7 @@ cuts, is named by its span, and a whole year by the year alone.
 The chart draws comparison series as a separate shadow layer rather than a registered series, so
 their values never reach a custom `renderTooltip`. This component re-pairs them by date before
 handing the data to `DatedTooltip` — without that, the shadow bar would be visible but its value
-unreadable.
+unreadable. A previous period whose bars are hidden still gives its values, as the metric cards do; only a hidden metric is left out.
 
 ## Y-axis domain
 
