@@ -637,6 +637,9 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
+      '@wordpress/base-styles':
+        specifier: 14.0.0
+        version: 14.0.0
       jest:
         specifier: 30.5.2
         version: 30.5.2
