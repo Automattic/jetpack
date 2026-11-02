@@ -165,6 +165,11 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'test-exclude' ] = '^8.0.0';
 	}
 
+	// Clear GHSA-3g3m-2fjr-6pw4 for various deps. Historically the process has taken a while.
+	if ( pkg.dependencies?.glob?.startsWith( '^13' ) ) {
+		pkg.dependencies.glob += ' || ^14';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
