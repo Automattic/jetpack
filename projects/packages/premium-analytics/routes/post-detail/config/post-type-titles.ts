@@ -11,18 +11,20 @@ import type { WidgetType } from '@wordpress/widget-primitives';
  */
 export function withPostTypeTitles( widgetTypes: WidgetType[], postType?: string ): WidgetType[] {
 	const { highlights, views } = getPostTypeCopy( postType );
-	const titles: Record< string, string > = {
-		'jpa/post-detail-highlights': highlights,
-		'jpa/post-views': views,
-	};
+	const titles = new Map< string, string >( [
+		[ 'jpa/post-detail-highlights', highlights ],
+		[ 'jpa/post-views', views ],
+	] );
 
 	const isChanged = widgetTypes.some(
-		( { name, title } ) => name in titles && titles[ name ] !== title
+		( { name, title } ) => titles.has( name ) && titles.get( name ) !== title
 	);
 
 	return isChanged
 		? widgetTypes.map( widgetType =>
-				widgetType.name in titles ? { ...widgetType, title: titles[ widgetType.name ] } : widgetType
+				titles.has( widgetType.name )
+					? { ...widgetType, title: titles.get( widgetType.name ) }
+					: widgetType
 			)
 		: widgetTypes;
 }
