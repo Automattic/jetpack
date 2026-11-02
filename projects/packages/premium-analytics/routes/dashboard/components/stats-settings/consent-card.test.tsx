@@ -88,7 +88,9 @@ describe( 'ConsentCard', () => {
 
 		expect(
 			step( 'Cookie banner plugin' ).getByText( /^Stats didn’t find one/ )
-		).toHaveTextContent( 'If not, install one, such as Complianz or CookieYes.' );
+		).toHaveTextContent(
+			'If you don’t have one, install one that does, such as Complianz or CookieYes.'
+		);
 		expect( screen.getByRole( 'link', { name: /CookieYes/ } ) ).toHaveAttribute(
 			'href',
 			'https://wordpress.org/plugins/cookie-law-info/'
