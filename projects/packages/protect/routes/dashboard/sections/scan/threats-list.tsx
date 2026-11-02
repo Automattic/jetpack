@@ -3,8 +3,7 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { chevronDown } from '@wordpress/icons';
-import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
+import { Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { recordViewChange } from '../../data/threat-events';
 import useOpenThreat from '../use-open-threat';
@@ -279,7 +278,7 @@ type ThreatsListProps = {
 };
 
 /**
- * The threats a scan found, under a heading that collapses them, with search, filters and bulk actions.
+ * The threats a scan found, under a heading, with search, filters and bulk actions.
  *
  * Choosing a threat opens its details in the inspector.
  *
@@ -295,7 +294,6 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		titleField: 'threat',
 		fields: [ 'date' ],
 	} ) );
-	const [ isOpen, setIsOpen ] = useState( true );
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
@@ -346,50 +344,44 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		},
 		[ view, totalPages ]
 	);
-	// Collapsed, the arrow keys would open threats the reader can't see.
-	useArrowKeyNavigation( data, isOpen ? selected : undefined, getItemId, open );
+	useArrowKeyNavigation( data, selected, getItemId, open );
 	const hasSelectedRows = data.some( item => selection.includes( getItemId( item ) ) );
 
 	return (
-		<Collapsible.Root open={ isOpen } onOpenChange={ setIsOpen } className="jp-protect-threats">
+		<div className="jp-protect-threats">
 			<h3 className="jp-protect-threats__heading">
-				<Collapsible.Trigger className="jp-protect-threats__toggle">
-					{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
-					<Icon icon={ chevronDown } size={ 24 } />
-				</Collapsible.Trigger>
+				{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
 			</h3>
-			<Collapsible.Panel>
-				<DataViews
-					data={ data }
-					fields={ fields }
-					actions={ actions }
-					view={ view }
-					onChangeView={ onChangeView }
-					paginationInfo={ paginationInfo }
-					defaultLayouts={ DEFAULT_LAYOUTS }
-					getItemId={ getItemId }
-					selection={ selection }
-					onChangeSelection={ setSelection }
+			<DataViews
+				data={ data }
+				fields={ fields }
+				actions={ actions }
+				view={ view }
+				onChangeView={ onChangeView }
+				paginationInfo={ paginationInfo }
+				defaultLayouts={ DEFAULT_LAYOUTS }
+				getItemId={ getItemId }
+				selection={ selection }
+				onChangeSelection={ setSelection }
+			>
+				<Stack
+					direction="row"
+					align="center"
+					justify="space-between"
+					gap="xs"
+					className="jp-protect-threats__toolbar"
 				>
-					<Stack
-						direction="row"
-						align="center"
-						justify="space-between"
-						gap="xs"
-						className="jp-protect-threats__toolbar"
-					>
-						<Stack direction="row" align="center" gap="sm">
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-						</Stack>
-						<DataViews.ViewConfig />
+					<Stack direction="row" align="center" gap="sm">
+						<DataViews.Search />
+						<DataViews.FiltersToggle />
 					</Stack>
-					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
-					<DataViews.Layout />
-					{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
-					{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
-				</DataViews>
-			</Collapsible.Panel>
-		</Collapsible.Root>
+					<DataViews.ViewConfig />
+				</Stack>
+				<DataViews.FiltersToggled className="jp-protect-threats__filters" />
+				<DataViews.Layout />
+				{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
+				{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
+			</DataViews>
+		</div>
 	);
 }
