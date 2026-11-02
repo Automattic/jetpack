@@ -575,6 +575,35 @@ describe( 'BarChart', () => {
 			expect( ticks.sort() ).toEqual( expected );
 		} );
 
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps logarithmic bars unchanged by tickDecimals (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				const barGeometry = ( tickDecimals?: number ) => {
+					const { unmount } = renderWithTheme( {
+						orientation,
+						data: [
+							{
+								label: 'Series A',
+								data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+							},
+						],
+						options: {
+							[ `${ valueAxis }Scale` ]: { type: 'log', zero: false },
+							axis: { [ valueAxis ]: { tickDecimals } },
+						},
+					} );
+					const geometry = Array.from( getBarRects(), geometryOf );
+					unmount();
+					return geometry;
+				};
+
+				const baseline = barGeometry();
+				expect( baseline ).toHaveLength( 2 );
+				expect( barGeometry( 0 ) ).toEqual( baseline );
+			}
+		);
+
 		test( "leaves a caller's value tickValues axis unwidened by tickDecimals", () => {
 			const barHeights = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
 				const { unmount } = renderWithTheme( {

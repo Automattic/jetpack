@@ -279,7 +279,12 @@ export function useBarChartOptions(
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
 		const domain = valueScaleOptions?.domain
 			? null
-			: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
+			: getValueScaleDomain(
+					data,
+					includeZero,
+					isSeriesRendered,
+					valueScaleOptions?.type === 'log' ? undefined : axisConfig.valueTickDecimals
+				);
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {
