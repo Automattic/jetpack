@@ -5375,8 +5375,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@wordpress/browserslist-config':
-        specifier: 6.57.0
-        version: 6.57.0
+        specifier: 7.0.0
+        version: 7.0.0
       jest:
         specifier: 30.5.2
         version: 30.5.2
