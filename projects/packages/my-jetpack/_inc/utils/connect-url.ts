@@ -15,7 +15,7 @@ export function getConnectUrl( from: string, returnTo: string = window.location.
 }
 
 /**
- * The route to the connection screen, which forwards `from` to the connection it starts.
+ * The route to the connection screen, with `from` in its query.
  *
  * @param from - The entry-point name, such as `my_jetpack_products_backup`.
  * @return The route, such as `/connection?from=my_jetpack_products_backup`.
