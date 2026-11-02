@@ -433,6 +433,56 @@ describe( 'Connectors card', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 			await expectNavigation();
 		} );
+
+		it.each( [
+			[
+				'confirm',
+				connectedAsSecondAdmin,
+				{ status: 'CAN_ESTABLISH' },
+				'Confirm you are the site owner.',
+				'ProtectedOwnerConfirmation',
+				'protected-owner-confirmation',
+				'onConfirmed',
+			],
+			[
+				'release',
+				connectedAsOwner,
+				{ status: 'RE_EVALUATE', viewerIsConfirmedOwner: true },
+				'Release ownership',
+				'ProtectedOwnerRelease',
+				'protected-owner-release',
+				'onReleased',
+			],
+		] )(
+			'opens the %s ownership dialog, then reloads once it succeeds',
+			async ( _, state, protectedOwner, button, dialog, testId, onSuccess ) => {
+				const { user, connection } = renderCard( {
+					state,
+					data: { apiRoot: '/wp-json/', apiNonce: 'nonce', protectedOwner },
+					search: '?connector=wordpress_com',
+				} );
+				const props = () => connection[ dialog ].mock.lastCall[ 0 ];
+
+				await user.click( screen.getByRole( 'button', { name: button } ) );
+				expect( props() ).toEqual(
+					expect.objectContaining( {
+						isOpen: true,
+						apiRoot: '/wp-json/',
+						apiNonce: 'nonce',
+						subject: 'site',
+						trackingContext: 'connectors',
+					} )
+				);
+
+				act( () => props().onClose() );
+				expect( screen.queryByTestId( testId ) ).not.toBeInTheDocument();
+				expect( console ).not.toHaveErrored();
+
+				await user.click( screen.getByRole( 'button', { name: button } ) );
+				act( () => props()[ onSuccess ]() );
+				await expectNavigation();
+			}
+		);
 	} );
 
 	describe( 'Safe Mode', () => {
