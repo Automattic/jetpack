@@ -55,10 +55,7 @@ class Scan_Product_Test extends TestCase {
 			StatusCache::clear();
 		}
 
-		$expected = $woa
-			? 'https://my.wordpress.com/sites/' . wp_parse_url( home_url(), PHP_URL_HOST ) . '/scan/active'
-			: Redirect::get_url( 'my-jetpack-manage-scan' );
-		$this->assertSame( $expected, Scan::get_manage_url() );
+		$this->assertSame( Redirect::get_url( $woa ? 'my-jetpack-manage-scan-wpcom' : 'my-jetpack-manage-scan' ), Scan::get_manage_url() );
 	}
 
 	/**

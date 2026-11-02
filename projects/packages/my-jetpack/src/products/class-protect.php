@@ -13,7 +13,6 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
@@ -593,11 +592,7 @@ class Protect extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_scan_dashboard_url() {
-		if ( ( new Host() )->is_woa_site() ) {
-			return 'https://my.wordpress.com/sites/' . ( new Status() )->get_site_suffix() . '/scan/active';
-		}
-
-		return Redirect::get_url( 'my-jetpack-manage-scan' );
+		return Redirect::get_url( ( new Host() )->is_woa_site() ? 'my-jetpack-manage-scan-wpcom' : 'my-jetpack-manage-scan' );
 	}
 
 	/**
