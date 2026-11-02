@@ -22,6 +22,10 @@ import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
 let isOpenrsync = false;
 
+export const completions = {
+	dest: () => Object.keys( rsyncConfigStore.all ),
+};
+
 /**
  * Stores the destination in the configstore.
  * Takes an optional alias arg.

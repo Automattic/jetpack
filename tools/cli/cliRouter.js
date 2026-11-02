@@ -9,16 +9,17 @@ import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
-import { generateDefine } from './commands/generate.js';
+import { completions as generateCompletions, generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
 import * as playgroundCommand from './commands/playground.js';
 import * as pnpmCommand from './commands/pnpm.js';
 import { releaseDefine } from './commands/release.js';
-import { rsyncDefine } from './commands/rsync.js';
+import { completions as rsyncCompletions, rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
+import { completionHook } from './helpers/completion.js';
 
 /**
  * The main CLI router function.
@@ -41,7 +42,17 @@ export async function cli() {
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.command( composerCommand );
-	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	// Placed here to keep things alphabetical.
+	argv.completion(
+		'completion',
+		'Generate bash/zsh completions',
+		completionHook( argv, {
+			generate: generateCompletions,
+			phan: phanCommand.completions,
+			rsync: rsyncCompletions,
+			test: testCommand.completions,
+		} )
+	);
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = docsDefine( argv );

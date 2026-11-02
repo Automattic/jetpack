@@ -28,6 +28,10 @@ import { promptForType, promptForName } from '../helpers/promptForProject.js';
 import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
+export const completions = {
+	type: () => projectTypes.map( type => pluralize.singular( type ) ),
+};
+
 /**
  * Entry point for the CLI.
  *

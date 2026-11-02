@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
@@ -6,6 +7,7 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
+import { completeProject } from '../helpers/completion.js';
 import { getInstallArgs, getComposerInstallArgsForDir, projectDir } from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
@@ -14,14 +16,21 @@ import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'phan [project...]';
 export const describe = 'Run Phan on a monorepo project';
+export const completions = {
+	project: current => [
+		...completeProject( current ),
+		'monorepo',
+		...Object.keys( monorepoPseudoProjects() ),
+	],
+};
 
 /**
  * Load list of monorepo pseudo-projects.
  *
  * @return {object} Map of key to dir.
  */
-async function monorepoPseudoProjects() {
-	const contents = await fs.readFile(
+function monorepoPseudoProjects() {
+	const contents = readFileSync(
 		new URL( '../../../.phan/monorepo-pseudo-projects.jsonc', import.meta.url ),
 		{ encoding: 'utf8' }
 	);
@@ -34,12 +43,12 @@ async function monorepoPseudoProjects() {
  * @param {object} yargs - The Yargs dependency.
  * @return {object} Yargs with the phan commands defined.
  */
-export async function builder( yargs ) {
+export function builder( yargs ) {
 	return yargs
 		.positional( 'project', {
 			describe:
 				// prettier-ignore
-				`Project in the form of type/name, e.g. plugins/jetpack. The following pseudo-projects are also available: "monorepo", "${ Object.keys( await monorepoPseudoProjects() ).join( '", "' ) }".`,
+				`Project in the form of type/name, e.g. plugins/jetpack. The following pseudo-projects are also available: "monorepo", "${ Object.keys( monorepoPseudoProjects() ).join( '", "' ) }".`,
 			type: 'string',
 		} )
 		.option( 'all', {
