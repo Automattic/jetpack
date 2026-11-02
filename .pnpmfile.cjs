@@ -174,6 +174,14 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob += ' || ^14';
 	}
 
+	// Clear GHSA-g3hv-75wg-m249 for various deps. Historically the process has taken a while.
+	// https://github.com/eslint/eslint/issues/21463
+	// https://github.com/istanbuljs/test-exclude/issues/78
+	// https://github.com/typescript-eslint/typescript-eslint/issues/13125
+	if ( pkg.dependencies?.minimatch?.startsWith( '^10' ) ) {
+		pkg.dependencies.minimatch += ' || ^11';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
