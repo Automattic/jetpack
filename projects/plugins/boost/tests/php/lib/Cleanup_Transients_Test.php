@@ -30,9 +30,10 @@ class Cleanup_Transients_Test extends Base_TestCase {
 		global $wpdb;
 		$this->original_wpdb = $wpdb;
 		$wpdb                = new class( $this->rows ) {
-			public $options    = 'wp_options';
-			public $last_error = '';
-			public $fail_batch = false;
+			public $options          = 'wp_options';
+			public $last_error       = '';
+			public $fail_batch       = false;
+			public $fail_next_reread = false;
 			public $after_batch;
 			public $single_reads = array();
 			private $rows;
@@ -80,6 +81,11 @@ class Cleanup_Transients_Test extends Base_TestCase {
 
 			public function get_var( $id ) {
 				$this->single_reads[] = $id;
+				$this->last_error     = $this->fail_next_reread ? 'Query failed' : '';
+				if ( $this->fail_next_reread ) {
+					$this->fail_next_reread = false;
+					return null;
+				}
 				foreach ( $this->rows as $row ) {
 					if ( $row['option_id'] === $id ) {
 						return $row['option_value'];
@@ -111,7 +117,11 @@ class Cleanup_Transients_Test extends Base_TestCase {
 				}
 			}
 		);
-		Functions\when( 'maybe_unserialize' )->alias( 'unserialize' );
+		Functions\when( 'maybe_unserialize' )->alias(
+			static function ( $value ) {
+				return is_string( $value ) ? unserialize( $value ) : $value; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+			}
+		);
 		Functions\when( 'wp_next_scheduled' )->alias(
 			function () {
 				return $this->scheduled;
@@ -230,5 +240,20 @@ class Cleanup_Transients_Test extends Base_TestCase {
 
 		$this->assertSame( 42, $this->cursor );
 		$this->assertSame( 0, $this->schedules );
+	}
+
+	public function test_stops_on_a_failed_reread() {
+		$this->cursor = 42;
+		$this->seed_row( 43, array( 'expire' => 1 ) );
+		$this->seed_row( 44, array( 'expire' => 1 ) );
+		global $wpdb;
+		$wpdb->fail_next_reread = true;
+
+		Cleanup_Transients::run_cleanup();
+
+		$this->assertSame( array( 'jb_transient_test_43', 'jb_transient_test_44' ), array_keys( $this->rows ) );
+		$this->assertSame( 42, $this->cursor );
+		$this->assertSame( 0, $this->schedules );
+		$this->assertSame( array( 43 ), $wpdb->single_reads );
 	}
 }
