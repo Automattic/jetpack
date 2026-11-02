@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a feature flag for consolidating settings in My Jetpack, off by default.

@@ -595,6 +595,7 @@ interface Window {
 			headerControls?: boolean;
 			overviewV1: boolean;
 			premiumAnalyticsEnabled: boolean;
+			settingsConsolidation: boolean;
 			showAiModuleToggle: boolean;
 			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
