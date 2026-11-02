@@ -1614,7 +1614,7 @@ describe( 'Email design editor entry point', () => {
 					await userEvent.click( resetButton() );
 
 					// Named, or a screen reader announces only "dialog" — and this one is destructive.
-					expect( screen.getByRole( 'dialog', { name: 'Reset email design' } ) ).toBeVisible();
+					expect( screen.getByRole( 'alertdialog', { name: 'Reset email design' } ) ).toBeVisible();
 					expect( writes() ).toEqual( [] );
 				} );
 
@@ -1628,6 +1628,33 @@ describe( 'Email design editor entry point', () => {
 					expect(
 						select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', ourId ).styles
 					).toEqual( { color: { background: '#c0ffee' } } );
+				} );
+
+				// The dialog closes after a confirm as well, which is not the creator backing out.
+				it.each( [
+					[
+						'Cancel',
+						() => userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) ),
+						'cancelled',
+					],
+					[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'cancelled' ],
+					[
+						'Reset',
+						() => userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) ),
+						'reset',
+					],
+				] )( 'records %s as the one outcome it is', async ( _, close, outcome ) => {
+					mockApiFetch.mockResolvedValue( { design: { styles: {}, settings: {} } } );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await close();
+
+					const outcomes = mockRecordEvent.mock.calls
+						.filter( ( [ name ] ) => name === 'jetpack_newsletter_email_design_reset' )
+						.map( ( [ , props ] ) => props.outcome );
+
+					expect( outcomes ).toEqual( [ outcome ] );
 				} );
 
 				it( 'clears both halves, rather than writing today’s defaults into them', async () => {
