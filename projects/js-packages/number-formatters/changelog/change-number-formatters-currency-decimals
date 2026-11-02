@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a `decimals` option to `formatCurrency()` and `getCurrencyObject()` to show a fixed number of decimals.

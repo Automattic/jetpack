@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the path and query parameters of requests proxied to WordPress.com unchanged when they are signed.

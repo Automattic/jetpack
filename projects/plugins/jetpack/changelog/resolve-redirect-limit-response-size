@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-REST API: Limit the response data kept in memory when resolving redirects.

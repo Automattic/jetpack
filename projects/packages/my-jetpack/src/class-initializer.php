@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.14.0';
+	const PACKAGE_VERSION = '6.15.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -1552,7 +1552,7 @@ class Initializer {
 	 *
 	 * Without the page, moved settings would have nowhere to go, so they stay on the Settings screen.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.15.0
 	 *
 	 * @return bool
 	 */
@@ -1731,7 +1731,7 @@ class Initializer {
 		 * Enable local Features data and entry in offline mode.
 		 *
 		 * @since 6.10.0
-		 * @since $$next-version$$ Enabled by default.
+		 * @since 6.15.0 Enabled by default.
 		 * @param bool $enabled Whether to enable offline Features. Default true.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', true );

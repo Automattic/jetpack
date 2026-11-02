@@ -287,7 +287,7 @@ final class Environment {
 	 *
 	 * Read from the post, since `get_block_template()` returns the content with block hooks already applied.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param string $slug Template slug.
 	 */

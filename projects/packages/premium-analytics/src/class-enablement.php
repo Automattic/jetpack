@@ -14,7 +14,7 @@ use Automattic\Jetpack\Modules;
  *
  * WordPress.com Simple decides on its own and only answers the filter below.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  */
 final class Enablement {
 
