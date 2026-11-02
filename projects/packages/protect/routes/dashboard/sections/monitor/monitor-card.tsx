@@ -185,7 +185,18 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 			<SettingsErrorRow settings={ settings } keys={ MONITOR_KEYS } />
 			{ ! active && (
 				<CardRow>
-					<MonitorToggle data={ toggleData } available />
+					<Stack direction="column" gap="md" align="start">
+						<MonitorToggle
+							data={ toggleData }
+							available
+							userConnected={ Boolean( monitor?.userConnected ) }
+						/>
+						{ ! monitor?.userConnected && (
+							<Link href={ CONNECT_URL } onClick={ onConnect }>
+								{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
+							</Link>
+						) }
+					</Stack>
 				</CardRow>
 			) }
 			{ active && (
@@ -205,7 +216,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 							) : (
 								<Text variant="body-md">
 									{ __(
-										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
+										'Downtime monitoring is on. Connect your WordPress.com account to get alerts and see uptime history.',
 										'jetpack-protect-pkg'
 									) }
 								</Text>

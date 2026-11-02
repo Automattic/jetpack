@@ -37,29 +37,39 @@ export function useMonitorToggleData( settings: ProtectSettingsData ) {
 /**
  * Downtime monitoring's on/off toggle, on both the Overview and Settings cards.
  *
- * @param props           - Component props.
- * @param props.data      - Settings from `useMonitorToggleData()`.
- * @param props.available - Whether Monitor can run on this site.
+ * @param props               - Component props.
+ * @param props.data          - Settings from `useMonitorToggleData()`.
+ * @param props.available     - Whether Monitor can run on this site.
+ * @param props.userConnected - Whether the user has a WordPress.com connection.
  * @return The toggle.
  */
 export default function MonitorToggle( {
 	data,
 	available,
+	userConnected,
 }: {
 	data: ProtectSettingsData;
 	available: boolean;
+	userConnected: boolean;
 } ) {
+	// Alerts go only to the connected user who turns Monitor on, so block turning it on but not off.
+	const needsAccount = available && ! userConnected && ! data.settings?.monitor;
+	let help: string = __( 'Jetpack checks your site every five minutes.', 'jetpack-protect-pkg' );
+	if ( ! available ) {
+		help = __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' );
+	} else if ( needsAccount ) {
+		help = __(
+			'Connect your WordPress.com account to turn on downtime monitoring.',
+			'jetpack-protect-pkg'
+		);
+	}
 	return (
 		<SettingToggle
 			data={ data }
 			name="monitor"
 			label={ __( 'Enable downtime monitoring', 'jetpack-protect-pkg' ) }
-			help={
-				available
-					? __( 'Jetpack checks your site every five minutes.', 'jetpack-protect-pkg' )
-					: __( 'Downtime monitoring isn’t available on this site.', 'jetpack-protect-pkg' )
-			}
-			disabled={ ! available }
+			help={ help }
+			disabled={ ! available || needsAccount }
 		/>
 	);
 }
