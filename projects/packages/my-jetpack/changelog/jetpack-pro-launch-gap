@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show a Pro filter on the Features tab, and hide plan filters that match no features.

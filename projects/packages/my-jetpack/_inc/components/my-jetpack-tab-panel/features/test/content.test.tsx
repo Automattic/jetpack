@@ -479,6 +479,18 @@ describe( 'FeaturesContent', () => {
 
 		// A fresh mount is a new visit to the tab, which offers the usual pills again.
 		unmount();
+		mockStates = [
+			{
+				...activeStats,
+				feature: {
+					...activeStats.feature,
+					plans: [
+						{ slug: 'security', name: 'Security' },
+						{ slug: 'growth', name: 'Growth' },
+					],
+				},
+			} as FeatureState,
+		];
 		renderAt( '/features' );
 
 		expect( pillNames() ).toEqual( [

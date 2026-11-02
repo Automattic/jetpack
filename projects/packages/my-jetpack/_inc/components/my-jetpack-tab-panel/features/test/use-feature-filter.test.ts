@@ -1,5 +1,6 @@
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from '../use-feature-filter';
 import type { FeatureState } from '../feature-state';
+import type { FeatureFilter } from '../use-feature-filter';
 
 const buildState = ( feature: Partial< MainFeature >, status = 'inactive' ): FeatureState =>
 	( {
@@ -128,6 +129,7 @@ describe( 'getFeatureFilters', () => {
 			'active',
 			'inactive',
 			'essential',
+			'pro',
 			'security',
 			'growth',
 		] );
@@ -148,9 +150,20 @@ describe( 'getFeatureFilters', () => {
 			'inactive',
 			'included',
 			'essential',
+			'pro',
 			'security',
 			'growth',
 		] );
+	} );
+
+	it( 'offers a plan pill only while a feature carries its badge, or a link selects it', () => {
+		const planPills = ( active: FeatureFilter ) =>
+			getFeatureFilters( active, false, [ 'pro', 'complete' ] )
+				.map( ( { value } ) => value )
+				.filter( value => [ 'pro', 'security', 'growth' ].includes( value ) );
+
+		expect( planPills( 'all' ) ).toEqual( [ 'pro' ] );
+		expect( planPills( 'growth' ) ).toEqual( [ 'pro', 'growth' ] );
 	} );
 
 	it( 'rejects a filter the grid does not know', () => {

@@ -6,9 +6,17 @@ import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
 
 export type FeatureFilter =
-	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
+	| 'all'
+	| 'available'
+	| 'active'
+	| 'inactive'
+	| 'included'
+	| 'essential'
+	| 'pro'
+	| 'security'
+	| 'growth';
 
-const PLANS = [ 'security', 'growth' ];
+const PLANS = [ 'pro', 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
@@ -23,11 +31,13 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
  *
  * @param active    - The filter in play, if any.
  * @param ownedView - Whether the visit arrived on Included in plan.
+ * @param plans     - Plan slugs some feature carries a badge for; other plan pills would match nothing.
  * @return One entry per filter, each with its label.
  */
 export const getFeatureFilters = (
 	active?: FeatureFilter,
-	ownedView = false
+	ownedView = false,
+	plans: string[] = PLANS
 ): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'available', label: __( 'Available', 'jetpack-my-jetpack' ) },
@@ -45,8 +55,11 @@ export const getFeatureFilters = (
 		? []
 		: [
 				{ value: 'essential' as FeatureFilter, label: __( 'Essential', 'jetpack-my-jetpack' ) },
-				{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
-				{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
+				...[
+					{ value: 'pro' as FeatureFilter, label: __( 'Pro', 'jetpack-my-jetpack' ) },
+					{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
+					{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
+				].filter( ( { value } ) => plans.includes( value ) || value === active ),
 			] ),
 ];
 

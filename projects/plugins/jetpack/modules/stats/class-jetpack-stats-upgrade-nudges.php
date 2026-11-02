@@ -120,14 +120,14 @@ class Jetpack_Stats_Upgrade_Nudges {
 	}
 
 	/**
-	 * Determines whether the Site is on the Complete Plan.
+	 * Determines whether the Site is on the Complete or Pro Plan, which include every product nudged here.
 	 *
 	 * @return boolean
 	 */
 	private static function has_complete_plan() {
 		$plan_data = Jetpack_Plan::get();
 		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
-			return wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
+			return wp_startswith( $plan_data['product_slug'], 'jetpack_complete' ) || wp_startswith( $plan_data['product_slug'], 'jetpack_pro_' );
 		}
 		return false;
 	}
