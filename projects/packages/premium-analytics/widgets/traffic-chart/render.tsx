@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	bucketRange,
 	ChartEmptyState,
 	MetricTabsChart,
@@ -39,12 +40,6 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-	preferExact: true,
 };
 
 type TrafficChartInnerProps = {
@@ -133,7 +128,7 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					tickResolution={ period }

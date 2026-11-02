@@ -123,6 +123,10 @@ describe( 'AbbreviatedValue', () => {
 
 	describe( 'with preferExact', () => {
 		let boxWidth = 0;
+		// A scrollbar the exact figure brings and the compact one removes.
+		let exactShrinksBox = false;
+		const exactShowing = () => screen.queryByText( '18.4K' ) === null;
+		const measuredBox = () => boxWidth - ( exactShrinksBox && exactShowing() ? 20 : 0 );
 		let figureWidth = 0;
 		let fontSize = '';
 		let resize: () => void = () => {};
@@ -132,6 +136,7 @@ describe( 'AbbreviatedValue', () => {
 
 		beforeEach( () => {
 			boxWidth = 200;
+			exactShrinksBox = false;
 			figureWidth = 120;
 			fontSize = '24px';
 			jest
@@ -139,7 +144,7 @@ describe( 'AbbreviatedValue', () => {
 				.mockImplementation( () => rect( 0, figureWidth ) );
 			jest
 				.spyOn( HTMLDivElement.prototype, 'getBoundingClientRect' )
-				.mockImplementation( () => rect( 0, boxWidth ) );
+				.mockImplementation( () => rect( 0, measuredBox() ) );
 			jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
 				const style = computedStyle( element );
 				if ( element instanceof HTMLSpanElement ) {
@@ -149,7 +154,7 @@ describe( 'AbbreviatedValue', () => {
 			} );
 			Object.defineProperty( HTMLDivElement.prototype, 'clientWidth', {
 				configurable: true,
-				get: () => boxWidth,
+				get: measuredBox,
 			} );
 			window.ResizeObserver = class {
 				constructor( callback: ResizeObserverCallback ) {
@@ -193,6 +198,23 @@ describe( 'AbbreviatedValue', () => {
 
 			expect( screen.getByText( '18,432' ) ).not.toHaveAttribute( 'aria-hidden' );
 			expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'settles on the compact figure when the exact one alone narrows the box', () => {
+			render(
+				<div style={ { overflowX: 'hidden' } }>
+					<AbbreviatedValue value={ 18432 } dataFormat={ PREFER_EXACT } />
+				</div>
+			);
+
+			act( () => {
+				boxWidth = 130;
+				exactShrinksBox = true;
+				resize();
+			} );
+
+			expect( screen.getByText( '18.4K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+			expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
 		} );
 
 		it( 'retries the exact figure when the type shrinks, though no box grew', () => {

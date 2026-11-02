@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
 	toDay,
 	type CountLabel,
@@ -52,15 +53,6 @@ export interface VideoMetricsState {
 	hasData: boolean;
 	refetch: () => void;
 }
-
-/**
- * Whole-number count format, shared with the chart's required fallback format.
- */
-export const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-	preferExact: true,
-};
 
 const RATE_FORMAT: DataFormat = {
 	type: 'percentage',
@@ -256,7 +248,7 @@ export default function useVideoMetrics(
 				__( 'Views', 'jetpack-premium-analytics-pkg' ),
 				playsSeries,
 				total?.plays,
-				COUNT_FORMAT,
+				HEADLINE_COUNT_FORMAT,
 				count =>
 					/* translators: %s: number of views. */
 					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
@@ -272,7 +264,7 @@ export default function useVideoMetrics(
 					__( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 					data.series.impressions,
 					total?.impressions,
-					COUNT_FORMAT,
+					HEADLINE_COUNT_FORMAT,
 					count =>
 						/* translators: %s: number of impressions. */
 						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )

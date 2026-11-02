@@ -3,6 +3,7 @@
  */
 import { STATS_CHART_BUCKET_PERIODS, toAuthorId } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -27,12 +28,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type AuthorPerformanceRenderAttributes = AuthorPerformanceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AuthorPerformanceWidgetProps = WidgetRenderProps< AuthorPerformanceRenderAttributes >;
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
-	preferExact: true,
-};
 
 type AuthorPerformanceInnerProps = {
 	chartType?: AuthorPerformanceChartType;
@@ -132,7 +127,7 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					chartTitle={ __( 'Author performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }

@@ -315,6 +315,7 @@ export {
 	formatViewCount,
 	formatListMetricCount,
 	getListMetricLabel,
+	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,

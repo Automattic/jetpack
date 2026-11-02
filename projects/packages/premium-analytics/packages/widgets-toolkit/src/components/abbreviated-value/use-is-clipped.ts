@@ -49,14 +49,14 @@ function watchedBoxes( box: HTMLElement ): HTMLElement[] {
 	return boxes;
 }
 
-type Clip = { text: string; fontSize: string; widths: number[] };
+type Clip = { text: string };
 
 /**
  * Whether `text`, rendered in the element the returned ref is on, gets clipped
  * by the nearest ancestor that hides overflow. Once clipped it stays so until
- * that box or one of its ancestors grows past the width it clipped at, or the
- * type changes size, so a shorter text swapped in cannot bounce back. Never
- * clipped where there is no ResizeObserver.
+ * that box or one of its ancestors grows past the width it has with the
+ * shorter text in it, or the type changes size, so the swap cannot bounce.
+ * Never clipped where there is no ResizeObserver.
  *
  * @param text    - The text being measured; a new text is measured afresh.
  * @param enabled - Skip measuring (and the layout it forces) when false.
@@ -81,17 +81,20 @@ export function useIsClipped( text: string, enabled: boolean ) {
 		// A layout switch can shrink the type without widening any box, as the
 		// metric tiles' compact layout does, so a type change earns a retry too.
 		const fontSize = () => getComputedStyle( element ).fontSize;
+		// Measured with the shorter text already in place: the longer one can
+		// add a scrollbar the shorter one removes, and a baseline taken with the
+		// longer text showing would then read the swap itself as growth.
+		const baseline = isClipped ? { fontSize: fontSize(), widths: widths() } : null;
 		const check = () => {
-			if ( isClipped ) {
-				const at = clip as Clip;
+			if ( baseline ) {
 				if (
-					fontSize() !== at.fontSize ||
-					widths().some( ( width, i ) => width > at.widths[ i ] )
+					fontSize() !== baseline.fontSize ||
+					widths().some( ( width, i ) => width > baseline.widths[ i ] )
 				) {
 					setClip( null );
 				}
 			} else if ( runsPast( element, box ) ) {
-				setClip( { text, fontSize: fontSize(), widths: widths() } );
+				setClip( { text } );
 			}
 		};
 		check();

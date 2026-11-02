@@ -3,12 +3,12 @@
  */
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	summaryCount,
 	WidgetRoot,
 	WidgetState,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -48,12 +48,6 @@ type AllTimeStatsWidgetProps = WidgetRenderProps< AllTimeStatsRenderAttributes >
  * Dynamic WPCOM keys, whose values arrive numeric or as numeric strings.
  */
 type StatsSummary = Record< string, unknown >;
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-	preferExact: true,
-};
 
 /**
  * Render-only icon per metric; the id doubles as the summary field the tile reads.
@@ -107,7 +101,7 @@ function AllTimeStatsReport() {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);
