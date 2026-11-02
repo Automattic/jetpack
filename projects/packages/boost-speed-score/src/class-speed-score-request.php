@@ -286,7 +286,8 @@ class Speed_Score_Request extends Cacheable {
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
 					return $this->restart();
 				}
-				$this->store();
+				// As long as WordPress.com keeps the result; the default would drop a run the user left mid-way.
+				$this->store( 3600 );
 				break;
 
 			case 'error':
