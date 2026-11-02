@@ -214,4 +214,85 @@ class Red_Bubble_Notifications_Test extends TestCase {
 
 		$this->assertArrayNotHasKey( 'missing-connection', $alerts );
 	}
+
+	/**
+	 * Data provider for test_plugins_needed_alert_counts_only_standalone_purchases.
+	 *
+	 * @return array
+	 */
+	public static function provide_plugins_needed_purchases() {
+		return array(
+			'standalone Boost'    => array( 'jetpack_boost_yearly', false ),
+			'prefixed standalone' => array( 'a4a_jetpack_boost_yearly', false ),
+			'Complete bundle'     => array( 'jetpack_complete', true ),
+		);
+	}
+
+	/**
+	 * A plan missing its plugin adds to the menu count only when the plan is that product alone.
+	 *
+	 * @param string $plan_slug The purchased plan.
+	 * @param bool   $silent    Whether the alert stays out of the menu count.
+	 *
+	 * @dataProvider provide_plugins_needed_purchases
+	 */
+	#[DataProvider( 'provide_plugins_needed_purchases' )]
+	public function test_plugins_needed_alert_counts_only_standalone_purchases( $plan_slug, $silent ) {
+		$this->log_in_as( 'administrator' );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => $plan_slug,
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'cloud-critical-css' => array( 'jetpack_complete' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_requires_plugin_install_or_activation( array() );
+
+		$this->assertArrayHasKey( "$plan_slug--plugins_needing_installed_activated", $alerts );
+		$this->assertSame( $silent, ! empty( $alerts[ "$plan_slug--plugins_needing_installed_activated" ]['is_silent'] ) );
+	}
+
+	/**
+	 * A bundle whose plugins are all active raises no plugins-needed alert.
+	 */
+	public function test_plugins_needed_alert_skips_bundle_with_active_plugins() {
+		$this->log_in_as( 'administrator' );
+		update_option( 'active_plugins', array( Products\Boost::get_installed_plugin_filename() ) );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => 'jetpack_complete',
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'cloud-critical-css' => array( 'jetpack_complete' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_requires_plugin_install_or_activation( array() );
+
+		$this->assertArrayNotHasKey( 'jetpack_complete--plugins_needing_installed_activated', $alerts );
+	}
 }

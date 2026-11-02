@@ -31,7 +31,10 @@ afterEach( () => {
 describe( 'LikeButtonsSection', () => {
 	it( 'only explains offline mode when Like buttons cannot run', () => {
 		const { container } = renderWithData( <LikeButtonsSection />, {
-			status: { ...baseStatus, likes: { state: 'configure', supported: false } },
+			status: {
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'configure', supported: false },
+			},
 		} );
 
 		expect(
@@ -74,7 +77,7 @@ describe( 'LikeButtonsSection', () => {
 			Promise.resolve( path?.endsWith( '/settings' ) ? baseSettings : baseStatus )
 		);
 		renderWithData( <LikeButtonsSection />, {
-			status: { ...baseStatus, likes: { state: 'off', supported: true } },
+			status: { ...baseStatus, likes: { ...baseStatus.likes, state: 'off', supported: true } },
 		} );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on Like buttons' } ) );

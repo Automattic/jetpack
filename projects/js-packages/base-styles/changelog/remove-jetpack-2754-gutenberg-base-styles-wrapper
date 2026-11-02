@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove the `gutenberg-base-styles` export. Load the `@wordpress/base-styles` modules you need directly instead.

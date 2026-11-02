@@ -938,7 +938,7 @@ class Initializer {
 
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$speed_score_history = new Speed_Score_History( home_url() );
 		$latest_score        = $speed_score_history->latest();
 		$previous_score      = array();
 		if ( $speed_score_history->count() > 1 ) {
@@ -971,6 +971,7 @@ class Initializer {
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'siteUrl'                => esc_url( get_site_url() ),
+				'homeUrl'                => esc_url_raw( home_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),

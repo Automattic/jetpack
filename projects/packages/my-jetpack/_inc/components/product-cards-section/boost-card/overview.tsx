@@ -68,7 +68,7 @@ const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 			}
 			action={ getAction() }
 			isLoading={ isScoreLoading }
-			loadingLabel={ __( 'Calculating…', 'jetpack-my-jetpack' ) }
+			loadingLabel={ __( 'Checking site speed…', 'jetpack-my-jetpack' ) }
 			error={
 				hasFailed
 					? {
