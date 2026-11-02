@@ -107,11 +107,21 @@ const renderStacked = ( props: Partial< BarChartProps > = {} ) =>
 
 const center = ( { x, width }: Rect ) => x + width / 2;
 
-const encloses = ( outer: Rect, inner: Rect ) =>
-	outer.x <= inner.x + 0.01 &&
-	outer.y <= inner.y + 0.01 &&
-	outer.x + outer.width >= inner.x + inner.width - 0.01 &&
-	outer.y + outer.height >= inner.y + inner.height - 0.01;
+const union = ( rects: Rect[] ): Rect => {
+	const x = Math.min( ...rects.map( r => r.x ) );
+	const y = Math.min( ...rects.map( r => r.y ) );
+	return {
+		x,
+		y,
+		width: Math.max( ...rects.map( r => r.x + r.width ) ) - x,
+		height: Math.max( ...rects.map( r => r.y + r.height ) ) - y,
+	};
+};
+
+const rounded = ( rect: Rect ) =>
+	Object.fromEntries(
+		Object.entries( rect ).map( ( [ side, value ] ) => [ side, value.toFixed( 1 ) ] )
+	);
 
 describe( 'BarChart stacked layout', () => {
 	const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
@@ -121,6 +131,10 @@ describe( 'BarChart stacked layout', () => {
 			configurable: true,
 			value: () => null,
 		} );
+	} );
+
+	beforeEach( () => {
+		anchors.length = 0;
 	} );
 
 	afterAll( () => {
@@ -225,6 +239,21 @@ describe( 'BarChart stacked layout', () => {
 		);
 	} );
 
+	it( 'totals negative and positive readings together', async () => {
+		const user = userEvent.setup();
+		renderStacked( {
+			data: [
+				{ label: 'A', data: [ day( 'Mon', 10 ) ] },
+				{ label: 'B', data: [ day( 'Mon', -5 ) ] },
+			],
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Total: 5' );
+		expect( Math.min( ...valueTicks() ) ).toBeLessThan( 0 );
+	} );
+
 	it( 'leaves the total out when a category has one reading', async () => {
 		const user = userEvent.setup();
 		renderStacked( {
@@ -250,13 +279,13 @@ describe( 'BarChart stacked layout', () => {
 
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
-			[ 'Desktop', 'Mobile', 'Tablet' ].forEach( label =>
-				expect( encloses( selectedRing(), barOf( label ) ) ).toBe( true )
+			expect( rounded( selectedRing() ) ).toEqual(
+				rounded( union( [ 'Desktop', 'Mobile', 'Tablet' ].map( label => barOf( label ) ) ) )
 			);
 
 			await user.keyboard( '{ArrowRight}' );
-			[ 'Desktop', 'Tablet' ].forEach( label =>
-				expect( encloses( selectedRing(), barOf( label, 1 ) ) ).toBe( true )
+			expect( rounded( selectedRing() ) ).toEqual(
+				rounded( union( [ 'Desktop', 'Tablet' ].map( label => barOf( label, 1 ) ) ) )
 			);
 		}
 	);
