@@ -115,22 +115,23 @@ class Speed_Score_Test extends Base_TestCase {
 			'both ready'                                => array( 'success', 'success', 'success', $previous, false ),
 			'own score still running'                   => array( 'pending', 'success', 'pending', null, false ),
 			'comparison failed'                         => array( 'success', 'error', 'error', null, false ),
+			'own request expired, comparison failed'    => array( null, 'error', 'error', null, false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_request_states
 	 *
-	 * @param string     $boosted          Status of the request with Boost.
-	 * @param string     $no_boost         Status of the request without Boost.
-	 * @param string     $status           Expected response status.
-	 * @param array|null $no_boost_scores  Expected comparison scores on success.
-	 * @param bool       $no_boost_pending Whether the dashboard should keep polling for the comparison.
+	 * @param string|null $boosted         Status of the request with Boost, or null when none is stored.
+	 * @param string      $no_boost         Status of the request without Boost.
+	 * @param string      $status           Expected response status.
+	 * @param array|null  $no_boost_scores  Expected comparison scores on success.
+	 * @param bool        $no_boost_pending Whether the dashboard should keep polling for the comparison.
 	 */
 	#[DataProvider( 'provide_request_states' )]
 	public function test_the_site_score_does_not_wait_for_the_comparison_run( $boosted, $no_boost, $status, $no_boost_scores, $no_boost_pending ) {
 		$response = $this->prepare_response(
-			new Speed_Score_Request( self::URL, array( 'critical_css' ), null, $boosted ),
+			null === $boosted ? null : new Speed_Score_Request( self::URL, array( 'critical_css' ), null, $boosted ),
 			new Speed_Score_Request( self::URL_NO_BOOST, array(), null, $no_boost )
 		);
 

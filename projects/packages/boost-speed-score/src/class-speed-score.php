@@ -376,7 +376,7 @@ class Speed_Score {
 
 		} elseif ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
-			if ( $score_request->is_error() ) {
+			if ( $score_request && $score_request->is_error() ) {
 				// Serialized version of score request contains the status property and error description if any.
 				$response = $score_request->jsonSerialize();
 			} else {
