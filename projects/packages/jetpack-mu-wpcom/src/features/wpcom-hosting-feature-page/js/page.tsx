@@ -1,6 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { FeatureContext } from './feature-context.ts';
-import { ActivateScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
+import { ActivateScreen, EnableScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
 import { getInitialState } from './state.ts';
 import type { FeatureConfig } from './types.ts';
 import './style.scss';
@@ -31,6 +31,7 @@ export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
 						{ initialState.state === 'in_progress' && <InProgressScreen /> }
 						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
 						{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
+						{ initialState.state === 'enable' && <EnableScreen state={ initialState } /> }
 					</div>
 				</div>
 			</AdminPage>

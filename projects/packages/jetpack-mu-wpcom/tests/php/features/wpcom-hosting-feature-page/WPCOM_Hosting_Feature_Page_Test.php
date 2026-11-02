@@ -240,6 +240,104 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * On WoA, Protect keeps the slug where the plan includes Scan but its dashboard is turned off, and offers to turn it on.
+	 *
+	 * @param bool $available Whether the Jetpack plugin offers the dashboard module.
+	 * @param bool $active    Whether the module is on.
+	 * @param bool $registers Whether the page claims the slug.
+	 *
+	 * @dataProvider provide_protect_dashboard_states
+	 */
+	#[DataProvider( 'provide_protect_dashboard_states' )]
+	public function test_woa_protect_page_offers_to_turn_the_dashboard_on( $available, $active, $registers ) {
+		$this->set_up_protect_dashboard( $available, $active );
+
+		$this->assertSame( $registers, WPCOM_Scan::should_register() );
+		if ( $registers ) {
+			$state = WPCOM_Scan::get_initial_state();
+			$this->assertSame( WPCOM_Scan::STATE_ENABLE, $state['state'] );
+			$this->assertStringContainsString( 'admin-post.php?action=' . WPCOM_Scan::ENABLE_ACTION, $state['enableUrl'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_woa_protect_page_offers_to_turn_the_dashboard_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_dashboard_states() {
+		return array(
+			'dashboard off'         => array( true, false, true ),
+			'dashboard on'          => array( true, true, false ),
+			// As beside the standalone Protect plugin, which serves the slug itself.
+			'dashboard unavailable' => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * Turning the dashboard on lands back on its page, flagged when activation did not stick.
+	 *
+	 * @param bool   $activates Whether activation succeeds.
+	 * @param string $expected  The redirect target, relative to the page URL.
+	 *
+	 * @dataProvider provide_enable_outcomes
+	 */
+	#[DataProvider( 'provide_enable_outcomes' )]
+	public function test_turning_on_the_dashboard_returns_to_its_page( $activates, $expected ) {
+		$this->set_up_admin_menu();
+		$this->set_up_protect_dashboard( true, false );
+		add_filter( 'user_has_cap', fn( $caps ) => array_merge( $caps, array( 'jetpack_activate_modules' => true ) ) );
+		$_REQUEST['_wpnonce'] = wp_create_nonce( WPCOM_Scan::ENABLE_ACTION );
+		if ( ! $activates ) {
+			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
+		}
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		try {
+			WPCOM_Scan::handle_enable();
+		} catch ( \RuntimeException $redirect ) {
+			$this->assertSame( WPCOM_Scan::get_page_url() . $expected, $redirect->getMessage() );
+		}
+
+		$this->assertSame( $activates, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
+	}
+
+	/**
+	 * Data provider for test_turning_on_the_dashboard_returns_to_its_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_outcomes() {
+		return array(
+			'turned on' => array( true, '' ),
+			'refused'   => array( false, '&enable_failed=1' ),
+		);
+	}
+
+	/**
+	 * Put a WoA admin request on a site whose plan includes Scan, with the Protect dashboard module in the given state.
+	 *
+	 * @param bool $available Whether the Jetpack plugin offers the module.
+	 * @param bool $active    Whether the module is on.
+	 * @return void
+	 */
+	private function set_up_protect_dashboard( $available, $active ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->grant_feature( \WPCOM_Features::SCAN_SELF_SERVE );
+		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
+		if ( $available ) {
+			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'protect-dashboard' ) : array() );
+	}
+
+	/**
 	 * Each page with the plan feature that unlocks it.
 	 *
 	 * @return array

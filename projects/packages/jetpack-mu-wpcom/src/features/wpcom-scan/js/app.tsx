@@ -40,6 +40,18 @@ function getScanConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 		},
+		enable: {
+			title: __( 'Protect is turned off', 'jetpack-mu-wpcom' ),
+			description: __(
+				'Your plan includes Protect, but it’s turned off on this site. Turn it on to review scan results, fix threats, and manage your firewall and login protection.',
+				'jetpack-mu-wpcom'
+			),
+			action: __( 'Turn on Protect', 'jetpack-mu-wpcom' ),
+			failed: __(
+				'There was a problem turning on Protect. Please try again, or contact our support team for help.',
+				'jetpack-mu-wpcom'
+			),
+		},
 		inProgress: {
 			title: __( 'Setting up Protect', 'jetpack-mu-wpcom' ),
 			description: __(

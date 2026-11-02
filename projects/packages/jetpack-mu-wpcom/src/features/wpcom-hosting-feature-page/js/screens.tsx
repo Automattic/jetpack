@@ -182,3 +182,44 @@ export function InProgressScreen() {
 		</>
 	);
 }
+
+/**
+ * Shown on WoA when the site has the plan but turned the Jetpack plugin's dashboard off.
+ *
+ * @param props       - Component props.
+ * @param props.state - Resolved initial state.
+ * @return The rendered prompt.
+ */
+export function EnableScreen( { state }: { state: InitialState } ) {
+	const { icon, illustration, enable } = useFeature();
+
+	if ( ! enable || ! state.enableUrl ) {
+		return null;
+	}
+
+	return (
+		<>
+			{ state.enableFailed && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ enable.failed }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			<Callout
+				icon={ icon }
+				title={ enable.title }
+				image={ illustration }
+				description={ <Text>{ enable.description }</Text> }
+				actions={
+					<ButtonLink variant="solid" size="compact" href={ state.enableUrl }>
+						{ enable.action }
+					</ButtonLink>
+				}
+			/>
+		</>
+	);
+}
