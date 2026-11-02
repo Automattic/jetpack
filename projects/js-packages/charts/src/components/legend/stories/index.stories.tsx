@@ -245,16 +245,11 @@ export const ProgrammaticVisibility: Story = {
 	render: () => <ProgrammaticVisibilityComponent />,
 };
 
-const CONTROLLED_ITEM_COLORS = [ '#3858e9', '#d63638' ];
 const PREVIOUS_PERIOD_COLOR = '#757575';
 const PREVIOUS_PERIOD_VALUES = [
 	[ 90, 120, 130 ],
 	[ 70, 85, 80 ],
 ];
-const controlledItemData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
-	...series,
-	options: { stroke: CONTROLLED_ITEM_COLORS[ index ] },
-} ) );
 const previousPeriodData: SeriesData[] = lineChartData.map( ( series, index ) => ( {
 	label: `${ series.label } (previous period)`,
 	data: series.data.map( ( point, pointIndex ) => ( {
@@ -270,14 +265,13 @@ const previousPeriodData: SeriesData[] = lineChartData.map( ( series, index ) =>
 const ControlledItemComponent = () => {
 	const [ showPrevious, setShowPrevious ] = useState( false );
 	const togglePrevious = useCallback( () => setShowPrevious( current => ! current ), [] );
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return (
 		<Stack direction="column" gap="md">
 			<LineChart
 				chartId="controlled-item-demo"
-				data={
-					showPrevious ? [ ...controlledItemData, ...previousPeriodData ] : controlledItemData
-				}
+				data={ showPrevious ? [ ...lineChartData, ...previousPeriodData ] : lineChartData }
 				showLegend={ false }
 				width={ 600 }
 				height={ 300 }
@@ -288,9 +282,9 @@ const ControlledItemComponent = () => {
 				interactive
 				shape="line"
 				items={ [
-					...controlledItemData.map( ( series, index ) => ( {
+					...lineChartData.map( ( series, index ) => ( {
 						label: series.label,
-						color: CONTROLLED_ITEM_COLORS[ index ],
+						color: getElementStyles( { index, data: series } ).color,
 					} ) ),
 					{
 						label: 'Previous period',
