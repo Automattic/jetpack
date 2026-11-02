@@ -71,3 +71,11 @@
 		display: flex;
 	}
 }
+
+.jp-forms__export-modal-card-progress {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-block-start: 16px;
+	font-size: 13px;
+}
