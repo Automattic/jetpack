@@ -1,50 +1,77 @@
-import { useCallback, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { Button, Dialog, Stack, Text, TextareaControl } from '@wordpress/ui';
 import { appendIp, getIpList, splitIps } from '../../components/settings/ip-list';
 import { enabledKey } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, ReactElement, ReactNode } from 'react';
 
-type Props = {
+type DialogProps = {
 	data: ProtectSettingsData;
 	/** The setting holding the list; `enabledKey( name )` turns it on or off. */
 	name: string;
-	editLabel: string;
 	dialogTitle: string;
 	currentIp?: string;
+	/** The element that opens the dialog, such as a link-styled button; leave out when `open` is controlled. */
+	trigger?: ReactElement< Record< string, unknown > >;
+	/** Also turn the list on when saving addresses, for entry points without its toggle. */
+	enableOnSave?: boolean;
+	/** Whether the dialog is open, for a dialog opened from outside it. */
+	open?: boolean;
+	onOpenChange?: ( open: boolean ) => void;
+	children?: ReactNode;
 };
 
 /**
- * One of the firewall's IP lists: how many addresses it holds, and a dialog to edit them.
+ * A dialog to edit one of the firewall's IP lists.
  *
- * @param props             - Component props.
- * @param props.data        - The settings and their save function.
- * @param props.name        - The setting holding the list.
- * @param props.editLabel   - The link that opens the dialog.
- * @param props.dialogTitle - The dialog's title.
- * @param props.currentIp   - When set, the dialog offers to add the visitor's own address.
- * @return The link and its dialog.
+ * @param props              - Component props.
+ * @param props.data         - The settings and their save function.
+ * @param props.name         - The setting holding the list.
+ * @param props.dialogTitle  - The dialog's title.
+ * @param props.currentIp    - When set, the dialog offers to add the visitor's own address.
+ * @param props.trigger      - The element that opens the dialog.
+ * @param props.enableOnSave - Whether saving addresses also turns the list on.
+ * @param props.open         - Whether the dialog is open, when controlled.
+ * @param props.onOpenChange - Called when the dialog opens or closes.
+ * @param props.children     - The trigger's content.
+ * @return The dialog and its trigger.
  */
-export default function IpRule( { data, name, editLabel, dialogTitle, currentIp }: Props ) {
+export function IpListDialog( {
+	data,
+	name,
+	dialogTitle,
+	currentIp,
+	trigger,
+	enableOnSave = false,
+	open: controlledOpen,
+	onOpenChange,
+	children,
+}: DialogProps ) {
 	const { save, isSaving } = data;
 	const saved = getIpList( data.settings, name );
-	const [ open, setOpen ] = useState( false );
+	const [ ownOpen, setOwnOpen ] = useState( false );
+	const open = controlledOpen ?? ownOpen;
 	const [ draft, setDraft ] = useState( saved );
 	// `data.error` is shared by every setting, so only show it for a save made from this dialog.
 	const [ saveFailed, setSaveFailed ] = useState( false );
-	const count = splitIps( saved ).length;
 
 	// Start each edit from the saved list. Only on opening: a failed save rolls `saved` back mid-edit.
-	const onOpenChange = useCallback(
+	const savedRef = useRef( saved );
+	savedRef.current = saved;
+	useEffect( () => {
+		if ( open ) {
+			setDraft( savedRef.current );
+			setSaveFailed( false );
+		}
+	}, [ open ] );
+
+	const setOpen = useCallback(
 		( next: boolean ) => {
-			if ( next ) {
-				setDraft( saved );
-				setSaveFailed( false );
-			}
-			setOpen( next );
+			setOwnOpen( next );
+			onOpenChange?.( next );
 		},
-		[ saved ]
+		[ onOpenChange ]
 	);
 
 	const onChange = useCallback(
@@ -55,41 +82,23 @@ export default function IpRule( { data, name, editLabel, dialogTitle, currentIp 
 		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
 		[ currentIp ]
 	);
+	// Saving can be the change itself: turning on a list someone left off.
+	const enable =
+		enableOnSave && splitIps( draft ).length > 0 && ! data.settings?.[ enabledKey( name ) ];
 	const onSave = useCallback( async () => {
-		const isSaved = await save( { [ name ]: draft } );
+		const isSaved = await save( {
+			[ name ]: draft,
+			...( enable ? { [ enabledKey( name ) ]: true } : {} ),
+		} );
 		setSaveFailed( ! isSaved );
 		if ( isSaved ) {
 			setOpen( false );
 		}
-	}, [ save, name, draft ] );
+	}, [ save, name, draft, enable, setOpen ] );
 
 	return (
-		<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
-			<Dialog.Trigger
-				render={
-					<Button
-						variant="unstyled"
-						className="jp-protect-card__link-button jp-protect-ip-rule__trigger"
-					/>
-				}
-			>
-				{ editLabel }
-				<span aria-hidden="true">
-					<Badge intent="informational">{ String( count ) }</Badge>
-				</span>
-				<VisuallyHidden>
-					{ sprintf(
-						/* translators: %d is how many IP addresses are on a list. */
-						_n(
-							'%d address on the list',
-							'%d addresses on the list',
-							count,
-							'jetpack-protect-pkg'
-						),
-						count
-					) }
-				</VisuallyHidden>
-			</Dialog.Trigger>
+		<Dialog.Root open={ open } onOpenChange={ setOpen }>
+			{ trigger && <Dialog.Trigger render={ trigger }>{ children }</Dialog.Trigger> }
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ dialogTitle }</Dialog.Title>
@@ -97,14 +106,6 @@ export default function IpRule( { data, name, editLabel, dialogTitle, currentIp 
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="sm" align="start">
-						{ ! data.settings?.[ enabledKey( name ) ] && (
-							<Text variant="body-sm" className="jp-protect-card__muted">
-								{ __(
-									'This list is turned off, so it has no effect until you turn it on in Settings.',
-									'jetpack-protect-pkg'
-								) }
-							</Text>
-						) }
 						{ saveFailed && data.error && (
 							<Text variant="body-sm" className="jp-protect-card__error" role="alert">
 								{ data.error }
@@ -154,7 +155,11 @@ export default function IpRule( { data, name, editLabel, dialogTitle, currentIp 
 				</Dialog.Content>
 				<Dialog.Footer>
 					<Dialog.Action variant="minimal">{ __( 'Cancel', 'jetpack-protect-pkg' ) }</Dialog.Action>
-					<Button onClick={ onSave } loading={ isSaving( name ) } disabled={ draft === saved }>
+					<Button
+						onClick={ onSave }
+						loading={ isSaving( name ) }
+						disabled={ draft === saved && ! enable }
+					>
 						{ __( 'Save', 'jetpack-protect-pkg' ) }
 					</Button>
 				</Dialog.Footer>

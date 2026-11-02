@@ -9,9 +9,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Protect\Sections\Firewall;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
-use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
-use Automattic\Jetpack\Waf\Waf_Runner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -175,6 +173,7 @@ class Firewall_Section_Test extends BaseTestCase {
 				array(
 					gmdate( 'Y-m-d' ) => 2,
 					gmdate( 'Y-m-d', strtotime( '-3 days' ) ) => 5,
+					gmdate( 'Y-m-d', strtotime( '-30 days' ) ) => 4,
 				)
 			),
 			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => '40',
@@ -192,8 +191,7 @@ class Firewall_Section_Test extends BaseTestCase {
 		$blocks = Firewall::get_blocks();
 
 		remove_filter( 'wordbless_wpdb_query_results', $options, 10 );
-		$this->assertSame( 2, $blocks['blockedToday'], 'today' );
-		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days' );
+		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days, not 31' );
 		$this->assertSame( 40, $blocks['blockedCount'], 'all time' );
 	}
 
@@ -229,104 +227,66 @@ class Firewall_Section_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_request_details_join_the_block_they_were_logged_with() {
-		$blocks  = array(
-			array(
-				'id'        => 3,
-				'timestamp' => '2026-10-09T16:54:03Z',
-				'ruleId'    => -2,
-			),
-			array(
-				'id'        => 2,
-				'timestamp' => '2026-10-09T16:54:03Z',
-				'ruleId'    => -2,
-			),
-			array(
-				'id'        => 1,
-				'timestamp' => '2026-10-09T16:07:51Z',
-				'ruleId'    => -1,
-			),
-		);
-		$entries = array(
-			array(
-				'timestamp'   => '2026-10-09 16:54:03',
-				'rule_id'     => '-2',
-				'request_uri' => '/?first',
-				'user_agent'  => 'curl/8.14.1',
-			),
-			array(
-				'timestamp'   => '2026-10-09 16:54:03',
-				'rule_id'     => -2,
-				'request_uri' => '/?second',
-				'user_agent'  => '',
-			),
-		);
-
-		$result = Firewall::add_request_details( $blocks, $entries );
-
-		$this->assertSame( '/?second', $result[0]['uri'] );
-		$this->assertArrayNotHasKey( 'userAgent', $result[0] );
-		$this->assertSame( '/?first', $result[1]['uri'] );
-		$this->assertSame( 'curl/8.14.1', $result[1]['userAgent'] );
-		$this->assertSame( $blocks[2], $result[2] );
-	}
-
 	/**
-	 * The request log holds visitors' URLs and user agents, which only "Share basic data" opts in to showing.
+	 * The firewall's own tests are blocks too, but only a block of anything else counts as having blocked a request.
 	 *
-	 * @dataProvider provide_share_data
+	 * @dataProvider provide_blocklog_tables
 	 *
-	 * @param bool $shares_data Whether "Share basic data" is on.
+	 * @param object|null $row          The block log summary row.
+	 * @param int         $all_time     All-time blocked requests, tests included.
+	 * @param bool        $recorded     Whether the firewall recorded a block that wasn't a test.
+	 * @param bool        $has_blocked  The expected `hasBlocked`.
+	 * @param string|null $last_test_at The expected `lastTestAt`.
 	 */
-	#[DataProvider( 'provide_share_data' )]
-	public function test_blocks_carry_request_details_only_when_sharing_is_on( $shares_data ) {
-		update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, $shares_data );
-		Waf_Constants::define_waf_directory();
-		$log = Waf_Blocklog_Manager::get_blocklog_file_path();
-		if ( ! is_dir( dirname( $log ) ) ) {
-			mkdir( dirname( $log ), 0755, true );
-		}
-		$entry = array(
-			'timestamp'   => '2026-10-09 16:54:03',
-			'rule_id'     => -2,
-			'request_uri' => '/?probe',
-			'user_agent'  => 'curl/8.14.1',
+	#[DataProvider( 'provide_blocklog_tables' )]
+	public function test_tests_alone_dont_count_as_blocked_requests( $row, $all_time, $recorded, $has_blocked, $last_test_at ) {
+		$stored = array(
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => (string) $all_time,
 		);
-		file_put_contents( $log, wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) . "\n" );
-		$blocklog = static function ( $rows, $query ) {
-			if ( false === strpos( $query, 'jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 10' ) ) {
-				return $rows;
+		if ( $recorded ) {
+			$stored[ Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_HAS_BLOCKED ] = '1';
+		}
+		$tables = static function ( $rows, $query ) use ( $row, $stored ) {
+			if ( false !== strpos( $query, 'AS last_test FROM' ) ) {
+				return $row ? array( $row ) : array();
 			}
-			return array(
-				(object) array(
-					'log_id'    => '1',
-					'timestamp' => '2026-10-09 16:54:03',
-					'rule_id'   => '-2',
-					'reason'    => 'firewall test',
-				),
-			);
+			foreach ( $stored as $name => $value ) {
+				if ( false !== strpos( $query, "option_name = '$name'" ) ) {
+					return array( (object) array( 'option_value' => $value ) );
+				}
+			}
+			return $rows;
 		};
-		add_filter( 'wordbless_wpdb_query_results', $blocklog, 10, 2 );
+		add_filter( 'wordbless_wpdb_query_results', $tables, 10, 2 );
 
-		$blocks = Firewall::get_blocks()['recentBlocks'];
+		$blocks = Firewall::get_blocks();
 
-		remove_filter( 'wordbless_wpdb_query_results', $blocklog, 10 );
-		unlink( $log );
-		delete_option( Waf_Runner::SHARE_DATA_OPTION_NAME );
-		$this->assertCount( 1, $blocks );
-		$this->assertSame( $shares_data, isset( $blocks[0]['uri'] ), 'uri' );
-		$this->assertSame( $shares_data, isset( $blocks[0]['userAgent'] ), 'userAgent' );
+		remove_filter( 'wordbless_wpdb_query_results', $tables, 10 );
+		$this->assertSame( $has_blocked, $blocks['hasBlocked'], 'hasBlocked' );
+		$this->assertSame( $last_test_at, $blocks['lastTestAt'], 'lastTestAt' );
 	}
 
 	/**
-	 * Data provider for test_blocks_carry_request_details_only_when_sharing_is_on.
+	 * Data provider for test_tests_alone_dont_count_as_blocked_requests.
 	 *
 	 * @return array
 	 */
-	public static function provide_share_data() {
+	public static function provide_blocklog_tables() {
+		$row = static function ( $total, $tests, $last_test ) {
+			return (object) array(
+				'total'     => (string) $total,
+				'tests'     => (string) $tests,
+				'last_test' => $last_test,
+			);
+		};
+
 		return array(
-			'sharing off' => array( false ),
-			'sharing on'  => array( true ),
+			'only tests, past the last 10'           => array( $row( 12, 12, '2026-10-09 16:54:03' ), 12, false, false, '2026-10-09T16:54:03Z' ),
+			'a real block among tests'               => array( $row( 12, 11, '2026-10-09 16:54:03' ), 12, false, true, '2026-10-09T16:54:03Z' ),
+			'only tests, past the 100 the log keeps' => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, false, false, '2026-10-09T16:54:03Z' ),
+			'a recorded real block pruned away'      => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, true, true, '2026-10-09T16:54:03Z' ),
+			'never tested'                           => array( $row( 3, 0, null ), 3, false, true, null ),
+			'no table yet'                           => array( null, 0, false, false, null ),
 		);
 	}
 }

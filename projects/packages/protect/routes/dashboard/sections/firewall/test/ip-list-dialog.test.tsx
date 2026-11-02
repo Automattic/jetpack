@@ -1,37 +1,36 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { Button } from '@wordpress/ui';
 import useProtectSettings from '../../../data/use-protect-settings';
-import IpRule from '../ip-rule';
+import { IpListDialog } from '../ip-list-dialog';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
-const Rule = ( { error, enabled = true }: { error?: string; enabled?: boolean } ) => {
+const Rule = ( { error }: { error?: string } ) => {
 	const settings = useProtectSettings();
 	return (
-		<IpRule
+		<IpListDialog
 			data={ {
 				...settings,
 				error: error ?? settings.error,
-				settings: {
-					jetpack_waf_ip_block_list: '203.0.113.7',
-					jetpack_waf_ip_block_list_enabled: enabled,
-					...settings.settings,
-				},
+				settings: { jetpack_waf_ip_block_list: '203.0.113.7', ...settings.settings },
 			} }
 			name="jetpack_waf_ip_block_list"
-			editLabel="Edit block list"
 			dialogTitle="Blocked IP addresses"
-		/>
+			trigger={ <Button /> }
+		>
+			Edit block list
+		</IpListDialog>
 	);
 };
 
-describe( 'IpRule', () => {
+describe( 'IpListDialog', () => {
 	it( 'keeps the edited list in the dialog when the save fails', async () => {
 		( apiFetch as unknown as jest.Mock ).mockRejectedValue( { message: 'Nope' } );
 		render( <Rule /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: /^Edit block list/ } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Edit block list' } ) );
 		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
 		const field = within( dialog ).getByRole( 'textbox', { name: 'IP addresses' } );
 		await userEvent.clear( field );
@@ -45,26 +44,9 @@ describe( 'IpRule', () => {
 	it( 'leaves another setting’s error out of the dialog', async () => {
 		render( <Rule error="Your settings couldn’t be loaded." /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: /^Edit block list/ } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Edit block list' } ) );
 		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
 
 		expect( within( dialog ).queryByRole( 'alert' ) ).not.toBeInTheDocument();
-		expect( dialog ).not.toHaveTextContent( /turned off/ );
-	} );
-
-	it( 'names a list of one in the singular', () => {
-		render( <Rule /> );
-
-		expect(
-			screen.getByRole( 'button', { name: 'Edit block list 1 address on the list' } )
-		).toBeInTheDocument();
-	} );
-
-	it( 'says so when the list being edited is turned off', async () => {
-		render( <Rule enabled={ false } /> );
-
-		await userEvent.click( screen.getByRole( 'button', { name: /^Edit block list/ } ) );
-
-		await expect( screen.findByText( /This list is turned off/ ) ).resolves.toBeInTheDocument();
 	} );
 } );
