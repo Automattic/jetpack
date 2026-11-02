@@ -145,7 +145,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	public function test_widget_type_constants_match_their_widget_json( $widget_dir, $type ) {
 		$manifest = json_decode( (string) file_get_contents( __DIR__ . '/../../widgets/' . $widget_dir . '/widget.json' ), true );
 
-		$this->assertSame( $manifest['name'], $type );
+		$name = is_array( $manifest ) ? ( $manifest['name'] ?? null ) : null;
+
+		$this->assertSame( $name, $type );
 	}
 
 	/**
