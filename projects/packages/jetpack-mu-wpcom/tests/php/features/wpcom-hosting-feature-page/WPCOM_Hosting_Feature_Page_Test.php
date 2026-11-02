@@ -307,7 +307,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * On WoA, Protect's entry hides only while the page offers to turn a disabled dashboard back on.
+	 * On WoA, Protect's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
 	 *
 	 * @param bool $has_plan Whether the plan includes Scan.
 	 * @param bool $hidden   Whether the entry is hidden.
@@ -328,6 +328,13 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
 		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+
+		// Run directly rather than through admin_head, which would fire other features' callbacks in this suite.
+		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( WPCOM_Scan::class, 'remove_menu_entry' ) ) );
+		if ( $hidden ) {
+			WPCOM_Scan::remove_menu_entry();
+			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		}
 	}
 
 	/**

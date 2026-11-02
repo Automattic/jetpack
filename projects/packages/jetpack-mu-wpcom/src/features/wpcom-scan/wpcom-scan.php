@@ -137,7 +137,7 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	/**
 	 * Register the page, keeping its entry out of the sidebar while it only offers to turn the dashboard back on.
 	 *
-	 * Turning the module off hides the dashboard on purpose; hidden with a class, which Calypso's sidebar honors, so links still land.
+	 * Turning the module off hides the dashboard on purpose, so the entry goes as on self-hosted while links still land.
 	 *
 	 * @return void
 	 */
@@ -150,12 +150,27 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 			return;
 		}
 
+		// For Calypso's sidebar, whose REST request never reaches admin_head.
 		foreach ( $submenu[ self::PARENT_SLUG ] ?? array() as $i => $item ) {
 			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$submenu[ self::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
 			}
 		}
+
+		add_action( 'admin_head', array( self::class, 'remove_menu_entry' ) );
+	}
+
+	/**
+	 * Take the entry out of wp-admin's sidebar, after core's access check and page title have read it.
+	 *
+	 * Removed rather than left hidden: My Jetpack refreshes the sidebar by link, so a hidden entry sharing the
+	 * dashboard's link would keep whichever state was on screen when the module is switched.
+	 *
+	 * @return void
+	 */
+	public static function remove_menu_entry() {
+		remove_submenu_page( self::PARENT_SLUG, self::MENU_SLUG );
 	}
 
 	/**
