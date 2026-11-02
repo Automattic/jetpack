@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix the class attribute on field wrappers that use the inset label layout.
