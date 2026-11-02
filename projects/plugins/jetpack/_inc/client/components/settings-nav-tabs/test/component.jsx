@@ -87,4 +87,20 @@ describe( 'SettingsNavTabs', () => {
 
 		expect( screen.queryAllByRole( 'tab', { name: 'Performance' } ) ).toHaveLength( tabs );
 	} );
+
+	it.each( [
+		[ 'shows', 'while the settings flag is off', false, 1 ],
+		[ 'hides', 'once the flag is on', true, 0 ],
+	] )( '%s a Sharing tab only Social would fill %s', ( _verb, _when, flag, tabs ) => {
+		window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+
+		render(
+			<MemoryRouter initialEntries={ [ '/traffic' ] }>
+				<SettingsNavTabs />
+			</MemoryRouter>,
+			{ initialState: buildInitialState( true, { publicize: { activated: true } } ) }
+		);
+
+		expect( screen.queryAllByRole( 'tab', { name: 'Sharing' } ) ).toHaveLength( tabs );
+	} );
 } );

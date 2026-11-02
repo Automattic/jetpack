@@ -118,7 +118,14 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/writing' );
 		}
-		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
+		// Once settings move out, admins find Social in Features, so it no longer fills this tab.
+		if (
+			hasModules(
+				isSettingsConsolidationEnabled()
+					? [ 'sharedaddy', 'likes' ]
+					: [ 'publicize', 'sharedaddy', 'likes' ]
+			)
+		) {
 			visibleTabs.push( '/sharing' );
 		}
 		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
