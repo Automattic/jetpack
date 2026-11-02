@@ -129,7 +129,7 @@ export const CompactWhenShort: Story = {
 		docs: {
 			description: {
 				story:
-					'Below `theme.sparkline.compactBelow` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+					'Below `theme.compactWhenShort.below` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
 			},
 		},
 	},

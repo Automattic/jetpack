@@ -115,7 +115,7 @@ describe( 'compactWhenShort', () => {
 		renderChart(
 			LineChartUnresponsive as unknown as CompactChart,
 			{ height: 160, compactWhenShort: true },
-			{ sparkline: { compactBelow: 200 } }
+			{ compactWhenShort: { below: 200 } }
 		);
 
 		expect( chrome() ).toEqual( COMPACT );
@@ -133,7 +133,7 @@ describe( 'compactWhenShort', () => {
 
 	describe.each( CHARTS.slice( 0, 2 ) )( '%s margin', ( _name, Chart ) => {
 		it.each( [
-			[ 'defaults to the sparkline margin', undefined, 2 ],
+			[ 'defaults to the compact margin', undefined, 2 ],
 			[ 'keeps a side the caller set', { left: 40 }, 40 ],
 		] )( '%s', ( _label, margin, left ) => {
 			const ref = createRef< ChartInstanceRef >();
@@ -159,8 +159,8 @@ describe( 'compactWhenShort', () => {
 			return x;
 		};
 
-		it( 'defaults to the sparkline margin', () => {
-			expect( leftmostBarX() ).toBe( leftmostBarX( defaultTheme.sparkline.margin ) );
+		it( 'defaults to the compact margin', () => {
+			expect( leftmostBarX() ).toBe( leftmostBarX( defaultTheme.compactWhenShort.margin ) );
 		} );
 
 		it( 'keeps a side the caller set', () => {
