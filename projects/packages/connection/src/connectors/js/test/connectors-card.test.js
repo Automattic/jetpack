@@ -44,6 +44,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 configure( { defaultIgnore: 'script, style, .a11y-speak-region' } );
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
+const AUTH_URL = 'https://wordpress.com/jetpack/connect';
 
 const owner = { id: 1, displayName: 'Olivia Owner' };
 const ownerUser = {
@@ -95,7 +96,7 @@ const brokenOwner = {
  * @param {object} options.data        - The card's script module data.
  * @param {string} options.search      - The page's query string.
  * @param {object} options.errorNotice - What useConnectionErrorNotice() returns.
- * @return {object} A user-event instance and this load's mocked connection package.
+ * @return {object} A user-event instance, this load's mocked connection package and its decorateAuthUrl spy.
  */
 function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNotice } = {} ) {
 	window.JP_CONNECTION_INITIAL_STATE = state;
@@ -109,6 +110,10 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	// The card reads its data on import, so load it fresh, sharing React with Testing Library.
 	jest.resetModules();
 	jest.doMock( 'react', () => React );
+	jest.doMock( '../card-state.mjs', () => {
+		const actual = jest.requireActual( '../card-state.mjs' );
+		return { ...actual, decorateAuthUrl: jest.fn( actual.decorateAuthUrl ) };
+	} );
 	const connection = require( '@automattic/jetpack-connection' );
 	if ( errorNotice ) {
 		connection.useConnectionErrorNotice.mockReturnValue( errorNotice );
@@ -118,7 +123,8 @@ function renderCard( { state = connectedAsOwner, data = {}, search = '', errorNo
 	const { render: Card, ...props } = registerConnector.mock.calls[ 0 ][ 1 ];
 
 	render( React.createElement( Card, props ) );
-	return { user: userEvent.setup(), connection };
+	const { decorateAuthUrl } = require( '../card-state.mjs' );
+	return { user: userEvent.setup(), connection, decorateAuthUrl };
 }
 
 /**
@@ -329,12 +335,12 @@ describe( 'Connectors card', () => {
 				'jetpack/v4/connection/authorize_url',
 			],
 		] )( '%s, then redirects', async ( _, state, button, endpoint ) => {
-			const { user } = renderCard( {
+			const { user, decorateAuthUrl } = renderCard( {
 				state,
 				data: { apiRoot: '/wp-json/' },
 				search: '?connector=wordpress_com',
 			} );
-			respondWith( { authorizeUrl: 'https://wordpress.com/jetpack/connect' } );
+			respondWith( { authorizeUrl: AUTH_URL } );
 
 			await user.click( screen.getByRole( 'button', { name: button } ) );
 
@@ -343,6 +349,7 @@ describe( 'Connectors card', () => {
 				expect.any( Object )
 			);
 			await expectNavigation();
+			expect( decorateAuthUrl ).toHaveBeenCalledWith( AUTH_URL );
 		} );
 
 		it( 'shows why registration failed and lets the admin retry', async () => {
@@ -449,11 +456,11 @@ describe( 'Connectors card', () => {
 		} );
 
 		it.each( [
-			[ 'a bare URL', 'https://wordpress.com/jetpack/connect' ],
-			[ 'an authorizeUrl', { authorizeUrl: 'https://wordpress.com/jetpack/connect' } ],
-			[ 'a url', { url: 'https://wordpress.com/jetpack/connect' } ],
+			[ 'a bare URL', AUTH_URL ],
+			[ 'an authorizeUrl', { authorizeUrl: AUTH_URL } ],
+			[ 'a url', { url: AUTH_URL } ],
 		] )( 'starts a fresh connection from %s', async ( _, response ) => {
-			const { user } = renderCard( {
+			const { user, decorateAuthUrl } = renderCard( {
 				state: safeMode,
 				data: { apiRoot: '/wp-json/', redirectUri: 'options-connectors.php' },
 			} );
@@ -470,6 +477,7 @@ describe( 'Connectors card', () => {
 				} )
 			);
 			await expectNavigation();
+			expect( decorateAuthUrl ).toHaveBeenCalledWith( AUTH_URL );
 		} );
 
 		it( 'shows an error when a fresh connection returns no URL', async () => {
