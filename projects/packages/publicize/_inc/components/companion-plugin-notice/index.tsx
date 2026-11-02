@@ -101,7 +101,6 @@ export function CompanionPluginNotice( {
 	);
 
 	useEffect( () => {
-		// Counted once per page and place, so reopening a connection's panel is not a new view.
 		if ( isVisible && markViewed( `${ eventProps.plugin }:${ context }` ) ) {
 			recordEvent( 'jetpack_social_companion_plugin_notice_view', eventProps );
 		}

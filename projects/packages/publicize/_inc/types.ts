@@ -62,10 +62,7 @@ export type CompanionPlugin = {
 	/** Core's REST plugin ID, e.g. `atmosphere/atmosphere`. */
 	plugin: string;
 	service: ConnectionService[ 'id' ];
-	/**
-	 * `install` and `activate` go through core's plugins API, `enable` turns ActivityPub on for a
-	 * WordPress.com Simple site, and `marketplace` sends the user to install it from WordPress.com.
-	 */
+	/** How the notice turns the plugin on; see `Companion_Plugins::get_script_data()`. */
 	action: 'install' | 'activate' | 'enable' | 'marketplace';
 	/** The WordPress.com plugin page, for the `marketplace` action. */
 	install_url: string;
