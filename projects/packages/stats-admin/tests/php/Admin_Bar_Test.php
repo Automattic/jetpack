@@ -47,7 +47,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_die_handler' );
 		remove_all_filters( 'jetpack_stats_url' );
-		remove_all_filters( 'jetpack_stats_admin_bar_seven_day_chart' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG );
 		wp_deregister_script( Admin_Bar::SCRIPT_HANDLE );
 		wp_deregister_style( Admin_Bar::SCRIPT_HANDLE );
 		delete_option( 'timezone_string' );
@@ -143,7 +143,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 	public function test_seven_day_chart_replaces_the_image_and_keeps_the_text_label() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		add_filter( 'jetpack_stats_admin_bar_seven_day_chart', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
 
 		$node = $this->render_chart_node();
 
@@ -154,7 +154,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 	public function test_seven_day_panel_links_to_the_last_seven_days_in_the_site_timezone() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		add_filter( 'jetpack_stats_admin_bar_seven_day_chart', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
 		// UTC+14, so the site's today differs from UTC's for most of the day.
 		update_option( 'timezone_string', 'Pacific/Kiritimati' );
 		$traffic = null;
@@ -191,7 +191,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 	public function test_seven_day_chart_enqueues_its_script_with_the_visits_endpoint_instead_of_the_image_styles() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		add_filter( 'jetpack_stats_admin_bar_seven_day_chart', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
 
 		$styles = $this->admin_bar_inline_styles();
 

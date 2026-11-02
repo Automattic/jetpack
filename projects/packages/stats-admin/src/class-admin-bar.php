@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 
@@ -39,11 +40,27 @@ class Admin_Bar {
 	const SCRIPT_HANDLE = 'jetpack-stats-admin-bar';
 
 	/**
+	 * The feature flag that swaps the 48-hour image for the 7-day chart.
+	 *
+	 * @var string
+	 */
+	const SEVEN_DAY_CHART_FLAG = 'jetpack-stats-admin-bar-seven-day-chart';
+
+	/**
 	 * Register the hooks.
 	 *
 	 * @return void
 	 */
 	public static function init() {
+		Feature_Flags::register(
+			self::SEVEN_DAY_CHART_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show a 7-day views chart in the admin bar, with views and visitors on hover, instead of the 48-hour image.',
+				'owner'       => 'jetpack-stats',
+			)
+		);
+
 		add_action( 'admin_bar_menu', array( __CLASS__, 'maybe_add_chart_node' ), 100 );
 		add_action( 'admin_bar_init', array( __CLASS__, 'maybe_add_chart' ) );
 		add_action( 'wp_before_admin_bar_render', array( __CLASS__, 'add_site_menu_link' ) );
@@ -67,14 +84,7 @@ class Admin_Bar {
 	 * @return bool
 	 */
 	private static function use_seven_day_chart() {
-		/**
-		 * Filters whether the admin bar shows the 7-day views chart, with views and visitors on hover.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether to show the 7-day chart. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_stats_admin_bar_seven_day_chart', false );
+		return Feature_Flags::is_enabled( self::SEVEN_DAY_CHART_FLAG );
 	}
 
 	/**

@@ -8,6 +8,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-status": "@dev",
