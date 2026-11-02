@@ -240,12 +240,12 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByTitle( 'example.com' ).parentElement ).toHaveClass( 'chevronReserve' );
 	} );
 
-	it( 'rejects a trailing action on a row that opens a detail page', () => {
-		// @ts-expect-error -- A title that opens a detail page has no room for another action.
+	it( 'rejects a trailing action on a row that links out as a whole', () => {
+		// @ts-expect-error -- A row that is one outbound link has no room for another action.
 		const row = buildLeaderboardRow( {
-			label: 'Hello world',
+			label: 'example.com',
 			media: { kind: 'none' },
-			action: { kind: 'postLink', id: 41, href: 'https://example.com/hello/', search: {} },
+			action: { kind: 'link', href: 'https://example.com/' },
 			trailingAction: <button>Flag</button>,
 		} );
 
@@ -372,37 +372,36 @@ describe( 'buildLeaderboardRow', () => {
 		],
 		[ 'without a live URL', { id: 5, href: null }, [ 'Hello' ] ],
 		[ 'without a detail route', { href: 'https://example.com/hello/' }, [ 'Hello' ] ],
-	] )( 'renders the extra action after the title %s', async ( _name, target, expectedLinks ) => {
-		const onExtraClick = jest.fn();
-		render(
-			buildLeaderboardRow( {
-				label: 'Hello',
-				media: { kind: 'none' },
-				action: {
-					kind: 'postLink',
-					...target,
-					search: {},
-					extraAction: (
+	] )(
+		'renders a trailing action after the post title %s',
+		async ( _name, target, expectedLinks ) => {
+			const onExtraClick = jest.fn();
+			render(
+				buildLeaderboardRow( {
+					label: 'Hello',
+					media: { kind: 'none' },
+					action: { kind: 'postLink', ...target, search: {} },
+					trailingAction: (
 						<button type="button" onClick={ onExtraClick }>
 							Extra
 						</button>
 					),
-				},
-			} ).label
-		);
+				} ).label
+			);
 
-		expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveClass( 'titleLink' );
-		const links = screen.getAllByRole( 'link' );
-		expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
-			expectedLinks
-		);
-		expect(
-			links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
-		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+			expect( screen.getByRole( 'link', { name: /^Hello/ } ) ).toHaveClass( 'titleLink' );
+			const links = screen.getAllByRole( 'link' );
+			expect( links.map( link => link.getAttribute( 'aria-label' ) ?? link.textContent ) ).toEqual(
+				expectedLinks
+			);
+			expect(
+				links.at( -1 )?.compareDocumentPosition( screen.getByRole( 'button', { name: 'Extra' } ) )
+			).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Extra' } ) );
-		expect( onExtraClick ).toHaveBeenCalledTimes( 1 );
-	} );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Extra' } ) );
+			expect( onExtraClick ).toHaveBeenCalledTimes( 1 );
+		}
+	);
 
 	it( 'links the title out, with no "View" action, when the reader cannot open post details', () => {
 		Object.defineProperty( window, 'JetpackScriptData', {

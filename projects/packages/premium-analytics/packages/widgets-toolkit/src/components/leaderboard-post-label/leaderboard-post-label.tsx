@@ -34,9 +34,9 @@ export type LeaderboardPostLabelProps = {
 	section?: string;
 
 	/**
-	 * A trailing row action, forwarded to the row's `postLink` action.
+	 * A row action after the title, forwarded to the row.
 	 */
-	extraAction?: ReactElement;
+	trailingAction?: ReactElement;
 };
 
 /**
@@ -48,7 +48,7 @@ export function LeaderboardPostLabel( {
 	link,
 	origin,
 	section,
-	extraAction,
+	trailingAction,
 }: LeaderboardPostLabelProps ): ReactElement {
 	const search = useWidgetNavigationSearch( { origin, section } );
 
@@ -56,7 +56,8 @@ export function LeaderboardPostLabel( {
 		<LeaderboardRow
 			label={ label }
 			media={ { kind: 'none' } }
-			action={ { kind: 'postLink', id, href: link, search, extraAction } }
+			action={ { kind: 'postLink', id, href: link, search } }
+			trailingAction={ trailingAction }
 		/>
 	);
 }

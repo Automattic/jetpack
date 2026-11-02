@@ -133,7 +133,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 										report: 'utm',
 										section: reportSection,
 									} }
-									extraAction={
+									trailingAction={
 										postRow.urlBuilder ? (
 											<PostBuilderButton
 												label={ postRow.label }
