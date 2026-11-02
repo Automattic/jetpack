@@ -152,6 +152,31 @@ export function useSpeedScores(
 		return cancelPending;
 	}, [ online, enabled, refresh, cancelPending ] );
 
+	// Keep collecting the comparison run quietly; the scores are already on screen.
+	const { status, scores } = state;
+	useEffect( () => {
+		if ( status !== 'loaded' || ! scores.noBoostPending || ! online || ! enabled ) {
+			return;
+		}
+		const id = requestId.current;
+		const timer = window.setTimeout( async () => {
+			try {
+				const next = await requestSpeedScores(
+					false,
+					wpApiSettings.root,
+					url,
+					wpApiSettings.nonce
+				);
+				if ( id === requestId.current && next ) {
+					setState( previous => ( { ...previous, scores: next } ) );
+				}
+			} catch {
+				// The badge keeps the previous comparison; the next test measures it again.
+			}
+		}, 5000 );
+		return () => window.clearTimeout( timer );
+	}, [ status, scores, online, enabled, url ] );
+
 	const config = refreshState?.config;
 	const isPending = refreshState?.isPending;
 	useEffect( () => {
