@@ -112,13 +112,12 @@ function positionalCompletions( yargs, perCommand, current, argv ) {
 /**
  * Create the hook for `yargs.completion()` that completes positionals.
  *
- * yargs only completes static `choices`. This adds the positionals in `byName` for every command,
- * plus whatever a command exports as `completions`: a map of positional name to a function that
- * takes the word being completed and returns candidates. Completers must be synchronous: until
- * the hook prints, yargs keeps going and would validate, or even run, the half-typed command.
+ * Adds `byName` to every command, plus each command's own `completions`. Completers must be
+ * synchronous: until the hook prints, yargs may run the half-typed command.
  *
  * @param {object} yargs      - The yargs instance the commands are registered on.
- * @param {object} perCommand - Map of command path (`'changelog add'`) to that command's `completions`.
+ * @param {object} perCommand - Command path (`'changelog add'`) to its `completions`: positional
+ *                            name to `current => string[]`.
  * @return {Function} The hook, in yargs' "fallback" form.
  */
 export function completionHook( yargs, perCommand ) {
