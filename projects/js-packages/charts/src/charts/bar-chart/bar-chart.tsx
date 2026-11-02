@@ -700,6 +700,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					'bar-chart',
 					styles[ 'bar-chart' ],
 					{
+						[ styles[ 'bar-chart--stacked' ] ]: isStacked,
 						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
 					},

@@ -50,4 +50,25 @@
 			transform: scaleX(1);
 		}
 	}
+
+	// A stack rises as one bar; segments scaling alone would split it apart.
+	&--stacked :global(.visx-bar-group) rect {
+		animation: none;
+	}
+
+	&--stacked#{&}--animated :global(.visx-bar-group) {
+		transform-origin: bottom;
+		transform-box: fill-box;
+		animation:
+			rise var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
+
+	&--stacked#{&}--animated-horizontal :global(.visx-bar-group) {
+		transform-origin: left;
+		transform-box: fill-box;
+		animation:
+			stretch var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
 }
