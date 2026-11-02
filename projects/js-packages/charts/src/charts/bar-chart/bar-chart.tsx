@@ -27,11 +27,7 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import {
-	getTickDecimals,
-	hasOnlyWholeNumbers,
-	WholeNumberTicks,
-} from '../private/whole-number-ticks';
+import { getTickDecimals, hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
@@ -219,7 +215,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
 	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
 	const valueTickDecimals = getTickDecimals( hasWholeNumberValues, chartOptions.valueTickDecimals );
-	const wholeNumberTicksProps = {
+	const tickDecimalsProps = {
 		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
 		numTicks: valueAxis.numTicks,
 		enabled: valueTickDecimals !== undefined && ! valueAxis.tickValues && ! callerValueDomain,
@@ -676,7 +672,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ ! allSeriesHidden && (
-											<WholeNumberTicks { ...wholeNumberTicksProps }>
+											<TickDecimals { ...tickDecimalsProps }>
 												{ valueTicks => (
 													<>
 														{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
@@ -702,7 +698,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 														/>
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 										) }
 
 										{ withPatterns && (
@@ -774,7 +770,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										     visx collapses the domain and the axes render squished at the top. Drop them
 										     while the empty state stands in. */ }
 										{ ! allSeriesHidden && (
-											<WholeNumberTicks { ...wholeNumberTicksProps }>
+											<TickDecimals { ...tickDecimalsProps }>
 												{ valueTicks => (
 													<>
 														{ chartOptions.axis.x.display !== false && (
@@ -795,7 +791,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 										) }
 
 										{ withTooltips && selectedMembers && (

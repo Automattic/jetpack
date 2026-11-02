@@ -36,9 +36,9 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -463,7 +463,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											{ /* With every series hidden the value scale collapses, so the grid and axes
 											     are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											<WholeNumberTicks
+											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
 												enabled={
@@ -492,7 +492,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

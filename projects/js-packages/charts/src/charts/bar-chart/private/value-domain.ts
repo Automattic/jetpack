@@ -1,4 +1,4 @@
-import { getTickDecimalsDomain } from '../../private/whole-number-ticks';
+import { getTickDecimalsDomain } from '../../private/tick-decimals';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 

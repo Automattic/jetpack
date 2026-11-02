@@ -1,9 +1,5 @@
 import { createScale } from '@visx/scale';
-import {
-	getTickDecimalsDomain,
-	getWholeNumberTickValues,
-	hasOnlyWholeNumbers,
-} from '../whole-number-ticks';
+import { getTickDecimalsDomain, getTickDecimalValues, hasOnlyWholeNumbers } from '../tick-decimals';
 import type { SeriesData } from '../../../types';
 
 const linear = ( domain: [ number, number ] ) =>
@@ -14,14 +10,14 @@ const series = ( ...values: Array< number | null > ): SeriesData => ( {
 	data: values.map( ( value, i ) => ( { date: new Date( 2024, i, 1 ), value } ) ),
 } );
 
-describe( 'getWholeNumberTickValues', () => {
+describe( 'getTickDecimalValues', () => {
 	it( 'keeps only the whole ticks of a range smaller than the tick count', () => {
-		expect( getWholeNumberTickValues( linear( [ 0, 1 ] ), 4 ) ).toEqual( [ 0, 1 ] );
-		expect( getWholeNumberTickValues( linear( [ 0, 2 ] ), 4 ) ).toEqual( [ 0, 1, 2 ] );
+		expect( getTickDecimalValues( linear( [ 0, 1 ] ), 4 ) ).toEqual( [ 0, 1 ] );
+		expect( getTickDecimalValues( linear( [ 0, 2 ] ), 4 ) ).toEqual( [ 0, 1, 2 ] );
 	} );
 
 	it( 'leaves a scale whose ticks are already whole to visx', () => {
-		expect( getWholeNumberTickValues( linear( [ 0, 1000 ] ), 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( linear( [ 0, 1000 ] ), 4 ) ).toBeUndefined();
 	} );
 
 	it( 'leaves non-numeric scales to visx', () => {
@@ -31,21 +27,21 @@ describe( 'getWholeNumberTickValues', () => {
 			domain: [ new Date( 2024, 0, 1 ), new Date( 2024, 0, 2 ) ],
 			range: [ 0, 100 ],
 		} );
-		expect( getWholeNumberTickValues( band, 4 ) ).toBeUndefined();
-		expect( getWholeNumberTickValues( time, 4 ) ).toBeUndefined();
-		expect( getWholeNumberTickValues( undefined, 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( band, 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( time, 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( undefined, 4 ) ).toBeUndefined();
 	} );
 
 	it( 'leaves a range with no whole tick to visx', () => {
-		expect( getWholeNumberTickValues( linear( [ 0.2, 0.8 ] ), 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( linear( [ 0.2, 0.8 ] ), 4 ) ).toBeUndefined();
 	} );
 
 	it( 'leaves a range with only one whole tick to visx', () => {
-		expect( getWholeNumberTickValues( linear( [ 0, 0.8 ] ), 4 ) ).toBeUndefined();
+		expect( getTickDecimalValues( linear( [ 0, 0.8 ] ), 4 ) ).toBeUndefined();
 	} );
 
 	it( 'keeps ticks at the given decimal places, through float error such as 0.07 * 100', () => {
-		expect( getWholeNumberTickValues( linear( [ 0, 0.07 ] ), 10, 2 ) ).toEqual( [
+		expect( getTickDecimalValues( linear( [ 0, 0.07 ] ), 10, 2 ) ).toEqual( [
 			0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
 		] );
 	} );

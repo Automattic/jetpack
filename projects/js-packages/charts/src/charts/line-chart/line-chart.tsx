@@ -41,14 +41,14 @@ import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { formatReading, isInvalidReading, isReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType } from '../private/time-axis';
-import { buildTimeAxisOptions } from '../private/time-axis-options';
 import {
 	getTickDecimals,
 	getTickDecimalsDomain,
 	hasOnlyWholeNumbers,
-	WholeNumberTicks,
-} from '../private/whole-number-ticks';
+	TickDecimals,
+} from '../private/tick-decimals';
+import { getCurveType } from '../private/time-axis';
+import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -679,7 +679,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											<WholeNumberTicks
+											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
 												enabled={
@@ -709,7 +709,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

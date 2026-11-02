@@ -48,7 +48,7 @@ const isOnDecimals = ( value: number, decimals: number ): boolean => {
  * @param decimals - Decimal places a tick may carry; 0 keeps whole numbers.
  * @return The kept ticks, or undefined when visx's own ticks need no change.
  */
-export const getWholeNumberTickValues = (
+export const getTickDecimalValues = (
 	scale: unknown,
 	count?: number,
 	decimals = 0
@@ -101,7 +101,7 @@ export const getTickDecimals = (
 	return isValidDecimals( tickDecimals ) ? tickDecimals : undefined;
 };
 
-type WholeNumberTicksProps = {
+type TickDecimalsProps = {
 	axis: 'x' | 'y';
 	numTicks?: number;
 	enabled: boolean;
@@ -120,16 +120,16 @@ type WholeNumberTicksProps = {
  * @param props.children - Renders the axis and grid with the tick values.
  * @return The rendered children.
  */
-export const WholeNumberTicks = ( {
+export const TickDecimals = ( {
 	axis,
 	numTicks,
 	enabled,
 	decimals = 0,
 	children,
-}: WholeNumberTicksProps ) => {
+}: TickDecimalsProps ) => {
 	const { xScale, yScale } = useContext( DataContext );
 	const tickValues = enabled
-		? getWholeNumberTickValues( axis === 'x' ? xScale : yScale, numTicks, decimals )
+		? getTickDecimalValues( axis === 'x' ? xScale : yScale, numTicks, decimals )
 		: undefined;
 	return <>{ children( tickValues ) }</>;
 };
