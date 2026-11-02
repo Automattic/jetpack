@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Label the Social Image Generator token request body as JSON.
+
