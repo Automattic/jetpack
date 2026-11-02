@@ -12,6 +12,7 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_default_dashboard_sections;
@@ -130,6 +131,33 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack-videopress/widgets/video-player/render', $player->render_module );
 		$this->assertSame( 'full-bleed', $player->presentation );
 		$this->assertSame( 'videos', $player->plan_feature );
+	}
+
+	/**
+	 * A widget type constant matches the `name` its `widget.json` builds, which the fixture manifest would not catch.
+	 *
+	 * @dataProvider get_widget_type_constants
+	 *
+	 * @param string $widget_dir Directory of the widget under `widgets/`.
+	 * @param string $type       The class constant naming its type.
+	 */
+	#[DataProvider( 'get_widget_type_constants' )]
+	public function test_widget_type_constants_match_their_widget_json( $widget_dir, $type ) {
+		$manifest = json_decode( (string) file_get_contents( __DIR__ . '/../../widgets/' . $widget_dir . '/widget.json' ), true );
+
+		$this->assertSame( $manifest['name'], $type );
+	}
+
+	/**
+	 * Widget directories and the constants naming their types.
+	 *
+	 * @return array[]
+	 */
+	public static function get_widget_type_constants() {
+		return array(
+			'top videos'   => array( 'top-videos', Analytics_Dashboard::TOP_VIDEOS_TYPE ),
+			'video player' => array( 'video-player', Analytics_Dashboard::VIDEO_PLAYER_TYPE ),
+		);
 	}
 
 	/**
