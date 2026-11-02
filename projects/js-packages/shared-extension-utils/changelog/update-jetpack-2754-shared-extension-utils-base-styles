@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Depend on @wordpress/base-styles directly instead of the jetpack-base-styles wrapper. No change to the built CSS.
+
+

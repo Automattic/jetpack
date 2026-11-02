@@ -62,6 +62,11 @@
 				'team:jetpack-newsletter', // Newsletter dashboard & subscriber management
 				'team:jetpack-forms', // Forms and related component work
 				'team:jetpack-stats', // Premium Analytics
+				'team:jetpack-backup', // Backup and Activity Log
+				'team:videopress', // VideoPress
+				'team:jetpack-podcast', // Podcast
+				'team:jetpack-boost', // Boost
+				'team:jetpack-search', // Search
 			],
 		},
 		{

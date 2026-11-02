@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: On WoA, offer the Jetpack plugin's Protect page only to plans that include Scan, and keep it out of the Jetpack menu while Scan opens in Calypso.

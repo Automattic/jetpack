@@ -152,9 +152,16 @@ describe( 'Protect dashboard stage', () => {
 			'Nothing from your alert needs fixing',
 		],
 		[ 'shows no all-clear while a threat is active', [ 5 ], true, null ],
-	] )( 'the threat report %s', async ( _name, activeIds, hasPlan, heading ) => {
+		[
+			'never calls the site safe after a failed scan',
+			[],
+			true,
+			'Nothing from your alert needs fixing',
+			true,
+		],
+	] )( 'the threat report %s', async ( _name, activeIds, hasPlan, heading, failed = false ) => {
 		const threats = activeIds.map( id => ( { id, title: `Threat ${ id }`, severity: 3 } ) );
-		const scan = { hasPlan, lastChecked, threats };
+		const scan = { hasPlan, lastChecked, threats, lastScanFailed: failed };
 		respond( SCAN_PATH, scan );
 		showReport( { scan } );
 

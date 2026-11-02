@@ -490,6 +490,30 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A failed most recent scan is flagged, and the threats from earlier scans are kept.
+	 */
+	public function test_get_status_flags_failed_scan() {
+		$this->mock_connection();
+		$response                     = $this->get_sample_response();
+		$response->most_recent->error = true;
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		$failed_response = function () use ( $response ) {
+			return array(
+				'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+				'response' => array( 'code' => 200 ),
+			);
+		};
+		add_filter( 'pre_http_request', $failed_response );
+
+		$status = Scan_Status::get_status();
+		remove_filter( 'pre_http_request', $failed_response );
+
+		$this->assertTrue( $status->last_scan_failed );
+		$this->assertCount( 4, $status->threats );
+		$this->assertTrue( Scan_Status::get_cached_status()->last_scan_failed );
+	}
+
+	/**
 	 * Test get total threats
 	 */
 	public function test_get_total_threats() {

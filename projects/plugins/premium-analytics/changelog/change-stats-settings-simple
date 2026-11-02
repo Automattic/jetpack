@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Leave the plan usage card out when the plan has no view limit, instead of saying usage isn't available.

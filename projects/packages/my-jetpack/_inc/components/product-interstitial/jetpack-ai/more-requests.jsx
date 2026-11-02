@@ -9,7 +9,6 @@ import {
 	H3,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -20,6 +19,7 @@ import { useCallback } from 'react';
 import { assetUrl } from '../../../assets/url';
 import { MyJetpackRoutes } from '../../../constants';
 import useAnalytics from '../../../hooks/use-analytics';
+import { getMyJetpackRouteUrl } from '../../../utils/route-href';
 import GoBackLink from '../../go-back-link';
 import styles from './style.module.scss';
 
@@ -74,7 +74,7 @@ export function JetpackAIInterstitialMoreRequests( { onClickGoBack = () => {} } 
 										</ButtonLink>
 										<ButtonLink
 											variant="outline"
-											href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Features }` ) }
+											href={ getMyJetpackRouteUrl( MyJetpackRoutes.Features ) }
 											onClick={ onClickGoBack }
 										>
 											{ __( 'Back', 'jetpack-my-jetpack' ) }

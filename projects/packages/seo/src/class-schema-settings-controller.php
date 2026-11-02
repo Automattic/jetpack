@@ -62,7 +62,7 @@ class Schema_Settings_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( __CLASS__, 'update_item' ),
-					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+					'permission_callback' => array( __CLASS__, 'write_permissions_check' ),
 				),
 			)
 		);
@@ -79,7 +79,7 @@ class Schema_Settings_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( __CLASS__, 'update_author_profile' ),
-					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+					'permission_callback' => array( __CLASS__, 'write_permissions_check' ),
 					'args'                => array(
 						'name'        => array( 'type' => 'string' ),
 						'description' => array( 'type' => 'string' ),
@@ -102,6 +102,29 @@ class Schema_Settings_Controller {
 	 */
 	public static function permissions_check() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Require administrator access and Jetpack ownership before saving SEO settings.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public static function write_permissions_check() {
+		if ( ! self::permissions_check() ) {
+			return false;
+		}
+
+		if ( Seo_Tools::is_disabled() ) {
+			return new \WP_Error(
+				'jetpack_seo_tools_disabled',
+				__( 'Jetpack SEO is disabled on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		return true;
 	}
 
 	/**

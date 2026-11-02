@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Hide the server credentials link on WoA sites, which don't need them.

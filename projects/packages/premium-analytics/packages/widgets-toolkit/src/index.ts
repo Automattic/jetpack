@@ -287,7 +287,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	calculateDelta,
 	flagUrl,
 	formatLegendLabels,
 	formatChartName,
@@ -298,8 +297,6 @@ export {
 	saveCsv,
 	type CsvColumn,
 	type CsvDateRange,
-	getCombinedPeriodMax,
-	sharePercentage,
 	getVideoPosterUrl,
 	describeError,
 	summaryCount,
@@ -318,6 +315,7 @@ export {
 	formatViewCount,
 	formatListMetricCount,
 	getListMetricLabel,
+	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,

@@ -938,7 +938,7 @@ class Initializer {
 
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
-		$speed_score_history = new Speed_Score_History( get_site_url() );
+		$speed_score_history = new Speed_Score_History( home_url() );
 		$latest_score        = $speed_score_history->latest();
 		$previous_score      = array();
 		if ( $speed_score_history->count() > 1 ) {
@@ -971,6 +971,7 @@ class Initializer {
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'siteUrl'                => esc_url( get_site_url() ),
+				'homeUrl'                => esc_url_raw( home_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
@@ -1060,7 +1061,6 @@ class Initializer {
 				&& $block_availability['sharing-buttons']['available'],
 			'isLikeBlockAvailable'    => isset( $block_availability['like'] )
 				&& $block_availability['like']['available'],
-			'activeThemeStylesheet'   => get_stylesheet(),
 		);
 
 		return $data;
@@ -1427,7 +1427,7 @@ class Initializer {
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
 				'default'     => true,
-				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, hide Active and Inactive where the control already shows the state, exclude features from Available when their only action is an install the user cannot make, and show host restrictions below card descriptions.',
+				'description' => 'Connect the account from the Install or Connect button of Features cards that need one, turn the chosen module on once Install Jetpack or Activate Jetpack finishes setup, hide Active and Inactive where the control already shows the state, exclude features from Available when their only action is an install the user cannot make, and show host restrictions below card descriptions.',
 				'owner'       => 'my-jetpack',
 			)
 		);
@@ -1702,9 +1702,10 @@ class Initializer {
 		 * Enable local Features data and entry in offline mode.
 		 *
 		 * @since 6.10.0
-		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 * @since $$next-version$$ Enabled by default.
+		 * @param bool $enabled Whether to enable offline Features. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', true );
 	}
 
 	/**
