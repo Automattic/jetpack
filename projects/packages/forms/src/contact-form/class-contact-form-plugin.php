@@ -3000,8 +3000,6 @@ class Contact_Form_Plugin {
 	/**
 	 * Yields the export header row, then one row per response.
 	 *
-	 * Rows are built one batch of responses at a time, so memory stays flat however many responses are exported.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int[] $feedback_ids           Feedback IDs to export.
@@ -3193,9 +3191,11 @@ class Contact_Form_Plugin {
 
 		// The dashboard applies a date range only when both ends are set and in order.
 		if ( ! empty( $_POST['after'] ) && ! empty( $_POST['before'] ) ) {
-			$before = sanitize_text_field( wp_unslash( $_POST['before'] ) );
-			$after  = sanitize_text_field( wp_unslash( $_POST['after'] ) );
-			if ( strtotime( $after ) && strtotime( $before ) && strtotime( $after ) < strtotime( $before ) ) {
+			$before      = sanitize_text_field( wp_unslash( $_POST['before'] ) );
+			$after       = sanitize_text_field( wp_unslash( $_POST['after'] ) );
+			$after_time  = strtotime( $after );
+			$before_time = strtotime( $before );
+			if ( $after_time && $before_time && $after_time < $before_time ) {
 				$filters['after']  = $after;
 				$filters['before'] = $before;
 			}
@@ -3209,10 +3209,7 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		// Test responses from form preview are excluded from bulk exports by
-		// default. When the user has explicitly picked specific rows (via the
-		// dashboard selection UI), we trust their selection and include any
-		// test responses that landed in it.
+		// Bulk exports skip form-preview test responses; an explicit dashboard selection keeps them.
 		return array(
 			'ids'                    => $this->get_export_feedback_ids( $filters ),
 			'include_test_responses' => $has_explicit_selection,
@@ -3349,15 +3346,7 @@ class Contact_Form_Plugin {
 		header( 'Content-Type: text/csv; charset=utf-8' );
 
 		$output = fopen( 'php://output', 'w' );
-
-		fputcsv( $output, $rows->current(), ',', '"', '' );
-		$rows->next();
-
-		while ( $rows->valid() ) {
-			fputcsv( $output, array_map( array( $this, 'esc_csv' ), $rows->current() ), ',', '"', '' );
-			$rows->next();
-		}
-
+		$this->write_export_csv( $output, $rows );
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
@@ -3470,6 +3459,31 @@ class Contact_Form_Plugin {
 			$tracking = new Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
+	}
+
+	/**
+	 * Writes export rows as CSV: the header row as-is, then every response row through esc_csv().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param resource   $output Writable stream.
+	 * @param \Generator $rows   Rows from get_export_rows(), header first.
+	 *
+	 * @return int Number of response rows written.
+	 */
+	public function write_export_csv( $output, $rows ) {
+		$count     = 0;
+		$is_header = true;
+		foreach ( $rows as $row ) {
+			if ( $is_header ) {
+				$is_header = false;
+			} else {
+				$row = array_map( array( $this, 'esc_csv' ), $row );
+				++$count;
+			}
+			fputcsv( $output, $row, ',', '"', '' );
+		}
+		return $count;
 	}
 
 	/**

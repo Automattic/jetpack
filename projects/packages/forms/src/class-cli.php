@@ -30,7 +30,7 @@ class CLI extends WP_CLI_Command {
 	 * : Write the CSV to this file instead of standard output.
 	 *
 	 * [--form=<post-id>]
-	 * : Only export responses to the form on this post or page.
+	 * : Only export responses to the form with this ID. For older forms saved inside a post, use that post's ID. To filter by the page a response came from, use --source.
 	 *
 	 * [--status=<status>]
 	 * : Which folder to export.
@@ -98,15 +98,7 @@ class CLI extends WP_CLI_Command {
 			WP_CLI::error( sprintf( 'Could not open %s for writing.', $file ) );
 		}
 
-		fputcsv( $output, $rows->current(), ',', '"', '' );
-		$rows->next();
-
-		$count = 0;
-		while ( $rows->valid() ) {
-			fputcsv( $output, array_map( array( $plugin, 'esc_csv' ), $rows->current() ), ',', '"', '' );
-			++$count;
-			$rows->next();
-		}
+		$count = $plugin->write_export_csv( $output, $rows );
 
 		if ( null !== $file ) {
 			fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
