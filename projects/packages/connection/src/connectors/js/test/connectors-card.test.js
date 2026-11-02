@@ -1,4 +1,4 @@
-import { act, configure, render, screen, waitFor } from '@testing-library/react';
+import { act, configure, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
@@ -300,11 +300,13 @@ describe( 'Connectors card', () => {
 			}
 		} );
 
-		it.each( [
-			[ 'unknown', null, [] ],
-			[ 'enabled', true, [ 'WordPress.com login (SSO)', 'Enabled' ] ],
-			[ 'not enabled', false, [ 'WordPress.com login (SSO)', 'Not enabled' ] ],
-		] )( 'lists the connection details with SSO %s', async ( _, ssoStatus, ssoRow ) => {
+		/**
+		 * Open the connection details for a site with the given SSO status.
+		 *
+		 * @param {boolean|null} ssoStatus - The ssoStatus script module data.
+		 * @return {Promise<HTMLElement>} The details dialog.
+		 */
+		async function openDetails( ssoStatus ) {
 			const { user } = renderCard( {
 				data: {
 					ssoStatus,
@@ -312,16 +314,25 @@ describe( 'Connectors card', () => {
 				},
 				search: '?connector=wordpress_com',
 			} );
-
 			await user.click( screen.getByRole( 'button', { name: 'Connection details' } ) );
+			return screen.getByRole( 'dialog' );
+		}
 
-			const labels = screen
-				.getAllByText( ( __, el ) => el.classList.contains( 'jetpack-connector__details-label' ) )
-				.map( el => el.textContent );
-			const values = screen
-				.getAllByText( ( __, el ) => el.classList.contains( 'jetpack-connector__details-value' ) )
-				.map( el => el.textContent );
-			expect( [ labels.slice( 3 ), values.slice( 3 ) ].flat() ).toEqual( ssoRow );
+		it.each( [
+			[ true, 'Enabled' ],
+			[ false, 'Not enabled' ],
+		] )( 'shows the SSO status %s as %s in the connection details', async ( ssoStatus, value ) => {
+			const dialog = within( await openDetails( ssoStatus ) );
+
+			expect( dialog.getByText( 'WordPress.com login (SSO)' ) ).toBeInTheDocument();
+			expect( dialog.getByText( value ) ).toBeInTheDocument();
+		} );
+
+		it( 'leaves out the SSO row when its status is unknown', async () => {
+			const dialog = within( await openDetails( null ) );
+
+			expect( dialog.getByText( 'Blog ID' ) ).toBeInTheDocument();
+			expect( dialog.queryByText( 'WordPress.com login (SSO)' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
