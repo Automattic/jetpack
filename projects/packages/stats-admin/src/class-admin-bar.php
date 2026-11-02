@@ -302,10 +302,11 @@ class Admin_Bar {
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *
 		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
-		 * Since $$next-version$$, `dashboard` may carry a `section` and a `range` of `from`/`to` days as `Y-m-d`.
+		 * A `dashboard` link may carry a `section` and a `range` of `from`/`to` days as `Y-m-d`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since 0.39.0
+		 * @since $$next-version$$ The `dashboard` view may carry a `section` and a `range`.
 		 *
 		 * @param string $url  The Stats URL.
 		 * @param array  $args The page the link opens.
