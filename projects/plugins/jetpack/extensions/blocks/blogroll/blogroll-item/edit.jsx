@@ -19,7 +19,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 					type="url"
 					label={ __( 'Feed URL', 'jetpack' ) }
 					help={ __(
-						'The RSS or Atom feed for this site. Visitors can use this link to subscribe in a feed reader.',
+						'The RSS or Atom feed for this site, for use in a future OPML export.',
 						'jetpack'
 					) }
 					value={ feed_url ?? '' }

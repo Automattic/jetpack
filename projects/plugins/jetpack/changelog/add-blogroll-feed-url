@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Blogroll: Add a feed URL to each blogroll item, so the sites you list can be subscribed to in a feed reader.
+Blogroll: Add a feed URL field for a future OPML export.
