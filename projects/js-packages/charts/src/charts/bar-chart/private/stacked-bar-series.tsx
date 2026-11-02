@@ -4,7 +4,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScalePosition } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
-import type { StackLayout } from './stack-layout';
+import type { StackLayout, StackSegment } from './stack-layout';
 import type { DataPointDate } from '../../../types';
 import type { BarChartProps } from '../types';
 import type { AxisScale } from '@visx/axis';
@@ -25,6 +25,31 @@ type Props = Pick<
 	groupPadding: number;
 	stack: StackLayout;
 };
+
+/**
+ * The side a segment rounds when it ends its stack: the far end of the positives or of the negatives.
+ *
+ * @param stack      - The stack layout.
+ * @param segment    - The segment.
+ * @param category   - A datum at the segment's category.
+ * @param horizontal - Whether the bars run horizontally.
+ * @return The side to round, or undefined for a segment inside its stack.
+ */
+function getStackEnd(
+	stack: StackLayout,
+	segment: StackSegment,
+	category: DataPointDate,
+	horizontal: boolean
+): 'top' | 'bottom' | 'left' | 'right' | undefined {
+	const extent = stack.extentAt( category );
+	if ( segment.end > 0 && segment.end === extent[ 1 ] ) {
+		return horizontal ? 'right' : 'top';
+	}
+	if ( segment.end < 0 && segment.end === extent[ 0 ] ) {
+		return horizontal ? 'left' : 'bottom';
+	}
+	return undefined;
+}
 
 const StackedBarSeries = ( {
 	barClassName,
@@ -66,6 +91,7 @@ const StackedBarSeries = ( {
 				<rect
 					{ ...rect }
 					data-testid="bar-chart-stacked-bar"
+					data-stack-end={ getStackEnd( stack, segment, datum, !! horizontal ) }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
 				/>

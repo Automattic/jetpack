@@ -51,9 +51,26 @@
 		}
 	}
 
-	// A stack rises as one bar; segments scaling alone would split it apart.
+	// A stack rises as one bar and rounds only its outer end, keeping seams flush.
 	&--stacked :global(.visx-bar-group) rect {
+		rx: 0;
 		animation: none;
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="top"] {
+		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart) 0 0);
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="right"] {
+		clip-path: inset(0 round 0 var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart) 0);
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="bottom"] {
+		clip-path: inset(0 round 0 0 var(--a8c-charts-border-radius-bar-chart) var(--a8c-charts-border-radius-bar-chart));
+	}
+
+	&--stacked :global(.visx-bar-group) rect[data-stack-end="left"] {
+		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) 0 0 var(--a8c-charts-border-radius-bar-chart));
 	}
 
 	&--stacked#{&}--animated :global(.visx-bar-group) {

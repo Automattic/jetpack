@@ -388,4 +388,28 @@ describe( 'BarChart stacked layout', () => {
 			} )
 		);
 	} );
+
+	it.each( [
+		[ 'vertical', 'top', 'bottom' ],
+		[ 'horizontal', 'right', 'left' ],
+	] as const )(
+		'marks only the outer end of each %s stack for rounding',
+		( orientation, positiveEnd, negativeEnd ) => {
+			const data: SeriesData[] = [
+				{ label: 'A', data: [ day( 'Mon', 10 ), day( 'Tue', 8 ) ] },
+				{ label: 'B', data: [ day( 'Mon', -5 ), day( 'Tue', 4 ) ] },
+				{ label: 'C', data: [ day( 'Mon', 6 ), day( 'Tue', null ) ] },
+			];
+			renderStacked( { data, orientation } );
+
+			// Each series' bars, Mon then Tue, skipping C's missing Tuesday.
+			expect( barRects().map( bar => bar.getAttribute( 'data-stack-end' ) ) ).toEqual( [
+				null,
+				null,
+				negativeEnd,
+				positiveEnd,
+				positiveEnd,
+			] );
+		}
+	);
 } );
