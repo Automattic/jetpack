@@ -54,25 +54,15 @@ export type SocialUpgrade = {
 	plan_name: string | null;
 };
 
-/**
- * A plugin that brings replies from a network back to the site, offered to users who can turn it on.
- */
-export type CompanionPlugin = {
-	slug: 'atmosphere' | 'activitypub';
-	/** Core's REST plugin ID, e.g. `atmosphere/atmosphere`. */
-	plugin: string;
-	service: ConnectionService[ 'id' ];
-	/** How the notice turns the plugin on; see `Companion_Plugins::get_script_data()`. */
-	action: 'install' | 'activate' | 'enable' | 'marketplace';
-	/** The WordPress.com plugin page, for the `marketplace` action. */
-	install_url: string;
-	settings_url: string;
-};
+export type CompanionPluginSlug = 'atmosphere' | 'activitypub';
+
+/** How the notice turns a plugin on; see `Companion_Plugins::get_script_data()`. */
+export type CompanionPluginAction = 'install' | 'activate' | 'enable' | 'marketplace';
 
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	assets_url: string;
-	companion_plugins?: Array< CompanionPlugin >;
+	companion_plugins?: Partial< Record< CompanionPluginSlug, CompanionPluginAction > >;
 	nonces?: {
 		refresh_plan: string;
 	};

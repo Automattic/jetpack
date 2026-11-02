@@ -19,17 +19,19 @@ export function PostPublishCompanionPlugins() {
 		[]
 	);
 
-	const bluesky = useCompanionPlugin( 'bluesky' );
-	const mastodon = useCompanionPlugin( 'mastodon' );
+	const offers = {
+		bluesky: useCompanionPlugin( 'bluesky' ),
+		mastodon: useCompanionPlugin( 'mastodon' ),
+	};
 
-	const services = [ bluesky, mastodon ]
+	const services = Object.entries( offers )
 		.filter(
-			( { plugin, state } ) =>
-				plugin &&
+			( [ service, { action, state } ] ) =>
+				action &&
 				state.status !== 'dismissed' &&
-				connections?.some( ( { service_name } ) => service_name === plugin.service )
+				connections?.some( ( { service_name } ) => service_name === service )
 		)
-		.map( ( { plugin } ) => plugin.service );
+		.map( ( [ service ] ) => service );
 
 	if ( ! isPostPublished || ! services.length ) {
 		return null;

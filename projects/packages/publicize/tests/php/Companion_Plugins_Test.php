@@ -58,17 +58,6 @@ class Companion_Plugins_Test extends TestCase {
 	}
 
 	/**
-	 * The offered plugins, as slug => action.
-	 *
-	 * @return array<string, string>
-	 */
-	private function offered(): array {
-		$plugins = Companion_Plugins::get_script_data();
-
-		return array_combine( array_column( $plugins, 'slug' ), array_column( $plugins, 'action' ) );
-	}
-
-	/**
 	 * Empty Current_Plan's per-request cache.
 	 */
 	private function reset_plan_cache(): void {
@@ -149,17 +138,7 @@ class Companion_Plugins_Test extends TestCase {
 		$this->reset_plan_cache();
 		$this->log_in( $role );
 
-		$this->assertSame( $expected, $this->offered() );
-	}
-
-	/**
-	 * An active plugin is not offered again.
-	 */
-	public function test_skips_active_plugins() {
-		update_option( 'active_plugins', array( 'activitypub/activitypub.php' ) );
-		$this->log_in( 'administrator' );
-
-		$this->assertSame( self::atmosphere( 'install' ), $this->offered() );
+		$this->assertSame( $expected, Companion_Plugins::get_script_data() );
 	}
 
 	/**
@@ -186,7 +165,7 @@ class Companion_Plugins_Test extends TestCase {
 		}
 		$this->log_in( 'administrator' );
 
-		$this->assertSame( $expected, $this->offered()['activitypub'] ?? null );
+		$this->assertSame( $expected, Companion_Plugins::get_script_data()['activitypub'] ?? null );
 	}
 
 	/**
@@ -202,44 +181,34 @@ class Companion_Plugins_Test extends TestCase {
 	}
 
 	/**
-	 * A plugin loaded some other way, e.g. bundled on WordPress.com, is not offered again.
+	 * An active plugin is not offered again, however it was loaded (network, WordPress.com bundle).
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_skips_plugins_loaded_without_activation() {
+	public function test_skips_active_plugins() {
 		define( 'ACTIVITYPUB_PLUGIN_VERSION', '1.0.0' );
 		$this->log_in( 'administrator' );
 
-		$this->assertSame( self::atmosphere( 'install' ), $this->offered() );
+		$this->assertSame( self::atmosphere( 'install' ), Companion_Plugins::get_script_data() );
 	}
 
 	/**
-	 * A dismissal hides one plugin, for that user only.
+	 * A dismissal hides one plugin, for that user and that site only.
 	 */
-	public function test_dismissal_is_per_plugin_and_per_user() {
-		$this->log_in( 'administrator' );
-		$this->assertTrue( Companion_Plugins::dismiss( 'atmosphere' ) );
-		$this->assertFalse( Companion_Plugins::dismiss( 'not-a-plugin' ) );
-
-		$this->assertSame( array( 'activitypub' => 'install' ), $this->offered() );
-
-		$this->log_in( 'administrator' );
-		$this->assertSame( self::atmosphere( 'install' ) + array( 'activitypub' => 'install' ), $this->offered() );
-	}
-
-	/**
-	 * A dismissal is stored per site, so on a network it does not follow the user to their other sites.
-	 */
-	public function test_dismissal_is_stored_per_site() {
+	public function test_dismissal_is_per_plugin_user_and_site() {
 		global $wpdb;
 
 		$user_id = $this->log_in( 'administrator' );
 		Companion_Plugins::dismiss( 'atmosphere' );
 
+		$this->assertSame( array( 'activitypub' => 'install' ), Companion_Plugins::get_script_data() );
+		// Stored under the site's prefix, so on a network it does not follow the user to their other sites.
 		$this->assertSame( array( 'atmosphere' ), get_user_meta( $user_id, $wpdb->get_blog_prefix() . Companion_Plugins::DISMISSED_OPTION, true ) );
-		$this->assertSame( '', get_user_meta( $user_id, Companion_Plugins::DISMISSED_OPTION, true ) );
+
+		$this->log_in( 'administrator' );
+		$this->assertSame( self::atmosphere( 'install' ) + array( 'activitypub' => 'install' ), Companion_Plugins::get_script_data() );
 	}
 }

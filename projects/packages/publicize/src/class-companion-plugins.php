@@ -10,7 +10,6 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -30,63 +29,48 @@ class Companion_Plugins {
 	/**
 	 * The plugins, by WordPress.org slug.
 	 *
-	 * @var array<string, array{file: string, version_constant: string, requires_php: string, service: string, settings_page: string}>
+	 * @var array<string, array{file: string, version_constant: string, requires_php: string}>
 	 */
 	const PLUGINS = array(
 		'atmosphere'  => array(
 			'file'             => 'atmosphere/atmosphere.php',
 			'version_constant' => 'ATMOSPHERE_VERSION',
 			'requires_php'     => '8.2',
-			'service'          => 'bluesky',
-			'settings_page'    => 'options-general.php?page=atmosphere',
 		),
 		'activitypub' => array(
 			'file'             => 'activitypub/activitypub.php',
 			'version_constant' => 'ACTIVITYPUB_PLUGIN_VERSION',
 			'requires_php'     => '7.4',
-			'service'          => 'mastodon',
-			'settings_page'    => 'options-general.php?page=activitypub',
 		),
 	);
 
 	/**
-	 * The plugins the current user should be offered, with how to turn each one on.
+	 * How the current user can turn on each plugin they should be offered.
 	 *
-	 * The action is `install` or `activate` through core's plugins REST API, `enable` for ActivityPub on
-	 * WordPress.com Simple, or `marketplace` to install from WordPress.com.
+	 * `install` or `activate` go through core's plugins REST API, `enable` turns ActivityPub on for a
+	 * WordPress.com Simple site, and `marketplace` installs from WordPress.com.
 	 *
-	 * @return list<array{slug: string, plugin: string, service: string, action: string, install_url: string, settings_url: string}>
+	 * @return array<string, string> Action, by plugin slug.
 	 */
 	public static function get_script_data(): array {
 		$is_simple = ( new Host() )->is_wpcom_simple();
 		$dismissed = self::get_dismissed();
-		$plugins   = array();
+		$actions   = array();
 
 		foreach ( self::PLUGINS as $slug => $plugin ) {
-			if ( in_array( $slug, $dismissed, true ) || self::is_active( $slug ) ) {
+			// An active plugin defines its version constant as it loads, however it got there (network, WordPress.com bundle).
+			if ( in_array( $slug, $dismissed, true ) || defined( $plugin['version_constant'] ) ) {
 				continue;
 			}
 
 			$action = $is_simple ? self::get_simple_action( $slug ) : self::get_plugin_action( $plugin );
 
-			if ( null === $action ) {
-				continue;
+			if ( null !== $action ) {
+				$actions[ $slug ] = $action;
 			}
-
-			$plugins[] = array(
-				'slug'         => $slug,
-				// Core's REST plugin ID: the file path without `.php`.
-				'plugin'       => substr( $plugin['file'], 0, -4 ),
-				'service'      => $plugin['service'],
-				'action'       => $action,
-				'install_url'  => 'marketplace' === $action
-					? 'https://wordpress.com/plugins/' . $slug . '/' . ( new Status() )->get_site_suffix()
-					: '',
-				'settings_url' => admin_url( $plugin['settings_page'] ),
-			);
 		}
 
-		return $plugins;
+		return $actions;
 	}
 
 	/**
@@ -133,33 +117,6 @@ class Companion_Plugins {
 	}
 
 	/**
-	 * Whether a plugin is active, including network-wide and loaded some other way.
-	 *
-	 * @param string $slug The plugin slug.
-	 * @return bool
-	 */
-	public static function is_active( string $slug ): bool {
-		if ( ! isset( self::PLUGINS[ $slug ] ) ) {
-			return false;
-		}
-
-		if ( defined( self::PLUGINS[ $slug ]['version_constant'] ) ) {
-			return true;
-		}
-
-		if ( 'activitypub' === $slug && function_exists( 'wpcom_activitypub_is_active' ) ) {
-			return wpcom_activitypub_is_active();
-		}
-
-		$active_plugins = (array) get_option( 'active_plugins', array() );
-		if ( is_multisite() ) {
-			$active_plugins = array_merge( $active_plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
-		}
-
-		return in_array( self::PLUGINS[ $slug ]['file'], $active_plugins, true );
-	}
-
-	/**
 	 * The slugs of the plugins whose notice the current user dismissed on this site.
 	 *
 	 * @return string[]
@@ -167,27 +124,20 @@ class Companion_Plugins {
 	public static function get_dismissed(): array {
 		$dismissed = get_user_option( self::DISMISSED_OPTION );
 
-		return is_array( $dismissed ) ? array_values( array_intersect( $dismissed, array_keys( self::PLUGINS ) ) ) : array();
+		return is_array( $dismissed ) ? $dismissed : array();
 	}
 
 	/**
 	 * Hide a plugin's notice from the current user on this site, in every place it shows.
 	 *
-	 * @param string $slug The plugin slug.
-	 * @return bool Whether the slug is a known plugin.
+	 * @param string $slug The plugin slug, one of `PLUGINS`.
 	 */
-	public static function dismiss( string $slug ): bool {
-		if ( ! isset( self::PLUGINS[ $slug ] ) ) {
-			return false;
-		}
-
+	public static function dismiss( string $slug ): void {
 		$dismissed = self::get_dismissed();
 
 		if ( ! in_array( $slug, $dismissed, true ) ) {
 			$dismissed[] = $slug;
 			update_user_option( get_current_user_id(), self::DISMISSED_OPTION, $dismissed );
 		}
-
-		return true;
 	}
 }

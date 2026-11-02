@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { getSocialScriptData } from '../../utils/script-data';
-import type { CompanionPlugin } from '../../types';
+import type { CompanionPluginAction, CompanionPluginSlug } from '../../types';
 
 export type CompanionPluginState =
 	{ status: 'idle' | 'busy' | 'active' | 'dismissed' } | { status: 'error'; message: string };
@@ -55,90 +55,81 @@ export function markViewed( key: string ): boolean {
 	return true;
 }
 
-/**
- * Get the plugin offered alongside a social network, if the current user should be offered one.
- *
- * @param serviceName - The connection's service, e.g. `bluesky`.
- * @return The plugin, or undefined.
- */
-export function getCompanionPlugin( serviceName: string ): CompanionPlugin | undefined {
-	return getSocialScriptData()?.companion_plugins?.find(
-		( { service } ) => service === serviceName
-	);
-}
+const SLUGS: Partial< Record< string, CompanionPluginSlug > > = {
+	bluesky: 'atmosphere',
+	mastodon: 'activitypub',
+};
 
 /**
  * The request that turns a plugin on.
  *
- * @param plugin - The plugin.
+ * @param slug   - The plugin slug, also its directory and main file name.
+ * @param action - How to turn it on.
  * @return The `apiFetch` options.
  */
-function getActivationRequest( plugin: CompanionPlugin ) {
-	switch ( plugin.action ) {
+function getActivationRequest( slug: CompanionPluginSlug, action: CompanionPluginAction ) {
+	switch ( action ) {
 		case 'activate':
 			return {
-				path: `/wp/v2/plugins/${ plugin.plugin }`,
+				path: `/wp/v2/plugins/${ slug }/${ slug }`,
 				method: 'PUT',
 				data: { status: 'active' },
 			};
 		case 'enable':
 			return { path: '/wpcom/v2/activitypub/status', method: 'PUT', data: { enabled: true } };
 		default:
-			return {
-				path: '/wp/v2/plugins',
-				method: 'POST',
-				data: { slug: plugin.slug, status: 'active' },
-			};
+			return { path: '/wp/v2/plugins', method: 'POST', data: { slug, status: 'active' } };
 	}
 }
 
 /**
- * Install or activate, and dismiss, the plugin offered alongside a social network.
+ * Turn on, or dismiss, the plugin offered alongside a social network.
  *
- * `install()` resolves to the plugin's new state, or null when there is nothing to install from here.
+ * `action` is undefined when the current user is not offered the plugin. `install()` resolves to
+ * the plugin's new state, or null when there is nothing to install from here.
  *
  * @param serviceName - The connection's service, e.g. `bluesky`.
- * @return The plugin, its state, and the actions.
+ * @return The plugin slug, how to turn it on, its state, and the actions.
  */
 export function useCompanionPlugin( serviceName: string ) {
-	const plugin = getCompanionPlugin( serviceName );
-	const slug = plugin?.slug;
+	const slug = SLUGS[ serviceName ];
+	const action = slug ? getSocialScriptData()?.companion_plugins?.[ slug ] : undefined;
 
 	const state = useSyncExternalStore( subscribe, () => ( slug && states.get( slug ) ) || IDLE );
 
 	const install = useCallback( async (): Promise< CompanionPluginState | null > => {
 		// `marketplace` is a link to WordPress.com, which does the install itself.
-		if ( ! plugin || plugin.action === 'marketplace' ) {
+		if ( ! slug || ! action || action === 'marketplace' ) {
 			return null;
 		}
 
-		setState( plugin.slug, { status: 'busy' } );
+		setState( slug, { status: 'busy' } );
 
 		try {
-			await apiFetch( getActivationRequest( plugin ) );
+			await apiFetch( getActivationRequest( slug, action ) );
 
-			return setState( plugin.slug, { status: 'active' } );
+			return setState( slug, { status: 'active' } );
 		} catch ( error ) {
-			return setState( plugin.slug, {
+			return setState( slug, {
 				status: 'error',
 				message: toPlainText( ( error as { message?: string } )?.message ?? '' ),
 			} );
 		}
-	}, [ plugin ] );
+	}, [ slug, action ] );
 
 	const dismiss = useCallback( () => {
-		if ( ! plugin ) {
+		if ( ! slug ) {
 			return;
 		}
 
-		setState( plugin.slug, { status: 'dismissed' } );
+		setState( slug, { status: 'dismissed' } );
 
 		// The notice stays hidden for this page view even if saving the dismissal fails.
 		apiFetch( {
-			path: `/wpcom/v2/publicize/companion-plugins/${ plugin.slug }/dismiss`,
+			path: `/wpcom/v2/publicize/companion-plugins/${ slug }/dismiss`,
 			method: 'POST',
 		} ).catch( () => {} );
-	}, [ plugin ] );
+	}, [ slug ] );
 
-	return { plugin, state, install, dismiss };
+	return { slug, action, state, install, dismiss };
 }
