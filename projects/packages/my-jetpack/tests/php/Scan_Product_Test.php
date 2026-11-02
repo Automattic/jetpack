@@ -2,9 +2,12 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Scan;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,11 +34,43 @@ class Scan_Product_Test extends TestCase {
 	public function tearDown(): void {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		Constants::clear_constants();
+		StatusCache::clear();
 		parent::tearDown();
 	}
 
-	public function test_manage_url_is_jetpack_cloud_without_a_protect_page() {
-		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-scan' ), Scan::get_manage_url() );
+	/**
+	 * Without a Protect page, threats are managed on the host's dashboard: WordPress.com's on WoA, Jetpack Cloud elsewhere.
+	 *
+	 * @dataProvider provide_scan_dashboards
+	 *
+	 * @param bool $woa Whether the site is on WoA.
+	 */
+	#[DataProvider( 'provide_scan_dashboards' )]
+	public function test_manage_url_without_a_protect_page( $woa ) {
+		if ( $woa ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+			StatusCache::clear();
+		}
+
+		$expected = $woa
+			? 'https://my.wordpress.com/sites/' . wp_parse_url( home_url(), PHP_URL_HOST ) . '/scan/active'
+			: Redirect::get_url( 'my-jetpack-manage-scan' );
+		$this->assertSame( $expected, Scan::get_manage_url() );
+	}
+
+	/**
+	 * Data provider for test_manage_url_without_a_protect_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_scan_dashboards() {
+		return array(
+			'self-hosted' => array( false ),
+			'WoA'         => array( true ),
+		);
 	}
 
 	public function test_manage_url_is_the_protect_page_once_the_dashboard_loads() {

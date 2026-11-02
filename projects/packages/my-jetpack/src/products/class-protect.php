@@ -13,6 +13,8 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -586,6 +588,19 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Where a site with Scan manages its threats without the Protect page: WordPress.com on WoA, Jetpack Cloud elsewhere.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_dashboard_url() {
+		if ( ( new Host() )->is_woa_site() ) {
+			return 'https://my.wordpress.com/sites/' . ( new Status() )->get_site_suffix() . '/scan/active';
+		}
+
+		return Redirect::get_url( 'my-jetpack-manage-scan' );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -597,8 +612,7 @@ class Protect extends Hybrid_Product {
 		}
 
 		if ( static::has_paid_plan_for_product() ) {
-			// Paid users without standalone plugin go to Jetpack Cloud Scan dashboard.
-			return Redirect::get_url( 'my-jetpack-manage-scan' );
+			return static::get_scan_dashboard_url();
 		}
 
 		// Free users without standalone plugin go to the Protect details page.
