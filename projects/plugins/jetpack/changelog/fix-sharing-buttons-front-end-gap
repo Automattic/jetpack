@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing Buttons block: Keep the buttons as close together on the site as in the editor, instead of spacing them with the theme's default block gap.
