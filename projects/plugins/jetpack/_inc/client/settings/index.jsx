@@ -17,6 +17,7 @@ import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import { HIDDEN_WITH_PROTECT_PAGE } from 'security/protect-page';
 import Sharing from 'sharing';
+import { userCanManageModules as userCanManageModulesSelector } from 'state/initial-state';
 import { hasProtectPage, isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/search';
 import Traffic from 'traffic';
@@ -126,7 +127,7 @@ export default connect( state => {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
 		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state, [
 			...( hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : [] ),
-			...getMovedOutModules(),
+			...getMovedOutModules( userCanManageModulesSelector( state ) ),
 		] ),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );

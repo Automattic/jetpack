@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { isMovedOut } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -25,7 +26,7 @@ import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 
-class Sharing extends Component {
+export class Sharing extends Component {
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -48,7 +49,9 @@ class Sharing extends Component {
 			return null;
 		}
 
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+		const foundPublicize =
+				! isMovedOut( 'publicize', this.props.userCanManageModules ) &&
+				this.props.isModuleFound( 'publicize' ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 

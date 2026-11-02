@@ -13,16 +13,22 @@ export const isSettingsConsolidationEnabled = () =>
 /**
  * Modules whose Settings card is gone once settings move out, so a search for them finds nothing here.
  *
+ * @param {boolean} canManageModules - Whether the user can manage modules; other users keep the Social card.
  * @return {string[]} Module slugs, none while the flag is off.
  */
-export function getMovedOutModules() {
-	return isSettingsConsolidationEnabled() ? [ 'blaze', 'earn' ] : [];
+export function getMovedOutModules( canManageModules ) {
+	if ( ! isSettingsConsolidationEnabled() ) {
+		return [];
+	}
+	return [ 'blaze', 'earn', ...( canManageModules ? [ 'publicize' ] : [] ) ];
 }
 
 /**
  * Whether a module's Settings card is gone once settings move out.
  *
- * @param {string} module - Module slug.
+ * @param {string}  module           - Module slug.
+ * @param {boolean} canManageModules - Whether the user can manage modules.
  * @return {boolean} True when the card no longer renders.
  */
-export const isMovedOut = module => getMovedOutModules().includes( module );
+export const isMovedOut = ( module, canManageModules ) =>
+	getMovedOutModules( canManageModules ).includes( module );

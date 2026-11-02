@@ -33,6 +33,8 @@ describe( 'Settings search', () => {
 		[ 'earn', false, true, false ],
 		[ 'earn', true, true, true ],
 		[ 'blaze', true, true, true ],
+		[ 'publicize', true, true, true ],
+		[ 'publicize', true, false, false ],
 	] )(
 		'searching %s with the flag on: %s, as an admin: %s, shows no matching settings: %s',
 		( module, flag, canManageModules, isEmpty ) => {
