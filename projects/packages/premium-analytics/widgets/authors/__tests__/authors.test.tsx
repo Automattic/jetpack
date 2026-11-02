@@ -31,7 +31,6 @@ const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardR
 	label: 'Jane Cooper',
 	avatarUrl: null,
 	currentValue: 20,
-	currentShare: 1,
 	posts,
 } );
 
@@ -59,15 +58,6 @@ describe( 'AuthorsWidget', () => {
 					path: expect.stringMatching( new RegExp( `[?&]max=${ WIDGET_ROW_LIMIT }(?:&|$)` ) ),
 				} )
 			)
-		);
-	} );
-
-	it( 'links to the Authors report', () => {
-		render( <AuthorsWidget attributes={ {} } /> );
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/authors' )
 		);
 	} );
 
@@ -143,7 +133,6 @@ describe( 'AuthorsWidget', () => {
 			title: 'Quarterly update',
 			link: 'https://example.com/quarterly-update/',
 			currentValue: 20,
-			currentShare: 1,
 		};
 		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
 

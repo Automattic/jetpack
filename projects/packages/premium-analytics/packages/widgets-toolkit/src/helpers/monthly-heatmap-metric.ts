@@ -2,24 +2,17 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import type { MonthlyHeatmapProps } from '../components/monthly-heatmap';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /** Which number each cell of a monthly views table reports: the month's views, or its views per day. */
 export type MonthlyHeatmapMetric = 'total' | 'average';
 
-/**
- * The metrics the select offers, in option order. `satisfies` ties the ids to
- * the union so a typo fails to compile instead of silently reading as the total.
- */
-export const MONTHLY_HEATMAP_METRICS = [
-	{ id: 'total', label: __( 'Total views', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'average', label: __( 'Daily average', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: MonthlyHeatmapMetric; label: string }[];
+// The options the widgets' `metric` select offers, as their `widget.json` lists them.
+const MONTHLY_HEATMAP_METRICS: readonly MonthlyHeatmapMetric[] = [ 'total', 'average' ];
 
 /**
  * The metric a stored instance names; anything that is not one reads as the total.
@@ -28,25 +21,9 @@ export const MONTHLY_HEATMAP_METRICS = [
  * @return The metric to draw.
  */
 export function resolveMonthlyHeatmapMetric( value: unknown ): MonthlyHeatmapMetric {
-	return MONTHLY_HEATMAP_METRICS.some( metric => metric.id === value )
+	return MONTHLY_HEATMAP_METRICS.includes( value as MonthlyHeatmapMetric )
 		? ( value as MonthlyHeatmapMetric )
 		: 'total';
-}
-
-/**
- * The "Metric" attribute field (`relevance: 'high'`, so the framed host draws
- * the select in the widget header), offering `MONTHLY_HEATMAP_METRICS`.
- */
-export function monthlyHeatmapMetricAttributeField<
-	Attributes extends { metric?: MonthlyHeatmapMetric },
->(): WidgetAttributeField< Attributes > {
-	return {
-		id: 'metric',
-		label: _x( 'Metric', 'label for the views metric selector', 'jetpack-premium-analytics-pkg' ),
-		type: 'jpa/select',
-		relevance: 'high',
-		elements: MONTHLY_HEATMAP_METRICS.map( ( { id, label } ) => ( { value: id, label } ) ),
-	} as WidgetAttributeField< Attributes >;
 }
 
 // The one-line tooltip carries the figure alone; the scale labels name the

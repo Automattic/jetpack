@@ -3,6 +3,7 @@
  */
 import {
 	AnalyticsQueryClientProvider,
+	isPlanDateLimitedSection,
 	isStatsFeatureLocked,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
@@ -14,6 +15,8 @@ import { useParams } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { useDateWindowNotice } from '../date-window-notice';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { LockedReportPage } from './locked-report-page';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
@@ -83,6 +86,13 @@ function ReportDispatcher(): JSX.Element {
  * @return {JSX.Element} The wrapped report page.
  */
 function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
+	const { report } = useParams( { from: ROUTE_FROM } ) as { report?: string };
+	const definition = getReportDefinition( report );
+	const { dateLimits } = useStatsDateLimits(
+		isPlanDateLimitedSection( definition?.dashboardSection )
+	);
+	useDateWindowNotice();
+
 	return (
 		<AnalyticsQueryClientProvider>
 			<ChartsProvider>
@@ -90,7 +100,9 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 				 * A report names no compared period, so nothing below may fetch or
 				 * draw one. The params stay on the URL for the dashboard.
 				 */ }
-				<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+				<ReportScopeProvider offersComparison={ false } dateLimits={ dateLimits }>
+					{ children }
+				</ReportScopeProvider>
 			</ChartsProvider>
 		</AnalyticsQueryClientProvider>
 	);

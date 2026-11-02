@@ -6,13 +6,14 @@ import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { SERIES_COLORS, SERIES_LABELS, TRACKS_EVENT_NAME_PREFIX } from '../constants';
+import { SERIES_COLORS, SERIES_LABELS, TRACKS_EVENT_NAME_PREFIX, Y_TICK_COUNT } from '../constants';
 import {
 	calcLeftAxisMargin,
 	formatAxisTickDate,
 	formatDate,
 	formatNumber,
 	getXAxisTickValues,
+	getYScaleConfig,
 	transformData,
 } from '../helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../types';
@@ -143,11 +144,11 @@ export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartPr
 								height={ height }
 								width={ width }
 								xScale={ { type: 'time' } }
-								yScale={ { type: 'linear', nice: true } }
+								yScale={ getYScaleConfig( data ) }
 								theme={ chartTheme }
 								margin={ { top: 10, right: 30, bottom: 30, left: calcLeftAxisMargin( data ) } }
 							>
-								<Grid columns={ false } numTicks={ 5 } />
+								<Grid columns={ false } numTicks={ Y_TICK_COUNT } />
 
 								<LineSeries
 									dataKey="all"
@@ -169,7 +170,13 @@ export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartPr
 									curve={ curveMonotoneX }
 								/>
 
-								<Axis orientation="left" hideAxisLine hideTicks hideZero numTicks={ 5 } />
+								<Axis
+									orientation="left"
+									hideAxisLine
+									hideTicks
+									hideZero
+									numTicks={ Y_TICK_COUNT }
+								/>
 
 								<Axis
 									orientation="bottom"

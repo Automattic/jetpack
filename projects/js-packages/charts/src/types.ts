@@ -214,19 +214,18 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 
@@ -306,13 +305,21 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
  */
 export type BarStyles = {
 	widthFactor?: number;
+	/**
+	 * Draws the comparison bar translucent, in its primary's color, instead of the opaque tones the chart picks.
+	 * @deprecated Comparison bars are opaque. Leave this unset; set the comparison series' `options.stroke` for a color of its own.
+	 */
 	opacity?: number;
 };
+
+/**
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ */
+export type BarChartLayout = 'grouped' | 'overlap';
 
 export type MultipleDataPointsDate = {
 	label: string;

@@ -284,4 +284,67 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		expect( widget ).toHaveClass( 'jetpack-likes-widget-unloaded' );
 		expect( placeholder ).toBeVisible();
 	} );
+
+	describe( 'likers popover', () => {
+		const showLikers = ( likerCount, extra = {} ) => {
+			const likers = Array.from( { length: likerCount }, ( _, i ) => ( {
+				profile_URL: `https://example.com/liker-${ i }`,
+				avatar_URL: `https://example.com/avatar-${ i }.png`,
+				name: `Liker ${ i }`,
+				css_class: 'wpl-liker',
+			} ) );
+
+			window.dispatchEvent(
+				new MessageEvent( 'message', {
+					data: JSON.stringify( {
+						type: 'likesMessage',
+						data: {
+							event: 'showOtherGravatars',
+							likers,
+							parent: 'like-post-frame-12345-678-abc123',
+							width: 300,
+							position: { top: 0, left: 0 },
+							totalLikesLabel: '154 likes',
+							avatarAltTitle: "%s's avatar",
+							...extra,
+						},
+					} ),
+					origin: 'https://widgets.wp.com',
+				} )
+			);
+
+			return [ ...document.querySelectorAll( '#likes-other-gravatars ul li' ) ];
+		};
+
+		beforeEach( () => {
+			document.body.insertAdjacentHTML(
+				'beforeend',
+				`<iframe name="like-post-frame-12345-678-abc123"></iframe>
+				<div id="likes-other-gravatars"><div class="likes-text"><span></span></div><ul class="wpl-avatars"></ul></div>`
+			);
+			require( '../queuehandler' );
+		} );
+
+		it( 'ends the list with the count of likers it leaves out', () => {
+			const items = showLikers( 90, { remainingLikesLabel: '+64 more' } );
+
+			expect( items ).toHaveLength( 91 );
+			expect( items.at( -1 ) ).toHaveClass( 'wpl-likes-remaining' );
+			expect( items.at( -1 ) ).toHaveTextContent( '+64 more' );
+		} );
+
+		it( 'lists only the likers when none are left out', () => {
+			const items = showLikers( 12, { remainingLikesLabel: '' } );
+
+			expect( items ).toHaveLength( 12 );
+			expect( document.querySelector( '.wpl-likes-remaining' ) ).toBeNull();
+		} );
+
+		it( 'renders the count as text, not markup', () => {
+			showLikers( 90, { remainingLikesLabel: '<img src=x onerror=alert(1)>+64 more' } );
+
+			const remaining = document.querySelector( '.wpl-likes-remaining' );
+			expect( remaining.querySelector( 'img' ) ).toBeNull();
+		} );
+	} );
 } );

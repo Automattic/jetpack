@@ -4,6 +4,7 @@ export {
 	useReportScope,
 	useScopeLockedIntervals,
 	type DateLimits,
+	type DateLimitUpsellCopy,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -84,12 +85,26 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType, LockableInterval } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
+} from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
 export {
 	getLockedFeature,
 	getLockedSection,
@@ -98,6 +113,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,

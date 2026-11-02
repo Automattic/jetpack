@@ -31,10 +31,10 @@ import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-col
 import {
 	orderArcsForNavigation,
 	PieSelectionOutput,
-	SelectedSegmentRing,
 	usePieKeyboardNavigation,
 } from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
+import { SelectedRing } from '../private/selected-ring/selected-ring';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
@@ -503,7 +503,12 @@ const PieChartInternal = ( {
 								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
 								{ selectedArc && (
 									<Group top={ centerY } left={ centerX }>
-										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+										<SelectedRing
+											chartId={ chartId }
+											d={ path( selectedArc ) || '' }
+											side="inside"
+											testId="pie-selected-ring"
+										/>
 									</Group>
 								) }
 								{ ! allSegmentsHidden && (

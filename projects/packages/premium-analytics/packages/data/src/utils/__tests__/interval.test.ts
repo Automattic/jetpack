@@ -5,6 +5,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
+	getLockedIntervalsForPreset,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from '../interval';
@@ -324,5 +325,19 @@ describe( 'getAllowedIntervalsForPreset with locked intervals', () => {
 		[ 'last-24-hours', '2026-10-14', '2026-10-15', [ 'hour' ] ],
 	] )( 'offers %p from %s to %s as %p', ( preset, from, to, expected ) => {
 		expect( getAllowedIntervalsForPreset( preset as never, from, to, LOCKED ) ).toEqual( expected );
+	} );
+} );
+
+describe( 'getLockedIntervalsForPreset', () => {
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'last-7-days', '2026-10-09', '2026-10-15', LOCKED, [] ],
+		[ 'last-30-days', '2026-09-16', '2026-10-15', LOCKED, [ 'week' ] ],
+		[ undefined, '2026-01-01', '2026-06-30', LOCKED, [ 'week', 'month' ] ],
+		[ undefined, '2023-01-01', '2026-06-30', LOCKED, [ 'month', 'year' ] ],
+		[ 'last-30-days', '2026-09-16', '2026-10-15', [], [] ],
+	] )( 'locks %p from %s to %s under %p as %p', ( preset, from, to, locked, expected ) => {
+		expect( getLockedIntervalsForPreset( preset as never, from, to, locked ) ).toEqual( expected );
 	} );
 } );

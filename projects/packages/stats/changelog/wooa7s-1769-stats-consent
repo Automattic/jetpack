@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Tracking pixel: Honor the WP Consent API on every site, so visitors who have not allowed statistics cookies are not counted, and remove the honor_cookie_consent option. Without the WP Consent API plugin, tracking is unchanged.

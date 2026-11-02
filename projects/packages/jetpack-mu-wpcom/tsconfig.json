@@ -6,6 +6,8 @@
 		{ "path": "./src/features/code-editor/tsconfig.json" },
 		{ "path": "./src/features/verbum-comments/tsconfig.json" },
 		{ "path": "./src/features/wpcom-blocks/tsconfig.json" },
-		{ "path": "./src/features/wpcom-backup/tsconfig.json" }
+		{ "path": "./src/features/wpcom-backup/tsconfig.json" },
+		{ "path": "./src/features/wpcom-hosting-feature-page/tsconfig.json" },
+		{ "path": "./src/features/wpcom-scan/tsconfig.json" }
 	]
 }

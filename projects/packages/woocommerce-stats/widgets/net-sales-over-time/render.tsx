@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { NetSalesOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type NetSalesOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type NetSalesOverTimeRenderAttributes = NetSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;

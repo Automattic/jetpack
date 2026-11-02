@@ -10,8 +10,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { RevenueByCustomerType } from '../../src/components/revenue-by-customer-type';
-import type { RevenueByCustomerTypeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type RevenueByCustomerTypeAttributes = Record< never, never >;
 
 type RevenueByCustomerTypeRenderAttributes = RevenueByCustomerTypeAttributes &
 	Partial< ReportParamsFieldAttributes >;

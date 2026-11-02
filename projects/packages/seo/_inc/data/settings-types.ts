@@ -25,6 +25,9 @@ export interface SettingsResponse {
 	// Server-owned conflict state. False keeps saved formats visible but read-only
 	// and prevents them from being included in a save payload.
 	title_formats_editable: boolean;
+	// Name of the SEO plugin Jetpack stepped aside for, or '' when none is active.
+	// Read-only, never sent back.
+	conflicting_seo_plugin: string;
 	verification_tools_active: boolean;
 	verification: {
 		google: string;
@@ -34,10 +37,14 @@ export interface SettingsResponse {
 		facebook: string;
 	};
 	search_engines_visible: boolean;
-	// WordPress.com records a private or coming-soon site as a negative `blog_public`.
-	// Indexing is off for such a site because it isn't published at all, which no SEO
-	// setting here can change — so the toggle is disabled rather than silently inert.
+	// A private or Coming Soon WordPress.com site. Indexing is off for such a site
+	// because it isn't published at all, which no SEO setting here can change — so
+	// the toggle is disabled rather than silently inert.
 	site_is_private: boolean;
+	// Read-only: the unpublished site is Coming Soon rather than private.
+	site_is_coming_soon: boolean;
+	// Read-only: where the site's visibility is changed.
+	site_visibility_url: string;
 	sitemap_active: boolean;
 	sitemap_switchable: boolean;
 	// Read-only: the reachable sitemap URL, or '' until it's been generated and is
@@ -45,6 +52,8 @@ export interface SettingsResponse {
 	sitemap_url: string;
 	canonical_active: boolean;
 	canonical_switchable: boolean;
+	// Read-only: another SEO plugin owns canonical output, so the switch is locked.
+	canonical_conflicted: boolean;
 	// Read by the Settings bootstrap; saved through `/jetpack/v4/seo/schema-settings`.
 	schema: SchemaSettings;
 }

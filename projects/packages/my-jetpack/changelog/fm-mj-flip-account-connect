@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Features: Show feature states through switches or buttons instead of redundant Active or Inactive badges, and show host restrictions below descriptions. Leave features out of Available when their only action is an install you cannot make. Restore the previous behavior with the `jetpack_feature_flag_enabled_my-jetpack-account-connect` filter.

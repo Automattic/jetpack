@@ -34,6 +34,8 @@ $tools = array(
 	'videopress/class.videopress-gutenberg.php',
 	// Reprint export. Registers nothing off Pressable and WordPress.com (Atomic).
 	'reprint-export.php',
+	// Lets the SEO dashboard lock the canonical URLs switch while another SEO plugin is active.
+	'canonical-urls/canonical-urls-conflicts.php',
 );
 
 // Some features are only available when connected to WordPress.com.

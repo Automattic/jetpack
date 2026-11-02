@@ -1,3 +1,6 @@
+// CI hack. If you want to run tests against React 18 locally, you could set it to 18 and then run `pnpm dedupe` (just don't commit that change, or the resulting lockfile changes).
+const withReactVersion = undefined;
+
 /**
  * Fix package dependencies.
  *
@@ -135,7 +138,7 @@ async function fixDeps( pkg ) {
 	// Currently @types/wordpress__block-editor is the only one still in use; see also https://github.com/WordPress/gutenberg/issues/67691
 	if ( pkg.name.startsWith( '@types/wordpress__' ) && pkg.dependencies ) {
 		for ( const k of Object.keys( pkg.dependencies ) ) {
-			if ( k.startsWith( '@wordpress/' ) ) {
+			if ( k.startsWith( '@wordpress/' ) || k === '@types/react' ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
@@ -180,6 +183,26 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
+	// Deps that still depend on React <19.
+	const reactOldPkgs = new Set( [
+		// Still on 18.
+		'@woocommerce/email-editor', // direct dep from plugins/jetpack
+	] );
+	if ( reactOldPkgs.has( pkg.name ) ) {
+		for ( const p of [ 'react', 'react-dom' ] ) {
+			if ( ! pkg.peerDependencies?.[ p ] ) {
+				continue;
+			}
+
+			if (
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18(?:\.\d+)?\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19(?:\.\d+)?\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^19';
+			}
+		}
+	}
+
 	// Outdated eslint deps.
 	const eslintOldPkgs = new Set( [
 		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
@@ -209,6 +232,27 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
 			}
 		}
+	}
+
+	// Bump problematic ranges for now; should be safe:
+	// p1792520152276519-slack-C05Q5HSS013
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <=3.0.0';
+	}
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] === '^6.21.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] += ' || ^7.0.0';
+	}
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0 || ^4.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] += ' || ^5.0.0';
 	}
 
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
@@ -261,6 +305,22 @@ async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
 		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
+
+		// CI hack.
+		if ( withReactVersion ) {
+			for ( const field of [
+				'dependencies',
+				'devDependencies',
+				'optionalDependencies',
+				'peerDependencies',
+			] ) {
+				for ( const dep of [ 'react', 'react-dom' ] ) {
+					if ( pkg[ field ]?.[ dep ] ) {
+						pkg[ field ][ dep ] = '^' + withReactVersion;
+					}
+				}
+			}
+		}
 	}
 	return pkg;
 }
@@ -306,6 +366,20 @@ function afterAllResolved( lockfile ) {
 			throw new Error(
 				// prettier-ignore
 				`You don't need \`jest-environment-jsdom\`. Our base config in \`tools/js-tools/jest/config.base.js\` already sets up a JSDOM environment from \`tools/js-tools/jest/fix-environment-jsdom.mjs\`, use that instead. pdWQjU-1vl-p2`
+			);
+		}
+
+		// Now that we've moved to React 19, prevent React 18 from being re-installed.
+		if (
+			! withReactVersion &&
+			( k.startsWith( 'react@18.' ) ||
+				k.startsWith( 'react-dom@18.' ) ||
+				k.startsWith( '@types/react@18.' ) ||
+				k.startsWith( '@types/react-dom@18.' ) )
+		) {
+			throw new Error(
+				// prettier-ignore
+				`We've moved to React 19. Something you've done has tried to install \`${ k }\`, which would be likely to cause problems.`
 			);
 		}
 

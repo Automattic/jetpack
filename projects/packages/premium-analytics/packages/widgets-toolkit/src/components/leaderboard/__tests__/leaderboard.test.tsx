@@ -243,18 +243,6 @@ describe( 'Leaderboard', () => {
 		} );
 	} );
 
-	it( 'renders the footer in every state', () => {
-		renderLeaderboard(
-			<Leaderboard
-				rows={ [] }
-				status={ { isLoading: true } }
-				footer={ <a href="/all">View all</a> }
-			/>
-		);
-
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
-	} );
-
 	describe( 'the bars variant', () => {
 		const GIVEN_LEGEND = { primary: 'This month', comparison: 'Last month' };
 

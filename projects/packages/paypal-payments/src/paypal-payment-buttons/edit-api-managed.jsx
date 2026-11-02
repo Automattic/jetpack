@@ -52,6 +52,7 @@ import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
 import LinkDetails from './components/link-details';
 import PayPalButtonPreview from './components/paypal-button-preview';
+import ReadOnlyBlock from './components/read-only-block';
 import VariantBuilder, {
 	getComparisonPrice,
 	isVariantPricingOn,
@@ -291,6 +292,7 @@ export default function ApiManagedEdit( {
 	const {
 		isConnected,
 		setIsConnected,
+		canManageConnection,
 		environment,
 		setEnvironment,
 		connectionLoading,
@@ -849,6 +851,37 @@ export default function ApiManagedEdit( {
 				buttonText={ buttonText }
 				blockProps={ blockProps }
 			/>
+		);
+	}
+
+	// A user who may not manage PayPal (anyone without manage_options) gets the
+	// saved button to look at, and no control that would be refused.
+	if ( ! canManageConnection ) {
+		if ( hasButton ) {
+			return (
+				<ReadOnlyBlock
+					attributes={ attributes }
+					message={ __(
+						'Only a site administrator can edit this payment button.',
+						'jetpack-paypal-payments'
+					) }
+				/>
+			);
+		}
+
+		return (
+			<div { ...blockProps }>
+				<Placeholder
+					className="jetpack-paypal-payment-buttons__placeholder"
+					icon={ PayPalIcon }
+					label={ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }
+				>
+					{ __(
+						'Only a site administrator can connect PayPal and create payment buttons.',
+						'jetpack-paypal-payments'
+					) }
+				</Placeholder>
+			</div>
 		);
 	}
 

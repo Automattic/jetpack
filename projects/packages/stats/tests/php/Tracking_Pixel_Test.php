@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Stats;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WP_Query;
 
 /**
@@ -577,92 +580,86 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 	}
 
 	/**
-	 * Invoke the private build_consent_gate() directly with a chosen fail-open value, so both
-	 * branches can be covered without manipulating the global wp_has_consent() function.
-	 *
-	 * @param bool $fail_open Whether the gate should fire when the client-side API is unavailable.
 	 * @return string
 	 */
-	private function invoke_build_consent_gate( $fail_open ) {
+	private function invoke_build_consent_gate() {
 		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_consent_gate' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		return $method->invoke( new Tracking_Pixel(), '_stq.push([ "view", {} ]);', $fail_open );
+		$pushes = '_stq.push([ "view", {"v":"ext","blog":"1234","post":"0"} ]);' . "\n" . '_stq.push([ "clickTrackerInit", "1234", "0" ]);';
+		return $method->invoke( new Tracking_Pixel(), $pushes );
 	}
 
 	/**
-	 * When honor_cookie_consent is on, the tracking pushes must live *inside* the gate function
-	 * and nowhere else — otherwise a refactor could emit them unconditionally and silently
-	 * defeat the consent gate.
+	 * What the gate does in a browser, as views counted, console warnings and an escaping error.
+	 *
+	 * @return array
 	 */
-	public function test_build_stats_details_gates_on_consent_when_enabled() {
-		Options::set_option( 'honor_cookie_consent', true );
+	public static function consent_gate_scenarios() {
+		return array(
+			'allowed before the page is ready'             => array( 'allowed before the page is ready', 1, 0, null ),
+			'denied, then allowed in the banner'           => array( 'denied, then allowed in the banner', 1, 0, null ),
+			'declined in the banner'                       => array( 'declined in the banner', 0, 0, null ),
+			'gate that loads after the page is ready'      => array( 'gate that loads after the page is ready', 1, 0, null ),
+			'consent type defined after the page is ready' => array( 'consent type defined after the page is ready', 1, 0, null ),
+			'banner that sets an opt-in consent type later' => array( 'banner that sets an opt-in consent type later', 0, 0, null ),
+			'denied in a banner that sets no consent type' => array( 'denied in a banner that sets no consent type', 0, 0, null ),
+			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
+			'consent API that never loads'                 => array( 'consent API that never loads', 0, 1, null ),
+			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
+			'stats sender that throws'                     => array( 'stats sender that throws', 0, 0, 'stats sender' ),
+		);
+	}
+
+	/**
+	 * Runs the gate under Node: its behavior lives in the JavaScript, not the PHP that prints it.
+	 *
+	 * @dataProvider consent_gate_scenarios
+	 * @param string      $scenario A scenario in consent-gate-harness.js.
+	 * @param int         $views    Views the gate should send.
+	 * @param int         $warnings Console warnings it should log.
+	 * @param string|null $error    The error that should escape it.
+	 */
+	#[DataProvider( 'consent_gate_scenarios' )]
+	public function test_consent_gate_in_a_browser( $scenario, $views, $warnings, $error ) {
+		if ( ! shell_exec( 'command -v node 2>/dev/null' ) ) {
+			$this->markTestSkipped( 'Node is unavailable.' );
+		}
+		$gate_file = tempnam( sys_get_temp_dir(), 'jp-stats-gate' );
+		file_put_contents( $gate_file, $this->invoke_build_consent_gate() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+		$output = shell_exec( 'node ' . escapeshellarg( __DIR__ . '/consent-gate-harness.js' ) . ' ' . escapeshellarg( $gate_file ) . ' ' . escapeshellarg( $scenario ) . ' 2>&1' );
+		unlink( $gate_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		$this->assertSame(
+			array(
+				'views'    => $views,
+				'warnings' => $warnings,
+				'error'    => $error,
+			),
+			json_decode( (string) $output, true ),
+			(string) $output
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_build_stats_details_gates_with_consent_api() {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
 
 		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
 
-		// The gate uses the documented WP Consent API surface.
-		$this->assertStringContainsString( 'window.wp_has_consent( "statistics" )', $pixel_details );
-		$this->assertStringContainsString( 'wp_listen_for_consent_change', $pixel_details );
-
-		// Readiness-aware: the initial check is deferred to DOMContentLoaded rather than run
-		// synchronously at footer-parse time (avoids reading a permissive default too early), and
-		// the wp_consent_type_defined event re-runs the check if the API loads even later.
-		$this->assertStringContainsString( 'DOMContentLoaded', $pixel_details );
-		$this->assertStringContainsString( 'document.readyState', $pixel_details );
-		$this->assertStringContainsString( 'wp_consent_type_defined', $pixel_details );
-
-		// Structural guarantee: the view push appears exactly once, and only within the
-		// _jpStatsFire() body — never in a code path that bypasses the consent check.
-		$this->assertSame( 1, substr_count( $pixel_details, '_stq.push([ "view",' ) );
-		$this->assertSame( 1, preg_match( '/function _jpStatsFire\(\) \{(.*?)\n\}/s', $pixel_details, $matches ) );
-		$this->assertStringContainsString( '_stq.push([ "view",', $matches[1] );
-		$outside_gate = str_replace( $matches[0], '', $pixel_details );
-		$this->assertStringNotContainsString( '_stq.push', $outside_gate );
+		$this->assertStringContainsString( 'function _jpStatsFire()', $pixel_details );
 	}
 
-	/**
-	 * Fail-open (no WP Consent API plugin on the server): an unavailable client-side API still
-	 * fires the pixel, preserving historical behavior.
-	 */
-	public function test_build_consent_gate_fails_open() {
-		$gate = $this->invoke_build_consent_gate( true );
-
-		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
-		$this->assertStringContainsString( 'consented = true;', $gate );
-	}
-
-	/**
-	 * Fail-closed (WP Consent API plugin active on the server): an unavailable or throwing
-	 * client-side API waits for a consent-change event instead of firing.
-	 */
-	public function test_build_consent_gate_fails_closed() {
-		$gate = $this->invoke_build_consent_gate( false );
-
-		$this->assertStringContainsString( 'if ( false ) { _jpStatsFire(); }', $gate );
-		$this->assertStringContainsString( 'consented = false;', $gate );
-		$this->assertStringNotContainsString( 'if ( true ) { _jpStatsFire(); }', $gate );
-	}
-
-	/**
-	 * The default (no consent plugin in the test env) fails open, and the gate never emits the
-	 * removed withdrawal-suppression flag.
-	 */
-	public function test_build_stats_details_default_is_fail_open_and_has_no_denied_flag() {
+	public function test_build_stats_details_unchanged_without_consent_api() {
 		$this->assertFalse( function_exists( 'wp_has_consent' ), 'Test env must not define wp_has_consent.' );
-		Options::set_option( 'honor_cookie_consent', true );
 
-		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
-
-		$this->assertStringContainsString( 'if ( true ) { _jpStatsFire(); }', $pixel_details );
-		$this->assertStringNotContainsString( 'denied', $pixel_details );
-	}
-
-	/**
-	 * When honor_cookie_consent is off (default), the emitted pixel markup is byte-for-byte the
-	 * historical output — this is the backward-compat guarantee for the majority of traffic.
-	 */
-	public function test_build_stats_details_unchanged_when_disabled() {
 		$pixel_details = $this->invoke_build_stats_details( $this->consent_gate_data() );
 
 		$expected = "_stq = window._stq || [];\n"

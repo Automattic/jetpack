@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Overview: Make the date range picker keyboard-navigable with arrow keys.

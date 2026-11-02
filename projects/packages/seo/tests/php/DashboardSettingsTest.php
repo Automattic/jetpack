@@ -425,7 +425,14 @@ class DashboardSettingsTest extends TestCase {
 				),
 				array( 'pages' => array() ),
 			),
-			'non-array crawlers'      => array( Ai_Crawlers::OPTION, 'invalid', array() ),
+			'non-array crawlers'      => array(
+				Ai_Crawlers::OPTION,
+				'invalid',
+				array(
+					'answer'   => array(),
+					'training' => array(),
+				),
+			),
 		);
 	}
 
@@ -476,35 +483,27 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The AI crawler override map keeps arbitrary catalog slugs (it's sparse and
-	 * keyed by bot, not a fixed property list) and normalizes values to booleans.
+	 * The blocked crawlers save through core REST as `'all'` or a list per group, minus
+	 * slugs filed under the other group.
 	 */
-	public function test_ai_crawler_overrides_round_trip() {
+	public function test_blocked_crawlers_round_trip() {
 		$this->act_as( 'administrator' );
 
 		$this->save_settings(
 			array(
 				Ai_Crawlers::OPTION => array(
-					'gptbot'        => false,
-					'perplexitybot' => true,
+					'answer'   => array( 'perplexitybot', 'gptbot' ),
+					'training' => 'all',
 				),
 			)
 		);
 
-		$this->assertSame(
-			array(
-				'gptbot'        => false,
-				'perplexitybot' => true,
-			),
-			get_option( Ai_Crawlers::OPTION )
+		$expected = array(
+			'answer'   => array( 'perplexitybot' ),
+			'training' => 'all',
 		);
-		$this->assertSame(
-			array(
-				'gptbot'        => false,
-				'perplexitybot' => true,
-			),
-			Ai_Crawlers::get_overrides()
-		);
+		$this->assertSame( $expected, get_option( Ai_Crawlers::OPTION ) );
+		$this->assertSame( $expected, Ai_Crawlers::get_blocked() );
 	}
 
 	/**
@@ -839,6 +838,18 @@ class DashboardSettingsTest extends TestCase {
 		$this->assertFalse( $settings['canonical_switchable'] );
 
 		remove_filter( 'jetpack_active_modules', array( $this, 'force_sitemaps_and_canonical_active' ) );
+	}
+
+	/**
+	 * Turning canonical output off through the filter alone doesn't lock the switch.
+	 */
+	public function test_canonical_conflict_ignores_the_disable_filter() {
+		add_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		try {
+			$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_conflicted'] );
+		} finally {
+			remove_filter( 'jetpack_disable_canonical_urls', '__return_true' );
+		}
 	}
 
 	/**

@@ -4,6 +4,7 @@
 import { useStatsVisits, withoutComparison } from '@jetpack-premium-analytics/data';
 import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	HEADLINE_COUNT_FORMAT,
 	AbbreviatedValue,
 	describeError,
 	MetricSparklineSkeleton,
@@ -19,10 +20,15 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { TotalViewsAttributes } from './widget';
 import type { StatsVisitsParams, StatsVisitsResponse } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/**
+ * Configurable attributes for the Total views widget. There are none: the
+ * metric is fixed and the date range comes from the dashboard picker.
+ */
+export type TotalViewsAttributes = Record< never, never >;
 
 // Report params are usually URL-driven (WidgetRoot's fallback), but the host
 // and Storybook may also pass them via `attributes`.
@@ -37,8 +43,6 @@ type TotalViewsWidgetProps = WidgetRenderProps< TotalViewsRenderAttributes > & {
 // longer range could report a smaller total. Views are additive and unaffected,
 // but both cards share one unit and one request.
 const PERIOD = 'day';
-
-const HEADLINE_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
 
 /**
  * The period's view total over an area sparkline of the trend.
@@ -90,7 +94,7 @@ function TotalViewsMetric() {
 					{ /* Not `MetricValue`: it pins a 20px line-height at any font size, which
 					    clips 32px glyphs. `heading-2xl` pairs 32px with 40px. */ }
 					<Text variant="heading-2xl">
-						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_FORMAT } />
+						<AbbreviatedValue value={ total } dataFormat={ HEADLINE_COUNT_FORMAT } />
 					</Text>
 					<div className={ styles.chart }>
 						{ /* `withResponsive` caps width at 1200px by default, stranding space on a

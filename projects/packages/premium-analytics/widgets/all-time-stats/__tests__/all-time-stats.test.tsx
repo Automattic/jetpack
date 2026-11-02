@@ -8,7 +8,6 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import AllTimeStatsWidget from '../render';
-import widgetDefinition from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -34,19 +33,14 @@ describe( 'AllTimeStatsWidget', () => {
 		mockApiFetch.mockResolvedValue( SITE_PAYLOAD );
 	} );
 
-	it( 'offers no attribute controls', () => {
-		expect( widgetDefinition.attributes ).toEqual( [] );
-	} );
-
 	it( 'shows every lifetime total', async () => {
 		const { container } = renderWidget();
 
 		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
-		// The compact figure is hidden from assistive tech; the exact one beside it
-		// is hidden visually.
-		expect( container ).toHaveTextContent( 'Views2.1K2,068' );
-		expect( screen.getByText( '2.1K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		// A single-figure widget: the exact figure, with no compact one beside it.
+		expect( container ).toHaveTextContent( 'Views2,068' );
+		expect( screen.queryByText( '2.1K' ) ).not.toBeInTheDocument();
 		expect( container ).toHaveTextContent( 'Comments1' );
 	} );
 

@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -24,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.15.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -49,6 +48,13 @@ class Analytics {
 	 * @var string|null
 	 */
 	private static $resolved_menu_title = null;
+
+	/**
+	 * Whether the host has this dashboard replace stats-admin's pre-connection Stats page.
+	 *
+	 * @var bool
+	 */
+	private static $replaces_pre_connection_stats_page = false;
 
 	/**
 	 * Path to the wp-build entry point. Null uses the generated build.
@@ -76,24 +82,42 @@ class Analytics {
 	 *                         the package's own translated label. Pass a closure to supply
 	 *                         a translated label of your own: it runs on admin_menu, where
 	 *                         a textdomain can load, unlike init time.
+	 *                       - replaces_pre_connection_stats_page (bool): Stop stats-admin from
+	 *                         registering its own Stats page while the site is not connected, so
+	 *                         this dashboard is the only Stats entry. Defaults to whether classic
+	 *                         Stats is retired.
+	 *                       A later call still applies its options, so a host that calls this after
+	 *                       another plugin did keeps its configuration.
 	 * @return void
 	 */
 	public static function init( $options = array() ) {
+		self::apply_options( $options );
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-		self::apply_options( $options );
 
 		self::register_sync_bootstrap();
 		self::register_local_api();
 
 		// Piggybacks on the Jetpack Stats module; checks Jetpack connection state.
 		Jetpack_Stats_Tracker::configure();
+		self::register_pre_connection_stats_page_replacement();
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
 		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Whether Stats v2 booted in this request, whichever plugin or platform booted it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_initialized() {
+		return self::$initialized;
 	}
 
 	/**
@@ -147,11 +171,11 @@ class Analytics {
 	 * @return void
 	 */
 	public static function init_wpcom_simple( $options = array() ) {
+		self::apply_options( $options );
 		if ( self::$initialized ) {
 			return;
 		}
 		self::$initialized = true;
-		self::apply_options( $options );
 
 		self::boot_shared_services();
 		self::load_dashboard_surface();
@@ -168,6 +192,26 @@ class Analytics {
 			self::$menu_title          = $options['menu_title'];
 			self::$resolved_menu_title = null;
 		}
+		if ( ! empty( $options['replaces_pre_connection_stats_page'] ) ) {
+			self::$replaces_pre_connection_stats_page = true;
+		}
+	}
+
+	/**
+	 * Replace stats-admin's pre-connection Stats page with this dashboard when the host asks, or once classic Stats is retired.
+	 *
+	 * The callback reads the option when stats-admin initializes on `plugins_loaded`, so a host whose
+	 * init() call comes after another plugin's still takes effect.
+	 *
+	 * @return void
+	 */
+	private static function register_pre_connection_stats_page_replacement() {
+		add_filter(
+			'jetpack_stats_admin_pre_connection_dashboard',
+			static function ( $register ) {
+				return self::$replaces_pre_connection_stats_page || Classic_Stats::is_retired() ? false : $register;
+			}
+		);
 	}
 
 	/**
@@ -226,9 +270,9 @@ class Analytics {
 
 	/**
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
-	 * a bool, and one capability check.
+	 * a bool, and one access check.
 	 *
-	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 * `can_view` is whether this user can open a Stats view: every link other surfaces build from it opens one.
 	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
@@ -237,7 +281,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => Capabilities::current_user_can_view_stats(),
+			'can_view'  => Capabilities::current_user_can_open_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -286,9 +330,6 @@ class Analytics {
 		Connection_Configuration::configure();
 
 		Sync_Status_Tracker::configure();
-
-		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
-		Sync_Configuration::register();
 	}
 
 	/**
@@ -349,6 +390,12 @@ class Analytics {
 			configure_dashboard_sections_script_data();
 		}
 
+		// Single-report page API; other plugins and, later, the package register pages through it.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_single_report_page' ) ) {
+			require_once __DIR__ . '/single-report-pages.php';
+		}
+		configure_single_report_pages_script_data();
+
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
 			require_once __DIR__ . '/csv-exports.php';
@@ -373,6 +420,17 @@ class Analytics {
 			require_once __DIR__ . '/purchase-success.php';
 		}
 		configure_purchase_success();
+
+		// When the site first opened the dashboard, for notices that wait a while before showing.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
+			require_once __DIR__ . '/dashboard-first-visit.php';
+		}
+		configure_dashboard_first_visit();
+
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
+			require_once __DIR__ . '/assets-url.php';
+		}
+		configure_assets_url();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
@@ -469,9 +527,21 @@ class Analytics {
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
 			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
+			add_action( 'admin_page_access_denied', array( static::class, 'redirect_denied_dashboard_request' ) );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
+	}
+
+	/**
+	 * Sends a reader who lost access, for example because the site was disconnected, to the
+	 * wp-admin Dashboard instead of the "not allowed" screen.
+	 *
+	 * @return never
+	 */
+	public static function redirect_denied_dashboard_request() {
+		wp_safe_redirect( admin_url() );
+		exit;
 	}
 
 	/**
@@ -543,16 +613,17 @@ class Analytics {
 		$menu_title = self::menu_title();
 
 		$menu_title = esc_html( $menu_title );
+		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
 		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
-			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			add_menu_page( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
 			return;
 		}
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**
@@ -591,9 +662,14 @@ class Analytics {
 
 		// A positive check rather than a null coalesce: a closure may return an empty string, or
 		// something that isn't a string at all, and either would reach esc_html() as a broken label.
-		self::$resolved_menu_title = is_string( $title ) && '' !== $title
-			? $title
-			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		if ( is_string( $title ) && '' !== $title ) {
+			self::$resolved_menu_title = $title;
+		} elseif ( Classic_Stats::is_retired() ) {
+			// No classic Stats menu is left to tell apart from.
+			self::$resolved_menu_title = __( 'Stats', 'jetpack-premium-analytics-pkg' );
+		} else {
+			self::$resolved_menu_title = __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		}
 
 		return self::$resolved_menu_title;
 	}

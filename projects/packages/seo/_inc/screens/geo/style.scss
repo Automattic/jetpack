@@ -9,6 +9,13 @@
 	margin-inline: auto;
 }
 
+// The line at the top of the tab that spells out "GEO". Muted, like the page
+// header's subtitle and the crawler groups' intros, so it reads as context
+// rather than as a module.
+.jetpack-seo-geo__intro {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 // Align llms.txt action links with the toggle's label/help text rather than the
 // switch. 40px matches @wordpress/components ToggleControl's help
 // margin-inline-start (≈ 36px switch + gap).
@@ -29,7 +36,7 @@
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-// The group-level "Allow all" master toggle, divided from the per-crawler
+// The group-level "Block all" master toggle, divided from the per-crawler
 // rows below so it reads as a control over the whole group.
 .jetpack-seo-geo__crawler-bulk {
 	padding-block-end: var(--wpds-dimension-gap-md);

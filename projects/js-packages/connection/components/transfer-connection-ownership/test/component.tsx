@@ -5,7 +5,13 @@ import userEvent from '@testing-library/user-event';
 // ESM test: static jest.mock does not work under --experimental-vm-modules, so mock the module
 // with unstable_mockModule (must run before the dynamic import of the component below).
 const mockFetchCandidates = jest.fn< () => Promise< unknown > >();
+const mockRecordEvent = jest.fn();
 const mockSetConnectionOwner = jest.fn< ( id: number ) => Promise< unknown > >();
+
+jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: mockRecordEvent }, initialize: jest.fn() },
+} ) );
 
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -56,8 +62,9 @@ describe( 'TransferConnectionOwnership', () => {
 	};
 
 	const chooseKazz = async ( user: ReturnType< typeof userEvent.setup > ) => {
+		await expect( screen.findByRole( 'option', { name: /Kazz/ } ) ).resolves.toBeInTheDocument();
 		await user.selectOptions(
-			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			screen.getByRole( 'combobox', { name: /New connection owner/ } ),
 			'7'
 		);
 	};
@@ -86,9 +93,12 @@ describe( 'TransferConnectionOwnership', () => {
 		mockFetchCandidates.mockResolvedValue( [ candidates[ 0 ] ] );
 		render( <TransferConnectionOwnership { ...props } /> );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Continue' } )
-		).resolves.not.toHaveAttribute( 'aria-disabled', 'true' );
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 		expect( screen.getByRole( 'combobox', { name: /New connection owner/ } ) ).toHaveTextContent(
 			'Kazz'
 		);
@@ -101,7 +111,7 @@ describe( 'TransferConnectionOwnership', () => {
 		).resolves.toBeInTheDocument();
 
 		// @wordpress/ui keeps disabled buttons focusable, so it marks them with aria-disabled.
-		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+		await expect( screen.findByRole( 'button', { name: 'Continue' } ) ).resolves.toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -240,6 +250,20 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'decodes the HTML-encoded display names WordPress stores', async () => {
+		mockFetchCandidates.mockResolvedValue( [
+			{ ...candidates[ 0 ], displayName: 'O&#039;Neil &amp; Sons &lt;3' },
+		] );
+		const user = userEvent.setup();
+		render( <TransferConnectionOwnership { ...props } /> );
+
+		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
+
+		await expect(
+			screen.findByRole( 'option', { name: "O'Neil & Sons <3 (kazz@example.com)" } )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'says so when the candidates cannot be loaded', async () => {
 		mockFetchCandidates.mockRejectedValue( new Error( 'Network down' ) );
 		render( <TransferConnectionOwnership { ...props } /> );
@@ -264,5 +288,72 @@ describe( 'TransferConnectionOwnership', () => {
 		).not.toBeInTheDocument();
 		// The chooser prompt would be pointing at a list that is not there.
 		expect( screen.queryByText( /Choose a connected administrator/ ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'tracking', () => {
+		const transfer = async ( user: ReturnType< typeof userEvent.setup > ) => {
+			await chooseKazz( user );
+			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
+		};
+
+		it( 'reports the attempt and the success for a tracking context', async () => {
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+			await transfer( user );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith(
+					'jetpack_connection_owner_transfer_success',
+					{ context: 'connectors' }
+				)
+			);
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_attempt', {
+				context: 'connectors',
+			} );
+		} );
+
+		it.each( [
+			[ 'ownership_locked', 'ownership_locked' ],
+			[ 'new_owner_not_admin', 'new_owner_not_admin' ],
+			[ 'new_owner_not_connected', 'new_owner_not_connected' ],
+			[ 'new_owner_is_existing_owner', 'new_owner_is_existing_owner' ],
+			[ 'something_new', 'unknown' ],
+		] )( 'reports a %s refusal with reason %s', async ( code, reason ) => {
+			mockSetConnectionOwner.mockRejectedValue( apiError( code, 'Raw server text' ) );
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+			await transfer( user );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_error', {
+					reason,
+					context: 'connectors',
+				} )
+			);
+		} );
+
+		it( 'reports a candidate list that could not load', async () => {
+			mockFetchCandidates.mockRejectedValue( new Error( 'offline' ) );
+			render( <TransferConnectionOwnership { ...props } trackingContext="connectors" /> );
+
+			await waitFor( () =>
+				expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_error', {
+					reason: 'candidates_load_failed',
+					context: 'connectors',
+				} )
+			);
+		} );
+
+		it( 'reports a null context when none is passed', async () => {
+			const user = userEvent.setup();
+			render( <TransferConnectionOwnership { ...props } /> );
+			await transfer( user );
+
+			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalled() );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_connection_owner_transfer_attempt', {
+				context: null,
+			} );
+		} );
 	} );
 } );

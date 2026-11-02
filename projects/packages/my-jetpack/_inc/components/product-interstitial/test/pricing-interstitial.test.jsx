@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../../data/products/use-activate-search-free-product';
 import useProduct from '../../../data/products/use-product';
+import { prepareProductData } from '../../../data/utils/prepare-product-data';
 import PricingInterstitial from '../pricing-interstitial';
 
 jest.mock( '../../../data/products/use-activate-plugins' );
@@ -49,12 +50,12 @@ jest.mock( '../config', () => ( {
 		search: {
 			title: 'Search',
 			logo: null,
-			bundle: 'complete',
+			bundle: mockBundleSlug,
 			features: [],
 			tiers: {
 				free: { name: 'Free', cta: 'Start for free' },
 				paid: { name: 'Search', cta: 'Get Search' },
-				bundle: { name: 'Complete', cta: 'Get Complete' },
+				bundle: { name: mockBundleSlug, cta: `Get ${ mockBundleSlug }` },
 			},
 		},
 	} ),
@@ -68,7 +69,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	PricingTableColumn: ( { children } ) => <div>{ children }</div>,
 	PricingTableHeader: ( { children } ) => <div>{ children }</div>,
 	PricingTableItem: () => <div />,
-	ProductPrice: () => <div />,
+	ProductPrice: jest.requireActual( '@automattic/jetpack-components/product-price' ).default,
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
@@ -83,6 +84,9 @@ jest.mock( '@wordpress/ui', () => ( {
 jest.mock( '@wordpress/components', () => ( { Spinner: () => <div /> } ) );
 jest.mock( '../product-interstitial', () => () => <div data-testid="legacy-interstitial" /> );
 jest.mock( '../../go-back-link', () => () => <div /> );
+jest.mock( '../../product-detail-card', () => ( { slug } ) => (
+	<div data-testid="bundle-offer">{ slug }</div>
+) );
 
 const POST_ACTIVATION_URL = 'https://example.org/wp-admin/admin.php?page=jetpack-search';
 
@@ -106,12 +110,14 @@ const searchDetail = {
 	},
 };
 
+let mockBundleSlug = 'complete';
 let activate;
 let runSearchFreeActivation;
 let freeCheckoutRun;
 let searchFreeIsPending;
 
 beforeEach( () => {
+	mockBundleSlug = 'complete';
 	jest.clearAllMocks();
 	searchFreeIsPending = false;
 
@@ -163,4 +169,68 @@ describe( 'PricingInterstitial free tier for Search', () => {
 		// so a reset that only watched that one would re-enable these mid-request.
 		screen.getAllByRole( 'button' ).forEach( button => expect( button ).toBeDisabled() );
 	} );
+} );
+
+it.each( [ 'security', 'growth', 'complete' ] )(
+	'preserves %s offers until retirement, then uses the available replacement',
+	legacyBundle => {
+		mockBundleSlug = legacyBundle;
+		const pro = {
+			pricingForUi: { catalogAvailable: false, available: false },
+			hasPaidPlanForProduct: false,
+		};
+		const legacy = { pricingForUi: { available: true }, title: legacyBundle };
+		const products = {
+			complete: { pricingForUi: { available: true } },
+			[ legacyBundle ]: legacy,
+			pro,
+		};
+		useProduct.mockImplementation( slug => ( {
+			detail: products[ slug ] || searchDetail,
+			isLoading: false,
+		} ) );
+		const { rerender } = render( <PricingInterstitial slug="search" /> );
+		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
+		expect( screen.queryByTestId( 'bundle-offer' ) ).not.toBeInTheDocument();
+		pro.pricingForUi = { catalogAvailable: true, available: true };
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( 'pro' );
+		pro.pricingForUi.available = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( 'complete' );
+		pro.pricingForUi.catalogAvailable = false;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByRole( 'button', { name: `Get ${ legacyBundle }` } ) ).toBeEnabled();
+		legacy.pricingForUi.available = false;
+		legacy.purchaseReplacement = legacyBundle === 'complete' ? null : { slug: 'complete' };
+		rerender( <PricingInterstitial slug="search" /> );
+		expect(
+			screen.queryByRole( 'button', { name: `Get ${ legacyBundle }` } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bundle-offer' )?.textContent ?? null ).toBe(
+			legacyBundle === 'complete' ? null : 'complete'
+		);
+		legacy.hasPaidPlanForProduct = true;
+		rerender( <PricingInterstitial slug="search" /> );
+		expect( screen.getByTestId( 'bundle-offer' ) ).toHaveTextContent( legacyBundle );
+	}
+);
+
+it.each( [
+	// Only the mapper input matters here; Search's own server-side fallback price is not modelled.
+	[ 'not loaded', {}, [ '$0' ] ],
+	[
+		'loaded',
+		{ product_term: 'year', currency_code: 'USD', full_price: 120, discount_price: 60 },
+		[ '$0', '$5', '$10', '$5', '$10' ],
+	],
+] )( 'shows only real paid prices when the catalog is %s', ( _state, pricing, prices ) => {
+	const detail = prepareProductData( {
+		slug: 'search',
+		pricing_for_ui: { available: true, wpcom_product_slug: 'jetpack_search', ...pricing },
+	} );
+	useProduct.mockReturnValue( { detail, isLoading: false } );
+	const { container } = render( <PricingInterstitial slug="search" /> );
+	expect( container ).not.toHaveTextContent( 'NaN' );
+	expect( screen.queryAllByText( /^\$\d+$/ ).map( price => price.textContent ) ).toEqual( prices );
 } );

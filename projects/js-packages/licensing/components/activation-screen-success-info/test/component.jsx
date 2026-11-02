@@ -13,6 +13,17 @@ describe( 'ActivationSuccessInfo', () => {
 		siteRawUrl: 'http://test-site.jurassic.ninja',
 	};
 
+	it.each( [ 2024, 2025, 2026 ] )(
+		'recognizes Pro license %s and links to its backup',
+		productId => {
+			render( <ActivationSuccessInfo { ...testProps } productId={ productId } /> );
+			expect(
+				screen.getByRole( 'heading', { name: /Jetpack Pro is active!/ } )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /View latest backup/ } ) ).toBeInTheDocument();
+		}
+	);
+
 	describe( 'Render the ActivationSuccessInfo component', () => {
 		it( 'shows the correct product name', () => {
 			render( <ActivationSuccessInfo { ...testProps } /> );

@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
 
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/traits/trait-analytics-capabilities.php';
@@ -1440,11 +1441,31 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array(
 				'has_videopress'             => true,
 				'can_view_stats'             => true,
+				'classic_stats_url'          => null,
 				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
 				'plan_date_limited_sections' => array( 'traffic' ),
 			),
 			$data['premium_analytics']
 		);
+	}
+
+	/**
+	 * Switching the dashboard off lands on classic Stats, so the client is told where that page
+	 * is, also when the Jetpack plugin registers it under its own menu rather than top-level.
+	 */
+	public function test_section_script_data_carries_the_classic_stats_page_url() {
+		$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+
+		$GLOBALS['_parent_pages']['jetpack'] = false;
+		$GLOBALS['_parent_pages']['stats']   = 'jetpack';
+		try {
+			$this->assertSame(
+				admin_url( 'admin.php?page=stats' ),
+				inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url']
+			);
+		} finally {
+			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
 	}
 
 	/**

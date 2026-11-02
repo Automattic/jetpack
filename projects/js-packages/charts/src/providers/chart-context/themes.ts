@@ -49,7 +49,6 @@ const defaultTheme: CompleteChartTheme = {
 		barStyles: {
 			comparison: {
 				widthFactor: 1.5,
-				opacity: 0.5,
 			},
 		},
 	},

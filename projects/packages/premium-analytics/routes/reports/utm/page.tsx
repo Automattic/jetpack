@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Button } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -11,9 +12,10 @@ import {
 	ReportPageTabs,
 	ExporterCsvAction,
 	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type UtmReportRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -78,18 +80,26 @@ function UtmReport(): JSX.Element {
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
+	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
+	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ utmCsvExporters[ activeTab ] }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<Button variant="outline" size="compact" onClick={ openBuilder }>
+						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+					<ExporterCsvAction
+						exporter={ utmCsvExporters[ activeTab ] }
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+				</>
 			}
 		>
 			<ReportPageLayout
@@ -121,6 +131,7 @@ function UtmReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
+			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
 		</ReportPageShell>
 	);
 }

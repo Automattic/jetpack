@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Draw negative values below zero in ranked bar charts, show the right direction of change when the previous value was negative, and size list bars to the current period when comparing.

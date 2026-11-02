@@ -37,6 +37,8 @@ interface Props {
 	uiLocale?: string;
 	// The site-language copy the fallback drafts are written from.
 	copy: SiteCopy;
+	// Whether the site was built with AI, which changes the fallback list.
+	aiBuilt?: boolean;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -52,6 +54,7 @@ interface Props {
  * @param props.locale          - Site language forwarded to the payload.
  * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
+ * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -61,6 +64,7 @@ export function Wizard( {
 	locale = 'en',
 	uiLocale = locale,
 	copy,
+	aiBuilt = false,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -118,7 +122,7 @@ export function Wizard( {
 			} )
 			.catch( () => {} );
 
-		const tailoring = tailor( payload, copy );
+		const tailoring = tailor( payload, copy, aiBuilt );
 		trackWizardStepCompleted( { step: stepName } );
 		// One event per field the user actually modified, vs the pre-filled values.
 		if ( siteName.trim() !== initialSiteName.trim() ) {

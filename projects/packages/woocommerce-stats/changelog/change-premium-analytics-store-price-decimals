@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass the store's number of decimals to the dashboard, so store money shows that many decimals.

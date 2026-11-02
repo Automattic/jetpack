@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { GrossSalesOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type GrossSalesOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type GrossSalesOverTimeRenderAttributes = GrossSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jetpack_protect_threat_notifications_enabled` filter so hosts can stop threats from being announced outside the Protect page.

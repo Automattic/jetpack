@@ -1,3 +1,9 @@
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
+
 /**
  * External dependencies
  */
@@ -9,9 +15,11 @@ import {
 	computePrimaryRange,
 	dateToISOStringWithTZ,
 } from '@jetpack-premium-analytics/datetime';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
+import { mockWordPressRoute, setMockRouteSearch } from '../tests/js/route-test-utils';
 import { useDetailDateControls } from './use-detail-date-controls';
 
 // A zone ahead of UTC, so a visitor-zone reading of the wall time would land on
@@ -20,15 +28,17 @@ const TIME_ZONE = 'Asia/Taipei';
 const DEFAULTS = getSettings();
 
 /**
- * A date-filter controller slice with nothing applied, overridable per test.
+ * A date-filter controller slice with nothing applied or staged, overridable per test.
  *
- * @param overrides - Fields to set on the slice.
+ * @param overrides - Fields to set on the slice; the draft follows the applied fields unless set.
  * @return The controller slice.
  */
 function filters( overrides: Partial< Parameters< typeof useDetailDateControls >[ 1 ] > = {} ) {
 	return {
-		appliedPresetId: undefined,
-		appliedRange: {},
+		appliedPresetId: overrides.appliedPresetId,
+		appliedRange: overrides.appliedRange ?? {},
+		presetId: overrides.appliedPresetId,
+		range: overrides.appliedRange ?? {},
 		replaceRange: jest.fn(),
 		timeZone: TIME_ZONE,
 		...overrides,
@@ -108,6 +118,36 @@ describe( 'useDetailDateControls with the site ahead of UTC', () => {
 			expect( dateToISOStringWithTZ( range.from, TIME_ZONE ) ).toBe(
 				'2026-07-08T00:00:00.000+08:00'
 			);
+		} );
+
+		it( 'asks the router for the anchor once while it is still navigating', () => {
+			setMockRouteSearch( {
+				preset: 'all-time',
+				from: '2020-01-01T00:00:00.000+08:00',
+				to: '2026-12-31T23:59:59.999+08:00',
+				interval: 'month',
+			} );
+			// The navigation never lands, so the URL keeps its range. Fail fast: without
+			// the fix the loop never ends, and the run dies out of memory.
+			const navigate = jest.fn( () => {
+				if ( navigate.mock.calls.length > 5 ) {
+					throw new Error( 'The anchor kept navigating.' );
+				}
+			} );
+			const useNavigate = jest
+				.spyOn( mockWordPressRoute, 'useNavigate' )
+				.mockReturnValue( navigate );
+
+			try {
+				renderHook( () =>
+					useDetailDateControls( '2026-07-08 00:29:35', useReportDateFilters( '/post/$postId' ) )
+				);
+			} finally {
+				useNavigate.mockRestore();
+				setMockRouteSearch();
+			}
+
+			expect( navigate ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		it( 'leaves an all-time range that already starts on the publish day alone', () => {

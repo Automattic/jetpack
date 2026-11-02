@@ -32,6 +32,8 @@ export { drillDateRange } from './drill-date-range';
 
 export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
 
+export { isRepeatedHour } from './repeated-hour';
+
 export { parseSiteDateTime } from './site-datetime';
 
 export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';

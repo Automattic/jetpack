@@ -6,9 +6,10 @@ import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef, type ComponentProps } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
-import LineChart, { LineChartUnresponsive } from '../line-chart';
+import LineChart, { LineChartUnresponsive, renderDefaultTooltip } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { RenderLineGlyphProps } from '../types';
 
@@ -1658,6 +1659,32 @@ describe( 'LineChart', () => {
 				} );
 			} );
 
+			test.each( [
+				[ 'the first is hidden', [ { ...SERIES_A, data: SERIES_A.data.slice( 0, 1 ) }, SERIES_B ] ],
+				[
+					'the first visible series is empty',
+					[ SERIES_A, { ...SERIES_A, label: 'Empty', data: [] }, SERIES_B ],
+				],
+			] )( 'Enter reaches every visible point when %s', async ( _, data ) => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				renderWithTheme( {
+					data,
+					defaultHiddenSeries: [ 'Series A' ],
+					chartId: 'activation-hidden-first',
+					onDatumActivate,
+				} );
+
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					datum: SERIES_B.data[ 1 ],
+					index: 1,
+					key: 'Series B',
+				} );
+			} );
+
 			test( 'Enter with no point selected activates nothing', async () => {
 				const user = userEvent.setup();
 				const onDatumActivate = jest.fn();
@@ -1667,6 +1694,80 @@ describe( 'LineChart', () => {
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe( 'Keyboard stops by date', () => {
+			const point = ( day: number, value: number | null ) => ( {
+				date: new Date( `2024-01-0${ day }` ),
+				value,
+			} );
+			const rowsTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+				<div data-testid="rows-tooltip">
+					{ Object.values( tooltipData?.datumByKey ?? {} )
+						.map( ( { key, datum } ) => `${ key }=${ datum.value }` )
+						.sort()
+						.join( ';' ) }
+				</div>
+			);
+			const renderRows = ( data: SeriesData[], props = {} ) => {
+				renderWithTheme( { data, withTooltips: true, renderTooltip: rowsTooltip, ...props } );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			};
+
+			it( 'stops at every date any series has and reads each series there', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
+					{ label: 'B', data: [ point( 2, 20 ), point( 4, 40 ) ] },
+				] );
+
+				const expected = [
+					{ text: 'A=1', stop: 0 },
+					{ text: 'A=2;B=20', stop: 1 },
+					{ text: 'A=3', stop: 2 },
+					{ text: 'B=40', stop: 3 },
+					{ text: 'B=40', stop: 3 },
+				];
+				for ( const { text, stop } of expected ) {
+					await user.keyboard( '{ArrowRight}' );
+					await waitFor( () => {
+						expect( screen.getByTestId( `chart-tooltip-${ stop }` ) ).toBeInTheDocument();
+						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
+							new RegExp( `^${ text }$` )
+						);
+					} );
+				}
+			} );
+
+			it( 'keeps a null point at the selected date', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ) ] },
+					{ label: 'B', data: [ point( 1, null ), point( 2, 20 ) ] },
+				] );
+
+				await user.keyboard( '{ArrowRight}' );
+				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
+					/^A=1;B=null$/
+				);
+			} );
+
+			it( 'activates the first visible series with a point at the selected date', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				const seriesB = { label: 'Series B', data: [ point( 1, 10 ), point( 2, 20 ) ] };
+				renderRows( [ { label: 'Series A', data: [ point( 2, 2 ) ] }, seriesB ], {
+					onDatumActivate,
+				} );
+
+				await user.keyboard( '{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					key: 'Series B',
+					index: 0,
+					datum: seriesB.data[ 0 ],
+				} );
 			} );
 		} );
 
@@ -1857,6 +1958,144 @@ describe( 'LineChart', () => {
 			// The series should now be hidden (aria-pressed = false)
 			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
 			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it.each( [ 'Series A', 'Series B' ] )(
+			'leaves %s out of the keyboard tooltip once it is hidden',
+			async hiddenLabel => {
+				const user = userEvent.setup();
+				const visibleLabel = hiddenLabel === 'Series A' ? 'Series B' : 'Series A';
+				const renderTooltip = jest.fn( renderDefaultTooltip );
+
+				render(
+					<GlobalChartsProvider>
+						<LineChartUnresponsive
+							width={ 500 }
+							height={ 300 }
+							data={ [
+								defaultProps.data[ 0 ],
+								{
+									label: 'Series B',
+									data: [
+										{ date: new Date( '2024-01-01' ), value: 15 },
+										{ date: new Date( '2024-01-02' ), value: 25 },
+									],
+								},
+							] }
+							withGradientFill={ false }
+							showLegend={ true }
+							legend={ { interactive: true } }
+							renderTooltip={ renderTooltip }
+							chartId={ `test-keyboard-tooltip-hidden-${ hiddenLabel }` }
+						/>
+					</GlobalChartsProvider>
+				);
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( hiddenLabel ) } ) );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+				await user.keyboard( '{ArrowRight}' );
+
+				const tooltip = await screen.findByTestId( 'line-chart-tooltip-content' );
+				expect( tooltip ).toHaveTextContent( visibleLabel );
+				expect( tooltip ).not.toHaveTextContent( hiddenLabel );
+				expect( renderTooltip ).toHaveBeenLastCalledWith(
+					expect.objectContaining( {
+						tooltipData: expect.objectContaining( {
+							nearestDatum: expect.objectContaining( { key: visibleLabel } ),
+						} ),
+					} )
+				);
+			}
+		);
+
+		it( 'does not leave a series hidden mid-navigation in the keyboard tooltip', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						data={ [
+							defaultProps.data[ 0 ],
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+						withGradientFill={ false }
+						showLegend={ true }
+						legend={ { interactive: true } }
+						chartId="test-keyboard-tooltip-hide-mid-navigation"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			await user.click( screen.getByRole( 'button', { name: /Series A/ } ) );
+
+			await waitFor( () =>
+				expect( screen.queryByTestId( 'line-chart-tooltip-content' ) ).not.toBeInTheDocument()
+			);
+		} );
+
+		it( 'drops a series hidden programmatically from an open keyboard tooltip', async () => {
+			const user = userEvent.setup();
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						chartId="test-keyboard-tooltip-programmatic-hide"
+						data={ [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10 },
+									{ date: new Date( '2024-01-02' ), value: 20 },
+									{ date: new Date( '2024-01-03' ), value: 30 },
+								],
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15 },
+									{ date: new Date( '2024-01-02' ), value: 25 },
+								],
+							},
+						] }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await expect(
+				screen.findByTestId( 'line-chart-tooltip-content' )
+			).resolves.toHaveTextContent( 'Series A' );
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-keyboard-tooltip-programmatic-hide', 'Series A' );
+			} );
+
+			await waitFor( () => expect( screen.queryByText( 'Series A:' ) ).not.toBeInTheDocument() );
+			expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).toHaveTextContent( 'Series B' );
 		} );
 
 		it( 'does not filter series when legendInteractive is false', () => {

@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { EmptyStateControl } from '../../channel/editor-controls';
 import { blockStyleVars } from './block-style-vars';
 import { hydratePoster } from './hydrate-poster';
 import { MAX_COLUMNS, MAX_PER_PAGE, MIN_COLUMNS, MIN_PER_PAGE } from './types';
@@ -182,6 +183,11 @@ export default function AllPlaylistsEdit( {
 						{ value: 'updated', label: __( 'Recently updated', 'jetpack-videopress-pkg' ) },
 					] }
 					onChange={ ( value: string ) => setAttributes( { orderBy: value as AllPlaylistsOrder } ) }
+				/>
+				<EmptyStateControl
+					kind="playlists"
+					value={ attributes.emptyState }
+					onChange={ emptyState => setAttributes( { emptyState } ) }
 				/>
 			</PanelBody>
 

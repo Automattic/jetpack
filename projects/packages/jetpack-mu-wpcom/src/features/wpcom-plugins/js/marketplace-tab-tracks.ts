@@ -14,23 +14,31 @@ type Track = ( name: string, props: Record< string, unknown > ) => void;
 /**
  * The event a click on a card's link records, with the props Calypso sends for the same click.
  *
- * @param action      - The link's `data-wpcom-marketplace-track` value.
- * @param card        - The card's dataset.
- * @param card.plugin - Marketplace product slug.
- * @param card.saas   - 'true' for a product sold by the vendor.
+ * @param action         - The link's `data-wpcom-marketplace-track` value.
+ * @param card           - The card's dataset.
+ * @param card.plugin    - Marketplace product slug.
+ * @param card.saas      - 'true' for a product sold by the vendor.
+ * @param card.needsPlan - 'true' when buying it also buys a plan.
  * @return Event name and props, or null when the click is not one we track.
  */
 export function clickEvent(
 	action: string | undefined,
-	card: { plugin?: string; saas?: string }
-): [ string, { plugin: string; is_saas_product: boolean } ] | null {
+	card: { plugin?: string; saas?: string; needsPlan?: string }
+): [ string, { plugin: string; is_saas_product: boolean; needs_plan_upgrade: boolean } ] | null {
 	const name = action ? CLICK_EVENTS.get( action ) : undefined;
 
 	if ( ! name || ! card.plugin ) {
 		return null;
 	}
 
-	return [ name, { plugin: card.plugin, is_saas_product: card.saas === 'true' } ];
+	return [
+		name,
+		{
+			plugin: card.plugin,
+			is_saas_product: card.saas === 'true',
+			needs_plan_upgrade: card.needsPlan === 'true',
+		},
+	];
 }
 
 /**

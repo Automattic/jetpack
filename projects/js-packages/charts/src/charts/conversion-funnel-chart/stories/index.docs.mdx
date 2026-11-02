@@ -185,13 +185,17 @@ Full control over component rendering with custom render functions:
 				)}
 			</div>
 		)}
-		renderTooltip={({ step }) => (
+		renderTooltip={({ step, content }) => (
 			<div style={{ minWidth: '200px' }}>
 				<div>{step.label}</div>
-				<div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-					{step.rate.toFixed(1)}%
-					{step.count && <span> • {step.count.toLocaleString()} items</span>}
-				</div>
+				{content.value && (
+					<div style={{ fontSize: '18px', fontWeight: 'bold' }}>{content.value}</div>
+				)}
+				{content.rows?.map(row => (
+					<div key={row.label}>
+						{row.label}: <strong>{row.value}</strong>
+					</div>
+				))}
 			</div>
 		)}
 		tooltipStyle={{
@@ -206,9 +210,10 @@ Full control over component rendering with custom render functions:
 ### Available Render Props
 
 - **`renderMainMetric`**: Customize the main conversion rate display
-- **`renderStepLabel`**: Customize individual step labels
-- **`renderStepRate`**: Customize individual step rate displays
-- **`renderTooltip`**: Customize tooltip content. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`renderStepLabel`**: Customize individual step labels. Render plain text only: screen readers cannot reach it, and a link or button in it is never announced.
+- **`renderStepRate`**: Customize individual step rate displays. Render plain text only, as for `renderStepLabel`.
+- **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the tooltip as the selected step's description, without the name.
+- **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives. Screen readers read the whole rendered tooltip as the selected step's description, including the step's name if it shows one. It sits inside the dark tooltip box, so let it inherit the box colors.
 - **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
@@ -385,29 +390,33 @@ Measure content consumption funnel from page views to conversions.
 
 ### Keyboard Navigation
 
-- **Tab Navigation**: Funnel step bars are focusable and accessible via Tab key
-- **Enter/Space**: Activate step interactions and show tooltips
-- **Escape**: Clear selections and hide tooltips
-- **Focus Management**: Blurred steps have `tabIndex={-1}` to prevent focus
+The steps form a single-select [listbox](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/) where selection follows focus, with one Tab stop. A focused step is selected and shows its tooltip, just as a clicked one does.
+
+- **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel and clears the selection.
+- **Left/Right arrows**: Move focus and the selection to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
+- **Home/End**: Move focus and the selection to the first or last step.
+- **Escape**: Clear the selection and hide the tooltip. Focus stays on the step.
+- **Enter/Space**: Select the focused step again after Escape.
 
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
-- **ARIA Roles**: Each funnel step uses `role="button"` for proper semantic meaning
-- **ARIA Labels**: Each step has `aria-label` with the step name
-- **Alternative Text**: Step labels and rates are accessible to screen readers
+- **ARIA Roles**: The steps sit in a horizontal `role="listbox"` labeled "Funnel steps", and each step uses `role="option"`
+- **ARIA Labels**: Each step has `aria-label` with the step name and rate, such as "Cart, 71.1%"
+- **Selection State**: The selected step has `aria-selected="true"`, the others `aria-selected="false"`
+- **Descriptions**: The selected step's `aria-describedby` points at its tooltip, leaving out the name line, so the default reads "7,110 items Conversion rate 71.1%". The tooltip itself is hidden from screen readers, so it is read only as the description.
+- **Visible Text**: The step labels and rates above the bars are hidden from screen readers, so the listbox holds only its options. Each option's name carries the step's label and rate, and the selected option's description adds the tooltip's numbers
 - **Loading States**: Loading and empty states provide appropriate text content
 
 ### Interactive Behavior
 
-- **Click/Touch**: Steps can be clicked or tapped to show detailed tooltips
-- **Keyboard Activation**: Enter and Space keys trigger the same interactions as clicks
+- **Click/Touch**: Clicking or tapping a step selects it and shows its tooltip at the pointer
+- **Focus**: Focusing a step from the keyboard selects it and shows its tooltip, anchored at the top center of the step
 - **Selection State**: Only one step can be selected at a time, with visual feedback
-- **Deselection**: Clicking the same step again or pressing Escape clears the selection
+- **Deselection**: Moving focus out of the funnel, clicking outside it or pressing Escape clears the selection
 
 ### Focus Management
 
-- **Logical Tab Order**: Focus moves through steps in visual order
-- **Dynamic `tabIndex`**: Blurred (non-selected) steps are removed from tab order when another step is selected
-- **Visual Focus Indicators**: CSS focus styles provide clear visual feedback
+- **Roving `tabIndex`**: One step has `tabIndex={0}` and the others `tabIndex={-1}`. Dimmed (non-selected) steps stay reachable with the arrow keys.
+- **Visual Focus Indicators**: The focused step shows a focus ring when focus comes from the keyboard
 

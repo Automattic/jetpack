@@ -16,8 +16,13 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useReportOrders } from '../../src/reports';
-import type { TotalReturnsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type TotalReturnsAttributes = Record< never, never >;
 
 type TotalReturnsRenderAttributes = TotalReturnsAttributes & Partial< ReportParamsFieldAttributes >;
 

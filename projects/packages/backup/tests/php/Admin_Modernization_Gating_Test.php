@@ -9,12 +9,14 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use function add_filter;
+use function admin_url;
 use function do_action;
 use function get_current_screen;
 use function has_action;
@@ -82,6 +84,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
 
+		Constants::clear_constants();
 		Status_Cache::clear();
 		WorDBless_Options::init()->clear_options();
 
@@ -90,6 +93,36 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 	public function test_is_modernized_defaults_to_true() {
 		$this->assertTrue( Jetpack_Backup::is_modernized() );
+	}
+
+	public function test_activity_log_restore_url_keeps_the_given_template_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertSame( '', Jetpack_Backup::activity_log_restore_url_template( '' ) );
+	}
+
+	public function test_activity_log_restore_url_points_at_the_restore_screen_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2Frestore%2F{rewindId}' ),
+			Jetpack_Backup::activity_log_restore_url_template( '' )
+		);
+	}
+
+	public function test_activity_log_backup_url_keeps_the_given_template_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertSame( '', Jetpack_Backup::activity_log_backup_url_template( '' ) );
+	}
+
+	public function test_activity_log_backup_url_selects_the_backup_on_the_overview_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2F%3Fselected%3D%2522{rewindId}%2522' ),
+			Jetpack_Backup::activity_log_backup_url_template( '' )
+		);
 	}
 
 	public function test_is_modernized_follows_the_filter() {
@@ -254,7 +287,20 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		Jetpack_Backup::render_connection_initial_state();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null};', $output );
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,"knownThreatsAvailable":false};', $output );
+	}
+
+	public function test_render_connection_initial_state_marks_known_threats_available_on_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"knownThreatsAvailable":true', $output );
 	}
 
 	public function test_render_connection_initial_state_emits_the_activity_log_url_when_the_page_exists() {

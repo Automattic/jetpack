@@ -1,6 +1,7 @@
 type Result = {
 	isFullyConnected: boolean;
 	isSecondaryAdminNotConnected: boolean;
+	isOfflineMode: boolean;
 };
 
 type ConnectionStatus = {
@@ -55,6 +56,7 @@ export function useConnection(): Result {
 	return {
 		isFullyConnected,
 		isSecondaryAdminNotConnected: Boolean( isFullyConnected && ! status.isUserConnected ),
+		isOfflineMode: Boolean( state?.isOfflineMode ),
 	};
 }
 
@@ -80,14 +82,14 @@ export function useSiteSuffix(): string | undefined {
  * Whether this browser session can usefully call the Backup bridges.
  *
  * Every bridge route runs `Rest_Controller::permission_check()`, which
- * needs a user-level WPCOM connection — so without one the only
- * possible answer is a 403. Hooks can't be called conditionally, so
- * query hooks that may mount above `<Gates>` pass this as their
- * `enabled` flag instead of skipping the call.
+ * answers 403 in offline mode and without a user-level WPCOM connection.
+ * Hooks can't be called conditionally, so query hooks that may mount
+ * above `<Gates>` pass this as their `enabled` flag instead of skipping
+ * the call.
  *
  * @return True when the bridges can answer.
  */
 export function useCanQueryWpcom(): boolean {
-	const { isFullyConnected, isSecondaryAdminNotConnected } = useConnection();
-	return isFullyConnected && ! isSecondaryAdminNotConnected;
+	const { isFullyConnected, isSecondaryAdminNotConnected, isOfflineMode } = useConnection();
+	return ! isOfflineMode && isFullyConnected && ! isSecondaryAdminNotConnected;
 }

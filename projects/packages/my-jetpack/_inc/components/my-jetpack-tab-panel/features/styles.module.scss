@@ -1,6 +1,8 @@
 @use "sass:list";
 @use "sass:string";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 // The Jetpack brand icon palette.
 $feature-icon-background: #003010;
@@ -140,6 +142,25 @@ $band-ground: #f8f8f8;
 	&:hover {
 		background: var(--wpds-color-background-surface-neutral-strong);
 		border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	}
+}
+
+// Connect is wider than a switch, so on phones it moves under the text
+// rather than squeezing it.
+@media (max-width: #{breakpoints.$break-small - 1px}) {
+
+	.feature-item--connect {
+		flex-wrap: wrap;
+
+		&.feature-item--static:not(.feature-row) .feature-item__text {
+			flex-basis: 100%;
+		}
+
+		.feature-action-slot {
+			flex-basis: 100%;
+			justify-content: flex-start;
+			order: 1;
+		}
 	}
 }
 
@@ -331,6 +352,12 @@ $band-ground: #f8f8f8;
 	text-decoration: underline;
 }
 
+// Marks where the list starts, for scrolling back to it. The negative margin
+// cancels the extra row gap the empty element would add.
+.list-start {
+	margin-block-end: calc(-1 * var(--wpds-dimension-gap-sm));
+}
+
 // The toolbar's own bottom margin already spaces this row from it.
 .modules-navigation {
 	margin-block-end: var(--wpds-dimension-gap-md);
@@ -379,7 +406,7 @@ $band-ground: #f8f8f8;
 }
 
 // Sticky so the filters stay reachable while scrolling a long grid. The
-// offset clears the wp-admin bar, which is fixed.
+// offset clears the tabs when they are pinned too.
 .toolbar {
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-color: var(--wpds-color-stroke-surface-neutral-weak);
@@ -387,7 +414,7 @@ $band-ground: #f8f8f8;
 	border-style: solid;
 	border-width: var(--wpds-border-width-xs);
 	container: features-toolbar / inline-size;
-	inset-block-start: 0;
+	inset-block-start: var(--my-jetpack-pinned-tabs-block-size, 0);
 	margin-block: var(--wpds-dimension-gap-md);
 	padding: var(--wpds-dimension-padding-md);
 	position: sticky;
@@ -453,20 +480,6 @@ $band-ground: #f8f8f8;
 	margin-inline-start: auto;
 	max-inline-size: 16rem;
 	min-inline-size: 8rem;
-}
-
-// A segmented control: one soft track, the active layout a tile inside it. The
-// padding takes the compact (32px) buttons to the search box's 40px height.
-$view-group-padding: 4px;
-
-.view-group {
-	// The groove color, not the button's own hover fill: those are the same
-	// value, so hovering an unpressed button would show no change at all.
-	background: var(--wpds-color-background-track-neutral);
-	// The buttons' radius plus the track's padding, so the corners nest.
-	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
-	gap: 2px;
-	padding: $view-group-padding;
 }
 
 // Rounded like the feature icons beside them.
@@ -922,10 +935,10 @@ $band-props: (
 
 // Styled as core's Tooltip, which cannot anchor to a sidebar item.
 .menu-pointer :global(.components-popover__content) {
-	background: gb.$gray-900;
-	border-radius: gb.$radius-small;
+	background: colors.$gray-900;
+	border-radius: variables.$radius-small;
 	box-shadow: none;
-	color: gb.$white;
+	color: colors.$white;
 	font-size: 12px;
 	line-height: 1.4;
 	padding-block: 4px;

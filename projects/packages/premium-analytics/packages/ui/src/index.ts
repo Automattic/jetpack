@@ -36,5 +36,6 @@ export {
 export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
+export { StatsTierSlider } from './stats-tier-slider';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
 export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

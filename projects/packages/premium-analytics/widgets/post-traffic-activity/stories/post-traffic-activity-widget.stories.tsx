@@ -32,7 +32,6 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostTrafficActivityRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { SiteLocaleControls } from '../../stories/with-site-locale';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -198,7 +197,7 @@ function PostTrafficActivityDashboardStory( {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POST_TRAFFIC_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostTrafficActivityRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ getPostTrafficActivityAttributes( { hasPostScope, preset }, true ) }

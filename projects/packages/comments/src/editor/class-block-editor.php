@@ -181,8 +181,8 @@ class Block_Editor {
 	/**
 	 * Let the tags these blocks save through kses, for a comment that holds them.
 	 *
-	 * @param array  $tags    Allowed tags.
-	 * @param string $context The kses context.
+	 * @param array|mixed $tags    Allowed tags. Null when an earlier filter drops them.
+	 * @param string      $context The kses context.
 	 * @return array
 	 */
 	public function allowed_html( $tags, $context ) {
@@ -191,7 +191,7 @@ class Block_Editor {
 		}
 
 		return array_merge(
-			$tags,
+			(array) $tags,
 			array(
 				'p'          => array(),
 				'br'         => array(),
@@ -218,12 +218,12 @@ class Block_Editor {
 	/**
 	 * The comment's HTML without the block delimiters, and without any block the editor does not offer.
 	 *
-	 * @param string           $content Comment content.
+	 * @param string|mixed     $content Comment content.
 	 * @param \WP_Comment|null $comment The comment, where the caller has it.
-	 * @return string
+	 * @return string|mixed
 	 */
 	public static function render( $content, $comment = null ) {
-		if ( ! has_blocks( $content ) ) {
+		if ( ! is_string( $content ) || ! has_blocks( $content ) ) {
 			return $content;
 		}
 
@@ -237,11 +237,15 @@ class Block_Editor {
 	/**
 	 * Core's comment email, with the comment's block markup replaced by the text it draws.
 	 *
-	 * @param string $message    The email body.
-	 * @param int    $comment_id The comment the email is about.
-	 * @return string
+	 * @param string|mixed $message    The email body.
+	 * @param int          $comment_id The comment the email is about.
+	 * @return string|mixed
 	 */
 	public static function render_in_email( $message, $comment_id ) {
+		if ( ! is_string( $message ) ) {
+			return $message;
+		}
+
 		$comment = get_comment( $comment_id );
 
 		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
@@ -384,6 +388,28 @@ class Block_Editor {
 				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
 				. 'window.jetpackCommentsEditorContent = ' . wp_json_encode( $content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
+		);
+	}
+
+	/**
+	 * What a host needs to run the editor outside the comment form.
+	 *
+	 * @return array
+	 */
+	public static function settings() {
+		$lengths    = wp_get_comment_fields_max_lengths();
+		$assets_url = trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) );
+		$asset      = include dirname( __DIR__, 2 ) . '/build/editor-loader.asset.php';
+
+		return array(
+			// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
+			'assetsUrl'    => $assets_url,
+			// Versioned like the chunks, since a host that does not enqueue the entry gets no version from WordPress.
+			'loaderUrl'    => $assets_url . 'editor-loader.js?minify=false&ver=' . $asset['version'],
+			'maxLength'    => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+			'blocks'       => self::is_enabled(),
+			'editorLocale' => self::is_enabled() ? self::locale_data() : (object) array(),
+			'editor'       => self::labels(),
 		);
 	}
 

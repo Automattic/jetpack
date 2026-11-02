@@ -1,11 +1,16 @@
 import {
 	AnalyticsQueryClientProvider,
+	isPlanDateLimitedSection,
 	PeriodChangeSignalProvider,
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
-import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	DashboardWidgetHostProvider,
+	usePeriodHost,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
 	PeriodChangeStatus,
@@ -24,6 +29,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -31,13 +37,16 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
+import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
+import { getReportDefinition } from '../reports/registry';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
-import { postHeaderSlots } from './components';
+import { getPostTypeCopy, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
@@ -65,11 +74,16 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	const summary = usePostSummary( postId );
+	const { dateLimits } = useStatsDateLimits(
+		isPlanDateLimitedSection( getReportDefinition( 'posts' )?.dashboardSection )
+	);
+	useDateWindowNotice();
+	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -84,7 +98,11 @@ function PostDetail(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'post_detail', offersComparison: false }
+		{
+			surface: 'post_detail',
+			offersComparison: false,
+			lockedIntervals,
+		}
 	);
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
@@ -169,7 +187,8 @@ function PostDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		postSurface( postId ),
 		dateFilters.appliedRange,
-		! isEmailTab
+		! isEmailTab,
+		lockedIntervals
 	);
 
 	// The email tabs are pinned to the send window, so the filter would only
@@ -209,102 +228,106 @@ function PostDetail(): JSX.Element {
 				appliedPresetId={ dateFilters.appliedPresetId }
 				appliedRange={ dateFilters.appliedRange }
 			/>
-			<ReportScopeProvider openPeriod={ openPeriod }>
-				<WidgetDashboard.Policy canPerform={ canPerform }>
-					<WidgetDashboard
-						widgetTypes={ pageWidgetTypes }
-						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModule }
-						layout={ layout }
-						onLayoutChange={ onLayoutChange }
-						onLayoutReset={ resetLayout }
-						gridSettings={ DETAIL_GRID }
-						editMode={ isCustomizing }
-						onEditChange={ onEditChange }
-					>
-						<DetailPageShell
-							visual={ <StatsPageIcon /> }
-							breadcrumbs={
-								<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
-									<StatsBreadcrumbs items={ breadcrumbs } />
-								</DetailPageBreadcrumbs>
-							}
-							actions={
-								<DetailPageActions
-									isCustomizing={ isCustomizing }
-									onCustomize={ canCustomize ? startCustomizing : undefined }
-									onReset={ resetToDefault }
-									editingActions={ <WidgetDashboard.Actions /> }
-								>
-									{ publicUrl ? (
-										<ButtonLink
-											variant="solid"
-											tone="neutral"
-											size="compact"
-											href={ publicUrl }
-											openInNewTab
-										>
-											{ summary.type === 'page'
-												? __( 'View page', 'jetpack-premium-analytics-pkg' )
-												: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-										</ButtonLink>
-									) : null }
-								</DetailPageActions>
-							}
+			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
+					<WidgetDashboard.Policy canPerform={ canPerform }>
+						<WidgetDashboard
+							widgetTypes={ pageWidgetTypes }
+							isResolvingWidgetTypes={ isResolvingWidgetTypes }
+							resolveWidgetModule={ resolveWidgetModule }
+							layout={ layout }
+							onLayoutChange={ onLayoutChange }
+							onLayoutReset={ resetLayout }
+							gridSettings={ DETAIL_GRID }
+							editMode={ isCustomizing }
+							onEditChange={ onEditChange }
 						>
-							{ /*
-							 * The header is shared by every tab (same post, same range), so it
-							 * renders once above the per-tab grid; the email tabs give it an
-							 * email identity and report over the send window.
-							 */ }
-							<DetailPageLayout
-								tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-								header={
-									showNotSent
-										? undefined
-										: postHeaderSlots( {
-												summary: headerSummary,
-												variant: isEmailTab ? 'email' : 'post',
-												performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-											} )
+							<DetailPageShell
+								visual={ <StatsPageIcon /> }
+								breadcrumbs={
+									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+										<StatsBreadcrumbs items={ breadcrumbs } />
+									</DetailPageBreadcrumbs>
 								}
-								controls={ dateFiltersPanel }
-								returnToTopKey={ attentionId }
-							>
-								{ showNotSent ? (
-									<PageEmptyState
-										title={ __(
-											'This post hasn’t been sent as a newsletter',
-											'jetpack-premium-analytics-pkg'
-										) }
-										description={ __(
-											'Newsletter can help you reach subscribers in their inbox.',
-											'jetpack-premium-analytics-pkg'
-										) }
-										actions={
+								actions={
+									<DetailPageActions
+										isCustomizing={ isCustomizing }
+										onCustomize={ canCustomize ? startCustomizing : undefined }
+										onReset={ resetToDefault }
+										editingActions={ <WidgetDashboard.Actions /> }
+									>
+										{ publicUrl ? (
 											<ButtonLink
-												variant="outline"
+												variant="solid"
+												tone="neutral"
 												size="compact"
-												href="https://jetpack.com/support/newsletter/"
+												href={ publicUrl }
 												openInNewTab
 											>
-												{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+												{ getPostTypeCopy( summary.type ).view }
 											</ButtonLink>
-										}
-									/>
-								) : (
-									( anchorErrorNotice ?? (
-										/* Keyed by tab: each tab is its own layout, so the grid mounts
-									   fresh rather than reflowing one arrangement into the next. */
-										<DetailPageSection key={ activeTab }>
-											<WidgetDashboard.Widgets />
-										</DetailPageSection>
-									) )
-								) }
-							</DetailPageLayout>
-						</DetailPageShell>
-					</WidgetDashboard>
-				</WidgetDashboard.Policy>
+										) : null }
+									</DetailPageActions>
+								}
+							>
+								{ /*
+								 * The header is shared by every tab (same post, same range), so it
+								 * renders once above the per-tab grid; the email tabs give it an
+								 * email identity and report over the send window.
+								 */ }
+								<DetailPageLayout
+									tabs={
+										<SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } />
+									}
+									header={
+										showNotSent
+											? undefined
+											: postHeaderSlots( {
+													summary: headerSummary,
+													variant: isEmailTab ? 'email' : 'post',
+													performanceRange: isEmailTab
+														? emailScope?.range
+														: dateFilters.appliedRange,
+												} )
+									}
+									controls={ dateFiltersPanel }
+									returnToTopKey={ attentionId }
+								>
+									{ showNotSent ? (
+										<PageEmptyState
+											title={ __(
+												'This post hasn’t been sent as a newsletter',
+												'jetpack-premium-analytics-pkg'
+											) }
+											description={ __(
+												'Newsletter can help you reach subscribers in their inbox.',
+												'jetpack-premium-analytics-pkg'
+											) }
+											actions={
+												<ButtonLink
+													variant="outline"
+													size="compact"
+													href="https://jetpack.com/support/newsletter/"
+													openInNewTab
+												>
+													{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+												</ButtonLink>
+											}
+										/>
+									) : (
+										( anchorErrorNotice ?? (
+											/* Keyed by tab: each tab is its own layout, so the grid mounts
+										   fresh rather than reflowing one arrangement into the next. */
+											<DetailPageSection key={ activeTab }>
+												<WidgetDashboard.Widgets />
+											</DetailPageSection>
+										) )
+									) }
+								</DetailPageLayout>
+							</DetailPageShell>
+						</WidgetDashboard>
+					</WidgetDashboard.Policy>
+				</DashboardWidgetHostProvider>
 			</ReportScopeProvider>
 		</>
 	);

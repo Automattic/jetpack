@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: Improve how the Mastodon button handles the server address readers enter.

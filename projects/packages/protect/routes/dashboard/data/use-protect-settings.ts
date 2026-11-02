@@ -3,6 +3,7 @@ import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSettingEvents } from './setting-events';
 
 // One id, so a burst of saves shows one snackbar.
 const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
@@ -10,12 +11,52 @@ const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
 type Failure = { message: string; keys: string[] };
 const NO_KEYS: string[] = [];
 
+/**
+ * A readable message for the firewall's error codes, which it returns after storing the options.
+ *
+ * @param code - The REST error code.
+ * @return The message, or undefined for any other code.
+ */
+function getWafErrorMessage( code: unknown ): string | undefined {
+	switch ( code ) {
+		case 'file_system_error':
+			return __( 'The firewall couldn’t update its files on your server.', 'jetpack-protect-pkg' );
+		case 'rules_api_error':
+			return __(
+				'The latest automatic firewall rules couldn’t be retrieved.',
+				'jetpack-protect-pkg'
+			);
+		case 'waf_error':
+			return __( 'The firewall couldn’t finish applying your change.', 'jetpack-protect-pkg' );
+		default:
+			return undefined;
+	}
+}
+
+/**
+ * Why the server refused a setting's value, which WordPress puts under `data.params` for `rest_invalid_param`.
+ *
+ * @param data - The REST error's data.
+ * @return The first reason, or undefined when there is none.
+ */
+function getInvalidParamMessage( data: unknown ): string | undefined {
+	const params = ( data as { params?: unknown } | undefined )?.params;
+	if ( ! params || typeof params !== 'object' ) {
+		return undefined;
+	}
+	return Object.values( params ).find( ( reason ): reason is string => typeof reason === 'string' );
+}
+
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
 export type ProtectSettings = Record< string, unknown >;
 
 export type WafConfig = {
 	waf_supported?: boolean;
 	automatic_rules_available?: boolean;
+	/** The file `auto_prepend_file` must point to for the firewall to run before WordPress. */
+	bootstrap_path?: string;
+	/** Whether the firewall ran before WordPress on this request, through `auto_prepend_file`. */
+	standalone_mode?: boolean;
 };
 
 export type ProtectSettingsData = {
@@ -40,7 +81,8 @@ export type ProtectSettingsData = {
 /**
  * Read and save the Jetpack settings behind Protect's features, the same way Jetpack Settings does.
  *
- * Nothing is fetched until `load()` runs. Saves apply optimistically and roll back if the request fails.
+ * Nothing is fetched until `load()` runs. Saves apply optimistically and roll back if the request fails,
+ * unless the firewall stored the change before failing.
  *
  * @return The settings, the firewall's capabilities, and load and save functions.
  */
@@ -89,6 +131,19 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} );
 	}, [ setSettings ] );
 
+	const refresh = useCallback(
+		async ( keys: string[] ) => {
+			try {
+				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
+				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
+			} catch {
+				// Keep what we have; the next full load corrects it.
+			}
+		},
+		[ setSettings ]
+	);
+
 	const save = useCallback(
 		async ( patch: ProtectSettings, path = '/jetpack/v4/settings' ) => {
 			const keys = Object.keys( patch );
@@ -110,26 +165,39 @@ export default function useProtectSettings(): ProtectSettingsData {
 					{ type: 'snackbar', id: SAVED_NOTICE_ID }
 				);
 			} catch ( e ) {
-				const rolledBack = { ...settingsRef.current };
-				keys.forEach( key => {
-					// A later save of this key already replaced our value; keep it.
-					if ( rolledBack[ key ] !== patch[ key ] ) {
-						return;
-					}
-					savedKeys.current.delete( key );
-					if ( key in previous ) {
-						rolledBack[ key ] = previous[ key ];
-					} else {
-						delete rolledBack[ key ];
-					}
-				} );
-				setSettings( rolledBack );
+				const { code, message, data } = ( e ?? {} ) as {
+					code?: unknown;
+					message?: string;
+					data?: unknown;
+				};
+				const wafMessage = getWafErrorMessage( code );
 				setFailure( {
 					message:
-						( e as { message?: string } )?.message ||
+						wafMessage ||
+						( code === 'rest_invalid_param' ? getInvalidParamMessage( data ) : undefined ) ||
+						message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
 					keys,
 				} );
+				if ( wafMessage ) {
+					// The change was stored, so show the server's values rather than roll back.
+					await refresh( keys );
+				} else {
+					const rolledBack = { ...settingsRef.current };
+					keys.forEach( key => {
+						// A later save of this key already replaced our value; keep it.
+						if ( rolledBack[ key ] !== patch[ key ] ) {
+							return;
+						}
+						savedKeys.current.delete( key );
+						if ( key in previous ) {
+							rolledBack[ key ] = previous[ key ];
+						} else {
+							delete rolledBack[ key ];
+						}
+					} );
+					setSettings( rolledBack );
+				}
 				saved = false;
 			} finally {
 				// One entry per save in flight, so an overlapping save of the same key keeps it busy.
@@ -139,22 +207,12 @@ export default function useProtectSettings(): ProtectSettingsData {
 					return next;
 				} );
 			}
+			if ( saved ) {
+				recordSettingEvents( patch, before );
+			}
 			return saved;
 		},
-		[ setSettings ]
-	);
-
-	const refresh = useCallback(
-		async ( keys: string[] ) => {
-			try {
-				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
-				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
-				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
-			} catch {
-				// Keep what we have; the next full load corrects it.
-			}
-		},
-		[ setSettings ]
+		[ setSettings, refresh ]
 	);
 
 	const isSaving = useCallback( ( key: string ) => saving.includes( key ), [ saving ] );

@@ -88,9 +88,9 @@ class Sessions_By_Location_Controller extends Abstract_Csv_Report_Controller {
 	 * Get the location label, translated when possible via WooCommerce countries.
 	 *
 	 * Uses the store's locale for country names when country_code is present;
-	 * otherwise falls back to the API label.
+	 * otherwise falls back to the API's country name, then its label.
 	 *
-	 * @param array $item Row data with optional 'country_code' and 'label'.
+	 * @param array $item Row data with optional 'country_code', 'country_name' and 'label'.
 	 * @return string Location label for CSV.
 	 */
 	private function get_location_label( array $item ): string {
@@ -102,6 +102,11 @@ class Sessions_By_Location_Controller extends Abstract_Csv_Report_Controller {
 			if ( isset( $countries[ $country_code ] ) ) {
 				return $countries[ $country_code ];
 			}
+		}
+
+		// The API sends `null` for a country it has no name for.
+		if ( ! empty( $item['country_name'] ) && is_string( $item['country_name'] ) ) {
+			return $item['country_name'];
 		}
 
 		return $api_label;
@@ -142,6 +147,7 @@ class Sessions_By_Location_Controller extends Abstract_Csv_Report_Controller {
 	public function get_fields(): array {
 		return array(
 			'country_code',
+			'country_name',
 			'label',
 			'visitors',
 		);
@@ -167,7 +173,7 @@ class Sessions_By_Location_Controller extends Abstract_Csv_Report_Controller {
 	 * @return array Array of field names to preserve.
 	 */
 	public function get_identifying_fields(): array {
-		return array( 'label' );
+		return array( 'label', 'country_name' );
 	}
 
 	/**

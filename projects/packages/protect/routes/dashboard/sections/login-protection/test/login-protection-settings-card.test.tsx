@@ -97,7 +97,7 @@ describe( 'LoginProtectionSettingsCard', () => {
 		[
 			'the site is in offline mode',
 			{ ssoUsable: false, isOffline: true },
-			'WordPress.com login isn’t available in offline mode.',
+			'WordPress.com login isn’t available in Offline Mode.',
 		],
 		[
 			'the module is unavailable',

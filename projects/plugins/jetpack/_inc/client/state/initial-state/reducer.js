@@ -494,16 +494,6 @@ export function arePromotionsActive( state ) {
 }
 
 /**
- * Get the current theme's stylesheet (slug).
- *
- * @param {object} state - Global state tree.
- * @return {string} theme stylesheet, e.g. twentytwentythree.
- */
-export function currentThemeStylesheet( state ) {
-	return state.jetpack.initialState.themeData?.stylesheet;
-}
-
-/**
  * Check that theme supports a certain feature
  *
  * @param {object} state   - Global state tree.
@@ -577,6 +567,17 @@ export function showLicensingUi( state ) {
  */
 export function isMultisite( state ) {
 	return state.jetpack.initialState.siteData?.isMultisite ?? false;
+}
+
+/**
+ * Whether the wp-admin Backup page exists, which the site's plan and host decide rather than the module.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if the Backup page was registered.
+ */
+export function hasBackupPage( state ) {
+	return state.jetpack.initialState.siteData?.hasBackupPage ?? false;
 }
 
 /**

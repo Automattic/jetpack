@@ -88,6 +88,10 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	return [ 'hour' ];
 }
 
+function isLockedInterval( interval: IntervalType, locked: readonly LockableInterval[] ): boolean {
+	return locked.some( bucket => bucket === interval );
+}
+
 /**
  * Drop the buckets the plan locks, landing on days when none is left.
  *
@@ -99,7 +103,7 @@ function withoutLockedIntervals(
 	intervals: IntervalType[],
 	locked: readonly LockableInterval[]
 ): IntervalType[] {
-	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
+	const open = intervals.filter( interval => ! isLockedInterval( interval, locked ) );
 	return open.length ? open : [ 'day' ];
 }
 
@@ -117,6 +121,26 @@ export function getAllowedIntervalsForPreset(
 	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType[] {
 	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
+}
+
+/**
+ * The buckets the range could draw but the plan locks, for the control to show as locked.
+ *
+ * @param preset - The preset being edited.
+ * @param from   - The range start.
+ * @param to     - The range end.
+ * @param locked - The buckets the plan locks.
+ * @return The locked buckets, in the range's order.
+ */
+export function getLockedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly LockableInterval[]
+): LockableInterval[] {
+	return allowedIntervalsForPreset( preset, from, to ).filter(
+		( interval ): interval is LockableInterval => isLockedInterval( interval, locked )
+	);
 }
 
 function allowedIntervalsForPreset(

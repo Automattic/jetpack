@@ -10,7 +10,6 @@ import {
 } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
-	currentThemeStylesheet,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
@@ -43,7 +42,6 @@ class Sharing extends Component {
 			hasSharingBlock: this.props.hasSharingBlock,
 			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			themeStylesheet: this.props.themeStylesheet,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -90,6 +88,5 @@ export default connect( state => {
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		themeStylesheet: currentThemeStylesheet( state ),
 	};
 } )( Sharing );

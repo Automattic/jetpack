@@ -19,7 +19,6 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostingActivityRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { SiteLocaleControls } from '../../stories/with-site-locale';
@@ -180,7 +179,7 @@ function PostingActivityDashboardStory( dashboardArgs: WidgetDashboardWithWidget
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POSTING_ACTIVITY_RENDER_MODULE }
 			renderComponent={ PostingActivityRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

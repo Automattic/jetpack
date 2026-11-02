@@ -1,8 +1,9 @@
+import { PeriodSelector } from '@automattic/jetpack-components';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice from '../../src/dashboard/components/free-tier-notice';
-import DateRangeSelector from '../../src/dashboard/components/overview/date-range-selector';
 import KpiCardsRow from '../../src/dashboard/components/overview/kpi-cards-row';
 import MostViewedCard from '../../src/dashboard/components/overview/most-viewed-card';
 import StorageMeterCard from '../../src/dashboard/components/overview/storage-meter-card';
@@ -12,7 +13,8 @@ import QueryClientWrapper from '../../src/dashboard/components/query-client-wrap
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useStats } from '../../src/dashboard/hooks/use-stats';
 import './style.scss';
-import type { ActiveMetric } from '../../src/dashboard/types/stats';
+import type { ActiveMetric, DateRange } from '../../src/dashboard/types/stats';
+import type { PeriodPreset } from '@automattic/jetpack-components';
 
 // Stable ids that wire the KPI tablist to the chart tabpanel via ARIA.
 // Defined here so both children agree without a separate constants file.
@@ -22,6 +24,13 @@ const KPI_TAB_IDS: Record< ActiveMetric, string > = {
 	impressions: 'vp-overview-kpi-tab-impressions',
 	watch_time: 'vp-overview-kpi-tab-watch-time',
 };
+
+const getDateRangePresets = (): PeriodPreset< DateRange >[] => [
+	{ value: 'last_7_days', label: __( 'Last 7 days', 'jetpack-videopress-pkg' ) },
+	{ value: 'last_30_days', label: __( 'Last 30 days', 'jetpack-videopress-pkg' ) },
+	{ value: 'last_90_days', label: __( 'Last 90 days', 'jetpack-videopress-pkg' ) },
+	{ value: 'last_365_days', label: __( 'Last 365 days', 'jetpack-videopress-pkg' ) },
+];
 
 const StageInner = () => {
 	const {
@@ -41,6 +50,7 @@ const StageInner = () => {
 		setCompare,
 	} = useStats();
 	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
+	const dateRangePresets = useMemo( getDateRangePresets, [] );
 
 	const showStorageMeter = isFree === false && videoCount > 0 && ! isUnlimited && ! isAtomic;
 	// A failed stats request would otherwise render as all-zero KPI cards —
@@ -52,7 +62,14 @@ const StageInner = () => {
 	return (
 		<DashboardLayout
 			activeTab="stats"
-			actions={ <DateRangeSelector value={ dateRange } onChange={ setDateRange } /> }
+			actions={
+				<PeriodSelector< DateRange >
+					label={ __( 'Date range', 'jetpack-videopress-pkg' ) }
+					presets={ dateRangePresets }
+					value={ dateRange }
+					onChange={ setDateRange }
+				/>
+			}
 		>
 			<div className="vp-overview">
 				{ isFree && <FreeTierNotice /> }
