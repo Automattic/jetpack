@@ -4,8 +4,10 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
+import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
@@ -50,6 +52,33 @@ export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undef
 	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );
 
 	return isSettingsSearch && ! Object.keys( $module.options ?? {} ).length ? undefined : url;
+}
+
+/**
+ * Configure for a module, opening the settings panel over the page instead of leaving it.
+ *
+ * @param props      - Component props.
+ * @param props.slug - The module slug.
+ * @param props.name - The feature name.
+ * @return The link.
+ */
+function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
+	const [ searchParams ] = useSearchParams();
+	const next = new URLSearchParams( searchParams );
+	next.set( 'configure', slug );
+
+	return (
+		<Link
+			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
+			aria-label={ sprintf(
+				/* translators: %s is the feature name. */
+				__( 'Configure %s', 'jetpack-my-jetpack' ),
+				name
+			) }
+		>
+			{ __( 'Configure', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
 }
 
 type FeatureItemProps = {
@@ -211,18 +240,21 @@ export function FeatureItem( {
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
-				{ settingsUrl && (
-					<Link
-						href={ settingsUrl }
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. */
-							__( 'Configure %s', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
-					>
-						{ __( 'Configure', 'jetpack-my-jetpack' ) }
-					</Link>
-				) }
+				{ settingsUrl &&
+					( isSettingsConsolidationEnabled() ? (
+						<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
+					) : (
+						<Link
+							href={ settingsUrl }
+							aria-label={ sprintf(
+								/* translators: %s is the feature name. */
+								__( 'Configure %s', 'jetpack-my-jetpack' ),
+								feature.name
+							) }
+						>
+							{ __( 'Configure', 'jetpack-my-jetpack' ) }
+						</Link>
+					) ) }
 				<FeatureAction
 					state={ state }
 					origin={ origin }

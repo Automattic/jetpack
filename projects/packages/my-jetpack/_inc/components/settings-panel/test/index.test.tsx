@@ -1,0 +1,132 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { SettingsPanel } from '../index';
+import { moduleSettings } from '../registry';
+import type { MyJetpackModule } from '../../../types';
+
+const mockNavigate = jest.fn();
+let mockSearch: Record< string, unknown > = {};
+let mockModules: { modules: Record< string, MyJetpackModule >; hasLoaded: boolean };
+
+jest.mock( '@wordpress/route', () => ( { useNavigate: () => mockNavigate } ) );
+jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch } ) );
+jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => mockModules,
+} ) );
+jest.mock( '../../module-toggle', () => ( {
+	ModuleToggle: ( { module: $module }: { module: MyJetpackModule } ) => (
+		<input type="checkbox" aria-label={ `Toggle ${ $module.name }` } />
+	),
+} ) );
+
+const carousel = {
+	module: 'carousel',
+	name: 'Carousel',
+	description: 'Show images in a slideshow.',
+	configure_url: 'https://example.com/settings',
+} as MyJetpackModule;
+const likes = {
+	module: 'likes',
+	name: 'Likes',
+	description: 'Let readers like posts.',
+} as MyJetpackModule;
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	mockSearch = { configure: 'carousel', view: 'list' };
+	mockModules = { modules: { carousel, likes }, hasLoaded: true };
+} );
+
+afterEach( () => {
+	delete moduleSettings.carousel;
+} );
+
+describe( 'SettingsPanel', () => {
+	it( 'shows the fallback for a module with no settings of its own', () => {
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Carousel' } ) ).toHaveFocus();
+		expect( screen.getByText( carousel.description ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Toggle Carousel' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
+			'href',
+			carousel.configure_url
+		);
+	} );
+
+	it( 'leaves out the Settings link for a module with no configure URL', () => {
+		mockSearch = { configure: 'likes' };
+		render( <SettingsPanel /> );
+
+		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows a registered component in place of the fallback', () => {
+		moduleSettings.carousel = ( { module: $module } ) => <p>Options of { $module.name }</p>;
+		render( <SettingsPanel /> );
+
+		expect( screen.getByText( 'Options of Carousel' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'returns focus to what opened it on close', () => {
+		render( <button type="button">Configure</button> );
+		screen.getByRole( 'button', { name: 'Configure' } ).focus();
+		const { unmount } = render( <SettingsPanel /> );
+		unmount();
+
+		expect( screen.getByRole( 'button', { name: 'Configure' } ) ).toHaveFocus();
+	} );
+
+	it( 'swaps the content when another slug opens', () => {
+		const { rerender } = render( <SettingsPanel /> );
+		mockSearch = { configure: 'likes' };
+		rerender( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'heading', { name: 'Likes' } ) ).toHaveFocus();
+		expect( screen.queryByText( carousel.description ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows a plain failure notice for a slug the site does not have, once the modules have loaded', () => {
+		mockSearch = { configure: 'nope' };
+		const { rerender } = render( <SettingsPanel /> );
+		expect( screen.getByText( 'Failed to get feature settings' ) ).toBeInTheDocument();
+
+		mockModules = { modules: {}, hasLoaded: false };
+		rerender( <SettingsPanel /> );
+		expect( screen.queryByText( 'Failed to get feature settings' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'the close button',
+			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+		],
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		render( <SettingsPanel /> );
+		await close();
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		const options = mockNavigate.mock.calls[ 0 ][ 0 ];
+		expect( options ).toMatchObject( { replace: true, viewTransition: false } );
+		expect( options.search( { configure: 'carousel', view: 'list' } ) ).toEqual( {
+			configure: undefined,
+			view: 'list',
+		} );
+	} );
+
+	it.each( [
+		[ 'an Escape something else already handled', 'Escape', true ],
+		[ 'any other key', 'Enter', false ],
+	] )( 'stays open for %s', ( _name, key, handled ) => {
+		render( <SettingsPanel /> );
+		const event = new KeyboardEvent( 'keydown', { key, cancelable: true } );
+		if ( handled ) {
+			event.preventDefault();
+		}
+		document.dispatchEvent( event );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+} );
