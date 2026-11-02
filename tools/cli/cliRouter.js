@@ -4,6 +4,7 @@ import * as buildCommand from './commands/build.js';
 import { changelogDefine } from './commands/changelog.js';
 import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
+import * as completionCommand from './commands/completion.js';
 import * as composerCommand from './commands/composer.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
@@ -41,11 +42,11 @@ export async function cli() {
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
-	argv.command( composerCommand );
-	// Placed here to keep things alphabetical.
+	argv.command( completionCommand );
+	// yargs' own completion command prints its fixed script, so register the hook under a hidden name.
 	argv.completion(
-		'completion',
-		'Generate bash/zsh completions',
+		'yargs-completion',
+		false,
 		completionHook( argv, {
 			generate: generateCompletions,
 			phan: phanCommand.completions,
@@ -53,6 +54,7 @@ export async function cli() {
 			test: testCommand.completions,
 		} )
 	);
+	argv.command( composerCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = docsDefine( argv );

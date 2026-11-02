@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'url';
 import { execa } from 'execa';
 
+const bin = fileURLToPath( new URL( '../../../bin/jetpack.js', import.meta.url ) );
+
 /**
  * Ask the CLI for completions the way the generated shell script does.
  *
@@ -8,13 +10,36 @@ import { execa } from 'execa';
  * @return {Promise<string[]>} Candidates.
  */
 async function complete( ...words ) {
-	const { stdout } = await execa(
-		fileURLToPath( new URL( '../../../bin/jetpack.js', import.meta.url ) ),
-		[ '--get-yargs-completions', 'jetpack', ...words ],
-		{ encoding: 'utf8', env: { SHELL: '/bin/bash' } }
-	);
+	const { stdout } = await execa( bin, [ '--get-yargs-completions', 'jetpack', ...words ], {
+		encoding: 'utf8',
+		env: { SHELL: '/bin/bash' },
+	} );
 	return stdout.split( '\n' );
 }
+
+describe( 'completion command', () => {
+	test( 'prints the script for the requested shell', async () => {
+		const { stdout } = await execa( bin, [ 'completion', 'zsh' ], { encoding: 'utf8' } );
+		expect( stdout ).toMatch( /^#compdef jetpack\n/ );
+	} );
+	test( 'falls back to the login shell', async () => {
+		const { stdout } = await execa( bin, [ 'completion' ], {
+			encoding: 'utf8',
+			env: { SHELL: '/bin/bash' },
+		} );
+		expect( stdout ).toContain( 'complete -o bashdefault -o default -F _jetpack jetpack' );
+	} );
+	test( 'refuses a shell it has no script for', async () => {
+		await expect(
+			execa( bin, [ 'completion' ], { encoding: 'utf8', env: { SHELL: '/usr/bin/fish' } } )
+		).rejects.toMatchObject( { exitCode: 1 } );
+	} );
+	test( 'completes its own shell argument', async () => {
+		await expect( complete( 'completion', '' ) ).resolves.toEqual(
+			expect.arrayContaining( [ 'bash', 'zsh' ] )
+		);
+	} );
+} );
 
 describe( 'completion', () => {
 	test( 'completes command names', async () => {

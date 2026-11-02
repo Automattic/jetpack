@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import path from 'path';
 import { allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
 
 /**
@@ -133,4 +135,28 @@ export function completionHook( yargs, perCommand ) {
 			done( [ ...defaults, ...extra ] );
 		} );
 	};
+}
+
+/**
+ * Pick the shell to generate a completion script for from `$SHELL`.
+ *
+ * @return {string|undefined} `bash` or `zsh`, if that is the login shell.
+ */
+export function shellFromEnv() {
+	const shell = path.basename( process.env.SHELL ?? '' );
+	return [ 'bash', 'zsh' ].includes( shell ) ? shell : undefined;
+}
+
+/**
+ * The completion script for a shell, from `completion/`.
+ *
+ * @param {string} shell - `bash` or `zsh`.
+ * @param {string} name  - The command the script completes, e.g. `jetpack`.
+ * @return {string} The script.
+ */
+export function completionScript( shell, name ) {
+	return readFileSync(
+		new URL( `../completion/completion.${ shell }`, import.meta.url ),
+		'utf8'
+	).replaceAll( '{{name}}', name );
 }

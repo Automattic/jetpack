@@ -3,8 +3,10 @@ import { jest } from '@jest/globals';
 import {
 	completeProject,
 	completionHook,
+	completionScript,
 	parsePositionals,
 	positionalFor,
+	shellFromEnv,
 } from '../../../helpers/completion.js';
 
 const oldCwd = process.cwd();
@@ -140,5 +142,36 @@ describe( 'completionHook', () => {
 			'--help',
 			'site\\:a',
 		] );
+	} );
+} );
+
+describe( 'shellFromEnv', () => {
+	test.each( [
+		[ '/bin/zsh', 'zsh' ],
+		[ '/opt/homebrew/bin/bash', 'bash' ],
+		[ '/usr/bin/fish', undefined ],
+		[ undefined, undefined ],
+	] )( '%s', ( shell, expected ) => {
+		if ( shell === undefined ) {
+			delete process.env.SHELL;
+		} else {
+			process.env.SHELL = shell;
+		}
+		expect( shellFromEnv() ).toBe( expected );
+	} );
+} );
+
+describe( 'completionScript', () => {
+	test( 'names the command in the zsh script', () => {
+		const script = completionScript( 'zsh', 'jp' );
+		expect( script ).toMatch( /^#compdef jp\n/ );
+		expect( script ).toContain( 'jp --get-yargs-completions' );
+		expect( script ).toContain( 'compdef _jp jp' );
+		expect( script ).not.toContain( '{{' );
+	} );
+	test( 'names the command in the bash script', () => {
+		const script = completionScript( 'bash', 'jp' );
+		expect( script ).toContain( 'complete -o bashdefault -o default -F _jp jp' );
+		expect( script ).not.toContain( '{{' );
 	} );
 } );

@@ -28,12 +28,14 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 
 ## Shell completion
 
-`jetpack completion` prints a completion script for zsh or bash, going by `$SHELL`. Save it once and source it from your shell's startup file:
+`jetpack completion` prints a completion script for your login shell, zsh or bash 4+; pass `zsh` or `bash` to pick one. Save it once and source it from your shell's startup file:
 
 ```sh
 jetpack completion > ~/.jetpack-completion.sh
 echo 'source ~/.jetpack-completion.sh' >> ~/.zshrc   # or ~/.bashrc
 ```
+
+zsh users can instead save it as `_jetpack` in a directory on their `fpath`.
 
 Then `jetpack bu<TAB>` completes the command, `jetpack build <TAB>` offers the project types, and `jetpack build packages/<TAB>` the packages. The script holds no data: every TAB asks the CLI of the checkout you are in, so new projects show up as soon as they exist, and in a git worktree you get that worktree's projects.
 
