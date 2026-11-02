@@ -26,6 +26,17 @@ You run a command by using `jetpack [command] [arguments]`. Every command suppor
 
 The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run `jetpack cli unlink`, then change into the directory you want and run `pnpm jetpack cli link` again.
 
+## Shell completion
+
+`jetpack completion` prints a completion script for zsh or bash, going by `$SHELL`. Save it once and source it from your shell's startup file:
+
+```sh
+jetpack completion > ~/.jetpack-completion.sh
+echo 'source ~/.jetpack-completion.sh' >> ~/.zshrc   # or ~/.bashrc
+```
+
+Then `jetpack bu<TAB>` completes the command, `jetpack build <TAB>` offers the project types, and `jetpack build packages/<TAB>` the packages. The script holds no data: every TAB asks the CLI of the checkout you are in, so new projects show up as soon as they exist, and in a git worktree you get that worktree's projects.
+
 ## Available Commands
 
 * `build` - Build a project in the monorepo.
