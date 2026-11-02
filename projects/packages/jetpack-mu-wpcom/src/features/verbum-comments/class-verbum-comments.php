@@ -210,9 +210,8 @@ class Verbum_Comments {
 
 		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin. Gated until 16.4 is out.
 		$retirement_notice_url = '';
-		$site_url              = get_blog_option( $this->blog_id, 'siteurl' );
-		if ( $site_url && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' ) ) {
-			$retirement_notice_url = esc_url_raw( trailingslashit( $site_url ) . 'wp-admin/plugins.php' );
+		if ( ! $is_blog_atomic && is_jetpack_comments() && ! empty( $__get['_wp_unfiltered_html_comment'] ) && defined( 'JETPACK__VERSION' ) && version_compare( (string) JETPACK__VERSION, '16.4', '>=' ) ) {
+			$retirement_notice_url = esc_url_raw( get_admin_url( $this->blog_id, 'plugins.php' ) );
 		}
 
 		$hovercard_i18n = array(
