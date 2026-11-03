@@ -46,6 +46,7 @@ export type ReportParams = {
 	to: string;
 	preset?: ReportPresetId;
 	interval: IntervalType;
+	step?: string; // How the window steps, set by the date arrows; see `planDateStep`.
 	period?: string;
 	compare_from?: string;
 	compare_to?: string;

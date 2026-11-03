@@ -19,7 +19,6 @@ const TZ_SUITES = [
 	'packages/datetime/src/__tests__/site-datetime.test.ts',
 	'packages/datetime/src/__tests__/site-timestamp.test.ts',
 	'packages/datetime/src/__tests__/step-date-range.test.ts',
-	'packages/datetime/src/__tests__/to-date-range.test.ts',
 	'packages/datetime/src/__tests__/tz.test.ts',
 	'packages/datetime/src/__tests__/year-presets.test.ts',
 	'packages/formatters/src/date/__tests__/format-date-range.test.ts',

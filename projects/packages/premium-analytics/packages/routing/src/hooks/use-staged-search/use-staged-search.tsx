@@ -10,17 +10,6 @@ import { useStagedValue } from '../use-staged-value';
 
 type AnyObject = Record< string, unknown >;
 
-/**
- * How a commit lands in the history.
- */
-export type CommitOptions = {
-	/** Replace the current entry instead of pushing one. */
-	replace?: boolean;
-
-	/** History state for the entry, read back with `window.history.state`. */
-	state?: AnyObject;
-};
-
 export type UseStagedSearchOptions< TFrom extends string > = {
 	/**
 	 * The route the search params are bound to, e.g. `/`. Omit to read whichever
@@ -59,7 +48,7 @@ export type UseStagedSearchReturn< TSearch extends AnyObject > = {
 	/**
 	 * Commit all staged changes in a single atomic navigate().
 	 */
-	commit: ( opts?: CommitOptions ) => void;
+	commit: ( opts?: { replace?: boolean } ) => void;
 
 	/**
 	 * Discard local changes and return to committed snapshot.
@@ -106,21 +95,20 @@ export function useStagedSearch< TSearch extends AnyObject, TFrom extends string
 	 * own — and avoids the remount a route change would cost.
 	 */
 	const writeToSearch = useCallback(
-		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: CommitOptions ) => {
+		( _staged: TSearch, patch: Partial< TSearch >, commitOpts?: { replace?: boolean } ) => {
 			navigate( {
 				replace: commitOpts?.replace ?? false, // explicit commits push into history
 				viewTransition: false,
 				search: prev => ( { ...prev, ...patch } ),
-				state: commitOpts?.state,
 			} );
 		},
 		[ navigate ]
 	);
 
-	const { staged, isDirty, stage, commit, revert } = useStagedValue< TSearch, CommitOptions >(
-		committed,
-		writeToSearch
-	);
+	const { staged, isDirty, stage, commit, revert } = useStagedValue<
+		TSearch,
+		{ replace?: boolean }
+	>( committed, writeToSearch );
 
 	/**
 	 * Effective = committed merged with defined staged keys.

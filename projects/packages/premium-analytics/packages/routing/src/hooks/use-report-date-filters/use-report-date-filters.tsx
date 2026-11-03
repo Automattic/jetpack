@@ -10,7 +10,11 @@ import {
 	type DateLimits,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { planDateStep, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_CUSTOM,
+	planDateStep,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -22,7 +26,6 @@ import { buildRangePatch, type ReportQuerySearchParams } from './build-range-pat
 import type {
 	ComparisonPresetId,
 	DateRange,
-	DateRangeSpan,
 	DateStep,
 	IntervalType,
 	PrimaryPresetId,
@@ -75,13 +78,13 @@ export type ReportDateFilters = {
 	/** Whether the applied window has an earlier one the plan lets the site read. */
 	canStepBackward: boolean;
 
-	/** Whether the applied window has a later one, up to the running hour, day, month or year. */
+	/** Whether the applied window has a later one that has begun. */
 	canStepForward: boolean;
 
 	/**
-	 * Step the applied window backward or forward by its own length and commit
-	 * it. Returns what was committed, so a caller can track it as applied: the
-	 * preset whose window the step landed on, or `custom`, and the interval kept.
+	 * Step the applied window backward or forward and commit it. Returns what
+	 * was committed, so a caller can track it as applied: the preset the step
+	 * set out from when it lands back on it, or `custom`, and the interval kept.
 	 */
 	onStep: ( direction: StepDirection ) => ( DateStep & { interval: IntervalType } ) | undefined;
 
@@ -118,39 +121,6 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 	};
 }
 
-const STEP_SPAN_STATE = 'jetpackPremiumAnalyticsDateStepSpan';
-const SPAN_UNITS: readonly string[] = [ 'hour', 'day', 'month', 'year' ];
-
-/**
- * The history state a step commits with: the span it moved by, on the entry it
- * landed on. The next step from that entry, after a reload too, moves by the
- * same span, so the reverse step undoes it. An entry reached any other way
- * carries none and steps by its own shape.
- *
- * @param span - The span the step moved by.
- * @return The state to commit with.
- */
-function stepSpanState( span: DateRangeSpan ): Record< string, unknown > {
-	return { [ STEP_SPAN_STATE ]: span };
-}
-
-/**
- * The span the current history entry was reached by, if a step committed it.
- *
- * @return The span, or `undefined`.
- */
-function stepSpanFromHistory(): DateRangeSpan | undefined {
-	const state = window.history.state as Record< string, unknown > | null;
-	const span = state?.[ STEP_SPAN_STATE ] as Partial< DateRangeSpan > | undefined;
-
-	return span &&
-		SPAN_UNITS.includes( span.unit as string ) &&
-		Number.isInteger( span.value ) &&
-		( span.value as number ) > 0
-		? ( span as DateRangeSpan )
-		: undefined;
-}
-
 /**
  * Controller for the date-range and comparison filters, backed by the URL
  * search params on a given route.
@@ -178,7 +148,7 @@ export function useReportDateFilters< TFrom extends string >(
 	const scopedLocks = useScopeLockedIntervals();
 	const lockedIntervals = filterOptions.dateLimits?.lockedIntervals ?? scopedLocks;
 	const scopedDateLimits = useReportScope().dateLimits;
-	const { earliestDate, lockedPresetIds } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
+	const { earliestDate } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
 	const timeZone = reportingTimeZone();
 
@@ -316,39 +286,36 @@ export function useReportDateFilters< TFrom extends string >(
 	 * One decision for the arrows and the step: the plan function says whether
 	 * the window moves, where it lands and what the landing is called. The clock
 	 * is read on each render, not memoised, so a tab left open past midnight
-	 * offers the new day as soon as anything re-renders. The span the entry was
-	 * reached by is read off the history state alongside it.
+	 * offers the new day as soon as anything re-renders.
 	 */
 	const stepContext = useMemo(
-		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds } ),
-		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds ]
+		() => ( { presetId: appliedPresetId, step: committed.step, timeZone, earliestDate } ),
+		[ appliedPresetId, committed.step, timeZone, earliestDate ]
 	);
 	const now = new Date();
-	const span = stepSpanFromHistory();
 	const canStepBackward =
-		planDateStep( appliedRange, 'previous', { ...stepContext, now, span } ) !== undefined;
+		planDateStep( appliedRange, 'previous', { ...stepContext, now } ) !== undefined;
 	const canStepForward =
-		planDateStep( appliedRange, 'next', { ...stepContext, now, span } ) !== undefined;
+		planDateStep( appliedRange, 'next', { ...stepContext, now } ) !== undefined;
 
 	/*
 	 * Commits and pushes a history entry so Back undoes the step. Steps the
 	 * applied range, not the staged one: the arrows sit outside the picker, so
 	 * stepping must not apply an open draft. The interval carries unless the new
 	 * range disallows it: a step turns the page, it does not pick a preset anew.
+	 * A landing off every preset carries its step in the URL, so the next step
+	 * moves the same way after a reload too; back on its preset, the preset says.
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
-			const step = planDateStep( appliedRange, direction, {
-				...stepContext,
-				now: new Date(),
-				span: stepSpanFromHistory(),
-			} );
+			const step = planDateStep( appliedRange, direction, { ...stepContext, now: new Date() } );
 			const patch =
 				step &&
 				buildRangePatch( {
 					nextRange: step.range,
 					nextPresetId: step.presetId,
 					exactRange: true,
+					step: step.presetId === PRESET_CUSTOM ? step.step : undefined,
 					effective,
 					lockedIntervals,
 				} );
@@ -358,7 +325,7 @@ export function useReportDateFilters< TFrom extends string >(
 			}
 
 			stage( patch );
-			commit( { state: stepSpanState( step.span ) } );
+			commit();
 
 			return { ...step, interval: patch.interval ?? interval };
 		},

@@ -2,11 +2,16 @@
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { stepDateRange } from '../step-date-range';
+import {
+	endOfStepHorizon,
+	getStepSpan,
+	measureStepId,
+	parseDateStepId,
+	shiftStep,
+} from '../step-date-range';
 import type { DateRange } from '../get-comparison-range';
 
 /**
@@ -17,15 +22,23 @@ const TIMEZONE = 'America/New_York';
 /**
  * An instant on the site's clock.
  *
- * @param year   - Full year.
- * @param month  - 1-based month.
- * @param day    - Day of the month.
- * @param hour   - Hour of the day.
- * @param minute - Minute of the hour.
+ * @param year     - Full year.
+ * @param month    - 1-based month.
+ * @param day      - Day of the month.
+ * @param hour     - Hour of the day.
+ * @param minute   - Minute of the hour.
+ * @param timeZone - The zone.
  * @return The date.
  */
-function at( year: number, month: number, day: number, hour = 0, minute = 0 ): TZDate {
-	return new TZDate( year, month - 1, day, hour, minute, 0, 0, TIMEZONE );
+function at(
+	year: number,
+	month: number,
+	day: number,
+	hour = 0,
+	minute = 0,
+	timeZone = TIMEZONE
+): TZDate {
+	return new TZDate( year, month - 1, day, hour, minute, 0, 0, timeZone );
 }
 
 /**
@@ -49,221 +62,163 @@ function endOfHourAt( year: number, month: number, day: number, hour: number ): 
  * @return The inclusive whole-day range.
  */
 function wholeDays( from: TZDate, to: TZDate ): Required< DateRange > {
+	const timeZone = from.timeZone ?? TIMEZONE;
+
 	return {
-		from: new TZDate( from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0, TIMEZONE ),
-		to: new TZDate( to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999, TIMEZONE ),
+		from: new TZDate( from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0, timeZone ),
+		to: new TZDate( to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999, timeZone ),
 	};
 }
 
-describe( 'stepDateRange', () => {
-	it( 'moves a day-scale window by its own length', () => {
+describe( 'parseDateStepId', () => {
+	it.each( [ 'last-7-days', 'month-to-date', 'P7D', 'P1M', 'P2Y', 'PT24H' ] )(
+		'accepts %s',
+		value => {
+			expect( parseDateStepId( value ) ).toBe( value );
+		}
+	);
+
+	it.each( [
+		[ 'a preset with no window', 'all-time' ],
+		[ 'the custom marker', 'custom' ],
+		[ 'a duration of nothing', 'P0D' ],
+		[ 'a lower-case unit', 'P7d' ],
+		[ 'a duration in weeks', 'P1W' ],
+		[ 'a number', 7 ],
+		[ 'nothing', undefined ],
+	] )( 'rejects %s', ( _name, value ) => {
+		expect( parseDateStepId( value ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'getStepSpan', () => {
+	it.each( [
+		[ 'today', { unit: 'day', value: 1 } ],
+		[ 'last-24-hours', { unit: 'hour', value: 24 } ],
+		[ 'last-30-days', { unit: 'day', value: 30 } ],
+		[ 'month-to-date', { unit: 'month', value: 1 } ],
+		[ 'last-12-months', { unit: 'month', value: 12 } ],
+		[ 'last-year', { unit: 'year', value: 1 } ],
+		[ 'P90D', { unit: 'day', value: 90 } ],
+		[ 'P3M', { unit: 'month', value: 3 } ],
+		[ 'P2Y', { unit: 'year', value: 2 } ],
+		[ 'PT6H', { unit: 'hour', value: 6 } ],
+	] as const )( 'reads %s', ( stepId, span ) => {
+		expect( getStepSpan( stepId ) ).toEqual( span );
+	} );
+} );
+
+describe( 'measureStepId', () => {
+	it.each( [
+		[ 'a run of days', wholeDays( at( 2026, 7, 21 ), at( 2026, 7, 27 ) ), 'P7D' ],
+		[ 'a whole month', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 30 ) ), 'P1M' ],
+		[ 'whole months', wholeDays( at( 2026, 6, 1 ), at( 2026, 8, 31 ) ), 'P3M' ],
+		[ 'a whole year', wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) ), 'P1Y' ],
+		[ 'twelve months from mid-year', wholeDays( at( 2025, 7, 1 ), at( 2026, 6, 30 ) ), 'P12M' ],
+		[ 'the month to date, by its days', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 14 ) ), 'P14D' ],
+		[ 'a window starting mid-month', wholeDays( at( 2026, 1, 15 ), at( 2026, 3, 14 ) ), 'P59D' ],
+		[
+			'an hour-snapped window',
+			{ from: at( 2026, 7, 9, 19 ), to: endOfHourAt( 2026, 7, 10, 18 ) },
+			'PT24H',
+		],
+		[
+			'a window shorter than an hour',
+			{ from: at( 2026, 7, 9, 19 ), to: at( 2026, 7, 9, 19, 20 ) },
+			'PT1H',
+		],
+	] )( 'measures %s', ( _name, range, stepId ) => {
+		expect( measureStepId( range ) ).toBe( stepId );
+	} );
+
+	it( 'measures nothing for a window that runs backwards', () => {
+		expect( measureStepId( { from: at( 2026, 7, 27 ), to: at( 2026, 7, 21 ) } ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'shiftStep', () => {
+	it( 'moves a run of days by its length', () => {
 		const range = wholeDays( at( 2026, 7, 21 ), at( 2026, 7, 27 ) );
 
-		const previous = stepDateRange( range, 'previous' );
-
-		expect( previous ).toEqual( wholeDays( at( 2026, 7, 14 ), at( 2026, 7, 20 ) ) );
-	} );
-
-	it( 'moves an hour-snapped window by its full length', () => {
-		// `last-24-hours`: hour boundaries, a millisecond short of 24 hours.
-		const range = { from: at( 2026, 7, 9, 19 ), to: endOfHourAt( 2026, 7, 10, 18 ) };
-
-		const previous = stepDateRange( range, 'previous' );
-
-		expect( previous ).toEqual( { from: at( 2026, 7, 8, 19 ), to: endOfHourAt( 2026, 7, 9, 18 ) } );
-	} );
-
-	it( 'moves a month-scale window by calendar months, not by days', () => {
-		// A whole year: stepping back has to land on the same days of the month.
-		const range = wholeDays( at( 2026, 1, 1 ), at( 2026, 12, 31 ) );
-
-		const previous = stepDateRange( range, 'previous' );
-
-		expect( previous ).toEqual( wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) ) );
-	} );
-
-	it( 'steps a sub-day window by hours', () => {
-		const range = { from: at( 2026, 7, 27, 9 ), to: at( 2026, 7, 28, 9 ) };
-
-		const previous = stepDateRange( range, 'previous' );
-
-		expect( previous ).toEqual( { from: at( 2026, 7, 26, 9 ), to: at( 2026, 7, 27, 9 ) } );
-	} );
-
-	// `getDateRangeSpan` reads one whole month as its days, which would move
-	// "Last month" back 30 days rather than to the month before.
-	it.each( [
-		[ 'a whole month', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 30 ) ), 'last-month' ],
-		[ 'a whole month picked by hand', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 30 ) ), 'custom' ],
-		[ 'the month to date', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 14 ) ), 'month-to-date' ],
-	] as const )( 'steps %s to the whole month before', ( _name, range, presetId ) => {
-		expect( stepDateRange( range, 'previous', { presetId } ) ).toEqual(
-			wholeDays( at( 2026, 8, 1 ), at( 2026, 8, 31 ) )
+		expect( shiftStep( range, { unit: 'day', value: 7 }, 'previous' ) ).toEqual(
+			wholeDays( at( 2026, 7, 14 ), at( 2026, 7, 20 ) )
 		);
 	} );
 
-	// Measured as the comparison measures its previous period, so the arrow and
-	// "Previous period" agree: only whole months step by months.
-	it.each( [
-		[
-			'a "Last N days" window on whole months',
-			wholeDays( at( 2026, 4, 1 ), at( 2026, 4, 30 ) ),
-			'last-30-days',
-			wholeDays( at( 2026, 3, 2 ), at( 2026, 3, 31 ) ),
-		],
-		[
-			'a hand-picked window starting mid-month',
-			wholeDays( at( 2026, 1, 15 ), at( 2026, 3, 14 ) ),
-			'custom',
-			wholeDays( at( 2025, 11, 17 ), at( 2026, 1, 14 ) ),
-		],
-		[
-			'"Last 90 days" read on the last day of a month',
-			wholeDays( at( 2025, 12, 1 ), at( 2026, 2, 28 ) ),
-			'last-90-days',
-			wholeDays( at( 2025, 9, 2 ), at( 2025, 11, 30 ) ),
-		],
-		[
-			'"Last 365 days" read on New Year\'s Eve',
-			wholeDays( at( 2029, 1, 1 ), at( 2029, 12, 31 ) ),
-			'last-365-days',
-			wholeDays( at( 2028, 1, 2 ), at( 2028, 12, 31 ) ),
-		],
-	] as const )( 'steps %s by its days', ( _name, range, presetId, expected ) => {
-		expect( stepDateRange( range, 'previous', { presetId } ) ).toEqual( expected );
-	} );
+	it( 'moves months by the calendar, landing on whole months', () => {
+		const year = wholeDays( at( 2026, 1, 1 ), at( 2026, 12, 31 ) );
 
-	it( 'steps the year to date back to the whole year before', () => {
-		const range = wholeDays( at( 2026, 1, 1 ), at( 2026, 7, 27 ) );
-
-		expect( stepDateRange( range, 'previous', { presetId: 'year-to-date' } ) ).toEqual(
+		expect( shiftStep( year, { unit: 'month', value: 12 }, 'previous' ) ).toEqual(
 			wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) )
 		);
-	} );
-
-	it( 'steps a to-date year window by its completed months', () => {
-		// `last-12-months` as read mid-month.
-		const range = wholeDays( at( 2025, 9, 1 ), at( 2026, 8, 20 ) );
-
-		expect( stepDateRange( range, 'previous', { presetId: 'last-12-months' } ) ).toEqual(
-			wholeDays( at( 2024, 9, 1 ), at( 2025, 8, 31 ) )
+		expect( shiftStep( year, { unit: 'year', value: 1 }, 'next' ) ).toEqual(
+			wholeDays( at( 2027, 1, 1 ), at( 2027, 12, 31 ) )
 		);
 	} );
 
-	// Where a forward step pulled back to today leaves a reader: a hand-picked
-	// run of whole months and the running one, completed so Previous retraces Next.
-	it( 'steps a hand-picked run of months to date by its completed months', () => {
-		const range = wholeDays( at( 2026, 9, 1 ), at( 2026, 11, 2 ) );
-		const now = at( 2026, 11, 2, 12 );
+	// A window whose end was cut at today, as the month to date is, steps away
+	// onto whole units either way.
+	it( 'rebuilds the end from the start, so a window cut at today steps away whole', () => {
+		const toDate = wholeDays( at( 2026, 8, 1 ), at( 2026, 8, 20 ) );
+		const month = { unit: 'month', value: 1 } as const;
 
-		expect( stepDateRange( range, 'previous', { presetId: 'custom', now } ) ).toEqual(
-			wholeDays( at( 2026, 6, 1 ), at( 2026, 8, 31 ) )
+		expect( shiftStep( toDate, month, 'previous' ) ).toEqual(
+			wholeDays( at( 2026, 7, 1 ), at( 2026, 7, 31 ) )
 		);
-	} );
-
-	// From January's first day the same window is the year to date, which the
-	// preset steps as the whole year before.
-	it( 'steps a hand-picked year to date by the whole year', () => {
-		const range = wholeDays( at( 2026, 1, 1 ), at( 2026, 11, 2 ) );
-		const now = at( 2026, 11, 2, 12 );
-
-		expect( stepDateRange( range, 'previous', { presetId: 'custom', now } ) ).toEqual(
-			wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) )
+		expect( shiftStep( toDate, month, 'next' ) ).toEqual(
+			wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 30 ) )
 		);
-	} );
-
-	it.each( [
-		[
-			'only the running month',
-			wholeDays( at( 2026, 11, 1 ), at( 2026, 11, 2 ) ),
-			wholeDays( at( 2026, 10, 30 ), at( 2026, 10, 31 ) ),
-		],
-		[
-			'months that ended yesterday',
-			wholeDays( at( 2026, 9, 1 ), at( 2026, 11, 1 ) ),
-			wholeDays( at( 2026, 7, 1 ), at( 2026, 8, 31 ) ),
-		],
-	] )( 'steps a hand-picked window covering %s by its days', ( _name, range, expected ) => {
-		expect( stepDateRange( range, 'previous', { now: at( 2026, 11, 2, 12 ) } ) ).toEqual(
-			expected
-		);
-	} );
-
-	it( 'does not step all time', () => {
-		const range = wholeDays( at( 2020, 1, 1 ), at( 2026, 8, 20 ) );
-
-		expect( stepDateRange( range, 'previous', { presetId: 'all-time' } ) ).toBeUndefined();
-	} );
-
-	/*
-	 * A property rather than one example because of clamping: `addMonths` shortens
-	 * a day the target month cannot hold, and the clamp does not undo.
-	 */
-	describe( 'is reversible', () => {
-		const cases = [
-			[ 'days', wholeDays( at( 2026, 7, 21 ), at( 2026, 7, 27 ) ) ],
-			[ 'a single month', wholeDays( at( 2026, 9, 1 ), at( 2026, 9, 30 ) ) ],
-			[ 'whole months', wholeDays( at( 2026, 1, 1 ), at( 2026, 12, 31 ) ) ],
-			[ 'months from a 31st', wholeDays( at( 2026, 8, 31 ), at( 2026, 10, 30 ) ) ],
-			[ 'a leap February', wholeDays( at( 2024, 1, 31 ), at( 2024, 3, 30 ) ) ],
-			[ 'hours', { from: at( 2026, 7, 27, 9 ), to: at( 2026, 7, 28, 9 ) } ],
-			[ 'days across a DST change', wholeDays( at( 2026, 10, 30 ), at( 2026, 11, 5 ) ) ],
-		] as const;
-
-		it.each( cases )( 'returns to the starting window across %s', ( _name, range ) => {
-			const back = stepDateRange( range, 'previous' );
-			const forward = back && stepDateRange( back, 'next' );
-
-			expect( forward ).toEqual( range );
-		} );
-
-		// Not from a 31st: its day fallback lands on whole months, which then step
-		// as months, so the walk back does not retrace the walk out.
-		const walks = cases.filter( ( [ name ] ) => name !== 'months from a 31st' );
-
-		it.each( walks )( 'returns from several steps out across %s', ( _name, range ) => {
-			let moved: Required< DateRange > | undefined = range;
-
-			for ( let i = 0; i < 3; i++ ) {
-				moved = moved && stepDateRange( moved, 'previous' );
-			}
-			for ( let i = 0; i < 3; i++ ) {
-				moved = moved && stepDateRange( moved, 'next' );
-			}
-
-			expect( moved ).toEqual( range );
-		} );
-	} );
-
-	/*
-	 * Counted in calendar days, not elapsed milliseconds: a window crossing a DST
-	 * change is an hour longer, and the step preserves the days a reader sees.
-	 */
-	it( 'preserves the window length when a calendar step would clamp', () => {
-		const range = wholeDays( at( 2026, 8, 31 ), at( 2026, 10, 30 ) );
-
-		const previous = stepDateRange( range, 'previous' );
-		const daysIn = ( r?: DateRange ) =>
-			r?.from && r.to ? differenceInCalendarDays( r.to, r.from ) : null;
-
-		expect( daysIn( previous ) ).toBe( daysIn( range ) );
+		expect(
+			shiftStep(
+				wholeDays( at( 2026, 10, 31 ), at( 2026, 11, 2 ) ),
+				{ unit: 'day', value: 30 },
+				'previous'
+			)
+		).toEqual( wholeDays( at( 2026, 10, 1 ), at( 2026, 10, 30 ) ) );
 	} );
 
 	// "Last 24 hours" read on the afternoon the clocks fall back: 24 elapsed
 	// hours that show as 23 on the wall. The step moves by elapsed time, so the
-	// window keeps its length and its start hour, and the round trip holds.
-	it( 'steps an hour window across a DST change by elapsed hours', () => {
+	// window keeps its length and the round trip holds.
+	it( 'moves hours by elapsed time across a DST change', () => {
 		const range = { from: at( 2026, 10, 31, 16 ), to: endOfHourAt( 2026, 11, 1, 14 ) };
+		const span = { unit: 'hour', value: 24 } as const;
 
-		const previous = stepDateRange( range, 'previous' );
+		const previous = shiftStep( range, span, 'previous' );
 
 		expect( previous ).toEqual( {
 			from: at( 2026, 10, 30, 16 ),
 			to: endOfHourAt( 2026, 10, 31, 15 ),
 		} );
-		expect( differenceInHours( previous!.to!, previous!.from!, { roundingMethod: 'round' } ) ).toBe(
-			differenceInHours( range.to, range.from, { roundingMethod: 'round' } )
+		expect( shiftStep( previous, span, 'next' ) ).toEqual( range );
+	} );
+
+	// Havana moves its clocks at midnight, so the first day of DST starts at
+	// 01:00: a day step lands on whatever the day's first instant is.
+	it( 'keeps whole days across a DST change at midnight', () => {
+		const havana = 'America/Havana';
+		const week = wholeDays( at( 2026, 3, 1, 0, 0, havana ), at( 2026, 3, 7, 0, 0, havana ) );
+		const span = { unit: 'day', value: 7 } as const;
+
+		const next = shiftStep( week, span, 'next' );
+
+		expect( next ).toEqual(
+			wholeDays( at( 2026, 3, 8, 0, 0, havana ), at( 2026, 3, 14, 0, 0, havana ) )
 		);
-		expect( stepDateRange( previous!, 'next' ) ).toEqual( range );
+		expect( next.from.getHours() ).toBe( 1 );
+		expect( shiftStep( next, span, 'previous' ) ).toEqual( week );
+	} );
+} );
+
+describe( 'endOfStepHorizon', () => {
+	const now = at( 2026, 8, 20, 12, 30 );
+
+	it( 'ends today for a window stepping by days, months or years', () => {
+		expect( endOfStepHorizon( now, 'day' ) ).toEqual( endOfHourAt( 2026, 8, 20, 23 ) );
+		expect( endOfStepHorizon( now, 'month' ) ).toEqual( endOfHourAt( 2026, 8, 20, 23 ) );
+	} );
+
+	it( 'ends the running hour for a window stepping by hours', () => {
+		expect( endOfStepHorizon( now, 'hour' ) ).toEqual( endOfHourAt( 2026, 8, 20, 12 ) );
 	} );
 } );

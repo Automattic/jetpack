@@ -5,19 +5,33 @@ import { TZDate } from '@date-fns/tz';
 /**
  * Internal dependencies
  */
-import { findSelectablePresetForRange } from './preset-for-range';
-import { PRESET_CUSTOM, type PrimaryPresetId } from './presets/types';
-import { endOfStepBucket, measureStep, shiftStep, type StepDirection } from './step-date-range';
-import { clampRangeEndToToday } from './to-date-range';
-import type { DateRangeSpan } from './date-range-span';
+import { computePrimaryRange } from './presets/primary';
+import {
+	PRESET_ALL_TIME,
+	PRESET_CUSTOM,
+	isSelectablePreset,
+	type PrimaryPresetId,
+} from './presets/types';
+import {
+	endOfStepHorizon,
+	getStepSpan,
+	measureStepId,
+	parseDateStepId,
+	shiftStep,
+	type DateStepId,
+	type StepDirection,
+} from './step-date-range';
 import type { DateRange } from './get-comparison-range';
 
 /**
  * What a step is decided against.
  */
 export type DateStepContext = {
-	/** The preset the applied window came from, which sets how it steps. */
+	/** The preset the applied window is, which sets how it steps. */
 	presetId?: PrimaryPresetId;
+
+	/** The `step` the applied window was reached by, as the URL carries it. */
+	step?: unknown;
 
 	/** The site's reporting zone, which the presets are computed in. */
 	timeZone: string;
@@ -27,17 +41,6 @@ export type DateStepContext = {
 
 	/** The first instant the plan lets the site read; a step before it is refused. */
 	earliestDate?: Date;
-
-	/** Presets the plan locks, which a stepped window is never named as. */
-	lockedPresetIds?: readonly PrimaryPresetId[];
-
-	/**
-	 * The span the applied window was reached by, when it landed from a step.
-	 * A step then moves by that again, so Previous undoes Next whatever shape
-	 * the landing has: a 30-day window stepped back onto a whole June returns
-	 * to its 30 days, not to the whole July.
-	 */
-	span?: DateRangeSpan;
 };
 
 /**
@@ -46,11 +49,11 @@ export type DateStepContext = {
 export type DateStep = {
 	range: Required< DateRange >;
 
-	/** The preset whose window this is today, or `custom`. */
+	/** The preset the step set out from, when it lands back on that preset's window today; else `custom`. */
 	presetId: PrimaryPresetId;
 
-	/** The span the step moved by, for the reverse step to retrace. */
-	span: DateRangeSpan;
+	/** The step the landing is to carry, so the next step moves the same way. */
+	step: DateStepId;
 };
 
 /**
@@ -58,16 +61,16 @@ export type DateStep = {
  * and what the landing is called. The arrows that offer a step and the filters
  * that apply it read the same answer, so they cannot disagree.
  *
+ * A window steps by one unit, decided once: a preset's own (7 days, a month, a
+ * year), or the shape a hand-picked window has on its first step. The landing
+ * carries that unit as its `step`, so every later step moves the same way
+ * whatever shape it lands on, and the reverse step always undoes it.
+ *
  * Backward, the step has to start on or after the plan's earliest date.
- * Forward, the next window has to end within the bucket `now` sits in — the
- * running hour, day, month or year — so a live preset stays reachable from the
- * window behind it, and nothing steps past the latest one. A forward step
- * closes the unit the window was measured in, which can reach past today, so
- * the landing is pulled back to the end of today: stepping out of "12 months"
- * returns to its to-date window. The landing reads as a preset when it is
- * exactly that preset's window today, preferring a calendar preset when the
- * step moved by months, and never as a preset the plan locks. A window reached
- * by a step moves by that step's span again, so the reverse step undoes it.
+ * Forward, the next window has to have begun; its end is cut at the end of
+ * today (of the running hour, for a window stepping by hours), and the step
+ * away from it rebuilds the whole unit. The landing reads as a preset only
+ * when it is the window of the preset the reader set out from.
  *
  * @param range     - The applied window.
  * @param direction - Which way to move it.
@@ -79,45 +82,46 @@ export function planDateStep(
 	direction: StepDirection,
 	context: DateStepContext
 ): DateStep | undefined {
-	const { presetId, timeZone, earliestDate, lockedPresetIds, span } = context;
+	const { presetId, timeZone, earliestDate } = context;
 
-	if ( ! range.from || ! range.to ) {
+	if ( ! range.from || ! range.to || presetId === PRESET_ALL_TIME ) {
 		return undefined;
 	}
 
 	// Everything below cuts boundaries on the site's calendar, whatever clock the ends arrived on.
-	const now = new TZDate( context.now.getTime(), timeZone );
-	const measured = measureStep(
-		{
-			from: new TZDate( range.from.getTime(), timeZone ),
-			to: new TZDate( range.to.getTime(), timeZone ),
-		},
-		{ presetId, now, span }
-	);
+	const zoned = {
+		from: new TZDate( range.from.getTime(), timeZone ),
+		to: new TZDate( range.to.getTime(), timeZone ),
+	};
+	const step = isSelectablePreset( presetId )
+		? presetId
+		: ( parseDateStepId( context.step ) ?? measureStepId( zoned ) );
 
-	if ( ! measured ) {
+	if ( ! step ) {
 		return undefined;
 	}
 
-	const stepped = shiftStep( measured, direction );
+	const span = getStepSpan( step );
+	const now = new TZDate( context.now.getTime(), timeZone );
+	const stepped = shiftStep( zoned, span, direction );
 	const reachable =
 		direction === 'previous'
 			? ! earliestDate || stepped.from.getTime() >= earliestDate.getTime()
-			: stepped.to.getTime() <= endOfStepBucket( now, stepped.span.unit ).getTime();
+			: stepped.from.getTime() <= now.getTime();
 
 	if ( ! reachable ) {
 		return undefined;
 	}
 
-	const landing = clampRangeEndToToday( { from: stepped.from, to: stepped.to }, now );
-
-	return {
-		range: landing,
-		presetId:
-			findSelectablePresetForRange( landing, timeZone, {
-				steppedBy: stepped.span.unit,
-				exclude: lockedPresetIds,
-			} ) ?? PRESET_CUSTOM,
-		span: stepped.span,
+	const horizon = endOfStepHorizon( now, span.unit );
+	const landing = {
+		from: stepped.from,
+		to: stepped.to.getTime() > horizon.getTime() ? horizon : stepped.to,
 	};
+	const origin = isSelectablePreset( step ) ? step : undefined;
+	const home = origin && computePrimaryRange( origin, timeZone );
+	const isHome =
+		home?.from.getTime() === landing.from.getTime() && home.to.getTime() === landing.to.getTime();
+
+	return { range: landing, presetId: origin && isHome ? origin : PRESET_CUSTOM, step };
 }

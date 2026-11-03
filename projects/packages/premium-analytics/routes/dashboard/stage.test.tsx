@@ -1187,7 +1187,7 @@ describe( 'Dashboard header date control', () => {
 		);
 	} );
 
-	it( 'tracks a step from the header as an applied range and remembers the preset it lands on', () => {
+	it( 'tracks a step from the header as an applied range, leaving the remembered preset alone', () => {
 		const trackedOnChange = jest.fn();
 		const trackedOnApply = jest.fn();
 		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
@@ -1210,9 +1210,11 @@ describe( 'Dashboard header date control', () => {
 			interval: 'week',
 		} );
 		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
-		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
-			'last-month'
-		);
+		// Last 12 months → Previous → Next lands on the year to date in December;
+		// remembering that would open January on a few days.
+		expect(
+			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' )
+		).toBeUndefined();
 	} );
 
 	it( 'neither tracks nor remembers a step the filters refused', () => {

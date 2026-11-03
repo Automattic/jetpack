@@ -379,8 +379,8 @@ function Dashboard(): JSX.Element {
 		},
 		[ changeComparison, rememberOnComparisonChange ]
 	);
-	// A step applies at once: tracked like a range the reader picked, and
-	// remembered only when it lands back on a preset.
+	// A step applies at once and is tracked like a range the reader picked. It
+	// never changes the remembered preset: turning the page is not picking one.
 	const onDateStep = useCallback< typeof stepDateRange >(
 		direction => {
 			const stepped = stepDateRange( direction );
@@ -391,13 +391,11 @@ function Dashboard(): JSX.Element {
 					interval: stepped.interval,
 				} );
 				trackedOnApply();
-				rememberOnChange( stepped.range, stepped.presetId );
-				rememberOnApply();
 			}
 
 			return stepped;
 		},
-		[ stepDateRange, trackedOnChange, trackedOnApply, rememberOnChange, rememberOnApply ]
+		[ stepDateRange, trackedOnChange, trackedOnApply ]
 	);
 
 	/*
