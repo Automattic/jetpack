@@ -384,6 +384,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertFalse( Stats_Abilities::can_manage_settings() );
 	}
 
+	public function test_get_settings_denies_a_user_who_can_only_view_stats(): void {
+		Options::set_options( array( 'roles' => array( 'administrator', 'editor' ) ) );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'stats_abilities_editor_' . wp_generate_password( 8, false ),
+					'user_pass'  => 'pw',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$spec = Stats_Abilities::get_abilities()['jetpack-stats/get-settings'];
+
+		$this->assertTrue( Stats_Abilities::can_view_stats() );
+		$this->assertFalse( call_user_func( $spec['permission_callback'] ) );
+	}
+
 	public function test_get_site_overview_returns_composed_shape(): void {
 		// An offset that puts the site on a different calendar day from UTC right now.
 		$offset = (int) gmdate( 'G' ) >= 12 ? 13 : -12;
