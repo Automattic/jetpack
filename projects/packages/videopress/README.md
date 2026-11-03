@@ -67,6 +67,10 @@ The existing `jetpack_videopress_upgrade_trigger_link_click` event includes `loc
 
 Both events reuse the existing analytics transport and identity context. Consumers must verify the deployed version, host tracking controls, delivery, and property availability before comparing surfaces or building a funnel; older events lack the new properties.
 
+`jetpack_videopress_upload_refused` records client-side refusals in `library_dropzone`, `library_intake`, or `onboarding_intake`. `reason` is `file_validation` or `plan_limit`. `files_known` distinguishes file selections from a blocked attempt to open the picker. When files are present, `attempted_files` counts the files received by that handler and `skipped_files` counts only those refused for that reason. A mixed selection can produce one event per reason; do not sum attempted-file counts across those events as unique attempts. Partially accepted selections still upload their accepted files.
+
+The dropzone reports its own validation/limit refusals and passes only accepted files to intake. Files already rejected there do not reach the intake event. A blocked picker click has unknown file counts, never a fabricated zero. Deliberate repeat attempts emit again; rendering a disabled control does not. This measures local decisions, not server failures, completed uploads, unique customers, or every upload surface. Disabled controls that do not dispatch an action, media-library promotion, editor uploads, and the Top videos widget are not covered. The shared dropzone's refusal callback is enabled only for the dashboard Library. No filenames, MIME strings, file contents, or new identifiers are recorded. Runtime delivery and host controls must be verified before reporting these counts.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.

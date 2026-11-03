@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
@@ -6,6 +7,12 @@ import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -264,6 +271,38 @@ describe( 'library stage empty state', () => {
 		await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 		expect( mockUpgradeLocation ).toHaveBeenCalledTimes( 1 );
 		expect( mockUpgradeLocation ).toHaveBeenCalledWith( 'library_at_limit' );
+	} );
+
+	it( 'records an empty-library picker refusal once without claiming selected files', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upload_refused', {
+			location: 'library_dropzone',
+			reason: 'plan_limit',
+			files_known: false,
+		} );
+		expect( mockStartUpload ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a rejected empty-library drop without passing it to intake', async () => {
+		mockLibraryTotal = 0;
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: { files: [ makeVideoFile( 'a.mp4' ) ] },
+		} );
+		await waitFor( () => expect( recordEvent ).toHaveBeenCalledTimes( 1 ) );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upload_refused', {
+			location: 'library_dropzone',
+			reason: 'plan_limit',
+			files_known: true,
+			attempted_files: 1,
+			skipped_files: 1,
+		} );
+		expect( mockStartUpload ).not.toHaveBeenCalled();
 	} );
 } );
 
