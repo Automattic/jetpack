@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.61.0] - 2026-11-02
+### Added
+- Add camera recording with selectable filters, animated controls, mirrored preview, and trim-and-cut editing before uploading from the dashboard and VideoPress block. [#54233]
+- Analytics: Play the video on its stats report. [#54291]
+
+### Changed
+- Overview: Make the date range picker keyboard-navigable with arrow keys. [#54200]
+- Show the error when connecting from the pricing table fails in a notice above the table, so it no longer pushes the paid plan's button out of line. [#54218]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Stats: Fix incorrect video statistics on sites configured to use HTML query separators. [#54262]
+- Video Playlist and Latest Videos Playlist blocks: Show the first video and a grid of thumbnails linking to the post in newsletter emails. [#54261]
+
 ## [0.60.1] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -2389,6 +2403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.61.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.1...v0.61.0
 [0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1
 [0.60.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.58.0...v0.59.0

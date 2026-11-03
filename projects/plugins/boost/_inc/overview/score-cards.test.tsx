@@ -256,7 +256,7 @@ test( 'shows one calculating status instead of the score sections before scores 
 		/>
 	);
 	expect( screen.getByRole( 'heading', { level: 2, name: 'Your site speed' } ) ).toBeVisible();
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed…' );
 	const progress = screen.getByRole( 'progressbar', { name: 'Testing site speed' } );
 	expect( progress ).not.toHaveAttribute( 'value' );
 	expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
@@ -274,7 +274,7 @@ test( 'keeps the live region mounted before adding the calculating message', () 
 	expect( status ).toBeEmptyDOMElement();
 	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
 	expect( screen.getByRole( 'status' ) ).toBe( status );
-	expect( status ).toHaveTextContent( 'Calculating…' );
+	expect( status ).toHaveTextContent( 'Checking site speed…' );
 	rerender( <ScoreCards scores={ scores } /> );
 	expect( screen.getByRole( 'status' ) ).toBe( status );
 	expect( status ).toBeEmptyDOMElement();
@@ -285,7 +285,7 @@ test( 'overlays calculating while retaining hidden scores and restores the row o
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
 	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
 	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed…' );
 	expect( desktop ).toBeInTheDocument();
 	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
 	const row = desktop.closest( '.jetpack-boost-overview__score-row' );
@@ -317,7 +317,7 @@ test( 'shows a failure without scores inside the card and retries from it', () =
 	expect( card.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	expect( card.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 	fireEvent.click( card.getByRole( 'button', { name: 'Try again' } ) );
 	expect( onRetry ).toHaveBeenCalledTimes( 1 );
 } );
@@ -348,7 +348,7 @@ test( 'retains scores with a busy state during a cached read', () => {
 	expect( desktop ).toHaveValue( 80 );
 	// eslint-disable-next-line testing-library/no-node-access -- Assert the rendered busy ancestor of the score.
 	expect( desktop.closest( '[aria-busy]' ) ).toHaveAttribute( 'aria-busy', 'true' );
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 } );
 
 test.each< [ string, number, boolean ] >( [

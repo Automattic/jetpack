@@ -28,7 +28,7 @@ describe( 'CommentLikesSection', () => {
 			renderWithData( <CommentLikesSection />, {
 				status: {
 					...baseStatus,
-					likes: { state: likesState, supported: true },
+					likes: { ...baseStatus.likes, state: likesState, supported: true },
 					comment_likes: { supported: true, follows_likes_settings: follows },
 				},
 			} );

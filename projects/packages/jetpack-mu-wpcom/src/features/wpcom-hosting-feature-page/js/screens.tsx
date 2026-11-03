@@ -182,3 +182,60 @@ export function InProgressScreen() {
 		</>
 	);
 }
+
+/**
+ * Shown on WoA when the site has the plan but turned the Jetpack plugin's dashboard off.
+ *
+ * @param props       - Component props.
+ * @param props.state - Resolved initial state.
+ * @return The rendered prompt.
+ */
+export function EnableScreen( { state }: { state: InitialState } ) {
+	const { icon, illustration, enable } = useFeature();
+	const { tracksFeatureId, recordTracksEvent } = useTracks();
+
+	if ( ! enable || ! state.enableUrl ) {
+		return null;
+	}
+
+	const tracksProps = { feature_id: tracksFeatureId, enable_error: state.enableError ?? null };
+
+	return (
+		<>
+			<ViewTracker
+				eventName="calypso_dashboard_hosting_feature_enable_impression"
+				properties={ tracksProps }
+			/>
+			{ state.enableError && (
+				<Notice.Root intent="error">
+					<Notice.Description>
+						{ 'connection' === state.enableError ? enable.connectionFailed : enable.failed }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			<Callout
+				icon={ icon }
+				title={ enable.title }
+				image={ illustration }
+				description={ <Text>{ enable.description }</Text> }
+				actions={
+					<ButtonLink
+						variant="solid"
+						size="compact"
+						href={ state.enableUrl }
+						onClick={ () =>
+							recordTracksEvent( 'calypso_dashboard_hosting_feature_enable_click', tracksProps )
+						}
+					>
+						{ enable.action }
+					</ButtonLink>
+				}
+			/>
+		</>
+	);
+}

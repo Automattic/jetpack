@@ -8,8 +8,8 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 
 export const baseStatus: Status = {
-	sharing: { state: 'configure' },
-	likes: { state: 'configure', supported: true },
+	sharing: { state: 'configure', managed_templates: [] },
+	likes: { state: 'configure', supported: true, managed_templates: [] },
 	comment_likes: { supported: true, follows_likes_settings: false },
 	placement: true,
 	site_editor_url: 'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template',
