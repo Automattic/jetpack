@@ -24,5 +24,6 @@ return make_phan_config(
 			'tests/php/stubs/',
 		),
 		'exclude_analysis_directory_list' => array( 'tests/php/' ),
+		'+stubs'                          => array( 'wpcom' ),
 	)
 );

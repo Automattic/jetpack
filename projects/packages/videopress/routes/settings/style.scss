@@ -6,9 +6,12 @@
 // Card.Root is `display: flex` and otherwise wouldn't fill the
 // 660px wrapper.
 .jp-videopress-settings {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 	max-width: 660px;
 	margin-inline: auto;
-	padding-block: 32px;
+	padding-block: 24px;
 }
 
 // `width: 100%` is required because the wrapper is a flex child of the

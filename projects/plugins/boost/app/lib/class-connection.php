@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 
 /**
  * Class Connection
@@ -32,6 +33,7 @@ class Connection {
 
 	public function init() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'jetpack_site_registered', array( Premium_Features::class, 'record_cloud_css_baseline' ), 20, 0 );
 
 		$this->initialize_deactivate_disconnect();
 	}
@@ -130,6 +132,7 @@ class Connection {
 		if ( ! is_wp_error( $result ) ) {
 			Analytics::record_user_event( 'established_connection' );
 			Premium_Features::clear_cache();
+			Performance_History_Entry::clear_cache();
 		}
 
 		return $result;
@@ -193,6 +196,7 @@ class Connection {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+		Premium_Features::record_cloud_css_baseline();
 
 		do_action( 'jetpack_boost_connection_established' );
 

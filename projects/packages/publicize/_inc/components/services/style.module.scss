@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .services {
 	display: flex;
@@ -36,7 +36,7 @@
 	// Size comes from the `body-lg` Text variant; keep the colour + medium weight.
 	.title {
 		color: var(--wpds-color-foreground-content-neutral);
-		font-weight: var(--wpds-typography-font-weight-medium);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 		line-height: 1.4;
 	}
 
@@ -68,7 +68,7 @@
 			margin-bottom: 1rem;
 		}
 
-		*[inert="true"] {
+		*[inert] {
 			opacity: 0.7;
 		}
 	}
@@ -203,7 +203,7 @@
 			justify-content: flex-start;
 		}
 
-		@include gb.break-medium {
+		@include mixins.break-medium {
 			flex-direction: row;
 		}
 	}
@@ -215,11 +215,11 @@
 		flex-basis: 100%;
 		min-width: 220px;
 
-		@include gb.break-medium {
+		@include mixins.break-medium {
 			flex-basis: 50%;
 		}
 
-		@include gb.break-small {
+		@include mixins.break-small {
 
 			button {
 				align-self: start;

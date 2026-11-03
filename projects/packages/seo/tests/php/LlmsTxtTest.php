@@ -113,6 +113,28 @@ class LlmsTxtTest extends TestCase {
 		$this->assertTrue( Llms_Txt::can_serve() );
 	}
 
+	public function test_competing_plugin_prevents_llms_txt_serving() {
+		$original_uri           = $_SERVER['REQUEST_URI'] ?? null;
+		$original_public        = get_option( 'blog_public' );
+		$_SERVER['REQUEST_URI'] = '/llms.txt';
+		update_option( Llms_Txt::OPTION, true );
+		update_option( 'blog_public', 1 );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		try {
+			$this->assertFalse( Llms_Txt::can_serve() );
+			$this->expectOutputString( '' );
+			Llms_Txt::maybe_serve();
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			update_option( 'blog_public', $original_public );
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+		}
+	}
+
 	/**
 	 * A host (or the static-file auto-detection) can force the honest
 	 * "can't take effect" state via the filter.
@@ -310,6 +332,68 @@ class LlmsTxtTest extends TestCase {
 
 			$this->assertSame( '', $this->summary( $post ) );
 		}
+	}
+
+	/**
+	 * A Newsletter-gated post never contributes its body to llms.txt.
+	 *
+	 * @return void
+	 */
+	public function test_summary_omits_newsletter_gated_body_content() {
+		foreach ( array( 'subscribers', 'paid_subscribers', 'paid_subscribers_all_tiers' ) as $access_level ) {
+			$post = $this->insert_post( array( 'post_content' => 'Subscriber-only body text.' ) );
+			update_post_meta( $post->ID, '_jetpack_newsletter_access', $access_level );
+
+			$this->assertSame( '', $this->summary( get_post( $post->ID ) ), $access_level );
+		}
+	}
+
+	/**
+	 * An ungated post still gets its summary (control for the test above).
+	 *
+	 * @return void
+	 */
+	public function test_summary_kept_for_ungated_post() {
+		$post = $this->insert_post( array( 'post_content' => 'Public body text.' ) );
+		update_post_meta( $post->ID, '_jetpack_newsletter_access', 'everybody' );
+
+		$this->assertSame( 'Public body text.', $this->summary( get_post( $post->ID ) ) );
+	}
+
+	/**
+	 * @return void
+	 */
+	public function test_summary_uses_filtered_excerpt_without_manual_excerpt() {
+		$post   = $this->insert_post( array( 'post_content' => 'Withheld body text.' ) );
+		$filter = static function ( $excerpt, $excerpt_post ) use ( $post ) {
+			return $excerpt_post->ID === $post->ID ? 'Content unavailable.' : $excerpt;
+		};
+		add_filter( 'get_the_excerpt', $filter, 100, 2 );
+
+		try {
+			$output = $this->link_list( array( $post ) );
+
+			$this->assertStringContainsString( 'Content unavailable.', $output );
+			$this->assertStringNotContainsString( 'Withheld body text.', $output );
+			$this->assertStringContainsString( '[Test post](', $output );
+			$this->assertStringContainsString( get_permalink( $post ), $output );
+		} finally {
+			remove_filter( 'get_the_excerpt', $filter, 100 );
+		}
+	}
+
+	/**
+	 * A paywalled post summarizes the teaser the front end already publishes.
+	 *
+	 * @return void
+	 */
+	public function test_summary_uses_the_paywall_teaser() {
+		$post = $this->insert_post( array( 'post_content' => 'Free intro text.<!-- wp:jetpack/paywall /-->Paid body text.' ) );
+
+		$summary = $this->summary( get_post( $post->ID ) );
+
+		$this->assertSame( 'Free intro text.', $summary );
+		$this->assertStringNotContainsString( 'Paid body text.', $summary );
 	}
 
 	/**

@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect } from '@wordpress/element';
 import { createContext, useContext } from 'react';
-import type { FC } from 'react';
+import type { JSX, FC } from 'react';
 
 type HasSeenSCModalResult = {
 	has_seen_seller_celebration_modal: boolean;

@@ -1,4 +1,4 @@
-import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
+import { PanelColorSettings } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	TextControl,
@@ -41,6 +41,7 @@ const markerIcon = (
 export default ( {
 	attributes,
 	setAttributes,
+	onSetPoints,
 	apiKey,
 	apiKeySource,
 	apiKeyControl,
@@ -53,31 +54,15 @@ export default ( {
 	setPointVisibility,
 	mapProvider,
 } ) => {
-	const updateAlignment = value => {
-		setAttributes( { align: value } );
-
-		// Allow one cycle for alignment change to take effect
-		if ( mapRef.current?.sizeMap ) {
-			setTimeout( mapRef.current.sizeMap, 0 );
-		}
-	};
-
 	if ( context === 'toolbar' ) {
 		return (
-			<>
-				<BlockAlignmentToolbar
-					value={ attributes.align }
-					onChange={ updateAlignment }
-					controls={ [ 'center', 'wide', 'full' ] }
+			<ToolbarGroup>
+				<ToolbarButton
+					icon={ markerIcon }
+					label={ __( 'Add a marker', 'jetpack' ) }
+					onClick={ setPointVisibility }
 				/>
-				<ToolbarGroup>
-					<ToolbarButton
-						icon={ markerIcon }
-						label={ __( 'Add a marker', 'jetpack' ) }
-						onClick={ setPointVisibility }
-					/>
-				</ToolbarGroup>
-			</>
+			</ToolbarGroup>
 		);
 	}
 
@@ -156,12 +141,7 @@ export default ( {
 			</PanelBody>
 			{ attributes.points.length ? (
 				<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
-					<Locations
-						points={ attributes.points }
-						onChange={ value => {
-							setAttributes( { points: value } );
-						} }
-					/>
+					<Locations points={ attributes.points } onChange={ onSetPoints } />
 				</PanelBody>
 			) : null }
 			{ mapProvider === 'mapbox' ? (

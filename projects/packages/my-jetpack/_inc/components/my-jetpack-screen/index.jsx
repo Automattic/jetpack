@@ -1,20 +1,14 @@
 /*
  * External dependencies
  */
-import {
-	ActionButton,
-	AdminPage,
-	Col,
-	Container,
-	GlobalNotices,
-	Notice,
-} from '@automattic/jetpack-components';
+import { ActionButton, AdminPage } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'react';
+import { useLocation, useParams } from 'react-router';
 /*
  * Internal dependencies
  */
@@ -30,16 +24,20 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
+import { useReplayPendingNotice } from '../../utils/pending-notice';
+import { toRouteHref } from '../../utils/route-href';
 import EvaluationRecommendations from '../evaluation-recommendations';
+import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getDefaultMyJetpackSection, isValidMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
 
-const GlobalNotice = ( { message, title, options } ) => {
+// Named export for testability: it has its own mount effect (Tracks view event) worth
+// covering without mounting the whole screen.
+export const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
 	useEffect( () => {
 		const tracksArgs = options?.tracksArgs || {};
@@ -50,23 +48,28 @@ const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const isBiggerThanMedium = useViewportMatch( 'large' );
-
 	const actionButtons = options.actions?.map( action => {
 		return (
 			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
 		);
 	} );
 
+	// Watchers pass `hideCloseButton: false` plus `onClose` to override this default.
+	const hideCloseButton = options.hideCloseButton ?? true;
+
 	return (
-		<div
-			className={ clsx( styles.notice, {
-				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
-			} ) }
-		>
-			<Notice hideCloseButton={ true } { ...options } title={ title } actions={ actionButtons }>
-				<div className={ styles.message }>{ message }</div>
-			</Notice>
+		<div className={ clsx( styles.notice, styles[ 'notice-gap' ] ) }>
+			<Notice.Root intent={ options.level || 'info' }>
+				{ title && <Notice.Title>{ title }</Notice.Title> }
+				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
+				<Notice.Description className={ styles.message } render={ <div /> }>
+					{ message }
+				</Notice.Description>
+				{ actionButtons && actionButtons.length > 0 && (
+					<Notice.Actions>{ actionButtons }</Notice.Actions>
+				) }
+				{ ! hideCloseButton && <Notice.CloseIconButton onClick={ options.onClose } /> }
+			</Notice.Root>
 		</div>
 	);
 };
@@ -113,16 +116,14 @@ export default function MyJetpackScreen() {
 	const isNewUser = useIsJetpackUserNew();
 
 	const { recordEvent } = useAnalytics();
-	const [ reloading, setReloading ] = useState( false );
 	const params = useParams();
+	const routeLocation = useLocation();
 	const previousTabRef = useRef( null );
 
 	// useLayoutEffect gets called before useEffect.
 	// We are using it here to ensure the `page_view` event gets triggered first.
 	// Determine current tab
-	const currentTab = isValidMyJetpackSection( params.section )
-		? params.section
-		: getDefaultMyJetpackSection();
+	const currentTab = resolveMyJetpackSection( params.section );
 
 	useLayoutEffect( () => {
 		let customTracksData = {};
@@ -151,23 +152,34 @@ export default function MyJetpackScreen() {
 		currentTab,
 	] );
 
-	if ( window.location.hash.includes( '?reload=true' ) ) {
-		// Clears the query string and reloads the page.
-		window.history.replaceState( null, '', window.location.href.replace( '?reload=true', '' ) );
-		window.location.reload();
+	const { pathname: routePath, search: routeSearch } = routeLocation;
+	const shouldReload = new URLSearchParams( routeSearch ).get( 'reload' ) === 'true';
 
-		setReloading( true );
-	}
+	useEffect( () => {
+		if ( shouldReload ) {
+			// Clears the flag from the route and reloads the page.
+			const routeParams = new URLSearchParams( routeSearch );
+			routeParams.delete( 'reload' );
+			const url = new URL( window.location.href );
+			url.searchParams.set(
+				'p',
+				toRouteHref( { pathname: routePath, search: routeParams.toString() } )
+			);
+			window.history.replaceState( null, '', url );
+			window.location.reload();
+		}
+	}, [ shouldReload, routePath, routeSearch ] );
 
 	// show welcome tour if user is redirected from the onboarding flow
 	const isRedirectingFromOnboarding = useQueryParameter( 'from' ) === 'jetpack-onboarding';
 
-	if ( reloading ) {
+	if ( shouldReload ) {
 		return null;
 	}
 
 	const optionalMenuItems = buildOptionalMenuItems( {
 		adminUrl,
+		modulesManagementUrl: getModulesManagementUrl( `${ adminUrl }admin.php?page=jetpack_modules` ),
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
@@ -185,6 +197,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
+			globalControls={ getHeaderControls() }
 			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
@@ -199,24 +212,13 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						<GlobalNotices />
-						{ ! isNewUser && (
-							<Container horizontalSpacing={ 0 }>
-								<Col>
-									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-								</Col>
-							</Container>
-						) }
+						{ ! isNewUser && <JitmSlot /> }
 						{ noticeMessage && (
-							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-								<Col>
-									<GlobalNotice
-										message={ noticeMessage }
-										title={ noticeTitle }
-										options={ noticeOptions }
-									/>
-								</Col>
-							</Container>
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
 						) }
 					</>
 				}

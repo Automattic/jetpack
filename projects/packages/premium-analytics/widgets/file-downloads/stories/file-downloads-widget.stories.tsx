@@ -18,7 +18,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import FileDownloadsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -29,30 +28,25 @@ registerStatsMocks();
 
 const FILE_DOWNLOADS_RENDER_MODULE = 'storybook/file-downloads';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface FileDownloadsStoryControls {
 	withComparison: boolean;
 }
 
 interface FileDownloadsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		FileDownloadsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, FileDownloadsStoryControls {}
 
 function renderFileDownloadsWidget( { withComparison }: FileDownloadsStoryControls ) {
 	return (
-		<FileDownloadsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<FileDownloadsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderFileDownloadsOnPreset( preset: PresetType ) {
 	return (
-		<FileDownloadsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<FileDownloadsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -66,7 +60,7 @@ function FileDownloadsDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ FILE_DOWNLOADS_RENDER_MODULE }
 			renderComponent={ FileDownloadsRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -138,8 +132,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the download glyph
- * and "No file downloads in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderFileDownloadsOnPreset( 'last-365-days' ),

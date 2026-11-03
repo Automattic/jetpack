@@ -1,3 +1,5 @@
+import { getQueryArg } from '@wordpress/url';
+import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
 import type { Filter } from '@wordpress/dataviews';
 
 export const extractActivityLogTypeValues = ( filters: Filter[] ): string[] => {
@@ -29,3 +31,15 @@ export const extractActorIdValues = ( filters: Filter[] ): string[] => {
 	}
 	return [];
 };
+
+/**
+ * Filters to apply on first load from the page URL. Only "All AI agents" is allowed.
+ *
+ * @param href      - The page URL.
+ * @param hasAccess - Whether the site has paid Activity Log access.
+ * @return The preset filters, empty when none apply.
+ */
+export const getPresetFilters = ( href: string, hasAccess: boolean ): Filter[] =>
+	hasAccess && getQueryArg( href, 'actor' ) === ALL_AI_AGENTS_ACTOR_ID
+		? [ { field: 'actor', operator: 'isAny', value: [ ALL_AI_AGENTS_ACTOR_ID ] } ]
+		: [];

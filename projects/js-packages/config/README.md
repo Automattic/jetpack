@@ -15,6 +15,8 @@ In order to do that, we use the `externals` property:
 
 Note: If Webpack's [`libraryTarget`](https://webpack.js.org/configuration/output/#outputlibrarytarget) is set, you may need to override the target for the external by doing `jetpackConfig: 'var ' + JSON.stringify(...`.
 
+Bundlers without webpack-style `externals`, such as `@wordpress/build`, can instead assign the same object to `globalThis.jetpackConfig` before the bundle evaluates — from a boot init module, for example.
+
 ## Required configuration
 
 We only have one required configuration so far: 

@@ -59,7 +59,7 @@ class Music_Player_Widget extends WP_Widget {
 
 		if ( isset( $instance['shortcode'] ) ) {
 			$shortcode = wp_kses( $instance['shortcode'], array() );
-			echo do_shortcode( $shortcode );
+			echo apply_shortcodes( $shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- https://github.com/WordPress/WordPress-Coding-Standards/pull/2782
 		}
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

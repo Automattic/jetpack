@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Authors: Respect a maximum value of zero when requesting all rows.

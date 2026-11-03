@@ -101,7 +101,7 @@ describe( 'useProductCheckoutWorkflow', () => {
 
 		// jsdom's `window.location.href` setter is locked (can't be spied/redefined),
 		// so `run()` still actually assigns it, which jsdom surfaces as a "Not
-		// implemented: navigation" console error. `@wordpress/jest-console`'s strict
+		// implemented: navigation" console error. The `jetpack-js-tools` strict console
 		// guard requires that be explicitly acknowledged (an unhandled console.error
 		// fails the test on its own) -- `toHaveErrored()` is that acknowledgement, not
 		// a check on the navigation itself; `getProductCheckoutUrl`'s asserted args

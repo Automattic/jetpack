@@ -11,8 +11,8 @@ describe( 'Stats referrers normalizer', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					expect.objectContaining( {
 						label: 'example.com/path',
@@ -37,14 +37,14 @@ describe( 'Stats referrers normalizer', () => {
 			summary: {
 				total_views: 8474,
 				other_views: 0,
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-22T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-22T23:59:59',
 			},
 			data: [
 				{
 					time_interval: '2026-06-22',
-					date_start: '2026-06-16T00:00:00+00:00',
-					date_end: '2026-06-22T23:59:59+00:00',
+					date_start: '2026-06-16T00:00:00',
+					date_end: '2026-06-22T23:59:59',
 					items: [
 						expect.objectContaining( {
 							label: 'Search Engines',
@@ -210,6 +210,39 @@ describe( 'Stats referrers normalizer', () => {
 		] );
 	} );
 
+	it( 'marks only the host as spam when the referrer name carries a path', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							group: 'github.com',
+							name: 'github.com/Automattic/jetpack',
+							url: 'https://github.com/Automattic/jetpack',
+							total: 3,
+							results: { views: 3 },
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'github.com/Automattic/jetpack',
+				actions: [ { type: 'spam', data: { domain: 'github.com' } } ],
+			} ),
+		] );
+	} );
+
 	it( 'does not add spam actions when referrer URLs exclude the group name', () => {
 		const result = sanitizeStatsReferrersResponse(
 			{
@@ -239,6 +272,40 @@ describe( 'Stats referrers normalizer', () => {
 				label: 'example.com',
 				actions: [],
 				actionMenu: 0,
+			} ),
+		] );
+	} );
+
+	it( 'treats a referrer group with an empty results array as a leaf row', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'example.com',
+							group: 'example.com',
+							total: 3,
+							url: 'https://example.com/source',
+							results: [],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'example.com',
+				labelIcon: 'external',
+				children: null,
 			} ),
 		] );
 	} );

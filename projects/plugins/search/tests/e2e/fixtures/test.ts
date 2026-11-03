@@ -399,14 +399,14 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
 
 			if ( category ) {
-				body.results = body.results.filter(
-					( v: { categories?: string | string[] } ) => v?.categories?.includes( category )
+				body.results = body.results.filter( ( v: { categories?: string | string[] } ) =>
+					v?.categories?.includes( category )
 				);
 			}
 
 			if ( tag ) {
-				body.results = body.results.filter(
-					( v: { tags?: string | string[] } ) => v?.tags?.includes( tag )
+				body.results = body.results.filter( ( v: { tags?: string | string[] } ) =>
+					v?.tags?.includes( tag )
 				);
 			}
 

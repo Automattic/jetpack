@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useElementSize } from '../use-element-size';
 
 // Mock ResizeObserver
@@ -66,7 +66,7 @@ describe( 'useElementSize', () => {
 		const [ refCallback ] = result.current;
 
 		// Attach the element
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 300 );
@@ -84,7 +84,7 @@ describe( 'useElementSize', () => {
 		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 0 );
@@ -100,7 +100,7 @@ describe( 'useElementSize', () => {
 		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 0 );
@@ -129,10 +129,10 @@ describe( 'useElementSize', () => {
 		const [ refCallback ] = result.current;
 
 		// Attach first element
-		refCallback( mockElement1 as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement1 as unknown as HTMLDivElement ) );
 
 		// Attach second element
-		refCallback( mockElement2 as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement2 as unknown as HTMLDivElement ) );
 
 		expect( disconnectSpy ).toHaveBeenCalled();
 	} );
@@ -155,10 +155,10 @@ describe( 'useElementSize', () => {
 		const [ refCallback ] = result.current;
 
 		// Attach element
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		// Remove element
-		refCallback( null as unknown as HTMLDivElement );
+		act( () => refCallback( null as unknown as HTMLDivElement ) );
 
 		expect( disconnectSpy ).toHaveBeenCalled();
 	} );
@@ -180,7 +180,7 @@ describe( 'useElementSize', () => {
 		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		expect( globalThis.ResizeObserver ).toHaveBeenCalled();
 		expect( observeSpy ).toHaveBeenCalledWith( mockElement );
@@ -207,7 +207,7 @@ describe( 'useElementSize', () => {
 		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockSpanElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockSpanElement as unknown as HTMLDivElement ) );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 75 );
@@ -236,7 +236,7 @@ describe( 'useElementSize', () => {
 		const { result } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 100 );
@@ -244,7 +244,7 @@ describe( 'useElementSize', () => {
 		} );
 
 		// Simulate resize
-		resizeCallback();
+		act( () => resizeCallback() );
 
 		await waitFor( () => {
 			expect( result.current[ 1 ] ).toBe( 200 );
@@ -269,7 +269,7 @@ describe( 'useElementSize', () => {
 		const { result, unmount } = renderHook( () => useElementSize() );
 		const [ refCallback ] = result.current;
 
-		refCallback( mockElement as unknown as HTMLDivElement );
+		act( () => refCallback( mockElement as unknown as HTMLDivElement ) );
 		unmount();
 
 		// The observer should be cleaned up when the hook unmounts

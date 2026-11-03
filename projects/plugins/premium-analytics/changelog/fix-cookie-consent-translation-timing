@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent an early translation-loading warning when Premium Analytics initializes.

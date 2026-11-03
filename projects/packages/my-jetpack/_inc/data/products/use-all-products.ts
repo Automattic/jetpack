@@ -1,11 +1,13 @@
 import { QUERY_PRODUCT_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import { isOfflineFeatures } from '../utils/offline-features';
 import { prepareProductData } from '../utils/prepare-product-data';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
 export const useAllProducts = () => {
 	const { items: products } = getMyJetpackWindowInitialState( 'products' );
+	const isOffline = isOfflineFeatures();
 
 	const {
 		data: fetchedProducts,
@@ -18,16 +20,8 @@ export const useAllProducts = () => {
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }`,
 		},
-		options: { enabled: true },
+		options: { enabled: ! isOffline, staleTime: 5 * 60 * 1000 },
 	} );
-
-	if ( ! isLoading && ! isError ) {
-		for ( const [ key, product ] of Object.entries( products ) ) {
-			if ( fetchedProducts && fetchedProducts[ key ] ) {
-				products[ key ] = { ...product, ...fetchedProducts[ key ] };
-			}
-		}
-	}
 
 	if ( ! products ) {
 		return {
@@ -41,7 +35,28 @@ export const useAllProducts = () => {
 
 	return {
 		data: Object.entries( products ).reduce(
-			( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
+			( acc, [ key, product ] ) => {
+				const fetchedProduct = fetchedProducts?.[ key ];
+				const prepared = prepareProductData( { ...product, ...fetchedProduct } );
+				if (
+					key === 'pro' &&
+					prepared.pricingForUi &&
+					! isOffline &&
+					( isLoading || isError || fetchedProduct?.pricing_for_ui?.catalog_available !== true )
+				) {
+					prepared.pricingForUi.catalogAvailable = false;
+				}
+				const missingAvailability =
+					! isOffline && ( isLoading || fetchedProduct?.pricing_for_ui?.available !== true );
+				if ( key === 'pro' && prepared.pricingForUi && ( isError || missingAvailability ) ) {
+					prepared.pricingForUi.available = false;
+					prepared.pricingForUi.terms = prepared.pricingForUi.terms?.map( term => ( {
+						...term,
+						available: false,
+					} ) );
+				}
+				return { ...acc, [ key ]: prepared };
+			},
 			{} as { [ key: string ]: ProductCamelCase }
 		),
 		refetch,

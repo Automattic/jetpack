@@ -1,7 +1,8 @@
 {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
 	"name": "homepage-articles",
 	"category": "newspack",
-	"apiVersion": 3,
 	"attributes": {
 		"className": {
 			"type": "string",
@@ -82,6 +83,10 @@
 		"showCategory": {
 			"type": "boolean",
 			"default": false
+		},
+		"showTagLabels": {
+			"type": "boolean",
+			"default": true
 		},
 		"postLayout": {
 			"type": "string",
@@ -240,7 +245,7 @@
 		},
 		"textAlign": {
 			"type": "string",
-			"default": "left"
+			"default": ""
 		},
 		"includedPostStatuses": {
 			"type": "array",

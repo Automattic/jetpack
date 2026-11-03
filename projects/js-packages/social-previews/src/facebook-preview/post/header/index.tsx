@@ -31,13 +31,13 @@ const FacebookPostHeader: React.FC< Props > = ( { user, timeElapsed, hideOptions
 										// translators: short version of `1 hour`
 										'1h',
 										'social-previews'
-								  )
+									)
 								: _x(
 										// translators: temporal indication of when a post was published
 										'Just now',
 										'',
 										'social-previews'
-								  ) }
+									) }
 						</span>
 						<span className="facebook-preview__post-header-dot" aria-hidden="true">
 							·

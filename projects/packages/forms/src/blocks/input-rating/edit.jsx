@@ -1,9 +1,11 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { RatingIcon } from '../field-rating/rating-icon.jsx';
+import { MAX_RATING_ICONS } from '../field-rating/rating-icons.js';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 
 export default function RatingInputEdit( { context, clientId } ) {
-	const max = context?.[ 'jetpack/field-rating-max' ] || 5;
+	// The scale control caps new values, but markup can already carry any number.
+	const max = Math.min( context?.[ 'jetpack/field-rating-max' ] || 5, MAX_RATING_ICONS );
 	const defaultValue = context?.[ 'jetpack/field-rating-default' ] || 0;
 	const iconStyle = context?.[ 'jetpack/field-rating-iconStyle' ] || 'stars';
 	const onChangeDefault = context?.[ 'jetpack/field-rating-onChangeDefault' ] || ( () => {} );

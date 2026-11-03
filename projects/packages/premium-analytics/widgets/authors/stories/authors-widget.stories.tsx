@@ -13,7 +13,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AuthorsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -23,27 +22,19 @@ registerReportMocks();
 
 const AUTHORS_RENDER_MODULE = 'storybook/authors';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface AuthorsStoryControls {
 	withComparison: boolean;
 }
 
 function renderAuthors( { withComparison }: AuthorsStoryControls ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderAuthorsOnPreset( preset: PresetType ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function AuthorsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -65,9 +56,8 @@ const meta = {
 			},
 		},
 	},
-	// The story args are the widget-specific controls, but `component` is the
-	// render component (host `WidgetRenderProps`). Intersect the two so
-	// `component` type-checks against the meta while the controls drive argTypes.
+	// Intersected so `component` type-checks against the meta while the
+	// widget-specific controls still drive argTypes.
 } satisfies Meta< ComponentProps< typeof AuthorsRender > & AuthorsStoryControls >;
 
 export default meta;
@@ -116,8 +106,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral author
- * glyph and the introductory description).
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderAuthorsOnPreset( 'last-365-days' ),
@@ -130,8 +120,7 @@ export const Empty: Story = {
 };
 
 interface AuthorsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AuthorsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AuthorsStoryControls {}
 
 function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDashboardStoryProps ) {
 	return (
@@ -140,7 +129,7 @@ function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDas
 			widgetType={ storyWidgetType }
 			renderModule={ AUTHORS_RENDER_MODULE }
 			renderComponent={ AuthorsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

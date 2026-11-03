@@ -1,30 +1,33 @@
 /**
  * WordPress dependencies
  */
-import { resolveSelect } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
-import { CONFIG_STORE } from '../../src/store/config/index.ts';
+import { waitForConfig } from '../../src/store/config/wait-for-config.ts';
 
 export const route = {
 	/**
 	 * Redirect to responses when Central Form Management is disabled.
 	 */
 	beforeLoad: async () => {
-		const config = await resolveSelect( CONFIG_STORE ).getConfig();
+		const config = await waitForConfig();
 
-		if ( ! config?.isCentralFormManagementEnabled ) {
+		// Null only when the fetch failed, which says nothing about the flag.
+		if ( config && ! config.isCentralFormManagementEnabled ) {
 			throw redirect( { href: '/responses/inbox' } );
 		}
 	},
 
 	/**
-	 * Preload data before the route renders.
+	 * Starts loading the tab counts as the route is entered.
+	 *
+	 * Deliberately not awaited: the router blocks navigation on a loader that returns a
+	 * promise, and the counts only feed the tab badges.
 	 */
-	loader: async () => {
-		await preloadGlobalTabCounts();
+	loader: () => {
+		preloadGlobalTabCounts().catch( () => {} );
 	},
 };

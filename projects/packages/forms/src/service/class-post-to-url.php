@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
 /**
@@ -104,7 +105,7 @@ class Post_To_Url {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $form, $entry_values );
+		$form_data = $this->get_form_data( $form, $fields, $entry_values );
 
 		$result = $this->post_to_url( $form_data, $setup );
 
@@ -152,12 +153,13 @@ class Post_To_Url {
 	 * Sanitizes the hidden fields values
 	 *
 	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
+	 * @param array                                              $visible_fields Visible submitted fields.
 	 * @param array                                              $entry_values The feedback entry values.
 	 */
-	private function get_form_data( $form, $entry_values ) {
+	private function get_form_data( $form, $visible_fields, $entry_values ) {
 		$fields = array();
-		foreach ( $form->fields as $field ) {
-			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
+		foreach ( $visible_fields as $field ) {
+			$fields[ $field->get_attribute( 'id' ) ] = Feedback::encode_special_chars( $field->value );
 		}
 
 		// Right in the middle, backwards compatibility for salesforceData implementation.

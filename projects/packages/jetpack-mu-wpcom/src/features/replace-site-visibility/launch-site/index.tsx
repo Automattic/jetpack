@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
+import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import { getLaunchSiteUrl } from '../../../common/launch-site-url';
+import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
+import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
@@ -17,7 +20,7 @@ interface Props {
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
 	siteDomain: string;
-	sitePlan?: { product_slug: string };
+	sitePlan?: { product_slug: string; product_name?: string };
 	hasCustomDomain: boolean;
 }
 
@@ -31,16 +34,21 @@ const LaunchSite = ( {
 	blogPublic,
 	wpcomComingSoon,
 	wpcomPublicComingSoon,
+	siteDomain,
+	sitePlan,
+	hasCustomDomain,
 }: Props ) => {
 	const [ , variant ] = useSiteLaunchGatingVariant();
+	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
+
+	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
 
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
 	const isAnyComingSoonEnabled =
 		( 0 === blogPublic && wpcomPublicComingSoon ) || isPrivateAndUnlaunched || wpcomComingSoon;
 
-	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-		siteSlug: new URL( homeUrl ).host,
+	const launchUrl = getLaunchSiteUrl( new URL( homeUrl ).host, window.location.href, {
 		source: 'options-reading.php',
 		new: siteTitle,
 		search: 'yes',
@@ -69,6 +77,13 @@ const LaunchSite = ( {
 			case 'semi_gated_site_launch':
 			case null:
 			default:
+				// Qualifying sites confirm via the pre-launch modal; everyone else
+				// goes straight to the launch flow, preserving today's behavior.
+				if ( qualifiesForPreLaunch ) {
+					wpcomTrackEvent( 'wpcom_launch_site_pre_launch_modal_shown' );
+					setShowPreLaunchModal( true );
+					return;
+				}
 				window.location.href = launchUrl;
 		}
 	};
@@ -98,6 +113,16 @@ const LaunchSite = ( {
 							&nbsp;
 						</>
 					}
+				/>
+			) }
+			{ showPreLaunchModal && (
+				<PreLaunchSiteModal
+					siteName={ siteTitle }
+					siteDomain={ siteDomain }
+					homeUrl={ homeUrl }
+					planName={ sitePlan?.product_name || __( 'Paid plan', 'jetpack-mu-wpcom' ) }
+					launchUrl={ launchUrl }
+					onClose={ () => setShowPreLaunchModal( false ) }
 				/>
 			) }
 		</>

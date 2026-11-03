@@ -27,6 +27,24 @@ add_filter( 'default_option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get
 add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_persistent_data' );
 
 /**
+ * Whether the site is running as a staging environment.
+ *
+ * @return bool True if the site should be treated as staging.
+ */
+function wpcomsh_is_staging_environment() {
+	/**
+	 * Filters whether the site is treated as a staging environment.
+	 *
+	 * Core's `wp_get_environment_type()` caches for the life of the request and has no filter of its own.
+	 *
+	 * @since 10.0.0
+	 *
+	 * @param bool $is_staging Whether the environment type is 'staging'.
+	 */
+	return (bool) apply_filters( 'wpcomsh_is_staging_environment', 'staging' === wp_get_environment_type() );
+}
+
+/**
  * Disables outgoing pingbacks/trackbacks in staging environments.
  *
  * Prevents the dispatch of pingbacks when the environment type is 'staging'
@@ -40,7 +58,7 @@ add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_
  * @param string[] $post_links Array of URLs to ping (passed by reference).
  */
 function wpcomsh_disable_outgoing_pings_in_non_production_envs( &$post_links ) {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		$post_links = array();
 	}
 }
@@ -59,7 +77,7 @@ add_action( 'pre_ping', 'wpcomsh_disable_outgoing_pings_in_non_production_envs' 
  * @return array<string, callable> Modified associative array of XML-RPC methods.
  */
 function wpcomsh_disable_incoming_pings_in_non_production_envs( $methods ) {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		unset( $methods['pingback.ping'] );
 	}
 
@@ -74,7 +92,7 @@ add_filter( 'xmlrpc_methods', 'wpcomsh_disable_incoming_pings_in_non_production_
  * @return string|false '0' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_pingback_flag_off_on_staging() {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		return '0';
 	}
 
@@ -89,7 +107,7 @@ add_filter( 'pre_option_default_pingback_flag', 'wpcomsh_force_pingback_flag_off
  * @return string|false 'closed' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_ping_status_closed_on_staging() {
-	if ( 'staging' === wp_get_environment_type() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		return 'closed';
 	}
 
@@ -102,7 +120,7 @@ add_filter( 'pre_option_default_ping_status', 'wpcomsh_force_ping_status_closed_
  * Settings page for staging sites.
  */
 function wpcomsh_disable_pingback_ui_on_staging() {
-	if ( 'staging' !== wp_get_environment_type() ) {
+	if ( ! wpcomsh_is_staging_environment() ) {
 		return;
 	}
 
@@ -130,3 +148,41 @@ function wpcomsh_disable_pingback_ui_on_staging() {
 	<?php
 }
 add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_staging' );
+
+/**
+ * Tells search engines not to index staging sites, even when `blog_public` allows it.
+ *
+ * @param array $headers HTTP response headers.
+ * @return array Filtered headers.
+ */
+function wpcomsh_add_staging_site_robots_header( $headers ) {
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
+		$existing                = $headers['X-Robots-Tag'] ?? '';
+		$headers['X-Robots-Tag'] = $existing ? $existing . ', noindex, nofollow' : 'noindex, nofollow';
+	}
+
+	return $headers;
+}
+// Run last so directives other plugins set are kept.
+add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header', PHP_INT_MAX );
+
+/**
+ * Adds `noindex, nofollow` to the robots meta tag on staging sites.
+ *
+ * @param array $robots Associative array of robots directives.
+ * @return array Filtered directives.
+ */
+function wpcomsh_add_staging_site_robots_directives( $robots ) {
+	if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+		return $robots;
+	}
+
+	// Drop `index` and `follow` so the tag can't read "index, noindex".
+	unset( $robots['index'], $robots['follow'] );
+
+	$robots['noindex']  = true;
+	$robots['nofollow'] = true;
+
+	return $robots;
+}
+add_filter( 'wp_robots', 'wpcomsh_add_staging_site_robots_directives', 100 );

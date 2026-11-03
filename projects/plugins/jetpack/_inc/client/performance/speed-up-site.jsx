@@ -239,6 +239,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								hasChild
 								support={ {
 									link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
+									wpcomLink: 'https://wordpress.com/support/site-accelerator-cdn/',
 								} }
 							>
 								<p>

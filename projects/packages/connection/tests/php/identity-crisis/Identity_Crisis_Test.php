@@ -382,6 +382,21 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that add_idc_query_args_to_url keeps the encoded keys of the existing query, so they cannot turn into another key.
+	 */
+	public function test_add_idc_query_args_to_url_keeps_encoded_keys() {
+		$this->set_up_for_test_add_idc_query_args_to_url();
+
+		$result = Identity_Crisis::init()->add_idc_query_args_to_url( 'https://www.example.com/path?post_id=11&%2570ost_id=8' );
+
+		$this->tear_down_for_test_add_idc_query_args_to_url();
+
+		parse_str( (string) wp_parse_url( $result, PHP_URL_QUERY ), $query_args );
+		$this->assertSame( '11', $query_args['post_id'] );
+		$this->assertSame( '8', $query_args['%70ost_id'] );
+	}
+
+	/**
 	 * Test the add_idc_query_args_to_url with idc disabled with the `jetpack_should_handle_idc`
 	 * filter.
 	 */
@@ -1311,7 +1326,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$expected_ip = '72.182.131.109';
 		foreach ( $result as $ip ) {
 			$this->assertEquals( $expected_ip, $ip['ip'] );
-			$this->assertTrue( is_int( $ip['expires_at'] ) );
+			$this->assertIsInt( $ip['expires_at'] );
 		}
 
 		// Test with another IP address

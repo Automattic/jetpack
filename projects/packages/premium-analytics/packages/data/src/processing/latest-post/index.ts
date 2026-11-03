@@ -1,5 +1,5 @@
-import { decodeEntities } from '@wordpress/html-entities';
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from '../stats/utils';
 import type { StatsRecord } from '../stats/types';
 
@@ -54,22 +54,37 @@ function pickFeaturedImageUrl( media: StatsRecord ): string {
 }
 
 /**
- * Reduce a core `/wp/v2/posts` response (an array of posts) to the first post's
- * headline fields and its embedded featured image. Content is read locally so it
- * resolves regardless of site privacy; the post's views, likes, and comments
- * come from the Stats post endpoint. Returns null when the site has no published
- * post.
- *
- * @param response - Raw payload from the core posts endpoint (with `_embed`).
- * @return The normalized latest post, or null when none is present.
+ * Reduce a core `/wp/v2/posts` response to the first post's headline fields and
+ * its embedded featured image. Read locally so it resolves regardless of site
+ * privacy; views, likes, and comments come from the Stats post endpoint.
  */
 export function sanitizeLatestPostResponse( response: unknown ): LatestPostResponse {
 	const [ first ] = coerceStatsArray( response );
-	if ( ! isStatsRecord( first ) ) {
+
+	return sanitizeLatestPostItem( first );
+}
+
+/**
+ * Every post in a core posts page, in the endpoint's order; items that are not
+ * posts are dropped.
+ *
+ * @param response - The raw posts page.
+ * @return The sanitized posts.
+ */
+export function sanitizePostsContentResponse( response: unknown ): LatestPost[] {
+	return coerceStatsArray( response ).flatMap( item => {
+		const post = sanitizeLatestPostItem( item );
+
+		return post ? [ post ] : [];
+	} );
+}
+
+function sanitizeLatestPostItem( item: unknown ): LatestPostResponse {
+	if ( ! isStatsRecord( item ) ) {
 		return null;
 	}
 
-	const post = coerceStatsRecord( first );
+	const post = coerceStatsRecord( item );
 	const id = safeParseFloat( post.id );
 	if ( id <= 0 ) {
 		return null;
@@ -82,8 +97,7 @@ export function sanitizeLatestPostResponse( response: unknown ): LatestPostRespo
 
 	return {
 		id,
-		// `title.rendered` from core is HTML (encoded entities); decode for display.
-		title: typeof title.rendered === 'string' ? decodeEntities( title.rendered ) : '',
+		title: decodeHtmlText( title.rendered, '' ),
 		url: typeof post.link === 'string' ? post.link : '',
 		date: typeof post.date === 'string' ? post.date : '',
 		imageUrl: pickFeaturedImageUrl( media ),

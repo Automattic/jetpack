@@ -136,7 +136,7 @@ class WPCOM_JSON_API_Endpoint_Rest_Route_Test extends WP_UnitTestCase {
 		$pattern  = $endpoint->build_rest_route_regex();
 		$concrete = $endpoint->build_concrete_rest_route( $url );
 
-		$this->assertSame( 1, preg_match( '#^' . $pattern . '$#', $concrete ), "Concrete route '$concrete' should match registered pattern '$pattern'." );
+		$this->assertMatchesRegularExpression( '#^' . $pattern . '$#', $concrete, "Concrete route '$concrete' should match registered pattern '$pattern'." );
 	}
 
 	/**

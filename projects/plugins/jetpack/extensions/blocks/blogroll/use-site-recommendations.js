@@ -1,6 +1,7 @@
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import { isEqual } from 'lodash';
 import { createBlockFromRecommendation } from './utils';
 
 export const useSiteRecommendationSync = ( { clientId } ) => {
@@ -37,8 +38,15 @@ export const useSiteRecommendationSync = ( { clientId } ) => {
 		}
 	}, [ clientId, siteRecommendations, innerBlockAttributes, hasPulled, insertBlocks ] );
 
-	// Push to the backend
+	// Push to the backend, but not on load: defaults such as the placeholder icon URL can differ
+	// from what was saved, and pushing them would mark the site as edited on every visit.
+	const loadedAttributes = useRef( innerBlockAttributes );
 	useEffect( () => {
+		if ( loadedAttributes.current && isEqual( loadedAttributes.current, innerBlockAttributes ) ) {
+			return;
+		}
+		loadedAttributes.current = null;
+
 		if ( siteRecommendations !== undefined ) {
 			setSiteRecommendations( innerBlockAttributes );
 		}

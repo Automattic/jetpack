@@ -6,8 +6,10 @@ import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
+import { isMovedOut } from 'lib/settings-consolidation';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -24,7 +26,7 @@ import { Ads } from './ads';
  * @param {object} props - Component props.
  * @return {import('react').Component} Feature description and CTA.
  */
-function EarnFeatureButton( props ) {
+export function EarnFeatureButton( props ) {
 	const {
 		buttonText,
 		featureConstant = '',
@@ -32,15 +34,21 @@ function EarnFeatureButton( props ) {
 		infoLink,
 		infoDescription,
 		supportLink,
+		wpcomSupportLink,
+		wpcomInfoLink,
 		title,
 	} = props;
 
-	const trackButtonClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( {
-			target: `visit-${ featureName }`,
-			feature: 'earn',
-		} );
-	}, [ featureName ] );
+	const trackButtonClick = useCallback(
+		event => {
+			analytics.tracks.recordJetpackClick( {
+				target: `visit-${ featureName }`,
+				feature: 'earn',
+			} );
+			openWpcomSupportDoc( event, wpcomInfoLink );
+		},
+		[ featureName, wpcomInfoLink ]
+	);
 
 	return (
 		<SettingsCard
@@ -55,6 +63,7 @@ function EarnFeatureButton( props ) {
 				disableInSiteConnectionMode
 				support={ {
 					link: supportLink,
+					wpcomLink: wpcomSupportLink,
 				} }
 			>
 				{ infoDescription }
@@ -63,7 +72,7 @@ function EarnFeatureButton( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackButtonClick }
-				href={ infoLink }
+				href={ getSupportUrl( infoLink, wpcomInfoLink ) }
 				target="_blank"
 			>
 				{ buttonText }
@@ -78,7 +87,7 @@ function EarnFeatureButton( props ) {
  * @param {object} props - Component props.
  * @return {import('react').Component} Earn settings component.
  */
-function Earn( props ) {
+export function Earn( props ) {
 	const {
 		active,
 		hasConnectedOwner,
@@ -95,7 +104,7 @@ function Earn( props ) {
 	}
 
 	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+		foundEarnBlocks = ! isMovedOut( 'earn' ) && isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
@@ -130,6 +139,7 @@ function Earn( props ) {
 					featureName="payments"
 					title={ __( 'Collect payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/payments/"
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
@@ -144,6 +154,7 @@ function Earn( props ) {
 					featureName="donations"
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/donations/"
 					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
@@ -158,7 +169,9 @@ function Earn( props ) {
 					featureName="paypal"
 					title={ __( 'Collect PayPal payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
+					wpcomSupportLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
+					wpcomInfoLink="https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/"
 					infoDescription={ __(
 						'Accept credit card payments via PayPal for physical products, services, donations, or support of your creative work.',
 						'jetpack'
@@ -174,15 +187,7 @@ function Earn( props ) {
 		<div>
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Earn Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Earn', 'jetpack' )
-					: __(
-							'Explore tools to earn money with your site.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-					  ) }
-			</h2>
+			{ searchTerm && <h2 className="jp-settings__section-title">{ __( 'Earn', 'jetpack' ) }</h2> }
 			{ foundAds && (
 				<Ads
 					{ ...props }

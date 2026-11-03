@@ -23,11 +23,32 @@ use WorDBless\BaseTestCase;
 class Feedback_Creation_Test extends BaseTestCase {
 
 	/**
+	 * Query stubs this test registered on `wordbless_wpdb_query_results`.
+	 *
+	 * @var callable[]
+	 */
+	private $query_stubs = array();
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tear_down() {
+		$this->remove_query_stubs();
 		parent::tear_down();
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Remove the query stubs this test registered.
+	 *
+	 * Only the stubs registered here: `wordbless_wpdb_query_results` is how
+	 * WorDBless answers every query in the suite, so clearing the whole hook
+	 * takes its options, posts, users and meta down with it.
+	 */
+	private function remove_query_stubs() {
+		foreach ( $this->query_stubs as $stub ) {
+			remove_filter( 'wordbless_wpdb_query_results', $stub, 10 );
+		}
+		$this->query_stubs = array();
 	}
 
 	public function test_from_post_id_returns_null_for_invalid_post() {
@@ -99,22 +120,20 @@ class Feedback_Creation_Test extends BaseTestCase {
 	 * @param array $source_ids The source IDs to return from the query.
 	 */
 	private function mock_source_ids_query( $source_ids ) {
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) use ( $source_ids ) {
-				if ( strpos( $query, 'SELECT DISTINCT source_id' ) !== false ) {
-					return array_map(
-						function ( $id ) {
-							return (object) array( 'source_id' => (string) $id );
-						},
-						$source_ids
-					);
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$stub = function ( $results, $query ) use ( $source_ids ) {
+			if ( strpos( $query, 'SELECT DISTINCT source_id' ) !== false ) {
+				return array_map(
+					function ( $id ) {
+						return (object) array( 'source_id' => (string) $id );
+					},
+					$source_ids
+				);
+			}
+			return $results;
+		};
+
+		$this->query_stubs[] = $stub;
+		add_filter( 'wordbless_wpdb_query_results', $stub, 10, 2 );
 	}
 
 	/**
@@ -153,7 +172,7 @@ class Feedback_Creation_Test extends BaseTestCase {
 		$this->assertContains( 42, $first_result );
 
 		// Replace mock with different data — cache should still return old result.
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		$this->remove_query_stubs();
 		$this->mock_source_ids_query( array( 42, 99 ) );
 
 		$second_result = Feedback::get_all_source_post_ids();

@@ -10,4 +10,13 @@
 // Require base config.
 require __DIR__ . '/../../../../.phan/config.base.php';
 
-return make_phan_config( dirname( __DIR__ ), array( '+stubs' => array( 'akismet' ) ) );
+return make_phan_config(
+	dirname( __DIR__ ),
+	array(
+		'+stubs'            => array( 'akismet' ),
+		'exclude_file_list' => array(
+			// Testing mock that overrides the akismet stubs.
+			'tests/php/stubs/class-akismet-admin.php',
+		),
+	)
+);

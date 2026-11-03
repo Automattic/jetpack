@@ -1,18 +1,23 @@
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
-	legendArgTypes,
+	seriesLegendArgTypes,
 	extractLegendConfig,
 	medalCountsData,
+	temperatureData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
+	weeklyComparisonData,
 	themeArgTypes,
-	type LegendStoryControls,
+	type SeriesLegendStoryControls,
 } from '../../../stories';
 import BarChart from '../bar-chart';
-import type { ChartLegendConfig, SeriesData } from '../../../types';
+import type { ChartLegendConfig, DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -20,7 +25,7 @@ import type { Meta, StoryObj } from '@storybook/react';
  * These don't map directly to component props but control how data/state is manipulated in stories.
  */
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > &
-	LegendStoryControls & {
+	SeriesLegendStoryControls & {
 		/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
 		seriesCount?: 'single' | 'multiple' | 'many';
 	};
@@ -35,11 +40,17 @@ const meta: Meta< StoryArgs > = {
 	argTypes: {
 		...sharedChartArgTypes,
 		...themeArgTypes,
-		...legendArgTypes,
+		...seriesLegendArgTypes,
 		orientation: {
 			control: { type: 'radio' },
 			options: [ 'vertical', 'horizontal' ],
 			description: 'Bar orientation',
+			table: { category: 'Visual Style' },
+		},
+		layout: {
+			control: { type: 'radio' },
+			options: [ 'grouped', 'overlap' ],
+			description: 'How series share a category',
 			table: { category: 'Visual Style' },
 		},
 		gridVisibility: {
@@ -94,6 +105,36 @@ export const Default: Story = {
 	},
 };
 
+export const ForcedColors: Story = {
+	...Default,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'In Chrome DevTools, open Rendering and set "Emulate CSS media feature forced-colors" to "active". Set prefers-color-scheme to dark, then light: both axes should follow the system text color. This uses the same axis catalog roles as Line Chart, Area Chart, and Bar List Chart.',
+			},
+		},
+	},
+};
+
+export const CompactWhenShort: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		compactWhenShort: true,
+		containerHeight: '120px',
+		resize: 'vertical',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Below `theme.compactWhenShort.below` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+			},
+		},
+	},
+};
+
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
@@ -119,6 +160,107 @@ export const SingleSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+export const PerPointColors: Story = {
+	args: {
+		...SingleSeries.args,
+		options: { yScale: { zero: true } },
+		data: [
+			{
+				label: 'Daily score',
+				data: [
+					{ label: 'Monday', value: 92, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Tuesday', value: 35, color: 'var(--a8c-charts-color-trend-down)' },
+					{ label: 'Wednesday', value: 88, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Thursday', value: 65 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Point colors override the series fill. Thursday has no override and keeps the series color. Enable patterns to check that they take precedence.',
+			},
+		},
+	},
+};
+
+export const DatumClasses: Story = {
+	args: {
+		width: 600,
+		height: 300,
+		data: [
+			{
+				label: 'Scores',
+				data: [
+					{ label: 'Empty', value: 0 },
+					{ label: 'Recorded', value: 80 },
+				],
+			},
+		],
+		barClassName: datum => ( datum.value === 0 ? 'bar-story-empty' : undefined ),
+		withTooltips: true,
+		tooltipStyle: { padding: 'var(--wpds-dimension-padding-lg)' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Use per-datum classes to keep zero-value marks visible and tooltipStyle to customize the tooltip box.',
+			},
+		},
+	},
+	render: args => (
+		<>
+			<style>
+				{
+					'.bar-story-empty { height: var(--wpds-dimension-gap-xs); translate: 0 calc(-1 * var(--wpds-dimension-gap-xs)); }'
+				}
+			</style>
+			<BarChart { ...args } />
+		</>
+	),
+};
+
+export const BandHighlight: Story = {
+	args: {
+		...SingleSeries.args,
+		withBandHighlight: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape clears the keyboard selection and its tooltip; a hover highlight remains.',
+			},
+		},
+	},
+};
+
+export const BesideTooltip: Story = {
+	args: {
+		...BandHighlight.args,
+		tooltipPlacement: 'beside',
+		tooltipAnchorTop: 40,
+	},
+	argTypes: {
+		tooltipPlacement: {
+			control: 'radio',
+			options: [ 'auto', 'beside' ],
+		},
+		tooltipAnchorTop: { control: 'number' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the SVG with negative values.',
 			},
 		},
 	},
@@ -163,6 +305,169 @@ export const TimeSeries: Story = {
 	},
 };
 
+// Wall-clock dates in the browser frame — the library's parsing convention —
+// so the ticks read the same in any viewer timezone.
+const timeAxisSeries = ( points: Array< [ Date, number ] > ): SeriesData[] => [
+	{
+		label: 'Views',
+		data: points.map( ( [ date, value ] ) => ( { date, value } ) ),
+		options: {},
+	},
+];
+
+const hourlyPoints: Array< [ Date, number ] > = Array.from( { length: 24 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+const dailyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, i ) => [
+	new Date( 2026, 6, 1 + i ),
+	Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+] );
+
+const twoDayHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 48 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+// The far end of the dated-hour format's range: too long for the axis to reach
+// a midnight without stepping whole days.
+const weekHourlyPoints: Array< [ Date, number ] > = Array.from( { length: 168 }, ( _, i ) => [
+	new Date( 2026, 7, 2, i ),
+	Math.round( 60 + 40 * Math.sin( i / 3.5 ) ),
+] );
+
+// Both monthly series deliberately start mid-year: a January start would put a
+// year label on the first bucket for free, hiding whether the axis can find one.
+const oneYearMonthlyPoints: Array< [ Date, number ] > = Array.from( { length: 13 }, ( _, i ) => [
+	new Date( 2025, 7 + i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+const monthlyPoints: Array< [ Date, number ] > = Array.from( { length: 36 }, ( _, i ) => [
+	new Date( 2023, 6 + i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+// A span that is neither a whole number of years nor aligned to one: reaching
+// for its single January is what used to cost the rest of the axis.
+const partYearMonthlyPoints: Array< [ Date, number ] > = Array.from( { length: 30 }, ( _, i ) => [
+	new Date( 2023, 3 + i, 1 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+const yearlyPoints: Array< [ Date, number ] > = [ 72, 95, 58, 86 ].map( ( value, i ) => [
+	new Date( 2023 + i, 0, 1 ),
+	value,
+] );
+
+// A single bucket has no point spacing to infer the resolution from, so only a
+// declared `tickResolution` can reach the hour format.
+const loneHourlyBucket = timeAxisSeries( [ [ new Date( 2026, 7, 2, 13 ), 42 ] ] );
+
+const weeklyPoints: Array< [ Date, number ] > = Array.from( { length: 8 }, ( _, i ) => [
+	new Date( 2026, 0, 5 + i * 7 ),
+	Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+] );
+
+type TimeAxisPanelProps = {
+	title: string;
+	data: SeriesData[];
+	options?: React.ComponentProps< typeof BarChart >[ 'options' ];
+};
+
+const TimeAxisPanel = ( { title, data, options }: TimeAxisPanelProps ) => (
+	<div>
+		<h3>{ title }</h3>
+		<BarChart width={ 460 } height={ 220 } withTooltips data={ data } options={ options } />
+	</div>
+);
+
+const timeAxisPanelGrid = {
+	display: 'grid',
+	gap: '2rem',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+} as const;
+
+export const TimeAxisTickFormats: Story = {
+	render: () => (
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Hourly buckets, single day → hour ticks"
+				data={ timeAxisSeries( hourlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Hourly buckets, two days → hour ticks, date at midnight"
+				data={ timeAxisSeries( twoDayHourlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Hourly buckets, a week → hour ticks, every tick at midnight"
+				data={ timeAxisSeries( weekHourlyPoints ) }
+			/>
+			<TimeAxisPanel title="Daily buckets → date ticks" data={ timeAxisSeries( dailyPoints ) } />
+			<TimeAxisPanel
+				title="Monthly buckets over a year → month ticks, year at January"
+				data={ timeAxisSeries( oneYearMonthlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Monthly buckets over three years → month ticks, every tick at January"
+				data={ timeAxisSeries( monthlyPoints ) }
+			/>
+			<TimeAxisPanel
+				title="Monthly buckets, two and a half years → month ticks, year at January"
+				data={ timeAxisSeries( partYearMonthlyPoints ) }
+			/>
+			<TimeAxisPanel title="Yearly buckets → year ticks" data={ timeAxisSeries( yearlyPoints ) } />
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '1400px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Date-based series share the time-axis tick formatter with the line and area charts, on the same data — compare these panels with the line chart's `TimeAxisTickFormats`. Month-or-coarser buckets follow the resolution alone — month names with the year at January, or plain years for yearly buckets — since they carry no day to print at any span. Daily-or-finer buckets narrow with the span: hour ticks within a day, hour ticks dated at midnight for sub-daily data spanning up to a week, calendar dates within a year, and years beyond that. The tick values are chosen rather than sampled: a band scale has no ticks of its own, so picking evenly by index would often skip the very bucket that carries the year or the date. None of the monthly panels starts in January, and all three still name their years, the shortest of them without thinning the axis to reach one; the week-long and three-year panels step whole days and whole years, since at those spans nothing closer together reaches a boundary at all. Hover any bar: the tooltip names that bar's bucket spelled out in full — `August 2026` for a monthly bar, `2026` for a yearly one, never a day the bucket doesn't carry. It always names the bucket's own granularity, so on the daily panel it stays finer than the ticks once a long span coarsens the axis. An explicit `options.axis.x.tickFormat` still overrides.",
+			},
+		},
+	},
+};
+
+export const TimeAxisTickResolution: Story = {
+	render: () => (
+		<div style={ timeAxisPanelGrid }>
+			<TimeAxisPanel
+				title="Lone hourly bucket, resolution inferred → date tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true } } }
+			/>
+			<TimeAxisPanel
+				title="Same bar, tickResolution: 'hour' → hour tick"
+				data={ loneHourlyBucket }
+				options={ { yScale: { zero: true }, axis: { x: { tickResolution: 'hour' } } } }
+			/>
+			<TimeAxisPanel
+				title="Weekly buckets, tickResolution: 'week' → date ticks, 'Week of' tooltips"
+				data={ timeAxisSeries( weeklyPoints ) }
+				options={ { axis: { x: { tickResolution: 'week' } } } }
+			/>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the tick formatter derives the format from it instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format, and the tooltip follows it. `'week'` is the other case that has to be declared: seven-day spacing is indistinguishable from sparse daily data, so undeclared weekly buckets are read as daily and their tooltips name a single day rather than `Week of …`. On a horizontal bar chart the hint lives on `axis.y`, which is where the dates are. An explicit `tickFormat` takes precedence over the hint.",
+			},
+		},
+	},
+};
+
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
@@ -200,10 +505,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -251,6 +553,24 @@ export const WithLegend: Story = {
 			description: {
 				story:
 					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
+};
+
+export const WithDefaultHiddenSeries: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendInteractive: true,
+		chartId: 'default-hidden-series-demo',
+		defaultHiddenSeries: [ 'Great Britain' ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Great Britain is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
 			},
 		},
 	},
@@ -392,6 +712,125 @@ export const ZeroValueComparison: Story = {
 	},
 };
 
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
+		},
+	},
+};
+
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
+			},
+		},
+	},
+};
+
+export const TickDecimals: Story = {
+	args: {
+		...Default.args,
+		data: [
+			{
+				label: 'Average order value',
+				data: [ 0.4, 1.2, 2.1, 1.8, 2.4, 2.6 ].map( ( value, month ) => ( {
+					date: new Date( 2026, month, 1 ),
+					value,
+				} ) ),
+			},
+		],
+		options: {
+			axis: {
+				y: { tickDecimals: 0, tickFormat: ( value: number ) => `$${ Math.round( value ) }` },
+			},
+		},
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{
@@ -408,44 +847,18 @@ const longLabelData = [
 	},
 ];
 
-// Comparison mode: one primary series + one shadow series sharing the same group.
-// The shadow renders as a translucent bar (150% width, 50% opacity) centered behind
-// the primary bar, making it easy to compare the current period against a previous one.
-export const Comparison: Story = {
+export const ComparisonSingle: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		data: [
-			{
-				label: 'This period',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Previous period',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-		],
+		legendCollapseGroups: false,
+		data: weeklyComparisonData.slice( 0, 2 ),
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as a translucent (50% opacity) shadow bar at the standard slot width, behind a primary bar narrowed to 60% — so it reads as a shadow peeking around the current period.',
+					'One primary series paired with a `type: "comparison"` series sharing the same `group`. The comparison series renders as an opaque bar at the standard slot width, in a light tint of the primary color, behind a primary bar narrowed to 60% in a shade that keeps 3:1 contrast against it. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
 			},
 		},
 	},
@@ -454,64 +867,184 @@ export const Comparison: Story = {
 // Comparison mode with multiple groups side by side.
 // Each group has its own primary series and its own shadow series,
 // demonstrating that comparison mode works correctly across grouped bar layouts.
-export const ComparisonGroups: Story = {
+export const ComparisonMulti: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		data: [
-			{
-				label: 'Views — this period',
-				group: 'views',
-				data: [
-					{ label: 'Mon', value: 420 },
-					{ label: 'Tue', value: 580 },
-					{ label: 'Wed', value: 310 },
-					{ label: 'Thu', value: 750 },
-					{ label: 'Fri', value: 640 },
-				],
-			},
-			{
-				label: 'Views — previous period',
-				group: 'views',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 510 },
-					{ label: 'Tue', value: 490 },
-					{ label: 'Wed', value: 430 },
-					{ label: 'Thu', value: 620 },
-					{ label: 'Fri', value: 700 },
-				],
-			},
-			{
-				label: 'Visitors — this period',
-				group: 'visitors',
-				data: [
-					{ label: 'Mon', value: 280 },
-					{ label: 'Tue', value: 390 },
-					{ label: 'Wed', value: 220 },
-					{ label: 'Thu', value: 500 },
-					{ label: 'Fri', value: 430 },
-				],
-			},
-			{
-				label: 'Visitors — previous period',
-				group: 'visitors',
-				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Mon', value: 340 },
-					{ label: 'Tue', value: 320 },
-					{ label: 'Wed', value: 290 },
-					{ label: 'Thu', value: 410 },
-					{ label: 'Fri', value: 460 },
-				],
-			},
-		],
+		legendInteractive: true,
+		legendCollapseGroups: true,
+		data: weeklyComparisonData,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts.',
+					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width comparison bar, an opaque tint of the group color, sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+const GAPS_BY_SERIES: Record< string, Record< string, number | null > > = {
+	Views: { Wed: null },
+	Visitors: { Wed: null, Sat: 0 },
+	'Previous views': { Tue: null, Fri: 0 },
+	'Previous visitors': { Tue: null, Fri: 0 },
+};
+
+const weeklyComparisonWithGaps = weeklyComparisonData.map( series => ( {
+	...series,
+	data: series.data.map( point => {
+		const gaps = GAPS_BY_SERIES[ series.label ] ?? {};
+		return point.label in gaps ? { ...point, value: gaps[ point.label ] } : point;
+	} ),
+} ) );
+
+export const ComparisonMultiOverlap: Story = {
+	args: {
+		...Default.args,
+		layout: 'overlap',
+		showLegend: true,
+		legendInteractive: true,
+		legendCollapseGroups: true,
+		showZeroValues: true,
+		data: weeklyComparisonWithGaps,
+	},
+	render: args => (
+		<BarChart
+			{ ...args }
+			legend={ { ...extractLegendConfig( args ), comparisonItem: 'Previous period' } }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time. Some days have gaps: Wednesday has no current reading and Tuesday no previous one, so those slots draw nothing and their tooltips read "No data". Saturday\'s current visitors and Friday\'s previous period are real zeros, drawn as stubs with `showZeroValues`.',
+			},
+		},
+	},
+};
+
+export const PaintedYAxis: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div>
+				<h3 style={ { marginBottom: '4px' } }>Default — labels only</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					Both roles resolve to <code>none</code>.
+				</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+			<div
+				style={
+					{
+						'--a8c-charts-color-axis-y': '#3858e9',
+						'--a8c-charts-color-tick-y': '#cc1818',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Painted</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>Axis blue, tick marks red.</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each axis has its own pair of catalog roles, set in CSS anywhere inside the provider tree. The y pair resolves to `none` by default, which is what leaves that axis carrying tick labels and nothing else; declaring either one paints that part. The x pair — `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick-x` — is untouched here, which is why the x axis is identical in both charts. Nothing reaches any of these through the `theme` prop; colors are CSS.',
+			},
+		},
+	},
+};
+
+const radiusSeries: SeriesData[] = [
+	{ ...timeAxisSeries( yearlyPoints )[ 0 ], group: 'views' },
+	{
+		label: 'Views — previous',
+		group: 'views',
+		options: { type: 'comparison' as const },
+		data: yearlyPoints.map( ( [ date, value ] ) => ( { date, value: value - 12 } ) ),
+	},
+];
+
+const findBars = ( panel: HTMLElement ) =>
+	waitFor( () => {
+		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
+		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
+		if ( ! primary ) {
+			throw new Error( 'No bar rendered yet.' );
+		}
+		return { primary, comparison };
+	} );
+
+export const BarRadius: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div data-testid="bar-radius-default">
+				<h3 style={ { marginBottom: '4px' } }>Default</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>0</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+			<div
+				data-testid="bar-radius-rounded"
+				style={
+					{
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Rounded</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					<code>--wpds-border-radius-sm</code>
+				</p>
+				<BarChart width={ 380 } height={ 220 } data={ radiusSeries } gridVisibility="x" />
+			</div>
+		</div>
+	),
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const square = await findBars( canvas.getByTestId( 'bar-radius-default' ) );
+		const rounded = await findBars( canvas.getByTestId( 'bar-radius-rounded' ) );
+		const radius = getComputedStyle( rounded.primary )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
+
+		await expect( getComputedStyle( square.primary ).rx ).toBe( '0px' );
+		await expect( getComputedStyle( square.comparison ).rx ).toBe( '0px' );
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rounded.primary ).rx ).toBe( radius );
+		await expect( getComputedStyle( rounded.comparison ).rx ).toBe( radius );
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role anywhere inside the provider tree to round their corners.',
 			},
 		},
 	},
@@ -560,4 +1093,38 @@ export const LabelOverflowEllipsis: Story = {
 			},
 		},
 	},
+};
+
+const [ newYork, london ] = temperatureData;
+const londonWithoutJanuary = [ newYork, { ...london, data: london.data.slice( 1 ) } ];
+
+const renderEverySeriesTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+	<div style={ { padding: '8px' } }>
+		<strong>{ tooltipData?.nearestDatum?.datum.date?.toISOString().slice( 0, 7 ) }</strong>
+		{ Object.entries( tooltipData?.datumByKey ?? {} ).map( ( [ key, { datum } ] ) => (
+			<div key={ key }>
+				{ key }: { datum.value }
+			</div>
+		) ) }
+	</div>
+);
+
+export const GroupedTooltipWithMissingDates: Story = {
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A custom `renderTooltip` that lists every series in `tooltipData.datumByKey`, which the default grouped tooltip does not. **London** has no point in January, so the January tooltip lists only **New York**.',
+			},
+		},
+	},
+	render: () => (
+		<div style={ { width: '600px', height: '350px' } }>
+			<BarChart
+				withTooltips
+				data={ londonWithoutJanuary }
+				renderTooltip={ renderEverySeriesTooltip }
+			/>
+		</div>
+	),
 };

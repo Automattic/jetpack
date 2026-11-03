@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Widgets: Remove the widget-picker preview aspect-ratio workaround now that the picker host sizes preview tiles itself.

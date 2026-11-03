@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Answer: Show the disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off.

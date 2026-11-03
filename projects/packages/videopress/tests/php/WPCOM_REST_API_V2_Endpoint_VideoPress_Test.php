@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WorDBless\Users as WorDBless_Users;
@@ -121,6 +122,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'videopress_videos_private_for_site', $data );
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
+		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
+		$this->assertArrayHasKey( 'videopress_inline_player_enabled', $data );
+		$this->assertArrayHasKey( 'videopress_share_menu_disabled', $data );
 		$this->assertArrayHasKey( 'site_is_private', $data );
 		$this->assertArrayHasKey( 'site_type', $data );
 	}
@@ -133,10 +137,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_persists_options() {
 		delete_option( 'videopress_private_enabled_for_site' );
 		delete_option( 'videopress_auto_subtitles_disabled' );
+		delete_option( 'videopress_player_preload_disabled' );
+		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'videopress_share_menu_disabled' );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_videos_private_for_site', true );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
+		$request->set_param( 'videopress_player_preload_disabled', true );
+		$request->set_param( 'videopress_inline_player_enabled', true );
+		$request->set_param( 'videopress_share_menu_disabled', true );
 
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		$response = $endpoint->videopress_update_settings( $request );
@@ -146,6 +156,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'ignored', $response->get_data() );
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_inline_player_enabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_share_menu_disabled' ) );
+		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'videopress_share_menu_disabled' );
 	}
 
 	/**
@@ -154,6 +169,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_ignores_absent_params() {
 		update_option( 'videopress_private_enabled_for_site', true );
 		update_option( 'videopress_auto_subtitles_disabled', false );
+		update_option( 'videopress_player_preload_disabled', true );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
@@ -163,6 +179,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 	}
 
 	/**
@@ -307,6 +324,52 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A connected author with upload_files must still be denied when the promote
+	 * target is an attachment they cannot edit. promote/{id} is the WordPress.com
+	 * Simple equivalent of the videopress/v1/upload IDOR: it acts on a
+	 * caller-supplied attachment id, so it needs a per-object capability check.
+	 */
+	public function test_promote_dispatch_requires_edit_post_on_target() {
+		$author_id = $this->login_as( 'author' );
+		$this->mock_connection( $author_id );
+
+		// An attachment owned by a different author.
+		$other_author_id   = wp_insert_user(
+			array(
+				'user_login' => 'promote_other_author',
+				'user_pass'  => 'password',
+				'role'       => 'author',
+			)
+		);
+		$victim_attachment = wp_insert_post(
+			array(
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+				'post_author' => $other_author_id,
+				'post_title'  => 'Victim video',
+			)
+		);
+
+		$request  = new \WP_REST_Request( 'POST', "/wpcom/v2/videopress/promote/{$victim_attachment}" );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 403, $response->get_status(), "An author must not promote another user's attachment." );
+
+		// The same connected author clears the permission check for their own
+		// attachment (the handler then reports the endpoint unavailable off-WPCOM).
+		$own_attachment = wp_insert_post(
+			array(
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+				'post_author' => $author_id,
+				'post_title'  => 'My video',
+			)
+		);
+		$request2       = new \WP_REST_Request( 'POST', "/wpcom/v2/videopress/promote/{$own_attachment}" );
+		$response2      = rest_get_server()->dispatch( $request2 );
+		$this->assertSame( 404, $response2->get_status(), 'The author should clear the permission check and reach the off-WPCOM handler.' );
+	}
+
+	/**
 	 * Test that a connected uploader clears the permission callback and the
 	 * handler then reports the endpoint unavailable off-WPCOM: promotion is
 	 * in-process on WordPress.com Simple only (self-hosted promotes walk
@@ -317,7 +380,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$user_id = $this->login_as( 'author' );
 		$this->mock_connection( $user_id );
 
-		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/promote/123' );
+		// Promote an attachment the author owns, so the per-object permission check
+		// passes and the handler is reached (it then reports unavailable off-WPCOM).
+		$attachment_id = wp_insert_post(
+			array(
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+				'post_author' => $user_id,
+				'post_title'  => 'My video',
+			)
+		);
+
+		$request  = new \WP_REST_Request( 'POST', "/wpcom/v2/videopress/promote/{$attachment_id}" );
 		$response = rest_get_server()->dispatch( $request );
 
 		$this->assertSame( 404, $response->get_status() );
@@ -710,5 +784,567 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'post_id', $args );
 		$this->assertSame( 'integer', $args['post_id']['type'] );
+	}
+
+	/**
+	 * An author must not be able to update the metadata of somebody else's video.
+	 *
+	 * The route used to require only the generic edit_posts capability, so any
+	 * contributor could target an arbitrary attachment id -- including flipping
+	 * a video's privacy_setting from private to public. Dispatching the real
+	 * route pins the per-object check: against the unfixed callback this
+	 * reaches the handler instead of being rejected.
+	 */
+	public function test_meta_dispatch_rejects_author_for_another_users_video() {
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+		$victim_attachment = $this->create_attachment_owned_by( $user_id + 1000 );
+
+		$response = $this->dispatch_meta_update( $victim_attachment );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The owner of a video still clears the permission check.
+	 *
+	 * Guards the other direction: the per-object check must not stop people
+	 * editing their own videos. The update itself cannot complete under test
+	 * (request signing fails against the fixture blog token), so this asserts
+	 * only that the caller is not rejected.
+	 */
+	public function test_meta_dispatch_allows_owner_of_the_video() {
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+		$own_attachment = $this->create_attachment_owned_by( $user_id );
+
+		$response = $this->dispatch_meta_update( $own_attachment );
+		$this->assertNotSame(
+			403,
+			$response->get_status(),
+			'The owner must clear the permission check for their own video.'
+		);
+	}
+
+	/**
+	 * The poster read must stay closed to logged-out visitors.
+	 *
+	 * Per-video authorization alone does not close this route to anonymous
+	 * callers: is_current_user_authed_for_video() has no logged-out bail and
+	 * returns true for an effectively public video, which would leave the
+	 * handler's outbound WordPress.com requests reachable unauthenticated.
+	 * Anonymous access was not possible before the per-video check was
+	 * introduced, and must not become possible because of it.
+	 */
+	public function test_poster_read_rejects_anonymous_request() {
+		$guid = 'pUbLiC01';
+		wp_set_current_user( 0 );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 401, $response->get_status() );
+	}
+
+	/**
+	 * A subscriber must not be able to read the poster of a private video.
+	 *
+	 * The route used to require only `read`, so any logged-in user could read
+	 * the poster -- and, via the at_time parameter, scrape arbitrary frames --
+	 * of any video on the site by guid.
+	 */
+	public function test_poster_read_rejects_subscriber_for_private_video() {
+		$guid = 'pRiVaTe3';
+		$this->login_as( 'subscriber' );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * A user who can edit the site's videos still clears the poster read check.
+	 *
+	 * The outbound request cannot complete under test, so this asserts only
+	 * that the caller is not rejected by the permission callback.
+	 */
+	public function test_poster_read_allows_user_who_can_edit_videos() {
+		$guid    = 'pRiVaTe4';
+		$user_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertNotSame( 401, $response->get_status() );
+		$this->assertNotSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * An author must not be able to overwrite the poster of another user's video.
+	 *
+	 * The route used to require only the site-wide upload_files capability,
+	 * which every author has, so any author could target any guid.
+	 */
+	public function test_poster_write_rejects_author_for_another_users_video() {
+		$guid    = 'pOsTeR01';
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id + 1000 );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * The owner of a video still clears the poster write check.
+	 */
+	public function test_poster_write_allows_owner_of_the_video() {
+		$guid    = 'pOsTeR02';
+		$user_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertNotSame(
+			403,
+			$response->get_status(),
+			'The owner must clear the permission check for their own video.'
+		);
+	}
+
+	/**
+	 * An unresolved attachment has a distinct error without allowing a poster write.
+	 *
+	 * @dataProvider unresolved_poster_attachments
+	 * @param string $role The caller's role.
+	 * @param string $state The local attachment state.
+	 */
+	#[DataProvider( 'unresolved_poster_attachments' )]
+	public function test_poster_write_reports_unresolved_attachment( $role, $state ) {
+		$guid    = 'mIsSiNg1';
+		$user_id = $this->login_as( $role );
+		$this->mock_connection( $user_id );
+
+		if ( 'missing' !== $state ) {
+			$attachment_id = $this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id );
+			if ( 'trash' === $state ) {
+				wp_update_post(
+					array(
+						'ID'          => $attachment_id,
+						'post_status' => 'trash',
+					)
+				);
+			} else {
+				wp_delete_attachment( $attachment_id, true );
+			}
+		}
+		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+		wp_cache_delete( 'get_post_by_guid_' . $guid, 'videopress' );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				$this->fail( 'An unresolved attachment must not trigger an upstream poster request.' );
+			}
+		);
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'videopress_attachment_not_found', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Media Library', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Unresolved attachment cases for poster updates.
+	 *
+	 * @return array
+	 */
+	public static function unresolved_poster_attachments() {
+		return array(
+			'author, missing' => array( 'author', 'missing' ),
+			'admin, missing'  => array( 'administrator', 'missing' ),
+			'admin, trashed'  => array( 'administrator', 'trash' ),
+			'admin, deleted'  => array( 'administrator', 'deleted' ),
+		);
+	}
+
+	/**
+	 * An attachment author without upload rights still receives the generic denial.
+	 */
+	public function test_poster_write_requires_upload_capability() {
+		$guid    = 'nOuPlOaD';
+		$user_id = $this->login_as( 'contributor' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A disconnected caller is denied before resolving the attachment.
+	 */
+	public function test_poster_write_requires_connection_before_resolving_attachment() {
+		$this->login_as( 'administrator' );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/mIsSiNg2/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Create an attachment owned by the given user.
+	 *
+	 * @param int $author_id The owning user id.
+	 * @return int The attachment post id.
+	 */
+	private function create_attachment_owned_by( $author_id ) {
+		return (int) wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/videopress',
+				'post_author'    => $author_id,
+				'post_title'     => 'Video ' . $author_id,
+			)
+		);
+	}
+
+	/**
+	 * Dispatch a metadata update for the given attachment id.
+	 *
+	 * The id travels in the JSON body, matching videopress_block_update_meta().
+	 *
+	 * @param int $attachment_id The attachment to target.
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_meta_update( $attachment_id ) {
+		$request = new \WP_REST_Request( 'POST', self::ROUTE_META );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'id' => $attachment_id ), JSON_UNESCAPED_SLASHES ) );
+
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
+	 * A subscriber must not receive a playback token for a private video.
+	 *
+	 * The route's permission callback only requires `read`, which every logged-in
+	 * user has, so the per-video authorization in the handler is the only thing
+	 * between an arbitrary subscriber and a token for an arbitrary guid. This
+	 * dispatches the real route so the whole chain stays covered; without the
+	 * authorization check it returns 200 and a playback_token.
+	 */
+	public function test_playback_jwt_dispatch_rejects_subscriber_for_private_video() {
+		$guid    = 'pRiVaTe1';
+		$user_id = $this->login_as( 'subscriber' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $user_id );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/' . $guid );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'unauthorized', $response->get_data()['code'] );
+		$this->assertArrayNotHasKey(
+			'playback_token',
+			$response->get_data(),
+			'An unauthorized caller must not be handed a playback token.'
+		);
+	}
+
+	/**
+	 * A user who can edit the site's videos still clears the authorization check.
+	 *
+	 * Guards the other direction: the check must not lock out the VideoPress
+	 * dashboard, whose preview player is the only in-tree caller of this route.
+	 * The token itself cannot be minted under test (the blog token is a
+	 * fixture, so request signing fails), so this asserts only that the caller
+	 * reaches the token-issuing path rather than being rejected.
+	 */
+	public function test_playback_jwt_dispatch_allows_user_who_can_edit_videos() {
+		$guid    = 'pRiVaTe2';
+		$user_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $user_id );
+
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/' . $guid );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'playback_token', $response->get_data() );
+	}
+
+	/**
+	 * Provide unpublished embedding contexts and caller-selected subscription plans.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function unpublished_playback_context_provider(): array {
+		return array(
+			'draft'                  => array( 'draft', 0 ),
+			'pending'                => array( 'pending', 0 ),
+			'draft with a plan ID'   => array( 'draft', 123 ),
+			'pending with a plan ID' => array( 'pending', 123 ),
+		);
+	}
+
+	/**
+	 * @param string $post_status          The embedding post's status.
+	 * @param int    $subscription_plan_id The caller-selected subscription plan.
+	 * @dataProvider unpublished_playback_context_provider
+	 */
+	#[DataProvider( 'unpublished_playback_context_provider' )]
+	public function test_playback_jwt_dispatch_rejects_unpublished_embed( $post_status, $subscription_plan_id ) {
+		$guid     = 'dRaFt001';
+		$owner_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $owner_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $owner_id );
+		$user_id = $this->login_as( 'contributor' );
+		$post_id = $this->create_playback_embedding_post( $guid, $user_id, $post_status );
+
+		$this->assertTrue( current_user_can( 'read_post', $post_id ) );
+		$this->assertTrue( current_user_can( 'edit_post', $post_id ) );
+		$this->assertFalse( current_user_can( 'upload_files' ) );
+		$this->assertSame( array( $guid ), Access_Control::build_and_cache_post_guids( $post_id ) );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id, $subscription_plan_id );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'unauthorized', $response->get_data()['code'] );
+		$this->assertArrayNotHasKey( 'playback_token', $response->get_data() );
+		$this->assertSame( 0, $request_count, 'Denied playback must not request a token from WordPress.com.' );
+	}
+
+	public function test_playback_jwt_dispatch_allows_published_embed() {
+		$guid     = 'pUbLiS01';
+		$owner_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $owner_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $owner_id );
+		$post_id = $this->create_playback_embedding_post( $guid, $owner_id, 'publish' );
+		$this->login_as( 'subscriber' );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'playback-token-fixture', $response->get_data()['playback_token'] );
+		$this->assertSame( 1, $request_count );
+	}
+
+	public function test_playback_jwt_dispatch_allows_uploader_draft_preview() {
+		$guid    = 'pReViE01';
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $user_id );
+		$post_id = $this->create_playback_embedding_post( $guid, $user_id, 'draft' );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'playback-token-fixture', $response->get_data()['playback_token'] );
+		$this->assertSame( 1, $request_count );
+	}
+
+	/**
+	 * Create a post containing the requested video block.
+	 *
+	 * @param string $guid        The video guid to embed.
+	 * @param int    $author_id   The post's author.
+	 * @param string $post_status The post's status.
+	 * @return int The post id.
+	 */
+	private function create_playback_embedding_post( $guid, $author_id, $post_status ) {
+		kses_remove_filters();
+
+		return (int) wp_insert_post(
+			array(
+				'post_title'   => 'Video embedding fixture',
+				'post_author'  => $author_id,
+				'post_status'  => $post_status,
+				'post_content' => '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->',
+			)
+		);
+	}
+
+	/**
+	 * Dispatch playback with a mocked token response and count outbound requests.
+	 *
+	 * @param string $guid                 The requested video guid.
+	 * @param int    $post_id              The embedding post id.
+	 * @param int    $subscription_plan_id The caller-selected subscription plan.
+	 * @return array The REST response and token request count.
+	 */
+	private function dispatch_playback_jwt_with_mocked_token( $guid, $post_id, $subscription_plan_id = 0 ) {
+		$request_count = 0;
+		$mock_token    = static function () use ( &$request_count ) {
+			++$request_count;
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'metadata_token' => 'playback-token-fixture' ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		add_filter( 'pre_http_request', $mock_token );
+		try {
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/' . $guid );
+			$request->set_param( 'post_id', $post_id );
+			$request->set_param( 'subscription_plan_id', $subscription_plan_id );
+			$response = rest_get_server()->dispatch( $request );
+			return array( $response, $request_count );
+		} finally {
+			remove_filter( 'pre_http_request', $mock_token );
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+	}
+
+	/**
+	 * Create a VideoPress attachment with a given privacy setting.
+	 *
+	 * @param string   $guid            The VideoPress guid to associate.
+	 * @param int      $privacy_setting The privacy setting constant to seed.
+	 * @param int|null $author_id       Optional owning user id.
+	 * @return int The attachment post id.
+	 */
+	private function create_videopress_attachment( $guid, $privacy_setting, $author_id = null ) {
+		$attachment_id = (int) wp_insert_post(
+			array(
+				'post_title'     => $guid,
+				'post_status'    => 'inherit',
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_author'    => (int) $author_id,
+			)
+		);
+		update_post_meta( $attachment_id, 'videopress_guid', $guid );
+		wp_update_attachment_metadata(
+			$attachment_id,
+			array(
+				'videopress' => array(
+					'privacy_setting' => $privacy_setting,
+				),
+			)
+		);
+
+		// WorDBless does not fully emulate WP_Query meta_query; seed the guid->id cache that
+		// videopress_get_post_id_by_guid() consults before querying.
+		set_transient( 'videopress_get_post_id_by_guid_' . $guid, $attachment_id, HOUR_IN_SECONDS );
+		wp_cache_delete( 'get_post_by_guid_' . $guid, 'videopress' );
+
+		return $attachment_id;
+	}
+
+	/**
+	 * Send a meta update for a local VideoPress attachment and return the body sent to WordPress.com.
+	 *
+	 * @param array $params Meta params, without the attachment id.
+	 * @return array The decoded request body.
+	 */
+	private function send_meta_update( array $params ) {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+
+		$post_id = wp_insert_attachment(
+			array(
+				'post_title'     => 'Share test',
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		update_post_meta( $post_id, 'videopress_guid', 'abcDEF12' );
+		wp_update_attachment_metadata( $post_id, array( 'videopress' => array( 'display_embed' => true ) ) );
+
+		$sent    = null;
+		$capture = function ( $preempt, $args ) use ( &$sent ) {
+			$sent = json_decode( $args['body'], true );
+			return array(
+				'headers'  => array(),
+				'body'     => 'true',
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $capture, 10, 2 );
+
+		$request = new \WP_REST_Request( 'POST', self::ROUTE_META );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array_merge( array( 'id' => $post_id ), $params ), JSON_UNESCAPED_SLASHES ) );
+		( new WPCOM_REST_API_V2_Endpoint_VideoPress() )->videopress_block_update_meta( $request );
+
+		remove_filter( 'pre_http_request', $capture, 10 );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		$this->assertIsArray( $sent, 'The meta update was not sent to WordPress.com.' );
+		return (array) $sent;
+	}
+
+	/**
+	 * Test that a video can't turn sharing on while the site setting hides the share menu.
+	 */
+	public function test_update_meta_drops_share_on_while_site_disables_sharing() {
+		update_option( 'videopress_share_menu_disabled', true );
+
+		$sent = $this->send_meta_update(
+			array(
+				'display_embed' => true,
+				'title'         => 'Renamed',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'display_embed', $sent );
+		$this->assertSame( 'Renamed', $sent['title'] );
+		delete_option( 'videopress_share_menu_disabled' );
+	}
+
+	/**
+	 * Test that a video can still turn sharing off while the site setting hides the share menu.
+	 */
+	public function test_update_meta_keeps_share_off_while_site_disables_sharing() {
+		update_option( 'videopress_share_menu_disabled', true );
+
+		$sent = $this->send_meta_update( array( 'display_embed' => false ) );
+
+		$this->assertFalse( $sent['display_embed'] );
+		delete_option( 'videopress_share_menu_disabled' );
+	}
+
+	/**
+	 * Test that each video controls its own sharing while the site allows it.
+	 */
+	public function test_update_meta_sends_share_on_while_site_allows_sharing() {
+		delete_option( 'videopress_share_menu_disabled' );
+
+		$sent = $this->send_meta_update( array( 'display_embed' => true ) );
+
+		$this->assertTrue( $sent['display_embed'] );
 	}
 }

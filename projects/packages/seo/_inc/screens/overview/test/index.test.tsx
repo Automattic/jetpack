@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import type { OverviewResponse } from '../../../data/overview-types';
+import type { ReactNode } from 'react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -13,12 +14,7 @@ jest.unstable_mockModule( '../../../data/get-overview', () => ( {
 
 jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
-} ) );
-
-// Still stubbed: the Overview renders `EnableSeoCard` when the module is off, and
-// that card uses the toggle. Keeps the Overview off the module-toggle REST plumbing.
-jest.unstable_mockModule( '../../../data/use-seo-tools-toggle', () => ( {
-	default: () => ( { isToggling: false, setActive: jest.fn() } ),
+	Link: ( { children }: { children?: ReactNode } ) => <a href="#">{ children }</a>,
 } ) );
 
 const { default: OverviewScreen } = await import( '../index' );
@@ -33,6 +29,7 @@ const OFF_RAMP_TEXT = 'Using a different SEO solution?';
 const buildOverview = (): OverviewResponse => ( {
 	site_visibility: {
 		search_engines_visible: true,
+		site_is_private: false,
 		sitemap_active: true,
 		seo_tools_active: true,
 	},
@@ -53,6 +50,8 @@ const buildOverview = (): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
+	conflicting_seo_plugin: '',
+	verification_switchable: true,
 } );
 
 describe( 'OverviewScreen', () => {
@@ -81,5 +80,20 @@ describe( 'OverviewScreen', () => {
 
 		expect( screen.getByText( 'Site visibility' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Site verification' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'names the plugin that owns the output', 'Yoast SEO', /^Yoast SEO is managing your SEO/ ],
+		[ 'falls back when no plugin is named', '', /^SEO tools are not enabled/ ],
+	] )( 'with SEO output off, %s', ( _, plugin, notice ) => {
+		getOverview.mockReturnValue( {
+			...buildOverview(),
+			plan: { seo_enabled_for_site: false },
+			conflicting_seo_plugin: plugin,
+		} );
+
+		render( <OverviewScreen /> );
+
+		expect( screen.getByText( notice ) ).toBeInTheDocument();
 	} );
 } );

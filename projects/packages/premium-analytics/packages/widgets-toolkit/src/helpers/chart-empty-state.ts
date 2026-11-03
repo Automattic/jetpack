@@ -11,7 +11,7 @@ import type { DataPointPercentage } from '@jetpack-premium-analytics/externals';
 /**
  * Series data shape for bar and line charts (nested array format).
  */
-type SeriesWithData = {
+export type SeriesWithData = {
 	data: Array< { value: number | null } >;
 };
 
@@ -59,6 +59,5 @@ export function getEmptyChartDomain( metricType: string ): [ number, number ] {
 		return [ 0, 1.0 ];
 	}
 
-	// Default for 'number' and other types
 	return [ 0, 80 ];
 }

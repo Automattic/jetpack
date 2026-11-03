@@ -8,6 +8,7 @@ import { Stack } from '@wordpress/ui';
 import SubscriberDetailContent from '../../_inc/subscribers/components/detail/subscriber-detail-content';
 import { queryClient } from '../../_inc/subscribers/lib/query-client';
 import { toFiniteNumber } from '../../_inc/subscribers/lib/subscriber-helpers';
+import type { JSX } from 'react';
 
 type SubscribersSearch = Record< string, unknown > & {
 	subscriber?: string | number;

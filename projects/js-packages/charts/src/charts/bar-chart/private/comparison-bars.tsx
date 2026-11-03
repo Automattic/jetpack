@@ -1,11 +1,9 @@
-import { scaleBand } from '@visx/scale';
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
-import {
-	DEFAULT_COMPARISON_OPACITY,
-	DEFAULT_COMPARISON_WIDTH_FACTOR,
-} from './comparison-constants';
+import { createGroupScale } from './band-scale';
+import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
+import { DEFAULT_COMPARISON_WIDTH_FACTOR } from './comparison-constants';
+import type { BandScale } from './band-scale';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { FC, ReactNode } from 'react';
@@ -20,18 +18,14 @@ export type ComparisonSeriesEntry = {
 	series: SeriesData;
 	index: number;
 	primaryKey: string;
-	/** dataSorted index of the paired primary series (used to share its pattern fill). */
-	primaryIndex: number;
 };
 
 // Minimal shape we need from visx scales — avoids spreading `any` while
 // remaining compatible with both band and continuous scale return types.
-type AnyScale = ( ( input: unknown ) => number ) & {
-	bandwidth?: () => number;
-	range: () => unknown[];
-};
+type AnyScale = ( ( input: unknown ) => number ) &
+	Partial< Pick< BandScale, 'bandwidth' > > & { range: () => unknown[] };
 
-// Renders translucent "shadow" bars for comparison series behind their paired primary bars.
+// Renders the bars of comparison series, wider and behind their paired primary bars.
 // IMPORTANT: each comparison datum's category key (label or date) must exactly match a key
 // used by the primary series — if it doesn't, bandScale() returns undefined and the shadow
 // is silently skipped. Ensure comparison data reuses the same label/date values as primary.
@@ -43,8 +37,8 @@ export const ComparisonBars: FC< {
 	xAccessor: ( d: DataPointDate ) => string | number | Date | undefined;
 	yAccessor: ( d: DataPointDate ) => number | undefined;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	/** Resolves the shadow fill — the paired primary's pattern when patterns are on, else a color. */
-	resolveFill: ( entry: ComparisonSeriesEntry ) => string;
+	/** Resolves a comparison bar's fill: its pattern when patterns are on, else its datum's or its series' color. */
+	resolveFill: ( entry: ComparisonSeriesEntry, datum: DataPointDate ) => string;
 } > = ( {
 	comparisonEntries,
 	primaryKeys,
@@ -73,11 +67,7 @@ export const ComparisonBars: FC< {
 	}
 
 	// Rebuild visx's inner group scale exactly as BarGroup does.
-	const groupScale = scaleBand( {
-		domain: primaryKeys,
-		range: [ 0, bandwidth ],
-		padding: groupPadding,
-	} );
+	const groupScale = createGroupScale( primaryKeys, bandwidth, groupPadding );
 	const slotThickness = groupScale.bandwidth();
 	const baseline = getValueScaleBaseline( valueScale );
 
@@ -95,10 +85,7 @@ export const ComparisonBars: FC< {
 		}
 
 		const { barStyles } = getElementStyles( { data: series, index } );
-		const opacity = barStyles?.opacity ?? DEFAULT_COMPARISON_OPACITY; // safety net; CompleteChartTheme guarantees this value
 		const widthFactor = barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR;
-		// Fill is the paired primary's pattern (when patterns are on) or its resolved color.
-		const fill = resolveFill( entry );
 		// The shadow is `widthFactor` × the (narrowed) primary slot. bar-chart.tsx narrows the
 		// primary bars by widening the group padding so this ratio holds with real geometry.
 
@@ -119,26 +106,26 @@ export const ComparisonBars: FC< {
 				return;
 			}
 
-			const rect = computeComparisonRect( {
+			const rect = computeSlotRect( {
 				horizontal,
 				bandPosition,
 				slotOffset: slotOffset as number,
 				slotThickness,
-				valuePosition,
-				baseline,
+				valuePositions: [ baseline, valuePosition ],
 				widthFactor,
 			} );
 
 			rects.push(
 				<rect
 					key={ `${ index }-${ i }` }
+					className="bar-chart__comparison-bar"
 					data-testid={ `bar-chart-comparison-${ index }-${ i }` }
 					x={ rect.x }
 					y={ rect.y }
 					width={ rect.width }
 					height={ rect.height }
-					fill={ fill }
-					opacity={ opacity }
+					fill={ resolveFill( entry, datum ) }
+					opacity={ barStyles?.opacity }
 				/>
 			);
 		} );

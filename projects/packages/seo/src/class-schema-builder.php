@@ -1,26 +1,6 @@
 <?php
 /**
- * JSON-LD Schema.org markup emitter.
- *
- * Serializes Schema.org `@graph` documents into the page. The primary graph is
- * emitted in the document `<head>` and is assembled from independent,
- * condition-gated contributions: the site-level entity node — an Organization
- * (optionally extended as LocalBusiness) or a Person, whichever the admin has
- * declared the site represents — and the WebSite node, emitted on the home page
- * only (Google treats them as single canonical site entities), the page node
- * (Article or FAQPage) built by {@see Post_Schema_Node} on singular requests,
- * per-author Person/ProfilePage nodes on author archives, and a BreadcrumbList on
- * supported public requests. An Article references its author's full Person node
- * (added to the same graph) by `@id`, and — like the WebSite node — references the
- * home-page site entity as its `publisher` by stable `@id` rather than duplicating
- * the node. Emission is gated on `Jetpack_SEO_Utils::is_enabled_jetpack_seo()`.
- *
- * This class owns only the gating and serialization; the individual nodes and
- * their stable `@id`s live in their own builders ({@see Post_Schema_Node},
- * {@see Organization_Schema_Node}, {@see Local_Business_Schema_Node},
- * {@see Person_Schema_Node}, {@see Website_Schema_Node}, {@see Author_Schema_Node},
- * {@see Breadcrumb_Schema_Node}, {@see Schema_Node_Ids}) and are assembled by
- * {@see Schema_Graph}.
+ * JSON-LD graphs for the site publisher, page, author and breadcrumbs.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -68,47 +48,19 @@ class Schema_Builder {
 	}
 
 	/**
-	 * Assemble the `@graph` document for the current request.
-	 *
-	 * The site-level nodes, author archive nodes, singular page node, and breadcrumb
-	 * are independent, condition-gated contributions to one graph:
-	 *
-	 * - Organization and WebSite are single canonical site entities, so their full
-	 *   nodes are added on the home page only (Google's guidance). Other pages
-	 *   reference the Organization by `@id` instead of duplicating it.
-	 * - Author archives contribute the author's Person node and the ProfilePage
-	 *   wrapping it (`mainEntity` → Person `@id`).
-	 * - The page node (Article/FAQPage) is added on singular requests. An Article
-	 *   points its `publisher` at the home-page Organization's stable `@id` and its
-	 *   `author` at the full Person node added to the same graph.
-	 * - BreadcrumbList is added on supported requests when enabled. WooCommerce
-	 *   requests defer to Woo's generated node, with a late Jetpack fallback when
-	 *   the active template did not generate one.
-	 *
-	 * Returns null when the graph ends up empty (an unsupported or invalid request)
-	 * so the caller emits nothing rather than an empty graph.
-	 * Cross-node references are wired here rather than inside the individual node
-	 * builders, which stay self-contained and unaware of each other.
+	 * Assemble the nodes for this request, or return null for an empty graph.
 	 *
 	 * @return array|null
 	 */
 	private static function build_document() {
 		$graph = new Schema_Graph();
 
-		// The site's main/publisher entity is either an Organization or a Person,
-		// per the admin's choice (default: organization, preserving prior behavior).
-		// Build it regardless of the current request so we know whether `@id`
-		// references to it (publisher, worksFor) will resolve, but only add the full
-		// node on the home page. `$organization` stays non-null only in the
-		// organization case, so it also gates the author `worksFor` link below.
+		// Only Organization publishers can supply the author's worksFor relationship.
 		if ( 'person' === Schema_Settings::get_site_represents() ) {
 			$organization = null;
 			$site_entity  = Person_Schema_Node::build( Schema_Settings::get_person() );
 			$publisher_id = Schema_Node_Ids::site_person();
 		} else {
-			// Effective Organization settings (stored overrides merged over site
-			// identity); an unconfigured site still yields a valid node from site
-			// identity alone, optionally extended with LocalBusiness details.
 			$organization = Organization_Schema_Node::build( Schema_Settings::get_organization() );
 			$organization = Local_Business_Schema_Node::extend( $organization, Schema_Settings::get_local_business() );
 			$site_entity  = $organization;
@@ -116,9 +68,7 @@ class Schema_Builder {
 		}
 		$has_site_entity = null !== $site_entity;
 
-		// Site-level nodes (the site entity + WebSite) describe a single canonical
-		// entity, so they belong on the home page only (Google's guidance) — never
-		// duplicated onto every post. WebSite references the site entity by @id.
+		// Other pages reference the home-page publisher by its stable ID.
 		if ( is_front_page() ) {
 			if ( $has_site_entity ) {
 				$graph->add( $site_entity );
@@ -132,8 +82,6 @@ class Schema_Builder {
 		}
 
 		if ( is_author() ) {
-			// `worksFor` links the author to the site Organization only when the site
-			// represents one; a person-site has no Organization node to reference.
 			$person = self::build_person_node( get_queried_object(), null !== $organization );
 			if ( null !== $person ) {
 				$graph->add( $person );

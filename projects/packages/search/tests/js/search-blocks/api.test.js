@@ -8,6 +8,7 @@ import {
 	buildStaticFilterClauses,
 	buildStaticPostTypeClauses,
 	formatDateBucketLabel,
+	resolveCustomResults,
 	resolveFilterFields,
 } from '../../../src/search-blocks/store/api';
 
@@ -1181,5 +1182,181 @@ describe( 'buildSearchUrl: static filter selections', () => {
 		const decoded = decodeURIComponent( url );
 		expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
 		expect( decoded ).toContain( 'filter[bool][must][1][term][section]=guides' );
+	} );
+} );
+
+describe( 'buildSearchUrl: Instant Search query options', () => {
+	const baseOpts = {
+		siteId: 1,
+		searchQuery: 'the search',
+		sortOrder: 'relevance',
+		pageHandle: null,
+		isPrivateSite: false,
+		isWpcom: false,
+		apiRoot: '',
+	};
+
+	it( 'includes highlight_phrase_only when highlightPhraseOnly is true', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightPhraseOnly: true } );
+		expect( url ).toContain( 'highlight_phrase_only=true' );
+	} );
+
+	it( 'omits highlight_phrase_only when highlightPhraseOnly is false', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightPhraseOnly: false } );
+		expect( url ).not.toContain( 'highlight_phrase_only' );
+	} );
+
+	it( 'includes highlight_filter_stopwords when set', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			highlightFilterStopwords: [ 'the', 'a' ],
+		} );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_filter_stopwords[0]=the' );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_filter_stopwords[1]=a' );
+	} );
+
+	it( 'omits highlight_filter_stopwords when empty', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFilterStopwords: [] } );
+		expect( url ).not.toContain( 'highlight_filter_stopwords' );
+	} );
+
+	it( 'folds adminQueryFilter into bool.must', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			adminQueryFilter: { term: { post_type: 'post' } },
+		} );
+		expect( decodeURIComponent( url ) ).toContain( 'filter[bool][must][0][term][post_type]=post' );
+	} );
+
+	it( 'combines adminQueryFilter with active filters under one bool.must', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			activeFilters: { category: [ 'news' ] },
+			filterConfigs: { category: { filterType: 'taxonomy', taxonomy: 'category' } },
+			adminQueryFilter: { term: { post_type: 'post' } },
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'filter[bool][must][0][term][category.slug]=news' );
+		expect( decoded ).toContain( 'filter[bool][must][1][term][post_type]=post' );
+	} );
+
+	it( 'includes custom_results when query exactly matches a pattern', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			searchQuery: 'hello',
+			customResults: [ { pattern: 'hello', ids: [ 11, 22 ] } ],
+		} );
+		expect( decodeURIComponent( url ) ).toContain( 'custom_results[0]=11' );
+		expect( decodeURIComponent( url ) ).toContain( 'custom_results[1]=22' );
+	} );
+
+	it( 'includes custom_results when query matches a regex: pattern', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			searchQuery: 'hello world',
+			customResults: [ { pattern: 'regex:hello.*', ids: [ 99 ] } ],
+		} );
+		expect( decodeURIComponent( url ) ).toContain( 'custom_results[0]=99' );
+	} );
+
+	it( 'omits custom_results when no pattern matches', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			searchQuery: 'nope',
+			customResults: [ { pattern: 'hello', ids: [ 11 ] } ],
+		} );
+		expect( url ).not.toContain( 'custom_results' );
+	} );
+
+	it( 'uses highlightFields when set', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			highlightFields: [ 'title', 'comments' ],
+		} );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[0]=title' );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[1]=comments' );
+	} );
+
+	it( 'falls back to default highlight fields when highlightFields is null', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFields: null } );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[0]=title' );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[1]=content' );
+	} );
+
+	it( 'falls back to default highlight fields when highlightFields is empty', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFields: [] } );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[0]=title' );
+		expect( decodeURIComponent( url ) ).toContain( 'highlight_fields[1]=content' );
+	} );
+
+	it( 'omits highlight_filter_stopwords when not an array', () => {
+		const url = buildSearchUrl( { ...baseOpts, highlightFilterStopwords: 'the' } );
+		expect( url ).not.toContain( 'highlight_filter_stopwords' );
+	} );
+
+	it( 'includes additional_blog_ids and multisite fields when additionalBlogIds is set', () => {
+		const url = buildSearchUrl( {
+			...baseOpts,
+			additionalBlogIds: [ 123, 456 ],
+		} );
+		const decoded = decodeURIComponent( url );
+		expect( decoded ).toContain( 'additional_blog_ids[0]=123' );
+		expect( decoded ).toContain( 'additional_blog_ids[1]=456' );
+		expect( decoded ).toContain( 'fields' );
+		expect( decoded ).toContain( 'blog_name' );
+		expect( decoded ).toContain( 'blog_id' );
+	} );
+
+	it( 'omits additional_blog_ids when not an array', () => {
+		const url = buildSearchUrl( { ...baseOpts, additionalBlogIds: 123 } );
+		expect( url ).not.toContain( 'additional_blog_ids' );
+	} );
+} );
+
+describe( 'resolveCustomResults', () => {
+	it( 'returns null for empty rules', () => {
+		expect( resolveCustomResults( 'hello', [] ) ).toBeNull();
+		expect( resolveCustomResults( 'hello', null ) ).toBeNull();
+	} );
+
+	it( 'matches exact patterns before later rules', () => {
+		expect(
+			resolveCustomResults( 'hello', [
+				{ pattern: 'hello', ids: [ 1 ] },
+				{ pattern: 'hello', ids: [ 2 ] },
+			] )
+		).toEqual( [ 1 ] );
+	} );
+
+	it( 'skips invalid rules and treats a falsy query as empty string', () => {
+		expect(
+			resolveCustomResults( null, [
+				null,
+				{ pattern: 123, ids: [ 1 ] },
+				{ pattern: 'hello', ids: 'not-array' },
+				{ pattern: '', ids: [ 5 ] },
+			] )
+		).toEqual( [ 5 ] );
+	} );
+
+	it( 'returns null when regex rules do not match', () => {
+		expect(
+			resolveCustomResults( 'nope', [ { pattern: 'regex:^hello.*', ids: [ 9 ] } ] )
+		).toBeNull();
+	} );
+
+	it( 'matches regex: patterns', () => {
+		expect(
+			resolveCustomResults( 'hello world', [ { pattern: 'regex:hello.*', ids: [ 99 ] } ] )
+		).toEqual( [ 99 ] );
+	} );
+
+	it( 'skips invalid regex: patterns instead of throwing', () => {
+		expect(
+			resolveCustomResults( 'hello', [
+				{ pattern: 'regex:[invalid', ids: [ 1 ] },
+				{ pattern: 'hello', ids: [ 2 ] },
+			] )
+		).toEqual( [ 2 ] );
 	} );
 } );

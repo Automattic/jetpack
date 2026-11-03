@@ -1,0 +1,9 @@
+// The line and its fill take the brand stroke, so the chart follows the admin
+// color scheme like the widget it stands for.
+.line {
+	stroke: var(--wpds-color-stroke-surface-brand-strong);
+}
+
+.stop {
+	stop-color: var(--wpds-color-stroke-surface-brand-strong);
+}

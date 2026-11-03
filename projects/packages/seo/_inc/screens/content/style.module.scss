@@ -4,11 +4,41 @@
 	inline-size: 100%;
 }
 
-// The per-post SEO editor, rendered in the route's native inspector sidebar.
-// The framework owns the sidebar panel; this just lays out the editor's
-// contents (header, fields + live preview, actions).
+// The per-post SEO editor in the route's inspector sidebar, which scrolls it.
+// The frame fills the sidebar so the actions footer can sit at its bottom.
+.inspectorFrame {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 100%;
+}
+
 .inspector {
-	padding: var(--wpds-dimension-padding-md);
+	flex: 1;
+}
+
+// Inline padding matches the title bar's, so the fields line up with its title.
+.inspectorBody {
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+// Cancel / Save in equal halves: at the bottom of the sidebar on short forms,
+// and stuck to it while longer ones scroll under them.
+.inspectorFooter {
+	position: sticky;
+	inset-block-end: 0;
+	// Above the noindex toggle's hidden checkbox (z-index: 1), which
+	// wp-components before 33.0 doesn't isolate.
+	z-index: 1;
+	display: grid;
+	grid-auto-columns: 1fr;
+	grid-auto-flow: column;
+	gap: var(--wpds-dimension-gap-sm);
+	margin-block-start: auto;
+	padding: var(--wpds-dimension-padding-lg);
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral);
 }
 
 // Google-style search-result snippet shown live in the inspector.

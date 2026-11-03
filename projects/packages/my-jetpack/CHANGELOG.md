@@ -5,6 +5,397 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.15.0] - 2026-11-02
+### Added
+- Add a feature flag for consolidating settings in My Jetpack, off by default. [#54376]
+- Add the settings consolidation flag to the admin script data, off by default. [#54414]
+- Features: Connect a WordPress.com account from the Install or Connect button of features that need one. [#53990]
+- Features: Offer Connect on Jetpack AI when a WordPress.com account is all it is missing. [#53990]
+- Features: Turn a feature on when its account connection, started from its Connect button, returns to Features. [#53990]
+
+### Changed
+- Boost: Say "Checking site speed…" instead of "Calculating…" while the speed score loads. [#54352]
+- Connection: Report connection events with the `my-jetpack` context and a placement for the header, the connection card and the page notice. [#54214]
+- Features: Keep a plugin's switch busy until its card has refreshed after turning the plugin on or off, and show the success message once the card is up to date. [#54156]
+- Features: On block themes, link the Sharing and Likes cards to Settings > Sharing, where the blocks can be placed in a click, instead of the Site Editor. [#54303]
+- Features: Show feature states through switches or buttons instead of redundant Active or Inactive badges, and show host restrictions below descriptions. Leave features out of Available when their only action is an install you cannot make. Restore the previous behavior with the `jetpack_feature_flag_enabled_my-jetpack-account-connect` filter. [#53990]
+- Features: Show the Features page on sites in Offline Mode, without connecting to WordPress.com. [#54216]
+- Features: Turn a module on once Install Jetpack or Activate Jetpack on its card finishes setup. [#54007]
+- Leave the recommendation to install or activate plugins included in a bundle plan out of the Jetpack menu notification badge. [#54355]
+- Move the dashboard to the wp-build router. Links in the older #/ form still open the same screen. [#54296]
+- Open the Jetpack Connection details on the Connectors screen from the header's Manage connection link. [#54276]
+- Protect: Skip the threats alert in the menu bubble and on My Jetpack when the host turns off threat notifications. [#53983]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Boost card: Share speed scores with the Boost dashboard, and measure the home page when WordPress lives in a subdirectory. [#54347]
+- Dashboard: Fix "Something went wrong!" on WordPress 7.1 when the site data request fails. [#54396]
+- Features: Keep security modules managed in Protect out of bulk changes. [#53993]
+- Header: Stop showing a focus ring on the account panel's first link when it is opened with the mouse. [#54310]
+- Protect: Send the card's manage and Scan results links wherever a host sends the Features tab's Protect link. [#54270]
+- Stats: Link the Stats card to Stats v2 when the Jetpack Stats plugin has it enabled. [#54022]
+
+## [6.14.0] - 2026-10-28
+### Added
+- Let people pick the Overview v1 Stats period and step through earlier periods, shown only while the Overview v1 feature flag is on. [#54106]
+- Overview: Type out the welcome heading and fade the sections in on first load, behind the `my-jetpack-overview-v1` flag. [#54104]
+
+### Changed
+- Header: Keep the tabs and the divider under them in view while scrolling, behind the `my-jetpack-header-controls` flag. [#54105]
+- Modules: Open supported Modules links in Features. [#53992]
+- Overview: Show skeletons for the Stats totals and chart while they load. [#54100]
+- Protect card: Show the firewall as on where the host provides its own. [#53954]
+- Rename the `jetpack_my_jetpack_feature_upgrade` filter to `jetpack_feature_upgrade`, which can also change a feature's manage link. [#54068]
+- Setup wizard: Start the connection with the standard my_jetpack_onboarding entry point, so WordPress.com shows its unified connection screen. This is behind the default-off `my-jetpack-onboarding-wizard` flag. [#54112]
+- Show shared header controls by default in My Jetpack and the modern Boost dashboard, with an avatar, connection status, and access to connection and plan details. [#54225]
+- Stats: Reuse visit counts loaded in the last minute instead of fetching them again. [#54154]
+- Tabs: Build the tab bar with the WordPress UI Tabs component. [#54109]
+- Update package dependencies. [#54118]
+
+### Fixed
+- Backup: Keep the dashboard available after a Jetpack Pro plan expires. [#54108]
+- Features: Bring the first results into view after changing the filter or search while scrolled down. [#54201]
+- Features tab: Let administrators who can manage Jetpack modules but not plugins switch modules on and off in bulk. [#54033]
+- Fix a fatal error when activating a Jetpack plugin beside an older one. [#54012]
+- Overview: Keep the Stats chart line at or above 0 before a sharp rise, while the Overview v1 feature flag is on. [#54199]
+- Overview: Name the Stats period dropdown for screen readers. [#54209]
+- Protect: Fix the URL of the upgrade screen opened from the Protect details page. [#54205]
+- Protect: Use the Protect page's Scan plan check, so WordPress.com plans without Scan's UI are offered the upgrade. [#54071]
+- Record the right previous tab in tab click analytics when arrow keys switch tabs in quick succession. [#54217]
+- Return to the tab you came from with the back link on product upgrade screens. [#54101]
+- Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded. [#54024]
+- Show no paid plan price instead of $0 and NaN on upgrade pages with one price per plan, such as Stats, Backup, Social and VideoPress, when prices cannot be loaded. [#54024]
+
+## [6.13.0] - 2026-10-26
+### Added
+- Add a "What's new in Jetpack?" section with recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on. [#53629]
+- Add the Overview v1 sections with Stats, Protect and Boost, shown only while the Overview v1 feature flag is on. [#53628]
+- Add the `jetpack_my_jetpack_feature_upgrade` filter, so a host can send a feature's Upgrade button to its own plans. [#53726]
+- Features: Add the default-off `my-jetpack-account-connect` flag, which starts the account connection from the Install or Connect button of features that need a WordPress.com account. [#53757]
+- Features: Offer Connect on Jetpack AI behind the default-off `my-jetpack-account-connect` flag when a WordPress.com account is all it is missing. [#53760]
+- Features: Turn a feature on when its account connection, started from its Connect button, returns to Features. This is behind the default-off `my-jetpack-account-connect` flag. [#53758]
+- Fill the Overview v1 sections with the remaining products and replace the old Overview content, shown only while the Overview v1 feature flag is on. [#53977]
+
+### Changed
+- Backup: Show Backup's state from the site's plan on its Features card instead of a switch, offering an upgrade, or a renewal for an expired plan. [#53726]
+- Greet the current user by name in the Overview heading, shown only while the Overview v1 feature flag is on. [#54041]
+- Header: Float the connection panel inside the page and tighten its spacing. [#54102]
+- Header: Leave the plan and connection out of the Overview, since the header shows them, while the header controls feature flag is on. [#53977]
+- Onboarding: Size the terms of service line through its Text variant instead of overriding the shared styles. [#53892]
+- Overview: Draw the sections as a compact bordered grid with a divider under each heading, shown only while the Overview v1 feature flag is on. [#54040]
+- Overview: Greet the user by their first name when their profile has one. [#54099]
+- Overview: Rename the "What's new in Jetpack?" closing link to "Read more", behind the Overview v1 feature flag. [#54042]
+- Overview: Show the Stats tabs as plain totals above an area chart, while the Overview v1 feature flag is on. [#54043]
+- Overview: Show the Welcome heading above notices and banners, behind the Overview v1 feature flag. [#54098]
+- Say "Your site is in Offline Mode" in the connection status, and name Offline Mode consistently with the Connectors screen. [#54034]
+- Speed up the dashboard by removing duplicate product and plan requests on page load. [#53946]
+- Update package dependencies. [#53951]
+
+### Fixed
+- Boost card: Fetch a new speed score when the saved one is incomplete, instead of showing an empty score. [#53918]
+- Features: Leave the menu badge count out of the name shown when a feature is added to the menu. [#54067]
+- Features: Retry loading the feature list after a rate-limited or unreadable response, and say the list is incomplete when it cannot be loaded. [#53988]
+- Header: Stop offering to purchase a plan or activate a license to sites with Jetpack Complete, shown only while the header controls feature flag is on. [#53977]
+- Help: Keep the help cards inside their column on narrow screens. [#53847]
+- Onboarding: Explain why connecting failed, with the underlying cause underneath when it helps. [#53289]
+- Overview: Line up the lock icon with the label on locked upgrade links. [#54038]
+- Products: Show the correct status and use the active plugin copy when turning products on or off with both stable and Beta or development copies installed. [#53994]
+- Protect card: Show the firewall as on whenever it is running, matching the Protect page. [#54055]
+- Stop offering retired Security and Growth plans while preserving existing subscriptions. [#53854]
+- Update the Account Protection activation message to describe what the feature does. [#53987]
+
+## [6.12.0] - 2026-10-20
+### Added
+- Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
+- Recognize Jetpack Pro subscriptions and licenses. [#53424]
+
+### Changed
+- Features: Link the five security modules to their card on the Protect page, in place of their switches, while that page owns their settings. Point the Protect card's settings links there too. [#53744]
+- Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
+- Plans: Refresh Pro availability while preserving existing offers. [#53425]
+
+### Fixed
+- Protect: Keep the Protect card active when Brute force protection is off on sites with the Protect page. [#53727]
+
+## [6.11.0] - 2026-10-19
+### Added
+- Add a feature flag for the shared header's global controls. [#53631]
+- Add the shared header's connection control, behind a feature flag. [#53655]
+- Features: Show unavailable modules with their reasons and add an available-only filter. [#53308]
+- Onboarding: Add a full-screen setup wizard behind a feature flag, off by default. It connects the site, asks what the site is for, and records that setup was finished or skipped. [#52765]
+
+### Changed
+- Expiring plan notice: Show WordPress.com's own notice for its plans instead of the generated one. [#53711]
+- Scan: Open the Protect page in WP Admin instead of Jetpack Cloud when the site has one, and leave the threats alert out of the My Jetpack menu count when the Protect menu item shows the number of threats. [#53566]
+- Update package dependencies. [#53004] [#53806]
+
+### Removed
+- Remove the `jetpack_my_jetpack_overview_v1` filter; the `my-jetpack-overview-v1` feature flag now turns on Overview v1, which is still in development. [#53781]
+
+### Fixed
+- Connection: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
+- Features: Hide the legacy Custom Content Types module. [#53402]
+- Onboarding: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
+- Update the Post List activation message to describe what the feature does. [#52921]
+
+## [6.10.0] - 2026-10-14
+### Added
+- Add an opt-in Features page for managing local features in offline mode. [#53280]
+- Add a `jetpack_my_jetpack_overview_v1` filter that turns on Overview v1. [#53627]
+- Add shared data for the header's connection status. [#53243]
+- Print where Jetpack AI is managed in the admin script data, so other screens can link to it. [#53519]
+
+### Changed
+- Connection card: Show a connection error while your account is still to be connected, instead of only asking you to connect it. [#53409]
+
+### Deprecated
+- Deprecate `get_features_by_tier()` on every product except Boost, and remove the unused `features_by_tier` and `is_tiered_pricing` fields from the product data. [#53199]
+
+### Fixed
+- Notices: Show the highest-priority notice first when several are set at once. [#53400]
+
+## [6.9.1] - 2026-10-12
+### Changed
+- Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on. [#53182]
+- Overview: Stop asking to connect a WordPress.com account when nothing in use needs one. [#53242]
+
+### Fixed
+- Connection card: Ask for a user connection as soon as a plugin that needs one is switched on, without a reload. [#53356]
+- Connection card: Stop asking for a user connection as soon as the plugin that needed one is switched off, without a reload. [#53367]
+- Features: Stop requesting the Jetpack module list when the Jetpack plugin is not active. [#53249]
+- Products: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Report a bundle the site has no plan for as needing a plan, rather than as switched off or needing a user connection. [#53287]
+
+## [6.9.0] - 2026-10-07
+### Changed
+- Features tab: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. VideoPress plan comparison: Show the ad-free, customizable player as included in the free plan. [#53181]
+- Features tab: Use the illustrated VideoPress artwork in the feature details window. [#53191]
+
+### Removed
+- Remove the my-jetpack-features-tab feature flag, along with Initializer::register_feature_flags() and Initializer::is_features_tab_enabled(). [#52778]
+- Remove the Products page and route all links to it to the Features tab. [#52778]
+- Point the footer's Modules link and Help's "All Jetpack modules" link back to the Modules page. [#52778]
+
+### Fixed
+- Make the "plugins needed" notice for paid plans translatable as full sentences in both singular and plural forms. [#53213]
+- Stop counting products that are off as needing a user connection. [#53247]
+
+## [6.8.0] - 2026-10-05
+### Added
+- Search: Grant the free Search product directly instead of routing through a $0 checkout. [#52655]
+
+### Changed
+- Backup: Switch the Backup card and feature on and off with the backup module. [#52937]
+- Features tab: Restore the "Included in plan" filter, keep Upgrade in view in the details window, and return to the feature after checkout. [#53052]
+- Product cards: Show cards flat, without a drop shadow. [#52988]
+- Product detail table: Use the WordPress UI Notice component for the plugin install error. [#52932]
+- Stats: Show the stats chart tooltip on the shared dark chart tooltip surface. [#52850]
+- Update package dependencies. [#52999]
+
+### Removed
+- Remove unused Zendesk chat REST endpoints and related front-end constants left after the widget was turned off. [#52074]
+
+### Fixed
+- Products: Show a switch instead of a purchase link for a product you own whose module is turned off. [#52937]
+- Protect card: Show scan, firewall, and blocked-login stats as aligned rows that no longer overlap on narrow cards, with design-system info popovers. [#52988]
+
+## [6.7.1] - 2026-09-29
+### Changed
+- Backup: Send Manage and checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it. [#52495]
+
+### Fixed
+- Show the missing user connection notice as a warning only when no connection owner is recorded and the current user can set up the connection. [#52880]
+
+## [6.7.0] - 2026-09-28
+### Added
+- Add additional analytics to the Features tab. [#52630]
+- Add a More Features section to the Features tab that groups and switches Jetpack's other modules. [#52591] [#52786] [#52829]
+- Features tab: Add a dismissible banner explaining the tab. [#52733]
+- Features tab: Add support for arrow key navigation between features in the details modal. [#52742]
+
+### Changed
+- Features: Say why a plugin can't be installed, and show install progress and failures on its card. [#52735]
+- Features tab: Reorganize the feature details modal around what is free and what a paid plan adds, with an "Upgrade" button for paid features. [#52742]
+- Features tab: Say why the list is empty and offer a way forward. [#52633]
+- Follow the design system text color on the dashboard instead of a hardcoded override. [#52713]
+- Render the Jetpack in-dashboard message slot from the shared component. [#52641]
+- Show the Features tab in place of the Products tab by default, and link the footer's modules links to the Features list view. [#52785]
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
+
+### Fixed
+- Admin menu: Avoid a fatal error when an older version of the admin UI package is loaded. [#52806]
+- Features: Don't offer to install or activate a standalone plugin for a module your host or site administrator has disabled. [#52726]
+- Features tab: Show VaultPress Backup and Protect as active, with an "Open" link, when a paid plan runs them without their plugin. [#52827]
+- Features tab: Stop Brute Force Protection from switching the Protect card on. [#52829]
+- Fix the layout of the connection screen for right-to-left languages. [#52749]
+- Show a note instead of "Activate" or purchase buttons on an Overview card whose module your host or site administrator has disabled. [#52730]
+- Stretch the tab content background to the full height of the page. [#52633]
+
+## [6.6.0] - 2026-09-23
+### Added
+- Add a filter letting hosts hide products and modules from My Jetpack. [#52505]
+- Features: Update the wp-admin sidebar in place when a feature is switched on or off, and point to its new menu item. [#52672]
+
+### Changed
+- Features: Honor `jetpack_feature_policy` when hiding items from the page. [#52587]
+- Features: Show a note instead of a switch on a plugin your host or site administrator has enabled or disabled. [#52584]
+- Show a note instead of a toggle on a module your host or site administrator has enabled or disabled. [#52505]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Connection status card: Report a broken connection instead of claiming everything looks good, with the same details and actions as the connection error notice. The notice now shows a break only the connection owner can repair as a warning to everyone else. [#52130]
+- CRM: Keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard. [#52654]
+- Features tab: Open a feature's details with a subtle rise, and without the text blurring as the dialog appears. [#52590]
+- Fix My Jetpack failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites. [#52614]
+- Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete. [#52614]
+- Report an error instead of success when switching a module your host or site administrator has enabled or disabled. [#52505]
+
+## [6.5.0] - 2026-09-23
+### Added
+- Add a filterable grid of the main Jetpack features to the Features tab, with activation toggles and a details modal, behind the my-jetpack-features-tab feature flag. [#52494]
+- Add a list view to the Features tab that switches several features on or off at once, behind the my-jetpack-features-tab feature flag. [#52572]
+- Show partner coupon redemption in place of the dashboard. [#52514]
+
+### Changed
+- Answer module switch clicks immediately, and explain what happened when a change fails. [#52494]
+- Scan: Send buyers to the Scan dashboard after checkout instead of the retired Jetpack Assistant. [#52513]
+- Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack. [#51083]
+
+### Fixed
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Show each notice once instead of twice. [#52494]
+
+## [6.4.1] - 2026-09-21
+### Fixed
+- Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
+- Products: Keep the tab working when a module name is unavailable. [#52469]
+
+## [6.4.0] - 2026-09-18
+### Added
+- Activity Log: list it under Security on the Products tab so it can be turned on and off there. [#49591]
+- Add a my-jetpack-features-tab feature flag that replaces the Products tab with a Features tab in the new dashboard. [#52346]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Show the dashboard in the new rounded admin page frame on every site. [#52446]
+- Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Activity Log: read and write the module state through the shared module option, so the toggle reports and changes what a standalone install actually serves. [#52409]
+- Keep the product card, interstitial and close icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Stats: Restore the link from the stats card heading and chart to the Stats page. [#52121]
+
+## [6.3.0] - 2026-09-15
+### Added
+- Add a catalog of the main Jetpack features, with their copy, links and how to get each one. [#52295]
+- Add a plan-free `is_activated()` check to products, and use it to decide Jetpack sidebar menu visibility without a WordPress.com request. [#52102]
+
+### Changed
+- Name the Jetpack Manage sidebar item so hosts can address it in the menu visibility filter. [#52156]
+- Restyle dashboard notices to match the WordPress design system. [#52290]
+- Update package dependencies. [#52297]
+
+## [6.2.2] - 2026-09-14
+### Changed
+- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
+- Test the product cards' primary action across the plan matrix. [#52005]
+- Update package dependencies. [#52200]
+
+### Fixed
+- Scope the Stats chart tooltip reset to its own tooltip so it no longer restyles other charts. [#52184]
+- Search: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off. [#52008]
+- Show a Site Editor action for Like buttons on block themes. [#52205]
+
+## [6.2.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+### Fixed
+- Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup. [#52009]
+
+## [6.2.0] - 2026-09-08
+### Security
+- Recommendations: Require administrator permissions on the site evaluation endpoints, and validate their input. [#51987]
+
+### Changed
+- Jetpack AI: Show the AI card's on/off control, real module state, and AI page destination on self-hosted sites. [#51909]
+- Update package dependencies. [#51701]
+
+## [6.1.0] - 2026-09-01
+### Added
+- Allow the Automattic for Agencies banner to be dismissed. [#51441]
+
+### Changed
+- Jetpack AI: Land the card's View link, post-checkout, and post-activation on the Jetpack AI Hub. [#51756]
+- Prefix the transient that flags a historically active modules refresh. [#51315]
+- Register the `jetpack/v4/jetpack-ai-jwt` route from the Connection package and drop the Agents Manager dependency. [#51629]
+- Roll back the Automattic for Agencies banner dismissal if the request fails. [#51441]
+- Update package dependencies. [#51303] [#51727] [#51802]
+
+### Fixed
+- Cache the Automattic for Agencies partner lookup for sites that have no partner. [#51441]
+- Keep the Automattic for Agencies banner hidden when switching back to the Overview tab after dismissing it. [#51441]
+
+## [6.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [5.44.1] - 2026-08-25
+### Changed
+- Stats: Replace the commercial-use row on the Add Stats screen with UTM tracking, device stats, and location detail. [#51410]
+
+### Fixed
+- Fix a PHP 8.5 deprecation notice raised for products that do not ship a standalone plugin. [#51162]
+- Plans section: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
+- Stats: Tell the Stats dashboard when Start for Free was chosen, so it does not ask which plan you want a second time. [#51413]
+
+## [5.44.0] - 2026-08-20
+### Added
+- Error UI: Add a support link to broken-connection notices when reconnecting may not resolve the problem. [#51360]
+
+## [5.43.1] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [5.43.0] - 2026-08-13
+### Changed
+- Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it. [#51034]
+- Connection: Show the scope and error code of each connection error in the notice, instead of only the first error's message. [#51034]
+
+## [5.42.3] - 2026-08-12
+### Changed
+- Protect: Test the site protection data endpoint against the real firewall configuration. [#51184]
+
+## [5.42.2] - 2026-08-11
+### Changed
+- Update dependencies.
+
+## [5.42.1] - 2026-08-11
+### Changed
+- Update package dependencies. [#51125]
+
+## [5.42.0] - 2026-08-10
+### Security
+- Cache the support chat authentication token per user instead of site-wide.
+- Only expose the full firewall configuration and scan report to users who can manage site options.
+
+### Added
+- Jetpack AI: Drive the product card from the new AI module with an inline on/off toggle. [#50718]
+
+### Changed
+- Limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
+- Stats: Point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the My Jetpack page rendering blank on WordPress 6.9. [#50509]
+- Reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
+
+## [5.41.1] - 2026-08-03
+### Changed
+- Update dependencies.
+
 ## [5.41.0] - 2026-07-27
 ### Changed
 - Force a full page reload after activating or deactivating VideoPress, so the WP Admin menu reflects the new activation state. [#50740]
@@ -60,7 +451,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.4] - 2026-06-29
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.40.3] - 2026-06-26
 ### Changed
@@ -75,7 +466,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.40.1] - 2026-06-24
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.40.0] - 2026-06-23
 ### Changed
@@ -100,7 +491,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.38.4] - 2026-06-15
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.38.3] - 2026-06-10
 ### Changed
@@ -109,7 +500,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.38.2] - 2026-06-08
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [5.38.1] - 2026-06-08
 ### Changed
@@ -142,8 +533,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.37.3] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ### Fixed
 - Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
@@ -356,7 +746,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.11] - 2025-12-15
 ### Changed
-- Update dependencies. [#46157]
+- Update dependencies.
 
 ## [5.28.10] - 2025-12-11
 ### Changed
@@ -387,11 +777,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.5] - 2025-11-19
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.4] - 2025-11-18
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.3] - 2025-11-17
 ### Changed
@@ -402,7 +792,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.2] - 2025-11-12
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.28.1] - 2025-11-10
 ### Changed
@@ -426,7 +816,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.8] - 2025-10-21
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [5.27.7] - 2025-10-20
 ### Fixed
@@ -441,7 +831,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.5] - 2025-10-13
 ### Changed
-- Update dependencies. [#45466]
+- Update dependencies.
 
 ## [5.27.4] - 2025-10-10
 ### Changed
@@ -454,11 +844,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.27.2] - 2025-09-29
 ### Changed
-- Update dependencies. [#45179]
+- Update dependencies.
 
 ## [5.27.1] - 2025-09-22
 ### Changed
-- Update dependencies. [#45179]
+- Update dependencies.
 
 ## [5.27.0] - 2025-09-19
 ### Changed
@@ -475,7 +865,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.26.1] - 2025-09-08
 ### Changed
-- Update dependencies. [#45050]
+- Update dependencies.
 
 ## [5.26.0] - 2025-09-08
 ### Changed
@@ -510,7 +900,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.23.1] - 2025-08-18
 ### Changed
-- Update dependencies. [#44736]
+- Update dependencies.
 
 ## [5.23.0] - 2025-08-14
 ### Added
@@ -583,7 +973,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.17.3] - 2025-07-07
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.17.2] - 2025-07-03
 ### Changed
@@ -608,11 +998,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.16.7] - 2025-06-24
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.6] - 2025-06-23
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.5] - 2025-06-23
 ### Changed
@@ -628,7 +1018,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.16.2] - 2025-06-10
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.16.1] - 2025-06-06
 ### Changed
@@ -761,7 +1151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.9.1] - 2025-03-24
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.9.0] - 2025-03-24
 ### Added
@@ -777,7 +1167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.7.3] - 2025-03-19
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.7.2] - 2025-03-18
 ### Changed
@@ -986,7 +1376,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.3] - 2024-11-26
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.0.2] - 2024-11-25
 ### Added
@@ -1002,7 +1392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.1] - 2024-11-18
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [5.0.0] - 2024-11-14
 ### Removed
@@ -1037,7 +1427,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.35.14] - 2024-10-15
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [4.35.13] - 2024-10-14
 ### Changed
@@ -1070,7 +1460,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.35.8] - 2024-09-25
 ### Changed
-- Update dependencies. [#38910]
+- Update dependencies.
 
 ## [4.35.7] - 2024-09-23
 ### Changed
@@ -2347,7 +2737,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tiered pricing copy and update titles for Jetpack Search [#24357]
 - Hide Activate a license link if there is no user connection since user connection is required [#24251]
 - My Jetpack Hybrid products: Install Jetpack if stand-alone plugin installation fails [#24335]
-- Updated Jetpack Scan feature list. [#23863] [#23795] [#24361] [#24372]
+- Updated Jetpack Scan feature list. [#23795] [#23863] [#24361] [#24372]
 
 ## [1.3.0] - 2022-05-10
 ### Changed
@@ -2439,7 +2829,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: remove dropdown from CTA button in Product cards
 - My Jetpack: Use Text and CSS vars on ProductCard
 - Updated Boost product icon for clarity
-- Updated package dependencies.
 - Updated package dependencies.
 - Updated styles for each product card status
 - Update organization and copy of the Plans section
@@ -2807,6 +3196,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.14.0...6.15.0
+[6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0
+[6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0
+[6.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.11.0...6.12.0
+[6.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.10.0...6.11.0
+[6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0
+[6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1
+[6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
+[6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0
+[6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1
+[6.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.6.0...6.7.0
+[6.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.5.0...6.6.0
+[6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0
+[6.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.0...6.4.1
+[6.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.3.0...6.4.0
+[6.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.2...6.3.0
+[6.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.1...6.2.2
+[6.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.1.0...6.2.0
+[6.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.0.0...6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.1...6.0.0
+[5.44.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.0...5.44.1
+[5.44.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.1...5.44.0
+[5.43.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.0...5.43.1
+[5.43.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.3...5.43.0
+[5.42.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.2...5.42.3
+[5.42.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.1...5.42.2
+[5.42.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.0...5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.1...5.42.0
+[5.41.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.0...5.41.1
 [5.41.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.9...5.41.0
 [5.40.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.8...5.40.9
 [5.40.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.7...5.40.8

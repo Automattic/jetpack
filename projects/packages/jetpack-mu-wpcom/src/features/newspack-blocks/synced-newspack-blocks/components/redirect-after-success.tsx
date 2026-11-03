@@ -17,10 +17,7 @@ const RedirectAfterSuccess = ( { attributes, setAttributes }: Props ) => (
 	<>
 		<SelectControl
 			label={ __( 'Post-Checkout Button', 'jetpack-mu-wpcom' ) }
-			help={ __(
-				'After a successful purchase, a button will be presented to finish the process.',
-				'jetpack-mu-wpcom'
-			) }
+			help={ __( 'After a successful purchase, a button will be presented to finish the process.', 'jetpack-mu-wpcom' ) }
 			value={ attributes.afterSuccessBehavior }
 			options={ [
 				{ label: __( 'Close the modal', 'jetpack-mu-wpcom' ), value: '' },
@@ -30,11 +27,13 @@ const RedirectAfterSuccess = ( { attributes, setAttributes }: Props ) => (
 			onChange={ ( value: string ) => {
 				setAttributes( { afterSuccessBehavior: value.toString() } );
 			} }
+			__next40pxDefaultSize
 		/>
 		<TextControl
 			label={ __( 'Button Label', 'jetpack-mu-wpcom' ) }
 			value={ attributes.afterSuccessButtonLabel || '' }
 			onChange={ ( value: string ) => setAttributes( { afterSuccessButtonLabel: value } ) }
+			__next40pxDefaultSize
 		/>
 		{ attributes.afterSuccessBehavior === 'custom' && (
 			<TextControl
@@ -42,6 +41,7 @@ const RedirectAfterSuccess = ( { attributes, setAttributes }: Props ) => (
 				placeholder={ __( 'https://example.com', 'jetpack-mu-wpcom' ) }
 				value={ attributes.afterSuccessURL || '' }
 				onChange={ ( value: string ) => setAttributes( { afterSuccessURL: value } ) }
+				__next40pxDefaultSize
 			/>
 		) }
 	</>

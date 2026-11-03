@@ -4,6 +4,7 @@
 import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
+	isVideoPressAvailable,
 } from '../../routes/site-readiness';
 
 /**
@@ -61,5 +62,21 @@ describe( 'Premium Analytics site readiness', () => {
 
 		expect( isPremiumAnalyticsSiteConnected() ).toBe( true );
 		expect( isPremiumAnalyticsInitialSyncFinished() ).toBe( false );
+	} );
+
+	it( 'reads VideoPress availability from the server flag', () => {
+		setScriptData( { premium_analytics: { has_videopress: true } } );
+
+		expect( isVideoPressAvailable() ).toBe( true );
+	} );
+
+	it.each( [
+		[ 'the flag is false', { premium_analytics: { has_videopress: false } } ],
+		[ 'the flag is absent', { premium_analytics: { initial_full_sync_finished: 123 } } ],
+		[ 'no script data was published', {} ],
+	] )( 'treats VideoPress as unavailable when %s', ( _case, data ) => {
+		setScriptData( data );
+
+		expect( isVideoPressAvailable() ).toBe( false );
 	} );
 } );

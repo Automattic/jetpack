@@ -12,16 +12,21 @@ describe( 'reducer', () => {
 			isFetching: false,
 			loaded: false,
 			backups: [],
+			fetchFailed: false,
 		},
 		fetchingState: {
 			isFetching: true,
 			loaded: false,
 			backups: [],
+			fetchFailed: false,
 		},
+		// The flag the dashboard reads to tell "this site has no backups"
+		// apart from "we could not find out". Both leave `backups` empty.
 		failedState: {
 			isFetching: false,
 			loaded: true,
 			backups: [],
+			fetchFailed: true,
 		},
 	};
 
@@ -70,6 +75,7 @@ describe( 'reducer', () => {
 				expected: {
 					isFetching: false,
 					loaded: true,
+					fetchFailed: false,
 					backups: [
 						{
 							id: '588085172',
@@ -106,6 +112,32 @@ describe( 'reducer', () => {
 			},
 		] )( 'should return expected state', ( { state, action, expected } ) => {
 			expect( siteBackups( state, action ) ).toEqual( expected );
+		} );
+
+		// A poll tick that fails against a site that already loaded its list
+		// must not blank the screen: what is on it is still the last thing
+		// WordPress.com actually said.
+		it( 'keeps an already-loaded list when a later read fails', () => {
+			const loaded = siteBackups( fixtures.initialState, {
+				type: SITE_BACKUPS_GET_SUCCESS,
+				payload: [ { id: '588003950', status: 'finished', discarded: '0' } ],
+			} );
+
+			const afterFailure = siteBackups( loaded, { type: SITE_BACKUPS_GET_FAILED } );
+
+			expect( afterFailure.backups ).toEqual( loaded.backups );
+			expect( afterFailure.fetchFailed ).toBe( true );
+		} );
+
+		it( 'clears the failure once a read succeeds again', () => {
+			const failed = siteBackups( fixtures.initialState, { type: SITE_BACKUPS_GET_FAILED } );
+
+			const recovered = siteBackups( failed, {
+				type: SITE_BACKUPS_GET_SUCCESS,
+				payload: [ { id: '588003950', status: 'finished', discarded: '0' } ],
+			} );
+
+			expect( recovered.fetchFailed ).toBe( false );
 		} );
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Let the pointer take over from the arrow keys in the stats chart, instead of flickering between the hovered and selected bars.

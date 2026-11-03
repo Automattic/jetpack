@@ -1,9 +1,8 @@
 import { GooglePhotosMediaIcon } from '@automattic/jetpack-shared-extension-utils/icons';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { external } from '@wordpress/icons';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useEffect } from 'react';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
@@ -13,48 +12,60 @@ import GooglePhotosAccount from './google-photos-account';
  * @return {import('react').ReactElement} - JSX Element
  */
 export default function GooglePhotosPickerButton( props ) {
-	const { className, pickerSession, fetchPickerSession, setAuthenticated, account } = props;
-	const isButtonBusy = ! pickerSession;
+	const {
+		className,
+		pickerSession,
+		setAuthenticated,
+		account,
+		isSessionPending,
+		isSessionFailed,
+		onRetry,
+	} = props;
+	const isButtonBusy = isSessionPending || ( ! pickerSession && ! isSessionFailed );
 
 	const openPicker = () => {
+		if ( isSessionFailed ) {
+			onRetry();
+			return;
+		}
 		pickerSession?.pickerUri && window.open( pickerSession.pickerUri );
 	};
 
-	useEffect( () => {
-		const interval = setInterval( () => {
-			pickerSession?.id && fetchPickerSession( pickerSession.id );
-		}, 3000 );
-		return () => clearInterval( interval );
-	}, [ fetchPickerSession, pickerSession?.id ] );
-
 	return (
-		<div className={ clsx( className, 'jetpack-external-media__google-photos-picker' ) }>
+		<Stack
+			direction="column"
+			align="center"
+			justify="center"
+			gap="md"
+			className={ clsx( className, 'jetpack-external-media__google-photos-picker' ) }
+		>
 			<GooglePhotosMediaIcon width="150" />
-			<h1>{ __( 'Google Photos', 'jetpack-external-media' ) }</h1>
-			<p>
+			<Text variant="heading-2xl" render={ <h1 /> }>
+				{ __( 'Google Photos', 'jetpack-external-media' ) }
+			</Text>
+			<Text variant="body-lg" render={ <p /> }>
 				{ __(
 					'Select photos directly from your Google Photos library.',
 					'jetpack-external-media'
 				) }
-			</p>
+			</Text>
 
-			<Button
-				variant="primary"
-				isBusy={ isButtonBusy }
-				disabled={ isButtonBusy }
-				className="jetpack-external-media__google-photos-picker-button"
-				onClick={ openPicker }
-			>
-				{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
-				&nbsp;
-				<Icon icon={ external } size={ 18 } />
+			<Button loading={ isButtonBusy } onClick={ openPicker }>
+				{ isSessionFailed ? (
+					__( 'Try again', 'jetpack-external-media' )
+				) : (
+					<>
+						{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
+						<Icon icon={ external } size={ 18 } />
+					</>
+				) }
 			</Button>
 			<GooglePhotosAccount
 				account={ account }
 				setAuthenticated={ setAuthenticated }
-				disconnectBtnVariant={ 'link' }
+				disconnectBtnVariant="minimal"
 				showAccountInfo={ false }
 			/>
-		</div>
+		</Stack>
 	);
 }

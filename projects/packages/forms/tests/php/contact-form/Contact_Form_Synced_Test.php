@@ -27,6 +27,23 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		/*
+		 * These tests render forms as a visitor would see them. The suite defines
+		 * DOING_AJAX so that a successful submission can't exit the PHPUnit process
+		 * (see tests/php/bootstrap.php), but that also makes Request::is_frontend()
+		 * false, which renders the block's "Submit a form." fallback instead of the
+		 * form. Declare a frontend request for the duration of each test.
+		 */
+		add_filter( 'wp_doing_ajax', '__return_false' );
+
+		/*
+		 * A visitor, not an editor: whether a draft synced form renders at all
+		 * turns on current_user_can( 'edit_post' ), and an earlier test class
+		 * leaving an administrator logged in would render it.
+		 */
+		wp_set_current_user( 0 );
+
 		Contact_Form_Block::register_block();
 		Contact_Form_Block::register_child_blocks();
 	}
@@ -566,7 +583,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode with ref attribute
 		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Verify the output contains the unique label from the synced form
 		// This ensures we're loading the actual referenced form, not a default form
@@ -579,7 +596,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	public function test_shortcode_with_invalid_ref_returns_empty() {
 		// Process the shortcode with invalid ref
 		$shortcode = '[contact-form ref="99999"]'; // Non-existent form
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should return empty or the original shortcode text (not render as a form)
 		$this->assertEmpty( $output, 'Shortcode with invalid ref should return empty' );
@@ -611,7 +628,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode
 		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should return empty to prevent infinite loop
 		$this->assertEmpty( $output, 'Shortcode with circular ref should return empty' );
@@ -633,7 +650,7 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 
 		// Process the shortcode
 		$shortcode = sprintf( '[contact-form ref="%d"]', $trashed_form_id );
-		$output    = do_shortcode( $shortcode );
+		$output    = apply_shortcodes( $shortcode );
 
 		// Should not render trashed form
 		$this->assertEmpty( $output, 'Shortcode should not render trashed form' );

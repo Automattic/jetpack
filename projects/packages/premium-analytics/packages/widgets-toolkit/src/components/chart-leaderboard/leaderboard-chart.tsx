@@ -10,15 +10,20 @@ import {
 	Icon,
 	Stack,
 } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
+import {
+	formatListMetricCount,
+	getListMetricLabel,
+	type ListMetric,
+} from '../../helpers/list-metrics';
+import { AbbreviatedValue } from '../abbreviated-value';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
-import type { WooChartTheme } from '../../hooks/use-chart-theme';
 import type { DataFormat } from '../../types';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -31,94 +36,58 @@ export type LegendLabels = {
 	comparison: string;
 };
 
+/** What the rows are and what their values count, named in a header above them. */
+export type LeaderboardColumns = {
+	/** The rows, e.g. "Pages". */
+	label: string;
+	metric: ListMetric;
+};
+
 export type LeaderboardChartProps = {
-	/**
-	 * Card container styles
-	 */
 	className?: string;
 
-	/**
-	 * Leaderboard data (label, currentValue, previousValue, currentShare, previousShare, delta)
-	 */
 	data: LeaderboardChartData;
 
-	/**
-	 * Whether the widget is in a loading state
-	 */
 	loading?: boolean;
 
-	/**
-	 * Whether to show comparison data
-	 */
 	withComparison?: boolean;
 
-	/**
-	 * Whether to show overlay label on bars
-	 */
 	withOverlayLabel?: boolean;
 
-	/**
-	 * Custom legend labels
-	 */
 	legendLabels?: LegendLabels;
 
-	/**
-	 * Format for displaying values
-	 */
 	dataFormat?: DataFormat;
 
-	/**
-	 * Whether to show the legend
-	 */
 	showLegend?: boolean;
 
-	/**
-	 * Custom empty state content to display when no data is available
-	 */
 	emptyState?: ReactNode;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
-	/**
-	 * Custom styling for the chart container
-	 */
 	style?: React.CSSProperties & {
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
+		'--a8c-charts-border-radius-leaderboard-bar'?: string;
 	};
 
 	/**
-	 * Show only complete rows that fit the widget height instead of scrolling.
-	 *
-	 * Defaults to `true` here, unlike the underlying charts prop, because widgets
-	 * sit in fixed-height tiles. Pass `false` to keep the list scrollable.
+	 * Show only complete rows that fit the widget height instead of scrolling. Defaults
+	 * to `true` here, unlike the underlying charts prop, because widgets sit in
+	 * fixed-height tiles.
 	 * @default true
 	 */
 	fitRows?: boolean;
+
+	/** Names the rows and the metric above them, and the unit in the exact-value tooltip. */
+	columns?: LeaderboardColumns;
+
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 /**
- * Generic LeaderboardChart component for displaying ranking/leaderboard data.
- * Used for "top X by Y" type visualizations (e.g., sales by source, by channel, by campaign).
- *
- * This component wraps @automattic/charts LeaderboardChartUnresponsive with standardized formatting and styling.
- *
- * **Requirements:**
- * - Must be rendered within a GlobalChartsProvider context to access chart styling (colors, themes, element styles)
- *
- * Features:
- * - Automatic empty state handling
- * - Configurable value formatting (currency, number, percentage, etc.)
- * - Comparison mode support
- * - Customizable legend labels
- * - Overlay label support for alternative styling
+ * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive`. Must render
+ * inside a `GlobalChartsProvider`: colors, theme, and element styles come from it.
  */
 export function LeaderboardChart( {
 	className,
@@ -130,32 +99,33 @@ export function LeaderboardChart( {
 	legendLabels,
 	dataFormat = {
 		type: 'currency',
-		options: { useMultipliers: true, decimals: 2 },
+		options: { useMultipliers: true },
 	},
 	emptyStateIcon,
 	emptyStateText,
 	style,
 	fitRows = true,
+	columns,
+	chartTitle,
 }: LeaderboardChartProps ) {
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
-	/**
-	 * Create value formatter from dataFormat configuration
-	 */
+	const metric = columns?.metric;
 	const valueFormatter = useMemo(
-		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
-		[ dataFormat ]
+		() => ( value: number ) => (
+			<AbbreviatedValue
+				value={ value }
+				dataFormat={ dataFormat }
+				formatRestored={
+					metric ? exact => formatListMetricCount( metric, value, exact ) : undefined
+				}
+			/>
+		),
+		[ dataFormat, metric ]
 	);
 
-	/**
-	 * Bar color for overlay-label mode.
-	 *
-	 * The label sits on top of the bar, so the bar needs to read as a faint
-	 * tint of the primary color. We can't pass a translucent color through the
-	 * chart's `primaryColor` prop — it resolves the value via getElementStyles,
-	 * which strips the alpha channel. Instead we pre-blend the primary with
-	 * white to produce the opaque equivalent of an 8% alpha fill.
-	 */
+	// A translucent `primaryColor` would not survive `getElementStyles`, which strips
+	// the alpha channel, so pre-blend with white to the opaque equivalent of an 8% fill.
 	const barColor = useMemo( () => {
 		if ( ! withOverlayLabel ) {
 			return undefined;
@@ -164,23 +134,6 @@ export function LeaderboardChart( {
 		return lightenHexColor( normalizeColorToHex( primaryColor ), 0.92 );
 	}, [ withOverlayLabel, getElementStyles ] );
 
-	/**
-	 * Merge theme bar border radius with style prop.
-	 * Style prop takes precedence for per-widget overrides.
-	 */
-	const chartStyle = useMemo( () => {
-		const wooTheme = theme as WooChartTheme | undefined;
-		const barBorderRadius = wooTheme?.leaderboardChart?.barBorderRadius;
-		if ( ! barBorderRadius && ! style ) {
-			return undefined;
-		}
-		return {
-			'--a8c--charts--leaderboard--bar--border-radius': barBorderRadius,
-			...style,
-		} as React.CSSProperties;
-	}, [ theme, style ] );
-
-	// Check if we have valid data
 	const isEmptyData = ! data || data.length === 0;
 
 	if ( isEmptyData ) {
@@ -191,25 +144,33 @@ export function LeaderboardChart( {
 		<Stack
 			direction="column"
 			justify="space-between"
-			gap="lg"
-			className={ clsx( styles.container, className ) }
+			gap={ columns ? 'sm' : 'lg' }
+			className={ clsx( styles.container, columns && styles.hasColumns, className ) }
 		>
+			{ columns && (
+				<div className={ styles.columns }>
+					<span className={ styles.columnsLabel }>{ columns.label }</span>
+					<span className={ styles.columnsMetric }>{ getListMetricLabel( columns.metric ) }</span>
+				</div>
+			) }
 			<BaseLeaderboardChart
 				data={ data }
+				ariaLabel={ formatChartName( chartTitle ) }
 				loading={ loading }
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
 				legendLabels={ legendLabels }
 				primaryColor={ barColor }
 				withOverlayLabel={ withOverlayLabel }
+				// Diverging bars would pull away from labels drawn over them.
+				negativeBars={ withOverlayLabel ? 'clamp' : 'diverge' }
 				showLegend={ false }
 				fitRows={ fitRows }
-				style={ chartStyle }
+				style={ style }
 				className={ styles.chart }
 			>
 				{ showLegend && (
 					<Legend
-						className={ styles.legend }
 						orientation="horizontal"
 						position="bottom"
 						alignment="center"

@@ -1,8 +1,12 @@
-// Rollup apparently chokes on `rootDir`. So put most config in a special file for it,
-// and load that here.
 {
-	"extends": "./tsconfig.rollup.json",
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
+	"include": [ "./src/**/*" ],
 	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/" ],
+		"sourceMap": true,
+		"outDir": "./build/",
+		"target": "es2019",
+		"verbatimModuleSyntax": true,
 		"declarationDir": "./build/",
 		"rootDir": "./src"
 	}

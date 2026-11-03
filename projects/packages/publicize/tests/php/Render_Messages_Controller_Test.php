@@ -232,6 +232,13 @@ class Render_Messages_Controller_Test extends TestCase {
 				array(
 					'connection_id'    => 'conn_a',
 					'rendered_message' => 'A',
+					'hyperlinks'       => array(
+						array(
+							'text'       => 'linked text',
+							'href'       => 'https://example.com/linked',
+							'occurrence' => 1,
+						),
+					),
 				),
 				array(
 					'connection_id'    => 'conn_b',
@@ -307,6 +314,13 @@ class Render_Messages_Controller_Test extends TestCase {
 					array(
 						'connection_id'    => 'conn_a',
 						'rendered_message' => 'A',
+						'hyperlinks'       => array(
+							array(
+								'text'       => 'linked text',
+								'href'       => 'https://example.com/linked',
+								'occurrence' => 1,
+							),
+						),
 					),
 					array(
 						'connection_id'    => 'conn_b',

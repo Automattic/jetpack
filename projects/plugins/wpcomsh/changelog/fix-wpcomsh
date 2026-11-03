@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Restore custom-fonts typekit provider json files that shouldn't have been deleted.

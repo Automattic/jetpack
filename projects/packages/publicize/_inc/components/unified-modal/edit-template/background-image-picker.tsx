@@ -9,6 +9,7 @@ import { Button, Dropdown, MenuGroup, MenuItem, Notice } from '@wordpress/compon
 import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { image, postFeaturedImage, media as mediaIcon } from '@wordpress/icons';
+import { type JSX } from 'react';
 import useMediaDetails from '../../../hooks/use-media-details';
 import { type ImageType } from '../../../hooks/use-sig-preview/utils';
 import MediaPreview from '../../media-section-v2/media-preview';

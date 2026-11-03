@@ -208,7 +208,7 @@ export default function PostTypeScopeControl( { mode, postTypes, onChange } ) {
 								/* dummy arg so the minifier can't fold both branches into
 								   `__( cond ? a : b )` — that yields a non-literal msgid and
 								   fails the production i18n-string check. */ 0
-						  )
+							)
 				}
 				value={ toTokens( slugs, labelBySlug ) }
 				suggestions={ suggestionList }

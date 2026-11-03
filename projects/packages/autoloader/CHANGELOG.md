@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.3] - 2026-11-02
+### Security
+- Harden path handling. [#54424]
+
+## [6.0.2] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [6.0.1] - 2026-09-23
+### Fixed
+- Read the current plugin's manifests before cached ones so a plugin directory retired by a host deploy cannot win a version tie. [#52352]
+
+## [6.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [5.0.23] - 2026-08-11
+### Removed
+- Stop applying the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map. [#51179]
+
+## [5.0.22] - 2026-08-03
+### Fixed
+- Honor the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map, matching Composer's own behavior. It was previously parsed but never applied. [#50369]
+
 ## [5.0.21] - 2026-07-13
 ### Changed
 - Internal updates.
@@ -482,6 +506,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[6.0.3]: https://github.com/Automattic/jetpack-autoloader/compare/v6.0.2...v6.0.3
+[6.0.2]: https://github.com/Automattic/jetpack-autoloader/compare/v6.0.1...v6.0.2
+[6.0.1]: https://github.com/Automattic/jetpack-autoloader/compare/v6.0.0...v6.0.1
+[6.0.0]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.23...v6.0.0
+[5.0.23]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.22...v5.0.23
+[5.0.22]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.21...v5.0.22
 [5.0.21]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.20...v5.0.21
 [5.0.20]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.19...v5.0.20
 [5.0.19]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.18...v5.0.19

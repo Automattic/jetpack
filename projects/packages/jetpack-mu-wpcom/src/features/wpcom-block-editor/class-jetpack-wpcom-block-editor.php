@@ -253,7 +253,11 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
-		list( $expiration, $user_id, $hash ) = explode( ':', $nonce, 3 );
+		$parts = explode( ':', $nonce, 3 );
+		if ( count( $parts ) !== 3 ) {
+			return false;
+		}
+		list( $expiration, $user_id, $hash ) = $parts;
 
 		$this->nonce_user_id = (int) $user_id;
 		if ( ! $this->nonce_user_id ) {

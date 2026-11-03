@@ -35,7 +35,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 							plan_upgraded: 1,
 						}
 					);
-			  }
+				}
 			: () => {
 					// The editor for CPTs has an `edit/` route fragment prefixed.
 					const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
@@ -50,7 +50,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 								{
 									plan_upgraded: 1,
 								}
-						  )
+							)
 						: addQueryArgs(
 								window.location.protocol +
 									`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
@@ -59,8 +59,8 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 									post: postId,
 									plan_upgraded: 1,
 								}
-						  );
-			  }
+							);
+				}
 	)();
 
 	// Redirect to calypso plans page for WoC sites.

@@ -94,14 +94,14 @@ class Filters_Popover_Render_Test extends TestCase {
 	 */
 	public function test_panel_has_no_hidden_attribute_or_dialog_role() {
 		$markup = $this->render();
-		$this->assertSame(
-			0,
-			preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*\bhidden\b[^>]*>/', $markup ),
+		$this->assertDoesNotMatchRegularExpression(
+			'/<div[^>]*jetpack-search-filters-popover__panel[^>]*\bhidden\b[^>]*>/',
+			$markup,
 			'panel must not carry the hidden attribute'
 		);
-		$this->assertSame(
-			0,
-			preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="dialog"[^>]*>/', $markup ),
+		$this->assertDoesNotMatchRegularExpression(
+			'/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="dialog"[^>]*>/',
+			$markup,
 			'panel must not carry role="dialog"'
 		);
 		$this->assertStringNotContainsString( 'data-wp-bind--hidden="!state.isFilterPopoverOpen"', $markup );
@@ -114,14 +114,14 @@ class Filters_Popover_Render_Test extends TestCase {
 	 */
 	public function test_panel_exposes_search_filters_landmark() {
 		$markup = $this->render();
-		$this->assertSame(
-			1,
-			preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="region"[^>]*>/', $markup ),
+		$this->assertMatchesRegularExpression(
+			'/<div[^>]*jetpack-search-filters-popover__panel[^>]*role="region"[^>]*>/',
+			$markup,
 			'panel must carry role="region"'
 		);
-		$this->assertSame(
-			1,
-			preg_match( '/<div[^>]*jetpack-search-filters-popover__panel[^>]*aria-label="Search filters"[^>]*>/', $markup ),
+		$this->assertMatchesRegularExpression(
+			'/<div[^>]*jetpack-search-filters-popover__panel[^>]*aria-label="Search filters"[^>]*>/',
+			$markup,
 			'panel must carry aria-label="Search filters"'
 		);
 	}

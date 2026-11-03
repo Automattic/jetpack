@@ -173,7 +173,7 @@ export default function useVariationStyleProperties( {
 							background: inputBlockAttributes?.style?.color?.background,
 						},
 					},
-			  }
+				}
 			: {};
 		const blockColorClassesAndStyles = getColorClassesAndStyles( attributesWithBackgroundColor );
 

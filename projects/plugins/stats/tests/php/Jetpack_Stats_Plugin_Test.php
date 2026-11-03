@@ -1,0 +1,508 @@
+<?php
+/**
+ * Bootstrap wiring tests for the Jetpack Stats plugin.
+ *
+ * @package automattic/jetpack-stats-plugin
+ */
+
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
+use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
+use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
+use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
+use Automattic\Jetpack\Stats_Plugin\Jetpack_Stats_Plugin;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use WorDBless\BaseTestCase;
+
+/**
+ * Test that the plugin shell registers everything the Stats packages expect.
+ */
+class Jetpack_Stats_Plugin_Test extends BaseTestCase {
+
+	/**
+	 * The Stats packages record their initialization in statics that outlive the per-test
+	 * database and hook reset, and each one registers its hooks on the first call only. Any
+	 * test that walks `plugins_loaded` would otherwise leave the next one initializing
+	 * nothing, so clear them before every test rather than in the tests that notice.
+	 */
+	public function set_up() {
+		$this->reset_static( Stats_Dashboard::class, 'initialized', false );
+		$this->reset_static( Stats_Admin_Main::class, 'instance', null );
+		$this->reset_static( Analytics::class, 'initialized', false );
+	}
+
+	/**
+	 * `Connection_Manager::is_connected()` caches its answer in a static, which survives
+	 * the per-test database reset. Clear it so a faked connection cannot leak.
+	 */
+	public function tear_down() {
+		( new Connection_Manager() )->reset_connection_status();
+		remove_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
+	}
+
+	/**
+	 * Write a private static property the packages use to guard their initialization.
+	 *
+	 * @param string $class    Class holding the property.
+	 * @param string $property Property name.
+	 * @param mixed  $value    Value to write.
+	 */
+	private function reset_static( $class, $property, $value ) {
+		$reflected = new ReflectionProperty( $class, $property );
+
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected->setAccessible( true );
+		}
+
+		$reflected->setValue( null, $value );
+	}
+
+	/**
+	 * Give `Connection_Manager::is_connected()` the blog ID and token it looks for.
+	 */
+	private function fake_connection() {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Record every module that reaches `Modules::activate()`.
+	 *
+	 * @param array $activated Collected module slugs, by reference.
+	 */
+	private function record_module_activations( array &$activated ) {
+		add_action(
+			'jetpack_pre_activate_module',
+			function ( $module ) use ( &$activated ) {
+				$activated[] = $module;
+			}
+		);
+	}
+
+	/**
+	 * The complete set of hooks `bootstrap()` registers, as `hook, method, priority`.
+	 */
+	private function bootstrap_hooks() {
+		return array(
+			array( 'plugins_loaded', 'configure_packages', 1 ),
+			array( 'plugins_loaded', 'initialize_other_packages', 10 ),
+			array( 'activated_plugin', 'handle_plugin_activation', 10 ),
+			array( 'jetpack_site_registered', 'activate_stats_module', 10 ),
+			array( 'deactivate_jetpack/jetpack.php', 'activate_stats_module', 10 ),
+			array( 'plugin_action_links_' . JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH, 'plugin_page_add_links', 10 ),
+			array( 'jetpack_get_available_standalone_modules', 'filter_available_modules_add_stats', 10 ),
+		);
+	}
+
+	/**
+	 * Whether the Odyssey dashboard has claimed the admin menu.
+	 *
+	 * `Stats_Admin\Dashboard` hooks an instance method, so `has_action()` cannot match it
+	 * against a class name.
+	 */
+	private function dashboard_menu_is_registered() {
+		if ( ! isset( $GLOBALS['wp_filter']['admin_menu'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Stats_Dashboard ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Report the Stats module as active.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public function activate_stats( $modules ) {
+		$modules[] = 'stats';
+		return $modules;
+	}
+
+	/**
+	 * Whether the Stats column is queued for the Posts list.
+	 *
+	 * `Admin_Post_List_Column` hooks an instance method, so `has_filter()` cannot match it against a class name.
+	 *
+	 * @return bool
+	 */
+	private function post_list_column_is_registered() {
+		if ( ! isset( $GLOBALS['wp_filter']['manage_posts_columns'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['manage_posts_columns']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && $callback['function'][0] instanceof Admin_Post_List_Column ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether the plugin hooked a menu of its own onto `admin_menu`.
+	 *
+	 * @return bool
+	 */
+	private function plugin_registered_an_admin_menu() {
+		if ( ! isset( $GLOBALS['wp_filter']['admin_menu'] ) ) {
+			return false;
+		}
+
+		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( is_array( $callback['function'] ) && Jetpack_Stats_Plugin::class === $callback['function'][0] ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * `bootstrap()` is the plugin's whole wiring surface, so a hook dropped from it is a
+	 * feature silently switched off. Clear the hooks the test bootstrap already registered
+	 * before calling it, otherwise the assertions pass on that earlier state and the test
+	 * says nothing about `bootstrap()` itself.
+	 *
+	 * WordPress stores actions as filters, so `has_filter()` and `remove_filter()` cover both.
+	 */
+	public function test_bootstrap_registers_every_hook() {
+		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+			remove_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ), $priority );
+
+			$this->assertFalse(
+				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
+				"$hook still holds $method before bootstrap() runs."
+			);
+		}
+
+		Jetpack_Stats_Plugin::bootstrap();
+
+		foreach ( $this->bootstrap_hooks() as list( $hook, $method, $priority ) ) {
+			$this->assertSame(
+				$priority,
+				has_filter( $hook, array( Jetpack_Stats_Plugin::class, $method ) ),
+				"bootstrap() did not register $method on $hook."
+			);
+		}
+	}
+
+	/**
+	 * The Stats module must switch back on when the Jetpack plugin goes away, otherwise
+	 * a site that used the module toggle in Jetpack is left with Stats silently off.
+	 */
+	public function test_bootstrap_reactivates_stats_when_jetpack_is_deactivated() {
+		$this->assertSame(
+			10,
+			has_action( 'deactivate_jetpack/jetpack.php', array( Jetpack_Stats_Plugin::class, 'activate_stats_module' ) )
+		);
+		$this->assertSame(
+			10,
+			has_action( 'jetpack_site_registered', array( Jetpack_Stats_Plugin::class, 'activate_stats_module' ) )
+		);
+	}
+
+	/**
+	 * My Jetpack builds its product list from this filter. Without `stats` in it the
+	 * plugin has no product card.
+	 */
+	public function test_stats_is_offered_as_a_standalone_module() {
+		$this->assertSame(
+			array( 'stats', 'search' ),
+			Jetpack_Stats_Plugin::filter_available_modules_add_stats( array( 'search' ) )
+		);
+	}
+
+	/**
+	 * The action link is prepended, not replacing what the plugins screen already added.
+	 */
+	public function test_plugin_action_links_are_prepended() {
+		$links = Jetpack_Stats_Plugin::plugin_page_add_links( array( '<a href="#">Deactivate</a>' ) );
+
+		$this->assertCount( 2, $links );
+		$this->assertStringContainsString( 'Deactivate', $links[1] );
+	}
+
+	/**
+	 * Stats v2 answers `jetpack_stats_url`, so the link follows it there once it is on.
+	 */
+	public function test_plugin_action_link_follows_the_stats_url_filter() {
+		add_filter(
+			'jetpack_stats_url',
+			static function () {
+				return 'https://example.org/wp-admin/admin.php?page=stats-v2';
+			}
+		);
+
+		$links = Jetpack_Stats_Plugin::plugin_page_add_links( array() );
+
+		$this->assertStringContainsString( 'href="https://example.org/wp-admin/admin.php?page=stats-v2"', $links[0] );
+	}
+
+	/**
+	 * The dashboard registration is skipped while the Jetpack plugin is active, because
+	 * Jetpack registers the same `stats` menu slug itself.
+	 */
+	public function test_jetpack_plugin_detection() {
+		$this->assertSame( class_exists( 'Jetpack' ), Jetpack_Stats_Plugin::is_jetpack_plugin_active() );
+	}
+
+	/**
+	 * `activated_plugin` fires for every plugin. Acting on all of them would switch Stats
+	 * back on whenever any other plugin is activated, undoing a deliberate opt-out.
+	 */
+	public function test_activating_another_plugin_leaves_the_stats_module_alone() {
+		$this->fake_connection();
+		$activated = array();
+		$this->record_module_activations( $activated );
+
+		Jetpack_Stats_Plugin::handle_plugin_activation( 'some-other-plugin/some-other-plugin.php' );
+
+		$this->assertSame( array(), $activated );
+	}
+
+	/**
+	 * The counterpart: activating this plugin does switch the module on.
+	 */
+	public function test_activating_this_plugin_activates_the_stats_module() {
+		$this->fake_connection();
+		$activated = array();
+		$this->record_module_activations( $activated );
+
+		Jetpack_Stats_Plugin::handle_plugin_activation( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH );
+
+		$this->assertSame( array( 'stats' ), $activated );
+	}
+
+	/**
+	 * A site with no connection has no token to report stats with, so the module stays off
+	 * and the caller is told so rather than the result being discarded.
+	 */
+	public function test_module_activation_reports_failure_without_a_connection() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+		$this->assertFalse( Jetpack_Stats_Plugin::activate_stats_module() );
+	}
+
+	/**
+	 * `Stats_Admin\Main` registers the dashboard while the site has no connection, where the
+	 * app offers a plan and drives the connection itself. A second registration here would
+	 * claim the same `stats` slug and hide that screen.
+	 */
+	public function test_disconnected_site_leaves_the_menu_to_the_stats_admin_package() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertFalse( $this->dashboard_menu_is_registered() );
+		$this->assertFalse( $this->plugin_registered_an_admin_menu() );
+	}
+
+	/**
+	 * The other half: leaving the menu to the package is only safe while the package really
+	 * registers one. Walk the plugin's own wiring — `configure_packages()` and then the
+	 * `Config` initializer — so a lost `Config::ensure( 'stats_admin' )` and a package that
+	 * stopped registering both surface here rather than as a site with no Stats menu at all.
+	 */
+	public function test_disconnected_site_gets_its_menu_from_the_stats_admin_package() {
+		$this->assertFalse( ( new Connection_Manager() )->is_connected(), 'Test environment is expected to be unconnected.' );
+
+		Jetpack_Stats_Plugin::configure_packages();
+		do_action( 'plugins_loaded' );
+
+		$this->assertTrue( $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * The connected counterpart: nothing else registers the Stats menu for a connected site
+	 * running without the Jetpack plugin, so this plugin has to.
+	 */
+	public function test_connected_site_initializes_the_dashboard() {
+		$this->fake_connection();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertTrue( $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * Without the Jetpack plugin, nothing else adds Stats to the admin bar, the Posts list or the WordPress dashboard.
+	 */
+	public function test_connected_site_gets_the_admin_bar_posts_column_and_dashboard_widget() {
+		$this->fake_connection();
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertNotFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertNotFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertNotFalse( has_action( 'wp_dashboard_setup', array( WP_Dashboard_Odyssey_Widget::class, 'register_widget' ) ) );
+		$this->assertTrue( $this->post_list_column_is_registered() );
+	}
+
+	/**
+	 * The widget checks the module itself when the dashboard loads, so only the admin bar and the column are left out here.
+	 */
+	public function test_connected_site_with_stats_off_gets_no_admin_bar_or_posts_column() {
+		$this->fake_connection();
+
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertFalse( has_action( 'wp_before_admin_bar_render', array( Stats_Admin_Bar::class, 'add_site_menu_link' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_menu', array( Stats_Admin_Bar::class, 'maybe_add_chart_node' ) ) );
+		$this->assertFalse( has_action( 'admin_bar_init', array( Stats_Admin_Bar::class, 'maybe_add_chart' ) ) );
+		$this->assertFalse( $this->post_list_column_is_registered() );
+	}
+
+	/**
+	 * The Odyssey dashboard and the block editor both read stats through the
+	 * `jetpack/v4/stats-app` proxy, which `Stats_Admin\REST_Controller` registers. Walk the
+	 * real path — `configure_packages()` then the `Config` initializer — so the assertion
+	 * covers the plugin's own wiring and not just the presence of the package.
+	 */
+	public function test_stats_app_rest_proxy_is_registered() {
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Jetpack_Stats_Plugin::configure_packages();
+		do_action( 'plugins_loaded' );
+		do_action( 'rest_api_init' );
+
+		$routes = array_keys( $wp_rest_server->get_routes() );
+
+		// Most routes interpolate the connected blog ID into the path rather than matching it,
+		// so assert on the namespace as a whole plus the two routes that carry no blog ID.
+		$this->assertNotEmpty( preg_grep( '#^/jetpack/v4/stats-app/#', $routes ) );
+		$this->assertContains( '/jetpack/v4/stats-app', $routes );
+		$this->assertContains( '/jetpack/v4/stats-app/stats/notices', $routes );
+
+		// Odyssey reads `is_commercial` from this route to decide what to paywall, and the
+		// Subscribers and Store tabs from the same response.
+		$this->assertContains( '/jetpack/v4/site', $routes );
+	}
+
+	/**
+	 * Stats v2 boots when the package's rule says so.
+	 *
+	 * @dataProvider provide_stats_v2_states
+	 *
+	 * @param bool $opted_in Whether the site opted in to Stats v2.
+	 * @param bool $expected Whether Stats v2 boots.
+	 */
+	#[DataProvider( 'provide_stats_v2_states' )]
+	public function test_stats_v2_boots_with_the_packages( $opted_in, $expected ) {
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertSame( $expected, Analytics::is_initialized() );
+		$this->assertSame(
+			$expected,
+			false !== has_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ) ),
+			'The WooCommerce section boots with Stats v2.'
+		);
+	}
+
+	/**
+	 * Stats v2 states, as opted in, boots.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_v2_states() {
+		return array(
+			'off by default' => array( false, false ),
+			'opted in'       => array( true, true ),
+		);
+	}
+
+	/**
+	 * Booting here too would leave the menu title and the WooCommerce section to whichever plugin loads first.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stats_v2_is_left_to_the_jetpack_plugin() {
+		require_once __DIR__ . '/stubs/class-jetpack.php';
+		add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		Jetpack_Stats_Plugin::configure_packages();
+
+		$this->assertFalse( Analytics::is_initialized() );
+	}
+
+	/**
+	 * The setting is what turns Stats v2 on, so it has to be there while Stats v2 is off.
+	 */
+	public function test_stats_v2_setting_is_registered_while_it_is_off() {
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( 0, has_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) ) );
+	}
+
+	/**
+	 * The classic Stats menu steps aside only once it is retired and Stats v2 is there to take over.
+	 *
+	 * @dataProvider provide_classic_menu_states
+	 *
+	 * @param bool $module_active Whether the Stats module is active.
+	 * @param bool $opted_in      Whether the site opted in to Stats v2.
+	 * @param bool $retired       Whether the classic Stats page is retired.
+	 * @param bool $kept          Whether the classic Stats menu is registered.
+	 */
+	#[DataProvider( 'provide_classic_menu_states' )]
+	public function test_classic_menu_gives_way_to_stats_v2( $module_active, $opted_in, $retired, $kept ) {
+		$this->fake_connection();
+		if ( $module_active ) {
+			add_filter( 'jetpack_active_modules', array( $this, 'activate_stats' ) );
+		}
+		update_option( Enablement_Setting::ENABLED_OPTION, (int) $opted_in );
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+
+		Jetpack_Stats_Plugin::configure_packages();
+		Jetpack_Stats_Plugin::initialize_other_packages();
+
+		$this->assertSame( $kept, $this->dashboard_menu_is_registered() );
+	}
+
+	/**
+	 * Classic menu states, as module active, opted in, classic page retired, menu kept.
+	 *
+	 * @return array
+	 */
+	public static function provide_classic_menu_states() {
+		return array(
+			'Stats v2 off'                 => array( true, false, false, true ),
+			'Stats v2 beside classic'      => array( true, true, false, true ),
+			'classic retired'              => array( true, false, true, false ),
+			'retired, Stats v2 not booted' => array( false, false, true, true ),
+		);
+	}
+}

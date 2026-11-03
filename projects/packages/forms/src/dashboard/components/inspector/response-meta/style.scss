@@ -14,11 +14,24 @@
 	overflow-wrap: break-word;
 }
 
+// Stack leaves its children at min-width: auto, so an address with no name to
+// shorten it sizes these to the whole address and overflows the panel.
+.jp-forms__inbox-response-meta-from,
+.jp-forms__inbox-response-meta-from-name,
+.jp-forms__inbox-response-meta-from-email a {
+	min-width: 0;
+}
+
 // Reset margins and padding for response header elements
 .jp-forms__inbox-response-meta-from-name,
 .jp-forms__inbox-response-meta-from-email {
 	margin: 0;
 	padding: 0;
+}
+
+// Without this the link takes wp-admin's link blue.
+.jp-forms__inbox-response-meta-from-email a {
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 .jp-forms__inbox-response-meta-table {

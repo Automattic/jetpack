@@ -1,3 +1,4 @@
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import {
 	formatAxisTickDate,
 	formatDate,
@@ -7,8 +8,14 @@ import {
 	getSubscriberStatsUrl,
 	formatNumber,
 	calcLeftAxisMargin,
+	getYDomain,
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
+} ) );
 
 describe( 'helpers', () => {
 	describe( 'formatDate', () => {
@@ -137,11 +144,37 @@ describe( 'helpers', () => {
 		const testSite = 'example.com';
 		const testAdminUrl = 'https://example.com/wp-admin/';
 
-		it( 'returns WP-admin URL', () => {
+		beforeEach( () => {
+			jest.mocked( getAnalyticsUrl ).mockClear();
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
+		} );
+
+		// Where the dashboard is the analytics UI, delegate to the shared helper —
+		// it owns that URL grammar, so this asserts the request, not the URL.
+		it( 'asks for the subscribers view of the analytics dashboard', () => {
 			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
-			expect( url ).toBe(
+
+			expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+				view: 'dashboard',
+				section: 'subscribers',
+			} );
+			expect( url ).toBe( 'https://example.com/wp-admin/analytics' );
+		} );
+
+		it( 'passes through null when the user cannot open the dashboard', () => {
+			jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBeNull();
+		} );
+
+		// Everywhere else the existing Stats deep link is untouched.
+		it( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBe(
 				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
 			);
+			expect( getAnalyticsUrl ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -150,6 +183,27 @@ describe( 'helpers', () => {
 			expect( formatNumber( 1234 ) ).toBe( '1,234' );
 			expect( formatNumber( 1234567 ) ).toBe( '1,234,567' );
 			expect( formatNumber( 0 ) ).toBe( '0' );
+		} );
+	} );
+
+	describe( 'getYDomain', () => {
+		it( 'runs from zero to the largest value across all and paid', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 100, paid: 200 },
+				{ date: new Date(), all: 300, paid: 50 },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 300 ] );
+		} );
+
+		it( 'treats missing values as zero', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: undefined, paid: null },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 0 ] );
+		} );
+
+		it( 'returns a zero domain for no data', () => {
+			expect( getYDomain( [] ) ).toEqual( [ 0, 0 ] );
 		} );
 	} );
 
@@ -165,6 +219,15 @@ describe( 'helpers', () => {
 			];
 			// For 10000 (5 digits): 5 * 8 + 10 = 50
 			expect( calcLeftAxisMargin( data ) ).toBe( 50 );
+		} );
+
+		it( 'makes room for a top label rounded up past the largest number', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 0, paid: 0 },
+				{ date: new Date(), all: 870, paid: 40 },
+			];
+			// The axis tops out at 1000 (4 digits): 4 * 8 + 10 = 42
+			expect( calcLeftAxisMargin( data ) ).toBe( 42 );
 		} );
 
 		it( 'handles null or undefined values', () => {

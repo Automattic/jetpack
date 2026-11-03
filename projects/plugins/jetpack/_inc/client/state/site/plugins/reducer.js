@@ -16,11 +16,13 @@ const items = ( state = {}, action ) => {
 
 const initialRequestsState = {
 	isFetchingPluginsData: false,
+	hasFetchedPluginsData: false,
 };
 
 const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_PLUGINS_DATA_FETCH:
+			// Preserve this flag during refetches; it is a one-shot latch.
 			return Object.assign( {}, state, {
 				isFetchingPluginsData: true,
 			} );
@@ -28,6 +30,7 @@ const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_PLUGINS_DATA_FETCH_RECEIVE:
 			return Object.assign( {}, state, {
 				isFetchingPluginsData: false,
+				hasFetchedPluginsData: true,
 			} );
 
 		default:
@@ -49,6 +52,16 @@ export const reducer = combineReducers( {
  */
 export function isFetchingPluginsData( state ) {
 	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
+}
+
+/**
+ * Returns true after a plugin data request finishes.
+ *
+ * @param {object} state - Global state tree
+ * @return {boolean} - Whether plugin data has been fetched
+ */
+export function hasFetchedPluginsData( state ) {
+	return !! state.jetpack.pluginsData.requests.hasFetchedPluginsData;
 }
 
 /**

@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -48,7 +49,11 @@ class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
 			'Plugin-specific and environment heartbeat stats must not share keys.'
 		);
 
-		// This is exactly the array `get_stat_data()`/`jetpack_check_heartbeat_data()` build.
+		/*
+		 * This is the array `get_stat_data()` builds. `jetpack_check_heartbeat_data()` merges the
+		 * `identitycrisis` stat on top of it as well -- see
+		 * `test_check_heartbeat_data_flags_identity_crisis_as_bad()` below.
+		 */
 		$merged = array_merge( $plugin_stats, $env_stats );
 
 		// Golden list of keys the plugin emitted before the environment stats moved to the package.
@@ -91,6 +96,71 @@ class Jetpack_Heartbeat_Test extends WP_UnitTestCase {
 		$this->assertSame( $expected_keys, $actual_keys );
 
 		delete_transient( 'jetpack_https_test' );
+	}
+
+	/**
+	 * The IDC stat moved to the Connection package's `jetpack_heartbeat_stats_array` filter callback,
+	 * which `Jetpack::jetpack_check_heartbeat_data()` does not run. It must still rebuild the stat so
+	 * `wp jetpack status full` keeps reporting identity crises.
+	 */
+	public function test_check_heartbeat_data_includes_identity_crisis_stat() {
+		// Avoid a network request for the `ssl` environment stat.
+		set_transient( 'jetpack_https_test', 1 );
+
+		try {
+			$stats = Jetpack::jetpack_check_heartbeat_data();
+
+			$all_stats = array_merge( $stats['good'], $stats['caution'], $stats['bad'] );
+			$this->assertArrayHasKey( 'identitycrisis', $all_stats );
+
+			// Disconnected site, so there is no crisis to report and the stat is unremarkable.
+			$this->assertSame( 'no', $stats['good']['identitycrisis'] );
+		} finally {
+			delete_transient( 'jetpack_https_test' );
+		}
+	}
+
+	/**
+	 * A site in an identity crisis must land in the `bad` bucket, which is what the WP-CLI status
+	 * command prints in red.
+	 */
+	public function test_check_heartbeat_data_flags_identity_crisis_as_bad() {
+		set_transient( 'jetpack_https_test', 1 );
+
+		// Mock a connection so `Identity_Crisis::check_identity_crisis()` gets past its connection guard.
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.asd.1' );
+
+		/*
+		 * Deliberately does not match the local home/siteurl, so `validate_sync_error_idc_option()`
+		 * cannot reach its remote-validation branch. Validity comes from the filter below instead,
+		 * which keeps the test free of HTTP requests.
+		 */
+		Jetpack_Options::update_option(
+			'sync_error_idc',
+			array(
+				'home'    => 'http://example.com',
+				'siteurl' => 'http://example.com',
+			)
+		);
+
+		add_filter( 'jetpack_offline_mode', '__return_false', 1000 );
+		add_filter( 'jetpack_sync_error_idc_validation', '__return_true', 1000 );
+		StatusCache::clear();
+
+		try {
+			$stats = Jetpack::jetpack_check_heartbeat_data();
+
+			// The IDC stat is the only one the check can route to `bad`.
+			$this->assertSame( array( 'identitycrisis' => 'yes' ), $stats['bad'] );
+			$this->assertArrayNotHasKey( 'identitycrisis', $stats['good'] );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_false', 1000 );
+			remove_filter( 'jetpack_sync_error_idc_validation', '__return_true', 1000 );
+			Jetpack_Options::delete_option( array( 'id', 'blog_token', 'sync_error_idc' ) );
+			StatusCache::clear();
+			delete_transient( 'jetpack_https_test' );
+		}
 	}
 
 	/**

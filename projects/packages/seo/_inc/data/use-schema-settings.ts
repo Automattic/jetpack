@@ -187,9 +187,7 @@ export function useSchemaSettings(
 			if ( isSaving ) {
 				return;
 			}
-			// The entity choice persists immediately on select (like the toggles),
-			// while the Organization / Person field edits stay local until the
-			// module's Save. Switching entity never discards those pending edits.
+			// Switch the entity immediately while preserving unsaved edits in both forms.
 			setSections( current => ( { ...current, siteRepresents: next } ) );
 			persist(
 				{ siteRepresents: next },
@@ -201,9 +199,7 @@ export function useSchemaSettings(
 					};
 					setSections( current => ( { ...current, siteRepresents: settings.siteRepresents } ) );
 				},
-				// Roll the optimistic switch back to the last-saved entity so a failed
-				// save can't leave the card showing (and editing) an entity the server
-				// never accepted.
+				// Restore the persisted entity when the optimistic save fails.
 				() =>
 					setSections( current => ( {
 						...current,

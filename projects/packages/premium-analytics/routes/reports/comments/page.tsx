@@ -1,32 +1,35 @@
 /**
  * External dependencies
  */
-import { useDashboardLink, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { useSectionTab } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
 	ReportPageLayout,
+	ReportErrorState,
+	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	commentsAuthorsCsvExporter,
+	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
+	getTabLabel,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
-import styles from './page.module.css';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -39,8 +42,6 @@ const RECORDS_VIEW = {
 		},
 	},
 };
-
-const sortCommentsCsvRows = ( a: CommentReportRow, b: CommentReportRow ) => b.value - a.value;
 
 /**
  * Get the DataViews row id for a Comments report row.
@@ -61,77 +62,48 @@ function CommentsReport(): JSX.Element {
 	const tabs = useMemo( () => getCommentsReportTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
-	const fields = useMemo( () => getCommentsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
-		() => [
-			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `comments-${ activeTab }`,
-		status: records,
-		sort: sortCommentsCsvRows,
-	} );
-	const retry = useReportRetry( records.refetch );
-	const dashboardLink = useDashboardLink();
+	const reportParams = useReportParams();
+	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
+
+	const { getLabel } = REPORTS.comments;
 
 	return (
-		<Page
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-					] }
+		<ReportPageShell
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			subTitle={ __(
-				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics-pkg'
-			) }
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
-			}
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout
-					tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-					 * request would otherwise look like a legitimate empty report.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< CommentReportRow >
-							key={ activeTab }
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getCommentRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
-						/>
+			<ReportPageLayout
+				title={ getTabLabel( activeTab ) }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+			>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load comments. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
 					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+				>
+					<ReportRecordsTable< CommentReportRow >
+						key={ activeTab }
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getCommentRowId }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				</ReportErrorState>
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

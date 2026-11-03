@@ -5,54 +5,18 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getCommentsFields } from './fields';
 import type { CommentReportRow } from './use-report-records';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
 // assertable.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-		...props
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => (
-		<a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) } { ...props }>
-			{ children }
-		</a>
-	),
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 
-jest.mock( '@wordpress/ui', () => ( {
-	Link: ( {
-		href,
-		children,
-		openInNewTab,
-		variant,
-		...props
-	}: {
-		href: string;
-		children: ReactNode;
-		openInNewTab?: boolean;
-		variant?: string;
-	} ) => (
-		<a
-			href={ href }
-			data-variant={ variant }
-			target={ openInNewTab ? '_blank' : undefined }
-			rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-			{ ...props }
-		>
-			{ children }
-		</a>
-	),
-} ) );
+	return mockWordPressRoute;
+} );
 
 /**
  * Mount the label field's render component for a table row.
@@ -61,7 +25,7 @@ jest.mock( '@wordpress/ui', () => ( {
  * @return The Testing Library render result.
  */
 function renderLabelField( item: CommentReportRow ) {
-	const field = getCommentsFields().find( candidate => candidate.id === 'label' );
+	const field = getCommentsFields( 'posts' ).find( candidate => candidate.id === 'label' );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` is the DataViews field render component.
 	const LabelField = field?.render;
 
@@ -73,6 +37,16 @@ function renderLabelField( item: CommentReportRow ) {
 }
 
 describe( 'comments fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			section: 'posts',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'drills post rows with an id into the post detail page', () => {
 		renderLabelField( {
 			id: '42',
@@ -83,12 +57,20 @@ describe( 'comments fields', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		expect( link ).toHaveAttribute( 'href', '/post/42' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'comments',
+			ref_section: 'posts',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	// This link is built locally in `use-report-records` from the author's email, so it is
-	// document-relative by construction and must not be run through `safeHttpUrl`.
+	// This link is built locally by the data layer from the author's email or user id, so
+	// it is document-relative by construction and must not be run through `safeHttpUrl`.
 	it( 'falls back to the external link for rows without a post id', () => {
 		renderLabelField( {
 			id: 'author-aggie',
@@ -97,7 +79,7 @@ describe( 'comments fields', () => {
 			link: 'edit-comments.php?s=aggie%40example.com',
 		} );
 
-		const link = screen.getByRole( 'link', { name: 'Aggie' } );
+		const link = screen.getByRole( 'link', { name: /^Aggie/ } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=aggie%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

@@ -28,6 +28,13 @@ class Password_Detection {
 	private $validation_service;
 
 	/**
+	 * Values of the attempt locks this request holds, keyed by user ID.
+	 *
+	 * @var string[]
+	 */
+	private $attempt_locks = array();
+
+	/**
 	 * Password_Detection constructor.
 	 *
 	 * @param ?Email_Service      $email_service Email service instance.
@@ -86,6 +93,21 @@ class Password_Detection {
 
 		}
 
+		// The same limit applies per user across the network.
+		if ( $this->email_service->user_email_limit_reached( $user->ID ) ) {
+			$this->set_transient_error(
+				$user->ID,
+				array(
+					'code'    => 'email_request_limit_exceeded',
+					'message' => __( 'Email request limit exceeded. Please try again later.', 'jetpack-account-protection' ),
+				)
+			);
+
+			$this->redirect_and_exit( $this->get_redirect_url( $existing_transient_token ? $existing_transient_token : $this->generate_and_store_transient_data( $user->ID, $auth_code ) ) );
+			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
+			return $user;
+		}
+
 		$email_sent = $this->email_service->api_send_auth_email( $user->ID, $auth_code );
 
 		if ( is_wp_error( $email_sent ) ) {
@@ -96,6 +118,8 @@ class Password_Detection {
 					'message' => $email_sent->get_error_message(),
 				)
 			);
+		} else {
+			$this->email_service->count_user_email( $user->ID );
 		}
 
 		$new_transient_token = null;
@@ -160,7 +184,7 @@ class Password_Detection {
 	 */
 	public function render_page() {
 		if ( is_user_logged_in() ) {
-			$this->redirect_and_exit( admin_url() );
+			$this->redirect_and_exit( get_dashboard_url( get_current_user_id() ) );
 			// @phan-suppress-next-line PhanPluginUnreachableCode This would fall through in unit tests otherwise.
 			return;
 		}
@@ -224,7 +248,7 @@ class Password_Detection {
 			if ( ! empty( $_POST['_wpnonce_verify'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce_verify'] ) ), 'verify_action' ) ) {
 				$user_input = isset( $_POST['user_input'] ) ? sanitize_text_field( wp_unslash( $_POST['user_input'] ) ) : null;
 
-				$this->handle_auth_form_submission( $user, $token, $transient_data['auth_code'] ?? null, $user_input );
+				$this->handle_auth_form_submission( $user, $token, $transient_data, $user_input );
 			} else {
 				$this->set_transient_error(
 					$user->ID,
@@ -306,10 +330,10 @@ class Password_Detection {
 						<p><?php esc_html_e( "You're all set! You can now access your account.", 'jetpack-account-protection' ); ?></p>
 						<p><?php esc_html_e( 'Please keep in mind that your current password was found in a public leak, which means your account might be at risk. It is highly recommended that you update your password.', 'jetpack-account-protection' ); ?></p>
 						<div class="actions">
-							<a href="<?php echo esc_url( admin_url( 'profile.php#password' ) ); ?>" class="action action-update-password">
+							<a href="<?php echo esc_url( get_dashboard_url( $user->ID, 'profile.php#password' ) ); ?>" class="action action-update-password">
 								<?php esc_html_e( 'Create a new password', 'jetpack-account-protection' ); ?>
 							</a>
-							<a href="<?php echo esc_url( admin_url() ); ?>" class="action action-proceed">
+							<a href="<?php echo esc_url( get_dashboard_url( $user->ID ) ); ?>" class="action action-proceed">
 								<?php esc_html_e( 'Proceed without updating', 'jetpack-account-protection' ); ?>
 							</a>
 						</div>
@@ -333,7 +357,7 @@ class Password_Detection {
 								);
 							?>
 						</p>
-						<p><?php esc_html_e( 'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.', 'jetpack-account-protection' ); ?></p>
+						<p><?php esc_html_e( 'This security feature is enabled on this site to help keep your account safe.', 'jetpack-account-protection' ); ?></p>
 						<p>
 							<?php
 								printf(
@@ -364,12 +388,12 @@ class Password_Detection {
 								<button class="action action-verify" type="submit" name="verify"><?php esc_html_e( 'Verify', 'jetpack-account-protection' ); ?></button>
 							</form>
 						</div>
-						<?php if ( in_array( $error_data['code'], array( 'email_request_limit_exceeded', 'email_send_error' ), true ) ) : ?>
+						<?php if ( in_array( $error_data['code'], array( 'email_request_limit_exceeded', 'email_send_error', 'auth_code_user_attempt_limit_exceeded' ), true ) ) : ?>
 							<p class="account-recovery">
 								<?php
 									printf(
 										/* translators: %s: Jetpack support link */
-										esc_html__( 'If you did not receive your authentication code, please try again later or %s now.', 'jetpack-account-protection' ),
+										esc_html__( 'If you did not receive your authentication code or are experiencing difficulties using it, try again later or %s now.', 'jetpack-account-protection' ),
 										'<a class="risks-link" href="' . esc_url( wp_lostpassword_url() ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'reset your password', 'jetpack-account-protection' ) . '</a>'
 									);
 								?>
@@ -413,7 +437,16 @@ class Password_Detection {
 	 * @return bool
 	 */
 	private function user_requires_protection( \WP_User $user, string $password ): bool {
-		if ( ! user_can( $user, 'publish_posts' ) && ! user_can( $user, 'edit_published_posts' ) ) {
+		$can_publish         = user_can( $user, 'publish_posts' ) || user_can( $user, 'edit_published_posts' );
+		$password_is_correct = null;
+
+		// On multisite, a publishing role on any of the user's sites counts. Looked up only for a correct password.
+		if ( ! $can_publish && $this->is_multisite() ) {
+			$password_is_correct = wp_check_password( $password, $user->user_pass, $user->ID );
+			$can_publish         = $password_is_correct && $this->user_can_publish_on_another_site( $user );
+		}
+
+		if ( ! $can_publish ) {
 			return false;
 		}
 
@@ -432,7 +465,44 @@ class Password_Detection {
 			return false;
 		}
 
-		return wp_check_password( $password, $user->user_pass, $user->ID );
+		return $password_is_correct ?? wp_check_password( $password, $user->user_pass, $user->ID );
+	}
+
+	/**
+	 * Whether this is a multisite network. Dependency decoupling.
+	 *
+	 * @return bool
+	 */
+	protected function is_multisite(): bool {
+		return is_multisite();
+	}
+
+	/**
+	 * Whether the user can publish on any other site of the network they belong to.
+	 *
+	 * @param \WP_User $user The user object.
+	 *
+	 * @return bool
+	 */
+	protected function user_can_publish_on_another_site( \WP_User $user ): bool {
+		$current_site_id = get_current_blog_id();
+
+		foreach ( get_blogs_of_user( $user->ID ) as $site ) {
+			if ( (int) $site->userblog_id === $current_site_id ) {
+				continue;
+			}
+
+			switch_to_blog( $site->userblog_id );
+			// Pass the ID, not the object: the object's capabilities are bound to the site it was loaded on.
+			$can_publish = user_can( $user->ID, 'publish_posts' ) || user_can( $user->ID, 'edit_published_posts' );
+			restore_current_blog();
+
+			if ( $can_publish ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -490,15 +560,55 @@ class Password_Detection {
 	/**
 	 * Handle auth form submission.
 	 *
-	 * @param \WP_User $user The current user.
-	 * @param string   $token        The token.
-	 * @param string   $auth_code    The expected auth code.
-	 * @param string   $user_input   The user input.
+	 * @param \WP_User    $user           The current user.
+	 * @param string      $token          The token.
+	 * @param array       $transient_data The stored data for the token.
+	 * @param string|null $user_input     The user input.
 	 *
 	 * @return void
 	 */
-	private function handle_auth_form_submission( \WP_User $user, string $token, string $auth_code, string $user_input ): void {
-		if ( $auth_code && $auth_code === $user_input ) {
+	private function handle_auth_form_submission( \WP_User $user, string $token, array $transient_data, ?string $user_input ): void {
+		// One submission per user is checked at a time, so every wrong try is counted before the next is read.
+		if ( ! $this->acquire_attempt_lock( $user->ID ) ) {
+			$this->set_transient_error(
+				$user->ID,
+				array(
+					'code'    => 'auth_code_error',
+					'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+				)
+			);
+			return;
+		}
+
+		try {
+			$this->check_auth_code( $user, $token, $transient_data, $user_input );
+		} finally {
+			$this->release_attempt_lock( $user->ID );
+		}
+	}
+
+	/**
+	 * Check a submitted code against the stored one and count it when it is wrong.
+	 *
+	 * @param \WP_User    $user           The current user.
+	 * @param string      $token          The token.
+	 * @param array       $transient_data The stored data for the token.
+	 * @param string|null $user_input     The user input.
+	 *
+	 * @return void
+	 */
+	private function check_auth_code( \WP_User $user, string $token, array $transient_data, ?string $user_input ): void {
+		$auth_code = $transient_data['auth_code'] ?? null;
+
+		// Wrong tries are counted per code, so a newly sent code starts from zero, and per user across the network.
+		$code_attempts_key = Config::PREFIX . "_failed_attempts_{$token}_{$auth_code}";
+		$user_attempts_key = Config::PREFIX . "_failed_attempts_user_{$user->ID}";
+		$code_attempts     = (int) get_transient( $code_attempts_key );
+		$user_attempts     = (int) get_site_transient( $user_attempts_key );
+		$can_try           = $code_attempts < Config::PASSWORD_DETECTION_FAILED_ATTEMPT_LIMIT
+			&& $user_attempts < Config::PASSWORD_DETECTION_USER_FAILED_ATTEMPT_LIMIT;
+
+		if ( $can_try && $auth_code && $auth_code === $user_input ) {
 			$this->set_transient_success(
 				$user->ID,
 				array(
@@ -509,17 +619,118 @@ class Password_Detection {
 
 			delete_transient( Config::PREFIX . "_{$token}" );
 			delete_transient( Config::PREFIX . "_last_valid_token_{$user->ID}" );
+			delete_transient( $code_attempts_key );
+			delete_site_transient( $user_attempts_key );
+			delete_site_transient( Email_Service::get_user_email_count_key( $user->ID ) );
 			wp_set_auth_cookie( $user->ID, true );
 			wp_set_current_user( $user->ID );
-		} else {
+			return;
+		}
+
+		if ( $can_try ) {
+			set_transient( $code_attempts_key, ++$code_attempts, Config::PASSWORD_DETECTION_EMAIL_SENT_EXPIRATION );
+			set_site_transient( $user_attempts_key, ++$user_attempts, Config::PASSWORD_DETECTION_USER_FAILED_ATTEMPT_EXPIRATION );
+		}
+
+		if ( $user_attempts >= Config::PASSWORD_DETECTION_USER_FAILED_ATTEMPT_LIMIT ) {
 			$this->set_transient_error(
 				$user->ID,
 				array(
-					'code'    => 'auth_code_error',
-					'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+					'code'    => 'auth_code_user_attempt_limit_exceeded',
+					'message' => __( 'Too many incorrect verification codes. Please try again later.', 'jetpack-account-protection' ),
 				)
 			);
+			return;
 		}
+
+		if ( $code_attempts >= Config::PASSWORD_DETECTION_FAILED_ATTEMPT_LIMIT ) {
+			$this->set_transient_error(
+				$user->ID,
+				array(
+					'code'    => 'auth_code_attempt_limit_exceeded',
+					'message' => __( 'Too many incorrect verification codes. Please request a new code.', 'jetpack-account-protection' ),
+				)
+			);
+			return;
+		}
+
+		$this->set_transient_error(
+			$user->ID,
+			array(
+				'code'    => 'auth_code_error',
+				'message' => __( 'Authentication code verification failed. Please try again.', 'jetpack-account-protection' ),
+			)
+		);
+	}
+
+	/**
+	 * Take the lock for checking a user's submitted code. Dependency decoupling.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return bool Whether the lock was taken.
+	 */
+	protected function acquire_attempt_lock( int $user_id ): bool {
+		global $wpdb;
+
+		$table = $this->get_attempt_lock_table();
+		$name  = Config::PREFIX . "_attempt_lock_{$user_id}";
+		$now   = time();
+		// The time it was taken, then digits that tell this request's lock from any other.
+		$value = sprintf( '%d.%09d', $now, wp_rand( 0, 999999999 ) );
+
+		// INSERT IGNORE adds the row only when there is none, as WP_Upgrader::create_lock() does.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- The Options API cannot add a row only when it is missing; the table name is not user input.
+		$taken = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$table} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) );
+
+		if ( ! $taken ) {
+			// Take over a lock that a request left behind without releasing it.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- See above.
+			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET option_value = %s WHERE option_name = %s AND option_value + 0 < %d", $value, $name, $now - Config::PASSWORD_DETECTION_ATTEMPT_LOCK_EXPIRATION ) );
+		}
+
+		if ( $taken ) {
+			$this->attempt_locks[ $user_id ] = $value;
+		}
+
+		return (bool) $taken;
+	}
+
+	/**
+	 * Release the lock for checking a user's submitted code. Dependency decoupling.
+	 *
+	 * @param int $user_id The user ID.
+	 *
+	 * @return void
+	 */
+	protected function release_attempt_lock( int $user_id ): void {
+		global $wpdb;
+
+		if ( ! isset( $this->attempt_locks[ $user_id ] ) ) {
+			return;
+		}
+
+		// Matching the value leaves the row alone when another request has since taken the lock over.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- The lock row is not written through the Options API.
+		$wpdb->delete(
+			$this->get_attempt_lock_table(),
+			array(
+				'option_name'  => Config::PREFIX . "_attempt_lock_{$user_id}",
+				'option_value' => $this->attempt_locks[ $user_id ],
+			)
+		);
+		unset( $this->attempt_locks[ $user_id ] );
+	}
+
+	/**
+	 * Get the table holding the lock, which on multisite is the main site's so the network shares it.
+	 *
+	 * @return string
+	 */
+	private function get_attempt_lock_table(): string {
+		global $wpdb;
+
+		return is_multisite() ? $wpdb->get_blog_prefix( get_main_site_id() ) . 'options' : $wpdb->options;
 	}
 
 	/**

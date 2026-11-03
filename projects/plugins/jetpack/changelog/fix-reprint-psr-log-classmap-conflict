@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Keep the Reprint exporter's bundled psr/log out of the global class map so it does not conflict with other psr/log copies (e.g. on WordPress.com).

@@ -16,6 +16,20 @@ return make_phan_config(
 		'+stubs'                          => array( 'full-site-editing', 'gutenberg', 'photon-opencv', 'wpcom' ),
 		'exclude_file_list'               => array(
 			'tests/lib/class-wpcom-features.php',
+			'tests/lib/class-store-sandbox.php',
+			// Redefines get_blog_lang_code, which the wpcom stubs already declare.
+			'tests/php/features/ai-launchpad/fixtures/simple-site-stubs.php',
+			// Redefines Jetpack_Server_Version, which the wpcom stubs already declare.
+			'tests/php/features/wpcom-endpoints/fixtures/class-jetpack-server-version.php',
+			// Redefines is_suspended, which the wpcom stubs already declare.
+			'tests/php/features/wpcom-endpoints/fixtures/wpcom-functions.php',
+			// Redefines wpcomsh_record_tracks_event, which wpcomsh.php already declares.
+			'tests/php/features/editor-welcome-guides/fixtures/tracks-spy.php',
+			// Stands in for a Jetpack package the code reaches through a class_exists() guard.
+			'tests/php/features/wpcom-admin-menu/fixtures/class-jetpack-activity-log.php',
+		),
+		'exclude_file_regex'              => array(
+			'build/',
 		),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

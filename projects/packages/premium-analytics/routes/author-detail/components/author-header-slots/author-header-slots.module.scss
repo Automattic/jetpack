@@ -1,0 +1,8 @@
+// The avatar fills the header's visual box; a broken image falls back to the
+// glyph, so the box never shows the browser's missing-image marker.
+.avatar {
+	display: block;
+	inline-size: 100%;
+	block-size: 100%;
+	object-fit: cover;
+}

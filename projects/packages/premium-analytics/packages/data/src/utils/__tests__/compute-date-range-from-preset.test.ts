@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { tz } from '@date-fns/tz';
+import { getSettings, setSettings } from '@wordpress/date';
 import {
 	startOfDay,
 	endOfDay,
+	startOfHour,
+	endOfHour,
 	subDays,
 	subHours,
 	subMonths,
@@ -15,135 +18,72 @@ import {
 	endOfYear,
 } from 'date-fns';
 /**
- * Mocks – getSiteTimezone and dateToISOStringWithLocalTZ
- * depend on WordPress core store.
- * We mock them to remove that dependency.
- *
- * dateToISOStringWithLocalTZ normalizes to UTC Z-format
- * (matching native Date.toISOString) since the mock timezone
- * is +00:00 and all dates are UTC.
- */
-jest.mock( '../date', () => ( {
-	getSiteTimezone: jest.fn( () => '+00:00' ),
-	dateToISOStringWithLocalTZ: jest.fn( ( date: Date ) => new Date( date.getTime() ).toISOString() ),
-} ) );
-/**
  * Internal dependencies
  */
 import { computeDateRangeFromPreset } from '../preset-date-range';
+import type { ComputablePresetId } from '@jetpack-premium-analytics/datetime';
 
-/*
- * Pin "now" to 2026-02-19 12:00:00 UTC for deterministic results.
- *
- * Expected dates are computed in UTC. Since TZ is mocked to +00:00,
- * computePrimaryRange runs in UTC and dateToISOStringWithLocalTZ
- * normalizes to Z-format via the mock.
- */
+// Pin "now" to 2026-02-19 12:00:00 UTC for deterministic, timezone-independent results.
 const NOW = new Date( '2026-02-19T12:00:00.000Z' );
 const UTC = tz( '+00:00' );
 
-/*
- * Normalize a TZDate or Date to Z-format ISO string,
- * ensuring the expected values match the mock's output format.
- */
-function toZ( date: Date ): string {
-	return new Date( date.getTime() ).toISOString();
+// The site zone is pinned to UTC below, so the encoder writes the `+00:00`
+// spelling of the same instant rather than the `Z` `toISOString` produces.
+function toSiteISO( date: Date ): string {
+	return new Date( date.getTime() ).toISOString().replace( 'Z', '+00:00' );
 }
 
 const TODAY_START = startOfDay( NOW, { in: UTC } );
 const TODAY_END = endOfDay( NOW, { in: UTC } );
 const YESTERDAY_END = endOfDay( subDays( TODAY_START, 1 ), { in: UTC } );
 const LAST_MONTH = subMonths( TODAY_START, 1 );
-
-beforeAll( () => {
-	jest.useFakeTimers();
-	jest.setSystemTime( NOW );
-} );
-
-afterAll( () => {
-	jest.useRealTimers();
-} );
+const LAST_YEAR = subYears( TODAY_START, 1 );
 
 describe( 'computeDateRangeFromPreset', () => {
-	it( 'returns today range for "today"', () => {
-		const range = computeDateRangeFromPreset( 'today' );
+	const originalSettings = getSettings();
 
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( TODAY_START ) );
-		expect( range!.to ).toBe( toZ( TODAY_END ) );
+	// `computePrimaryRange` resolves its day bounds in the site zone, so pin it
+	// rather than letting the machine timezone decide.
+	beforeAll( () => {
+		setSettings( {
+			...originalSettings,
+			timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+		} );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
 	} );
 
-	it( 'returns yesterday range for "yesterday"', () => {
-		const range = computeDateRangeFromPreset( 'yesterday' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 1 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
+	afterAll( () => {
+		jest.useRealTimers();
+		setSettings( originalSettings );
 	} );
 
-	it( 'returns rolling 24-hour range for "last-24-hours"', () => {
-		const range = computeDateRangeFromPreset( 'last-24-hours' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subHours( NOW, 24 ) ) );
-		expect( range!.to ).toBe( toZ( NOW ) );
-	} );
-
-	it( 'returns 7-day range ending yesterday for "last-7-days"', () => {
-		const range = computeDateRangeFromPreset( 'last-7-days' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 7 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
-	} );
-
-	it( 'returns 30-day range ending yesterday for "last-30-days"', () => {
-		const range = computeDateRangeFromPreset( 'last-30-days' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 30 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
-	} );
-
-	it( 'returns 90-day range ending yesterday for "last-90-days"', () => {
-		const range = computeDateRangeFromPreset( 'last-90-days' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 90 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
-	} );
-
-	it( 'returns 365-day range ending yesterday for "last-365-days"', () => {
-		const range = computeDateRangeFromPreset( 'last-365-days' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subDays( TODAY_START, 365 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
-	} );
-
-	it( 'returns last calendar month for "last-month"', () => {
-		const range = computeDateRangeFromPreset( 'last-month' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( startOfMonth( LAST_MONTH, { in: UTC } ) ) );
-		expect( range!.to ).toBe( toZ( endOfMonth( LAST_MONTH, { in: UTC } ) ) );
-	} );
-
-	it( 'returns rolling 12-month range ending yesterday for "last-12-months"', () => {
-		const range = computeDateRangeFromPreset( 'last-12-months' );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( subMonths( TODAY_START, 12 ) ) );
-		expect( range!.to ).toBe( toZ( YESTERDAY_END ) );
-	} );
-
-	it( 'returns last calendar year for "last-year"', () => {
-		const range = computeDateRangeFromPreset( 'last-year' );
-		const lastYear = subYears( TODAY_START, 1 );
-
-		expect( range ).toBeDefined();
-		expect( range!.from ).toBe( toZ( startOfYear( lastYear, { in: UTC } ) ) );
-		expect( range!.to ).toBe( toZ( endOfYear( lastYear, { in: UTC } ) ) );
+	it.each< [ ComputablePresetId, Date, Date ] >( [
+		[ 'today', TODAY_START, TODAY_END ],
+		[ 'yesterday', subDays( TODAY_START, 1 ), YESTERDAY_END ],
+		[
+			'last-24-hours',
+			subHours( startOfHour( NOW, { in: UTC } ), 23 ),
+			endOfHour( NOW, { in: UTC } ),
+		],
+		[ 'last-7-days', subDays( TODAY_START, 6 ), TODAY_END ],
+		[ 'last-30-days', subDays( TODAY_START, 29 ), TODAY_END ],
+		[ 'last-90-days', subDays( TODAY_START, 89 ), TODAY_END ],
+		[ 'last-365-days', subDays( TODAY_START, 364 ), TODAY_END ],
+		[ 'month-to-date', startOfMonth( TODAY_START, { in: UTC } ), TODAY_END ],
+		[
+			'last-month',
+			startOfMonth( LAST_MONTH, { in: UTC } ),
+			endOfMonth( LAST_MONTH, { in: UTC } ),
+		],
+		[ 'year-to-date', startOfYear( TODAY_START, { in: UTC } ), TODAY_END ],
+		[ 'last-12-months', startOfMonth( subMonths( TODAY_START, 11 ), { in: UTC } ), TODAY_END ],
+		[ 'last-year', startOfYear( LAST_YEAR, { in: UTC } ), endOfYear( LAST_YEAR, { in: UTC } ) ],
+	] )( 'resolves "%s" to its site-local range', ( preset, from, to ) => {
+		expect( computeDateRangeFromPreset( preset ) ).toEqual( {
+			from: toSiteISO( from ),
+			to: toSiteISO( to ),
+		} );
 	} );
 
 	it( 'returns undefined for unrecognized preset', () => {

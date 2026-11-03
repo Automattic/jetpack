@@ -335,6 +335,76 @@ class Feedback_Field_Test extends BaseTestCase {
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 
+	/**
+	 * A file field can be stored with a malformed value — an empty string, say,
+	 * rather than the expected array with a `files` key. Rendering it must not
+	 * fatal, in any context.
+	 */
+	public function test_get_render_value_with_malformed_file_value() {
+		$malformed = array(
+			'empty string'      => '',
+			'null'              => null,
+			'empty array'       => array(),
+			'non-empty string'  => 'not-an-array',
+			'string files key'  => array( 'files' => '' ),
+			'files key missing' => array( 'field_id' => 'g1-1' ),
+		);
+
+		foreach ( $malformed as $case => $value ) {
+			$field = new Feedback_Field( 'test_key', 'test_label', $value, 'file' );
+
+			$api = $field->get_render_value( 'api' );
+			$this->assertIsArray( $api, "api value for {$case} should be an array" );
+			$this->assertSame( array(), $api['files'], "api files for {$case} should be empty" );
+
+			$this->assertSame(
+				array(
+					'field_id' => '',
+					'files'    => array(),
+				),
+				$field->get_render_value( 'submit' ),
+				"submit value for {$case} should carry no files"
+			);
+
+			$this->assertSame(
+				array(
+					'type'  => 'file',
+					'files' => array(),
+				),
+				$field->get_render_value( 'web' ),
+				"web value for {$case} should carry no files"
+			);
+
+			$this->assertSame( '', $field->get_render_value( 'default' ), "default value for {$case} should be empty" );
+			$this->assertSame( '', $field->get_render_value( 'csv' ), "csv value for {$case} should be empty" );
+			$this->assertIsString( $field->get_render_value( 'email_html' ), "email_html value for {$case} should be a string" );
+			$this->assertFalse( $field->has_file(), "{$case} should not report a file" );
+		}
+	}
+
+	/**
+	 * A well-formed file value keeps the keys it arrived with.
+	 */
+	public function test_get_render_api_value_preserves_sibling_keys_when_files_are_dropped() {
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			array(
+				'field_id' => 'g1-1',
+				'files'    => '',
+			),
+			'file'
+		);
+
+		$this->assertSame(
+			array(
+				'field_id' => 'g1-1',
+				'files'    => array(),
+			),
+			$field->get_render_value( 'api' )
+		);
+	}
+
 	public function test_render_label_in_different_contexts() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_label', $field->get_label() );
@@ -672,7 +742,81 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '&#9733;', $value );
 	}
 
+	/**
+	 * The structured value feeds the web/API renderers, which loop over maxRating
+	 * in JavaScript, so it needs the same bound the email path has.
+	 */
+	public function test_rating_field_clamps_forged_scale_in_web_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
+		$this->assertSame( 3, $value['rating'] );
+	}
+
+	/**
+	 * Clamping the scale must also pull the selected value down with it, or a
+	 * "3000/5000" submission renders every icon filled on a 10-icon scale.
+	 */
+	public function test_rating_field_clamps_selected_value_to_clamped_scale() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3000/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['rating'] );
+	}
+
+	/**
+	 * The clamp is a rendering bound, so the response keeps the scale it was
+	 * submitted with for the CSV and plain-text fallbacks.
+	 */
+	public function test_rating_field_clamping_leaves_the_submitted_value_intact() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3000/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( '3000/5000', $value['displayValue'] );
+		$this->assertSame( '3000/5000', $field->get_render_value( 'csv' ) );
+	}
+
+	/**
+	 * The PHP and JS ceilings bound the same rating scale on either side of a
+	 * submission, so a drift between them reopens the scale to unbounded loops.
+	 */
+	public function test_rating_icon_ceiling_matches_the_js_constant() {
+		$source = file_get_contents( __DIR__ . '/../../../src/blocks/field-rating/rating-icons.js' );
+
+		$this->assertIsString( $source );
+		$this->assertSame( 1, preg_match( '/export const MAX_RATING_ICONS = (\\d+);/', $source, $matches ) );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, (int) $matches[1] );
+	}
+
 	// ─── Email HTML rendering tests ───
+
+	/**
+	 * Test the email HTML caps a forged rating scale and keeps the selected value.
+	 */
+	public function test_rating_field_clamps_forged_scale_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+		$this->assertSame( 3, substr_count( $value, '#e6a117' ) );
+	}
+
+	public function test_rating_field_with_huge_scale_does_not_exhaust_memory() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '1/50000000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+	}
 
 	/**
 	 * Test get_icon_name_for_type maps known types and falls back to field-text.
@@ -950,5 +1094,40 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$color = Feedback_Field::get_admin_theme_color();
 		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
+	}
+
+	/**
+	 * A ticked box submits a translated string, so anything non-empty counts.
+	 */
+	public function test_is_checked_value_accepts_any_non_empty_answer() {
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Yes' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Oui' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( '1' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( array( 'a' ) ) );
+	}
+
+	/**
+	 * An unticked box submits an empty value; some stored responses use "No".
+	 */
+	public function test_is_checked_value_rejects_empty_and_no() {
+		$this->assertFalse( Feedback_Field::is_checked_value( '' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( '   ' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( null ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( array() ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'no' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'No' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( ' NO ' ) );
+	}
+
+	/**
+	 * The consent/checkbox email chip is rendered from the same predicate, so the
+	 * label must follow it.
+	 */
+	public function test_email_consent_label_follows_the_checked_predicate() {
+		$checked   = new Feedback_Field( 'consent', 'Consent', 'Yes', 'consent' );
+		$unchecked = new Feedback_Field( 'consent', 'Consent', '', 'consent' );
+
+		$this->assertStringContainsString( 'Yes', $checked->get_render_value( 'email_html' ) );
+		$this->assertStringContainsString( 'No', $unchecked->get_render_value( 'email_html' ) );
 	}
 }

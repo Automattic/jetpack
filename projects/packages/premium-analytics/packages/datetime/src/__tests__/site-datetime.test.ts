@@ -53,10 +53,15 @@ describe( 'parseSiteDateTime', () => {
 		expect( date?.toISOString() ).toBe( '2026-07-09T04:12:57.000Z' );
 	} );
 
-	it( 'accepts a Date instance unchanged', () => {
+	it( 'anchors a Date instance to the site timezone, keeping its instant', () => {
 		const source = new Date( '2026-06-29T12:00:00.000Z' );
+		const date = parseSiteDateTime( source );
 
-		expect( parseSiteDateTime( source ) ).toBe( source );
+		expect( date?.getTime() ).toBe( source.getTime() );
+		expect( date?.timeZone ).toBe( 'Europe/Amsterdam' );
+		// The zone is what the plain input could not carry: 12:00 UTC is 14:00
+		// on the site's clock, and a browser-zone read would name another hour.
+		expect( date?.getHours() ).toBe( 14 );
 	} );
 
 	it( 'returns undefined for a malformed value', () => {

@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import { useContext } from 'react';
+import { ChartScopeContext } from '../../../../providers/chart-scope';
 import { withResponsive } from '../index';
 import type { BaseChartProps } from '../../../../types';
+import type { JSX } from 'react';
 
 // Mock the useParentSize hook
 jest.mock( '@visx/responsive', () => ( {
@@ -310,5 +313,19 @@ describe( 'withResponsive', () => {
 			render( <ResponsiveComponent data={ [] } /> );
 			expect( screen.getByTestId( 'responsive-container' ) ).toBeInTheDocument();
 		} );
+	} );
+
+	it( 'publishes the responsive wrapper element as the chart scope', () => {
+		// The catalog is declared on the GlobalChartsProvider wrapper (or a standalone component's own element), not on every chart root, so this wrapper doesn't carry a scope class itself — but it must still be the element the JS bridge resolves scoped CSS variables against, via ChartScopeContext, so it picks up any override set inside the provider tree the same way a CSS-painted sibling would.
+		const ScopeProbe = () => {
+			const scopeNode = useContext( ChartScopeContext );
+			return <span data-testid="scope-probe">{ scopeNode?.dataset.testid }</span>;
+		};
+		const Chart: ( props: BaseChartProps ) => JSX.Element = () => <ScopeProbe />;
+		const Wrapped = withResponsive( Chart );
+
+		render( <Wrapped data={ [] } /> );
+
+		expect( screen.getByTestId( 'scope-probe' ) ).toHaveTextContent( 'responsive-wrapper' );
 	} );
 } );

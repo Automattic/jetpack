@@ -1,5 +1,6 @@
-import { render } from '@testing-library/react';
-import { VideoFramePicker } from '../index';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import PosterPanel, { VideoFramePicker } from '../index';
 
 // Mirror the real SandBox contract: when `allowSameOrigin` is false, the
 // iframe is cross-origin and any property access on `iframe.contentWindow`
@@ -30,12 +31,7 @@ jest.mock( '@wordpress/components', () => {
 				const iframe = host.ownerDocument.createElement( 'iframe' );
 				iframe.className = 'components-sandbox';
 
-				if ( allowSameOrigin ) {
-					Object.defineProperty( iframe, 'contentWindow', {
-						value: globalThis,
-						configurable: true,
-					} );
-				} else {
+				if ( ! allowSameOrigin ) {
 					const throwSecurity = () => {
 						throw new DOMException(
 							'Blocked a frame with origin "https://sandbox.invalid" from accessing a cross-origin frame.',
@@ -116,4 +112,31 @@ describe( 'VideoFramePicker', () => {
 
 		expect( securityErrors ).toEqual( [] );
 	} );
+} );
+
+it( 'shows a poster generation error and provides a retry action', async () => {
+	const user = userEvent.setup();
+	const onRetryPoster = jest.fn();
+	render(
+		<PosterPanel
+			attributes={ {
+				guid: 'pOsTeR01',
+				duration: 10000,
+				posterData: { type: 'video-frame', atTime: 1000 },
+			} }
+			setAttributes={ jest.fn() }
+			videoBelongToSite
+			posterError="Could not generate the video poster image. Please try again."
+			onRetryPoster={ onRetryPoster }
+		/>
+	);
+
+	await user.click( screen.getByRole( 'button', { name: /^Poster/ } ) );
+	expect(
+		screen.getByText( 'Could not generate the video poster image. Please try again.', {
+			selector: '.components-notice__content',
+		} )
+	).toBeVisible();
+	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+	expect( onRetryPoster ).toHaveBeenCalledTimes( 1 );
 } );

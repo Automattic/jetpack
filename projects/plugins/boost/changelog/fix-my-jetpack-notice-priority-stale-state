@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Show the highest-priority notice first when several are set at once.

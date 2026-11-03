@@ -31,7 +31,7 @@ describe( 'useSeoToolsToggle', () => {
 	// can't be made to spy on `location.reload` (`window.location` is
 	// non-configurable and can't be redefined), so the call surfaces as a
 	// "Not implemented: navigation" `console.error`. Silence it here so the
-	// strict `@wordpress/jest-console` guard doesn't flag it; the success-path
+	// strict `jetpack-js-tools` console guard doesn't flag it; the success-path
 	// tests assert the deterministic, observable behavior instead — `apiFetch`
 	// was POSTed with the right payload and no error notice was raised.
 	let consoleErrorSpy: ReturnType< typeof jest.spyOn >;
@@ -49,7 +49,7 @@ describe( 'useSeoToolsToggle', () => {
 	it( 'POSTs to the module endpoint with the requested active state on success', async () => {
 		mockApiFetch.mockResolvedValue( undefined );
 
-		const { result } = renderHook( () => useSeoToolsToggle() );
+		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
 
 		expect( result.current.isToggling ).toBe( false );
 
@@ -69,7 +69,7 @@ describe( 'useSeoToolsToggle', () => {
 	it( 'passes active: false when disabling', async () => {
 		mockApiFetch.mockResolvedValue( undefined );
 
-		const { result } = renderHook( () => useSeoToolsToggle() );
+		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
 
 		await act( async () => {
 			await result.current.setActive( false );
@@ -91,7 +91,7 @@ describe( 'useSeoToolsToggle', () => {
 			} )
 		);
 
-		const { result } = renderHook( () => useSeoToolsToggle() );
+		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
 
 		act( () => {
 			result.current.setActive( true );
@@ -110,7 +110,7 @@ describe( 'useSeoToolsToggle', () => {
 	it( 'surfaces an error snackbar notice and clears isToggling when the request rejects', async () => {
 		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
 
-		const { result } = renderHook( () => useSeoToolsToggle() );
+		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
 
 		await act( async () => {
 			await result.current.setActive( true );
@@ -127,7 +127,7 @@ describe( 'useSeoToolsToggle', () => {
 	it( 'uses the disable error message when disabling fails', async () => {
 		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
 
-		const { result } = renderHook( () => useSeoToolsToggle() );
+		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
 
 		await act( async () => {
 			await result.current.setActive( false );

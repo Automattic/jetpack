@@ -15,3 +15,12 @@ export const isWpCloudClient = (): boolean => {
 export const isWoaHosting = (): boolean => {
 	return Jetpack_Boost.site.host === 'woa';
 };
+
+/**
+ * Determine if this site runs on the Atomic platform, as WordPress.com or as a WP Cloud client.
+ *
+ * @return {boolean} True if the site is on the Atomic platform, false otherwise.
+ */
+export const isAtomicPlatform = (): boolean => {
+	return isWoaHosting() || isWpCloudClient();
+};

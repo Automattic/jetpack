@@ -1,0 +1,8 @@
+// Sized and spaced to match `.jpb-gates__card`, which occupies the same
+// slot inside `.jpb-dashboard-body__inner` when a gate blocks the body.
+.jpb-error-boundary {
+	max-inline-size: 560px;
+	margin-inline: auto;
+	margin-block: 48px;
+	padding: 32px;
+}

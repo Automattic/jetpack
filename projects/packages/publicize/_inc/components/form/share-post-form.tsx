@@ -161,7 +161,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 					} ) }
 				>
 					{ ! hasPaidFeatures ? (
-						upgradeNotice ?? <UpgradeNotice />
+						( upgradeNotice ?? <UpgradeNotice /> )
 					) : (
 						<MediaSectionV2
 							analyticsData={ analyticsData }

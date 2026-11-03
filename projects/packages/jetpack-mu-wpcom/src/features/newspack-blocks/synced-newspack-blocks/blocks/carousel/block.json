@@ -1,7 +1,8 @@
 {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
 	"name": "carousel",
 	"category": "newspack",
-	"apiVersion": 3,
 	"attributes": {
 		"className": {
 			"type": "string",
@@ -71,6 +72,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showTagLabels": {
+			"type": "boolean",
+			"default": true
+		},
 		"showTitle": {
 			"type": "boolean",
 			"default": true
@@ -115,6 +120,10 @@
 			"items": {
 				"type": "string"
 			}
+		},
+		"deduplicate": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"textdomain": "jetpack-mu-wpcom"

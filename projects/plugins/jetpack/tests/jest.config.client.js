@@ -5,6 +5,7 @@ module.exports = {
 	roots: [
 		'<rootDir>/_inc/client/state/',
 		'<rootDir>/_inc/client/lib/',
+		'<rootDir>/_inc/shared/',
 		'<rootDir>/_inc/content-guidelines-ai/',
 		'<rootDir>/modules/',
 	],
@@ -13,6 +14,7 @@ module.exports = {
 	collectCoverageFrom: [
 		'<rootDir>/_inc/client/state/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/_inc/client/lib/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		'<rootDir>/_inc/shared/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/_inc/content-guidelines-ai/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/modules/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom.slice( 3 ),

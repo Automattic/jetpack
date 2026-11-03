@@ -4,7 +4,9 @@
 .form-input-validation {
 	color: calypso-colors.$alert-green;
 	position: relative;
-	padding: 6px 24px 11px 34px;
+	padding-block: 6px 11px;
+	padding-inline-start: 34px;
+	padding-inline-end: 24px;
 	border-radius: 1px;
 	box-sizing: border-box;
 	font-size: 14px;
@@ -19,7 +21,7 @@
 	}
 
 	.gridicon {
-		float: left;
-		margin-left: -34px;
+		float: inline-start;
+		margin-inline-start: -34px;
 	}
 }

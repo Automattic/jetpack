@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Load WordPress build polyfills so the dashboard can run without the Gutenberg plugin.

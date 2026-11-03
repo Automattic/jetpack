@@ -2,23 +2,29 @@
  * External dependencies
  */
 import {
+	PRESET_ALL_TIME,
 	isSelectablePreset,
+	isYearPresetId,
+	readSiteTimestamp,
 	type SelectablePresetId,
 	type ComparisonPresetId,
+	type ComputablePresetId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
-import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary-fetch';
 import { getDefaultQueryParams } from '../defaults';
-import { resolveIntervalForRange, type IntervalType } from './interval';
+import {
+	NO_LOCKED_INTERVALS,
+	resolveIntervalForRange,
+	type IntervalType,
+	type LockableInterval,
+} from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
-import { toPostId } from './to-post-id';
+import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
-import type { FilterCondition } from '../types/filter-condition';
 
-export type { FilterCondition };
 export type { IntervalType };
 
 /**
@@ -27,7 +33,8 @@ export type { IntervalType };
  */
 export type PresetType = SelectablePresetId;
 
-type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
+/** The computable presets a report URL can carry. */
+export type ReportPresetId = ComputablePresetId;
 
 /*
  * ReportParams are the expected params present in the client URL.
@@ -37,29 +44,28 @@ type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 export type ReportParams = {
 	from: string;
 	to: string;
-	preset?: PresetType;
+	preset?: ReportPresetId;
 	interval: IntervalType;
 	period?: string;
 	compare_from?: string;
 	compare_to?: string;
 	compare_preset?: ComparisonPresetId;
 	comp?: '1';
-	view?: OrderAttributionView; // For order attribution reports
-	filters?: FilterCondition[];
 	section?: string;
-	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
+	date_type?: DateType; // Unset by default, so the server applies the merchant's WooCommerce date type.
 	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
+	author_id?: string | number; // Scopes a report to a single author (author detail page). Same string/number split as `post_id`.
 };
 
 type PartialComparisonFields = Partial<
 	Pick< ReportParams, 'comp' | 'compare_from' | 'compare_to' >
 >;
 
-/*
- * Checks if the comparison is present in the search params.
- */
+// Whether comparison is enabled. `comp` is compared loosely because the
+// router JSON-parses search values, so an unquoted URL (hand-edited, or an
+// older link builder) can deliver the number 1 instead of the string '1'.
 export function hasComparisonEnabled< T extends PartialComparisonFields >( p: T ) {
-	return p.comp === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
+	return String( p.comp ) === '1' && !! p.compare_from?.trim() && !! p.compare_to?.trim();
 }
 
 type NormalizeReportParamsArgType = Omit< ReportParams, 'from' | 'to' | 'interval' | 'preset' > & {
@@ -78,77 +84,82 @@ type ReportDateWindowSearch = Pick<
 >;
 
 /**
- * Returns normalized params for the report request query.
- * When no defined, it will use the defaults.
+ * A URL timestamp as the reader meant it: an unencoded `+` in a pasted link reaches the
+ * router as a space, and the request params must not carry that space on to WPCOM.
  *
- * @param {NormalizeReportParamsArgType} [search]        - Candidate report params.
- * @param {PresetType}                   [defaultPreset] - Override the fallback preset.
+ * @param value - The raw search value.
+ * @return The value with its offset restored, or as given when it is not a timestamp.
  */
+function canonicalTimestamp< T extends string | undefined >( value: T ): T {
+	return typeof value === 'string'
+		? ( ( readSiteTimestamp( value )?.value ?? value ) as T )
+		: value;
+}
+
+/** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
-	defaultPreset?: PresetType
+	defaultPreset?: PresetType,
+	{ lockedIntervals = NO_LOCKED_INTERVALS }: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportParams {
-	const defaults = defaultPreset
-		? getDefaultQueryParams( true, defaultPreset )
-		: getDefaultQueryParams( true );
+	const defaults = getDefaultQueryParams( false, defaultPreset );
 
-	// Preset handling:
-	// - Use search.preset only if valid
-	// - On fresh load (no from/to), fallback to defaults.preset
-	// - If user has explicit dates but no/invalid preset,
-	//   keep undefined (custom range)
-	let preset: PresetType | undefined;
-	if ( search?.preset && isSelectablePreset( search.preset ) ) {
+	let preset: ReportPresetId | undefined;
+	if (
+		search?.preset &&
+		( isSelectablePreset( search.preset ) || isYearPresetId( search.preset ) )
+	) {
+		preset = search.preset;
+	} else if ( search?.preset === PRESET_ALL_TIME && search?.from && search?.to ) {
+		// Only honour the URL's all-time start next to the range the section
+		// wrote — it lets widgets tell all-time apart from a same-dated single year.
 		preset = search.preset;
 	} else if ( ! search?.from && ! search?.to ) {
 		preset = defaults.preset;
 	}
 
-	// When a valid preset is present, recalculate from/to
-	// so rolling ranges like "Last 30 days" stay fresh
-	// on every page load instead of using stale URL dates.
-	// If the preset is valid but has no range implementation,
-	// clear it to avoid silently falling back to stale dates.
+	// All-time preserves the URL's start (the year surface may later resolve it
+	// site-specific); an unresolvable preset is cleared instead of going stale.
 	let presetRange: ReturnType< typeof computeDateRangeFromPreset >;
 	if ( preset ) {
-		presetRange = computeDateRangeFromPreset( preset );
-		if ( ! presetRange ) {
+		const computedRange = computeDateRangeFromPreset( preset );
+		if ( computedRange ) {
+			presetRange =
+				preset === PRESET_ALL_TIME
+					? { ...computedRange, from: search?.from ?? computedRange.from }
+					: computedRange;
+		} else {
 			preset = undefined;
 		}
 	}
 
-	const from = presetRange?.from ?? search?.from ?? defaults.from;
-	const to = presetRange?.to ?? search?.to ?? defaults.to;
+	const from = presetRange?.from ?? canonicalTimestamp( search?.from ) ?? defaults.from;
+	const to = presetRange?.to ?? canonicalTimestamp( search?.to ) ?? defaults.to;
 
-	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
+	const interval = resolveIntervalForRange( preset, from, to, search?.interval, lockedIntervals );
 
 	const postId = toPostId( search?.post_id );
+	const authorId = toAuthorId( search?.author_id );
 
-	// Params from `search`, or fallback to defaults.
 	const normalized: ReportParams = {
 		from,
 		to,
 		interval,
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
-		date_type: search?.date_type ?? 'created',
-		// Preserve the single-resource scope so detail-page widgets stay bound to
-		// their post/page, dropping an invalid one so a hand-edited deep link can't
-		// push a malformed post_id into downstream Stats requests.
+		// Preserve the post_id / author_id scope so detail-page widgets stay bound
+		// to their resource; drop an invalid one so a hand-edited deep link can't
+		// reach Stats.
 		...( postId > 0 ? { post_id: postId } : {} ),
+		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
-	// Add comparison params from search if enabled
+	// Comparison only ever comes from the URL; a fresh load gets its default
+	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
-		normalized.compare_from = search.compare_from;
-		normalized.compare_to = search.compare_to;
+		normalized.compare_from = canonicalTimestamp( search.compare_from );
+		normalized.compare_to = canonicalTimestamp( search.compare_to );
 		normalized.compare_preset = search.compare_preset;
-		normalized.comp = '1';
-	} else if ( ! search?.from && hasComparisonEnabled( defaults ) ) {
-		// Fresh load (missing primary params) - apply default comparison
-		normalized.compare_from = defaults.compare_from;
-		normalized.compare_to = defaults.compare_to;
-		normalized.compare_preset = defaults.compare_preset;
 		normalized.comp = '1';
 	}
 
@@ -157,19 +168,28 @@ export function normalizeReportParams(
 
 /**
  * Whether report date params are incomplete or the interval is invalid for the range.
- *
- * @param search - Candidate report date-window fields.
- * @return True when `from`, `to`, or `interval` is missing, or `interval` is not allowed for the range.
  */
-export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
+export function needsReportDateParamsSeed(
+	search?: ReportDateWindowSearch,
+	lockedIntervals?: readonly LockableInterval[]
+): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
 		return true;
 	}
 
-	// Narrow with the same guard `normalizeReportParams` uses, so the two can't
-	// disagree on which presets carry their own interval rules.
+	// A pasted link's decoded offset is rewritten into the URL as the reader meant it.
+	if (
+		canonicalTimestamp( search.from ) !== search.from ||
+		canonicalTimestamp( search.to ) !== search.to
+	) {
+		return true;
+	}
+
+	// Only rolling presets have preset-specific interval rules. Other presets
+	// derive their allowed intervals from the range, like an absent preset.
 	const preset = isSelectablePreset( search.preset ) ? search.preset : undefined;
 	return (
-		resolveIntervalForRange( preset, search.from, search.to, search.interval ) !== search.interval
+		resolveIntervalForRange( preset, search.from, search.to, search.interval, lockedIntervals ) !==
+		search.interval
 	);
 }

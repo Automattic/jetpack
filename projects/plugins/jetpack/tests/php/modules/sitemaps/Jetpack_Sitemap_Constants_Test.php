@@ -32,17 +32,17 @@ class Jetpack_Sitemap_Constants_Test extends WP_UnitTestCase {
 	#[Group( 'jetpack-sitemap' )]
 	public function test_sitemap_builder_capacity_constants() {
 		// Test range of JP_SITEMAP_MAX_BYTES.
-		$this->assertTrue( is_int( JP_SITEMAP_MAX_BYTES ) );
+		$this->assertIsInt( JP_SITEMAP_MAX_BYTES );
 		$this->assertGreaterThan( 0, JP_SITEMAP_MAX_BYTES );
 		$this->assertLessThanOrEqual( JP_SITEMAP_MAX_BYTES, 716800 );
 
 		// Test range of JP_SITEMAP_MAX_ITEMS.
-		$this->assertTrue( is_int( JP_SITEMAP_MAX_ITEMS ) );
+		$this->assertIsInt( JP_SITEMAP_MAX_ITEMS );
 		$this->assertGreaterThan( 0, JP_SITEMAP_MAX_ITEMS );
 		$this->assertLessThanOrEqual( 50000, JP_SITEMAP_MAX_ITEMS );
 
 		// Test range of JP_NEWS_SITEMAP_MAX_ITEMS.
-		$this->assertTrue( is_int( JP_NEWS_SITEMAP_MAX_ITEMS ) );
+		$this->assertIsInt( JP_NEWS_SITEMAP_MAX_ITEMS );
 		$this->assertGreaterThan( 0, JP_NEWS_SITEMAP_MAX_ITEMS );
 		$this->assertLessThanOrEqual( 1000, JP_NEWS_SITEMAP_MAX_ITEMS );
 	}

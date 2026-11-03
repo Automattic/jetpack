@@ -2,18 +2,6 @@
 /**
  * Site-level Person Schema.org node builder.
  *
- * Builds the Person JSON-LD node that represents the site as a whole when the
- * admin has declared the site represents a person (a personal site, portfolio,
- * or blog) rather than an organization. This is the site's publisher / main
- * entity — distinct from the per-author Person nodes built by
- * {@see Author_Schema_Node}, which describe the individual writers of posts.
- *
- * `name` / `description` come from the schema settings, falling back to site
- * identity (Site Title / Tagline) so the node is useful with zero configuration.
- * `image` reuses the Site Logo / Site Icon (personal sites commonly use a photo
- * there); `sameAs` comes from the settings. Values with no source are omitted, so
- * an unconfigured site still emits a valid node.
- *
  * @package automattic/jetpack-seo-package
  */
 
@@ -25,9 +13,7 @@ namespace Automattic\Jetpack\SEO;
 class Person_Schema_Node {
 
 	/**
-	 * Build the Person node, or null when the site has no name to identify it (a
-	 * Person entity with no name is not useful, so we emit nothing rather than
-	 * something invalid).
+	 * Build the site Person, or return null when neither settings nor site identity supply a name.
 	 *
 	 * @param array $settings Optional schema settings: `name`, `description`,
 	 *                        `sameAs` (array of URLs). Empty `name` / `description`
@@ -72,10 +58,7 @@ class Person_Schema_Node {
 	}
 
 	/**
-	 * The person's image as an ImageObject: the Site Logo (Customizer) when set,
-	 * otherwise the Site Icon. Null when the site has neither. Mirrors the
-	 * Organization node's logo resolution so a site keeps the same image whichever
-	 * entity it represents.
+	 * The person's image as an ImageObject: the Site Logo (Customizer) when set, otherwise the Site Icon.
 	 *
 	 * @return array|null
 	 */

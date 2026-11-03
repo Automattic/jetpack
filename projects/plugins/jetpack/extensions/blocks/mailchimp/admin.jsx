@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
@@ -9,6 +10,9 @@ const MailchimpSettings = ( { isConnected } ) => {
 	const [ audiences, setAudiences ] = useState( [ { id: 'none', name: __( 'None', 'jetpack' ) } ] );
 	const [ selectedAudience, setSelectedAudience ] = useState( 'none' );
 	const [ isLoading, setIsLoading ] = useState( false );
+	const [ saveError, setSaveError ] = useState( '' );
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ isSaved, setIsSaved ] = useState( false );
 
 	useEffect( () => {
 		if ( ! isConnected ) {
@@ -37,6 +41,30 @@ const MailchimpSettings = ( { isConnected } ) => {
 		return null;
 	}
 
+	// Save right away so the block works without submitting the form.
+	// One save at a time, or responses landing out of order could store an earlier pick.
+	const onChange = e => {
+		const audience = e.target.value;
+		const previousAudience = selectedAudience;
+		setSelectedAudience( audience );
+		setIsSaving( true );
+		setIsSaved( false );
+		setSaveError( '' );
+		apiFetch( {
+			path: '/wpcom/v2/mailchimp/settings',
+			method: 'POST',
+			data: { follower_list_id: audience },
+		} )
+			.then( () => setIsSaved( true ) )
+			.catch( error => {
+				const message = error?.message || __( 'Settings save failed.', 'jetpack' );
+				setSelectedAudience( previousAudience );
+				setSaveError( message );
+				speak( message, 'assertive' );
+			} )
+			.finally( () => setIsSaving( false ) );
+	};
+
 	return (
 		<div className="jetpack-mailchimp-settings">
 			<label htmlFor="jetpack-mailchimp-audience">
@@ -44,9 +72,9 @@ const MailchimpSettings = ( { isConnected } ) => {
 				<select
 					id="jetpack-mailchimp-audience"
 					name="jetpack-mailchimp-audience"
-					onChange={ e => setSelectedAudience( e.target.value ) }
+					onChange={ onChange }
 					value={ selectedAudience }
-					disabled={ isLoading }
+					disabled={ isLoading || isSaving }
 				>
 					{ audiences.map( audience => (
 						<option key={ audience.id } value={ audience.id }>
@@ -55,6 +83,22 @@ const MailchimpSettings = ( { isConnected } ) => {
 					) ) }
 				</select>
 			</label>
+			{ /* Same status as the Media Library's self-saving fields: spinner, then "Saved.". */ }
+			<span role="status" style={ { marginInlineStart: '8px' } }>
+				{ isSaving && (
+					<span className="spinner is-active" style={ { float: 'none', margin: 0 } } />
+				) }
+				{ isSaved && __( 'Saved.', 'jetpack' ) }
+			</span>
+			{ /* A disabled select is left out of the form, so Save Changes mid-save would drop the pick. */ }
+			{ isSaving && (
+				<input type="hidden" name="jetpack-mailchimp-audience" value={ selectedAudience } />
+			) }
+			{ saveError && (
+				<div className="notice notice-error inline">
+					<p>{ saveError }</p>
+				</div>
+			) }
 		</div>
 	);
 };

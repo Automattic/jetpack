@@ -55,4 +55,22 @@ export type BaseLegendItem = {
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyle?: CSSProperties & LineStyles;
-};
+	/**
+	 * The series labels this legend item controls. For a grouped item this is every series
+	 * sharing the group (primary first); for a single series it is just its own label. Used by
+	 * the interactive legend to toggle a whole group's visibility from one item.
+	 */
+	seriesLabels?: string[];
+	/** Set to false for a static item that cannot be toggled or dimmed. */
+	interactive?: boolean;
+	/** Label of the series this static item describes; the item is left out while it is hidden. */
+	describesSeries?: string;
+} & (
+	| {
+			/** Pressed state of the toggle. */
+			pressed: boolean;
+			/** Makes an interactive legend item a toggle the consumer controls, instead of a series toggle. */
+			onToggle: () => void;
+	  }
+	| { pressed?: never; onToggle?: never }
+);

@@ -35,6 +35,10 @@ interface Window {
 			'voice-to-content': AvailableBlockProps;
 		};
 		adminUrl: string;
+		jetpack?: {
+			can_send_test_email_to_others: boolean;
+			subscribe_placements?: Record< string, boolean > | null;
+		};
 		siteLocale: string;
 		'ai-assistant': {
 			'is-enabled': boolean;
@@ -60,6 +64,7 @@ interface Window {
 		tracksUserData?: {
 			userid: string;
 			username: string;
+			email: string;
 		};
 		siteFragment?: string;
 	};

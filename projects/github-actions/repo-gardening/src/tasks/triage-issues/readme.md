@@ -38,7 +38,7 @@ For now, we have 6 Project Board automations in place:
 #### Usage
 
 - Pass a custom list of label mappings in your workflow configuration, as a JSON object, using `labels_team_assignments`. When specifying a new mapping, you must provide a unique feature name as key, and then a `team` value matching a column in your GitHub project board, as well as a `labels` array matching existing labels in use in your repo. No wild cards or regular expressions are supported for those arrays. You can also optionally pass a `slack_id`, matching a Slack channel ID where that team would like to be notified, as well as `board_id`, matching a GitHub project board URL where that team would like to have issues added automatically.
-- **Note**: if you work in a repository in the Automattic organization, you do not need to pass a custom list. Instead, add your mappings to the existing `automattic-label-team-assignments.js` in this GitHub action.
+- Team assignments are repository-specific. Automattic repositories must pass this input as well; the action does not ship with default mappings.
 
 Example:
 ```yml

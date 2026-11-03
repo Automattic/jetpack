@@ -19,6 +19,11 @@ async function flagOss( payload: PullRequestEvent, octokit: OctokitClient ): Pro
 		return;
 	}
 
+	if ( ! head.user ) {
+		debug( `flag-oss: No head.user supplied in pull_request event. Aborting.` );
+		return;
+	}
+
 	// Check if PR author is org member
 	// Result is communicated by status code, and non-successful status codes throw.
 	// https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#check-organization-membership-for-a-user

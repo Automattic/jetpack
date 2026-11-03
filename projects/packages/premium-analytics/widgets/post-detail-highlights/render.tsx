@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -19,34 +19,28 @@ import { comment, seen, starEmpty } from '@wordpress/icons';
  */
 import styles from './style.module.css';
 import usePostHighlights from './use-post-highlights';
-import type { PostDetailHighlightsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Post highlights widget has no configurable attributes: it always shows
+ * the three highlight metrics of the post the page is scoped to (via
+ * `reportParams.post_id`). `Record< never, never >` (not
+ * `Record< string, never >`) so the render-only type can compose host fields
+ * such as `reportParams` without collapsing them to `never`.
+ */
+export type PostDetailHighlightsAttributes = Record< never, never >;
 
 type PostDetailHighlightsRenderAttributes = PostDetailHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostDetailHighlightsWidgetProps = WidgetRenderProps< PostDetailHighlightsRenderAttributes >;
 
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
-
 const ALL_TIME_NOTE = () =>
 	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
 
 /**
- * Post highlights inner component. Reads the post scope and report params
- * from WidgetRoot context and renders the three highlight metrics as a
- * `MetricTileGrid` through `<WidgetState>`; without a post scope (e.g. the
- * widget added outside a post detail page) the query never enables and the
- * empty state shows.
- *
- * Views is period-scoped with a period-over-period delta when comparison is
- * on. Comments and likes are lifetime totals: when comparison is on their
- * `previousValue` is `null` — the tile keeps the comparison layout but shows
- * no fabricated delta.
- *
- * @return The rendered widget content.
+ * Without a post scope the query never enables and the empty state shows.
+ * Comments and likes are lifetime totals, so under comparison their
+ * `previousValue` is `null` — the tile keeps the layout but fabricates no delta.
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -98,11 +92,10 @@ function PostDetailHighlightsInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the highlights stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
+				// The highlights stay on screen through a transient refetch failure, so
+				// only surface the error when there is nothing to show.
 				isError={ ! hasData && isError }
 				isEmpty={ postId <= 0 }
 				error={ {
@@ -113,25 +106,23 @@ function PostDetailHighlightsInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its highlights here.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);
 }
 
 /**
- * Post highlights widget: the scoped post's views, comments, and likes as
- * metric tiles — the post detail Traffic view's highlights card.
- *
- * @param {PostDetailHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * The post detail Traffic view's highlights card: the scoped post's views,
+ * comments, and likes as metric tiles. Views follow the dashboard date range;
+ * comments and likes are lifetime totals, so their tiles carry a note, not a delta.
  */
 export default function PostDetailHighlights( {
 	attributes = {},

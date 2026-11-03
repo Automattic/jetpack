@@ -1,190 +1,277 @@
-// The mock shape mirrors the actual useResumableUploader return value:
-// { onUploadHandler, uploadHandler, resumeHandler, uploadingData, media, error }
-//
-// We only expose uploadHandler (and a minimal resumeHandler stub) because
-// those are the only members used by the adapter. The most recent set of
-// callbacks passed to useResumableUploader is captured in `lastCallbacks`
-// so individual tests can simulate progress / success / error.
-
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import getMediaToken from '../../../client/lib/get-media-token';
+import resumableFileUploader from '../../../client/lib/resumable-file-uploader';
+import { syncChapters } from '../../../client/utils/video-chapters/sync-chapters';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { LIBRARY_QUERY_KEY } from '../use-library';
 import { useUpload, __resetUploadStoreForTests } from '../use-upload';
 
-const mockUploadHandler = jest.fn();
-let lastCallbacks: {
-	onProgress?: ( bytesSent: number, bytesTotal: number ) => void;
-	onSuccess?: ( data?: unknown ) => void;
-	onError?: ( err: unknown ) => void;
-};
-
-jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../client/lib/get-media-token', () => ( {
 	__esModule: true,
-	default: jest.fn( options => {
-		lastCallbacks = options;
-		return {
-			onUploadHandler: jest.fn(),
-			uploadHandler: mockUploadHandler,
-			resumeHandler: undefined,
-			uploadingData: { bytesSent: 0, bytesTotal: 0, percent: 0, status: 'idle' },
-			media: undefined,
-			error: null,
-		};
-	} ),
+	default: jest.fn(),
+} ) );
+jest.mock( '../../../client/lib/resumable-file-uploader', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+jest.mock( '../../../client/utils/video-chapters/sync-chapters', () => ( {
+	syncChapters: jest.fn(),
 } ) );
 
-describe( 'useUpload', () => {
-	beforeEach( () => {
-		mockUploadHandler.mockClear();
-		lastCallbacks = {};
-		__resetUploadStoreForTests();
+const mockToken = jest.mocked( getMediaToken );
+const mockUploader = jest.mocked( resumableFileUploader );
+const mockFetch = jest.mocked( apiFetch );
+const media = { id: 101, guid: 'abc123', src: 'https://example.com/a.mp4' };
+const file = () => new File( [ 'x' ], 'same-name.mp4', { type: 'video/mp4' } );
+const callbacks = ( index = 0 ) => mockUploader.mock.calls[ index ][ 0 ];
+const start = async ( result: { current: ReturnType< typeof useUpload > } ) => {
+	let id: string;
+	await act( async () => {
+		id = result.current.startUpload( file() );
 	} );
-
-	it( 'exposes an empty queue initially', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		expect( result.current.uploadQueue ).toEqual( [] );
+	return id!;
+};
+const succeed = async ( index = 0, id = media.id ) => {
+	await act( async () => {
+		callbacks( index ).onSuccess( { ...media, id }, file() );
 	} );
+};
 
-	it( 'adds an item to the queue when startUpload is called', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		act( () => {
-			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
-		} );
-		expect( result.current.uploadQueue ).toHaveLength( 1 );
-		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'pending' );
+beforeEach( () => {
+	jest.clearAllMocks();
+	__resetUploadStoreForTests();
+	mockToken.mockResolvedValue( { token: 'token', url: 'https://example.com/upload', blogId: '1' } );
+	mockFetch.mockResolvedValue( undefined );
+} );
+
+it( 'shares uploads across consumers and continues the queue after the initiating route unmounts', async () => {
+	const wrapper = createTestWrapper();
+	const { result: producer, unmount } = renderHook( useUpload, { wrapper } );
+	const firstId = await start( producer );
+	const secondId = await start( producer );
+	expect( firstId ).not.toBe( secondId );
+	unmount();
+	const { result: observer } = renderHook( useUpload, { wrapper } );
+	await start( observer );
+	expect( mockUploader ).toHaveBeenCalledTimes( 1 );
+	await succeed();
+	expect( mockUploader ).toHaveBeenCalledTimes( 2 );
+	expect( observer.current.completedUploads[ firstId ] ).toBe( '101' );
+	await succeed( 1, 102 );
+	expect( mockUploader ).toHaveBeenCalledTimes( 3 );
+} );
+
+it( 'keeps edits per temporary ID and sends nothing until that upload completes', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const first = await start( result );
+	const second = await start( result );
+	act( () => {
+		result.current.saveUploadDetails( first, { title: 'First', privacy: 'private' } );
+		result.current.saveUploadDetails( second, { title: 'Second', allowDownloads: true } );
+		callbacks().onProgress( 5, 10 );
 	} );
+	expect( mockFetch ).not.toHaveBeenCalled();
+	expect( result.current.uploadQueue[ 0 ].progress ).toBe( 0.5 );
+	await succeed();
+	expect( mockFetch ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			method: 'POST',
+			data: { id: 101, title: 'First', privacy_setting: 1 },
+		} )
+	);
+	await succeed( 1, 102 );
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: { id: 102, title: 'Second', allow_download: true },
+		} )
+	);
+} );
 
-	it( 'returns a string id from startUpload', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		let id: string | undefined;
-		act( () => {
-			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
-		} );
-		expect( typeof id ).toBe( 'string' );
-		expect( id ).toMatch( /^upload-/ );
+it( 'sends another Save queued during the final save before completing the temporary route', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { title: 'First' } ) );
+	let resolveSave: () => void;
+	mockFetch.mockImplementationOnce(
+		() =>
+			new Promise( resolve => {
+				resolveSave = () => resolve( undefined );
+			} )
+	);
+	await succeed();
+	expect( result.current.completedUploads[ id ] ).toBeUndefined();
+	act( () => result.current.saveUploadDetails( id, { title: 'Latest' } ) );
+	await act( async () => {
+		resolveSave!();
 	} );
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { data: { id: 101, title: 'Latest' } } )
+	);
+	expect( result.current.completedUploads[ id ] ).toBe( '101' );
+} );
 
-	it( 'delegates to the legacy uploadHandler with the file', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		const file = new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } );
-		act( () => {
-			result.current.startUpload( file );
-		} );
-		expect( mockUploadHandler ).toHaveBeenCalledWith( file );
+it( 'retains a failed metadata draft and retries its save without uploading again', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { title: '' } ) );
+	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
+	await succeed();
+	expect( result.current.uploadQueue[ 0 ] ).toMatchObject( {
+		detailsError: true,
+		details: { title: '' },
 	} );
+	expect( result.current.completedUploads[ id ] ).toBeUndefined();
+	await act( async () => result.current.retryUpload( id ) );
+	expect( mockUploader ).toHaveBeenCalledTimes( 1 );
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { data: { id: 101, title: '' } } )
+	);
+	expect( result.current.completedUploads[ id ] ).toBe( '101' );
+} );
 
-	it( 'retryUpload re-delegates to the legacy uploadHandler after a failure', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		const file = new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } );
-		let id: string | undefined;
-		act( () => {
-			id = result.current.startUpload( file );
-		} );
-		act( () => {
-			lastCallbacks.onError?.( new Error( 'boom' ) );
-		} );
-		mockUploadHandler.mockClear();
-		act( () => {
-			result.current.retryUpload( id! );
-		} );
-		expect( mockUploadHandler ).toHaveBeenCalledWith( file );
-		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'pending' );
-		expect( result.current.uploadQueue[ 0 ].progress ).toBe( 0 );
+it( 'refreshes the library before saving edits so a failed save still counts the attachment', async () => {
+	const client = createTestQueryClient();
+	const invalidate = jest.spyOn( client, 'invalidateQueries' );
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper( client ) } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { title: 'Draft' } ) );
+	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
+	await succeed();
+	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
+	expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+} );
+
+it( 'applies a new Save after a metadata failure without reuploading', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { title: 'First' } ) );
+	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
+	await succeed();
+	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
+	await act( async () =>
+		result.current.saveUploadDetails( id, { title: 'Retry with this title' } )
+	);
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { data: { id: 101, title: 'Retry with this title' } } )
+	);
+	expect( mockUploader ).toHaveBeenCalledTimes( 1 );
+	expect( result.current.completedUploads[ id ] ).toBe( '101' );
+} );
+
+it( 'retains edits after transport failure, continues the queue, and serializes retries', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const first = await start( result );
+	await start( result );
+	act( () => result.current.saveUploadDetails( first, { title: 'Retained' } ) );
+	await act( async () =>
+		callbacks().onError( Object.assign( new Error( 'Offline' ), { code: 'offline' } ) )
+	);
+	expect( result.current.uploadQueue[ 0 ] ).toMatchObject( {
+		status: 'failed',
+		errorCode: 'offline',
 	} );
-
-	it( 'retryUpload is a no-op for an unknown id', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		act( () => {
-			result.current.retryUpload( 'upload-does-not-exist' );
-		} );
-		expect( mockUploadHandler ).not.toHaveBeenCalled();
+	act( () => {
+		result.current.retryUpload( first );
+		result.current.retryUpload( first );
 	} );
+	expect( mockUploader ).toHaveBeenCalledTimes( 2 );
+	await succeed( 1, 102 );
+	expect( mockUploader ).toHaveBeenCalledTimes( 3 );
+	await succeed( 2 );
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { data: { id: 101, title: 'Retained' } } )
+	);
+} );
 
-	it( 'shares the upload queue across separate useUpload instances backed by the same QueryClient', () => {
-		const client = createTestQueryClient();
-		const wrapper = createTestWrapper( client );
-		const { result: producer } = renderHook( () => useUpload(), { wrapper } );
-		const { result: observer } = renderHook( () => useUpload(), { wrapper } );
-
-		expect( observer.current.uploadQueue ).toEqual( [] );
-
-		act( () => {
-			producer.current.startUpload( new File( [ 'x' ], 'shared.mp4', { type: 'video/mp4' } ) );
-		} );
-
-		expect( producer.current.uploadQueue ).toHaveLength( 1 );
-		expect( observer.current.uploadQueue ).toHaveLength( 1 );
-		expect( observer.current.uploadQueue[ 0 ].file.name ).toBe( 'shared.mp4' );
-	} );
-
-	it( 'queues a second startUpload behind the active one instead of overwriting it', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
-		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
-
-		act( () => {
-			result.current.startUpload( file1 );
-			result.current.startUpload( file2 );
-		} );
-
-		// Only the first dispatches to the legacy uploader; the second waits its turn.
-		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
-		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file1 );
-		expect( result.current.uploadQueue.map( u => u.file.name ) ).toEqual( [ 'a.mp4', 'b.mp4' ] );
-	} );
-
-	it( 'dispatches the next queued upload after the active one succeeds', () => {
-		jest.useFakeTimers();
-		try {
-			const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-			const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
-			const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
-
-			act( () => {
-				result.current.startUpload( file1 );
-				result.current.startUpload( file2 );
-			} );
-
-			// Before success fires, only file1 has been handed to the legacy uploader.
-			expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
-			expect( mockUploadHandler ).toHaveBeenLastCalledWith( file1 );
-
-			// Simulate the legacy uploader finishing the first upload.
-			act( () => {
-				lastCallbacks.onSuccess?.();
-			} );
-
-			// Removing the success'd item is debounced by 2s; flush timers
-			// so the success-removal + next-dispatch both run.
-			act( () => {
-				jest.runOnlyPendingTimers();
-			} );
-
-			expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
-			expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
-		} finally {
-			jest.useRealTimers();
+it.each( [ 'missing', 'rejected' ] )(
+	'handles a %s token without stranding the queue',
+	async kind => {
+		if ( kind === 'missing' ) {
+			mockToken.mockResolvedValueOnce( {} as never );
+		} else {
+			mockToken.mockRejectedValueOnce( new Error( 'Offline' ) );
 		}
-	} );
-
-	it( 'dispatches the next queued upload after the active one fails', () => {
-		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
-		const file1 = new File( [ 'x' ], 'a.mp4', { type: 'video/mp4' } );
-		const file2 = new File( [ 'y' ], 'b.mp4', { type: 'video/mp4' } );
-
-		act( () => {
-			result.current.startUpload( file1 );
-			result.current.startUpload( file2 );
-		} );
-		expect( mockUploadHandler ).toHaveBeenCalledTimes( 1 );
-
-		act( () => {
-			lastCallbacks.onError?.( new Error( 'boom' ) );
-		} );
-
-		// A failed upload stays in the queue (so the user can retry it),
-		// but the next pending upload should be picked up immediately.
-		expect( mockUploadHandler ).toHaveBeenCalledTimes( 2 );
-		expect( mockUploadHandler ).toHaveBeenLastCalledWith( file2 );
+		const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+		const id = await start( result );
 		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'failed' );
+		await act( async () => result.current.retryUpload( id ) );
+		expect( mockUploader ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.uploadQueue[ 0 ].error ).toBeUndefined();
+	}
+);
+
+it( 'synchronizes chapters only after the description is saved', async () => {
+	mockFetch.mockResolvedValue( {
+		id: 101,
+		title: { rendered: 'Video' },
+		description: { rendered: '' },
+		media_details: {},
+		jetpack_videopress: { guid: 'abc123' },
 	} );
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { description: '0:00 Intro' } ) );
+	expect( syncChapters ).not.toHaveBeenCalled();
+	await succeed();
+	expect( syncChapters ).toHaveBeenCalledWith(
+		expect.objectContaining( { guid: 'abc123' } ),
+		'0:00 Intro',
+		expect.anything()
+	);
+} );
+
+it( 'releases finished files after the library refresh but retains the temporary route mapping', async () => {
+	jest.useFakeTimers();
+	try {
+		const client = createTestQueryClient();
+		let finishRefetch: () => void;
+		jest.spyOn( client, 'invalidateQueries' ).mockReturnValue(
+			new Promise( resolve => {
+				finishRefetch = resolve;
+			} )
+		);
+		const { result } = renderHook( useUpload, { wrapper: createTestWrapper( client ) } );
+		const id = await start( result );
+		await succeed();
+		act( () => jest.runOnlyPendingTimers() );
+		expect( result.current.uploadQueue ).toHaveLength( 1 );
+		await act( async () => {
+			finishRefetch!();
+		} );
+		act( () => jest.runOnlyPendingTimers() );
+		expect( result.current.uploadQueue ).toHaveLength( 0 );
+		expect( result.current.completedUploads[ id ] ).toBe( '101' );
+		expect( mockFetch ).not.toHaveBeenCalled();
+	} finally {
+		jest.useRealTimers();
+	}
+} );
+
+it( 'ignores late progress and duplicate completion callbacks', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	await start( result );
+	await start( result );
+	await succeed();
+	await succeed();
+	act( () => callbacks().onProgress( 1, 10 ) );
+	expect( result.current.uploadQueue[ 0 ].status ).toBe( 'success' );
+	expect( result.current.uploadQueue[ 1 ].status ).toBe( 'pending' );
+	expect( mockUploader ).toHaveBeenCalledTimes( 2 );
+} );
+
+it( 'ignores callbacks from a failed attempt after the same upload is retried', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	await act( async () => callbacks().onError( new Error( 'Offline' ) ) );
+	await act( async () => result.current.retryUpload( id ) );
+	act( () => {
+		callbacks().onProgress( 10, 10 );
+		callbacks().onSuccess( media, file() );
+	} );
+	expect( result.current.uploadQueue[ 0 ].status ).toBe( 'pending' );
+	expect( result.current.completedUploads[ id ] ).toBeUndefined();
+	await succeed( 1 );
+	expect( result.current.completedUploads[ id ] ).toBe( '101' );
 } );

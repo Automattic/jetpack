@@ -39,8 +39,34 @@ class Client {
 			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
 		}
 
+		// Feed failures into the outgoing-request error flow of Error_Handler: any known
+		// connection error is stored and surfaced to the user. See the Error_Handler
+		// class docblock for the full picture of both error-handling flows.
+		// Outgoing XML-RPC calls (Jetpack_IXR_Client) are funneled through this method too;
+		// tell the transports apart by the endpoint the request targets.
+		// The literals match Error_Handler::ERROR_TYPE_XMLRPC / ERROR_TYPE_REST. The constants
+		// themselves must not be referenced from this class: during a plugin update, a stale
+		// Error_Handler that predates them can already be loaded, and resolving them against
+		// it would fatal the request.
+		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
+		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
+
 		$result = self::build_signed_request( $args, $body );
 		if ( is_wp_error( $result ) ) {
+			// The request was never made, so it has no response to check. Report the signing
+			// failure; attribution comes from the error itself — see
+			// `Error_Handler::check_signed_request_for_errors()`.
+			// Reporting is best-effort and must never fatal a request running mid-plugin-update:
+			// skip it when the already-loaded Error_Handler is a stale version predating this method.
+			if ( method_exists( Error_Handler::class, 'check_signed_request_for_errors' ) ) {
+				Error_Handler::get_instance()->check_signed_request_for_errors(
+					$result,
+					empty( $args['url'] ) ? '' : $args['url'],
+					empty( $args['method'] ) ? 'POST' : $args['method'],
+					$error_type
+				);
+			}
+
 			return $result;
 		}
 
@@ -51,7 +77,7 @@ class Client {
 			$result['auth'],
 			empty( $args['url'] ) ? '' : $args['url'],
 			empty( $args['method'] ) ? 'POST' : $args['method'],
-			'rest'
+			$error_type
 		);
 
 		/**
@@ -106,13 +132,28 @@ class Client {
 
 		$args['blog_id'] = (int) $args['blog_id'];
 
+		if ( ! self::is_safe_url_path( $args['url'] ) ) {
+			return new WP_Error( 'invalid_request_path', 'The request path contains a dot segment, a fragment or whitespace.' );
+		}
+
 		if ( 'header' !== $args['auth_location'] ) {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
+		// Return the specific reason the token could not be loaded instead of a bare `false`.
+		// Note the returned `WP_Error` is truthy, so this must not be tested with `! $token`.
+		$token = ( new Tokens() )->get_access_token(
+			$args['user_id'],
+			false, // token_key
+			false  // suppress_errors
+		);
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
 		if ( ! $token ) {
-			return new WP_Error( 'missing_token' );
+			// `get_access_token()` explains itself for every case but one: it returns a bare
+			// `false` when the tokens are locked. That lock is one-shot and self-healing.
+			return new WP_Error( 'tokens_locked' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -199,7 +240,7 @@ class Client {
 			$url_args += $auth;
 		}
 
-		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
+		$url = self::add_query_args( $url_args, $args['url'] );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -222,10 +263,60 @@ class Client {
 		);
 
 		if ( 'header' !== $args['auth_location'] ) {
-			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
+			$url = self::add_query_args( array( 'signature' => $signature ), $url );
 		}
 
 		return compact( 'url', 'request', 'auth' );
+	}
+
+	/**
+	 * Checks that the part of a URL before its query names one resource, so the transport cannot resolve it to another.
+	 *
+	 * The HTTP transport removes `.` and `..` segments before it sends the request, and the receiving server can decode `%2e` and `%2f` into them.
+	 *
+	 * @param string $url The URL.
+	 * @return bool False when the path holds a dot segment, literal or encoded, a fragment, or whitespace.
+	 */
+	private static function is_safe_url_path( $url ) {
+		$position = strpos( $url, '?' );
+		$path     = false === $position ? $url : substr( $url, 0, $position );
+
+		if ( preg_match( '#[\#\s\x00-\x1f\x7f]#', $path ) ) {
+			return false;
+		}
+
+		return ! preg_match( '#(^|/)\.\.?(/|$)#', rawurldecode( $path ) );
+	}
+
+	/**
+	 * Adds arguments to the query string of a URL, keeping each existing key and value with the meaning the caller gave it.
+	 *
+	 * @param array  $args Unencoded scalar arguments to add. They replace existing arguments with the same name.
+	 * @param string $url  The URL.
+	 * @return string The URL with the arguments added and every key and value encoded.
+	 */
+	private static function add_query_args( $args, $url ) {
+		$fragment = '';
+		$position = strpos( $url, '#' );
+		if ( false !== $position ) {
+			$fragment = substr( $url, $position );
+			$url      = substr( $url, 0, $position );
+		}
+
+		$params   = array();
+		$position = strpos( $url, '?' );
+		if ( false !== $position ) {
+			parse_str( substr( $url, $position + 1 ), $params );
+			$url = substr( $url, 0, $position );
+		}
+
+		foreach ( $args as $key => $value ) {
+			$params[ $key ] = (string) $value;
+		}
+
+		$query = http_build_query( $params, '', '&' );
+
+		return $url . ( '' === $query ? '' : '?' . $query ) . $fragment;
 	}
 
 	/**

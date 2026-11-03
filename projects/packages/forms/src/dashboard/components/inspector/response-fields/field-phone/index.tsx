@@ -7,6 +7,7 @@ import { Link } from '@wordpress/ui';
  * Internal dependencies
  */
 import TextWithFlag from '../../../text-with-flag/index.tsx';
+import type { JSX } from 'react';
 
 type PhoneDisplayInfo = {
 	formattedNumber: string;

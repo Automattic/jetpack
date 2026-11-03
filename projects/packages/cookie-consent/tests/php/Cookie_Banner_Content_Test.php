@@ -7,12 +7,9 @@
 
 namespace Automattic\Jetpack\CookieConsent;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
-
 /**
- * @coversNothing
+ * Tests for the banner template.
  */
-#[CoversNothing]
 class Cookie_Banner_Content_Test extends TestCase {
 
 	/**
@@ -44,16 +41,6 @@ class Cookie_Banner_Content_Test extends TestCase {
 	}
 
 	/**
-	 * Assert that a string matches a regex pattern.
-	 *
-	 * @param string $pattern Regex pattern.
-	 * @param string $string  String to check.
-	 */
-	private function assert_string_matches_pattern( $pattern, $string ) {
-		$this->assertSame( 1, preg_match( $pattern, $string ) );
-	}
-
-	/**
 	 * Empty cookie policy URLs hide the Cookie Policy link.
 	 */
 	public function test_empty_cookie_policy_url_hides_cookie_policy_link() {
@@ -71,7 +58,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
 		$this->assertStringNotContainsString( 'automattic.com/cookies', $html );
 		// The lead-in introduces the single Privacy Policy link.
-		$this->assert_string_matches_pattern( '/Learn more in our\\s*<a [^>]*>\\s*Privacy Policy\\s*<\\/a>\\./', $html );
+		$this->assertMatchesRegularExpression( '/Learn more in our\\s*<a [^>]*>\\s*Privacy Policy\\s*<\\/a>\\./', $html );
 	}
 
 	/**
@@ -92,9 +79,9 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'Cookie Policy', $html );
 		$this->assertStringContainsString( 'href="https://example.com/cookies/"', $html );
 		$links_pattern = '/Privacy Policy\\s*<\\/a>\\s+and\\s+'
-			. '<a href="https:\\/\\/example\\.com\\/cookies\\/"[^>]*>\\s*'
+			. '<a [^>]*href="https:\\/\\/example\\.com\\/cookies\\/"[^>]*>\\s*'
 			. 'Cookie Policy\\s*<\\/a>\\./';
-		$this->assert_string_matches_pattern(
+		$this->assertMatchesRegularExpression(
 			$links_pattern,
 			$html
 		);
@@ -114,7 +101,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
 		$this->assertStringNotContainsString( 'href="https://example.com/top-level-cookies/"', $html );
-		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
+		$this->assertMatchesRegularExpression( '/Privacy Policy\\s*<\\/a>\\s*\\./', $html );
 	}
 
 	/**
@@ -133,7 +120,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 
 		$this->assertStringContainsString( 'Privacy Policy', $html );
 		$this->assertStringNotContainsString( 'Cookie Policy', $html );
-		$this->assert_string_matches_pattern( '/Privacy Policy\\s*<\\/a>\\./', $html );
+		$this->assertMatchesRegularExpression( '/Privacy Policy\\s*<\\/a>\\./', $html );
 	}
 
 	/**
@@ -153,7 +140,7 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-cookie-consent__link', $html );
 		// With no links to introduce, the "Learn more in our" lead-in must not render either.
 		$this->assertStringNotContainsString( 'Learn more in our', $html );
-		$this->assert_string_matches_pattern( '/settings below\\.\\s*<\\/p>/', $html );
+		$this->assertMatchesRegularExpression( '/settings below\\.\\s*<\\/p>/', $html );
 	}
 
 	/**
@@ -173,5 +160,24 @@ class Cookie_Banner_Content_Test extends TestCase {
 		$this->assertStringContainsString( 'href="https://example.com/cookies/"', $html );
 		$this->assertStringNotContainsString( '<a href=""', $html );
 		$this->assertStringNotContainsString( 'Privacy Policy', $html );
+	}
+
+	/**
+	 * The GPC notice ships hidden, so a visitor without GPC never sees it, and uses overridden copy.
+	 */
+	public function test_gpc_notice_renders_hidden_with_overridden_copy() {
+		$html = $this->render_template(
+			array(
+				'copy' => array(
+					'gpc_notice' => 'Custom GPC notice.',
+				),
+			)
+		);
+
+		$this->assertMatchesRegularExpression(
+			'/<p id="cookie-consent-modal-gpc-notice" [^>]*role="status" data-wp-bind--hidden="!context.gpcNotice" hidden>\\s*Custom GPC notice\\.\\s*<\\/p>/',
+			$html
+		);
+		$this->assertSame( 2, substr_count( $html, 'Custom GPC notice.' ) );
 	}
 }

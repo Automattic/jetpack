@@ -528,10 +528,12 @@ type BlockStyleProperties = {
 	 * becomes
 	 * `{ '--colorComment': string | undefined; }`
 	 */
-	[ key in `--${ keyof Pick<
-		Attributes,
-		Extract< keyof Attributes, `color${ Capitalize< string > }` >
-	> }` ]-?: string | undefined;
+	[
+		key in `--${ keyof Pick<
+			Attributes,
+			Extract< keyof Attributes, `color${ Capitalize< string > }` >
+		> }`
+	]-?: string | undefined;
 } & {
 	'--line-numbers-start-at'?: string;
 	'--line-number-gutter-width'?: string;
@@ -570,9 +572,8 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
 	}
 
 	if ( attributes.backgroundColor ) {
-		properties[
-			'--colorBackground'
-		] = `var( --wp--preset--color--${ attributes.backgroundColor } )`;
+		properties[ '--colorBackground' ] =
+			`var( --wp--preset--color--${ attributes.backgroundColor } )`;
 	} else if ( attributes.style?.color?.background ) {
 		properties[ '--colorBackground' ] = attributes.style.color.background;
 	}
@@ -593,15 +594,12 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
  *
  * `[` is HTML encoded to prevent shortcodes from being processed.
  *
- * A numeric encoding is used for `&` as a workaround for
- * {@link https://core.trac.wordpress.org/ticket/63630|Trac 63630}.
- * The issue should be fixed in WordPress 6.9.
  * @param content - Original content.
  * @return Encoded content.
  */
 function htmlEncode( content: string ): string {
 	return content
-		.replaceAll( '&', '&#38;' )
+		.replaceAll( '&', '&amp;' )
 		.replaceAll( '<', '&lt;' )
 		.replaceAll( '>', '&gt;' )
 		.replaceAll( '[', '&#91;' )

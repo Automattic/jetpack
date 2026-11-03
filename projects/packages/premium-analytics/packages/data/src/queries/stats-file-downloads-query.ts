@@ -18,9 +18,6 @@ export const statsFileDownloadsQuery = (
 		'1.1',
 		undefined,
 		{
-			// The endpoint derives the number of periods from `start_date` and `date`,
-			// so the generic `days` parameter is redundant and is not part of the
-			// legacy Calypso request.
 			omitParams: [ 'days' ],
 		}
 	);

@@ -1,7 +1,6 @@
 const mockModuleControl = jest.fn();
 const mockReaderChatControl = jest.fn();
 const mockSearchSuggestionsControl = jest.fn();
-const mockAIAgentAccessControl = jest.fn();
 const mockWooCommerceProductSearchControl = jest.fn();
 let mockSelectMethods;
 let mockDispatchMethods;
@@ -14,9 +13,11 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 	getProductCheckoutUrl: jest.fn( () => 'https://example.com/checkout' ),
 } ) );
 
+let mockHasConnectionError = false;
+
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
-	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+	useConnectionErrorNotice: () => ( { hasConnectionError: mockHasConnectionError } ),
 } ) );
 
 jest.mock( '@wordpress/data', () => ( {
@@ -46,10 +47,6 @@ jest.mock( 'components/reader-chat-control', () => props => {
 jest.mock( 'components/search-suggestions-control', () => props => {
 	mockSearchSuggestionsControl( props );
 	return <div data-testid="search-suggestions-control" />;
-} );
-jest.mock( 'components/ai-agent-access-control', () => props => {
-	mockAIAgentAccessControl( props );
-	return <div data-testid="ai-agent-access-control" />;
 } );
 jest.mock( 'components/woocommerce-product-search-control', () => props => {
 	mockWooCommerceProductSearchControl( props );
@@ -82,9 +79,6 @@ const createSelectMethods = () => ( {
 	getReaderChatGuidelinesUrl: jest.fn(
 		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
 	),
-	getAIAgentAccessGuidelinesUrl: jest.fn(
-		() => 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin'
-	),
 	getSearchModuleStatus: jest.fn(),
 	getSearchPlanInfo: jest.fn(),
 	getSearchStats: jest.fn(),
@@ -100,7 +94,6 @@ const createSelectMethods = () => ( {
 	isNewPricing202208: jest.fn( () => false ),
 	isOverLimit: jest.fn( () => false ),
 	isPlanJustUpgraded: jest.fn( () => false ),
-	isAIAgentAccessAvailable: jest.fn( () => true ),
 	isReaderChatAvailable: jest.fn( () => true ),
 	isReaderChatEnabled: jest.fn( () => true ),
 	isResolving: jest.fn( () => false ),
@@ -135,9 +128,9 @@ describe( 'DashboardPage', () => {
 		mockModuleControl.mockClear();
 		mockReaderChatControl.mockClear();
 		mockSearchSuggestionsControl.mockClear();
-		mockAIAgentAccessControl.mockClear();
 		mockWooCommerceProductSearchControl.mockClear();
 		window.history.replaceState( {}, '', DEFAULT_TEST_URL );
+		mockHasConnectionError = false;
 		mockSelectMethods = createSelectMethods();
 		mockDispatchMethods = {
 			removeNotice: jest.fn(),
@@ -145,7 +138,21 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
-	test( 'passes Reader Chat and AI Agent Access settings to the Search settings control', () => {
+	test.each( [ true, false ] )(
+		'over-limit Site Chat saving lock when enabled is %s',
+		isEnabled => {
+			mockSelectMethods.isSearchBlocksEnabled.mockReturnValue( true );
+			mockSelectMethods.isOverLimit.mockReturnValue( true );
+			mockSelectMethods.isReaderChatEnabled.mockReturnValue( isEnabled );
+			render( <DashboardPage /> );
+			fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+			expect( mockReaderChatControl ).toHaveBeenCalledWith(
+				expect.objectContaining( { isSaving: ! isEnabled } )
+			);
+		}
+	);
+
+	test( 'passes Reader Chat settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 
 		// The settings control lives in the Settings tab, which isn't visible until selected.
@@ -154,9 +161,6 @@ describe( 'DashboardPage', () => {
 		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
 		expect( mockModuleControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				aiAgentAccessGuidelinesUrl:
-					'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
-				isAIAgentAccessAvailable: true,
 				isReaderChatAvailable: true,
 				isReaderChatEnabled: true,
 				readerChatGuidelinesUrl:
@@ -164,12 +168,10 @@ describe( 'DashboardPage', () => {
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
 			} )
 		);
-		expect( mockSelectMethods.getAIAgentAccessGuidelinesUrl ).toHaveBeenCalled();
-		expect( mockSelectMethods.isAIAgentAccessAvailable ).toHaveBeenCalled();
 		expect( mockSelectMethods.getReaderChatGuidelinesUrl ).toHaveBeenCalled();
 	} );
 
-	test( 'renders ReaderChatControl and AIAgentAccessControl alongside ExperienceSelector when search blocks is enabled', () => {
+	test( 'renders ReaderChatControl alongside ExperienceSelector when search blocks is enabled', () => {
 		jest.spyOn( mockSelectMethods, 'isSearchBlocksEnabled' ).mockImplementation( () => true );
 
 		render( <DashboardPage /> );
@@ -177,7 +179,6 @@ describe( 'DashboardPage', () => {
 
 		expect( screen.getByTestId( 'experience-selector' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'reader-chat-control' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'ai-agent-access-control' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'module-control' ) ).not.toBeInTheDocument();
 		expect( mockReaderChatControl ).toHaveBeenCalledWith(
 			expect.objectContaining( {
@@ -186,14 +187,6 @@ describe( 'DashboardPage', () => {
 				isSaving: false,
 				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
 				updateOptions: mockDispatchMethods.updateJetpackSettings,
-			} )
-		);
-		expect( mockAIAgentAccessControl ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				className: 'jp-search-ai-agent-access-card',
-				isAvailable: true,
-				guidelinesUrl: 'https://example.com/wp-admin/options-general.php?page=guidelines-wp-admin',
-				showGuidelinesLink: false,
 			} )
 		);
 	} );
@@ -533,6 +526,28 @@ describe( 'DashboardPage', () => {
 		);
 		expect( window.location.hash ).toBe( '#/overview' );
 		expect( window.location.search ).not.toContain( 'tab=' );
+	} );
+
+	test( 'renders the connection error notice above the tab panels, on every tab', () => {
+		mockHasConnectionError = true;
+
+		render( <DashboardPage /> );
+		fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+
+		const notice = screen.getByTestId( 'connection-error' );
+		expect( notice ).toBeInTheDocument();
+		expect( screen.getByTestId( 'module-control' ) ).toBeInTheDocument();
+
+		// The notice sits above the tab panels, so it can't scroll away with one
+		// tab's content and shows regardless of which tab is active.
+		const tabList = screen.getByRole( 'tablist' );
+		expect( notice.compareDocumentPosition( tabList ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
+	} );
+
+	test( 'renders no connection error notice when the connection is healthy', () => {
+		render( <DashboardPage /> );
+
+		expect( screen.queryByTestId( 'connection-error' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'canonicalizes the URL when an external hashchange lands on a legacy slug', () => {

@@ -1,0 +1,41 @@
+.jpb-file-info-dialog {
+
+	// Narrowed by the sidebar `.jpb-menu-aware-dialog` steps around.
+	&__popup {
+		// `min()`, not a bare value: same property as the `large` cap, so replacing
+		// it outright would drop the 960px ceiling and balloon on wide screens.
+		max-width: min(var(--wpds-dimension-surface-width-2xl), calc(100vw - var(--jpb-admin-menu-width, 0px) - 2 * var(--viewport-inset)));
+	}
+
+	// Same shape as the card's header, in the chrome that has less room:
+	// `Dialog.Header`'s close icon cannot shrink, and `.popup` hides overflow.
+	&__title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	&__title-icon {
+		flex-shrink: 0;
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	// No `max-height`, unlike the card's: the dialog exists because the panel
+	// could not give the preview room, so the popup's own height is the limit.
+	&__preview {
+		overflow-x: auto;
+		display: flex;
+		flex-direction: column;
+		background-color: transparent;
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: 4px;
+		padding: 12px;
+	}
+}

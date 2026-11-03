@@ -16,8 +16,8 @@ return make_phan_config(
 		// The Divi 5 `ET\Builder\*` signatures come from `.phan/stubs/divi-stubs.php`,
 		// which is parsed automatically (it lives under `.phan/stubs/`); it is not a
 		// named stub and must not be added to `+stubs`. See that file's header.
-		'+stubs'                          => array( 'wpcom' ),
-		'parse_file_list'                 => array(
+		'+stubs'             => array( 'wpcom' ),
+		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//
@@ -31,11 +31,17 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/modules/videopress/class.videopress-edit-attachment.php',                                                   // class VideoPress_Edit_Attachment
 			__DIR__ . '/../../../plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/interface-subscription-service.php',            // interface Subscription_Service
 			__DIR__ . '/../../../plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/include.php',                                   // function Automattic\Jetpack\Extensions\Premium_Content\subscription_service   phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			__DIR__ . '/../../../plugins/jetpack/extensions/blocks/premium-content/_inc/access-check.php',                                                   // Premium Content plan-access helpers.
 			__DIR__ . '/../../../plugins/jetpack/_inc/lib/core-api/load-wpcom-endpoints.php',                                                                // function wpcom_rest_api_v2_load_plugin
 		),
-		'exclude_analysis_directory_list' => array(
-			// This file is generated from a `wp-build` template, and the upstream template has two safe Phan violations related to `exit`.
-			'build/pages/jetpack-videopress-dashboard/page.php',
+		'exclude_file_list'  => array(
+			// Redefines subscription_service() and visitor_can_access_plan_ids(), both parsed above;
+			// the runtime function_exists() guards keep the real ones when present.
+			'tests/php/mocks/premium-content-subscription-service.php',
+			'tests/php/mocks/compatibility-premium-content-subscription-service.php',
+		),
+		'exclude_file_regex' => array(
+			'build/',
 		),
 	)
 );

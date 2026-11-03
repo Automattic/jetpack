@@ -1,20 +1,25 @@
 import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
 
-export interface LeaderboardChartProps
-	extends Pick<
-		BaseChartProps< LeaderboardEntry >,
-		| 'className'
-		| 'data'
-		| 'showLegend'
-		| 'legend'
-		| 'chartId'
-		| 'width'
-		| 'height'
-		| 'size'
-		| 'gap'
-		| 'animation'
-	> {
+export interface LeaderboardChartProps extends Pick<
+	BaseChartProps< LeaderboardEntry >,
+	| 'className'
+	| 'showLegend'
+	| 'legend'
+	| 'chartId'
+	| 'width'
+	| 'height'
+	| 'size'
+	| 'gap'
+	| 'animation'
+	| 'ariaLabel'
+> {
+	/**
+	 * Entries to display. Declared here rather than picked, since the base type
+	 * would split the entry union into one array type per member.
+	 */
+	data: LeaderboardEntry[];
+
 	/**
 	 * Whether to show comparison data
 	 */
@@ -24,6 +29,12 @@ export interface LeaderboardChartProps
 	 * Whether to overlay the label on top of bar
 	 */
 	withOverlayLabel?: boolean;
+
+	/**
+	 * How a negative value draws: `diverge` puts every row on a shared zero point, `clamp` draws it as an empty bar.
+	 * @default 'diverge'
+	 */
+	negativeBars?: 'diverge' | 'clamp';
 
 	/**
 	 * Primary color for current period bars
@@ -36,9 +47,9 @@ export interface LeaderboardChartProps
 	secondaryColor?: string;
 
 	/**
-	 * Formatter for values
+	 * Formatter for values. May return an element, e.g. to attach a tooltip.
 	 */
-	valueFormatter?: ( value: number ) => string;
+	valueFormatter?: ( value: number ) => ReactNode;
 
 	/**
 	 * Formatter for delta values
@@ -65,8 +76,6 @@ export interface LeaderboardChartProps
 	 */
 	style?: React.CSSProperties & {
 		'--a8c-charts-border-radius-leaderboard-bar'?: string;
-		/** @deprecated Use `--a8c-charts-border-radius-leaderboard-bar`. */
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
 
 	/**

@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
+import {
+	CalendlyBlockControls,
+	CalendlyCustomizationLink,
+	CalendlyInspectorControls,
+} from '../controls';
 
 // Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
 jest.mock( '@automattic/jetpack-script-data', () => {
@@ -147,35 +151,18 @@ describe( 'CalendlyInspectorControls', () => {
 			hideEventTypeDetails: ! defaultAttributes.hideEventTypeDetails,
 		} );
 	} );
+} );
 
-	test( 'displays notice and link when URL present', async () => {
-		const user = userEvent.setup();
-		await renderExpandedSettings( user, defaultProps );
+describe( 'CalendlyCustomizationLink', () => {
+	test( 'links to the customization docs', () => {
+		render( <CalendlyCustomizationLink /> );
+		const link = screen.getByRole( 'link', {
+			name: 'Explore customization options(opens in a new tab)',
+		} );
 
-		const customizationHelpUrl =
-			'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
-		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
-		const linkText = 'Explore more customization options.(opens in a new tab)';
-		const link = screen.getByRole( 'link', { name: linkText } );
-
-		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', customizationHelpUrl );
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( link.closest( '.components-notice' ) ).toHaveClass( noticeClass );
-	} );
-
-	test( 'omits notice when no URL', async () => {
-		const user = userEvent.setup();
-		const noticeClass = `.${ defaultProps.defaultClassName }-color-notice`;
-		const attributes = { ...defaultAttributes, url: undefined };
-		const { container } = render(
-			<CalendlyInspectorControls { ...{ ...defaultProps, attributes } } />
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block'
 		);
-
-		await user.click( screen.getByText( 'Calendar settings' ) );
-
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( noticeClass ) ).not.toBeInTheDocument();
 	} );
 } );

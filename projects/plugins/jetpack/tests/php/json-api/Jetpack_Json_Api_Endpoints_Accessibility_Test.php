@@ -43,6 +43,18 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @var int $no_read_user_id.
 	 */
 	private static $no_read_user_id;
+	/**
+	 * A low-privileged (subscriber) user_id.
+	 *
+	 * @var int $subscriber_user_id.
+	 */
+	private static $subscriber_user_id;
+	/**
+	 * A network super admin user_id. Only actually a super admin on multisite.
+	 *
+	 * @var int $super_admin_user_id.
+	 */
+	private static $super_admin_user_id;
 
 	/**
 	 * Create fixtures once, before any tests in the class have run.
@@ -50,11 +62,32 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	 * @param object $factory A factory object needed for creating fixtures.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$admin_user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
-		self::$no_read_user_id = $factory->user->create();
+		self::$admin_user_id       = $factory->user->create( array( 'role' => 'administrator' ) );
+		self::$no_read_user_id     = $factory->user->create();
+		self::$subscriber_user_id  = $factory->user->create( array( 'role' => 'subscriber' ) );
+		self::$super_admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+
+		// grant_super_admin() lives in ms-functions.php, which only loads on multisite.
+		if ( is_multisite() ) {
+			grant_super_admin( self::$super_admin_user_id );
+		}
 
 		$no_read_user = get_user_by( 'id', self::$no_read_user_id );
 		$no_read_user->add_cap( 'read', false );
+	}
+
+	/**
+	 * Clean up fixtures that the shared teardown does not reach.
+	 *
+	 * Granting super admin writes the user's login into the network's `site_admins` option, which lives
+	 * in sitemeta. The base class teardown truncates the users and usermeta tables but not sitemeta, so
+	 * without this the login of a deleted user stays in the network's super admin list for the rest of
+	 * the run.
+	 */
+	public static function wpTearDownAfterClass() {
+		if ( is_multisite() ) {
+			revoke_super_admin( self::$super_admin_user_id );
+		}
 	}
 
 	/**
@@ -64,6 +97,34 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 		$_SERVER['REQUEST_METHOD'] = 'Get';
 		$_SERVER['HTTP_HOST']      = '127.0.0.1';
 		$_SERVER['REQUEST_URI']    = '/';
+	}
+
+	/**
+	 * Builds a capability-less dummy endpoint and installs a declaration on it.
+	 *
+	 * `$needed_capabilities` is protected, and these tests need to install shapes no production
+	 * endpoint declares, so reflection is the only way in. Kept in one place so the
+	 * `PHP_VERSION_ID` branch (setAccessible() became a no-op in 8.1) has a single call site.
+	 *
+	 * @param mixed $needed_capabilities The capability declaration to install.
+	 *
+	 * @return Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint
+	 */
+	private function endpoint_declaring( $needed_capabilities ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		$property = ( new ReflectionClass( $endpoint ) )->getProperty( 'needed_capabilities' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $endpoint, $needed_capabilities );
+
+		return $endpoint;
 	}
 
 	/**
@@ -79,6 +140,12 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 		}
 
 		$this->set_globals();
+
+		// Several tests here assert against a site (blog) token, which `is_jetpack_authorized_for_site()`
+		// recognizes only while no user is logged in. The base class clears the current user in tear_down(),
+		// but `wpSetUpBeforeClass()` and the previous class's `wpTearDownAfterClass()` both run after that,
+		// so the first test in the class would otherwise inherit whatever they left behind.
+		wp_set_current_user( 0 );
 
 		// Initialize some missing stuff for the API.
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
@@ -180,6 +247,457 @@ class Jetpack_Json_Api_Endpoints_Accessibility_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Regression test for the empty-capabilities authorization bypass. An endpoint declaring no
+	 * required capabilities (like the Backup helper-script endpoints) must be reachable only with a
+	 * Jetpack blog token; an empty `$needed_capabilities` array previously made `check_capability()`
+	 * pass for any connected user token.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_empty_capabilities_requires_site_auth
+	 *
+	 * @param bool            $use_blog_token If we should simulate a blog token for this test.
+	 * @param WP_Error|string $result         The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_empty_capabilities_requires_site_auth' )]
+	public function test_empty_capabilities_requires_site_auth( $use_blog_token, $result ) {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		if ( ! $use_blog_token ) {
+			wp_set_current_user( self::$subscriber_user_id );
+		}
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_empty_capabilities_requires_site_auth.
+	 *
+	 * Note the 'blog token is accepted' row short-circuits at accepts_site_based_authentication()
+	 * before reaching the guard, so it passes with or without the guard. It is here to prove
+	 * legitimate access still works, not as evidence that the guard denies anything.
+	 */
+	public static function data_provider_test_empty_capabilities_requires_site_auth() {
+		return array(
+			'blog token is accepted'          => array( true, 'success' ),
+			'low-priv user token is rejected' => array( false, new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
+		);
+	}
+
+	/**
+	 * The deny is privilege-independent by design: a capability-less endpoint is a site-token
+	 * endpoint, so an administrator's user token is rejected exactly like a subscriber's.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_empty_capabilities_rejects_administrator_token() {
+		$endpoint = new Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint(
+			array(
+				'stat'                    => 'dummy',
+				'allow_jetpack_site_auth' => true,
+			)
+		);
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$this->assertEquals(
+			new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ),
+			$endpoint->api->process_request( $endpoint, array() )
+		);
+	}
+
+	/**
+	 * Capability declarations that resolve to "authorize unconditionally" must be denied, not just
+	 * the literal empty array. Three shapes reach the same fail-open as the original bug: a resolved
+	 * capability set that is empty (including scalar forms that skip the is_array() branch), an entry
+	 * that is not a capability name, and a `must_pass` threshold below 1, which makes
+	 * `$passed < $must_pass` false for every user. The middle shape authorizes by two different
+	 * routes: a numeric entry resolves to a legacy user level every role holds, on any site, while a
+	 * name core cannot map is granted only to a network super admin, so only that one is multisite-only.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_zero_threshold_declarations_are_denied
+	 *
+	 * @param mixed    $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_zero_threshold_declarations_are_denied' )]
+	public function test_zero_threshold_declarations_are_denied( $needed_capabilities, $result ) {
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
+
+		wp_set_current_user( self::$subscriber_user_id );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_zero_threshold_declarations_are_denied.
+	 */
+	public static function data_provider_test_zero_threshold_declarations_are_denied() {
+		$site_token_required = new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 );
+		$threshold           = new WP_Error( 'unauthorized_capability_threshold', 'This endpoint requires at least one capability check to pass.', 403 );
+		$declaration         = new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 );
+
+		return array(
+			// Resolved-empty capability sets. The numeric forms were fail-open everywhere before this
+			// fix; null and the empty string denied on single-site (which is what this suite runs) but
+			// passed for a network super admin on multisite, because WP_User::has_cap() returns true for
+			// a super admin whenever the mapped capabilities contain no 'do_not_allow'.
+			'structured wrapper with an empty list'       => array( array( 'capabilities' => array() ), $site_token_required ),
+			'null (the base class default)'               => array( null, $site_token_required ),
+			'empty string'                                => array( '', $site_token_required ),
+			'integer zero'                                => array( 0, $site_token_required ),
+			'string zero'                                 => array( '0', $site_token_required ),
+			// Non-string entries survive the emptiness check but resolve to legacy user levels:
+			// current_user_can( 0 ) checks level_0, which every default role holds.
+			'nested integer zero'                         => array( array( 0 ), $declaration ),
+			'nested string zero'                          => array( array( '0' ), $declaration ),
+			'nested empty string'                         => array( array( '' ), $declaration ),
+			// The only shape the guard's null-canonical arm rejects on its own: a non-string leaves
+			// $canonical null, which the mismatch test cannot catch (null !== null is false) and which
+			// is_numeric() does not reject either. The numeric rows above stay green without that arm,
+			// so this row is what stops it being deleted as redundant.
+			'nested null'                                 => array( array( null ), $declaration ),
+			// Whitespace-only names no capability, and core grants a network super admin anything it
+			// cannot map to 'do_not_allow', so the guard rejects on the canonical value rather than on ''.
+			'nested whitespace-only string'               => array( array( ' ' ), $declaration ),
+			'scalar whitespace-only string'               => array( ' ', $declaration ),
+			// PHP's byte-wise trim() strips neither the form feed nor any multibyte separator, so a
+			// declaration made only of those would otherwise reach current_user_can() as an unmappable
+			// name -- granted outright to a network super admin.
+			'nested form feed only'                       => array( array( "\x0C" ), $declaration ),
+			'nested no-break space only'                  => array( array( "\xC2\xA0" ), $declaration ),
+			'nested ideographic space only'               => array( array( "\xE3\x80\x80" ), $declaration ),
+			'nested byte order mark only'                 => array( array( "\xEF\xBB\xBF" ), $declaration ),
+			'nested invalid UTF-8'                        => array( array( "\xC3\x28" ), $declaration ),
+			// Padding around a real name is rejected rather than stripped: 'read ' is not the capability
+			// 'read', and accepting it would make the declaration and the check disagree.
+			'nested trailing whitespace'                  => array( array( 'read ' ), $declaration ),
+			'nested leading whitespace'                   => array( array( ' read' ), $declaration ),
+			// The one row whose rejecting arm is version-dependent: is_numeric( '0 ' ) is false before
+			// PHP 8.0, where only the canonical comparison denies it, and true from 8.0 on, where the
+			// numeric test denies it too. So this row discriminates the canonical arm on the < 8.0 legs
+			// only; the two padded-name rows above are what discriminate it on every supported version.
+			'nested padded zero'                          => array( array( '0 ' ), $declaration ),
+			// No 'capabilities' key, so the wrapper's own metadata is what gets capability-checked. That
+			// only reaches this guard when the metadata is not capability-shaped; see the wrapper test
+			// below for the string-valued case, which is indistinguishable from an ordinary list.
+			'wrapper with no capabilities key'            => array( array( 'must_pass' => 0 ), $declaration ),
+			// Zero thresholds over a non-empty list.
+			'must_pass of 0 over a real list'             => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => 0,
+				),
+				$threshold,
+			),
+			'negative must_pass over a real list'         => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => -1,
+				),
+				$threshold,
+			),
+			// Sanity rows: these are GREEN on trunk too. They prove the new guards did not swallow the
+			// ordinary capability path, not that anything is newly denied.
+			'real capability still denies a subscriber'   => array(
+				array( 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+			'scalar capability still denies a subscriber' => array(
+				'manage_options',
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+			// A scalar under the 'capabilities' key is the one shape this refactor makes less strict:
+			// on trunk it never reached a capability check at all (count() on a string warned to 1 and
+			// the foreach body never ran on PHP 7.x, and count() threw a TypeError on PHP 8+). It now
+			// normalizes to a one-element list and runs the real check, so it can authorize a user who
+			// holds the capability. No declaration in this repository uses the shape; this row pins it
+			// to an ordinary capability check rather than to either fail-open or a fatal.
+			'scalar under the capabilities key still denies a subscriber' => array(
+				array( 'capabilities' => 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+		);
+	}
+
+	/**
+	 * The wrapper shapes that reach a real capability check, pinned in both directions: authorized for
+	 * a capability the subscriber fixture holds (`read`), denied for one it does not (`manage_options`).
+	 * One direction alone would stay green against a regression that denied every wrapper declaration,
+	 * or against one that authorized them all. No declaration in this repository uses either shape, so
+	 * these rows fix the contract rather than endorse it.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check
+	 *
+	 * @param array           $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error|string $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check' )]
+	public function test_wrapper_shapes_reach_an_ordinary_capability_check( $needed_capabilities, $result ) {
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
+
+		wp_set_current_user( self::$subscriber_user_id );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_wrapper_shapes_reach_an_ordinary_capability_check.
+	 */
+	public static function data_provider_test_wrapper_shapes_reach_an_ordinary_capability_check() {
+		return array(
+			// The scalar-under-'capabilities' shape is the one this refactor makes less strict: on trunk
+			// it never reached a capability check at all. It now normalizes to a one-element list, so it
+			// must authorize a holder and deny a non-holder (the deny half is pinned in the provider
+			// above).
+			'scalar under the capabilities key authorizes a holder' => array(
+				array( 'capabilities' => 'read' ),
+				'success',
+			),
+			// A wrapper with no 'capabilities' key resolves to its own metadata. A string value there is
+			// indistinguishable from the list array( 'read' ), so it gets an ordinary capability check
+			// rather than the declaration deny. This predates the refactor; the rows state it plainly so
+			// the guard's contract is not read as "every wrapper missing 'capabilities' fails closed".
+			'string-valued wrapper metadata is capability-checked' => array(
+				array( 'must_pass' => 'read' ),
+				'success',
+			),
+			'string-valued wrapper metadata still denies' => array(
+				array( 'must_pass' => 'manage_options' ),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+		);
+	}
+
+	/**
+	 * The threshold guard must sit below the accepts_site_based_authentication() short-circuit, exactly
+	 * like the emptiness guard. Without this row a refactor that hoisted both guards above the
+	 * short-circuit would 403 legitimate blog-token traffic with the rest of the suite still green.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_zero_threshold_still_accepts_a_blog_token() {
+		$endpoint = $this->endpoint_declaring(
+			array(
+				'capabilities' => array( 'manage_options' ),
+				'must_pass'    => 0,
+			)
+		);
+
+		// No current user, so is_jetpack_authorized_for_site() stands in for blog-token auth.
+		$this->assertEquals( 'success', $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Sibling of test_zero_threshold_still_accepts_a_blog_token for the declaration guard, so all three
+	 * guards are pinned below the accepts_site_based_authentication() short-circuit. A refactor that
+	 * hoisted only this one above the short-circuit would 403 legitimate blog-token traffic to any
+	 * endpoint whose declaration is a numeric or blank literal, and nothing else in the suite would fail.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_capability_declaration_still_accepts_a_blog_token() {
+		// Non-empty, so it clears the emptiness guard and would be caught by the declaration guard if the
+		// short-circuit above it did not fire first -- which is exactly what this test pins.
+		$endpoint = $this->endpoint_declaring( array( 0 ) );
+
+		// No current user, so is_jetpack_authorized_for_site() stands in for blog-token auth.
+		$this->assertEquals( 'success', $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * The supported N-of-M wrapper must keep working. The threshold rows above only cover the invalid
+	 * side (below 1), and this refactor rewrote the counting path that the valid side depends on, so
+	 * assert both outcomes directly. The subscriber fixture holds `read` and not `manage_options`.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_positive_must_pass_thresholds
+	 *
+	 * @param array           $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error|string $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_positive_must_pass_thresholds' )]
+	public function test_positive_must_pass_thresholds( $needed_capabilities, $result ) {
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
+
+		wp_set_current_user( self::$subscriber_user_id );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_positive_must_pass_thresholds.
+	 */
+	public static function data_provider_test_positive_must_pass_thresholds() {
+		$capabilities = array( 'read', 'manage_options' );
+
+		return array(
+			'1 of 2 passes on the capability the user holds' => array(
+				array(
+					'capabilities' => $capabilities,
+					'must_pass'    => 1,
+				),
+				'success',
+			),
+			'2 of 2 denies and names only the failed capability' => array(
+				array(
+					'capabilities' => $capabilities,
+					'must_pass'    => 2,
+				),
+				new WP_Error( 'unauthorized', 'This user is not authorized to manage_options on this blog.', 403 ),
+			),
+		);
+	}
+
+	/**
+	 * Core grants a network super admin any capability it cannot map to `do_not_allow`, which is the
+	 * fail-open these guards close. Every guard returns before `current_user_can()` runs, so the
+	 * subscriber rows already cover this path by inspection. Executing it also pins the guards against
+	 * a future identity shortcut inserted above them, which those rows would not catch.
+	 *
+	 * @group json-api
+	 * @dataProvider data_provider_test_super_admin_is_denied_on_multisite
+	 *
+	 * @param mixed    $needed_capabilities The capability declaration to install on the endpoint.
+	 * @param WP_Error $result              The expected result.
+	 */
+	#[Group( 'json-api' )]
+	#[DataProvider( 'data_provider_test_super_admin_is_denied_on_multisite' )]
+	public function test_super_admin_is_denied_on_multisite( $needed_capabilities, $result ) {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Network super admins only exist on multisite.' );
+		}
+
+		$endpoint = $this->endpoint_declaring( $needed_capabilities );
+
+		wp_set_current_user( self::$super_admin_user_id );
+
+		// Without this the rows would still pass on a fixture that is merely an administrator, and the
+		// test would assert nothing about the privilege level it exists to cover.
+		$this->assertTrue( is_super_admin( self::$super_admin_user_id ), 'Fixture must be a network super admin for these rows to mean anything.' );
+
+		$this->assertEquals( $result, $endpoint->api->process_request( $endpoint, array() ) );
+	}
+
+	/**
+	 * Data provider for test_super_admin_is_denied_on_multisite.
+	 */
+	public static function data_provider_test_super_admin_is_denied_on_multisite() {
+		return array(
+			// At least one row per guard, since a hoisted or identity-aware short-circuit could bypass any
+			// of them individually. Four rows for three guards: the declaration guard gets two, because
+			// its two sub-conditions authorize by different routes. Only the unmappable one is specific
+			// to this fixture -- core grants a network super admin any capability it cannot map -- while
+			// a numeric entry resolves to a legacy user level that every default role already holds.
+			'empty declaration' => array( array(), new WP_Error( 'unauthorized_site_token_required', 'This endpoint is only accessible using a Jetpack site token.', 403 ) ),
+			'numeric entry'     => array( array( 0 ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
+			'unmappable entry'  => array( array( ' ' ), new WP_Error( 'unauthorized_capability_declaration', 'This endpoint does not declare a valid capability requirement.', 403 ) ),
+			'zero must_pass'    => array(
+				array(
+					'capabilities' => array( 'manage_options' ),
+					'must_pass'    => 0,
+				),
+				new WP_Error( 'unauthorized_capability_threshold', 'This endpoint requires at least one capability check to pass.', 403 ),
+			),
+		);
+	}
+
+	/**
+	 * Every production endpoint that declares no capabilities is now unreachable without site-based
+	 * authentication, so each one must be registered with `allow_jetpack_site_auth => true` or it is
+	 * permanently 403. Nothing links the declaration to the registration, so assert the pairing.
+	 *
+	 * This test is GREEN on trunk as well -- all eight endpoints already carried the flag. It is a
+	 * forward-looking invariant for the newly mandatory pairing, not evidence of a fixed regression.
+	 * It only covers endpoints registered from this repository: under `IS_WPCOM` the endpoint
+	 * directory is loaded from the WordPress.com tree, so those registrations are not visible here.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_capability_less_endpoints_register_site_auth() {
+		$json_endpoints_dir = JETPACK__PLUGIN_DIR . 'json-endpoints/';
+		$checked            = 0;
+
+		foreach ( WPCOM_JSON_API::init()->endpoints as $endpoints_by_method ) {
+			if ( ! is_array( $endpoints_by_method ) ) {
+				continue;
+			}
+			foreach ( $endpoints_by_method as $endpoint ) {
+				if ( ! $endpoint instanceof Jetpack_JSON_API_Endpoint ) {
+					continue;
+				}
+
+				$class = new ReflectionClass( $endpoint );
+
+				// Skip the dummy endpoints defined in this test file; the endpoint constructor
+				// registers every instance, so they would otherwise leak in by test order.
+				if ( strpos( (string) $class->getFileName(), $json_endpoints_dir ) !== 0 ) {
+					continue;
+				}
+
+				// Exempt by name, not by structure. Overriding callback() does not imply bypassing
+				// check_capability() -- Jetpack_JSON_API_Plugins_Modify_Endpoint overrides it, assigns a
+				// capability per action and delegates to parent::callback() -- so exempting every override
+				// would silently skip the endpoints this invariant exists to catch.
+				//
+				// Only Jetpack_JSON_API_Check_Capabilities_Endpoint needs it: it hand-passes 'read' to
+				// validate_call(), never consults $needed_capabilities, and registers without the site-auth
+				// flag, so its unset default is not a site-token declaration.
+				// Jetpack_JSON_API_Themes_Active_Endpoint is the same shape but does register the flag, so
+				// it is asserted rather than exempted. Over-inclusion costs a false alarm; the structural
+				// proxy cost a silent miss.
+				if ( Jetpack_JSON_API_Check_Capabilities_Endpoint::class === $class->getName() ) {
+					continue;
+				}
+
+				$property = $class->getProperty( 'needed_capabilities' );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$property->setAccessible( true );
+				}
+				$capabilities = $property->getValue( $endpoint );
+				if ( is_array( $capabilities ) ) {
+					$capabilities = $capabilities['capabilities'] ?? $capabilities;
+				}
+				if ( ! empty( $capabilities ) ) {
+					continue;
+				}
+
+				++$checked;
+				$this->assertTrue(
+					$endpoint->allow_jetpack_site_auth,
+					$class->getName() . ' declares no capabilities, so it is only reachable with a site token and must be registered with allow_jetpack_site_auth => true.'
+				);
+			}
+		}
+
+		// Pin the population, not just "more than none": the per-endpoint assertion above only fires for
+		// endpoints the loop actually reaches, so a directory-detection or autoload regression that
+		// dropped most of them would otherwise stay green. Registering more of them only raises this
+		// count, so the bound is the floor rather than the exact figure.
+		//
+		// 10 is the eight genuinely capability-less Backup endpoints plus both Themes_Active
+		// registrations (GET and POST), which are counted because that class hand-passes its capability
+		// and leaves the property unset -- the deliberate over-inclusion described above, not eight plus
+		// two more of the same kind. Exempting it by name is a legitimate future change; this floor has
+		// to drop to 8 in the same commit, which is why the number is spelled out here.
+		$this->assertGreaterThanOrEqual( 10, $checked, 'Expected every capability-less endpoint registration to be reached; the assertion loop above ran on fewer than there are.' );
+	}
+
+	/**
 	 * Data provider for test_accepts_site_based_authentication.
 	 */
 	public static function data_provider_test_accepts_site_based_authentication() {
@@ -231,6 +749,27 @@ class Jetpack_JSON_API_Dummy_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * @var array|string
 	 */
 	protected $needed_capabilities = 'manage_options';
+
+	/**
+	 * Dummy result.
+	 */
+	public function result() {
+
+		return 'success';
+	}
+}
+
+/**
+ * Dummy endpoint that declares no required capabilities, mirroring the Backup
+ * helper-script endpoints. Intended to be reachable only with a blog token.
+ */
+class Jetpack_JSON_API_Empty_Capabilities_Dummy_Endpoint extends Jetpack_JSON_API_Endpoint {
+	/**
+	 * No capabilities required; site-token-only endpoint.
+	 *
+	 * @var array
+	 */
+	protected $needed_capabilities = array();
 
 	/**
 	 * Dummy result.

@@ -26,13 +26,13 @@ import type { FC } from 'react';
  * @return The Advanced settings module.
  */
 const AdvancedCard: FC = () => {
-	const { isToggling, setActive } = useSeoToolsToggle();
+	const { isToggling, setActive } = useSeoToolsToggle( 'settings' );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
 				<Card.Title>
-					{ /* The standard brand chip, not a warning tint: a second chip treatment
+					{ /* The standard plain icon, not a warning tint: a second icon treatment
 					     would make this read as a different kind of module. The `caution`
 					     glyph says "read before acting"; the copy inside does the explaining. */ }
 					<CardTitleIcon icon={ caution } title={ __( 'Advanced', 'jetpack-seo' ) } />
@@ -113,7 +113,7 @@ const AdvancedCard: FC = () => {
 								{ __( 'Jetpack stops adding structured data to your pages.', 'jetpack-seo' ) }
 							</Text>
 							{ /* Only where those services run. `Initializer::init()` registers
-							     `Llms_Txt` and `Ai_Crawlers` behind `! is_gated()`, and the AI tab
+							     `Llms_Txt` and `Ai_Crawlers` behind `! is_gated()`, and the GEO tab
 							     is hidden from gated sites — so this would promise a gated site
 							     that something stops which it never had. Reachable because the
 							     card is hidden on Simple but not on Atomic, and an Atomic site on

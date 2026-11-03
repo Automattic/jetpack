@@ -1,0 +1,398 @@
+<?php
+/**
+ * Unit tests for the modernization gating around the admin UI. The REST-side
+ * companion is `Rest_Bridge_Gating_Test`.
+ *
+ * @package automattic/jetpack-backup-plugin
+ */
+
+namespace Automattic\Jetpack\Backup\V0005;
+
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
+use Jetpack_Options;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
+use function add_filter;
+use function admin_url;
+use function do_action;
+use function get_current_screen;
+use function has_action;
+use function remove_action;
+use function remove_all_actions;
+use function remove_all_filters;
+use function set_current_screen;
+use function wp_dequeue_script;
+use function wp_deregister_script;
+use function wp_script_is;
+use function wp_scripts;
+
+require_once __DIR__ . '/mock-wp-build-render-page.php';
+require_once __DIR__ . '/mock-wpcomsh-site-sticker.php';
+
+/**
+ * Tests the flag -> menu callback -> enqueue chain.
+ *
+ * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
+ */
+#[CoversClass( Jetpack_Backup::class )]
+class Admin_Modernization_Gating_Test extends TestCase {
+
+	/** @var string[] Handles the code under test registers itself. */
+	private const OWNED_SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
+
+	/** @var string[] Handles registered elsewhere that the code under test only enqueues. */
+	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
+
+	/** @var array The `admin_enqueue_scripts` callback `maybe_load_wp_build()` adds before the generated check. */
+	private const SCREEN_ALIAS_CALLBACK = array( Jetpack_Backup::class, 'alias_screen_id_for_wp_build' );
+
+	/** @var array The `admin_enqueue_scripts` callback `maybe_load_wp_build()` adds after the generated check. */
+	private const SCREEN_RESTORE_CALLBACK = array( Jetpack_Backup::class, 'restore_screen_id_after_wp_build' );
+
+	/** @var string The screen ID of the Backup admin page. */
+	private const SCREEN_ID = 'jetpack_page_jetpack-backup';
+
+	/** @var array The `admin_print_scripts` callback `maybe_load_wp_build()` adds. */
+	private const INITIAL_STATE_CALLBACK = array( Jetpack_Backup::class, 'render_connection_initial_state' );
+
+	/** @var array|null The `$_parent_pages` global as the test found it. */
+	private $original_parent_pages;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->original_parent_pages = $GLOBALS['_parent_pages'] ?? null;
+		$GLOBALS['_parent_pages']    = array();
+
+		$this->reset_scripts();
+		$this->set_admin_menu_items( array() );
+	}
+
+	public function tearDown(): void {
+		$GLOBALS['_parent_pages'] = $this->original_parent_pages;
+		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'load-jetpack_page_jetpack-backup' );
+		remove_all_actions( 'jetpack_use_iframe_authorization_flow' );
+		$this->leave_backup_admin_request();
+
+		unset( $GLOBALS['jetpack_backup_test_site_stickers'] );
+
+		$this->reset_scripts();
+		$this->set_admin_menu_items( array() );
+
+		Constants::clear_constants();
+		Status_Cache::clear();
+		WorDBless_Options::init()->clear_options();
+
+		parent::tearDown();
+	}
+
+	public function test_is_modernized_defaults_to_true() {
+		$this->assertTrue( Jetpack_Backup::is_modernized() );
+	}
+
+	public function test_activity_log_restore_url_keeps_the_given_template_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertSame( '', Jetpack_Backup::activity_log_restore_url_template( '' ) );
+	}
+
+	public function test_activity_log_restore_url_points_at_the_restore_screen_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2Frestore%2F{rewindId}' ),
+			Jetpack_Backup::activity_log_restore_url_template( '' )
+		);
+	}
+
+	public function test_activity_log_backup_url_keeps_the_given_template_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->assertSame( '', Jetpack_Backup::activity_log_backup_url_template( '' ) );
+	}
+
+	public function test_activity_log_backup_url_selects_the_backup_on_the_overview_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2F%3Fselected%3D%2522{rewindId}%2522' ),
+			Jetpack_Backup::activity_log_backup_url_template( '' )
+		);
+	}
+
+	public function test_is_modernized_follows_the_filter() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+		$this->assertFalse( Jetpack_Backup::is_modernized() );
+	}
+
+	public function test_legacy_sticker_turns_off_the_default_but_not_the_filter() {
+		$GLOBALS['jetpack_backup_test_site_stickers'] = array( Jetpack_Backup::LEGACY_DASHBOARD_STICKER );
+
+		$this->assertFalse( Jetpack_Backup::is_modernized() );
+
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->assertTrue( Jetpack_Backup::is_modernized() );
+	}
+
+	public function test_enqueue_admin_scripts_registers_legacy_script_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		Jetpack_Backup::enqueue_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-backup', 'enqueued' ) );
+	}
+
+	/** With the flag on, wp-build enqueues its own bundle; a second one renders a second dashboard. */
+	public function test_enqueue_admin_scripts_skips_legacy_script_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		Jetpack_Backup::enqueue_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jetpack-backup', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	public function test_enqueue_admin_scripts_enqueues_tracks_when_modernized() {
+		$this->allow_analytics();
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertTrue( Jetpack_Backup::can_use_analytics() );
+
+		Jetpack_Backup::enqueue_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+
+		// The dependency edge, not the registration, is what puts //stats.wp.com/w.js on the page.
+		$this->assertContains( 'jp-tracks', wp_scripts()->registered['jp-tracks-functions']->deps );
+	}
+
+	public function test_enqueue_admin_scripts_skips_tracks_when_analytics_denied() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertFalse( Jetpack_Backup::can_use_analytics() );
+
+		Jetpack_Backup::enqueue_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'registered' ) );
+	}
+
+	public function test_add_wp_admin_submenu_uses_legacy_callback_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		Jetpack_Backup::add_wp_admin_submenu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Jetpack_Backup::JETPACK_BACKUP_SLUG, $items[0]['menu_slug'] );
+		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $items[0]['function'] );
+		$this->assertSame( 'Jetpack Backup', $items[0]['page_title'] );
+		$this->assertSame( 'Backup', $items[0]['menu_title'] );
+	}
+
+	public function test_add_wp_admin_submenu_uses_wp_build_callback_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		Jetpack_Backup::add_wp_admin_submenu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Jetpack_Backup::JETPACK_BACKUP_SLUG, $items[0]['menu_slug'] );
+		$this->assertSame( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page', $items[0]['function'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $items[0]['page_title'] );
+		$this->assertSame( 'Backup', $items[0]['menu_title'] );
+	}
+
+	public function test_maybe_load_wp_build_does_nothing_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_maybe_load_wp_build_does_nothing_off_the_backup_admin_page() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+		$_GET['page'] = 'jetpack';
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
+		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_maybe_load_wp_build_hooks_the_page_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
+		$this->assertFalse( has_action( 'current_screen', self::SCREEN_ALIAS_CALLBACK ) );
+		$this->assertNotFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->enter_backup_admin_request();
+
+		Jetpack_Backup::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', self::SCREEN_ID );
+
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Jetpack_Backup::alias_screen_id_for_wp_build();
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+
+		set_current_screen( self::SCREEN_ID );
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id, 'A restore with no alias to undo must leave the screen alone.' );
+
+		Jetpack_Backup::alias_screen_id_for_wp_build();
+		$this->assertSame( 'jetpack-backup-dashboard', get_current_screen()->id );
+
+		Jetpack_Backup::restore_screen_id_after_wp_build();
+		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
+	}
+
+	public function test_render_connection_initial_state_emits_the_connection_global() {
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<script id="jetpack-backup-connection-initial-state">', $output );
+		// render() declares a bare `var`; that is a window global only in a classic script tag.
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $output );
+	}
+
+	public function test_render_connection_initial_state_emits_a_null_activity_log_url_without_the_page() {
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null,"knownThreatsAvailable":false};', $output );
+	}
+
+	public function test_render_connection_initial_state_marks_known_threats_available_on_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"knownThreatsAvailable":true', $output );
+	}
+
+	public function test_render_connection_initial_state_emits_the_activity_log_url_when_the_page_exists() {
+		$this->register_activity_log_page();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"activityLogUrl":"http://example.org/wp-admin/admin.php?page=jetpack-activity-log"', $output );
+	}
+
+	public function test_activity_log_url_is_null_without_the_page_and_the_page_url_with_it() {
+		$this->assertNull( Jetpack_Backup::get_activity_log_url() );
+
+		$this->register_activity_log_page();
+		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
+	}
+
+	/** Make `menu_page_url()` see the Activity Log page the way a built admin menu would. */
+	private function register_activity_log_page() {
+		$GLOBALS['_parent_pages'] = array(
+			'jetpack'              => false,
+			'jetpack-activity-log' => 'jetpack',
+		);
+	}
+
+	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */
+	private function allow_analytics() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Status_Cache::clear();
+		Jetpack_Options::update_option( 'tos_agreed', true );
+	}
+
+	/** `is_backup_admin_request()` reads `is_admin()` and `$_GET['page']`. */
+	private function enter_backup_admin_request() {
+		set_current_screen( self::SCREEN_ID );
+		$_GET['page'] = Jetpack_Backup::JETPACK_BACKUP_SLUG;
+	}
+
+	/** Undo `enter_backup_admin_request()` and the hooks a successful load adds. */
+	private function leave_backup_admin_request() {
+		remove_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK );
+		remove_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK );
+		remove_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK, 1 );
+
+		unset( $_GET['page'] );
+		set_current_screen( 'front' );
+	}
+
+	/** Undo every registration and enqueue these tests trigger. */
+	private function reset_scripts() {
+		// `wp_deregister_script()` only unsets the handle from `registered`; it
+		// never touches `queue`. Without an explicit dequeue an enqueued handle
+		// stays queued for every later test, and `wp_script_is( $h, 'enqueued' )`
+		// reads `queue` alone.
+		foreach ( array_merge( self::OWNED_SCRIPT_HANDLES, self::BORROWED_SCRIPT_HANDLES ) as $handle ) {
+			wp_dequeue_script( $handle );
+		}
+
+		// Borrowed handles stay registered: jetpack-assets adds `wp-jp-i18n-loader`
+		// once on `wp_default_scripts`, so nothing puts it back for later tests.
+		foreach ( self::OWNED_SCRIPT_HANDLES as $handle ) {
+			wp_deregister_script( $handle );
+		}
+	}
+
+	/**
+	 * @return array The Admin_Menu package's queued menu items.
+	 */
+	private function get_admin_menu_items() {
+		return $this->accessible_property( Admin_Menu::class, 'menu_items' )->getValue();
+	}
+
+	/**
+	 * @param array $items The Admin_Menu package's queued menu items to set.
+	 */
+	private function set_admin_menu_items( $items ) {
+		$this->accessible_property( Admin_Menu::class, 'menu_items' )->setValue( null, $items );
+	}
+
+	/**
+	 * @param string $class_name    The class owning the property.
+	 * @param string $property_name The property name.
+	 * @return \ReflectionProperty
+	 */
+	private function accessible_property( $class_name, $property_name ) {
+		$property = new \ReflectionProperty( $class_name, $property_name );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$property->setAccessible( true );
+		}
+		return $property;
+	}
+}

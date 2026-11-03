@@ -1,5 +1,6 @@
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen, act, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
 import { settings } from '../../button';
@@ -113,6 +114,16 @@ describe( 'Mailchimp block edit component', () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		await expect( screen.findByText( 'Set up Mailchimp form' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Re-check Connection' ) ).toBeInTheDocument();
+	} );
+
+	test( 'explains what is missing when a re-check finds no connection', async () => {
+		const user = userEvent.setup();
+		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		await user.click( await screen.findByText( 'Re-check Connection' ) );
+		await expect(
+			screen.findByText( /Mailchimp is not connected yet/, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	test( 'shows enter your email message if connected', async () => {

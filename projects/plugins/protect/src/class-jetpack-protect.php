@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Account_Protection\Settings as Account_Protection_Settings;
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -50,6 +51,8 @@ class Jetpack_Protect {
 		2013, // JETPACK_SECURITY_REALTIME_MONTHLY.
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -139,6 +142,8 @@ class Jetpack_Protect {
 
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
+		// Activity Log. No-ops while the `activity-log` module is off.
+		Jetpack_Activity_Log::initialize();
 		Site_Health::init();
 
 		// Sets up JITMS.
@@ -152,7 +157,7 @@ class Jetpack_Protect {
 		// Only report the threat count to users who can actually reach the Protect
 		// menu (added below with the 'manage_options' cap). Otherwise the central
 		// menu-badges total would include threats the current user can't see.
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) && self::should_notify_threats() ) {
 			\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
 			\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 				'jetpack-protect',
@@ -170,7 +175,11 @@ class Jetpack_Protect {
 			'manage_options',
 			'jetpack-protect',
 			array( $this, 'plugin_settings_page' ),
-			5
+			null,
+			array(
+				'product' => 'protect',
+				'key'     => 'jetpack-protect',
+			)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
@@ -297,7 +306,6 @@ class Jetpack_Protect {
 	 */
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
-		( new Modules() )->activate( self::JETPACK_ACCOUNT_PROTECTION_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
 	}
@@ -323,13 +331,22 @@ class Jetpack_Protect {
 	}
 
 	/**
+	 * Whether the host lets threats be announced in the menu and the admin bar.
+	 *
+	 * @return bool
+	 */
+	private static function should_notify_threats() {
+		return ! method_exists( Status::class, 'should_notify_threats' ) || Status::should_notify_threats();
+	}
+
+	/**
 	 * Create a shortcut on Admin Bar to show the total of threats found.
 	 *
 	 * @param object $wp_admin_bar The Admin Bar object.
 	 * @return void
 	 */
 	public function admin_bar( $wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) || ! self::should_notify_threats() ) {
 			return;
 		}
 

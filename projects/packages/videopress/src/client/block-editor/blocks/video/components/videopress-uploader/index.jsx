@@ -6,12 +6,16 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
 import { Link } from '@wordpress/ui';
+import RecordVideoButton from '../../../../../components/video-recording';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { isSiteConnected } from '../../../../../lib/connection';
@@ -46,6 +50,8 @@ const VideoPressUploader = ( {
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 
 	const hasSiteConnection = isSiteConnected();
+	const postId = useSelect( select => select( editorStore )?.getCurrentPostId?.(), [] );
+	const { createWarningNotice } = useDispatch( noticesStore );
 
 	/*
 	 * When the file to upload is set, start the upload process
@@ -99,6 +105,27 @@ const VideoPressUploader = ( {
 		setUploadErrorDataState( error );
 	}, [] );
 
+	const onUploadSuccess = async media => {
+		if ( Number.isInteger( postId ) && postId > 0 ) {
+			try {
+				await apiFetch( {
+					path: `/wp/v2/media/${ media.id }`,
+					method: 'POST',
+					data: { post: postId },
+				} );
+			} catch {
+				// The upload succeeded; retrying it would create another video.
+				createWarningNotice(
+					__(
+						'Your video was uploaded, but could not be attached to this post. It may still appear as Unattached in the Media Library.',
+						'jetpack-videopress-pkg'
+					)
+				);
+			}
+		}
+		setUploadedVideoData( media );
+	};
+
 	// Get file upload handlers, data, and error.
 	const {
 		uploadHandler,
@@ -107,7 +134,7 @@ const VideoPressUploader = ( {
 	} = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
-		onSuccess: setUploadedVideoData,
+		onSuccess: onUploadSuccess,
 	} );
 
 	/**
@@ -415,7 +442,9 @@ const VideoPressUploader = ( {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( error );
 			} }
-		/>
+		>
+			<RecordVideoButton __next40pxDefaultSize onRecorded={ onSelectVideo } />
+		</MediaPlaceholder>
 	);
 };
 

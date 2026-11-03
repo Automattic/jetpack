@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Match the Jetpack logo in the Stats header to the 20px size used by the other Jetpack admin pages.

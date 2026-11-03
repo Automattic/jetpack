@@ -1,15 +1,22 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
+import {
+	MediaPlaceholder,
+	MediaUploadCheck,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-import { mediaUpload } from '@wordpress/editor';
+import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pick } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
+import uploadFilesIndividually, { isFileSelection } from '../../shared/upload-files-individually';
 import metadata from './block.json';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES } from './constants';
 import { TiledGalleryBlockControls, TiledGalleryInspectorControls } from './controls';
 import Layout from './layout';
+import { hasSameColumnShape } from './layout/utils';
 
 const DEFAULT_COLUMNS_COUNT = 3;
 
@@ -28,6 +35,7 @@ export const pickRelevantMediaFiles = image => {
 
 const TiledGalleryEdit = ( {
 	attributes,
+	clientId,
 	isSelected,
 	noticeOperations,
 	noticeUI,
@@ -45,24 +53,44 @@ const TiledGalleryEdit = ( {
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
 	const blockProps = useBlockProps();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const mediaUpload = useSelect(
+		select => select( blockEditorStore ).getSettings().mediaUpload,
+		[]
+	);
 	const [ selectedImage, setSelectedImage ] = useState( null );
 	const [ changed, setChanged ] = useState(
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
 	);
 
-	const setImages = imgs => {
+	const setImages = ( imgs, otherAttributes ) => {
 		setAttributes( {
 			images: imgs,
 			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ),
+			...otherAttributes,
 		} );
 	};
 
-	const addFiles = files => {
-		mediaUpload( {
+	// With `columnLimit`, columns follow the images left, as library selection does.
+	const addFiles = ( files, columnLimit ) => {
+		uploadFilesIndividually( {
+			files,
+			mediaUpload,
 			allowedTypes: ALLOWED_MEDIA_TYPES,
-			filesList: files,
-			onFileChange: value =>
-				setImages( ( images || [] ).concat( value.map( pickRelevantMediaFiles ) ) ),
+			getItems: () => getBlockAttributes( clientId )?.images || [],
+			// Pending placeholders don't count until an upload succeeds, so rejected files keep the setting.
+			setItems: newImages =>
+				setImages(
+					newImages,
+					columnLimit && newImages.some( ( { id } ) => id )
+						? { columns: Math.min( newImages.length, columnLimit ) }
+						: undefined
+				),
+			// Replace attachment fields, whose dimensions processing can change, but keep a custom link.
+			toItem: ( media, { customLink } ) => ( {
+				...pickRelevantMediaFiles( media ),
+				...( customLink && { customLink } ),
+			} ),
 			onError: noticeOperations.createErrorNotice,
 		} );
 
@@ -86,6 +114,11 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
+		if ( isFileSelection( files ) ) {
+			addFiles( files, columns );
+			return;
+		}
+
 		const newImages = files.map( file => {
 			const existingImage = images.find(
 				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
@@ -137,7 +170,16 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onResize = value => {
-		if ( changed ) {
+		// Recomputed widths are normally only persisted once the user has edited the
+		// images, so that merely opening a post never marks it as modified. Widths
+		// that no longer match the layout are the exception. The row and column shape
+		// is recomputed from the images and the alignment on every render, so
+		// changing either — changing the alignment in particular, which edits no
+		// image — leaves the saved widths describing a layout the block no longer
+		// draws. Saving those spreads one row's widths over a differently shaped row,
+		// which is what published galleries render as rows only 57% of the content
+		// width. See JETPACK-1990.
+		if ( changed || ! hasSameColumnShape( value, columnWidths ) ) {
 			setAttributes( { columnWidths: value } );
 		}
 	};
@@ -174,6 +216,7 @@ const TiledGalleryEdit = ( {
 					name: __( 'images', 'jetpack' ),
 				} }
 				onSelect={ onSelectImages }
+				handleUpload={ false }
 				accept="image/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				multiple
@@ -216,21 +259,23 @@ const TiledGalleryEdit = ( {
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ setImageAttributes }
 				>
-					<DropZone onFilesDrop={ addFiles } />
-					{ isSelected && (
-						<div className="tiled-gallery__add-item">
-							<FormFileUpload
-								multiple
-								className="tiled-gallery__add-item-button"
-								onChange={ uploadFromFiles }
-								accept="image/*"
-								icon="insert"
-								__next40pxDefaultSize={ true }
-							>
-								{ __( 'Upload an image', 'jetpack' ) }
-							</FormFileUpload>
-						</div>
-					) }
+					<MediaUploadCheck>
+						<DropZone onFilesDrop={ addFiles } />
+						{ isSelected && (
+							<div className="tiled-gallery__add-item">
+								<FormFileUpload
+									multiple
+									className="tiled-gallery__add-item-button"
+									onChange={ uploadFromFiles }
+									accept="image/*"
+									icon="insert"
+									__next40pxDefaultSize={ true }
+								>
+									{ __( 'Upload an image', 'jetpack' ) }
+								</FormFileUpload>
+							</div>
+						) }
+					</MediaUploadCheck>
 				</Layout>
 			</>
 		);

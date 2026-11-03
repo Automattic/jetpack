@@ -4,7 +4,7 @@ import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import type { SiteEntityType } from '../../../data/schema-settings-types';
-import type { FC } from 'react';
+import type { FC, ReactElement } from 'react';
 
 interface Props {
 	/** The currently selected site entity. */
@@ -14,13 +14,9 @@ interface Props {
 	disabled?: boolean;
 }
 
-// Organization first (the default), Person second — a site is one or the other.
-// Each option is a native radio wrapped in a card label, so keyboard and
-// screen-reader behavior (arrow-key navigation, single-selection semantics) comes
-// from the platform radiogroup rather than a hand-rolled widget.
 const OPTIONS: Array< {
 	value: SiteEntityType;
-	icon: JSX.Element;
+	icon: ReactElement;
 	title: string;
 	description: string;
 } > = [
@@ -44,10 +40,10 @@ const OPTIONS: Array< {
 	},
 ];
 
+const LABEL_ID = 'jetpack-seo-site-represents-label';
+
 /**
- * The site-entity selector: choose whether the site represents an Organization or
- * a Person. This is the site's publisher / main entity, and it decides which set
- * of fields shows below.
+ * Choose the site publisher and the matching settings form.
  *
  * @param props          - Component props.
  * @param props.value    - The currently selected entity.
@@ -55,8 +51,6 @@ const OPTIONS: Array< {
  * @param props.disabled - Whether selection is disabled (e.g. while saving).
  * @return The entity selector.
  */
-const LABEL_ID = 'jetpack-seo-site-represents-label';
-
 const EntitySelector: FC< Props > = ( { value, onChange, disabled = false } ) => (
 	<Stack direction="column" gap="sm">
 		<Text variant="heading-sm" className={ styles.fieldLabel } id={ LABEL_ID }>
@@ -83,7 +77,11 @@ const EntitySelector: FC< Props > = ( { value, onChange, disabled = false } ) =>
 							checked={ selected }
 							disabled={ disabled }
 							// eslint-disable-next-line react/jsx-no-bind
-							onChange={ () => onChange( option.value ) }
+							onChange={ () => {
+								if ( ! disabled ) {
+									onChange( option.value );
+								}
+							} }
 						/>
 						<span className={ styles.entityIcon } aria-hidden="true">
 							<Icon icon={ option.icon } size={ 24 } />

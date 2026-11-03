@@ -8,31 +8,35 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
-	ReportLink,
+	LeaderboardSkeleton,
+	MarkAsSpamButton,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
+	getReferrerSpamDomain,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
+	useMarkAsSpam,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
+	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
-import type { ReferrersAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ReferrersAttributes = Record< never, never >;
 
 type ReferrersRenderAttributes = ReferrersAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -57,31 +61,25 @@ export type ReferrerRow = {
 	 */
 	previousValue?: number;
 	/**
-	 * External referrer URL. Used for row identity, comparison matching, and to
-	 * render leaf rows (no children) as an outbound link.
+	 * External referrer URL. Used for row identity, comparison matching, and for
+	 * the "View in new tab" action on leaf rows (no children).
 	 */
 	href?: string;
-	/**
-	 * Optional favicon URL.
-	 */
 	icon?: string | null;
+	/** Domain the row can be marked as spam under; absent when it can't be. */
+	spamDomain?: string;
 	/**
 	 * Child referrers for drill-down. Referrer groups can nest twice
 	 * (e.g. Search Engines → Google Search → google.com).
 	 */
 	children?: ReferrerRow[];
-	/**
-	 * Whether the child rows have any matching comparison-period rows.
-	 */
+	/** Whether the child rows have any matching comparison-period rows. */
 	childrenHaveComparison?: boolean;
 };
 
 /**
  * Maps a merged data-layer row (comparison matching, sorting, and the row cap
  * happen in `mergeStatsReferrersComparisonRows`) onto the widget's row shape.
- *
- * @param item - Merged referrers comparison item.
- * @return Row ready for the leaderboard.
  */
 export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow {
 	return {
@@ -90,6 +88,7 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 		previousValue: item.previousValue,
 		href: safeHttpUrl( item.link ) ?? undefined,
 		icon: item.icon,
+		spamDomain: getReferrerSpamDomain( item ),
 		children: item.children?.map( toReferrerRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
@@ -97,25 +96,13 @@ export function toReferrerRow( item: StatsReferrersComparisonItem ): ReferrerRow
 
 /**
  * Maps normalized referrer rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized referrer rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child referrers is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ReferrerRow[],
-	withComparison: boolean,
-	onDrillDown?: ( row: ReferrerRow ) => void
+	onDrillDown?: ( row: ReferrerRow ) => void,
+	onMarkAsSpam?: ( domain: string ) => Promise< void >
 ): LeaderboardChartData {
-	const maxViews = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-		const hasPrevious = withComparison && previousValue !== undefined;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -125,6 +112,7 @@ function buildLeaderboardData(
 				media: { kind: 'favicon', url: row.icon ?? undefined },
 				action: resolveLeaderboardRowAction( {
 					href: row.href,
+					hrefAs: 'viewLink',
 					hasChildren,
 					drillDown: onDrillDown
 						? {
@@ -134,15 +122,16 @@ function buildLeaderboardData(
 									__( 'View referrers for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
+				trailingAction:
+					row.spamDomain && onMarkAsSpam ? (
+						<MarkAsSpamButton domain={ row.spamDomain } onConfirm={ onMarkAsSpam } />
+					) : undefined,
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxViews ),
-			previousValue,
-			previousShare: hasPrevious ? sharePercentage( previousValue, maxViews ) : undefined,
-			delta: hasPrevious ? calculateDelta( row.value, previousValue ) : undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -151,55 +140,58 @@ export type ReferrersLeaderboardProps = {
 	rows?: ReferrerRow[];
 	withComparison?: boolean;
 	onDrillDown?: ( row: ReferrerRow ) => void;
+	/** Marks a row's domain as spam; without it, rows offer no such action. */
+	onMarkAsSpam?: ( domain: string ) => Promise< void >;
 };
 
 /**
  * Presentational leaderboard for the Referrers widget. Loading, error, and
  * empty states are owned by the inner component's `WidgetState`.
- *
- * @param props                - Component props.
- * @param props.rows           - Normalized referrer rows.
- * @param props.withComparison - When true, render comparison deltas.
- * @param props.onDrillDown    - Callback fired when a row with child referrers is selected.
- * @return The rendered leaderboard.
  */
 export function ReferrersLeaderboard( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	onMarkAsSpam,
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
+			data={ buildLeaderboardData( rows, onDrillDown, onMarkAsSpam ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }
 
-function ReferrersInner( { max }: { max: number } ) {
+function ReferrersInner() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 
-	// Row matching (per level, so same-named rows at different drill levels
-	// cannot cross-match), the visible-row cap, and the comparison-overlap
-	// gate all live in the data layer's merge helper (see AGENTS.md).
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams, { maxRows: max } );
+	// Row matching (per level, so same-named rows at different drill levels can't
+	// cross-match), the row cap, and the comparison-overlap gate live in the merge helper.
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
+	// A domain marked from this widget hides at once; the refetch that marking
+	// triggers then drops it from the data itself.
+	const { markAsSpam, spammedDomains } = useMarkAsSpam();
 	const rows = useMemo(
-		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
-		[ comparisonRows ]
+		() =>
+			( comparisonRows?.rows ?? [] )
+				.map( toReferrerRow )
+				.filter( row => ! row.spamDomain || ! spammedDomains.has( row.spamDomain ) ),
+		[ comparisonRows, spammedDomains ]
 	);
 
 	// Referrer groups nest twice (group → source → domain), so the drill-down
-	// selection is a path of row labels rather than a single row. The shared
-	// hook stores the whole path; append/pop happens here.
+	// selection is a path of row labels; the shared hook stores it, append/pop happens here.
 	const {
 		drillDownItem: drillPath,
 		drillDown: setDrillPath,
@@ -226,13 +218,8 @@ function ReferrersInner( { max }: { max: number } ) {
 		return matched;
 	}, [ rows, drillPath ] );
 
-	// When settled data no longer resolves the whole stored path (e.g. the
-	// date range changed and the drilled group disappeared), trim it to the
-	// deepest level that still exists so stored state matches the view and
-	// stale levels can't resurface on a later refetch (WOOA7S-1666). A path
-	// that still resolves survives range changes; in-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Trim the stored path to the deepest level that still resolves once data
+	// settles, so stale levels can't resurface later (WOOA7S-1666).
 	useEffect( () => {
 		if (
 			! drillPath?.length ||
@@ -252,10 +239,15 @@ function ReferrersInner( { max }: { max: number } ) {
 	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
-	const activeRows = currentRow ? currentRow.children ?? [] : rows;
+	const activeRows = currentRow ? ( currentRow.children ?? [] ) : rows;
 	// Drilled levels gate the comparison UI on their own rows' overlap, so a
 	// subtree without comparison matches doesn't render placeholder deltas.
 	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;
+
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have referrers recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	const drillInto = useCallback(
 		( row: ReferrerRow ) => {
@@ -276,9 +268,8 @@ function ReferrersInner( { max }: { max: number } ) {
 		}
 	}, [ trail, setDrillPath, resetDrillDown ] );
 
-	// The back link is labelled after the list it returns to: the parent row
-	// one level up, or the full top-level list. The visible label stays short
-	// while the accessible name spells out the action.
+	// Labelled after the list it returns to (parent row or full top list); the
+	// visible label stays short while the accessible name spells out the action.
 	const parentLabel = trail.length > 1 ? trail[ trail.length - 2 ].label : null;
 	const backLabel = parentLabel ?? __( 'All referrers', 'jetpack-premium-analytics-pkg' );
 	const backAriaLabel = parentLabel
@@ -286,8 +277,16 @@ function ReferrersInner( { max }: { max: number } ) {
 				/* translators: %s is the parent referrer group or source label. */
 				__( 'Back to %s', 'jetpack-premium-analytics-pkg' ),
 				parentLabel
-		  )
+			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
+
+	useReportActions( {
+		csv: {
+			exporter: referrersCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
 
 	return (
 		<div className={ styles.content }>
@@ -295,12 +294,10 @@ function ReferrersInner( { max }: { max: number } ) {
 				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
 			) }
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData: previousData => previousData`, so a
-				// failed range change keeps the prior period's rows while `isError` flips true.
-				// Only surface the error when there's nothing to show, so a transient refetch
-				// failure doesn't replace populated rows with the error state.
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
 				isError={ rows.length === 0 && isError }
 				isEmpty={ rows.length === 0 }
 				error={ {
@@ -310,15 +307,14 @@ function ReferrersInner( { max }: { max: number } ) {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				empty={ {
-					icon: globe,
-					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<ReferrersLeaderboard
 					rows={ activeRows }
 					withComparison={ withComparison }
 					onDrillDown={ drillInto }
+					onMarkAsSpam={ markAsSpam }
 				/>
 			</WidgetState>
 		</div>
@@ -326,28 +322,16 @@ function ReferrersInner( { max }: { max: number } ) {
 }
 
 /**
- * Referrers widget render component.
- *
- * Shows the websites and search engines referring visitors as a ranked
- * leaderboard. Date range comes from the shared dashboard date picker via
- * WidgetRoot. Referrer groups drill down into their sources and domains.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes.
- * @return The rendered widget content.
+ * Shows the websites and search engines referring visitors for the selected
+ * dashboard date range via the PA proxy at `stats/referrers`.
  */
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ max } />
-				<WidgetFooter>
-					<ReportLink report="referrers" />
-				</WidgetFooter>
+				<ReferrersInner />
 			</div>
 		</WidgetRoot>
 	);

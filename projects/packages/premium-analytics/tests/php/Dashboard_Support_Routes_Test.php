@@ -28,10 +28,10 @@ class Dashboard_Support_Routes_Test extends TestCase {
 	}
 
 	/**
-	 * Standalone register() registers all three routes — the contract
+	 * Standalone register() registers the support routes — the contract
 	 * WPCOM's public-api process relies on.
 	 */
-	public function test_register_registers_all_three_routes() {
+	public function test_register_registers_the_support_routes() {
 		Dashboard_Support_Routes::register();
 
 		global $wp_rest_server;
@@ -42,11 +42,11 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertArrayHasKey( '/wpcom/v2/widget-modules', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections', $routes );
 		$this->assertArrayHasKey(
-			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout',
+			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections/(?P<section>[a-z0-9-]+\/[a-z0-9-]+)/default-layout',
 			$routes
 		);
-		$this->assertArrayHasKey( '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections', $routes );
 	}
 
 	/**

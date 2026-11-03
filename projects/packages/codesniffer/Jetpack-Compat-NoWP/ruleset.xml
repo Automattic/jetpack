@@ -28,10 +28,7 @@
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_find_keyFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_firstFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_is_listFound" />
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_key_firstFound" />
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_key_lastFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_lastFound" />
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.is_countableFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.sodium_crypto_aead_aegis128l_decryptFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.sodium_crypto_aead_aegis128l_encryptFound" />
 	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.sodium_crypto_aead_aegis256_decryptFound" />

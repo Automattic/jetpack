@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Hide WooCommerce widget categories (store, orders, coupons, bookings) when WooCommerce is inactive, and bookings widgets when the WooCommerce Bookings extension is inactive.

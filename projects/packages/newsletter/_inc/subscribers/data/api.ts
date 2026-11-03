@@ -3,8 +3,10 @@ import { addQueryArgs } from '@wordpress/url';
 import type {
 	AddSubscribersResponse,
 	ImportJob,
+	NewsletterCategoriesData,
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
+	SendBounceConfirmationResponse,
 	SubscribedNewsletterCategories,
 	SubscriberDetails,
 	SubscriberStats,
@@ -68,19 +70,60 @@ export function removeSubscriber(
 }
 
 /**
+ * Send one confirmation email to a bounced subscriber asking them to restart their subscription.
+ *
+ * @param emailAddress - Email address of the bounced subscriber.
+ * @return Success flag plus the updated bounce retry state.
+ */
+export function sendBounceConfirmation(
+	emailAddress: string
+): Promise< SendBounceConfirmationResponse > {
+	return apiFetch< SendBounceConfirmationResponse >( {
+		path: '/wpcom/v2/subscribers/send-bounce-confirmation',
+		method: 'POST',
+		data: { email_address: emailAddress },
+	} );
+}
+
+/**
  * Import a list of email addresses as subscribers, mirroring Calypso's Add Subscribers modal
  * (`importCsvSubscribers`). The proxy forwards to `/sites/{id}/subscribers/import`, which starts
  * an async job — no invitation email is sent; WP.com emails a "Subscriber import completed"
  * summary when the job finishes.
  *
- * @param emails - Email addresses to import.
+ * @param emails     - Email addresses to import.
+ * @param categories - Newsletter category ids to opt the imported subscribers into. Omitted from
+ *                   the payload when empty, matching Calypso's behavior when the picker is off.
  * @return WP.com response carrying the import job id.
  */
-export function addSubscribers( emails: string[] ): Promise< AddSubscribersResponse > {
+export function addSubscribers(
+	emails: string[],
+	categories: number[] = []
+): Promise< AddSubscribersResponse > {
+	const data: { emails: string[]; categories?: number[] } = { emails };
+	if ( categories.length > 0 ) {
+		data.categories = categories;
+	}
+
 	return apiFetch< AddSubscribersResponse >( {
 		path: '/wpcom/v2/subscribers/add',
 		method: 'POST',
-		data: { emails },
+		data,
+	} );
+}
+
+/**
+ * Fetch the site's newsletter categories and whether the feature is enabled, via the Jetpack proxy
+ * (`GET /wpcom/v2/newsletter-categories`). Unlike {@link fetchSubscribedNewsletterCategories} this
+ * is not scoped to a subscriber, so it's usable from the import flow where no subscriber exists
+ * yet. Mirrors Calypso's `useNewsletterCategories`.
+ *
+ * @return Site categories plus the `enabled` feature flag.
+ */
+export function fetchNewsletterCategories(): Promise< NewsletterCategoriesData > {
+	return apiFetch< NewsletterCategoriesData >( {
+		path: '/wpcom/v2/newsletter-categories',
+		method: 'GET',
 	} );
 }
 
@@ -202,16 +245,21 @@ export function fetchMembershipsProducts(): Promise< MembershipsProduct[] > {
 /**
  * Issue a complimentary subscription for a single subscriber on a chosen paid plan, mirroring
  * Calypso's `requestAddComp`. Server-side proxies to
- * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+ * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+ *
+ * Exactly one of `user_id` / `email` identifies the subscriber. Email-only readers have no wpcom
+ * account, so WP.com resolves (or creates) one from the address and links the subscriber row.
  *
  * @param payload               - Comp parameters.
  * @param payload.user_id       - WPCOM user id of the subscriber.
+ * @param payload.email         - Email address, for subscribers with no wpcom account.
  * @param payload.plan_id       - Membership product id to comp.
  * @param payload.no_expiration - Whether the comp should never expire.
  * @return Raw WP.com response.
  */
 export function addComp( payload: {
-	user_id: number;
+	user_id?: number;
+	email?: string;
 	plan_id: number;
 	no_expiration?: boolean;
 } ): Promise< { id?: number; message?: string } > {

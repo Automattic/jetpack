@@ -1,29 +1,3 @@
-.labelLink {
-	display: block;
-
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline-start: var(--wpds-dimension-padding-sm);
-	overflow: hidden;
-	color: inherit;
-	text-decoration: none;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.labelLink:hover,
-.labelLink:focus {
-	text-decoration: underline;
-}
-
-.labelText {
-	display: block;
-	padding-block: var(--wpds-dimension-padding-md);
-	padding-inline-start: var(--wpds-dimension-padding-sm);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .root {
 	container-type: inline-size;
 	display: flex;
@@ -33,7 +7,6 @@
 }
 
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;

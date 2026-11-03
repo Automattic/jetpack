@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Net Sales Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -103,17 +103,6 @@ class Net_Sales_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 		return array(
 			'orders_no',
 			'orders_value_net',
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 }

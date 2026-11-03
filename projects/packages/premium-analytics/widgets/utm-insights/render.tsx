@@ -1,26 +1,30 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
-import { useEffect, useMemo } from '@wordpress/element';
+import { search } from '@jetpack-premium-analytics/icons';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
 import {
-	calculateDelta,
+	WIDGET_ROW_LIMIT,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
-	ReportLink,
+	LeaderboardSkeleton,
+	LeaderboardPostLabel,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	sharePercentage,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	useWidgetDrillDown,
+	useReportActions,
 	useWidgetRootContext,
+	getUtmDimensionLabel,
+	getUtmReportSection,
+	utmCsvExporters,
+	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -36,13 +40,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
-type UtmReportSection =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
-
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -53,39 +50,17 @@ type UtmInsightsInnerProps = {
 	 */
 	utmDimension: StatsUtmParam;
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
-	 * Whether to render the "See report" footer link.
+	 * Whether to render the footer: View all and Download CSV.
 	 */
 	showReportLink: boolean;
 };
 
-/** Map a widget dimension to a section supported by the UTM report. */
-function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
-	switch ( utmDimension ) {
-		case 'utm_source,utm_medium':
-			return 'source-medium';
-		case 'utm_campaign,utm_source,utm_medium':
-			return 'campaign-source-medium';
-		case 'utm_source':
-			return 'source';
-		case 'utm_medium':
-			return 'medium';
-		case 'utm_campaign':
-			return 'campaign';
-	}
-}
-
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {UtmInsightsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
-function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
+	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
+	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
+	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
 		drillDown: selectUtmLabel,
@@ -101,7 +76,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const selectedUtm = useMemo(
@@ -110,17 +85,14 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
 	const activeData = useMemo(
-		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		() => ( isDrillDown ? ( selectedUtm?.children ?? [] ) : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
 
-	// The view already falls back to the top list when the selected row is
-	// missing or no longer drillable (no children); clear the stored selection
-	// too once data has settled without a drillable match, so stale state
-	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
 	useEffect( () => {
 		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedUtm();
@@ -128,54 +100,78 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = getCombinedPeriodMax(
-			activeData.map( item => item.value ),
-			withComparison ? activeData.map( item => item.previousValue ) : []
-		);
-
 		return activeData.map( ( item, index ) => {
-			const previousValue = item.previousValue;
+			const postRow = 'postId' in item ? item : null;
+			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ item.label }</Text>
-					</Stack>
-				),
+				...( postRow
+					? {
+							label: (
+								<LeaderboardPostLabel
+									id={ postRow.postId }
+									label={ postRow.label }
+									link={ postRow.href }
+									origin={ {
+										report: 'utm',
+										section: reportSection,
+									} }
+								/>
+							),
+						}
+					: buildLeaderboardRow( {
+							label: item.label,
+							media: { kind: 'none' },
+							action: resolveLeaderboardRowAction( {
+								hasChildren,
+								drillDown: {
+									onClick: () => selectUtmLabel( item.label ),
+									ariaLabel: sprintf(
+										/* translators: %s is the UTM value label. */
+										__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
+										item.label
+									),
+								},
+							} ),
+						} ) ),
 				currentValue: item.value,
-				currentShare: sharePercentage( item.value, maxValue ),
-				previousValue,
-				previousShare:
-					withComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					withComparison && previousValue !== undefined
-						? calculateDelta( item.value, previousValue )
-						: undefined,
-				...( ! isDrillDown &&
-					'children' in item &&
-					item.children?.length && {
-						onClick: () => selectUtmLabel( item.label ),
-						ariaLabel: sprintf(
-							/* translators: %s is the UTM value label. */
-							__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
-							item.label
-						),
-					} ),
+				previousValue: item.previousValue,
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All UTM Insights', 'jetpack-premium-analytics-pkg' ) }
+			label={ __( 'All UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedUtm }
 			className={ styles.backLink }
 		/>
 	) : null;
+	const offersFooterBuildUrl = ! isLoading && ( isError || data.length > 0 );
+	useReportActions( {
+		...( showReportLink && {
+			report: 'utm',
+			section: reportSection,
+			csv: {
+				exporter: utmCsvExporters[ reportSection ],
+				status: { isLoading, isFetching, isError },
+				rowCount: data.length,
+			},
+		} ),
+		actions: offersFooterBuildUrl
+			? [
+					{
+						id: 'build-url',
+						label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+						relevance: 'medium',
+						callback: openBuilder,
+					},
+				]
+			: [],
+	} );
+
 	return (
 		<>
 			{ backLink }
@@ -185,6 +181,17 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
+					empty={ {
+						icon: search,
+						description: __(
+							'You don’t have UTM visits for this period. Build a URL to start tracking a campaign.',
+							'jetpack-premium-analytics-pkg'
+						),
+						action: {
+							label: __( 'Build URL', 'jetpack-premium-analytics-pkg' ),
+							onClick: openBuilder,
+						},
+					} }
 					error={ describeError( error, {
 						retryDescription: __(
 							"We couldn't load UTM data. Please try again in a moment.",
@@ -192,52 +199,42 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 						),
 						onRetry: refetch,
 					} ) }
-					empty={ {
-						icon: megaphone,
-						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top UTM', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withComparison={ withComparison }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: isDrillDown
+								? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+								: getUtmDimensionLabel( reportSection ),
+							metric: 'views',
+						} }
 					/>
 				</WidgetState>
 			</div>
-			{ showReportLink && (
-				<WidgetFooter>
-					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
-				</WidgetFooter>
-			) }
+			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
 		</>
 	);
 }
 
 /**
- * UTM Insights widget render component.
- *
- * Shows traffic breakdown by UTM parameter as a ranked leaderboard. The active
+ * Traffic breakdown by UTM parameter as a ranked leaderboard. The active
  * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
  * (`relevance: 'high'`), exposed as a control by the widget host.
- *
- * @param {UtmInsightsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
-	const max = attributes.max ?? 10;
 	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner
-					utmDimension={ utmDimension }
-					max={ max }
-					showReportLink={ showReportLink }
-				/>
+				<UtmInsightsInner utmDimension={ utmDimension } showReportLink={ showReportLink } />
 			</div>
 		</WidgetRoot>
 	);

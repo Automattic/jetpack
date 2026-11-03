@@ -118,7 +118,7 @@ BODY;
 	public function test_shortcodes_ted() {
 		$content = '[ted]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -139,7 +139,7 @@ BODY;
 
 		$GLOBALS['post'] = get_post( $post_id );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 		$this->assertStringContainsString( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
@@ -164,7 +164,7 @@ BODY;
 		);
 		$GLOBALS['post'] = get_post( $post_id );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
 		$this->assertStringContainsString( 'height="' . $height . '"', $shortcode_content );
@@ -188,7 +188,7 @@ BODY;
 		);
 		$GLOBALS['post'] = get_post( $post_id );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '/lang/' . $lang . '/', $shortcode_content );
 
@@ -216,7 +216,7 @@ BODY;
 
 		$GLOBALS['post'] = get_post( $post_id );
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 

@@ -25,10 +25,10 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -95,11 +95,6 @@ registerLatestPostMocks();
 
 const LATEST_POST_RENDER_MODULE = 'storybook/latest-post';
 
-/**
- * Renders the data-connected widget with report params from the date range
- * picker.
- * @return The rendered widget.
- */
 function renderLatestPost() {
 	return <LatestPostRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
@@ -126,9 +121,6 @@ function renderLatestPostOnPreset( preset: PresetType ) {
  * Evict both queries from the shared client on enter and on cleanup so each
  * forced-state story hits the mock fresh (and no forced result leaks into the
  * sibling stories).
- *
- * @param state - The forced state.
- * @return The story cleanup callback.
  */
 function forceLatestPostState( state: 'loading' | 'error' | 'empty' ) {
 	const setState = ( value: typeof state | null ) => {
@@ -168,10 +160,15 @@ type Story = StoryObj< Partial< ComponentProps< typeof LatestPostRender > > >;
 
 /**
  * Default — the latest post with its lifetime views, likes, and comments.
+ *
+ * The shared close-up canvas is the width of a width-1 dashboard cell, which is
+ * below the card's 520px wide breakpoint: the featured image is dropped and the
+ * metric row wraps. `WidgetDashboardWithWidget` below shows the default width-2
+ * placement, where the image sits in a trailing column.
  */
 export const Default: Story = {
 	render: renderLatestPost,
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -182,7 +179,7 @@ export const Loading: Story = {
 	render: () => renderLatestPostOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'loading' ),
 };
 
@@ -194,18 +191,17 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderLatestPostOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'error' ),
 };
 
 /**
- * Resolved with no published posts: the widget shows its empty state (the
- * neutral post-list glyph and "Publish a post to see its stats here.").
+ * Resolved with no published posts: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => forceLatestPostState( 'empty' ),
 };
 
@@ -213,14 +209,15 @@ export const Empty: Story = {
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, edit mode).
  *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
+ * Drop `widgetWidth` to 1 to walk the shared card's size ladder: below 520px wide
+ * the featured image drops out and the metric row wraps. Shortening the cell below
+ * 300px also switches the card to its compact type scale.
  */
 function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }
@@ -235,6 +232,44 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 		// Latest post is a landscape widget: content left, featured image right.
 		widgetWidth: 2,
 		widgetHeight: 2,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+
+/**
+ * A short cell at the default width. Height, not just width, drives the card:
+ * below 300px of body the type scale steps down and the featured image becomes a
+ * centred square instead of a full-height panel.
+ *
+ * This geometry regressed once — the metric row was pushed past the card's bottom
+ * edge and silently clipped, leaving labels with no values — so it is covered
+ * here to keep a height regression visible in review.
+ */
+export const ShortCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <LatestPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 2,
+		widgetHeight: 1,
+	},
+	argTypes: {
+		...widgetDashboardWithWidgetArgTypes,
+	},
+};
+
+/**
+ * The smallest cell the dashboard grid produces: narrow *and* short. The featured
+ * image drops out entirely and the headline clamps to one line, but the whole
+ * metric row — every label with its value — stays inside the card.
+ */
+export const ShortNarrowCell: StoryObj< WidgetDashboardWithWidgetControls > = {
+	render: args => <LatestPostDashboardStory { ...args } />,
+	args: {
+		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		widgetWidth: 1,
+		widgetHeight: 1,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

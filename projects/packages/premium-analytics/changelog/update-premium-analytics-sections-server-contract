@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Dashboard Sections API: expose a derived section slug and trim GET /sections to definitions only ({ id, slug, label, order }), retire the per-user section layout write routes in favor of core preferences persistence, and relabel the WooCommerce section to Store.

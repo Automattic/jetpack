@@ -230,7 +230,7 @@ const BulkFixModal: FC< BulkFixModalProps > = ( { threats, onClose } ) => {
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ title }</Dialog.Title>
-					{ step !== 'progress' && <Dialog.CloseIcon /> }
+					{ step !== 'progress' && <Dialog.CloseIconButton /> }
 				</Dialog.Header>
 				{ step === 'confirm' && renderConfirm() }
 				{ step === 'progress' && renderProgress() }

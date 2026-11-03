@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { share } from '@wordpress/icons';
 import { Button, EmptyState } from '@wordpress/ui';
 import { useTurnOnSocial } from './turn-on-social-context';
+import type { JSX } from 'react';
 
 /**
  * Shown on the Settings tab when the Social module is inactive AND the current

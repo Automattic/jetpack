@@ -62,6 +62,15 @@ class Module {
 	}
 
 	/**
+	 * Name of the wp_options option that stores this module's status.
+	 *
+	 * @return string
+	 */
+	public function get_status_option_name() {
+		return Status::get_option_name( $this->get_slug() );
+	}
+
+	/**
 	 * If the module has any submodules, this method will return an array of Module instances for each submodule.
 	 */
 	public function get_submodules() {

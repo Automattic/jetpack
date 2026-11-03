@@ -498,6 +498,130 @@ class Inline_Search_Filters_Test extends TestCase {
 					'highlight_filter_stopwords' => array( 'the', 'a' ),
 				),
 			),
+			'custom_results'             => array(
+				'wp_query_args'     => array(
+					's'              => 'hello',
+					'posts_per_page' => 5,
+					'post_type'      => 'any',
+				),
+				'is_opt_filter'     => function ( $options ) {
+					$options['customResults'] = array(
+						array(
+							'pattern' => 'hello',
+							'ids'     => array( 11, 22 ),
+						),
+					);
+
+					return $options;
+				},
+				'expected_api_args' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'terms' => array(
+										'post_type' => array(
+											'post',
+											'page',
+											'attachment',
+										),
+									),
+								),
+							),
+						),
+					),
+					'highlight_fields' => array( 'title', 'content', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
+					'custom_results'   => array( 11, 22 ),
+				),
+			),
+			'highlight_fields'           => array(
+				'wp_query_args'     => array(
+					's'              => 'hello',
+					'posts_per_page' => 5,
+					'post_type'      => 'any',
+				),
+				'is_opt_filter'     => function ( $options ) {
+					$options['highlightFields'] = array( 'title', 'comments' );
+
+					return $options;
+				},
+				'expected_api_args' => array(
+					'size'             => '5',
+					'from'             => '0',
+					'fields'           => array( 'post_id' ),
+					'query'            => 'hello',
+					'sort'             => 'score_recency',
+					'langs'            => array( 'en_US' ),
+					'filter'           => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'terms' => array(
+										'post_type' => array(
+											'post',
+											'page',
+											'attachment',
+										),
+									),
+								),
+							),
+						),
+					),
+					'highlight_fields' => array( 'title', 'comments' ),
+					'highlight'        => array(
+						'fields' => array( 'title', 'comments' ),
+					),
+				),
+			),
+			'additional_blog_ids'        => array(
+				'wp_query_args'     => array(
+					's'              => 'hello',
+					'posts_per_page' => 5,
+					'post_type'      => 'any',
+				),
+				'is_opt_filter'     => function ( $options ) {
+					$options['additionalBlogIds'] = array( 123, 456 );
+
+					return $options;
+				},
+				'expected_api_args' => array(
+					'size'                => '5',
+					'from'                => '0',
+					'fields'              => array( 'post_id', 'author', 'blog_name', 'blog_icon_url', 'blog_id' ),
+					'query'               => 'hello',
+					'sort'                => 'score_recency',
+					'langs'               => array( 'en_US' ),
+					'filter'              => array(
+						'bool' => array(
+							'must' => array(
+								array(
+									'terms' => array(
+										'post_type' => array(
+											'post',
+											'page',
+											'attachment',
+										),
+									),
+								),
+							),
+						),
+					),
+					'highlight_fields'    => array( 'title', 'content', 'comments' ),
+					'highlight'           => array(
+						'fields' => array( 'title', 'content', 'comments' ),
+					),
+					'additional_blog_ids' => array( 123, 456 ),
+				),
+			),
 		);
 	}
 

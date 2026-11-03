@@ -21,7 +21,7 @@ class OpenTable_Test extends \WP_UnitTestCase {
 		$attributes = array();
 		$content    = OpenTable\load_assets( $attributes );
 
-		$this->assertTrue( is_string( $content ) );
+		$this->assertIsString( $content );
 	}
 
 	/**
@@ -31,7 +31,7 @@ class OpenTable_Test extends \WP_UnitTestCase {
 		$attributes = array( 'rid' => null );
 		$content    = OpenTable\load_assets( $attributes );
 
-		$this->assertTrue( is_string( $content ) );
+		$this->assertIsString( $content );
 	}
 
 	/**
@@ -41,6 +41,6 @@ class OpenTable_Test extends \WP_UnitTestCase {
 		$attributes = array( 'rid' => array() );
 		$content    = OpenTable\load_assets( $attributes );
 
-		$this->assertTrue( is_string( $content ) );
+		$this->assertIsString( $content );
 	}
 }

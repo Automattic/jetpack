@@ -1,5 +1,8 @@
 const mockOrigDebug = jest.requireActual( 'debug' );
 const mockDebug = jest.fn();
+// The plugin only builds a code frame when the debug instance is enabled, so
+// these tests have to present an enabled one to exercise the messages below.
+mockDebug.enabled = true;
 jest.mock( 'debug', () => {
 	return name => {
 		if ( name.startsWith( '@automattic/babel-plugin-replace-textdomain' ) ) {

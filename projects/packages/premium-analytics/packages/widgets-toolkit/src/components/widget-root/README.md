@@ -11,7 +11,7 @@ Dashboard widgets are ES Modules loaded asynchronously via lazy-load. This means
 ## What WidgetRoot Provides
 
 - **AnalyticsQueryClientProvider** - React Query client for data fetching
-- **GlobalChartsProvider** - Chart theming via `useChartTheme()`
+- **ChartsProvider** - Chart theme, site formatting and light tooltips
 - **Report params resolution** - From widget attributes or URL fallback
 - **Context provider** - Child widgets access resolved params via `useWidgetRootContext()`
 
@@ -64,7 +64,8 @@ Returns the resolved context value:
 
 ```typescript
 type WidgetRootContextValue = {
-	reportParams: ReportParams;
+	reportParams: ReportParams; // Surface-scoped params used for data and rendering.
+	navigationParams?: ReportParams; // Full report window retained for links.
 };
 ```
 
@@ -77,6 +78,10 @@ type WidgetRootContextValue = {
 1. **From attributes** - If `attributes.reportParams` is provided and non-empty
 2. **From URL** - Falls back to URL search params via `@wordpress/route`
 
+The normalized result is retained as `navigationParams` so links preserve the
+shared report window. `reportParams` may omit fields the current surface does
+not offer, such as comparison fields on Insights.
+
 This allows widgets to work both:
 
 - In the Analytics dashboard (params from URL)
@@ -87,8 +92,8 @@ This allows widgets to work both:
 ```
 WidgetRoot
 ├── AnalyticsQueryClientProvider (shared React Query client)
-│   └── GlobalChartsProvider (chart theme)
-│       └── WidgetRootContext.Provider (reportParams)
+│   └── ChartsProvider (chart theme, site formatting)
+│       └── WidgetRootContext.Provider (reportParams, navigationParams)
 │           └── children (widget components)
 ```
 

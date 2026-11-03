@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.11] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869] [#54382]
+
+## [0.15.10] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.15.9] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.15.8] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.15.7] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.15.6] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.15.5] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Catch various PHP warnings when handling malformed data. [#53058]
+
+## [0.15.4] - 2026-09-28
+### Changed
+- Update dependencies.
+
+## [0.15.3] - 2026-09-21
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.15.2] - 2026-09-15
+### Changed
+- Update dependencies. [#52269]
+
+## [0.15.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.15.0] - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [0.14.39] - 2026-08-20
+### Changed
+- Update package dependencies. [#51008]
+
 ## [0.14.38] - 2026-07-27
 ### Changed
 - Update dependencies. [#50719]
@@ -59,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.26] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.25] - 2026-05-04
 ### Changed
@@ -79,7 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.21] - 2026-04-06
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.20] - 2026-03-30
 ### Changed
@@ -123,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.11] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.14.10] - 2026-01-19
 ### Changed
@@ -185,7 +240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.20] - 2025-09-22
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## [0.13.19] - 2025-09-19
 ### Changed
@@ -239,7 +294,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.8] - 2025-06-30
 ### Changed
-- Update dependencies. [#44061]
+- Update dependencies.
 
 ## [0.13.7] - 2025-06-23
 ### Changed
@@ -261,7 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.13.3] - 2025-06-02
 ### Changed
-- Update dependencies. [#42876]
+- Update dependencies.
 
 ## [0.13.2] - 2025-05-26
 ### Changed
@@ -561,6 +616,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.15.11]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.10...v0.15.11
+[0.15.10]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.9...v0.15.10
+[0.15.9]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.8...v0.15.9
+[0.15.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.7...v0.15.8
+[0.15.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.6...v0.15.7
+[0.15.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.5...v0.15.6
+[0.15.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.4...v0.15.5
+[0.15.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.3...v0.15.4
+[0.15.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.2...v0.15.3
+[0.15.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.1...v0.15.2
+[0.15.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.39...v0.15.0
+[0.14.39]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.38...v0.14.39
 [0.14.38]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.37...v0.14.38
 [0.14.37]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.36...v0.14.37
 [0.14.36]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.14.35...v0.14.36

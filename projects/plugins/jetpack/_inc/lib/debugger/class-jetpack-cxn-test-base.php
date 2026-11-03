@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Connection\Connection_Health_Test_Base;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * "Unit Tests" for the Jetpack connection.
  *

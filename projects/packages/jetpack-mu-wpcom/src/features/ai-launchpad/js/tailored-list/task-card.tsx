@@ -1,12 +1,15 @@
-import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { border, drafts, lock, published } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Icon, Stack, Text } from '@wordpress/ui';
 import { ctaKind, type CtaKind, type EnrichedTask } from './model.ts';
+
+// Which of a card's actions is in flight. The CTA and "Mark as complete" are
+// mutually exclusive, so they share the `primary` slot; "Skip" is its own.
+export type BusyAction = 'primary' | 'skip';
 
 interface Props {
 	task: EnrichedTask;
-	isBusy: boolean;
+	busyAction: BusyAction | null;
 	isLocked: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
@@ -103,7 +106,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  *
  * @param props                  - The component props.
  * @param props.task             - The enriched task to render.
- * @param props.isBusy           - Whether this card's action is in flight (spinner).
+ * @param props.busyAction       - Which of this card's actions is in flight, or null; the
+ *                               matching button shows the spinner.
  * @param props.isLocked         - Whether any card's action is in flight; disables all
  *                               actions so concurrent writes can't interleave.
  * @param props.canStart         - Whether the task has an actionable CTA destination.
@@ -121,7 +125,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  */
 export function TaskCard( {
 	task,
-	isBusy,
+	busyAction,
 	isLocked,
 	canStart,
 	canMarkComplete,
@@ -144,18 +148,22 @@ export function TaskCard( {
 				onOpenChange={ onOpenChange }
 			>
 				<CollapsibleCard.Header>
-					<span className="ai-launchpad-tailored-list__header-inner">
+					<Stack render={ <span /> } align="center" gap="sm">
 						<span className="ai-launchpad-tailored-list__icon">
 							<Icon icon={ lock } size={ 24 } />
 						</span>
-						<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
-					</span>
+						<Text variant="heading-md" className="ai-launchpad-tailored-list__title">
+							{ task.title }
+						</Text>
+					</Stack>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
-					<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
-					<p className="ai-launchpad-tailored-list__hint">
+					<Text render={ <p /> } className="ai-launchpad-tailored-list__subtitle">
+						{ task.subtitle }
+					</Text>
+					<Text render={ <p /> } className="ai-launchpad-tailored-list__hint">
 						{ __( 'Available once WooCommerce is active.', 'jetpack-mu-wpcom' ) }
-					</p>
+					</Text>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 		);
@@ -170,12 +178,14 @@ export function TaskCard( {
 				onClick={ onCollapsedClick }
 			>
 				<Card.Header>
-					<span className="ai-launchpad-tailored-list__header-inner">
+					<Stack render={ <span /> } align="center" gap="sm">
 						<span className="ai-launchpad-tailored-list__icon is-done">
 							<Icon icon={ published } size={ 24 } />
 						</span>
-						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
-					</span>
+						<Text variant="heading-md" className="ai-launchpad-tailored-list__title is-done">
+							{ task.title }
+						</Text>
+					</Stack>
 				</Card.Header>
 			</Card.Root>
 		);
@@ -188,22 +198,26 @@ export function TaskCard( {
 			onOpenChange={ onOpenChange }
 		>
 			<CollapsibleCard.Header>
-				<span className="ai-launchpad-tailored-list__header-inner">
+				<Stack render={ <span /> } align="center" gap="sm">
 					<span className="ai-launchpad-tailored-list__icon">
 						{ /* To-do vs in-progress is conveyed by the glyph alone; both share the neutral color. */ }
 						<Icon icon={ task.in_progress ? drafts : border } size={ 24 } />
 					</span>
-					<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
-				</span>
+					<Text variant="heading-md" className="ai-launchpad-tailored-list__title">
+						{ task.title }
+					</Text>
+				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
-				<div className="ai-launchpad-tailored-list__actions">
+				<Text render={ <p /> } className="ai-launchpad-tailored-list__subtitle">
+					{ task.subtitle }
+				</Text>
+				<Stack align="center" gap="sm">
 					{ canStart && (
 						<Button
 							variant="solid"
 							onClick={ onGetStarted }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ getCtaLabel( task.id, task.in_progress ) }
@@ -213,17 +227,23 @@ export function TaskCard( {
 						<Button
 							variant="solid"
 							onClick={ onMarkComplete }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
-					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
+					<Button
+						variant="minimal"
+						tone="neutral"
+						onClick={ onSkip }
+						loading={ busyAction === 'skip' }
+						disabled={ isLocked }
+					>
 						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
-				</div>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

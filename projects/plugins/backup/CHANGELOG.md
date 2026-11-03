@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.9] - 2026-08-11
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51154]
+
+### Changed
+- General: Update composer.lock files. [#48743]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48064] [#48329] [#48683] [#48735] [#49448] [#49793] [#50436]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
 ## [3.8] - 2026-04-11
 ### Added
 - Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
@@ -236,7 +250,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Add real-time backups details in plugin FAQs [#27470]
 - Compatibility: WordPress 6.1 compatibility [#27084]
-- Rename plugin name to Jetpack VaultPress Backup [#27432] [#27411]
+- Rename plugin name to Jetpack VaultPress Backup [#27411] [#27432]
 - Updated package dependencies. [#26072]
 
 ### Removed
@@ -250,7 +264,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Plugin activation: Only redirect when activating from the Plugins page in the browser
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Updated package dependencies. [#25713] [#24929] [#24998] [#25048] [#25158] [#25279] [#25315] [#25406] [#25945]
+- Updated package dependencies. [#24929] [#24998] [#25048] [#25158] [#25279] [#25315] [#25406] [#25713] [#25945]
 
 ## 1.4.0 - 2022-06-28
 ### Added
@@ -362,6 +376,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.8...3.9
 [3.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.7.1...3.8
 [3.7.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.6...3.7.1
 [3.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.5...3.6

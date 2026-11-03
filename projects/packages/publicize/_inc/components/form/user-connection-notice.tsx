@@ -32,11 +32,11 @@ export function UserConnectionNotice() {
 							'You must connect your WordPress.com account to be able to re-share posts.',
 							'',
 							'jetpack-publicize-pkg'
-					  )
+						)
 					: __(
 							'You must connect your WordPress.com account to be able to connect social media accounts.',
 							'jetpack-publicize-pkg'
-					  )
+						)
 			}
 		</Notice>
 	);

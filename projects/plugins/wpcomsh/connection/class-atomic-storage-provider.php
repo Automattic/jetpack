@@ -155,7 +155,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * object-cache state. Both get_master_user_id() and get_user_tokens() use
 		 * the same owner email, so this deduplicates the query and validation.
 		 *
-		 * @since $$next-version$$
+		 * @since 10.0.0
 		 *
 		 * @param string $email The user email.
 		 * @return \WP_User|null The user object, or null if not found/invalid.

@@ -226,9 +226,10 @@ By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
 - `@automattic/jetpack-shared-stores`: Handle `jetpack-shared-stores` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). The shared data stores resolve to one externalized bundle so they register only once.
 
-One additional option is recognized:
+Two additional options are recognized:
 
 - `requestMap`: An easier way to specify additional dependencies to extract, rather than redefining `requestToHandle` and `requestToExternal`. Key is the dependency, value is an object with `handle` and `external` keys corresponding to the return values of `requestToHandle` and `requestToExternal`.
+- `bundleWpUiDeps`: Bundle `@wordpress/theme` and `@wordpress/private-apis` instead of externalizing them to the `wp-theme` and `wp-private-apis` script handles. Defaults to `false`. It is meant for entries that bundle `@wordpress/ui`, which is built against a newer `@wordpress/theme` than the one WordPress core registers. A bundled `@wordpress/private-apis` can only unlock private APIs that were locked inside the same bundle. So do not use this option on an entry that unlocks private APIs from an external `wp-*` script, for example bundled `@wordpress/dataviews` with an external `wp-components`. Your own `requestMap` still wins over it.
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 
@@ -361,8 +362,10 @@ The options and corresponding components are:
 
 - `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
 
+  We only add `wp-polyfill` for features that are polyfilled in at least one supported WordPress release, since there's no point including the script if it doesn't actually polyfill the feature we need.
+
   Options include:
-  - `exclude`: Core-js polyfills to ignore. Defaults to exclude 'es.array.push' and 'web.immediate'.
+  - `exclude`: Core-js polyfills that `wp-polyfill` contains but that shouldn't add the dependency, e.g. `[ 'web.dom-exception.stack' ]`.
 - `presetEnv`: Corresponds to [@babel/preset-env](https://www.npmjs.com/package/@babel/preset-env).
 
   Note the following options that are different from `@babel/preset-env`'s defaults:

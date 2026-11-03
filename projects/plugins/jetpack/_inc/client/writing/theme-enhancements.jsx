@@ -130,6 +130,7 @@ class ThemeEnhancements extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-infinite-scroll' ),
+							wpcomLink: 'https://wordpress.com/support/infinite-scroll/',
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>

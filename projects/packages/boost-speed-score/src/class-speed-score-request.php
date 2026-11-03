@@ -41,7 +41,7 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * When the Speed Scores request was created, in seconds since epoch.
 	 *
-	 * @var float $created Speed Scores request creation timestamp.
+	 * @var int|float $created Speed Scores request creation timestamp.
 	 */
 	private $created;
 
@@ -76,12 +76,12 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $url The URL to get the Speed Scores for.
-	 * @param array  $active_modules Active modules.
-	 * @param null   $created When the Speed Scores request was created, in seconds since epoch.
-	 * @param string $status Status of the Speed Scores request.
-	 * @param null   $error The Speed Scores error.
-	 * @param string $client A string identifying where the request was made from.
+	 * @param string         $url The URL to get the Speed Scores for.
+	 * @param array          $active_modules Active modules.
+	 * @param int|float|null $created When the Speed Scores request was created, in seconds since epoch.
+	 * @param string         $status Status of the Speed Scores request.
+	 * @param null           $error The Speed Scores error.
+	 * @param string         $client A string identifying where the request was made from.
 	 */
 	public function __construct( $url, $active_modules = array(), $created = null, $status = 'pending', $error = null, $client = null ) {
 		$this->set_cache_id( self::generate_cache_id_from_url( $url ) );
@@ -103,7 +103,23 @@ class Speed_Score_Request extends Cacheable {
 	 * @return string
 	 */
 	public static function generate_cache_id_from_url( $url ) {
-		return hash( self::CACHE_KEY_HASH_ALGO, $url );
+		return hash( self::CACHE_KEY_HASH_ALGO, self::canonicalize_url( $url ) );
+	}
+
+	/**
+	 * Remove trailing path slashes while preserving the query string and fragment.
+	 *
+	 * Url::normalize() is no use here: it also removes the query argument that keeps the
+	 * "without Boost" scores apart from the regular ones.
+	 *
+	 * @param string $url The URL.
+	 *
+	 * @return string
+	 */
+	private static function canonicalize_url( $url ) {
+		$path_length = strcspn( $url, '?#' );
+
+		return rtrim( substr( $url, 0, $path_length ), '/' ) . substr( $url, $path_length );
 	}
 
 	/**
@@ -311,18 +327,24 @@ class Speed_Score_Request extends Cacheable {
 		$history       = new Speed_Score_History( $this->url );
 		$last_history  = $history->latest();
 		$last_scores   = $last_history ? $last_history['scores'] : null;
-		$last_theme    = $last_history ? $last_history['theme'] : null;
+		$last_theme    = $last_history['theme'] ?? null; // Entries saved before the theme was recorded have no theme key.
 		$current_theme = wp_get_theme()->get( 'Name' );
+
+		// Scores describe the site as it stood when the run was dispatched, so judge staleness
+		// against that instant.
+		$measured_current_site = $this->created >= Speed_Score_History::get_stale_timestamp();
 
 		// Only change if there is a difference from last score or the theme changed.
 		if ( $last_scores !== $response['scores'] || $current_theme !== $last_theme ) {
 			$history->push(
 				array(
-					'timestamp' => time(),
+					'timestamp' => $measured_current_site ? time() : (int) $this->created,
 					'scores'    => $response['scores'],
 					'theme'     => $current_theme,
 				)
 			);
+		} elseif ( $measured_current_site ) {
+			$history->touch_latest();
 		}
 	}
 }

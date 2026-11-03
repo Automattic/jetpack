@@ -42,9 +42,6 @@ export type StatsDevicesComparisonItem = StatsDevicesItem & {
  * ```
  *
  * Items are sorted descending by value.
- *
- * @param topValues - Raw top_values object from the API.
- * @return Normalized device items.
  */
 function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesItem[] {
 	return Object.entries( topValues )
@@ -67,10 +64,6 @@ function parseTopValues( topValues: Record< string, unknown > ): StatsDevicesIte
  * ```
  *
  * `top_values` is a plain object (dict), not an array.
- *
- * @param response - Raw WPCOM Stats API response.
- * @param query    - Stats query params (used to detect summarize mode).
- * @return Normalized report.
  */
 export function sanitizeStatsDevicesResponse(
 	response: unknown,

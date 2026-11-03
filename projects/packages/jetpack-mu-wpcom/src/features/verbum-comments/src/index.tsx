@@ -12,12 +12,7 @@ import useFormMutations from './hooks/useFormMutations';
 import useSocialLogin from './hooks/useSocialLogin';
 import { translate } from './i18n';
 import { createSignals, VerbumSignals } from './state';
-import {
-	canWeAccessCookies,
-	setUserInfoCookie,
-	addWordPressDomain,
-	hasSubscriptionOptionsVisible,
-} from './utils';
+import { setUserInfoCookie, addWordPressDomain, hasSubscriptionOptionsVisible } from './utils';
 import type { VerbumAppProps } from './types';
 
 import './style.scss';
@@ -25,6 +20,7 @@ import './style.scss';
 const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	const {
 		hasOpenedTrayOnce,
+		isCommentBlocked,
 		isEmptyComment,
 		isSavingComment,
 		isTrayOpen,
@@ -160,6 +156,11 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	};
 
 	const handleCommentSubmit = async ( event: Event ) => {
+		if ( isCommentBlocked.value ) {
+			event.preventDefault();
+			return;
+		}
+
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
 			if ( shouldStoreEmailData.value ) {
@@ -226,11 +227,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 				{ userLoggedIn.value ? (
 					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout! } />
 				) : (
-					<LoggedOut
-						login={ login! }
-						canWeAccessCookies={ canWeAccessCookies() }
-						loginWindow={ loginWindowRef ?? null }
-					/>
+					<LoggedOut login={ login! } loginWindow={ loginWindowRef ?? null } />
 				) }
 			</div>
 			<CommentFooter toggleTray={ handleTrayToggle } />

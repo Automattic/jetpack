@@ -165,6 +165,15 @@ class AuthorSchemaNodeTest extends TestCase {
 	}
 
 	/**
+	 * Plugins like PublishPress Authors hand us a queried object that is not a
+	 * WP_User; building must bail instead of casting it to user 1.
+	 */
+	public function test_non_user_object_builds_no_nodes() {
+		$this->assertNull( Author_Schema_Node::build_person( new \stdClass() ) );
+		$this->assertNull( Author_Schema_Node::build_profile_page( new \stdClass() ) );
+	}
+
+	/**
 	 * Author meta is registered on users so core's users REST endpoint can read
 	 * and write it.
 	 */

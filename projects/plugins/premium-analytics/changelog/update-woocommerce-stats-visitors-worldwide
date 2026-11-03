@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WooCommerce Stats: Remove the region toggle from Store visitors by location, which now lists countries worldwide.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Crowdsignal: suppress the onboarding and "link your account" notices that cluttered the Plugins page on WoA sites after activation.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent Agents Manager from loading a second time inside plugin information modals.

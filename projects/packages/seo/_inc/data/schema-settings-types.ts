@@ -20,10 +20,7 @@ export interface OrganizationSettings {
 // (`name`) and Tagline (`description`).
 export type OrganizationDefaults = Pick< OrganizationSettings, 'name' | 'description' >;
 
-// Which entity the site as a whole represents — its main/publisher entity. A site
-// is one or the other, so this is an either/or (schema.org models a Person and an
-// Organization as distinct top-level entities). Local-business details are a
-// refinement of the Organization branch, not a third option.
+// LocalBusiness refines Organization; it is not a third site-entity choice.
 export type SiteEntityType = 'organization' | 'person';
 
 export interface PersonSettings {

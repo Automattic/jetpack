@@ -16,7 +16,7 @@ use Throwable;
 /**
  * Logger contract for the report-export subsystem.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 interface Logger_Interface {
 	/**

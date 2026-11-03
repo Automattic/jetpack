@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Authors: Stop listing a post that only appears in the comparison period as 0 (-100%).

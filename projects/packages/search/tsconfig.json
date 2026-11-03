@@ -1,0 +1,12 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	// esbuild (wp-build) and eslint's resolver both read these paths. Keep the catch-all, or
+	// customberg's and instant-search's bare imports stop resolving.
+	"compilerOptions": {
+		"paths": {
+			"instant-search/*": [ "./src/instant-search/*" ],
+			"*": [ "./src/customberg/*", "./src/dashboard/*", "./src/instant-search/*" ]
+		}
+	},
+	"include": [ "./packages/*/src", "./routes/**/*", "./src" ]
+}

@@ -1,23 +1,66 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 // Styling copied from Gutenberg's `@wordpress/block-editor` styling for
 // the Warning component so we can use it on the frontend.
 .block-editor-warning {
-	border: gb.$border-width solid gb.$gray-200;
+	border: variables.$border-width solid colors.$gray-200;
 	padding: 10px 14px;
 
 	.block-editor-warning__message {
-		line-height: gb.$default-line-height;
-		font-family: gb.$default-font;
-		font-size: gb.$default-font-size;
+		line-height: variables.$default-line-height;
+		font-family: variables.$default-font;
+		font-size: variables.$default-font-size;
 	}
 
 	.block-editor-warning__actions {
 
 		.components-button {
-			font-family: gb.$default-font;
+			font-family: variables.$default-font;
 			font-weight: inherit;
 			text-decoration: none;
 		}
 	}
+}
+
+/*
+ * The pre-rendered upgrade nudge shares its markup with the editor's paid-block
+ * banner, but not its stylesheet: the spacing lives in
+ * extended-blocks/paid-blocks/editor.scss, which never loads on the frontend.
+ * Without it the banner collapses to the height of its own button, leaving the
+ * Upgrade button flush against the top and bottom edges and the description
+ * running underneath it instead of wrapping.
+ */
+.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
+	flex-wrap: wrap;
+
+	.banner-title,
+	.banner-description {
+		margin-block: 10px;
+		margin-inline-end: 10px;
+	}
+
+	.components-button {
+		margin-block: 10px;
+
+		&.is-primary {
+			text-decoration: none;
+		}
+	}
+}
+
+/*
+ * The nudge is printed as a sibling of the block it belongs to, so inside a
+ * flex container it becomes a flex item and shrinks to its content width. A
+ * Form block saved with a layout attribute renders a column flex container
+ * with align-items: flex-start, and the Forms rule that stretches children
+ * only covers forms saved without one, so the banner ends up narrower than the
+ * field it is warning about.
+ *
+ * Use width rather than flex-basis: the container may be a column, where
+ * flex-basis sizes the block axis and would leave the width untouched.
+ */
+.jetpack-upgrade-plan-banner {
+	width: 100%;
+	box-sizing: border-box;
 }

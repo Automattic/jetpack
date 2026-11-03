@@ -1,10 +1,5 @@
 export type PodcatcherId =
-	| 'pocketcasts'
-	| 'apple'
-	| 'spotify'
-	| 'youtube'
-	| 'amazon'
-	| 'podcastindex';
+	'pocketcasts' | 'apple' | 'spotify' | 'youtube' | 'amazon' | 'podcastindex';
 
 export type PodcastShowUrls = Record< PodcatcherId, string >;
 
@@ -28,6 +23,7 @@ export interface PodcastSettings {
 	podcasting_email: string;
 	podcasting_show_urls: PodcastShowUrls;
 	podcasting_show_states: PodcastShowStates;
+	podcasting_feed_limit: number;
 	// Read-only: canonical category feed URL derived server-side via
 	// get_term_feed_link(). Never sent back in an update.
 	podcasting_feed_url: string;

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # sed -i behaves differently between macos and linux platforms.
 # See https://stackoverflow.com/a/51060063
 # To use this, do `sed "${sedi[@]}" -e $sed_expression`
 sedi=(-i)
 # macOS version of sed doesn't support `--version` param and exits with code 1
-sed --version > /dev/null 2>&1
-if [ $? -eq 1 ]
+if ! sed --version > /dev/null 2>&1
 then
 	# For macOS, use two parameters
 	sedi=(-i "")
@@ -20,12 +21,13 @@ if [[ $1 =~ ^--release= ]]
 then
 	MODE=release
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/releases/download/$NAME/newspack-blocks.zip
+	# The workspace monorepo tags each plugin's releases as `<plugin>@<version>`.
+	URL=https://github.com/Automattic/newspack-workspace/releases/download/newspack-blocks@$NAME/newspack-blocks.zip
 elif [[ $1 =~ ^--branch= ]]
 then
 	MODE=branch
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/archive/$NAME.zip
+	URL=https://github.com/Automattic/newspack-workspace/archive/$NAME.zip
 elif [[ $1 =~ ^--path= ]]
 then
 	MODE=path
@@ -37,11 +39,11 @@ then
     echo "Usage: pnpm run sync:newspack-blocks [arguments]"
     echo
     echo Possible arguments:
-    echo --branch=master
-    echo "--path=/path/to/newspack-blocks"
-    echo --release=v4.0.0
+    echo --branch=main
+    echo "--path=/path/to/newspack-workspace/plugins/newspack-blocks"
+    echo --release=4.30.3
     echo
-    echo You can find the latest release ID on https://github.com/Automattic/newspack-blocks/releases/latest
+    echo "You can find the latest release on https://github.com/Automattic/newspack-workspace/releases?q=newspack-blocks"
     echo
     exit 1
 fi
@@ -56,7 +58,7 @@ then
 	if [ -f "$TARGET"/version.txt ]; then
 		CURRENT_VERSION=$(< "$TARGET"/version.txt )
 
-		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
+		if [[ "$CURRENT_VERSION" == "v$NAME" ]]; then
 			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
 			read -rp "Do you want to proceed anyway? (y/N): " proceed
 			if [[ ! "$proceed" =~ ^[Yy]$ ]]; then
@@ -71,7 +73,7 @@ then
 
 	# download zip file
 	echo "Downloading $MODE $NAME into $TEMP_DIR"
-	(cd "$TEMP_DIR" && curl -L --fail -s -O "$URL")
+	(cd "$TEMP_DIR" && curl -L --fail -s -O "$URL") || true
 
 	# handle download error
 	ZIPS=( "$TEMP_DIR"/*.zip )
@@ -137,6 +139,9 @@ cp -R "$CODE"/src/blocks/carousel "$TARGET/blocks/"
 cp -R "$CODE"/src/shared "$TARGET/"
 cp -R "$CODE"/src/components "$TARGET/"
 
+# Upstream tests aren't run here, so don't sync them.
+find "$TARGET" -type f -name '*.test.js' -delete
+
 # Get Typescript working by copying the main type defs over.
 cp "$CODE"/src/types/index.d.ts "$TARGET"/types/
 # Function types need to be capitalized in our system. We only match " function"
@@ -167,7 +172,7 @@ EOF
 rm "$TARGET/eslint.config.mjs"
 
 echo "Changing JS translation function call to avoid bad minification..."
-pnpm --package=jscodeshift dlx jscodeshift -s -t "$PKG_BASE/bin/sync-newspack-blocks-formatter.js" --extensions=js "$TARGET"
+pnpm --package=jscodeshift@17.4.0 dlx jscodeshift -t "$PKG_BASE/bin/sync-newspack-blocks-formatter.js" --extensions=js "$TARGET"
 
 # Add temporary PHPCS config file.
 PHPCSSTANDARDFILE="$TARGET/phpcs.tmp.xml"
@@ -191,7 +196,8 @@ cat > "$PHPCSSTANDARDFILE" <<EOF
 </ruleset>
 EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
-"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET"
+# phpcbf exits 1 when it fixed everything.
+"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET" || [[ $? -eq 1 ]]
 rm "$PHPCSSTANDARDFILE"
 
 # Add textdomain to block.json

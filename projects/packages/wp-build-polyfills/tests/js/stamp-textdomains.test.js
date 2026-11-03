@@ -11,7 +11,15 @@
  */
 
 const crypto = require( 'crypto' );
-const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } = require( 'fs' );
+const {
+	chmodSync,
+	mkdtempSync,
+	mkdirSync,
+	readdirSync,
+	writeFileSync,
+	readFileSync,
+	rmSync,
+} = require( 'fs' );
 const assert = require( 'node:assert/strict' );
 const os = require( 'node:os' );
 const { describe, it } = require( 'node:test' );
@@ -20,7 +28,10 @@ const {
 	stampCode,
 	stampDir,
 	refreshAssetVersion,
+	stampToolSources,
+	toolFingerprint,
 	writeI18nManifest,
+	walk,
 	I18N_MANIFEST,
 } = require( '../../bin/stamp-textdomains-lib.js' );
 
@@ -119,7 +130,7 @@ describe( 'stamp-textdomains', () => {
 				"<?php return array('dependencies' => array('wp-i18n'), 'version' => 'abc');\n"
 			);
 
-			const count = stampDir( path.join( tmp, 'build' ), DOMAIN );
+			const { count } = stampDir( path.join( tmp, 'build' ), DOMAIN );
 			assert.equal( count, 2, 'both .js and .min.js stamped' );
 
 			assert.ok(
@@ -183,7 +194,7 @@ describe( 'stamp-textdomains', () => {
 		}
 	} );
 
-	it( 'writeI18nManifest lists only string-bearing non-min bundles, sorted, across subdirs', () => {
+	it( 'the manifest lists only string-bearing non-min bundles, sorted, across subdirs', () => {
 		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-' ) );
 		try {
 			const buildDir = path.join( tmp, 'build' );
@@ -205,7 +216,7 @@ describe( 'stamp-textdomains', () => {
 			writeFileSync( path.join( moduleDir, 'index.js' ), 'export const answer = 42;\n' );
 			writeFileSync( path.join( routeDir, 'content.asset.php' ), '<?php return array();\n' );
 
-			const bundles = writeI18nManifest( buildDir );
+			const bundles = writeI18nManifest( buildDir, stampDir( buildDir, DOMAIN ).stringBearing );
 
 			const expected = [
 				'build/routes/dashboard/content.js',
@@ -230,9 +241,227 @@ describe( 'stamp-textdomains', () => {
 			mkdirSync( routeDir, { recursive: true } );
 			writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, i.__)("Hi");\n' );
 
-			assert.deepEqual( writeI18nManifest( buildDir ), [ 'output/routes/a/content.js' ] );
+			assert.deepEqual( writeI18nManifest( buildDir, stampDir( buildDir, DOMAIN ).stringBearing ), [
+				'output/routes/a/content.js',
+			] );
 		} finally {
 			rmSync( tmp, { recursive: true, force: true } );
 		}
+	} );
+} );
+
+describe( 'stamp-textdomains cache', () => {
+	const MAP = JSON.stringify( {
+		version: 3,
+		sources: [ 'src/index.js' ],
+		names: [],
+		mappings: 'AAAA',
+	} );
+
+	/**
+	 * Write an unstamped wp-build-shaped tree: a sourcemapped module, a route pair
+	 * with an asset file, and a string-less widget.
+	 *
+	 * @param {string} buildDir - Directory to create.
+	 */
+	function writeBuild( buildDir ) {
+		const moduleDir = path.join( buildDir, 'modules', 'data' );
+		const routeDir = path.join( buildDir, 'routes', 'dashboard' );
+		const widgetDir = path.join( buildDir, 'widgets', 'plain' );
+		for ( const dir of [ moduleDir, routeDir, widgetDir ] ) {
+			mkdirSync( dir, { recursive: true } );
+		}
+		writeFileSync( path.join( moduleDir, 'index.js' ), 'x = (0, import_i18n.__)("Data");\n' );
+		writeFileSync( path.join( moduleDir, 'index.js.map' ), MAP );
+		writeFileSync( path.join( routeDir, 'content.js' ), 'x = (0, import_i18n.__)("Hello");\n' );
+		writeFileSync( path.join( routeDir, 'content.min.js' ), 'var a=(0,e.__)("Hello");' );
+		writeFileSync(
+			path.join( routeDir, 'content.min.asset.php' ),
+			"<?php return array('version' => 'abc');\n"
+		);
+		writeFileSync( path.join( widgetDir, 'render.js' ), 'export const answer = 42;\n' );
+	}
+
+	/**
+	 * Read every file under a directory into a relative-path → contents map.
+	 *
+	 * @param {string} dir - Directory to snapshot.
+	 * @return {object} The snapshot.
+	 */
+	function snapshot( dir ) {
+		const files = {};
+		walk( dir, file => {
+			files[ path.relative( dir, file ) ] = readFileSync( file, 'utf8' );
+		} );
+		return files;
+	}
+
+	/**
+	 * Run a callback with a fresh temp dir, removing it afterwards.
+	 *
+	 * @param {(tmp: string) => void} fn - Test body.
+	 */
+	function withTmp( fn ) {
+		const tmp = mkdtempSync( path.join( os.tmpdir(), 'stamp-textdomains-cache-' ) );
+		try {
+			fn( tmp );
+		} finally {
+			rmSync( tmp, { recursive: true, force: true } );
+		}
+	}
+
+	it( 'reproduces the uncached output byte for byte, cold and warm', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const [ uncached, cold, warm ] = [ 'uncached', 'cold', 'warm' ].map( name => {
+				const buildDir = path.join( tmp, name, 'build' );
+				writeBuild( buildDir );
+				const result = stampDir( buildDir, DOMAIN, name === 'uncached' ? {} : { cacheDir } );
+				writeI18nManifest( buildDir, result.stringBearing );
+				return { result, files: snapshot( buildDir ) };
+			} );
+
+			assert.deepEqual( cold.files, uncached.files );
+			assert.deepEqual( warm.files, uncached.files );
+			assert.equal( cold.result.reused, 0 );
+			assert.equal( warm.result.reused, warm.result.count, 'every bundle reused' );
+		} );
+	} );
+
+	it( 'restamps a changed bundle or source map and prunes the entries they replaced', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			const first = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const changed = path.join( buildDir, 'routes', 'dashboard', 'content.js' );
+			writeFileSync( changed, 'x = (0, import_i18n.__)("Changed");\n' );
+			// A comment-only source edit: same bundle bytes, new map.
+			const mapFile = path.join( buildDir, 'modules', 'data', 'index.js.map' );
+			writeFileSync( mapFile, MAP.replace( 'src/index.js', 'src/renamed.js' ) );
+			const second = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( second.reused, first.count - 2 );
+			assert.ok(
+				readFileSync( changed, 'utf8' ).includes( '"Changed", "jetpack-videopress-pkg"' )
+			);
+			assert.ok( readFileSync( mapFile, 'utf8' ).includes( 'src/renamed.js' ) );
+			assert.equal( readdirSync( cacheDir ).length, second.count, 'one entry per bundle' );
+		} );
+	} );
+
+	it( 'toolFingerprint changes with a tool source or a transitive Babel dependency', () => {
+		withTmp( tmp => {
+			const writePackage = ( name, version, dependencies = {} ) => {
+				const dir = path.join( tmp, 'node_modules', name );
+				mkdirSync( dir, { recursive: true } );
+				writeFileSync(
+					path.join( dir, 'package.json' ),
+					JSON.stringify( { name, version, dependencies } )
+				);
+			};
+			writePackage( '@babel/core', '7.0.0', { '@babel/generator': '^7.0.0' } );
+			writePackage( '@babel/generator', '7.0.0', { jsesc: '^3.0.0' } );
+			writePackage( 'jsesc', '3.0.0' );
+			const source = path.join( tmp, 'plugin.js' );
+			writeFileSync( source, 'v1' );
+			const fingerprint = () =>
+				toolFingerprint( DOMAIN, { sources: [ source ], resolveFrom: tmp } );
+
+			const original = fingerprint();
+			writePackage( 'jsesc', '3.0.1' );
+			const afterBump = fingerprint();
+			writeFileSync( source, 'v2' );
+
+			assert.notEqual( afterBump, original, 'a transitive dependency bump' );
+			assert.notEqual( fingerprint(), afterBump, 'a tool source edit' );
+		} );
+	} );
+
+	it( 'stampToolSources includes plugin files in subdirectories', () => {
+		withTmp( tmp => {
+			const helper = path.join( tmp, 'utils', 'helper.cjs' );
+			mkdirSync( path.dirname( helper ) );
+			writeFileSync( helper, '' );
+			writeFileSync( path.join( tmp, 'README.md' ), '' );
+
+			const sources = stampToolSources( tmp );
+			assert.ok( sources.includes( helper ) );
+			assert.ok( ! sources.includes( path.join( tmp, 'README.md' ) ) );
+		} );
+	} );
+
+	it( 'does not reuse entries stamped for another domain', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			stampDir( buildDir, 'jetpack-other', { cacheDir } );
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const { reused } = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( reused, 0 );
+			const route = path.join( buildDir, 'routes', 'dashboard', 'content.js' );
+			assert.ok( ! readFileSync( route, 'utf8' ).includes( 'jetpack-other' ) );
+		} );
+	} );
+
+	it( 'treats an unreadable entry as a miss', () => {
+		withTmp( tmp => {
+			const cacheDir = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			stampDir( buildDir, DOMAIN, { cacheDir } );
+			const expected = snapshot( buildDir );
+			for ( const name of readdirSync( cacheDir ) ) {
+				writeFileSync( path.join( cacheDir, name ), '{"code":' );
+			}
+
+			rmSync( buildDir, { recursive: true } );
+			writeBuild( buildDir );
+			const { reused } = stampDir( buildDir, DOMAIN, { cacheDir } );
+
+			assert.equal( reused, 0 );
+			assert.deepEqual( snapshot( buildDir ), expected );
+		} );
+	} );
+
+	it( 'still stamps when the cache directory cannot be created or written', () => {
+		withTmp( tmp => {
+			const expectedDir = path.join( tmp, 'expected', 'build' );
+			writeBuild( expectedDir );
+			stampDir( expectedDir, DOMAIN );
+			const expected = snapshot( expectedDir );
+
+			// A stale entry to prune, in a cache that turns read-only.
+			const writableCache = path.join( tmp, 'cache' );
+			const buildDir = path.join( tmp, 'build' );
+			writeBuild( buildDir );
+			writeFileSync(
+				path.join( buildDir, 'routes', 'dashboard', 'content.js' ),
+				'x = (0, import_i18n.__)("Stale");\n'
+			);
+			stampDir( buildDir, DOMAIN, { cacheDir: writableCache } );
+			const lockedParent = path.join( tmp, 'locked' );
+			mkdirSync( lockedParent );
+			chmodSync( writableCache, 0o555 );
+			chmodSync( lockedParent, 0o555 );
+			try {
+				for ( const cacheDir of [ writableCache, path.join( lockedParent, 'cache' ) ] ) {
+					rmSync( buildDir, { recursive: true } );
+					writeBuild( buildDir );
+					stampDir( buildDir, DOMAIN, { cacheDir } );
+					assert.deepEqual( snapshot( buildDir ), expected, cacheDir );
+				}
+			} finally {
+				chmodSync( writableCache, 0o755 );
+				chmodSync( lockedParent, 0o755 );
+			}
+		} );
 	} );
 } );

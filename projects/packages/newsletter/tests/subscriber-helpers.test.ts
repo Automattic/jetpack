@@ -1,6 +1,5 @@
 import {
 	getSubscribedAt,
-	hasNoSubscribersOtherThanOwner,
 	isOpenSubscriberRemoved,
 } from '../_inc/subscribers/lib/subscriber-helpers';
 import type { Subscriber, SubscriberDetails } from '../_inc/subscribers/data/types';
@@ -67,39 +66,18 @@ describe( 'isOpenSubscriberRemoved', () => {
 	} );
 } );
 
-describe( 'hasNoSubscribersOtherThanOwner', () => {
-	it( 'is true when there are no subscribers at all', () => {
-		expect( hasNoSubscribersOtherThanOwner( 0, false ) ).toBe( true );
-		// Owner flag is irrelevant when the total is zero.
-		expect( hasNoSubscribersOtherThanOwner( 0, true ) ).toBe( true );
-	} );
-
-	it( 'is true when the only subscriber is the site owner', () => {
-		expect( hasNoSubscribersOtherThanOwner( 1, true ) ).toBe( true );
-	} );
-
-	it( 'is false when the single subscriber is not the owner', () => {
-		expect( hasNoSubscribersOtherThanOwner( 1, false ) ).toBe( false );
-	} );
-
-	it( 'is false once there is more than one subscriber, owner included', () => {
-		expect( hasNoSubscribersOtherThanOwner( 2, true ) ).toBe( false );
-		expect( hasNoSubscribersOtherThanOwner( 5, false ) ).toBe( false );
-	} );
-} );
-
 describe( 'getSubscribedAt', () => {
-	it( 'prefers the wpcom date and pins the naive list timestamp to UTC', () => {
+	it( 'picks the earlier date and pins the naive list timestamp to UTC', () => {
 		const subscriber = makeSubscriber( {
 			wpcom_date_subscribed: '2026-07-28 19:02:09',
 			email_date_subscribed: '2020-01-01 00:00:00',
 		} );
-		expect( getSubscribedAt( subscriber ) ).toBe( '2026-07-28 19:02:09+00:00' );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2020-01-01T00:00:00+00:00' );
 	} );
 
 	it( 'falls back to the email date for email-only subscribers', () => {
 		const subscriber = makeSubscriber( { email_date_subscribed: '2026-06-12 08:30:00' } );
-		expect( getSubscribedAt( subscriber ) ).toBe( '2026-06-12 08:30:00+00:00' );
+		expect( getSubscribedAt( subscriber ) ).toBe( '2026-06-12T08:30:00+00:00' );
 	} );
 
 	it( 'reads `date_subscribed` from the individual-subscriber payload', () => {

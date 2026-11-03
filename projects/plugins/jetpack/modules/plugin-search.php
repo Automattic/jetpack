@@ -319,8 +319,19 @@ class Jetpack_Plugin_Search {
 				'module'              => 'sharing-block',
 				'sort'                => '13',
 				'learn_more_button'   => Redirect::get_url( 'jetpack-support-sharing-block' ),
-				'configure_url'       => admin_url( 'site-editor.php?path=%2Fwp_template' ),
+				'configure_url'       => $this->get_sharing_block_editor_url(),
 			),
+		);
+	}
+
+	/**
+	 * Site Editor URL for the template the Sharing Buttons block goes in.
+	 *
+	 * @return string
+	 */
+	private function get_sharing_block_editor_url() {
+		return admin_url(
+			'site-editor.php?p=' . rawurlencode( '/wp_template/' . get_stylesheet() . '//single' ) . '&canvas=edit'
 		);
 	}
 
@@ -368,12 +379,13 @@ class Jetpack_Plugin_Search {
 			}
 
 			/*
-			 * Only surface the SEO Tools hint once the new Jetpack SEO admin page is
-			 * available. The page is gated behind the `rsm_jetpack_seo` feature flag,
-			 * so without this gate the hint's CTAs would point to a page that isn't
-			 * registered yet.
+			 * Only surface the SEO Tools hint when the new Jetpack SEO admin page is
+			 * available and registered, so its CTA never points to a missing page.
 			 */
-			if ( apply_filters( 'rsm_jetpack_seo', false ) ) {
+			if (
+				\Automattic\Jetpack\SEO\Initializer::is_available()
+				&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+			) {
 				$searchable_modules[] = 'seo-tools';
 			}
 
@@ -566,7 +578,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ) . '"
+				href="' . esc_url( $this->get_sharing_block_editor_url() ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Add block', 'jetpack' ) . '</a>';
@@ -579,6 +591,15 @@ class Jetpack_Plugin_Search {
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
+			// The Protect page owns this feature's settings; send people there instead of switching it here.
+		} elseif ( current_user_can( 'jetpack_configure_modules' ) && isset( Jetpack_Admin::get_protect_page_module_urls()[ $plugin['module'] ] ) ) {
+			$links['jp_get_started'] = '<a
+				id="plugin-select-settings"
+				class="jetpack-plugin-search__primary button jetpack-plugin-search__configure"
+				href="' . esc_url( Jetpack_Admin::get_protect_page_module_urls()[ $plugin['module'] ] ) . '"
+				data-module="' . esc_attr( $plugin['module'] ) . '"
+				data-track="configure"
+				>' . esc_html( _x( 'Manage in Protect', '"Protect" is a product name.', 'jetpack' ) ) . '</a>';
 			// Jetpack installed, active, feature not enabled; prompt to enable.
 		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&

@@ -161,20 +161,8 @@ class MailPoet_Integration {
 	 * @return array Associative array with at least 'email', optionally 'first_name', 'last_name'. Empty array if no email found.
 	 */
 	protected static function get_subscriber_data_from_fields( $fields ) {
-		// Try and get the form from any of the fields
-		$form = null;
-		foreach ( $fields as $field ) {
-			if ( ! empty( $field->form ) ) {
-				$form = $field->form;
-				break;
-			}
-		}
-		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
-			return array();
-		}
-
 		$subscriber_data = array();
-		foreach ( $form->fields as $field ) {
+		foreach ( $fields as $field ) {
 			$type  = strtolower( (string) $field->get_attribute( 'type' ) );
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'id' ) ) );
 			$label = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'label' ) ) );
@@ -269,17 +257,16 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$post       = get_post( $post_id );
-		$is_v2_data = ( $post && $post->post_mime_type === 'v2' );
+		$uses_feedback_api = $feedback->uses_structured_fields();
 
-		if ( $is_v2_data ) {
+		if ( $uses_feedback_api ) {
 			if ( $feedback->has_field_type( 'consent' ) && ! $feedback->has_consent() ) {
 				return;
 			}
 		} else {
 			$consent_field = null;
-			if ( is_array( $form->fields ) ) {
-				foreach ( $form->fields as $form_field ) {
+			if ( is_array( $fields ) ) {
+				foreach ( $fields as $form_field ) {
 					if ( 'consent' === $form_field->get_attribute( 'type' ) ) {
 						$consent_field = $form_field;
 						break;
@@ -311,7 +298,7 @@ class MailPoet_Integration {
 			return;
 		}
 
-		$subscriber_data = $is_v2_data ? self::get_subscriber_data( $feedback ) : self::get_subscriber_data_from_fields( $fields );
+		$subscriber_data = $uses_feedback_api ? self::get_subscriber_data( $feedback ) : self::get_subscriber_data_from_fields( $fields );
 		if ( empty( $subscriber_data ) ) {
 			// Email is required for MailPoet subscribers.
 			return;

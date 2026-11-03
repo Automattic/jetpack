@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
@@ -66,13 +66,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-forms",
 		"changelogger": {
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.23.x-dev"
+			"dev-trunk": "8.3.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

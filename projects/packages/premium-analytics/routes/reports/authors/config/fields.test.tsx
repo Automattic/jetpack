@@ -5,14 +5,15 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getAuthorsFields } from './fields';
-import type { AuthorRow } from './aggregate';
-import type { ReactNode } from 'react';
+import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const author: AuthorRow = {
 	id: 'id:42',
 	label: 'Ada Lovelace',
 	avatarUrl: 'https://example.com/ada.png',
+	authorId: '42',
 	isGroup: true,
 	views: 1234,
 };
@@ -29,17 +30,11 @@ const post: AuthorRow = {
 
 // Field tests do not mount the dynamic report router, so render its Link as
 // the internal anchor produced for the post detail route.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => <a href={ to.replace( '$postId', params.postId ) }>{ children }</a>,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
 
 /**
  * Mount an Authors table field's render component.
@@ -62,10 +57,25 @@ function renderField( fieldId: 'author' | 'views', item: AuthorRow, withComparis
 }
 
 describe( 'authors fields', () => {
-	it( 'renders the author name with its avatar', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			foreign: 'drop-me',
+		} );
+	} );
+
+	it( 'renders the author name with its avatar, linked to the author page', () => {
 		renderField( 'author', author );
 
-		expect( screen.getByText( 'Ada Lovelace' ) ).toBeInTheDocument();
+		const url = getMockRouteLinkUrl( screen.getByRole( 'link', { name: 'Ada Lovelace' } ) );
+		expect( url.pathname ).toBe( '/author/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+		} );
 		expect( screen.getByAltText( 'Avatar of Ada Lovelace' ) ).toHaveAttribute(
 			'src',
 			'https://example.com/ada.png'
@@ -74,20 +84,33 @@ describe( 'authors fields', () => {
 	} );
 
 	it( 'localizes the untracked-author sentinel for display and search', () => {
-		const untracked = { ...author, label: 'Untracked Authors', avatarUrl: null };
+		const untracked = {
+			...author,
+			label: 'Untracked Authors',
+			avatarUrl: null,
+			authorId: undefined,
+		};
 		const authorField = getAuthorsFields().find( candidate => candidate.id === 'author' );
 
 		expect( authorField?.getValue?.( { item: untracked } as never ) ).toBe( 'Untracked authors' );
 
 		renderField( 'author', untracked );
 		expect( screen.getByText( 'Untracked authors' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links nested posts to their single-post details without external-link treatment', () => {
 		renderField( 'author', post );
 
 		const link = screen.getByRole( 'link', { name: /Analytical Engine/ } );
-		expect( link ).toHaveAttribute( 'href', '/post/1' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/1' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'authors',
+		} );
 		expect( link ).not.toHaveAttribute( 'target' );
 		// eslint-disable-next-line testing-library/no-node-access -- the removed external-link icon has no accessible role or text.
 		expect( link.querySelector( 'svg' ) ).not.toBeInTheDocument();
@@ -100,11 +123,6 @@ describe( 'authors fields', () => {
 		expect( authorField?.getValue?.( { item: author } as never ) ).toBe( 'Ada Lovelace' );
 		expect( authorField?.getValue?.( { item: post } as never ) ).toBe( 'Analytical Engine' );
 		expect( authorField?.enableGlobalSearch ).toBe( true );
-	} );
-
-	it( 'formats the views field for display', () => {
-		renderField( 'views', author );
-		expect( screen.getByText( author.views.toLocaleString() ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the views delta when a comparison row is available', () => {

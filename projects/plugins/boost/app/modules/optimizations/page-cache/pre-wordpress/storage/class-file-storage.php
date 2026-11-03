@@ -37,7 +37,10 @@ class File_Storage implements Storage {
 	 */
 	public function write( $request_uri, $parameters, $data ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = Filesystem_Utils::get_request_filename( $parameters );
+		$filename  = Filesystem_Utils::get_request_filename( $request_uri, $parameters );
+		if ( false === $filename ) {
+			return new Boost_Cache_Error( 'cannot-build-cache-key', 'Could not build cache key' );
+		}
 
 		if ( ! Filesystem_Utils::create_directory( $directory ) ) {
 			return new Boost_Cache_Error( 'cannot-create-cache-dir', 'Could not create cache directory' );
@@ -56,8 +59,11 @@ class File_Storage implements Storage {
 	 */
 	public function reset_rebuild_file( $request_uri, $parameters ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = Filesystem_Utils::get_request_filename( $parameters ) . Filesystem_Utils::REBUILD_FILE_EXTENSION;
-		$hash_path = $directory . $filename;
+		$filename  = Filesystem_Utils::get_request_filename( $request_uri, $parameters );
+		if ( false === $filename ) {
+			return false;
+		}
+		$hash_path = $directory . $filename . Filesystem_Utils::REBUILD_FILE_EXTENSION;
 
 		if ( file_exists( $hash_path ) ) {
 			$expired = ( @filemtime( $hash_path ) + JETPACK_BOOST_CACHE_REBUILD_DURATION ) <= time(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -90,7 +96,10 @@ class File_Storage implements Storage {
 	 */
 	public function read( $request_uri, $parameters ) {
 		$directory = self::get_uri_directory( $request_uri );
-		$filename  = Filesystem_Utils::get_request_filename( $parameters );
+		$filename  = Filesystem_Utils::get_request_filename( $request_uri, $parameters );
+		if ( false === $filename ) {
+			return false;
+		}
 		$hash_path = $directory . $filename;
 
 		if ( file_exists( $hash_path ) ) {
@@ -167,7 +176,7 @@ class File_Storage implements Storage {
 	/**
 	 * Delete cache based on given parameters.
 	 *
-	 * @param string $path - The path to delete the cache for.
+	 * @param string $path - The URL or path to delete the cache for.
 	 * @param array  $args - The parameters defining the cache filename.
 	 * Example:
 	 * array(
@@ -177,8 +186,26 @@ class File_Storage implements Storage {
 	 * )
 	 */
 	public function clear( $path, $args = array() ) {
-		$normalized_path = Boost_Cache_Utils::normalize_request_uri( $this->sanitize_path( $path ) );
-		$normalized_path = Boost_Cache_Utils::trailingslashit( $this->root_path . $normalized_path );
+		if ( ! is_string( $path ) ) {
+			return;
+		}
+		$path = trim( $path );
+		if ( '' === $path || 0 !== preg_match( '/[[:cntrl:]]/', $path ) ) {
+			return;
+		}
+		// Two leading slashes can introduce a URL host; three or more denote a request path.
+		if ( 0 === strpos( $path, '///' ) ) {
+			$path = '/' . ltrim( $path, '/' );
+		}
+		$request_uri = parse_url( $path, PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		if ( false === $request_uri ) {
+			return;
+		}
+		$request_uri = Boost_Cache_Utils::normalize_request_uri( $request_uri ?? '/' );
+		if ( false === $request_uri ) {
+			return;
+		}
+		$normalized_path = self::get_uri_directory( $request_uri );
 
 		// Ensure the path is within the cache directory
 		if ( strpos( $normalized_path, $this->root_path ) !== 0 ) {
@@ -198,7 +225,11 @@ class File_Storage implements Storage {
 
 		// If parameters are provided, delete the specific file and skip any iteration.
 		if ( $parameters ) {
-			$action->apply_to_path( new SplFileInfo( $normalized_path . Filesystem_Utils::get_request_filename( $parameters ) ) );
+			$filename = Filesystem_Utils::get_request_filename( $request_uri, $parameters );
+			if ( false === $filename ) {
+				return;
+			}
+			$action->apply_to_path( new SplFileInfo( $normalized_path . $filename ) );
 			return;
 		}
 

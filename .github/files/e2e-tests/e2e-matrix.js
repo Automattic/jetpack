@@ -31,6 +31,13 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack comments',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/comments' ],
+		targets: [ 'plugins/jetpack', 'packages/comments' ],
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
@@ -41,6 +48,13 @@ const projects = [
 		project: 'Jetpack Boost - Base',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/base' ],
+		targets: [ 'plugins/boost' ],
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Dashboard Modernization',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/modernization' ],
 		targets: [ 'plugins/boost' ],
 		buildGroup: 'jetpack-boost',
 	},
@@ -128,6 +142,20 @@ const projects = [
 		targets: [ 'plugins/protect' ],
 		buildGroup: 'jetpack-protect',
 	},
+	{
+		project: 'Backup',
+		path: 'projects/plugins/backup/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/backup' ],
+		buildGroup: 'jetpack-backup',
+	},
+	{
+		project: 'Premium Analytics',
+		path: 'projects/plugins/premium-analytics/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/premium-analytics', 'packages/ads' ],
+		buildGroup: 'jetpack-premium-analytics',
+	},
 ];
 
 /**
@@ -151,11 +179,10 @@ const matrix = [];
  * so a change that only breaks the minimum version is caught while it's still in review.
  *
  * @param {object} project - The project entry to expand.
- * @param {object} extra   - Additional properties to merge into each entry.
  */
-function pushBothVersions( project, extra = {} ) {
+function pushBothVersions( project ) {
 	for ( const wpVersion of [ 'latest', minWpVersion() ] ) {
-		matrix.push( { ...project, ...extra, wpVersion } );
+		matrix.push( { ...project, wpVersion } );
 	}
 }
 
@@ -168,6 +195,8 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			} ).toString()
 		);
 
+		const dependencyCache = new Map();
+
 		for ( const project of projects ) {
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
@@ -175,11 +204,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				continue;
 			}
 
-			const targets = execSync(
-				`pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`
-			)
-				.toString()
-				.split( '\n' );
+			const command = `pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`;
+			if ( ! dependencyCache.has( command ) ) {
+				dependencyCache.set( command, execSync( command ).toString().split( '\n' ) );
+			}
+			const targets = dependencyCache.get( command );
 
 			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
 				pushBothVersions( project );
@@ -206,30 +235,21 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		}
 
 		for ( const project of projects ) {
-			matrix.push( { ...project, wpVersion, suite: `wp-${ wpVersion }` } );
+			matrix.push( { ...project, wpVersion } );
 		}
 		break;
 	}
 	case 'repository_dispatch':
 		if ( process.env.DISPATCH_REPO ) {
 			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
-			const refName = process.env.REF_NAME;
-			const refType = process.env.REF_TYPE;
 
 			for ( const project of projects ) {
 				const packageJson = JSON.parse(
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
 
-				let suiteName = repoName;
-				if ( refType === 'tag' ) {
-					suiteName = `${ suiteName }-${ refName }`;
-				} else if ( refType === 'branch' && refName !== 'trunk' ) {
-					suiteName = `${ suiteName }-rc`;
-				}
-
 				if ( packageJson?.ci?.mirrorName === repoName ) {
-					pushBothVersions( project, { suite: suiteName } );
+					pushBothVersions( project );
 				}
 			}
 		} else {

@@ -34,12 +34,12 @@ const NavigationGroup = ( { icon, label, children } ) => {
 										/* translators: %s: Number of hide items  */
 										__( 'Show %s more', 'jetpack-protect' ),
 										totalHideItems
-								  )
+									)
 								: sprintf(
 										/* translators: %s: Number of hide items  */
 										__( 'Hide %s items', 'jetpack-protect' ),
 										totalHideItems
-								  ) }
+									) }
 						</Button>
 					</div>
 				) }

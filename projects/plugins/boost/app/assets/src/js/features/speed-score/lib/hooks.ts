@@ -1,9 +1,8 @@
-import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import { requestSpeedScores, standardizeError } from '@automattic/jetpack-boost-score-api';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { castToString } from '$lib/utils/cast-to-string';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { standardizeError } from '$lib/utils/standardize-error';
 import { __ } from '@wordpress/i18n';
 
 type SpeedScoreState = {

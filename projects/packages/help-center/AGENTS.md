@@ -16,7 +16,6 @@ The frontend code lives in a separate repo: `wp-calypso/packages/help-center/`.
 | File                               | Purpose                                                                                                               |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `src/class-help-center.php`            | Main class — variant selection, script enqueuing, admin bar icon, inline `helpCenterData`, REST endpoint registration |
-| `src/class-help-center-menu-panel.php` | Adds Help Center menu items to the admin bar (chat, history, guides, courses, product updates)                        |
 | `src/class-wp-rest-help-center-*.php`  | Individual REST API endpoint controllers (see table below)                                                            |
 
 ## How the UI Gets Loaded
@@ -44,9 +43,11 @@ All routes are registered under the `help-center` namespace (`/wp-json/help-cent
 | Route                                                 | Method | Controller                  | Proxies to                                    | Description                           |
 | ----------------------------------------------------- | ------ | --------------------------- | --------------------------------------------- | ------------------------------------- |
 | `/authenticate/chat`                                  | POST   | `Authenticate`              | `POST /help/authenticate/chat`                | Zendesk/messaging chat auth           |
+| `/cta`                                                | GET    | `CTA`                       | `GET /help/cta`                               | Contextual CTA for the current user   |
 | `/support-availability/email`                         | GET    | `Email_Support_Enabled`     | `GET /help/eligibility/email/mine`            | Check email support eligibility       |
 | `/fetch-post`                                         | GET    | `Fetch_Post`                | `GET /help/article/{blog_id}/{post_id}`       | Fetch a single support article        |
 | `/articles`                                           | GET    | `Fetch_Post`                | `GET /help/articles?blog_id=...&post_ids=...` | Fetch multiple support articles       |
+| `/article-rating`                                     | POST   | `Article_Rating`            | `POST /help/article/rating`                   | Save the user's rating of an article  |
 | `/forum/new`                                          | POST   | `Forum`                     | `POST /help/forum/new`                        | Create a forum topic                  |
 | `/jetpack-connection-health`                          | GET    | `Jetpack_Connection_Health` | `GET /sites/{site}/jetpack-connection-health` | Site connection health (reachability) |
 | `/jetpack-search/ai/search`                           | GET    | `Jetpack_Search_AI`         | `GET /sites/{site}/jetpack-search/ai/search`  | AI-powered article search             |
@@ -75,7 +76,6 @@ All routes are registered under the `help-center` namespace (`/wp-json/help-cent
 
 - **Router history cap**: `calypso_preferences_update` limits `help_center_router_history` entries to 50 to prevent unbounded growth.
 - **Admin bar icon**: The `wp-admin` and `wp-admin-disconnected` variants add a Help Center icon to the WordPress admin bar with a notification dot SVG.
-- **Menu panel**: Behind an ExPlat experiment (`calypso_help_center_menu_popover_increase_exposure`), adds a menu panel with links to chat, chat history, support guides, courses, and product updates.
 - **Logged-out support**: On support sites, logged-out users see the Help Center.
 - **Disconnected fallback**: When the user is not connected via Jetpack, the Help Center icon links to `wordpress.com/help` instead of opening the in-app experience.
 

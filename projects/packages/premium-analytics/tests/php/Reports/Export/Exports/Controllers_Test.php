@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Reports\Export;
 
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Items_Per_Order_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Order_Value_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Booking_Status_Breakdown_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Bookings_Over_Time_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Conversion_Rate_Over_Time_Controller;
@@ -17,6 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdow
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Top_Performing_Products_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Visitors_Over_Time_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -29,6 +32,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Tax_Rate_Breakdown_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Bookings_Over_Time_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Booking_Status_Breakdown_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Order_Value_Controller
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Exports\Average_Items_Per_Order_Controller
  * @covers \Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Controller
  */
 #[CoversClass( Orders_Over_Time_Controller::class )]
@@ -40,6 +45,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Tax_Rate_Breakdown_Controller::class )]
 #[CoversClass( Bookings_Over_Time_Controller::class )]
 #[CoversClass( Booking_Status_Breakdown_Controller::class )]
+#[CoversClass( Average_Order_Value_Controller::class )]
+#[CoversClass( Average_Items_Per_Order_Controller::class )]
 #[CoversClass( Abstract_Csv_Report_Controller::class )]
 class Controllers_Test extends TestCase {
 
@@ -85,7 +92,7 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'Orders Over Time', $c->get_report_label() );
 		$this->assertSame( 'reports/orders/by-date', $c->get_data_endpoint() );
 		$this->assertSame( 1000, $c->get_batch_limit() );
-		$this->assertSame( array( 'date_type' => 'created' ), $c->get_additional_params() );
+		$this->assertSame( array(), $c->get_additional_params() );
 	}
 
 	public function test_orders_column_headers_use_interval_label() {
@@ -170,7 +177,42 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( '66.67%', $row['store_conversion_rate'] );
 
 		$row = $c->format_row_for_csv( array( 'active_sessions' => 0 ) );
-		$this->assertSame( '0.00%', $row['store_conversion_rate'] );
+		$this->assertSame( '', $row['store_conversion_rate'] );
+	}
+
+	/**
+	 * Rows for the average exports: orders, the average the API sent, and the expected cell.
+	 *
+	 * @return array
+	 */
+	public static function average_rows(): array {
+		return array(
+			'orders'              => array( 2, '270.5', '270.50' ),
+			'no orders, API 0'    => array( 0, '0', '' ),
+			'no orders, API null' => array( 0, null, '' ),
+			'orders, API null'    => array( 2, null, '' ),
+		);
+	}
+
+	/**
+	 * @dataProvider average_rows
+	 */
+	#[DataProvider( 'average_rows' )]
+	public function test_average_exports_leave_a_period_without_orders_empty( $orders, $average, $expected ) {
+		$aov   = ( new Average_Order_Value_Controller( new Report_Registry() ) )->format_row_for_csv(
+			array(
+				'orders_no'           => $orders,
+				'average_order_value' => $average,
+			)
+		);
+		$items = ( new Average_Items_Per_Order_Controller( new Report_Registry() ) )->format_row_for_csv(
+			array(
+				'orders_no' => $orders,
+				'avg_items' => $average,
+			)
+		);
+
+		$this->assertSame( array( $expected, $expected ), array( $aov['average_order_value'], $items['avg_items'] ) );
 	}
 
 	public function test_bookings_over_time_metadata_and_filter() {
@@ -180,8 +222,7 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'reports/orders-by-product-type/by-date', $c->get_data_endpoint() );
 		$this->assertSame(
 			array(
-				'date_type' => 'created',
-				'filters'   => array(
+				'filters' => array(
 					array(
 						'key'     => 'product_type',
 						'compare' => 'IN',
@@ -246,10 +287,9 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( 'reports/products', $c->get_data_endpoint() );
 		$this->assertSame(
 			array(
-				'date_type' => 'created',
-				'orderby'   => 'product_gross_revenue',
-				'order'     => 'desc',
-				'limit'     => 100,
+				'orderby' => 'product_gross_revenue',
+				'order'   => 'desc',
+				'limit'   => 100,
 			),
 			$c->get_additional_params()
 		);

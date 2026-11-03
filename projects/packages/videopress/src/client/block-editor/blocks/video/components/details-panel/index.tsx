@@ -37,7 +37,7 @@ export default function DetailsPanel( {
 	videoBelongToSite,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
-	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
+	const { hasIncompleteChapters, chapterValidationIssues } = useChaptersLiveParsing( description );
 
 	// Expands the description textarea to accommodate the description
 	const minRows = 4;
@@ -87,7 +87,10 @@ export default function DetailsPanel( {
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ ! hasUploadedChapters && hasIncompleteChapters && (
-				<IncompleteChaptersNotice className="incomplete-chapters-notice" />
+				<IncompleteChaptersNotice
+					className="incomplete-chapters-notice"
+					issues={ chapterValidationIssues }
+				/>
 			) }
 			{ hasUploadedChapters && (
 				<Notice status="success" className="learn-how-notice" isDismissible={ false }>

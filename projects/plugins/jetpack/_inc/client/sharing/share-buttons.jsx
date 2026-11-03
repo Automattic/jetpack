@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
-import BlockThemeNotice from 'components/block-theme-notice';
 import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -43,62 +42,31 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
-			const sharingTemplateUrl =
-				siteAdminUrl && this.props.themeStylesheet
-					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
-							this.props.themeStylesheet
-					  ) }%2F%2Fsingle&canvas=edit`
-					: '';
-			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
 			const isForcedActive =
 				isActive && this.props.getModule?.( 'sharedaddy' )?.override === 'active';
 			let description = __(
 				'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.',
 				'jetpack'
 			);
-			if ( shouldUseSharingBlockAction ) {
+			if ( shouldShowSharingBlock ) {
 				description = isActive
 					? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' )
 					: _x(
-							'Add the Sharing Buttons block to your theme’s template.',
+							'Choose where the Sharing Buttons block goes on your posts and pages.',
 							'Sharing block migration instruction',
 							'jetpack'
-					  );
+						);
 			}
 
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
-			/**
-			 * Sharing configuration link.
-			 *
-			 * This link can be different depending on your site setup:
-			 * - Do you use a block-based theme and is the sharing block available?
-			 * - Is the site connected to WordPress.com?
-			 * - Is the site in offline mode?
-			 * - Is the site using the classic admin interface?
-			 *
-			 * @return {import('react').ReactNode} A card with the sharing configuration link.
-			 */
-			const configCard = () => {
-				const cardProps = {
-					compact: true,
-					className: 'jp-settings-card__configure-link',
-					href: `${ siteAdminUrl }options-general.php?page=sharing`,
-					onClick: this.trackClickConfigure,
-				};
-
-				if ( shouldShowSharingBlock ) {
-					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				}
-
-				return <Card { ...cardProps }>{ __( 'Configure your sharing buttons', 'jetpack' ) }</Card>;
-			};
+			// Settings > Sharing configures legacy sharing while it is on, and the block's placement once it is off.
+			const showConfigCard = shouldShowSharingBlock ? ! isActive : isActive;
 
 			/**
-			 * Use the legacy toggle where needed; otherwise guide block themes through
-			 * deactivating legacy sharing before configuring the Sharing Buttons block.
+			 * Use the legacy toggle where needed; otherwise offer block themes the switch to the Sharing Buttons block.
 			 *
-			 * @return {import('react').ReactNode} The sharing module action.
+			 * @return {import('react').ReactNode} The sharing module action, if any.
 			 */
 			const moduleAction = () => {
 				const toggle = (
@@ -114,39 +82,21 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					</ModuleToggle>
 				);
 
-				if ( ! shouldUseSharingBlockAction ) {
-					return (
-						<>
-							{ toggle }
-							{ shouldShowSharingBlock && (
-								<BlockThemeNotice
-									isModuleActive={ isActive }
-									redirectSlug="jetpack-support-sharing-block"
-								/>
-							) }
-						</>
-					);
-				}
-
-				if ( isForcedActive ) {
+				if ( ! shouldShowSharingBlock || isForcedActive ) {
 					return toggle;
 				}
 
-				if ( isActive ) {
-					const isSwitching = this.props.isSavingAnyOption( 'sharedaddy' );
-
-					return (
-						<Button rna compact disabled={ isSwitching } onClick={ this.switchToSharingBlock }>
-							{ isSwitching
-								? _x( 'Switching…', 'Button caption', 'jetpack' )
-								: __( 'Switch to Sharing Buttons block', 'jetpack' ) }
-						</Button>
-					);
+				if ( ! isActive ) {
+					return null;
 				}
 
+				const isSwitching = this.props.isSavingAnyOption( 'sharedaddy' );
+
 				return (
-					<Button rna compact href={ sharingTemplateUrl } onClick={ this.trackClickConfigure }>
-						{ __( 'Open Site Editor', 'jetpack' ) }
+					<Button rna compact disabled={ isSwitching } onClick={ this.switchToSharingBlock }>
+						{ isSwitching
+							? _x( 'Switching…', 'Button caption', 'jetpack' )
+							: __( 'Switch to Sharing Buttons block', 'jetpack' ) }
 					</Button>
 				);
 			};
@@ -169,15 +119,23 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							link: shouldShowSharingBlock
 								? getRedirectUrl( 'jetpack-support-sharing-block' )
 								: sharingModuleSupportUrl,
+							wpcomLink: 'https://wordpress.com/support/sharing/',
 						} }
 					>
 						<p>{ description }</p>
 						{ moduleAction() }
 					</SettingsGroup>
 
-					{ ( isActive || shouldShowSharingBlock ) &&
-						! shouldUseSharingBlockAction &&
-						configCard() }
+					{ showConfigCard && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ `${ siteAdminUrl }options-general.php?page=sharing` }
+							onClick={ this.trackClickConfigure }
+						>
+							{ __( 'Configure your sharing buttons', 'jetpack' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

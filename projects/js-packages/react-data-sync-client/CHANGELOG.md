@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-09-28
+### Changed
+- Update package dependencies. [#52297]
+
+## [0.2.1] - 2026-09-14
+### Changed
+- Update package dependencies. [#52200]
+
+## [0.2.0] - 2026-08-14
+### Changed
+- Build with tsgo instead of webpack. The package no longer bundles its dependencies: react and zod are now peer dependencies, and @tanstack/react-query is a regular dependency. [#50526]
+- Update dependencies. [#50235]
+- Update package dependencies. [#50510] [#50582]
+
 ## [0.1.35] - 2026-06-26
 ### Changed
 - Internal updates.
@@ -55,8 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.25] - 2025-11-25
 ### Changed
-- Update package dependencies. [#45932]
-- Update package dependencies. [#45958]
+- Update package dependencies. [#45932] [#45958]
 
 ## [0.1.24] - 2025-10-28
 ### Changed
@@ -68,8 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.22] - 2025-09-17
 ### Changed
-- Update package dependencies. [#44901]
-- Update package dependencies. [#45097]
+- Update package dependencies. [#44901] [#45097]
 
 ## [0.1.21] - 2025-08-21
 ### Added
@@ -191,6 +203,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added default param for callbacks to prevent crashes when none provided [#34910]
 
+[0.2.2]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.35...v0.2.0
 [0.1.35]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.34...v0.1.35
 [0.1.34]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.33...v0.1.34
 [0.1.33]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.32...v0.1.33

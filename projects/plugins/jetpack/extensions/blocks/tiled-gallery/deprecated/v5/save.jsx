@@ -34,6 +34,9 @@ export default function TiledGallerySave( { attributes } ) {
 				linkTo={ linkTo }
 				roundedCorners={ roundedCorners }
 				columnWidths={ columnWidths }
+				// This version borrows the current Layout, so it has to pin the image host itself or it
+				// would follow the site's setting and stop matching the content it was saved with.
+				skipPhotonDomain={ false }
 			/>
 		</div>
 	);

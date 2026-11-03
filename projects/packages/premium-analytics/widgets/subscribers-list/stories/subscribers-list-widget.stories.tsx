@@ -14,13 +14,26 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscribersListRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentType } from 'react';
 
 registerReportMocks();
+
+// Only wp-admin supplies the slug and the Newsletter URL; seed them so the names and the footer link in Storybook.
+window.JetpackScriptData = {
+	...window.JetpackScriptData,
+	site: {
+		...window.JetpackScriptData?.site,
+		suffix: 'example.com',
+	},
+	newsletter: {
+		...window.JetpackScriptData?.newsletter,
+		subscribersUrl:
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers',
+	},
+} as typeof window.JetpackScriptData;
 
 const SUBSCRIBERS_LIST_RENDER_MODULE = 'storybook/subscribers-list';
 
@@ -47,25 +60,16 @@ type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
  * The widget on its own, populated from mocked followers data.
  */
 export const Default: Story = {
-	render: () => <SubscribersListRender attributes={ { max: 6 } } />,
+	render: () => <SubscribersListRender attributes={ {} } />,
 	decorators: [ withWidgetCanvas ],
 };
-
-// Renders the widget with a `max` distinct from the other stories. The
-// followers query has no date range — its key carries the row count (`max`) —
-// so a unique `max` gives each forced-state story its own cache entry and it
-// hits the mock fresh instead of reading another story's cached success from
-// the shared query client.
-function renderSubscribersListWithMax( max: number ) {
-	return <SubscribersListRender attributes={ { max } } />;
-}
 
 /**
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  */
 export const Loading: Story = {
-	render: () => renderSubscribersListWithMax( 5 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -80,7 +84,7 @@ export const Loading: Story = {
  * re-runs the query — still mocked as failing while this story is active).
  */
 export const Error: Story = {
-	render: () => renderSubscribersListWithMax( 7 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -90,11 +94,10 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral customer
- * glyph and "No subscribers yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
-	render: () => renderSubscribersListWithMax( 8 ),
+	render: () => <SubscribersListRender attributes={ {} } />,
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
@@ -110,10 +113,10 @@ export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ SUBSCRIBERS_LIST_RENDER_MODULE }
 			renderComponent={ SubscribersListRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 6 } }
+			attributes={ {} }
 		/>
 	),
 	args: {

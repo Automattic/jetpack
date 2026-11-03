@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Use React to render the Image Guide overlay. Change setupImageGuideUI to return an object with an unmount method, and use the host's React, ReactDOM and JSX runtime in the built file. Prevent bubble entrances and label fades from replaying when a hidden container is shown again.

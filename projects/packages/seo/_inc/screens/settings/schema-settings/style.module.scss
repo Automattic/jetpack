@@ -44,6 +44,38 @@
 	align-items: start;
 }
 
+// Name, bio, website and avatar a WordPress.com account owns, set apart
+// from the editable fields below by the same hairline as `.entityGroup`.
+.accountProfile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	padding-block-end: var(--wpds-dimension-gap-lg);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.accountProfileList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin: 0;
+
+	> div {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		min-inline-size: 0;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+		white-space: pre-line;
+	}
+}
+
 .avatar {
 
 	img {
@@ -65,7 +97,7 @@
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--wpds-dimension-gap-md);
 
-	@media (max-width: 600px) {
+	@media ( max-width: 600px ) {
 		grid-template-columns: 1fr;
 	}
 }
@@ -129,11 +161,7 @@
 	font-weight: 600;
 }
 
-// The site-entity group: the selector plus the entity fields it reveals.
-// The hairline separating it from the Breadcrumbs toggle is a border on the
-// container — the settings-list pattern from `title-structure-field` — not a
-// separate `<hr>`, which would add an unnamed separator to the accessibility
-// tree for what is a purely visual cue.
+// Keep the selector and its fields beneath one visual separator.
 .entityGroup {
 	padding-block-start: var(--wpds-dimension-gap-lg);
 	border-block-start:
@@ -141,9 +169,7 @@
 		var(--wpds-color-stroke-surface-neutral-weak);
 }
 
-// `fieldset` gets a UA `min-width: min-content` that @wordpress/ui's reset
-// doesn't clear; without this the `.pairedFields` grid inside refuses to shrink
-// on narrow viewports.
+// Override the fieldset's intrinsic minimum so its grid can shrink.
 .entityFieldset {
 	min-inline-size: 0;
 }

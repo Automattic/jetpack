@@ -44,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Wires up and registers the report export subsystem.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Export {
 

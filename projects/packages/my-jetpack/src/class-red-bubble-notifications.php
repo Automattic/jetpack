@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -97,6 +98,15 @@ class Red_Bubble_Notifications {
 				// Plugin is installed, but not activated.
 				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
 			}
+			// Within a bundle the missing plugin is a recommendation, so it leaves the menu count alone.
+			// Match by substring, as get_paid_plan_purchase_for_product() does, so prefixed slugs still count as standalone.
+			$is_standalone = array_filter(
+				$product_class::get_paid_plan_product_slugs(),
+				fn( $plan ) => false !== strpos( $purchase->product_slug, $plan )
+			);
+			if ( isset( $plugin_requirements[ $purchase->product_slug ] ) && ! $is_standalone ) {
+				$plugin_requirements[ $purchase->product_slug ]['is_silent'] = true;
+			}
 		}
 
 		return $plugin_requirements;
@@ -143,7 +153,9 @@ class Red_Bubble_Notifications {
 	}
 
 	/**
-	 * Add an alert slug if the site is missing a site connection
+	 * Add an alert slug if the site is missing a site connection, or has no connection owner recorded and the current user can become one.
+	 *
+	 * @since 6.7.1 Only alerts about a missing user connection when no connection owner is recorded, and to users who can take the vacant owner slot.
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
@@ -161,7 +173,11 @@ class Red_Bubble_Notifications {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+		// A recorded owner without a token is reported as a connection error instead. Only a user who
+		// can take the vacant owner slot (see Manager::authorize()) fixes a site without an owner.
+		if ( ! empty( $broken_modules['needs_user_connection'] )
+			&& ! Jetpack_Options::get_option( 'master_user' )
+			&& current_user_can( 'jetpack_connect' ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
 				'is_error' => true,
@@ -226,6 +242,9 @@ class Red_Bubble_Notifications {
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
 		// Scan is not supported on multisite installations.
 		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
 			return $red_bubble_slugs;
 		}
 		// Make sure the Notice hasn't been dismissed.

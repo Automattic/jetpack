@@ -30,6 +30,7 @@ import {
 	grid,
 	info,
 	listView,
+	loop,
 	pin,
 	plus,
 	postAuthor,
@@ -50,6 +51,10 @@ const BLOCK_ICONS = {
 	'jetpack-search/search-input': search,
 	'jetpack-search/search-results': listView,
 	'jetpack-search/results-list': grid,
+	// Same glyph core gives `core/query-no-results`, so the block reads as the
+	// familiar Query Loop counterpart in the inserter.
+	'jetpack-search/no-results': loop,
+	'jetpack-search/no-results-slot': loop,
 	'jetpack-search/results-count': info,
 	'jetpack-search/results-sort': chevronUpDown,
 	'jetpack-search/results-load-more': plus,

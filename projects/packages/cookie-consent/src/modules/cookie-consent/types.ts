@@ -13,11 +13,7 @@ export type ConsentTypes = Record< string, boolean >;
 export type ConsentEventChoices = Record< string, boolean | undefined >;
 
 export type ConsentEventType =
-	| 'accept_all'
-	| 'accept_selected'
-	| 'reject_all'
-	| 'auto_granted'
-	| 'opt-out';
+	'accept_all' | 'accept_selected' | 'reject_all' | 'auto_granted' | 'opt-out';
 
 export interface ConsentEvent {
 	eventType: ConsentEventType;

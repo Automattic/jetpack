@@ -39,11 +39,7 @@ export type StatsAppDashboardInsightsModule =
 	| 'number-of-subscribers';
 
 export type StatsAppDashboardSubscribersModule =
-	| 'all-time-stats'
-	| 'chart'
-	| 'subscribers-overview'
-	| 'subscribers'
-	| 'number-of-subscribers';
+	'all-time-stats' | 'chart' | 'subscribers-overview' | 'subscribers' | 'number-of-subscribers';
 
 export type StatsAppDashboardWordAdsModule = 'totals' | 'chart' | 'earning-history' | 'app-promo';
 

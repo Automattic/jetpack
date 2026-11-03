@@ -9,7 +9,7 @@ import {
 	getFixerDescription,
 } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
-import type { MouseEvent } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 /**
  * Threat Fixer Button component.

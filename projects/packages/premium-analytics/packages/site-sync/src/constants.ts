@@ -21,7 +21,7 @@ export const SYNC_STATUS_PATH = '/jetpack/v4/sync/status';
 export const FULL_SYNC_PATH = '/jetpack/v4/sync/full-sync';
 
 /**
- * Sync-module key whose progress gates the analytics dashboard. Mirrors the
- * backend default (`Sync_Status_Tracker::ANALYTICS_SYNC_MODULE`).
+ * Sync-module key whose progress describes the analytics data sync. Mirrors
+ * the backend default (`Sync_Status_Tracker::ANALYTICS_SYNC_MODULE`).
  */
 export const ANALYTICS_SYNC_MODULE = 'woocommerce_analytics';

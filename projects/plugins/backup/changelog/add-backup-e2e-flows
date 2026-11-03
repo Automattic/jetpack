@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Extends the end-to-end suite to restore, download and the file browser; no user-facing change.
+
+

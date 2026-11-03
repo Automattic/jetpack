@@ -1,6 +1,4 @@
 import restApi from '@automattic/jetpack-api';
-import apiFetch from '@wordpress/api-fetch';
-import mapHealthCheckErrors from '../helpers/map-health-check-errors';
 
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
@@ -17,8 +15,24 @@ const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
-const SET_CONNECTION_HEALTH_ERRORS = 'SET_CONNECTION_HEALTH_ERRORS';
 const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
+const SET_CONNECTION_OWNER = 'SET_CONNECTION_OWNER';
+
+/**
+ * Record that ownership of the connection has moved.
+ *
+ * Patched from the transfer rather than refetched: nothing else in the user connection
+ * data turns on ownership — the permissions it reports are plain capability checks — so
+ * a request would only confirm what the caller already knows.
+ *
+ * @param {object} owner             - The new owner.
+ * @param {number} owner.id          - Their local user ID.
+ * @param {string} owner.displayName - Their display name.
+ * @return {object} The action.
+ */
+const setConnectionOwner = owner => {
+	return { type: SET_CONNECTION_OWNER, owner };
+};
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -40,8 +54,18 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
-const disconnectUserSuccess = () => {
-	return { type: DISCONNECT_USER_SUCCESS };
+/**
+ * Record that the current user is no longer connected to WordPress.com.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.wasConnectionOwner] - Whether the unlinked user owned the connection.
+ *                                               Disconnecting the owner deletes the
+ *                                               `master_user` option, so the site is left with
+ *                                               no owner of record either.
+ * @return {object} The action.
+ */
+const disconnectUserSuccess = ( { wasConnectionOwner = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, wasConnectionOwner };
 };
 
 const setRegistrationError = registrationError => {
@@ -68,42 +92,13 @@ const setConnectionErrors = connectionErrors => {
 	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
 
-const setConnectionHealthErrors = connectionHealthErrors => {
-	return { type: SET_CONNECTION_HEALTH_ERRORS, connectionHealthErrors };
-};
-
 /**
- * Run the connection health check and store any failures as connection errors.
+ * No-op kept for older bundles that still call it against this shared store.
  *
- * Uses `@wordpress/api-fetch` rather than the package's `restApi`
- * (`@automattic/jetpack-api`). Rendering the connection notices only needs the
- * connection *JS* (store + hooks, free on import) — not the connection *REST
- * config*. `restApi` requires `apiRoot`/`apiNonce`, which come from the page
- * PHP-localizing the connection initial state; a notice-only consumer like
- * Activity Log provides none of that, so `useConnection`'s effect would call
- * `setApiRoot( undefined )` and a `restApi` probe would hit the wrong root with
- * no nonce. `apiFetch` rides wp-admin's global REST root + nonce, so the probe
- * works with zero per-consumer setup — and, being store-layer code, it doesn't
- * depend on some component's config effect having run first.
- *
- * @return {Promise<object>} Resolves with the mapped health errors (empty when healthy).
+ * @deprecated 2.10.0 Connection health-check errors are no longer surfaced in notices.
+ * @return {Function} Thunk resolving with an empty error map.
  */
-const runConnectionHealthCheck =
-	() =>
-	async ( { dispatch } ) => {
-		try {
-			await apiFetch( { path: '/jetpack/v4/connection/test' } );
-			// All checks passed: clear any previously stored health errors.
-			dispatch( setConnectionHealthErrors( {} ) );
-			return {};
-		} catch ( error ) {
-			// On failure the endpoint returns a WP_Error; apiFetch rejects with the
-			// parsed response body ({ code, message, data, additional_errors }).
-			const healthErrors = mapHealthCheckErrors( error );
-			dispatch( setConnectionHealthErrors( healthErrors ) );
-			return healthErrors;
-		}
-	};
+const runConnectionHealthCheck = () => async () => ( {} );
 
 const setIsOfflineMode = isOfflineMode => {
 	return { type: SET_IS_OFFLINE_MODE, isOfflineMode };
@@ -168,7 +163,49 @@ const refreshConnectedPlugins =
 		} );
 	};
 
+/**
+ * Read the site's connection status from the server again and record it in the store.
+ *
+ * The store is otherwise filled once, from the page's initial state, so it cannot see a connection made in another tab.
+ *
+ * @return {Function} Thunk that resolves with the fresh status.
+ */
+const refreshConnectionStatus =
+	() =>
+	async ( { dispatch } ) => {
+		const status = await restApi.fetchSiteConnectionStatus();
+		dispatch( setConnectionStatus( status ) );
+
+		return status;
+	};
+
+/**
+ * Unlink the current user from WordPress.com and record it in the store.
+ *
+ * The one place an unlink happens, so every surface reflects it the same way rather than
+ * patching its own copy of the connection state afterwards. Rejects with the API's error so
+ * the caller can word the failure for its own audience.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.force]              - Force the disconnection. An administrator
+ *                                               unlinking themselves needs it.
+ * @param {boolean} [options.disconnectAllUsers] - Also unlink every other user, which
+ *                                               disconnecting the owner requires.
+ * @return {Function} Thunk.
+ */
+const unlinkUser =
+	( { force = false, disconnectAllUsers = false } = {} ) =>
+	async ( { dispatch, select } ) => {
+		// Read before the request: what the unlink means for the store follows from who the
+		// viewer is, not from what the caller asked the endpoint to do.
+		const wasConnectionOwner = Boolean( select.getUserConnectionData()?.currentUser?.isMaster );
+
+		await restApi.unlinkUser( force, { disconnectAllUsers } );
+		dispatch( disconnectUserSuccess( { wasConnectionOwner } ) );
+	};
+
 const actions = {
+	setConnectionOwner,
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
 	fetchConnectionStatus,
@@ -181,10 +218,11 @@ const actions = {
 	registerSite,
 	connectUser,
 	disconnectUserSuccess,
+	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	refreshConnectionStatus,
 	setConnectionErrors,
-	setConnectionHealthErrors,
 	runConnectionHealthCheck,
 	setIsOfflineMode,
 };
@@ -205,7 +243,7 @@ export {
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
-	SET_CONNECTION_HEALTH_ERRORS,
 	SET_IS_OFFLINE_MODE,
+	SET_CONNECTION_OWNER,
 	actions as default,
 };

@@ -4,19 +4,20 @@
 import {
 	computePrimaryRange,
 	getYearSurfacePresets,
+	type DateRange,
 	type DateRangePreset,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import type { DateRange } from '../date-range-popover';
 import './date-year-filter.scss';
 
 export type DateYearFilterProps = {
@@ -59,24 +60,64 @@ export type DateYearFilterProps = {
 	 * It must be an element whose width does not depend on the filter's own
 	 * width — a full-width row, not a `fit-content` wrapper — or the two
 	 * measurements chase each other every time the layout switches.
+	 *
+	 * Siblings sharing the filter's flex row are counted against this width, so
+	 * the filter must be a direct child of that row — a wrapper around it hides them.
 	 */
 	containerElement?: HTMLElement | null;
+
+	/** Greys the surface out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
 };
 
 /**
- * Width the pills asked for, tagged with the list they were measured from.
+ * Width the row asked for, tagged with the preset list it was measured from.
  */
-type PillsMeasurement = {
+type RowMeasurement = {
 	presets: DateRangePreset< YearSurfacePresetId >[];
 	width: number;
 };
 
+// The filter's own root, pills or select, so neither is counted as a mate.
+const OWN_ROOT = '.date-year-filter__group, .date-year-filter__select';
+
+/**
+ * What shares the filter's row and takes room in it: a positioned helper, such as a
+ * tooltip's visually hidden description, is a child of the row but takes none.
+ *
+ * @param row - The flex row the filter is a direct child of.
+ * @return The row's other occupants.
+ */
+function getRowMates( row: HTMLElement ): Element[] {
+	return Array.from( row.children ).filter(
+		child =>
+			! child.matches( OWN_ROOT ) &&
+			! [ 'absolute', 'fixed' ].includes( getComputedStyle( child ).position )
+	);
+}
+
+/**
+ * Width the row-mates take, the gap before each one included.
+ *
+ * The pills are one occupant of their row, not the whole of it. Measuring them
+ * alone leaves the row short by whatever the rest takes, which is how they came
+ * to run past its end.
+ *
+ * @param row - The flex row the filter is a direct child of.
+ * @return The width to count against the container alongside the pills.
+ */
+function getRowMatesWidth( row: HTMLElement ): number {
+	const gap = parseFloat( getComputedStyle( row ).columnGap ) || 0;
+
+	return getRowMates( row ).reduce(
+		( total, mate ) => total + mate.getBoundingClientRect().width + gap,
+		0
+	);
+}
+
 /**
  * Content-box width of an element, the same box a ResizeObserver reports, so
  * the first read and the observed updates can't disagree on a padded container.
- *
- * @param element - The element to measure.
- * @return The content width in pixels.
  */
 function getContentWidth( element: HTMLElement ): number {
 	const style = getComputedStyle( element );
@@ -88,7 +129,7 @@ function getContentWidth( element: HTMLElement ): number {
 
 /**
  * Date filter for whole-history reporting: all time, then one pill per calendar
- * year, newest first. A sibling of `DateRangeFilter` for screens whose data is
+ * year, newest first. A sibling of `DatePeriodDropdown` for screens whose data is
  * read by year rather than by rolling window.
  */
 export function DateYearFilter( {
@@ -98,6 +139,7 @@ export function DateYearFilter( {
 	startYear,
 	isCompact,
 	containerElement,
+	disabled = false,
 }: DateYearFilterProps ) {
 	const presets = useMemo(
 		() => getYearSurfacePresets( timeZone, { startYear } ),
@@ -140,7 +182,7 @@ export function DateYearFilter( {
 	 * both sides instead: the space available, and the width the pills ask for.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
-	const [ measurement, setMeasurement ] = useState< PillsMeasurement | null >( null );
+	const [ measurement, setMeasurement ] = useState< RowMeasurement | null >( null );
 
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
@@ -180,6 +222,8 @@ export function DateYearFilter( {
 	 * them. Keyed on the preset list, so a list that changes under mounted pills
 	 * is measured again.
 	 */
+	const [ row, setRow ] = useState< HTMLElement | null >( null );
+
 	const measurePills = useCallback(
 		( group: HTMLDivElement | null ) => {
 			if ( ! group ) {
@@ -192,9 +236,48 @@ export function DateYearFilter( {
 			);
 
 			setMeasurement( { presets, width: pills + ( group.offsetWidth - group.clientWidth ) } );
+			setRow( group.parentElement );
 		},
 		[ presets ]
 	);
+
+	/*
+	 * The rest of the row is watched in both modes, unlike the pills: a mate can
+	 * change width or be swapped for another node at any time, as the interval
+	 * does when it names a new bucket, and the pills must come back once it shrinks.
+	 */
+	const [ matesWidth, setMatesWidth ] = useState( 0 );
+
+	useLayoutEffect( () => {
+		if ( ! row ) {
+			return;
+		}
+
+		const measure = () => setMatesWidth( getRowMatesWidth( row ) );
+		measure();
+
+		if ( typeof ResizeObserver === 'undefined' ) {
+			return;
+		}
+
+		const resizes = new ResizeObserver( measure );
+		const observeMates = () => {
+			resizes.disconnect();
+			getRowMates( row ).forEach( mate => resizes.observe( mate ) );
+		};
+		const swaps = new MutationObserver( () => {
+			observeMates();
+			measure();
+		} );
+
+		observeMates();
+		swaps.observe( row, { childList: true } );
+
+		return () => {
+			resizes.disconnect();
+			swaps.disconnect();
+		};
+	}, [ row ] );
 
 	/*
 	 * A measurement answers for the list it was taken from. It survives the
@@ -203,12 +286,16 @@ export function DateYearFilter( {
 	 * is dropped when the list itself changes, so a shorter list is never judged
 	 * by a longer one's width.
 	 */
-	const pillsWidth = measurement?.presets === presets ? measurement.width : null;
+	// Rounded like the `clientWidth` it is compared against: a sum of fractional
+	// rects is otherwise a hair wider than the same row read as an integer, and
+	// lands on the wrong side of its own boundary.
+	const rowWidth =
+		measurement?.presets === presets ? Math.round( measurement.width + matesWidth ) : null;
 
 	// Until both measurements land, assume the pills fit: they are the layout
 	// this surface is designed around, and the first paint shouldn't flash a
 	// select on a screen wide enough for them.
-	const fitsPills = containerWidth === null || pillsWidth === null || containerWidth >= pillsWidth;
+	const fitsPills = containerWidth === null || rowWidth === null || containerWidth >= rowWidth;
 
 	if ( isCompact ?? ! fitsPills ) {
 		return (
@@ -224,6 +311,7 @@ export function DateYearFilter( {
 				label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
 				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
+				disabled={ disabled }
 			/>
 		);
 	}
@@ -235,7 +323,7 @@ export function DateYearFilter( {
 	return (
 		<Composite
 			ref={ measurePills }
-			className="date-year-filter__group"
+			className={ clsx( 'date-year-filter__group', { 'is-disabled': disabled } ) }
 			role="toolbar"
 			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
@@ -243,6 +331,8 @@ export function DateYearFilter( {
 			{ presets.map( ( { id, label } ) => (
 				<Composite.Item
 					key={ id }
+					disabled={ disabled }
+					accessibleWhenDisabled
 					render={
 						<Button
 							className="date-year-filter__pill"
@@ -250,6 +340,7 @@ export function DateYearFilter( {
 							tone="neutral"
 							size="small"
 							aria-pressed={ value === id }
+							disabled={ disabled }
 							onClick={ () => selectPreset( id ) }
 						/>
 					}

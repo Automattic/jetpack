@@ -1,0 +1,11 @@
+/* Keep the cap in step with the chart's own 1200px `maxWidth`, and keep
+ * `inline-size`: the auto margins cancel the flex parent's cross-axis stretch,
+ * leaving the chart to measure a zero-width parent without it. */
+.map {
+	position: relative;
+	inline-size: 100%;
+	max-inline-size: 1200px;
+	margin-inline: auto;
+	block-size: 420px;
+	overflow: hidden;
+}

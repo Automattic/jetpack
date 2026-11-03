@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 9.0.0
+ * Version: 10.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '9.0.0' );
+define( 'WPCOMSH_VERSION', '10.0.0' );
 
 // Loaded first: fatal-error screen filter + one-shot plugin-deactivation endpoint.
 // The deactivator also needs to load before any regular plugin, so in production
@@ -51,6 +51,7 @@ require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
 require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
+require_once __DIR__ . '/plugin-conflicts-guardian-rollout.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
@@ -132,6 +133,7 @@ require_once __DIR__ . '/endpoints/rest-api.php';
 // Load feature plugins.
 require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
+require_once __DIR__ . '/feature-plugins/ai-launchpad.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
@@ -148,7 +150,6 @@ require_once __DIR__ . '/feature-plugins/marketplace.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
-require_once __DIR__ . '/feature-plugins/podcast.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
 require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
@@ -158,7 +159,6 @@ require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
-require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**
@@ -469,22 +469,9 @@ add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
 
 /**
- * Hide scan threats from transients
- *
- * @param mixed $response The response.
- *
- * @return mixed
- */
-function wpcomsh_hide_scan_threats_from_transients( $response ) {
-	if ( ! empty( $response->threats ) ) {
-		$response->threats = array();
-	}
-	return $response;
-}
-add_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' );
-
-/**
  * Unhook Jetpack Scan Admin Notice
+ *
+ * Remove once Atomic only runs Jetpack builds that check `jetpack_protect_threat_notifications_enabled`.
  *
  * @return void
  */
@@ -493,38 +480,6 @@ function wpcomsh_remove_threats_from_toolbar() {
 	$wp_admin_bar->remove_node( 'jetpack-scan-notice' );
 }
 add_action( 'wp_before_admin_bar_render', 'wpcomsh_remove_threats_from_toolbar', 999999 );
-
-/**
- * Hide scan threats from api
- *
- * @param mixed $response The reponse.
- *
- * @return mixed
- */
-function wpcom_hide_scan_threats_from_api( $response ) {
-	if (
-		! ( $response instanceof WP_REST_Response )
-		|| $response->get_matched_route() !== '/jetpack/v4/scan'
-	) {
-		return $response;
-	}
-	$response_data = $response->get_data();
-	if ( empty( $response_data['data'] ) || ! is_string( $response_data['data'] ) ) {
-		return $response;
-	}
-
-	$json_body = json_decode( $response_data['data'], true );
-	if ( null === $json_body || empty( $json_body['threats'] ) ) {
-		return $response;
-	}
-
-	$json_body['threats']  = array();
-	$response_data['data'] = wp_json_encode( $json_body, JSON_UNESCAPED_SLASHES );
-	$response->set_data( $response_data );
-
-	return $response;
-}
-add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
 
 /**
  * Returns a standardized timezone string.

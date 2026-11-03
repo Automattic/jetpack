@@ -32,3 +32,13 @@
 .jp-protect-icon::before {
 	content: "\e900";
 }
+
+/* The glyph fills ~90% of its em; shrink it to Dashicons' 16px-in-20px size. */
+@media screen and (min-width: 783px) {
+
+	/* Three IDs, to beat core's `#wp-admin-bar-root-default .ab-icon` rule. */
+	#wpadminbar #wp-toolbar #wp-admin-bar-jetpack-protect .ab-icon.jp-protect-icon {
+		font-size: 18px;
+		padding-block: 7px 3px;
+	}
+}

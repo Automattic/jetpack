@@ -28,6 +28,7 @@ const ProtectComponent = class extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-protect' ),
+						wpcomLink: 'https://wordpress.com/support/brute-force-attack-protection/',
 					} }
 				>
 					<ModuleToggle

@@ -17,10 +17,7 @@ const fetchRetryCount = 3;
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList
  */
-Array.prototype.forEach.call(
-	document.querySelectorAll( '.wp-block-newspack-blocks-homepage-articles.has-more-button' ),
-	buildLoadMoreHandler
-);
+Array.prototype.forEach.call( document.querySelectorAll( '.wp-block-newspack-blocks-homepage-articles.has-more-button' ), buildLoadMoreHandler );
 
 /**
  * Builds a function to handle clicks on the load more button.
@@ -61,8 +58,7 @@ function buildLoadMoreHandler( blockWrapperEl ) {
 		blockWrapperEl.classList.add( 'is-loading' );
 
 		// Set currently rendered posts' IDs as a query param (e.g. exclude_ids=1,2,3)
-		const requestURL =
-			btnEl.getAttribute( 'data-next' ) + '&exclude_ids=' + getRenderedPostsIds().join( ',' );
+		const requestURL = btnEl.getAttribute( 'data-next' ) + '&exclude_ids=' + getRenderedPostsIds().join( ',' );
 
 		// If there's already a fetch in progress, queue this one to run after it ends.
 		if ( window.newspackBlocksIsFetching ) {
@@ -153,9 +149,7 @@ function getRenderedPostsIds() {
 	const postEls = document.querySelectorAll( "[class^='wp-block-newspack-blocks'] [data-post-id]" );
 	const postIds = Array.from( postEls ).map( el => el.getAttribute( 'data-post-id' ) );
 
-	postIds.push(
-		document.querySelector( 'div[data-current-post-id]' ).getAttribute( 'data-current-post-id' )
-	);
+	postIds.push( document.querySelector( 'div[data-current-post-id]' ).getAttribute( 'data-current-post-id' ) );
 
 	return [ ...new Set( postIds ) ]; // Make values unique with Set
 }
@@ -226,19 +220,10 @@ function fetchWithRetry( options, n ) {
 function isPostsDataValid( data ) {
 	let isValid = false;
 
-	if (
-		data &&
-		hasOwnProp( data, 'items' ) &&
-		Array.isArray( data.items ) &&
-		hasOwnProp( data, 'next' ) &&
-		typeof data.next === 'string'
-	) {
+	if ( data && hasOwnProp( data, 'items' ) && Array.isArray( data.items ) && hasOwnProp( data, 'next' ) && typeof data.next === 'string' ) {
 		isValid = true;
 
-		if (
-			data.items.length &&
-			! ( hasOwnProp( data.items[ 0 ], 'html' ) && typeof data.items[ 0 ].html === 'string' )
-		) {
+		if ( data.items.length && ! ( hasOwnProp( data.items[ 0 ], 'html' ) && typeof data.items[ 0 ].html === 'string' ) ) {
 			isValid = false;
 		}
 	}

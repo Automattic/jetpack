@@ -1,17 +1,4 @@
-import type {
-	StatsSubscribersCountsRawResponse,
-	StatsSubscribersRawResponse,
-} from '../subscribers';
-
-export const subscribersFixture = {
-	date: '2026-06-25',
-	unit: 'day',
-	fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-	data: [
-		[ '2026-06-24', '10', '2' ],
-		[ '2026-06-25', 12, 3 ],
-	],
-} satisfies StatsSubscribersRawResponse;
+import type { StatsSubscribersCountsRawResponse } from '../subscribers';
 
 export const subscribersCountsFixture = {
 	counts: {

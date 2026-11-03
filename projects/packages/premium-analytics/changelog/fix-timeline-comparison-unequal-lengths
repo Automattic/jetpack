@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Post detail: keep the timeline comparison overlay correct when the compare window differs in length from the primary, and surface email compare-request failures.

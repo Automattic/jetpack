@@ -21,9 +21,6 @@ import {
 	JETPACK_SITE_BENEFITS_FETCH,
 	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
 	JETPACK_SITE_BENEFITS_FETCH_FAIL,
-	JETPACK_SITE_DISCOUNT_FETCH,
-	JETPACK_SITE_DISCOUNT_FETCH_RECEIVE,
-	JETPACK_SITE_DISCOUNT_FETCH_FAIL,
 	JETPACK_SITE_FEATURES_FETCH,
 	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 	JETPACK_SITE_FEATURES_FETCH_FAIL,
@@ -44,11 +41,6 @@ export const data = ( state = {}, action ) => {
 			return Object.assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
-		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
-			if ( action.siteDiscount?.code ) {
-				return merge( {}, state, { site: { discount: action.siteDiscount } } );
-			}
-			return state;
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
@@ -76,10 +68,6 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
-		case JETPACK_SITE_DISCOUNT_FETCH:
-			return Object.assign( {}, state, {
-				isFetchingSiteDiscount: true,
-			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
 			return Object.assign( {}, state, {
 				isFetchingConnectedPlugins: true,
@@ -105,11 +93,6 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return Object.assign( {}, state, {
 				isFetchingSiteBenefits: false,
-			} );
-		case JETPACK_SITE_DISCOUNT_FETCH_FAIL:
-		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
-			return Object.assign( {}, state, {
-				isFetchingSiteDiscount: false,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
@@ -224,16 +207,6 @@ export function isFetchingSiteBenefits( state ) {
 }
 
 /**
- * Returns true if currently requesting site discount. Otherwise false.
- *
- * @param {object} state - Global state tree
- * @return {boolean}        Whether discount is being requested
- */
-export function isFetchingSiteDiscount( state ) {
-	return !! state.jetpack.siteData.requests.isFetchingSiteDiscount;
-}
-
-/**
  * Returns true if currently requesting connected plugins. Otherwise false.
  *
  * @param {object} state - Global state tree
@@ -301,16 +274,6 @@ export function getVideoPressStorageUsed( state ) {
  */
 export function getSiteBenefits( state ) {
 	return state.jetpack.siteData?.data?.site?.benefits ?? null;
-}
-
-/**
- * Returns discount provided to the site by Jetpack.
- *
- * @param {object} state - Global state tree
- * @return {object} Discount
- */
-export function getSiteDiscount( state ) {
-	return state.jetpack.siteData?.data?.site?.discount ?? {};
 }
 
 /**
@@ -417,7 +380,21 @@ export function getActiveSecurityPurchase( state ) {
  * @return {boolean}      True if the site has an active security or complete plan, false otherwise.
  */
 export function hasActiveSecurityPurchase( state ) {
-	return !! getActiveSecurityPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveSecurityPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
+}
+
+/**
+ * Determine whether the site's current plan is Jetpack Pro.
+ *
+ * @param {object} state - Redux state.
+ * @return {boolean} Whether the site has Pro.
+ */
+export function hasActiveProPurchase( state ) {
+	return 'is-jetpack-pro-plan' === getPlanClass( getSitePlan( state ).product_slug );
 }
 
 /**
@@ -449,7 +426,11 @@ export function getActiveSearchPurchase( state ) {
  * @return {boolean}      True if the site has an active Search product purchase, false otherwise.
  */
 export function hasActiveSearchPurchase( state ) {
-	return !! getActiveSearchPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveSearchPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -483,7 +464,11 @@ export function getActiveGrowthPurchase( state ) {
  * @return {boolean}      True if the site has an active Creator product purchase, false otherwise.
  */
 export function hasActiveCreatorPurchase( state ) {
-	return !! getActiveCreatorPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveCreatorPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -493,7 +478,11 @@ export function hasActiveCreatorPurchase( state ) {
  * @return {boolean}      True if the site has an active Growth product purchase, false otherwise.
  */
 export function hasActiveGrowthPurchase( state ) {
-	return !! getActiveGrowthPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveGrowthPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**
@@ -537,7 +526,11 @@ export function getActiveBoostPurchase( state ) {
  * @return {boolean}      True if the site has an active Boost product purchase, false otherwise.
  */
 export function hasActiveBoostPurchase( state ) {
-	return !! getActiveBoostPurchase( state ) || hasActiveCompletePurchase( state );
+	return (
+		!! getActiveBoostPurchase( state ) ||
+		hasActiveCompletePurchase( state ) ||
+		hasActiveProPurchase( state )
+	);
 }
 
 /**

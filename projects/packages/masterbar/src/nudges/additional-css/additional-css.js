@@ -20,7 +20,7 @@ import './additional-css.css';
 				// Get destination.
 				const destination = this.getAttribute( 'data-navigate-to-page' );
 
-				if ( ! destination ) {
+				if ( ! destination?.startsWith( '/' ) ) {
 					return;
 				}
 

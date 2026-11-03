@@ -25,6 +25,9 @@ export function buildShortcode(
 /**
  * Format a duration in seconds as `mm:ss` or `hh:mm:ss`.
  *
+ * Duplicated in `src/client/utils/video-chapters/description/index.ts` (that
+ * shared layer must stay dashboard-free) — keep the two in sync.
+ *
  * @param seconds - Total seconds.
  * @return Formatted duration.
  */

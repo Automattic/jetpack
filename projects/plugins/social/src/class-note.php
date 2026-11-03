@@ -21,7 +21,32 @@ class Note {
 	 * Check if the feature is enabled.
 	 */
 	public function enabled() {
-		return (bool) get_option( self::JETPACK_SOCIAL_NOTE_CPT );
+		$missing = new \stdClass();
+		$enabled = get_option( self::JETPACK_SOCIAL_NOTE_CPT, $missing );
+		if (
+			$missing === $enabled
+			&& ! wp_using_ext_object_cache()
+			&& ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) )
+		) {
+			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- add_option() can overwrite a concurrent enable.
+			$inserted = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, %s )",
+					self::JETPACK_SOCIAL_NOTE_CPT,
+					'',
+					'yes'
+				)
+			);
+			if ( false !== $inserted ) {
+				wp_cache_delete( self::JETPACK_SOCIAL_NOTE_CPT, 'options' );
+				wp_cache_delete( 'notoptions', 'options' );
+				wp_cache_delete( 'alloptions', 'options' );
+				$enabled = get_option( self::JETPACK_SOCIAL_NOTE_CPT );
+			}
+		}
+
+		return is_scalar( $enabled ) ? (bool) $enabled : false;
 	}
 
 	/**

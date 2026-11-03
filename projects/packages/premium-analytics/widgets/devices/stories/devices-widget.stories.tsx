@@ -11,7 +11,6 @@ import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stori
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
 import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import DevicesRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -24,31 +23,22 @@ const DEVICES_RENDER_MODULE = 'storybook/devices';
 
 // Carry the widget's metadata. `presentation` comes from widget.json ( 'framed' ),
 // so the host frames the widget and renders its identity (title + icon).
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface DevicesStoryControls {
 	withComparison: boolean;
 }
 
 interface DevicesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		DevicesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, DevicesStoryControls {}
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderDevicesOnPreset( preset: PresetType ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function DevicesDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -62,7 +52,7 @@ function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDas
 			widgetType={ storyWidgetType }
 			renderModule={ DEVICES_RENDER_MODULE }
 			renderComponent={ DevicesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -149,11 +139,10 @@ export const ErrorRetryable: StoryObj< DevicesStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No device data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< DevicesStoryControls > = {
-	render: () => renderDevicesOnPreset( 'last-365-days' ),
+	render: () => renderDevicesOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

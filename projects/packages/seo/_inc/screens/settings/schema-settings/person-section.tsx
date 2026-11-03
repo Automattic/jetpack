@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 
+// eslint-disable-next-line @wordpress/use-recommended-components -- Match the existing schema entity fields.
 import { TextControl, TextareaControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
@@ -13,18 +14,20 @@ const saveLabel = __( 'Save', 'jetpack-seo' );
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card group. */
 	form: SchemaSettingsForm;
+	disabled?: boolean;
+	disabledReasonId?: string;
 }
 
 /**
- * The Person settings form, shown when the site represents a person. Describes
- * the individual the site is about — its main entity — as opposed to the per-post
- * Author profile, which describes each writer.
+ * Site-level Person settings, separate from the per-author profile.
  *
- * @param props      - Component props.
- * @param props.form - The shared schema-settings form controller.
+ * @param props                  - Component props.
+ * @param props.form             - The shared schema-settings form controller.
+ * @param props.disabled         - Whether editing is disabled.
+ * @param props.disabledReasonId - ID of the explanation for disabled editing.
  * @return The Person settings form.
  */
-const PersonSection: FC< Props > = ( { form } ) => {
+const PersonSection: FC< Props > = ( { form, disabled = false, disabledReasonId } ) => {
 	const { person, personDefaults, isSaving, isPersonDirty, setPersonField, savePerson } = form;
 	const { name, description, sameAs } = person;
 
@@ -46,7 +49,7 @@ const PersonSection: FC< Props > = ( { form } ) => {
 				placeholder={ personDefaults.name }
 				value={ name }
 				onChange={ next => setPersonField( { name: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
@@ -61,7 +64,7 @@ const PersonSection: FC< Props > = ( { form } ) => {
 				value={ description }
 				onChange={ next => setPersonField( { description: next } ) }
 				rows={ 3 }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__nextHasNoMarginBottom
 			/>
 
@@ -73,14 +76,15 @@ const PersonSection: FC< Props > = ( { form } ) => {
 				) }
 				urls={ sameAs }
 				onChange={ next => setPersonField( { sameAs: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 			/>
 
 			<Stack direction="row" justify="flex-end">
 				<Button
 					onClick={ savePerson }
-					disabled={ isSaving || ! isPersonDirty || hasProfileUrlErrors( sameAs ) }
+					disabled={ disabled || isSaving || ! isPersonDirty || hasProfileUrlErrors( sameAs ) }
 					aria-label={ __( 'Save person', 'jetpack-seo' ) }
+					aria-describedby={ disabled ? disabledReasonId : undefined }
 				>
 					{ saveLabel }
 				</Button>

@@ -4,6 +4,12 @@ import { addFilter, removeFilter } from '@wordpress/hooks';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
 
+// The popover interactions here can exceed jest's 5s default under coverage
+// instrumentation on a loaded CI runner. A mid-interaction timeout also leaks
+// pending Tabs state updates into the NEXT test, failing it on an act()
+// console.error — so one slow test read as two unrelated failures.
+jest.setTimeout( 30_000 );
+
 // These settings need to be set. Easiest way to do that seems to be to use a hook.
 const overrideSettings = {
 	'typography.customFontSize': true,
@@ -463,7 +469,7 @@ describe( 'Inspector controls', () => {
 				expect( link ).toBeInTheDocument();
 				expect( link ).toHaveAttribute(
 					'href',
-					'https://admin.example.com/admin.php?page=jetpack-newsletter'
+					'https://admin.example.com/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings'
 				);
 			} );
 		} );

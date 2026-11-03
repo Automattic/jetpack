@@ -5,6 +5,7 @@
 .upsell-banner {
 	display: flex;
 	flex-direction: column;
+	position: relative;
 
 	background: rgb(249, 249, 246);
 	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
@@ -16,6 +17,13 @@
 	&.components-card__body.components-card-body {
 		border-radius: var(--jp-border-radius-rna);
 		padding: 36px;
+	}
+
+	.upsell-banner--dismiss.components-button {
+		position: absolute;
+		inset-block-start: 8px;
+		inset-inline-end: 8px;
+		color: var(--jp-gray-60);
 	}
 
 	.upsell-banner--icon {

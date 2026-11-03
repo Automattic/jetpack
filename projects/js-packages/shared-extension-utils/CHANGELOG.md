@@ -5,13 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.6] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [2.1.5] - 2026-10-28
+### Changed
+- Update dependencies.
+
+## [2.1.4] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [2.1.3] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [2.1.2] - 2026-10-19
+### Changed
+- Update dependencies. [#53674]
+- Update package dependencies. [#53806]
+
+## [2.1.1] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.1.0] - 2026-10-14
+### Added
+- Add getJetpackAiManageUrl(), the URL where Jetpack AI is managed on the site. [#53519]
+
+## [2.0.31] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [2.0.30] - 2026-10-07
+### Changed
+- Update dependencies. [#53250]
+
+## [2.0.29] - 2026-10-05
+### Changed
+- Update the Pexels icon to the current Pexels logo. [#52890]
+- Upgrade nudge: Use the admin theme color for the Upgrade button instead of pink. [#52974]
+
+## [2.0.28] - 2026-09-29
+### Changed
+- Update dependencies.
+
+## [2.0.27] - 2026-09-28
+### Changed
+- Internal updates.
+
+## [2.0.26] - 2026-09-23
+### Changed
+- Update dependencies.
+
+## [2.0.25] - 2026-09-23
+### Changed
+- Update dependencies.
+
+## [2.0.24] - 2026-09-21
+### Changed
+- Update dependencies.
+
+## [2.0.23] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+### Fixed
+- WpcomSupportLink: Mark the `supportPostId` prop as optional in the type definition. [#52436]
+
+## [2.0.22] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+## [2.0.21] - 2026-09-14
+### Changed
+- Update dependencies.
+
+## [2.0.20] - 2026-09-09
+### Changed
+- Update dependencies.
+
+## [2.0.19] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [2.0.18] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+## [2.0.17] - 2026-08-20
+### Changed
+- Update dependencies.
+
+## [2.0.16] - 2026-08-19
+### Changed
+- Update dependencies.
+
+## [2.0.15] - 2026-08-13
+### Changed
+- Update dependencies.
+
+## [2.0.14] - 2026-08-11
+### Fixed
+- Upgrade nudge: stop emitting an `undefined__description` class when no class name is passed to the component. [#50873]
+
+## [2.0.13] - 2026-08-10
+### Changed
+- Add skipPhotonDomain to the typed Jetpack script data flags. [#50426]
+- Update package dependencies. [#50509]
+
+## [2.0.12] - 2026-08-03
+### Changed
+- Update dependencies. [#50824]
+
 ## [2.0.11] - 2026-07-27
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [2.0.10] - 2026-07-22
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [2.0.9] - 2026-07-20
 ### Changed
@@ -39,15 +153,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.4] - 2026-06-25
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [2.0.3] - 2026-06-24
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [2.0.2] - 2026-06-23
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [2.0.1] - 2026-06-22
 ### Changed
@@ -64,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.21] - 2026-06-08
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [1.5.20] - 2026-06-08
 ### Changed
@@ -80,12 +194,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.17] - 2026-05-25
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [1.5.16] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.5.15] - 2026-05-19
 ### Changed
@@ -105,7 +218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.11] - 2026-04-27
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [1.5.10] - 2026-04-20
 ### Changed
@@ -113,7 +226,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.9] - 2026-04-15
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [1.5.8] - 2026-04-09
 ### Changed
@@ -121,7 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.7] - 2026-04-06
 ### Changed
-- Update dependencies. [#46951]
+- Update dependencies.
 
 ## [1.5.6] - 2026-03-30
 ### Changed
@@ -175,7 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.9] - 2026-02-03
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [1.4.8] - 2026-02-02
 ### Changed
@@ -223,7 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.26] - 2025-11-18
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.25] - 2025-11-17
 ### Changed
@@ -231,11 +344,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.24] - 2025-11-10
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.23] - 2025-11-03
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.22] - 2025-10-28
 ### Changed
@@ -243,7 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.21] - 2025-10-13
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.20] - 2025-10-06
 ### Changed
@@ -255,7 +368,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.18] - 2025-09-22
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.17] - 2025-09-19
 ### Changed
@@ -263,7 +376,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.16] - 2025-09-15
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.15] - 2025-09-08
 ### Changed
@@ -271,7 +384,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.14] - 2025-09-01
 ### Changed
-- Update dependencies. [#44940]
+- Update dependencies.
 
 ## [1.3.13] - 2025-08-25
 ### Changed
@@ -295,11 +408,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.8] - 2025-07-30
 ### Changed
-- Update dependencies. [#43796]
+- Update dependencies.
 
 ## [1.3.7] - 2025-07-28
 ### Changed
-- Update dependencies. [#43796]
+- Update dependencies.
 
 ## [1.3.6] - 2025-07-23
 ### Changed
@@ -346,7 +459,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1] - 2025-06-24
 ### Changed
-- Update dependencies. [#43796]
+- Update dependencies.
 
 ## [1.2.0] - 2025-06-23
 ### Added
@@ -361,7 +474,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.2] - 2025-06-19
 ### Changed
-- Update dependencies. [#43796]
+- Update dependencies.
 
 ## [1.1.1] - 2025-06-18
 ### Changed
@@ -373,7 +486,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.2] - 2025-06-10
 ### Changed
-- Update dependencies. [#43796]
+- Update dependencies.
 
 ## [1.0.1] - 2025-06-05
 ### Changed
@@ -397,7 +510,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.20.1] - 2025-05-22
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.20.0] - 2025-05-19
 ### Added
@@ -405,7 +518,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.19.3] - 2025-05-12
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.19.2] - 2025-05-05
 ### Changed
@@ -433,23 +546,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.18.9] - 2025-04-01
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.8] - 2025-03-31
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.7] - 2025-03-26
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.6] - 2025-03-24
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.5] - 2025-03-24
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.4] - 2025-03-19
 ### Changed
@@ -461,7 +574,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.18.2] - 2025-03-17
 ### Changed
-- Update dependencies. [#42328]
+- Update dependencies.
 
 ## [0.18.1] - 2025-03-17
 ### Added
@@ -490,15 +603,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.3] - 2025-02-24
 ### Changed
-- Update dependencies. [#40231]
+- Update dependencies.
 
 ## [0.17.2] - 2025-02-17
 ### Changed
-- Update dependencies. [#40231]
+- Update dependencies.
 
 ## [0.17.1] - 2025-02-11
 ### Changed
-- Update dependencies. [#40231]
+- Update dependencies.
 
 ## [0.17.0] - 2025-02-05
 ### Changed
@@ -536,7 +649,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.19] - 2024-11-26
 ### Changed
-- Update dependencies. [#40231]
+- Update dependencies.
 
 ## [0.15.18] - 2024-11-25
 ### Changed
@@ -607,7 +720,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.2] - 2024-08-13
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.15.1] - 2024-07-30
 ### Changed
@@ -623,11 +736,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.19] - 2024-07-22
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.14.18] - 2024-07-18
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.14.17] - 2024-07-03
 ### Changed
@@ -635,7 +748,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.16] - 2024-06-21
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.14.15] - 2024-06-13
 ### Changed
@@ -1023,6 +1136,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[2.1.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.5...2.1.6
+[2.1.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.4...2.1.5
+[2.1.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.3...2.1.4
+[2.1.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.2...2.1.3
+[2.1.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.1...2.1.2
+[2.1.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.31...2.1.0
+[2.0.31]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.30...2.0.31
+[2.0.30]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.29...2.0.30
+[2.0.29]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.28...2.0.29
+[2.0.28]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.27...2.0.28
+[2.0.27]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.26...2.0.27
+[2.0.26]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.25...2.0.26
+[2.0.25]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.24...2.0.25
+[2.0.24]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.23...2.0.24
+[2.0.23]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.22...2.0.23
+[2.0.22]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.21...2.0.22
+[2.0.21]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.20...2.0.21
+[2.0.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.19...2.0.20
+[2.0.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.18...2.0.19
+[2.0.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.17...2.0.18
+[2.0.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.16...2.0.17
+[2.0.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.15...2.0.16
+[2.0.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.14...2.0.15
+[2.0.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.13...2.0.14
+[2.0.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.12...2.0.13
+[2.0.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.11...2.0.12
 [2.0.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.10...2.0.11
 [2.0.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.9...2.0.10
 [2.0.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.8...2.0.9

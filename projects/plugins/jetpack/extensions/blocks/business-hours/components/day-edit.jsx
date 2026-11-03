@@ -113,7 +113,7 @@ class DayEdit extends Component {
 									opening: defaultOpen,
 									closing: defaultClose,
 								},
-						  ]
+							]
 						: [];
 					return {
 						...value,

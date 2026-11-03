@@ -1,0 +1,226 @@
+/**
+ * Write — one-question post-publish survey card.
+ *
+ * A card overlaying the published post, shown to the author once after their
+ * first Write publish. Self-contained styles (scoped under .wpcom-write-pps) so
+ * it renders consistently over any theme. Most Write publishers are on a phone,
+ * so the layout is sized for a small screen first and only widens past 480px.
+ */
+
+.wpcom-write-pps {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Match the Write editor's typography rather than inheriting the site theme's
+   fonts. Set explicitly on text elements (not just the container) so theme
+   rules targeting h2/p/button by element don't override via the cascade. */
+.wpcom-write-pps,
+.wpcom-write-pps h2,
+.wpcom-write-pps p,
+.wpcom-write-pps span,
+.wpcom-write-pps label,
+.wpcom-write-pps textarea,
+.wpcom-write-pps button {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.wpcom-write-pps[hidden] {
+	display: none;
+}
+
+.wpcom-write-pps__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+}
+
+/* A sheet on a phone, a centered card once there's room for one. */
+.wpcom-write-pps__card {
+	position: relative;
+	inline-size: 100%;
+	max-inline-size: 480px;
+	background: #fff;
+	border-start-start-radius: 12px;
+	border-start-end-radius: 12px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+	padding: 24px 20px 20px;
+	box-sizing: border-box;
+}
+
+.wpcom-write-pps__close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	inline-size: 36px;
+	block-size: 36px;
+	border: 0;
+	background: transparent;
+	color: #6d6d6d;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.wpcom-write-pps__close:hover {
+	background: #f0f0f0;
+}
+
+/* Context for the question, not the headline.
+   Padded clear of the close button. */
+.wpcom-write-pps__heading {
+	margin: 0 0 10px;
+	padding-inline-end: 36px;
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.4;
+	color: #6d6d6d;
+}
+
+.wpcom-write-pps__question {
+	margin: 0 0 20px;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.35;
+	color: #1e1e1e;
+}
+
+.wpcom-write-pps__answers {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-block-end: 16px;
+}
+
+/* Tap targets stay comfortably above 44px tall on a phone. */
+.wpcom-write-pps__answer {
+	flex: 1 1 auto;
+	min-block-size: 44px;
+	padding: 10px 16px;
+	border: 1px solid #d8d8d8;
+	border-radius: 22px;
+	background: #fff;
+	color: #1e1e1e;
+	font-size: 15px;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+.wpcom-write-pps__answer:hover {
+	border-color: #3858e9;
+	color: #3858e9;
+}
+
+.wpcom-write-pps__answer.is-selected {
+	border-color: #3858e9;
+	background: #3858e9;
+	color: #fff;
+}
+
+.wpcom-write-pps__comment[hidden] {
+	display: none;
+}
+
+.wpcom-write-pps__comment-label {
+	display: block;
+	margin-block-end: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.wpcom-write-pps__comment-hint {
+	margin-inline-start: 6px;
+	font-weight: 400;
+	color: #6d6d6d;
+}
+
+.wpcom-write-pps__comment-input {
+	display: block;
+	inline-size: 100%;
+	padding: 10px 12px;
+	border: 1px solid #d8d8d8;
+	border-radius: 4px;
+	background: #fff;
+	color: #1e1e1e;
+
+	/* 16px keeps iOS Safari from zooming the viewport on focus. */
+	font-size: 16px;
+	line-height: 1.4;
+	box-sizing: border-box;
+	resize: vertical;
+}
+
+.wpcom-write-pps__comment-input:focus {
+	border-color: #3858e9;
+	outline: 2px solid transparent;
+	outline-offset: 0;
+	box-shadow: 0 0 0 1px #3858e9;
+}
+
+.wpcom-write-pps__send {
+	display: block;
+	inline-size: 100%;
+	margin-block-start: 12px;
+	min-block-size: 44px;
+	padding: 12px 16px;
+	border: 0;
+	border-radius: 4px;
+	background: #3858e9;
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.wpcom-write-pps__send:hover {
+	background: #2e49d9;
+}
+
+.wpcom-write-pps__skip {
+	display: block;
+	inline-size: 100%;
+	margin-block-start: 8px;
+	min-block-size: 44px;
+	padding: 10px 16px;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: #6d6d6d;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.wpcom-write-pps__skip:hover {
+	background: #f0f0f0;
+}
+
+.wpcom-write-pps__thanks[hidden] {
+	display: none;
+}
+
+.wpcom-write-pps__thanks {
+	margin: 12px 0 0;
+	font-size: 15px;
+	color: #1e1e1e;
+}
+
+@media (min-width: 480px) {
+
+	.wpcom-write-pps {
+		align-items: center;
+		padding: 20px;
+	}
+
+	.wpcom-write-pps__card {
+		border-radius: 8px;
+		padding: 28px 28px 24px;
+	}
+}

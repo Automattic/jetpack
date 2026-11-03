@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.4.0] - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.3.11] - 2026-06-08
 ### Changed
 - Internal updates.
@@ -96,6 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Initial release (improved helper script installer logging). [#34297]
 
+[0.4.1]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.11...v0.4.0
 [0.3.11]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/Automattic/jetpack-backup-helper-script-manager/compare/v0.3.8...v0.3.9

@@ -7,6 +7,7 @@ import { useCallback, useEffect } from 'react';
 import { useUnignoreThreatMutation } from '../../data/use-threat-mutations';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 /**
  * Single-threat unignore-confirmation modal — wired into

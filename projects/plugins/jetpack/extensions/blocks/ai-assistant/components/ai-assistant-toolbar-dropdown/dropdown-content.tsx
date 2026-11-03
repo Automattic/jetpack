@@ -157,7 +157,7 @@ const quickActionsList: {
 						rootParentOnly: true,
 					},
 				},
-		  ]
+			]
 		: [
 				// Those actions are transformative in nature and are better suited for the AI Assistant block.
 				// TODO: Keep the action, but transforming the block.
@@ -171,7 +171,7 @@ const quickActionsList: {
 							'Write a post based on the list items. Include a title as first order heading and try to use secondary headings for each entry',
 					},
 				},
-		  ],
+			],
 };
 
 export type AiAssistantDropdownOnChangeOptionsArgProps = {

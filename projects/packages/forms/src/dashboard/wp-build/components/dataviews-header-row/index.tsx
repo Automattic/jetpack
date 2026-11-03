@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { formatNumberCompact } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -13,15 +14,17 @@ import { useNavigate } from '@wordpress/route';
 import { Badge, Stack, Tabs } from '@wordpress/ui';
 import useConfigValue from '../../../../hooks/use-config-value.ts';
 import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
+import { saveLastTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
+import { TOP_TAB_PATHS, type TopTab } from '../../../top-tabs.ts';
 import InboxStatusToggle from '../inbox-status-toggle';
+import type { JSX } from 'react';
 import './style.scss';
 
-type ActiveTab = 'forms' | 'responses';
 type StatusTab = 'inbox' | 'spam' | 'trash';
 
 type DataViewsHeaderRowProps = {
-	activeTab: ActiveTab;
+	activeTab: TopTab;
 	isSingleFormView?: boolean;
 	activeStatus?: StatusTab;
 	statusCounts?: { inbox: number; spam: number; trash: number };
@@ -66,21 +69,21 @@ export default function DataViewsHeaderRow( {
 	}, [] );
 
 	const onTabChange = useCallback(
-		( nextValue: ActiveTab ) => {
-			if ( nextValue === 'forms' ) {
-				navigate( { href: '/forms' } );
-				return;
-			}
-
-			// In the wp-build environment we always treat Responses as `/responses/inbox`.
-			navigate( { href: '/responses/inbox' } );
+		( nextValue: TopTab ) => {
+			// Only a deliberate tab click is remembered, so arriving on a response through
+			// an email link cannot quietly change which tab the dashboard reopens on.
+			saveLastTab( nextValue );
+			navigate( { href: TOP_TAB_PATHS[ nextValue ] } );
 		},
 		[ navigate ]
 	);
 
 	return (
 		<>
-			<Stack className="jp-forms-dataviews__view-actions" justify="space-between">
+			<Stack
+				className="jp-forms-dataviews__view-actions jp-admin-page-has-tabs"
+				justify="space-between"
+			>
 				<Stack align="center" gap="sm">
 					{ isSingleFormView ? (
 						<InboxStatusToggle
@@ -119,6 +122,7 @@ export default function DataViewsHeaderRow( {
 					<DataViews.ViewConfig />
 				</Stack>
 			</Stack>
+			<JitmSlot inset />
 			<DataViews.FiltersToggled className="jp-forms-dataviews-filters__container" />
 		</>
 	);

@@ -27,7 +27,7 @@ export const CORE_BLOCKS = [
 
 const currentYear = new Date().getFullYear();
 
-// WARNING: sync data with Contact_Form_Field::render_date_field in class-contact-form-field.php
+// WARNING: sync data with Contact_Form_Field::get_date_formats() in class-contact-form-field.php
 export const DATE_FORMATS = [
 	{
 		value: 'mm/dd/yy',
@@ -56,7 +56,21 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 	} )
 );
 
+/**
+ * The format instruction shown below a date field's input.
+ *
+ * @param {string} dateFormat - A DATE_FORMATS value, e.g. 'mm/dd/yy'.
+ * @return {string|null} The hint text, or null for an unknown format.
+ */
+export const getDateFormatHint = dateFormat =>
+	DATE_FORMATS.find( f => f.value === dateFormat )?.label ?? null;
+
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
+
+// Every form field block is named `jetpack/field-<something>`. Shared, because "what counts
+// as a field" decides both which blocks get a conditional-logic panel and which blocks are
+// counted when checking that field ids are unique -- and those two must not drift apart.
+export const FIELD_BLOCK_PREFIX = 'jetpack/field-';
 
 /**
  * Vertical layout preset for new form variations and programmatic form creation

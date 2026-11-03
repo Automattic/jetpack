@@ -66,11 +66,11 @@ const STATUS_CONFIG: Record<
 							'jetpack-forms'
 						),
 						dateI18n( dateFormat, form.date )
-				  )
+					)
 				: __(
 						'Scheduled form. It will not be displayed to site visitors until its publish date.',
 						'jetpack-forms'
-				  );
+					);
 			return message;
 		},
 	},
@@ -141,7 +141,7 @@ export default function FormStatusNotice( {
 								label: __( 'Undo', 'jetpack-forms' ),
 								onClick: () => handleUndo( previousStatus, previousDate ),
 							},
-					  ]
+						]
 					: [],
 			} );
 		} catch {

@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
 import { STORE_ID } from '../../state/store';
 
@@ -14,12 +14,28 @@ interface ConnectionStoreDispatch {
 }
 
 /**
+ * Reduce a rejected API request to the text the notice shows; `@automattic/jetpack-api` rejects with an `Error`.
+ *
+ * @param {unknown} error - The rejection reason.
+ * @return {string} The error message.
+ */
+function toErrorMessage( error: unknown ): string {
+	return error instanceof Error ? error.message : String( error );
+}
+
+/**
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
+ * @param {object} [options]             - Hook options.
+ * @param {string} [options.redirectUrl] - Where to return after reauthorizing the user. Defaults to My Jetpack.
+ * @param {string} [options.from]        - The `from` reported to WordPress.com. Defaults to 'my-jetpack'.
  * @return {object} - The hook data.
  */
-export default function useRestoreConnection() {
+export default function useRestoreConnection( {
+	redirectUrl,
+	from,
+}: { redirectUrl?: string; from?: string } = {} ) {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
@@ -27,41 +43,47 @@ export default function useRestoreConnection() {
 		STORE_ID
 	) as ConnectionStoreDispatch;
 
-	const USER_CONNECTION_URL = getUserConnectionUrl();
+	const USER_CONNECTION_URL = getUserConnectionUrl( { redirect_url: redirectUrl, from } );
 
 	/**
 	 * Initiate connection restore.
 	 *
+	 * Kept referentially stable: callers memoize CTA actions on it, and a fresh
+	 * function every render would defeat that.
+	 *
 	 * @param {boolean} autoReconnectUser - If user connection needs to be reestablished, automatically initiate the flow.
 	 * @return {Promise<object>} - The API request promise.
 	 */
-	const restoreConnection = ( autoReconnectUser = true ) => {
-		setIsRestoringConnection( true );
-		setRestoreConnectionError( null );
+	const restoreConnection = useCallback(
+		( autoReconnectUser = true ) => {
+			setIsRestoringConnection( true );
+			setRestoreConnectionError( null );
 
-		return restApi
-			.reconnect()
-			.then( ( connectionStatusData: { status: string } ) => {
-				// status 'in_progress' means the user needs to re-connect their WP.com account.
-				if ( 'in_progress' === connectionStatusData.status ) {
-					disconnectUserSuccess();
-					setConnectionErrors( {} );
-					if ( autoReconnectUser ) {
-						window.location.href = USER_CONNECTION_URL;
+			return restApi
+				.reconnect()
+				.then( ( connectionStatusData: { status: string } ) => {
+					// status 'in_progress' means the user needs to re-connect their WP.com account.
+					if ( 'in_progress' === connectionStatusData.status ) {
+						disconnectUserSuccess();
+						setConnectionErrors( {} );
+						if ( autoReconnectUser ) {
+							window.location.href = USER_CONNECTION_URL;
+						}
+					} else {
+						window.location.reload();
 					}
-				} else {
-					window.location.reload();
-				}
 
-				return connectionStatusData;
-			} )
-			.catch( ( error: string ) => {
-				setRestoreConnectionError( error );
-				setIsRestoringConnection( false );
+					return connectionStatusData;
+				} )
+				.catch( ( error: unknown ) => {
+					setRestoreConnectionError( toErrorMessage( error ) );
+					setIsRestoringConnection( false );
 
-				throw error;
-			} );
-	};
+					throw error;
+				} );
+		},
+		[ disconnectUserSuccess, setConnectionErrors, USER_CONNECTION_URL ]
+	);
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );

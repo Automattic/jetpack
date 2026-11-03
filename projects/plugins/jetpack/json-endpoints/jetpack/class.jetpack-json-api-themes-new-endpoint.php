@@ -17,6 +17,7 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_New_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
+	use Jetpack_JSON_API_Attachment_Ownership_Trait;
 
 	/**
 	 * Needed capabilities.
@@ -52,9 +53,15 @@ class Jetpack_JSON_API_Themes_New_Endpoint extends Jetpack_JSON_API_Themes_Endpo
 		$validate = parent::validate_call( $_blog_id, $capability, $check_manage_active );
 		if ( is_wp_error( $validate ) ) {
 			// Lets delete the attachment... if the user doesn't have the right permissions to do things.
+			// Only clean up an upload the caller actually owns. This runs *after* the capability check
+			// has already failed, so without the ownership guard any connected user could name someone
+			// else's attachment and have it hard-deleted on their behalf.
 			$args = $this->input();
-			if ( isset( $args['zip'][0]['id'] ) ) {
-				wp_delete_attachment( $args['zip'][0]['id'], true );
+			if ( isset( $args['zip'][0]['id'] ) && is_scalar( $args['zip'][0]['id'] ) ) {
+				$attachment_id = (int) $args['zip'][0]['id'];
+				if ( true === $this->validate_attachment_ownership( $attachment_id ) ) {
+					wp_delete_attachment( $attachment_id, true );
+				}
 			}
 		}
 

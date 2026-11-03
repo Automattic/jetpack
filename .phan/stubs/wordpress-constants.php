@@ -109,4 +109,5 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
 define( 'WP_DEFAULT_THEME', 'twentytwentywhenever' );
 
 // Constants used in PHPUnit tests.
+define( 'DIR_TESTDATA', './tests/phpunit/data' );
 define( 'WP_TESTS_DOMAIN', 'example.org' );

@@ -13,14 +13,15 @@ $inspector-padding: 16px;
 	gap: 0 !important;
 }
 
+// The notes panel draws a full-width top border; drop the last field's inset
+// one so the two don't stack into a double line.
+.jp-forms__inbox-response-data:has(+ .jp-forms__feedback-comments) .jp-forms__field-preview:last-child {
+	border-block-end: none;
+}
+
 .jp-forms__inbox__tip-container {
 	border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 	margin: auto 0 0 0;
 	padding: $inspector-padding;
 	text-wrap: pretty;
-
-	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
-	.components-tip {
-		align-items: anchor-center;
-	}
 }

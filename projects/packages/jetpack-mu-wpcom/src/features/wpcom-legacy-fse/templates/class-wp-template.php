@@ -188,7 +188,7 @@ class WP_Template {
 		$content = wptexturize( $content );
 
 		// 11 priority
-		$content = do_shortcode( $content );
+		$content = apply_shortcodes( $content );
 
 		$content = prepend_attachment( $content );
 

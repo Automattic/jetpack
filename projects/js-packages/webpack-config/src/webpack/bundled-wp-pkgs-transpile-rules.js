@@ -42,9 +42,9 @@ const BundledWpPkgsTranspileRules = ( options = {} ) => {
 		},
 	} );
 
-	// Add textdomains (but no other optimizations) for @wordpress/dataviews and @wordpress/ui.
+	// Add textdomains (but no other optimizations) for bundled packages that call `@wordpress/i18n`.
 	const textdomainsOnly = TranspileRule( {
-		includeNodeModules: [ '@wordpress/dataviews/', '@wordpress/ui/' ],
+		includeNodeModules: [ '@wordpress/admin-ui/', '@wordpress/dataviews/', '@wordpress/ui/' ],
 		exclude: dataviewsWp.include,
 		babelOpts: {
 			configFile: false,

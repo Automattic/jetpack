@@ -1,8 +1,6 @@
 /**
- * The Shares widget lists each social network the site's content was shared to,
- * ranked by share count. Data comes from the all-time site summary via
- * `useStatsSite`; the summary has no date range or comparison period, so the
- * widget shows the same counts regardless of the dashboard's comparison state.
+ * The all-time site summary behind this widget has no date range or comparison
+ * period, so every story shows the same counts.
  */
 /**
  * External dependencies
@@ -24,7 +22,6 @@ import {
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SharesRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -37,13 +34,8 @@ const SITE_SUMMARY_PATH_FRAGMENT = 'proxy/v1.1/stats';
 
 /**
  * Forces the all-time site summary into a state for a story's lifetime.
- *
- * `useStatsSite()` has a constant query key because its summary ignores the
- * dashboard date range. Remove that shared entry before and after each forced
- * story so it reaches the mock and cannot leak its result into another story.
- *
- * @param state - The forced report-mock state.
- * @return The `beforeEach` cleanup callback.
+ * `useStatsSite()` has a constant query key, so the shared entry has to be
+ * evicted or the forced result leaks into another story.
  */
 function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'site' ] } );
@@ -57,10 +49,10 @@ function forceSiteSummaryState( state: 'loading' | 'error' | 'empty' ) {
 
 // Build the story widget type from its manifest and module. `presentation`
 // comes from widget.json ( 'framed' ), so the host frames the widget.
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 function renderShares() {
-	return <SharesRender attributes={ { max: 10, reportParams: getDefaultQueryParams() } } />;
+	return <SharesRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 function SharesDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -117,7 +109,7 @@ export const Error: Story = {
 
 /**
  * Resolved without positive share counts: the widget shows its empty-state
- * megaphone and guidance copy.
+ * copy and the Learn more link.
  */
 export const Empty: Story = {
 	render: renderShares,
@@ -133,7 +125,7 @@ function SharesDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls 
 			widgetType={ storyWidgetType }
 			renderModule={ SHARES_RENDER_MODULE }
 			renderComponent={ SharesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( true ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }

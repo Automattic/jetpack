@@ -9,15 +9,18 @@ import {
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import './report-records-table.scss';
+import { useTableRevalidating } from './use-table-revalidating';
+import type { ComponentProps, ReactElement } from 'react';
 
-const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const NO_PER_PAGE_SIZES: number[] = [];
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -35,7 +38,6 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	paginationInfo: { totalItems: number; totalPages: number };
 	defaultLayouts?: SupportedLayouts;
 	actions?: Action< Item >[];
-	empty?: ReactNode;
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
 	isItemClickable?: ( item: Item ) => boolean;
@@ -53,18 +55,28 @@ export interface ReportRecordsTableProps< Item > {
 	fields: Field< Item >[];
 	/** Stable id per record (post ID, country code, search term, …). */
 	getItemId: ( item: Item ) => string;
-	/** Initial view overrides (default sort, visible fields, page size, …). */
+	/** Initial view overrides (default sort, visible fields, …). */
 	initialView?: Partial< View >;
-	/** Show DataViews' loading state. */
+	/** Whether rows for the current params are still loading. */
 	isLoading?: boolean;
+	/** Whether the rows on screen are revalidating; ignored while there are none, so an empty report keeps its empty state. */
+	isFetching?: boolean;
 	/** Accessible label for the search input. */
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** Custom empty state. */
-	empty?: ReactNode;
-	/** Page size choices (defaults to 10/25/50/100). */
-	perPageSizes?: number[];
+	/**
+	 * Called after every view change, with the view the table just moved to.
+	 *
+	 * The table still owns its view state; this only reports it outwards, for
+	 * a page whose data request depends on the view — a filter the API applies
+	 * server-side, say. Remounting the table (a `key` per tab) resets the view
+	 * but not the page's copy, which the page has to clear for itself, or the
+	 * request stays scoped by a filter the table no longer shows.
+	 */
+	onChangeView?: ( view: View ) => void;
+	/** Called with the rows the table shows after client-side view processing. */
+	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -77,13 +89,14 @@ export interface ReportRecordsTableProps< Item > {
 
 /**
  * The report page's records table: a Core DataViews table (search, sortable +
- * configurable columns, pagination) over the module's normalized report rows.
- * Filtering, sorting, and pagination run client-side via
+ * configurable columns) listing every one of the module's normalized report rows,
+ * as Calypso's "View all" pages do. Filtering and sorting run client-side via
  * `filterSortAndPaginate` — report modules return the full summarized list for
  * the selected range, so no server round-trip is needed.
  *
  * The module page supplies the data and field config; this owns the view
- * state, so every report table behaves the same.
+ * state, so every report table behaves the same. With no rows it renders the
+ * report's loading or empty state in its place.
  *
  * @param {ReportRecordsTableProps} props - The component props.
  * @return The records table section.
@@ -94,10 +107,11 @@ export function ReportRecordsTable< Item >( {
 	getItemId,
 	initialView,
 	isLoading = false,
+	isFetching = false,
 	searchLabel,
 	actions,
-	empty,
-	perPageSizes = DEFAULT_PER_PAGE_SIZES,
+	onChangeView,
+	onChangePageItems,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -106,14 +120,32 @@ export function ReportRecordsTable< Item >( {
 			( {
 				type: 'table',
 				page: 1,
-				perPage: perPageSizes[ 0 ] ?? 10,
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
-				// configured field. `initialView` can still narrow it.
-				fields: fields.map( field => field.id ),
+				// configured field. `initialView` can still narrow it. A primary
+				// field (title, media, description) has its own column, so listing
+				// it here would draw it twice.
+				fields: fields
+					.map( field => field.id )
+					.filter(
+						id =>
+							! [
+								initialView?.titleField,
+								initialView?.mediaField,
+								initialView?.descriptionField,
+							].includes( id )
+					),
 				...initialView,
 			} ) as View
+	);
+
+	const handleChangeView = useCallback(
+		( nextView: View ) => {
+			setView( nextView );
+			onChangeView?.( nextView );
+		},
+		[ onChangeView ]
 	);
 
 	const { data: pageItems, paginationInfo } = useMemo(
@@ -121,21 +153,31 @@ export function ReportRecordsTable< Item >( {
 		[ data, view, fields ]
 	);
 
+	useEffect( () => {
+		onChangePageItems?.( pageItems );
+	}, [ onChangePageItems, pageItems ] );
+
+	const isRevalidating = useTableRevalidating( isFetching );
+
+	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
+	if ( data.length === 0 && ! view.filters?.length ) {
+		return <ReportTableEmptyState isLoading={ isLoading } />;
+	}
+
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ handleChangeView }
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }
-				isLoading={ isLoading }
+				isLoading={ isLoading || isRevalidating }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
-				empty={ empty }
 				searchLabel={ searchLabel }
-				config={ { perPageSizes } }
+				config={ { perPageSizes: NO_PER_PAGE_SIZES } }
 				isItemClickable={ isItemClickable }
 				renderItemLink={ renderItemLink }
 			/>

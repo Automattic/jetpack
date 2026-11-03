@@ -1,17 +1,10 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { setSimpleSite, unsetSimpleSite } from '../../test-utils/simple-site';
-import {
-	useLibrary,
-	viewToQueryArgs,
-	privacyStringToInt,
-	libraryRefetchInterval,
-	nextProcessingPoll,
-	toLibraryItem,
-	LIBRARY_POLL_INTERVAL_MS,
-	PROCESSING_POLL_MAX_MS,
-} from '../use-library';
+import { toLibraryItem } from '../../utils/library-item';
+import { LIBRARY_POLL_INTERVAL_MS } from '../../utils/processing-poll';
+import { useLibrary, viewToQueryArgs } from '../use-library';
 import type { View } from '@wordpress/dataviews';
 
 const DEFAULT_VIEW: View = {
@@ -23,14 +16,6 @@ const DEFAULT_VIEW: View = {
 	filters: [],
 	search: '',
 };
-
-describe( 'privacyStringToInt', () => {
-	it( 'maps UI privacy strings to WPCOM integer codes', () => {
-		expect( privacyStringToInt( 'public' ) ).toBe( 0 );
-		expect( privacyStringToInt( 'private' ) ).toBe( 1 );
-		expect( privacyStringToInt( 'site-default' ) ).toBe( 2 );
-	} );
-} );
 
 describe( 'viewToQueryArgs', () => {
 	it( 'maps the default view to core media query args', () => {
@@ -73,78 +58,6 @@ describe( 'viewToQueryArgs', () => {
 		expect( viewToQueryArgs( { ...DEFAULT_VIEW, search: 'foo' } ) ).toMatchObject( {
 			search: 'foo',
 		} );
-	} );
-} );
-
-describe( 'libraryRefetchInterval', () => {
-	it( 'does not poll when nothing is processing', () => {
-		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
-		// Elapsed time is irrelevant once processing has cleared.
-		expect( libraryRefetchInterval( false, PROCESSING_POLL_MAX_MS * 2 ) ).toBe( false );
-	} );
-
-	it( 'polls while processing and under the cap', () => {
-		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
-			LIBRARY_POLL_INTERVAL_MS
-		);
-	} );
-
-	it( 'stops polling once the cap is reached, even while still processing (VIDP-298)', () => {
-		// An orphaned record stuck isProcessing forever must not poll unbounded.
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS ) ).toBe( false );
-		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS + 1 ) ).toBe( false );
-	} );
-} );
-
-describe( 'nextProcessingPoll', () => {
-	it( 'stamps a fresh anchor on first sighting and polls', () => {
-		const { anchor, interval } = nextProcessingPoll( null, [ '7' ], 1_000 );
-		expect( anchor ).toEqual( { idsKey: '7', startedAt: 1_000 } );
-		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
-	} );
-
-	it( 'keeps the anchor while the same set is processing and caps on its budget', () => {
-		const stamped = nextProcessingPoll( null, [ '7' ], 1_000 ).anchor;
-		const underCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS - 1 );
-		expect( underCap.anchor ).toBe( stamped );
-		expect( underCap.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
-		const atCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
-		expect( atCap.interval ).toBe( false );
-	} );
-
-	it( 'restamps when the processing set changes, so a new upload is polled after a stuck orphan hit the cap', () => {
-		// Orphan "7" alone burned its budget…
-		const orphanOnly = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		expect( nextProcessingPoll( orphanOnly, [ '7' ], PROCESSING_POLL_MAX_MS ).interval ).toBe(
-			false
-		);
-		// …then a new upload "9" appears at t=16min: fresh budget, polling resumes.
-		const later = PROCESSING_POLL_MAX_MS + 60_000;
-		const { anchor, interval } = nextProcessingPoll( orphanOnly, [ '9', '7' ], later );
-		expect( anchor ).toEqual( { idsKey: '7,9', startedAt: later } );
-		expect( interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
-	} );
-
-	it( 'treats the set as order-insensitive', () => {
-		const stamped = nextProcessingPoll( null, [ '9', '7' ], 0 ).anchor;
-		expect( nextProcessingPoll( stamped, [ '7', '9' ], 5_000 ).anchor ).toBe( stamped );
-	} );
-
-	it( 'keeps one budget for the same stuck set across view changes (set-keyed, not view-keyed)', () => {
-		// The library ref survives filter/search/page changes; only the ids
-		// identify the budget, so a capped orphan stays capped on a new view.
-		const stamped = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		const afterViewChange = nextProcessingPoll( stamped, [ '7' ], PROCESSING_POLL_MAX_MS );
-		expect( afterViewChange.anchor ).toBe( stamped );
-		expect( afterViewChange.interval ).toBe( false );
-	} );
-
-	it( 'drops the anchor when processing clears, so the next processing item gets a fresh budget', () => {
-		const stamped = nextProcessingPoll( null, [ '7' ], 0 ).anchor;
-		const cleared = nextProcessingPoll( stamped, [], 5_000 );
-		expect( cleared.anchor ).toBeNull();
-		expect( cleared.interval ).toBe( false );
 	} );
 } );
 
@@ -208,6 +121,38 @@ describe( 'useLibrary', () => {
 
 		await waitFor( () => expect( result.current.items.length ).toBeGreaterThan( 0 ) );
 		expect( result.current.items[ 0 ].title ).toBe( 'Molly’s “Best” Day' );
+	} );
+
+	describe( 'polling a processing item', () => {
+		beforeEach( () => {
+			jest.useFakeTimers();
+			mockApiFetch( async () => ( {
+				headers: { get: ( name: string ) => ( name.startsWith( 'X-WP-Total' ) ? '1' : null ) },
+				json: async () => [
+					{ id: 5, mime_type: 'video/videopress', jetpack_videopress: { guid: 'abc' } },
+				],
+			} ) );
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it.each( [
+			[ 'polls by default', undefined, 2 ],
+			[ 'holds off when polling is off', { poll: false }, 1 ],
+		] )( '%s', async ( _label, options, expectedFetches ) => {
+			const { result } = renderHook( () => useLibrary( DEFAULT_VIEW, options ), {
+				wrapper: createTestWrapper(),
+			} );
+			await waitFor( () => expect( result.current.items[ 0 ]?.isProcessing ).toBe( true ) );
+
+			await act( async () => {
+				jest.advanceTimersByTime( LIBRARY_POLL_INTERVAL_MS );
+			} );
+
+			expect( getApiFetchMock() ).toHaveBeenCalledTimes( expectedFetches );
+		} );
 	} );
 } );
 
@@ -376,6 +321,62 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1080, 1080 ).orientation ).toBeNull();
 			expect( withDimensions( undefined, undefined ).orientation ).toBeNull();
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
+		} );
+
+		it( 'keeps the original upload separate from the rendered playback source', () => {
+			const raw = {
+				id: 11,
+				source_url: 'https://example.com/edited.mp4',
+				media_details: {
+					original: 'https://example.com/simple-original.mov',
+					videopress: { original: 'https://example.com/original.mov' },
+				},
+			};
+			expect( toLibraryItem( raw, false ).originalUrl ).toBe( 'https://example.com/original.mov' );
+			expect(
+				toLibraryItem( { ...raw, media_details: { original: raw.media_details.original } }, true )
+					.originalUrl
+			).toBe( 'https://example.com/simple-original.mov' );
+			expect( toLibraryItem( { ...raw, media_details: {} }, false ).originalUrl ).toBeUndefined();
+		} );
+
+		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {
+			// The original upload (`source_url`) may be an HEVC .mov most
+			// browsers can't decode; playbackUrl prefers the H.264 ladder,
+			// smallest useful rendition first — the editors' preview stage is
+			// far below 1080p and a progressive hd stream can outrun slow
+			// connections (see pickPlaybackUrl's docblock).
+			const withFiles = ( files?: Record< string, { mp4?: string } > ) =>
+				toLibraryItem(
+					{
+						id: 11,
+						title: { rendered: 'Rendition' },
+						mime_type: 'video/mp4',
+						source_url: 'https://example.com/original.mov',
+						media_details: {
+							videopress: {
+								poster: 'https://example.com/poster.jpg',
+								finished: true,
+								file_url_base: { https: 'https://videos.files.wordpress.com/guid11/' },
+								files,
+							},
+						},
+						jetpack_videopress: { guid: 'guid11' },
+					},
+					false
+				);
+
+			expect(
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, dvd: { mp4: 'clip_dvd.mp4' } } ).playbackUrl
+			).toBe( 'https://videos.files.wordpress.com/guid11/clip_dvd.mp4' );
+			expect(
+				withFiles( { hd: { mp4: 'clip_hd.mp4' }, std: { mp4: 'clip_std.mp4' } } ).playbackUrl
+			).toBe( 'https://videos.files.wordpress.com/guid11/clip_std.mp4' );
+			expect( withFiles( { hd: { mp4: 'clip_hd.mp4' } } ).playbackUrl ).toBe(
+				'https://videos.files.wordpress.com/guid11/clip_hd.mp4'
+			);
+			// No renditions yet (still transcoding): no playback URL.
+			expect( withFiles( undefined ).playbackUrl ).toBeUndefined();
 		} );
 
 		it( 'sends the privacy filter as a server param in a single request, totals from headers', async () => {

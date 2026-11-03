@@ -1,5 +1,6 @@
 import { Sparkline } from '../';
 import { chartDecorator, type ChartStoryArgs } from '../../../stories/chart-decorator';
+import { themeArgTypes } from '../../../stories/theme-config';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Sparkline > >;
@@ -62,6 +63,7 @@ const meta: Meta< StoryArgs > = {
 			description: 'Enable entry animation on initial render',
 			table: { category: 'Visual Style' },
 		},
+		...themeArgTypes,
 	},
 };
 
@@ -81,7 +83,6 @@ export const Default: Story = {
 		data: defaultData,
 		width: 120,
 		height: 48,
-		color: '#4CAF50',
 		containerHeight: '100px',
 	},
 };

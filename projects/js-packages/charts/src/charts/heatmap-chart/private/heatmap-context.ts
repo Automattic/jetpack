@@ -2,8 +2,8 @@ import { createContext } from 'react';
 
 export type HeatmapContextValue = {
 	extent: [ number, number ];
-	/** The resolved primary color (full intensity); the legend mixes toward it in CSS. */
-	primaryColorHex: string;
+	/** The custom properties the fill reads, set on the grid and on each legend swatch. */
+	fillVars: Record< string, string >;
 };
 
 /** Shared by the chart and legend without importing back from `heatmap-chart.tsx`. */

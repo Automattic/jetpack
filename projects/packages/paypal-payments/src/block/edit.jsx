@@ -144,7 +144,7 @@ export const SimplePaymentsEdit = ( {
 								/* translators: %s: an email address. */
 								__( '%s is not a valid email address.', 'jetpack-paypal-payments' ),
 								email
-						  )
+							)
 						: null
 				);
 				setFieldPriceError(

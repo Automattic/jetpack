@@ -102,6 +102,28 @@
 	gap: 8px;
 }
 
+/*
+ * Field-level notice: a message about the field rather than about any
+ * one file, which today means a batch offering more files than the
+ * field accepts. Per-file problems stay on their own preview.
+ *
+ * Deliberately never hidden. It is a `role="status"` region, and a live
+ * region only announces changes made while it is already in the
+ * accessibility tree; toggling `display` or `visibility` would take it
+ * out of the tree between messages, so the first message after each gap
+ * would go unannounced. An empty block box has no height, so there is
+ * nothing to hide — only the margin waits for text to separate.
+ */
+.jetpack-form-file-field__notice {
+	margin-block: 0;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 14px);
+	color: var(--jetpack--contact-form--error-color);
+}
+
+.jetpack-form-file-field__notice.is-visible {
+	margin-block: 8px 0;
+}
+
 @media not (prefers-reduced-motion) {
 
 	/* Animation for the visibility change */

@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\VideoPress\Data as VideoPress_Data;
+
 /**
  * VideoPress Shortcode Handler
  *
@@ -87,7 +89,6 @@ class VideoPress_Shortcode {
 			'freedom'         => false, // Whether to use only free/libre codecs
 			'autoplay'        => false, // Whether to autoplay the video on load
 			'permalink'       => true,  // Whether to display the permalink to the video
-			'flashonly'       => false, // Whether to support the Flash player exclusively
 			'defaultlangcode' => false, // Default language code
 			'cover'           => true,  // Whether to scale the video to its container.
 			'muted'           => false, // Whether the video should start without sound.
@@ -106,6 +107,11 @@ class VideoPress_Shortcode {
 
 		if ( isset( $attr['preload'] ) ) {
 			$attr['preloadcontent'] = $attr['preload'];
+		}
+
+		// The site-wide opt-out wins over the shortcode's own preload attribute.
+		if ( VideoPress_Data::get_videopress_player_preload_disabled() ) {
+			$attr['preloadcontent'] = 'none';
 		}
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -160,20 +166,14 @@ class VideoPress_Shortcode {
 				'freedom'         => $attr['freedom'],
 				'autoplay'        => $attr['autoplay'],
 				'permalink'       => $attr['permalink'],
-				'force_flash'     => (bool) $attr['flashonly'],
 				'defaultlangcode' => $attr['defaultlangcode'],
-				'forcestatic'     => false, // This used to be a displayed option, but now is only.
 				'muted'           => $attr['muted'],
 				'controls'        => $attr['controls'],
 				'playsinline'     => $attr['playsinline'],
 				'useAverageColor' => (bool) $attr['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
 				'preloadContent'  => $attr['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects preloadContent
-			// accessible via the `videopress_shortcode_options` filter.
 			)
 		);
-
-		// Register VideoPress scripts
-		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09', false );
 
 		require_once __DIR__ . '/class.videopress-video.php';
 		require_once __DIR__ . '/class.videopress-player.php';

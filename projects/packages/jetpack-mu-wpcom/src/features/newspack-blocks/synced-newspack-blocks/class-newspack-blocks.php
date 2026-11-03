@@ -21,16 +21,42 @@ class Newspack_Blocks {
 	];
 
 	/**
+	 * Nesting depth of `the_content` filter applications. A depth of zero marks
+	 * the start of a top-level render pass, where deduplication state is reset.
+	 *
+	 * @var int
+	 */
+	private static $content_render_depth = 0;
+
+	/**
+	 * Stack of routes for the REST requests currently being served, innermost
+	 * last. Pushed on `rest_request_before_callbacks` and popped on
+	 * `rest_request_after_callbacks`, which bracket the endpoint callback on every
+	 * dispatch path (HTTP, `rest_do_request()`, batch, embeds, preload). Using a
+	 * stack, rather than a single value cleared on `rest_post_dispatch`, keeps an
+	 * in-process request from leaving its route set after it returns, and restores
+	 * the outer route when a nested request completes.
+	 *
+	 * @var string[]
+	 */
+	private static $rest_route_stack = [];
+
+	/**
 	 * Add hooks and filters.
 	 */
 	public static function init() {
 		add_action( 'after_setup_theme', [ __CLASS__, 'add_image_sizes' ] );
+		add_filter( 'intermediate_image_sizes_advanced', [ __CLASS__, 'maybe_skip_article_block_image_subsizes' ] );
 		add_post_type_support( 'post', 'newspack_blocks' );
 		add_post_type_support( 'page', 'newspack_blocks' );
 		add_action( 'jetpack_register_gutenberg_extensions', [ __CLASS__, 'disable_jetpack_donate' ], 99 );
 		add_filter( 'the_content', [ __CLASS__, 'hide_post_content_when_iframe_block_is_fullscreen' ] );
+		add_filter( 'the_content', [ __CLASS__, 'start_content_render_pass' ], PHP_INT_MIN );
+		add_filter( 'the_content', [ __CLASS__, 'end_content_render_pass' ], PHP_INT_MAX );
 		add_filter( 'body_class', [ __CLASS__, 'add_body_classes' ] );
 		add_filter( 'admin_body_class', [ __CLASS__, 'add_body_classes' ] );
+		add_filter( 'rest_request_before_callbacks', [ __CLASS__, 'push_rest_route' ], 10, 3 );
+		add_filter( 'rest_request_after_callbacks', [ __CLASS__, 'pop_rest_route' ], 10, 3 );
 
 		/**
 		 * Disable NextGEN's `C_NextGen_Shortcode_Manager`.
@@ -131,6 +157,10 @@ class Newspack_Blocks {
 	 * Enqueue placeholder blocks assets.
 	 */
 	public static function enqueue_placeholder_blocks_assets() {
+		if ( ! is_admin() ) {
+			// In non-editor environment, do nothing.
+			return;
+		}
 		$script_data = self::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'placeholder_blocks.js' );
 		if ( $script_data ) {
 			wp_enqueue_script(
@@ -207,9 +237,12 @@ class Newspack_Blocks {
 	/**
 	 * Enqueue block scripts and styles for editor.
 	 */
-	public static function enqueue_block_editor_assets() {
+	public static function enqueue_block_assets() {
+		if ( ! is_admin() ) {
+			// In non-editor environment, do nothing.
+			return;
+		}
 		$script_data = static::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'editor.js' );
-
 		if ( $script_data ) {
 			wp_enqueue_script(
 				'newspack-blocks-editor',
@@ -222,6 +255,8 @@ class Newspack_Blocks {
 			$localized_data = [
 				'patterns'                   => self::get_patterns_for_post_type( get_post_type() ),
 				'posts_rest_url'             => rest_url( 'newspack-blocks/v1/newspack-blocks-posts' ),
+				'posts_batch_rest_url'       => rest_url( 'newspack-blocks/v1/newspack-blocks-posts-batch' ),
+				'posts_batch_max_queries'    => Newspack_Blocks_API::POSTS_BATCH_MAX_QUERIES,
 				'specific_posts_rest_url'    => rest_url( 'newspack-blocks/v1/newspack-blocks-specific-posts' ),
 				'authors_rest_url'           => rest_url( 'newspack-blocks/v1/authors' ),
 				'assets_path'                => plugins_url( '/src/assets', NEWSPACK_BLOCKS__PLUGIN_FILE ),
@@ -233,14 +268,14 @@ class Newspack_Blocks {
 				'recaptcha_url'              => admin_url( 'admin.php?page=newspack-settings' ),
 				'custom_taxonomies'          => self::get_custom_taxonomies(),
 				'can_use_name_your_price'    => self::can_use_name_your_price(),
+				'coupons_enabled'            => function_exists( 'wc_coupons_enabled' ) && \wc_coupons_enabled(),
 				'tier_amounts_template'      => self::get_formatted_amount(),
 				'currency'                   => function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : 'USD',
 			];
 
 			if ( class_exists( 'WP_REST_Newspack_Author_List_Controller' ) ) {
 				$localized_data['can_use_cap']    = class_exists( 'CoAuthors_Guest_Authors' );
-				$author_list_controller           = new WP_REST_Newspack_Author_List_Controller();
-				$localized_data['editable_roles'] = $author_list_controller->get_editable_roles();
+				$localized_data['editable_roles'] = Newspack_Blocks\get_authors_roles();
 			}
 
 			if ( class_exists( '\Newspack\Authors_Custom_Fields' ) ) {
@@ -261,23 +296,20 @@ class Newspack_Blocks {
 		}
 
 		$editor_style = plugins_url( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'editor.css', NEWSPACK_BLOCKS__PLUGIN_FILE );
-
+		$handle = 'newspack-blocks-editor';
 		wp_enqueue_style(
-			'newspack-blocks-editor',
+			$handle,
 			$editor_style,
 			array(),
 			NEWSPACK_BLOCKS__VERSION
 		);
+		wp_style_add_data( $handle, 'rtl', 'replace' );
 	}
 
 	/**
 	 * Enqueue block scripts and styles for view.
 	 */
 	public static function manage_view_scripts() {
-		if ( is_admin() ) {
-			// In editor environment, do nothing.
-			return;
-		}
 		$src_directory  = NEWSPACK_BLOCKS__PLUGIN_DIR . 'src/blocks/';
 		$dist_directory = NEWSPACK_BLOCKS__PLUGIN_DIR . 'dist/';
 		$iterator       = new DirectoryIterator( $src_directory );
@@ -292,6 +324,11 @@ class Newspack_Blocks {
 
 			if ( file_exists( $view_php_path ) ) {
 				include_once $view_php_path;
+				continue;
+			}
+
+			// Skip remaining logic in admin - only needed for frontend asset loading.
+			if ( is_admin() ) {
 				continue;
 			}
 
@@ -315,47 +352,59 @@ class Newspack_Blocks {
 	 * Enqueue block styles stylesheet.
 	 */
 	public static function enqueue_block_styles_assets() {
-		$style_path = NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'block_styles' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+		$style_path = NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . 'block_styles.css';
 		if ( file_exists( NEWSPACK_BLOCKS__PLUGIN_DIR . $style_path ) ) {
+			$handle = 'newspack-blocks-block-styles-stylesheet';
 			wp_enqueue_style(
-				'newspack-blocks-block-styles-stylesheet',
+				$handle,
 				plugins_url( $style_path, NEWSPACK_BLOCKS__PLUGIN_FILE ),
 				array(),
 				NEWSPACK_BLOCKS__VERSION
 			);
+			wp_style_add_data( $handle, 'rtl', 'replace' );
 		}
 	}
 
 	/**
 	 * Enqueue view scripts and styles for a single block.
 	 *
-	 * @param string $type The block's type.
+	 * @param string      $type     The block's type.
+	 * @param string|null $strategy Optional. Script loading strategy to apply to the
+	 *                              view script ('defer' or 'async'). First write wins:
+	 *                              ignored if a strategy is already set on the handle.
+	 *                              Default null (no strategy).
 	 */
-	public static function enqueue_view_assets( $type ) {
+	public static function enqueue_view_assets( $type, $strategy = null ) {
 		$style_path = apply_filters(
 			'newspack_blocks_enqueue_view_assets',
-			NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css',
+			NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view.css',
 			$type,
 			is_rtl()
 		);
 
 		if ( file_exists( NEWSPACK_BLOCKS__PLUGIN_DIR . $style_path ) ) {
+			$handle = "newspack-blocks-{$type}";
 			wp_enqueue_style(
-				"newspack-blocks-{$type}",
+				$handle,
 				plugins_url( $style_path, NEWSPACK_BLOCKS__PLUGIN_FILE ),
 				array(),
 				NEWSPACK_BLOCKS__VERSION
 			);
+			wp_style_add_data( $handle, 'rtl', 'replace' );
 		}
 		$script_data = static::script_enqueue_helper( NEWSPACK_BLOCKS__BLOCKS_DIRECTORY . $type . '/view.js' );
 		if ( $script_data ) {
+			$handle = "newspack-blocks-{$type}";
 			wp_enqueue_script(
-				"newspack-blocks-{$type}",
+				$handle,
 				$script_data['script_path'],
 				$script_data['dependencies'],
 				$script_data['version'],
 				true
 			);
+			if ( $strategy && ! wp_scripts()->get_data( $handle, 'strategy' ) ) {
+				wp_script_add_data( $handle, 'strategy', $strategy );
+			}
 		}
 	}
 
@@ -384,7 +433,7 @@ class Newspack_Blocks {
 			$classes = array_merge( $classes, $extra );
 		}
 
-		return implode( ' ', $classes );
+		return implode( ' ', array_filter( $classes, 'strlen' ) );
 	}
 
 	/**
@@ -531,6 +580,192 @@ class Newspack_Blocks {
 	}
 
 	/**
+	 * Skip generating the physical `newspack-article-block-*` sub-size files on upload.
+	 *
+	 * The sizes stay registered, so blocks still resolve correctly-cropped URLs;
+	 * we only skip writing the files where an on-the-fly image CDN can reproduce them
+	 * from the registered sizes. The prefix match removes every `newspack-article-block-*`
+	 * sub-size, including `newspack-article-block-uncropped` (registered with
+	 * `crop => false` — a plain downscale, not a crop); the CDN resizes as well as
+	 * crops, so none of them need a physical file. This also makes the Image block
+	 * (REST) and Media Library upload paths behave the same on wpcom, where they
+	 * otherwise differ.
+	 *
+	 * @param array $sizes Image sub-sizes to generate, keyed by size name.
+	 * @return array Filtered sizes.
+	 */
+	public static function maybe_skip_article_block_image_subsizes( array $sizes ): array {
+		/**
+		 * Filters whether to skip physical `newspack-article-block-*` sub-size generation.
+		 * Defaults to true where an on-the-fly image CDN reproduces the sizes: WordPress.com
+		 * Simple (always) and Atomic (only when the Jetpack Image CDN is active). Self-hosted
+		 * sites can opt in, e.g. when fronting uploads with the Jetpack Image CDN.
+		 *
+		 * @param bool $skip Whether to skip physical sub-size generation.
+		 */
+		$skip = apply_filters( 'newspack_blocks_skip_article_image_subsizes', self::is_wpcom_image_cdn_active() );
+		if ( ! $skip ) {
+			return $sizes;
+		}
+
+		foreach ( array_keys( $sizes ) as $size_name ) {
+			if ( is_string( $size_name ) && str_starts_with( $size_name, 'newspack-article-block-' ) ) {
+				unset( $sizes[ $size_name ] );
+			}
+		}
+		return $sizes;
+	}
+
+	/**
+	 * Whether this site serves images through an on-the-fly image CDN that crops and
+	 * resizes from the registered sizes, making the physical `newspack-article-block-*`
+	 * files redundant.
+	 *
+	 * WordPress.com Simple always serves images through the platform image CDN. On
+	 * Atomic the Jetpack Image CDN (Photon) can be toggled off, so it counts only when
+	 * the module is active — otherwise the crops must still be generated. Self-hosted
+	 * sites are not auto-detected here; they opt in via the filter above.
+	 *
+	 * @return bool
+	 */
+	private static function is_wpcom_image_cdn_active(): bool {
+		if ( ! class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			return false;
+		}
+		$host = new \Automattic\Jetpack\Status\Host();
+		if ( $host->is_wpcom_simple() ) {
+			return true;
+		}
+		if ( $host->is_wpcom_platform() ) {
+			// Atomic: only skip when the Image CDN (Photon) is actually active to crop on the fly.
+			return class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'photon' );
+		}
+		return false;
+	}
+
+	/**
+	 * Mark the start of a `the_content` render pass.
+	 *
+	 * Deduplication state accumulates in globals for the life of the request,
+	 * which is right for a front-end page but wrong wherever one request renders
+	 * the same content more than once (a REST save renders it up to three times)
+	 * or renders several posts (a REST collection). There, every top-level pass
+	 * starts from a clean slate so each returns the same posts. Nested passes
+	 * (a Query Loop rendering Post Content, a synced pattern) keep the state of
+	 * the pass they belong to.
+	 *
+	 * @param string $content Post content.
+	 * @return string Unmodified post content.
+	 */
+	public static function start_content_render_pass( $content ) {
+		if ( 0 === self::$content_render_depth && self::should_reset_deduplication_per_render_pass() ) {
+			self::reset_deduplication();
+		}
+		self::$content_render_depth++;
+		return $content;
+	}
+
+	/**
+	 * Mark the end of a `the_content` render pass.
+	 *
+	 * @param string $content Post content.
+	 * @return string Unmodified post content.
+	 */
+	public static function end_content_render_pass( $content ) {
+		self::$content_render_depth = max( 0, self::$content_render_depth - 1 );
+		return $content;
+	}
+
+	/**
+	 * Whether deduplication state should be reset at the start of each top-level
+	 * `the_content` pass.
+	 *
+	 * On the front end the state is kept for the whole request, because a block
+	 * theme can render Content Loop blocks in the template before the post
+	 * content, and those have to be excluded from the blocks inside it.
+	 *
+	 * @return bool
+	 */
+	public static function should_reset_deduplication_per_render_pass() {
+		$is_front_end = ! is_admin()
+			&& ! wp_doing_ajax()
+			&& ! wp_doing_cron()
+			&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			&& ! ( defined( 'WP_CLI' ) && WP_CLI );
+
+		return ! $is_front_end;
+	}
+
+	/**
+	 * Remember the route of the REST request whose callback is about to run.
+	 *
+	 * WordPress has no accessor for the request currently in flight, so track it
+	 * around the endpoint callback. `rest_request_before_callbacks` fires on every
+	 * dispatch path, including in-process `rest_do_request()` calls that never
+	 * reach `rest_post_dispatch`, so pairing it with `rest_request_after_callbacks`
+	 * keeps the route from leaking past the request. Passes the value through
+	 * unchanged.
+	 *
+	 * @param mixed           $response Callback result to be replaced, unused here.
+	 * @param array           $handler  Matched route handler, unused here.
+	 * @param WP_REST_Request $request  The request being dispatched.
+	 * @return mixed The unchanged $response.
+	 */
+	public static function push_rest_route( $response, $handler, $request ) {
+		self::$rest_route_stack[] = $request->get_route();
+		return $response;
+	}
+
+	/**
+	 * Forget the route once its callback has run, so it never leaks into later work
+	 * in a long-running process. `rest_request_after_callbacks` fires even when the
+	 * permission check or callback returned an error, so it always balances the
+	 * matching `push_rest_route()`.
+	 *
+	 * @param mixed           $response Callback result to be served, passed through.
+	 * @param array           $handler  Matched route handler, unused here.
+	 * @param WP_REST_Request $request  The request that was dispatched, unused here.
+	 * @return mixed The unchanged $response.
+	 */
+	public static function pop_rest_route( $response, $handler, $request ) {
+		array_pop( self::$rest_route_stack );
+		return $response;
+	}
+
+	/**
+	 * Whether the current render is happening while a revision or autosave is being
+	 * prepared for the REST API.
+	 *
+	 * The revisions and autosaves endpoints render a revision's `content.rendered`
+	 * through `the_content`, which runs every dynamic block's render callback. That
+	 * output is never displayed, so a Content Loop or Carousel block can skip its
+	 * query entirely, which matters on sites where the editor autosaves against a
+	 * large post set. Checks the innermost in-flight route so a nested request is
+	 * judged on its own endpoint, not an outer one.
+	 *
+	 * @return bool
+	 */
+	public static function is_rest_revision_or_autosave_render() {
+		$route = end( self::$rest_route_stack );
+		return ! empty( $route )
+			&& (bool) preg_match( '#/(?:revisions|autosaves)(?:/\d+)?$#', $route );
+	}
+
+	/**
+	 * Forget which posts have been rendered so far, so the next Content Loop or
+	 * Carousel block starts deduplicating from scratch.
+	 *
+	 * The list of posts picked by specific-posts blocks is left alone: it is
+	 * derived from the current post, which `wp_reset_postdata()` cannot restore
+	 * inside a REST request once a block's loop has moved it, so recomputing it
+	 * per pass would give each pass a different exclusion list.
+	 */
+	public static function reset_deduplication() {
+		global $newspack_blocks_post_id;
+		$newspack_blocks_post_id = [];
+	}
+
+	/**
 	 * Whether the block should be included in the deduplication logic.
 	 *
 	 * @param array $attributes Block attributes.
@@ -626,6 +861,8 @@ class Newspack_Blocks {
 			'has_password'        => false,
 			'is_newspack_query'   => true,
 			'tax_query'           => [], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			// The total is only needed to decide whether a More button has a next page.
+			'no_found_rows'       => empty( $attributes['moreButton'] ),
 		);
 		if ( $specific_mode && $specific_posts ) {
 			$args['posts_per_page'] = count( $specific_posts );
@@ -633,9 +870,7 @@ class Newspack_Blocks {
 			$args['orderby']        = 'post__in';
 		} else {
 			$args['posts_per_page'] = $posts_to_show;
-			if ( ! self::should_deduplicate_block( $attributes ) ) {
-				$args['post__not_in'] = [ get_the_ID() ]; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
-			} else {
+			if ( self::should_deduplicate_block( $attributes ) ) {
 				if ( count( $newspack_blocks_all_specific_posts_ids ) ) {
 					$args['post__not_in'] = $newspack_blocks_all_specific_posts_ids; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				}
@@ -1087,6 +1322,35 @@ class Newspack_Blocks {
 	}
 
 	/**
+	 * Support for Tag Labels.
+	 *
+	 * @param int|WP_Post|null $post Post to retrieve tag labels for.
+	 *
+	 * @return array|null Tag labels, if any, for this post.
+	 */
+	public static function get_tag_labels( $post = null ) {
+		if ( class_exists( '\Newspack\Tag_Labels' ) && method_exists( '\Newspack\Tag_Labels', 'get_labels_for_post' ) ) {
+			return \Newspack\Tag_Labels::get_labels_for_post( $post );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Outputs HTML for given tag labels.
+	 *
+	 * @param array|null $labels Labels to display.
+	 * @param bool       $links  Whether to include links to tag archives.
+	 *
+	 * @return void
+	 */
+	public static function display_tag_labels( $labels = null, $links = true ) {
+		if ( class_exists( '\Newspack\Tag_Labels' ) && method_exists( '\Newspack\Tag_Labels', 'display' ) ) {
+			\Newspack\Tag_Labels::display( $labels, $links, 'div' );
+		}
+	}
+
+	/**
 	 * Closure for excerpt filtering that can be added and removed.
 	 *
 	 * @var Closure
@@ -1134,6 +1398,11 @@ class Newspack_Blocks {
 
 			// Recreate logic from wp_trim_excerpt (https://developer.wordpress.org/reference/functions/wp_trim_excerpt/).
 			$excerpt = strip_shortcodes( $excerpt );
+			// Strip blocks the content gate withholds from the public before
+			// excerpt_remove_blocks() flattens the block structure.
+			if ( class_exists( 'Newspack\Block_Visibility' ) && method_exists( 'Newspack\Block_Visibility', 'strip_blocks_hidden_from_public' ) ) {
+				$excerpt = \Newspack\Block_Visibility::strip_blocks_hidden_from_public( $excerpt );
+			}
 			$excerpt = excerpt_remove_blocks( $excerpt );
 			$excerpt = wpautop( $excerpt );
 			$excerpt = str_replace( ']]>', ']]&gt;', $excerpt );
@@ -1347,44 +1616,84 @@ class Newspack_Blocks {
 	}
 
 	/**
-	 * Pick either white or black, whatever has sufficient contrast with the color being passed to it.
-	 * From Newspack Theme functions.
+	 * Pick either black or white text, whichever reads better on the given background.
 	 *
-	 * @param  string $hex Hexidecimal value of the color to adjust.
-	 * @return string Either black or white hexidecimal values.
+	 * Scores pure black and pure white as text against the background and returns
+	 * whichever produces the greater APCA lightness contrast (Lc); ties fall to
+	 * black. The constants are the SA98G set from apca-w3 0.1.9.
 	 *
-	 * @ref https://stackoverflow.com/questions/1331591/given-a-background-color-black-or-white-text
+	 * Keep in sync with getColorForContrast() in src/blocks/donate/utils.ts.
+	 *
+	 * @param string $hex Hexadecimal background color (#RGB, #RRGGBB or #RRGGBBAA, with or without #).
+	 * @return string Either 'black' or 'white' (literal CSS color keywords).
 	 */
 	public static function get_color_for_contrast( $hex ) {
-		// Hex RGB.
-		$r1 = hexdec( substr( $hex, 1, 2 ) );
-		$g1 = hexdec( substr( $hex, 3, 2 ) );
-		$b1 = hexdec( substr( $hex, 5, 2 ) );
-		// Black RGB.
-		$black_color    = '#000';
-		$r2_black_color = hexdec( substr( $black_color, 1, 2 ) );
-		$g2_black_color = hexdec( substr( $black_color, 3, 2 ) );
-		$b2_black_color = hexdec( substr( $black_color, 5, 2 ) );
-		// Calc contrast ratio.
-		$l1             = 0.2126 * pow( $r1 / 255, 2.2 ) +
-		0.7152 * pow( $g1 / 255, 2.2 ) +
-		0.0722 * pow( $b1 / 255, 2.2 );
-		$l2             = 0.2126 * pow( $r2_black_color / 255, 2.2 ) +
-		0.7152 * pow( $g2_black_color / 255, 2.2 ) +
-		0.0722 * pow( $b2_black_color / 255, 2.2 );
-		$contrast_ratio = 0;
-		if ( $l1 > $l2 ) {
-			$contrast_ratio = (int) ( ( $l1 + 0.05 ) / ( $l2 + 0.05 ) );
-		} else {
-			$contrast_ratio = (int) ( ( $l2 + 0.05 ) / ( $l1 + 0.05 ) );
+		$background_y = self::get_apca_luminance( $hex );
+		$black_lc     = self::get_apca_contrast( $background_y, self::get_apca_luminance( '#000000' ) );
+		$white_lc     = self::get_apca_contrast( $background_y, self::get_apca_luminance( '#ffffff' ) );
+
+		return abs( $white_lc ) > abs( $black_lc ) ? 'white' : 'black';
+	}
+
+	/**
+	 * Compute the soft-clamped APCA screen luminance (Y) of a hex color.
+	 *
+	 * Accepts #RGB, #RRGGBB and #RRGGBBAA (the alpha pair is stripped), with or
+	 * without the leading #, case-insensitively. Unparseable input is treated as
+	 * white (luminance 1.0) so callers fall back to black text.
+	 *
+	 * @param string $hex Hexadecimal color.
+	 * @return float Soft-clamped luminance in the 0..1 range.
+	 */
+	private static function get_apca_luminance( $hex ) {
+		$hex = ltrim( trim( (string) $hex ), '#' );
+		if ( 3 === strlen( $hex ) ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		} elseif ( 8 === strlen( $hex ) ) {
+			// Drop the alpha pair from #RRGGBBAA.
+			$hex = substr( $hex, 0, 6 );
 		}
-		if ( $contrast_ratio > 5 ) {
-			// If contrast is more than 5, return black color.
-			return 'black';
-		} else {
-			// if not, return white color.
-			return 'white';
+		if ( 6 !== strlen( $hex ) || ! ctype_xdigit( $hex ) ) {
+			return 1.0;
 		}
+
+		$r = hexdec( substr( $hex, 0, 2 ) ) / 255;
+		$g = hexdec( substr( $hex, 2, 2 ) ) / 255;
+		$b = hexdec( substr( $hex, 4, 2 ) ) / 255;
+
+		$y = 0.2126729 * pow( $r, 2.4 ) + 0.7151522 * pow( $g, 2.4 ) + 0.0721750 * pow( $b, 2.4 );
+
+		// APCA soft-clamp of near-black luminance.
+		if ( $y <= 0.022 ) {
+			$y += pow( 0.022 - $y, 1.414 );
+		}
+
+		return $y;
+	}
+
+	/**
+	 * Compute the APCA lightness contrast (Lc) of text on a background.
+	 *
+	 * Positive values are dark text on a lighter background; negative values are
+	 * light text on a darker background. Both luminances must already be
+	 * soft-clamped.
+	 *
+	 * @param float $background_y Soft-clamped background luminance.
+	 * @param float $text_y       Soft-clamped text luminance.
+	 * @return float The Lc value.
+	 */
+	private static function get_apca_contrast( $background_y, $text_y ) {
+		if ( abs( $background_y - $text_y ) < 0.0005 ) {
+			return 0.0;
+		}
+
+		if ( $background_y > $text_y ) {
+			$sapc = ( pow( $background_y, 0.56 ) - pow( $text_y, 0.57 ) ) * 1.14;
+			return $sapc < 0.1 ? 0.0 : ( $sapc - 0.027 ) * 100;
+		}
+
+		$sapc = ( pow( $background_y, 0.65 ) - pow( $text_y, 0.62 ) ) * 1.14;
+		return $sapc > -0.1 ? 0.0 : ( $sapc + 0.027 ) * 100;
 	}
 
 	/**
@@ -1566,6 +1875,44 @@ class Newspack_Blocks {
 		);
 
 		return $combined_caption;
+	}
+
+	/**
+	 * Inline tags this plugin allows in a post subtitle.
+	 *
+	 * The theme owns the subtitle and sanitizes it on write, but a value stored before
+	 * that was in place is still raw, so the plugin filters it on the way out rather
+	 * than trusting the meta.
+	 *
+	 * @return array Allowed tags in wp_kses() form.
+	 */
+	public static function get_post_subtitle_allowed_tags() {
+		return array(
+			'b'      => true,
+			'strong' => true,
+			'i'      => true,
+			'em'     => true,
+			'mark'   => true,
+			'u'      => true,
+			'small'  => true,
+			'sub'    => true,
+			'sup'    => true,
+			'a'      => array(
+				'href'   => true,
+				'target' => true,
+				'rel'    => true,
+			),
+		);
+	}
+
+	/**
+	 * Limit a post subtitle to the inline tags this plugin renders.
+	 *
+	 * @param string $subtitle Raw subtitle.
+	 * @return string Sanitized subtitle.
+	 */
+	public static function sanitize_post_subtitle( $subtitle ) {
+		return wp_kses( (string) $subtitle, self::get_post_subtitle_allowed_tags() );
 	}
 }
 Newspack_Blocks::init();

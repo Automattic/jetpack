@@ -1,24 +1,31 @@
 import { LineChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, PeriodSelector } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { Spinner, SelectControl } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
-import { Button, Card, EmptyState, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Card, EmptyState, ButtonLink, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
-import { hasSocialPaidFeatures } from '../../utils';
-import { getRefreshPlanQuery } from '../../utils/script-data';
+import { features, hasSocialPaidFeatures } from '../../utils';
+import {
+	getRefreshPlanQuery,
+	getSimpleSiteUpgradeUrl,
+	getSocialAdminPageUrl,
+	getUpgradePlanName,
+} from '../../utils/script-data';
 import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
 import { buildMockReferrers } from './traffic-mock';
 import type { Connection, TrafficInterval } from '../../social-store/types';
+import type { PeriodPreset } from '@automattic/jetpack-components';
+import type { JSX } from 'react';
 
 const CHART_HEIGHT = 240;
 
-const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
+const INTERVAL_OPTIONS: PeriodPreset[] = [
 	{ label: __( 'Last 7 days', 'jetpack-publicize-pkg' ), value: '7' },
 	{ label: __( 'Last 30 days', 'jetpack-publicize-pkg' ), value: '30' },
 	{ label: __( 'Last 90 days', 'jetpack-publicize-pkg' ), value: '90' },
@@ -31,9 +38,8 @@ const INTERVAL_OPTIONS: Array< { label: string; value: string } > = [
  * a paid-plan real chart fed by the cached `getTrafficReferrers`
  * resolver, one line per connected service that drove ≥1 visit in the
  * window; a paid-plan-no-data empty state when nothing comes back; and
- * an error notice when the fetch fails. The range Select (7/30/90 days)
- * is always interactive — lets free users feel the control, lets paid
- * users widen the window if 7 was just too narrow.
+ * an error notice when the fetch fails. The range picker (7/30/90 days)
+ * is disabled on the free plan, with a tooltip saying why.
  *
  * @return The chart card element.
  */
@@ -79,15 +85,34 @@ export default function TrafficChartCard(): JSX.Element {
 		interval
 	);
 
-	const onUpgrade = useCallback( () => {
+	let upgradeUrl: string | undefined;
+	if ( needsUpgrade ) {
 		const data = getScriptData();
 		const blogID = data?.site?.wpcom?.blog_id;
 		const siteSuffix = data?.site?.suffix;
-		window.location.href = getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
-			site: blogID ? String( blogID ) : siteSuffix,
-			query: getRefreshPlanQuery(),
-		} );
-	}, [] );
+		upgradeUrl =
+			getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, getSocialAdminPageUrl() ) ??
+			getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
+				site: blogID ? String( blogID ) : siteSuffix,
+				query: getRefreshPlanQuery(),
+			} );
+	}
+
+	const planName = getUpgradePlanName();
+	const genericUpgradeText = __(
+		'Upgrade to see which social networks are driving visits to your site, day by day.',
+		'jetpack-publicize-pkg'
+	);
+	const upgradeText = planName
+		? sprintf(
+				/* translators: %s: name of the plan that unlocks the feature, e.g. "Business". */
+				__(
+					'Upgrade to the %s plan to see which social networks are driving visits to your site, day by day.',
+					'jetpack-publicize-pkg'
+				),
+				planName
+			)
+		: genericUpgradeText;
 
 	const onIntervalChange = useCallback(
 		( next: string ) => setTrafficInterval( Number( next ) as TrafficInterval ),
@@ -103,6 +128,16 @@ export default function TrafficChartCard(): JSX.Element {
 	const showError = ! needsUpgrade && ! isLoading && hasError && ! hasData;
 	const showEmpty = ! needsUpgrade && ! isLoading && ! hasError && ! hasData && days !== undefined;
 
+	const periodSelector = (
+		<PeriodSelector
+			label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
+			presets={ INTERVAL_OPTIONS }
+			value={ String( interval ) }
+			onChange={ onIntervalChange }
+			disabled={ needsUpgrade }
+		/>
+	);
+
 	return (
 		<Card.Root>
 			<Card.Header className="jetpack-social-overview__chart-header">
@@ -113,37 +148,14 @@ export default function TrafficChartCard(): JSX.Element {
 				<div className="jetpack-social-overview__chart-range">
 					{ needsUpgrade ? (
 						<Tooltip.Root>
-							{ /*
-							 * `disabled` on the native <select> swallows pointer
-							 * events, which would also swallow the tooltip
-							 * trigger. Wrap in a span so hover/focus still
-							 * reach the Tooltip.Root anchor.
-							 */ }
-							<Tooltip.Trigger render={ <span tabIndex={ 0 } /> }>
-								<SelectControl
-									__nextHasNoMarginBottom
-									__next40pxDefaultSize={ false }
-									label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-									hideLabelFromVision
-									value={ String( interval ) }
-									options={ INTERVAL_OPTIONS }
-									disabled
-								/>
-							</Tooltip.Trigger>
+							{ /* The disabled trigger stays focusable, so its hover and focus reach this span. */ }
+							<Tooltip.Trigger render={ <span /> }>{ periodSelector }</Tooltip.Trigger>
 							<Tooltip.Popup>
 								{ __( 'Available with a paid plan', 'jetpack-publicize-pkg' ) }
 							</Tooltip.Popup>
 						</Tooltip.Root>
 					) : (
-						<SelectControl
-							__nextHasNoMarginBottom
-							__next40pxDefaultSize={ false }
-							label={ __( 'Date range', 'jetpack-publicize-pkg' ) }
-							hideLabelFromVision
-							value={ String( interval ) }
-							options={ INTERVAL_OPTIONS }
-							onChange={ onIntervalChange }
-						/>
+						periodSelector
 					) }
 				</div>
 			</Card.Header>
@@ -201,22 +213,17 @@ export default function TrafficChartCard(): JSX.Element {
 								withGradientFill={ false }
 							/>
 						</div>
-						{ needsUpgrade && (
+						{ needsUpgrade && upgradeUrl && (
 							<div className="jetpack-social-overview__chart-overlay">
 								<Notice.Root intent="info" className="jetpack-social-overview__upgrade-notice">
 									<Notice.Title>
 										{ __( 'Unlock traffic insights', 'jetpack-publicize-pkg' ) }
 									</Notice.Title>
-									<Notice.Description>
-										{ __(
-											'Upgrade to see which social networks are driving visits to your site, day by day.',
-											'jetpack-publicize-pkg'
-										) }
-									</Notice.Description>
+									<Notice.Description>{ upgradeText }</Notice.Description>
 									<Notice.Actions>
-										<Button variant="solid" size="compact" onClick={ onUpgrade }>
+										<ButtonLink variant="solid" size="compact" href={ upgradeUrl }>
 											{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
-										</Button>
+										</ButtonLink>
 									</Notice.Actions>
 								</Notice.Root>
 							</div>

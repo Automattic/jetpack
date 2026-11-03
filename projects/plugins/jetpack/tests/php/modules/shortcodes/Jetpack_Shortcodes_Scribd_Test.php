@@ -63,7 +63,7 @@ class Jetpack_Shortcodes_Scribd_Test extends WP_UnitTestCase {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$actual = preg_replace( '/\s+/', ' ', do_shortcode( $shortcode ) );
+		$actual = preg_replace( '/\s+/', ' ', apply_shortcodes( $shortcode ) );
 		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
 
 		$this->assertEquals( $expected, $actual );

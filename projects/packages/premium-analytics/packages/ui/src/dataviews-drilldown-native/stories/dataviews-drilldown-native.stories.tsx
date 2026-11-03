@@ -1,6 +1,7 @@
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
+import type { DataViewRenderFieldProps, Field } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { DataViewRenderFieldProps, Field } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 type ReferrerRow = {
 	id: string;
@@ -157,116 +158,54 @@ const archiveRows: ArchiveRow[] = [
 	},
 ];
 
-/**
- * Build paginated referrer rows for the pagination story.
- *
- * @return The paginated referrer rows.
- */
-function buildPaginatedRows(): ReferrerRow[] {
-	const paginatedRows: ReferrerRow[] = [];
-
-	for ( let index = 1; index <= 12; index++ ) {
-		const id = `referrer-${ String( index ).padStart( 2, '0' ) }`;
-		const label = `Referrer ${ String( index ).padStart( 2, '0' ) }`;
-
-		paginatedRows.push( {
-			id,
-			referrer: label,
-			views: ( 13 - index ) * 10,
-		} );
-
-		if ( index !== 1 ) {
-			continue;
-		}
-
-		for ( let childIndex = 1; childIndex <= 15; childIndex++ ) {
-			paginatedRows.push( {
-				id: `${ id }-source-${ String( childIndex ).padStart( 2, '0' ) }`,
-				parentId: id,
-				referrer: `${ label } / Source ${ String( childIndex ).padStart( 2, '0' ) }`,
-				views: 16 - childIndex,
-			} );
-		}
-	}
-
-	return paginatedRows;
-}
-
-const PAGINATED_ROWS: ReferrerRow[] = buildPaginatedRows();
-
 const mediumElements = [
 	{ value: 'organic', label: 'Organic' },
 	{ value: 'social', label: 'Social' },
 	{ value: 'direct', label: 'Direct' },
 ];
 
-/*
- * Cell content is entirely consumer-rendered in DataViews, so styling parent
- * rows differently (bold here) is a plain field `render` concern — no
- * DataViews internals involved.
- */
-const referrerParentIds = new Set(
-	[ ...rows, ...PAGINATED_ROWS ].map( row => row.parentId ).filter( Boolean )
-);
-
-/**
- * Render the referrer field, bolding rows that have children.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered referrer.
- */
 function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
-	const label = referrerParentIds.has( item.id ) ? (
-		<strong>{ item.referrer }</strong>
-	) : (
-		<>{ item.referrer }</>
-	);
-
 	if ( item.href ) {
 		return (
 			<a href={ item.href } target="_blank" rel="noreferrer">
-				{ label }
+				{ item.referrer }
 			</a>
 		);
 	}
 
-	return label;
+	return <>{ item.referrer }</>;
 }
 
-const archiveParentIds = new Set( archiveRows.map( row => row.parentId ).filter( Boolean ) );
-
 /**
- * Render the archive title field, bolding rows that have children.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The archive row.
- * @return The rendered archive title.
+ * A title render shaped like the report consumers' — a thumbnail beside the
+ * label — where the ellipsis has to sit on the label, not the flex row.
  */
+function ThumbnailReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
+	return (
+		<span style={ { display: 'flex', alignItems: 'center', gap: 8 } }>
+			<span
+				aria-hidden="true"
+				style={ { flexShrink: 0, inlineSize: 16, blockSize: 16, background: '#c3c4c7' } }
+			/>
+			<span style={ { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' } }>
+				{ item.referrer }
+			</span>
+		</span>
+	);
+}
+
 function ArchiveTitleField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
-	const label = archiveParentIds.has( item.id ) ? (
-		<strong>{ item.title }</strong>
-	) : (
-		<>{ item.title }</>
-	);
-
 	if ( item.href ) {
 		return (
 			<a href={ item.href } target="_blank" rel="noreferrer">
-				{ label }
+				{ item.title }
 			</a>
 		);
 	}
 
-	return label;
+	return <>{ item.title }</>;
 }
 
-/**
- * Format an ISO date for display.
- *
- * @param value - The ISO date value.
- * @return The localized date label.
- */
 function formatDate( value: string ): string {
 	return new Date( value ).toLocaleDateString( undefined, {
 		year: 'numeric',
@@ -275,13 +214,6 @@ function formatDate( value: string ): string {
 	} );
 }
 
-/**
- * Render the date field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered date.
- */
 function DateField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	if ( ! item.date ) {
 		return <></>;
@@ -290,64 +222,26 @@ function DateField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Ele
 	return <>{ formatDate( item.date ) }</>;
 }
 
-/**
- * Render the views field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The referrer row.
- * @return The rendered view count.
- */
 function ViewsField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	return <>{ item.views.toLocaleString() }</>;
 }
 
-/**
- * Render the archive views field.
- *
- * @param props      - The DataViews render props.
- * @param props.item - The archive row.
- * @return The rendered archive view count.
- */
 function ArchiveViewsField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
 	return <>{ item.views.toLocaleString() }</>;
 }
 
-/**
- * Resolve the stable row id.
- *
- * @param item - The referrer row.
- * @return The row id.
- */
 function getItemId( item: ReferrerRow ): string {
 	return item.id;
 }
 
-/**
- * Resolve the parent id for child rows.
- *
- * @param item - The referrer row.
- * @return The parent row id, if present.
- */
 function getItemParentId( item: ReferrerRow ): string | undefined {
 	return item.parentId;
 }
 
-/**
- * Resolve the stable archive row id.
- *
- * @param item - The archive row.
- * @return The row id.
- */
 function getArchiveItemId( item: ArchiveRow ): string {
 	return item.id;
 }
 
-/**
- * Resolve the parent id for archive child rows.
- *
- * @param item - The archive row.
- * @return The parent row id, if present.
- */
 function getArchiveItemParentId( item: ArchiveRow ): string | undefined {
 	return item.parentId;
 }
@@ -557,20 +451,85 @@ export const Archives: ArchiveStory = {
 		getItemId: getArchiveItemId,
 		getItemParentId: getArchiveItemParentId,
 		initialView: archiveInitialView,
+		hideLevelMarkers: true,
+		collapsible: true,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Posts & Pages › Archives tab: archive pages grouped under their type, folded like the other drilldown reports, every row at the title weight.',
+			},
+		},
 	},
 };
 
-export const Paginated: Story = {
+export const Collapsible: Story = {
 	args: {
 		...Default.args,
-		data: PAGINATED_ROWS,
+		collapsible: true,
 		hideLevelMarkers: true,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Pagination counts every row and slices the hierarchy-ordered list. Until the parent-on-page-boundary refinement lands, a deep subtree can still span pages (its child rows appear on the next page without their parent).',
+					'The local collapse layer over the static native rendering: rows with children get a chevron, and folding one drops its whole subtree from the table. Sits behind a prop so it can be dropped once core ships native collapse (WordPress/gutenberg#80360).',
+			},
+		},
+	},
+};
+
+export const CollapsedByDefault: Story = {
+	args: {
+		...Collapsible.args,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Opening on the top level only, for a report whose groups are long. Searching still answers: the matches’ ancestors unfold for as long as the search is on, then fold back when it clears.',
+			},
+		},
+	},
+};
+
+export const LongGroupTitle: Story = {
+	args: {
+		...CollapsedByDefault.args,
+		data: rows.map( row =>
+			row.id === 'search'
+				? {
+						...row,
+						referrer: `${ row.referrer } and Aggregators, Syndication Partners and Every Other Long-Winded Category Name a Site Might Report`,
+					}
+				: row
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A group label wider than the title column. The title has to give way rather than carry the chevron out of the report card, which clips its overflow — a chevron pushed past that edge cannot be reached with a mouse at all, leaving the group unopenable.',
+			},
+		},
+	},
+};
+
+export const LongGroupTitleWithThumbnail: Story = {
+	args: {
+		...LongGroupTitle.args,
+		fields: fields.map( field =>
+			field.id === 'referrer' ? { ...field, render: ThumbnailReferrerField } : field
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The same over-long label, rendered the way the report pages render theirs: a thumbnail beside the text. The cell clips a flex row without ellipsizing it, so the consumer puts the ellipsis on its own label — the rule the Authors and Referrers reports each carry.',
 			},
 		},
 	},

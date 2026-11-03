@@ -44,7 +44,8 @@ const UpsellNotice = ( { requiredPlan } ) => {
 				onClick={ onClickHandler }
 				target="_top"
 				icon={ external }
-				className={ clsx( 'components-seo-upsell__button is-primary', {
+				variant="primary"
+				className={ clsx( 'components-seo-upsell__button', {
 					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 				} ) }
 				isBusy={ isRedirecting }

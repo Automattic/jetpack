@@ -76,9 +76,8 @@ await jest.unstable_mockModule(
 );
 
 // Import the module under test after mocking
-const { handleAiGenerationComplete, initAiFormGenerationIntegration } = await import(
-	'../../../src/blocks/contact-form/plugins/ai-form-generation'
-);
+const { handleAiGenerationComplete, initAiFormGenerationIntegration } =
+	await import( '../../../src/blocks/contact-form/plugins/ai-form-generation' );
 
 describe( 'AI Form Generation Plugin', () => {
 	beforeEach( () => {

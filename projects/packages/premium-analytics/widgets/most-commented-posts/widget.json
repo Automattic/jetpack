@@ -1,0 +1,25 @@
+{
+	"name": "jpa/most-commented-posts",
+	"icon": "jpa/comment",
+	"title": "All-time most commented posts",
+	"description": "The posts and pages that receive the most comments.",
+	"help": {
+		"content": "The posts and pages that received the most comments.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed",
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Fcomments%3Fsection%3Dposts"
+		}
+	]
+}

@@ -31,46 +31,63 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	private const STATE_DISMISSED = Dashboard::CLASSIC_FORMS_STATE_DISMISSED;
 
 	/**
+	 * Query stubs this test registered on `wordbless_wpdb_query_results`.
+	 *
+	 * @var callable[]
+	 */
+	private $query_stubs = array();
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tear_down() {
-		parent::tear_down();
+		$this->remove_query_stubs();
 		delete_option( self::OPTION_NAME );
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Remove the query stubs this test registered.
+	 *
+	 * Only the stubs registered here: `wordbless_wpdb_query_results` is how
+	 * WorDBless answers every query in the suite, so clearing the whole hook
+	 * takes its options, posts, users and meta down with it.
+	 */
+	private function remove_query_stubs() {
+		foreach ( $this->query_stubs as $stub ) {
+			remove_filter( 'wordbless_wpdb_query_results', $stub, 10 );
+		}
+		$this->query_stubs = array();
 	}
 
 	/**
 	 * Simulate detect_classic_forms SQL query returning a result (classic forms found).
 	 */
 	private function simulate_classic_forms_detected() {
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) {
-				if ( strpos( $query, "post_type = 'feedback'" ) !== false && strpos( $query, 'p.ID IS NULL' ) !== false ) {
-					return array( (object) array( '1' => '1' ) );
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$stub = function ( $results, $query ) {
+			if ( strpos( $query, "post_type = 'feedback'" ) !== false && strpos( $query, 'p.ID IS NULL' ) !== false ) {
+				return array( (object) array( '1' => '1' ) );
+			}
+			return $results;
+		};
+
+		$this->query_stubs[] = $stub;
+		add_filter( 'wordbless_wpdb_query_results', $stub, 10, 2 );
 	}
 
 	/**
 	 * Simulate detect_classic_forms SQL query returning no result (no classic forms).
 	 */
 	private function simulate_no_classic_forms() {
-		add_filter(
-			'wordbless_wpdb_query_results',
-			function ( $results, $query ) {
-				if ( strpos( $query, "post_type = 'feedback'" ) !== false && strpos( $query, 'p.ID IS NULL' ) !== false ) {
-					return array();
-				}
-				return $results;
-			},
-			10,
-			2
-		);
+		$stub = function ( $results, $query ) {
+			if ( strpos( $query, "post_type = 'feedback'" ) !== false && strpos( $query, 'p.ID IS NULL' ) !== false ) {
+				return array();
+			}
+			return $results;
+		};
+
+		$this->query_stubs[] = $stub;
+		add_filter( 'wordbless_wpdb_query_results', $stub, 10, 2 );
 	}
 
 	/**
@@ -136,7 +153,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		$this->assertEquals( self::STATE_CLASSIC, $state );
 
 		// Remove the SQL simulation — if option caching works, it won't matter.
-		remove_all_filters( 'wordbless_wpdb_query_results' );
+		$this->remove_query_stubs();
 		$this->simulate_no_classic_forms();
 
 		// Second call should use cached option, not re-query.

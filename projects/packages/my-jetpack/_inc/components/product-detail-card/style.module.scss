@@ -26,7 +26,7 @@
 }
 
 .product-bundle-icon {
-	fill: var(--jp-white);
+	color: var(--jp-white);
 	margin-right: var(--spacing-base);
 }
 
@@ -39,7 +39,7 @@
 }
 
 .plus-icon {
-	fill: rgb(140, 143, 148);
+	color: rgb(140, 143, 148);
 	height: 24px;
 	line-height: 24px;
 }
@@ -97,7 +97,7 @@
 	}
 
 	svg {
-		fill: var(--jp-green-primary);
+		color: var(--jp-green-primary);
 		margin-right: var(--spacing-base);
 		flex-shrink: 0;
 	}

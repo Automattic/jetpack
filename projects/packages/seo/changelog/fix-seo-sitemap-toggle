@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-SEO: Fix the sitemap control in Settings — show the View sitemap link as soon as the sitemap is enabled instead of getting stuck on "Generating…", and make turning it off remove the site's sitemap entirely (a proper 404) rather than falling back to WordPress core's.

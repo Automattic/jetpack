@@ -53,6 +53,20 @@ class Email_Service_Test extends BaseTestCase {
 		$this->assertEquals( 'Email request limit exceeded. Please try again later.', $result->get_error_message() );
 	}
 
+	public function test_resend_auth_mail_does_not_resend_past_the_user_limit(): void {
+		set_site_transient( Email_Service::get_user_email_count_key( 1 ), Config::PASSWORD_DETECTION_EMAIL_REQUEST_LIMIT );
+
+		$sut = $this->createPartialMock( Email_Service::class, array( 'api_send_auth_email' ) );
+		$sut->expects( $this->never() )->method( 'api_send_auth_email' );
+
+		$result = $sut->resend_auth_email( 1, array( 'requests' => 0 ), 'my_token' );
+
+		delete_site_transient( Email_Service::get_user_email_count_key( 1 ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'email_request_limit_exceeded', $result->get_error_code() );
+	}
+
 	public function test_resend_auth_mail_sends_mail_and_remembers_2fa_token_successfully(): void {
 		$user     = new \WP_User();
 		$user->ID = 1;
@@ -76,6 +90,8 @@ class Email_Service_Test extends BaseTestCase {
 		// Verify the transient has the expected data
 		$new_transient = get_transient( Config::PREFIX . "_{$my_token}" );
 		$this->assertSame( 1, $new_transient['requests'], 'Resend attempts should be 1.' );
+		$this->assertSame( 1, get_site_transient( Email_Service::get_user_email_count_key( $user->ID ) ), 'The email should be counted for the user.' );
+		delete_site_transient( Email_Service::get_user_email_count_key( $user->ID ) );
 		$this->assertMatchesRegularExpression( '/^[0-9]{6}$/', $new_transient['auth_code'], 'Auth code should be 6 digits.' );
 	}
 

@@ -36,6 +36,7 @@ class Pre_Connection_JITM_Test extends TestCase {
 
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
 		Functions\when( 'site_url' )->justReturn( 'unit-test' );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 		Functions\when( 'get_option' )->justReturn( '' );
 		Functions\when( '__' )->returnArg();

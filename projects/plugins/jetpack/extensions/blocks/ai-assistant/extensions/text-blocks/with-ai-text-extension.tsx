@@ -9,9 +9,9 @@ import {
 	useAiFeature,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, useBlockProps } from '@wordpress/block-editor';
+import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter, doAction } from '@wordpress/hooks';
 import clsx from 'clsx';
@@ -71,6 +71,8 @@ type RequestOptions = {
 
 type CoreEditorDispatch = { undo: () => Promise< void > };
 type CoreEditorSelect = { getCurrentPostId: () => number };
+// Not part of the block editor store's published types, though it is a real selector.
+type BlockInsertionSelect = { wasBlockJustInserted: ( clientId: string ) => boolean };
 
 // HOC to populate the block's edit component with the AI Assistant control input and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
@@ -112,6 +114,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { id, className } = useBlockProps( {
 			className: clsx( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
 		} );
+
+		const registry = useRegistry();
 
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
@@ -446,6 +450,65 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				focusInput();
 			}
 		}, [ showAiControl, focusInput, isSelectionEnabled ] );
+
+		// Scroll a newly inserted block into view along with the AI control below it. The control is
+		// sticky to the bottom of the viewport, so on a tall block it sits over the block's last
+		// content, and focusing it does not help — a pinned element already counts as visible.
+		//
+		// Mount only: wasBlockJustInserted() stays true until the next insertion.
+		useEffect( () => {
+			const control = controlRef.current;
+
+			// Blocks that pad their own bottom already leave room. Skip unselected ones too: a pattern
+			// marks every block it inserts as just inserted, including forms buried inside one.
+			if ( adjustPosition || ! control || ! isSelected ) {
+				return;
+			}
+
+			const blockEditor = registry.select( blockEditorStore );
+			const { wasBlockJustInserted } = blockEditor as unknown as BlockInsertionSelect;
+
+			// An empty form renders a variation picker, whose options start at the top.
+			if ( ! wasBlockJustInserted( clientId ) || blockEditor.getBlockCount( clientId ) === 0 ) {
+				return;
+			}
+
+			const block = control.ownerDocument.getElementById( id );
+			const view = control.ownerDocument.defaultView;
+
+			if ( ! block || ! view ) {
+				return;
+			}
+
+			// scrollIntoView( 'end' ) scrolls even when nothing is covered, so look for an overlap.
+			const controlRect = control.getBoundingClientRect();
+
+			if ( block.getBoundingClientRect().bottom <= controlRect.top ) {
+				return;
+			}
+
+			// A stuck element reports where it is held, not where it belongs, so scrolling to it does
+			// nothing. Unstick it and the browser places it against the block, spaced by their margin.
+			const scrollControlIntoPlace = () => {
+				const { bottom } = view.getComputedStyle( control );
+				const originalPosition = control.style.position;
+				const originalScrollMarginBottom = control.style.scrollMarginBottom;
+
+				control.style.position = 'static';
+				control.style.scrollMarginBottom = bottom;
+				control.scrollIntoView( { block: 'end' } );
+				control.style.position = originalPosition;
+				control.style.scrollMarginBottom = originalScrollMarginBottom;
+			};
+
+			// Once now, so that the editor's own scroll on selection finds the block already in view and
+			// leaves it where we put it. Once more next frame, by when the control has grown into its
+			// message and request count — without which sticky lifts the taller control back over the
+			// block, taking the gap with it.
+			scrollControlIntoPlace();
+			view.requestAnimationFrame( scrollControlIntoPlace );
+			// eslint-disable-next-line react-hooks/exhaustive-deps -- Runs on mount only.
+		}, [] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.

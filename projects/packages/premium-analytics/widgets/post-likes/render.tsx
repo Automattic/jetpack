@@ -3,9 +3,9 @@
  */
 import { useStatsPostLikes, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -18,8 +18,16 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { PostLikesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * The Latest likes widget has no configurable attributes: it always lists the
+ * likers of the post the page is scoped to (via `reportParams.post_id`).
+ * `Record< never, never >` (not `Record< string, never >`) so the render-only
+ * type can compose host fields such as `reportParams` without collapsing them
+ * to `never`.
+ */
+export type PostLikesAttributes = Record< never, never >;
 
 type PostLikesRenderAttributes = PostLikesAttributes & Partial< ReportParamsFieldAttributes >;
 type PostLikesWidgetProps = WidgetRenderProps< PostLikesRenderAttributes >;
@@ -31,13 +39,8 @@ type PostLikesWidgetProps = WidgetRenderProps< PostLikesRenderAttributes >;
 const LIKES_SHOWN = 10;
 
 /**
- * Latest likes inner component. Reads the post scope from WidgetRoot's report
- * params and lists the post's likers through `SubscriberList` — avatar, name
- * (linked to the liker's Reader profile), and the like's relative time, most
- * recent first, with an "N more" footer. The list is a lifetime roster and
- * ignores the dashboard date range.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's likers, most recent first. The list is a lifetime
+ * roster and ignores the dashboard date range.
  */
 function PostLikesInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -68,13 +71,13 @@ function PostLikesInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! data }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the likes visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior likes on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
+				renderLoading={ <SubscriberListSkeleton rows={ LIKES_SHOWN } /> }
 				error={ {
 					description: __(
 						"We couldn't load these likes. Please try again in a moment.",
@@ -83,13 +86,12 @@ function PostLikesInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
 									'Open a post or page report to see its likes here.',
 									'jetpack-premium-analytics-pkg'
-							  )
+								)
 							: __( 'There are no likes yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
@@ -100,11 +102,9 @@ function PostLikesInner() {
 }
 
 /**
- * Latest likes widget: the scoped post's likers as an avatar roster — the
- * post detail Traffic view's likes card.
- *
- * @param {PostLikesWidgetProps} props - The widget render props.
- * @return The rendered widget.
+ * Ported from the Jetpack Stats post detail "Post likes" card: the scoped post's
+ * likers, most recent first, with an "N more" footer past the rows shown. The
+ * list is a lifetime roster and is not date-scoped.
  */
 export default function PostLikes( { attributes = {} }: PostLikesWidgetProps ) {
 	return (

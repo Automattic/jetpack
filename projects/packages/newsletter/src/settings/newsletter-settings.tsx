@@ -10,6 +10,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,10 +19,12 @@ import { Notice, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { getLinkedSectionId, scrollToSection } from './anchors';
 import { fetchSettings, updateSettings } from './api';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
+	EmailDesignSection,
 	EmailBylineSection,
 	EmailDefaultsSection,
 	EmailSenderSettingsSection,
@@ -35,6 +38,7 @@ import {
 	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings } from './types';
+import type { JSX } from 'react';
 
 /**
  * Normalize settings from API response.
@@ -114,6 +118,7 @@ export type NewsletterSettingsBodyProps = {
 	 * branches retire together with the legacy chrome in #48613.
 	 */
 	isModernized?: boolean;
+	onDirtyChange?: ( dirty: boolean ) => void;
 };
 
 /**
@@ -128,8 +133,8 @@ export type NewsletterSettingsBodyProps = {
  * byte-for-byte identical.
  *
  * Snackbar dispatch goes straight to `@wordpress/notices`'s
- * `noticesStore` — the wp-build polyfills already render a `SnackbarList`
- * for us, and the legacy app wraps the body with its own `<GlobalNotices />`
+ * `noticesStore` — the wp-build polyfills already render `SnackbarNotices`
+ * for us, and the legacy app mounts its own `<SnackbarNotices />`
  * surface, so both paths see the same snackbars without a shared rendering
  * primitive.
  *
@@ -137,12 +142,14 @@ export type NewsletterSettingsBodyProps = {
  * @param props.hasConnectedOwner - Whether the active user has a connected WordPress.com owner account.
  * @param props.connectUrl        - URL the user is sent to when they need to connect.
  * @param props.isModernized      - When true, render the modernized IA; defaults to false (legacy layout).
+ * @param props.onDirtyChange     - Callback when settings have unsaved changes or pending autosaves.
  * @return The settings body.
  */
 export function NewsletterSettingsBody( {
 	hasConnectedOwner = true,
 	connectUrl,
 	isModernized = false,
+	onDirtyChange,
 }: NewsletterSettingsBodyProps ): JSX.Element | null {
 	// Seed from the module cache so a remount (e.g. returning to the Settings
 	// tab) paints immediately instead of flashing the full-page spinner.
@@ -185,12 +192,49 @@ export function NewsletterSettingsBody( {
 	>( {} );
 	const [ isSavingSubscribeModal, setIsSavingSubscribeModal ] = useState( false );
 
+	// Auto-saved sections stage nothing, so count their requests that are still in flight.
+	const [ pendingAutoSaves, setPendingAutoSaves ] = useState( 0 );
+
+	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
+	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
+	const hasSubscribeModalChanges = Object.keys( subscribeModalChanges ).length > 0;
+
+	const mayLoseChanges =
+		hasSubscriptionChanges ||
+		hasSenderNameChanges ||
+		hasNewsletterCategoriesChanges ||
+		hasWelcomeEmailChanges ||
+		hasSubscribeModalChanges ||
+		pendingAutoSaves > 0;
+
+	useEffect( () => {
+		onDirtyChange?.( mayLoseChanges );
+		return () => onDirtyChange?.( false );
+	}, [ mayLoseChanges, onDirtyChange ] );
+
+	// Ask the browser to confirm leaving the page while an edit is unsaved or still saving.
+	useEffect( () => {
+		if ( ! mayLoseChanges ) {
+			return;
+		}
+
+		const warn = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			// Older browsers only prompt when this is set.
+			event.returnValue = '';
+		};
+
+		window.addEventListener( 'beforeunload', warn );
+		return () => window.removeEventListener( 'beforeunload', warn );
+	}, [ mayLoseChanges ] );
+
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
-	// Snackbar notices via core data — `type: 'snackbar'` matches what the
-	// legacy `useGlobalNotices` defaulted to, so both legacy and modernized
-	// surfaces render the same snackbars.
+	// Snackbar notices via core data — `type: 'snackbar'` is required so
+	// both legacy and modernized surfaces render them in SnackbarNotices.
 	const { createNotice } = useDispatch( noticesStore );
 	const createSuccessNotice = useCallback(
 		( content: string ) => createNotice( 'success', content, { type: 'snackbar' } ),
@@ -238,6 +282,20 @@ export function NewsletterSettingsBody( {
 			} );
 	}, [] );
 
+	// The sections only exist once settings have loaded, after the router's own
+	// hash scroll has run, so jump to a linked section (e.g. `#subscriptions`) here.
+	const hasScrolledToHash = useRef( false );
+	useEffect( () => {
+		if ( isLoading || ! data || hasScrolledToHash.current ) {
+			return;
+		}
+		hasScrolledToHash.current = true;
+		const sectionId = getLinkedSectionId();
+		if ( sectionId ) {
+			scrollToSection( sectionId );
+		}
+	}, [ isLoading, data ] );
+
 	// Keep the module cache in sync with local state so optimistic edits,
 	// saves, and reverts all carry over to the next mount — a returning visitor
 	// sees their latest values, not a pre-save snapshot.
@@ -267,7 +325,7 @@ export function NewsletterSettingsBody( {
 
 	// Handle auto-save for newsletter toggle and email settings.
 	const handleAutoSave = useCallback(
-		( updates: Partial< NewsletterSettings > ) => {
+		( updates: Partial< NewsletterSettings >, successMessage: string ) => {
 			if ( ! data ) {
 				return;
 			}
@@ -302,11 +360,12 @@ export function NewsletterSettingsBody( {
 			setData( prev => ( { ...prev, ...updates } ) );
 
 			// Save to backend.
+			setPendingAutoSaves( count => count + 1 );
 			updateSettings( updates )
 				.then( () => {
 					// Advance the saved baseline now that these values are persisted.
 					setSavedData( prev => ( { ...prev, ...updates } ) );
-					createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+					createSuccessNotice( successMessage );
 				} )
 				.catch( ( err: Error ) => {
 					// eslint-disable-next-line no-console
@@ -314,9 +373,38 @@ export function NewsletterSettingsBody( {
 					createErrorNotice( err.message || __( 'Failed to save settings', 'jetpack-newsletter' ) );
 					// Revert optimistic update on error.
 					setData( data );
+				} )
+				.finally( () => {
+					setPendingAutoSaves( count => count - 1 );
 				} );
 		},
 		[ createErrorNotice, createSuccessNotice, data, siteType ]
+	);
+
+	const autoSaveNewsletterSettings = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Newsletter settings saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailDefaults = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email defaults saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailContent = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email content saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveEmailByline = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Email byline saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
+	);
+	const autoSaveReplyToSettings = useCallback(
+		( updates: Partial< NewsletterSettings > ) =>
+			handleAutoSave( updates, __( 'Reply-to settings saved', 'jetpack-newsletter' ) ),
+		[ handleAutoSave ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved).
@@ -333,13 +421,24 @@ export function NewsletterSettingsBody( {
 			return;
 		}
 
+		const submittedSenderNameChanges = senderNameChanges;
 		setIsSavingSenderName( true );
 
-		updateSettings( senderNameChanges )
+		updateSettings( submittedSenderNameChanges )
 			.then( () => {
-				setSavedData( prev => ( { ...prev, ...senderNameChanges } ) );
-				setSenderNameChanges( {} );
-				createSuccessNotice( __( 'Sender name saved', 'jetpack-newsletter' ) );
+				setSavedData( prev => ( { ...prev, ...submittedSenderNameChanges } ) );
+				setSenderNameChanges( currentChanges => {
+					const pendingChanges = { ...currentChanges };
+					for ( const key of Object.keys( submittedSenderNameChanges ) as Array<
+						keyof NewsletterSettings
+					> ) {
+						if ( currentChanges[ key ] === submittedSenderNameChanges[ key ] ) {
+							delete pendingChanges[ key ];
+						}
+					}
+					return pendingChanges;
+				} );
+				createSuccessNotice( __( 'Sender settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -375,7 +474,7 @@ export function NewsletterSettingsBody( {
 				// link reflects the just-saved enabled state.
 				setSavedData( prev => ( { ...prev, ...subscriptionChanges } ) );
 				setSubscriptionChanges( {} );
-				createSuccessNotice( __( 'Settings saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Subscription settings saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -465,7 +564,7 @@ export function NewsletterSettingsBody( {
 			.then( () => {
 				setSavedData( prev => ( { ...prev, ...welcomeEmailChanges } ) );
 				setWelcomeEmailChanges( {} );
-				createSuccessNotice( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Welcome email saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -497,7 +596,7 @@ export function NewsletterSettingsBody( {
 			.then( () => {
 				setSavedData( prev => ( { ...prev, ...subscribeModalChanges } ) );
 				setSubscribeModalChanges( {} );
-				createSuccessNotice( __( 'Subscribe modal heading saved', 'jetpack-newsletter' ) );
+				createSuccessNotice( __( 'Subscribe modal saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
 				// eslint-disable-next-line no-console
@@ -533,12 +632,6 @@ export function NewsletterSettingsBody( {
 		return null;
 	}
 
-	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
-	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
-	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
-	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
-	const hasSubscribeModalChanges = Object.keys( subscribeModalChanges ).length > 0;
-
 	return (
 		<>
 			{ ! hasConnectedOwner && (
@@ -562,10 +655,10 @@ export function NewsletterSettingsBody( {
 				isDisabled={ ! hasConnectedOwner }
 				className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }
 			>
-				<Stack gap="xl" direction="column" className="newsletter-settings">
+				<Stack gap="lg" direction="column" className="newsletter-settings">
 					{ isModernized ? (
 						<Disabled isDisabled={ ! data.subscriptions }>
-							<Stack gap="xl" direction="column">
+							<Stack gap="lg" direction="column">
 								<PaidNewsletterSection
 									isNewsletterEnabled={ data.subscriptions }
 									hasActivePlan={ data.newsletter_has_active_plan }
@@ -573,7 +666,7 @@ export function NewsletterSettingsBody( {
 
 								<EmailDefaultsSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailDefaults }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -590,13 +683,15 @@ export function NewsletterSettingsBody( {
 
 								<EmailContentSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailContent }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
+								<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
+
 								<EmailBylineSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveEmailByline }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -612,7 +707,7 @@ export function NewsletterSettingsBody( {
 
 								<EmailReplyToSettingsSection
 									data={ data }
-									onChange={ handleAutoSave }
+									onChange={ autoSaveReplyToSettings }
 									isNewsletterEnabled={ data.subscriptions }
 								/>
 
@@ -649,10 +744,10 @@ export function NewsletterSettingsBody( {
 						</Disabled>
 					) : (
 						<>
-							<NewsletterSection data={ data } onChange={ handleAutoSave } />
+							<NewsletterSection data={ data } onChange={ autoSaveNewsletterSettings } />
 
 							<Disabled isDisabled={ ! data.subscriptions }>
-								<Stack gap="xl" direction="column">
+								<Stack gap="lg" direction="column">
 									<LegacySubscriptionsSection
 										data={ data }
 										onChange={ handleSubscriptionChange }
@@ -679,13 +774,15 @@ export function NewsletterSettingsBody( {
 
 									<EmailContentSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveEmailContent }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
+									<EmailDesignSection isNewsletterEnabled={ data.subscriptions } />
+
 									<EmailBylineSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveEmailByline }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 
@@ -701,7 +798,7 @@ export function NewsletterSettingsBody( {
 
 									<EmailReplyToSettingsSection
 										data={ data }
-										onChange={ handleAutoSave }
+										onChange={ autoSaveReplyToSettings }
 										isNewsletterEnabled={ data.subscriptions }
 									/>
 

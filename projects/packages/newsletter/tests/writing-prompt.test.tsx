@@ -22,6 +22,7 @@ const mockGetSiteData = jest.fn();
 const mockGetSiteType = jest.fn();
 const mockGetScriptData = jest.fn();
 const mockIsWpcomPlatformSite = jest.fn();
+const mockIsSimpleSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	__esModule: true,
@@ -29,6 +30,7 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getSiteType: ( ...args: unknown[] ) => mockGetSiteType( ...args ),
 	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
 	isWpcomPlatformSite: ( ...args: unknown[] ) => mockIsWpcomPlatformSite( ...args ),
+	isSimpleSite: ( ...args: unknown[] ) => mockIsSimpleSite( ...args ),
 } ) );
 
 const mockInitialize = jest.fn();
@@ -98,19 +100,16 @@ describe( 'WritingPrompt widget empty state', () => {
 		// widget stays useful instead of collapsing to a blank box.
 		// The message links "the Reader" inline to the WordPress.com Reader...
 		const inlineReaderLink = await screen.findByRole( 'link', { name: 'the Reader' } );
-		expect( inlineReaderLink ).toHaveAttribute(
-			'href',
-			'https://wordpress.com/reader?origin_site_id=12345'
-		);
+		expect( inlineReaderLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 		expect( screen.getByText( /No writing prompt to show right now/ ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'img', { name: 'Jetpack Logo' } ) ).toBeInTheDocument();
 		// ...and the always-on footer Reader link is still present alongside it.
 		expect(
 			screen.getByRole( 'link', { name: /Read the blogs and topics you follow/ } )
-		).toHaveAttribute( 'href', 'https://wordpress.com/reader?origin_site_id=12345' );
+		).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 
 		// None of the prompt-only controls should render without a prompt.
-		expect( screen.queryByRole( 'button', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Post your answer' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Next/ } ) ).not.toBeInTheDocument();
 	} );
 
@@ -199,7 +198,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		expect( screen.queryByText( /^\+\d/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders the Reader link in the footer with the origin_site_id', async () => {
+	it( 'renders the Reader link in the footer', async () => {
 		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
 
 		const { container } = render( <WritingPrompt /> );
@@ -207,10 +206,7 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 		const readerLink = await screen.findByRole( 'link', {
 			name: /Read the blogs and topics you follow/,
 		} );
-		expect( readerLink ).toHaveAttribute(
-			'href',
-			'https://wordpress.com/reader?origin_site_id=12345'
-		);
+		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The branding footer has no ARIA role, so a class selector is the most direct way to scope this assertion.
 		const footer = container.querySelector( '.wpcom-daily-writing-prompt--branding' );
@@ -231,7 +227,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
-		expect( readerLink ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
 	} );
 
 	it( 'opens the Reader link in the same tab on wpcom platforms', async () => {
@@ -244,34 +239,6 @@ describe( 'WritingPrompt widget Reader link and responses', () => {
 			name: /Read the blogs and topics you follow/,
 		} );
 		expect( readerLink ).not.toHaveAttribute( 'target' );
-		expect( readerLink ).not.toHaveAttribute( 'rel' );
-	} );
-
-	it( 'falls back to the bare Reader URL when site data is unavailable', async () => {
-		mockGetSiteData.mockReturnValue( undefined );
-		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
-
-		render( <WritingPrompt /> );
-
-		const readerLink = await screen.findByRole( 'link', {
-			name: /Read the blogs and topics you follow/,
-		} );
-		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
-	} );
-
-	it( 'falls back to the bare Reader URL on a self-hosted site with no wpcom data', async () => {
-		// On a self-hosted Jetpack site, getSiteData() returns a valid object with no wpcom key.
-		mockGetSiteData.mockReturnValue( { site: { title: 'My Blog' } } );
-		mockIsWpcomPlatformSite.mockReturnValue( false );
-		mockApiFetch.mockResolvedValue( [ PROMPT_WITH_RESPONSES ] );
-
-		render( <WritingPrompt /> );
-
-		const readerLink = await screen.findByRole( 'link', {
-			name: /Read the blogs and topics you follow/,
-		} );
-		expect( readerLink ).toHaveAttribute( 'href', 'https://wordpress.com/reader' );
-		expect( readerLink ).toHaveAttribute( 'target', '_blank' );
 	} );
 } );
 
@@ -423,24 +390,38 @@ describe( 'WritingPrompt widget analytics', () => {
 	it( 'records a post-answer event with the prompt id when Post your answer is clicked', async () => {
 		render( <WritingPrompt /> );
 
-		const postAnswerButton = await screen.findByRole( 'button', { name: 'Post your answer' } );
-		postAnswerButton.click();
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		// WordPress.com-platform site (isWpcomPlatformSite() true) → Write editor.
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
+		postAnswerLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_post_answer_click',
-			{ site_type: 'jetpack', prompt_id: 1 }
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'write' }
 		);
+	} );
 
-		// Posting an answer assigns document.location to navigate to the editor;
-		// jsdom cannot perform that navigation and logs an expected error, which
-		// @wordpress/jest-console requires us to acknowledge.
-		expect( console ).toHaveErrored();
+	it( 'points Post your answer at the classic new-post screen on self-hosted sites', async () => {
+		// Self-hosted (not a WordPress.com-platform site): the Write editor
+		// isn't available, so fall back to post-new.php, where the
+		// jetpack/blogging-prompt block editor script seeds the same prompt.
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
 	} );
 
 	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {
 		render( <WritingPrompt /> );
 
 		const responsesLink = await screen.findByRole( 'link', { name: /View responses/ } );
+		responsesLink.addEventListener( 'click', event => event.preventDefault() );
 		responsesLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
@@ -455,11 +436,163 @@ describe( 'WritingPrompt widget analytics', () => {
 		const readerLink = await screen.findByRole( 'link', {
 			name: /Read the blogs and topics you follow/,
 		} );
+		readerLink.addEventListener( 'click', event => event.preventDefault() );
 		readerLink.click();
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_newsletter_writing_prompt_reader_click',
 			{ site_type: 'jetpack' }
+		);
+	} );
+} );
+
+describe( 'WritingPrompt widget editor preference', () => {
+	// Written by the Write editor when someone leaves it for the Block editor.
+	// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
+	const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+	const optOutOfWrite = () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=1; path=/`;
+	};
+
+	const clearOptOut = () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=; path=/; max-age=0`;
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=yes; path=/; max-age=0`;
+		window.localStorage.clear();
+	};
+
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		mockGetSiteData.mockReset();
+		mockGetSiteType.mockReset();
+		mockGetScriptData.mockReset();
+		mockIsWpcomPlatformSite.mockReset();
+		mockIsSimpleSite.mockReset();
+		mockRecordEvent.mockReset();
+
+		mockApiFetch.mockResolvedValue( [ PROMPT ] );
+		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 12345 } } );
+		mockGetSiteType.mockReturnValue( 'jetpack' );
+		mockGetScriptData.mockReturnValue( {} );
+		mockIsWpcomPlatformSite.mockReturnValue( true );
+		mockIsSimpleSite.mockReturnValue( false );
+
+		clearOptOut();
+	} );
+
+	afterEach( () => {
+		clearOptOut();
+		jest.restoreAllMocks();
+	} );
+
+	it( 'points Post your answer at the classic new-post screen once Write has been opted out of', async () => {
+		optOutOfWrite();
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 'records the Block editor as the destination once Write has been opted out of', async () => {
+		optOutOfWrite();
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
+		postAnswerLink.click();
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_newsletter_writing_prompt_post_answer_click',
+			{ site_type: 'jetpack', prompt_id: 1, editor: 'block' }
+		);
+	} );
+
+	it( 'sends an opted-out Simple site to the Calypso editor, which seeds the prompt there', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		optOutOfWrite();
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/post/12345?answer_prompt=1'
+		);
+	} );
+
+	it( 'keeps a Simple site on Write until it has been opted out of', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+	} );
+
+	it( 'honours an opt-out left in localStorage when the cookie has expired', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 're-arms the expired cookie so write.php can see the opt-out again', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+
+		expect( postAnswerLink ).toBeVisible();
+		expect( document.cookie ).toContain( `${ BLOCK_EDITOR_PREFERRED_KEY }=1` );
+	} );
+
+	it( 'honours a localStorage opt-out when the cookie jar cannot be read', async () => {
+		jest.spyOn( Document.prototype, 'cookie', 'get' ).mockImplementation( () => {
+			throw new Error( 'cookies disabled' );
+		} );
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 'ignores a cookie set to anything other than the value Write writes', async () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=yes; path=/`;
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+	} );
+
+	it( 'still offers Write when neither store can be read', async () => {
+		// The getter throws only for an opaque origin, so the spy is the only way
+		// to reach the catch; a cookie-blocking profile returns an empty string.
+		jest.spyOn( Document.prototype, 'cookie', 'get' ).mockImplementation( () => {
+			throw new Error( 'cookies disabled' );
+		} );
+		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+			throw new Error( 'storage disabled' );
+		} );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
 		);
 	} );
 } );

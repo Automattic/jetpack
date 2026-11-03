@@ -92,6 +92,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"showAuthor": {
+			"type": "boolean",
+			"default": true
+		},
 		"coverArt": {
 			"type": "object",
 			"default": {}

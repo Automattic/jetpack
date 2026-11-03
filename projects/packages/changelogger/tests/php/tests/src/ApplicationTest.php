@@ -23,7 +23,6 @@ use Wikimedia\TestingAccessWrapper;
  */
 #[CoversClass( Application::class )]
 class ApplicationTest extends TestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Set up.

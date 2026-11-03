@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: fix publish status message showing "Updating…" instead of "Publishing…" for existing drafts

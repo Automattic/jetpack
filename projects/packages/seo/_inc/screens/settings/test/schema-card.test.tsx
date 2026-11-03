@@ -98,6 +98,82 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
+	it.each( [
+		[ 'organization', false ],
+		[ 'person', false ],
+		[ 'organization', true ],
+		[ 'person', true ],
+	] as const )(
+		'keeps saved %s values visible and disables editing when planLocked is %s',
+		( siteRepresents, planLocked ) => {
+			mockForm = makeForm( {
+				siteRepresents,
+				person: {
+					name: 'Saved person',
+					description: 'Saved bio',
+					sameAs: [ 'https://example.test/person' ],
+				},
+				isPersonDirty: true,
+				organization: {
+					name: 'Saved studio',
+					description: 'Saved description',
+					email: 'hello@example.test',
+					sameAs: [ 'https://example.test/studio' ],
+				},
+				localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
+				isOrganizationDirty: true,
+			} );
+			render(
+				<SchemaCard
+					initialSettings={ bootstrap }
+					disabled={ ! planLocked }
+					planLocked={ planLocked }
+					disabledReason="Yoast SEO manages structured data. Saved settings are retained."
+				/>
+			);
+			expandCard();
+			expect(
+				screen.getByDisplayValue( siteRepresents === 'person' ? 'Saved person' : 'Saved studio' )
+			).toBeDisabled();
+			expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'group', { name: 'Schema settings' } )
+			).toHaveAccessibleDescription(
+				'Yoast SEO manages structured data. Saved settings are retained.'
+			);
+			for ( const control of [
+				...screen.getAllByRole( 'textbox' ),
+				...screen.getAllByRole( 'checkbox' ),
+				...screen.getAllByRole( 'radio' ),
+			] ) {
+				expect( control ).toBeDisabled();
+			}
+			const saveLabel = siteRepresents === 'person' ? 'Save person' : 'Save schema settings';
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'button', { name: saveLabel } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+			expect( commitSiteRepresents ).not.toHaveBeenCalled();
+			expect( savePerson ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAccessibleDescription(
+				'Yoast SEO manages structured data. Saved settings are retained.'
+			);
+			expect( saveOrganizationEntity ).not.toHaveBeenCalled();
+			expect( commitBreadcrumbList ).not.toHaveBeenCalled();
+		}
+	);
+
 	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
 

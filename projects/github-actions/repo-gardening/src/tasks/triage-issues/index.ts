@@ -74,6 +74,12 @@ async function addCommentAskLabels(
  */
 async function triageIssues( payload: IssuesEvent, octokit: OctokitClient ): Promise< void > {
 	const { action, issue, repository } = payload;
+
+	if ( ! issue.user ) {
+		debug( `triage-issues: No user supplied in issues event. Aborting.` );
+		return;
+	}
+
 	const {
 		user: { login: authorLogin },
 		number,

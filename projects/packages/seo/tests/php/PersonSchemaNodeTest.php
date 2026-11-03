@@ -126,8 +126,7 @@ class PersonSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * The Site Logo (Customizer `custom_logo`) is preferred over the Site Icon and
-	 * carries its dimensions when available.
+	 * The Site Logo (Customizer `custom_logo`) is preferred over the Site Icon and carries its dimensions when available.
 	 */
 	public function test_image_prefers_custom_logo_with_dimensions() {
 		$this->set_site_identity( 'Jane Rivera' );
@@ -204,8 +203,7 @@ class PersonSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * A malformed (non-string) `name` setting falls back to the site title rather
-	 * than producing an invalid node.
+	 * A malformed (non-string) `name` setting falls back to the site title rather than producing an invalid node.
 	 */
 	public function test_non_string_name_falls_back_to_site_title() {
 		$this->set_site_identity( 'Jane Rivera' );

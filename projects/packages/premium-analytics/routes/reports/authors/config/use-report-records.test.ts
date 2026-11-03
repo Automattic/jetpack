@@ -16,7 +16,19 @@ import type {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
 	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsTopAuthors = useStatsTopAuthors as jest.MockedFunction<
@@ -71,8 +83,8 @@ describe( 'useAuthorsReportRecords', () => {
 		mockUseStatsTopAuthors.mockReturnValue( {
 			primary: { data: report },
 			comparison: { data: undefined },
-			comparisonRows: { rows: mergedRows, hasComparison: false },
-			hasComparison: false,
+			comparisonRows: { rows: mergedRows, hasComparison: true },
+			hasComparison: true,
 			isLoading: false,
 			isError: false,
 			refetch: jest.fn(),
@@ -100,59 +112,6 @@ describe( 'useAuthorsReportRecords', () => {
 		] );
 		expect( result.current.isLoading ).toBe( false );
 		expect( result.current.isError ).toBe( false );
-		expect( result.current.hasComparison ).toBe( false );
-	} );
-
-	it( 'preserves merged comparison views for authors and posts', () => {
-		mockUseStatsTopAuthors.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: undefined },
-			comparisonRows: {
-				rows: [
-					{
-						...mergedRows[ 0 ],
-						previousViews: 10,
-						children: [
-							{
-								id: 1,
-								label: 'Analytical Engine',
-								views: 7,
-								previousViews: 4,
-								link: 'https://example.com/analytical-engine/',
-								children: null,
-							},
-						],
-					},
-				],
-				hasComparison: true,
-			},
-			hasComparison: true,
-			isLoading: false,
-			isError: false,
-			refetch: jest.fn(),
-		} as unknown as ReturnType< typeof useStatsTopAuthors > );
-		const params: ReportParams = {
-			from: '2026-07-09',
-			to: '2026-07-10',
-			interval: 'day',
-			comp: '1',
-			compare_from: '2026-07-07',
-			compare_to: '2026-07-08',
-		};
-		const { result } = renderHook( () => useAuthorsReportRecords( params ) );
-
-		expect( result.current.rows ).toEqual( [
-			expect.objectContaining( {
-				id: 'id:42',
-				views: 13,
-				previousViews: 10,
-			} ),
-			expect.objectContaining( {
-				id: 'id:42|post:id:1',
-				views: 7,
-				previousViews: 4,
-			} ),
-		] );
 		expect( result.current.hasComparison ).toBe( true );
 	} );
 

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.1 - 2026-10-15
+### Added
+- Add a Premium Analytics Average items per order widget story. [#49505]
+- Add a Premium Analytics Bookings by device widget story. [#49701]
+- Add premium-analytics internal packages stories [#49224]
+- Premium Analytics: Add sales by UTM channel widget story. [#49721]
+- Premium Analytics: Add sales by UTM source widget story. [#49723]
+- Premium Analytics: Add visitors over time widget story. [#49731]
+
+### Changed
+- Add a Vite alias resolving `@jetpack-premium-analytics/*` internal package imports so Premium Analytics ui package stories build. [#49360]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Storybook Vite plugin: resolve bare `store` and `store/` imports for search dashboard stories. [#48624]
+- Update dependencies. [#48112]
+- Update package dependencies. [#48106] [#48126] [#48405] [#48696] [#49012] [#49218] [#49272] [#49273] [#49633] [#49663] [#49691] [#50097] [#50183] [#50212] [#50509] [#50510] [#50529] [#50745] [#51303] [#51701] [#51802] [#52106] [#52187] [#52297] [#53004]
+- vitest addon: Disable isolation per FAQ. [#48326]
+
+### Fixed
+- Premium Analytics: Resolve Storybook internal package imports from source. [#50049]
+- Resolve @wordpress/data and @wordpress/notices to a single copy, so stores register and select against the same registry regardless of how pnpm lays out peer instantiations. [#51303]
+- Use the modern WordPress admin color scheme (blueberry) as the default admin theme color in stories. [#52849]
+
 ## 2.0.0 - 2026-04-13
 ### Added
 - Add @wordpress/theme 0.6.0 design tokens for charts library Storybook previews. [#46846]

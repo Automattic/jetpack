@@ -26,7 +26,7 @@ export const InfoTooltip: FC< Props > = ( {
 	...rest
 } ) => {
 	const { recordEvent } = useAnalytics();
-	const useTooltipRef = useRef< HTMLButtonElement >();
+	const useTooltipRef = useRef< HTMLButtonElement >( undefined );
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 

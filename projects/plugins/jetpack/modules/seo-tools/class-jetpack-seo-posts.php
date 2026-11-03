@@ -44,7 +44,8 @@ class Jetpack_SEO_Posts {
 			return '';
 		}
 
-		if ( post_password_required() || ! is_singular() ) {
+		// Check the post being described, not the global one.
+		if ( post_password_required( $post ) || ! is_singular() ) {
 			return '';
 		}
 
@@ -59,8 +60,17 @@ class Jetpack_SEO_Posts {
 			return $post->post_excerpt;
 		}
 
+		// The fall-through reads raw post_content, which never passes the `the_content` paywall.
+		$content = $post->post_content;
+		if ( \Automattic\Jetpack\SEO\Content_Gate::is_gated( $post ) ) {
+			$content = \Automattic\Jetpack\SEO\Content_Gate::public_teaser( $post );
+			if ( '' === $content ) {
+				return '';
+			}
+		}
+
 		// Remove content within wp:query blocks and return.
-		return Jetpack_SEO_Utils::remove_query_blocks( $post->post_content );
+		return Jetpack_SEO_Utils::remove_query_blocks( $content );
 	}
 
 	/**

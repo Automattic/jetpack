@@ -1,18 +1,16 @@
 /**
  * External dependencies
  */
-import { device } from '@jetpack-premium-analytics/icons';
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
 import {
-	calculateDelta,
+	WIDGET_ROW_LIMIT,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
-	sharePercentage,
+	LeaderboardSkeleton,
+	buildLeaderboardRow,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -22,6 +20,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
@@ -39,64 +38,42 @@ type PlatformMode = 'browser' | 'platform';
 
 type TopPlatformsInnerProps = {
 	/**
-	 * Max rows to display.
-	 */
-	max: number;
-	/**
 	 * Device dimension to rank: browsers or operating systems.
 	 */
 	platformDimension: PlatformMode;
 };
 
-/**
- * Inner component — rendered inside WidgetRoot.
- *
- * @param {TopPlatformsInnerProps} props - The component props.
- * @return The rendered leaderboard or state placeholder.
- */
-function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps ) {
+function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = usePlatformViews(
 		{
 			reportParams,
-			max,
+			max: WIDGET_ROW_LIMIT,
 			deviceProperty: platformDimension,
 		}
 	);
 
-	const maxViews = getCombinedPeriodMax(
-		data.map( item => item.views ),
-		hasComparison ? data.map( item => item.previousViews ) : []
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have platforms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
-	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => {
-		const previousValue = item.previousViews;
 
-		return {
-			id: `${ index }-${ item.key }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text>{ item.label }</Text>
-				</Stack>
-			),
-			currentValue: item.views,
-			currentShare: sharePercentage( item.views, maxViews ),
-			previousValue,
-			previousShare:
-				hasComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxViews )
-					: undefined,
-			delta:
-				hasComparison && previousValue !== undefined
-					? calculateDelta( item.views, previousValue )
-					: undefined,
-		};
-	} );
+	const leaderboardData: LeaderboardChartData = data.map( ( item, index ) => ( {
+		id: `${ index }-${ item.key }`,
+		...buildLeaderboardRow( {
+			label: item.label,
+			media: { kind: 'none' },
+			action: { kind: 'static' },
+		} ),
+		currentValue: item.views,
+		previousValue: item.previousViews,
+	} ) );
 
 	return (
 		<div className={ styles.content }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
@@ -107,17 +84,23 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: device,
-					description: __( 'No platform data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Top platforms', 'jetpack-premium-analytics-pkg' ) }
 					data={ leaderboardData }
 					withComparison={ hasComparison }
 					withOverlayLabel
 					showLegend={ false }
 					dataFormat={ DATA_FORMAT }
+					columns={ {
+						label:
+							platformDimension === 'platform'
+								? __( 'Operating systems', 'jetpack-premium-analytics-pkg' )
+								: __( 'Browsers', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>
@@ -125,23 +108,17 @@ function TopPlatformsInner( { max, platformDimension }: TopPlatformsInnerProps )
 }
 
 /**
- * Top Platforms widget render component.
- *
- * Shows browser or OS breakdown as a ranked leaderboard. The active
- * dimension is the `platformDimension` attribute (`relevance: 'high'`),
- * exposed as a control by the widget host.
- *
- * @param {TopPlatformsWidgetProps} props - The widget render props.
- * @return The rendered widget content.
+ * Browser or OS breakdown as a ranked leaderboard. The active dimension is the
+ * `platformDimension` attribute (`relevance: 'high'`), exposed as a control by
+ * the widget host.
  */
 export default function TopPlatformsWidget( { attributes }: TopPlatformsWidgetProps ) {
-	const max = attributes?.max ?? 10;
 	const platformDimension = attributes?.platformDimension ?? 'browser';
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<TopPlatformsInner max={ max } platformDimension={ platformDimension } />
+				<TopPlatformsInner platformDimension={ platformDimension } />
 			</div>
 		</WidgetRoot>
 	);

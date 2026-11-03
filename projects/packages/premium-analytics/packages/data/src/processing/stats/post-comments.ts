@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 /**
@@ -16,9 +17,9 @@ export type StatsPostComment = {
 };
 
 export type StatsPostCommentsResponse = {
-	/** Total approved comments on the post (the list itself is capped by `number`). */
-	found: number;
 	comments: StatsPostComment[];
+	/** Approved comments on the post across every page; absent when the endpoint reports -1. */
+	found?: number;
 };
 
 function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
@@ -29,7 +30,7 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 	const comment = coerceStatsRecord( value );
 	const author = coerceStatsRecord( comment.author );
 	const id = safeParseFloat( comment.ID );
-	const authorName = typeof author.name === 'string' ? author.name.trim() : '';
+	const authorName = decodeHtmlText( author.name, '' ).trim();
 	const authorLogin = typeof author.login === 'string' ? author.login.trim() : '';
 	const name = authorName || authorLogin;
 
@@ -52,13 +53,14 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
 	if ( ! isStatsRecord( response ) ) {
-		return { found: 0, comments: [] };
+		return { comments: [] };
 	}
 
 	const payload = coerceStatsRecord( response );
+	const found = safeParseFloat( payload.found, -1 );
 
 	return {
-		found: safeParseFloat( payload.found ),
 		comments: coerceStatsArray( payload.comments ).flatMap( normalizeStatsPostComment ),
+		...( found >= 0 ? { found } : {} ),
 	};
 }

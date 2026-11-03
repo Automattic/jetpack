@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { envelope, search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
+import type { JSX } from 'react';
 
 const SUBSCRIPTION_FORM_SUPPORT_URL =
 	'https://jetpack.com/support/jetpack-blocks/subscription-form-block/';

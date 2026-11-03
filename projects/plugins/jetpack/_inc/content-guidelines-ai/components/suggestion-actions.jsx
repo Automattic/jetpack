@@ -2,12 +2,12 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { acceptSectionSuggestion } from '../lib/dom';
+import { acceptSectionSuggestion, getTextareaBox } from '../lib/dom';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
 
-export default function SuggestionActions( { slug } ) {
+export default function SuggestionActions( { slug, isSaveLast = false } ) {
 	const suggestion = useSelect( select => select( AI_STORE_NAME ).getSuggestion( slug ), [ slug ] );
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
@@ -33,8 +33,10 @@ export default function SuggestionActions( { slug } ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
-				if ( textarea.offsetHeight > 0 ) {
-					setTextareaHeight( textarea.offsetHeight );
+				// getBoundingClientRect keeps fractional heights that offsetHeight rounds.
+				const boxHeight = getTextareaBox( textarea ).getBoundingClientRect().height;
+				if ( boxHeight > 0 ) {
+					setTextareaHeight( boxHeight );
 				} else {
 					// Fallback when textarea is hidden (e.g. collapsed accordion).
 					// Compute height from rows attribute to match the textarea.
@@ -66,6 +68,17 @@ export default function SuggestionActions( { slug } ) {
 		return null;
 	}
 
+	const acceptButton = (
+		<Button variant="primary" onClick={ handleAccept }>
+			{ __( 'Accept suggestion', 'jetpack' ) }
+		</Button>
+	);
+	const dismissButton = (
+		<Button variant="tertiary" onClick={ handleDismiss }>
+			{ __( 'Dismiss', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<DiffView
@@ -74,14 +87,17 @@ export default function SuggestionActions( { slug } ) {
 				onAccept={ handleAccept }
 				height={ textareaHeight }
 			/>
-			<div className="jetpack-content-guidelines-ai__suggestion-actions">
-				<Button variant="primary" onClick={ handleAccept }>
-					{ __( 'Accept suggestion', 'jetpack' ) }
-				</Button>
-				<Button variant="tertiary" onClick={ handleDismiss }>
-					{ __( 'Dismiss', 'jetpack' ) }
-				</Button>
-			</div>
+			{ isSaveLast ? (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
+					{ dismissButton }
+					{ acceptButton }
+				</div>
+			) : (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions">
+					{ acceptButton }
+					{ dismissButton }
+				</div>
+			) }
 		</div>
 	);
 }

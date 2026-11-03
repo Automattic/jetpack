@@ -268,7 +268,7 @@ if ( ! class_exists( 'Presentations' ) ) :
 				$out .= '</p></div>';
 			}
 
-			$out .= do_shortcode( $content );
+			$out .= apply_shortcodes( $content );
 
 			$out .= '</section>';
 
@@ -392,7 +392,7 @@ if ( ! class_exists( 'Presentations' ) ) :
 			);
 
 			$out .= '<div class="slide-content">';
-			$out .= do_shortcode( $content );
+			$out .= apply_shortcodes( $content );
 			$out .= '</div></div>';
 
 			return $out;

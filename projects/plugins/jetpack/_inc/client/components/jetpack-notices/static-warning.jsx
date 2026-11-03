@@ -11,12 +11,8 @@ export class StaticWarning extends Component {
 
 	render() {
 		return (
-			<SimpleNotice showDismiss={ false } status="is-warning">
-				<div>
-					#HEADER_TEXT#
-					<br />
-					#TEXT#
-				</div>
+			<SimpleNotice showDismiss={ false } status="is-warning" title="#HEADER_TEXT#">
+				<div>#TEXT#</div>
 			</SimpleNotice>
 		);
 	}

@@ -86,7 +86,7 @@ class Jetpack_Shortcodes_Getty_Test extends WP_UnitTestCase {
 	}
 
 	public function test_getty_shortcode() {
-		$parsed = do_shortcode( self::GETTY_SHORTCODE );
+		$parsed = apply_shortcodes( self::GETTY_SHORTCODE );
 
 		$doc = new DOMDocument();
 		$doc->loadHTML( $parsed );
@@ -164,7 +164,7 @@ class Jetpack_Shortcodes_Getty_Test extends WP_UnitTestCase {
 		$image_id = '82278805';
 		$content  = "[getty src='$image_id']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}
@@ -182,7 +182,7 @@ class Jetpack_Shortcodes_Getty_Test extends WP_UnitTestCase {
 		$image_id = '82278805';
 		$content  = "[getty src='$image_id']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $image_id, $shortcode_content );
 	}

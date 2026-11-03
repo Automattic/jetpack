@@ -65,7 +65,7 @@ use Automattic\Jetpack\Schema\Types\Type_Void;
  * $parsed_data = $my_schema->parse($input_data);
  */
 class Schema {
-	const PACKAGE_VERSION = '0.2.8';
+	const PACKAGE_VERSION = '0.3.0';
 
 	public static function as_string() {
 		return new Schema_Parser( new Type_String() );

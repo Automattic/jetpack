@@ -3,6 +3,7 @@ import {
 	getRedirectUrl,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
@@ -29,7 +30,8 @@ import NextScheduledBackup from './next-scheduled-backup';
 
 /* eslint react/react-in-jsx-scope: 0 */
 export const Backups = () => {
-	const { backupState, isInitialBackup, latestTime, progress, stats } = useBackupsState();
+	const { backupState, fetchBackupsState, isInitialBackup, latestTime, progress, stats } =
+		useBackupsState();
 
 	return (
 		<div className="jp-wrap jp-content backup-panel">
@@ -49,6 +51,39 @@ export const Backups = () => {
 				<CompleteBackup latestTime={ latestTime } stats={ stats } />
 			) }
 			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && <NoGoodBackups /> }
+			{ BACKUP_STATE.FETCH_FAILED === backupState && <FetchFailed onRetry={ fetchBackupsState } /> }
+		</div>
+	);
+};
+
+/**
+ * The backup list could not be read.
+ *
+ * Deliberately not `NoGoodBackups`, which is the nearest-looking screen: that
+ * one tells the reader their backups are broken and to open a support ticket.
+ * A WordPress.com blip is usually neither, and sending every reader who hits
+ * one to support would be worse than the empty screen this replaces.
+ *
+ * Both strings here are already in this text domain — the heading from the
+ * modernized dashboard's `overview.tsx`, the button from its `QueryError` —
+ * so a new state costs no new translations.
+ *
+ * @param {object}   props         - Component props.
+ * @param {Function} props.onRetry - Refetches the backup list.
+ * @return {object} The rendered failure screen.
+ */
+const FetchFailed = ( { onRetry } ) => {
+	return (
+		<div className="jp-row">
+			<div className="lg-col-span-5 md-col-span-4 sm-col-span-4">
+				<img src={ CloudAlertIcon } alt="" />
+				<h1>{ __( "We couldn't check your site's backup status.", 'jetpack-backup-pkg' ) }</h1>
+				<Button variant="primary" onClick={ onRetry }>
+					{ __( 'Try again', 'jetpack-backup-pkg' ) }
+				</Button>
+			</div>
+			<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+			<div className="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
 		</div>
 	);
 };

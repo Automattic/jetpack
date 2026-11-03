@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.10] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [0.10.9] - 2026-10-28
+### Changed
+- Update package dependencies. [#54118]
+
+## [0.10.8] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.10.7] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+
+## [0.10.6] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [0.10.5] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.10.4] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+## [0.10.3] - 2026-09-21
+### Changed
+- Update package dependencies. [#52187]
+
+## [0.10.2] - 2026-09-15
+### Changed
+- Update dependencies. [#52269]
+
+## [0.10.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.10.0] - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [0.9.30] - 2026-08-20
+### Changed
+- Update dependencies. [#51095]
+
 ## [0.9.29] - 2026-07-27
 ### Changed
 - Update dependencies. [#50719]
@@ -29,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.24] - 2026-06-26
 ### Changed
-- Update dependencies. [#49821]
+- Update dependencies.
 
 ## [0.9.23] - 2026-06-23
 ### Changed
@@ -58,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.17] - 2026-05-11
 ### Changed
-- Update dependencies. [#47510]
+- Update dependencies.
 
 ## [0.9.16] - 2026-05-04
 ### Changed
@@ -74,11 +122,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.13] - 2026-04-06
 ### Changed
-- Update dependencies. [#47510]
+- Update dependencies.
 
 ## [0.9.12] - 2026-03-30
 ### Changed
-- Update dependencies. [#47510]
+- Update dependencies.
 
 ## [0.9.11] - 2026-03-23
 ### Changed
@@ -114,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.3] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.9.2] - 2026-01-19
 ### Changed
@@ -135,7 +183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.35] - 2025-12-08
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.8.34] - 2025-12-01
 ### Changed
@@ -155,7 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.30] - 2025-09-22
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.8.29] - 2025-09-19
 ### Changed
@@ -195,7 +243,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.20] - 2025-06-30
 ### Changed
-- Update dependencies. [#44061]
+- Update dependencies.
 
 ## [0.8.19] - 2025-06-23
 ### Changed
@@ -208,7 +256,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.17] - 2025-06-02
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.8.16] - 2025-05-26
 ### Changed
@@ -216,7 +264,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.15] - 2025-05-22
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.8.14] - 2025-05-05
 ### Changed
@@ -409,6 +457,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.10.10]: https://github.com/automattic/jetpack-post-list/compare/v0.10.9...v0.10.10
+[0.10.9]: https://github.com/automattic/jetpack-post-list/compare/v0.10.8...v0.10.9
+[0.10.8]: https://github.com/automattic/jetpack-post-list/compare/v0.10.7...v0.10.8
+[0.10.7]: https://github.com/automattic/jetpack-post-list/compare/v0.10.6...v0.10.7
+[0.10.6]: https://github.com/automattic/jetpack-post-list/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/automattic/jetpack-post-list/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/automattic/jetpack-post-list/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/automattic/jetpack-post-list/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/automattic/jetpack-post-list/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/automattic/jetpack-post-list/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/automattic/jetpack-post-list/compare/v0.9.30...v0.10.0
+[0.9.30]: https://github.com/automattic/jetpack-post-list/compare/v0.9.29...v0.9.30
 [0.9.29]: https://github.com/automattic/jetpack-post-list/compare/v0.9.28...v0.9.29
 [0.9.28]: https://github.com/automattic/jetpack-post-list/compare/v0.9.27...v0.9.28
 [0.9.27]: https://github.com/automattic/jetpack-post-list/compare/v0.9.26...v0.9.27

@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { currentUserCan, getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,7 +12,7 @@ import useSocialGate from './social-gate/use-social-gate';
 // consume to paint per-service brand colours.
 import 'social-logos/colors.css';
 import './social-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type SocialTab = 'overview' | 'settings';
 
@@ -87,6 +88,15 @@ export default function SocialPage( {
 		[ navigate ]
 	);
 
+	const content = (
+		<>
+			<JitmSlot inset />
+			<div className="jetpack-social-page__content jetpack-social-page__content--padded">
+				{ children }
+			</div>
+		</>
+	);
+
 	return (
 		<Tooltip.Provider delay={ 0 }>
 			<AdminPage
@@ -113,14 +123,10 @@ export default function SocialPage( {
 									</Tabs.Tab>
 								</Tabs.List>
 							</div>
-							<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-								{ children }
-							</div>
+							{ content }
 						</Tabs.Root>
 					) : (
-						<div className="jetpack-social-page__content jetpack-social-page__content--padded">
-							{ children }
-						</div>
+						content
 					) }
 				</SocialGate>
 			</AdminPage>

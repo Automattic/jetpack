@@ -21,7 +21,6 @@ import {
 } from '../lib/tracks';
 import {
 	clearQueryValues,
-	disableQueryStringIntegration,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -61,6 +60,10 @@ class SearchApp extends Component {
 			// TODO: Migrate visibility state to Redux.
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 			overlayOptionsCustomizerOverride: {},
+			// True from the moment a new query/sort/filter is requested until the
+			// debounced request actually dispatches, covering the gap where
+			// isLoading is still false and the response is stale/empty.
+			isQueryPending: false,
 			// AI Answers state — brief (fast) answer
 			aiBriefStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'done' | 'error'
 			aiBriefText: '',
@@ -83,12 +86,6 @@ class SearchApp extends Component {
 		this.aiExtendedController = null;
 		this.getAiAnswer = debounce( this.getAiAnswer, 500 );
 		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
-
-		if ( this.props.shouldIntegrateWithDom ) {
-			this.props.initializeQueryValues();
-		} else {
-			this.props.disableQueryStringIntegration();
-		}
 	}
 
 	static getDerivedStateFromProps( props, state ) {
@@ -109,25 +106,18 @@ class SearchApp extends Component {
 			this.getResults();
 		}
 
-		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
-			this.showResults();
-		}
+		// The store is seeded from the URL before mount, so diff against its empty state.
+		// getResults is debounced, so the Customizer branch above still sends one request.
+		this.handleQueryValuesChange( {
+			searchQuery: null,
+			sort: getSort( {}, this.props.overlayOptions.defaultSort ),
+			filters: {},
+			staticFilters: {},
+		} );
 	}
 
 	componentDidUpdate( prevProps, prevState ) {
-		if (
-			prevProps.searchQuery !== this.props.searchQuery ||
-			prevProps.sort !== this.props.sort ||
-			// Note the special handling for filters prop, which use object values.
-			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
-			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
-		) {
-			this.onChangeQueryString( this.props.isHistoryNavigation );
-		}
-
-		if ( prevProps.searchQuery !== this.props.searchQuery ) {
-			this.getAiAnswer();
-		}
+		this.handleQueryValuesChange( prevProps );
 
 		// These conditions can only occur in the Gutenberg preview context.
 		if ( prevState.overlayOptions.defaultSort !== this.state.overlayOptions.defaultSort ) {
@@ -141,6 +131,22 @@ class SearchApp extends Component {
 		}
 	}
 
+	handleQueryValuesChange( prevProps ) {
+		if (
+			prevProps.searchQuery !== this.props.searchQuery ||
+			prevProps.sort !== this.props.sort ||
+			// Note the special handling for filters prop, which use object values.
+			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
+			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
+		) {
+			this.onChangeQueryString( this.props.isHistoryNavigation );
+		}
+
+		if ( prevProps.searchQuery !== this.props.searchQuery ) {
+			this.getAiAnswer();
+		}
+	}
+
 	componentWillUnmount() {
 		if ( this.aiBriefController ) {
 			this.aiBriefController.abort();
@@ -149,6 +155,7 @@ class SearchApp extends Component {
 			this.aiExtendedController.abort();
 		}
 		this.getAiAnswer.clear();
+		this.getResults.clear();
 	}
 
 	initializeAnalytics() {
@@ -225,7 +232,14 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		this.getResults();
+		// Only for a non-empty query: pending-tracking an empty-query change
+		// (e.g. a filter-link click that clears the query) clobbers the overlay's
+		// isVisible update, which is set directly by that same click handler.
+		if ( this.props.searchQuery ) {
+			this.requestResults();
+		} else {
+			this.getResults();
+		}
 
 		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();
@@ -243,6 +257,13 @@ class SearchApp extends Component {
 
 	loadNextPage = () => {
 		this.props.hasNextPage && this.getResults( { pageHandle: this.props.response.page_handle } );
+	};
+
+	// Marks a new query as pending immediately, so the UI can reflect the
+	// upcoming request before the debounced getResults() actually dispatches it.
+	requestResults = () => {
+		this.setState( { isQueryPending: true } );
+		this.getResults();
 	};
 
 	getResults = ( { pageHandle } = {} ) => {
@@ -266,6 +287,7 @@ class SearchApp extends Component {
 			customResults: this.props.options.customResults,
 			isInCustomizer: this.props.isInCustomizer,
 		} );
+		this.setState( { isQueryPending: false } );
 	};
 
 	/**
@@ -649,6 +671,7 @@ class SearchApp extends Component {
 							hasNextPage={ this.props.hasNextPage }
 							highlightColor={ this.state.overlayOptions.highlightColor }
 							isLoading={ this.props.isLoading }
+							isQueryPending={ this.state.isQueryPending }
 							isPhotonEnabled={ this.props.options.isPhotonEnabled }
 							isPrivateSite={ this.props.options.isPrivateSite }
 							isVisible={ this.state.isVisible }
@@ -702,7 +725,6 @@ export default connect(
 	} ),
 	{
 		clearQueryValues,
-		disableQueryStringIntegration,
 		initializeQueryValues,
 		makeSearchRequest,
 		setStaticFilter,

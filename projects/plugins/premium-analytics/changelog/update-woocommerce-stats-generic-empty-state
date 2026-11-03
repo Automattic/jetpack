@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+WooCommerce Stats: Use the dashboard's generic empty state in the widgets for a period with no data.

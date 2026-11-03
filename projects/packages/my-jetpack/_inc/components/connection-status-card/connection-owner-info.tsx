@@ -30,7 +30,7 @@ export function ConnectionOwnerInfo() {
 										__( 'Connected as owner: %1$s (%2$s)', 'jetpack-my-jetpack' ),
 										displayName,
 										email
-								  )
+									)
 								: __( 'User connected (Owner).', 'jetpack-my-jetpack' ) }
 						</>
 					) : (
@@ -41,7 +41,7 @@ export function ConnectionOwnerInfo() {
 										__( 'Connected as %1$s (%2$s)', 'jetpack-my-jetpack' ),
 										displayName,
 										email
-								  )
+									)
 								: __( 'User connected.', 'jetpack-my-jetpack' ) }
 						</>
 					) }

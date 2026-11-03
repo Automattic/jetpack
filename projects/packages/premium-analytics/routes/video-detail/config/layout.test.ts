@@ -1,10 +1,9 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
 import { VIDEO_DETAIL_LAYOUT } from './layout';
 
 describe( 'video detail layout', () => {
-	it( 'uses registered Premium Analytics widget types', () => {
+	it( 'uses registered widget type names', () => {
 		for ( const widget of VIDEO_DETAIL_LAYOUT ) {
-			expect( widget.type ).toMatch( /^jpa\// );
+			expect( widget.type ).toMatch( /^(?:jpa|videopress)\// );
 		}
 	} );
 
@@ -14,20 +13,25 @@ describe( 'video detail layout', () => {
 		expect( new Set( uuids ).size ).toBe( uuids.length );
 	} );
 
-	// The page's composition is fixed (WOOA7S-1625): assert the exact
-	// arrangement, like the post-detail tab layouts test, so accidental
-	// reshuffles surface here rather than in the rendered dashboard.
-	it( 'composes the video highlights above the embeds widget', () => {
+	// The composition is fixed (WOOA7S-1625): assert the exact arrangement so an
+	// accidental reshuffle surfaces here, not in the rendered dashboard.
+	it( 'composes the performance chart, then the player beside the embeds list', () => {
 		expect( VIDEO_DETAIL_LAYOUT ).toEqual( [
 			{
-				uuid: 'video-detail-highlights',
-				type: 'jpa/video-detail-highlights',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				uuid: 'video-detail-views-performance',
+				type: 'jpa/video-detail-views-performance',
+				attributes: { chartType: 'bar' },
+				placement: { width: 'full', height: 2, order: 10 },
+			},
+			{
+				uuid: 'videopress-video-player',
+				type: 'videopress/video-player',
+				placement: { width: 1, height: 2, order: 20 },
 			},
 			{
 				uuid: 'video-detail-embeds',
 				type: 'jpa/video-detail-embeds',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: 'fill', height: 2, order: 30 },
 			},
 		] );
 	} );

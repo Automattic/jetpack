@@ -24,6 +24,7 @@ class Shortlinks extends Component {
 					support={ {
 						text: this.props.shortlinksModule.description,
 						link: getRedirectUrl( 'jetpack-support-shortlinks' ),
+						wpcomLink: 'https://wordpress.com/support/shortlinks/',
 					} }
 					disableInOfflineMode
 				>

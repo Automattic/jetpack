@@ -1,7 +1,9 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { FeaturesPointer } from 'components/pointer-card';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -10,7 +12,6 @@ import {
 } from 'state/connection';
 import {
 	currentThemeIsBlockTheme,
-	currentThemeStylesheet,
 	getSiteRawUrl,
 	getSiteAdminUrl,
 	userCanManageModules,
@@ -26,7 +27,7 @@ import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 
-class Sharing extends Component {
+export class Sharing extends Component {
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -43,14 +44,17 @@ class Sharing extends Component {
 			hasSharingBlock: this.props.hasSharingBlock,
 			hasLikeBlock: this.props.hasLikeBlock,
 			isBlockTheme: this.props.isBlockTheme,
-			themeStylesheet: this.props.themeStylesheet,
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+		// Once settings move out, admins find Social in Features, and a search here points them there.
+		const socialInFeatures = isSettingsConsolidationEnabled() && this.props.userCanManageModules,
+			foundPublicize =
+				this.props.isModuleFound( 'publicize' ) &&
+				( ! socialInFeatures || !! this.props.searchTerm ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
 			foundLikes = this.props.isModuleFound( 'likes' );
 
@@ -62,15 +66,19 @@ class Sharing extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ this.props.searchTerm
-						? __( 'Sharing', 'jetpack' )
-						: __(
-								'Share your content to social media, reaching new audiences and increasing engagement.',
-								'jetpack'
-						  ) }
-				</h2>
-				{ foundPublicize && <Publicize { ...commonProps } /> }
+				{ this.props.searchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Sharing', 'jetpack' ) }</h2>
+				) }
+				{ foundPublicize &&
+					( socialInFeatures ? (
+						<FeaturesPointer
+							header={ _x( 'Jetpack Social', 'Settings header', 'jetpack' ) }
+							name="Jetpack Social"
+							search="social"
+						/>
+					) : (
+						<Publicize { ...commonProps } />
+					) ) }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }
 			</div>
@@ -95,6 +103,5 @@ export default connect( state => {
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		hasLikeBlock: isLikeBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
-		themeStylesheet: currentThemeStylesheet( state ),
 	};
 } )( Sharing );

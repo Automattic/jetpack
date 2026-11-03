@@ -5,7 +5,6 @@ import Tips from './tips/tips';
 import clsx from 'clsx';
 import styles from './settings-page.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
-import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import NoticeManager from '$features/notice/manager';
 import { NoticeProvider } from '$features/notice/context';
 import type { ReactNode } from 'react';
@@ -20,27 +19,25 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 
 	return (
 		<NoticeProvider>
-			<CriticalCssProvider>
-				<BoostAdminPage>
-					<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-						<div className="jb-section jb-section--alt jb-section--scores">
-							<SpeedScore />
-						</div>
-
-						{ children && (
-							<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
-								{ children }
-							</div>
-						) }
-
-						<Tips />
-
-						{ hasPrioritySupport && <Support /> }
-
-						<NoticeManager />
+			<BoostAdminPage>
+				<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+					<div className="jb-section jb-section--alt jb-section--scores">
+						<SpeedScore />
 					</div>
-				</BoostAdminPage>
-			</CriticalCssProvider>
+
+					{ children && (
+						<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
+							{ children }
+						</div>
+					) }
+
+					<Tips />
+
+					{ hasPrioritySupport && <Support /> }
+
+					<NoticeManager />
+				</div>
+			</BoostAdminPage>
 		</NoticeProvider>
 	);
 };

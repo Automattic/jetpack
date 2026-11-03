@@ -1,0 +1,48 @@
+/**
+ * Tests for the customer note validator, which lives in variant-builder.jsx.
+ *
+ * @package
+ */
+
+import { validateCustomerNotes } from '../../src/paypal-payment-buttons/components/variant-builder';
+import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+
+describe( 'validateCustomerNotes', () => {
+	it( 'accepts an empty list', () => {
+		expect( validateCustomerNotes( [] ) ).toEqual( [] );
+	} );
+
+	it( 'accepts a missing list', () => {
+		expect( validateCustomerNotes( undefined ) ).toEqual( [] );
+	} );
+
+	it( 'accepts a labelled note', () => {
+		expect( validateCustomerNotes( [ { label: 'Engraving', required: true } ] ) ).toEqual( [] );
+	} );
+
+	// The index is how the form puts the message under the right row.
+	it( 'rejects the second note when its label is blank', () => {
+		expect( validateCustomerNotes( [ { label: 'Engraving' }, { label: '' } ] ) ).toEqual( [
+			{ index: 1, message: REQUIRED_FIELD_ERROR },
+		] );
+	} );
+
+	it( 'rejects every blank note', () => {
+		expect( validateCustomerNotes( [ { label: '' }, { label: '' } ] ) ).toEqual( [
+			{ index: 0, message: REQUIRED_FIELD_ERROR },
+			{ index: 1, message: REQUIRED_FIELD_ERROR },
+		] );
+	} );
+
+	it( 'rejects a whitespace-only label', () => {
+		expect( validateCustomerNotes( [ { label: '   ' } ] ) ).toEqual( [
+			{ index: 0, message: REQUIRED_FIELD_ERROR },
+		] );
+	} );
+
+	it( 'rejects a note missing its label', () => {
+		expect( validateCustomerNotes( [ { required: true } ] ) ).toEqual( [
+			{ index: 0, message: REQUIRED_FIELD_ERROR },
+		] );
+	} );
+} );

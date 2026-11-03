@@ -54,19 +54,12 @@ class RedefinitionTest extends TestCase {
 	}
 
 	public function testRemoval() {
-		$cmd = array(
-			__DIR__ . '/../../vendor/bin/phpunit-select-config',
-			__DIR__ . '/../../phpunit.#.xml.dist',
-			__DIR__ . '/fixtures/RedefinitionTestChild.php',
-		);
-		if ( PHP_VERSION_ID < 70400 ) {
-			$cmdarr = $cmd;
-			$cmd    = array_shift( $cmdarr );
-			$cmd   .= ' ' . implode( ' ', array_map( 'escapeshellarg', $cmdarr ) );
-		}
-
 		$p = proc_open(
-			$cmd,
+			array(
+				__DIR__ . '/../../vendor/bin/phpunit-select-config',
+				__DIR__ . '/../../phpunit.#.xml.dist',
+				__DIR__ . '/fixtures/RedefinitionTestChild.php',
+			),
 			array(
 				array( 'pipe', 'r' ),
 				array( 'pipe', 'w' ),

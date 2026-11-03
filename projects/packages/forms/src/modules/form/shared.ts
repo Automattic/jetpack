@@ -9,7 +9,7 @@ const debug = debugFactory( 'jetpack-forms:interactivity' );
 const NAMESPACE = 'jetpack/form';
 const config = getConfig( NAMESPACE );
 
-const getForm = ( formHash: string ) => {
+export const getForm = ( formHash: string ) => {
 	return document.getElementById( 'jp-form-' + formHash ) as HTMLFormElement | null;
 };
 

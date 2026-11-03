@@ -127,9 +127,7 @@ class Schema_Settings {
 	}
 
 	/**
-	 * Which entity the site represents (its publisher / main entity): `person` or
-	 * `organization`. Defaults to `organization`, preserving prior behavior for
-	 * every site that predates this setting.
+	 * Return the site publisher type, defaulting to Organization for existing sites.
 	 *
 	 * @return string
 	 */
@@ -138,10 +136,7 @@ class Schema_Settings {
 	}
 
 	/**
-	 * The effective site-level Person settings the node consumes: stored overrides
-	 * where present, site-identity defaults otherwise (`name` → Site Title,
-	 * `description` → Tagline). `sameAs` is stored-only. Computed live so an
-	 * unconfigured `name` / `description` tracks site identity.
+	 * Return Person overrides with live site-identity fallbacks for name and description.
 	 *
 	 * @return array{name: string, description: string, sameAs: array<int, string>}
 	 */

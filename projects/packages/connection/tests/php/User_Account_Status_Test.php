@@ -119,6 +119,8 @@ class User_Account_Status_Test extends TestCase {
 		delete_transient( 'jetpack_account_mismatch_' . md5( 'wpcom@example.com' ) );
 		delete_transient( 'jetpack_account_mismatch_' . md5( 'another_wpcom@example.com' ) );
 		delete_transient( 'jetpack_account_mismatch_' . md5( 'test_clean@example.com' ) );
+		delete_transient( 'jetpack_account_mismatch_' . md5( 'joe@example.com' ) );
+		delete_transient( 'jetpack_account_mismatch_' . md5( 'joe@Example.com' ) );
 
 		// Reset WorDBless state
 		WorDBless_Options::init()->clear_options();
@@ -132,6 +134,42 @@ class User_Account_Status_Test extends TestCase {
 		// When emails match, should return false
 		$result = $this->user_account_status->possible_account_mismatch( 'same@example.com', 'same@example.com' );
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test possible_account_mismatch when the emails only differ in case.
+	 *
+	 * WordPress.com keeps the casing the account was registered with, while WordPress lowercases
+	 * the local user's address, so the same address can reach us in two different casings.
+	 */
+	public function test_possible_account_mismatch_with_emails_differing_only_in_case() {
+		// WorDBless looks users up case-sensitively where MySQL's default collation does not, so
+		// seed the cache under both casings to stand in for the lookup finding the local user.
+		$this->seed_mismatch_transients( 'joe@example.com', 'joe@Example.com' );
+
+		$result = $this->user_account_status->possible_account_mismatch( 'joe@example.com', 'joe@Example.com' );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Cache a mismatch for every given casing of an address.
+	 *
+	 * @param string ...$emails The addresses to cache a mismatch for.
+	 */
+	private function seed_mismatch_transients( ...$emails ) {
+		foreach ( $emails as $email ) {
+			set_transient( 'jetpack_account_mismatch_' . md5( $email ), true, DAY_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Test that possible_account_mismatch caches under a case-insensitive key.
+	 */
+	public function test_possible_account_mismatch_transient_key_is_case_insensitive() {
+		set_transient( 'jetpack_account_mismatch_' . md5( 'joe@example.com' ), true, DAY_IN_SECONDS );
+
+		$result = $this->user_account_status->possible_account_mismatch( 'local@example.com', 'joe@Example.com' );
+		$this->assertTrue( $result );
 	}
 
 	/**
@@ -185,6 +223,16 @@ class User_Account_Status_Test extends TestCase {
 	public function test_check_account_errors_with_no_errors() {
 		// Use same email to avoid mismatch (no errors)
 		$result = $this->user_account_status->check_account_errors( 'same@example.com', 'same@example.com' );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test check_account_errors when the emails only differ in case.
+	 */
+	public function test_check_account_errors_with_emails_differing_only_in_case() {
+		$this->seed_mismatch_transients( 'joe@example.com', 'joe@Example.com' );
+
+		$result = $this->user_account_status->check_account_errors( 'joe@example.com', 'joe@Example.com' );
 		$this->assertEmpty( $result );
 	}
 
@@ -281,6 +329,18 @@ class User_Account_Status_Test extends TestCase {
 		$this->user_account_status->clean_account_mismatch_transients( self::$user_id );
 
 		// Verify it's gone
+		$this->assertFalse( get_transient( $transient_key ) );
+	}
+
+	/**
+	 * Test clean_account_mismatch_transients with an email whose casing differs from the cached one.
+	 */
+	public function test_clean_account_mismatch_transients_is_case_insensitive() {
+		$transient_key = 'jetpack_account_mismatch_' . md5( 'joe@example.com' );
+		set_transient( $transient_key, true, DAY_IN_SECONDS );
+
+		$this->user_account_status->clean_account_mismatch_transients( 'joe@Example.com' );
+
 		$this->assertFalse( get_transient( $transient_key ) );
 	}
 

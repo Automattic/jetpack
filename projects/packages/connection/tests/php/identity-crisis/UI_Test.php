@@ -37,9 +37,7 @@ class UI_Test extends TestCase {
 		remove_filter( 'jetpack_idc_consumers', array( $this, 'get_mock_consumers' ) );
 
 		// Clear any $_SERVER variables we set
-		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			unset( $_SERVER['REQUEST_URI'] );
-		}
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	/**

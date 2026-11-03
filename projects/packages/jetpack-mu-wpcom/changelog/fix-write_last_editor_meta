@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: Don't update last-editor post meta when the post contains unsupported content

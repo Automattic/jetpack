@@ -105,7 +105,7 @@ const requestMediaToken = function (
 					url: adminAjaxAPI,
 					...fetchOptions,
 					parse: false,
-			  } )
+				} )
 			: fetch( adminAjaxAPI, fetchOptions );
 
 		fetchPromise

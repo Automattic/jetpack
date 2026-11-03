@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comparison control: mark an active comparison with a "vs" prefix, and name the compared window in the trigger's tooltip.

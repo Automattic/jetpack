@@ -18,7 +18,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import ReferrersRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -29,30 +28,25 @@ registerStatsMocks();
 
 const REFERRERS_RENDER_MODULE = 'storybook/referrers';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 interface ReferrersStoryControls {
 	withComparison: boolean;
 }
 
 interface ReferrersDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ReferrersStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ReferrersStoryControls {}
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (
-		<ReferrersRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<ReferrersRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderReferrersOnPreset( preset: PresetType ) {
 	return (
-		<ReferrersRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<ReferrersRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -66,7 +60,7 @@ function ReferrersDashboardStory( {
 			widgetType={ storyWidgetType }
 			renderModule={ REFERRERS_RENDER_MODULE }
 			renderComponent={ ReferrersRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -85,7 +79,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Referrers" widget. Shows the websites and search engines referring visitors to the site as a ranked leaderboard, using the global dashboard date range. Referrer groups drill down into their sources and domains; URL-backed leaf rows (no children) render as outbound links that open in a new tab, while rows that drill down remain buttons.',
+					'The "Referrers" widget. Shows the websites and search engines referring visitors to the site as a ranked leaderboard, using the global dashboard date range. Referrer groups drill down into their sources and domains; URL-backed leaf rows (no children) list the domain with a "View in new tab" action beside it, and rows named after a domain also offer "Mark as spam"; rows that drill down remain buttons.',
 			},
 		},
 	},
@@ -112,9 +106,8 @@ export const WithComparison: Story = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  *
- * Forced through `forceStatsMockState`: `stats/referrers` is answered by the
- * legacy stats mocks before the shared `setReportMockState` override can
- * intercept it.
+ * Uses `forceStatsMockState`: the legacy stats mocks answer `stats/referrers`
+ * before `setReportMockState` can intercept it.
  */
 export const Loading: Story = {
 	render: () => renderReferrersOnPreset( 'last-90-days' ),
@@ -142,8 +135,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral globe
- * glyph and "No referrers in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderReferrersOnPreset( 'last-365-days' ),

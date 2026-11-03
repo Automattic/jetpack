@@ -42,6 +42,11 @@ class ScriptDataTest extends TestCase {
 				return 'Test Blog';
 			}
 		);
+		Functions\when( 'wp_specialchars_decode' )->alias(
+			function ( $string, $flags = ENT_QUOTES ) {
+				return htmlspecialchars_decode( $string, $flags );
+			}
+		);
 		Functions\when( 'get_site_url' )->alias(
 			function () {
 				return 'http://example.com/';
@@ -289,5 +294,35 @@ class ScriptDataTest extends TestCase {
 		$this->assertStringContainsString( '"admin":"data"', $data );
 		$this->assertStringNotContainsString( 'should_not_be_used', $data );
 		$this->assertSame( 'before', $position );
+	}
+
+	public function test_admin_script_data_decodes_html_entities_in_site_title() {
+		// Simulate a site title stored with encoded HTML entities, e.g. an apostrophe.
+		Functions\when( 'get_bloginfo' )->alias(
+			function () {
+				return 'Gabriel&#039;s Blog';
+			}
+		);
+
+		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'wp_is_serving_rest_request' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( true );
+		Functions\when( 'did_action' )->justReturn( false );
+
+		// Let the filter pass the real $data through unmodified, so the built 'site.title' is observable.
+		Monkey\Filters\expectApplied( 'jetpack_admin_js_script_data' )->once();
+
+		$add_inline_args = array( null, '', null );
+		Functions\when( 'wp_add_inline_script' )->alias(
+			function ( $handle, $data, $position ) use ( &$add_inline_args ) {
+				$add_inline_args = array( $handle, $data, $position );
+			}
+		);
+
+		Script_Data::render_script_data();
+
+		list( , $data, ) = $add_inline_args;
+		$this->assertStringContainsString( '"title":"Gabriel\'s Blog"', $data );
+		$this->assertStringNotContainsString( '&#039;', $data );
 	}
 }

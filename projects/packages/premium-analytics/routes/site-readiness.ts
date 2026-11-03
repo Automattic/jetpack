@@ -22,3 +22,16 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 		isSimpleSite() || ( getScriptData()?.premium_analytics?.initial_full_sync_finished ?? 0 ) > 0
 	);
 }
+
+/**
+ * Check whether the site's VideoPress-backed surfaces should be shown.
+ *
+ * Defaults to false, unlike the sibling `csv_exports_enabled` flag, because an
+ * empty video report is what this gate removes; every dashboard path registers
+ * the filter that injects the flag (`src/videopress-availability.php`).
+ *
+ * @return Whether VideoPress is available on this site.
+ */
+export function isVideoPressAvailable(): boolean {
+	return getScriptData()?.premium_analytics?.has_videopress ?? false;
+}

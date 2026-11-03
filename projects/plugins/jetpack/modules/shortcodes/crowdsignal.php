@@ -244,8 +244,8 @@ if (
 			 * Rating embed.
 			 */
 			if ( (int) $attributes['rating'] > 0 ) {
-				$post_id = $post instanceof WP_Post ? $post->ID : get_the_ID();
-				$post_id = $post_id ?? '';
+				$post_id   = $post instanceof WP_Post ? $post->ID : get_the_ID();
+				$post_id ??= '';
 
 				if ( empty( $attributes['unique_id'] ) ) {
 					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post_id : 'wp-post-' . $post_id;

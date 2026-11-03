@@ -266,12 +266,13 @@ class PluginLocatorTest extends TestCase {
 		$_REQUEST['action']   = 'activate';
 		$_REQUEST['plugin']   = 'dummy_current\\\\dummy_current.php';
 
+		$dirs_to_check = array( WP_PLUGIN_DIR, WPMU_PLUGIN_DIR );
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
 			->with(
 				...with_consecutive(
-					array( 0 ),
-					array( 'dummy_current\\dummy_current.php' )
+					array( 0, $dirs_to_check, true ),
+					array( 'dummy_current\\dummy_current.php', $dirs_to_check, true )
 				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
@@ -291,12 +292,13 @@ class PluginLocatorTest extends TestCase {
 		$_REQUEST['action']   = 'activate-selected';
 		$_REQUEST['checked']  = array( 'dummy_current\\\\dummy_current.php' );
 
+		$dirs_to_check = array( WP_PLUGIN_DIR, WPMU_PLUGIN_DIR );
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
 			->with(
 				...with_consecutive(
-					array( 0 ),
-					array( 'dummy_current\\dummy_current.php' )
+					array( 0, $dirs_to_check, true ),
+					array( 'dummy_current\\dummy_current.php', $dirs_to_check, true )
 				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );

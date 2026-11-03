@@ -1,19 +1,25 @@
 /**
  * @jest-environment node
  */
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
+	MY_JETPACK_SECTION_LEGACY_PRODUCTS,
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
 import {
-	getDefaultMyJetpackSection,
+	getFeatureCheckoutReturnUrl,
+	getFeatureConnectReturnUrl,
+	getFeaturePricingHref,
 	getMyJetpackSections,
-	isValidMyJetpackSection,
+	getModulesManagementUrl,
+	resolveMyJetpackSection,
 } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: jest.fn(),
+	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 	currentUserCan: jest.fn(),
 	isSimpleSite: jest.fn(),
 } ) );
@@ -29,14 +35,14 @@ beforeEach( () => {
 
 describe( 'getMyJetpackSections', () => {
 	it( 'returns all sections for an admin', () => {
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_OVERVIEW,
-			MY_JETPACK_SECTION_PRODUCTS,
-			MY_JETPACK_SECTION_HELP,
+		expect( getMyJetpackSections() ).toEqual( [
+			expect.objectContaining( { name: MY_JETPACK_SECTION_OVERVIEW } ),
+			{ name: MY_JETPACK_SECTION_FEATURES, title: 'Features' },
+			expect.objectContaining( { name: MY_JETPACK_SECTION_HELP } ),
 		] );
 	} );
 
-	it( 'omits the Products section for non-admins', () => {
+	it( 'omits the Features section for non-admins', () => {
 		mockCurrentUserCan.mockReturnValue( false );
 
 		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
@@ -45,46 +51,106 @@ describe( 'getMyJetpackSections', () => {
 		] );
 	} );
 
-	it( 'returns only the Products section on WordPress.com Simple sites', () => {
+	it( 'returns only the Features section on WordPress.com Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
 		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_PRODUCTS,
+			MY_JETPACK_SECTION_FEATURES,
 		] );
 	} );
 
-	it( 'returns only the Products section on Simple sites for non-admins too', () => {
+	it( 'returns only the Features section on Simple sites for non-admins too', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 		mockCurrentUserCan.mockReturnValue( false );
 
 		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_PRODUCTS,
+			MY_JETPACK_SECTION_FEATURES,
 		] );
 	} );
 } );
 
-describe( 'isValidMyJetpackSection', () => {
-	it( 'accepts the Overview section on regular sites', () => {
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( true );
+describe( 'resolveMyJetpackSection', () => {
+	it( 'keeps a valid section and defaults to Overview on regular sites', () => {
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe( MY_JETPACK_SECTION_HELP );
+		expect( resolveMyJetpackSection( undefined ) ).toBe( MY_JETPACK_SECTION_OVERVIEW );
 	} );
 
-	it( 'rejects the Overview and Help sections on Simple sites', () => {
+	it( 'resolves the Overview and Help sections to Features on Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( false );
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe( false );
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe( true );
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe(
+			MY_JETPACK_SECTION_FEATURES
+		);
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe(
+			MY_JETPACK_SECTION_FEATURES
+		);
+		expect( resolveMyJetpackSection( undefined ) ).toBe( MY_JETPACK_SECTION_FEATURES );
+	} );
+
+	it( 'resolves the retired Products section to Features', () => {
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_LEGACY_PRODUCTS ) ).toBe(
+			MY_JETPACK_SECTION_FEATURES
+		);
+	} );
+
+	it( 'falls back to the default section for non-admins and unknown sections', () => {
+		expect( resolveMyJetpackSection( 'does-not-exist' ) ).toBe( MY_JETPACK_SECTION_OVERVIEW );
+
+		mockCurrentUserCan.mockReturnValue( false );
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_FEATURES ) ).toBe(
+			MY_JETPACK_SECTION_OVERVIEW
+		);
+		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_LEGACY_PRODUCTS ) ).toBe(
+			MY_JETPACK_SECTION_OVERVIEW
+		);
 	} );
 } );
 
-describe( 'getDefaultMyJetpackSection', () => {
-	it( 'defaults to the Overview section on regular sites', () => {
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_OVERVIEW );
+describe( 'checkout return', () => {
+	it( 'sends checkout from a feature\u2019s pricing page back to that feature\u2019s details', () => {
+		const href = getFeaturePricingHref( '/add-social', 'social' );
+
+		expect( href ).toBe( '#/add-social?return_feature=social' );
+		expect( getFeatureCheckoutReturnUrl( href ) ).toBe(
+			'admin.php?page=my-jetpack#/features?feature=social'
+		);
 	} );
 
-	it( 'defaults to the Products section on Simple sites', () => {
-		mockIsSimpleSite.mockReturnValue( true );
-
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_PRODUCTS );
+	it( 'leaves the return to the caller when the pricing page was not opened from a feature', () => {
+		expect( getFeatureCheckoutReturnUrl( '#/add-social' ) ).toBe( '' );
 	} );
+} );
+
+it.each( [
+	[
+		'#/features?filter=inactive&feature=newsletter&view=list&search=mail&module_tag=Writing',
+		'admin.php?page=my-jetpack#/features?feature=newsletter&view=list&search=mail&module_tag=Writing',
+	],
+	[ '#/features?filter=available', 'admin.php?page=my-jetpack#/features' ],
+	[ '#/features?filter=active', 'admin.php?page=my-jetpack#/features' ],
+	[
+		'#/features?filter=essential&view=list',
+		'admin.php?page=my-jetpack#/features?view=list&filter=essential',
+	],
+	[ '#/features', 'admin.php?page=my-jetpack#/features' ],
+] )(
+	'returns from connecting an account to the same Features view, without a status filter: %s',
+	( hash, url ) => {
+		expect( getFeatureConnectReturnUrl( hash ) ).toBe( url );
+	}
+);
+
+it.each( [ undefined, {}, { myJetpack: {} } ] )(
+	'retains the classic destination with older package data %p',
+	data => {
+		( getScriptData as jest.Mock ).mockReturnValue( data );
+		expect( getModulesManagementUrl( 'classic' ) ).toBe( 'classic' );
+	}
+);
+
+it( 'uses the eligible destination seeded by PHP', () => {
+	( getScriptData as jest.Mock ).mockReturnValue( {
+		myJetpack: { modulesManagementUrl: 'features' },
+	} );
+	expect( getModulesManagementUrl( 'classic' ) ).toBe( 'features' );
 } );

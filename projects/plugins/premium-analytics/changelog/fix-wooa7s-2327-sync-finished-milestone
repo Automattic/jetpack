@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce tab: Stop reporting a sync error for stores whose data already finished syncing.

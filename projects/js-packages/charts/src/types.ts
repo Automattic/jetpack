@@ -53,12 +53,7 @@ export type LegendShape< Data, Output > =
 	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
 
 export type GoogleDataTableColumnType =
-	| 'string'
-	| 'number'
-	| 'boolean'
-	| 'date'
-	| 'datetime'
-	| 'timeofday';
+	'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'timeofday';
 
 export enum GoogleDataTableColumnRoleType {
 	annotation = 'annotation',
@@ -98,18 +93,19 @@ export type GoogleDataTableCell =
 export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
-	| 'area'
-	| 'bar'
-	| 'conversion-funnel'
-	| 'leaderboard'
-	| 'line'
-	| 'pie'
-	| 'pie-semi-circle';
+	'area' | 'bar' | 'conversion-funnel' | 'leaderboard' | 'line' | 'pie' | 'pie-semi-circle';
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
+/**
+ * Styling for one annotation, as its `styles` prop. Colors belong here because
+ * `--a8c-charts-color-annotation` moves every annotation on the page at once and no
+ * selector narrows it to one.
+ */
 export type AnnotationStyles = {
-	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' | 'fill' > & {
+		fill?: string;
+	};
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
 	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
 	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
@@ -118,9 +114,28 @@ export type AnnotationStyles = {
 	};
 };
 
+/**
+ * Annotation styling on the theme: geometry only. Colors come from
+ * `--a8c-charts-color-annotation` and `--a8c-charts-color-surface`.
+ */
+export type ThemeAnnotationStyles = {
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' | 'fill' | 'stroke' >;
+	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' | 'stroke' >;
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' | 'stroke' >;
+	label?: Omit<
+		LabelProps,
+		'title' | 'subtitle' | 'x' | 'y' | 'anchorLineStroke' | 'backgroundFill'
+	> & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
+};
+
 export type DataPoint = {
 	label: string;
 	value: number;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
+	color?: string;
 };
 
 /**
@@ -172,9 +187,11 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
+	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -197,19 +214,18 @@ export type LeaderboardEntry = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the current value
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the current value. Omit when this row has
-	 * no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 
@@ -228,7 +244,8 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
@@ -243,6 +260,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;
@@ -273,13 +305,21 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
  */
 export type BarStyles = {
 	widthFactor?: number;
+	/**
+	 * Draws the comparison bar translucent, in its primary's color, instead of the opaque tones the chart picks.
+	 * @deprecated Comparison bars are opaque. Leave this unset; set the comparison series' `options.stroke` for a color of its own.
+	 */
 	opacity?: number;
 };
+
+/**
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ */
+export type BarChartLayout = 'grouped' | 'overlap';
 
 export type MultipleDataPointsDate = {
 	label: string;
@@ -305,7 +345,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -326,80 +366,61 @@ export type DataPointPercentageCalculated = DataPointPercentage & {
 };
 
 /**
- * Base theme configuration for chart components with optional properties
+ * Base theme configuration for chart components: shape and spacing. Chart colors are
+ * `--a8c-charts-color-*` roles set in CSS inside the provider tree, catalogued in
+ * `TOKENS.md`.
  */
 export type ChartTheme = {
-	/** Background color for chart components */
-	backgroundColor: string;
-	/** Background color for labels */
-	labelBackgroundColor?: string;
-	/** Text color for labels */
-	labelTextColor?: string;
-	/** Array of colors used for data visualization */
-	colors: string[];
-	/** Optional CSS styles for grid lines */
-	gridStyles?: GridStyles;
+	/** Optional CSS styles for grid lines. */
+	gridStyles?: Omit< GridStyles, 'stroke' >;
 	/** Length of axis ticks in pixels */
 	tickLength: number;
-	/** Color of the grid lines */
-	gridColor: string;
-	/** Color of the grid lines in dark mode */
-	gridColorDark: string;
 	/** Styles for x-axis tick lines */
-	xTickLineStyles?: LineStyles;
+	xTickLineStyles?: Omit< LineStyles, 'stroke' >;
 	/** Styles for x-axis line */
-	xAxisLineStyles?: LineStyles;
-	/** Styles for series lines */
-	seriesLineStyles?: LineStyles[];
+	xAxisLineStyles?: Omit< LineStyles, 'stroke' >;
+	/**
+	 * Per-series line styling — dash pattern, width, cap. These spread on top of the
+	 * palette-derived stroke, so a color here would override it; a single series takes
+	 * one through `options.seriesLineStyle`.
+	 */
+	seriesLineStyles?: Array< Omit< LineStyles, 'stroke' > >;
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Legend specific settings */
 	legend?: {
 		/** Styles for legend shapes */
 		shapeStyles?: Record< string, unknown >[];
-		/** Styles for legend labels */
-		labelStyles?: CSSProperties;
+		/** Styles for legend labels. */
+		labelStyles?: Omit< CSSProperties, 'color' >;
 		/** Styles for legend container */
 		containerStyles?: CSSProperties;
 	};
-	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
-	svgLabelSmall?: TextProps;
-	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	/**
+	 * Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme.
+	 *
+	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
+	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 *
+	 * Give `fontSize` in pixels (`12` or `'12px'`). Margins and pie labels cannot measure `rem`, `em`, `%` or `var()`, so they use the default size and labels can clip (CHARTS-303). An invalid size is dropped.
+	 */
+	svgLabelSmall?: Omit< TextProps, 'fill' >;
+	/**
+	 * Styles for large SVG text (eg. axis titles), passed through to the XYChart theme.
+	 *
+	 * Give `fontSize` in pixels, as for `svgLabelSmall`.
+	 */
 	svgLabelBig?: TextProps;
-	annotationStyles?: AnnotationStyles;
-	/** GeoChart specific settings */
-	geoChart?: {
-		/** Default fill color for a geo chart feature (e.g. country) with no data */
-		featureFillColor?: string;
-	};
+	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid */
-		rowGap?: number;
-		/** Gap between columns in the leaderboard grid */
-		columnGap?: number;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
-		/** Primary color for current period bars */
-		primaryColor?: string;
-		/** Secondary color for comparison period bars */
-		secondaryColor?: string;
-		/** Delta colors: [negative, neutral, positive] */
-		deltaColors?: [ string, string, string ];
-	};
-	/** ConversionFunnelChart specific settings */
-	conversionFunnelChart?: {
-		/** Primary color for funnel bars */
-		primaryColor?: string;
-		/** Background color for chart container */
-		backgroundColor?: string;
-		/** Color for positive change indicators */
-		positiveChangeColor?: string;
-		/** Color for negative change indicators */
-		negativeChangeColor?: string;
 	};
 	lineChart?: {
-		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
+		lineStyles?: Partial<
+			Record< NonNullable< SeriesDataOptions[ 'type' ] >, Omit< LineStyles, 'stroke' > >
+		>;
 	};
 	barChart?: {
 		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
@@ -416,20 +437,29 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** Compact mode for `compactWhenShort` line, area and bar charts */
+	compactWhenShort?: {
+		/** Height (px) below which the chart turns compact */
+		below?: number;
+		/** Margin the chart defaults to while compact */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
-	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 * WPDS tokens in CSS, so only the compact sizing lives here.
 	 */
 	heatmapChart?: {
-		/**
-		 * Color the cell scale interpolates toward at the highest value (prop > this >
-		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
-		 */
-		primaryColor?: string;
 		/** Gap in px between cells in compact mode */
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 
@@ -438,18 +468,9 @@ export type ChartTheme = {
  * Useful for merged themes where defaults are provided for all optional properties.
  */
 export type CompleteChartTheme = Required< ChartTheme > & {
-	leaderboardChart: Omit<
-		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor'
-	> &
-		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
-	conversionFunnelChart: Omit<
-		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
-		'primaryColor'
-	> &
-		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
+	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
 	lineChart: {
-		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, Omit< LineStyles, 'stroke' > >;
 	};
 	barChart: {
 		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
@@ -458,8 +479,52 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
-	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
-		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
+	compactWhenShort: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] >[ 'margin' ] >;
+	};
+	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
+};
+
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
+
+/**
+ * How a chart classified the buckets of the data it's drawing.
+ */
+export type BucketInfo = {
+	/**
+	 * The bucket the series has. Only reports `'week'` when declared: seven-day
+	 * spacing is indistinguishable from sparse daily data.
+	 */
+	bucket: TickResolution;
+	/** The classification tick formats are keyed on. `'week'` reads as `'day'`. */
+	displayResolution: Exclude< TickResolution, 'week' >;
+};
+
+/**
+ * The locale and time zone the time axis and the built-in tooltips render dates
+ * in, set once by the host on `GlobalChartsProvider`.
+ *
+ * Both halves are plain strings the host resolves for itself, so a non-WordPress
+ * consumer needs no WordPress package to supply them. Both are optional and
+ * default to the JavaScript runtime's own — the viewer's browser locale and
+ * browser time zone — which is what every version before this one used
+ * unconditionally.
+ *
+ * `timeZone` re-dates the instants the host supplies, so a value that is really a
+ * calendar day shifts under it: `new Date( '2026-08-02' )` is UTC midnight and
+ * labels as Aug 1 in `America/Los_Angeles`. Supply true instants alongside a
+ * `timeZone`, or set only `locale` for day-bucketed data. `buildCalendarHeatmapData`
+ * is the exception: it reads a bare `yyyy-MM-dd` as the day it names.
+ */
+export type ChartFormatting = {
+	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */
+	locale?: string;
+	/** IANA time zone name, e.g. `Asia/Tokyo`. Defaults to the runtime's zone. */
+	timeZone?: string;
 };
 
 export type AxisOptions = {
@@ -470,11 +535,26 @@ export type AxisOptions = {
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
 	tickValues?: ScaleInput< AxisScale >[];
+	/**
+	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never repeat;
+	 * an axis holding fewer than two steps widens to the nearest ones. Whole-number data always uses 0.
+	 * Ignored on a log scale, or when `tickValues` or the value scale's `domain` is set. Line and bar charts only.
+	 */
+	tickDecimals?: number;
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -608,6 +688,60 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	shapeStyles?: LegendShapeStyles;
 };
 
+/** Names a comparison series' legend item after the label of the series it is compared with. */
+export type ComparisonItemLabel = ( seriesLabel: string ) => string;
+
+/**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+	/**
+	 * Append a static, non-interactive item explaining the comparison overlay whenever a series
+	 * has `options.type === 'comparison'`. Skipped when that series already has its own item.
+	 * Pass a string to replace the default label.
+	 */
+	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
+};
+
+/**
+ * Initial visibility options for charts built from labelled series.
+ */
+export interface SeriesVisibilityProps {
+	/**
+	 * Series labels to hide from the first defined value. User changes persist until
+	 * the chart remounts or its ID changes; later values for the same ID are ignored.
+	 * Omit to retain the provider's existing visibility for the chart ID.
+	 */
+	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Compact mode for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to `theme.compactWhenShort.margin`, while the
+	 * chart is shorter than `theme.compactWhenShort.below`. Series hidden through the legend stay
+	 * hidden until the chart is tall again. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
+}
+
 /**
  * Base properties shared across all chart components
  */
@@ -624,6 +758,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Additional CSS class name for the chart container
 	 */
 	className?: string;
+	/**
+	 * Accessible name of the chart. Name it after what it shows, and give each chart on a page a different name. Each chart type has a localized default, such as "Line chart".
+	 */
+	ariaLabel?: string;
 	/**
 	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
@@ -664,6 +802,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
+	 * Callback for Enter or Space on the point keyboard navigation has selected:
+	 * the keyboard counterpart of a click. `index` is the point's position in its
+	 * series and `key` the series label.
+	 */
+	onDatumActivate?: ( params: {
+		datum: DataPoint | DataPointDate;
+		index: number;
+		key: string;
+	} ) => void;
+	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
@@ -703,40 +851,6 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 			y?: AxisOptions;
 		};
 	};
-};
-
-/**
- * Properties for grid components
- */
-export type GridProps = {
-	/**
-	 * Width of the grid in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the grid in pixels
-	 */
-	height: number;
-	/**
-	 * Grid visibility. x is default.
-	 */
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-	/**
-	 * X-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	xScale: any;
-	/**
-	 * Y-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	yScale: any;
-	/**
-	 * Top offset for the grid
-	 */
-	top?: number;
 };
 
 /**

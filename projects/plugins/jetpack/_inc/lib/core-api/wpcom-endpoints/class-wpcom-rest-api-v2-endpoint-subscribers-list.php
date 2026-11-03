@@ -59,13 +59,18 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'add_subscribers' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'emails' => array(
+						'emails'     => array(
 							'type'              => 'array',
 							'items'             => array( 'type' => 'string' ),
 							'required'          => true,
 							'validate_callback' => function ( $value ) {
 								return is_array( $value ) && count( $value ) > 0;
 							},
+						),
+						'categories' => array(
+							'type'    => 'array',
+							'items'   => array( 'type' => 'integer' ),
+							'default' => array(),
 						),
 					),
 				),
@@ -95,6 +100,25 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 							'type'    => 'array',
 							'items'   => array( 'type' => 'string' ),
 							'default' => array(),
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/subscribers/send-bounce-confirmation',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'send_bounce_confirmation' ),
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'email_address' => array(
+							'type'     => 'string',
+							'format'   => 'email',
+							'required' => true,
 						),
 					),
 				),
@@ -254,10 +278,16 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 					'callback'            => array( $this, 'add_comp' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
+						// Exactly one of user_id / email identifies the subscriber; add_comp()
+						// enforces that, since the schema can't express "one or the other".
 						'user_id'       => array(
-							'type'     => 'integer',
-							'required' => true,
-							'minimum'  => 1,
+							'type'    => 'integer',
+							'default' => 0,
+							'minimum' => 0,
+						),
+						'email'         => array(
+							'type'   => 'string',
+							'format' => 'email',
 						),
 						'plan_id'       => array(
 							'type'     => 'integer',
@@ -481,6 +511,59 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	}
 
 	/**
+	 * Proxy POST /wpcom/v2/sites/{blog_id}/subscribers/send-bounce-confirmation.
+	 *
+	 * @since 16.4
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function send_bounce_confirmation( $request ) {
+		$blog_id = Connection_Manager::get_site_id();
+
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/subscribers/send-bounce-confirmation', (int) $blog_id ),
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'email_address' => (string) $request->get_param( 'email_address' ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( $status >= 400 ) {
+			// Pass through wpcom's error code and data.
+			$data           = is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : array();
+			$data['status'] = $status;
+
+			return new WP_Error(
+				is_array( $body ) && ! empty( $body['code'] ) ? (string) $body['code'] : 'subscribers_bounce_retry_failed',
+				is_array( $body ) && isset( $body['message'] ) ? $body['message'] : __( 'Could not send the confirmation email.', 'jetpack' ),
+				$data
+			);
+		}
+
+		return rest_ensure_response( $body );
+	}
+
+	/**
 	 * Proxy GET /wpcom/v2/sites/{blog_id}/subscribers/individual.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -547,6 +630,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	 * subscribers (no invitation email); WP.com processes the job in the background and emails the
 	 * importing user a "Subscriber import completed" summary when it finishes.
 	 *
+	 * When the caller passes `categories` (newsletter category ids selected in the Add Subscribers
+	 * picker), they're forwarded so the imported subscribers are opted into those categories — the
+	 * same `categories` payload Calypso's `importCsvSubscribers` sends to this endpoint.
+	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -575,6 +662,24 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 			);
 		}
 
+		// Coerce category ids to positive integers and drop anything else — a category id is always
+		// a term id, so a zero or non-numeric value is noise we shouldn't forward to WP.com.
+		$categories = array_values(
+			array_filter(
+				array_map( 'absint', (array) $request->get_param( 'categories' ) )
+			)
+		);
+
+		$body = array(
+			'emails'     => $emails,
+			'parse_only' => false,
+		);
+		// Only include `categories` when the user actually selected some, so a plain import keeps
+		// the exact payload it sent before this feature existed.
+		if ( ! empty( $categories ) ) {
+			$body['categories'] = $categories;
+		}
+
 		// JSON body, not the form encoding Calypso submits: WP.com's Jetpack signature verifier
 		// canonicalizes `application/x-www-form-urlencoded` bodies differently from the Jetpack
 		// client (it re-encodes the parsed array as JSON before hashing), so a form-encoded POST
@@ -589,13 +694,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
-			wp_json_encode(
-				array(
-					'emails'     => $emails,
-					'parse_only' => false,
-				),
-				JSON_UNESCAPED_SLASHES
-			),
+			wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 
@@ -704,7 +803,11 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 	/**
 	 * POST /wpcom/v2/subscribers/comp — issue a complimentary subscription on a paid membership
 	 * product for a single subscriber. Mirrors Calypso's `requestAddComp` thunk, which POSTs to
-	 * `/sites/{id}/memberships/comps/{user_id}/{plan_id}`.
+	 * `/sites/{id}/memberships/comps/{identifier}/{plan_id}`.
+	 *
+	 * The identifier is a wpcom user id, or an email address for a subscriber with no wpcom
+	 * account — WP.com resolves (or creates) an account from the address and links the
+	 * subscriber row. See NL-1033.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -717,18 +820,31 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers_List extends WP_REST_Controller {
 		}
 
 		$user_id       = (int) $request->get_param( 'user_id' );
+		$email         = (string) $request->get_param( 'email' );
 		$plan_id       = (int) $request->get_param( 'plan_id' );
 		$no_expiration = (bool) $request->get_param( 'no_expiration' );
+
+		if ( ( $user_id && '' !== $email ) || ( ! $user_id && '' === $email ) ) {
+			return new WP_Error(
+				'subscribers_comp_invalid_subscriber',
+				__( 'Provide either a user ID or an email address for the subscriber.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		$body = $no_expiration
 			? wp_json_encode( array( 'no_expiration' => true ), JSON_UNESCAPED_SLASHES )
 			: null;
 
+		// WP.com rawurldecode()s this segment, so an email has to arrive encoded — `%d` would
+		// flatten it to 0.
+		$identifier = $user_id ? (string) $user_id : rawurlencode( $email );
+
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf(
-				'/sites/%d/memberships/comps/%d/%d',
+				'/sites/%d/memberships/comps/%s/%d',
 				(int) $blog_id,
-				$user_id,
+				$identifier,
 				$plan_id
 			),
 			'2',

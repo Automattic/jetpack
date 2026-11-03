@@ -1,7 +1,7 @@
 {
 	"name": "automattic/eslint-config-target-es",
 	"type": "library",
-	"license": "GPL-2.0-or-later",
+	"license": "MIT",
 	"require": {},
 	"scripts": {
 		"test-js": "pnpm run test",
@@ -19,7 +19,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"npmjs-autopublish": true,
 		"mirror-repo": "Automattic/eslint-config-target-es",
 		"changelogger": {

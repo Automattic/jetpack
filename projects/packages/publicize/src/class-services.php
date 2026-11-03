@@ -72,30 +72,12 @@ class Services {
 			if ( $ignore_cache || false === $services ) {
 				$services = self::fetch_and_cache_services();
 			}
-			// This is here for backwards compatibility
-			// TODO Remove this array_map() call after April 2025 release of Jetpack.
-			$services = array_map(
-				function ( $service ) {
-					global $publicize;
-
-					return array_merge(
-						$service,
-						array(
-							'ID'                  => $service['id'],
-							'connect_URL'         => $publicize->connect_url( $service['id'], 'connect' ),
-							'external_users_only' => $service['supports']['additional_users_only'],
-							'multiple_external_user_ID_support' => $service['supports']['additional_users'],
-						)
-					);
-				},
-				$services
-			);
 		}
 
 		/**
 		 * Filters the list of Publicize services available to the site.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.84.3
 		 *
 		 * @param array $services List of services.
 		 */

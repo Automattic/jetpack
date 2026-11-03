@@ -31,11 +31,16 @@ class Uploader_Rest_Endpoints {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		/*
+		 * Keep route validation structural. WordPress validates arguments before
+		 * running permission callbacks, so inspecting the attachment or its file
+		 * here would reveal which IDs contain readable videos to unauthorized
+		 * callers. Uploader validates the attachment after authorization instead.
+		 */
 		$id_arg = array(
-			'description'       => __( 'The ID of the attachment you want to upload to VideoPress', 'jetpack-videopress-pkg' ),
-			'type'              => 'integer',
-			'required'          => true,
-			'validate_callback' => __CLASS__ . '::validate_attachment_id',
+			'description' => __( 'The ID of the attachment you want to upload to VideoPress', 'jetpack-videopress-pkg' ),
+			'type'        => 'integer',
+			'required'    => true,
 		);
 		register_rest_route(
 			'videopress/v1',
@@ -62,16 +67,30 @@ class Uploader_Rest_Endpoints {
 	}
 
 	/**
-	 * Checks wether the user have permission to perform the upload
+	 * Checks whether the user has permission to perform the upload.
 	 *
+	 * The site-wide `upload_files` capability is not sufficient on its own: the
+	 * endpoint operates on a caller-supplied attachment id, so we must also
+	 * confirm the current user is allowed to edit that specific attachment.
+	 * Without the per-object check any author could target another user's
+	 * private/draft video attachment by id (IDOR).
+	 *
+	 * @param \WP_REST_Request $request The request object.
 	 * @return boolean
 	 */
-	public static function permissions_callback() {
-		return current_user_can( 'upload_files' );
+	public static function permissions_callback( $request ) {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return false;
+		}
+
+		return current_user_can( 'edit_post', (int) $request['attachment_id'] );
 	}
 
 	/**
-	 * Validates the attachment ID argument
+	 * Validates the attachment ID argument.
+	 *
+	 * This remains available to existing callers, but must not be registered as
+	 * the REST argument validator because those run before route authorization.
 	 *
 	 * @param integer|string $value The attachment ID passed as an argument to the endpoint.
 	 * @return boolean|WP_Error

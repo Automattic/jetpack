@@ -81,13 +81,11 @@ const transformFromFile = {
 			// Find a matching transform for non-video files.
 			const transformation = findTransform(
 				fromTransforms,
-				transform =>
-					transform.type === 'files' &&
-					transform.isMatch( [ file ] as unknown as Record< string, unknown >, undefined )
+				transform => transform.type === 'files' && transform.isMatch( [ file ] )
 			);
 
 			// If a transform exists, apply it; otherwise, return an empty array.
-			return transformation ? transformation.transform( [ file ] ) : [];
+			return transformation?.type === 'files' ? transformation.transform( [ file ] ) : [];
 		} );
 
 		// Return all generated blocks (video + non-video) in the original file order.

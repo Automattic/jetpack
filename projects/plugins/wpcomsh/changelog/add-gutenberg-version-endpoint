@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add REST endpoint that reports the active Gutenberg plugin version, gated by a WP option.

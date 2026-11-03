@@ -1,20 +1,27 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildMetricTab } from '../build-metric-tab';
 
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
-		// Deliberately disagree: a real sanitizer never produces this, but WordAds
-		// `cpm` is a period-weighted average, not a sum of point values — if this
-		// ever regressed to re-summing, every traffic-chart test (where summary and
-		// the row sum coincide) would stay green while CPM silently corrupted.
+		// Deliberately disagree: CPM is a period-weighted average, not a sum, so a
+		// regression to re-summing would stay green on every other traffic-chart test.
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 999 }, data: [ { date_start: '2026-05-01', views: 1 } ] },
 			comparison: undefined,
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.value ).toBe( 999 );
@@ -29,9 +36,40 @@ describe( 'buildMetricTab', () => {
 			field: 'cpm',
 			label: 'CPM',
 			dataFormat,
+			zone: 'UTC',
 		} );
 
 		expect( tab.dataFormat ).toBe( dataFormat );
+	} );
+
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
+	} );
+
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
 	} );
 
 	it( 'maps one point per row, oldest first, with a real Date', () => {
@@ -47,6 +85,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.current ).toHaveLength( 2 );
@@ -56,6 +95,49 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current[ 0 ].date.getTime() ).toBeLessThan( tab.current[ 1 ].date.getTime() );
 	} );
 
+	it( 'keeps a null reading as a gap and still reads a missing field as zero', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { cpm: 4 },
+				data: [
+					{ date_start: '2026-05-01', cpm: null },
+					{ date_start: '2026-05-02', cpm: 0 },
+					{ date_start: '2026-05-03' },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'cpm',
+			label: 'CPM',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
+	} );
+
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
+	} );
+
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },
@@ -63,11 +145,143 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBe( 12 );
 		expect( tab.previous ).toHaveLength( 1 );
 		expect( tab.previous?.[ 0 ].value ).toBe( 12 );
+		expect( tab.previousAligned ).toBeUndefined();
+	} );
+
+	it( 'draws each comparison point on the current bucket it pairs with, a null stand-in where none does', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 3 },
+				data: [
+					{ date_start: '2025-04-29T00:00:00', date_end: '2025-04-30T23:59:59', views: 1 },
+					{ date_start: '2025-05-01T00:00:00', date_end: '2025-05-31T23:59:59', views: 2 },
+				],
+			},
+			comparison: {
+				summary: { views: 9 },
+				data: [ { date_start: '2024-12-02T00:00:00', date_end: '2024-12-31T23:59:59', views: 9 } ],
+			},
+			hasComparison: true,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+			periodStarts: { current: '2025-04-29', comparison: '2024-12-02' },
+		} );
+
+		expect( tab.previousAligned ).toBe( true );
+		expect( tab.previous ).toEqual( [
+			{ date: tab.current[ 0 ].date, value: null },
+			expect.objectContaining( {
+				date: tab.current[ 1 ].date,
+				realDate: new Date( '2024-12-02T00:00:00Z' ),
+				value: 9,
+			} ),
+		] );
+	} );
+
+	it( 'gives the no-data reason when a stand-in sits beside comparison zeros', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { aov: null },
+				data: [
+					{ date_start: '2025-04-29', date_end: '2025-04-30T23:59:59', aov: null },
+					{ date_start: '2025-05-01', date_end: '2025-05-31T23:59:59', aov: null },
+				],
+			},
+			comparison: {
+				summary: { aov: 0 },
+				data: [ { date_start: '2024-12-02', date_end: '2024-12-31T23:59:59', aov: 0 } ],
+			},
+			hasComparison: true,
+			field: 'aov',
+			label: 'Average order value',
+			zone: 'UTC',
+			noDataLabel: 'No orders in this period.',
+			periodStarts: { current: '2025-04-29', comparison: '2024-12-02' },
+		} );
+
+		expect( tab.unavailable ).toBe( 'No orders in this period.' );
+	} );
+
+	it( 'keeps the comparison total when no comparison bucket pairs with a current one', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 30 },
+				data: [ { date_start: '2026-05-01T00:00:00', date_end: '2026-05-01T23:59:59', views: 30 } ],
+			},
+			comparison: {
+				summary: { views: 12 },
+				data: [ { date_start: '2026-04-01T00:00:00', date_end: '2026-04-01T23:59:59', views: 12 } ],
+			},
+			hasComparison: true,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+			periodStarts: { current: '2026-05-01', comparison: '2026-04-15' },
+		} );
+
+		expect( tab.previousValue ).toBe( 12 );
+		expect( tab.previous ).toBeUndefined();
+	} );
+
+	it.each( [
+		[ 'has no reading either', null, null, 'No orders in this period.' ],
+		[ 'reads a real zero', 0, 0, 'No orders in this period.' ],
+		[ 'has orders', 210, 270.5, undefined ],
+	] )(
+		'reads a null headline as no value, with the reason only when the comparison %s',
+		( _, previousTotal, previousPoint, unavailable ) => {
+			const tab = buildMetricTab( {
+				primary: { summary: { aov: null }, data: [ { date_start: '2026-05-01', aov: null } ] },
+				comparison: {
+					summary: { aov: previousTotal },
+					data: [ { date_start: '2026-04-01', aov: previousPoint } ],
+				},
+				hasComparison: true,
+				field: 'aov',
+				label: 'Average order value',
+				zone: 'UTC',
+				noDataLabel: 'No orders in this period.',
+			} );
+
+			expect( [ tab.value, tab.previousValue, tab.unavailable ] ).toEqual( [
+				null,
+				previousTotal,
+				unavailable,
+			] );
+		}
+	);
+
+	it( 'draws a null bucket at 0, flagged missing, when the metric has a no-data label', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { aov: 270.5 },
+				data: [
+					{ date_start: '2026-05-01', aov: null },
+					{ date_start: '2026-05-02', aov: 270.5 },
+				],
+			},
+			comparison: { summary: { aov: null }, data: [ { date_start: '2026-04-01', aov: null } ] },
+			hasComparison: true,
+			field: 'aov',
+			label: 'Average order value',
+			zone: 'UTC',
+			noDataLabel: 'No orders in this period.',
+		} );
+
+		expect(
+			[ ...tab.current, ...( tab.previous ?? [] ) ].map( point => [ point.value, point.missing ] )
+		).toEqual( [
+			[ 0, true ],
+			[ 270.5, undefined ],
+			[ 0, true ],
+		] );
 	} );
 
 	it( 'omits previous when comparison is off', () => {
@@ -77,15 +291,15 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
 	} );
 
-	// The misleading-zero guard: comparison is on, but the comparison report has
-	// no rows (still loading, or a genuinely empty period). `previousValue` must
-	// read as absent, not as a previous total of 0.
+	// The misleading-zero guard: with no comparison rows (loading, or a genuinely
+	// empty period), `previousValue` must read as absent, not as a total of 0.
 	it( 'omits previous when comparison is on but the comparison report has no rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },
@@ -93,9 +307,46 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
+	} );
+	// Bucket stamps carry a nominal offset that must be dropped; these cases are
+	// the only guard against reading a bucket in the wrong zone.
+	describe( 'bucket stamps are anchored in the site zone', () => {
+		const dateOf = ( dateStart: string ) =>
+			buildMetricTab( {
+				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },
+				comparison: undefined,
+				hasComparison: false,
+				field: 'views',
+				label: 'Views',
+				zone: 'Asia/Tokyo',
+			} ).current[ 0 ].date;
+
+		it.each( [
+			// The shape every `formatDatePartWithTime` branch emits.
+			[ '2026-06-15T00:00:00+00:00', 15, 0 ],
+			[ '2026-06-15T09:00:00+00:00', 15, 9 ],
+			[ '2026-06-15T00:00:00Z', 15, 0 ],
+			// `row.date_start` passes through whatever the API sent, which may carry no
+			// time; a bare date parses as UTC unless anchored — same bug, different door.
+			[ '2026-06-15', 15, 0 ],
+		] )( 'reads %s as day %i hour %i of the site day', ( stamp, day, hour ) => {
+			const date = dateOf( stamp );
+
+			expect( date.getDate() ).toBe( day );
+			expect( date.getHours() ).toBe( hour );
+		} );
+
+		// The parts round-trip through any zone, so only the instant tells the
+		// site's zone apart from the runner's.
+		it( 'names the instant the site zone puts that wall time at', () => {
+			expect( dateOf( '2026-06-15T00:00:00+00:00' ).toISOString() ).toBe(
+				'2026-06-14T15:00:00.000Z'
+			);
+		} );
 	} );
 } );

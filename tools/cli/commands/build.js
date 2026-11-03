@@ -1,6 +1,7 @@
 import { constants as fsconstants, createReadStream } from 'fs';
 import fs from 'fs/promises';
 import { once } from 'node:events';
+import os from 'node:os';
 import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
@@ -44,7 +45,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of build tasks to run at once.',
-			default: Infinity,
+			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
 		.option( 'deps', {
@@ -923,12 +924,8 @@ async function buildProject( t ) {
 
 	// Copy standard .github.
 	await copyDirectory( '.github/files/mirror-.github', npath.join( buildDir, '.github' ) );
-	await fs.unlink( npath.join( buildDir, '.github/.gitkeep' ) );
 
-	// Copy autotagger, autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
-	if ( composerJson.extra?.autotagger ) {
-		await copyDirectory( '.github/files/gh-autotagger', npath.join( buildDir, '.github' ) );
-	}
+	// Copy autorelease, wp-svn-autopublish, and/or npmjs-autopublisher if enabled.
 	if ( composerJson.extra?.autorelease ) {
 		await copyDirectory( '.github/files/gh-autorelease', npath.join( buildDir, '.github' ) );
 	}

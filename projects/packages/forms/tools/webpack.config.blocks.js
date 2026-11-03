@@ -4,7 +4,6 @@
 
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const __dirname = import.meta.dirname;
 
@@ -108,17 +107,14 @@ const sharedWebpackConfig = {
 export default [
 	{
 		...sharedWebpackConfig,
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			new CopyWebpackPlugin( {
-				patterns: [
-					{
-						from: 'src/blocks/**/block.json',
-						to: '[name][ext]',
-						noErrorOnMissing: true,
-					},
-				],
-			} ),
-		],
+		output: {
+			...sharedWebpackConfig.output,
+			copy: [
+				{
+					from: 'src/blocks/**/block.json',
+					filename: '[name][ext]',
+				},
+			],
+		},
 	},
 ];

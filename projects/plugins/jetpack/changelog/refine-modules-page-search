@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Modules: Debounce the modules page search so results update smoothly while typing.

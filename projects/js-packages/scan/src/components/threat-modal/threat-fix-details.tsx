@@ -5,6 +5,7 @@ import { useMemo, useContext } from 'react';
 import { getFixerDescription } from '@automattic/jetpack-scan';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 /**
  * ThreatFixDetails component

@@ -4,8 +4,8 @@ import styles from './style.module.scss';
 import type { ComponentProps, FC } from 'react';
 
 interface Props {
-	// The `@wordpress/icons` glyph shown in the leading chip. Taken from the chip
-	// itself, so this wrapper can't accept something the chip won't render.
+	// The `@wordpress/icons` glyph shown before the title. Taken from the shared
+	// title component, so this wrapper can't accept something it won't render.
 	icon: ComponentProps< typeof CardTitleIcon >[ 'icon' ];
 	title: string;
 	/**
@@ -17,11 +17,11 @@ interface Props {
 }
 
 /**
- * Overview card header: a title led by an `@wordpress/icons` glyph in a small
- * tinted chip. Shared by the four Overview cards so the chip markup and icon
- * size live in one place rather than being repeated (and drifting) per card.
+ * Overview card header: a title led by a plain `@wordpress/icons` glyph. Shared
+ * by the four Overview cards so the icon markup and size live in one place
+ * rather than being repeated (and drifting) per card.
  *
- * The chip itself comes from the shared `CardTitleIcon`, which the Settings
+ * The icon itself comes from the shared `CardTitleIcon`, which the Settings
  * modules also use; this wrapper only adds the `Card.Header`/`Card.Title` shell
  * that the Overview cards need and the Settings modules supply themselves.
  *
@@ -40,9 +40,9 @@ const CardHeaderIcon: FC< Props > = ( { icon, title, subtitle } ) => (
 		<Card.Title render={ <h2 /> }>
 			<CardTitleIcon icon={ icon } title={ title } />
 		</Card.Title>
-		{ /* Below the title rather than beside it: `CardTitleIcon` centres the chip
+		{ /* Below the title rather than beside it: `CardTitleIcon` centres the icon
 		     against whatever sits next to it, so nesting the subtitle in there would
-		     re-centre the chip against a two-line block and pull it off the title. */ }
+		     re-centre the icon against a two-line block and pull it off the title. */ }
 		{ subtitle && (
 			<Text variant="body-sm" render={ <p /> } className={ styles.cardSubtitle }>
 				{ subtitle }

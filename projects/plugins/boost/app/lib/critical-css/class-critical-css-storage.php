@@ -46,6 +46,16 @@ class Critical_CSS_Storage {
 	}
 
 	/**
+	 * Delete Critical CSS for a provider that cannot use its generated result.
+	 *
+	 * @since $$next-version$$
+	 * @param string $key Provider key.
+	 */
+	public function delete_css( $key ) {
+		$this->storage->delete( $key );
+	}
+
+	/**
 	 * Clear the whole Critical CSS storage.
 	 */
 	public function clear() {
@@ -62,7 +72,9 @@ class Critical_CSS_Storage {
 	public function get_css( $provider_keys ) {
 		foreach ( $provider_keys as $key ) {
 			$data = $this->storage->get( $key, false );
-			if ( $data && $data['css'] ) {
+			// Shape-check: the store vets its payloads for objects but not for shape, so
+			// a row Boost did not write can come back as a scalar or a wrong-typed array.
+			if ( is_array( $data ) && isset( $data['css'] ) && is_string( $data['css'] ) && '' !== $data['css'] ) {
 				return array(
 					'key' => $key,
 					'css' => $data['css'],

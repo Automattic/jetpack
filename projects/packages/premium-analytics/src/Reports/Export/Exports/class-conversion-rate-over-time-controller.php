@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Conversion Rate Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -112,7 +112,10 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 		$reached_checkout   = (int) ( $item['reached_checkout'] ?? $defaults['reached_checkout'] );
 		$completed_checkout = (int) ( $item['completed_checkout'] ?? $defaults['completed_checkout'] );
 
-		$store_conversion_rate = $active_sessions > 0 ? ( $completed_checkout / $active_sessions ) * 100 : 0;
+		// A period without sessions has no rate, so its cell stays empty rather than reading 0%.
+		$store_conversion_rate = $active_sessions > 0
+			? number_format( ( $completed_checkout / $active_sessions ) * 100, 2, '.', '' ) . '%'
+			: '';
 
 		return array(
 			'time_interval'         => $this->format_time_interval( $item, $interval ),
@@ -120,7 +123,7 @@ class Conversion_Rate_Over_Time_Controller extends Abstract_Csv_Report_Controlle
 			'cart'                  => $with_cart_addition,
 			'checkout'              => $reached_checkout,
 			'purchase'              => $completed_checkout,
-			'store_conversion_rate' => number_format( $store_conversion_rate, 2, '.', '' ) . '%',
+			'store_conversion_rate' => $store_conversion_rate,
 		);
 	}
 }

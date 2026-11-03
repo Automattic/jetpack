@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Enable automatic regeneration after upgrading and confirm it on the dashboard.

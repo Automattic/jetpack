@@ -78,7 +78,13 @@ function buildPrompt( title: string, body: string, diff: string ): string {
 	const sanitizedBody = sanitizeForPrompt( body || '' );
 	const sanitizedDiff = sanitizeForPrompt( diff || '' );
 
-	return `You are a documentation triage assistant for Jetpack, a WordPress plugin developed in a monorepo. Your job is to determine whether a merged GitHub Pull Request would require an update to an existing page — or the creation of a new page — on jetpack.com/support (Jetpack's end-user support documentation site).
+	return `You are a documentation triage assistant for Jetpack, a WordPress plugin developed in a monorepo. Your job is to determine whether a merged GitHub Pull Request requires an update to an existing page — or the creation of a new page — on jetpack.com/support (Jetpack's end-user support documentation site).
+
+## THE KEY QUESTION
+
+**"Would a user following the current documentation fail, be confused, or miss something important because of this change?"**
+
+This is NOT the same as asking "will users see this change?". Many changes are visible to users — bug fixes, font tweaks, color changes — but they do not require documentation updates because the docs describe intended behavior, not how things looked or worked before. Only flag a PR if the documentation would actually need to be rewritten or updated as a result of this change.
 
 ## IMPORTANT CONTEXT
 
@@ -109,7 +115,7 @@ Note: Hiding a setting when it has no effect (e.g., removing an option when no p
 
 Seeing a slightly different header layout or a video thumbnail that now auto-refreshes does NOT require documentation updates.
 
-## Flag as needing docs review (is_user_facing = true):
+## Flag as needing docs update (docs_update_needed = true):
 
 - A new user-facing feature or setting was added to a documented area
 - An existing setting, toggle, or option was renamed, moved, added, or removed
@@ -142,7 +148,7 @@ These are secondary signals that a PR likely needs documentation review:
 - "Automatically enable on newly connected sites" → Default behavior change
 
 
-## Do NOT flag (is_user_facing = false):
+## Do NOT flag (docs_update_needed = false):
 
 ### Code & Infrastructure
 - Internal refactoring, code cleanup, or restructuring with no user-visible change
@@ -163,14 +169,15 @@ These are secondary signals that a PR likely needs documentation review:
 
 ### Visual & Polish
 - Minor CSS tweaks, spacing adjustments, or color fine-tuning
+- Font changes, typography updates, or color scheme adjustments
 - UI layout/header/component migrations to unified patterns (internal refactoring)
 - Tab alignment, element positioning, or visual hierarchy changes
 - Branding text updates (adding/changing product names in existing UI)
 - Height, width, or sizing adjustments to existing elements
 
-### BUG FIXES AND UX IMPROVEMENTS ARE NOT DOC-WORTHY
+### BUG FIXES AND UX IMPROVEMENTS DO NOT NEED DOC UPDATES
 
-Bug fixes restore *already-documented* intended behavior. UX improvements make existing features work *better* without changing workflows. Both should be classified as is_user_facing = false:
+Bug fixes restore *already-documented* intended behavior. UX improvements make existing features work *better* without changing workflows. The documentation describes how Jetpack is *supposed* to work — not how it was broken. Both should be classified as docs_update_needed = false:
 
 - Fixes that make something work correctly (the docs describe the intended behavior, not the bug)
 - Automatic refresh/update behaviors that eliminate manual steps users shouldn't have needed anyway
@@ -179,7 +186,7 @@ Bug fixes restore *already-documented* intended behavior. UX improvements make e
 - Edge case handling where UI is hidden when not applicable (e.g., hiding a setting when it has no effect)
 - Reliability improvements (retries, better error handling, more robust processing)
 
-Key test: If the docs describe "X happens when you do Y" and this PR makes X actually happen (when it was broken before), that's a bug fix, not a doc update.
+Key test: If the docs describe "X happens when you do Y" and this PR makes X actually happen (when it was broken before), that's a bug fix — docs_update_needed = false.
 
 ### Out of Scope
 
@@ -188,9 +195,9 @@ Key test: If the docs describe "X happens when you do Y" and this PR makes X act
 - Error message text changes that are not referenced in support docs
 - Accessibility improvements that don't change documented workflows or behavior described in support docs
 
-## CRITICAL: DEVELOPER-FACING CHANGES ARE NOT USER-FACING
+## CRITICAL: DEVELOPER-FACING CHANGES DO NOT NEED DOC UPDATES
 
-The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as is_user_facing = false, regardless of which feature area they touch:
+The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as docs_update_needed = false, regardless of which feature area they touch:
 
 - New or modified PHP filters (add_filter / apply_filters)
 - New or modified PHP actions (add_action / do_action)
@@ -203,7 +210,7 @@ The following are changes aimed at developers/themers who extend Jetpack program
 - Deprecation of PHP classes or functions when the user-visible behavior is unchanged
 - Changes described as "adding a filter for..." or "allowing plugins to..." — these are extensibility features for developers, not end-user features
 
-Ask yourself: "Would a non-technical site owner ever see or interact with this change in the WordPress dashboard, Jetpack settings, or their site's frontend WITHOUT writing custom code?" If the answer is no, it is NOT user-facing.
+Ask yourself: "Would a non-technical site owner ever see or interact with this change in the WordPress dashboard, Jetpack settings, or their site's frontend WITHOUT writing custom code?" If the answer is no, docs_update_needed = false.
 
 Would NOT need a docs update (developer-facing):
 
@@ -229,16 +236,17 @@ These are consumed by developers building with Jetpack packages, not by site own
 
 ## WHEN IN DOUBT — DEFAULT TO NOT FLAGGING
 
-When a change is ambiguous or borderline, assume it does not require user-facing documentation and do not flag it.
+When a change is ambiguous or borderline, assume it does not require documentation updates and do not flag it.
 
 Apply this additional filter before flagging:
 
 1. Does the PR add a PHP filter, action, hook, CSS class, or JS extension point? → Do NOT flag (developer API)
-2. Does the PR title contain "refactor", "move", "migrate", "deprecate class", "rename file", or "package"? → Examine carefully; likely NOT user-facing
-3. Does the PR fix a bug (restoring correct/expected behavior)? Do NOT flag (docs describe the intended behavior)
-4. Is the change only visible if a developer writes custom code? Do NOT flag
+2. Does the PR title contain "refactor", "move", "migrate", "deprecate class", "rename file", or "package"? → Examine carefully; likely NOT doc-worthy
+3. Does the PR fix a bug (restoring correct/expected behavior)? → Do NOT flag (docs describe the intended behavior)
+4. Is the change a visual or styling update (color, font, spacing, layout polish)? → Do NOT flag
+5. Is the change only visible if a developer writes custom code? → Do NOT flag
 
-If after all this you're still borderline, set is_user_facing = false.
+If after all this you're still borderline, set docs_update_needed = false.
 
 Here is the PR title:
 \`\`\`\`
@@ -259,15 +267,15 @@ Analyze this PR and determine if support documentation would need to be updated.
 
 Respond with a JSON object in this exact format:
 {
-  "is_user_facing": boolean,
+  "docs_update_needed": boolean,
   "confidence": "high" | "medium" | "low",
   "reason": "Brief explanation (1-2 sentences)"
 }`;
 }
 
 /**
- * Check if a PR contains user-facing changes using AI analysis.
- * If user-facing with medium/high confidence, add the [Status] UI Changes label.
+ * Check if a PR contains changes that require documentation updates, using AI analysis.
+ * If a docs update is needed with medium/high confidence, add the [Status] UI Changes label.
  *
  * @param payload - Pull request event payload.
  * @param octokit - Initialized Octokit REST client.
@@ -352,7 +360,7 @@ async function checkIfDocsNeeded(
 	debug( `check-if-docs-needed: OpenAI response for PR #${ number }: ${ response }` );
 
 	// Parse the response.
-	let result: { is_user_facing?: unknown; confidence?: unknown; reason?: unknown } | undefined;
+	let result: { docs_update_needed?: unknown; confidence?: unknown; reason?: unknown } | undefined;
 	try {
 		result = JSON.parse( response );
 	} catch ( error: unknown ) {
@@ -362,13 +370,13 @@ async function checkIfDocsNeeded(
 		return;
 	}
 
-	let isUserFacing = false;
-	if ( typeof result?.is_user_facing === 'boolean' ) {
-		isUserFacing = result.is_user_facing;
+	let docsUpdateNeeded = false;
+	if ( typeof result?.docs_update_needed === 'boolean' ) {
+		docsUpdateNeeded = result.docs_update_needed;
 	} else {
 		debug(
-			`check-if-docs-needed: PR #${ number } - is_user_facing is not a boolean, got: ${ JSON.stringify(
-				result?.is_user_facing
+			`check-if-docs-needed: PR #${ number } - docs_update_needed is not a boolean, got: ${ JSON.stringify(
+				result?.docs_update_needed
 			) }. Defaulting to false.`
 		);
 	}
@@ -390,10 +398,10 @@ async function checkIfDocsNeeded(
 
 	const reason = result?.reason && typeof result.reason === 'string' ? result.reason.trim() : '';
 
-	// Apply UI Changes label if user-facing with medium or high confidence.
-	if ( isUserFacing && ( confidence === 'high' || confidence === 'medium' ) ) {
+	// Apply UI Changes label if a docs update is needed with medium or high confidence.
+	if ( docsUpdateNeeded && ( confidence === 'high' || confidence === 'medium' ) ) {
 		debug(
-			`check-if-docs-needed: PR #${ number } is user-facing (confidence: ${ confidence }). Adding "${ uiChangesLabel }" label. Reason: ${ reason }`
+			`check-if-docs-needed: PR #${ number } needs a docs update (confidence: ${ confidence }). Adding "${ uiChangesLabel }" label. Reason: ${ reason }`
 		);
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
@@ -412,7 +420,7 @@ async function checkIfDocsNeeded(
 				.replace( /\\/g, '\\\\' )
 				.replace( /\[/g, '\\[' )
 				.replace( /\]/g, '\\]' );
-			const linearDescription = `A pull request was flagged as containing user-facing changes that may require documentation updates.\n\n**Pull request:** [${ escapedTitle }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
+			const linearDescription = `A pull request was flagged as requiring documentation updates.\n\n**Pull request:** [${ escapedTitle }](${ prUrl })\n**Repository:** ${ repoFullName }\n**AI reasoning:** ${ reason }`;
 
 			linearIssue = await createLinearIssue(
 				`Docs update needed: ${ title }`,
@@ -434,7 +442,7 @@ async function checkIfDocsNeeded(
 		if ( slackProductAmbassadorsChannel && slackToken ) {
 			debug( `check-if-docs-needed: Sending Slack notification for PR #${ number }.` );
 
-			let slackMessage = `This PR was flagged as containing user-facing changes. Please review and update documentation if needed.\n\n*AI reasoning:* ${ reason }`;
+			let slackMessage = `This PR was flagged as requiring documentation updates. Please review and update the docs if needed.\n\n*AI reasoning:* ${ reason }`;
 
 			if ( linearIssue ) {
 				slackMessage += `\n\nA Linear issue was created to track this: *<${ linearIssue.url }|${ linearIssue.identifier }>*`;
@@ -454,7 +462,7 @@ async function checkIfDocsNeeded(
 		}
 	} else {
 		debug(
-			`check-if-docs-needed: PR #${ number } is not user-facing or low confidence. Not adding label. Reason: ${ reason }`
+			`check-if-docs-needed: PR #${ number } does not need a docs update or confidence is low. Not adding label. Reason: ${ reason }`
 		);
 	}
 }

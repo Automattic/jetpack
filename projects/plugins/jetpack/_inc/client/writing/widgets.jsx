@@ -31,6 +31,7 @@ class Widgets extends Component {
 						support={ {
 							text: this.props.widgetsModule.description,
 							link: getRedirectUrl( 'jetpack-support-extra-sidebar-widgets' ),
+							wpcomLink: 'https://wordpress.com/support/widgets/',
 						} }
 					>
 						<ModuleToggle
@@ -57,6 +58,7 @@ class Widgets extends Component {
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-widget-visibility' ),
+							wpcomLink: 'https://wordpress.com/support/widgets/',
 						} }
 					>
 						<ModuleToggle

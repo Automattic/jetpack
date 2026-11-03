@@ -118,7 +118,7 @@ const EmptyList = () => {
 							{
 								strong: <strong />,
 							}
-					  )
+						)
 					: __( 'No threats have been detected by the current scan.', 'jetpack-protect' ) }
 			</Text>
 			{ hasPlan && (

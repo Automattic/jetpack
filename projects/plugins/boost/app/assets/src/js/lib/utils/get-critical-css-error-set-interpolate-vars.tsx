@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 import { InterpolateVars } from '$lib/utils/interplate-vars-types';
 import supportLinkInterpolateVar from '$lib/utils/support-link-interpolate-var';
@@ -10,11 +10,11 @@ import { Link } from '@wordpress/ui';
 
 function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
-	const navigate = useNavigate();
+	const { returnToSettings } = useBoostNavigation();
 
 	function retry() {
 		regenerateAction.mutate();
-		navigate( '/' );
+		returnToSettings();
 	}
 
 	const interpolateVars: InterpolateVars = {

@@ -1,4 +1,4 @@
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 import * as actions from './actions.ts';
 import reducer from './reducer.ts';
 import * as resolvers from './resolvers.ts';
@@ -13,7 +13,9 @@ export const store = createReduxStore( CONFIG_STORE, {
 	resolvers,
 } );
 
-register( store );
+if ( ! select( CONFIG_STORE ) ) {
+	register( store );
+}
 
 export * from './actions.ts';
 export * from './selectors.ts';

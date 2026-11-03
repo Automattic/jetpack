@@ -262,7 +262,7 @@ export default function GeneralPurposeImage( {
 					'jetpack-ai-client'
 				),
 				generalImageCost
-		  )
+			)
 		: null;
 
 	const acceptButton = (

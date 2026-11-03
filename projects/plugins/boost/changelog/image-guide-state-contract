@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Load wp-data and its React and element script dependencies for Image Guide; emit one outcome event after a rejected weight fetch instead of repeated events.

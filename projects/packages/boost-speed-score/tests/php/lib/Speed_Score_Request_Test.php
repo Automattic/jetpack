@@ -1,0 +1,859 @@
+<?php
+/**
+ * Tests for the history that Speed_Score_Request writes when a run completes.
+ *
+ * @package automattic/jetpack-boost-speed-score
+ */
+
+namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
+
+use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Request;
+use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_TestCase;
+use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+/**
+ * Class Speed_Score_Request_Test
+ *
+ * @package Automattic\Jetpack\Boost_Speed_Score\Tests\Lib
+ */
+class Speed_Score_Request_Test extends Base_TestCase {
+
+	const URL = 'http://example.com';
+
+	/**
+	 * Options, keyed by option name. Stands in for the options table.
+	 *
+	 * @var array
+	 */
+	public $options = array();
+
+	/**
+	 * The $autoload argument each option was last written with, keyed by option name.
+	 *
+	 * @var array
+	 */
+	public $autoload = array();
+
+	/**
+	 * Name the stubbed wp_get_theme() reports. Change it to simulate a theme switch.
+	 *
+	 * @var string
+	 */
+	public $theme_name = 'Twenty Twenty-Four';
+
+	/**
+	 * The response the stubbed API client returns when the request polls for an update.
+	 *
+	 * @var array
+	 */
+	public $api_response = array();
+
+	/**
+	 * Set up the WordPress and Boost API stubs this test needs.
+	 */
+	protected function set_up() {
+		parent::set_up();
+
+		$this->options      = array(
+			'home'    => 'http://example.com',
+			'siteurl' => 'http://example.com',
+		);
+		$this->autoload     = array();
+		$this->theme_name   = 'Twenty Twenty-Four';
+		$this->api_response = array();
+
+		// Name aware, unlike the stub in Speed_Score_History_Test. This test touches more than
+		// one option, so a single shared value would hide which one was written.
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default_value = false ) {
+				return array_key_exists( $name, $this->options ) ? $this->options[ $name ] : $default_value;
+			}
+		);
+
+		Functions\when( 'update_option' )->alias(
+			function ( $name, $value, $autoload = null ) {
+				$this->options[ $name ]  = $value;
+				$this->autoload[ $name ] = $autoload;
+
+				return true;
+			}
+		);
+
+		Functions\when( 'delete_option' )->alias(
+			function ( $name ) {
+				unset( $this->options[ $name ] );
+
+				return true;
+			}
+		);
+
+		Functions\when( 'wp_parse_args' )->alias(
+			function ( $args, $defaults = array() ) {
+				if ( is_object( $args ) ) {
+					$args = get_object_vars( $args );
+				} elseif ( ! is_array( $args ) ) {
+					$args = array();
+				}
+
+				return array_merge( $defaults, $args );
+			}
+		);
+
+		Functions\when( 'wp_get_theme' )->alias(
+			function () {
+				return new class( $this->theme_name ) {
+					/**
+					 * The theme name.
+					 *
+					 * @var string
+					 */
+					private $name;
+
+					/**
+					 * Constructor.
+					 *
+					 * @param string $name The theme name.
+					 */
+					public function __construct( $name ) {
+						$this->name = $name;
+					}
+
+					/**
+					 * Read a theme header.
+					 *
+					 * @param string $header The header to read.
+					 * @return string|null
+					 */
+					public function get( $header ) {
+						return 'Name' === $header ? $this->name : null;
+					}
+				};
+			}
+		);
+
+		// Boost_API caches its client in a private static, so the first test to reach the API
+		// would otherwise pin a real client for the rest of the process.
+		$this->set_api_client( $this->build_api_client() );
+	}
+
+	/**
+	 * Put the Boost API client back the way it was found.
+	 */
+	protected function tear_down() {
+		$this->set_api_client( null );
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Replace the client Boost_API caches.
+	 *
+	 * @param Boost_API_Client|null $client The client to use, or null to clear it.
+	 */
+	private function set_api_client( $client ) {
+		$property = new \ReflectionProperty( Boost_API::class, 'api_client' );
+
+		// Required to reach the private property before PHP 8.1, a deprecated no-op from 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
+		$property->setValue( null, $client );
+	}
+
+	/**
+	 * Build a client that answers every GET with $this->api_response.
+	 *
+	 * @return Boost_API_Client
+	 */
+	private function build_api_client() {
+		return new class( $this ) implements Boost_API_Client {
+			/**
+			 * The test case holding the canned response.
+			 *
+			 * @var Speed_Score_Request_Test
+			 */
+			private $test;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param Speed_Score_Request_Test $test The test case holding the canned response.
+			 */
+			public function __construct( $test ) {
+				$this->test = $test;
+			}
+
+			/**
+			 * Answer a GET with the canned response.
+			 *
+			 * @param string  $path  Request path.
+			 * @param mixed[] $query Query parameters.
+			 * @param mixed[] $args  Request arguments.
+			 * @return mixed
+			 */
+			public function get( $path, $query = array(), $args = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature is fixed by Boost_API_Client.
+				return $this->test->api_response;
+			}
+
+			/**
+			 * Answer a POST with an empty success.
+			 *
+			 * @param string  $path    Request path.
+			 * @param mixed[] $payload Request payload.
+			 * @param mixed[] $args    Request arguments.
+			 * @return mixed
+			 */
+			public function post( $path, $payload = array(), $args = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature is fixed by Boost_API_Client.
+				return array();
+			}
+		};
+	}
+
+	/**
+	 * The option name the history for self::URL is stored under.
+	 *
+	 * @return string
+	 */
+	private function history_option_name() {
+		return Speed_Score_History::OPTION_PREFIX . Speed_Score_Request::generate_cache_id_from_url( self::URL );
+	}
+
+	/**
+	 * Seed the stored history for self::URL.
+	 *
+	 * @param array $entries History entries, oldest first.
+	 */
+	private function seed_history( array $entries ) {
+		$this->options[ $this->history_option_name() ] = $entries;
+	}
+
+	/**
+	 * Build a history entry.
+	 *
+	 * @param array  $scores    Mobile and desktop scores.
+	 * @param int    $timestamp When the entry was recorded.
+	 * @param string $theme     The theme active at the time.
+	 * @return array
+	 */
+	private function entry( array $scores, $timestamp, $theme = 'Twenty Twenty-Four' ) {
+		return array(
+			'timestamp' => $timestamp,
+			'scores'    => $scores,
+			'theme'     => $theme,
+		);
+	}
+
+	/**
+	 * Raise the stale marker the way a site change does.
+	 *
+	 * @param int $timestamp When the site changed.
+	 */
+	private function mark_stale_at( $timestamp ) {
+		// Keep the expiry ahead of now: reading an expired marker calls the unstubbed delete_option().
+		$this->options[ Transient::key( Speed_Score_History::STALE_TRANSIENT_KEY ) ] = array(
+			'expire' => time() + DAY_IN_SECONDS,
+			'data'   => $timestamp,
+		);
+	}
+
+	/**
+	 * Poll a request for self::URL, with the API returning a successful run.
+	 *
+	 * @param array          $scores  The scores the run came back with.
+	 * @param int|float|null $created When the run was dispatched, or null for now.
+	 */
+	private function poll_with_scores( array $scores, $created = null ) {
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => $scores,
+		);
+
+		$request = new Speed_Score_Request( self::URL, array(), $created );
+		$this->assertTrue( $request->poll_update() );
+	}
+
+	/**
+	 * Call the handler with a stand-in, as WP_REST_Request is not loaded in these tests.
+	 *
+	 * @param mixed  $service The Speed_Score instance.
+	 * @param object $request Anything with get_json_params().
+	 * @return mixed
+	 */
+	private function fetch_with_stand_in_request( $service, $request ) {
+		return $service->fetch_speed_score( $request );
+	}
+
+	/**
+	 * Read a history entry, failing the test if it is missing.
+	 *
+	 * @param Speed_Score_History $history The history to read from.
+	 * @param int                 $offset  How far back from the latest entry to look.
+	 * @return array
+	 */
+	private function entry_at( Speed_Score_History $history, $offset = 0 ) {
+		$entry = $history->latest( $offset );
+		$this->assertIsArray( $entry );
+
+		return $entry;
+	}
+
+	/**
+	 * Read the history back the way the rest of the plugin does.
+	 *
+	 * @return Speed_Score_History
+	 */
+	private function stored_history() {
+		return new Speed_Score_History( self::URL );
+	}
+
+	/**
+	 * Provide each spelling of the two records a client can ask for.
+	 *
+	 * @return array[]
+	 */
+	public static function url_spellings() {
+		return array(
+			'slash'              => array( 'http://example.com/', 'http://example.com' ),
+			'no slash'           => array( 'http://example.com', 'http://example.com' ),
+			'subdirectory slash' => array( 'http://example.com/blog/', 'http://example.com/blog' ),
+			'query and slash'    => array( 'http://example.com/?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'query and no slash' => array( 'http://example.com?jb-disable-modules=all', 'http://example.com?jb-disable-modules=all' ),
+			'slash inside query' => array( 'http://example.com?page=a/', 'http://example.com?page=a/' ),
+		);
+	}
+
+	/**
+	 * Every spelling of a URL lands on one record, without merging in the "without Boost" one.
+	 *
+	 * @dataProvider url_spellings
+	 *
+	 * @param string $spelling  The URL a client sends.
+	 * @param string $canonical The URL the record belongs to.
+	 */
+	#[DataProvider( 'url_spellings' )]
+	public function test_url_spellings_share_one_key( $spelling, $canonical ) {
+		$this->assertSame(
+			hash( Speed_Score_Request::CACHE_KEY_HASH_ALGO, $canonical ),
+			Speed_Score_Request::generate_cache_id_from_url( $spelling )
+		);
+	}
+
+	/**
+	 * Provide the spelling holding the newest old record, and what home_url() says on the first build.
+	 *
+	 * @return array[]
+	 */
+	public static function old_records() {
+		return array(
+			'no slash is newest'             => array( 'http://example.com' ),
+			'slash is newest'                => array( 'http://example.com/' ),
+			'site URL is newest'             => array( 'http://example.com/wp' ),
+			'site URL with slash is newest'  => array( 'http://example.com/wp/' ),
+			'translation filter on home_url' => array( 'http://example.com/', 'http://example.com/fr' ),
+		);
+	}
+
+	/**
+	 * Seed an old record the way earlier versions stored it.
+	 *
+	 * @param string $spelling The exact URL the record was saved under.
+	 * @param array  $scores   Mobile and desktop scores.
+	 * @param int    $age      How long ago it was recorded, in seconds.
+	 */
+	private function seed_old_record( $spelling, array $scores, $age ) {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( $spelling ) ] = array( $this->entry( $scores, time() - $age ) );
+	}
+
+	/**
+	 * The first build moves the newest old record to the new key, removes the old rows and sets the marker.
+	 *
+	 * @dataProvider old_records
+	 *
+	 * @param string $newest_spelling The spelling holding the newest old record.
+	 * @param string $home_url        What home_url() returns during the first build.
+	 */
+	#[DataProvider( 'old_records' )]
+	public function test_first_build_migrates_the_newest_old_record( $newest_spelling, $home_url = 'http://example.com' ) {
+		$this->options['siteurl'] = 'http://example.com/wp';
+		Functions\when( 'home_url' )->justReturn( $home_url );
+
+		$old    = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$newest = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		foreach ( array( 'http://example.com', 'http://example.com/', 'http://example.com/wp', 'http://example.com/wp/' ) as $spelling ) {
+			$this->seed_old_record( $spelling, $spelling === $newest_spelling ? $newest : $old, $spelling === $newest_spelling ? 1000 : 2000 );
+		}
+
+		$this->assertSame( $newest, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+
+		$this->assertSame( array( 'home', 'siteurl', $this->history_option_name(), Speed_Score_History::LEGACY_MIGRATED_OPTION ), array_keys( $this->options ) );
+		$this->assertTrue( $this->autoload[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] );
+	}
+
+	public function test_filtered_home_recovers_scores_without_dispatching_and_preserves_default_language() {
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'rest_ensure_response' )->returnArg();
+		Functions\when( 'add_query_arg' )->alias(
+			function ( $key, $value, $url ) {
+				return $url . '?' . $key . '=' . $value;
+			}
+		);
+		$scores  = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$default = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$this->seed_old_record( self::URL . '/', $default, 2000 );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record( self::URL . '/fr/' . $query, $scores, 1000 );
+		}
+
+		$service = $this->getMockBuilder( Speed_Score::class )
+			->setConstructorArgs( array( array(), 'test' ) )
+			->onlyMethods( array( 'dispatch_speed_score_request' ) )
+			->getMock();
+		$service->expects( $this->never() )->method( 'dispatch_speed_score_request' );
+		$request = new class() {
+			public function get_json_params() {
+				return array( 'url' => 'http://example.com/fr/' );
+			}
+		};
+
+		$response = $this->fetch_with_stand_in_request( $service, $request );
+		$this->assertSame( $scores, $response['scores']['current'] );
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . '/fr/' . $query ), $this->options );
+		}
+		Functions\when( 'home_url' )->justReturn( self::URL );
+		$this->assertSame( $default, $this->stored_history()->latest_scores() );
+	}
+
+	public function test_filtered_home_leaves_the_default_record_when_the_stored_scheme_differs() {
+		Functions\when( 'home_url' )->justReturn( 'https://example.com/fr' );
+		Functions\when( 'get_site_url' )->justReturn( 'https://example.com' );
+		$scores = array(
+			'mobile'  => 67,
+			'desktop' => 63,
+		);
+		$this->seed_old_record( 'https://example.com', $scores, 1000 );
+
+		$this->assertNull( ( new Speed_Score_History( 'https://example.com/fr' ) )->latest_scores() );
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com' ) )->latest_scores() );
+	}
+
+	public function test_per_url_marker_is_not_autoloaded() {
+		( new Speed_Score_History( self::URL ) )->count();
+
+		$this->assertFalse( $this->autoload[ $this->history_option_name() . '_legacy_migrated' ] );
+	}
+
+	public function test_empty_home_history_recovers_newest_site_url_spelling() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+		Functions\when( 'home_url' )->justReturn( self::URL . '/fr' );
+		Functions\when( 'get_site_url' )->justReturn( self::URL . '/wp' );
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		foreach ( array( '', '?jb-disable-modules=all' ) as $query ) {
+			$this->seed_old_record(
+				self::URL . '/fr/' . $query,
+				array(
+					'mobile'  => 60,
+					'desktop' => 70,
+				),
+				2000
+			);
+			$this->seed_old_record( self::URL . '/wp' . $query, $scores, 1000 );
+			$this->seed_old_record( self::URL . '/wp/' . $query, $scores, 1500 );
+			$this->assertSame( $scores, ( new Speed_Score_History( self::URL . '/fr' . $query ) )->latest_scores() );
+			foreach ( array( '/fr/', '/wp', '/wp/' ) as $path ) {
+				$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( self::URL . $path . $query ), $this->options );
+			}
+		}
+	}
+
+	/**
+	 * A newer record on the new key survives the migration.
+	 */
+	public function test_migration_keeps_a_newer_canonical_record() {
+		$newer = array(
+			'mobile'  => 91,
+			'desktop' => 92,
+		);
+		$this->seed_old_record( 'http://example.com', $newer, 1000 );
+		$this->seed_old_record(
+			'http://example.com/',
+			array(
+				'mobile'  => 67,
+				'desktop' => 63,
+			),
+			2000
+		);
+
+		$this->assertSame( $newer, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+		$this->assertArrayNotHasKey( Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ), $this->options );
+	}
+
+	/**
+	 * A first build under cron, with the home URL in http, still moves the record the https admin wrote.
+	 */
+	public function test_migration_covers_the_other_scheme() {
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->seed_old_record( 'https://example.com/', $scores, 1000 );
+
+		( new Speed_Score_History( 'http://example.com' ) )->count();
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'https://example.com/' ) )->latest_scores() );
+	}
+
+	/**
+	 * Once the marker is set, a build of a populated record reads only that record.
+	 */
+	public function test_populated_history_reads_no_old_keys_once_migrated() {
+		$this->options[ Speed_Score_History::LEGACY_MIGRATED_OPTION ] = 1;
+
+		$this->seed_old_record(
+			self::URL,
+			array(
+				'mobile'  => 89,
+				'desktop' => 99,
+			),
+			1000
+		);
+
+		$reads = array();
+		Functions\when( 'get_option' )->alias(
+			function ( $name, $default_value = false ) use ( &$reads ) {
+				$reads[] = $name;
+
+				return $this->options[ $name ] ?? $default_value;
+			}
+		);
+
+		( new Speed_Score_History( 'http://example.com/' ) )->count();
+
+		$this->assertSame( array( Speed_Score_History::LEGACY_MIGRATED_OPTION, $this->history_option_name() ), $reads );
+	}
+
+	/**
+	 * The old "without Boost" record moves too, so dropping the query part can't lose it.
+	 */
+	public function test_migration_moves_the_old_comparison_record() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 60,
+		);
+
+		$this->seed_old_record( 'http://example.com/?jb-disable-modules=all', $scores, 1000 );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com?jb-disable-modules=all' ) )->latest_scores() );
+	}
+
+	/**
+	 * A run started with My Jetpack's spelling updates what the Boost dashboard reads.
+	 */
+	public function test_run_from_another_client_updates_the_boost_dashboard_record() {
+		$this->options[ Speed_Score_History::OPTION_PREFIX . md5( 'http://example.com/' ) ] = array(
+			$this->entry(
+				array(
+					'mobile'  => 67,
+					'desktop' => 63,
+				),
+				time() - 1000
+			),
+		);
+
+		$scores = array(
+			'mobile'  => 89,
+			'desktop' => 99,
+		);
+		$this->poll_with_scores( $scores );
+
+		$this->assertSame( $scores, ( new Speed_Score_History( 'http://example.com/' ) )->latest_scores() );
+	}
+
+	/**
+	 * A run that comes back with the same scores updates the latest entry's timestamp rather
+	 * than throwing the completion event away.
+	 */
+	public function test_unchanged_scores_touch_the_latest_entry_in_place() {
+		$scores          = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+		$older_scores    = array(
+			'mobile'  => 40,
+			'desktop' => 60,
+		);
+		$older_timestamp = time() - 4 * DAY_IN_SECONDS;
+
+		$this->seed_history(
+			array(
+				$this->entry( $older_scores, $older_timestamp ),
+				$this->entry( $scores, time() - 3 * DAY_IN_SECONDS ),
+			)
+		);
+
+		$before = time();
+		$this->poll_with_scores( $scores );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count(), 'No entry should have been added.' );
+		$this->assertSame( $scores, $history->latest_scores(), 'The scores should not have changed.' );
+		$this->assertGreaterThanOrEqual( $before, $this->entry_at( $history )['timestamp'] );
+
+		// The entry below the latest one is what feeds previousScores and the card's score
+		// increase arrow, so it has to be left alone.
+		$this->assertSame( $older_scores, $history->latest_scores( 1 ) );
+		$this->assertSame( $older_timestamp, $this->entry_at( $history, 1 )['timestamp'] );
+	}
+
+	/**
+	 * The touch rewrites the option, and must keep the non-autoload flag the push wrote.
+	 */
+	public function test_touching_the_latest_entry_does_not_autoload_the_option() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $scores, time() - DAY_IN_SECONDS ) ) );
+
+		$this->poll_with_scores( $scores );
+
+		$this->assertFalse( $this->autoload[ $this->history_option_name() ] );
+	}
+
+	/**
+	 * The timestamp move is what unfreezes is_stale(), so check the reader and not just the
+	 * stored value.
+	 */
+	public function test_unchanged_scores_leave_the_history_fresh() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $scores, time() - 3 * DAY_IN_SECONDS ) ) );
+
+		$this->assertTrue( $this->stored_history()->is_stale(), 'The seeded history should start stale.' );
+
+		$this->poll_with_scores( $scores );
+
+		$this->assertFalse( $this->stored_history()->is_stale() );
+	}
+
+	/**
+	 * The touch path added for repeating scores must not swallow runs whose scores changed.
+	 */
+	public function test_changed_scores_push_a_new_entry() {
+		$old_timestamp = time() - 3 * DAY_IN_SECONDS;
+		$old_scores    = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+		$new_scores    = array(
+			'mobile'  => 55,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $old_scores, $old_timestamp ) ) );
+
+		$this->poll_with_scores( $new_scores );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count() );
+		$this->assertSame( $new_scores, $history->latest_scores() );
+		$this->assertSame( $old_scores, $history->latest_scores( 1 ) );
+		$this->assertSame( $old_timestamp, $this->entry_at( $history, 1 )['timestamp'] );
+	}
+
+	/**
+	 * A theme switch still pushes a new entry even when the scores repeat.
+	 */
+	public function test_a_theme_change_pushes_a_new_entry() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $scores, time() - 3 * DAY_IN_SECONDS, 'Twenty Twenty-Three' ) ) );
+
+		$this->poll_with_scores( $scores );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count() );
+		$this->assertSame( 'Twenty Twenty-Four', $this->entry_at( $history )['theme'] );
+	}
+
+	/**
+	 * With no previous entry there is nothing to compare against, so the first run always pushes.
+	 */
+	public function test_an_empty_history_records_the_first_run() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->poll_with_scores( $scores );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 1, $history->count() );
+		$this->assertSame( $scores, $history->latest_scores() );
+	}
+
+	/**
+	 * Boost_Abilities defends against stdClass scores, so such history entries exist on long
+	 * lived sites, and an object never equals the array the API returns — a legacy entry would
+	 * otherwise be pushed forever. Check that one push replaces it and touches follow.
+	 */
+	public function test_legacy_object_scores_converge_on_touching() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history(
+			array(
+				array(
+					'timestamp' => time() - 3 * DAY_IN_SECONDS,
+					'scores'    => (object) $scores,
+					'theme'     => 'Twenty Twenty-Four',
+				),
+			)
+		);
+
+		$this->poll_with_scores( $scores );
+		$this->assertSame( 2, $this->stored_history()->count() );
+
+		// Age the entry the push wrote: without this the history stays fresh and the assertion
+		// below passes whether or not the touch happened.
+		$entries = $this->options[ $this->history_option_name() ];
+
+		$entries[ count( $entries ) - 1 ]['timestamp'] = time() - 3 * DAY_IN_SECONDS;
+		$this->seed_history( $entries );
+		$this->assertTrue( $this->stored_history()->is_stale() );
+
+		// The replacement entry is a plain array, so this run touches instead of pushing.
+		$this->poll_with_scores( $scores );
+
+		$history = $this->stored_history();
+		$this->assertSame( 2, $history->count() );
+		$this->assertFalse( $history->is_stale() );
+	}
+
+	/**
+	 * Reading a theme-less legacy entry used to raise an undefined array key warning, which
+	 * this suite fails on. The run should treat the theme as changed and push.
+	 */
+	public function test_a_legacy_entry_without_a_theme_pushes_quietly() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history(
+			array(
+				array(
+					'timestamp' => time() - 3 * DAY_IN_SECONDS,
+					'scores'    => $scores,
+				),
+			)
+		);
+
+		$this->poll_with_scores( $scores );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count() );
+		$this->assertSame( 'Twenty Twenty-Four', $this->entry_at( $history )['theme'] );
+	}
+
+	/**
+	 * A stale marker raised after the run was dispatched must survive the run completing with
+	 * unchanged scores, because those scores predate the site change that raised the marker.
+	 */
+	public function test_a_stale_marker_raised_mid_run_is_not_overwritten() {
+		$scores = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+
+		$this->seed_history( array( $this->entry( $scores, time() - 3 * DAY_IN_SECONDS ) ) );
+
+		// The run was dispatched five minutes ago; the site changed one minute ago.
+		$this->mark_stale_at( time() - 60 );
+
+		$this->poll_with_scores( $scores, microtime( true ) - 300 );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 1, $history->count(), 'No entry should have been added.' );
+		$this->assertTrue( $history->is_stale(), 'Scores measured before the site change must stay stale.' );
+	}
+
+	/**
+	 * A run predates a mid-run site change whether or not its scores moved, so a changed score
+	 * must not clear the marker either.
+	 */
+	public function test_a_stale_marker_raised_mid_run_survives_changed_scores() {
+		$old_scores    = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+		$new_scores    = array(
+			'mobile'  => 55,
+			'desktop' => 70,
+		);
+		$dispatched_at = microtime( true ) - 300;
+
+		$this->seed_history( array( $this->entry( $old_scores, time() - 3 * DAY_IN_SECONDS ) ) );
+		$this->mark_stale_at( time() - 60 );
+
+		$this->poll_with_scores( $new_scores, $dispatched_at );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count(), 'The measurement should still be recorded.' );
+		$this->assertSame( $new_scores, $history->latest_scores() );
+		$this->assertSame( (int) $dispatched_at, $this->entry_at( $history )['timestamp'], 'The entry should be dated to the dispatch, not the response.' );
+		$this->assertTrue( $history->is_stale(), 'Scores measured before the site change must stay stale.' );
+	}
+
+	/**
+	 * The empty-history touch must not create the option as a side effect.
+	 */
+	public function test_touching_an_empty_history_writes_nothing() {
+		$history = $this->stored_history();
+
+		$history->touch_latest();
+
+		$this->assertSame( 0, $history->count() );
+		$this->assertArrayNotHasKey( $this->history_option_name(), $this->options );
+	}
+}

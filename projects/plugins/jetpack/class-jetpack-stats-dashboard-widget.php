@@ -41,17 +41,16 @@ class Jetpack_Stats_Dashboard_Widget {
 	 * Sets up the Jetpack Stats widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		/**
-		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
-		 * By default, the dashboard widget is shown to users who can view_stats.
-		 *
-		 * @module stats
-		 * @since 11.9
-		 *
-		 * @param bool Whether to show the widget to the current user.
-		 */
-		// Temporarily show the widget to administrators for Simple sites as the view_stats capability is not available.
-		// TODO: Grant the view_stats capability to corresponding users for Simple sites.
+		// WordPress.com Simple sites load this class next to the stats-admin copy in jetpack-mu-wpcom, which can predate register_widget().
+		if ( method_exists( Dashboard_Stats_Widget::class, 'register_widget' ) ) {
+			// Atomic filters readiness to require a connected owner, which the package's own connection check does not see.
+			if ( Jetpack::is_connection_ready() && Dashboard_Stats_Widget::register_widget() ) {
+				add_action( 'admin_head', array( static::class, 'admin_head' ) );
+			}
+			return;
+		}
+
+		/** This filter is documented in projects/packages/stats-admin/src/class-wp-dashboard-odyssey-widget.php */
 		$can_user_view_stats = current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
 		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', $can_user_view_stats ) ) {
 			return;

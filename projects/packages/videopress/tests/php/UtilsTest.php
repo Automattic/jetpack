@@ -15,6 +15,30 @@ use WorDBless\BaseTestCase;
  */
 class UtilsTest extends BaseTestCase {
 	/**
+	 * Tear down after each test.
+	 */
+	public function tear_down() {
+		delete_option( 'videopress_player_preload_disabled' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Test that the site-wide preload opt-out overrides the block's preload attribute.
+	 */
+	public function test_get_video_press_url_honors_site_preload_opt_out() {
+		$guid = '123abc';
+
+		$url = Utils::get_video_press_url( $guid, array( 'preload' => 'metadata' ) );
+		$this->assertStringContainsString( 'preloadContent=metadata', $url );
+
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$url = Utils::get_video_press_url( $guid, array( 'preload' => 'metadata' ) );
+		$this->assertStringContainsString( 'preloadContent=none', $url );
+		$this->assertStringNotContainsString( 'preloadContent=metadata', $url );
+	}
+
+	/**
 	 * Test the get_video_press_url method.
 	 */
 	public function test_get_video_press_url() {

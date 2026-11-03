@@ -15,6 +15,20 @@ jest.unstable_mockModule( '../../../data/get-site', () => ( {
 	default: () => site,
 } ) );
 
+// Real class names for the preview parts. Without this jest resolves every key to
+// `undefined`, and an assertion that a span "has" that class passes vacuously —
+// which is exactly the bug this test exists to catch (see #50619).
+jest.unstable_mockModule( '../title-structure-field.module.scss', () => ( {
+	default: {
+		previewValue: 'preview-value',
+		previewSeparator: 'preview-separator',
+		row: 'row',
+		muted: 'muted',
+		preview: 'preview',
+		save: 'save',
+	},
+} ) );
+
 const { default: TitleStructureField } = await import( '../title-structure-field' );
 
 const SITE: SiteData = {
@@ -40,6 +54,7 @@ const renderField = ( formats: Record< string, TitleFormatToken[] > = {} ) =>
 			onSaveFormat={ jest.fn() }
 			isFormatDirty={ () => false }
 			titleSeparator="-"
+			editable
 		/>
 	);
 
@@ -51,6 +66,23 @@ const renderField = ( formats: Record< string, TitleFormatToken[] > = {} ) =>
 const expand = () =>
 	// eslint-disable-next-line testing-library/prefer-user-event -- single click; fireEvent avoids the user-event devDep (lockfile churn).
 	fireEvent.click( screen.getByRole( 'button', { name: /Title structure/ } ) );
+
+/**
+ * The rendered preview for every page-type row, as plain strings.
+ *
+ * Previews render as chips and separators rather than one text node, so no
+ * `getByText` can match a whole title. Reading each row's `textContent` back is
+ * the stronger assertion anyway: it proves the parts *concatenate* to exactly
+ * the title that would be emitted, which is the whole promise of the preview.
+ * The "Preview:" label is stripped; surrounding whitespace is left alone so the
+ * separator spacing stays assertable.
+ *
+ * @return One string per rendered row.
+ */
+const previews = (): string[] =>
+	screen
+		.getAllByText( 'Preview:' )
+		.map( label => ( label.parentElement?.textContent ?? '' ).replace( /^Preview:/, '' ) );
 
 describe( 'TitleStructureField', () => {
 	beforeEach( () => {
@@ -82,8 +114,8 @@ describe( 'TitleStructureField', () => {
 			// Core pairs the page-specific title with the site title everywhere but
 			// the front page, where it pairs the site title with the tagline. Each
 			// preview is unique, so no per-row scoping is needed.
-			expect( screen.getByText( /Hello World - Acme Co/ ) ).toBeInTheDocument();
-			expect( screen.getByText( /Acme Co - We make things/ ) ).toBeInTheDocument();
+			expect( previews() ).toContainEqual( expect.stringMatching( /Hello World - Acme Co/ ) );
+			expect( previews() ).toContainEqual( expect.stringMatching( /Acme Co - We make things/ ) );
 		} );
 
 		it( 'marks an untouched field as using the default', () => {
@@ -95,6 +127,49 @@ describe( 'TitleStructureField', () => {
 			);
 		} );
 
+		// The preview is split into elements so the title's structure is legible:
+		// values chipped, separators left as plain text. What matters is that the
+		// split is faithful — concatenating the pieces has to give the exact title,
+		// with the admin's own spacing intact.
+		it( 'splits the preview into values and separators without altering the title', () => {
+			renderField( {
+				posts: [
+					{ type: 'token', value: 'post_title' },
+					{ type: 'string', value: ' | ' },
+					{ type: 'token', value: 'site_name' },
+				],
+			} );
+			expand();
+
+			// Every page type renders a row, so pick the one under test by its content
+			// rather than by position — the row order is not this test's subject.
+			const row = screen
+				.getAllByText( 'Preview:' )
+				// eslint-disable-next-line testing-library/no-node-access -- asserting the DOM split is this test's subject; no TL query exposes sibling structure.
+				.map( label => label.parentElement! )
+				.find( node => node.textContent?.includes( 'Hello World' ) )!;
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			const parts = Array.from( row.querySelectorAll( 'span' ) ).map( node => node.textContent );
+
+			// Three pieces, in order, with the separator kept as its own part and its
+			// surrounding spaces intact in the DOM. (The `white-space: pre` that stops
+			// the browser collapsing those spaces on screen is a stylesheet concern —
+			// jsdom applies no CSS, so it can't be asserted here.)
+			expect( parts ).toEqual( [ 'Hello World', ' | ', 'Acme Co' ] );
+			expect( parts.join( '' ) ).toBe( 'Hello World | Acme Co' );
+
+			// And the two kinds are distinguishable, which the text alone doesn't show:
+			// values are chipped, the separator is not. Without this, rendering every
+			// part identically would still satisfy the assertions above.
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			const spans = Array.from( row.querySelectorAll( 'span' ) );
+			expect( spans.map( node => node.className ) ).toEqual( [
+				'preview-value',
+				'preview-separator',
+				'preview-value',
+			] );
+		} );
+
 		it( 'previews a stored format from its tokens', () => {
 			renderField( {
 				posts: [
@@ -104,7 +179,7 @@ describe( 'TitleStructureField', () => {
 				],
 			} );
 			expand();
-			expect( screen.getByText( /Hello World \| Acme Co/ ) ).toBeInTheDocument();
+			expect( previews() ).toContainEqual( expect.stringMatching( /Hello World \| Acme Co/ ) );
 		} );
 	} );
 
@@ -120,7 +195,7 @@ describe( 'TitleStructureField', () => {
 			expand();
 			// The front page pairs site title + tagline; with no tagline core drops
 			// that part rather than leaving a dangling separator.
-			expect( screen.getByText( /^\s*Acme Co\s*$/ ) ).toBeInTheDocument();
+			expect( previews() ).toContainEqual( expect.stringMatching( /^\s*Acme Co\s*$/ ) );
 			expect( screen.queryByText( /Your tagline/ ) ).not.toBeInTheDocument();
 		} );
 
@@ -133,7 +208,7 @@ describe( 'TitleStructureField', () => {
 				],
 			} );
 			expand();
-			expect( screen.getByText( /^\s*Acme Co -\s*$/ ) ).toBeInTheDocument();
+			expect( previews() ).toContainEqual( expect.stringMatching( /^\s*Acme Co -\s*$/ ) );
 			expect( screen.queryByText( /Your tagline/ ) ).not.toBeInTheDocument();
 		} );
 
@@ -154,6 +229,41 @@ describe( 'TitleStructureField', () => {
 		site = null;
 		renderField();
 		expand();
-		expect( screen.getByText( /Hello World - Your site/ ) ).toBeInTheDocument();
+		expect( previews() ).toContainEqual( expect.stringMatching( /Hello World - Your site/ ) );
+	} );
+
+	it( 'shows all saved formats read-only while title output is conflicted', () => {
+		const formats: Record< string, TitleFormatToken[] > = {
+			front_page: [ { type: 'string', value: 'Front value' } ],
+			posts: [ { type: 'string', value: 'Post value' } ],
+			pages: [ { type: 'string', value: 'Page value' } ],
+			groups: [ { type: 'string', value: 'Tag value' } ],
+			archives: [ { type: 'string', value: 'Archive value' } ],
+		};
+
+		render(
+			<TitleStructureField
+				formats={ formats }
+				onChange={ jest.fn() }
+				onSaveFormat={ jest.fn() }
+				isFormatDirty={ () => true }
+				titleSeparator="-"
+				editable={ false }
+			/>
+		);
+		expand();
+
+		expect(
+			screen.getAllByText( /Another SEO plugin is controlling title output/ )
+		).not.toHaveLength( 0 );
+		expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
+		expect( screen.getByRole( 'textbox', { name: 'Posts' } ) ).toHaveValue( 'Post value' );
+		expect( screen.getByRole( 'textbox', { name: 'Pages' } ) ).toHaveValue( 'Page value' );
+		expect( screen.getByRole( 'textbox', { name: 'Tags' } ) ).toHaveValue( 'Tag value' );
+		expect( screen.getByRole( 'textbox', { name: 'Archives' } ) ).toHaveValue( 'Archive value' );
+		screen.getAllByRole( 'textbox' ).forEach( input => expect( input ).toBeDisabled() );
+		screen
+			.getAllByRole( 'button', { name: 'Save' } )
+			.forEach( button => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 } );

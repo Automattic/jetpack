@@ -188,7 +188,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		// let's be explicit about defaulting to 'post'.
-		$args['type'] = $args['type'] ?? 'post';
+		$args['type'] ??= 'post';
 
 		// make sure the user can read or edit the requested post type(s).
 		if ( is_array( $args['type'] ) ) {

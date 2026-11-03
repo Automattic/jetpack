@@ -18,9 +18,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	dispatch: ( ...args ) => mockDispatch( ...args ),
 } ) );
 
-const { removeJetpackBlockCollection, restoreJetpackBlockCollection } = await import(
-	'../../../../src/form-editor/utils/block-collection'
-);
+const { removeJetpackBlockCollection, restoreJetpackBlockCollection } =
+	await import( '../../../../src/form-editor/utils/block-collection' );
 
 const resetMocks = () => {
 	jest.clearAllMocks();

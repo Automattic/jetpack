@@ -1,5 +1,7 @@
+import { WidgetCard } from '../../../stories/widget-card';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { LeaderboardChart } from '../leaderboard-chart';
+import { LeaderboardSkeleton } from '../leaderboard-skeleton';
 import type { LeaderboardChartData } from '../leaderboard-chart';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 
@@ -29,36 +31,24 @@ const mockLeaderboardData: LeaderboardChartData = [
 		label: 'Direct traffic',
 		currentValue: 125000,
 		previousValue: 98000,
-		currentShare: 42,
-		previousShare: 35,
-		delta: 27.55,
 	},
 	{
 		id: '2',
 		label: 'Google Ads',
 		currentValue: 87500,
 		previousValue: 92000,
-		currentShare: 29,
-		previousShare: 33,
-		delta: -4.89,
 	},
 	{
 		id: '3',
 		label: 'Email campaign',
 		currentValue: 53000,
 		previousValue: 61000,
-		currentShare: 18,
-		previousShare: 22,
-		delta: -13.11,
 	},
 	{
 		id: '4',
 		label: 'Social media',
 		currentValue: 31500,
 		previousValue: 28000,
-		currentShare: 11,
-		previousShare: 10,
-		delta: 12.5,
 	},
 ];
 
@@ -68,27 +58,18 @@ const mockLongLabelData: LeaderboardChartData = [
 		label: 'Very Long Campaign Name That Might Need To Be Truncated',
 		currentValue: 125000,
 		previousValue: 98000,
-		currentShare: 45,
-		previousShare: 38,
-		delta: 27.55,
 	},
 	{
 		id: '2',
 		label: 'Another Extremely Long Label For Testing',
 		currentValue: 87500,
 		previousValue: 92000,
-		currentShare: 32,
-		previousShare: 36,
-		delta: -4.89,
 	},
 	{
 		id: '3',
 		label: 'Medium length label',
 		currentValue: 63000,
 		previousValue: 67000,
-		currentShare: 23,
-		previousShare: 26,
-		delta: -5.97,
 	},
 ];
 
@@ -194,27 +175,18 @@ export const PercentageFormat: Story = {
 				label: 'Conversion rate A',
 				currentValue: 0.0435,
 				previousValue: 0.038,
-				currentShare: 48,
-				previousShare: 42,
-				delta: 14.47,
 			},
 			{
 				id: '2',
 				label: 'Conversion rate B',
 				currentValue: 0.0312,
 				previousValue: 0.035,
-				currentShare: 34,
-				previousShare: 38,
-				delta: -10.86,
 			},
 			{
 				id: '3',
 				label: 'Conversion rate C',
 				currentValue: 0.0163,
 				previousValue: 0.018,
-				currentShare: 18,
-				previousShare: 20,
-				delta: -9.44,
 			},
 		],
 		withComparison: true,
@@ -317,4 +289,92 @@ export const Resizable: Story = {
 	parameters: {
 		layout: 'padded',
 	},
+};
+
+/**
+ * A fixed-height tile, so the header and row fitting behave as they do in the dashboard.
+ */
+const withTileHeight =
+	( height: number ): Decorator =>
+	Story => (
+		<div style={ { width: 370, height } }>
+			<Story />
+		</div>
+	);
+
+/**
+ * With a column header naming the rows and the metric. Hovering an abbreviated
+ * value restores the exact figure with its unit, e.g. "4,186 views".
+ */
+export const WithColumns: Story = {
+	args: {
+		data: mockLeaderboardData,
+		withOverlayLabel: true,
+		showLegend: false,
+		dataFormat: { type: 'number', options: { useMultipliers: true } },
+		columns: { label: 'Pages', metric: 'views' },
+	},
+	decorators: [ withTileHeight( 340 ) ],
+};
+
+/**
+ * The metric heading sits over the value and its delta together.
+ */
+export const WithColumnsAndComparison: Story = {
+	args: {
+		...WithColumns.args,
+		withComparison: true,
+	},
+	decorators: [ withTileHeight( 340 ) ],
+};
+
+/**
+ * A height-1 tile hides the header and keeps every row that fits.
+ */
+export const WithColumnsShortTile: Story = {
+	args: WithColumns.args,
+	decorators: [ withTileHeight( 110 ) ],
+};
+
+type SkeletonStory = StoryObj< typeof LeaderboardSkeleton >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`, in the
+ * default `list` variant: the label and its value on one line, centred in the
+ * body. A full-height tile fits every row the widget asked for.
+ */
+export const Skeleton: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="320px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 5 },
+};
+
+/**
+ * The `bars` variant, for a chart drawn without `withOverlayLabel`: the label
+ * sits above its bar, so the row loads as two lines rather than one.
+ */
+export const SkeletonBars: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="320px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 5, variant: 'bars' },
+};
+
+/**
+ * A height-1 dashboard tile. Too short to centre eight rows, so they pack from
+ * the top and the tail is clipped rather than pushed past the widget body —
+ * the rows the loaded chart's `fitRows` drops.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="140px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 8 },
 };

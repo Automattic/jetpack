@@ -1,5 +1,7 @@
-import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
+import type { ConnectionOwner, WpcomUser } from '../../types.ts';
 import type { SyntheticEvent } from 'react';
+
+export type { ConnectionOwner, WpcomUser };
 
 export interface UseConnectionProps {
 	/**
@@ -36,20 +38,32 @@ export interface UseConnectionProps {
 	skipPricingPage?: boolean;
 }
 
-export interface WpcomUser {
-	display_name?: string;
-	email?: string;
-	login?: string;
-	avatar?: string;
-	ID?: number;
-	[ key: string ]: unknown;
+/**
+ * The viewer's capabilities, as `REST_Connector::get_user_connection_data()` sends them.
+ *
+ * Named rather than a `Record`, so a mistyped capability is a compile error instead of a
+ * silent `false` — which would read as a legitimate denial.
+ */
+export interface ConnectionUserPermissions {
+	connect?: boolean;
+	connect_user?: boolean;
+	unlink_user?: boolean;
+	disconnect?: boolean;
+	manage_options?: boolean;
 }
 
 export interface UserConnectionData {
 	currentUser?: {
 		wpcomUser?: WpcomUser;
 		username?: string;
+		/** The viewer's local WordPress user ID. */
+		id?: number;
+		/** The viewer's local display name. */
+		displayName?: string;
+		/** The viewer's local email address. */
+		email?: string;
 		isMaster?: boolean;
+		permissions?: ConnectionUserPermissions;
 		possibleAccountErrors?: Record< string, unknown >;
 		[ key: string ]: unknown;
 	};
@@ -59,7 +73,7 @@ export interface UserConnectionData {
 
 export interface RegistrationError {
 	message?: string;
-	response?: { code?: string };
+	response?: { code?: string; message?: string };
 	[ key: string ]: unknown;
 }
 
@@ -73,9 +87,10 @@ export interface UseConnectionReturn {
 	userIsConnecting: boolean;
 	registrationError: RegistrationError | false;
 	userConnectionData: UserConnectionData;
+	/** The owner of record; null when unresolvable or withheld from this viewer. */
+	connectionOwner: ConnectionOwner | null;
 	hasConnectedOwner: boolean;
 	connectedPlugins: Record< string, unknown > | unknown[];
 	connectionErrors: Array< string | object >;
-	connectionHealthErrors: ConnectionErrorMap;
 	isOfflineMode: boolean;
 }

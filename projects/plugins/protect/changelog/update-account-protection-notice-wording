@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Account Protection: Update the breached password notice so it no longer says the feature was activated automatically.

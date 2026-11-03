@@ -1,7 +1,8 @@
+// eslint-disable-next-line @wordpress/use-recommended-components -- Keep the existing breadcrumb control while adding the site entity.
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Fieldset, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Fieldset, Notice, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
@@ -23,28 +24,30 @@ const SAVE_ERROR_ID = 'jetpack-seo-settings-schema-save-error';
 interface Props {
 	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
+	disabled?: boolean;
+	planLocked?: boolean;
+	disabledReason?: string;
 }
 
 /**
- * Site-level Schema settings module.
- *
- * A single guided card: a Breadcrumbs toggle, then a "what does this site
- * represent?" choice (Organization or Person) that reveals the matching fields.
- * Local-business details are a refinement of the Organization branch (a
- * sub-toggle under it), not a peer choice — schema.org models LocalBusiness as a
- * kind of Organization. The Author profile (Person / ProfilePage for the
- * signed-in user) is a distinct concern and lives in its own card.
- *
- * Collapsed by default and built from the shared `CollapsibleCard` compound,
- * matching the other Settings modules (Canonical URLs, Title structure, Site
- * verification).
+ * Site-level Breadcrumbs and Organization/Person settings in one collapsible card.
  *
  * @param root0                 - Component props.
  * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
+ * @param root0.disabled        - Whether editing is disabled.
+ * @param root0.planLocked      - Whether the plan prevents editing.
+ * @param root0.disabledReason  - Explanation shown while editing is disabled.
  * @return The Schema settings card.
  */
-function SchemaCard( { initialSettings, onSave }: Props ) {
+function SchemaCard( {
+	initialSettings,
+	onSave,
+	disabled: outputDisabled = false,
+	planLocked = false,
+	disabledReason,
+}: Props ) {
+	const disabled = outputDisabled || planLocked;
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
 		siteRepresents,
@@ -109,6 +112,8 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 		hasProfileUrlErrors( organization.sameAs ) ||
 		( localBusiness.enabled && hasLocalBusinessErrors( form ) );
 
+	const saveDescriptionId = disabled ? 'jetpack-seo-schema-disabled' : SAVE_ERROR_ID;
+
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
@@ -122,7 +127,18 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<Stack direction="column" gap="lg">
+				<Stack
+					direction="column"
+					gap="lg"
+					role="group"
+					aria-label={ __( 'Schema settings', 'jetpack-seo' ) }
+					aria-describedby={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
+				>
+					{ disabled && disabledReason && (
+						<Notice.Root intent="warning" id="jetpack-seo-schema-disabled">
+							<Notice.Description>{ disabledReason }</Notice.Description>
+						</Notice.Root>
+					) }
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'Structured data that tells search engines and AI assistants what your site is and who runs it. Answer a couple of questions and Jetpack adds the right markup automatically.',
@@ -138,43 +154,41 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 						) }
 						checked={ breadcrumbList.enabled }
 						// eslint-disable-next-line react/jsx-no-bind
-						onChange={ next => commitBreadcrumbList( { enabled: next } ) }
-						disabled={ isSaving }
+						onChange={ next => {
+							if ( ! disabled ) {
+								commitBreadcrumbList( { enabled: next } );
+							}
+						} }
+						disabled={ disabled || isSaving }
 						__nextHasNoMarginBottom
 					/>
 
-					{ /* The site-entity group. Its top border is the hairline separating it
-					   from the Breadcrumbs toggle — a border rather than an `<hr>`, which
-					   would add an unnamed separator to the accessibility tree for what is
-					   a purely visual cue. */ }
+					{ /* Keep the entity selector and its fields in one visual group. */ }
 					<div className={ styles.entityGroup }>
 						<Stack direction="column" gap="lg">
 							<EntitySelector
 								value={ siteRepresents }
 								onChange={ commitSiteRepresents }
-								disabled={ isSaving }
+								disabled={ disabled || isSaving }
 							/>
 
 							{ isPerson ? (
-								<PersonSection form={ form } />
+								<PersonSection
+									form={ form }
+									disabled={ disabled }
+									disabledReasonId={ disabledReason ? 'jetpack-seo-schema-disabled' : undefined }
+								/>
 							) : (
-								/* A real fieldset, so the Organization details and their
-								   local-business refinement stay one named group — they no
-								   longer have a card header each, and a `Stack` is a plain div
-								   that carries no semantics. The legend is hidden because the
-								   selector above already names the branch on screen. */
+								/* Name the Organization fields separately from the entity selector. */
 								<Fieldset.Root className={ styles.entityFieldset }>
 									<Fieldset.Legend hideFromVision>
 										{ __( 'Organization details', 'jetpack-seo' ) }
 									</Fieldset.Legend>
 									<Stack direction="column" gap="lg">
-										<OrganizationSection form={ form } />
-										<LocalBusinessSection form={ form } />
+										<OrganizationSection form={ form } disabled={ disabled } />
+										<LocalBusinessSection form={ form } disabled={ disabled } />
 
-										{ /* One Save for the whole Organization branch. The visible label
-										   stays "Save" to match the other modules, but the accessible name
-										   names the module: this tab renders several "Save" buttons, so a
-										   bare one is ambiguous in a screen reader's button list. */ }
+										{ /* Qualify the accessible Save label to distinguish it from the other cards. */ }
 										<Stack direction="row" justify="flex-end" align="center" gap="sm">
 											{ hasBlockingErrors && (
 												<Text variant="body-sm" id={ SAVE_ERROR_ID } className={ styles.saveError }>
@@ -184,12 +198,15 @@ function SchemaCard( { initialSettings, onSave }: Props ) {
 											<Button
 												onClick={ saveOrganizationEntity }
 												disabled={
+													disabled ||
 													isSaving ||
 													! ( isOrganizationDirty || isLocalBusinessDirty ) ||
 													hasBlockingErrors
 												}
 												aria-label={ __( 'Save schema settings', 'jetpack-seo' ) }
-												aria-describedby={ hasBlockingErrors ? SAVE_ERROR_ID : undefined }
+												aria-describedby={
+													disabled || hasBlockingErrors ? saveDescriptionId : undefined
+												}
 											>
 												{ __( 'Save', 'jetpack-seo' ) }
 											</Button>

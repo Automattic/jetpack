@@ -10,13 +10,13 @@ import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { registerStatsMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks';
-import { forceStatsMockState } from '../../stories/force-stats-mock-state';
+import { forceStatsMockState, type ForcedMockState } from '../../stories/force-stats-mock-state';
 import UtmInsightsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentProps, ComponentType } from 'react';
+import { useEffect, type ComponentProps, type ComponentType } from 'react';
 
 registerReportMocks();
 registerStatsMocks();
@@ -29,9 +29,14 @@ interface UtmInsightsStoryControls {
 	withComparison: boolean;
 }
 
+type UtmDataState = 'data' | ForcedMockState;
+
+const UTM_DATA_STATES: UtmDataState[] = [ 'data', 'loading', 'empty', 'error', 'error-retryable' ];
+
 interface UtmInsightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		UtmInsightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {
+	dataState: UtmDataState;
+}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/UtmInsights',
@@ -64,7 +69,6 @@ export const Default: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -78,7 +82,6 @@ export const WithComparison: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -93,7 +96,6 @@ function renderUtmInsightsOnPreset( preset: PresetType ) {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>
@@ -146,11 +148,10 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral megaphone
- * glyph and "No UTM data in this period.").
+ * Resolved with no rows: the widget offers Build URL and keeps View all available.
  */
 export const Empty: Story = {
-	render: () => renderUtmInsightsOnPreset( 'last-365-days' ),
+	render: () => renderUtmInsightsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -165,7 +166,6 @@ export const ByCampaign: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_campaign',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -178,8 +178,17 @@ export const ByCampaign: Story = {
 // exactly as it does in product (size / edit-mode / host-environment controls).
 function UtmInsightsDashboardStory( {
 	withComparison,
+	dataState,
 	...dashboardArgs
 }: UtmInsightsDashboardStoryProps ) {
+	useEffect( () => {
+		if ( dataState === 'data' ) {
+			return;
+		}
+		forceStatsMockState( 'stats/utm', dataState );
+		return () => forceStatsMockState( 'stats/utm', null );
+	}, [ dataState ] );
+
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -188,7 +197,6 @@ function UtmInsightsDashboardStory( {
 			renderComponent={ UtmInsightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -197,12 +205,18 @@ function UtmInsightsDashboardStory( {
 
 export const WidgetDashboardWithWidget: DashboardStory = {
 	render: args => <UtmInsightsDashboardStory { ...args } />,
-	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false },
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: false, dataState: 'data' },
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		withComparison: {
 			control: 'boolean',
 			description: 'Include previous-period comparison report params and deltas.',
+		},
+		dataState: {
+			control: 'radio',
+			options: UTM_DATA_STATES,
+			description:
+				'What the UTM report request does: serve rows, never settle, resolve with none, or fail with a permission (`error`) or connection (`error-retryable`) 403.',
 		},
 	},
 };

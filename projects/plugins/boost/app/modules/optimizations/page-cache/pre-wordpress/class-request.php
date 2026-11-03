@@ -12,7 +12,7 @@ class Request {
 	private static $current_request = null;
 
 	/**
-	 * @var string - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
+	 * @var string|false - The normalized path for the current request. This is not sanitized. Only to be used for comparison purposes.
 	 */
 	private $request_uri = false;
 
@@ -135,6 +135,10 @@ class Request {
 	 * @return bool
 	 */
 	public function is_cacheable() {
+		if ( false === $this->request_uri ) {
+			return false;
+		}
+
 		/**
 		 * Determines if the request is considered cacheable.
 		 *

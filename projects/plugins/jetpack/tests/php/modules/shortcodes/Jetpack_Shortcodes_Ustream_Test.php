@@ -23,7 +23,7 @@ class Jetpack_Shortcodes_Ustream_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_ustream() {
 		$content           = '[ustream]';
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- ustream error: bad video ID -->', $shortcode_content );
 	}
@@ -35,7 +35,7 @@ class Jetpack_Shortcodes_Ustream_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_ustreamsocial() {
 		$content           = '[ustreamsocial]';
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- ustreamsocial error: bad social stream ID -->', $shortcode_content );
 	}
@@ -49,7 +49,7 @@ class Jetpack_Shortcodes_Ustream_Test extends WP_UnitTestCase {
 		$id      = '1524';
 		$content = "[ustream id='$id']";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe src="https://www.ustream.tv/embed/recorded/' . $id, $shortcode_content );
 	}
@@ -63,7 +63,7 @@ class Jetpack_Shortcodes_Ustream_Test extends WP_UnitTestCase {
 		$id      = '12980237';
 		$content = "[ustreamsocial id='$id' width=500]";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe id="SocialStream" src="https://www.ustream.tv/socialstream/' . $id, $shortcode_content );
 	}

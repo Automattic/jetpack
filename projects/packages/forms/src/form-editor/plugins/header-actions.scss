@@ -1,0 +1,16 @@
+@use "@wordpress/base-styles/mixins";
+
+/*
+ * `@wordpress/interface` hides pinned items on narrow viewports so the list
+ * doesn't wreak havoc on the header layout, but it does so with a
+ * `.interface-pinned-items .components-button` rule. `ButtonLink` renders an
+ * anchor carrying only `@wordpress/ui` classes, so it slips past that rule —
+ * reapply the same breakpoint here.
+ */
+.jetpack-form-header-actions__view-responses {
+	display: none;
+
+	@include mixins.break-small() {
+		display: inline-flex;
+	}
+}

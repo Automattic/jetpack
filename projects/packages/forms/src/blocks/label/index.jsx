@@ -82,7 +82,6 @@ const settings = {
 	usesContext: [
 		'jetpack/form-class-name',
 		'jetpack/field-required',
-		'jetpack/field-date-format',
 		'jetpack/field-share-attributes',
 	],
 	edit,

@@ -332,6 +332,17 @@
 							padding-bottom: 16px;
 						}
 
+						// Matches the accent-bar treatment of .verbum-message below. Colors are
+						// pinned rather than themed so the notice stays legible in every scheme.
+						.verbum-subscriptions__cookie-notice {
+							margin-block: 0 16px;
+							padding: 8px 12px;
+							border-inline-start: 4px solid #f0b849;
+							background-color: #fef8ee;
+							color: #3c434a;
+							font-size: 14px;
+						}
+
 						.verbum-logins {
 							display: flex;
 							align-items: center;

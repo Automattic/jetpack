@@ -150,6 +150,17 @@ export const FixedDimensions: Story = {
 	},
 };
 
+export const ShortHeight: Story = {
+	args: {
+		...sharedThemeArgs,
+		mainRate: 10.3,
+		changeIndicator: '+2%',
+		steps: ecommerceFunnelData,
+		loading: false,
+		height: '120px',
+	},
+};
+
 export const CustomRenderProps: Story = {
 	args: {
 		mainRate: 10.3,
@@ -224,19 +235,8 @@ export const CustomRenderProps: Story = {
 				</p>
 			</div>
 		),
-		renderTooltip: ( { step } ) => (
-			<div
-				style={ {
-					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-					borderRadius: '12px',
-					padding: '16px 20px',
-					color: 'white',
-					fontFamily: 'Inter, sans-serif',
-					boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
-					border: 'none',
-					minWidth: '200px',
-				} }
-			>
+		renderTooltip: ( { step, content } ) => (
+			<div style={ { minWidth: '200px' } }>
 				<div
 					style={ {
 						fontSize: '11px',
@@ -249,31 +249,26 @@ export const CustomRenderProps: Story = {
 				>
 					{ step.label }
 				</div>
-				<div
-					style={ {
-						fontSize: '18px',
-						fontWeight: 'bold',
-						margin: '0',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-					} }
-				>
-					{ step.rate.toFixed( 1 ) }%
-					{ step.count && (
-						<span
-							style={ {
-								fontSize: '14px',
-								fontWeight: '400',
-								opacity: 0.9,
-							} }
-						>
-							• { step.count.toLocaleString() } items
-						</span>
-					) }
-				</div>
+				{ content.value && (
+					<div style={ { fontSize: '18px', fontWeight: 'bold', margin: '0 0 4px 0' } }>
+						{ content.value }
+					</div>
+				) }
+				{ content.rows?.map( row => (
+					<div key={ row.label } style={ { fontSize: '14px', opacity: 0.9 } }>
+						{ row.label }: <strong>{ row.value }</strong>
+					</div>
+				) ) }
 			</div>
 		),
+		tooltipStyle: {
+			background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			borderRadius: '12px',
+			padding: '16px 20px',
+			color: 'white',
+			fontFamily: 'Inter, sans-serif',
+			boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
+		},
 	},
 	decorators: [ Story => <Story /> ],
 };

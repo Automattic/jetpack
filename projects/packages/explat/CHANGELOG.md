@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.7] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [0.6.6] - 2026-10-26
+### Changed
+- Internal updates.
+
+## [0.6.5] - 2026-10-20
+### Changed
+- Internal updates.
+
+## [0.6.4] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004] [#53806]
+
+## [0.6.3] - 2026-09-18
+### Changed
+- Update package dependencies. [#49934] [#52187]
+
+## [0.6.2] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+## [0.6.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.6.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.5.0] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50510] [#50529]
@@ -14,11 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.36] - 2026-07-13
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [0.4.35] - 2026-07-09
 ### Changed
-- Update dependencies. [#49431]
+- Update dependencies.
 
 ## [0.4.34] - 2026-07-06
 ### Changed
@@ -54,8 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.26] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [0.4.25] - 2026-05-19
 ### Changed
@@ -67,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.23] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.4.22] - 2026-05-04
 ### Changed
@@ -107,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.13] - 2026-02-23
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.4.12] - 2026-02-18
 ### Changed
@@ -127,7 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.8] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.4.7] - 2026-01-19
 ### Changed
@@ -151,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] - 2025-12-08
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.4.1] - 2025-12-01
 ### Changed
@@ -178,7 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.11] - 2025-09-22
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.3.10] - 2025-09-19
 ### Changed
@@ -218,7 +249,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - 2025-06-30
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.3.0] - 2025-06-27
 ### Changed
@@ -242,7 +273,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.22] - 2025-06-02
 ### Changed
-- Update dependencies. [#43068]
+- Update dependencies.
 
 ## [0.2.21] - 2025-05-26
 ### Changed
@@ -402,6 +433,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.6.7]: https://github.com/Automattic/jetpack-explat/compare/v0.6.6...v0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-explat/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-explat/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-explat/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-explat/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-explat/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-explat/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-explat/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-explat/compare/v0.4.36...v0.5.0
 [0.4.36]: https://github.com/Automattic/jetpack-explat/compare/v0.4.35...v0.4.36
 [0.4.35]: https://github.com/Automattic/jetpack-explat/compare/v0.4.34...v0.4.35

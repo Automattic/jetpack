@@ -9,7 +9,9 @@ import {
 } from './stats-query';
 
 export type StatsSingleVideoParams = Partial< StatsReportParams > & {
-	statType?: 'views' | 'impressions' | 'watch_time';
+	// `all` (wpcom #229903) returns every metric series in one response, plus
+	// canonical whole-range totals when the request carries a date range.
+	statType?: 'views' | 'impressions' | 'watch_time' | 'all';
 };
 
 const DEFAULT_SINGLE_VIDEO_PARAMS: StatsSingleVideoParams = {

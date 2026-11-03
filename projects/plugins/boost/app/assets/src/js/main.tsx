@@ -5,9 +5,11 @@ import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-adva
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
+import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import { useEffect, StrictMode } from 'react';
 import type { JSX } from 'react';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { getPageViewEventName, recordBoostEvent } from '$lib/utils/analytics';
+import { LegacyNavigationProvider } from '$lib/navigation/navigation-context';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import '../css/admin-style.scss';
@@ -29,9 +31,9 @@ const useBoostRouter = () => {
 			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
-					<Tracks>
+					<LegacyRouteFrame>
 						<Index />
-					</Tracks>
+					</LegacyRouteFrame>
 				</SettingsPage>
 			),
 		},
@@ -39,9 +41,9 @@ const useBoostRouter = () => {
 			path: '/cache-debug-log',
 			loader: checkForGettingStarted,
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<CacheDebugLog />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 		{
@@ -49,26 +51,26 @@ const useBoostRouter = () => {
 			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
-					<Tracks>
+					<LegacyRouteFrame>
 						<AdvancedCriticalCss />
-					</Tracks>
+					</LegacyRouteFrame>
 				</SettingsPage>
 			),
 		},
 		{
 			path: '/getting-started',
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<GettingStarted />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 		{
 			path: '/purchase-successful',
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<PurchaseSuccess />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 	] );
@@ -80,33 +82,30 @@ function Main() {
 }
 
 /**
- * Track the page view.
+ * Record the page view and provide navigation for a legacy route.
  *
  * @param props
  * @param props.children - The actual page to render
  */
-const Tracks = ( { children }: { children: JSX.Element } ) => {
+const LegacyRouteFrame = ( { children }: { children: JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {
-		let path = location.pathname.replace( /[-/]/g, '_' );
-		if ( path === '_' ) {
-			path = '_settings';
-		}
-
-		recordBoostEvent( `page_view${ path }`, {
+		recordBoostEvent( getPageViewEventName( location.pathname ), {
 			path: location.pathname,
 		} );
 	}, [ location ] );
 
-	return children;
+	return <LegacyNavigationProvider>{ children }</LegacyNavigationProvider>;
 };
 
 export default () => {
 	return (
 		<StrictMode>
 			<DataSyncProvider>
-				<Main />
+				<CriticalCssProvider>
+					<Main />
+				</CriticalCssProvider>
 			</DataSyncProvider>
 		</StrictMode>
 	);

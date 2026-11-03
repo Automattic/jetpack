@@ -18,7 +18,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailEmbedsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -40,21 +39,12 @@ const MOCK_VIDEO_ID = 105;
 /**
  * Builds the host-composed report params for the selected video, deriving the
  * requested date range.
- *
- * @param {PresetType} preset         - Optional date preset override.
- * @param {boolean}    withComparison - Include comparison report params.
- * @return The report params with the single-video `post_id` scope.
  */
 function reportParamsForVideo( preset?: PresetType, withComparison = false ) {
 	return { ...getDefaultQueryParams( withComparison, preset ), post_id: MOCK_VIDEO_ID };
 }
 
-/**
- * Render the data-connected widget with report params served by
- * `registerReportMocks`.
- *
- * @return The rendered widget.
- */
+// Report params served by `registerReportMocks`.
 function renderVideoDetailEmbeds() {
 	return <VideoDetailEmbedsRender attributes={ { reportParams: reportParamsForVideo() } } />;
 }
@@ -150,15 +140,12 @@ export const Empty: Story = {
  * Renders the real registered widget through the shared dashboard harness, so
  * it appears exactly as it does in product, inheriting the size / edit-mode /
  * host-environment controls.
- *
- * @param {WidgetDashboardWithWidgetControls} dashboardArgs - Story controls.
- * @return The widget mounted in the dashboard harness.
  */
 function VideoDetailEmbedsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ VIDEO_DETAIL_EMBEDS_RENDER_MODULE }
 			renderComponent={ VideoDetailEmbedsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: reportParamsForVideo( undefined, true ) } }

@@ -1,0 +1,6 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-widget-popular-post",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module"
+}

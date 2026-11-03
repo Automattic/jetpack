@@ -1,18 +1,25 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { Card, Link, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { useSendBounceConfirmationMutation } from '../../data/use-send-bounce-confirmation-mutation';
 import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
 	useSubscriberStats,
 } from '../../data/use-subscriber-details';
+import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
-import type { Subscriber } from '../../data/types';
+import type { BounceRetry, Subscriber } from '../../data/types';
+import type { JSX } from 'react';
+
+// Matches Email_Deliverability::BOUNCE_RETRY_COOLDOWN on WordPress.com.
+const BOUNCE_RETRY_COOLDOWN_DAYS = 30;
 
 type Props = {
 	open: {
@@ -145,6 +152,78 @@ function DetailRow( {
 }
 
 /**
+ * Bounce explanation and "Send confirmation email" button for a bounced subscriber.
+ *
+ * @param props              - Component props.
+ * @param props.emailAddress - Subscriber email address; nothing renders without one.
+ * @param props.bounceRetry  - Bounce retry state from the API.
+ * @return Bounce retry block, or null without an email address.
+ */
+function BounceRetryNotice( {
+	emailAddress,
+	bounceRetry,
+}: {
+	emailAddress?: string;
+	bounceRetry?: BounceRetry | null;
+} ): JSX.Element | null {
+	const { mutate, isPending } = useSendBounceConfirmationMutation();
+	const canRetry = !! bounceRetry?.can_retry;
+
+	const send = useCallback( () => {
+		if ( emailAddress ) {
+			mutate( emailAddress );
+		}
+	}, [ emailAddress, mutate ] );
+
+	if ( ! emailAddress ) {
+		return null;
+	}
+
+	let message: string = __(
+		"We stopped sending emails to this subscriber after their address bounced. If you're sure their address is correct, you can send one confirmation email to ask to restart their subscription.",
+		'jetpack-newsletter'
+	);
+	if ( ! canRetry && bounceRetry?.sent_on ) {
+		const sentOn = new Date( bounceRetry.sent_on );
+		message = sprintf(
+			// translators: 1: date the confirmation email was sent, 2: number of days before another can be sent.
+			__(
+				'A confirmation email was sent on %1$s. If they haven’t confirmed, you can send another one after %2$d days.',
+				'jetpack-newsletter'
+			),
+			formatDate( sentOn.toISOString() ),
+			BOUNCE_RETRY_COOLDOWN_DAYS
+		);
+	} else if ( ! canRetry ) {
+		message = __(
+			"We stopped sending emails to this subscriber after their address bounced. You can't send a confirmation email right now. Try again later.",
+			'jetpack-newsletter'
+		);
+	}
+
+	return (
+		<Stack
+			direction="column"
+			gap="sm"
+			align="start"
+			className="jetpack-newsletter__detail-bounce-retry"
+		>
+			<Text variant="body-sm">{ message }</Text>
+			<Button
+				variant="outline"
+				tone="brand"
+				size="compact"
+				loading={ isPending }
+				disabled={ isPending || ! canRetry }
+				onClick={ send }
+			>
+				{ __( 'Send confirmation email', 'jetpack-newsletter' ) }
+			</Button>
+		</Stack>
+	);
+}
+
+/**
  * Body content for the subscriber detail view — header (avatar + name + email), 3-column stat
  * row (Emails sent / Open rate / Click rate), then grouped Subscription details and Subscriber
  * information sections. Layout-agnostic: renders identically inside the desktop side-panel and
@@ -170,6 +249,11 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		user_id: open.userId,
 	} );
 
+	const { refetch } = detailsQuery;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
+
 	const subscriber = detailsQuery.data;
 	const stats = statsQuery.data;
 
@@ -179,6 +263,22 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 	const subscribedCategories = ( categoriesQuery.data?.newsletter_categories ?? [] )
 		.filter( category => category.subscribed )
 		.map( category => decodeEntities( category.name ) );
+
+	if ( detailsQuery.isError && ! subscriber ) {
+		return (
+			<Notice.Root intent="error">
+				<Notice.Title>
+					{ __( 'Could not load subscriber details.', 'jetpack-newsletter' ) }
+				</Notice.Title>
+				<Notice.Description>{ detailsQuery.error.message }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton loading={ detailsQuery.isFetching } onClick={ retry }>
+						{ __( 'Try again', 'jetpack-newsletter' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
+		);
+	}
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (
@@ -229,31 +329,15 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 			<Stack direction="row" gap="sm" wrap="wrap" className="jetpack-newsletter__detail-stats">
 				<StatCard
 					label={ __( 'Emails sent', 'jetpack-newsletter' ) }
-					value={ statsQuery.isLoading ? dash : String( emailsSent ) }
+					value={ statsQuery.isLoading ? dash : formatMetric( emailsSent ) }
 				/>
 				<StatCard
 					label={ __( 'Open rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || openRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									openRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( openRate ) }
 				/>
 				<StatCard
 					label={ __( 'Click rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || clickRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									clickRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( clickRate ) }
 				/>
 			</Stack>
 
@@ -277,7 +361,10 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Email subscription', 'jetpack-newsletter' ) }
 						value={
 							subscriber.subscription_status ? (
-								<SubscriptionStatusCell status={ subscriber.subscription_status } />
+								<SubscriptionStatusCell
+									status={ subscriber.subscription_status }
+									reason={ subscriber.subscription_status_reason }
+								/>
 							) : null
 						}
 					/>
@@ -285,15 +372,17 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Subscription type', 'jetpack-newsletter' ) }
 						value={ <SubscriptionTypeCell subscriber={ subscriber as Subscriber } /> }
 					/>
+					{ subscriber.subscription_status_reason === 'bounced' ? (
+						<BounceRetryNotice
+							emailAddress={ subscriber.email_address }
+							bounceRetry={ subscriber.bounce_retry }
+						/>
+					) : null }
 				</Stack>
 			</DetailSection>
 
 			<DetailSection title={ __( 'Subscriber information', 'jetpack-newsletter' ) }>
 				<Stack direction="column" gap="md">
-					<DetailRow
-						label={ __( 'Joined', 'jetpack-newsletter' ) }
-						value={ formatDate( stats?.blog_registration_date ) }
-					/>
 					<DetailRow
 						label={ __( 'Email', 'jetpack-newsletter' ) }
 						value={ subscriber.email_address }
