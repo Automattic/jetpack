@@ -565,11 +565,13 @@ debug "Checking wp-build page preload filters"
 WP_BUILD_PRELOAD_FILE=projects/packages/wp-build-polyfills/src/class-wp-build-polyfills.php
 WP_BUILD_PRELOAD_FILTERS=$( php -- "$WP_BUILD_PRELOAD_FILE" <<-'PHPDOC'
 	<?php
+	define( 'ABSPATH', __DIR__ . '/' );
 	require $argv[1];
 	$reflection = new ReflectionClass( 'Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills' );
 	echo json_encode( $reflection->getReflectionConstant( 'PRELOAD_FILTERS' )->getValue() );
 	PHPDOC
 )
+[[ "$WP_BUILD_PRELOAD_FILTERS" == \[* ]] || { echo "::error file=$WP_BUILD_PRELOAD_FILE::Unable to read PRELOAD_FILTERS from $WP_BUILD_PRELOAD_FILE."; exit 1; }
 while IFS=$'\t' read -r FILE FILTER; do
 	EXIT=1
 	echo "::error file=$FILE::Wp-build page filter \`$FILTER\` is missing from PRELOAD_FILTERS. Add it to \`$WP_BUILD_PRELOAD_FILE\`."
