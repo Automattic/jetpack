@@ -220,8 +220,8 @@ const StageInner = () => {
 				manageCaptions: ( item: LibraryItem ) => {
 					setCaptionVideo( item );
 				},
-				deleteItems: async ( items: VideoDeletionItem[] ) => {
-					const ids = items.map( item => item.id );
+				deleteItems: async ( deletionItems: VideoDeletionItem[] ) => {
+					const ids = deletionItems.map( item => item.id );
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -251,7 +251,7 @@ const StageInner = () => {
 					// from the listing.
 					let failedIds = new Set< string >();
 					try {
-						await deleteVideo( items );
+						await deleteVideo( deletionItems );
 						createSuccessNotice(
 							sprintf(
 								/* translators: %d: number of deleted videos. */
