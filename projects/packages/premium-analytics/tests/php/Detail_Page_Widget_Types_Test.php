@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the detail page widget variants registered as widget types.
+ * Tests for the detail page widget types.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -15,12 +15,12 @@ require_once __DIR__ . '/../../src/widget-types.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 
 /**
- * @covers ::Automattic\Jetpack\PremiumAnalytics\get_widget_type_variants
- * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_type_variants
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_detail_page_widget_types
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_detail_page_widget_types
  */
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_type_variants' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_widget_type_variants' )]
-class Widget_Type_Variants_Test extends BaseTestCase {
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_detail_page_widget_types' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_detail_page_widget_types' )]
+class Detail_Page_Widget_Types_Test extends BaseTestCase {
 
 	/**
 	 * Tear down.
@@ -31,7 +31,7 @@ class Widget_Type_Variants_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	public function test_a_variant_registers_with_the_base_modules_and_its_own_identity() {
+	public function test_a_type_takes_the_implementation_and_keeps_its_own_identity() {
 		$GLOBALS['jpa_test_widget_manifest'] = array(
 			array(
 				'name'          => 'jpa/popular-post',
@@ -51,20 +51,20 @@ class Widget_Type_Variants_Test extends BaseTestCase {
 
 		register_widget_types( $registry );
 
-		$base    = $registry->get_registered( 'jpa/popular-post' );
-		$variant = $registry->get_registered( 'jpa/popular-post--author' );
-		$this->assertInstanceOf( Widget_Type::class, $variant );
-		$this->assertSame( $base->render_module, $variant->render_module );
-		$this->assertSame( $base->widget_module, $variant->widget_module );
-		$this->assertSame( $base->attributes, $variant->attributes );
-		$this->assertSame( 'insights', $variant->plan_feature );
-		$this->assertSame( 'Popular post', $variant->title );
-		$this->assertSame( 'jpa/star-empty', $variant->icon );
-		$help = $variant->help ?? array();
+		$implementation = $registry->get_registered( 'jpa/popular-post' );
+		$type           = $registry->get_registered( 'jpa/popular-post--author' );
+		$this->assertInstanceOf( Widget_Type::class, $type );
+		$this->assertSame( $implementation->render_module, $type->render_module );
+		$this->assertSame( $implementation->widget_module, $type->widget_module );
+		$this->assertSame( $implementation->attributes, $type->attributes );
+		$this->assertSame( 'insights', $type->plan_feature );
+		$this->assertSame( 'Popular post', $type->title );
+		$this->assertSame( 'jpa/star-empty', $type->icon );
+		$help = $type->help ?? array();
 		$this->assertStringContainsString( 'most-viewed post', $help['content'] );
 	}
 
-	public function test_registers_only_the_variants_whose_base_is_registered() {
+	public function test_registers_only_the_types_whose_implementation_is_registered() {
 		$GLOBALS['jpa_test_widget_manifest'] = array(
 			array(
 				'name'          => 'jpa/email-time-series',

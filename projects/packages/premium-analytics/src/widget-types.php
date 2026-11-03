@@ -535,126 +535,129 @@ function register_widget_types( $registry = null ) {
 		$registry
 	);
 
-	register_widget_type_variants( $registry );
+	register_detail_page_widget_types( $registry );
 }
 
 add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_widget_types' );
 
 /**
- * The detail pages' variants of the package's own widget types: a base type under another name,
- * title, help and icon, so a fixed composition places one type twice or under the page's own title.
+ * The detail pages' own widget types: each takes a dashboard type's implementation under its own
+ * name, title, help and icon.
+ *
+ * A layout instance carries only `type` and `attributes`, and the host titles a card by its type, so a
+ * composition that places one implementation under several titles registers one type per title.
  *
  * @since $$next-version$$
  *
- * @return array<string, array{base: string, title: string, help?: string, icon?: string}> Variants keyed by name.
+ * @return array<string, array{implementation: string, title: string, help?: string, icon?: string}> Types keyed by name.
  */
-function get_widget_type_variants() {
+function get_detail_page_widget_types() {
 	return array(
 		'jpa/email-time-series--total-opens'    => array(
-			'base'  => 'jpa/email-time-series',
-			'title' => __( 'Opens, first 30 days', 'jetpack-premium-analytics-pkg' ),
-			'help'  => __( 'Daily opens for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/seen',
+			'implementation' => 'jpa/email-time-series',
+			'title'          => __( 'Opens, first 30 days', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Daily opens for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/seen',
 		),
 		'jpa/email-time-series--total-clicks'   => array(
-			'base'  => 'jpa/email-time-series',
-			'title' => __( 'Clicks, first 30 days', 'jetpack-premium-analytics-pkg' ),
-			'help'  => __( 'Daily clicks for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/link',
+			'implementation' => 'jpa/email-time-series',
+			'title'          => __( 'Clicks, first 30 days', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Daily clicks for the 30 days after this email was sent. The totals above are all-time.', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/link',
 		),
 		'jpa/email-breakdown--location-opens'   => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/map-marker',
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/map-marker',
 		),
 		'jpa/email-breakdown--platforms-opens'  => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/desktop',
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/desktop',
 		),
 		'jpa/email-breakdown--clients-opens'    => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
 		),
 		'jpa/email-breakdown--location-clicks'  => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/map-marker',
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Locations', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/map-marker',
 		),
 		'jpa/email-breakdown--platforms-clicks' => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/desktop',
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/desktop',
 		),
 		'jpa/email-breakdown--clients-clicks'   => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Clients', 'jetpack-premium-analytics-pkg' ),
 		),
 		'jpa/email-breakdown--top-links'        => array(
-			'base'  => 'jpa/email-breakdown',
-			'title' => __( 'Top links', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/link',
+			'implementation' => 'jpa/email-breakdown',
+			'title'          => __( 'Top links', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/link',
 		),
 		'jpa/utm-insights--utm'                 => array(
-			'base'  => 'jpa/utm-insights',
-			'title' => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
-			'icon'  => 'jpa/megaphone',
+			'implementation' => 'jpa/utm-insights',
+			'title'          => __( 'UTM', 'jetpack-premium-analytics-pkg' ),
+			'icon'           => 'jpa/megaphone',
 		),
 		'jpa/popular-post--author'              => array(
-			'base'  => 'jpa/popular-post',
-			'title' => __( 'Popular post', 'jetpack-premium-analytics-pkg' ),
-			'help'  => __( 'This author’s most-viewed post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
+			'implementation' => 'jpa/popular-post',
+			'title'          => __( 'Popular post', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'This author’s most-viewed post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
 		),
 		'jpa/latest-post--author'               => array(
-			'base'  => 'jpa/latest-post',
-			'title' => __( 'Latest post', 'jetpack-premium-analytics-pkg' ),
-			'help'  => __( 'This author’s most recently published post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
+			'implementation' => 'jpa/latest-post',
+			'title'          => __( 'Latest post', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'This author’s most recently published post, with its headline views, likes and comments.', 'jetpack-premium-analytics-pkg' ),
 		),
 		'jpa/views-over-years--author'          => array(
-			'base'  => 'jpa/views-over-years',
-			'title' => __( 'All-time traffic', 'jetpack-premium-analytics-pkg' ),
-			'help'  => __( 'Every month of this author’s views since their first post, page or product, with each year’s total beside it. Always the full history: the period above doesn’t narrow it. Pick a month to read the rest of the page over it.', 'jetpack-premium-analytics-pkg' ),
+			'implementation' => 'jpa/views-over-years',
+			'title'          => __( 'All-time traffic', 'jetpack-premium-analytics-pkg' ),
+			'help'           => __( 'Every month of this author’s views since their first post, page or product, with each year’s total beside it. Always the full history: the period above doesn’t narrow it. Pick a month to read the rest of the page over it.', 'jetpack-premium-analytics-pkg' ),
 		),
 	);
 }
 
 /**
- * Registers the variants whose base type is registered: the base's modules, attributes and plan
- * feature under the variant's name, title, help and icon.
+ * Registers the detail page widget types whose implementation is registered: its modules,
+ * attributes, actions and plan feature under the type's own name, title, help and icon.
  *
  * @since $$next-version$$
  *
  * @param Widget_Type_Registry|null $registry Optional. The registry being hydrated. Defaults to the main instance.
  * @return void
  */
-function register_widget_type_variants( $registry = null ) {
+function register_detail_page_widget_types( $registry = null ) {
 	if ( ! $registry instanceof Widget_Type_Registry ) {
 		$registry = Widget_Type_Registry::get_instance();
 	}
 
-	foreach ( get_widget_type_variants() as $name => $variant ) {
-		$base = $registry->get_registered( $variant['base'] );
-		if ( ! $base instanceof Widget_Type || $registry->is_registered( $name ) ) {
+	foreach ( get_detail_page_widget_types() as $name => $declaration ) {
+		$implementation = $registry->get_registered( $declaration['implementation'] );
+		if ( ! $implementation instanceof Widget_Type || $registry->is_registered( $name ) ) {
 			continue;
 		}
 
 		$registry->register(
 			$name,
 			array(
-				'render_module' => $base->render_module,
-				'widget_module' => $base->widget_module,
-				'presentation'  => $base->presentation,
-				'category'      => $base->category,
-				'title'         => $variant['title'],
-				'description'   => $base->description,
-				'help'          => isset( $variant['help'] ) ? sanitize_widget_help( array( 'content' => $variant['help'] ) ) : $base->help,
-				'icon'          => $variant['icon'] ?? $base->icon,
-				'actions'       => $base->actions,
-				'attributes'    => $base->attributes,
-				'keywords'      => $base->keywords,
-				'textdomain'    => $base->textdomain,
-				'i18n_manifest' => $base->i18n_manifest,
-				'plan_feature'  => $base->plan_feature,
+				'render_module' => $implementation->render_module,
+				'widget_module' => $implementation->widget_module,
+				'presentation'  => $implementation->presentation,
+				'category'      => $implementation->category,
+				'title'         => $declaration['title'],
+				'description'   => $implementation->description,
+				'help'          => isset( $declaration['help'] ) ? sanitize_widget_help( array( 'content' => $declaration['help'] ) ) : $implementation->help,
+				'icon'          => $declaration['icon'] ?? $implementation->icon,
+				'actions'       => $implementation->actions,
+				'attributes'    => $implementation->attributes,
+				'keywords'      => $implementation->keywords,
+				'textdomain'    => $implementation->textdomain,
+				'i18n_manifest' => $implementation->i18n_manifest,
+				'plan_feature'  => $implementation->plan_feature,
 			)
 		);
 	}
