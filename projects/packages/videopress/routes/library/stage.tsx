@@ -8,6 +8,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
 import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
+import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
@@ -127,7 +128,7 @@ const StageInner = () => {
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -520,13 +521,17 @@ const StageInner = () => {
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
 							</Button>
 						</Tooltip>
+						<RecordVideoButton
+							onRecorded={ file => handleFilesSelected( [ file ] ) }
+							disabled={ isAtLimit }
+						/>
 					</>
 				)
 			}
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
@@ -555,7 +560,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="library">
 		<StageInner />
 	</QueryClientWrapper>
 );

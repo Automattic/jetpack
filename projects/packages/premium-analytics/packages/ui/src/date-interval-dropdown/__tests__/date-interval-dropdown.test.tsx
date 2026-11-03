@@ -205,16 +205,47 @@ describe( 'DateIntervalDropdown', () => {
 		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
 		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toBeVisible();
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'By days' } )
+		).not.toHaveAccessibleDescription();
 	} );
 
-	it( 'shows a lone bucket without a menu, still in the tab order', async () => {
+	it( 'gives no hint on a plan that locks the buckets a longer range would add', async () => {
 		const user = userEvent.setup();
-		render( <DateIntervalDropdown options={ [ 'hour' ] } value="hour" onChange={ jest.fn() } /> );
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day' ] }
+				lockUpsell={ LOCK_UPSELL }
+				value="day"
+				onChange={ jest.fn() }
+			/>
+		);
 
-		await user.tab();
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
-		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By hours' } );
-		expect( trigger ).toHaveFocus();
-		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'By days' } )
+		).not.toHaveAccessibleDescription();
 	} );
+
+	it.each( [
+		[ 'hour', 'By hours', 'Choose a longer date range to group by days.' ],
+		[ 'day', 'By days', 'Choose a longer date range to group by weeks or months.' ],
+		// A longer range adds years here, and a shorter one weeks: no hint beats a wrong one.
+		[ 'month', 'By months', '' ],
+	] as const )(
+		'opens a lone %s bucket checked, with how to get more',
+		async ( bucket, name, hint ) => {
+			const user = userEvent.setup();
+			render(
+				<DateIntervalDropdown options={ [ bucket ] } value={ bucket } onChange={ jest.fn() } />
+			);
+
+			await user.click( screen.getByRole( 'button', { name } ) );
+
+			const item = screen.getByRole( 'menuitemradio', { name } );
+			expect( item ).toBeChecked();
+			expect( item ).toHaveAccessibleDescription( hint );
+		}
+	);
 } );

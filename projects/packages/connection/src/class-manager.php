@@ -3430,6 +3430,11 @@ class Manager {
 			return new \WP_Error( 'no_cap', 'Invalid request.', 400 );
 		}
 
+		// The role passes on its name alone; check the capability `Tokens::get()` will require before WordPress.com issues a token.
+		if ( ! current_user_can( $cap ) ) {
+			return new \WP_Error( 'current_user_cannot', 'The current user lacks the capability required for their role.', 400 );
+		}
+
 		if ( ! empty( $data['error'] ) ) {
 			return new \WP_Error( $data['error'], 'Error included in the request.', 400 );
 		}
