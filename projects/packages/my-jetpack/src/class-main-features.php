@@ -1094,6 +1094,8 @@ class Main_Features {
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
+				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
+				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), array( 'security', 'growth' ) ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,

@@ -79,7 +79,7 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	if ( PLANS.includes( filter ) ) {
-		return state.feature.plans.some( plan => plan.slug === filter );
+		return Boolean( state.feature.groups?.includes( filter ) );
 	}
 
 	return state.feature.essential;
