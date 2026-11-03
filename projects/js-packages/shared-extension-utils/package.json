@@ -18,9 +18,9 @@
 		"./components/wpcom-support-link": "./src/components/wpcom-support-link.jsx",
 		"./icons": "./src/icons.jsx",
 		"./site-type-utils": "./src/site-type-utils.js",
-		"./videopress-upload-analytics": "./src/videopress-upload-analytics.ts",
 		"./store/wordpress-com": "./src/store/wordpress-com/index.ts",
-		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts"
+		"./store/wordpress-com/types": "./src/store/wordpress-com/types.ts",
+		"./videopress-upload-analytics": "./src/videopress-upload-analytics.ts"
 	},
 	"scripts": {
 		"test": "jest",
