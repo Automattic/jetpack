@@ -114,8 +114,15 @@ export class Traffic extends Component {
 				) }
 				{ foundBlaze &&
 					( isSettingsConsolidationEnabled() ? (
-						this.props.searchTerm && (
-							<FeaturesPointer header={ __( 'Blaze', 'jetpack' ) } name="Blaze" search="blaze" />
+						// The Blaze card renders nothing on WoA, so its pointer stays out there too.
+						this.props.searchTerm &&
+						! isWoASite() && (
+							<FeaturesPointer
+								header={ __( 'Blaze', 'jetpack' ) }
+								name="Blaze"
+								search="blaze"
+								linksToSettings={ false }
+							/>
 						)
 					) : (
 						<Blaze { ...commonProps } />
@@ -127,6 +134,7 @@ export class Traffic extends Component {
 								header={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
 								name={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
 								search="shortlinks"
+								linksToSettings={ false }
 							/>
 						)
 					) : (

@@ -47,27 +47,36 @@ describe( 'Traffic settings', () => {
 	} );
 
 	it.each( [
-		[ 'related-posts', 'off, in the tab', false, '', [ 'related-posts card' ] ],
-		[ 'related-posts', 'off, in a search', false, 'related', [ 'related-posts card' ] ],
-		[ 'related-posts', 'on, in the tab', true, '', [] ],
-		[ 'related-posts', 'on, in a search', true, 'related', [ 'related-posts pointer' ] ],
-		[ 'blaze', 'off, in the tab', false, '', [ 'blaze card' ] ],
-		[ 'blaze', 'on, in the tab', true, '', [] ],
-		[ 'blaze', 'on, in a search', true, 'blaze', [ 'blaze pointer' ] ],
-		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ] ],
-		[ 'shortlinks', 'on, in the tab', true, '', [] ],
-		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ] ],
-	] )( 'shows %s with the settings flag %s', ( module, _when, flag, searchTerm, expected ) => {
-		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
-		try {
-			render( <Traffic active searchTerm={ searchTerm } isModuleFound={ findsOnly[ module ] } /> );
+		[ 'related-posts', 'off, in the tab', false, '', [ 'related-posts card' ], '' ],
+		[ 'related-posts', 'off, in a search', false, 'related', [ 'related-posts card' ], '' ],
+		[ 'related-posts', 'on, in the tab', true, '', [], '' ],
+		[ 'related-posts', 'on, in a search', true, 'related', [ 'related-posts pointer' ], '' ],
+		[ 'blaze', 'off, in the tab', false, '', [ 'blaze card' ], '' ],
+		[ 'blaze', 'on, in the tab', true, '', [], '' ],
+		[ 'blaze', 'on, in a search', true, 'blaze', [ 'blaze pointer' ], '' ],
+		[ 'blaze', 'on, in a search on WoA', true, 'blaze', [], 'woa' ],
+		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ], '' ],
+		[ 'shortlinks', 'on, in the tab', true, '', [], '' ],
+		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ], '' ],
+	] )(
+		'shows %s with the settings flag %s',
+		( module, _when, flag, searchTerm, expected, host ) => {
+			window.JetpackScriptData = {
+				myJetpack: { settingsConsolidation: flag },
+				site: { host },
+			};
+			try {
+				render(
+					<Traffic active searchTerm={ searchTerm } isModuleFound={ findsOnly[ module ] } />
+				);
 
-			const shown = [ `${ module } card`, `${ module } pointer` ].filter( text =>
-				screen.queryByText( text )
-			);
-			expect( shown ).toEqual( expected );
-		} finally {
-			delete window.JetpackScriptData;
+				const shown = [ `${ module } card`, `${ module } pointer` ].filter( text =>
+					screen.queryByText( text )
+				);
+				expect( shown ).toEqual( expected );
+			} finally {
+				delete window.JetpackScriptData;
+			}
 		}
-	} );
+	);
 } );
