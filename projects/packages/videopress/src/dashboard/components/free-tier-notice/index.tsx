@@ -1,7 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
+import { useVideoPressUpgrade, type UpgradeLocation } from '../../hooks/use-videopress-upgrade';
 import type { ReactElement } from 'react';
 
 // Re-exported so the at-limit copy keeps one import path; the React-free
@@ -35,14 +35,17 @@ const FREE_PLAN_MESSAGE = __(
  *
  * @param props         - Component props.
  * @param props.message - Notice body copy. Defaults to the free-plan copy.
+ * @param props.location - Surface displaying the notice.
  * @return The Notice element.
  */
 export default function FreeTierNotice( {
 	message = FREE_PLAN_MESSAGE,
+	location,
 }: {
 	message?: string;
+	location: Exclude< UpgradeLocation, 'upload_limit' >;
 } ): ReactElement {
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( location );
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {

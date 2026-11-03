@@ -57,7 +57,15 @@ Build in watching dog mode 🐕
 jetpack watch packages/videopress
 ```
 
-## Get Help
+## Dashboard analytics
+
+The existing `jetpack_videopress_admin_page_view` event records one browser page load, including a direct link to a video or its editor. Its `route` property is one of `overview`, `library`, `settings`, `video`, or `video_editor`. It describes the landing route; SPA navigation does not emit additional page views. No video ID, URL, or search text is added.
+
+`is_free` reflects the dashboard's initial `hasVideoPressAccess` value: `true` when access is explicitly false, `false` when access is explicitly true, and omitted when access is unknown. It describes the dashboard access state, not whether the user bought a standalone subscription.
+
+The existing `jetpack_videopress_upgrade_trigger_link_click` event includes `location`: `overview`, `library_at_limit`, or `settings_at_limit` for the corresponding upgrade notice, and `upload_limit` for the upload-intake error notice. The library's upload refusal actions also use `library_at_limit`. These are clicks, not impressions, successful checkouts, or purchases. The pre-connection pricing table uses a separate checkout path and is not covered by these locations.
+
+Both events reuse the existing analytics transport and identity context. Consumers must verify the deployed version, host tracking controls, delivery, and property availability before comparing surfaces or building a funnel; older events lack the new properties.
 
 ## Using this package in your WordPress plugin
 
@@ -76,4 +84,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 videopress is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-

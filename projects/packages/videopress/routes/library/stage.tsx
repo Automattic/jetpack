@@ -128,7 +128,7 @@ const StageInner = () => {
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
 	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -531,7 +531,7 @@ const StageInner = () => {
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
@@ -560,7 +560,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="library">
 		<StageInner />
 	</QueryClientWrapper>
 );

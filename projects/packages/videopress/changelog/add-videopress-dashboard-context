@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add bounded context to existing dashboard analytics events; no user-facing change.
+
