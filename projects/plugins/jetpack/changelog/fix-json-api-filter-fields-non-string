@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+JSON API: avoid a fatal error in filter_fields() when the `fields` query parameter is passed as an array instead of a string.
