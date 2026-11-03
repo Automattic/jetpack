@@ -130,7 +130,11 @@ export function completionHook( yargs, completers = {} ) {
 					console.error( error );
 				}
 			}
-			done( [ ...defaults, ...extra ] );
+			// An empty word completes to values when there are any, and to options on a dash, as yargs
+			// already does for commands.
+			const all = [ ...defaults, ...extra ];
+			const values = current === '' ? all.filter( c => ! c.startsWith( '-' ) ) : [];
+			done( values.length ? values : all );
 		} );
 	};
 }

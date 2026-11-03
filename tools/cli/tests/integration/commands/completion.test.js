@@ -37,10 +37,14 @@ describe( 'completion', () => {
 	test( 'completes command names', async () => {
 		await expect( complete( 'bu' ) ).resolves.toContain( 'build' );
 	} );
-	test( 'completes project types, then projects', async () => {
-		await expect( complete( 'build', '' ) ).resolves.toEqual(
-			expect.arrayContaining( [ '--all', 'packages/' ] )
-		);
+	test( 'completes project types, then projects, and options on a dash', async () => {
+		await expect( complete( 'build', '' ) ).resolves.toEqual( [
+			'github-actions/',
+			'js-packages/',
+			'packages/',
+			'plugins/',
+		] );
+		await expect( complete( 'build', '--' ) ).resolves.toContain( '--deps' );
 		await expect( complete( 'build', 'packages/conn' ) ).resolves.toContain(
 			'packages/connection'
 		);

@@ -97,9 +97,13 @@ describe( 'completionHook', () => {
 		new Promise( resolve => fn( current, { _ }, cb => cb( null, defaults ), resolve ) );
 	const build = hook( [ 'build' ], [ 'build [project...]' ] );
 
-	test( 'keeps the yargs defaults and adds the positional candidates', async () => {
-		await expect( run( build, '', [ 'jetpack', 'build', '' ] ) ).resolves.toEqual( [
+	test( 'completes an empty word to the candidates alone, keeping options for a dash', async () => {
+		await expect( run( build, 'p', [ 'jetpack', 'build', 'p' ] ) ).resolves.toEqual( [
 			'--help',
+			'packages/',
+			'plugins/',
+		] );
+		await expect( run( build, '', [ 'jetpack', 'build', '' ] ) ).resolves.toEqual( [
 			'github-actions/',
 			'js-packages/',
 			'packages/',
