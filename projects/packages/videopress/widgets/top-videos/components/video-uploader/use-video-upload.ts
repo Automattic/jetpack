@@ -5,10 +5,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { startVideoUpload } from '../../../../src/dashboard/utils/start-video-upload';
 import { createUploadAnalytics } from '../../../../src/client/lib/upload-analytics';
-import type { UploadAnalytics } from '../../../../src/client/lib/upload-analytics';
+import { startVideoUpload } from '../../../../src/dashboard/utils/start-video-upload';
 import type { VideoMediaProps } from '../../../../src/client/lib/resumable-file-uploader/types';
+import type { UploadAnalytics } from '../../../../src/client/lib/upload-analytics';
 
 export type UploadPhase =
 	| { status: 'idle' }

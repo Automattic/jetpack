@@ -1,9 +1,9 @@
-import { waitFor } from '@testing-library/react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { waitFor } from '@testing-library/react';
+import { Upload } from 'tus-js-client';
 import { createUploadAnalytics } from '../../upload-analytics';
 import resumableFileUploader from '../index';
 import type { HttpRequest, HttpResponse } from 'tus-js-client';
-import { Upload } from 'tus-js-client';
 
 // Jest otherwise resolves tus's Node entrypoint, which cannot read a browser File.
 jest.mock( 'tus-js-client', () => jest.requireActual( 'tus-js-client/dist/tus.js' ) );

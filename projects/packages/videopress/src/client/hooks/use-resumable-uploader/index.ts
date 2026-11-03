@@ -10,8 +10,8 @@ import getMediaToken from '../../lib/get-media-token';
 import resumableFileUploader from '../../lib/resumable-file-uploader';
 import { VideoMediaProps } from '../../lib/resumable-file-uploader/types';
 import { createUploadAnalytics } from '../../lib/upload-analytics';
-import type { UploadAnalytics } from '../../lib/upload-analytics';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
+import type { UploadAnalytics } from '../../lib/upload-analytics';
 import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );

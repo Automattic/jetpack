@@ -1,8 +1,8 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import getMediaToken from '../../../client/lib/get-media-token';
 import resumableFileUploader from '../../../client/lib/resumable-file-uploader';
-import { startVideoUpload } from '../start-video-upload';
 import { createUploadAnalytics } from '../../../client/lib/upload-analytics';
-import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { startVideoUpload } from '../start-video-upload';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
