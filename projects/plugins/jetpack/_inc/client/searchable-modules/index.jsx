@@ -59,7 +59,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 					const isModuleUnavailableInOfflineMode =
 						this.props.isOfflineMode && this.props.isUnavailableInOfflineMode( moduleData.module );
 					const isModuleUnavailableInSiteConnectionMode =
-						! this.props.hasConnectedOwner &&
 						this.props.isUnavailableInSiteConnectionMode( moduleData.module );
 
 					// Not available in offline or SiteConnection mode.
