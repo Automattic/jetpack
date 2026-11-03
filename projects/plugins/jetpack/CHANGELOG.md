@@ -169,6 +169,7 @@
 - Protect: Refuse to save a firewall block list that includes your own IP address. [#54122]
 - Related Posts: Expose the "Show related content after posts" on/off toggle in Settings > Reading by default so users can disable the feature, including on Portfolio custom post type pages. [#53567]
 - Scan: Stop showing threat alerts in the admin menu, admin bar, and My Jetpack on WordPress.com-hosted (Atomic) sites. [#53983]
+- SEO: Add an SEO page under Jetpack that brings search visibility, titles and descriptions, sitemaps, site verification, structured data, and AI crawler settings together in one place. [#51318] [#53549] [#53622] [#53623] [#53670]
 - Settings: Match the page header, tabs, and cards of the other Jetpack settings screens. [#53568]
 - Sharing: Add a link to configure Like buttons in Jetpack > Settings > Sharing, and on block themes, point the Sharing and Like buttons settings in Jetpack and My Jetpack to Settings > Sharing instead of the Site Editor. [#54303]
 - Sharing: Replace the Settings > Sharing screen with a redesigned version. [#54278]
