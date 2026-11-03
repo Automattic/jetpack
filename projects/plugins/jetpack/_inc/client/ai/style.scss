@@ -15,27 +15,47 @@ body.jetpack_page_jetpack-ai {
 		flex: 0 0 auto;
 		min-height: auto;
 	}
+
+	// The off-white page surface under the header, as on My Jetpack's tab
+	// content and the VideoPress dashboard, so the hub's white cards read as
+	// cards. The tab strip keeps its own white surface. No wpds token has this
+	// value yet; those screens hardcode it too. Published as a property so
+	// pinned bars that mask content scrolling beneath them can match it.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+		--jetpack-ai-page-surface: #fcfcfc;
+		background-color: var(--jetpack-ai-page-surface);
+	}
 }
 
 .jetpack-ai-admin {
 	// Content wrapper inside AdminPage's fluid container.
 	// Use border-box so the 24px padding is included in the 100% width,
 	// preventing horizontal overflow from content-box sizing.
-	// max-width matches the Figma design constraint.
+	// Every tab reads as one 660px column, plus this column's padding.
+	// Discover alone is as wide as My Jetpack's Features grid (944px plus
+	// padding), the width its card grid needs.
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
 		max-width: 708px;
 		margin: 0 auto;
 		padding: 24px;
-		// Match @wordpress/components Card (MCP Settings): CONFIG.surfaceBorderColor.
-		// Card.Root reads --wpds-color-stroke-surface-neutral-weak at runtime (CSS
-		// modules, not inlined by this package's PostCSS).
-		// stylelint-disable-next-line plugin-wpds/no-setting-wpds-custom-properties -- deliberate scoped override: Card.Root reads this token at runtime (see above).
-		--wpds-color-stroke-surface-neutral-weak: rgba(0, 0, 0, 0.1);
+		// The containing block for every tab's absolutely positioned content,
+		// such as the visually hidden "(opens in a new tab)" labels. Without it
+		// they resolved to boot's stage, outside AdminPage's scrolling container,
+		// so the stage scrolled too: the tab strip scrolled away with the wheel
+		// and a screen of blank space showed under the page footer.
+		position: relative;
 
-		&--scheduled-tasks {
-			max-width: 1280px;
+		// A control the browser scrolls into view on focus stops below the sticky
+		// tab strip rather than under it (WCAG 2.4.11). The strip's sticky height
+		// is measured and published here by main.jsx; Discover adds its toolbar.
+		:is(a[href], button, input, select, textarea, [tabindex]) {
+			scroll-margin-block-start: calc(var(--jetpack-ai-tabs-height, 0px) + var(--wpds-dimension-gap-md));
+		}
+
+		&--discover {
+			max-width: 992px;
 		}
 	}
 
@@ -93,11 +113,23 @@ body.jetpack_page_jetpack-ai {
 		}
 	}
 
+	// Takes focus from script when a sub-view opens, so keyboard users land on
+	// the view's name rather than on the page body. The ring shows only when
+	// focus came from the keyboard, as on the skill panel's title.
 	&__breadcrumb-current {
 		margin: 0;
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+		}
 	}
 
-	// Back-link eyebrow above sub-view content ("‹ MCP Settings"), quiet at
+	// Back-link eyebrow above sub-view content ("‹ Settings"), quiet at
 	// rest with a rounded pill background on hover/focus (ChatGPT-style back
 	// control, translated to light mode). The pill padding is always present
 	// and cancelled by negative margins, so the label sits flush with the
@@ -209,9 +241,22 @@ body.jetpack_page_jetpack-ai {
 }
 
 // Page-level notices render above whichever view is active; the views own no
-// spacing toward them, so the gap lives here.
+// spacing toward them, so the gap lives here. The between-sections gap (3xl),
+// as on Settings, where the AI features section sits that far under it.
 .jetpack-ai-admin__page-notice {
-	margin-block-end: 16px;
+	margin-block-end: var(--wpds-dimension-gap-3xl);
+}
+
+// The AI features section follows the MCP content on the same view. The MCP
+// content above owns no bottom spacing, so the section takes Overview's
+// between-sections gap (3xl) on its own top edge.
+.jetpack-ai-admin__features-section {
+	margin-block-start: var(--wpds-dimension-gap-3xl);
+
+	// The section's Stack gap already spaces the notice from the card.
+	.jetpack-ai-admin__page-notice {
+		margin-block-end: 0;
+	}
 }
 
 // Feature rows: the design aligns the action link with the label's text
@@ -241,10 +286,9 @@ body.jetpack_page_jetpack-ai {
 // loaded on this page.
 .jetpack-ai-features__divider {
 	border: 0;
-	// Same rgba as MCP Settings' @wordpress/components Card / CardDivider
-	// (CONFIG.surfaceBorderColor). Do not use the WPDS stroke tokens here —
-	// PostCSS inlines them to #dbdbdb / #f0f0f0, which are not the MCP color.
-	border-block-start: var(--wpds-border-width-xs) solid rgba(0, 0, 0, 0.1);
+	// The weak surface stroke, as every divider inside a card in the hub
+	// (Overview's Documentation rows, Discover's list rows and card footers).
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	// Figma rhythm: 20px after a section's rows, 16px before the next header;
 	// the first divider sits 16px under the card subtitle instead.
 	margin-block: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-lg);

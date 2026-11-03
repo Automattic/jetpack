@@ -321,8 +321,9 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// The Overview and Features views launch on self-hosted sites first.
-				// Keep this filterable so hosts can close them independently.
+				// The Overview tab and the MCP tab's AI features section launch on
+				// self-hosted sites first. Keep this filterable so hosts can close
+				// them independently.
 				'showGatedViews'    => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				// The same verdicts the feature-settings endpoint reports. That call
@@ -418,9 +419,10 @@ class Jetpack_AI_Page {
 			'planName'            => $plan_info['name'],
 			'showFeaturesView'    => $show_gated_views,
 			'showA12sBadge'       => ! empty( $config['showA12sBadge'] ),
-			// The tab and its Agents Manager sidebar ship disabled by default.
+			// Both tabs ship disabled by default.
 			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+				Jetpack_AI_Feature_Flags::DISCOVER        => Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::DISCOVER ),
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.

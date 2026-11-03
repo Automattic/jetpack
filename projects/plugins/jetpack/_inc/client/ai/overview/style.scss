@@ -9,10 +9,9 @@
 	// brings its own pulse, reduced-motion and forced-colors handling; only
 	// geometry belongs here.
 	&__skeleton-icon {
-		// Matches <AiIcon size={ 28 } /> in the loaded card. No 28px token exists
-		// (size-sm is 24, size-md 32), so this tracks the component, not the scale.
-		inline-size: 28px;
-		block-size: 28px;
+		// Matches the loaded card's 36px icon tile, as the skill tiles are.
+		inline-size: 36px;
+		block-size: 36px;
 		border-radius: var(--wpds-border-radius-md);
 	}
 
@@ -112,11 +111,10 @@
 		}
 	}
 
-	// The upsell card breathes more than the standard one — 32px per the
-	// mock. A literal: the wpds padding scale stops at 2xl (24px). The ui
-	// Card reads this token for its own padding.
+	// The upsell card breathes more than the standard one — 32px (3xl) per
+	// the mock. The ui Card reads this token for its own padding.
 	&__card--upsell {
-		--wp-ui-card-padding: 32px;
+		--wp-ui-card-padding: var(--wpds-dimension-padding-3xl);
 	}
 
 	// The upsell replaces the two-cell layout whenever an upgrade is on
@@ -150,9 +148,18 @@
 
 	// Icon pinned top, heading and copy bottom-anchored — the same rhythm the
 	// usage cell gives its eyebrow and readout, so the two columns align.
+	// The skill tiles' Jetpack greens and size (see discover/style.scss).
 	&__upsell-icon {
-		display: block;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		align-self: flex-start;
+		inline-size: 36px;
+		block-size: 36px;
 		margin-block-end: auto;
+		border-radius: var(--wpds-border-radius-md);
+		background: #003010;
+		color: #0ced57;
 
 		svg {
 			// Kill the inline-svg baseline gap inside the wrapper.
@@ -188,65 +195,98 @@
 		}
 	}
 
-	&__quick-start-grid,
-	&__video-grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--wpds-dimension-gap-lg);
+	// Documentation: the four guides as rows of one card, split by the weak
+	// stroke (as the Discover list's rows are). A step less padding than a
+	// standalone row, so four of them read as one list rather than a stack.
+	&__docs .jetpack-ai-nav-row {
+		padding-block: var(--wpds-dimension-padding-lg);
+		padding-inline: var(--wpds-dimension-padding-2xl);
 
-		@media (max-width: 600px) {
-			grid-template-columns: minmax(0, 1fr);
+		+ .jetpack-ai-nav-row {
+			border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 		}
 	}
 
-	&__video {
+	// The opening: a centred column (icon tile, heading, connect actions)
+	// over a label and a row of two cards.
+	// The page's between-sections gap (3xl, as the outer Stack), so the
+	// opening, the upgrade card and the skills sit as far apart as the
+	// sections after them.
+	&__skills {
 		display: flex;
 		flex-direction: column;
-		// Same rgba as MCP Settings' @wordpress/components Card
-		// (CONFIG.surfaceBorderColor).
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		border-radius: var(--wpds-border-radius-lg);
-		overflow: hidden;
-
-		&,
-		&:visited,
-		&:hover,
-		&:active {
-			color: inherit;
-			text-decoration: none;
-		}
-
-		&:hover .jetpack-ai-overview__video-meta {
-			background: var(--wpds-color-background-surface-neutral-weak);
-		}
+		gap: var(--wpds-dimension-gap-3xl);
 	}
 
-	// The thumbnails share this tint, so it stands in while they load. The
-	// ratio matches the exported assets (644×348) so cover crops nothing.
-	&__video-thumb {
-		display: block;
-		inline-size: 100%;
-		block-size: auto;
-		aspect-ratio: 644 / 348;
-		object-fit: cover;
-		background: var(--wpds-color-background-surface-brand);
-	}
-
-	&__video-meta {
+	&__hero {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
-		// gap-sm, not the frame's 12: at the shipped 600 weight the longest
-		// title misses a single line by under a pixel, and 8px seats it.
 		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-xl);
-		border-block-start: 1px solid rgba(0, 0, 0, 0.1);
+		inline-size: 100%;
+		max-inline-size: var(--wpds-dimension-surface-width-xl);
+		margin-inline: auto;
+		text-align: center;
+
+		// Element + class outranks the Text runtime margin reset by
+		// specificity (as in __upsell-content above).
+		> h2,
+		> p {
+			margin: 0;
+		}
 	}
 
-	// Size, weight, and uppercase come from the Text heading-sm variant
-	// (the design system's eyebrow style); only the colour is ours.
-	&__eyebrow {
+	// Even line lengths, so a two-line subhead never leaves one word behind.
+	&__hero p {
+		text-wrap: balance;
+	}
+
+	// The subhead holds to two even lines rather than one long one and a
+	// word left over.
+	&__hero .jetpack-ai-mcp__connect-description:first-child {
+		max-inline-size: 28rem;
+	}
+
+	// As far under the buttons as the subhead is over them (md), where the
+	// column's own gap is sm.
+	&__hero > &__access-note {
+		margin-block-start: calc(var(--wpds-dimension-gap-md) - var(--wpds-dimension-gap-sm));
+	}
+
+	// The Jetpack AI sparkle over the heading, in jetpack.com's
+	// jetpack-green-50, which has no design-system token.
+	&__hero-icon {
+		display: inline-flex;
+		inline-size: var(--wpds-dimension-size-md);
+		block-size: var(--wpds-dimension-size-md);
+		margin-block-end: var(--wpds-dimension-gap-xs);
+		color: #008710;
+
+		svg {
+			display: block;
+			inline-size: 100%;
+			block-size: 100%;
+		}
+	}
+
+	// The small muted label over a list ("Start with a skill",
+	// "Documentation"). Doubled class beats the Text runtime margin reset.
+	&__section-label#{&}__section-label {
+		margin: 0;
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// Sits as close to the cards it names as Documentation's label does to
+	// its list (md), pulling back the column's 3xl gap.
+	&__pick-label#{&}__pick-label {
+		margin-block-end: calc(var(--wpds-dimension-gap-md) - var(--wpds-dimension-gap-3xl));
+	}
+
+	// Belongs to the cards above, so it sits closer than a section would.
+	&__browse {
+		display: flex;
+		justify-content: center;
+		margin-block-start: calc(var(--wpds-dimension-gap-xl) - var(--wpds-dimension-gap-3xl));
 	}
 
 	// Doubled class beats the component's runtime-injected rules. ProgressBar
