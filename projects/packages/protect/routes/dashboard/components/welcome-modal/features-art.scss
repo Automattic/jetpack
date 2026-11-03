@@ -65,7 +65,6 @@ $switch: 20px;
 
 		:dir(rtl) & {
 			transform: translateX(-$switch);
-			animation-name: jp-protect-features-thumb-rtl;
 		}
 	}
 
@@ -87,14 +86,6 @@ $switch: 20px;
 }
 
 @keyframes jp-protect-features-thumb {
-
-	from {
-		background-color: var(--wpds-color-foreground-interactive-neutral);
-		transform: translateX(0);
-	}
-}
-
-@keyframes jp-protect-features-thumb-rtl {
 
 	from {
 		background-color: var(--wpds-color-foreground-interactive-neutral);

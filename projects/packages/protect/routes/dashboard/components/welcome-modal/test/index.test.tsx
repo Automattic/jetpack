@@ -11,15 +11,16 @@ describe( 'WelcomeModal', () => {
 	} );
 
 	it.each( [
-		[ 'opens on a first visit', null, '/', true ],
-		[ 'stays closed once dismissed', '1', '/', false ],
-		[ 'reopens with welcome=1', '1', '/?welcome=1', true ],
-	] )( '%s', ( _name, seen, url, isOpen ) => {
+		[ 'opens on a first visit', null, '/', false, true ],
+		[ 'waits out a deep link on a first visit', null, '/', true, false ],
+		[ 'stays closed once dismissed', '1', '/', false, false ],
+		[ 'reopens with welcome=1', '1', '/?welcome=1', false, true ],
+	] )( '%s', ( _name, seen, url, deferred, isOpen ) => {
 		if ( seen ) {
 			window.localStorage.setItem( SEEN_KEY, seen );
 		}
 		window.history.replaceState( null, '', url );
-		render( <WelcomeModal /> );
+		render( <WelcomeModal deferred={ deferred } /> );
 		expect( screen.queryByRole( 'dialog', { name: 'Welcome to Protect' } ) !== null ).toBe(
 			isOpen
 		);

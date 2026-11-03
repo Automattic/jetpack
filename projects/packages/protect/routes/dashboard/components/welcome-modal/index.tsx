@@ -78,12 +78,17 @@ const getPages = (): WelcomePage[] => [
 /**
  * First-visit welcome guide explaining what the Protect dashboard does. `&welcome=1` re-opens it.
  *
+ * @param props          - Component props.
+ * @param props.deferred - Skip it on this load (read once on mount) without recording a dismissal.
  * @return The guide, or null once dismissed.
  */
-export default function WelcomeModal(): ReactElement | null {
+export default function WelcomeModal( {
+	deferred = false,
+}: { deferred?: boolean } = {} ): ReactElement | null {
 	const [ isOpen, setIsOpen ] = useState(
 		() =>
-			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' || ! hasSeenWelcome()
+			new URLSearchParams( window.location.search ).get( 'welcome' ) === '1' ||
+			( ! deferred && ! hasSeenWelcome() )
 	);
 
 	const dismiss = useCallback( () => {

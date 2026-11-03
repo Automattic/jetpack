@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { getCheckedCounts } from './labels';
 import type { ScanState } from './types';
+import './style.scss';
 import type { CSSProperties } from 'react';
 
 const SHIELD_PATH =
