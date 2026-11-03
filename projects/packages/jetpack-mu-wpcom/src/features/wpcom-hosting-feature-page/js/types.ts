@@ -61,6 +61,10 @@ export type InitialState = {
 	enableUrl?: string;
 	/** Why the last attempt to turn the dashboard on failed, if it did. Only in the `enable` state. */
 	enableError?: 'connection' | 'unknown' | null;
+	/** Whether a WoA buyer is back from checkout before the purchase reached the site. Only in the `upgrade` state. */
+	checkoutPending: boolean;
+	/** REST path reporting whether the purchase has reached the site. Only while `checkoutPending`. */
+	featureStatusPath?: string;
 };
 
 /**
@@ -93,6 +97,11 @@ export type FeatureConfig = {
 		failed: string;
 	};
 	inProgress: {
+		title: string;
+		description: string;
+	};
+	/** Shown to a WoA buyer back from checkout while the purchase reaches the site. */
+	checkoutPending: {
 		title: string;
 		description: string;
 	};
