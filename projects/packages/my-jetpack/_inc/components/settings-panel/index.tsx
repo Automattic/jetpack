@@ -4,7 +4,10 @@ import { useNavigate } from '@wordpress/route';
 import { IconButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouteSearch } from '../../router-bridge';
-import { getModuleAvailability } from '../my-jetpack-tab-panel/features/module-availability';
+import {
+	getModuleAvailability,
+	getOverrideReason,
+} from '../my-jetpack-tab-panel/features/module-availability';
 import { useAllJetpackModules } from '../my-jetpack-tab-panel/features/use-all-jetpack-modules';
 import { FallbackSettings } from './fallback-settings';
 import { moduleSettings } from './registry';
@@ -81,6 +84,12 @@ export function SettingsPanel() {
 				{ disabled && (
 					<Notice.Root intent="warning">
 						<Notice.Description>{ availability?.reason }</Notice.Description>
+					</Notice.Root>
+				) }
+				{ ! disabled && $module.override && (
+					// The host's choice locks only the module switch; this says why it does not move.
+					<Notice.Root intent="info">
+						<Notice.Description>{ getOverrideReason( $module.override ) }</Notice.Description>
 					</Notice.Root>
 				) }
 				{ Settings ? (

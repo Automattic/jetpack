@@ -6,7 +6,7 @@ import type { ComponentType } from 'react';
 export type ModuleSettingsProps = {
 	/** The module, whose `options` hold its current values. Save changes through `jetpack/v4/settings`. */
 	module: MyJetpackModule;
-	/** True when the site cannot use the module, as in offline mode. Lock every control; the panel says why. */
+	/** True when the site cannot use the module, as in offline mode. Lock the module's own controls with it; the panel says why. */
 	disabled: boolean;
 };
 
