@@ -50,7 +50,7 @@ import ConnectionWizard, { OnboardingFrame } from './components/connection-wizar
 import ExistingLinksStep from './components/existing-links-step';
 import PayPalFormatControls from './components/format-controls';
 import LegacyBlock from './components/legacy-block';
-import LinkDetails from './components/link-details';
+import LinkDetails, { LinkDetailsList } from './components/link-details';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import ReadOnlyBlock from './components/read-only-block';
 import VariantBuilder, {
@@ -1073,7 +1073,6 @@ export default function ApiManagedEdit( {
 		<>
 			<LinkDetails
 				attributes={ attributes }
-				resource={ resource }
 				notices={ paymentChangedNotice }
 				onEdit={ () => setIsEditing( true ) }
 				onChangeLink={ () => setIsSwitching( true ) }
@@ -1081,7 +1080,7 @@ export default function ApiManagedEdit( {
 				onDelete={ handleDeleteButton }
 				canDelete={ isConnected && ! isBusy }
 			/>
-			{ /* The style controls show with the link details only. */ }
+			{ /* The style controls show in the details view only. */ }
 			<PayPalFormatControls
 				format={ activeFormat }
 				attributes={ attributes }
@@ -1092,6 +1091,7 @@ export default function ApiManagedEdit( {
 				disabled={ isBusy }
 				environment={ environment }
 			/>
+			<LinkDetailsList attributes={ attributes } resource={ resource } />
 		</>
 	);
 
