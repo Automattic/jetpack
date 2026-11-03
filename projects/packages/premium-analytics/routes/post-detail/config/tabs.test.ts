@@ -9,6 +9,14 @@ describe( 'post-detail tabs', () => {
 		] );
 	} );
 
+	it( 'holds only the tab named for the post type while the type loads', () => {
+		expect( getPostDetailTabs( undefined, true ).map( tab => tab.isPending ) ).toEqual( [
+			true,
+			undefined,
+			undefined,
+		] );
+	} );
+
 	it( 'keeps the default tab first', () => {
 		expect( DEFAULT_TAB_ID ).toBe( 'post-traffic' );
 		expect( POST_DETAIL_TAB_IDS[ 0 ] ).toBe( DEFAULT_TAB_ID );

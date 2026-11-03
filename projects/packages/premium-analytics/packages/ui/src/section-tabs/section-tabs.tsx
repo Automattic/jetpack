@@ -1,4 +1,5 @@
-import { Tabs } from '@jetpack-premium-analytics/externals';
+import { Skeleton, Tabs, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './section-tabs.module.scss';
@@ -8,6 +9,8 @@ export type SectionTab< TabId extends string = string > = {
 	id: TabId;
 	label: string;
 	disabled?: boolean;
+	/** The label waits on data that has not loaded: a placeholder stands in for it. */
+	isPending?: boolean;
 };
 
 export interface SectionTabsProps< TabId extends string = string > {
@@ -61,7 +64,16 @@ export function SectionTabs< TabId extends string = string >( {
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.id } value={ tab.id } disabled={ tab.disabled }>
-							{ tab.label }
+							{ tab.isPending ? (
+								<>
+									<VisuallyHidden>
+										{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }
+									</VisuallyHidden>
+									<Skeleton className={ styles.pendingLabel } />
+								</>
+							) : (
+								tab.label
+							) }
 						</Tabs.Tab>
 					) ) }
 				</Tabs.List>

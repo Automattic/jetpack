@@ -382,7 +382,8 @@ describe( 'post detail stage', () => {
 			41,
 			mockEmailScope.reportParams,
 			false,
-			'post'
+			'post',
+			false
 		);
 	} );
 

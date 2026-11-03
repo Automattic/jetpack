@@ -62,13 +62,15 @@ function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined
  *                          widgets surface their own error states instead of the
  *                          tab staying permanently blank.
  * @param postType          - The post type slug, once known.
+ * @param isPostTypePending - The type is still loading: the tab that names it shows a placeholder.
  * @return Visible tabs, the active tab and layout, the active-tab setter, whether the post was never sent as a newsletter, and whether that is still being checked.
  */
 export function usePostDetailTabs(
 	postId: number,
 	emailReportParams?: ReportParams,
 	emailScopeBlocked = false,
-	postType?: string
+	postType?: string,
+	isPostTypePending = false
 ) {
 	const [ storedTab, setActiveTab ] = useActiveTab();
 
@@ -98,7 +100,7 @@ export function usePostDetailTabs(
 	const isEmailSendPending = gateEnabled && ! gate.isSuccess && ! gate.isError;
 
 	const tabs = useMemo( () => {
-		const allTabs = getPostDetailTabs( postType );
+		const allTabs = getPostDetailTabs( postType, isPostTypePending );
 		const withContent = allTabs.filter(
 			tab =>
 				POST_DETAIL_TAB_LAYOUTS[ tab.id ].length > 0 &&
@@ -107,7 +109,7 @@ export function usePostDetailTabs(
 
 		// Keep the page renderable if all compositions are temporarily empty.
 		return withContent.length > 0 ? withContent : allTabs;
-	}, [ showEmailTabs, postType ] );
+	}, [ showEmailTabs, postType, isPostTypePending ] );
 
 	const activeTab = tabs.find( tab => tab.id === storedTab )?.id ?? tabs[ 0 ]?.id ?? DEFAULT_TAB_ID;
 

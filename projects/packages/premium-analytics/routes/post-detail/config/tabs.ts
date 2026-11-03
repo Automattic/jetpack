@@ -24,6 +24,7 @@ export const DEFAULT_TAB_ID: PostDetailTabId = 'post-traffic';
 export type PostDetailTab = {
 	id: PostDetailTabId;
 	label: string;
+	isPending?: boolean;
 };
 
 /**
@@ -34,6 +35,8 @@ export type PostDetailTab = {
 const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
 	getLabel: ( postType?: string ) => string;
+	/** The label names the post type, so it waits for the type to load. */
+	isLabelledByType?: boolean;
 	/**
 	 * Which window the tab reports over: the URL date range, or the fixed
 	 * send window pinned by `useEmailTabScope`. `send-window` tabs also take
@@ -44,6 +47,7 @@ const TAB_DEFINITIONS: ReadonlyArray< {
 	{
 		id: 'post-traffic',
 		getLabel: postType => getPostTypeCopy( postType ).traffic,
+		isLabelledByType: true,
 		scope: 'url',
 	},
 	{
@@ -71,11 +75,16 @@ export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = TAB_DEFINITIONS.filter(
 /**
  * Build the ordered list of tab definitions ({ id, label }).
  *
- * @param postType - The post type slug, once known.
+ * @param postType      - The post type slug, once known.
+ * @param isTypePending - The type is still loading, so labels that name it are placeholders.
  * @return Ordered list of tab definitions.
  */
-export function getPostDetailTabs( postType?: string ): PostDetailTab[] {
-	return TAB_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel( postType ) } ) );
+export function getPostDetailTabs( postType?: string, isTypePending = false ): PostDetailTab[] {
+	return TAB_DEFINITIONS.map( ( { id, getLabel, isLabelledByType } ) => ( {
+		id,
+		label: getLabel( postType ),
+		...( isTypePending && isLabelledByType ? { isPending: true } : {} ),
+	} ) );
 }
 
 /**

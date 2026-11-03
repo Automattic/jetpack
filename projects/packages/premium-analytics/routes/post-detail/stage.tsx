@@ -133,7 +133,13 @@ function PostDetail(): JSX.Element {
 		layout: fixedLayout,
 		isEmailNotSent,
 		isEmailSendPending,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
+	} = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams,
+		emailScopeBlocked,
+		summary.type,
+		summary.isLoading
+	);
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
