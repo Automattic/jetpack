@@ -24,7 +24,7 @@ export function useUploadIntake(
 	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
 	const { startUpload } = useUpload();
 	const { createErrorNotice } = useDispatch( noticesStore );
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( 'upload_limit' );
 
 	return useCallback(
 		( files: File[] ): number => {

@@ -8,6 +8,9 @@ import { VIDEOPRESS_ADMIN_PAGE } from '../utils/constants';
 // against the same funnel.
 const UPGRADE_CLICK_EVENT = 'jetpack_videopress_upgrade_trigger_link_click';
 
+export type UpgradeLocation =
+	'overview' | 'library_at_limit' | 'settings_at_limit' | 'upload_limit';
+
 /**
  * Read the inlined initial state, guarding for environments (tests, the legacy
  * page) where the `var JPVIDEOPRESS_INITIAL_STATE` is absent.
@@ -21,9 +24,10 @@ function getInitialState() {
 /**
  * Record the upgrade click and start the platform-appropriate checkout.
  *
+ * @param location - Surface whose upgrade action was selected.
  * @return A callback that records the upgrade-click event and starts checkout.
  */
-export function useVideoPressUpgrade(): () => void {
+export function useVideoPressUpgrade( location: UpgradeLocation ): () => void {
 	const state = getInitialState();
 
 	const { run } = useVideoPressCheckout( {
@@ -37,7 +41,7 @@ export function useVideoPressUpgrade(): () => void {
 		// Record the click, then defer the checkout redirect by a microtask so
 		// the Tracks pixel is dispatched before navigation can cancel it.
 		// Mirrors the legacy dashboard's `recordEvent( … ).then( run )`.
-		analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT );
+		analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT, { location } );
 		void Promise.resolve().then( () => run() );
-	}, [ run ] );
+	}, [ run, location ] );
 }

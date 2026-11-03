@@ -144,7 +144,9 @@ const StageInner = () => {
 	return (
 		<DashboardLayout activeTab="settings">
 			<div className="jp-videopress-settings">
-				{ isAtLimit && <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> }
+				{ isAtLimit && (
+					<FreeTierNotice location="settings_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+				) }
 				<SettingsForm />
 			</div>
 		</DashboardLayout>
@@ -152,7 +154,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="settings">
 		<StageInner />
 	</QueryClientWrapper>
 );
