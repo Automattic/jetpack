@@ -55,6 +55,16 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	const ENQUEUE_TRACKS = true;
 
 	/**
+	 * Query arg the plan upgrade flow returns a WoA buyer with, set to CHECKOUT_COMPLETE.
+	 */
+	const CHECKOUT_ARG = 'checkout';
+
+	/**
+	 * Value of CHECKOUT_ARG once checkout has succeeded.
+	 */
+	const CHECKOUT_COMPLETE = 'complete';
+
+	/**
 	 * Site has no plan that includes the feature. Offer an upgrade.
 	 */
 	const STATE_UPGRADE = 'upgrade';
@@ -120,6 +130,79 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	 */
 	public static function is_atomic() {
 		return Constants::is_true( 'IS_ATOMIC' );
+	}
+
+	/**
+	 * Boot the page, plus, on WoA, the route its post-checkout screen polls.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		// Registered even when the page steps aside, so a poll still in flight learns the feature arrived.
+		if ( self::is_atomic() ) {
+			add_action( 'rest_api_init', array( static::class, 'register_rest_routes' ) );
+		}
+
+		parent::init();
+	}
+
+	/**
+	 * The route reporting whether the plan includes FEATURE yet, relative to `wpcom/v2`.
+	 *
+	 * @return string
+	 */
+	public static function get_rest_route() {
+		return '/hosting-feature-page/' . static::MENU_SLUG;
+	}
+
+	/**
+	 * Register the route that reports whether the plan includes FEATURE yet.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		register_rest_route(
+			'wpcom/v2',
+			static::get_rest_route(),
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_feature_status' ),
+				'permission_callback' => array( static::class, 'can_read_feature_status' ),
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may poll the feature status, as they may see the page.
+	 *
+	 * @return bool
+	 */
+	public static function can_read_feature_status() {
+		return current_user_can( static::CAPABILITY );
+	}
+
+	/**
+	 * Whether the plan includes FEATURE, read from the site's own copy of its purchases, which the page renders from.
+	 *
+	 * Not WordPress.com's, which knows about a purchase before the copy synced to WoA does.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_feature_status() {
+		return rest_ensure_response( array( 'hasFeature' => static::has_feature() ) );
+	}
+
+	/**
+	 * Whether a WoA buyer just returned from checkout to a page that has not seen the purchase yet.
+	 *
+	 * @param string $state The resolved STATE_* constant.
+	 * @return bool
+	 */
+	public static function is_checkout_pending( $state ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag set by the plan upgrade flow's return address.
+		$checkout = isset( $_GET[ self::CHECKOUT_ARG ] ) ? sanitize_key( wp_unslash( $_GET[ self::CHECKOUT_ARG ] ) ) : '';
+
+		return self::STATE_UPGRADE === $state && self::is_atomic() && self::CHECKOUT_COMPLETE === $checkout;
 	}
 
 	/**
@@ -218,7 +301,7 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 		$warnings        = self::get_transfer_warnings( $eligibility );
 		$transfer_status = self::STATE_IN_PROGRESS === $state ? null : self::get_latest_transfer_status( $blog_id );
 
-		return array(
+		$initial_state = array(
 			'state'               => $state,
 			'domain'              => $domain,
 			// A null result means the library was unavailable, not that the site
@@ -232,7 +315,14 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 			// Each applies only to the prompt Calypso pairs it with.
 			'hasRevertedTransfer' => self::STATE_UPGRADE === $state && 'reverted' === $transfer_status,
 			'transferFailed'      => self::STATE_ACTIVATE === $state && 'error' === $transfer_status,
+			'checkoutPending'     => static::is_checkout_pending( $state ),
 		);
+
+		if ( $initial_state['checkoutPending'] ) {
+			$initial_state['featureStatusPath'] = '/wpcom/v2' . static::get_rest_route();
+		}
+
+		return $initial_state;
 	}
 
 	/**
@@ -461,6 +551,12 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	public static function get_plan_upgrade_url( $back_url = '' ) {
 		$back     = '' === $back_url ? '' : wp_validate_redirect( $back_url, '' );
 		$constant = '\WPCOM_Features::' . static::FEATURE;
+		$live_url = static::get_live_feature_url();
+
+		// Only this page reads the arg, and only a completed purchase follows `redirect_to`.
+		if ( static::get_page_url() === $live_url ) {
+			$live_url = add_query_arg( self::CHECKOUT_ARG, self::CHECKOUT_COMPLETE, $live_url );
+		}
 
 		return add_query_arg(
 			array_filter(
@@ -468,7 +564,7 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
 					'feature'     => defined( $constant ) ? constant( $constant ) : '',
 					'back_to'     => rawurlencode( $back ? $back : static::get_page_url() ),
-					'redirect_to' => rawurlencode( static::get_live_feature_url() ),
+					'redirect_to' => rawurlencode( $live_url ),
 				)
 			),
 			'https://wordpress.com/setup/plan-upgrade'

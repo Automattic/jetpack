@@ -568,7 +568,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_feature_upgrades() {
 		return array(
-			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
+			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup&checkout=complete' ),
 			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
 			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
 			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
@@ -655,7 +655,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$expected = null === $expected
-			? $page::get_page_url()
+			? $page::get_page_url() . '&checkout=complete'
 			: str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $page::get_upgrade_url( 'example.org' ) );
@@ -671,6 +671,92 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
 			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
+		);
+	}
+
+	/**
+	 * Only a WoA buyer back from checkout, whose purchase has not synced yet, waits for it instead of seeing the upsell again.
+	 *
+	 * @dataProvider provide_checkout_returns
+	 *
+	 * @param bool        $atomic   Whether the site is on WoA.
+	 * @param string[]    $features The plan's features.
+	 * @param string|null $checkout The `checkout` query arg, if any.
+	 * @param bool        $pending  Whether the page waits for the purchase.
+	 */
+	#[DataProvider( 'provide_checkout_returns' )]
+	public function test_checkout_return_waits_for_the_purchase( $atomic, $features, $checkout, $pending ) {
+		Constants::set_constant( 'IS_ATOMIC', $atomic );
+		$this->grant_feature( ...$features );
+		if ( null !== $checkout ) {
+			$_GET['checkout'] = $checkout;
+		}
+
+		$state = WPCOM_Backup::get_initial_state();
+
+		$this->assertSame( $pending, $state['checkoutPending'] );
+		$this->assertSame( $pending ? '/wpcom/v2/hosting-feature-page/jetpack-backup' : null, $state['featureStatusPath'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_checkout_return_waits_for_the_purchase.
+	 *
+	 * @return array
+	 */
+	public static function provide_checkout_returns() {
+		return array(
+			'WoA, purchase not synced'   => array( true, array(), 'complete', true ),
+			'WoA, no checkout'           => array( true, array(), null, false ),
+			'WoA, other checkout value'  => array( true, array(), 'cancelled', false ),
+			'Simple, reads the purchase' => array( false, array(), 'complete', false ),
+			'Simple, activation pending' => array( false, array( \WPCOM_Features::ATOMIC, \WPCOM_Features::BACKUPS_SELF_SERVE ), 'complete', false ),
+		);
+	}
+
+	/**
+	 * The poll answers from the site's own copy of the plan, and only to someone who can see the page.
+	 *
+	 * @dataProvider provide_feature_status_requests
+	 *
+	 * @param string   $role     The requesting user's role.
+	 * @param string[] $features The plan's features.
+	 * @param int      $status   Expected HTTP status.
+	 * @param bool     $has      Expected `hasFeature`, when allowed.
+	 */
+	#[DataProvider( 'provide_feature_status_requests' )]
+	public function test_feature_status_route_reports_the_synced_plan( $role, $features, $status, $has ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->grant_feature( ...$features );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'wpcom_hosting_feature_' . $role,
+					'user_pass'  => 'password',
+					'role'       => $role,
+				)
+			)
+		);
+
+		WPCOM_Backup::init();
+		do_action( 'rest_api_init' );
+		$response = rest_do_request( new \WP_REST_Request( 'GET', '/wpcom/v2' . WPCOM_Backup::get_rest_route() ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		if ( 200 === $status ) {
+			$this->assertSame( array( 'hasFeature' => $has ), $response->get_data() );
+		}
+	}
+
+	/**
+	 * Data provider for test_feature_status_route_reports_the_synced_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_feature_status_requests() {
+		return array(
+			'admin, not synced' => array( 'administrator', array(), 200, false ),
+			'admin, synced'     => array( 'administrator', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 200, true ),
+			'editor'            => array( 'editor', array(), 403, false ),
 		);
 	}
 
@@ -817,7 +903,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['pagenow'],
 			$GLOBALS['plugin_page'],
 			$_GET['page'],
-			$_GET['enable_failed']
+			$_GET['enable_failed'],
+			$_GET['checkout']
 		);
 		Constants::clear_constants();
 		remove_all_filters( WPCOM_Backup::MODERNIZATION_FILTER );
@@ -1133,7 +1220,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed', 'checkoutPending' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

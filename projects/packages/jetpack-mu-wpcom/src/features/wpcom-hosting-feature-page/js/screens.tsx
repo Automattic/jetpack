@@ -1,9 +1,12 @@
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
-import { useState } from 'react';
+import { removeQueryArgs } from '@wordpress/url';
+import { useEffect, useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
 import { needsConfirmation } from './eligibility.ts';
+import { pollFeatureArrival } from './feature-arrival.ts';
 import { useFeature } from './feature-context.ts';
 import { upsell } from './icons.tsx';
 import { ViewTracker, useTracks } from './tracks.ts';
@@ -177,6 +180,86 @@ export function InProgressScreen() {
 							) }
 						</Text>
 					</>
+				}
+			/>
+		</>
+	);
+}
+
+/**
+ * Shown to a WoA buyer back from checkout until the purchase reaches the site, which then reloads into the feature.
+ *
+ * @param props       - Component props.
+ * @param props.state - Resolved initial state.
+ * @return The rendered prompt.
+ */
+export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
+	const { icon, illustration, checkoutPending } = useFeature();
+	const { tracksFeatureId, recordTracksEvent } = useTracks();
+	const [ timedOut, setTimedOut ] = useState( false );
+	const path = state.featureStatusPath;
+
+	useEffect( () => {
+		const controller = new AbortController();
+		const hasFeature = async () =>
+			!! path && ( await apiFetch< { hasFeature: boolean } >( { path } ) ).hasFeature;
+
+		pollFeatureArrival( hasFeature, { signal: controller.signal } ).then(
+			( { arrived, elapsedMs } ) => {
+				if ( controller.signal.aborted ) {
+					return;
+				}
+
+				recordTracksEvent( 'calypso_dashboard_hosting_feature_checkout_sync', {
+					feature_id: tracksFeatureId,
+					arrived,
+					elapsed_ms: elapsedMs,
+				} );
+
+				if ( arrived ) {
+					// Dropping the arg keeps a later reload from showing this screen to a site that has the plan.
+					window.location.replace( removeQueryArgs( window.location.href, 'checkout' ) );
+				} else {
+					setTimedOut( true );
+				}
+			}
+		);
+
+		return () => controller.abort();
+	}, [ path, recordTracksEvent, tracksFeatureId ] );
+
+	return (
+		<>
+			<ViewTracker
+				eventName="calypso_dashboard_hosting_feature_checkout_pending_impression"
+				properties={ { feature_id: tracksFeatureId } }
+			/>
+			{ timedOut && (
+				<Notice.Root intent="warning">
+					<Notice.Description>
+						{ __(
+							'This is taking longer than usual. Try reloading the page in a minute, or contact our support team if it still hasn’t updated.',
+							'jetpack-mu-wpcom'
+						) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
+			<Callout
+				icon={ icon }
+				title={ checkoutPending.title }
+				image={ illustration }
+				description={ <Text>{ checkoutPending.description }</Text> }
+				actions={
+					timedOut && (
+						<Button variant="solid" size="compact" onClick={ () => window.location.reload() }>
+							{ __( 'Reload', 'jetpack-mu-wpcom' ) }
+						</Button>
+					)
 				}
 			/>
 		</>
