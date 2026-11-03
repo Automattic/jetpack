@@ -574,7 +574,7 @@ WP_BUILD_PRELOAD_FILTERS=$( php -- "$WP_BUILD_PRELOAD_FILE" <<-'PHPDOC'
 [[ "$WP_BUILD_PRELOAD_FILTERS" == \[* ]] || { echo "::error file=$WP_BUILD_PRELOAD_FILE::Unable to read PRELOAD_FILTERS from $WP_BUILD_PRELOAD_FILE."; exit 1; }
 while IFS=$'\t' read -r FILE FILTER; do
 	EXIT=1
-	echo "::error file=$FILE::Wp-build page filter \`$FILTER\` is missing from PRELOAD_FILTERS. Add it to \`$WP_BUILD_PRELOAD_FILE\`."
+	echo "::error file=$FILE::wp-build page filter \`$FILTER\` is missing from PRELOAD_FILTERS. Add it to \`$WP_BUILD_PRELOAD_FILE\`."
 done < <( jq -r --argjson filters "$WP_BUILD_PRELOAD_FILTERS" '
 	.wpPlugin as $plugin | $plugin.pages[]? |
 	(if type == "string" then . else .id end) as $page |
