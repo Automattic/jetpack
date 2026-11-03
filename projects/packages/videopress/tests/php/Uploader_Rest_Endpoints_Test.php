@@ -213,4 +213,30 @@ class Uploader_Rest_Endpoints_Test extends BaseTestCase {
 			$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
 		}
 	}
+
+	/**
+	 * Accept the explicit dashboard source while rejecting arbitrary metadata.
+	 */
+	public function test_upload_source_is_optional_and_bounded() {
+		$author_id     = $this->create_user( 'upload_source_author', 'author' );
+		$attachment_id = $this->create_attachment( $author_id );
+		$this->mark_attachment_as_uploaded( $attachment_id, $author_id );
+		wp_set_current_user( $author_id );
+
+		foreach ( array( null, 'dashboard_promote', 'unrecognized', array( 'dashboard_promote' ) ) as $source ) {
+			$request = new \WP_REST_Request( 'POST', '/videopress/v1/upload/' . $attachment_id );
+			if ( null !== $source ) {
+				$request->set_param( 'source', $source );
+			}
+			$response = rest_get_server()->dispatch( $request );
+
+			if ( null === $source || 'dashboard_promote' === $source ) {
+				$this->assertSame( 200, $response->get_status() );
+				$this->assertSame( 'uploaded', $response->get_data()['status'] );
+			} else {
+				$this->assertSame( 400, $response->get_status() );
+				$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+			}
+		}
+	}
 }

@@ -47,6 +47,13 @@ class Uploader {
 	protected $attachment_id;
 
 	/**
+	 * Explicit upload entry surface, when known.
+	 *
+	 * @var string|null
+	 */
+	protected $source;
+
+	/**
 	 * Checks whether this feature is supported by the server
 	 *
 	 * @param int $attachment_id The ID of the video attachment we want to upload to VideoPress.
@@ -67,10 +74,12 @@ class Uploader {
 	 * Constructs the object
 	 *
 	 * @throws Upload_Exception If attachment is invalid or server does not support it.
-	 * @param int $attachment_id The ID of the video attachment we want to upload to VideoPress.
+	 * @param int         $attachment_id The ID of the video attachment we want to upload to VideoPress.
+	 * @param string|null $source        Explicit upload entry surface, when known.
 	 */
-	public function __construct( $attachment_id ) {
+	public function __construct( $attachment_id, $source = null ) {
 		$this->attachment_id = $attachment_id;
+		$this->source        = 'dashboard_promote' === $source ? $source : null;
 		if ( ! $this->get_file_path() ) {
 			throw new Upload_Exception( __( 'Invalid attachment ID', 'jetpack-videopress-pkg' ), Upload_Exception::ERROR_INVALID_ATTACHMENT_ID );
 		}
@@ -213,6 +222,9 @@ class Uploader {
 			$client     = $this->get_client();
 			$client->file( $this->get_file_path(), $this->get_file_name() );
 			$client->add_metadata( 'title', $attachment->post_title );
+			if ( null !== $this->source ) {
+				$client->add_metadata( 'source', $this->source );
+			}
 			if ( '' !== $attachment->post_content ) {
 				$client->add_metadata( 'description', $attachment->post_content );
 			}

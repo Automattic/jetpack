@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Forward bounded dashboard source through existing PHP upload metadata.

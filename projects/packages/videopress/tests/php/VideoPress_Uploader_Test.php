@@ -203,7 +203,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 			)
 		);
 
-		$uploader = new Uploader( $this->valid_attachment_id );
+		$uploader = new Uploader( $this->valid_attachment_id, 'dashboard_promote' );
 
 		// Swap in a client double so the upload does not touch the network.
 		$mock_client = new Mock_Tus_Client();
@@ -227,6 +227,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '&#', $title );
 		$this->assertSame( 'My video description', $mock_client->metadata['description'] ?? null );
 		$this->assertSame( 'My video caption', $mock_client->metadata['caption'] ?? null );
+		$this->assertSame( 'dashboard_promote', $mock_client->metadata['source'] ?? null );
 	}
 
 	/**
@@ -259,6 +260,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'title', $mock_client->metadata );
 		$this->assertArrayNotHasKey( 'description', $mock_client->metadata );
 		$this->assertArrayNotHasKey( 'caption', $mock_client->metadata );
+		$this->assertArrayNotHasKey( 'source', $mock_client->metadata );
 	}
 
 	/**

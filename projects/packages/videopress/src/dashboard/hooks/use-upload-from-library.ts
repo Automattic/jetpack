@@ -27,6 +27,8 @@ export type UploadFromLibraryResult = {
 };
 
 export type UploadFromLibraryOptions = {
+	/** Explicit entry surface; omitted for callers without a known source. */
+	source?: 'dashboard_promote';
 	/** Delay (ms) between polls and between transient-error retries. */
 	delayMs?: number;
 	/** Maximum total attempts before giving up. */
@@ -77,7 +79,11 @@ export async function uploadFromLibrary(
 
 		let result: UploadStatusResponse;
 		try {
-			result = await apiFetch< UploadStatusResponse >( { path, method: 'POST' } );
+			result = await apiFetch< UploadStatusResponse >( {
+				path,
+				method: 'POST',
+				...( options.source ? { data: { source: options.source } } : {} ),
+			} );
 		} catch ( err ) {
 			// Transient apiFetch failure — count against the attempt
 			// budget and try again on the next iteration.
@@ -160,7 +166,9 @@ export function useUploadFromLibrary() {
 		// chunks, so onProgress never fires and the row's promoting overlay
 		// stays indeterminate until the mutation settles.
 		mutationFn: ( { id, onProgress } ) =>
-			isSimpleSite() ? promoteOnSimple( id ) : uploadFromLibrary( id, { onProgress } ),
+			isSimpleSite()
+				? promoteOnSimple( id )
+				: uploadFromLibrary( id, { onProgress, source: 'dashboard_promote' } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 		},

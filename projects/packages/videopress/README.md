@@ -69,6 +69,12 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Media Library upload source
+
+The VideoPress dashboard sends `source=dashboard_promote` when promoting an existing local attachment through `/videopress/v1/upload/{id}`. The optional, bounded value travels through the PHP uploader into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply that supported source.
+
+This identifies the initiating dashboard surface, not a new attachment, successful processing or first playability. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. WordPress.com Simple uses a separate in-process promotion route and is not covered here. Server-side persistence and query availability must be verified before using this source in reporting.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
