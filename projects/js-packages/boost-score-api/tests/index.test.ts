@@ -96,6 +96,28 @@ describe( 'requestSpeedScores', () => {
 		expect( onPending ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'reports the progress of every pending response', async () => {
+		jest.useFakeTimers();
+		post
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 0, expected: 40 } } )
+			.mockResolvedValueOnce( { status: 'pending', progress: { elapsed: 5, expected: 40 } } )
+			.mockResolvedValue( mockData );
+		const onProgress = jest.fn();
+		const request = requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onProgress }
+		);
+		await jest.advanceTimersByTimeAsync( 10000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onProgress.mock.calls ).toEqual( [
+			[ { elapsed: 0, expected: 40 } ],
+			[ { elapsed: 5, expected: 40 } ],
+		] );
+	} );
+
 	it( 'does not report pending when scores are ready', async () => {
 		post.mockResolvedValue( mockData );
 		const onPending = jest.fn();
