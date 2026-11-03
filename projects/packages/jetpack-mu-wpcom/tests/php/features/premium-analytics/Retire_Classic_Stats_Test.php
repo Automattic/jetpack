@@ -9,6 +9,8 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/premium-analytics/retire-classic-stats.php';
 
@@ -27,6 +29,20 @@ class Retire_Classic_Stats_Test extends \WorDBless\BaseTestCase {
 
 	public function test_simple_retires_the_classic_stats_page() {
 		$this->assertTrue( Classic_Stats::is_retired() );
+	}
+
+	/**
+	 * Jetpack and Atomic sites keep their own plugin's answer, since public-api switches to them too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_and_atomic_sites_keep_their_own_answer() {
+		eval( 'function is_jetpack_site( $blog_id = null ) { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		$this->assertFalse( Classic_Stats::is_retired() );
 	}
 
 	public function test_other_flags_keep_their_value() {

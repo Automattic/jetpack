@@ -18,7 +18,16 @@ use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
  * @return bool
  */
 function wpcom_simple_retire_classic_stats( $enabled, $name ) {
-	return 'jetpack-stats-classic-page-retired' === $name ? true : $enabled;
+	if ( 'jetpack-stats-classic-page-retired' !== $name ) {
+		return $enabled;
+	}
+
+	// public-api also serves Jetpack and Atomic sites, whose own plugin decides.
+	if ( function_exists( 'is_jetpack_site' ) && is_jetpack_site( get_current_blog_id() ) ) {
+		return $enabled;
+	}
+
+	return true;
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcom_simple_retire_classic_stats', 5, 2 );
 
