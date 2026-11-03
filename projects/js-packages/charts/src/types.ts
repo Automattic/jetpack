@@ -437,6 +437,18 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** Compact mode for `compactWhenShort` line, area and bar charts */
+	compactWhenShort?: {
+		/** Height (px) below which the chart turns compact */
+		below?: number;
+		/** Margin the chart defaults to while compact */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
 	 * WPDS tokens in CSS, so only the compact sizing lives here.
@@ -466,6 +478,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
+	compactWhenShort: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] >[ 'margin' ] >;
 	};
 	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
@@ -713,6 +728,18 @@ export interface SeriesVisibilityProps {
 	 * Omit to retain the provider's existing visibility for the chart ID.
 	 */
 	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Compact mode for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to `theme.compactWhenShort.margin`, while the
+	 * chart is shorter than `theme.compactWhenShort.below`. Series hidden through the legend stay
+	 * hidden until the chart is tall again. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
 }
 
 /**
