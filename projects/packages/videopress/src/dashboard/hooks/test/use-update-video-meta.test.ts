@@ -96,11 +96,8 @@ describe( 'useUpdateVideoMeta', () => {
 					patch: { title: 'Edited', privacy },
 					previousPrivacy,
 				} );
-				if ( response instanceof Error ) {
-					await expect( pending ).rejects.toThrow( 'Failed' );
-				} else {
-					await pending;
-				}
+			const failure = await pending.catch( ( error: unknown ) => error );
+			expect( failure ).toBe( response instanceof Error ? response : undefined );
 			} );
 			expect( recordEvent ).not.toHaveBeenCalled();
 		}
