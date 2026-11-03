@@ -493,28 +493,30 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Scan states with no scan on record, and whether the page should show a scan running.
+	 * Report states with no scan on record, and whether the page should show a scan running.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_never_scanned_states() {
 		return array(
-			'idle, no scan queued'         => array( 'idle', false ),
-			'unavailable, plan just added' => array( 'unavailable', true ),
+			'Scan idle, no scan queued'         => array( true, 'idle', false ),
+			'Scan unavailable, plan just added' => array( true, 'unavailable', true ),
+			'free report idle, not built yet'   => array( false, 'idle', true ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_never_scanned_states
 	 *
+	 * @param bool   $has_plan Whether the site has a Scan plan.
 	 * @param string $state    The state WordPress.com reports.
 	 * @param bool   $scanning Whether the report says a scan is running.
 	 */
 	#[DataProvider( 'provide_never_scanned_states' )]
-	public function test_a_site_with_no_scan_on_record_reads_as_scanning_only_while_setting_up( $state, $scanning ) {
+	public function test_a_site_with_no_scan_on_record_reads_as_scanning_only_while_setting_up( $has_plan, $state, $scanning ) {
 		Scan_Status::$status = new Status_Model( array( 'status' => $state ) );
 
-		$report = self::call( 'get_scan_report', true );
+		$report = self::call( 'get_scan_report', $has_plan );
 
 		$this->assertSame( $scanning, $report['scanning'] );
 		$this->assertNull( $report['lastChecked'] );

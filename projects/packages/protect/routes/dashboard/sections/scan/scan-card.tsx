@@ -23,7 +23,44 @@ const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
 
 /**
- * The Scan results card: what the latest scan found, or that it found nothing; scans start from the page header.
+ * What the card says when there is no scan result to show: the last scan failed, or none has run.
+ *
+ * @param scan - The latest report.
+ * @return The icon, title and description.
+ */
+function getNoResultCopy( scan: ScanState ) {
+	if ( scan.lastScanFailed ) {
+		return {
+			icon: caution,
+			title: __( 'Your last scan didn’t complete', 'jetpack-protect-pkg' ),
+			description: __(
+				'We can’t confirm your site is free of threats until a scan finishes.',
+				'jetpack-protect-pkg'
+			),
+		};
+	}
+	if ( ! scan.hasPlan ) {
+		return {
+			icon: shield,
+			title: __( 'Your site hasn’t been checked yet', 'jetpack-protect-pkg' ),
+			description: __(
+				'Check your plugins and themes for known vulnerabilities.',
+				'jetpack-protect-pkg'
+			),
+		};
+	}
+	return {
+		icon: shield,
+		title: __( 'Your site hasn’t been scanned yet', 'jetpack-protect-pkg' ),
+		description: __(
+			'Run a scan to check your site for malware and vulnerabilities.',
+			'jetpack-protect-pkg'
+		),
+	};
+}
+
+/**
+ * The Scan results card: what the latest scan found, that it found nothing, or a way to start one when there is no result.
  *
  * @param props         - Component props.
  * @param props.openTab - Switches dashboard tabs, for the link to Scan history.
@@ -101,33 +138,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			</CardRow>
 		);
 	} else if ( ! hasThreats && ( scan.lastScanFailed || ! scan.lastChecked ) ) {
-		let copy: { icon: typeof shield; title: string; description: string } = {
-			icon: shield,
-			title: __( 'Your site hasn’t been scanned yet', 'jetpack-protect-pkg' ),
-			description: __(
-				'Run a scan to check your site for malware and vulnerabilities.',
-				'jetpack-protect-pkg'
-			),
-		};
-		if ( scan.lastScanFailed ) {
-			copy = {
-				icon: caution,
-				title: __( 'Your last scan didn’t complete', 'jetpack-protect-pkg' ),
-				description: __(
-					'We can’t confirm your site is free of threats until a scan finishes.',
-					'jetpack-protect-pkg'
-				),
-			};
-		} else if ( ! hasPlan ) {
-			copy = {
-				icon: shield,
-				title: __( 'Your site hasn’t been checked yet', 'jetpack-protect-pkg' ),
-				description: __(
-					'Check your plugins and themes for known vulnerabilities.',
-					'jetpack-protect-pkg'
-				),
-			};
-		}
+		const copy = getNoResultCopy( scan );
 		body = (
 			<CardRow className="jp-protect-scan__state">
 				<EmptyState.Root className="jp-protect-scan__empty">

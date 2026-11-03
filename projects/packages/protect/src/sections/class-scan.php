@@ -49,11 +49,10 @@ class Scan implements Dashboard_Section {
 
 	/**
 	 * Statuses that mean the first scan has not run yet when there is no report date.
-	 * Not `idle`: WordPress.com can stay idle with no scan on record, which isn't a scan running.
 	 *
 	 * @var string[]
 	 */
-	const INITIALIZING_STATUSES = array( 'unavailable' );
+	const INITIALIZING_STATUSES = array( 'idle', 'unavailable' );
 
 	/**
 	 * Lock held for a minute after a scan request, so repeated requests don't stack.
@@ -816,7 +815,9 @@ class Scan implements Dashboard_Section {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$is_initializing = empty( $status->last_checked ) && empty( $status->last_scan_failed ) && in_array( $status->status, self::INITIALIZING_STATUSES, true );
+		// Scan can stay idle with no scan on record, which isn't a scan running.
+		$is_initializing = empty( $status->last_checked ) && empty( $status->last_scan_failed ) && in_array( $status->status, self::INITIALIZING_STATUSES, true )
+			&& ! ( $has_plan && 'idle' === $status->status );
 
 		return array(
 			'error'          => false,
