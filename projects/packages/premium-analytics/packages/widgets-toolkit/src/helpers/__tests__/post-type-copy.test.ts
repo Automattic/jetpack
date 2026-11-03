@@ -1,4 +1,4 @@
-import { getPostTypeCopy } from './post-type-copy';
+import { getPostTypeCopy } from '../post-type-copy';
 
 it.each( [
 	[ 'post', 'Post traffic', 'Post highlights', 'Post views' ],
