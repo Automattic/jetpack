@@ -1,6 +1,6 @@
 /* A card's narrowest inline size before the row wraps. No WPDS dimension
  * token reaches this far; a consumer tunes it through
- * `--jpa-card-tabs-min-inline-size`, as it tunes the gap and the padding. */
+ * `--jpa-card-tabs-min-inline-size`, as it tunes the padding. */
 $card-tabs-min-inline-size: 10rem;
 
 /* As many cards to a row as fit at their minimum size, every row sharing the
@@ -9,7 +9,7 @@ $card-tabs-min-inline-size: 10rem;
 .list {
 	display: grid;
 	grid-template-columns: repeat(var(--jpa-card-tabs-columns, auto-fit), minmax(min(100%, var(--jpa-card-tabs-min-inline-size, #{$card-tabs-min-inline-size})), 1fr));
-	gap: var(--jpa-card-tabs-gap, var(--wpds-dimension-gap-sm));
+	gap: var(--wpds-dimension-gap-sm);
 	min-inline-size: 0;
 }
 
