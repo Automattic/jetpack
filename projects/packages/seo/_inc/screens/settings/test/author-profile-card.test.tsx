@@ -43,38 +43,47 @@ describe( 'AuthorProfileCard', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'keeps the saved author profile visible and disables editing and saving during a conflict', async () => {
-		mockApiFetch.mockResolvedValue( STORED_PROFILE );
-		render(
-			<AuthorProfileCard
-				disabled
-				disabledReason="Yoast SEO manages structured data. Saved settings are retained."
-			/>
-		);
-		expand();
-		await expect( screen.findByDisplayValue( 'Creator' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'group', { name: 'Author profile settings' } )
-		).toHaveAccessibleDescription(
-			'Yoast SEO manages structured data. Saved settings are retained.'
-		);
-		for ( const control of screen.getAllByRole( 'textbox' ) ) {
-			expect( control ).toBeDisabled();
+	it.each( [ false, true ] )(
+		'keeps the saved author profile locked when planLocked=%s',
+		async planLocked => {
+			mockApiFetch.mockResolvedValue( STORED_PROFILE );
+			render(
+				<AuthorProfileCard
+					disabled
+					planLocked={ planLocked }
+					disabledReason="Deactivate Yoast SEO to edit these settings."
+				/>
+			);
+			expand();
+			await expect( screen.findByDisplayValue( 'Creator' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.queryAllByText( 'Deactivate Yoast SEO to edit these settings.' )
+			).toHaveLength( planLocked ? 0 : 1 );
+			expect( screen.queryAllByText( 'Premium required' ) ).toHaveLength( planLocked ? 1 : 0 );
+			expect(
+				screen.getByRole( 'group', { name: 'Author profile settings' } )
+			).toHaveAccessibleDescription(
+				planLocked
+					? 'Editing is disabled on your current plan. Upgrade'
+					: 'Deactivate Yoast SEO to edit these settings.'
+			);
+			for ( const control of screen.getAllByRole( 'textbox' ) ) {
+				expect( control ).toBeDisabled();
+			}
+			expect( screen.getByRole( 'button', { name: 'Save author profile' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'button', { name: 'Save author profile' } ) );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 		}
-		expect( screen.getByRole( 'button', { name: 'Save author profile' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: 'Save author profile' } ) );
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-	} );
+	);
 
 	it( 'renders collapsed by default, without a status while loading', () => {
 		mockApiFetch.mockReturnValue( new Promise( () => {} ) );

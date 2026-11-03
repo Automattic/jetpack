@@ -1,26 +1,29 @@
-/* eslint-disable react/jsx-no-bind -- a component-scope handler recreated per render is fine for a single banner. */
-
 import { UpsellBanner as BaseUpsellBanner } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getUpsellUrl } from '../data/is-gated';
+import { consumePendingUpgrade, markUpgradePending } from '../data/upgrade';
 import type { FC } from 'react';
 
-// Refresh eligibility if the user opens checkout in another tab and returns.
-const UPGRADE_PENDING_KEY = 'jetpack-seo-upgrade-pending';
+interface Props {
+	title?: string;
+	description?: string;
+}
 
 /**
- * Show an upgrade offer when the SEO dashboard is plan-gated.
+ * Upgrade banner shared by the Overview and Settings screens.
  *
+ * @param props             - Optional title and description for the current screen.
+ * @param props.title       - Screen-specific banner title.
+ * @param props.description - Explanation for the current screen.
  * @return The upsell banner.
  */
-const UpsellBanner: FC = () => {
+const UpsellBanner: FC< Props > = ( { title, description } ) => {
 	const upsellUrl = getUpsellUrl();
 
 	useEffect( () => {
 		const onFocus = () => {
-			if ( window.sessionStorage.getItem( UPGRADE_PENDING_KEY ) ) {
-				window.sessionStorage.removeItem( UPGRADE_PENDING_KEY );
+			if ( consumePendingUpgrade() ) {
 				window.location.reload();
 			}
 		};
@@ -29,24 +32,20 @@ const UpsellBanner: FC = () => {
 		return () => window.removeEventListener( 'focus', onFocus );
 	}, [] );
 
-	const onUpgradeClick = () => {
-		window.sessionStorage.setItem( UPGRADE_PENDING_KEY, '1' );
-	};
-
 	if ( ! upsellUrl ) {
 		return null;
 	}
 
 	return (
 		<BaseUpsellBanner
-			title={ __( 'Boost your search engine ranking', 'jetpack-seo' ) }
-			description={ __(
-				'Get tools to optimize your site for improved search engine results.',
-				'jetpack-seo'
-			) }
+			title={ title ?? __( 'Boost your search engine ranking', 'jetpack-seo' ) }
+			description={
+				description ??
+				__( 'Get tools to optimize your site for improved search engine results.', 'jetpack-seo' )
+			}
 			primaryCtaLabel={ __( 'Upgrade', 'jetpack-seo' ) }
 			primaryCtaURL={ upsellUrl }
-			primaryCtaOnClick={ onUpgradeClick }
+			primaryCtaOnClick={ markUpgradePending }
 			primaryCtaIsExternalLink={ false }
 		/>
 	);

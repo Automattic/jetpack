@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { title as titleIcon } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Notice, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PlanLockedNote from '../../components/plan-locked-note';
 import StatusIndicator from '../../components/status-indicator';
 import getSite from '../../data/get-site';
 import {
@@ -211,19 +212,11 @@ interface Props {
 	titleSeparator: string;
 	/** Whether the saved title formats can be edited. */
 	editable: boolean;
-	disabledReason?: string;
+	planLocked?: boolean;
 	disabled?: boolean;
 }
 
-/**
- * Title structure editor covering every page type (front page, posts, pages,
- * tags, archives), one row per type (separated by a divider). The back-end
- * stores a format per page type under `advanced_seo_title_formats`; each type
- * accepts its own token
- * subset (see `PAGE_TYPE_TOKENS`). Each row edits local state while typing and
- * saves on its own button — the list is long enough to scroll, so a single
- * section Save would be out of reach from the lower rows.
- */
+/** Title structure editor with separate formats and Save buttons for each page type. */
 const TitleStructureField: FC< Props > = ( {
 	formats,
 	onChange,
@@ -231,7 +224,7 @@ const TitleStructureField: FC< Props > = ( {
 	isFormatDirty,
 	titleSeparator,
 	editable,
-	disabledReason,
+	planLocked = false,
 	disabled,
 } ) => {
 	// A smart default counts as configured — the same rule the Schema module uses.
@@ -242,7 +235,7 @@ const TitleStructureField: FC< Props > = ( {
 	// "Not started" here read as a criticism of a site that simply has no reason to
 	// customize its titles (JETPACK-2051). Each row previews that default, so the
 	// status is backed by something visible.
-	const titleStatus: SettingStatus = 'complete';
+	const titleStatus: SettingStatus = planLocked ? 'plan-locked' : 'complete';
 
 	// Fill the site-wide placeholders in each row's preview with the site's real
 	// name and tagline (bootstrapped in `seo.site`) — including when one of them is
@@ -271,17 +264,17 @@ const TitleStructureField: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
+					{ planLocked && <PlanLockedNote /> }
 					<Text variant="body-md" render={ <p /> }>
 						{ moduleDescription }
 					</Text>
-					{ ! editable && (
+					{ ! planLocked && ! editable && (
 						<Notice.Root intent="warning">
 							<Notice.Description>
-								{ disabledReason ??
-									__(
-										'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
-										'jetpack-seo'
-									) }
+								{ __(
+									'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
+									'jetpack-seo'
+								) }
 							</Notice.Description>
 						</Notice.Root>
 					) }
@@ -296,7 +289,7 @@ const TitleStructureField: FC< Props > = ( {
 							canSave={ isFormatDirty( pt.id ) }
 							previewOverrides={ previewOverrides }
 							titleSeparator={ titleSeparator }
-							disabled={ disabled || ! editable }
+							disabled={ disabled || planLocked || ! editable }
 						/>
 					) ) }
 				</Stack>

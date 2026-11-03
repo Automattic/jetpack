@@ -38,7 +38,7 @@ jest.unstable_mockModule( '../social-previews-card', () => ( {
 	default: () => <div>social previews</div>,
 } ) );
 jest.unstable_mockModule( '../title-structure-field', () => ( {
-	default: ( { editable, disabledReason }: { editable: boolean; disabledReason?: string } ) => (
+	default: ( { editable, planLocked }: { editable: boolean; planLocked?: boolean } ) => (
 		<div>
 			<input
 				aria-label="Saved title structure"
@@ -46,7 +46,7 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 				disabled={ ! editable }
 				readOnly
 			/>
-			{ disabledReason && <p>{ disabledReason }</p> }
+			{ planLocked && <p>Premium required</p> }
 		</div>
 	),
 } ) );
@@ -121,8 +121,36 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Add canonical URLs to archive pages' ) ).toBeDisabled();
 		expect( screen.getByText( /AI crawler rules and llms.txt are paused/ ) ).toBeInTheDocument();
-		expect( screen.getByText( /saved title structures still apply/ ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				/saved title formats, structured data and home page description still apply/
+			)
+		).toBeInTheDocument();
 	} );
+
+	it.each( [ 'Yoast SEO', '' ] )(
+		'explains both plan and output restrictions without promising that either alone restores editing (%s)',
+		plugin => {
+			isGated.mockReturnValue( true );
+			const form = buildForm( false );
+			form.local.seo_tools_disabled = true;
+			form.local.title_formats_editable = false;
+			form.local.conflicting_seo_plugin = plugin;
+			form.local.canonical_conflicted = !! plugin;
+
+			render( <SettingsScreen form={ form } /> );
+
+			expect( screen.getByText( /Upgrade to WordPress.com Premium or higher/ ) ).toHaveTextContent(
+				plugin
+					? 'Yoast SEO must also be deactivated before editing is available.'
+					: "Editing also stays disabled while Jetpack's SEO output is turned off."
+			);
+			expect(
+				screen.queryByText( /Deactivate .* to edit these settings/ )
+			).not.toBeInTheDocument();
+			expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeDisabled();
+		}
+	);
 
 	it.each( [ false, true ] )(
 		'only allows a grandfathered description when SEO output is not disabled (%s)',
@@ -139,6 +167,11 @@ describe( 'SettingsScreen plan restrictions', () => {
 				outputDisabled ? 'toBeDisabled' : 'toBeEnabled'
 			]();
 			expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
+			expect(
+				screen.queryAllByText(
+					'Locked while Jetpack SEO is disabled. Your saved description is retained.'
+				)
+			).toHaveLength( outputDisabled ? 1 : 0 );
 		}
 	);
 
@@ -151,3 +184,4 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'Organization name' ) ).toBeEnabled();
 	} );
+} );

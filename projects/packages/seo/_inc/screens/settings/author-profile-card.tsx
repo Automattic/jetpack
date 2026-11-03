@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { commentAuthorAvatar } from '@wordpress/icons';
 import { Card, CollapsibleCard, Notice, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PlanLockedNote from '../../components/plan-locked-note';
 import StatusIndicator from '../../components/status-indicator';
 import { useAuthorProfile } from '../../data/use-author-profile';
 import AuthorProfileSection from './schema-settings/author-profile-section';
@@ -9,27 +10,25 @@ import type { SettingStatus } from '../../components/status-indicator';
 
 interface Props {
 	disabled?: boolean;
+	planLocked?: boolean;
 	disabledReason?: string;
 }
 
 /**
- * Per-user Author profile settings card.
- *
- * Holds the form behind the Person / ProfilePage schema for the signed-in
- * user: name, bio, website, and avatar from the WordPress user profile, plus
- * the Jetpack-owned job title and social profile fields. Site-level schema
- * entities live in the Schema card; this card is about the current user only.
- *
- * Collapsed by default and built from the shared `CollapsibleCard` compound,
- * matching the other Settings modules (Canonical URLs, Title structure, Site
- * verification, Schema).
+ * Schema settings for the signed-in author's profile.
  *
  * @param props                - Component props.
- * @param props.disabled       - Whether another plugin controls structured data.
+ * @param props.disabled       - Whether editing is disabled.
+ * @param props.planLocked     - Whether the plan prevents editing.
  * @param props.disabledReason - Explanation shown while editing is disabled.
  * @return The Author profile settings card.
  */
-function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
+function AuthorProfileCard( {
+	disabled: outputDisabled = false,
+	planLocked = false,
+	disabledReason,
+}: Props ) {
+	const disabled = outputDisabled || planLocked;
 	const form = useAuthorProfile();
 	const { profile, isLoading, hasLoadError } = form;
 
@@ -61,9 +60,9 @@ function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 							title={ __( 'Author profile', 'jetpack-seo' ) }
 						/>
 					</Card.Title>
-					{ ! isLoading && ! hasLoadError && (
+					{ ( planLocked || ( ! isLoading && ! hasLoadError ) ) && (
 						<CollapsibleCard.HeaderDescription>
-							<StatusIndicator status={ profileStatus } />
+							<StatusIndicator status={ planLocked ? 'plan-locked' : profileStatus } />
 						</CollapsibleCard.HeaderDescription>
 					) }
 				</Stack>
@@ -76,7 +75,8 @@ function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 					aria-label={ __( 'Author profile settings', 'jetpack-seo' ) }
 					aria-describedby={ disabled ? 'jetpack-seo-author-profile-disabled' : undefined }
 				>
-					{ disabled && disabledReason && (
+					{ planLocked && <PlanLockedNote id="jetpack-seo-author-profile-disabled" /> }
+					{ ! planLocked && disabled && disabledReason && (
 						<Notice.Root intent="warning" id="jetpack-seo-author-profile-disabled">
 							<Notice.Description>{ disabledReason }</Notice.Description>
 						</Notice.Root>
