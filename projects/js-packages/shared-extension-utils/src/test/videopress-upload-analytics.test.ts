@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { createUploadAnalytics } from '../upload-analytics';
+import { createUploadAnalytics } from '../videopress-upload-analytics';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,

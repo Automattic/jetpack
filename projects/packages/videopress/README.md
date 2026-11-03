@@ -71,7 +71,7 @@ The package decides nothing about who gets the widgets. `Initializer` calls `Ana
 
 ## Browser upload lifecycle analytics
 
-The modern dashboard, video block file uploader and Premium Analytics upload widget record the existing specification's `jetpack_videopress_upload_started`, `_succeeded`, `_failed`, `_canceled` and `_retried` names through shared Tracks controls. Their bounded sources are `dashboard`, `block_editor` and `analytics_widget`. PHP promotion/import, legacy/multipart routes and client-observed playability remain outside this browser batch.
+The modern dashboard, video block file uploader, Jetpack's core Video block resumable uploader and Premium Analytics upload widget record the existing specification's `jetpack_videopress_upload_started`, `_succeeded`, `_failed`, `_canceled` and `_retried` names through shared Tracks controls. Their bounded sources are `dashboard`, `block_editor` and `analytics_widget`. The recorder is shared through the `videopress-upload-analytics` subpath of shared-extension-utils. PHP promotion/import, multipart routes and client-observed playability remain outside this browser batch.
 
 A random `upload_id` identifies a selected File within its queue/component lifetime. `attempt` starts at one and advances after a reported failure; pause/resume retains that attempt. `sequence` orders observations within the logical upload. Selecting a new File or reloading starts a new identity, including when tus resumes a previous server upload: `retry_type: stored_upload` marks that partial-history case. `network` retries count when a subsequent request starts, `resume` when the UI resumes a pause, and `user` when a failed selection is attempted again. These are not interchangeable with distinct newly uploaded videos.
 
