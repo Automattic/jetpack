@@ -136,7 +136,7 @@ describe( 'buildLibraryActions', () => {
 		const rawAction = buildLibraryActions( api ).find(
 			a => a.id === 'delete'
 		) as Action< LibraryItem >;
-		const rows = [ item( { id: '11' } ), item( { id: '12' } ) ];
+		const rows = [ item( { id: '11', type: 'videopress' } ), item( { id: '12', type: 'local' } ) ];
 		const closeModal = jest.fn();
 
 		expect( 'RenderModal' in rawAction ).toBe( true );
@@ -153,7 +153,10 @@ describe( 'buildLibraryActions', () => {
 		expect( api.deleteItems ).not.toHaveBeenCalled();
 
 		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
-		expect( api.deleteItems ).toHaveBeenCalledWith( [ '11', '12' ] );
+		expect( api.deleteItems ).toHaveBeenCalledWith( [
+			{ id: '11', type: 'videopress' },
+			{ id: '12', type: 'local' },
+		] );
 		expect( closeModal ).toHaveBeenCalledTimes( 2 );
 	} );
 } );

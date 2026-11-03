@@ -19,7 +19,11 @@ import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
-import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import {
+	DeleteVideosError,
+	useDeleteVideo,
+	type VideoDeletionItem,
+} from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
@@ -216,7 +220,8 @@ const StageInner = () => {
 				manageCaptions: ( item: LibraryItem ) => {
 					setCaptionVideo( item );
 				},
-				deleteItems: async ( ids: string[] ) => {
+				deleteItems: async ( items: VideoDeletionItem[] ) => {
+					const ids = items.map( item => item.id );
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -246,7 +251,7 @@ const StageInner = () => {
 					// from the listing.
 					let failedIds = new Set< string >();
 					try {
-						await deleteVideo( ids );
+						await deleteVideo( items );
 						createSuccessNotice(
 							sprintf(
 								/* translators: %d: number of deleted videos. */

@@ -1,8 +1,11 @@
+import analytics from '@automattic/jetpack-analytics';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
+import type { LibraryItem } from '../types/library';
 
 type Id = number | string;
+export type VideoDeletionItem = Pick< LibraryItem, 'id' | 'type' >;
 
 /**
  * Thrown when one or more deletions in a batch fail. Carries the ids that
@@ -33,21 +36,38 @@ export class DeleteVideosError extends Error {
  * the same hook instance starts another one, silently dropping that call's
  * mutate-level callbacks — the promise always settles.
  *
- * @return A TanStack Query mutation object whose mutateAsync accepts a single id or an array of ids.
+ * @return A mutation accepting selected item identities and types.
  */
 export function useDeleteVideo() {
 	const client = useQueryClient();
-	return useMutation< void, Error, Id | Id[] >( {
+	return useMutation< void, Error, VideoDeletionItem[] >( {
 		mutationFn: async input => {
-			const ids = Array.isArray( input ) ? input : [ input ];
+			const items = [
+				...new Map( input.map( ( { id, type } ) => [ id, { id, type } ] ) ).values(),
+			];
+			const ids = items.map( item => item.id );
 			const results = await Promise.allSettled(
 				ids.map( id =>
-					apiFetch( {
+					apiFetch< { deleted?: boolean } >( {
 						path: `/wp/v2/media/${ id }?force=true`,
 						method: 'DELETE',
 					} )
 				)
 			);
+			const count = items.filter( ( item, index ) => {
+				const result = results[ index ];
+				return (
+					item.type === 'videopress' &&
+					result.status === 'fulfilled' &&
+					result.value?.deleted === true
+				);
+			} ).length;
+			if ( count > 0 ) {
+				analytics.tracks.recordEvent( 'jetpack_videopress_video_deleted', {
+					count,
+					is_bulk: items.length > 1,
+				} );
+			}
 			const failedIds = ids.filter( ( _, index ) => results[ index ].status === 'rejected' );
 			if ( failedIds.length > 0 ) {
 				throw new DeleteVideosError( failedIds );
@@ -58,7 +78,7 @@ export function useDeleteVideo() {
 			// them is no help — a refetch 404s and TanStack retains the stale
 			// data — so a cached entry would let a back-navigation render a
 			// ghost editor for a video that no longer exists.
-			const ids = Array.isArray( input ) ? input : [ input ];
+			const ids = [ ...new Set( input.map( item => item.id ) ) ];
 			const failedIds = error instanceof DeleteVideosError ? new Set( error.failedIds ) : null;
 			ids
 				.filter( id => ! failedIds?.has( id ) )
