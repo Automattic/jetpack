@@ -74,7 +74,10 @@ class Stats_Links {
 	}
 
 	/**
-	 * Whether this request is for `page=stats`, with no such page registered for this user, by a user who can read Stats here.
+	 * Whether this request is for `page=stats`, retired or with no such page registered for this user, by a user who can read Stats here.
+	 *
+	 * Retired counts on its own: WordPress.com Simple still registers an older `index.php?page=stats`, which leaves
+	 * `admin.php?page=stats` denied.
 	 *
 	 * @return bool
 	 */
@@ -83,7 +86,7 @@ class Stats_Links {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
 		return 'stats' === $page
-			&& '' === menu_page_url( 'stats', false )
+			&& ( Classic_Stats::is_retired() || '' === menu_page_url( 'stats', false ) )
 			&& Capabilities::current_user_can_open_stats();
 	}
 
