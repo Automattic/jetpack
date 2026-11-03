@@ -4,7 +4,6 @@ set -eo pipefail
 
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
-. "$BASE/tools/includes/proceed_p.sh"
 
 if [[ -n $(git status --porcelain) ]]; then
 	error 'Working tree not clean; commit or stash changes first.'
@@ -17,7 +16,8 @@ function apply_patches {
 	local pr_or_commit
 
 	while true; do
-		read -rep 'PR or commit: ' pr_or_commit
+		read -rep "PR or commit to cherry-pick, or 'done' if finished: " pr_or_commit
+		[[ $pr_or_commit == "done" ]] && break
 		[[ -n $pr_or_commit ]] || continue
 
 		if "$BASE/tools/apply-patch.sh" "$pr_or_commit"; then
@@ -27,8 +27,6 @@ function apply_patches {
 				exit 1
 			fi
 		fi
-
-		proceed_p '' 'Add another?' || break
 	done
 }
 
