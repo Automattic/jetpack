@@ -231,7 +231,17 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ refreshed, firewall ]
 	);
 	const [ blockListOpen, setBlockListOpen ] = useState( false );
-	const openBlockList = useCallback( () => setBlockListOpen( true ), [] );
+	// A save can swap out the button that opened the dialog; focus then goes to the footer's link.
+	const blockListOpener = useRef< Element | null >( null );
+	const editBlockListLink = useRef< HTMLButtonElement >( null );
+	const openBlockList = useCallback( ( event?: { currentTarget: Element } ) => {
+		blockListOpener.current = event?.currentTarget ?? null;
+		setBlockListOpen( true );
+	}, [] );
+	const blockListFinalFocus = useCallback(
+		() => blockListOpener.current?.isConnected || ( editBlockListLink.current ?? true ),
+		[]
+	);
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
@@ -302,7 +312,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasNoRules = needsBlockList && rulesUpdatedAt === null;
 	const isFreeEmptyState = isEmpty && hasNoRules;
 	const hasNothingToBlock = active && hasBlocks && hasNoRules;
-	const showStaleRules = ! firewall.hasScan && ! isFreeEmptyState && rulesUpdatedAt !== null;
+	const showStaleRules = ! firewall.hasScan && rulesUpdatedAt !== null;
 	useRerenderEvery( 30000, !! lastTestAt );
 
 	if ( firewall.providedByHost ) {
@@ -385,6 +395,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					data={ ipData }
 					currentIp={ firewall.currentIp }
 					onEditBlockList={ isFreeEmptyState ? undefined : openBlockList }
+					editBlockListRef={ editBlockListLink }
 					settingsLink={ settingsLink }
 					aside={
 						hasBlocks &&
@@ -408,6 +419,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
 					open={ blockListOpen }
 					onOpenChange={ setBlockListOpen }
+					finalFocus={ blockListFinalFocus }
 					enableOnSave
 				/>
 			) }

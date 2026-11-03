@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Dialog, Stack, Text, TextareaControl } from '@wordpress/ui';
 import { appendIp, getIpList, splitIps } from '../../components/settings/ip-list';
 import { enabledKey } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
-import type { ChangeEvent, ReactElement, ReactNode } from 'react';
+import type { ChangeEvent, ComponentProps, ReactElement, ReactNode } from 'react';
 
 type DialogProps = {
 	data: ProtectSettingsData;
@@ -19,6 +19,8 @@ type DialogProps = {
 	/** Whether the dialog is open, for a dialog opened from outside it. */
 	open?: boolean;
 	onOpenChange?: ( open: boolean ) => void;
+	/** Where focus goes when the dialog closes, as for `Dialog.Popup`. */
+	finalFocus?: ComponentProps< typeof Dialog.Popup >[ 'finalFocus' ];
 	children?: ReactNode;
 };
 
@@ -34,6 +36,7 @@ type DialogProps = {
  * @param props.enableOnSave - Whether saving addresses also turns the list on.
  * @param props.open         - Whether the dialog is open, when controlled.
  * @param props.onOpenChange - Called when the dialog opens or closes.
+ * @param props.finalFocus   - Where focus goes when the dialog closes.
  * @param props.children     - The trigger's content.
  * @return The dialog and its trigger.
  */
@@ -46,6 +49,7 @@ export function IpListDialog( {
 	enableOnSave = false,
 	open: controlledOpen,
 	onOpenChange,
+	finalFocus,
 	children,
 }: DialogProps ) {
 	const { save, isSaving } = data;
@@ -56,15 +60,16 @@ export function IpListDialog( {
 	// `data.error` is shared by every setting, so only show it for a save made from this dialog.
 	const [ saveFailed, setSaveFailed ] = useState( false );
 
-	// Start each edit from the saved list. Only on opening: a failed save rolls `saved` back mid-edit.
-	const savedRef = useRef( saved );
-	savedRef.current = saved;
-	useEffect( () => {
+	// Start each edit from the saved list, during render so no frame shows the last draft.
+	// Only on opening: a failed save rolls `saved` back mid-edit.
+	const [ wasOpen, setWasOpen ] = useState( open );
+	if ( open !== wasOpen ) {
+		setWasOpen( open );
 		if ( open ) {
-			setDraft( savedRef.current );
+			setDraft( saved );
 			setSaveFailed( false );
 		}
-	}, [ open ] );
+	}
 
 	const setOpen = useCallback(
 		( next: boolean ) => {
@@ -99,7 +104,7 @@ export function IpListDialog( {
 	return (
 		<Dialog.Root open={ open } onOpenChange={ setOpen }>
 			{ trigger && <Dialog.Trigger render={ trigger }>{ children }</Dialog.Trigger> }
-			<Dialog.Popup>
+			<Dialog.Popup finalFocus={ finalFocus }>
 				<Dialog.Header>
 					<Dialog.Title>{ dialogTitle }</Dialog.Title>
 					<Dialog.CloseIconButton />

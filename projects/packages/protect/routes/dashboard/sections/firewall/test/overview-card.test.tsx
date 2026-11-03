@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select } from '@wordpress/data';
@@ -388,6 +388,30 @@ describe( 'FirewallOverviewCard', () => {
 
 		await expect( within( dialog ).findByText( 'Nope' ) ).resolves.toBeInTheDocument();
 		expect( within( dialog ).getByRole( 'textbox' ) ).toHaveValue( '198.51.100.1' );
+	} );
+
+	it( 'moves focus to Edit block list when saving swaps out the button that opened the dialog', async () => {
+		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method, path } ) =>
+			Promise.resolve(
+				method !== 'POST' && path === '/jetpack/v4/settings' ? { waf: true, ...EMPTY_LIST } : {}
+			)
+		);
+		const Live = () => (
+			<FirewallOverviewCard
+				{ ...props }
+				state={ noBlocks( { ipRules: EMPTY_LIST } ) }
+				settings={ useProtectSettings() }
+			/>
+		);
+		render( <Live /> );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Add IPs to list' } ) );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
+		await userEvent.type( within( dialog ).getByRole( 'textbox' ), '198.51.100.1' );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
+
+		const link = await screen.findByRole( 'button', { name: 'Edit block list' } );
+		await waitFor( () => expect( link ).toHaveFocus() );
 	} );
 
 	it( 'offers to turn on a free site’s block list that has addresses but is off', async () => {

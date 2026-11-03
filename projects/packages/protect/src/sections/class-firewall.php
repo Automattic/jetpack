@@ -135,9 +135,8 @@ class Firewall implements Dashboard_Section {
 	 * @return array
 	 */
 	public static function get_blocks() {
-		$counts = class_exists( Waf_Stats::class ) ? Waf_Stats::get_blocked_requests() : array();
-		$daily  = self::get_daily_blocks();
-		$all    = isset( $counts['all_time'] ) ? (int) $counts['all_time'] : null;
+		$daily = self::get_daily_blocks();
+		$all   = method_exists( Waf_Blocklog_Manager::class, 'get_all_time_block_count' ) ? Waf_Blocklog_Manager::get_all_time_block_count() : null;
 
 		return array_merge(
 			array(
@@ -190,8 +189,8 @@ class Firewall implements Dashboard_Section {
 	private static function get_test_summary() {
 		global $wpdb;
 
-		// An older WAF package can't run the test, so nothing it logged is one.
-		$test_rule = class_exists( Waf_Self_Check::class ) ? Waf_Self_Check::RULE_ID : -2;
+		// `Waf_Self_Check::RULE_ID`, inlined because an older WAF package doesn't define the class.
+		$test_rule = -2;
 
 		// The table doesn't exist until the firewall is first turned on.
 		$suppress = $wpdb->suppress_errors();

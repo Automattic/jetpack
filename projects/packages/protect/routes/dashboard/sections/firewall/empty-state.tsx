@@ -9,7 +9,7 @@ import { recordEvent, recordViewOnce } from '../../data/tracks';
 import { IpListDialog } from './ip-list-dialog';
 import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 
 const UPSELL_EVENT = 'jetpack_protect_dashboard_firewall_upsell';
 const UPSELL_PROPS = { state: 'empty' };
@@ -175,24 +175,27 @@ function ListCount( { count }: { count: number } ) {
 /**
  * The links at the foot of the card: each IP list with its count, then the firewall's settings.
  *
- * @param props                 - Component props.
- * @param props.data            - The settings, with the IP lists.
- * @param props.currentIp       - The visitor's address, offered for the allow list.
- * @param props.onEditBlockList - Opens the block list's dialog; leave out to drop its link.
- * @param props.settingsLink    - The link to the firewall's settings.
- * @param props.aside           - Optional text at the end, such as when the rules were updated.
+ * @param props                  - Component props.
+ * @param props.data             - The settings, with the IP lists.
+ * @param props.currentIp        - The visitor's address, offered for the allow list.
+ * @param props.onEditBlockList  - Opens the block list's dialog; leave out to drop its link.
+ * @param props.editBlockListRef - Receives the block list's link, to move focus to.
+ * @param props.settingsLink     - The link to the firewall's settings.
+ * @param props.aside            - Optional text at the end, such as when the rules were updated.
  * @return The row.
  */
 export function FirewallFooter( {
 	data,
 	currentIp,
 	onEditBlockList,
+	editBlockListRef,
 	settingsLink,
 	aside,
 }: {
 	data: ProtectSettingsData;
 	currentIp: string;
 	onEditBlockList?: () => void;
+	editBlockListRef?: Ref< HTMLButtonElement >;
 	settingsLink: ReactNode;
 	aside?: ReactNode;
 } ) {
@@ -204,7 +207,12 @@ export function FirewallFooter( {
 			<Stack direction="row" gap="lg" align="center" wrap="wrap">
 				{ onEditBlockList && (
 					<Stack direction="row" gap="sm" align="center">
-						<Button variant="unstyled" className={ linkClass } onClick={ onEditBlockList }>
+						<Button
+							ref={ editBlockListRef }
+							variant="unstyled"
+							className={ linkClass }
+							onClick={ onEditBlockList }
+						>
 							{ __( 'Edit block list', 'jetpack-protect-pkg' ) }
 						</Button>
 						<ListCount count={ countOf( IP_BLOCK_LIST ) } />
