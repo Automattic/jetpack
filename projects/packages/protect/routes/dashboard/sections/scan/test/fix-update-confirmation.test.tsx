@@ -1,7 +1,11 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { FixUpdateConfirmation, makeFixUpdateModal } from '../fix-update-confirmation';
+import {
+	FixUpdateConfirmation,
+	getUpdateFixTitle,
+	makeFixUpdateModal,
+} from '../fix-update-confirmation';
 import type { ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -23,6 +27,16 @@ window.jetpackProtectDashboard = {
 };
 
 describe( 'FixUpdateModal', () => {
+	it.each( [
+		[ 'plugins', 'Update this plugin?' ],
+		[ 'themes', 'Update this theme?' ],
+		[ 'core', 'Update WordPress?' ],
+	] as const )( 'titles a %s update', ( type, title ) => {
+		const threat = threatIn( 1, 'Name' );
+		threat.extension = { ...threat.extension, type };
+		expect( getUpdateFixTitle( [ threat ] ) ).toBe( title );
+	} );
+
 	it( 'names the version change and starts the fix only once Update is clicked', async () => {
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { status: 'fixed' } );
 		const closeModal = jest.fn();

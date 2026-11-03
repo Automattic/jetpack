@@ -43,7 +43,10 @@ describe( 'ThreatDetails', () => {
 		await userEvent.click( autoFix[ 0 ] );
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( calls );
-		expect( confirm.filter( name => screen.queryByRole( 'button', { name } ) ) ).toEqual( confirm );
+		const shown = [ 'Confirm deletion', 'Update' ].filter( name =>
+			screen.queryByRole( 'button', { name } )
+		);
+		expect( shown ).toEqual( confirm );
 	} );
 
 	it( 'disables Confirm deletion while another action runs on the threat', async () => {

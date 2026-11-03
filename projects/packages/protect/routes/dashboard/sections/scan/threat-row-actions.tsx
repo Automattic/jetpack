@@ -2,7 +2,7 @@ import { useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
-import { getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
+import { getUpdated, getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { useCanIgnore } from './store';
 import {
@@ -104,10 +104,10 @@ function getThreatRowActions(
 							_n(
 								'Auto-fix %d update',
 								'Auto-fix %d updates',
-								items.length,
+								getUpdated( items ).length,
 								'jetpack-protect-pkg'
 							),
-							items.length
+							getUpdated( items ).length
 						)
 					: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
