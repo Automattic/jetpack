@@ -21,35 +21,15 @@ async function complete( ...words ) {
 }
 
 describe( 'completion command', () => {
-	test( 'prints the script for the requested shell', async () => {
-		const { stdout } = await execa( bin, [ 'completion', 'zsh' ], { encoding: 'utf8' } );
-		expect( stdout ).toMatch( /^#compdef jetpack\n/ );
-	} );
-	test( 'names the command the script completes', async () => {
-		const { stdout } = await execa( bin, [ 'completion', 'zsh', '--name', 'jp' ], {
-			encoding: 'utf8',
-		} );
-		expect( stdout ).toMatch( /^#compdef jp\n/ );
-		await expect(
-			execa( bin, [ 'completion', 'zsh', '--name', 'rm -rf' ], { encoding: 'utf8' } )
-		).rejects.toMatchObject( { exitCode: 1 } );
-	} );
-	test( 'falls back to the login shell', async () => {
+	test.each( [
+		[ '/bin/zsh', /^#compdef jetpack\n/ ],
+		[ '/bin/bash', /\ncomplete -o bashdefault -o default -F _jetpack_yargs_completions jetpack\n/ ],
+	] )( 'prints the script for the shell in $SHELL (%s)', async ( shell, expected ) => {
 		const { stdout } = await execa( bin, [ 'completion' ], {
 			encoding: 'utf8',
-			env: { SHELL: '/bin/bash' },
+			env: { SHELL: shell },
 		} );
-		expect( stdout ).toContain( 'complete -o bashdefault -o default -F _jetpack jetpack' );
-	} );
-	test( 'refuses a shell it has no script for', async () => {
-		await expect(
-			execa( bin, [ 'completion' ], { encoding: 'utf8', env: { SHELL: '/usr/bin/fish' } } )
-		).rejects.toMatchObject( { exitCode: 1 } );
-	} );
-	test( 'completes its own shell argument', async () => {
-		await expect( complete( 'completion', '' ) ).resolves.toEqual(
-			expect.arrayContaining( [ 'bash', 'zsh' ] )
-		);
+		expect( stdout ).toMatch( expected );
 	} );
 } );
 

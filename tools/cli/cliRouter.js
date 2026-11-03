@@ -4,7 +4,6 @@ import * as buildCommand from './commands/build.js';
 import { changelogDefine } from './commands/changelog.js';
 import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
-import * as completionCommand from './commands/completion.js';
 import * as composerCommand from './commands/composer.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
@@ -20,7 +19,7 @@ import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
-import { COMPLETION_COMMAND, completionHook } from './helpers/completion.js';
+import { completionHook } from './helpers/completion.js';
 
 /**
  * The main CLI router function.
@@ -42,7 +41,8 @@ export async function cli() {
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
-	argv.command( completionCommand );
+	// The hook completes positionals by name; a builder registers its own the same way.
+	argv.completion( 'completion', 'Generate a shell completion script', completionHook( argv ) ); // Placed here to keep things alphabetical.
 	argv.command( composerCommand );
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
@@ -76,9 +76,6 @@ export async function cli() {
 			},
 		} );
 
-	// Every TAB runs `jetpack --get-yargs-completions <words>` (see `completion/`); the hook completes
-	// the positionals yargs does not know, and a builder registers its own the same way.
-	argv.completion( COMPLETION_COMMAND, false, completionHook( argv ) );
 	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
 	// so stop the half-typed command before its handler runs.
 	if ( process.argv.includes( '--get-yargs-completions' ) ) {

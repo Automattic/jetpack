@@ -629,7 +629,8 @@ const main = async () => {
 			return;
 		}
 
-		// Print the shell completion script, from the monorepo CLI on the host (see `complete()`)
+		// Print the shell completion script, from the monorepo CLI on the host (see `complete()`),
+		// with `jp` in place of `jetpack` as the command it completes.
 		if ( args[ 0 ] === 'completion' ) {
 			const cli = hostCli( monorepoRoot );
 			if ( ! cli ) {
@@ -637,12 +638,14 @@ const main = async () => {
 					'Shell completion runs the monorepo CLI on the host, so its dependencies must resolve here: install pnpm on the host, then reinstall with `jp install -r`.'
 				);
 			}
-			const result = spawnSync( process.execPath, [ cli, ...args, '--name', 'jp' ], {
-				stdio: 'inherit',
+			const result = spawnSync( process.execPath, [ cli, ...args ], {
+				encoding: 'utf8',
+				stdio: [ 'ignore', 'pipe', 'inherit' ],
 			} );
 			if ( result.status !== 0 ) {
 				throw new Error( `Command failed with status ${ result.status }` );
 			}
+			process.stdout.write( result.stdout.replaceAll( 'jetpack', 'jp' ) );
 			return;
 		}
 

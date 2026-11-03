@@ -1,10 +1,8 @@
-import { readFileSync } from 'fs';
-import path from 'path';
 import { allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
 
 /**
- * Name of yargs' built-in completion command, registered only to carry the hook: `completion [shell]`
- * is ours, and the NUL keeps this one off the command line.
+ * Name under which a builder registers its own completers: `completion` is the root's script
+ * command, and the NUL keeps this one off the command line.
  */
 export const COMPLETION_COMMAND = '\0yargs-completion';
 
@@ -140,28 +138,4 @@ export function completionHook( yargs, completers = {} ) {
 			done( [ ...defaults, ...extra ] );
 		} );
 	};
-}
-
-/**
- * Pick the shell to generate a completion script for from `$SHELL`.
- *
- * @return {string|undefined} `bash` or `zsh`, if that is the login shell.
- */
-export function shellFromEnv() {
-	const shell = path.basename( process.env.SHELL ?? '' );
-	return [ 'bash', 'zsh' ].includes( shell ) ? shell : undefined;
-}
-
-/**
- * The completion script for a shell, from `completion/`.
- *
- * @param {string} shell - `bash` or `zsh`.
- * @param {string} name  - The command the script completes, e.g. `jetpack`.
- * @return {string} The script.
- */
-export function completionScript( shell, name ) {
-	return readFileSync(
-		new URL( `../completion/completion.${ shell }`, import.meta.url ),
-		'utf8'
-	).replaceAll( '{{name}}', name );
 }
