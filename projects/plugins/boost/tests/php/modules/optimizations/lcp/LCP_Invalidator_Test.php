@@ -121,7 +121,7 @@ class LCP_Invalidator_Test extends BaseTestCase {
 		$this->url = get_permalink( $post_id );
 
 		if ( $bypass_schema ) {
-			// Model a bypassed read: the registered schema does not return null pages normally.
+			// Model a bypassed read: the registered schema normally returns an array of pages.
 			jetpack_boost_register_option( 'lcp_state', Schema::as_unsafe_any() );
 		}
 
@@ -159,6 +159,13 @@ class LCP_Invalidator_Test extends BaseTestCase {
 			'null pages with the schema bypassed'       => array(
 				array(
 					'pages'  => null,
+					'status' => 'not_analyzed',
+				),
+				true,
+			),
+			'string pages with the schema bypassed'     => array(
+				array(
+					'pages'  => 'x',
 					'status' => 'not_analyzed',
 				),
 				true,
