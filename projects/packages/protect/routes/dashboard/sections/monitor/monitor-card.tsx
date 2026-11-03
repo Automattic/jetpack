@@ -168,6 +168,11 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 
 	const title = __( 'Downtime monitoring', 'jetpack-protect-pkg' );
 	const { data: toggleData } = useMonitorToggleData( settings );
+	const connectLink = (
+		<Link href={ CONNECT_URL } onClick={ onConnect }>
+			{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
+		</Link>
+	);
 
 	if ( ! available ) {
 		return <UnavailableCard icon={ gauge } title={ title } />;
@@ -186,16 +191,8 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 			{ ! active && (
 				<CardRow>
 					<Stack direction="column" gap="md" align="start">
-						<MonitorToggle
-							data={ toggleData }
-							available
-							userConnected={ Boolean( monitor?.userConnected ) }
-						/>
-						{ ! monitor?.userConnected && (
-							<Link href={ CONNECT_URL } onClick={ onConnect }>
-								{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
-							</Link>
-						) }
+						<MonitorToggle data={ toggleData } available userConnected={ connected } />
+						{ ! connected && connectLink }
 					</Stack>
 				</CardRow>
 			) }
@@ -228,13 +225,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 								{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
 							</Stack>
 						</Stack>
-						{ ! connected && (
-							<div>
-								<Link href={ CONNECT_URL } onClick={ onConnect }>
-									{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
-								</Link>
-							</div>
-						) }
+						{ ! connected && <div>{ connectLink }</div> }
 						{ failed && (
 							<Stack direction="row" gap="sm" align="center">
 								<Text variant="body-md">

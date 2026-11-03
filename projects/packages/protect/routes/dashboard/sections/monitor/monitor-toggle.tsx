@@ -52,7 +52,7 @@ export default function MonitorToggle( {
 	available: boolean;
 	userConnected: boolean;
 } ) {
-	// Alerts go only to the connected user who turns Monitor on, so block turning it on but not off.
+	// Turning Monitor on subscribes that user to alerts, which needs their connection; turning off stays allowed.
 	const needsAccount = available && ! userConnected && ! data.settings?.monitor;
 	let help: string = __( 'Jetpack checks your site every five minutes.', 'jetpack-protect-pkg' );
 	if ( ! available ) {
