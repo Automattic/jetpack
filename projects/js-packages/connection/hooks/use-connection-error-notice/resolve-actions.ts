@@ -15,6 +15,20 @@ import type {
  */
 export const DEFAULT_RECONNECT_TRACKING_EVENT = CONNECTION_ERROR_NOTICE_EVENTS.reconnect;
 
+type ActionDefaults = { label: string; trackingEvent: string };
+
+/**
+ * Labels and Tracks events for named actions the server emits without an `action_label`.
+ *
+ * @return {Partial<Record<string, ActionDefaults>>} Defaults keyed by action; most actions have none.
+ */
+const getDefaultActionConfigs = (): Partial< Record< string, ActionDefaults > > => ( {
+	connect_user: {
+		label: __( 'Connect your account', 'jetpack-connection-js' ),
+		trackingEvent: CONNECTION_ERROR_NOTICE_EVENTS.connectUser,
+	},
+} );
+
 /**
  * The resolver's options: the public `ConnectionErrorProps` plus the two fields
  * the hook supplies internally (`restoreConnection` / `isRestoringConnection`).
@@ -92,12 +106,14 @@ export function resolveConnectionErrorActions(
 
 	if ( suggestedAction && actionHandler ) {
 		// Named handler from the error data.
+		const defaults = getDefaultActionConfigs()[ suggestedAction ];
 		actions = [
 			{
-				label: errorData.action_label || __( 'Take Action', 'jetpack-connection-js' ),
+				label:
+					errorData.action_label || defaults?.label || __( 'Take Action', 'jetpack-connection-js' ),
 				onClick: () => {
 					try {
-						track( errorData.tracking_event );
+						track( errorData.tracking_event ?? defaults?.trackingEvent );
 						actionHandler( connectionError );
 					} catch {
 						// Silently fail if the action handler throws.
