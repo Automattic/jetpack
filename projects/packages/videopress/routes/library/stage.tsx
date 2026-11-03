@@ -27,11 +27,11 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import {
 	recordUploadRefusal,
 	type UploadRefusal,
 } from '../../src/dashboard/utils/upload-refusal-analytics';
-import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
