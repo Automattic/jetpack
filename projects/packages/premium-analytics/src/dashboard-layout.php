@@ -182,13 +182,3 @@ function remove_unregistered_default_layout_items( $layout ) {
 		)
 	);
 }
-
-/**
- * No-op kept for older copies of the package: they guard their include of this file on this
- * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
- *
- * @since 0.8.0 Registers nothing; the route it registered is gone.
- *
- * @return void
- */
-function register_dashboard_default_layout_route() {}

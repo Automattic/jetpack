@@ -532,6 +532,22 @@ By default, charts **fill their parent container's dimensions**. The parent must
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
+### Compact When Short
+
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.compactWhenShort.below` (140px by default). Only the bars remain, and they keep their tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back. Series hidden through the legend stay hidden until the chart is tall enough to show the legend again. Horizontal bar charts ignore it.
+
+<Canvas of={ BarChartStories.CompactWhenShort } />
+
+In compact mode the margin defaults to `theme.compactWhenShort.margin`, and any side you pass through `margin` still wins. To change the threshold, set it on the theme:
+
+<Source
+	language="jsx"
+	code={ `// Applies to every chart under this provider
+	<GlobalChartsProvider theme={ { compactWhenShort: { below: 180 } } }>
+		<BarChart data={ data } compactWhenShort />
+	</GlobalChartsProvider>` }
+/>
+
 ## Animation
 
 The Bar Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
@@ -631,6 +647,10 @@ The value axis starts at zero, so a bar's length is proportional to its value an
 When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
 
 <Canvas of={ BarChartStories.SmallWholeNumberRange } />
+
+When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` (`axis.x` on a horizontal chart) with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When fewer than two steps fall inside the values' range, the axis widens to the nearest steps, so at least two ticks show. A pinned value domain, `tickValues` or a log scale turns the option off.
+
+<Canvas of={ BarChartStories.TickDecimals } />
 
 ## Accessibility
 

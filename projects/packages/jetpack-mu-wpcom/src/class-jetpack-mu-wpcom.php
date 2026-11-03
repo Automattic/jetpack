@@ -398,11 +398,11 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/ai-launchpad/ai-launchpad.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
-		require_once __DIR__ . '/features/browser-polyfills/browser-polyfills.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
+		require_once __DIR__ . '/features/editor-polyfills/editor-polyfills.php';
 		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides-atomic.php';
