@@ -131,7 +131,6 @@ export function useTrackMutations( {
 				label: trackToUpload.label,
 			};
 
-			const isCaption = isSubtitleTrackKind( trackToUpload.kind );
 			const response = await uploadTrackForGuid( trackToUpload, guid );
 
 			if ( hasTrackApiError( response ) ) {
@@ -146,7 +145,11 @@ export function useTrackMutations( {
 			}
 
 			// A filename acknowledges the live track write, even if cleanup or the editable copy fails.
-			if ( isCaption && typeof response === 'string' && response.trim().length > 0 ) {
+			if (
+				isSubtitleTrackKind( trackUpdatePayload.kind ) &&
+				typeof response === 'string' &&
+				response.trim().length > 0
+			) {
 				recordCaptionSave( action );
 			}
 
