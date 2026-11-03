@@ -109,7 +109,7 @@ describe( 'SettingsPanel', () => {
 		expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeDisabled();
 	} );
 
-	it( 'leaves a module forced on by the host unlocked, for its options', () => {
+	it( 'says the host forced a module on, and leaves its options unlocked', () => {
 		mockModules = {
 			modules: { 'tiled-gallery': { ...tiledGallery, override: 'active' } },
 			hasLoaded: true,
@@ -120,9 +120,7 @@ describe( 'SettingsPanel', () => {
 		render( <SettingsPanel /> );
 
 		expect( screen.getByRole( 'checkbox', { name: 'Show captions' } ) ).toBeEnabled();
-		expect(
-			screen.queryByText( 'Enabled by your host or site administrator' )
-		).not.toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
 	it( 'returns focus to what opened it on close', () => {
