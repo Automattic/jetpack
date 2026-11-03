@@ -230,7 +230,7 @@ class Scan implements Dashboard_Section {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_threat_file' ),
-				'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+				'permission_callback' => array( __CLASS__, 'can_act_on_threat_files' ),
 			)
 		);
 
@@ -241,7 +241,7 @@ class Scan implements Dashboard_Section {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, "{$action}_threat_file" ),
-					'permission_callback' => array( __CLASS__, 'can_act_on_threats' ),
+					'permission_callback' => array( __CLASS__, 'can_act_on_threat_files' ),
 					'args'                => array(
 						'hash' => array(
 							'description' => __( 'The SHA-256 hash of the file as the viewer showed it.', 'jetpack-protect-pkg' ),
@@ -363,6 +363,18 @@ class Scan implements Dashboard_Section {
 			return new WP_Error( 'scan_plan_required', __( 'Fixing and ignoring threats needs Jetpack Scan.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 		return true;
+	}
+
+	/**
+	 * Whether the user may read and change the site's files, which on multisite the whole network shares.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function can_act_on_threat_files() {
+		if ( is_multisite() && ! is_super_admin() ) {
+			return false;
+		}
+		return self::can_act_on_threats();
 	}
 
 	/**
@@ -566,8 +578,10 @@ class Scan implements Dashboard_Section {
 			$status   = method_exists( Scan_Status::class, 'get_cached_status' ) ? Scan_Status::get_cached_status() : null;
 			$status ??= Scan_Status::get_status();
 		}
+		// One the site resolved is still in the report until Scan's next scan, but history has it as fixed.
+		$resolved = Dashboard_Threats::get_resolved( $status->last_checked ?? null );
 		foreach ( (array) ( $status->threats ?? array() ) as $threat ) {
-			if ( (int) ( $threat->id ?? 0 ) === $id ) {
+			if ( (int) ( $threat->id ?? 0 ) === $id && ! isset( $resolved[ (string) $id ] ) ) {
 				return $threat;
 			}
 		}
@@ -592,20 +606,19 @@ class Scan implements Dashboard_Section {
 		$roots = array_merge( self::get_site_roots(), array( untrailingslashit( wp_normalize_path( ABSPATH ) ), wp_normalize_path( dirname( WP_CONTENT_DIR ) ) ) );
 
 		// Strip only a prefix the site's root ends with, such as `/htdocs` for `/srv/htdocs`, so a missing or nested file can't map to a same-named one elsewhere.
-		$candidates = array();
 		foreach ( array_unique( $roots ) as $root ) {
 			$root_parts = array_values( array_filter( explode( '/', $root ), 'strlen' ) );
-			for ( $i = min( count( $parts ) - 1, count( $root_parts ) ); $i >= 0; $i-- ) {
-				if ( array_slice( $parts, 0, $i ) === array_slice( $root_parts, count( $root_parts ) - $i ) ) {
-					$candidates[] = $root . '/' . implode( '/', array_slice( $parts, $i ) );
+			$real_root  = realpath( $root );
+			for ( $i = min( count( $parts ) - 1, count( $root_parts ) ); $real_root && $i >= 0; $i-- ) {
+				if ( array_slice( $parts, 0, $i ) !== array_slice( $root_parts, count( $root_parts ) - $i ) ) {
+					continue;
 				}
-			}
-		}
-
-		foreach ( $candidates as $candidate ) {
-			$path = realpath( $candidate );
-			if ( $path && is_file( $path ) && self::get_site_root( $path ) ) {
-				return $path;
+				$rest = implode( '/', array_slice( $parts, $i ) );
+				$path = realpath( "$root/$rest" );
+				// A symlink below the root, such as a linked plugin folder, would hide what the file belongs to.
+				if ( $path && wp_normalize_path( $path ) === wp_normalize_path( "$real_root/$rest" ) && is_file( $path ) && self::get_site_root( $path ) ) {
+					return $path;
+				}
 			}
 		}
 		return null;
@@ -658,7 +671,8 @@ class Scan implements Dashboard_Section {
 		}
 
 		// Threats the site resolved itself win over Scan's entry for them until its next scan.
-		$status   = class_exists( Status::class ) ? Status::get_cached_status() : null;
+		// Fetched when the cache is empty, as it is right after an ignore, so snapshots older than the last scan don't count.
+		$status   = class_exists( Status::class ) ? ( Status::get_cached_status() ?? Status::get_status() ) : null;
 		$resolved = Dashboard_Threats::get_resolved( $status ? $status->last_checked : null );
 		$threats  = array_filter(
 			$threats,

@@ -42,7 +42,7 @@ const FOLD_MIN_LINES = 60;
 type FileOwner =
 	| { type: 'plugin' | 'theme'; name: string; version: string }
 	| { type: 'core'; version: string; modified: boolean }
-	| { type: 'mu-plugin' | 'none' };
+	| { type: 'mu-plugin' | 'unknown' | 'none' };
 
 type ThreatFile = {
 	path: string;
@@ -104,7 +104,7 @@ export function getFlaggedRuns(
 ): Run[] {
 	const block = [ ...context ]
 		.sort( ( a, b ) => a.line - b.line )
-		.map( ( { line, code } ) => ( { line, code: code.replace( /\r?\n$/, '' ) } ) );
+		.map( ( { line, code } ) => ( { line, code: code.replace( /[\r\n]+$/, '' ) } ) );
 	if ( ! block.length ) {
 		return [];
 	}
@@ -205,6 +205,11 @@ function describeOwner( owner: FileOwner ): string {
 			);
 		case 'mu-plugin':
 			return __( 'A must-use plugin, which WordPress always runs.', 'jetpack-protect-pkg' );
+		case 'unknown':
+			return __(
+				'This may be a WordPress core file, but WordPress.org couldn’t be reached to check.',
+				'jetpack-protect-pkg'
+			);
 		case 'core':
 			return owner.modified
 				? sprintf(

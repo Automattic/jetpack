@@ -655,15 +655,16 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Write a `<?php` test file, removed after the test.
+	 * Write a test file, removed after the test.
 	 *
-	 * @param string $path The path.
+	 * @param string $path     The path.
+	 * @param string $contents The contents.
 	 */
-	private function write_file( $path ) {
+	private function write_file( $path, $contents = '<?php' ) {
 		if ( ! is_dir( dirname( $path ) ) ) {
 			mkdir( dirname( $path ), 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 		}
-		file_put_contents( $path, '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		$this->files[] = $path;
 	}
 
@@ -678,14 +679,15 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Delete the uploaded test file of a threat History lists, as the viewer would.
+	 * View, then delete, the uploaded test file of a threat History lists, as the viewer would.
 	 *
-	 * @param string $status The threat's status in History.
-	 * @param string $shown  The contents the viewer showed.
+	 * @param string      $status     The threat's status in History.
+	 * @param string|null $changed_to What the file is changed to after it was viewed.
 	 * @return array|\WP_Error The response.
 	 */
-	private function delete_history_threat_file( $status, $shown ) {
-		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+	private function delete_history_threat_file( $status, $changed_to = null ) {
+		// Invalid UTF-8, which the viewer scrubs from what it shows but not from what it hashes.
+		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', "<?php // \xff" );
 		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
 		$threat              = array(
 			'id'       => 9,
@@ -693,9 +695,15 @@ class Scan_Section_Test extends BaseTestCase {
 			'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
 		);
 		set_transient( Scan::HISTORY_CACHE, array( $threat ), MINUTE_IN_SECONDS );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
+		$request->set_url_params( array( 'id' => '9' ) );
+		$shown = Scan::get_threat_file( $request );
+		if ( null !== $changed_to ) {
+			$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', $changed_to );
+		}
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
 		$request->set_url_params( array( 'id' => '9' ) );
-		$request->set_param( 'hash', hash( 'sha256', $shown ) );
+		$request->set_param( 'hash', $shown['hash'] );
 		return Scan::delete_threat_file( $request );
 	}
 
@@ -703,7 +711,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 * Test that deleting an ignored threat's file moves it from Ignored to History as fixed.
 	 */
 	public function test_delete_threat_file_marks_an_ignored_threat_fixed() {
-		$response = $this->delete_history_threat_file( 'ignored', '<?php' );
+		$response = $this->delete_history_threat_file( 'ignored' );
 
 		$this->assertFileDoesNotExist( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
 		$this->assertSame( 'fixed', $response['threat']['status'] );
@@ -719,7 +727,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	public static function provide_refused_deletes() {
 		return array(
-			'threat already fixed'           => array( 'fixed', '<?php', 'threat_not_open' ),
+			'threat already fixed'           => array( 'fixed', null, 'threat_not_open' ),
 			'file changed since it was seen' => array( 'ignored', '<?php echo 1;', 'threat_file_changed' ),
 		);
 	}
@@ -727,13 +735,13 @@ class Scan_Section_Test extends BaseTestCase {
 	/**
 	 * @dataProvider provide_refused_deletes
 	 *
-	 * @param string $status   The threat's status in History.
-	 * @param string $shown    The contents the viewer showed.
-	 * @param string $expected The error code.
+	 * @param string      $status     The threat's status in History.
+	 * @param string|null $changed_to What the file is changed to after it was viewed.
+	 * @param string      $expected   The error code.
 	 */
 	#[DataProvider( 'provide_refused_deletes' )]
-	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $shown, $expected ) {
-		$response = $this->delete_history_threat_file( $status, $shown );
+	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $changed_to, $expected ) {
+		$response = $this->delete_history_threat_file( $status, $changed_to );
 
 		$this->assertSame( $expected, $response->get_error_code() );
 		$this->assertFileExists( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
@@ -753,13 +761,14 @@ class Scan_Section_Test extends BaseTestCase {
 			'traversal out of the site'           => array( 'uploads', '/{root}/{content}/../../../../../../../etc/passwd', false ),
 			'file in the site root'               => array( 'root', '/{root}/protect-threat-file.php', true ),
 			'deleted folder, same basename above' => array( 'root', '/{root}/gone/protect-threat-file.php', false ),
+			'through a symlinked plugin folder'   => array( 'linked', '/{root}/{content}/plugins/protect-linked/protect-threat-file.php', false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_threat_files
 	 *
-	 * @param string $where    Where the test file is: `uploads` or the site `root`.
+	 * @param string $where    Where the test file is: `uploads`, the site `root`, or uploads `linked` as a plugin folder.
 	 * @param string $filename The path as Scan reports it.
 	 * @param bool   $is_found Whether it resolves to the test file.
 	 */
@@ -767,6 +776,10 @@ class Scan_Section_Test extends BaseTestCase {
 	public function test_threat_files_are_found_only_inside_the_site( $where, $filename, $is_found ) {
 		$dir = 'root' === $where ? dirname( WP_CONTENT_DIR ) : WP_CONTENT_DIR . '/uploads';
 		$this->write_file( "$dir/protect-threat-file.php" );
+		if ( 'linked' === $where ) {
+			symlink( $dir, WP_PLUGIN_DIR . '/protect-linked' );
+			$this->files[] = WP_PLUGIN_DIR . '/protect-linked';
+		}
 
 		$path = self::call( 'locate_threat_file', self::scan_path( $filename ) );
 

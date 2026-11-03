@@ -58,13 +58,14 @@ class Threat_File_Test extends BaseTestCase {
 	 */
 	public static function provide_files() {
 		return array(
-			'stray code in uploads'        => array( 'uploads', 'none', true ),
-			'a plugin file'                => array( 'plugin', 'plugin', false ),
-			'loose file in plugins folder' => array( 'loose-plugin-file', 'none', true ),
-			'unchanged core file'          => array( 'core', 'core', false ),
-			'stray file among core files'  => array( 'stray-core', 'none', true ),
-			'core file, checksums unknown' => array( 'core', 'none', false, false ),
-			'site configuration'           => array( 'wp-config', 'none', false ),
+			'stray code in uploads'          => array( 'uploads', 'none', true ),
+			'a plugin file'                  => array( 'plugin', 'plugin', false ),
+			'loose file in plugins folder'   => array( 'loose-plugin-file', 'none', true ),
+			'unchanged core file'            => array( 'core', 'core', false ),
+			'stray file among core files'    => array( 'stray-core', 'none', true ),
+			'core file, checksums unknown'   => array( 'core', 'unknown', false, false ),
+			'site configuration'             => array( 'wp-config', 'none', false ),
+			'loader of a separate WP folder' => array( 'site-index', 'none', false ),
 		);
 	}
 
@@ -93,6 +94,7 @@ class Threat_File_Test extends BaseTestCase {
 			'core'              => ABSPATH . 'wp-includes/protect-test-core.php',
 			'stray-core'        => ABSPATH . 'wp-includes/protect-test-stray.php',
 			'wp-config'         => ABSPATH . 'protect-test/wp-config.php',
+			'site-index'        => dirname( ABSPATH ) . '/protect-test-site/index.php',
 		);
 		if ( 'plugin' === $where ) {
 			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );

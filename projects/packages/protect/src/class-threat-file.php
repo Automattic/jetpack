@@ -38,7 +38,7 @@ class Threat_File {
 	 * What a file belongs to.
 	 *
 	 * @param string $path The file's real path, inside the site.
-	 * @return array The owner `type` (`plugin`, `theme`, `mu-plugin`, `core` or `none`), with `name` and `version` when known; core files add `modified`.
+	 * @return array The owner `type` (`plugin`, `theme`, `mu-plugin`, `core`, `unknown` or `none`), with `name` and `version` when known; core files add `modified`.
 	 */
 	public static function get_owner( $path ) {
 		$plugin = self::get_plugin( $path );
@@ -70,6 +70,10 @@ class Threat_File {
 				'modified' => md5_file( $path ) !== $checksum,
 			);
 		}
+		// Without WordPress.org's checksums, a core file outside wp-content looks like a stray one.
+		if ( null !== self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) && ! self::get_core_checksums() ) {
+			return array( 'type' => 'unknown' );
+		}
 
 		return array( 'type' => 'none' );
 	}
@@ -82,11 +86,11 @@ class Threat_File {
 	 * @return bool
 	 */
 	public static function can_delete( $path, $owner ) {
-		if ( 'none' !== $owner['type'] || in_array( basename( $path ), self::PROTECTED_FILES, true ) ) {
+		if ( 'none' !== $owner['type'] || in_array( basename( $path ), self::PROTECTED_FILES, true ) || ! wp_is_file_mod_allowed( 'jetpack_protect_threat_file' ) ) {
 			return false;
 		}
-		// Without WordPress.org's checksums, a core file outside wp-content looks like a stray one.
-		if ( null !== self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) && ! self::get_core_checksums() ) {
+		// With WordPress in its own directory, the site root's index.php is what loads it.
+		if ( 'index.php' === basename( $path ) && null === self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) ) {
 			return false;
 		}
 		// Drop-ins such as object-cache.php sit loose in wp-content but run the site.
@@ -104,7 +108,7 @@ class Threat_File {
 	 * @return bool
 	 */
 	public static function can_restore( $path, $owner ) {
-		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path );
+		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
 	}
 
 	/**
@@ -133,8 +137,12 @@ class Threat_File {
 
 		$response = wp_safe_remote_get( sprintf( 'https://core.svn.wordpress.org/tags/%s/%s', rawurlencode( get_bloginfo( 'version' ) ), implode( '/', array_map( 'rawurlencode', explode( '/', $relative ) ) ) ), array( 'timeout' => 20 ) );
 		$original = is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ? null : wp_remote_retrieve_body( $response );
-		if ( null === $original || md5( $original ) !== $checksum ) {
+		if ( null === $original ) {
 			return new WP_Error( 'original_unavailable', __( 'The original file couldn’t be downloaded from WordPress.org. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+		}
+		// Files such as wp-includes/version.php differ in a localized package, and WordPress.org only serves the English one.
+		if ( md5( $original ) !== $checksum ) {
+			return new WP_Error( 'original_mismatch', __( 'WordPress.org’s copy of this file doesn’t match your site’s WordPress package, so it can’t be restored here. Reinstall WordPress from Dashboard → Updates instead.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
 		}
 
 		if ( false === file_put_contents( $path, $original ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Checked writable, and verified against WordPress.org.
