@@ -240,10 +240,7 @@ class Stats_Links_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * Registers the older `stats` page WordPress.com Simple keeps.
-	 */
-	public function test_retired_stats_page_opens_the_dashboard_even_where_another_stats_page_is_registered() {
+	public function test_retired_stats_page_opens_the_dashboard_despite_simples_index_stats_page() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
 		$this->login_as( 'administrator' );
 		$_GET['page']                      = 'stats';

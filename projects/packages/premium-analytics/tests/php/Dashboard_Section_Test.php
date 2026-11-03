@@ -1448,10 +1448,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		}
 	}
 
-	/**
-	 * Registers the older `stats` page WordPress.com Simple keeps.
-	 */
-	public function test_section_script_data_offers_no_classic_stats_page_once_retired() {
+	public function test_section_script_data_offers_no_classic_stats_page_once_retired_despite_simples_index_stats_page() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
 		$GLOBALS['_parent_pages']['stats'] = 'index.php';
 		try {
