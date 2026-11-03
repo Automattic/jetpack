@@ -9,18 +9,21 @@ import { allProjectsByType, dirs, projectTypes } from './projectHelpers.js';
 export const COMPLETION_COMMAND = '\0yargs-completion';
 
 /**
- * Complete a `type/name` project one segment at a time: the types first, then the projects of the typed type.
+ * Complete a `type/name` project: the types while more than one matches, then that type's projects.
  *
  * @param {string} current - The word being completed.
  * @return {string[]} Candidates.
  */
 export function completeProject( current ) {
 	const slash = current.indexOf( '/' );
-	if ( slash < 0 ) {
-		return projectTypes.map( type => `${ type }/` );
+	const types =
+		slash < 0
+			? projectTypes.filter( type => type.startsWith( current ) )
+			: [ current.slice( 0, slash ) ];
+	if ( types.length !== 1 ) {
+		return types.map( type => `${ type }/` );
 	}
-	const type = current.slice( 0, slash );
-	return projectTypes.includes( type ) ? allProjectsByType( type ) : [];
+	return projectTypes.includes( types[ 0 ] ) ? allProjectsByType( types[ 0 ] ) : [];
 }
 
 /**

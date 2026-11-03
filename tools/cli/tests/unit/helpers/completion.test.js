@@ -67,13 +67,18 @@ describe( 'positionalFor', () => {
 } );
 
 describe( 'completeProject', () => {
-	test( 'offers the project types until a slash is typed', () => {
-		expect( completeProject( 'pa' ) ).toEqual( [
+	test( 'offers the types while more than one matches', () => {
+		expect( completeProject( '' ) ).toEqual( [
 			'github-actions/',
 			'js-packages/',
 			'packages/',
 			'plugins/',
 		] );
+		expect( completeProject( 'p' ) ).toEqual( [ 'packages/', 'plugins/' ] );
+	} );
+	test( 'goes on to the projects of a lone matching type', () => {
+		expect( completeProject( 'pa' ) ).toContain( 'packages/connection' );
+		expect( completeProject( 'pa' ) ).not.toContain( 'packages/' );
 	} );
 	test( 'offers the projects of the typed type', () => {
 		expect( completeProject( 'plugins/jet' ) ).toContain( 'plugins/jetpack' );
