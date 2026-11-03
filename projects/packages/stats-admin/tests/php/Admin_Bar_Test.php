@@ -152,11 +152,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertSame( 'Stats', $node->meta['menu_title'] );
 	}
 
-	public function test_seven_day_panel_links_to_the_last_seven_days_in_the_site_timezone() {
+	/**
+	 * @dataProvider site_timezone_provider
+	 *
+	 * @param string $timezone The site's timezone_string.
+	 */
+	#[DataProvider( 'site_timezone_provider' )]
+	public function test_seven_day_panel_links_to_the_last_seven_days_in_the_site_timezone( $timezone ) {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
-		// UTC+14, so the site's today differs from UTC's for most of the day.
-		update_option( 'timezone_string', 'Pacific/Kiritimati' );
+		update_option( 'timezone_string', $timezone );
 		$traffic = null;
 		add_filter(
 			'jetpack_stats_url',
@@ -171,8 +176,8 @@ class Admin_Bar_Test extends Stats_TestCase {
 			2
 		);
 
-		$site_today = static function () {
-			return ( new \DateTimeImmutable( 'now', new \DateTimeZone( 'Pacific/Kiritimati' ) ) )->format( 'Y-m-d' );
+		$site_today = static function () use ( $timezone ) {
+			return ( new \DateTimeImmutable( 'now', new \DateTimeZone( $timezone ) ) )->format( 'Y-m-d' );
 		};
 		$before     = $site_today();
 		$node       = $this->render_chart_node();
@@ -187,6 +192,18 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertSame( 6, ( new \DateTimeImmutable( $from ) )->diff( new \DateTimeImmutable( $to ) )->days );
 		$this->assertStringEndsWith( "#!/stats/day/999?chartStart=$from&chartEnd=$to", $url );
 		$this->assertStringContainsString( 'href="https://example.org/new-traffic"', $node->meta['html'] );
+	}
+
+	/**
+	 * Zones at UTC+14 and UTC-11: at any moment, one of them is on a different date from UTC.
+	 *
+	 * @return array
+	 */
+	public static function site_timezone_provider() {
+		return array(
+			'UTC+14' => array( 'Pacific/Kiritimati' ),
+			'UTC-11' => array( 'Pacific/Pago_Pago' ),
+		);
 	}
 
 	public function test_seven_day_chart_enqueues_its_script_with_the_visits_endpoint_instead_of_the_image_styles() {
