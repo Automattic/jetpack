@@ -152,7 +152,7 @@ class Initializer {
 	public const SETTINGS_CONSOLIDATION_FLAG = 'my-jetpack-settings-consolidation';
 
 	/**
-	 * Modules whose settings open in the Features panel. Keep in step with `moduleSettings` in `settings-panel/registry.ts`.
+	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
 	 */
 	public const SETTINGS_PANEL_MODULES = array( 'related-posts' );
 
@@ -1579,7 +1579,10 @@ class Initializer {
 			add_filter(
 				'jetpack_module_configuration_url_' . $module,
 				static function ( $url ) use ( $module ) {
-					return self::resolve_settings_url( $module, $url );
+					// Only Jetpack's settings-search default: a module's own page, such as SEO's, is its real home.
+					return false === strpos( (string) $url, 'page=jetpack-settings#/settings?term=' )
+						? $url
+						: self::resolve_settings_url( $module, $url );
 				}
 			);
 		}
