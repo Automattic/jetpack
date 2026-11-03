@@ -302,6 +302,7 @@ export {
 	type CsvDateRange,
 	getVideoPosterUrl,
 	describeError,
+	getPostTypeCopy,
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,

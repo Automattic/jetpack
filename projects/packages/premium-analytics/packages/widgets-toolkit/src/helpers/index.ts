@@ -28,6 +28,7 @@ export {
 export { sharePercentage } from './share-percentage';
 export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
+export { getPostTypeCopy } from './post-type-copy';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
