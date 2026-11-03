@@ -28,25 +28,31 @@ type Props = Pick<
 };
 
 /**
- * The side a segment rounds when it ends its stack: the far end of the positives or of the negatives.
+ * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives.
  *
  * @param stack      - The stack layout.
  * @param segment    - The segment.
  * @param category   - A datum at the segment's category.
  * @param horizontal - Whether the bars run horizontally.
- * @return The side to round, or undefined for a segment inside its stack.
+ * @param clamp      - Holds a value inside the value domain, where the bars are cut off.
+ * @return The side to round, or undefined for a segment inside its stack or drawn with no length.
  */
 function getStackEnd(
 	stack: StackLayout,
 	segment: StackSegment,
 	category: DataPointDate,
-	horizontal: boolean
+	horizontal: boolean,
+	clamp: ( value: number ) => number
 ): 'top' | 'bottom' | 'left' | 'right' | undefined {
-	const extent = stack.extentAt( category );
-	if ( segment.end > 0 && segment.end === extent[ 1 ] ) {
+	const [ start, end ] = [ segment.start, segment.end ].map( clamp );
+	if ( start === end ) {
+		return undefined;
+	}
+	const extent = stack.extentAt( category ).map( clamp );
+	if ( segment.end > 0 && end === extent[ 1 ] ) {
 		return horizontal ? 'right' : 'top';
 	}
-	if ( segment.end < 0 && segment.end === extent[ 0 ] ) {
+	if ( segment.end < 0 && end === extent[ 0 ] ) {
 		return horizontal ? 'left' : 'bottom';
 	}
 	return undefined;
@@ -74,13 +80,17 @@ const StackedBarSeries = ( {
 	];
 	const domainMin = Math.min( Number( domainStart ), Number( domainEnd ) );
 	const domainMax = Math.max( Number( domainStart ), Number( domainEnd ) );
+	const clamp = useCallback(
+		( value: number ) => Math.min( domainMax, Math.max( domainMin, value ) ),
+		[ domainMin, domainMax ]
+	);
 	// The positive end, or the negative end when nothing is positive; clamped so a caller domain keeps it on the drawn bar.
 	const stackEnd = useCallback(
 		( datum: DataPointDate ) => {
 			const [ low, high ] = stack.extentAt( datum );
-			return Math.min( domainMax, Math.max( domainMin, high > 0 ? high : low ) );
+			return clamp( high > 0 ? high : low );
 		},
-		[ stack, domainMin, domainMax ]
+		[ stack, clamp ]
 	);
 	const renderGlyph = useCallback(
 		( { datum, color }: GlyphProps< DataPointDate > ) => {
@@ -100,7 +110,7 @@ const StackedBarSeries = ( {
 				<rect
 					{ ...rect }
 					data-testid="bar-chart-stacked-bar"
-					data-stack-end={ getStackEnd( stack, segment, datum, !! horizontal ) }
+					data-stack-end={ getStackEnd( stack, segment, datum, !! horizontal, clamp ) }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
 				/>
@@ -108,6 +118,7 @@ const StackedBarSeries = ( {
 		},
 		[
 			stack,
+			clamp,
 			dataKey,
 			bandScale,
 			valueScale,

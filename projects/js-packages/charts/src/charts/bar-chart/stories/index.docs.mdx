@@ -261,7 +261,7 @@ Set `layout="stacked"` to draw every series of a category as one bar, each serie
 
 **Notes:**
 
-- Unless the caller sets a domain, the value axis includes zero and covers the tallest stack. Negative values stack downward from zero, apart from the positives, and extend the axis below it. The value axis is always linear: a log scale is ignored, with a warning in development.
+- Unless the caller sets a domain, the value axis includes zero and covers the tallest stack. Negative values stack downward from zero, apart from the positives, and extend the axis below it. The value axis is always linear and starts every stack at zero, so another scale `type` or `zero: false` is ignored, with a warning in development.
 - A series with no reading at a category is skipped there, and the segment above it starts where the one below ends.
 - Hiding a series from the legend closes the stacks up and rescales the axis.
 - The tooltip covers the whole stack: every series, last series first, with a `null` reading as "No data", then the total when there is more than one reading. It sits at the end of the positive values, or of the negative ones when the category has no positive value.

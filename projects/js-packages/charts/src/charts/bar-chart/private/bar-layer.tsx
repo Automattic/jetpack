@@ -52,6 +52,7 @@ const StackedBarGroup: FC< { horizontal: boolean; children: ReactNode } > = ( {
 	return (
 		<g
 			className="visx-bar-group"
+			data-testid="bar-chart-stack-group"
 			style={ { transformOrigin: horizontal ? `${ zero }px 0` : `0 ${ zero }px` } }
 		>
 			{ children }

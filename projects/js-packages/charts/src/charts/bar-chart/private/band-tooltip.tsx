@@ -122,7 +122,7 @@ export function BandTooltip( {
 				const end = start + groupScale.step();
 				const distance =
 					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
-				// Stacked segments share a slot, so the value axis tells them apart; one with no reading is never nearest.
+				// Stacked segments share a slot, so the value axis tells them apart; one with no reading loses to any that has one.
 				const valueDistance =
 					slots?.stack && valueScale
 						? distanceToSegment(

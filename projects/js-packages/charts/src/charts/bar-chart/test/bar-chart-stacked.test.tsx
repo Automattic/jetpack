@@ -203,11 +203,15 @@ describe( 'BarChart stacked layout', () => {
 		expect( desktop.y + desktop.height ).toBeCloseTo( plotBottom() );
 	} );
 
-	it( 'says a log value scale is ignored', () => {
+	it.each< [ string, NonNullable< BarChartProps[ 'options' ] >[ 'yScale' ], string ] >( [
+		[ 'a log scale', { type: 'log' }, 'log scale is ignored' ],
+		[ 'a sqrt scale', { type: 'sqrt' }, 'sqrt scale is ignored' ],
+		[ 'zero: false', { zero: false }, 'zero: false has no effect' ],
+	] )( 'says %s on the value axis is ignored', ( _name, yScale, message ) => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
-		renderStacked( { options: { yScale: { type: 'log' } } } );
+		renderStacked( { options: { yScale } } );
 
-		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'log scale' ) );
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( message ) );
 		warn.mockRestore();
 	} );
 
@@ -247,6 +251,48 @@ describe( 'BarChart stacked layout', () => {
 			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Total: 180' );
 		}
 	);
+
+	it.each( [
+		[ 'vertical', 'height', 'top' ],
+		[ 'horizontal', 'width', 'right' ],
+	] as const )(
+		'cuts a %s stack off at a caller domain it exceeds, and rounds the end that is drawn',
+		( orientation, length, end ) => {
+			renderStacked( {
+				orientation,
+				options:
+					orientation === 'horizontal'
+						? { xScale: { domain: [ 0, 100 ] } }
+						: { yScale: { domain: [ 0, 100 ] } },
+			} );
+
+			expect( barOf( 'Mobile' )[ length ] ).toBeCloseTo( 0 );
+			expect( barOf( 'Tablet' )[ length ] ).toBeCloseTo( 0 );
+			// Desktop Mon, Desktop Tue, Mobile Mon, Tablet Mon, Tablet Tue.
+			expect( barRects().map( bar => bar.getAttribute( 'data-stack-end' ) ) ).toEqual( [
+				end,
+				null,
+				null,
+				null,
+				end,
+			] );
+		}
+	);
+
+	it.each< [ string, ( bar: Rect ) => string ] >( [
+		[ 'vertical', bar => `0 ${ bar.y + bar.height }px` ],
+		[ 'horizontal', bar => `${ bar.x }px 0` ],
+	] )( 'grows a %s stack with negative readings from the zero line', ( orientation, origin ) => {
+		const data: SeriesData[] = [
+			{ label: 'A', data: [ day( 'Mon', 40 ) ] },
+			{ label: 'B', data: [ day( 'Mon', -20 ) ] },
+		];
+		renderStacked( { data, orientation: orientation as BarChartProps[ 'orientation' ] } );
+
+		expect( screen.getByTestId( 'bar-chart-stack-group' ) ).toHaveStyle( {
+			transformOrigin: origin( barIn( data, 'A' ) ),
+		} );
+	} );
 
 	it( 'leaves comparison series out of the bars, colors and legend, and says so', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );

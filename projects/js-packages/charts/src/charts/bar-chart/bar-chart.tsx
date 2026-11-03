@@ -152,13 +152,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			'BarChart: a stacked layout does not draw comparison series yet.'
 		);
 	}
-	if (
-		layout === 'stacked' &&
-		( orientation === 'horizontal' ? options.xScale : options.yScale )?.type === 'log'
-	) {
+	const valueScaleOptions = orientation === 'horizontal' ? options.xScale : options.yScale;
+	if ( layout === 'stacked' && valueScaleOptions?.type && valueScaleOptions.type !== 'linear' ) {
 		warnOnce(
-			'bar-chart-stacked-log-scale',
-			'BarChart: a stacked layout draws on a linear value scale, so the log scale is ignored.'
+			`bar-chart-stacked-${ valueScaleOptions.type }-scale`,
+			`BarChart: a stacked layout draws on a linear value scale, so the ${ valueScaleOptions.type } scale is ignored.`
+		);
+	}
+	if ( layout === 'stacked' && valueScaleOptions?.zero === false && ! valueScaleOptions.domain ) {
+		warnOnce(
+			'bar-chart-stacked-zero',
+			'BarChart: every stack starts at zero, so zero: false has no effect in a stacked layout.'
 		);
 	}
 
