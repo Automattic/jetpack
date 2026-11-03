@@ -114,6 +114,77 @@ class SchemaSettingsControllerTest extends TestCase {
 	}
 
 	/**
+	 * @dataProvider plan_restricted_write_requests
+	 */
+	#[DataProvider( 'plan_restricted_write_requests' )]
+	public function test_plan_restrictions_preserve_reads_and_saved_values( $route, $method, $platform ) {
+		$admin = $this->make_user( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin->ID );
+		Constants::set_constant( 'IS_WPCOM', 'simple' === $platform );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 'atomic' === $platform ? 123 : false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 'atomic' === $platform ? 456 : false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'atomic' === $platform );
+		Status_Cache::clear();
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = array();
+		Schema_Settings::update( array( 'organization' => array( 'name' => 'Stored organization' ) ) );
+		Author_Schema_Node::update_profile( $admin->ID, array( 'jobTitle' => 'Stored job title' ) );
+		$schema          = Schema_Settings::get_editable();
+		$profile         = Author_Schema_Node::get_profile( $admin->ID );
+		$payload         = 'schema-settings' === $route
+			? array( 'organization' => array( 'name' => 'Changed organization' ) )
+			: array( 'jobTitle' => 'Changed job title' );
+		$register_routes = array( Schema_Settings_Controller::class, 'register_routes' );
+		add_action( 'rest_api_init', $register_routes );
+		try {
+			do_action( 'rest_api_init' );
+			$request = new WP_REST_Request( $method, '/jetpack/v4/seo/' . $route );
+			$request->set_header( 'Content-Type', 'application/json' );
+			$request->set_body( wp_json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
+			$response = rest_get_server()->dispatch( $request );
+			if ( 'self-hosted' !== $platform ) {
+				$this->assertSame( 403, $response->get_status() );
+				$this->assertSame( 'jetpack_seo_plan_required', $response->get_data()['code'] );
+				$this->assertSame( $schema, Schema_Settings::get_editable() );
+				$this->assertSame( $profile, Author_Schema_Node::get_profile( $admin->ID ) );
+				$read = rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/seo/' . $route ) );
+				$this->assertSame( 200, $read->get_status() );
+				$this->assertSame( 'schema-settings' === $route ? $schema : $profile, $read->get_data() );
+			} else {
+				$this->assertSame( 200, $response->get_status() );
+			}
+
+			\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
+			$response                       = rest_get_server()->dispatch( $request );
+			$this->assertSame( 200, $response->get_status() );
+			if ( 'schema-settings' === $route ) {
+				$this->assertSame( 'Changed organization', $response->get_data()['organization']['name'] );
+			} else {
+				$this->assertSame( 'Changed job title', $response->get_data()['jobTitle'] );
+			}
+		} finally {
+			remove_action( 'rest_api_init', $register_routes );
+			foreach ( array( 'IS_WPCOM', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $constant ) {
+				Constants::clear_single_constant( $constant );
+			}
+			\Wpcom_Test_Features::reset();
+			Status_Cache::clear();
+		}
+	}
+
+	public static function plan_restricted_write_requests() {
+		$cases = array();
+		foreach ( array( 'simple', 'atomic', 'self-hosted' ) as $platform ) {
+			foreach ( array( 'POST', 'PUT', 'PATCH' ) as $method ) {
+				foreach ( array( 'schema-settings', 'author-profile' ) as $route ) {
+					$cases[ "$platform $method $route" ] = array( $route, $method, $platform );
+				}
+			}
+		}
+		return $cases;
+	}
+
+	/**
 	 * Users created during the test.
 	 *
 	 * @var int[]

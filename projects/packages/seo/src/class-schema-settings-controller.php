@@ -105,7 +105,7 @@ class Schema_Settings_Controller {
 	}
 
 	/**
-	 * Require administrator access and Jetpack ownership before saving SEO settings.
+	 * Require administrator access, Jetpack ownership and plan eligibility before saving SEO settings.
 	 *
 	 * @since 0.10.3
 	 *
@@ -121,6 +121,14 @@ class Schema_Settings_Controller {
 				'jetpack_seo_tools_disabled',
 				__( 'Jetpack SEO is disabled on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
 				array( 'status' => 409 )
+			);
+		}
+
+		if ( Initializer::is_gated() ) {
+			return new \WP_Error(
+				'jetpack_seo_plan_required',
+				__( 'Upgrade to WordPress.com Premium or higher to edit this setting.', 'jetpack-seo' ),
+				array( 'status' => 403 )
 			);
 		}
 

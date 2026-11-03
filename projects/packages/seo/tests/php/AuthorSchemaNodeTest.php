@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\SEO;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -233,5 +236,89 @@ class AuthorSchemaNodeTest extends TestCase {
 
 		$this->assertSame( '', get_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, true ) );
 		$this->assertSame( array(), get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true ) );
+	}
+
+	/**
+	 * @dataProvider profile_write_platforms
+	 */
+	#[DataProvider( 'profile_write_platforms' )]
+	public function test_profile_entry_points_respect_the_plan_without_blocking_regular_fields( $platform, $entitled, $entry_point ) {
+		$user = $this->make_user( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user->ID );
+		Constants::set_constant( 'IS_WPCOM', 'simple' === $platform );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 'atomic' === $platform ? 123 : false );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 'atomic' === $platform ? 456 : false );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'atomic' === $platform );
+		Status_Cache::clear();
+		\Wpcom_Test_Features::$known    = array( 'advanced-seo' );
+		\Wpcom_Test_Features::$entitled = $entitled ? array( 'advanced-seo' ) : array();
+		Author_Schema_Node::init();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Stored title' );
+		update_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, array( 'https://example.com/stored' ) );
+		$locked         = ! $entitled && 'self-hosted' !== $platform;
+		$register_users = static function () {
+			( new \WP_REST_Users_Controller() )->register_routes();
+		};
+		add_action( 'rest_api_init', $register_users );
+		try {
+			do_action( 'rest_api_init' );
+			if ( 'rest' === $entry_point ) {
+				$request = new \WP_REST_Request( 'POST', '/wp/v2/users/' . $user->ID );
+				$request->set_header( 'Content-Type', 'application/json' );
+				$request->set_body(
+					wp_json_encode(
+						array(
+							'meta' => array(
+								Author_Schema_Node::META_JOB_TITLE => 'Changed title',
+								Author_Schema_Node::META_SAME_AS   => array( 'https://example.com/changed' ),
+							),
+						),
+						JSON_UNESCAPED_SLASHES
+					)
+				);
+				$response = rest_get_server()->dispatch( $request );
+				$this->assertSame( $locked ? 403 : 200, $response->get_status() );
+			} else {
+				$_POST  = array(
+					'_wpnonce'                         => wp_create_nonce( 'update-user_' . $user->ID ),
+					Author_Schema_Node::META_JOB_TITLE => 'Changed title',
+					Author_Schema_Node::META_SAME_AS   => 'https://example.com/changed',
+				);
+				$errors = new \WP_Error();
+				do_action( 'user_profile_update_errors', $errors, true, $user );
+				$this->assertSame( $locked ? 'jetpack_seo_plan_required' : '', $errors->get_error_code() );
+				Author_Schema_Node::save_profile_fields( $user->ID );
+				ob_start();
+				Author_Schema_Node::render_profile_fields( $user );
+				$html = ob_get_clean();
+				$this->assertSame( $locked ? 2 : 0, substr_count( $html, 'disabled=' ) );
+				$this->assertSame( $locked, false !== strpos( $html, 'Premium or higher' ) );
+			}
+			$this->assertSame( $locked ? 'Stored title' : 'Changed title', get_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, true ) );
+			$this->assertSame( array( $locked ? 'https://example.com/stored' : 'https://example.com/changed' ), get_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, true ) );
+			$request = new \WP_REST_Request( 'POST', '/wp/v2/users/' . $user->ID );
+			$request->set_body_params( array( 'description' => 'Updated ordinary biography.' ) );
+			$this->assertSame( 200, rest_get_server()->dispatch( $request )->get_status() );
+			$this->assertSame( 'Updated ordinary biography.', get_userdata( $user->ID )->description );
+		} finally {
+			remove_action( 'rest_api_init', $register_users );
+			foreach ( array( 'IS_WPCOM', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $constant ) {
+				Constants::clear_single_constant( $constant );
+			}
+			\Wpcom_Test_Features::reset();
+			Status_Cache::clear();
+		}
+	}
+
+	public static function profile_write_platforms() {
+		$cases = array();
+		foreach ( array( 'simple', 'atomic', 'self-hosted' ) as $platform ) {
+			foreach ( array( false, true ) as $entitled ) {
+				foreach ( array( 'rest', 'profile' ) as $entry_point ) {
+					$cases[ "$platform $entry_point " . ( $entitled ? 'paid' : 'unpaid' ) ] = array( $platform, $entitled, $entry_point );
+				}
+			}
+		}
+		return $cases;
 	}
 }
