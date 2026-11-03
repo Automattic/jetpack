@@ -99,10 +99,7 @@ class Main {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
-		// Register WP Abilities API surface. Gated behind the
-		// `jetpack_wp_abilities_enabled` filter inside Registrar::init(),
-		// which defaults to false — so this call is safe to make unconditionally
-		// and still opt-in per-site until the flag is flipped.
+		// Register WP Abilities API surface; Registrar::init() checks the `jetpack_wp_abilities_enabled` filter.
 		Stats_Abilities::init();
 	}
 
