@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -83,7 +82,7 @@ class Dashboard {
 			self::FEATURE_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Make the Monetize dashboard available, which replaces the WordPress.com Monetize screen.',
+				'description' => 'Make the Monetize dashboard available while it is built.',
 				'owner'       => 'jetpack',
 			)
 		);
@@ -121,27 +120,6 @@ class Dashboard {
 		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_monetize_dashboard_initialized' );
-	}
-
-	/**
-	 * The page's state, printed as `window.jetpackMonetizeDashboard`.
-	 *
-	 * @return array
-	 */
-	public static function get_initial_state() {
-		return array(
-			'siteSlug' => ( new Status() )->get_site_suffix(),
-		);
-	}
-
-	/**
-	 * Print the page's state for its scripts.
-	 *
-	 * @return void
-	 */
-	public static function print_initial_state() {
-		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		wp_print_inline_script_tag( 'window.jetpackMonetizeDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
 	}
 
 	/**
@@ -298,7 +276,6 @@ class Dashboard {
 	public static function render() {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
-			self::print_initial_state();
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;
