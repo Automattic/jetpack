@@ -174,7 +174,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const theme = useXYChartTheme( data );
 
-	const dataSorted = useChartDataTransform( data );
+	const transformedData = useChartDataTransform( data );
+	// A stacked layout does not draw comparisons yet, so they must not shade a primary's color or join the legend either.
+	const dataSorted = useMemo(
+		() =>
+			isStacked
+				? transformedData.filter( series => series.options?.type !== 'comparison' )
+				: transformedData,
+		[ isStacked, transformedData ]
+	);
 
 	// Transform data to add a small value for zero bars to make them visible
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does

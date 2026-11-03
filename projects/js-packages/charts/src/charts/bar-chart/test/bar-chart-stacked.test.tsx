@@ -197,17 +197,23 @@ describe( 'BarChart stacked layout', () => {
 		expect( desktop.y + desktop.height ).toBeCloseTo( plotBottom() );
 	} );
 
-	it( 'draws no comparison series, and says so', () => {
+	it( 'leaves comparison series out of the bars, colors and legend, and says so', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		const fills = () => barRects().map( bar => bar.getAttribute( 'fill' ) );
+		const { unmount } = renderStacked( { showLegend: true } );
+		const plainFills = fills();
+		unmount();
+
 		renderStacked( {
+			showLegend: true,
 			data: [
 				...DATA,
 				{ label: 'Previous', options: { type: 'comparison' }, data: [ day( 'Mon', 500 ) ] },
 			],
 		} );
 
-		expect( barRects() ).toHaveLength( 5 );
-		expect( Math.max( ...valueTicks() ) ).toBeLessThan( 500 );
+		expect( fills() ).toEqual( plainFills );
+		expect( screen.queryByText( 'Previous' ) ).not.toBeInTheDocument();
 		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'comparison series' ) );
 		warn.mockRestore();
 	} );

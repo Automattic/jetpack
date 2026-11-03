@@ -63,7 +63,7 @@ export function getStackLayout( series: SeriesData[] ): StackLayout {
 /**
  * The value domain of a stacked layout: its tallest stacks, always spanning zero.
  *
- * @param data             - Every series handed to the chart.
+ * @param data             - The series to stack, bottom first.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
  * @return The value domain.
  */
@@ -71,9 +71,6 @@ export function getStackedValueDomain(
 	data: SeriesData[],
 	isSeriesRendered: ( series: SeriesData ) => boolean
 ): [ number, number ] {
-	const stacked = data.filter(
-		series => isSeriesRendered( series ) && series.options?.type !== 'comparison'
-	);
-	const extent = getStackLayout( stacked ).extent;
+	const extent = getStackLayout( data.filter( isSeriesRendered ) ).extent;
 	return ! extent || extent[ 0 ] === extent[ 1 ] ? [ ...EMPTY_DOMAIN ] : extent;
 }

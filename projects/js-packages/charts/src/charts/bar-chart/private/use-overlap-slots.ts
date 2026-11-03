@@ -52,9 +52,7 @@ export function useOverlapSlots(
 
 		if ( layout === 'stacked' ) {
 			// Bottom to top, so the top segment names each keyboard stop.
-			const entries = visible
-				.filter( ( { series } ) => series.options?.type !== 'comparison' )
-				.map( ( { series, index } ) => ( { series, index } ) );
+			const entries = visible.map( ( { series, index } ) => ( { series, index } ) );
 			const slotKeys = [ PRIMARY_SLOT ];
 			const slotOf = () => PRIMARY_SLOT;
 			return {

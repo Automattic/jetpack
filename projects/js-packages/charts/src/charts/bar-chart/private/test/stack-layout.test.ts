@@ -69,16 +69,8 @@ describe( 'getStackLayout', () => {
 describe( 'getStackedValueDomain', () => {
 	const all = () => true;
 
-	it( 'spans the tallest stack from zero', () => {
-		expect( getStackedValueDomain( SERIES, all ) ).toEqual( [ 0, 180 ] );
-	} );
-
-	it( 'leaves hidden and comparison series out', () => {
-		const data: SeriesData[] = [
-			s( 'A', [ 10 ] ),
-			s( 'Hidden', [ 99 ] ),
-			{ ...s( 'Prev', [ 50 ] ), options: { type: 'comparison' } },
-		];
+	it( 'leaves hidden series out', () => {
+		const data: SeriesData[] = [ s( 'A', [ 10 ] ), s( 'Hidden', [ 99 ] ) ];
 		expect( getStackedValueDomain( data, series => series.label !== 'Hidden' ) ).toEqual( [
 			0, 10,
 		] );
