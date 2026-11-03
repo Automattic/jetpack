@@ -1,7 +1,7 @@
 import { getJetpackAdminPageUrl, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { addQueryArgs } from '@wordpress/url';
-import { isUnifiedConnectionFlow } from './connection-from';
-import { warnOnce } from './warn-once';
+import { isUnifiedConnectionFlow } from './connection-from.ts';
+import { warnOnce } from './warn-once.ts';
 
 export type UserConnectionUrlOptions = {
 	/**
