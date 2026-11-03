@@ -69,6 +69,14 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Playlist publication analytics
+
+The existing `jetpack_videopress_playlist_block_published` and `jetpack_videopress_latest_videos_playlist_block_published` events record an observed manual publication save only after the editor finishes saving, reports success, and exposes a saved `publish` status for the same post. Failed attempts, autosaves, previews, ordinary updates to published posts, and saves already underway when the tracking hook mounts are excluded. Missing required editor selectors or an unknown first block also suppress reporting.
+
+The first block of each type supplies the existing `post_type`, `layout`, `video_count`, and `playlist_count` properties, captured when saving starts. A captured save can finish after that block unmounts or changes; its listener is released on completion or a post-context switch. No post or video identifier is sent. These remain client events subject to the existing Tracks configuration and delivery limitations, not a complete server publication ledger.
+
+The two block types report separately: adding their totals does not count distinct posts. Counts and layout describe the editor snapshot, not server-filtered content; latest-videos membership can also change after publication. Republish operations can count again. Keep pre-fix attempt counts separate from post-rollout acknowledged counts when comparing trends.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
