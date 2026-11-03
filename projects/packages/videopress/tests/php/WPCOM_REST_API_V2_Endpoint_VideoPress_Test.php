@@ -574,7 +574,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public static function existing_promotion_timing() {
-		return array( 'already present' => array( false ), 'appeared while waiting' => array( true ) );
+		return array(
+			'already present'        => array( false ),
+			'appeared while waiting' => array( true ),
+		);
 	}
 
 	/**
@@ -640,9 +643,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'promotion_sources' )]
 	public function test_promote_orchestration_promotes_and_releases_the_lock( $source ) {
-		$endpoint      = $this->make_promote_double();
-		$attachment_id = $this->make_attachment();
-		$info          = (object) array(
+		$endpoint              = $this->make_promote_double();
+		$attachment_id         = $this->make_attachment();
+		$info                  = (object) array(
 			'guid'    => 'Ne3w1234',
 			'blog_id' => get_current_blog_id(),
 			'post_id' => $attachment_id,
