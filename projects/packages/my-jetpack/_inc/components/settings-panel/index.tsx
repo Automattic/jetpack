@@ -1,50 +1,14 @@
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { IconButton, Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { IconButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouteSearch } from '../../router-bridge';
-import { ModuleToggle } from '../module-toggle';
 import { useAllJetpackModules } from '../my-jetpack-tab-panel/features/use-all-jetpack-modules';
+import { FallbackSettings } from './fallback-settings';
 import { moduleSettings } from './registry';
 import styles from './styles.module.scss';
-import type { MyJetpackModule } from '../../types';
 import type { KeyboardEvent } from 'react';
-
-/**
- * What the panel shows for a module with no settings of its own yet: the switch and the old Settings link.
- *
- * @param props        - Component props.
- * @param props.module - The module.
- * @return The fallback content.
- */
-function FallbackSettings( { module: $module }: { module: MyJetpackModule } ) {
-	const labelId = useId();
-
-	return (
-		<Stack direction="column" gap="lg">
-			{ $module.description && <Text variant="body-md">{ $module.description }</Text> }
-
-			<Stack
-				direction="row"
-				align="center"
-				justify="space-between"
-				className={ styles[ 'settings-panel__toggle' ] }
-			>
-				<Text variant="body-md" id={ labelId }>
-					{ __( 'Activate this feature', 'jetpack-my-jetpack' ) }
-				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } />
-			</Stack>
-
-			{ $module.configure_url && (
-				<Link href={ $module.configure_url }>
-					{ __( 'Manage in Settings', 'jetpack-my-jetpack' ) }
-				</Link>
-			) }
-		</Stack>
-	);
-}
 
 /**
  * The settings panel the boot inspector shows for the `configure` search value.
