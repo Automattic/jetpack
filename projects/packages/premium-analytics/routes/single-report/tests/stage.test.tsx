@@ -21,6 +21,8 @@ let mockDashboardProps: {
 	onLayoutReset?: () => void;
 } = {};
 const mockNavigate = jest.fn();
+const mockChangeDateRange = jest.fn();
+const mockApplyDateRange = jest.fn();
 const mockUseSummary = jest.fn< EntitySummary & { publishedDate?: string }, [ string ] >();
 let mockAdapters: Record< string, SingleReportAdapter > = {};
 
@@ -81,6 +83,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 				to: new Date( Date.UTC( 2026, 5, 16 ) ),
 			},
 			replaceRange: () => {},
+			onChange: mockChangeDateRange,
+			onApply: mockApplyDateRange,
 			timeZone: 'UTC',
 			interval: 'day',
 			intervalOptions: [ 'day', 'week' ],
@@ -497,39 +501,35 @@ describe( 'single-report stage', () => {
 		expect( screen.getByText( 'All time from 2026-01-10 08:00:00' ) ).toBeInTheDocument();
 	} );
 
-	it( 'writes the window the control applies to the URL, replacing the old one', async () => {
-		mockSearch = { ...mockSearch, comp: '1', compare_from: '2026-05-17', compare_to: '2026-05-31' };
+	// The controller stages the bucket with the window and writes the URL; the page writes none itself.
+	it( 'applies the window the control commits through the date controller', async () => {
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Apply last 7 days' } ) );
 
-		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		const [ { to, params, search } ] = mockNavigate.mock.calls[ 0 ];
-		expect( to ).toBe( '/report/$kind/$id' );
-		expect( params ).toEqual( { kind: 'video', id: '42' } );
-		expect( search( mockSearch ) ).toEqual( {
-			post_id: '42',
-			preset: 'last-7-days',
-			from: '2026-06-10',
-			to: '2026-06-16',
-		} );
+		expect( mockChangeDateRange ).toHaveBeenCalledTimes( 1 );
+		const [ range, presetId, options ] = mockChangeDateRange.mock.calls[ 0 ];
+		expect( range.from.getTime() ).toBe( Date.UTC( 2026, 5, 10 ) );
+		expect( range.to.getTime() ).toBe( Date.UTC( 2026, 5, 16 ) );
+		expect( presetId ).toBe( 'last-7-days' );
+		expect( options ).toEqual( { exactRange: true } );
+		expect( mockApplyDateRange ).toHaveBeenCalledTimes( 1 );
+		expect( mockApplyDateRange.mock.invocationCallOrder[ 0 ] ).toBeGreaterThan(
+			mockChangeDateRange.mock.invocationCallOrder[ 0 ]
+		);
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps a non-numeric id as the URL carries it, for the adapter and the next URL', async () => {
+	it( 'hands the adapter a non-numeric id as the URL carries it', () => {
 		mockParams = { kind: 'recap', id: 'launch-recap' };
 		mockSearch = { ...mockSearch, post_id: 'launch-recap' };
 		mockAdapters = { recap: mockAdapters.video };
 		mockSummary( { title: 'Launch recap' } );
 
 		render( stage() );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Apply last 7 days' } ) );
 
 		expect( mockUseSummary ).toHaveBeenCalledWith( 'launch-recap' );
-		expect( mockNavigate.mock.calls[ 0 ][ 0 ].params ).toEqual( {
-			kind: 'recap',
-			id: 'launch-recap',
-		} );
 	} );
 
 	// A single-report page offers no comparison: the control hides Compare and `WidgetRoot` strips

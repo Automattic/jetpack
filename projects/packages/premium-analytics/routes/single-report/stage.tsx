@@ -7,7 +7,6 @@ import { jetpack, lookupWidgetIcon } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	decodeDateSearchParam,
-	omitReportDateParams,
 	pickReportDateParams,
 	pickReportNavigationParams,
 	useReportDateFilters,
@@ -26,7 +25,7 @@ import {
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Link, useNavigate, useParams, useSearch } from '@wordpress/route';
+import { Link, useParams, useSearch } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 /**
  * Internal dependencies
@@ -97,7 +96,6 @@ type SingleReportBodyProps = {
 function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ): JSX.Element {
 	const summary = adapter.useSummary( entityId );
 
-	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const section = resolveSingleReportSection( page, search?.section as string | undefined );
 	const defaultLayout = getSingleReportLayout( page, section );
@@ -142,31 +140,28 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		[ search, summary.allTimeStart ]
 	);
 
-	// A committed window goes to the URL, where every widget on the page reads it.
+	const { onChange: changeDateRange, onApply: applyDateRange, timeZone } = dateFilters;
+	// Through the date controller, so a new named preset starts from its own default bucket: there
+	// is no bucket control here to fix one carried over.
 	const applyReportParams = useCallback(
 		( edits: Record< string, unknown > ) => {
 			const next = edits.reportParams as Record< string, unknown > | undefined;
 			if ( ! next ) {
 				return;
 			}
-			trackedOnChange(
-				{
-					from: decodeDateSearchParam( next.from as string | undefined ),
-					to: decodeDateSearchParam( next.to as string | undefined ),
-				},
-				next.preset as PrimaryPresetId | undefined
-			);
+			const range = {
+				from: decodeDateSearchParam( next.from as string | undefined, timeZone ),
+				to: decodeDateSearchParam( next.to as string | undefined, timeZone ),
+			};
+			const presetId = next.preset as PrimaryPresetId | undefined;
+			// The control already moved a custom `to` to the end of its day.
+			const options = { exactRange: true };
+			changeDateRange( range, presetId, options );
+			trackedOnChange( range, presetId, options );
+			applyDateRange();
 			trackedOnApply();
-			void navigate( {
-				to: ROUTE_FROM,
-				params: { kind: page.path, id: entityId } as unknown as never,
-				search: ( ( previous: Record< string, unknown > ) => ( {
-					...omitReportDateParams( previous ),
-					...next,
-				} ) ) as unknown as never,
-			} );
 		},
-		[ navigate, page.path, entityId, trackedOnChange, trackedOnApply ]
+		[ changeDateRange, applyDateRange, timeZone, trackedOnChange, trackedOnApply ]
 	);
 
 	const reportSearch = pickReportNavigationParams( search );
