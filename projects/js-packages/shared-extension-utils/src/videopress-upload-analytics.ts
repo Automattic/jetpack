@@ -148,7 +148,7 @@ export function createUploadAnalytics(
 			} );
 		},
 		fail( error: unknown, stage: FailureStage ) {
-			if ( state !== 'active' ) {
+			if ( state !== 'active' && ! ( state === 'paused' && stage === 'resume_lookup' ) ) {
 				return;
 			}
 			state = 'failed';

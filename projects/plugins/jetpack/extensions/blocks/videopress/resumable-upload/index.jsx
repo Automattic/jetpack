@@ -31,6 +31,7 @@ export default function ResumableUpload( { file } ) {
 		controllerRef.current = controller;
 		analytics.start();
 		const onError = uploadError => {
+			setHasPaused( false );
 			setError( uploadError );
 		};
 
