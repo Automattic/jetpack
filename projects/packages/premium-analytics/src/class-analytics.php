@@ -130,6 +130,8 @@ class Analytics {
 	 */
 	private static function load_dashboard_surface() {
 		if ( ! self::renders_admin_chrome() ) {
+			// Calypso's sidebar replays wp-admin/menu.php over REST, where nothing else lists the dashboard.
+			add_action( 'admin_menu', array( static::class, 'register_replayed_admin_menu' ) );
 			return;
 		}
 
@@ -562,9 +564,33 @@ class Analytics {
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 
-		$menu_title = self::menu_title();
+		self::add_dashboard_menu_entry( $render_callback );
+	}
 
-		$menu_title = esc_html( $menu_title );
+	/**
+	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
+	 *
+	 * Loads the section registry but not the build: the menu capability depends on the sections.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_replayed_admin_menu() {
+		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+
+		self::add_dashboard_menu_entry( '__return_null' );
+	}
+
+	/**
+	 * Add the dashboard's top-level menu entry.
+	 *
+	 * @param callable $render_callback Renders the page.
+	 * @return void
+	 */
+	private static function add_dashboard_menu_entry( $render_callback ) {
+		$menu_title = esc_html( self::menu_title() );
 		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
