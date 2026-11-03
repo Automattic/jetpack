@@ -41,7 +41,7 @@ const COUNT_VIEW: View = {
  * @return Free-tier state.
  */
 export function useFreeTier(): FreeTierState {
-	const { paginationInfo, isLoading, isError } = useLibrary( COUNT_VIEW, { poll: false } );
+	const { paginationInfo, isSuccess } = useLibrary( COUNT_VIEW, { poll: false } );
 	const { uploadQueue } = useUpload();
 	const siteData =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
@@ -71,8 +71,7 @@ export function useFreeTier(): FreeTierState {
 		isAtomic,
 		isUnlimited,
 		videoCount,
-		videoCountKnown:
-			! isLoading && ! isError && Number.isSafeInteger( videoCount ) && videoCount >= 0,
+		videoCountKnown: isSuccess && Number.isSafeInteger( videoCount ) && videoCount >= 0,
 		limit: FREE_TIER_UPLOAD_LIMIT,
 		isAtLimit,
 	};

@@ -1,3 +1,4 @@
+import { onlineManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
@@ -77,6 +78,31 @@ describe( 'useFreeTier', () => {
 			expect( client.isFetching() ).toBe( 0 );
 		} );
 		expect( result.current.videoCountKnown ).toBe( false );
+	} );
+
+	it( 'keeps an initially offline count unknown until the paused request succeeds', async () => {
+		const wasOnline = onlineManager.isOnline();
+		const api = mockApiFetch( async () => ( {
+			headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? '3' : '1' ) },
+			json: async () => [],
+		} ) );
+		const client = createTestQueryClient();
+		onlineManager.setOnline( false );
+		const { result, unmount } = renderHook( () => useFreeTier(), {
+			wrapper: createTestWrapper( client ),
+		} );
+		try {
+			expect( client.getQueryCache().getAll()[ 0 ].state.fetchStatus ).toBe( 'paused' );
+			expect( api ).not.toHaveBeenCalled();
+			expect( result.current.videoCountKnown ).toBe( false );
+			await act( async () => onlineManager.setOnline( true ) );
+			await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
+			expect( result.current.videoCount ).toBe( 4 );
+		} finally {
+			unmount();
+			client.clear();
+			onlineManager.setOnline( wasOnline );
+		}
 	} );
 
 	it.each( [ null, undefined ] )(
