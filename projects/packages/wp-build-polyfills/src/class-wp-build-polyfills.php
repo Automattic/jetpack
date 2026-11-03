@@ -233,7 +233,8 @@ class WP_Build_Polyfills {
 	 * @return array REST API paths to preload.
 	 */
 	public static function add_site_data_preload( $paths ) {
-		// Keep WordPress 7.1 site data in the preload until https://github.com/WordPress/gutenberg/pull/86185 ships.
+		// WordPress 7.1's core-data requests this list; removing it adds a live request on those sites.
+		// https://github.com/WordPress/gutenberg/pull/86185 lets pages survive a failed request without changing the list.
 		$path = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
 		if ( ! in_array( $path, $paths, true ) ) {
 			$paths[] = $path;
