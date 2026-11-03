@@ -4,8 +4,10 @@ import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { FeaturesPointer } from 'components/pointer-card';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -14,6 +16,14 @@ import {
 import { userCanManageModules } from 'state/initial-state';
 import { getModules } from 'state/modules';
 import { isModuleFound } from 'state/search';
+
+// Module search terms are never translated, so these find JSON API and Notifications in every locale.
+// Forms has no such term in Features, so its link opens the Forms card instead.
+const FEATURES_LINKS = {
+	'contact-form': { feature: 'jetpack-forms' },
+	'json-api': { search: 'json', linksToSettings: false },
+	notes: { search: 'notifications', linksToSettings: false },
+};
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -53,6 +63,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			const safelist = [ 'contact-form', 'json-api', 'notes' ];
 
 			const allModules = this.props.modules,
+				inFeatures = isSettingsConsolidationEnabled(),
 				results = [];
 			for ( const [ slug, moduleData ] of Object.entries( allModules ) ) {
 				if ( this.props.isModuleFound( slug ) && safelist.includes( slug ) ) {
@@ -69,6 +80,19 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 								moduleData={ moduleData }
 								offlineMode={ isModuleUnavailableInOfflineMode }
 								siteConnectionMode={ isModuleUnavailableInSiteConnectionMode }
+							/>
+						);
+						continue;
+					}
+
+					// Once settings move out, an available module points to its switch in Features.
+					if ( inFeatures ) {
+						results.push(
+							<FeaturesPointer
+								key={ slug }
+								header={ moduleData.name }
+								name={ moduleData.name }
+								{ ...FEATURES_LINKS[ slug ] }
 							/>
 						);
 						continue;
