@@ -1,4 +1,5 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
+Comment: Pass wp-build page configuration to the polyfills package.
 
-Add an optional `$pages` argument to `WP_Build_Polyfills::register()` for configuring wp-build page preloads.
+
