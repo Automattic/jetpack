@@ -125,7 +125,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
 
-			// At mu-plugin time: wpcom checks for it before retiring classic Stats on Simple.
+			// Not on admin_menu: wpcom checks this function exists before then.
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 		}
 

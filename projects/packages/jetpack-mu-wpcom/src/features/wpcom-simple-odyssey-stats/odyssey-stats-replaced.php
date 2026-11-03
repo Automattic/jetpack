@@ -15,8 +15,6 @@ if ( ! function_exists( 'wpcom_simple_odyssey_stats_is_replaced' ) ) {
 	/**
 	 * Whether Stats v2 takes over `admin.php?page=stats`: classic Stats is retired and Stats v2 booted in this request.
 	 *
-	 * Mirrors the Jetpack plugin's stats module, so a site where Stats v2 did not boot keeps a Stats page.
-	 *
 	 * @return bool
 	 */
 	function wpcom_simple_odyssey_stats_is_replaced() {

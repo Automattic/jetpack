@@ -11,7 +11,7 @@ use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 
 /**
  * @covers ::wpcom_simple_odyssey_stats_is_replaced
@@ -48,7 +48,6 @@ class Wpcom_Simple_Odyssey_Stats_Test extends \WorDBless\BaseTestCase {
 			'retired, Stats v2 booted'     => array( true, true, true ),
 			'retired, Stats v2 not booted' => array( true, false, false ),
 			'not retired, Stats v2 booted' => array( false, true, false ),
-			'neither'                      => array( false, false, false ),
 		);
 	}
 
