@@ -94,8 +94,12 @@ export function createUploadAnalytics(
 			if ( isRetry ) {
 				record( 'retried', { retry_type: 'user', retry_count: 0 } );
 			}
+			let fileType = file.type ? 'other' : 'unknown';
+			if ( FILE_TYPES.has( file.type ) ) {
+				fileType = file.type;
+			}
 			record( 'started', {
-				file_type: FILE_TYPES.has( file.type ) ? file.type : file.type ? 'other' : 'unknown',
+				file_type: fileType,
 				...selectedContext,
 			} );
 		},
