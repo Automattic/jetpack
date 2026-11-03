@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Stop sending a broken return URL when connecting the site from a product card or notice.
