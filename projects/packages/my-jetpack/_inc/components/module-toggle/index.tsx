@@ -19,6 +19,8 @@ export type ModuleToggleProps = {
 	describedby?: string;
 	/** The id of the text that names the switch, in place of its default label. */
 	labelledby?: string;
+	/** Locks the switch, for a module the site cannot use. */
+	disabled?: boolean;
 	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
 	reloadAfterToggle?: boolean;
 	/** Called with what the click asked for, for surfaces that record their own events. */
@@ -142,6 +144,7 @@ export function ModuleToggle( {
 	module: $module,
 	describedby,
 	labelledby,
+	disabled = false,
 	reloadAfterToggle = true,
 	onSwitch,
 }: ModuleToggleProps ) {
@@ -186,7 +189,7 @@ export function ModuleToggle( {
 
 	return (
 		<FormToggle
-			disabled={ isUpdating || !! $module.override }
+			disabled={ disabled || isUpdating || !! $module.override }
 			checked={ isActive }
 			onChange={ onChange }
 			aria-label={
