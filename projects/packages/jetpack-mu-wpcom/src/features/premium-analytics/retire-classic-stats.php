@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 
 /**
@@ -19,6 +20,11 @@ use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
  */
 function wpcom_simple_retire_classic_stats( $enabled, $name ) {
 	if ( 'jetpack-stats-classic-page-retired' !== $name ) {
+		return $enabled;
+	}
+
+	// The Jetpack copy can lag this one; before it lists Stats v2 in Calypso's menu, retiring would drop Stats from there.
+	if ( ! method_exists( Analytics::class, 'register_replayed_admin_menu' ) ) {
 		return $enabled;
 	}
 
