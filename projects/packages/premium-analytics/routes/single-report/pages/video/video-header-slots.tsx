@@ -46,13 +46,14 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
  * the video resolves or fails.
  *
  * @param summary                  - The video summary, in any state.
- * @param context                  - What the page knows: the committed report date range.
+ * @param context                  - What the page knows: the title it states and the committed report date range.
+ * @param context.title            - The title the page states: the video's, or "Untitled video".
  * @param context.performanceRange - The committed report date range.
  * @return The header slots for this video.
  */
 export function videoHeaderSlots(
 	summary: VideoSummary,
-	{ performanceRange }: HeaderContext
+	{ title, performanceRange }: HeaderContext
 ): SingleReportHeaderSlots {
 	const glyph = <Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
@@ -99,7 +100,7 @@ export function videoHeaderSlots(
 
 	return {
 		visual: <VideoPoster posterUrl={ summary.posterUrl } />,
-		title: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
+		title,
 		subTitle: subtitle || undefined,
 	};
 }
