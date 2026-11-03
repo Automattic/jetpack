@@ -340,7 +340,7 @@ This package exports the following public API:
 ### Types
 
 - `ReportParams` - The report params every hook takes
-- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `LockableInterval` - A bucket a plan can lock (`week`, `month`, `quarter`, `year`)
 - `IntervalRange` - A range as the interval helpers read it (`preset`, `from`, `to`)
 - `IntervalExtension` - The buckets a widget adds to its range (`extra`) or lists unpickable with a hint (`unavailable`)
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
