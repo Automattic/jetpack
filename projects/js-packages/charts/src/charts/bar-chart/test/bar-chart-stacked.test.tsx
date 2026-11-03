@@ -190,6 +190,28 @@ describe( 'BarChart stacked layout', () => {
 		expect( desktop.y + desktop.height ).toBeCloseTo( plotBottom() );
 	} );
 
+	it.each( [ 'vertical', 'horizontal' ] as const )(
+		'anchors the %s tooltip at the drawn stack end when its total exceeds the caller domain',
+		async orientation => {
+			const user = userEvent.setup();
+			const horizontal = orientation === 'horizontal';
+			renderStacked( {
+				orientation,
+				options: horizontal
+					? { xScale: { domain: [ 0, 100 ] } }
+					: { yScale: { domain: [ 0, 100 ] } },
+			} );
+
+			await user.tab();
+			await user.keyboard( '{ArrowRight}' );
+			const desktop = barOf( 'Desktop' );
+			expect( Number( lastAnchor()[ horizontal ? 'left' : 'top' ] ) ).toBeCloseTo(
+				horizontal ? desktop.x + desktop.width : desktop.y
+			);
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Total: 180' );
+		}
+	);
+
 	it( 'leaves comparison series out of the bars, colors and legend, and says so', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 		const fills = () => barRects().map( bar => bar.getAttribute( 'fill' ) );

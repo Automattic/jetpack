@@ -68,10 +68,17 @@ const StackedBarSeries = ( {
 		[ slotKeys, bandScale, groupPadding ]
 	);
 	const { dataKey, xAccessor, yAccessor } = props;
-	// The tooltip snaps to what a series registers, so every series registers its stack's top.
+	const [ domainStart, domainEnd ] = ( horizontal ? xScale : yScale )?.domain() ?? [
+		-Infinity,
+		Infinity,
+	];
+	const domainMin = Math.min( Number( domainStart ), Number( domainEnd ) );
+	const domainMax = Math.max( Number( domainStart ), Number( domainEnd ) );
+	// The domain already comes from raw totals; register the painted top so the tooltip stays on it.
 	const stackTop = useCallback(
-		( datum: DataPointDate ) => stack.extentAt( datum )[ 1 ],
-		[ stack ]
+		( datum: DataPointDate ) =>
+			Math.min( domainMax, Math.max( domainMin, stack.extentAt( datum )[ 1 ] ) ),
+		[ stack, domainMin, domainMax ]
 	);
 	const renderGlyph = useCallback(
 		( { datum, color }: GlyphProps< DataPointDate > ) => {
