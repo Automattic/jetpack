@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add CONNECTION_FROM entry-point names with isStandardEntryPoint() and isUnifiedConnectionFlow(), and warn in development when a connect link has no `from` or return URL.

@@ -25,6 +25,12 @@ jest.mock( '../../../../utils/reload-page', () => ( {
 	leavePageFor: jest.fn(),
 } ) );
 
+// The Features tab sends no `from` yet (CONNECT-571), and the real helper warns about that.
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	...jest.requireActual( '@automattic/jetpack-connection' ),
+	getUserConnectionUrl: jest.fn( () => '/wp-admin/admin.php?connect_url_redirect=1' ),
+} ) );
+
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
 } ) );

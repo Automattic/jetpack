@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Mock the connect URL in a Features tab tracking test, so the connection package's new development warning does not fail it.
+
+

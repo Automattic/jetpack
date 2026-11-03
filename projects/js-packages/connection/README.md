@@ -21,6 +21,25 @@ function my_app_enqueue_script() {
 }
 ```
 
+## Adding a connect button
+
+Every connect link tells WordPress.com where it came from (`from`) and where to send the user afterwards. WordPress.com counts connections by `from` and picks its connection screen by it: a standard name gets the unified screen and returns the user straight to the return URL, without the plans page.
+
+- **Name it with `CONNECTION_FROM`.** For a new surface, add its name there first. A standard name is `owner_surface[_detail]` (the product, the screen, and optionally which button on it): lowercase letters, digits and underscores, at most 64 characters, such as `my_jetpack_header`. `isStandardEntryPoint()` checks the format and `isUnifiedConnectionFlow()` whether WordPress.com shows the unified screen; both mirror Calypso's [`entry-points.ts`](https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts).
+- **Pass `getUserConnectionUrl()` an absolute `redirect_url`.** WordPress.com ignores a relative one and shows the plans page instead.
+- **Never rename a name once it has shipped.** Reports key on it, and older plugin versions keep sending it.
+
+```jsx
+import { CONNECTION_FROM, getUserConnectionUrl } from '@automattic/jetpack-connection';
+
+const connectUrl = getUserConnectionUrl( {
+	from: CONNECTION_FROM.myJetpackHeader,
+	redirect_url: window.location.href,
+} );
+```
+
+Without `from` or `redirect_url`, `getUserConnectionUrl()` still falls back to `from=my-jetpack` and a return to My Jetpack. That fallback is deprecated, and in development it logs a warning, as does a `from` that `isUnifiedConnectionFlow()` rejects. For a reconnect, pass `reconnectFrom` and `reconnectRedirectUrl` to `useConnectionErrorNotice()` or `<ConnectionError />`.
+
 # Components
 ## Component `ConnectScreen`
 The component implements the connection screen page, and loads the `ConnectButton` component to handle the whole connection flow.
@@ -29,8 +48,8 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
-- *from* - string, custom string parameter to identify where the request is coming from.
+- *redirectUri* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
 - *title* - string, page title.
 - *buttonLabel* - string, the "Connect" button label.
 - *statusCallback* - callback to pull connection status from the component.
@@ -41,7 +60,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 ### Usage
 ```jsx
 import { useState, useCallback } from 'react';
-import { ConnectScreen } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, ConnectScreen } from '@automattic/jetpack-connection';
 
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
@@ -56,7 +75,7 @@ const statusCallback = useCallback(
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="my-jetpack"
+	from={ CONNECTION_FROM.myJetpackConnectionScreen }
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	statusCallback={ statusCallback }
 >
@@ -72,8 +91,8 @@ The component displays the connection button and handles the connection process,
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *from* - string, custom string parameter to identify where the request is coming from.
-- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
+- *redirectUri* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *statusCallback* - callback to pull connection status from the component.
 - *connectionStatus* - object, the connection status info.
 - *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
@@ -82,7 +101,7 @@ The component displays the connection button and handles the connection process,
 ### Basic Usage
 ```jsx
 import { useCallback } from 'react';
-import { ConnectButton } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, ConnectButton } from '@automattic/jetpack-connection';
 
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 
@@ -90,7 +109,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	from="my-jetpack"
+	from={ CONNECTION_FROM.myJetpackConnectionCard }
 	redirectUri="tools.php?page=wpcom-connection-manager"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
