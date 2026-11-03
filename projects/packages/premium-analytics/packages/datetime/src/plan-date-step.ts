@@ -9,6 +9,7 @@ import { findSelectablePresetForRange } from './preset-for-range';
 import { PRESET_CUSTOM, type PrimaryPresetId } from './presets/types';
 import { endOfStepBucket, measureStep, shiftStep, type StepDirection } from './step-date-range';
 import { clampRangeEndToToday } from './to-date-range';
+import type { DateRangeSpan } from './date-range-span';
 import type { DateRange } from './get-comparison-range';
 
 /**
@@ -29,6 +30,14 @@ export type DateStepContext = {
 
 	/** Presets the plan locks, which a stepped window is never named as. */
 	lockedPresetIds?: readonly PrimaryPresetId[];
+
+	/**
+	 * The span the applied window was reached by, when it landed from a step.
+	 * A step then moves by that again, so Previous undoes Next whatever shape
+	 * the landing has: a 30-day window stepped back onto a whole June returns
+	 * to its 30 days, not to the whole July.
+	 */
+	span?: DateRangeSpan;
 };
 
 /**
@@ -39,6 +48,9 @@ export type DateStep = {
 
 	/** The preset whose window this is today, or `custom`. */
 	presetId: PrimaryPresetId;
+
+	/** The span the step moved by, for the reverse step to retrace. */
+	span: DateRangeSpan;
 };
 
 /**
@@ -54,7 +66,8 @@ export type DateStep = {
  * the landing is pulled back to the end of today: stepping out of "12 months"
  * returns to its to-date window. The landing reads as a preset when it is
  * exactly that preset's window today, preferring a calendar preset when the
- * step moved by months, and never as a preset the plan locks.
+ * step moved by months, and never as a preset the plan locks. A window reached
+ * by a step moves by that step's span again, so the reverse step undoes it.
  *
  * @param range     - The applied window.
  * @param direction - Which way to move it.
@@ -66,7 +79,7 @@ export function planDateStep(
 	direction: StepDirection,
 	context: DateStepContext
 ): DateStep | undefined {
-	const { presetId, timeZone, earliestDate, lockedPresetIds } = context;
+	const { presetId, timeZone, earliestDate, lockedPresetIds, span } = context;
 
 	if ( ! range.from || ! range.to ) {
 		return undefined;
@@ -79,7 +92,7 @@ export function planDateStep(
 			from: new TZDate( range.from.getTime(), timeZone ),
 			to: new TZDate( range.to.getTime(), timeZone ),
 		},
-		{ presetId, now }
+		{ presetId, now, span }
 	);
 
 	if ( ! measured ) {
@@ -90,20 +103,21 @@ export function planDateStep(
 	const reachable =
 		direction === 'previous'
 			? ! earliestDate || stepped.from.getTime() >= earliestDate.getTime()
-			: stepped.to.getTime() <= endOfStepBucket( now, measured.span.unit ).getTime();
+			: stepped.to.getTime() <= endOfStepBucket( now, stepped.span.unit ).getTime();
 
 	if ( ! reachable ) {
 		return undefined;
 	}
 
-	const landing = clampRangeEndToToday( stepped, now );
+	const landing = clampRangeEndToToday( { from: stepped.from, to: stepped.to }, now );
 
 	return {
 		range: landing,
 		presetId:
 			findSelectablePresetForRange( landing, timeZone, {
-				steppedBy: measured.span.unit,
+				steppedBy: stepped.span.unit,
 				exclude: lockedPresetIds,
 			} ) ?? PRESET_CUSTOM,
+		span: stepped.span,
 	};
 }

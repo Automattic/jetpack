@@ -150,6 +150,7 @@ describe( 'planDateStep', () => {
 		expect( planDateStep( weekBeforeLast, 'next', context ) ).toEqual( {
 			range: computePrimaryRange( 'last-7-days', TIMEZONE ),
 			presetId: 'last-7-days',
+			span: { unit: 'day', value: 7 },
 		} );
 	} );
 
@@ -167,6 +168,7 @@ describe( 'planDateStep', () => {
 		expect( step ).toEqual( {
 			range: wholeDays( [ 2025, 9, 1 ], [ 2026, 8, 20 ] ),
 			presetId: 'last-12-months',
+			span: { unit: 'month', value: 12 },
 		} );
 	} );
 
@@ -181,11 +183,35 @@ describe( 'planDateStep', () => {
 		expect( forward ).toEqual( {
 			range: wholeDays( [ 2026, 9, 1 ], [ 2026, 11, 2 ] ),
 			presetId: 'custom',
+			span: { unit: 'month', value: 3 },
 		} );
 
 		expect( planDateStep( forward!.range, 'previous', { ...context, now } ) ).toMatchObject( {
 			range: summer,
 		} );
+	} );
+
+	// A step by days can land on a whole month or the month to date, which
+	// would then step as months; the landing keeps the span that reached it.
+	it.each( [
+		[
+			'a 30-day window onto a whole month',
+			wholeDays( [ 2026, 7, 1 ], [ 2026, 7, 30 ] ),
+			'previous',
+		],
+		[
+			'a 20-day window onto the month to date',
+			wholeDays( [ 2026, 7, 12 ], [ 2026, 7, 31 ] ),
+			'next',
+		],
+	] as const )( 'retraces %s by the span that reached it', ( _name, origin, direction ) => {
+		const step = planDateStep( origin, direction, context );
+		const back = direction === 'previous' ? 'next' : 'previous';
+
+		expect( step ).toMatchObject( { span: { unit: 'day' } } );
+		expect(
+			planDateStep( step!.range, back, { ...context, presetId: step!.presetId, span: step!.span } )
+		).toMatchObject( { range: origin } );
 	} );
 
 	// On the 30th the month to date is also the last 30 days; a window reached
@@ -198,6 +224,7 @@ describe( 'planDateStep', () => {
 		expect( planDateStep( july, 'next', { ...context, now, presetId: 'custom' } ) ).toEqual( {
 			range: wholeDays( [ 2026, 8, 1 ], [ 2026, 8, 30 ] ),
 			presetId: 'month-to-date',
+			span: { unit: 'month', value: 1 },
 		} );
 	} );
 } );

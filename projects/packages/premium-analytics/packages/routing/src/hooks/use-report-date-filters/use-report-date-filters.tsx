@@ -11,7 +11,7 @@ import {
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { planDateStep, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -22,6 +22,7 @@ import { buildRangePatch, type ReportQuerySearchParams } from './build-range-pat
 import type {
 	ComparisonPresetId,
 	DateRange,
+	DateRangeSpan,
 	DateStep,
 	IntervalType,
 	PrimaryPresetId,
@@ -115,6 +116,17 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 		from: decodeDateSearchParam( from, timeZone ),
 		to: decodeDateSearchParam( to, timeZone ),
 	};
+}
+
+/**
+ * Whether two ranges cover the same instants.
+ *
+ * @param a - One range.
+ * @param b - The other.
+ * @return Whether both ends match.
+ */
+function isSameRange( a: DateRange, b?: DateRange ): boolean {
+	return !! b && a.from?.getTime() === b.from?.getTime() && a.to?.getTime() === b.to?.getTime();
 }
 
 /**
@@ -288,10 +300,20 @@ export function useReportDateFilters< TFrom extends string >(
 	 * the window moves, where it lands and what the landing is called. The clock
 	 * is read on each render, not memoised, so a tab left open past midnight
 	 * offers the new day as soon as anything re-renders.
+	 *
+	 * The last landing is remembered with the span that reached it, so that the
+	 * next step from there moves by the same span and the reverse step undoes
+	 * it. A window reached any other way, Back included, steps by its own shape.
 	 */
+	const lastStep = useRef< { range: Required< DateRange >; span: DateRangeSpan } | undefined >(
+		undefined
+	);
+	const span = isSameRange( appliedRange, lastStep.current?.range )
+		? lastStep.current?.span
+		: undefined;
 	const stepContext = useMemo(
-		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds } ),
-		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds ]
+		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds, span } ),
+		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds, span ]
 	);
 	const now = new Date();
 	const canStepBackward =
@@ -324,6 +346,7 @@ export function useReportDateFilters< TFrom extends string >(
 
 			stage( patch );
 			commit();
+			lastStep.current = { range: step.range, span: step.span };
 
 			return { ...step, interval: patch.interval ?? interval };
 		},

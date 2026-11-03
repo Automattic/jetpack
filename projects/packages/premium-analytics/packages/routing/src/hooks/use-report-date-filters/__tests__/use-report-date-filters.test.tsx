@@ -445,7 +445,26 @@ describe( 'useReportDateFilters', () => {
 			range: result.current.appliedRange,
 			presetId: 'custom',
 			interval: 'hour',
+			span: { unit: 'hour', value: 24 },
 		} );
+	} );
+
+	// Jun 1–30 is a whole month, which on its own would step as one.
+	it( 'undoes a step with the opposite one whatever shape it landed on', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const july = { from: '2026-07-01T00:00:00.000+00:00', to: '2026-07-30T23:59:59.999+00:00' };
+		const { result, rerender } = renderDateFilters( { ...july, preset: 'custom' } );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-06-01T00:00:00.000+00:00',
+			to: '2026-06-30T23:59:59.999+00:00',
+		} );
+
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
+		expect( mockSearch ).toMatchObject( july );
 	} );
 
 	it( 'reads as the preset again when a step lands back on its window', () => {

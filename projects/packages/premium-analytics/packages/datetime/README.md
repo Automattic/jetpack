@@ -249,9 +249,11 @@ twelve-month window as 12 months.
 
 Decides a step in full, for the arrows that offer it and the filters that
 apply it to share one answer: whether the window can move that way, where it
-lands, and what the landing is called. `context` carries the applied
-`presetId`, the site `timeZone`, `now`, and the plan's `earliestDate` and
-`lockedPresetIds`. Returns `undefined` when the window cannot move.
+lands, what the landing is called, and the `span` it moved by. `context`
+carries the applied `presetId`, the site `timeZone`, `now`, the plan's
+`earliestDate` and `lockedPresetIds`, and the `span` of the step that reached
+the applied window, when one did. Returns `undefined` when the window cannot
+move.
 
 How far a step moves is measured the way the comparison measures its previous
 period: whole calendar months step by months (whole calendar years by years),
@@ -262,7 +264,10 @@ of today, so stepping back out of a forward step that was pulled back to today
 returns to where it started. A "Last N days" preset always steps by days, and
 "All time" does not step. Steps move in calendar units, so a step across a DST
 boundary keeps the wall clock; where a calendar step cannot be undone, it falls
-back to whole days.
+back to whole days. A window reached by a step moves by that step's `span`
+again rather than by its own shape, so the reverse step undoes it: a 30-day
+window stepped back onto a whole June returns to its 30 days, not to the whole
+July.
 
 Backward, the step has to start on or after `earliestDate`. Forward, the next
 window has to end within the bucket `now` sits in (the running hour, day, month

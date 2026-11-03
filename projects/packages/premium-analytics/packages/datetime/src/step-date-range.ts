@@ -53,6 +53,12 @@ export type StepOptions = {
 	 * months, like the month to date.
 	 */
 	now?: TZDate;
+
+	/**
+	 * The span the window was reached by, when it landed from a step. It steps
+	 * by that again rather than by its own shape, so Previous undoes Next.
+	 */
+	span?: DateRangeSpan;
 };
 
 /**
@@ -129,7 +135,15 @@ function completeForStep(
 	range: Required< DateRange >,
 	options: StepOptions
 ): Required< DateRange > {
-	const { presetId, now } = options;
+	const { presetId, now, span } = options;
+
+	// A month or year step lands on a month or year end unless it was pulled
+	// back to today; pushed out again, the reverse step undoes it.
+	if ( span ) {
+		return span.unit === 'month' || span.unit === 'year'
+			? { ...range, to: END_OF_BUCKET[ span.unit ]( range.to ) }
+			: range;
+	}
 
 	if ( presetId === PRESET_MONTH_TO_DATE ) {
 		return { ...range, to: endOfMonth( range.to ) };
@@ -198,7 +212,7 @@ export function measureStep(
 	}
 
 	const { from, to } = completeForStep( range, options );
-	const span = getStepSpan( from, to, options.presetId );
+	const span = options.span ?? getStepSpan( from, to, options.presetId );
 
 	return span ? { from, to, span } : null;
 }
@@ -239,21 +253,21 @@ function shift(
  *
  * @param step      - The measured window.
  * @param direction - Which way to move it.
- * @return The shifted range.
+ * @return The shifted range, with the span it was moved by.
  */
-export function shiftStep( step: MeasuredStep, direction: StepDirection ): Required< DateRange > {
+export function shiftStep( step: MeasuredStep, direction: StepDirection ): MeasuredStep {
 	const { from, to, span } = step;
 	const sign = direction === 'previous' ? -1 : 1;
 	const stepped = shift( from, to, span.unit, sign * span.value );
 	const returned = shift( stepped.from, stepped.to, span.unit, -sign * span.value );
 
 	if ( returned.from.getTime() === from.getTime() && returned.to.getTime() === to.getTime() ) {
-		return stepped;
+		return { ...stepped, span };
 	}
 
-	const days = differenceInCalendarDays( to, from ) + 1;
+	const days = { unit: 'day', value: differenceInCalendarDays( to, from ) + 1 } as const;
 
-	return shift( from, to, 'day', sign * days );
+	return { ...shift( from, to, days.unit, sign * days.value ), span: days };
 }
 
 /**
@@ -271,5 +285,11 @@ export function stepDateRange(
 ): Required< DateRange > | undefined {
 	const measured = measureStep( range, options );
 
-	return measured ? shiftStep( measured, direction ) : undefined;
+	if ( ! measured ) {
+		return undefined;
+	}
+
+	const { from, to } = shiftStep( measured, direction );
+
+	return { from, to };
 }
