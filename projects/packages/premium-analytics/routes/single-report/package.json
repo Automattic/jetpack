@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-premium-analytics-single-report-route",
+	"route": {
+		"path": "/report/$kind/$id",
+		"page": "jetpack-premium-analytics"
+	}
+}
