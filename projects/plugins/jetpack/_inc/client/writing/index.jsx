@@ -3,6 +3,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
+import { isSwitchedInFeatures } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -12,7 +13,7 @@ import {
 import { getActiveFeatureDetails } from 'state/feature-check';
 import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
-import { isModuleFound } from 'state/search';
+import { getSearchTerm, isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
@@ -165,7 +166,9 @@ export default connect(
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
+			isModuleFound: module_name =>
+				isModuleFound( state, module_name ) &&
+				( ! isSwitchedInFeatures( state, module_name ) || !! getSearchTerm( state ) ),
 			connectUrl: getConnectUrl( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};

@@ -1,4 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { userCanManageModules } from 'state/initial-state';
 
 /**
  * Whether settings move out of the Settings screen: the `my-jetpack-settings-consolidation` flag is on and My Jetpack is available.
@@ -26,3 +27,20 @@ export function getMovedOutModules() {
  * @return {boolean} True when the card no longer renders.
  */
 export const isMovedOut = module => getMovedOutModules().includes( module );
+
+/**
+ * Whether a module's Settings toggle gives way to its switch in My Jetpack › Features, leaving only a search result that points there.
+ *
+ * Users who cannot manage modules have no Features, so they keep the toggle.
+ *
+ * @param {object} state  - Global state tree.
+ * @param {string} module - Module slug.
+ * @return {boolean} True when Features switches the module instead.
+ */
+export function isSwitchedInFeatures( state, module ) {
+	return (
+		isSettingsConsolidationEnabled() &&
+		userCanManageModules( state ) &&
+		[ 'blocks', 'copy-post', 'latex', 'shortcodes' ].includes( module )
+	);
+}
