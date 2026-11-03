@@ -1,3 +1,4 @@
+import { getTickDecimalsDomain } from '../../private/tick-decimals';
 import { categoryKey } from './category';
 import { EMPTY_DOMAIN, getBarValue } from './value-domain';
 import type { DataPointDate, SeriesData } from '../../../types';
@@ -63,10 +64,16 @@ export function getStackLayout( series: SeriesData[] ): StackLayout {
 /**
  * The value domain of a computed stack, falling back to an empty chart's domain.
  *
- * @param stack - The precomputed stack.
- * @return The extent, or the empty chart domain.
+ * @param stack        - The precomputed stack.
+ * @param tickDecimals - The value axis precision, when set.
+ * @return The extent widened for tick precision, or the empty chart domain.
  */
-export function getStackedValueDomain( stack: StackLayout ): [ number, number ] {
+export function getStackedValueDomain(
+	stack: StackLayout,
+	tickDecimals?: number
+): [ number, number ] {
 	const { extent } = stack;
-	return ! extent || extent[ 0 ] === extent[ 1 ] ? [ ...EMPTY_DOMAIN ] : extent;
+	const domain: [ number, number ] =
+		! extent || extent[ 0 ] === extent[ 1 ] ? [ ...EMPTY_DOMAIN ] : extent;
+	return getTickDecimalsDomain( domain, tickDecimals ) ?? domain;
 }

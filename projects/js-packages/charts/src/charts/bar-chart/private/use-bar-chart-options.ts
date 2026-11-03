@@ -286,7 +286,7 @@ export function useBarChartOptions(
 		let domain: [ number, number ] | null = null;
 		if ( ! valueScaleOptions?.domain ) {
 			domain = stack
-				? getStackedValueDomain( stack )
+				? getStackedValueDomain( stack, axisConfig.valueTickDecimals )
 				: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
 		}
 		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};

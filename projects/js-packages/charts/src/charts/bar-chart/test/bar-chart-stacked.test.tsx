@@ -183,6 +183,20 @@ describe( 'BarChart stacked layout', () => {
 		expect( barOf( 'Tablet' ).y ).toBeGreaterThanOrEqual( 0 );
 	} );
 
+	it( 'widens small stacked totals so rounded value ticks stay distinct', () => {
+		renderStacked( {
+			data: [
+				{ label: 'A', data: [ day( 'Mon', 0.1 ) ] },
+				{ label: 'B', data: [ day( 'Mon', 0.15 ) ] },
+			],
+			options: {
+				axis: { y: { tickDecimals: 0, tickFormat: value => Number( value ).toFixed( 0 ) } },
+			},
+		} );
+
+		expect( valueTicks() ).toEqual( [ 0, 1 ] );
+	} );
+
 	it( 'keeps the stack inside a caller domain that leaves out zero', () => {
 		renderStacked( { options: { yScale: { domain: [ 50, 200 ] } } } );
 
