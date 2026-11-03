@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Skip re-analysis when saving a cornerstone page without saved LCP analysis pages.
