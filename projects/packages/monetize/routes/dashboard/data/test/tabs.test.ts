@@ -1,4 +1,4 @@
-import { getCalypsoUrl, getTab } from '../tabs';
+import { getCalypsoUrl, getTab, getTabSearch } from '../tabs';
 
 describe( 'getTab', () => {
 	it.each( [ undefined, 'settings', 42 ] )( 'falls back to Overview for %p', value => {
@@ -13,5 +13,14 @@ describe( 'getCalypsoUrl', () => {
 		[ 'ads', 'example.com', 'https://wordpress.com/earn/ads-earnings/example.com' ],
 	] )( 'links %s on %s to %s', ( tab, siteSlug, url ) => {
 		expect( getCalypsoUrl( getTab( tab ), siteSlug ) ).toBe( url );
+	} );
+} );
+
+describe( 'getTabSearch', () => {
+	it.each( [
+		[ 'ads', { tab: 'ads', foo: 'bar' } ],
+		[ 'overview', { tab: undefined, foo: 'bar' } ],
+	] )( 'opens %s and keeps the other params', ( next, expected ) => {
+		expect( getTabSearch( { tab: 'payments', foo: 'bar' }, next ) ).toEqual( expected );
 	} );
 } );

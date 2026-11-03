@@ -55,3 +55,17 @@ export function getCalypsoUrl( tab: Tab, siteSlug: string ): string {
 		.filter( Boolean )
 		.join( '/' );
 }
+
+/**
+ * The search params that open a tab, keeping the rest; Overview is the bare URL.
+ *
+ * @param prev - The current search params.
+ * @param next - The tab to open.
+ * @return The new search params.
+ */
+export function getTabSearch(
+	prev: Record< string, unknown >,
+	next: string
+): Record< string, unknown > {
+	return { ...prev, tab: next === 'overview' ? undefined : next };
+}

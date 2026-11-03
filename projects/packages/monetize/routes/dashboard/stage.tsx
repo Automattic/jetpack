@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Placeholder from './components/placeholder';
-import { TABS, getTab } from './data/tabs';
+import { TABS, getTab, getTabSearch } from './data/tabs';
 import './route.scss';
 
 /**
@@ -20,10 +20,7 @@ const Stage = () => {
 	const openTab = useCallback(
 		( next: string ) => {
 			navigate( {
-				search: ( prev: Record< string, unknown > ) => ( {
-					...prev,
-					tab: next === 'overview' ? undefined : next,
-				} ),
+				search: ( prev: Record< string, unknown > ) => getTabSearch( prev, next ),
 			} as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]

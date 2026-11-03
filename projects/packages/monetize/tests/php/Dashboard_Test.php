@@ -35,6 +35,8 @@ class Dashboard_Test extends BaseTestCase {
 		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		unset( $GLOBALS['submenu']['jetpack'] );
+		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
 
@@ -49,6 +51,26 @@ class Dashboard_Test extends BaseTestCase {
 		$item = Admin_Menu::remove_menu( Dashboard::MENU_SLUG );
 		$this->assertSame( array( Dashboard::class, 'render' ), $item['function'] );
 		$this->assertSame( 'monetize', $item['args']['module'] );
+	}
+
+	public function test_add_wp_admin_submenu_adds_the_page_under_the_jetpack_menu() {
+		global $submenu;
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'monetize-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		Dashboard::add_wp_admin_submenu();
+
+		$item = array_values( array_filter( $submenu['jetpack'] ?? array(), fn( $entry ) => Dashboard::MENU_SLUG === $entry[2] ) );
+		$this->assertCount( 1, $item );
+		$this->assertSame( 'manage_options', $item[0][1] );
+		$this->assertNotFalse( has_action( get_plugin_page_hookname( Dashboard::MENU_SLUG, 'jetpack' ), array( Dashboard::class, 'render' ) ) );
 	}
 
 	public function test_render_says_so_when_the_build_is_missing() {
