@@ -23,9 +23,9 @@ export function getStoryIntervalOptions( presetId?: PrimaryPresetId ): IntervalT
 		return fallback;
 	}
 
-	// A calendar year buckets by month or by week, but not by year.
+	// A calendar year buckets by month, week or quarter, but not by year.
 	if ( presetId.startsWith( 'year-' ) ) {
-		return [ 'month', 'week' ];
+		return [ 'month', 'week', 'quarter' ];
 	}
 
 	return STORY_INTERVAL_OPTIONS[ presetId ] ?? fallback;
