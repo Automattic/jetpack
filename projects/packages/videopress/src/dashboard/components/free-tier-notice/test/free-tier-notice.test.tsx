@@ -43,7 +43,7 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'drives the shared checkout workflow with the VideoPress product and redirect', () => {
-		render( <FreeTierNotice /> );
+		render( <FreeTierNotice location="overview" /> );
 
 		expect( mockedCheckoutWorkflow ).toHaveBeenCalledWith( {
 			productSlug: 'jetpack_videopress',
@@ -56,7 +56,7 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'renders the free-plan copy by default', () => {
-		render( <FreeTierNotice /> );
+		render( <FreeTierNotice location="overview" /> );
 
 		expect(
 			screen.getByText(
@@ -66,7 +66,7 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'renders the provided message instead of the default copy', () => {
-		render( <FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } /> );
+		render( <FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } /> );
 
 		expect(
 			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
@@ -74,16 +74,23 @@ describe( 'FreeTierNotice', () => {
 		expect( screen.queryByText( /You’re on the free plan/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'records the upgrade-click Tracks event and runs the workflow on click', async () => {
-		const user = userEvent.setup();
-		render( <FreeTierNotice /> );
+	it.each( [ 'overview', 'library_at_limit', 'settings_at_limit' ] as const )(
+		'records the %s notice location and starts checkout on click',
+		async location => {
+			const user = userEvent.setup();
+			const { rerender } = render( <FreeTierNotice location={ location } /> );
+			rerender( <FreeTierNotice location={ location } /> );
+			expect( mockedAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 
-		await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
+			await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
-		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_videopress_upgrade_trigger_link_click'
-		);
-		// `run` is deferred to a microtask; userEvent's await flushes it.
-		expect( mockRun ).toHaveBeenCalledTimes( 1 );
-	} );
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_videopress_upgrade_trigger_link_click',
+				{ location }
+			);
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+			// `run` is deferred to a microtask; userEvent's await flushes it.
+			expect( mockRun ).toHaveBeenCalledTimes( 1 );
+		}
+	);
 } );
