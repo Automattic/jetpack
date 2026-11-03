@@ -825,6 +825,156 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * A top-content type, the WPCOM response for it, and the items `expand=true, max=1` returns.
+	 */
+	public static function provide_expanded_rows(): array {
+		$link = static function ( string $name, int $views, $children = null ): array {
+			return array(
+				'name'     => $name,
+				'url'      => 'https://href.li/?https://' . $name,
+				'views'    => $views,
+				'children' => $children,
+			);
+		};
+		$day  = static function ( array $block ): array {
+			return array( 'days' => array( '2026-04-23' => $block ) );
+		};
+		return array(
+			'referrers nest pages and keep each level to max' => array(
+				'referrers',
+				'get_referrers',
+				$day(
+					array(
+						'groups' => array(
+							array(
+								'name'    => 'Search Engines',
+								'total'   => 9,
+								'results' => array( $link( 'google.com', 8, array( $link( 'google.com/a', 5 ), $link( 'google.com/b', 3 ) ) ), $link( 'bing.com', 1 ) ),
+							),
+							array(
+								'name'    => 'Reader',
+								'total'   => 4,
+								'results' => array( 'views' => 4 ),
+							),
+						),
+					)
+				),
+				array(
+					array(
+						'rank'     => 1,
+						'label'    => 'Search Engines',
+						'value'    => 9,
+						'children' => array(
+							array(
+								'label'    => 'google.com',
+								'value'    => 8,
+								'href'     => 'https://google.com',
+								'children' => array(
+									array(
+										'label' => 'google.com/a',
+										'value' => 5,
+										'href'  => 'https://google.com/a',
+									),
+								),
+							),
+						),
+					),
+				),
+			),
+			'clicks list the links under a domain' => array(
+				'clicks',
+				'get_clicks',
+				$day( array( 'clicks' => array( $link( 'example.com', 3, array( $link( 'example.com/x', 2 ), $link( 'example.com/y', 1 ) ) ) ) ) ),
+				array(
+					array(
+						'rank'     => 1,
+						'label'    => 'example.com',
+						'value'    => 3,
+						'href'     => 'https://example.com',
+						'children' => array(
+							array(
+								'label' => 'example.com/x',
+								'value' => 2,
+								'href'  => 'https://example.com/x',
+							),
+						),
+					),
+				),
+			),
+			'tags list each term without a value of its own' => array(
+				'tags',
+				'get_tags',
+				array(
+					'tags' => array(
+						array(
+							'tags'  => array(
+								array(
+									'type' => 'tag',
+									'name' => 'Release',
+									'link' => 'https://x/tag/release',
+								),
+								array(
+									'type' => 'category',
+									'name' => 'News',
+									'link' => 'https://x/category/news',
+								),
+							),
+							'views' => 7,
+						),
+					),
+				),
+				array(
+					array(
+						'rank'     => 1,
+						'label'    => 'Release, News',
+						'value'    => 7,
+						'children' => array(
+							array(
+								'label' => 'Release',
+								'href'  => 'https://x/tag/release',
+								'type'  => 'tag',
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_expanded_rows
+	 *
+	 * @param string $type     Top-content type.
+	 * @param string $method   WPCOM_Stats method that serves it.
+	 * @param array  $response WPCOM response.
+	 * @param array  $items    Expected items.
+	 */
+	#[DataProvider( 'provide_expanded_rows' )]
+	public function test_get_top_content_expand_returns_the_rows_each_item_groups( string $type, string $method, array $response, array $items ): void {
+		$this->filter_wpcom_stats( array( $method => $response ) );
+
+		$expanded = Stats_Abilities::get_top_content(
+			array(
+				'type'   => $type,
+				'max'    => 1,
+				'expand' => true,
+			)
+		);
+		$this->assertSame( $items, $expanded['items'] );
+		$this->assertArrayHasKey( 'children', $expanded['definitions'] );
+
+		// Without expand, the same items carry no children.
+		$plain = Stats_Abilities::get_top_content(
+			array(
+				'type' => $type,
+				'max'  => 1,
+			)
+		);
+		$this->assertSame( array( array_diff_key( $items[0], array( 'children' => 0 ) ) ), $plain['items'] );
+		$this->assertArrayNotHasKey( 'children', $plain['definitions'] );
+	}
+
+	/**
 	 * Cap, requested row count, and whether rows were left out.
 	 */
 	public static function provide_max_caps(): array {
