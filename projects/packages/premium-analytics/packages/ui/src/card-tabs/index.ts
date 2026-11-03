@@ -1,1 +1,1 @@
-export { List, Panel, Root, Tab } from './card-tabs';
+export * as CardTabs from './card-tabs';

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { isRTL } from '@wordpress/i18n';
 import { act } from 'react';
-import * as CardTabs from '../card-tabs';
+import { CardTabs } from '../index';
 
 jest.mock( '@wordpress/i18n', () => ( {
 	...jest.requireActual( '@wordpress/i18n' ),
