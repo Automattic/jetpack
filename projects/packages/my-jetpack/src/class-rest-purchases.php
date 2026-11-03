@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host as Status_Host;
 use WP_Error;
 
 /**
@@ -21,15 +21,27 @@ class REST_Purchases {
 	 * Constructor.
 	 */
 	public function __construct() {
-		register_rest_route(
-			'my-jetpack/v1',
-			'/site/purchases',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_current_purchases',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
-			)
+		$route_args = array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_site_current_purchases',
+			'permission_callback' => __CLASS__ . '::permissions_callback',
 		);
+
+		/*
+		 * The cross-platform route.
+		 *
+		 * `my-jetpack/v1` is not an available namespace on WordPress.com Simple, so the My Jetpack
+		 * UI cannot call it everywhere. `wpcom/v2` is registered on Simple, Atomic and self-hosted
+		 * Jetpack sites alike, which lets the UI request one path regardless of platform.
+		 */
+		register_rest_route( 'wpcom/v2', 'my-jetpack/purchases', $route_args );
+
+		/*
+		 * The original route, retained for backwards compatibility with any existing consumer.
+		 * It is not available on Simple and the My Jetpack UI no longer calls it; both routes
+		 * return the same data.
+		 */
+		register_rest_route( 'my-jetpack/v1', '/site/purchases', $route_args );
 	}
 
 	/**
@@ -41,10 +53,11 @@ class REST_Purchases {
 	 * @return true|WP_Error
 	 */
 	public static function permissions_callback() {
-		$connection        = new Connection_Manager();
-		$is_site_connected = $connection->is_connected();
+		// Simple sites hold this data locally and have no blog token to sign a request with, so
+		// the connection check would always fail there.
+		$is_wpcom_simple = ( new Status_Host() )->is_wpcom_simple();
 
-		if ( ! $is_site_connected ) {
+		if ( ! $is_wpcom_simple && ! ( new Connection_Manager() )->is_connected() ) {
 			return new WP_Error(
 				'not_connected',
 				__( 'Your site is not connected to Jetpack.', 'jetpack-my-jetpack' ),
@@ -60,20 +73,19 @@ class REST_Purchases {
 	/**
 	 * Site purchases endpoint.
 	 *
-	 * @return array|WP_Error of site purchases.
+	 * Delegates to Wpcom_Products so every caller shares one code path. That helper is what serves
+	 * the data locally on WordPress.com Simple - where there is no blog token to sign a request to
+	 * WordPress.com with - instead of fetching it.
+	 *
+	 * @return \WP_REST_Response|WP_Error of site purchases.
 	 */
 	public static function get_site_current_purchases() {
-		$site_id           = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint    = sprintf( '/upgrades?site=%1$d&locale=%2$s', $site_id, get_user_locale() );
-		$wpcom_api_version = '1.2';
-		$response          = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, $wpcom_api_version );
-		$response_code     = wp_remote_retrieve_response_code( $response );
-		$body              = json_decode( wp_remote_retrieve_body( $response ) );
+		$purchases = Wpcom_Products::get_site_current_purchases();
 
-		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
-			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
+		if ( is_wp_error( $purchases ) ) {
+			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => 400 ) );
 		}
 
-		return rest_ensure_response( $body );
+		return rest_ensure_response( $purchases );
 	}
 }
