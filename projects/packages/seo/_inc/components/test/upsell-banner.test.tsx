@@ -17,12 +17,14 @@ describe( 'UpsellBanner', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'links to checkout when an upgrade is available', () => {
+	it( 'opens checkout in the same tab when an upgrade is available', () => {
 		const url = 'https://wordpress.com/checkout/example.wordpress.com/value_bundle';
 		getUpsellUrl.mockReturnValue( url );
 
 		render( <UpsellBanner /> );
 
-		expect( screen.getByRole( 'link', { name: /^Upgrade/ } ) ).toHaveAttribute( 'href', url );
+		const upgradeLink = screen.getByRole( 'link', { name: /^Upgrade/ } );
+		expect( upgradeLink ).toHaveAttribute( 'href', url );
+		expect( upgradeLink ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 } );
