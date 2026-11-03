@@ -4,6 +4,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScalePosition } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
+import type { ValueScale } from './comparison-bars-geometry';
 import type { StackLayout, StackSegment } from './stack-layout';
 import type { DataPointDate } from '../../../types';
 import type { BarChartProps } from '../types';
@@ -61,8 +62,7 @@ const StackedBarSeries = ( {
 }: Props ) => {
 	const { xScale, yScale, horizontal } = useContext( DataContext );
 	const bandScale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
-	const valueScale = ( horizontal ? xScale : yScale ) as
-		Parameters< typeof getValueScalePosition >[ 0 ] | undefined;
+	const valueScale = ( horizontal ? xScale : yScale ) as ValueScale | undefined;
 	const groupScale = useMemo(
 		() => createGroupScale( slotKeys, bandScale?.bandwidth?.() ?? 0, groupPadding ),
 		[ slotKeys, bandScale, groupPadding ]

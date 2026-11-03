@@ -1,6 +1,6 @@
 export type SlotRect = { x: number; y: number; width: number; height: number };
 
-type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
+export type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
 
 /**
  * Mirrors visx's getScaleBaseline so bars drawn outside visx share the baseline of its bars, including out-of-domain zero values.
