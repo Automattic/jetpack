@@ -13,15 +13,12 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
 	fileDownloadsCsvExporter,
-	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
-	sharePercentage,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -66,38 +63,17 @@ export type FileDownloadRow = {
 /**
  * Maps normalized file-download rows onto the shape `LeaderboardChart` expects.
  */
-function buildLeaderboardData(
-	rows: FileDownloadRow[],
-	withComparison: boolean
-): LeaderboardChartData {
-	const maxValue = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
-	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
-
-		return {
-			id: `${ index }-${ row.href ?? row.label }`,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'none' },
-				action: resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ),
-			} ),
-			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxValue )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
-		};
-	} );
+function buildLeaderboardData( rows: FileDownloadRow[] ): LeaderboardChartData {
+	return rows.map( ( row, index ) => ( {
+		id: `${ index }-${ row.href ?? row.label }`,
+		...buildLeaderboardRow( {
+			label: row.label,
+			media: { kind: 'none' },
+			action: resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ),
+		} ),
+		currentValue: row.value,
+		previousValue: row.previousValue,
+	} ) );
 }
 
 function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDownloadRow[] {
@@ -126,7 +102,7 @@ export function FileDownloadsLeaderboard( {
 	return (
 		<LeaderboardChart
 			chartTitle={ __( 'Top downloaded', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison ) }
+			data={ buildLeaderboardData( rows ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }

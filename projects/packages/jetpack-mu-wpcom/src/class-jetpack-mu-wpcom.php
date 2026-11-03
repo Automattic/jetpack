@@ -123,6 +123,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
 		}
 
 		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple
@@ -957,6 +958,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_premium_analytics_videopress_widgets() {
 		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
+	}
+
+	/**
+	 * Limit the Premium Analytics Settings tab on Simple to the Stats settings WordPress.com honors there.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_stats_settings_fields() {
+		require_once __DIR__ . '/features/premium-analytics/stats-settings-fields.php';
 	}
 
 	/**

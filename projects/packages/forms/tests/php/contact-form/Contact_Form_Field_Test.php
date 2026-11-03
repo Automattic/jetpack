@@ -378,16 +378,23 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A quote in the wrapper classes stays inside the class attribute.
+	 * A quote in an attribute rendered into a wrapper class stays inside the class attribute.
+	 *
+	 * @dataProvider wrapper_class_attribute_provider
+	 *
+	 * @param string $attribute Field attribute that feeds a wrapper class.
+	 * @param string $style     Form style.
 	 */
-	public function test_field_wrapper_classes_are_escaped_in_class_attribute() {
+	#[DataProvider( 'wrapper_class_attribute_provider' )]
+	public function test_field_wrapper_classes_are_escaped_in_class_attribute( $attribute, $style ) {
 		$classes = "x' data-extra='1";
 		$field   = $this->get_new_field_instance(
 			array(
-				'type'                => 'text',
-				'id'                  => 'wrapper-classes',
-				'fieldwrapperclasses' => $classes,
-			)
+				'type'     => 'text',
+				'id'       => 'wrapper-classes',
+				$attribute => $classes,
+			),
+			$style
 		);
 
 		$html = $field->render();
@@ -408,6 +415,18 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			}
 		}
 		$this->assertTrue( $found, 'The wrapper class attribute should contain the escaped value.' );
+	}
+
+	/**
+	 * Field attributes rendered into a wrapper div's class, with the form style that renders it.
+	 *
+	 * @return array
+	 */
+	public static function wrapper_class_attribute_provider() {
+		return array(
+			'wrapper classes'          => array( 'fieldwrapperclasses', '' ),
+			'width, inset label style' => array( 'width', 'outlined' ),
+		);
 	}
 
 	/**

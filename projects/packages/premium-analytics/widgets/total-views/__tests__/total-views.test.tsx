@@ -73,18 +73,17 @@ describe( 'TotalViewsWidget', () => {
 		mockUseStatsVisits.mockReset();
 	} );
 
-	it( 'renders the abbreviated total over the sparkline series', () => {
+	it( 'renders the exact total over the sparkline series', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
 		renderWidget();
 
-		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291,900' ) ).not.toHaveAttribute( 'aria-hidden' );
+		expect( screen.queryByText( '292K' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute(
 			'data-points',
 			'100000,100000,91900'
 		);
-		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '292K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'does not force a decimal when the total is not abbreviated', () => {
@@ -176,7 +175,7 @@ describe( 'TotalViewsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

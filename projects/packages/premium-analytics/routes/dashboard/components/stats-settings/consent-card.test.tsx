@@ -1,9 +1,14 @@
+import analytics from '@automattic/jetpack-analytics';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { ConsentCard } from './consent-card';
-import { resetConsentStatusForTesting } from './consent-status';
+import { ConsentCard, resetConsentCardForTesting } from './consent-card';
+import { requestConsentCardFocus, resetConsentStatusForTesting } from './consent-status';
 
+jest.mock(
+	'@automattic/jetpack-analytics',
+	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
+);
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 const mockCreateSuccessNotice = jest.fn();
@@ -23,6 +28,7 @@ jest.mock( '@wordpress/data', () => {
 } );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 const NOT_SET_UP = {
 	api_active: false,
@@ -64,13 +70,14 @@ describe( 'ConsentCard', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
+		resetConsentStatusForTesting();
+		resetConsentCardForTesting();
 		user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
 		delete window.JetpackScriptData;
-		resetConsentStatusForTesting();
 	} );
 
 	it( 'renders nothing when the site sends no consent setup', () => {
@@ -131,6 +138,7 @@ describe( 'ConsentCard', () => {
 	it.each( [
 		[
 			'installs',
+			'install',
 			{},
 			'Install and activate',
 			{
@@ -141,6 +149,7 @@ describe( 'ConsentCard', () => {
 		],
 		[
 			'activates',
+			'activate',
 			{ api_installed: true },
 			'Activate',
 			{
@@ -151,7 +160,7 @@ describe( 'ConsentCard', () => {
 		],
 	] )(
 		'%s WP Consent API in place and keeps focus on its step',
-		async ( _title, consent, label, request ) => {
+		async ( _title, action, consent, label, request ) => {
 			setConsent( { banner_plugin: 'Complianz', ...consent } );
 			mockApiFetch.mockResolvedValue( {} );
 			render( <ConsentCard /> );
@@ -164,6 +173,13 @@ describe( 'ConsentCard', () => {
 			expect( step( 'WP Consent API' ).getByText( 'Active' ) ).toBeInTheDocument();
 			expect( screen.getAllByRole( 'listitem' )[ 1 ] ).toHaveFocus();
 			expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+			expect( recordEvent ).toHaveBeenCalledWith(
+				'jetpack_premium_analytics_visitor_consent_setup',
+				{
+					action,
+					result: 'success',
+				}
+			);
 		}
 	);
 
@@ -220,6 +236,10 @@ describe( 'ConsentCard', () => {
 		await waitFor( () =>
 			expect( screen.getByRole( 'button', { name: 'Install and activate' } ) ).toBeEnabled()
 		);
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_visitor_consent_setup', {
+			action: 'install',
+			result: 'error',
+		} );
 	} );
 
 	it( 'treats a failed request as a success when the plugin turns out to be active', async () => {
@@ -257,24 +277,59 @@ describe( 'ConsentCard', () => {
 			'file modifications are disallowed',
 			{ can_install: false, file_mods_allowed: false },
 			'Plugins cannot be installed here due to your site configuration.',
+			'file_mods',
 		],
 		[
 			'the user cannot install plugins',
 			{ can_install: false },
 			'You do not have permission to install plugins here.',
+			'install_permission',
 		],
 		[
 			'the user cannot activate the installed plugin',
 			{ api_installed: true, can_activate: false },
 			'You do not have permission to activate plugins here.',
+			'activate_permission',
 		],
-	] )( 'explains why it cannot set up WP Consent API when %s', ( _title, consent, reason ) => {
-		setConsent( consent );
+	] )(
+		'explains why it cannot set up WP Consent API when %s',
+		( _title, consent, reason, blockedBy ) => {
+			setConsent( consent );
 
+			render( <ConsentCard /> );
+
+			expect( screen.getByText( reason, { exact: false } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( recordEvent ).toHaveBeenCalledWith(
+				'jetpack_premium_analytics_visitor_consent_card_view',
+				{ set_up: false, blocked_by: blockedBy }
+			);
+		}
+	);
+
+	it( 'records its view once per page load', () => {
+		setConsent( { consent_type_declared: true, api_installed: true, api_active: true } );
+
+		render( <ConsentCard /> ).unmount();
 		render( <ConsentCard /> );
 
-		expect( screen.getByText( reason, { exact: false } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_visitor_consent_card_view',
+			{ set_up: true, blocked_by: 'none' }
+		);
+	} );
+
+	it( 'takes focus once when the dashboard notice opens it', () => {
+		setConsent( {} );
+		requestConsentCardFocus();
+
+		const { unmount } = render( <ConsentCard /> );
+
+		expect( screen.getByRole( 'region', { name: 'Visitor consent' } ) ).toHaveFocus();
+		unmount();
+		render( <ConsentCard /> );
+		expect( document.body ).toHaveFocus();
 	} );
 
 	it( 'explains nothing once WP Consent API is active, even without permission to install', () => {
