@@ -22,6 +22,7 @@ import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
@@ -89,6 +90,7 @@ const TOTAL_COUNT_VIEW: View = {
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
+	useLibraryInteractions( view );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress,

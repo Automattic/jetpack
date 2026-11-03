@@ -1,11 +1,18 @@
+import analytics from '@automattic/jetpack-analytics';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
 import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -23,12 +30,25 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
 	...jest.requireActual( '@wordpress/dataviews' ),
-	DataViews: ( { data, isLoading }: { data: LibraryItem[]; isLoading: boolean } ) => (
-		<ul data-testid="dataviews" aria-busy={ isLoading }>
-			{ data.map( item => (
-				<li key={ item.id }>{ item.id }</li>
-			) ) }
-		</ul>
+	DataViews: ( {
+		data,
+		isLoading,
+		view,
+		onChangeView,
+	}: {
+		data: LibraryItem[];
+		isLoading: boolean;
+		view: View;
+		onChangeView: ( next: View ) => void;
+	} ) => (
+		<>
+			<button onClick={ () => onChangeView( { ...view, type: 'table' } ) }>Table view</button>
+			<ul data-testid="dataviews" aria-busy={ isLoading }>
+				{ data.map( item => (
+					<li key={ item.id }>{ item.id }</li>
+				) ) }
+			</ul>
+		</>
 	),
 } ) );
 
@@ -152,6 +172,23 @@ describe( 'library stage empty state', () => {
 		mockIsError = false;
 		mockIsTotalError = false;
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
+	} );
+
+	it( 'records an actual view change once without tracking initial render or repeated selection', async () => {
+		const user = userEvent.setup();
+		render(
+			<StrictMode>
+				<Stage />
+			</StrictMode>
+		);
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_library_interaction',
+			{ interaction: 'view', view_type: 'table' }
+		);
 	} );
 
 	it.each( [
