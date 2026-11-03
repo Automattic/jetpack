@@ -125,8 +125,8 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
 
-			// At mu-plugin time: wpcom reads the flag on plugins_loaded to decide whether Stats v2 boots.
-			require_once __DIR__ . '/features/premium-analytics/retire-classic-stats.php';
+			// At mu-plugin time: wpcom checks for it before retiring classic Stats on Simple.
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 		}
 
 		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple

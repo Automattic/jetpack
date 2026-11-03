@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: changed
 
-Stats: Retire the classic Stats page on WordPress.com Simple sites, so Stats opens Stats v2 and old Stats links lead there.
+Stats: Let Stats v2 take the classic Stats page's place on WordPress.com Simple once classic Stats is retired, and keep Stats hidden on P2 workspace hubs.

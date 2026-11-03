@@ -52,7 +52,7 @@ function wpcom_remove_menus_for_p2_sites() {
 		remove_menu_page( 'index.php' );
 		remove_menu_page( "https://wordpress.com/home/$domain" );
 		remove_menu_page( 'stats' );
-		remove_menu_page( \Automattic\Jetpack\PremiumAnalytics\Analytics::MENU_PAGE_SLUG );
+		remove_menu_page( 'jetpack-premium-analytics-wp-admin' ); // Stats v2.
 		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/domains/manage/$domain" );
 		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/email/$domain" );
 		remove_menu_page( 'edit.php' );
