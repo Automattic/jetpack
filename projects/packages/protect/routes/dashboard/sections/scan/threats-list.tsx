@@ -71,7 +71,7 @@ function ThreatCell( { item, onOpen, inline = false }: RowProps ) {
 						{ subject }
 					</span>
 				</button>
-				{ typeof item.severity === 'number' && <ThreatSeverityBadge severity={ item.severity } /> }
+				<KnownSeverityBadge severity={ item.severity } />
 			</span>
 		);
 	}
@@ -135,6 +135,17 @@ function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
 	) : null;
 }
 
+/**
+ * The severity badge, or nothing when the threat has no severity, as with the free vulnerability check.
+ *
+ * @param props          - Component props.
+ * @param props.severity - The severity, 0 to 10, or null when unknown.
+ * @return The badge, or null.
+ */
+function KnownSeverityBadge( { severity }: { severity?: number | null } ) {
+	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : null;
+}
+
 type ThreatFieldOptions = {
 	threatLabel: string;
 	dateLabel: string;
@@ -167,10 +178,7 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) =>
-				typeof item.severity === 'number' ? (
-					<ThreatSeverityBadge severity={ item.severity } />
-				) : null,
+			render: ( { item } ) => <KnownSeverityBadge severity={ item.severity } />,
 		},
 		{
 			id: 'threat',
@@ -223,6 +231,7 @@ export const LEVELS = [
 	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
 	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
 	{ value: 'low', label: __( 'Low', 'jetpack-protect-pkg' ) },
+	{ value: 'unknown', label: __( 'Unknown', 'jetpack-protect-pkg' ) },
 ];
 
 const TYPES = [
@@ -236,12 +245,12 @@ const TYPES = [
  * A threat's severity level, matching the badge: Critical from 5, High from 3, else Low.
  *
  * @param item - The threat.
- * @return The level, or undefined when the threat has no severity, as with the free vulnerability check.
+ * @return The level, or `unknown` when the threat has no severity, as with the free vulnerability check.
  */
-export function getLevel( item: ScanThreat ): string | undefined {
+export function getLevel( item: ScanThreat ): string {
 	const severity = item.severity;
 	if ( typeof severity !== 'number' ) {
-		return undefined;
+		return 'unknown';
 	}
 	if ( severity >= 5 ) {
 		return 'critical';

@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
 import { LEVELS, getLevel } from '../threats-list';
-import type { ScanState, ScanThreat } from '../types';
+import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
@@ -240,7 +240,7 @@ describe( 'Severity filter', () => {
 		expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [ undefined, null ] )( 'puts no level on a threat whose severity is %p', severity => {
-		expect( getLevel( { id: 1, severity } as ScanThreat ) ).toBeUndefined();
+	it.each( [ undefined, null ] )( 'puts a threat whose severity is %p under Unknown', severity => {
+		expect( getLevel( { id: 1, severity } ) ).toBe( 'unknown' );
 	} );
 } );

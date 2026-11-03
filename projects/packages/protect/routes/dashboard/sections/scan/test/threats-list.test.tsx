@@ -34,7 +34,7 @@ describe( 'ThreatsList', () => {
 	} );
 
 	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
-		const threat = { id: 3, title: 'Vulnerable plugin', severity: null } as unknown as ScanThreat;
+		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', severity: null };
 		render( <ThreatsList threats={ [ threat ] } canAct /> );
 
 		expect( screen.getByText( 'Vulnerable plugin' ) ).toBeInTheDocument();

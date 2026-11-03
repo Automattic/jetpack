@@ -60,6 +60,7 @@ describe( 'ThreatDetails', () => {
 
 	it.each( [
 		[ undefined, null ],
+		[ null, null ],
 		[ 5, 'Critical severity' ],
 	] )( 'shows severity %p as %p', ( severity, label ) => {
 		render( <ThreatDetails threat={ { ...threatIn( 4, 'update' ), severity } } canAct /> );
