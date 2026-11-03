@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
@@ -11,6 +12,16 @@ import { useFeature } from './feature-context.ts';
 import { upsell } from './icons.tsx';
 import { ViewTracker, useTracks } from './tracks.ts';
 import type { InitialState } from './types.ts';
+
+/** Matches WPCOM_Hosting_Feature_Page::CHECKOUT_ARG. */
+const CHECKOUT_ARG = 'checkout';
+
+/**
+ * Reload without the checkout flag, so the page shows whatever the plan now allows rather than waiting again.
+ */
+function reloadWithoutCheckoutArg() {
+	window.location.replace( removeQueryArgs( window.location.href, CHECKOUT_ARG ) );
+}
 
 /**
  * Shown when the site's plan does not include the feature.
@@ -198,6 +209,10 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 	const { tracksFeatureId, recordTracksEvent } = useTracks();
 	const [ timedOut, setTimedOut ] = useState( false );
 	const path = state.featureStatusPath;
+	const timedOutMessage = __(
+		'This is taking longer than usual. Try reloading the page in a minute, or contact our support team if it still hasn’t updated.',
+		'jetpack-mu-wpcom'
+	);
 
 	useEffect( () => {
 		const controller = new AbortController();
@@ -205,7 +220,7 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 			!! path && ( await apiFetch< { hasFeature: boolean } >( { path } ) ).hasFeature;
 
 		pollFeatureArrival( hasFeature, { signal: controller.signal } ).then(
-			( { arrived, elapsedMs } ) => {
+			( { arrived, elapsedMs, failures } ) => {
 				if ( controller.signal.aborted ) {
 					return;
 				}
@@ -214,11 +229,11 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 					feature_id: tracksFeatureId,
 					arrived,
 					elapsed_ms: elapsedMs,
+					error_count: failures,
 				} );
 
 				if ( arrived ) {
-					// Dropping the arg keeps a later reload from showing this screen to a site that has the plan.
-					window.location.replace( removeQueryArgs( window.location.href, 'checkout' ) );
+					reloadWithoutCheckoutArg();
 				} else {
 					setTimedOut( true );
 				}
@@ -228,6 +243,12 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 		return () => controller.abort();
 	}, [ path, recordTracksEvent, tracksFeatureId ] );
 
+	useEffect( () => {
+		if ( timedOut ) {
+			speak( timedOutMessage );
+		}
+	}, [ timedOut, timedOutMessage ] );
+
 	return (
 		<>
 			<ViewTracker
@@ -236,12 +257,7 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 			/>
 			{ timedOut && (
 				<Notice.Root intent="warning">
-					<Notice.Description>
-						{ __(
-							'This is taking longer than usual. Try reloading the page in a minute, or contact our support team if it still hasn’t updated.',
-							'jetpack-mu-wpcom'
-						) }
-					</Notice.Description>
+					<Notice.Description>{ timedOutMessage }</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
 							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
@@ -256,7 +272,7 @@ export function CheckoutPendingScreen( { state }: { state: InitialState } ) {
 				description={ <Text>{ checkoutPending.description }</Text> }
 				actions={
 					timedOut && (
-						<Button variant="solid" size="compact" onClick={ () => window.location.reload() }>
+						<Button variant="solid" size="compact" onClick={ reloadWithoutCheckoutArg }>
 							{ __( 'Reload', 'jetpack-mu-wpcom' ) }
 						</Button>
 					)

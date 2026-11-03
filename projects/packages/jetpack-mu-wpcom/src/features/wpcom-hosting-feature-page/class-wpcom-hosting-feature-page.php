@@ -189,7 +189,14 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	 * @return \WP_REST_Response
 	 */
 	public static function get_feature_status() {
-		return rest_ensure_response( array( 'hasFeature' => static::has_feature() ) );
+		$has_feature = static::has_feature();
+
+		// The Jetpack dashboard the page reloads into reads Jetpack's stored plan, which can lag that copy.
+		if ( $has_feature && method_exists( '\Automattic\Jetpack\Current_Plan', 'refresh_from_wpcom' ) ) {
+			\Automattic\Jetpack\Current_Plan::refresh_from_wpcom( array( 'timeout' => 5 ) );
+		}
+
+		return rest_ensure_response( array( 'hasFeature' => $has_feature ) );
 	}
 
 	/**

@@ -714,37 +714,54 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The poll answers from the site's own copy of the plan, and only to someone who can see the page.
+	 * The poll answers on WoA only, from the site's own copy of the plan, to someone who can see the page.
+	 *
+	 * Once the plan has synced it also refreshes Jetpack's stored plan, which the dashboard it reloads into reads.
 	 *
 	 * @dataProvider provide_feature_status_requests
 	 *
-	 * @param string   $role     The requesting user's role.
-	 * @param string[] $features The plan's features.
-	 * @param int      $status   Expected HTTP status.
-	 * @param bool     $has      Expected `hasFeature`, when allowed.
+	 * @param bool        $atomic    Whether the site is on WoA.
+	 * @param string|null $role      The requesting user's role, or null when logged out.
+	 * @param string[]    $features  The plan's features.
+	 * @param int         $status    Expected HTTP status.
+	 * @param bool        $has       Expected `hasFeature`, when allowed.
+	 * @param bool        $refreshes Whether Jetpack's stored plan is refreshed.
 	 */
 	#[DataProvider( 'provide_feature_status_requests' )]
-	public function test_feature_status_route_reports_the_synced_plan( $role, $features, $status, $has ) {
-		Constants::set_constant( 'IS_ATOMIC', true );
+	public function test_feature_status_route_reports_the_synced_plan( $atomic, $role, $features, $status, $has, $refreshes ) {
+		Constants::set_constant( 'IS_ATOMIC', $atomic );
 		$this->grant_feature( ...$features );
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'wpcom_hosting_feature_' . $role,
-					'user_pass'  => 'password',
-					'role'       => $role,
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		if ( null !== $role ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'wpcom_hosting_feature_' . $role,
+						'user_pass'  => 'password',
+						'role'       => $role,
+					)
 				)
-			)
+			);
+		}
+		$requested = array();
+		add_filter(
+			'jetpack_remote_request_url',
+			static function ( $url ) use ( &$requested ) {
+				$requested[] = $url;
+				return $url;
+			}
 		);
+		add_filter( 'pre_http_request', static fn() => new \WP_Error( 'http_request_blocked' ) );
 
 		WPCOM_Backup::init();
-		do_action( 'rest_api_init' );
 		$response = rest_do_request( new \WP_REST_Request( 'GET', '/wpcom/v2' . WPCOM_Backup::get_rest_route() ) );
 
 		$this->assertSame( $status, $response->get_status() );
 		if ( 200 === $status ) {
 			$this->assertSame( array( 'hasFeature' => $has ), $response->get_data() );
 		}
+		$this->assertSame( $refreshes, (bool) preg_grep( '#/sites/1234\?force=wpcom#', $requested ) );
 	}
 
 	/**
@@ -754,9 +771,11 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_feature_status_requests() {
 		return array(
-			'admin, not synced' => array( 'administrator', array(), 200, false ),
-			'admin, synced'     => array( 'administrator', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 200, true ),
-			'editor'            => array( 'editor', array(), 403, false ),
+			'admin, not synced' => array( true, 'administrator', array(), 200, false, false ),
+			'admin, synced'     => array( true, 'administrator', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 200, true, true ),
+			'editor'            => array( true, 'editor', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 403, false, false ),
+			'logged out'        => array( true, null, array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 401, false, false ),
+			'Simple'            => array( false, 'administrator', array(), 404, false, false ),
 		);
 	}
 

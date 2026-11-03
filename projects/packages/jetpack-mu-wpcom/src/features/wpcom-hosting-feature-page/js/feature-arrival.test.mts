@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { POLL_INTERVAL_MS, pollFeatureArrival } from './feature-arrival.ts';
+import { MAX_POLL_FAILURES, POLL_INTERVAL_MS, pollFeatureArrival } from './feature-arrival.ts';
 
 /**
  * A clock that advances only when the poll sleeps, so no test waits in real time.
@@ -19,13 +19,28 @@ function fakeClock() {
 }
 
 describe( 'pollFeatureArrival', () => {
-	const cases: [ string, ( boolean | 'error' )[], boolean, number ][] = [
-		[ 'arrives on the third poll', [ false, false, true ], true, 3 ],
-		[ 'keeps polling through a failed request', [ 'error', true ], true, 2 ],
-		[ 'gives up at the timeout', [], false, 4 ],
+	const unreachable = Array( MAX_POLL_FAILURES ).fill( 'error' );
+	const cases: [ string, ( boolean | 'error' )[], boolean, number, number ][] = [
+		[ 'arrives on the third poll', [ false, false, true ], true, 3, 0 ],
+		[ 'keeps polling through a failed request', [ 'error', true ], true, 2, 0 ],
+		[ 'gives up at the timeout', [], false, 8, 0 ],
+		[
+			'gives up once the route keeps failing',
+			unreachable,
+			false,
+			MAX_POLL_FAILURES,
+			MAX_POLL_FAILURES,
+		],
+		[
+			'resets the count after an answer',
+			[ 'error', false, ...unreachable ],
+			false,
+			MAX_POLL_FAILURES + 2,
+			MAX_POLL_FAILURES,
+		],
 	];
 
-	for ( const [ name, answers, arrived, polls ] of cases ) {
+	for ( const [ name, answers, arrived, polls, failures ] of cases ) {
 		it( name, async () => {
 			let calls = 0;
 			const hasFeature = async () => {
@@ -38,10 +53,10 @@ describe( 'pollFeatureArrival', () => {
 
 			const outcome = await pollFeatureArrival( hasFeature, {
 				...fakeClock(),
-				timeout: 4 * POLL_INTERVAL_MS,
+				timeout: 8 * POLL_INTERVAL_MS,
 			} );
 
-			assert.deepEqual( outcome, { arrived, elapsedMs: polls * POLL_INTERVAL_MS } );
+			assert.deepEqual( outcome, { arrived, elapsedMs: polls * POLL_INTERVAL_MS, failures } );
 			assert.equal( calls, polls );
 		} );
 	}
