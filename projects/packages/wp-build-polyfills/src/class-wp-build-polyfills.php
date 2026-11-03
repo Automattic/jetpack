@@ -26,6 +26,34 @@ class WP_Build_Polyfills {
 	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y', '@wordpress/widget-primitives' );
 
 	/**
+	 * Preload filters exposed by the wp-build pages.
+	 *
+	 * @var string[]
+	 */
+	private const PRELOAD_FILTERS = array(
+		'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_preload_paths',
+		'jetpack_backup_jetpack_backup_dashboard_wp_admin_preload_paths',
+		'jetpack_boost_jetpack_boost_dashboard_wp_admin_preload_paths',
+		'jetpack_forms_jetpack_forms_responses_wp_admin_preload_paths',
+		'jetpack_mu_wpcom_site_setup_wp_admin_preload_paths',
+		'jetpack_mu_wpcom_wpcom_backup_wp_admin_preload_paths',
+		'jetpack_mu_wpcom_wpcom_scan_wp_admin_preload_paths',
+		'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_preload_paths',
+		'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_preload_paths',
+		'jetpack_plugin_jetpack_ai_hub_wp_admin_preload_paths',
+		'jetpack_plugin_jetpack_settings_dashboard_wp_admin_preload_paths',
+		'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_preload_paths',
+		'jetpack_protect_jetpack_protect_dashboard_wp_admin_preload_paths',
+		'jetpack_scan_jetpack_scan_wp_admin_preload_paths',
+		'jetpack_search_jetpack_search_dashboard_wp_admin_preload_paths',
+		'jetpack_seo_jetpack_seo_dashboard_wp_admin_preload_paths',
+		'jetpack_sharing_likes_jetpack_sharing_settings_wp_admin_preload_paths',
+		'jetpack_social_jetpack_social_dashboard_wp_admin_preload_paths',
+		'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_preload_paths',
+		'jpa_jetpack_premium_analytics_wp_admin_preload_paths',
+	);
+
+	/**
 	 * Polyfills that only work when another polyfill is registered alongside them.
 	 *
 	 * These bundles call `__dangerousOptInToUnstableAPIsOnlyForCoreModules()` at
@@ -174,6 +202,10 @@ class WP_Build_Polyfills {
 		}
 		self::$hooked = true;
 
+		foreach ( self::PRELOAD_FILTERS as $filter ) {
+			add_filter( $filter, array( __CLASS__, 'add_site_data_preload' ) );
+		}
+
 		// `wp_default_scripts` fires when `wp_scripts()` creates the WP_Scripts singleton, and again on
 		// `init` if it was created before then. Once it has fired (common on admin requests by
 		// `admin_menu`), a hook added now may never run, so register synchronously instead.
@@ -191,6 +223,22 @@ class WP_Build_Polyfills {
 			},
 			20
 		);
+	}
+
+	/**
+	 * Add the site-data request used by WordPress 7.1.
+	 *
+	 * @since $$next-version$$
+	 * @param array $paths REST API paths to preload.
+	 * @return array REST API paths to preload.
+	 */
+	public static function add_site_data_preload( $paths ) {
+		// Keep WordPress 7.1 site data in the preload until https://github.com/WordPress/gutenberg/pull/86185 ships.
+		$path = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
+		if ( ! in_array( $path, $paths, true ) ) {
+			$paths[] = $path;
+		}
+		return $paths;
 	}
 
 	/**

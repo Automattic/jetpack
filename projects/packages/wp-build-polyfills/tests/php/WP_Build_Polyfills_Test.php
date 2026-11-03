@@ -16,6 +16,50 @@ use WorDBless\BaseTestCase;
 class WP_Build_Polyfills_Test extends BaseTestCase {
 
 	/**
+	 * Each wp-build page preloads the WordPress 7.1 site record without duplicates.
+	 */
+	public function test_site_data_preload_keeps_the_upstream_path_first_on_every_page() {
+		$pages      = array(
+			'jetpack_activity_log_jetpack_activity_log_dashboard',
+			'jetpack_backup_jetpack_backup_dashboard',
+			'jetpack_boost_jetpack_boost_dashboard',
+			'jetpack_forms_jetpack_forms_responses',
+			'jetpack_mu_wpcom_site_setup',
+			'jetpack_mu_wpcom_wpcom_backup',
+			'jetpack_mu_wpcom_wpcom_scan',
+			'jetpack_my_jetpack_my_jetpack_dashboard',
+			'jetpack_newsletter_jetpack_newsletter_dashboard',
+			'jetpack_plugin_jetpack_ai_hub',
+			'jetpack_plugin_jetpack_settings_dashboard',
+			'jetpack_podcast_jetpack_podcast_dashboard',
+			'jetpack_protect_jetpack_protect_dashboard',
+			'jetpack_scan_jetpack_scan',
+			'jetpack_search_jetpack_search_dashboard',
+			'jetpack_seo_jetpack_seo_dashboard',
+			'jetpack_sharing_likes_jetpack_sharing_settings',
+			'jetpack_social_jetpack_social_dashboard',
+			'jetpack_videopress_jetpack_videopress_dashboard',
+			'jpa_jetpack_premium_analytics',
+		);
+		$paths      = array(
+			'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+			array( '/wp/v2/settings', 'OPTIONS' ),
+		);
+		$expected   = $paths;
+		$expected[] = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
+
+		WP_Build_Polyfills::register( 'first-page', array() );
+		WP_Build_Polyfills::register( 'second-page', array() );
+
+		foreach ( $pages as $page ) {
+			$filter = $page . '_wp_admin_preload_paths';
+			$actual = apply_filters( $filter, $paths );
+			$this->assertSame( $expected, $actual, $filter );
+			$this->assertSame( $expected, apply_filters( $filter, $actual ), $filter );
+		}
+	}
+
+	/**
 	 * Temporary build directory for fake asset files.
 	 *
 	 * @var ?string
