@@ -11,12 +11,11 @@ export type ModuleSettingsProps = {
 /**
  * Settings components by module slug. A module not listed gets the panel's fallback.
  *
- * Add an entry to give a feature its own options in the panel. Add its slug to `Initializer::SETTINGS_PANEL_MODULES` in PHP too
- * unless another package already points its Configure URL somewhere, as the SEO package does.
+ * Add an entry to give a feature its own options in the panel. Also add its slug to `Initializer::SETTINGS_PANEL_MODULES` in PHP,
+ * unless the Configure link already reaches the panel in JS, as it does for the SEO modules.
  */
 export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps > > = {
 	'related-posts': RelatedPostsSettings,
 	'seo-tools': SeoSettings,
 	'verification-tools': SeoSettings,
-	sitemaps: SeoSettings,
 };
