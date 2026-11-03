@@ -88,7 +88,7 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
-	it( 'keeps saved schema values visible and disables every editing action during a conflict', () => {
+	it.each( [ false, true ] )( 'keeps saved schema values locked when planLocked=%s', planLocked => {
 		mockForm = makeForm( {
 			organization: {
 				name: 'Saved studio',
@@ -103,14 +103,20 @@ describe( 'SchemaCard', () => {
 			<SchemaCard
 				initialSettings={ bootstrap }
 				disabled
-				disabledReason="Yoast SEO manages structured data. Saved settings are retained."
+				planLocked={ planLocked }
+				disabledReason="Deactivate Yoast SEO to edit these settings."
 			/>
 		);
 		expandCard();
 		expect( screen.getByDisplayValue( 'Saved studio' ) ).toBeDisabled();
-		expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
+		expect( screen.queryAllByText( 'Deactivate Yoast SEO to edit these settings.' ) ).toHaveLength(
+			planLocked ? 0 : 1
+		);
+		expect( screen.queryAllByText( 'Premium required' ) ).toHaveLength( planLocked ? 1 : 0 );
 		expect( screen.getByRole( 'group', { name: 'Schema settings' } ) ).toHaveAccessibleDescription(
-			'Yoast SEO manages structured data. Saved settings are retained.'
+			planLocked
+				? 'Editing is disabled on your current plan. Upgrade'
+				: 'Deactivate Yoast SEO to edit these settings.'
 		);
 		for ( const control of [
 			...screen.getAllByRole( 'textbox' ),

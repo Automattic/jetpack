@@ -232,38 +232,43 @@ describe( 'TitleStructureField', () => {
 		expect( previews() ).toContainEqual( expect.stringMatching( /Hello World - Your site/ ) );
 	} );
 
-	it( 'shows all saved formats read-only while title output is conflicted', () => {
-		const formats: Record< string, TitleFormatToken[] > = {
-			front_page: [ { type: 'string', value: 'Front value' } ],
-			posts: [ { type: 'string', value: 'Post value' } ],
-			pages: [ { type: 'string', value: 'Page value' } ],
-			groups: [ { type: 'string', value: 'Tag value' } ],
-			archives: [ { type: 'string', value: 'Archive value' } ],
-		};
+	it.each( [ false, true ] )(
+		'shows all saved formats read-only when planLocked=%s',
+		planLocked => {
+			const formats: Record< string, TitleFormatToken[] > = {
+				front_page: [ { type: 'string', value: 'Front value' } ],
+				posts: [ { type: 'string', value: 'Post value' } ],
+				pages: [ { type: 'string', value: 'Page value' } ],
+				groups: [ { type: 'string', value: 'Tag value' } ],
+				archives: [ { type: 'string', value: 'Archive value' } ],
+			};
 
-		render(
-			<TitleStructureField
-				formats={ formats }
-				onChange={ jest.fn() }
-				onSaveFormat={ jest.fn() }
-				isFormatDirty={ () => true }
-				titleSeparator="-"
-				editable={ false }
-			/>
-		);
-		expand();
+			render(
+				<TitleStructureField
+					formats={ formats }
+					onChange={ jest.fn() }
+					onSaveFormat={ jest.fn() }
+					isFormatDirty={ () => true }
+					titleSeparator="-"
+					editable={ false }
+					planLocked={ planLocked }
+				/>
+			);
+			expand();
 
-		expect(
-			screen.getAllByText( /Another SEO plugin is controlling title output/ )
-		).not.toHaveLength( 0 );
-		expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
-		expect( screen.getByRole( 'textbox', { name: 'Posts' } ) ).toHaveValue( 'Post value' );
-		expect( screen.getByRole( 'textbox', { name: 'Pages' } ) ).toHaveValue( 'Page value' );
-		expect( screen.getByRole( 'textbox', { name: 'Tags' } ) ).toHaveValue( 'Tag value' );
-		expect( screen.getByRole( 'textbox', { name: 'Archives' } ) ).toHaveValue( 'Archive value' );
-		screen.getAllByRole( 'textbox' ).forEach( input => expect( input ).toBeDisabled() );
-		screen
-			.getAllByRole( 'button', { name: 'Save' } )
-			.forEach( button => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
-	} );
+			expect(
+				screen.queryAllByText( /Another SEO plugin is controlling title output/ )
+			).toHaveLength( planLocked ? 0 : 1 );
+			expect( screen.queryAllByText( 'Premium required' ) ).toHaveLength( planLocked ? 1 : 0 );
+			expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
+			expect( screen.getByRole( 'textbox', { name: 'Posts' } ) ).toHaveValue( 'Post value' );
+			expect( screen.getByRole( 'textbox', { name: 'Pages' } ) ).toHaveValue( 'Page value' );
+			expect( screen.getByRole( 'textbox', { name: 'Tags' } ) ).toHaveValue( 'Tag value' );
+			expect( screen.getByRole( 'textbox', { name: 'Archives' } ) ).toHaveValue( 'Archive value' );
+			screen.getAllByRole( 'textbox' ).forEach( input => expect( input ).toBeDisabled() );
+			screen
+				.getAllByRole( 'button', { name: 'Save' } )
+				.forEach( button => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		}
+	);
 } );

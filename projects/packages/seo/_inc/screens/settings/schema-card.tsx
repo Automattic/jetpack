@@ -1,8 +1,10 @@
+// eslint-disable-next-line @wordpress/use-recommended-components -- Retain the existing controls and styling while changing their plan restrictions.
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { code } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Fieldset, Notice, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PlanLockedNote from '../../components/plan-locked-note';
 import StatusIndicator from '../../components/status-indicator';
 import { cleanProfileUrls } from '../../data/schema-settings-utils';
 import { useSchemaSettings } from '../../data/use-schema-settings';
@@ -22,31 +24,29 @@ interface Props {
 	initialSettings: SchemaSettings;
 	onSave?: ( settings: SchemaSettings ) => void;
 	disabled?: boolean;
+	planLocked?: boolean;
 	disabledReason?: string;
 }
 
 /**
- * Site-level Schema settings module.
- *
- * One card for everything the site's own schema graph needs: a Breadcrumbs
- * toggle, then the Organization details behind the site. Local-business details
- * are a refinement of the Organization (a sub-toggle under it), not a peer
- * choice — schema.org models LocalBusiness as a kind of Organization. The
- * Author profile (Person / ProfilePage for the signed-in user) is a distinct
- * concern and lives in its own card.
- *
- * Collapsed by default and built from the shared `CollapsibleCard` compound,
- * matching the other Settings modules (Canonical URLs, Title structure, Site
- * verification).
+ * Site-level Schema settings for the organization and its local business details.
  *
  * @param root0                 - Component props.
  * @param root0.initialSettings - Settings bootstrap from the Settings screen.
  * @param root0.onSave          - Called with the saved schema payload after a successful save.
- * @param root0.disabled        - Whether another plugin controls structured data.
+ * @param root0.disabled        - Whether editing is disabled.
+ * @param root0.planLocked      - Whether the plan prevents editing.
  * @param root0.disabledReason  - Explanation shown while editing is disabled.
  * @return The Schema settings card.
  */
-function SchemaCard( { initialSettings, onSave, disabled = false, disabledReason }: Props ) {
+function SchemaCard( {
+	initialSettings,
+	onSave,
+	disabled: outputDisabled = false,
+	planLocked = false,
+	disabledReason,
+}: Props ) {
+	const disabled = outputDisabled || planLocked;
 	const form = useSchemaSettings( initialSettings, onSave );
 	const {
 		organization,
@@ -110,7 +110,7 @@ function SchemaCard( { initialSettings, onSave, disabled = false, disabledReason
 						<CardTitleIcon icon={ code } title={ __( 'Schema', 'jetpack-seo' ) } />
 					</Card.Title>
 					<CollapsibleCard.HeaderDescription>
-						<StatusIndicator status={ schemaStatus } />
+						<StatusIndicator status={ planLocked ? 'plan-locked' : schemaStatus } />
 					</CollapsibleCard.HeaderDescription>
 				</Stack>
 			</CollapsibleCard.Header>
@@ -122,7 +122,8 @@ function SchemaCard( { initialSettings, onSave, disabled = false, disabledReason
 					aria-label={ __( 'Schema settings', 'jetpack-seo' ) }
 					aria-describedby={ disabled ? 'jetpack-seo-schema-disabled' : undefined }
 				>
-					{ disabled && disabledReason && (
+					{ planLocked && <PlanLockedNote id="jetpack-seo-schema-disabled" /> }
+					{ ! planLocked && disabled && disabledReason && (
 						<Notice.Root intent="warning" id="jetpack-seo-schema-disabled">
 							<Notice.Description>{ disabledReason }</Notice.Description>
 						</Notice.Root>
