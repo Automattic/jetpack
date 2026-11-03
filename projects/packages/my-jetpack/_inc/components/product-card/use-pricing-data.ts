@@ -29,7 +29,8 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		return {
 			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
-			discountPrice: hasDiscount && eligibleForIntroDiscount ? discountPrice / 12 : null,
+			discountPrice:
+				hasDiscount && eligibleForIntroDiscount ? tierPricePerMonth( discountPrice ) : null,
 			fullPrice: tierPricePerMonth( fullPrice ),
 			currencyCode: currencyCode ?? 'USD',
 		};
