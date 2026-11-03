@@ -2,22 +2,29 @@ import { render, screen } from 'test/test-utils';
 import { Traffic } from '../index';
 
 jest.mock( 'components/data/query-site', () => () => null );
-jest.mock( '../blaze', () => () => null );
+jest.mock( 'components/pointer-card', () => ( {
+	FeaturesPointer: ( { search } ) => `${ search } pointer`,
+} ) );
+jest.mock( '../blaze', () => () => 'blaze card' );
 jest.mock( '../google-analytics', () => ( { GoogleAnalytics: () => null } ) );
-jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'Related posts card' } ) );
+jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'related-posts card' } ) );
 jest.mock( '../related-posts-moved', () => ( {
-	RelatedPostsMoved: () => 'Related posts pointer',
+	RelatedPostsMoved: () => 'related-posts pointer',
 } ) );
 jest.mock( '../seo', () => () => null );
 jest.mock( '../seo-optin-banner', () => () => 'SEO opt-in banner' );
-jest.mock( '../shortlinks', () => () => null );
+jest.mock( '../shortlinks', () => () => 'shortlinks card' );
 jest.mock( '../site-stats', () => ( { SiteStats: () => null } ) );
 jest.mock( '../sitemaps', () => () => null );
 jest.mock( '../verification-services', () => ( { VerificationServices: () => null } ) );
 
 // Module scope keeps the prop reference stable (react/jsx-no-bind).
 const findsOnlySitemaps = module => module === 'sitemaps';
-const findsOnlyRelated = module => module === 'related-posts';
+const findsOnly = {
+	'related-posts': module => module === 'related-posts',
+	blaze: module => module === 'blaze',
+	shortlinks: module => module === 'shortlinks',
+};
 
 describe( 'Traffic settings', () => {
 	it( 'renders the SEO opt-in banner when a search finds only the sitemaps section', () => {
@@ -40,21 +47,36 @@ describe( 'Traffic settings', () => {
 	} );
 
 	it.each( [
-		[ 'off, in the tab', false, '', [ 'Related posts card' ] ],
-		[ 'off, in a search', false, 'related', [ 'Related posts card' ] ],
-		[ 'on, in the tab', true, '', [] ],
-		[ 'on, in a search', true, 'related', [ 'Related posts pointer' ] ],
-	] )( 'with the settings flag %s', ( _name, flag, searchTerm, expected ) => {
-		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
-		try {
-			render( <Traffic active searchTerm={ searchTerm } isModuleFound={ findsOnlyRelated } /> );
+		[ 'related-posts', 'off, in the tab', false, '', [ 'related-posts card' ], '' ],
+		[ 'related-posts', 'off, in a search', false, 'related', [ 'related-posts card' ], '' ],
+		[ 'related-posts', 'on, in the tab', true, '', [], '' ],
+		[ 'related-posts', 'on, in a search', true, 'related', [ 'related-posts pointer' ], '' ],
+		[ 'blaze', 'off, in the tab', false, '', [ 'blaze card' ], '' ],
+		[ 'blaze', 'on, in the tab', true, '', [], '' ],
+		[ 'blaze', 'on, in a search', true, 'blaze', [ 'blaze pointer' ], '' ],
+		[ 'blaze', 'on, in a search on WoA', true, 'blaze', [], 'woa' ],
+		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ], '' ],
+		[ 'shortlinks', 'on, in the tab', true, '', [], '' ],
+		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ], '' ],
+	] )(
+		'shows %s with the settings flag %s',
+		( module, _when, flag, searchTerm, expected, host ) => {
+			window.JetpackScriptData = {
+				myJetpack: { settingsConsolidation: flag },
+				site: { host },
+			};
+			try {
+				render(
+					<Traffic active searchTerm={ searchTerm } isModuleFound={ findsOnly[ module ] } />
+				);
 
-			const shown = [ 'Related posts card', 'Related posts pointer' ].filter( text =>
-				screen.queryByText( text )
-			);
-			expect( shown ).toEqual( expected );
-		} finally {
-			delete window.JetpackScriptData;
+				const shown = [ `${ module } card`, `${ module } pointer` ].filter( text =>
+					screen.queryByText( text )
+				);
+				expect( shown ).toEqual( expected );
+			} finally {
+				delete window.JetpackScriptData;
+			}
 		}
-	} );
+	);
 } );
