@@ -52,6 +52,7 @@ class Dashboard_Support_Routes {
 		require_once __DIR__ . '/dashboard-sections.php';
 		require_once __DIR__ . '/default-dashboard-sections.php';
 		require_once __DIR__ . '/single-report-pages.php';
+		require_once __DIR__ . '/default-single-report-pages.php';
 
 		// These routes are gated on the dashboard capability, and WPCOM Simple boots this
 		// class standalone, without going through Analytics::init().
