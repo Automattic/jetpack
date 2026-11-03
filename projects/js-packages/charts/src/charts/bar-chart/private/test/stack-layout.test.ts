@@ -67,17 +67,12 @@ describe( 'getStackLayout', () => {
 } );
 
 describe( 'getStackedValueDomain', () => {
-	const all = () => true;
-
-	it( 'leaves hidden series out', () => {
-		const data: SeriesData[] = [ s( 'A', [ 10 ] ), s( 'Hidden', [ 99 ] ) ];
-		expect( getStackedValueDomain( data, series => series.label !== 'Hidden' ) ).toEqual( [
-			0, 10,
-		] );
+	it( 'reads the computed stack extent', () => {
+		expect( getStackedValueDomain( getStackLayout( SERIES ) ) ).toEqual( [ 0, 180 ] );
 	} );
 
 	it( 'reads 0 to 1 with nothing to stack', () => {
-		expect( getStackedValueDomain( [ s( 'A', [ null ] ) ], all ) ).toEqual( [ 0, 1 ] );
-		expect( getStackedValueDomain( [ s( 'A', [ 0 ] ) ], all ) ).toEqual( [ 0, 1 ] );
+		expect( getStackedValueDomain( getStackLayout( [ s( 'A', [ null ] ) ] ) ) ).toEqual( [ 0, 1 ] );
+		expect( getStackedValueDomain( getStackLayout( [ s( 'A', [ 0 ] ) ] ) ) ).toEqual( [ 0, 1 ] );
 	} );
 } );

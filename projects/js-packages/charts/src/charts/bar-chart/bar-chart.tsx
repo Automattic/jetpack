@@ -46,7 +46,7 @@ import {
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
-	useOverlapSlots,
+	useBarSlots,
 	getSelectedSlot,
 	isSameCategory,
 	membersAt,
@@ -248,37 +248,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				: options,
 		[ isCompact, options ]
 	);
-	const chartOptions = useBarChartOptions(
-		dataWithVisibleZeros,
-		horizontal,
-		resolvedOptions,
-		isSeriesRendered,
-		layout
-	);
-	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
-	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
-	const valueTickDecimals = getTickDecimals( hasWholeNumberValues, chartOptions.valueTickDecimals );
-	const tickDecimalsProps = {
-		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
-		numTicks: valueAxis.numTicks,
-		decimals: ! valueAxis.tickValues && ! callerValueDomain ? valueTickDecimals : undefined,
-	};
-	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const chartRef = useRef< HTMLDivElement >( null );
-
-	// Process children for composition API (Legend, etc.)
-	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
-	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
-
-	const handleContentHeightChange = useCallback(
-		( contentHeight: number ) => {
-			const chartHeight = contentHeight > 0 ? contentHeight : height;
-			setMeasuredChartHeight( chartHeight );
-		},
-		[ height ]
-	);
-	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
-	const [ isNavigating, setIsNavigating ] = useState( false );
 
 	// Add visibility information from the shared legend state.
 	const seriesWithVisibility = useMemo(
@@ -305,7 +274,39 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
-	const overlapSlots = useOverlapSlots( layout, seriesWithVisibility );
+	const barSlots = useBarSlots( layout, seriesWithVisibility );
+
+	const chartOptions = useBarChartOptions(
+		dataWithVisibleZeros,
+		horizontal,
+		resolvedOptions,
+		isSeriesRendered,
+		barSlots?.kind === 'stacked' ? barSlots.stack : undefined
+	);
+	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
+	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
+	const valueTickDecimals = getTickDecimals( hasWholeNumberValues, chartOptions.valueTickDecimals );
+	const tickDecimalsProps = {
+		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
+		numTicks: valueAxis.numTicks,
+		decimals: ! valueAxis.tickValues && ! callerValueDomain ? valueTickDecimals : undefined,
+	};
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
+	const chartRef = useRef< HTMLDivElement >( null );
+
+	// Process children for composition API (Legend, etc.)
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
+	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
+
+	const handleContentHeightChange = useCallback(
+		( contentHeight: number ) => {
+			const chartHeight = contentHeight > 0 ? contentHeight : height;
+			setMeasuredChartHeight( chartHeight );
+		},
+		[ height ]
+	);
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
 
 	const primaryKeys = useMemo(
 		() => primaryEntries.map( ( { series } ) => series.label ),
@@ -313,7 +314,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// The keyboard index space, the highlight and `XYChartTooltip` must share these stops, or the tooltip's datum diverges from the highlighted bar.
-	const stops = useBarStops( overlapSlots, primaryEntries );
+	const stops = useBarStops( barSlots, primaryEntries );
 	const { barAt, stopOf } = stops;
 
 	const activateSelectedBar = useCallback(
@@ -350,7 +351,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const comparisonEntries = useMemo( () => {
 		// An overlap layout draws its comparisons as slotted bars, and a stacked one does not draw them yet.
-		if ( overlapSlots ) {
+		if ( barSlots ) {
 			return [];
 		}
 
@@ -377,7 +378,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			entries.push( { series, index, primaryKey: primary.label } );
 		} );
 		return entries;
-	}, [ overlapSlots, seriesWithVisibility, primaryEntries, primaryKeys ] );
+	}, [ barSlots, seriesWithVisibility, primaryEntries, primaryKeys ] );
 
 	// Comparison widthFactor (how much wider the shadow is than the primary) drives both the
 	// shadow width (in ComparisonBars) and the primary narrowing.
@@ -477,7 +478,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
-			if ( ! nearestDatum || overlapSlots?.kind !== 'stacked' ) return null;
+			if ( ! nearestDatum || barSlots?.kind !== 'stacked' ) return null;
 
 			const datumByKey = tooltipData?.datumByKey ?? {};
 			const categoryLabel = chartOptions.tooltip.labelFormatter(
@@ -486,12 +487,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				[]
 			);
 
-			const rows = [ ...overlapSlots.entries ].reverse().flatMap( ( { series } ) => {
+			const rows = [ ...barSlots.entries ].reverse().flatMap( ( { series } ) => {
 				const datum = datumByKey[ series.label ]?.datum;
 				return datum ? [ { label: series.label, datum } ] : [];
 			} );
 			const readings = rows.filter( ( { datum } ) => isBarRendered( datum ) ).length;
-			const [ negative, positive ] = overlapSlots.stack.extentAt( nearestDatum );
+			const [ negative, positive ] = barSlots.stack.extentAt( nearestDatum );
 
 			return (
 				<div className={ styles[ 'bar-chart__tooltip' ] }>
@@ -509,7 +510,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				</div>
 			);
 		},
-		[ chartOptions.tooltip, overlapSlots ]
+		[ chartOptions.tooltip, barSlots ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -608,40 +609,40 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartId ]
 	);
 
-	const overlapBandSlots = useMemo(
+	const barBandSlots = useMemo(
 		() =>
-			overlapSlots && {
-				keys: overlapSlots.slotKeys,
-				slotOf: overlapSlots.slotOf,
-				stack: overlapSlots.kind === 'stacked' ? overlapSlots.stack : undefined,
+			barSlots && {
+				keys: barSlots.slotKeys,
+				slotOf: barSlots.slotOf,
+				stack: barSlots.kind === 'stacked' ? barSlots.stack : undefined,
 			},
-		[ overlapSlots ]
+		[ barSlots ]
 	);
 
 	const selectedSlot = useMemo(
-		() => getSelectedSlot( overlapSlots, selectedIndex ),
-		[ overlapSlots, selectedIndex ]
+		() => getSelectedSlot( barSlots, selectedIndex ),
+		[ barSlots, selectedIndex ]
 	);
 
 	const selectedGroup = useMemo( () => {
-		const stop = overlapSlots || selectedIndex === undefined ? undefined : barAt( selectedIndex );
+		const stop = barSlots || selectedIndex === undefined ? undefined : barAt( selectedIndex );
 		if ( ! stop ) {
 			return undefined;
 		}
 		return membersAt( primaryEntries, stop.datum, stop.key );
-	}, [ overlapSlots, selectedIndex, barAt, primaryEntries ] );
+	}, [ barSlots, selectedIndex, barAt, primaryEntries ] );
 
 	const selectedMembers = selectedSlot?.members ?? selectedGroup;
 
 	const selectedBar = useMemo( (): SelectedBar | undefined => {
-		if ( overlapSlots ) {
+		if ( barSlots ) {
 			return selectedSlot;
 		}
 		const bar = selectedIndex === undefined ? undefined : barAt( selectedIndex );
 		return bar && isBarRendered( bar.datum )
 			? { data: [ bar.datum ], slotKey: bar.key, thickness: 1 }
 			: undefined;
-	}, [ overlapSlots, selectedSlot, selectedIndex, barAt ] );
+	}, [ barSlots, selectedSlot, selectedIndex, barAt ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -830,7 +831,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 										<BarLayer
 											chartId={ chartId }
-											overlapSlots={ overlapSlots }
+											barSlots={ barSlots }
 											selectedBar={ selectedBar }
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }
@@ -844,8 +845,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
-												keys={ overlapSlots?.keys ?? primaryKeys }
-												slots={ overlapBandSlots }
+												keys={ barSlots?.keys ?? primaryKeys }
+												slots={ barBandSlots }
 												groupPadding={ groupPadding }
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }

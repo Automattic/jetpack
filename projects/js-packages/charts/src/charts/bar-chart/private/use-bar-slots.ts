@@ -10,7 +10,7 @@ import type { BarChartLayout, DataPointDate, SeriesData } from '../../../types';
 
 type SeriesEntry = { series: SeriesData; index: number };
 
-export type OverlapSlots = {
+export type BarSlots = {
 	/** The visible series, back to front; bottom to top in a stack. */
 	entries: SeriesEntry[];
 	keys: string[];
@@ -39,10 +39,10 @@ export type SelectedSlot = SelectedBar & { members: SlotMember[] };
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
  * @return The slots, or undefined for a grouped layout.
  */
-export function useOverlapSlots(
+export function useBarSlots(
 	layout: BarChartLayout,
 	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
-): OverlapSlots | undefined {
+): BarSlots | undefined {
 	return useMemo( () => {
 		if ( layout === 'grouped' ) {
 			return undefined;
@@ -181,12 +181,12 @@ export function membersAt(
 /**
  * The slot a keyboard index selects, and every bar at its category.
  *
- * @param slots         - The overlap layout.
+ * @param slots         - The overlap or stacked slots.
  * @param selectedIndex - The keyboard index into `slots.positions`.
  * @return The selected slot, or undefined when nothing is selected or drawn there.
  */
 export function getSelectedSlot(
-	slots: OverlapSlots | undefined,
+	slots: BarSlots | undefined,
 	selectedIndex: number | undefined
 ): SelectedSlot | undefined {
 	const position = selectedIndex === undefined ? undefined : slots?.positions[ selectedIndex ];
