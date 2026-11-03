@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Editor welcome guides: Skip building the editor preferences meta key when reading unrelated user meta.

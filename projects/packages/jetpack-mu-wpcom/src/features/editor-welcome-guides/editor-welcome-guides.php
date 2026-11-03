@@ -20,6 +20,19 @@ function wpcom_editor_welcome_guides_meta_key(): string {
 }
 
 /**
+ * Whether the meta key is the current site's editor preferences key.
+ *
+ * @param mixed $meta_key Meta key.
+ * @return bool
+ */
+function wpcom_editor_welcome_guides_is_meta_key( $meta_key ): bool {
+	// Runs on every user meta read, so the suffix check skips building the full key for other keys.
+	return is_string( $meta_key )
+		&& str_ends_with( $meta_key, 'persisted_preferences' )
+		&& wpcom_editor_welcome_guides_meta_key() === $meta_key;
+}
+
+/**
  * The preferences scope of the editor screen being loaded.
  *
  * @return string|null The scope, or null when the request is not an editor screen.
@@ -76,7 +89,7 @@ function wpcom_editor_welcome_guides_record_suppressed( string $scope, string $g
 function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta_key ) {
 	static $is_reading = false;
 
-	if ( null !== $value || $is_reading || wpcom_editor_welcome_guides_meta_key() !== $meta_key ) {
+	if ( null !== $value || $is_reading || ! wpcom_editor_welcome_guides_is_meta_key( $meta_key ) ) {
 		return $value;
 	}
 
@@ -137,7 +150,7 @@ add_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences
  * @return void
  */
 function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $meta_key, $value ) {
-	if ( wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! is_array( $value ) ) {
+	if ( ! wpcom_editor_welcome_guides_is_meta_key( $meta_key ) || ! is_array( $value ) ) {
 		return;
 	}
 
