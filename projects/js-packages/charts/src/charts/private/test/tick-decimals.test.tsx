@@ -45,9 +45,12 @@ describe( 'getTickDecimalValues', () => {
 		expect( getTickDecimalValues( linear( [ 0, 0.8 ] ), 4 ) ).toBeUndefined();
 	} );
 
-	it( 'keeps ticks at the given decimal places, through float error such as 0.07 * 100', () => {
+	it( 'keeps ticks at the given decimal places, through float error on small and large values', () => {
 		expect( getTickDecimalValues( linear( [ 0, 0.07 ] ), 10, 2 ) ).toEqual( [
 			0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07,
+		] );
+		expect( getTickDecimalValues( linear( [ 131072.01, 131072.02 ] ), 4, 2 ) ).toEqual( [
+			131072.01, 131072.02,
 		] );
 	} );
 } );
@@ -58,6 +61,7 @@ describe( 'getTickDecimalsDomain', () => {
 		[ 'widens a range between two steps', [ 1.2, 1.8 ], 0, [ 1, 2 ] ],
 		[ 'widens at two decimals', [ 0.031, 0.034 ], 2, [ 0.03, 0.04 ] ],
 		[ 'widens from a step float error puts just below', [ 0.29, 0.295 ], 2, [ 0.29, 0.3 ] ],
+		[ 'widens ends float noise rounds to one step', [ 0.3, 0.1 + 0.2 ], 2, [ 0.3, 0.31 ] ],
 		[ 'keeps a range holding two steps', [ 0, 1.2 ], 0, undefined ],
 		[ 'keeps a range without tickDecimals', [ 0.3, 0.73 ], undefined, undefined ],
 	] )( '%s', ( _, domain, decimals, expected ) => {

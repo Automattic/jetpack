@@ -27,15 +27,16 @@ export const hasOnlyWholeNumbers = ( series: SeriesData[] ): boolean => {
 	return sawReading;
 };
 
-// Absorbs float error in tick * 10^decimals, e.g. 0.07 * 100 = 7.000000000000001.
-const EPSILON = 1e-9;
+// Float error in tick * 10^decimals grows with the value, e.g. 0.07 * 100 = 7.000000000000001.
+const EPSILON = 1e-12;
+const tolerance = ( scaled: number ): number => EPSILON * Math.max( 1, Math.abs( scaled ) );
 
 const isValidDecimals = ( decimals: number | undefined ): decimals is number =>
 	Number.isInteger( decimals ) && ( decimals as number ) >= 0;
 
 const isOnDecimals = ( value: number, decimals: number ): boolean => {
 	const scaled = value * 10 ** decimals;
-	return Math.abs( scaled - Math.round( scaled ) ) < EPSILON;
+	return Math.abs( scaled - Math.round( scaled ) ) < tolerance( scaled );
 };
 
 /**
@@ -76,12 +77,15 @@ export const getTickDecimalsDomain = (
 		return undefined;
 	}
 	const scale = 10 ** decimals;
-	const [ min, max ] = domain;
-	if ( Math.floor( max * scale + EPSILON ) - Math.ceil( min * scale - EPSILON ) >= 1 ) {
+	const low = domain[ 0 ] * scale;
+	const high = domain[ 1 ] * scale;
+	if ( Math.floor( high + tolerance( high ) ) - Math.ceil( low - tolerance( low ) ) >= 1 ) {
 		return undefined;
 	}
-	const low = Math.floor( min * scale + EPSILON );
-	return [ low / scale, Math.ceil( max * scale - EPSILON ) / scale ];
+	const floor = Math.floor( low + tolerance( low ) );
+	// Keeps one step when float noise rounds both ends to the same value.
+	const ceil = Math.max( Math.ceil( high - tolerance( high ) ), floor + 1 );
+	return [ floor / scale, ceil / scale ];
 };
 
 /**
