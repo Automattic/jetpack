@@ -9,7 +9,7 @@
  * Print an Array.prototype.toSorted() polyfill ahead of every other admin script.
  *
  * Gutenberg 24.3 calls it unpolyfilled, which crashes the editor on Chrome < 110, Safari < 16 and Firefox < 115.
- * Remove once a Gutenberg release with https://github.com/WordPress/gutenberg/pull/86159 reaches every site.
+ * Remove once core's wp-polyfill includes it (https://github.com/WordPress/gutenberg/pull/86159): the plugin uses core's copy.
  */
 function jetpack_mu_wpcom_print_editor_polyfills() {
 	wp_print_inline_script_tag(
