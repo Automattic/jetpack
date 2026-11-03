@@ -18,9 +18,8 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { Button, Link, Stack } from '@wordpress/ui';
+import { MCP_SERVER_NAME, MCP_SERVER_URL } from './connect-agents';
 
-const MCP_SERVER_NAME = 'wpcom-mcp';
-const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
 // Each resolves to the client's connector or plugin page.
 const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
 const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude-self-hosted';

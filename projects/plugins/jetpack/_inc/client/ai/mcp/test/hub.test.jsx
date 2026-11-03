@@ -68,6 +68,40 @@ describe( 'McpHub how-it-works card', () => {
 	} );
 } );
 
+describe( 'McpHub connect card', () => {
+	test( 'sits above how it works and the access card, and replaces the setup row', () => {
+		renderHub();
+
+		const connect = screen.getByRole( 'heading', { name: 'Connect an AI assistant' } );
+		const howItWorks = screen.getByRole( 'region', { name: 'How it works' } );
+		expect( connect.compareDocumentPosition( howItWorks ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect(
+			screen.queryByRole( 'button', { name: 'Connect external AI agent' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'Turn on MCP access saves the same update as the toggle', async () => {
+		const onUpdate = jest.fn();
+		render(
+			<McpHub
+				mcpAbilities={ mcpAbilities( false ) }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onNavigate={ jest.fn() }
+				onUpdate={ onUpdate }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
+
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
+		} );
+	} );
+} );
+
 describe( 'McpHub activity log row', () => {
 	test( 'promises AI agent actions when the link is filtered', () => {
 		renderHub( { activityLogFiltered: true } );
