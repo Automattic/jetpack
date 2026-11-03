@@ -66,6 +66,24 @@ class Page_Cache_Setup {
 		return true;
 	}
 
+	/**
+	 * Runs setup, then turns caching on and schedules its garbage collection.
+	 *
+	 * This is what turning Page Cache on means, from the settings screen, the CLI or an ability.
+	 *
+	 * @return true|\WP_Error
+	 */
+	public static function enable() {
+		$setup_result = self::run_setup();
+		if ( is_wp_error( $setup_result ) ) {
+			return $setup_result;
+		}
+
+		Garbage_Collection::activate();
+		Boost_Cache_Settings::get_instance()->set( array( 'enabled' => true ) );
+		return true;
+	}
+
 	public static function get_notices() {
 		return self::$notices;
 	}

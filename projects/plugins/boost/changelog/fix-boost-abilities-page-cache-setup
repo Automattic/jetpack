@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Abilities: Set up the page cache when the set-module-status ability turns it on, report a setup failure, and pass on its notices, such as WP Super Cache being switched off.
