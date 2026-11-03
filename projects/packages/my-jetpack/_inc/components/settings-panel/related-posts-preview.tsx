@@ -76,7 +76,7 @@ export function RelatedPostsPreview( { showHeadline, showThumbnails }: RelatedPo
 									alt=""
 								/>
 							) }
-							<Text variant="body-md" className={ styles[ 'related-posts-preview__title' ] }>
+							<Text variant="body-sm" className={ styles[ 'related-posts-preview__title' ] }>
 								{ item.title }
 							</Text>
 							<Text variant="body-sm" className={ styles[ 'related-posts-preview__context' ] }>

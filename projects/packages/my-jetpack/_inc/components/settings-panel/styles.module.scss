@@ -7,6 +7,7 @@
 }
 
 .related-posts-preview {
+	container-type: inline-size;
 	padding: var(--wpds-dimension-padding-lg);
 	background: var(--wpds-color-background-surface-neutral-strong);
 	border-radius: var(--wpds-border-radius-md);
@@ -18,14 +19,18 @@
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
-// One column in the narrow panel, more where there is room.
+// Three posts in a row, as under a post, however narrow the panel.
 .related-posts-preview__list {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-	gap: var(--wpds-dimension-gap-lg);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-md);
 	margin: 0;
 	padding: 0;
 	list-style: none;
+
+	@container (min-width: 480px) {
+		gap: var(--wpds-dimension-gap-lg);
+	}
 }
 
 .related-posts-preview__item {
@@ -36,10 +41,23 @@
 }
 
 .related-posts-preview__image {
-	max-inline-size: 100%;
-	block-size: auto;
+	inline-size: 100%;
+	aspect-ratio: 3 / 2;
+	object-fit: cover;
+}
+
+.related-posts-preview__title,
+.related-posts-preview__context {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+}
+
+.related-posts-preview__title {
+	-webkit-line-clamp: 2;
 }
 
 .related-posts-preview__context {
+	-webkit-line-clamp: 1;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
