@@ -51,6 +51,11 @@ add_filter( 'jetpack_premium_analytics_enabled', 'wpcomsh_enable_premium_analyti
  * @return bool
  */
 function wpcomsh_retire_classic_stats( $enabled, $name ) {
-	return 'jetpack-stats-classic-page-retired' === $name ? true : $enabled;
+	if ( 'jetpack-stats-classic-page-retired' !== $name ) {
+		return $enabled;
+	}
+
+	// Jetpack updates apart from wpcomsh; before it lists Stats v2 in Calypso's menu, retiring would drop Stats from there.
+	return method_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics', 'register_replayed_admin_menu' ) ? true : $enabled;
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
