@@ -221,19 +221,6 @@ export function createThreatView( sortField: 'severity' | 'date' ): View {
 	};
 }
 
-/**
- * A view whose columns can't move, so a blank heading renders as plain text, not an unnamed menu button.
- *
- * @param view - The view.
- * @return The view, with moving off.
- */
-export function withFixedColumns( view: View ): View {
-	if ( view.type !== 'table' || view.layout?.enableMoving === false ) {
-		return view;
-	}
-	return { ...view, layout: { ...view.layout, enableMoving: false } };
-}
-
 export const LEVELS = [
 	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
 	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
@@ -303,14 +290,16 @@ type ThreatsListProps = {
  */
 export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 	// As the title field, the threat column also names each row's checkbox.
-	// With the date as its only other column, there is nothing to move it past.
-	const [ view, setView ] = useState< View >( () =>
-		withFixedColumns( {
-			...createThreatView( 'severity' ),
+	const [ view, setView ] = useState< View >( () => {
+		const base = createThreatView( 'severity' );
+		// The date is the only column that could move, so moving is a no-op; off, a blank date heading isn't a button.
+		return {
+			...base,
 			titleField: 'threat',
 			fields: [ 'date' ],
-		} )
-	);
+			layout: { ...base.layout, enableMoving: false },
+		};
+	} );
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );

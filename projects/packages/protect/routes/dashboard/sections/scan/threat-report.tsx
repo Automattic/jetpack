@@ -20,7 +20,7 @@ import { SafeShield } from './safe-state';
 import { THREAT_PARAM, refreshScan, useScan, useSearchParam } from './store';
 import { useThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
-import { getThreatFields, withFixedColumns } from './threats-list';
+import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -84,19 +84,14 @@ function ThreatGroup( {
 }: GroupProps ) {
 	const [ view, setView ] = useState< View >( VIEW );
 	const open = useOpenThreat();
-	const hideDateHeader = ! threats.some( item => getDate( item ) );
 	const fields = useMemo(
-		() => getThreatFields( open, { threatLabel: title, dateLabel, getDate, hideDateHeader } ),
-		[ open, title, dateLabel, getDate, hideDateHeader ]
-	);
-	const shownView = useMemo(
-		() => ( hideDateHeader ? withFixedColumns( view ) : view ),
-		[ view, hideDateHeader ]
+		() => getThreatFields( open, { threatLabel: title, dateLabel, getDate } ),
+		[ open, title, dateLabel, getDate ]
 	);
 	const actions = useThreatRowActions( open, canAct );
 	const { data, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( threats, shownView, fields ),
-		[ threats, shownView, fields ]
+		() => filterSortAndPaginate( threats, view, fields ),
+		[ threats, view, fields ]
 	);
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
 
@@ -116,7 +111,7 @@ function ThreatGroup( {
 						data={ data }
 						fields={ fields }
 						actions={ actions }
-						view={ shownView }
+						view={ view }
 						onChangeView={ setView }
 						paginationInfo={ paginationInfo }
 						defaultLayouts={ DEFAULT_LAYOUTS }
