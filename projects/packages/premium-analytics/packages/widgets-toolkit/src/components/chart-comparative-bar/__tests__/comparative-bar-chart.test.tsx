@@ -192,6 +192,7 @@ describe( 'ComparativeBarChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'names the chart from chartTitle', () => {
@@ -206,6 +207,15 @@ describe( 'ComparativeBarChart', () => {
 		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
 		);
+	} );
+
+	it( "holds store money ticks to the store's decimals", () => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
+		} as unknown as typeof window.JetpackScriptData;
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
+
+		expect( recordedOptions().axis.y.tickDecimals ).toBe( 3 );
 	} );
 
 	it( 'passes no x tickFormat when no tick format is requested', () => {

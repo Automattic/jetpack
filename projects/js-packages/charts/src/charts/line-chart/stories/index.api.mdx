@@ -184,6 +184,8 @@ type ChartOptions = {
 			orientation?: 'left' | 'right';
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
+			// Most decimal places a tick may carry; widens a range holding fewer than two steps.
+			tickDecimals?: number;
 		};
 	};
 };

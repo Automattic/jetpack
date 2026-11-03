@@ -41,9 +41,14 @@ import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { formatReading, isInvalidReading, isReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import {
+	getTickDecimals,
+	getTickDecimalsDomain,
+	hasOnlyWholeNumbers,
+	TickDecimals,
+} from '../private/tick-decimals';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -438,12 +443,24 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			() => hasOnlyWholeNumbers( visibleSeries ),
 			[ visibleSeries ]
 		);
+		const isLogScale = options?.yScale?.type === 'log';
+		// A log axis has no decimal steps to hold ticks to.
+		const callerTickDecimals = isLogScale ? undefined : options?.axis?.y?.tickDecimals;
+		const yTickDecimals = getTickDecimals( hasWholeNumberValues, callerTickDecimals );
 
 		const chartOptions = useMemo( () => {
-			const fallbackYDomain = getFallbackYDomain(
-				visibleReadingExtent,
-				options?.yScale?.type === 'log'
-			);
+			const fallbackYDomain = getFallbackYDomain( visibleReadingExtent, isLogScale );
+			const { tickDecimals, ...yAxisOptions } = options?.axis?.y ?? {};
+			const tickDecimalsDomain =
+				isLogScale ||
+				tickDecimals === undefined ||
+				options?.yScale?.domain ||
+				yAxisOptions.tickValues
+					? undefined
+					: getTickDecimalsDomain(
+							yDomain ?? fallbackYDomain ?? visibleReadingExtent,
+							yTickDecimals
+						);
 
 			return {
 				axis: {
@@ -462,7 +479,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
 						display: true,
-						...options?.axis?.y,
+						...yAxisOptions,
 					},
 				},
 				xScale: {
@@ -476,6 +493,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					zero: false,
 					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
 					...( yDomain ? { domain: yDomain } : {} ),
+					...( tickDecimalsDomain ? { domain: tickDecimalsDomain } : {} ),
 					...options?.yScale,
 				},
 			};
@@ -486,6 +504,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			zoom.domain,
 			yDomain,
 			visibleReadingExtent,
+			isLogScale,
+			yTickDecimals,
 			formatting,
 			isSeriesVisible,
 		] );
@@ -666,13 +686,13 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											<WholeNumberTicks
+											<TickDecimals
 												axis="y"
 												numTicks={ chartOptions.axis.y.numTicks }
-												enabled={
-													hasWholeNumberValues &&
-													! chartOptions.axis.y.tickValues &&
-													! options?.yScale?.domain
+												decimals={
+													! chartOptions.axis.y.tickValues && ! options?.yScale?.domain
+														? yTickDecimals
+														: undefined
 												}
 											>
 												{ tickValues => (
@@ -695,7 +715,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState

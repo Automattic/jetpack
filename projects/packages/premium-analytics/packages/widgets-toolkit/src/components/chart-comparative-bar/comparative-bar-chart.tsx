@@ -26,6 +26,7 @@ import {
 	isEmptyChartData,
 	formatChartName,
 	getFixedYAxis,
+	getYTickDecimals,
 	formatBucketTooltipDate,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
@@ -222,6 +223,7 @@ export function ComparativeBarChart( {
 			} ),
 		[ dataFormat ]
 	);
+	const yTickDecimals = getYTickDecimals( dataFormat.type, dataFormat.options?.currencyCode );
 
 	// `undefined` hands the axis to the chart's derived formatter; `formatDate`'s
 	// `medium` default would otherwise put full site-format dates on every tick.
@@ -454,6 +456,7 @@ export function ComparativeBarChart( {
 				},
 				y: {
 					tickFormat: yTickFormat,
+					tickDecimals: yTickDecimals,
 					...hiddenWhenCompact,
 				},
 			},
@@ -464,7 +467,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, tickResolution, yTickFormat, yTickDecimals, isCompact, fixedYAxis ] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>

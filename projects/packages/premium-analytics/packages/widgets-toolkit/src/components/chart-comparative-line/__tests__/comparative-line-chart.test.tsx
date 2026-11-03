@@ -114,6 +114,7 @@ type RecordedLineProps = {
 			y: {
 				display?: boolean;
 				tickValues?: number[];
+				tickDecimals?: number;
 				tickFormat: ( value: number ) => string;
 			};
 		};
@@ -176,6 +177,16 @@ describe( 'ComparativeLineChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+		delete window.JetpackScriptData;
+	} );
+
+	it( "holds store money ticks to the store's decimals", () => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
+		} as unknown as typeof window.JetpackScriptData;
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
+
+		expect( recordedProps().options.axis.y.tickDecimals ).toBe( 3 );
 	} );
 
 	it( 'names the chart from chartTitle', () => {
