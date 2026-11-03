@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './section-tabs.module.scss';
-import type { ReactNode, Ref } from 'react';
+import type { ReactNode, Ref, TransitionEvent } from 'react';
 
 export type SectionTab< TabId extends string = string > = {
 	id: TabId;
@@ -37,6 +37,13 @@ export interface SectionTabsProps< TabId extends string = string > {
 	tabListRef?: Ref< HTMLDivElement >;
 }
 
+// `Tabs.List` measures its overflow on resize and scroll only. When a tab narrows, the indicator is still wider while it animates, so the list stays faded once it settles; a scroll event makes it measure again.
+function remeasureOverflow( event: TransitionEvent< HTMLDivElement > ) {
+	if ( event.propertyName === 'width' ) {
+		event.currentTarget.querySelector( '[role="tablist"]' )?.dispatchEvent( new Event( 'scroll' ) );
+	}
+}
+
 /**
  * The shared section tab bar.
  *
@@ -60,7 +67,11 @@ export function SectionTabs< TabId extends string = string >( {
 
 	return (
 		<Tabs.Root value={ value } onValueChange={ handleValueChange } className={ rootClassName }>
-			<div ref={ tabListRef } className={ clsx( styles.tabList, className ) }>
+			<div
+				ref={ tabListRef }
+				className={ clsx( styles.tabList, className ) }
+				onTransitionEnd={ remeasureOverflow }
+			>
 				<Tabs.List variant="minimal">
 					{ tabs.map( tab => (
 						<Tabs.Tab key={ tab.id } value={ tab.id } disabled={ tab.disabled }>
