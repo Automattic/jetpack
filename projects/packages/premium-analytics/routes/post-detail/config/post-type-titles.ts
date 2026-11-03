@@ -1,4 +1,4 @@
-import { getPostTypeCopy } from './post-type-copy';
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 /**

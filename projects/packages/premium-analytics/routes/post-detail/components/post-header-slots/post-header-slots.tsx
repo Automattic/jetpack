@@ -4,6 +4,7 @@
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import {
 	DETAIL_HEADER_GLYPH_SIZE,
+	getPostTypeCopy,
 	type DetailPageHeaderSlots,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
@@ -13,7 +14,6 @@ import { envelope as envelopeIcon } from '@wordpress/icons';
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
-import { getPostTypeCopy } from '../../config';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';

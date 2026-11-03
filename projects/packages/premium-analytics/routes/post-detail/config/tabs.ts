@@ -1,11 +1,8 @@
 /**
  * External dependencies
  */
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { getPostTypeCopy } from './post-type-copy';
 
 /**
  * Ordered list of the post-detail tab IDs — the single source of truth for

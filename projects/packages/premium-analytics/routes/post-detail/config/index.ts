@@ -8,8 +8,6 @@ export {
 	type PostDetailTabId,
 } from './tabs';
 
-export { getPostTypeCopy } from './post-type-copy';
-
 export { withPostTypeTitles } from './post-type-titles';
 
 export { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';

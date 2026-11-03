@@ -10,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	getPostTypeCopy,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -32,17 +33,6 @@ type PostViewsInnerProps = {
 	/** How the views series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: PostViewsChartType;
 };
-
-// Mirrors `views` in routes/post-detail/config/post-type-copy.ts, which a widget cannot import.
-function getChartTitle( postType?: string ): string {
-	if ( postType === 'page' ) {
-		return __( 'Page views', 'jetpack-premium-analytics-pkg' );
-	}
-	if ( postType === 'product' ) {
-		return __( 'Product views', 'jetpack-premium-analytics-pkg' );
-	}
-	return __( 'Post views', 'jetpack-premium-analytics-pkg' );
-}
 
 /**
  * Without a post scope (e.g. the widget added outside a post detail page) the
@@ -103,7 +93,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ getChartTitle( postType ) }
+					chartTitle={ getPostTypeCopy( postType ).views }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>

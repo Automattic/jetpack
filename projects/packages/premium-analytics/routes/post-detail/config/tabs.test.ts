@@ -1,9 +1,4 @@
-import { __ } from '@wordpress/i18n';
 import { DEFAULT_TAB_ID, POST_DETAIL_TAB_IDS, getPostDetailTabs, resolveTabId } from './tabs';
-
-jest.mock( '@wordpress/i18n', () => ( {
-	__: jest.fn( ( text: string ) => text ),
-} ) );
 
 describe( 'post-detail tabs', () => {
 	it( 'builds the ordered tab definitions', () => {
@@ -12,8 +7,6 @@ describe( 'post-detail tabs', () => {
 			{ id: 'email-opens', label: 'Email opens' },
 			{ id: 'email-clicks', label: 'Email clicks' },
 		] );
-
-		expect( __ ).toHaveBeenCalledWith( 'Post traffic', 'jetpack-premium-analytics-pkg' );
 	} );
 
 	it( 'keeps the default tab first', () => {

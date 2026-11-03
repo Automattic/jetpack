@@ -28,6 +28,7 @@ import {
 	DetailPageSection,
 	DetailPageShell,
 	describeError,
+	getPostTypeCopy,
 	useDetailPageCustomize,
 	useHostLinkSearch,
 	useStoredDetailLayout,
@@ -47,12 +48,7 @@ import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
-import {
-	EMAIL_TAB_IDS,
-	getPostTypeCopy,
-	POST_DETAIL_WIDGET_TYPE_ALIASES,
-	withPostTypeTitles,
-} from './config';
+import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
