@@ -30,7 +30,9 @@ it( 'correlates readiness across route bundles once, with separate transfer and 
 	tracking.succeed( 'Abcd1234' );
 	clock.mockReturnValue( 8500 );
 	jest.isolateModules( () => {
-		const observer = require( '../videopress-upload-analytics' ).observeVideoPlayability;
+		const { observeVideoPlayability: observer } = jest.requireActual<
+			typeof import( '../videopress-upload-analytics' )
+		>( '../videopress-upload-analytics' );
 		observer( 'Abcd1234', false, 'media_rest' );
 		observer( 'Oldv1234', true, 'media_rest' );
 		observer( 'Abcd1234', true, 'media_rest' );
