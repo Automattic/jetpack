@@ -215,7 +215,7 @@ class Uploader_Rest_Endpoints_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Accept the explicit dashboard source while rejecting arbitrary metadata.
+	 * Accept explicit promotion sources while rejecting arbitrary metadata.
 	 */
 	public function test_upload_source_is_optional_and_bounded() {
 		$author_id     = $this->create_user( 'upload_source_author', 'author' );
@@ -223,14 +223,14 @@ class Uploader_Rest_Endpoints_Test extends BaseTestCase {
 		$this->mark_attachment_as_uploaded( $attachment_id, $author_id );
 		wp_set_current_user( $author_id );
 
-		foreach ( array( null, 'dashboard_promote', 'unrecognized', array( 'dashboard_promote' ) ) as $source ) {
+		foreach ( array( null, 'dashboard_promote', 'block_editor', 'unrecognized', array( 'dashboard_promote' ) ) as $source ) {
 			$request = new \WP_REST_Request( 'POST', '/videopress/v1/upload/' . $attachment_id );
 			if ( null !== $source ) {
 				$request->set_param( 'source', $source );
 			}
 			$response = rest_get_server()->dispatch( $request );
 
-			if ( null === $source || 'dashboard_promote' === $source ) {
+			if ( in_array( $source, array( null, 'dashboard_promote', 'block_editor' ), true ) ) {
 				$this->assertSame( 200, $response->get_status() );
 				$this->assertSame( 'uploaded', $response->get_data()['status'] );
 			} else {

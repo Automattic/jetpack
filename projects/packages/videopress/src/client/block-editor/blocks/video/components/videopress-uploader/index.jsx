@@ -182,7 +182,7 @@ const VideoPressUploader = ( {
 	};
 
 	const startUploadFromLibrary = attachmentId => {
-		uploadFromLibrary( attachmentId )
+		uploadFromLibrary( attachmentId, 'block_editor' )
 			.then( result => {
 				setUploadedVideoData( result );
 			} )

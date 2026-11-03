@@ -190,8 +190,12 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	/**
 	 * Tests that the upload attaches the attachment title, description and caption as tus
 	 * metadata, so VideoPress can reuse the Media Library values instead of the file name.
+	 *
+	 * @dataProvider upload_sources
+	 * @param string $source Explicit entry surface.
 	 */
-	public function test_upload_sends_attachment_meta_as_metadata() {
+	#[DataProvider( 'upload_sources' )]
+	public function test_upload_sends_attachment_meta_as_metadata( $source ) {
 		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
 
 		wp_update_post(
@@ -203,7 +207,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 			)
 		);
 
-		$uploader = new Uploader( $this->valid_attachment_id, 'dashboard_promote' );
+		$uploader = new Uploader( $this->valid_attachment_id, $source );
 
 		// Swap in a client double so the upload does not touch the network.
 		$mock_client = new Mock_Tus_Client();
@@ -227,7 +231,19 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '&#', $title );
 		$this->assertSame( 'My video description', $mock_client->metadata['description'] ?? null );
 		$this->assertSame( 'My video caption', $mock_client->metadata['caption'] ?? null );
-		$this->assertSame( 'dashboard_promote', $mock_client->metadata['source'] ?? null );
+		$this->assertSame( $source, $mock_client->metadata['source'] ?? null );
+	}
+
+	/**
+	 * Supported callers that explicitly identify their entry surface.
+	 *
+	 * @return array
+	 */
+	public static function upload_sources() {
+		return array(
+			'dashboard' => array( 'dashboard_promote' ),
+			'editor'    => array( 'block_editor' ),
+		);
 	}
 
 	/**

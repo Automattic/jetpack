@@ -71,9 +71,9 @@ The package decides nothing about who gets the widgets. `Initializer` calls `Ana
 
 ## Media Library upload source
 
-The VideoPress dashboard sends `source=dashboard_promote` when promoting an existing local attachment through `/videopress/v1/upload/{id}`. The optional, bounded value travels through the PHP uploader into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply that supported source.
+Promoting a local attachment through `/videopress/v1/upload/{id}` sends `source=dashboard_promote` from the VideoPress dashboard and `source=block_editor` from the video block's Media Library picker. Both upload loops retain the optional, bounded value through subsequent chunks, and the PHP uploader forwards it into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply a supported source.
 
-This identifies the initiating dashboard surface, not a new attachment, successful processing or first playability. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. WordPress.com Simple uses a separate in-process promotion route and is not covered here. Server-side persistence and query availability must be verified before using this source in reporting.
+This identifies the initiating surface, not a new attachment, successful processing or first playability. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. WordPress.com Simple uses a separate in-process promotion route and is not covered here. Server-side persistence and query availability must be verified before using this source in reporting.
 
 ## Security
 

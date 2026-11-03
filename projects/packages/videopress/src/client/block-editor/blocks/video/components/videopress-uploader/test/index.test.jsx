@@ -269,7 +269,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: 'videopress/v1/upload/10', method: 'GET' } )
 		);
-		expect( mockUploadFromLibrary ).toHaveBeenCalledWith( 10 );
+		expect( mockUploadFromLibrary ).toHaveBeenCalledWith( 10, 'block_editor' );
 		expect( mockPromoteOnSimple ).not.toHaveBeenCalled();
 	} );
 

@@ -62,7 +62,7 @@ class Uploader_Rest_Endpoints {
 						'attachment_id' => $id_arg,
 						'source'        => array(
 							'type' => 'string',
-							'enum' => array( 'dashboard_promote' ),
+							'enum' => array( 'dashboard_promote', 'block_editor' ),
 						),
 					),
 				),

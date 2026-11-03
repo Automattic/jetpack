@@ -79,7 +79,7 @@ class Uploader {
 	 */
 	public function __construct( $attachment_id, $source = null ) {
 		$this->attachment_id = $attachment_id;
-		$this->source        = 'dashboard_promote' === $source ? $source : null;
+		$this->source        = in_array( $source, array( 'dashboard_promote', 'block_editor' ), true ) ? $source : null;
 		if ( ! $this->get_file_path() ) {
 			throw new Upload_Exception( __( 'Invalid attachment ID', 'jetpack-videopress-pkg' ), Upload_Exception::ERROR_INVALID_ATTACHMENT_ID );
 		}
