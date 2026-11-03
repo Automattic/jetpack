@@ -805,17 +805,37 @@ describe( 'video stage', () => {
 		confirmSpy.mockRestore();
 	} );
 
-	it( 'passes the displayed privacy separately from the new setting on Save', async () => {
+	it( 'uses the last saved privacy for later saves before the video cache refreshes', async () => {
 		const user = userEvent.setup();
 		await renderReadyStage();
 		await user.click( screen.getByRole( 'button', { name: /Privacy & sharing/ } ) );
 		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'private' );
 		expect( mockUpdateMeta ).not.toHaveBeenCalled();
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-		expect( metaCall().vars ).toMatchObject( {
+		const first = metaCall();
+		expect( first.vars ).toMatchObject( {
 			id: '42',
 			previousPrivacy: 'public',
 			patch: { privacy: 'private' },
+		} );
+		await act( async () => first.callbacks.onSuccess() );
+		mockUpdateMeta.mockClear();
+
+		await user.type( screen.getByLabelText( 'Title' ), '!' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		const titleOnly = metaCall();
+		expect( titleOnly.vars ).toMatchObject( {
+			previousPrivacy: 'private',
+			patch: { title: 'My Clip!', privacy: 'private' },
+		} );
+		await act( async () => titleOnly.callbacks.onSuccess() );
+		mockUpdateMeta.mockClear();
+
+		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'public' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars ).toMatchObject( {
+			previousPrivacy: 'private',
+			patch: { privacy: 'public' },
 		} );
 	} );
 

@@ -111,7 +111,8 @@ type EditorProps = UploadEditorProps & {
 	video: LibraryItem;
 	onSave: (
 		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
-		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ]
+		reset: ReturnType< typeof useVideoDetailsForm >[ 'reset' ],
+		previousPrivacy: ReturnType< typeof useVideoDetailsForm >[ 'previousPrivacy' ]
 	) => void;
 	isSaving: boolean;
 	onDelete: () => void;
@@ -149,7 +150,7 @@ const Editor = ( {
 	hasVideoError,
 	onRetryVideo,
 }: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video, {
+	const { values, update, isDirty, reset, previousPrivacy } = useVideoDetailsForm( video, {
 		uploadId,
 		draft: upload?.details,
 	} );
@@ -197,7 +198,7 @@ const Editor = ( {
 			);
 			return;
 		}
-		onSave( values, reset );
+		onSave( values, reset, previousPrivacy );
 	}, [
 		isPendingUpload,
 		upload,
@@ -207,6 +208,7 @@ const Editor = ( {
 		onSave,
 		values,
 		reset,
+		previousPrivacy,
 	] );
 	const confirmNavigation = useCallback( () => {
 		return (
@@ -436,12 +438,12 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 				// disabled so a slow delete can't be raced by a meta update
 				// against the attachment being removed.
 				isSaving={ isSaving || isDeleting }
-				onSave={ ( values, reset ) => {
+				onSave={ ( values, reset, previousPrivacy ) => {
 					updateMeta(
 						{
 							id: video.id,
 							patch: values,
-							previousPrivacy: video.type === 'videopress' ? video.privacy : undefined,
+							previousPrivacy: video.type === 'videopress' ? previousPrivacy : undefined,
 						},
 						{
 							onSuccess: () => {
