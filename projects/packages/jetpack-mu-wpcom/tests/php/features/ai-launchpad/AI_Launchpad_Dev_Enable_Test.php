@@ -95,6 +95,7 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 		update_option( 'wpcom_ai_launchpad_wizard', array( 'foo' => 'bar' ) );
 		update_option( 'wpcom_ai_launchpad_ai_output', array( 'source' => 'ai' ) );
 		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		update_option( 'wpcom_ai_launchpad_started_tasks', array( 'site_theme_selected' ), false );
 		update_option( 'launchpad_checklist_tasks_statuses', array( 'x' => true ) );
 		$_GET['reset-ai-launchpad'] = '1';
 
@@ -102,6 +103,7 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_wizard' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_dismissed' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_started_tasks' ) );
 		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 		// Reset leaves enablement alone.
 		$this->assertSame( 1, get_option( 'wpcom_ai_launchpad_enabled' ) );
