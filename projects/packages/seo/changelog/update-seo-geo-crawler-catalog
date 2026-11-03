@@ -1,5 +1,4 @@
-Significance: patch
-Type: changed
-Comment: Add more AI crawlers to the GEO tab and list their robots.txt names under each toggle.
+Significance: minor
+Type: added
 
-
+GEO: Add more AI crawlers, block every robots.txt name each one uses, and show those names under each toggle.
