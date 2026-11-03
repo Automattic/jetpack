@@ -57,6 +57,18 @@ Build in watching dog mode 🐕
 jetpack watch packages/videopress
 ```
 
+## Trim and cut metrics
+
+The dashboard editor and block-editor modal record three Tracks events:
+
+- `jetpack_videopress_trim_cut_submitted`: the edit, restore, or retry request returned an identified job for this video. Acceptance is not processing success.
+- `jetpack_videopress_trim_cut_submission_failed`: the request rejected, with `reason` limited to `conflict` or `request_error`. A network error does not establish whether the server accepted the request.
+- `jetpack_videopress_trim_cut_processed`: the initiating mounted editor observed that job finish, with `outcome` of `complete` or `failed`. Repeated observations emit once per accepted job.
+
+All events include `source` (`dashboard_editor` or `block_editor`) and `action` (`save`, `restore`, or `retry`). Saves also include `has_trim` and `cut_count` (capped at 100, meaning 100 or more). These describe the submitted operations, including previously saved operations retained by this edit, not the number of handle movements or newly added cuts. A save removing every operation has `has_trim=false` and `cut_count=0`. Restore/retry omit these fields because the current draft does not describe the server's restore or retained retry instructions.
+
+Cancel/discard and historical jobs emit nothing. Closing/reloading the editor or losing observation can leave accepted jobs without a recorded outcome; do not treat that gap as failure or use it as a whole-product processing success rate. No extra polling is added. Events contain no video/job identifiers, URLs, content, or timeline timestamps and reuse existing analytics transport. Host eligibility, opt-out behavior and warehouse delivery still need rollout verification before reporting adoption or reliability.
+
 ## Dashboard analytics
 
 The existing `jetpack_videopress_admin_page_view` event records one browser page load, including a direct link to a video or its editor. Its `route` property is one of `overview`, `library`, `settings`, `video`, or `video_editor`. It describes the landing route; SPA navigation does not emit additional page views. No video ID, URL, or search text is added.
