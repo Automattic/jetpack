@@ -222,7 +222,7 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
 
 		expect(
-			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-card-tabs-columns' )
 		).toBe( columns );
 	} );
 
