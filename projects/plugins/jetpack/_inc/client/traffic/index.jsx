@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { FeaturesPointer } from 'components/pointer-card';
 import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
@@ -111,7 +112,14 @@ export class Traffic extends Component {
 				{ foundAnalytics && (
 					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
 				) }
-				{ foundBlaze && <Blaze { ...commonProps } /> }
+				{ foundBlaze &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && (
+							<FeaturesPointer header={ __( 'Blaze', 'jetpack' ) } name="Blaze" search="blaze" />
+						)
+					) : (
+						<Blaze { ...commonProps } />
+					) ) }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundVerification && (
