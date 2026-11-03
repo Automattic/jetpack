@@ -93,13 +93,6 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
-	 * Option the Jetpack plugin sets on a fresh install, asking for SEO tools to be switched on once.
-	 *
-	 * @var string
-	 */
-	const SEO_TOOLS_ACTIVATION_PENDING_OPTION = 'jetpack_seo_tools_activation_pending';
-
-	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -177,9 +170,6 @@ class Initializer {
 		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
-
-		// Before the module check below and Jetpack's module loading, so this request is complete.
-		self::activate_seo_tools_on_fresh_install();
 
 		// The page registers whenever the surface is visible, even with `seo-tools` off, so
 		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
@@ -338,28 +328,6 @@ class Initializer {
 			return false;
 		}
 		return ( new Modules() )->is_active( 'seo-tools' );
-	}
-
-	/**
-	 * Turn SEO tools on for a fresh self-hosted install, where it starts off and its menu would
-	 * stay hidden. Existing sites and WordPress.com keep the module as their owner left it.
-	 *
-	 * @return void
-	 */
-	public static function activate_seo_tools_on_fresh_install() {
-		if (
-			! get_option( self::SEO_TOOLS_ACTIVATION_PENDING_OPTION )
-			|| ! is_admin()
-			|| ! current_user_can( 'manage_options' )
-			|| ( new Host() )->is_wpcom_platform()
-		) {
-			return;
-		}
-
-		// Activation fails before the site is connected; keep the option to retry.
-		if ( ( new Modules() )->activate( 'seo-tools', false, false ) ) {
-			delete_option( self::SEO_TOOLS_ACTIVATION_PENDING_OPTION );
-		}
 	}
 
 	/**

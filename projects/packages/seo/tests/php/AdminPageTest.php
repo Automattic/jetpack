@@ -220,6 +220,29 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The menu item hides while seo-tools is off, like other Jetpack modules.
+	 */
+	public function test_menu_item_is_gated_on_seo_tools() {
+		Admin_Page::add_menu_item();
+
+		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$menu_items->setAccessible( true );
+		}
+		$seo_item = null;
+		foreach ( $menu_items->getValue( null ) as $item ) {
+			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
+				$seo_item = $item;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
+		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
+		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
+	}
+
+	/**
 	 * The dashboard opts the screen Admin_Menu registers out of JITMs, and no other.
 	 */
 	public function test_dashboard_opts_its_screen_out_of_jitms() {
