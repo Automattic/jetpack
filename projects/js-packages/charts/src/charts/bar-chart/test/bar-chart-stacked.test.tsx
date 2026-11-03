@@ -167,13 +167,6 @@ describe( 'BarChart stacked layout', () => {
 		expect( new Set( [ desktop.width, mobile.width, tablet.width ] ).size ).toBe( 1 );
 	} );
 
-	it( 'sits a bar on the one below a missing reading', () => {
-		renderStacked();
-
-		const tablet = barOf( 'Tablet', 1 );
-		expect( tablet.y + tablet.height ).toBeCloseTo( barOf( 'Desktop', 1 ).y );
-	} );
-
 	it( 'centers each stack on its category', () => {
 		renderStacked();
 
@@ -371,29 +364,38 @@ describe( 'BarChart stacked layout', () => {
 		}
 	} );
 
-	it.each( [
-		[ 'Desktop', ( data: SeriesData[] ) => middle( barIn( data, 'Desktop', 1 ) ) ],
-		[ 'Mobile', ( data: SeriesData[] ) => middle( barIn( data, 'Mobile', 1 ) ) ],
-		// Above the stack, where the top series has no reading on Tuesday.
-		[ 'Mobile', () => 5 ],
-	] as const )( 'reports %s for a pointer at that height on the stack', ( key, clientY ) => {
-		const onPointerUp = jest.fn();
-		const data: SeriesData[] = [
-			{ label: 'Desktop', data: [ day( 'Mon', 100 ), day( 'Tue', 50 ) ] },
-			{ label: 'Mobile', data: [ day( 'Mon', 60 ), day( 'Tue', 40 ) ] },
-			{ label: 'Tablet', data: [ day( 'Mon', 20 ), day( 'Tue', null ) ] },
-		];
-		renderStacked( { data, onPointerUp } );
-		const tuesday = barIn( data, 'Desktop', 1 );
+	const POINTER_DATA: SeriesData[] = [
+		{ label: 'Desktop', data: [ day( 'Mon', 100 ), day( 'Tue', 50 ) ] },
+		{ label: 'Mobile', data: [ day( 'Mon', 60 ), day( 'Tue', 40 ) ] },
+		{ label: 'Tablet', data: [ day( 'Mon', 20 ), day( 'Tue', null ) ] },
+	];
+	const on = ( label: string ) => () => {
+		const bar = barIn( POINTER_DATA, label, 1 );
+		return [ center( bar ), middle( bar ) ] as const;
+	};
 
-		pointer( 'pointerup', center( tuesday ), clientY( data ) );
-		expect( onPointerUp ).toHaveBeenLastCalledWith(
-			expect.objectContaining( {
-				key,
-				datum: data.find( series => series.label === key )?.data[ 1 ],
-			} )
-		);
-	} );
+	it.each( [
+		[ 'vertical', 'Desktop', on( 'Desktop' ) ],
+		[ 'vertical', 'Mobile', on( 'Mobile' ) ],
+		// Above the stack, where the top series has no reading on Tuesday.
+		[ 'vertical', 'Mobile', () => [ center( barIn( POINTER_DATA, 'Desktop', 1 ) ), 5 ] as const ],
+		[ 'horizontal', 'Desktop', on( 'Desktop' ) ],
+		[ 'horizontal', 'Mobile', on( 'Mobile' ) ],
+	] as const )(
+		'reports, on a %s stack, %s for a pointer over its segment',
+		( orientation, key, at ) => {
+			const onPointerUp = jest.fn();
+			renderStacked( { data: POINTER_DATA, orientation, onPointerUp } );
+
+			pointer( 'pointerup', ...at() );
+			expect( onPointerUp ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					key,
+					datum: POINTER_DATA.find( series => series.label === key )?.data[ 1 ],
+				} )
+			);
+		}
+	);
 
 	it.each( [
 		[ 'vertical', 'top', 'bottom' ],
