@@ -13,7 +13,7 @@ import type { FC } from 'react';
 
 /** The slot the keyboard has selected. */
 export type SelectedBar = {
-	/** The data of the bars the slot draws at the selected category, which the ring encloses; only bars the chart draws (a finite value). */
+	/** The data of the bars the slot draws at the selected category, which the ring encloses unless `valueExtent` is set; only bars the chart draws (a finite value). */
 	data: DataPointDate[];
 	/** The selected slot. */
 	slotKey: string;

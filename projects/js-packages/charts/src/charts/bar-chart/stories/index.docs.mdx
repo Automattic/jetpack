@@ -267,7 +267,7 @@ Set `layout="stacked"` to draw every series of a category as one bar, each serie
 - The tooltip covers the whole stack: every series, last series first, with a `null` reading as "No data", then the total when there is more than one reading. It sits at the top of the stack.
 - Arrow keys step one category at a time, and the selected stack is outlined as a whole. Pointer callbacks report the segment under the pointer.
 - A bar radius (`--a8c-charts-border-radius-bar-chart`) rounds only the outer end of each stack, so the seams between segments stay flush.
-- `type: 'comparison'` series are not drawn in this layout yet, and `showZeroValues` has no effect; both log a console warning.
+- `type: 'comparison'` series are left out of this layout for now, from the bars and the legend alike, and `showZeroValues` has no effect; both warn once in development.
 - Works with `orientation="horizontal"`, where the first series is the left-most segment.
 
 <Canvas of={ BarChartStories.StackedHorizontal } />
