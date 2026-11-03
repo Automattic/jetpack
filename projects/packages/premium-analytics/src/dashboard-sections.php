@@ -138,7 +138,7 @@ function inject_dashboard_sections_script_data( array $data ): array {
 }
 
 /**
- * The URL of the classic Stats page, or null while no plugin registers a `stats` menu page.
+ * The URL of the classic Stats page, or null once it is retired or while no plugin registers a `stats` menu page.
  *
  * Read from the menu rather than `$admin_page_hooks`, which keys top-level pages only: with
  * Odyssey Stats off, the Jetpack plugin registers the page under its own menu.
@@ -148,6 +148,11 @@ function inject_dashboard_sections_script_data( array $data ): array {
  * @return string|null
  */
 function get_classic_stats_url(): ?string {
+	// Once retired there is nothing to switch back to, even where an older `stats` page is still registered.
+	if ( Classic_Stats::is_retired() ) {
+		return null;
+	}
+
 	$url = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
 
 	return '' === $url ? null : $url;

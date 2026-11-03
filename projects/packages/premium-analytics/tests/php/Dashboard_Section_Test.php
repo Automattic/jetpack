@@ -1449,6 +1449,20 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Once classic Stats is retired there is no page to switch back to, even where a host still registers one.
+	 */
+	public function test_section_script_data_offers_no_classic_stats_page_once_retired() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+		try {
+			$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+		} finally {
+			unset( $GLOBALS['_parent_pages']['stats'] );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		}
+	}
+
+	/**
 	 * The sections route drops the Subscribers tab once it is unavailable.
 	 */
 	public function test_sections_route_reflects_subscribers_availability() {
