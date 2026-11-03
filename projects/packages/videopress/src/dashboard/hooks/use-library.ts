@@ -3,6 +3,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useRef } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
+import { observeVideoPlayability } from '../../client/lib/upload-analytics';
 import { type ApiMediaItem, privacyStringToInt, toLibraryItem } from '../utils/library-item';
 import { nextProcessingPoll, type ProcessingPollAnchor } from '../utils/processing-poll';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
@@ -141,6 +142,13 @@ async function fetchMediaPage(
 	const totalItems = Number( response.headers.get( 'X-WP-Total' ) ?? 0 );
 	const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) ?? 0 );
 	const raw = ( await response.json() ) as ApiMediaItem[];
+	for ( const item of raw ) {
+		observeVideoPlayability(
+			item.jetpack_videopress?.guid,
+			item.jetpack_videopress?.has_ready_rendition,
+			'media_rest'
+		);
+	}
 	return { raw, totalItems, totalPages };
 }
 

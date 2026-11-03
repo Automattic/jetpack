@@ -8,6 +8,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import getMediaToken from '../get-media-token';
+import { hasReadyVideoRendition, observeVideoPlayability } from '../upload-analytics';
 /**
  * Types
  */
@@ -73,11 +74,13 @@ export async function fetchVideoItem( {
 			? { path: `/rest/v1.1/videos/${ guid }${ requestArgs }` }
 			: { url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }` };
 
-		return await apiFetch( {
+		const video = await apiFetch< WPCOMRestAPIVideosGetEndpointResponseProps >( {
 			...endpoint,
 			credentials: 'omit',
 			global: true,
 		} );
+		observeVideoPlayability( video.guid, hasReadyVideoRendition( video ), 'video_api' );
+		return video;
 	} catch ( errorData ) {
 		debug( 'updating retry from', retries, 'to', retries + 1 );
 		const updatedRetries = retries + 1;

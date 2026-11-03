@@ -1,5 +1,7 @@
 export {
 	createUploadAnalytics,
+	hasReadyVideoRendition,
+	observeVideoPlayability,
 	type UploadAnalytics,
 	type UploadContext,
 	type UploadSource,

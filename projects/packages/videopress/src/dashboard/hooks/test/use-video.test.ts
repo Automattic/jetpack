@@ -1,9 +1,49 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { createUploadAnalytics } from '../../../client/lib/upload-analytics';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { useInvalidateVideo, useVideo } from '../use-video';
 
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+
 describe( 'useVideo', () => {
+	it( 'records readiness only after an acknowledged upload receives a positive rendition response', async () => {
+		const record = jest.mocked( jetpackAnalytics.tracks.recordEvent );
+		record.mockClear();
+		const tracking = createUploadAnalytics( new File( [ 'x' ], 'video.mp4' ), 'dashboard' );
+		tracking.start();
+		tracking.succeed( 'Ready123' );
+		const raw = {
+			id: 42,
+			jetpack_videopress: { guid: 'Ready123', has_ready_rendition: false },
+			media_details: { videopress: { finished: true, poster: 'poster.jpg' } },
+		};
+		const fetchMock = mockApiFetch( async () => raw );
+		const { result, unmount } = renderHook( () => useVideo( 42 ), {
+			wrapper: createTestWrapper(),
+		} );
+		await waitFor( () => expect( result.current.video ).toBeDefined() );
+		expect( record ).toHaveBeenCalledTimes( 2 );
+		fetchMock.mockResolvedValue( {
+			...raw,
+			jetpack_videopress: { ...raw.jetpack_videopress, has_ready_rendition: true },
+		} );
+		await act( async () => {
+			await result.current.refetch();
+			await result.current.refetch();
+		} );
+		expect( record ).toHaveBeenCalledTimes( 3 );
+		expect( record ).toHaveBeenLastCalledWith(
+			'jetpack_videopress_video_playable',
+			expect.objectContaining( { guid: 'Ready123', observation_source: 'media_rest' } )
+		);
+		unmount();
+	} );
+
 	it( 'fetches /wp/v2/media/{id} and maps to LibraryItem', async () => {
 		mockApiFetch( async ( { path } ) => {
 			if ( path === '/wp/v2/media/42' ) {

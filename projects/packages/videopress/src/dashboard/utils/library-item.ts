@@ -35,6 +35,7 @@ export type ApiMediaItem = {
 	};
 	jetpack_videopress?: {
 		guid?: string;
+		has_ready_rendition?: boolean;
 		rating?: string;
 		display_embed?: 0 | 1 | boolean;
 		allow_download?: 0 | 1 | boolean;

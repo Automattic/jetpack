@@ -1,5 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { createUploadAnalytics } from '../videopress-upload-analytics';
+import {
+	createUploadAnalytics,
+	hasReadyVideoRendition,
+	observeVideoPlayability,
+} from '../videopress-upload-analytics';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -14,6 +18,82 @@ const names = () =>
 beforeEach( () => {
 	jest.restoreAllMocks();
 	record.mockReset();
+	delete ( globalThis as typeof globalThis & { __jetpackVideopressPendingReadiness?: unknown } )
+		.__jetpackVideopressPendingReadiness;
+} );
+
+it( 'correlates readiness across route bundles once, with separate transfer and attempt clocks', () => {
+	const clock = jest.spyOn( performance, 'now' ).mockReturnValue( 1000 );
+	const tracking = createUploadAnalytics( file(), 'dashboard' );
+	tracking.start();
+	clock.mockReturnValue( 5000 );
+	tracking.succeed( 'Abcd1234' );
+	clock.mockReturnValue( 8500 );
+	jest.isolateModules( () => {
+		const observer = require( '../videopress-upload-analytics' ).observeVideoPlayability;
+		observer( 'Abcd1234', false, 'media_rest' );
+		observer( 'Oldv1234', true, 'media_rest' );
+		observer( 'Abcd1234', true, 'media_rest' );
+	} );
+	observeVideoPlayability( 'Abcd1234', true, 'video_api' );
+	expect( record ).toHaveBeenCalledTimes( 3 );
+	expect( record.mock.calls[ 2 ] ).toEqual( [
+		'jetpack_videopress_video_playable',
+		expect.objectContaining( {
+			upload_id: record.mock.calls[ 0 ][ 1 ].upload_id,
+			guid: 'Abcd1234',
+			attempt: 1,
+			sequence: 3,
+			seconds_since_upload: 3.5,
+			seconds_since_upload_started: 7.5,
+			clock_basis: 'upload_success_callback',
+			readiness_basis: 'server_reported_mp4',
+			observation_source: 'media_rest',
+		} ),
+	] );
+} );
+
+it.each( [
+	[ {}, false ],
+	[ { finished: true, poster: 'poster.jpg', files_status: { std: { mp4: 'ERROR' } } }, false ],
+	[ { files: { std: { mp4: 'video.mp4' } }, files_status: { std: { mp4: 'CONVERTING' } } }, false ],
+	[ { files: { std: { mp4: '' } }, files_status: { std: { mp4: 'DONE' } } }, false ],
+	[ { files: { std: { mp4: 'video.mp4' } }, files_status: { std: { mp4: 'DONE' } } }, true ],
+] )(
+	'requires a completed MP4 instead of overall completion or a poster (%j)',
+	( response, ready ) => {
+		expect( hasReadyVideoRendition( response ) ).toBe( ready );
+	}
+);
+
+it( 'does not turn an expired or unacknowledged upload into a playable outcome', () => {
+	const clock = jest.spyOn( performance, 'now' ).mockReturnValue( 0 );
+	const tracking = createUploadAnalytics( file(), 'block_editor' );
+	tracking.start();
+	observeVideoPlayability( 'Abcd1234', true, 'media_rest' );
+	tracking.succeed( 'Abcd1234' );
+	clock.mockReturnValue( 24 * 60 * 60 * 1000 );
+	observeVideoPlayability( 'Abcd1234', true, 'media_rest' );
+	expect( names() ).toEqual( [ 'started', 'succeeded' ] );
+} );
+
+it( 'keeps distinct logical uploads when stored-upload resumes return the same GUID', () => {
+	const first = createUploadAnalytics( file(), 'dashboard' );
+	const second = createUploadAnalytics( file(), 'block_editor' );
+	for ( const tracking of [ first, second ] ) {
+		tracking.start();
+		tracking.resumedExisting();
+		tracking.succeed( 'Same1234' );
+	}
+	observeVideoPlayability( 'Same1234', true, 'media_rest' );
+	observeVideoPlayability( 'Same1234', true, 'video_api' );
+	const ready = record.mock.calls.filter(
+		( [ name ] ) => name === 'jetpack_videopress_video_playable'
+	);
+	expect( ready.map( ( [ , properties ] ) => properties.upload_id ) ).toEqual( [
+		first.metadata().upload_id,
+		second.metadata().upload_id,
+	] );
 } );
 
 it( 'retains logical identity through a failed attempt and retry, and deduplicates outcomes', () => {

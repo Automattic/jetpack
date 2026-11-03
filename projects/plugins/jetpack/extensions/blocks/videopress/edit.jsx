@@ -1,4 +1,8 @@
 import { VideoPressIcon } from '@automattic/jetpack-shared-extension-utils/icons';
+import {
+	hasReadyVideoRendition,
+	observeVideoPlayability,
+} from '@automattic/jetpack-shared-extension-utils/videopress-upload-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
 import {
@@ -259,6 +263,11 @@ const VideoPressEdit = CoreVideoEdit =>
 				.finally( () => {
 					this.setState( { isFetchingMedia: false } );
 				} );
+			observeVideoPlayability(
+				media?.jetpack_videopress?.guid,
+				media?.jetpack_videopress?.has_ready_rendition,
+				'media_rest'
+			);
 
 			const { id: currentId } = this.props.attributes;
 			if ( id !== currentId ) {
@@ -283,6 +292,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				credentials: 'omit',
 				global: true,
 			} ).then( videoInfo => {
+				observeVideoPlayability( videoInfo.guid, hasReadyVideoRendition( videoInfo ), 'video_api' );
 				// Convert API object response to an array that works better with the tracks editor component
 				const tracks = [];
 				Object.keys( videoInfo.tracks ).forEach( kind => {

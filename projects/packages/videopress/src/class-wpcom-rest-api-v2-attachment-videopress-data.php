@@ -631,6 +631,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			'description'              => $description,
 			'caption'                  => $caption,
 			'guid'                     => $info->guid ?? null,
+			'has_ready_rendition'      => $this->has_ready_rendition( $info, $attachment_id ),
 			'rating'                   => $info->rating ?? null,
 			'allow_download'           =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
@@ -641,6 +642,34 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			'is_private'               => $is_private,
 			'private_enabled_for_site' => $private_enabled_for_site,
 		);
+	}
+
+	/**
+	 * Check stored MP4 rendition readiness without treating thumbnails or terminal errors as ready.
+	 *
+	 * @param object|false $info Canonical video info.
+	 * @param int          $attachment_id Attachment ID.
+	 * @return bool
+	 */
+	private function has_ready_rendition( $info, $attachment_id ) {
+		if ( empty( $info->guid ) ) {
+			return false;
+		}
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			foreach ( get_object_vars( $info ) as $format => $status ) {
+				if ( 0 === strpos( $format, 'fmt_' ) && 'done' === $status && video_format_done( $info, $format ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+		$meta = wp_get_attachment_metadata( $attachment_id );
+		foreach ( $meta['videopress']['files'] ?? array() as $file ) {
+			if ( isset( $file['mp4'] ) && is_string( $file['mp4'] ) && '' !== $file['mp4'] ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

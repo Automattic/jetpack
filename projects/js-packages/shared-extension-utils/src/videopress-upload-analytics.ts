@@ -4,6 +4,64 @@ export type UploadSource = 'dashboard' | 'block_editor' | 'analytics_widget';
 export type UploadContext = { isFree?: boolean | null; videoCountBefore?: number };
 type Properties = Record< string, string | number | boolean >;
 type FailureStage = 'token' | 'transfer' | 'resume_lookup';
+type ReadinessSource = 'media_rest' | 'video_api';
+type PendingReadiness = {
+	guid: string;
+	observed: ( source: ReadinessSource ) => void;
+	expiresAt: number;
+};
+
+// Route bundles have separate module instances; correlation lasts only within this page.
+const getPendingReadiness = () => {
+	const page = globalThis as typeof globalThis & {
+		__jetpackVideopressPendingReadiness?: Map< string, PendingReadiness >;
+	};
+	const pending = ( page.__jetpackVideopressPendingReadiness ??= new Map() );
+	for ( const [ uploadId, entry ] of pending ) {
+		if ( performance.now() >= entry.expiresAt ) {
+			pending.delete( uploadId );
+		}
+	}
+	return pending;
+};
+
+/**
+ * Observe a ready rendition in an existing metadata response, without starting requests.
+ *
+ * @param guid     - Response video GUID.
+ * @param ready    - Positive rendition readiness, never a thumbnail or overall finished flag.
+ * @param source   - Metadata endpoint that supplied the observation.
+ */
+export function observeVideoPlayability( guid: unknown, ready: unknown, source: ReadinessSource ) {
+	if ( typeof guid !== 'string' || ready !== true ) {
+		return;
+	}
+	const pending = getPendingReadiness();
+	for ( const [ uploadId, entry ] of pending ) {
+		if ( entry.guid === guid ) {
+			pending.delete( uploadId );
+			entry.observed( source );
+		}
+	}
+}
+
+/**
+ * Check for a completed MP4 rendition in the public video metadata response.
+ *
+ * @param video - Video API response.
+ * @return Whether a completed rendition has a nonempty MP4 path.
+ */
+export function hasReadyVideoRendition( video: {
+	files?: Record< string, { mp4?: string } | null >;
+	files_status?: Record< string, { mp4?: string } | null >;
+} ) {
+	return Object.entries( video.files ?? {} ).some(
+		( [ format, file ] ) =>
+			typeof file?.mp4 === 'string' &&
+			file.mp4.length > 0 &&
+			video.files_status?.[ format ]?.mp4 === 'DONE'
+	);
+}
 
 const FILE_TYPES = new Set( [
 	'video/mp4',
@@ -46,6 +104,10 @@ export function createUploadAnalytics(
 	let retryCount = 0;
 	let pendingNetworkRetry = false;
 	const fileSize = Number.isSafeInteger( file.size ) && file.size >= 0 ? file.size : undefined;
+	let fileType = file.type ? 'other' : 'unknown';
+	if ( FILE_TYPES.has( file.type ) ) {
+		fileType = file.type;
+	}
 	const selectedContext: Properties = {
 		...( typeof context.isFree === 'boolean' ? { is_free: context.isFree } : {} ),
 		...( typeof context.videoCountBefore === 'number' &&
@@ -55,12 +117,12 @@ export function createUploadAnalytics(
 			: {} ),
 	};
 
-	const record = ( event: string, properties: Properties = {} ) => {
+	const record = ( event: string, properties: Properties = {}, prefix = 'upload' ) => {
 		if ( ! uploadId ) {
 			return;
 		}
 		try {
-			jetpackAnalytics.tracks.recordEvent( `jetpack_videopress_upload_${ event }`, {
+			jetpackAnalytics.tracks.recordEvent( `jetpack_videopress_${ prefix }_${ event }`, {
 				schema_version: 1,
 				upload_id: uploadId,
 				attempt,
@@ -93,10 +155,6 @@ export function createUploadAnalytics(
 			retryCount = 0;
 			if ( isRetry ) {
 				record( 'retried', { retry_type: 'user', retry_count: 0 } );
-			}
-			let fileType = file.type ? 'other' : 'unknown';
-			if ( FILE_TYPES.has( file.type ) ) {
-				fileType = file.type;
 			}
 			record( 'started', {
 				file_type: fileType,
@@ -141,11 +199,43 @@ export function createUploadAnalytics(
 			}
 			state = 'succeeded';
 			const validGuid = typeof guid === 'string' && /^[a-zA-Z0-9]{8}$/.test( guid );
+			const succeededAt = performance.now();
 			record( 'succeeded', {
-				duration_ms: Math.max( 0, Math.round( performance.now() - startedAt ) ),
+				duration_ms: Math.max( 0, Math.round( succeededAt - startedAt ) ),
 				guid_valid: validGuid,
 				...( validGuid ? { guid } : {} ),
 			} );
+			if ( validGuid && uploadId ) {
+				const pending = getPendingReadiness();
+				if ( ! pending.has( uploadId ) ) {
+					// Bound page-local retention, including uploads that never receive a ready response.
+					if ( pending.size >= 500 ) {
+						const oldest = pending.keys().next().value;
+						if ( oldest !== undefined ) {
+							pending.delete( oldest );
+						}
+					}
+					pending.set( uploadId, {
+						guid,
+						expiresAt: succeededAt + 24 * 60 * 60 * 1000,
+						observed: observationSource => {
+							const observedAt = performance.now();
+							record(
+								'playable',
+								{
+									guid,
+									seconds_since_upload: Math.max( 0, observedAt - succeededAt ) / 1000,
+									seconds_since_upload_started: Math.max( 0, observedAt - startedAt ) / 1000,
+									clock_basis: 'upload_success_callback',
+									readiness_basis: 'server_reported_mp4',
+									observation_source: observationSource,
+								},
+								'video'
+							);
+						},
+					} );
+				}
+			}
 		},
 		fail( error: unknown, stage: FailureStage ) {
 			if ( state !== 'active' && ! ( state === 'paused' && stage === 'resume_lookup' ) ) {

@@ -36,6 +36,7 @@ class Data_Test extends BaseTestCase {
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
+		require_once __DIR__ . '/../../src/utility-functions.php';
 
 		// Load mock plugin to make Status::is_standalone_plugin_active() return true.
 		require_once __DIR__ . '/assets/videopress-mock-plugin.txt';
@@ -43,6 +44,60 @@ class Data_Test extends BaseTestCase {
 		// Initialize VideoPress components once for all tests.
 		Attachment_Handler::init();
 		self::$videopress_rest_data = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+	}
+
+	/**
+	 * A poster or terminal conversion error must not become a playable measurement.
+	 *
+	 * @dataProvider ready_rendition_provider
+	 * @param array $metadata Stored attachment metadata.
+	 * @param bool  $expected Expected positive readiness.
+	 */
+	#[DataProvider( 'ready_rendition_provider' )]
+	public function test_rest_data_requires_a_ready_mp4_rendition( $metadata, $expected ) {
+		$id = wp_insert_attachment( array( 'post_mime_type' => 'video/videopress' ) );
+		update_post_meta( $id, 'videopress_guid', 'Abcd1234' );
+		wp_update_attachment_metadata( $id, $metadata );
+		$data = self::$videopress_rest_data->get_videopress_data( $id, 123 );
+		$this->assertSame( $expected, $data['has_ready_rendition'] );
+	}
+
+	/**
+	 * Readiness must follow a rendition, even while other formats are processing.
+	 *
+	 * @return array
+	 */
+	public static function ready_rendition_provider() {
+		return array(
+			'no metadata'    => array( array(), false ),
+			'poster only'    => array(
+				array(
+					'videopress' => array(
+						'finished' => true,
+						'poster'   => 'poster.jpg',
+					),
+				),
+				false,
+			),
+			'terminal error' => array(
+				array(
+					'file_statuses' => array( 'mp4' => 'ERROR' ),
+					'videopress'    => array( 'finished' => true ),
+				),
+				false,
+			),
+			'ogg only'       => array( array( 'videopress' => array( 'files' => array( 'std' => array( 'ogg' => 'video.ogg' ) ) ) ), false ),
+			'empty mp4'      => array( array( 'videopress' => array( 'files' => array( 'std' => array( 'mp4' => '' ) ) ) ), false ),
+			'ready mp4'      => array(
+				array(
+					'videopress' => array(
+						'finished' => false,
+						'files'    => array( 'dvd' => array( 'mp4' => 'video.mp4' ) ),
+					),
+				),
+				true,
+			),
+		);
 	}
 
 	/**

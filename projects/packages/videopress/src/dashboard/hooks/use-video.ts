@@ -2,6 +2,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useRef } from '@wordpress/element';
+import { observeVideoPlayability } from '../../client/lib/upload-analytics';
 import { toLibraryItem } from '../utils/library-item';
 import { nextProcessingPoll } from '../utils/processing-poll';
 import { LIBRARY_ITEM_QUERY_SEGMENT, LIBRARY_QUERY_KEY } from './use-library';
@@ -35,6 +36,11 @@ export function useVideo(
 		queryKey: [ LIBRARY_QUERY_KEY, LIBRARY_ITEM_QUERY_SEGMENT, String( id ) ],
 		queryFn: async () => {
 			const raw = await apiFetch< ApiMediaItem >( { path: `/wp/v2/media/${ id }` } );
+			observeVideoPlayability(
+				raw.jetpack_videopress?.guid,
+				raw.jetpack_videopress?.has_ready_rendition,
+				'media_rest'
+			);
 			return toLibraryItem( raw, isSimpleSite() );
 		},
 		enabled: Boolean( id ),
