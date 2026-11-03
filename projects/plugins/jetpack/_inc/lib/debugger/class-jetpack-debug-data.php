@@ -95,7 +95,7 @@ class Jetpack_Debug_Data {
 		$fields['jp_plugin_dir']  = array(
 			'label'   => 'Jetpack Directory',
 			'value'   => JETPACK__PLUGIN_DIR,
-			'private' => false,
+			'private' => true,
 		);
 		$fields['plan']           = array(
 			'label'   => 'Plan Type',
