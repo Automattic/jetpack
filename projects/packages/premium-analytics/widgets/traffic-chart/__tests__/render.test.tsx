@@ -241,6 +241,7 @@ describe( 'TrafficChart bucket size', () => {
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
+		[ 'quarter', 'month' ],
 		[ 'year', 'year' ],
 	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
 		render(
@@ -332,6 +333,27 @@ describe( 'TrafficChart drill-down', () => {
 		expect( openPeriod ).toHaveBeenCalledWith( {
 			from: new Date( '2026-02-01T00:00:00.000Z' ),
 			to: new Date( '2026-02-28T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'opens the quarter a quarter bar drew, ticked by its first month', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'month' ), chartInterval: 'quarter' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		const calls = mockMetricTabsChart.mock.calls;
+		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'month' );
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-01-01T00:00:00.000Z' ),
+			to: new Date( '2026-03-31T23:59:59.999Z' ),
 		} );
 	} );
 

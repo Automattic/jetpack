@@ -104,7 +104,7 @@ Returns the default interval for a preset / date range: the first one it allows.
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'`
 
 **Example:**
 

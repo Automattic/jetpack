@@ -77,7 +77,7 @@ const LONG_DATE_PRESETS: readonly QuickSurfacePresetId[] = [
 	PRESET_ALL_TIME,
 ];
 
-const LOCKABLE_INTERVALS: readonly LockableInterval[] = [ 'week', 'month', 'year' ];
+const LOCKABLE_INTERVALS: readonly LockableInterval[] = [ 'week', 'month', 'quarter', 'year' ];
 
 export const OPEN_DATE_POLICY: StatsDatePolicy = {
 	lockedPresetIds: [],

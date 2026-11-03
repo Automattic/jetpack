@@ -9,8 +9,8 @@ const STORY_INTERVAL_OPTIONS: Partial< Record< PrimaryPresetId, IntervalType[] >
 	'last-24-hours': [ 'hour', 'day' ],
 	'last-7-days': [ 'day' ],
 	'last-30-days': [ 'day', 'week' ],
-	'last-12-months': [ 'month', 'week' ],
-	'all-time': [ 'month', 'year' ],
+	'last-12-months': [ 'month', 'week', 'quarter' ],
+	'all-time': [ 'month', 'quarter', 'year' ],
 };
 
 /**

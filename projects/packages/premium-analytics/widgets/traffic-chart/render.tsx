@@ -131,7 +131,8 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					tickResolution={ period }
+					// The charts library has no quarter ticks; a quarter's bar sits on its first month.
+					tickResolution={ period === 'quarter' ? 'month' : period }
 					onDatumClick={ openBucket }
 					chartTitle={ __( 'Traffic summary', 'jetpack-premium-analytics-pkg' ) }
 					previousPeriodShown={ previousPeriodShown }

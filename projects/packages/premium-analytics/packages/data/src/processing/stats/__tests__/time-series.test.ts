@@ -185,6 +185,24 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	it( 'normalizes quarter rows, keyed by the quarter start, into whole-quarter buckets', () => {
+		const result = sanitizeStatsTimeSeriesResponse( {
+			unit: 'quarter',
+			fields: [ 'period', 'views' ],
+			data: [
+				[ '2026-04-01', 30 ],
+				[ '2026-07-01', 12 ],
+			],
+		} );
+
+		expect(
+			result.data.map( ( { date_start, date_end, value } ) => [ date_start, date_end, value ] )
+		).toEqual( [
+			[ '2026-04-01T00:00:00', '2026-06-30T23:59:59', 30 ],
+			[ '2026-07-01T00:00:00', '2026-09-30T23:59:59', 12 ],
+		] );
+	} );
+
 	it( 'normalizes scalar days maps into numeric value rows', () => {
 		const result = sanitizeStatsTimeSeriesResponse( scalarDaysTimeSeriesFixture );
 
