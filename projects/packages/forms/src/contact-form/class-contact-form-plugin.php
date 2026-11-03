@@ -4180,9 +4180,15 @@ class Contact_Form_Plugin {
 		$grunion = self::init();
 		$rows    = $grunion->get_export_rows_from_post();
 
+		// Google Sheets rejects the whole export if any cell is over 50,000 characters.
+		$esc_cell = function ( $value ) {
+			$value = $this->esc_csv( $value );
+			return is_string( $value ) && mb_strlen( $value ) > 50000 ? mb_substr( $value, 0, 50000 ) : $value;
+		};
+
 		$sheet_data = array();
 		foreach ( $rows ?? array() as $row ) {
-			$sheet_data[] = empty( $sheet_data ) ? $row : array_map( array( $this, 'esc_csv' ), $row );
+			$sheet_data[] = empty( $sheet_data ) ? $row : array_map( $esc_cell, $row );
 		}
 		if ( empty( $sheet_data ) ) {
 			$sheet_data[] = array();
