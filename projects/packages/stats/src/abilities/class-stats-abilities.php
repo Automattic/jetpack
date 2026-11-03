@@ -44,6 +44,11 @@ class Stats_Abilities extends Registrar {
 	const PERIODS = array( 'day', 'week', 'month', 'year' );
 
 	/**
+	 * Comparison presets, named as in the Stats dashboard's Compare menu.
+	 */
+	const COMPARE_PRESETS = array( 'previous-period', 'previous-period-match-day-of-week', 'previous-year', 'previous-year-match-day-of-week' );
+
+	/**
 	 * Allowed metric fields for `get-visits`.
 	 */
 	const VISIT_FIELDS = array( 'views', 'visitors', 'likes', 'comments' );
@@ -154,13 +159,15 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { site: { id, url }, date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { site: { id, url }, date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, comparison?: { preset, views_today, visitors_today, views_week, views_month, windows: { today, week, month: { from, to } } }, partial: bool, errors?: [string] }. With `compare`, `comparison` holds the same four figures for the earlier windows the preset names, as in the Stats dashboard\'s Compare menu: `previous-period` (yesterday, the 7 days before the last 7, the 30 days before the last 30), `previous-period-match-day-of-week` (shifted back by whole weeks), `previous-year` (the same dates a year earlier), `previous-year-match-day-of-week` (52 weeks earlier). `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `streak.current_length` is 0 unless the latest posting streak reaches today or yesterday. `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), `referrers` (`top_referrer`), and `comparison` (every `comparison` figure). Fields fed by a failed sub-call are null, `streak` included, as is a total covering a day WordPress.com did not report, so a 0 is a value WordPress.com reported. If every sub-call fails, returns `jetpack_stats_data_unavailable`. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
-				'properties'           => new \stdClass(),
+				'properties'           => array(
+					'compare' => self::compare_schema(),
+				),
 				'additionalProperties' => false,
 			),
 			'output_schema'       => array(
@@ -175,6 +182,7 @@ class Stats_Abilities extends Registrar {
 					'streak'         => array( 'type' => array( 'object', 'null' ) ),
 					'top_post'       => array( 'type' => array( 'object', 'null' ) ),
 					'top_referrer'   => array( 'type' => array( 'object', 'null' ) ),
+					'comparison'     => array( 'type' => 'object' ),
 					'partial'        => array( 'type' => 'boolean' ),
 					'errors'         => array( 'type' => 'array' ),
 					'definitions'    => self::definitions_schema(),
@@ -351,32 +359,32 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { site: { id, url }, period, num, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { site: { id, url }, period, num, date, fields, series: [ { date, views, visitors, likes, comments } ], comparison?: { preset, date, series } }. With `compare`, `comparison.series` holds the same rows for an earlier window, row for row, as in the Stats dashboard\'s Compare menu: `previous-period` (the `num` periods before), `previous-period-match-day-of-week` (daily rows shifted back by whole weeks), `previous-year` (a year earlier; weeks shift 52 weeks), `previous-year-match-day-of-week` (52 weeks earlier). The weekday presets accept only day and week periods. Each row\'s `date` is the first day of its period (weeks start on Monday). Every series row always includes every field listed in the request (no per-row omission); a value WordPress.com did not report, or reported as negative, is null rather than 0. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
 				'properties'           => array(
-					'period' => array(
+					'period'  => array(
 						'type'        => 'string',
 						'description' => __( 'Granularity of each data point.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
-					'num'    => array(
+					'num'     => array(
 						'type'        => 'integer',
 						'description' => __( 'How many data points to return (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 30,
 					),
-					'date'   => array(
+					'date'    => array(
 						'type'        => 'string',
 						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
-					'fields' => array(
+					'fields'  => array(
 						'type'        => 'array',
 						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats-pkg' ),
 						'items'       => array(
@@ -385,6 +393,7 @@ class Stats_Abilities extends Registrar {
 						),
 						'default'     => self::DEFAULT_VISIT_FIELDS,
 					),
+					'compare' => self::compare_schema(),
 				),
 				'additionalProperties' => false,
 			),
@@ -397,6 +406,7 @@ class Stats_Abilities extends Registrar {
 					'date'        => array( 'type' => 'string' ),
 					'fields'      => array( 'type' => 'array' ),
 					'series'      => array( 'type' => 'array' ),
+					'comparison'  => array( 'type' => 'object' ),
 					'definitions' => self::definitions_schema(),
 				),
 			),
@@ -627,7 +637,11 @@ class Stats_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function get_site_overview( $input = null ) {
-		unset( $input );
+		$input  = is_array( $input ) ? $input : array();
+		$preset = self::pick_compare( $input['compare'] ?? null );
+		if ( is_wp_error( $preset ) ) {
+			return $preset;
+		}
 		$stats = self::get_wpcom_stats();
 		$today = self::today();
 		$day   = array(
@@ -638,20 +652,37 @@ class Stats_Abilities extends Registrar {
 		// A few rows, so a post can be found below the home page / archives row.
 		$post_rows = 10;
 
-		$composed = self::compose_subcalls(
-			array(
-				'visits'    => $stats->get_visits(
-					array(
-						'unit'        => 'day',
-						'quantity'    => 30,
-						'date'        => $today,
-						'stat_fields' => 'views,visitors',
-					)
-				),
-				'streak'    => $stats->get_streak(),
-				'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
-				'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
+		$subcalls = array(
+			'visits'    => $stats->get_visits(
+				array(
+					'unit'        => 'day',
+					'quantity'    => 30,
+					'date'        => $today,
+					'stat_fields' => 'views,visitors',
+				)
 			),
+			'streak'    => $stats->get_streak(),
+			'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
+			'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
+		);
+
+		$windows = null === $preset ? array() : self::overview_compare_windows( $today, $preset );
+		if ( $windows ) {
+			// One read covers the earliest to the latest day the compared windows need.
+			$first                  = min( array_column( $windows, 'from' ) );
+			$last                   = max( array_column( $windows, 'to' ) );
+			$subcalls['comparison'] = $stats->get_visits(
+				array(
+					'unit'        => 'day',
+					'quantity'    => self::days_between( $first, $last ) + 1,
+					'date'        => $last,
+					'stat_fields' => 'views,visitors',
+				)
+			);
+		}
+
+		$composed = self::compose_subcalls(
+			$subcalls,
 			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
 		);
 		if ( is_wp_error( $composed ) ) {
@@ -687,6 +718,11 @@ class Stats_Abilities extends Registrar {
 			'partial'        => ! empty( $errors ),
 			'definitions'    => self::definitions( array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'streak', 'top_post', 'top_referrer' ) ),
 		);
+
+		if ( $windows ) {
+			$out['comparison']                = self::overview_comparison( $preset, $windows, $values['comparison'], in_array( 'comparison', $errors, true ) );
+			$out['definitions']['comparison'] = self::definition_texts()['comparison_overview'];
+		}
 
 		if ( ! empty( $errors ) ) {
 			$out['errors'] = $errors;
@@ -845,6 +881,15 @@ class Stats_Abilities extends Registrar {
 			$fields = self::DEFAULT_VISIT_FIELDS;
 		}
 
+		$preset = self::pick_compare( $input['compare'] ?? null );
+		if ( is_wp_error( $preset ) ) {
+			return $preset;
+		}
+		$compare_date = null === $preset ? null : self::compare_end_date( $date, $preset, $period, $num );
+		if ( is_wp_error( $compare_date ) ) {
+			return $compare_date;
+		}
+
 		$args = array(
 			'unit'        => $period,
 			'quantity'    => $num,
@@ -858,15 +903,28 @@ class Stats_Abilities extends Registrar {
 			return $raw;
 		}
 
-		return array(
-			'site'        => self::site(),
-			'period'      => $period,
-			'num'         => $num,
-			'date'        => $date,
-			'fields'      => $fields,
-			'series'      => self::normalize_visits_series( $raw, $fields ),
-			'definitions' => self::definitions( array_merge( array( 'series' ), $fields ) ),
+		$out = array(
+			'site'   => self::site(),
+			'period' => $period,
+			'num'    => $num,
+			'date'   => $date,
+			'fields' => $fields,
+			'series' => self::normalize_visits_series( $raw, $fields ),
 		);
+
+		$out['definitions'] = self::definitions( array_merge( array( 'series' ), $fields ) );
+		if ( null !== $compare_date ) {
+			// The same periods, shifted back by whole periods, so row i compares with row i.
+			$compare_raw                      = $stats->get_visits( array( 'date' => $compare_date ) + $args );
+			$out['comparison']                = array(
+				'preset' => $preset,
+				'date'   => $compare_date,
+				'series' => is_wp_error( $compare_raw ) ? null : self::normalize_visits_series( $compare_raw, $fields ),
+			);
+			$out['definitions']['comparison'] = self::definition_texts()['comparison_series'];
+		}
+
+		return $out;
 	}
 
 	/**
@@ -1411,6 +1469,177 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
+	 * Input schema for `compare`.
+	 *
+	 * @return array
+	 */
+	private static function compare_schema(): array {
+		return array(
+			'type'        => 'string',
+			'description' => __( 'Also return the same figures for an earlier window, as the Stats dashboard\'s Compare menu does: the window just before, the window just before shifted by whole weeks so weekdays line up, the same dates a year earlier, or 52 weeks earlier so weekdays line up.', 'jetpack-stats-pkg' ),
+			'enum'        => self::COMPARE_PRESETS,
+		);
+	}
+
+	/**
+	 * Resolve the `compare` input.
+	 *
+	 * @param mixed $raw Raw input value.
+	 * @return string|null|WP_Error A preset, null when none was asked for, or jetpack_stats_invalid_compare.
+	 */
+	private static function pick_compare( $raw ) {
+		if ( null === $raw || '' === $raw ) {
+			return null;
+		}
+		if ( is_string( $raw ) && in_array( $raw, self::COMPARE_PRESETS, true ) ) {
+			return $raw;
+		}
+		return new WP_Error(
+			self::ERROR_PREFIX . 'invalid_compare',
+			sprintf(
+				/* translators: %s: comma-separated list of valid compare values. */
+				__( 'Unknown `compare` preset. Valid values: %s.', 'jetpack-stats-pkg' ),
+				implode( ', ', self::COMPARE_PRESETS )
+			)
+		);
+	}
+
+	/**
+	 * End date of the window a preset compares with, for `num` periods ending with the one containing `date`.
+	 *
+	 * The shifts are the dashboard's: the previous period steps back by the window's length, a weekday
+	 * match rounds that up to whole weeks, the previous year keeps the calendar date and a weekday-matched
+	 * year steps back 52 weeks. Weeks, months and years step back whole periods. WordPress.com ends the
+	 * last row on `date`, so shifting `date` itself ends both last rows at the same point in their period.
+	 * Weeks already line up by weekday; months and years cannot.
+	 *
+	 * @param string $date   YYYY-MM-DD.
+	 * @param string $preset One of self::COMPARE_PRESETS.
+	 * @param string $period One of self::PERIODS.
+	 * @param int    $num    Number of periods in the window.
+	 * @return string|WP_Error YYYY-MM-DD, or jetpack_stats_invalid_compare for a weekday match on months or years.
+	 */
+	private static function compare_end_date( string $date, string $preset, string $period, int $num ) {
+		$day       = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, new \DateTimeZone( 'UTC' ) );
+		$by_week   = in_array( $preset, array( 'previous-period-match-day-of-week', 'previous-year-match-day-of-week' ), true );
+		$prev_year = in_array( $preset, array( 'previous-year', 'previous-year-match-day-of-week' ), true );
+
+		if ( $by_week && in_array( $period, array( 'month', 'year' ), true ) ) {
+			return new WP_Error(
+				self::ERROR_PREFIX . 'invalid_compare',
+				__( 'Months and years cannot line up by weekday. Use previous-period or previous-year.', 'jetpack-stats-pkg' )
+			);
+		}
+
+		switch ( $period ) {
+			case 'day':
+				if ( 'previous-year' === $preset ) {
+					return self::months_earlier( $day, 12 )->format( 'Y-m-d' );
+				}
+				$days = $prev_year ? 364 : ( $by_week ? (int) ceil( $num / 7 ) * 7 : $num );
+				return $day->modify( "-{$days} days" )->format( 'Y-m-d' );
+			case 'week':
+				return $day->modify( '-' . ( $prev_year ? 52 : $num ) . ' weeks' )->format( 'Y-m-d' );
+		}
+
+		$months = ( 'year' === $period ? 12 : 1 ) * ( $prev_year ? ( 'year' === $period ? 1 : 12 ) : $num );
+		return self::months_earlier( $day, $months )->format( 'Y-m-d' );
+	}
+
+	/**
+	 * The same day some months earlier, clamped to that month's length; a month's last day stays its last.
+	 *
+	 * @param \DateTimeImmutable $day    Day.
+	 * @param int                $months Months to step back.
+	 * @return \DateTimeImmutable
+	 */
+	private static function months_earlier( \DateTimeImmutable $day, int $months ): \DateTimeImmutable {
+		$first = $day->modify( 'first day of this month' )->modify( "-{$months} months" );
+		$last  = (int) $first->format( 't' );
+		$date  = (int) $day->format( 'j' ) === (int) $day->format( 't' ) ? $last : min( (int) $day->format( 'j' ), $last );
+		return $first->setDate( (int) $first->format( 'Y' ), (int) $first->format( 'n' ), $date );
+	}
+
+	/**
+	 * The windows the overview compares today, the last 7 days and the last 30 days with.
+	 *
+	 * @param string $today  YYYY-MM-DD.
+	 * @param string $preset One of self::COMPARE_PRESETS.
+	 * @return array<string, array{from: string, to: string, days: int}> Keyed `today`, `week`, `month`.
+	 */
+	private static function overview_compare_windows( string $today, string $preset ): array {
+		$windows = array();
+		foreach ( array(
+			'today' => 1,
+			'week'  => 7,
+			'month' => 30,
+		) as $name => $days ) {
+			$to               = (string) self::compare_end_date( $today, $preset, 'day', $days );
+			$windows[ $name ] = array(
+				'from' => \DateTimeImmutable::createFromFormat( '!Y-m-d', $to, new \DateTimeZone( 'UTC' ) )->modify( '-' . ( $days - 1 ) . ' days' )->format( 'Y-m-d' ),
+				'to'   => $to,
+				'days' => $days,
+			);
+		}
+		return $windows;
+	}
+
+	/**
+	 * The overview's figures for the compared windows, read from one daily `stats/visits` response.
+	 *
+	 * @param string $preset  One of self::COMPARE_PRESETS.
+	 * @param array  $windows From overview_compare_windows().
+	 * @param array  $raw     Daily `stats/visits` response covering every window.
+	 * @param bool   $failed  Whether that read failed.
+	 * @return array
+	 */
+	private static function overview_comparison( string $preset, array $windows, array $raw, bool $failed ): array {
+		$rows = $failed ? array() : self::normalize_visits_series( $raw, array( 'views', 'visitors' ) );
+		$in   = array();
+		foreach ( $windows as $name => $window ) {
+			$in[ $name ] = array_filter(
+				$rows,
+				function ( $row ) use ( $window ) {
+					return $row['date'] >= $window['from'] && $row['date'] <= $window['to'];
+				}
+			);
+			// A window WordPress.com did not report every day of has no total.
+			if ( count( $in[ $name ] ) !== $window['days'] ) {
+				$in[ $name ] = array();
+			}
+		}
+
+		return array(
+			'preset'         => $preset,
+			'views_today'    => self::sum_or_null( $in['today'], 'views' ),
+			'visitors_today' => self::sum_or_null( $in['today'], 'visitors' ),
+			'views_week'     => self::sum_or_null( $in['week'], 'views' ),
+			'views_month'    => self::sum_or_null( $in['month'], 'views' ),
+			'windows'        => array_map(
+				function ( $window ) {
+					return array(
+						'from' => $window['from'],
+						'to'   => $window['to'],
+					);
+				},
+				$windows
+			),
+		);
+	}
+
+	/**
+	 * Whole days from one date to a later one.
+	 *
+	 * @param string $from YYYY-MM-DD.
+	 * @param string $to   YYYY-MM-DD.
+	 * @return int
+	 */
+	private static function days_between( string $from, string $to ): int {
+		$utc = new \DateTimeZone( 'UTC' );
+		return (int) \DateTimeImmutable::createFromFormat( '!Y-m-d', $from, $utc )->diff( \DateTimeImmutable::createFromFormat( '!Y-m-d', $to, $utc ) )->days;
+	}
+
+	/**
 	 * First day of the period containing a date; weeks start on Monday, as in WordPress.com Stats.
 	 *
 	 * @param string $date   YYYY-MM-DD.
@@ -1589,36 +1818,38 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function definition_texts(): array {
 		return array(
-			'views'              => __( 'A view is one load of a page on the site in a browser that runs the Stats script. Feeds, previews, embeds and API reads are not views; logged-in visits count only for the roles chosen in the Stats settings; bots that run JavaScript can be counted.', 'jetpack-stats-pkg' ),
-			'visitors'           => __( 'Visitors are the unique browsers seen in one row\'s period. Each row counts its own uniques, so adding rows together overcounts people who came back; there is no unique total across rows.', 'jetpack-stats-pkg' ),
-			'likes'              => __( 'Likes given to the site\'s posts during the row\'s period.', 'jetpack-stats-pkg' ),
-			'comments'           => __( 'Comments posted on the site during the row\'s period.', 'jetpack-stats-pkg' ),
-			'series'             => __( 'One row per period (day, week from Monday to Sunday, month, or year) in the site\'s timezone, oldest first. A row\'s `date` is the first day of its period; the last row is the period containing the requested `date`, so it may be incomplete.', 'jetpack-stats-pkg' ),
-			'date'               => __( 'Today in the site\'s timezone.', 'jetpack-stats-pkg' ),
-			'views_today'        => __( 'Views so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
-			'visitors_today'     => __( 'Unique visitors so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
-			'views_week'         => __( 'Views over the last 7 days, today included: a rolling total, not the calendar week.', 'jetpack-stats-pkg' ),
-			'views_month'        => __( 'Views over the last 30 days, today included: a rolling total, not the calendar month.', 'jetpack-stats-pkg' ),
-			'streak'             => __( 'Consecutive days with at least one published post. The current streak is 0 unless it reaches today or yesterday.', 'jetpack-stats-pkg' ),
-			'top_post'           => __( 'The post or page with the most views today, not counting the home page.', 'jetpack-stats-pkg' ),
-			'top_referrer'       => __( 'The referrer that sent the most views today.', 'jetpack-stats-pkg' ),
-			'total_views'        => __( 'All-time views of the post since it was published, not limited to the series window.', 'jetpack-stats-pkg' ),
-			'window_top_content' => __( 'Item values are totals across the `num` periods ending with the one containing `date`, in the site\'s timezone. The current period may be incomplete.', 'jetpack-stats-pkg' ),
-			'window_tags'        => __( 'Tags and categories cover the seven days ending yesterday, whatever `period`, `date` and `num` say.', 'jetpack-stats-pkg' ),
-			'value_posts'        => __( 'An item\'s `value` is the views of that post or page; the home page and archives share one item.', 'jetpack-stats-pkg' ),
-			'value_referrers'    => __( 'An item\'s `value` is the views that arrived from that referrer.', 'jetpack-stats-pkg' ),
-			'value_search-terms' => __( 'An item\'s `value` is the views from searches for that term. Search engines hide most terms, so this list is a small sample.', 'jetpack-stats-pkg' ),
-			'value_clicks'       => __( 'An item\'s `value` is the clicks on links leading off the site to that destination.', 'jetpack-stats-pkg' ),
-			'value_tags'         => __( 'An item\'s `value` is the views of posts filed under those tags and categories.', 'jetpack-stats-pkg' ),
-			'value_authors'      => __( 'An item\'s `value` is the views of that author\'s posts and pages.', 'jetpack-stats-pkg' ),
-			'value_countries'    => __( 'An item\'s `value` is the views from visitors in that country.', 'jetpack-stats-pkg' ),
-			'value_downloads'    => __( 'An item\'s `value` is the downloads of that file.', 'jetpack-stats-pkg' ),
-			'value_video-plays'  => __( 'An item\'s `value` is the plays of that video.', 'jetpack-stats-pkg' ),
-			'total'              => __( 'The sum of `email`, `wpcom`, `comment` and every `publicize` count. One person following in several ways is counted once for each, and the total is null when any count is unknown.', 'jetpack-stats-pkg' ),
-			'email'              => __( 'People subscribed to the site by email, now.', 'jetpack-stats-pkg' ),
-			'wpcom'              => __( 'WordPress.com users following the site in the Reader, now.', 'jetpack-stats-pkg' ),
-			'comment'            => __( 'People following the comments on every post, now. Following one post\'s comments is not counted.', 'jetpack-stats-pkg' ),
-			'publicize'          => __( 'Followers of each connected social media account, now.', 'jetpack-stats-pkg' ),
+			'views'               => __( 'A view is one load of a page on the site in a browser that runs the Stats script. Feeds, previews, embeds and API reads are not views; logged-in visits count only for the roles chosen in the Stats settings; bots that run JavaScript can be counted.', 'jetpack-stats-pkg' ),
+			'visitors'            => __( 'Visitors are the unique browsers seen in one row\'s period. Each row counts its own uniques, so adding rows together overcounts people who came back; there is no unique total across rows.', 'jetpack-stats-pkg' ),
+			'likes'               => __( 'Likes given to the site\'s posts during the row\'s period.', 'jetpack-stats-pkg' ),
+			'comments'            => __( 'Comments posted on the site during the row\'s period.', 'jetpack-stats-pkg' ),
+			'series'              => __( 'One row per period (day, week from Monday to Sunday, month, or year) in the site\'s timezone, oldest first. A row\'s `date` is the first day of its period; the last row is the period containing the requested `date`, so it may be incomplete.', 'jetpack-stats-pkg' ),
+			'date'                => __( 'Today in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'views_today'         => __( 'Views so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'visitors_today'      => __( 'Unique visitors so far today, in the site\'s timezone.', 'jetpack-stats-pkg' ),
+			'views_week'          => __( 'Views over the last 7 days, today included: a rolling total, not the calendar week.', 'jetpack-stats-pkg' ),
+			'views_month'         => __( 'Views over the last 30 days, today included: a rolling total, not the calendar month.', 'jetpack-stats-pkg' ),
+			'streak'              => __( 'Consecutive days with at least one published post. The current streak is 0 unless it reaches today or yesterday.', 'jetpack-stats-pkg' ),
+			'top_post'            => __( 'The post or page with the most views today, not counting the home page.', 'jetpack-stats-pkg' ),
+			'top_referrer'        => __( 'The referrer that sent the most views today.', 'jetpack-stats-pkg' ),
+			'total_views'         => __( 'All-time views of the post since it was published, not limited to the series window.', 'jetpack-stats-pkg' ),
+			'window_top_content'  => __( 'Item values are totals across the `num` periods ending with the one containing `date`, in the site\'s timezone. The current period may be incomplete.', 'jetpack-stats-pkg' ),
+			'window_tags'         => __( 'Tags and categories cover the seven days ending yesterday, whatever `period`, `date` and `num` say.', 'jetpack-stats-pkg' ),
+			'value_posts'         => __( 'An item\'s `value` is the views of that post or page; the home page and archives share one item.', 'jetpack-stats-pkg' ),
+			'value_referrers'     => __( 'An item\'s `value` is the views that arrived from that referrer.', 'jetpack-stats-pkg' ),
+			'value_search-terms'  => __( 'An item\'s `value` is the views from searches for that term. Search engines hide most terms, so this list is a small sample.', 'jetpack-stats-pkg' ),
+			'value_clicks'        => __( 'An item\'s `value` is the clicks on links leading off the site to that destination.', 'jetpack-stats-pkg' ),
+			'value_tags'          => __( 'An item\'s `value` is the views of posts filed under those tags and categories.', 'jetpack-stats-pkg' ),
+			'value_authors'       => __( 'An item\'s `value` is the views of that author\'s posts and pages.', 'jetpack-stats-pkg' ),
+			'value_countries'     => __( 'An item\'s `value` is the views from visitors in that country.', 'jetpack-stats-pkg' ),
+			'value_downloads'     => __( 'An item\'s `value` is the downloads of that file.', 'jetpack-stats-pkg' ),
+			'value_video-plays'   => __( 'An item\'s `value` is the plays of that video.', 'jetpack-stats-pkg' ),
+			'total'               => __( 'The sum of `email`, `wpcom`, `comment` and every `publicize` count. One person following in several ways is counted once for each, and the total is null when any count is unknown.', 'jetpack-stats-pkg' ),
+			'email'               => __( 'People subscribed to the site by email, now.', 'jetpack-stats-pkg' ),
+			'wpcom'               => __( 'WordPress.com users following the site in the Reader, now.', 'jetpack-stats-pkg' ),
+			'comment'             => __( 'People following the comments on every post, now. Following one post\'s comments is not counted.', 'jetpack-stats-pkg' ),
+			'publicize'           => __( 'Followers of each connected social media account, now.', 'jetpack-stats-pkg' ),
+			'comparison_series'   => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period. `comparison.series` is null when WordPress.com could not be read.', 'jetpack-stats-pkg' ),
+			'comparison_overview' => __( 'The same figures for the windows `compare` names, listed in `comparison.windows`: today, the 7 days and the 30 days, each shifted back. A figure is null when WordPress.com did not report every day of its window.', 'jetpack-stats-pkg' ),
 		);
 	}
 
