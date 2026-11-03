@@ -1,4 +1,4 @@
 Significance: patch
 Type: removed
 
-Remove the include guards and stubs kept for a second copy of the package loading in the same request, which can no longer happen.
+Remove the include guards and stubs kept for a second copy of the package loading in the same request; the autoloader now serves one copy per request.

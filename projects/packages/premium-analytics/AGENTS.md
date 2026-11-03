@@ -228,6 +228,8 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
+- Jetpack and Jetpack Stats both bundle this package, so load its function files only with
+  `require_once __DIR__` from a file in the package, never by path from outside it.
 - The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
   woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
   (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.
