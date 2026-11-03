@@ -1449,7 +1449,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Once classic Stats is retired there is no page to switch back to, even where a host still registers one.
+	 * Registers the older `stats` page WordPress.com Simple keeps.
 	 */
 	public function test_section_script_data_offers_no_classic_stats_page_once_retired() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );

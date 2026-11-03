@@ -570,8 +570,7 @@ class Analytics {
 	/**
 	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
 	 *
-	 * Nothing renders there, so the build is neither loaded nor checked. The sections are, since the
-	 * menu capability resolves to whether the user has one.
+	 * Loads the section registry but not the build: the menu capability depends on the sections.
 	 *
 	 * @since $$next-version$$
 	 *

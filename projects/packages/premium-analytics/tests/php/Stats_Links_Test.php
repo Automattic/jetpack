@@ -241,7 +241,7 @@ class Stats_Links_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A host may still register an older `stats` page elsewhere; once retired, a denied `admin.php?page=stats` opens the dashboard.
+	 * Registers the older `stats` page WordPress.com Simple keeps.
 	 */
 	public function test_retired_stats_page_opens_the_dashboard_even_where_another_stats_page_is_registered() {
 		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
