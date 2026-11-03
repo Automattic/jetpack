@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Leaderboard chart: Keep a drill-down row's label clear of its value on hover.

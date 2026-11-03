@@ -224,12 +224,20 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	// the one that reaches the value — pulls back the whole inset to keep its
 	// gap, while shorter bars move proportionally less, down to ~0. The bar is
 	// a grid item aligned to the inline start, so its inset mirrors in RTL; the
-	// value slide is given an RTL override below. No row background.
+	// value slide is given an RTL override below. The label gives up the full
+	// inset so its end stays clear of the value. No row background.
 	.bar {
 		transition:
 			opacity var(--wpds-motion-duration-sm)
 			var(--wpds-motion-easing-subtle),
 			width var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
+	}
+
+	.barWithLabelContainer > :not(.bar, .barTrack) {
+		margin-inline-end: var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0);
+		transition:
+			margin-inline-end var(--wpds-motion-duration-sm)
 			var(--wpds-motion-easing-subtle);
 	}
 
@@ -343,6 +351,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	.interactiveRow {
 
 		.bar,
+		.barWithLabelContainer > *,
 		.valueContainer,
 		.chevron {
 			transition: none;
