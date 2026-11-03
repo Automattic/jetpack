@@ -300,7 +300,10 @@ describe( 'library stage upload hand-off', () => {
 			dataTransfer: { files },
 		} );
 		await waitFor( () => expect( mockStartUpload ).toHaveBeenCalledTimes( 2 ) );
-		expect( mockStartUpload.mock.calls ).toEqual( [ [ files[ 0 ] ], [ files[ 1 ] ] ] );
+		expect( mockStartUpload.mock.calls ).toEqual( [
+			[ files[ 0 ], { isFree: false, videoCountBefore: undefined } ],
+			[ files[ 1 ], { isFree: false, videoCountBefore: undefined } ],
+		] );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
