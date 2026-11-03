@@ -27,8 +27,9 @@ fi
 pr_or_commit=$1
 
 if [[ $pr_or_commit =~ ^https://github\.com/[^/]+/[^/]+/pull/[0-9]+$ ]]; then
-	review_decision=$(gh pr view "$pr_or_commit" --json reviewDecision --jq .reviewDecision)
-	if [[ $review_decision != 'APPROVED' ]]; then
+	pr_info=$(gh pr view "$pr_or_commit" --json state,latestReviews)
+	# If it's not merged and not approved, ask before applying.
+	if ! jq -e '.state == "MERGED" or (.latestReviews | any(.state == "APPROVED"))' <<<"$pr_info" >/dev/null; then
 		proceed_p "PR not yet approved." "Apply anyway?" || exit 1
 	fi
 	diff=$(gh pr diff "$pr_or_commit")
