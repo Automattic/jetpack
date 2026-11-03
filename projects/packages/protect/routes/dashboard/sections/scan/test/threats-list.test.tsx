@@ -45,5 +45,6 @@ describe( 'ThreatsList', () => {
 		render( <ThreatsList threats={ [ threat ] } canAct={ false } /> );
 		const header = screen.queryByRole( 'columnheader', { name: /detected on|date/i } );
 		expect( !! header ).toBe( !! firstDetected );
+		expect( screen.queryByRole( 'button', { name: '' } ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -186,8 +186,9 @@ export function getThreatFields(
 		{
 			id: 'date',
 			label: dateLabel,
-			// DataViews shows the label, then the id, when the header is empty.
-			...( hideDateHeader && { header: <span />, enableSorting: false } ),
+			// DataViews shows the label, then the id, when the header is empty; with nothing to
+			// sort or filter (and moving off), the heading renders as plain text, not a menu button.
+			...( hideDateHeader && { header: <span />, enableSorting: false, filterBy: false as const } ),
 			type: 'datetime',
 			enableHiding: false,
 			getValue: ( { item } ) => getDate( item ),
@@ -218,6 +219,19 @@ export function createThreatView( sortField: 'severity' | 'date' ): View {
 			},
 		},
 	};
+}
+
+/**
+ * A view whose columns can't move, so a blank heading renders as plain text, not an unnamed menu button.
+ *
+ * @param view - The view.
+ * @return The view, with moving off.
+ */
+export function withFixedColumns( view: View ): View {
+	if ( view.type !== 'table' || view.layout?.enableMoving === false ) {
+		return view;
+	}
+	return { ...view, layout: { ...view.layout, enableMoving: false } };
 }
 
 export const LEVELS = [
@@ -289,11 +303,14 @@ type ThreatsListProps = {
  */
 export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 	// As the title field, the threat column also names each row's checkbox.
-	const [ view, setView ] = useState< View >( () => ( {
-		...createThreatView( 'severity' ),
-		titleField: 'threat',
-		fields: [ 'date' ],
-	} ) );
+	// With the date as its only other column, there is nothing to move it past.
+	const [ view, setView ] = useState< View >( () =>
+		withFixedColumns( {
+			...createThreatView( 'severity' ),
+			titleField: 'threat',
+			fields: [ 'date' ],
+		} )
+	);
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
