@@ -93,6 +93,8 @@ function wpcom_enqueue_error_reporting_script() {
 		array(
 			'shouldActivateSentry' => $activate_sentry ? 'true' : 'false',
 			'releaseName'          => defined( 'WPCOM_DEPLOYED_GIT_HASH' ) ? 'WPCOM_' . WPCOM_DEPLOYED_GIT_HASH : 'WPCOM_NO_RELEASE',
+			'blogId'               => get_wpcom_blog_id(),
+			'siteSlug'             => wpcom_get_site_slug(),
 		)
 	);
 }
