@@ -8,11 +8,16 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\My_Jetpack\Products\Creator;
 use Automattic\Jetpack\My_Jetpack\Products\Related_Posts;
+use Automattic\Jetpack\My_Jetpack\Products\Videopress;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
+use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionProperty;
 use WorDBless\BaseTestCase;
 
 /**
- * Tests the settings panel URLs of migrated modules.
+ * Tests the URLs that move to My Jetpack behind settings consolidation.
  */
 class Settings_Panel_Url_Test extends BaseTestCase {
 
@@ -69,5 +74,44 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 		$own_page = admin_url( 'admin.php?page=jetpack-seo' );
 
 		$this->assertSame( $own_page, apply_filters( self::CONFIGURE, $own_page ) );
+	}
+
+	/**
+	 * @dataProvider provide_feature_search_manage_urls
+	 * @param string $product  The product class.
+	 * @param bool   $flag     Whether settings consolidation is on.
+	 * @param string $expected The manage URL, relative to wp-admin.
+	 */
+	#[DataProvider( 'provide_feature_search_manage_urls' )]
+	public function test_manage_url_searches_features_behind_the_flag( $product, $flag, $expected ) {
+		// update_init_options() never turns admin_ui off again, so clear it to reach the fallback.
+		$options = new ReflectionProperty( VideoPress_Initializer::class, 'init_options' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+		$saved = $options->getValue();
+		$options->setValue( null, array() );
+
+		if ( $flag ) {
+			add_filter( self::FLAG_FILTER, '__return_true' );
+		}
+		$actual = $product::get_manage_url();
+		$options->setValue( null, $saved );
+
+		$this->assertSame( admin_url( $expected ), $actual );
+	}
+
+	/**
+	 * Products whose manage URL moves to a Features search.
+	 *
+	 * @return array
+	 */
+	public static function provide_feature_search_manage_urls() {
+		return array(
+			'creator, flag off'    => array( Creator::class, false, 'admin.php?page=jetpack#/settings?term=creator' ),
+			'creator, flag on'     => array( Creator::class, true, 'admin.php?page=my-jetpack#/features?search=creator' ),
+			'videopress, flag off' => array( Videopress::class, false, 'admin.php?page=jetpack#/settings?term=videopress' ),
+			'videopress, flag on'  => array( Videopress::class, true, 'admin.php?page=my-jetpack#/features?search=videopress' ),
+		);
 	}
 }
