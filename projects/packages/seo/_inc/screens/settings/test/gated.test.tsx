@@ -109,7 +109,14 @@ describe( 'SettingsScreen plan restrictions', () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'shows saved paid controls disabled on a gated site', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it.each( [ 'wpcom', 'woa' ] )( 'shows saved paid controls disabled on gated %s', host => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host },
+		};
 		isGated.mockReturnValue( true );
 
 		render( <SettingsScreen form={ buildForm( false ) } /> );
@@ -120,6 +127,7 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByLabelText( 'Author job title' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Add canonical URLs to archive pages' ) ).toBeDisabled();
+		expect( screen.getByText( /Your saved canonical URL preference still applies/ ) ).toBeVisible();
 		expect( screen.getByText( /AI crawler rules and llms.txt are paused/ ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(

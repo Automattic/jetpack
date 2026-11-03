@@ -950,6 +950,14 @@ class Dashboard_Data {
 	 * @return true|WP_Error
 	 */
 	private static function apply_module_setting( $module, $enabled ) {
+		if ( 'canonical-urls' === $module && Initializer::is_gated() ) {
+			return new WP_Error(
+				'jetpack_seo_plan_required',
+				__( 'Upgrade to WordPress.com Premium or higher to edit this setting.', 'jetpack-seo' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		if ( 'canonical-urls' === $module && ( new Host() )->is_wpcom_simple() ) {
 			update_option( Canonical_Urls::OPTION, $enabled ? 1 : 0 );
 			return true;

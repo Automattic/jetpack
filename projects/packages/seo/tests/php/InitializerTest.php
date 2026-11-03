@@ -280,11 +280,9 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * A plan-gated WordPress.com site must not merely hide the paid controls — it must
-	 * stop running the services behind them, or it would keep emitting output it isn't
-	 * entitled to.
+	 * A plan-gated site pauses GEO services while preserving enabled archive canonicals.
 	 */
-	public function test_init_skips_paid_services_when_gated() {
+	public function test_init_preserves_canonical_output_when_gated() {
 		$this->simulate_wpcom_site( false );
 
 		try {
@@ -292,7 +290,7 @@ class InitializerTest extends TestCase {
 
 			$this->assertFalse( $hooked['llms_txt'] );
 			$this->assertFalse( $hooked['ai_crawlers'] );
-			$this->assertFalse( $hooked['canonical'] );
+			$this->assertTrue( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}

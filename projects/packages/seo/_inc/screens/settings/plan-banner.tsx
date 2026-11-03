@@ -1,4 +1,3 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import UpsellBanner from '../../components/upsell-banner';
 import type { SettingsResponse } from '../../data/settings-types';
@@ -24,7 +23,6 @@ const legacyDescriptionHelp = __(
 	'Your existing home page description still applies and can be edited.',
 	'jetpack-seo'
 );
-const simpleCanonicalHelp = __( 'Archive canonical URLs are also paused.', 'jetpack-seo' );
 const canonicalHelp = __( 'Your saved canonical URL preference still applies.', 'jetpack-seo' );
 const canonicalDisabledHelp = __(
 	'Jetpack is not adding archive canonical URLs on this site.',
@@ -62,7 +60,7 @@ const SettingsPlanBanner: FC< {
 		if ( settings.canonical_conflicted ) {
 			explanation.push( canonicalDisabledHelp );
 		} else if ( settings.canonical_switchable ) {
-			explanation.push( isSimpleSite() ? simpleCanonicalHelp : canonicalHelp );
+			explanation.push( canonicalHelp );
 		}
 	}
 	explanation.push( aiHelp );

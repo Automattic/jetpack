@@ -924,6 +924,57 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
+	 * A direct request cannot change a plan-locked canonical preference on either host.
+	 *
+	 * @dataProvider provide_plan_gated_canonical_preferences
+	 * @param bool $atomic Whether to simulate Atomic instead of Simple.
+	 * @param bool $enabled The saved canonical preference.
+	 */
+	#[DataProvider( 'provide_plan_gated_canonical_preferences' )]
+	public function test_plan_gated_canonical_switch_preserves_saved_preference( $atomic, $enabled ) {
+		if ( $atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh/wpcomsh.php' );
+		} else {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		\Automattic\Jetpack\Status\Cache::clear();
+		\Wpcom_Test_Features::$known = array( 'advanced-seo' );
+		$modules                     = $enabled ? array( 'sitemaps', 'canonical-urls' ) : array( 'sitemaps' );
+		\Jetpack_Options::update_option( 'active_modules', $modules );
+		update_option( Canonical_Urls::OPTION, (int) $enabled );
+		$this->act_as( 'administrator' );
+
+		try {
+			$this->assertTrue( Initializer::is_gated() );
+			$response = $this->update_modules( array( 'canonical_active' => ! $enabled ) );
+
+			$this->assertSame( 403, $response->get_status() );
+			$this->assertSame( 'jetpack_seo_plan_required', $response->get_data()['code'] );
+			$this->assertSame( (int) $enabled, (int) get_option( Canonical_Urls::OPTION ) );
+			$this->assertSame( $modules, \Jetpack_Options::get_option( 'active_modules' ) );
+		} finally {
+			Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+			Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/**
+	 * @return array<string, array{bool, bool}>
+	 */
+	public static function provide_plan_gated_canonical_preferences() {
+		return array(
+			'Simple, on'  => array( false, true ),
+			'Simple, off' => array( false, false ),
+			'Atomic, on'  => array( true, true ),
+			'Atomic, off' => array( true, false ),
+		);
+	}
+
+	/**
 	 * Simple stores nothing from a non-admin or a non-boolean canonical write.
 	 *
 	 * @dataProvider provide_bad_simple_canonical_writes
