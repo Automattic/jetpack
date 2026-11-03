@@ -33,8 +33,8 @@ const FREE_PLAN_MESSAGE = __(
  * cancelled before the workflow runs — keeping anchor semantics (focus,
  * hover) while delegating navigation to the workflow.
  *
- * @param props         - Component props.
- * @param props.message - Notice body copy. Defaults to the free-plan copy.
+ * @param props          - Component props.
+ * @param props.message  - Notice body copy. Defaults to the free-plan copy.
  * @param props.location - Surface displaying the notice.
  * @return The Notice element.
  */
