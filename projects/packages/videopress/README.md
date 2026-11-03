@@ -89,6 +89,14 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Caption save metrics
+
+`jetpack_videopress_captions_saved` records acknowledged writes from the caption manager with `track_count: 1`, `is_auto: false`, and a bounded `action`: `draft`, `publish`, or `file_upload`. A draft is an editable WordPress record; it does not make captions available to viewers. Publish and file-upload events require the track endpoint's nonempty filename acknowledgment. Publishing emits once for that upload, even when subsequent old-track cleanup or saving the editable copy fails; the editable copy does not generate a second save event.
+
+Count these as track writes, not unique videos, users, captioned-video inventory, or net additions. Repeated saves and replacements each count. Only captions and subtitles are included. `is_auto: false` identifies these manual author actions, including editing a generated track into a manual copy; it does not classify how an uploaded file was originally authored. Automatic speech-generation jobs, other upload paths, viewer playback, and downstream replication are outside this coverage. Preserve existing server track events and do not sum them with this client event as distinct saves.
+
+The event uses the existing analytics transport and controls, with no new GUID, language, filename, label, caption text, or URL properties. Runtime host eligibility, consent/opt-out behavior, delivery, and warehouse coverage dates still require validation before reporting adoption.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
