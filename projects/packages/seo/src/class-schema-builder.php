@@ -68,7 +68,6 @@ class Schema_Builder {
 		}
 		$has_site_entity = null !== $site_entity;
 
-		// Other pages reference the home-page publisher by its stable ID.
 		if ( is_front_page() ) {
 			if ( $has_site_entity ) {
 				$graph->add( $site_entity );
@@ -94,12 +93,13 @@ class Schema_Builder {
 			$post_node = Post_Schema_Node::build( $post );
 			if ( null !== $post_node ) {
 				// Only the Article node carries publisher/author; FAQPage does not.
-				// Both are @id references: publisher points at the home-page site
-				// entity (the Organization or Person, never duplicated), author points
-				// at the full Person node added to this page's graph.
 				if ( 'Article' === ( $post_node['@type'] ?? '' ) ) {
 					if ( $has_site_entity ) {
 						$post_node['publisher'] = array( '@id' => $publisher_id );
+						if ( null === $organization ) {
+							// Define the Person here so the publisher resolves within this page.
+							$graph->add( $site_entity );
+						}
 					}
 					$person = self::build_person_node( (int) $post->post_author, null !== $organization );
 					if ( null !== $person ) {

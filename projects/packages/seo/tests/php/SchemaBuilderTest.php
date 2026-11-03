@@ -767,21 +767,36 @@ class SchemaBuilderTest extends TestCase {
 	}
 
 	/**
-	 * On a single post of a person-site, the Article references the site-level Person
-	 * as its `publisher` by `@id`, without duplicating the Person node onto the post.
+	 * Resolve the site's Person publisher within the post graph, separately from its author.
 	 */
 	public function test_post_references_person_publisher_when_site_represents_person() {
 		$this->set_site_name( 'Jane Rivera' );
-		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
-
-		$doc = $this->emit_document( $this->make_post() );
+		Schema_Settings::update(
+			array(
+				'siteRepresents' => 'person',
+				'person'         => array(
+					'name'        => 'Jane Rivera',
+					'description' => 'An independent publisher.',
+					'sameAs'      => array( 'https://example.com/jane' ),
+				),
+			)
+		);
+		$author = $this->make_user( array( 'display_name' => 'Guest Author' ) );
+		$doc    = $this->emit_document( $this->make_post( array( 'post_author' => $author->ID ) ) );
 
 		$article = $this->node_of_type( $doc, 'Article' );
 		$this->assertIsArray( $article, 'Expected an Article node in the graph.' );
 		$this->assertSame( Schema_Node_Ids::site_person(), $article['publisher']['@id'] );
 
-		// Site-level nodes live on the home page only; the post carries neither entity.
-		$this->assertNull( $this->node_of_type( $doc, 'Person' ), 'The site Person node lives on the home page only.' );
+		$nodes     = array_column( $doc['@graph'], null, '@id' );
+		$publisher = $nodes[ $article['publisher']['@id'] ];
+		$this->assertSame( 'Person', $publisher['@type'] );
+		$this->assertSame( 'Jane Rivera', $publisher['name'] );
+		$this->assertSame( 'An independent publisher.', $publisher['description'] );
+		$this->assertSame( array( 'https://example.com/jane' ), $publisher['sameAs'] );
+		$this->assertNotSame( $article['publisher']['@id'], $article['author']['@id'] );
+		$this->assertSame( 'Guest Author', $nodes[ $article['author']['@id'] ]['name'] );
+		$this->assertArrayNotHasKey( 'worksFor', $nodes[ $article['author']['@id'] ] );
 		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A person-site emits no Organization node.' );
 	}
 
