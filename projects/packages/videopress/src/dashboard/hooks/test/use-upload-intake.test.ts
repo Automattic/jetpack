@@ -55,6 +55,7 @@ describe( 'useUploadIntake', () => {
 	} );
 
 	it( 'starts an upload per accepted file and reports the count', () => {
+		mockFreeTier = { ...mockFreeTier, knownVideoCount: 4 };
 		const files = [ video( 'a.mp4' ), video( 'b.mp4' ) ];
 
 		expect( intake()( files ) ).toBe( 2 );
@@ -62,11 +63,11 @@ describe( 'useUploadIntake', () => {
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
 		expect( mockStartUpload ).toHaveBeenNthCalledWith( 1, files[ 0 ], {
 			isFree: false,
-			videoCountBefore: undefined,
+			videoCountBefore: 4,
 		} );
 		expect( mockStartUpload ).toHaveBeenNthCalledWith( 2, files[ 1 ], {
 			isFree: false,
-			videoCountBefore: undefined,
+			videoCountBefore: 5,
 		} );
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );

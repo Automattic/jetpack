@@ -40,7 +40,8 @@ describe( 'useFreeTier', () => {
 		} );
 
 		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
-		await waitFor( () => expect( result.current.videoCount ).toBeGreaterThanOrEqual( 1 ) );
+		expect( result.current.knownVideoCount ).toBeUndefined();
+		await waitFor( () => expect( result.current.knownVideoCount ).toBe( 1 ) );
 		// 0 completed (server total) + 1 in-flight = 1; free tier limit = 1 → at limit
 		expect( result.current.videoCount ).toBe( 1 );
 		expect( result.current.isAtLimit ).toBe( true );
