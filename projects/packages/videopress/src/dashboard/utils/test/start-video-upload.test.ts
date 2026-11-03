@@ -1,6 +1,13 @@
 import getMediaToken from '../../../client/lib/get-media-token';
 import resumableFileUploader from '../../../client/lib/resumable-file-uploader';
 import { startVideoUpload } from '../start-video-upload';
+import { createUploadAnalytics } from '../../../client/lib/upload-analytics';
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 jest.mock( '../../../client/lib/get-media-token', () => ( {
 	__esModule: true,
@@ -44,4 +51,38 @@ it.each( [
 
 	expect( mockUploader ).not.toHaveBeenCalled();
 	expect( handlers.onError ).not.toHaveBeenCalled();
+} );
+
+it( 'records a token failure and retry with the same logical upload before tus exists', async () => {
+	const analytics = createUploadAnalytics( file, 'dashboard' );
+	mockToken.mockRejectedValueOnce( new Error( 'private-token-error' ) );
+	const handlers = callbacks();
+	await startVideoUpload( file, handlers, { analytics } );
+	expect( mockUploader ).not.toHaveBeenCalled();
+	expect( handlers.onError ).toHaveBeenCalledTimes( 1 );
+	mockToken.mockResolvedValueOnce( token );
+	await startVideoUpload( file, handlers, { analytics } );
+	expect( mockUploader ).toHaveBeenCalledWith( expect.objectContaining( { analytics } ) );
+	expect(
+		jest.mocked( jetpackAnalytics.tracks.recordEvent ).mock.calls.map( ( [ name ] ) => name )
+	).toEqual( [
+		'jetpack_videopress_upload_started',
+		'jetpack_videopress_upload_failed',
+		'jetpack_videopress_upload_retried',
+		'jetpack_videopress_upload_started',
+	] );
+} );
+
+it( 'records a pause while token acquisition is pending without starting tus', async () => {
+	const analytics = createUploadAnalytics( file, 'analytics_widget' );
+	const controller = new AbortController();
+	mockToken.mockResolvedValueOnce( token );
+	const started = startVideoUpload( file, callbacks(), { analytics, signal: controller.signal } );
+	controller.abort();
+	await started;
+	expect( mockUploader ).not.toHaveBeenCalled();
+	expect( jetpackAnalytics.tracks.recordEvent ).toHaveBeenLastCalledWith(
+		'jetpack_videopress_upload_canceled',
+		expect.objectContaining( { action: 'pause', source: 'analytics_widget' } )
+	);
 } );

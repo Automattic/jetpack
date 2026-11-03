@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  * Internal dependencies
  */
 import { startVideoUpload } from '../../../../src/dashboard/utils/start-video-upload';
+import { createUploadAnalytics } from '../../../../src/client/lib/upload-analytics';
+import type { UploadAnalytics } from '../../../../src/client/lib/upload-analytics';
 import type { VideoMediaProps } from '../../../../src/client/lib/resumable-file-uploader/types';
 
 export type UploadPhase =
@@ -24,12 +26,18 @@ export type UploadPhase =
 export function useVideoUpload( onUploaded: ( media: VideoMediaProps ) => void ) {
 	const [ phase, setPhase ] = useState< UploadPhase >( { status: 'idle' } );
 	const attempt = useRef< AbortController | null >( null );
+	const recordings = useRef( new WeakMap< File, UploadAnalytics >() );
 
 	// Leaving the widget stops the upload; tus keeps it resumable for the same file.
 	useEffect( () => () => attempt.current?.abort(), [] );
 
 	const upload = useCallback(
 		( file: File ) => {
+			let analytics = recordings.current.get( file );
+			if ( ! analytics || analytics.isComplete() ) {
+				analytics = createUploadAnalytics( file, 'analytics_widget' );
+				recordings.current.set( file, analytics );
+			}
 			attempt.current = new AbortController();
 			setPhase( { status: 'uploading', file, progress: 0 } );
 			void startVideoUpload(
@@ -47,7 +55,7 @@ export function useVideoUpload( onUploaded: ( media: VideoMediaProps ) => void )
 					},
 					onError: () => setPhase( { status: 'failed', file } ),
 				},
-				{ signal: attempt.current.signal }
+				{ signal: attempt.current.signal, analytics }
 			);
 		},
 		[ onUploaded ]

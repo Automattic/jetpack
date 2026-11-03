@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useState } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -9,6 +9,9 @@ import debugFactory from 'debug';
 import getMediaToken from '../../lib/get-media-token';
 import resumableFileUploader from '../../lib/resumable-file-uploader';
 import { VideoMediaProps } from '../../lib/resumable-file-uploader/types';
+import { createUploadAnalytics } from '../../lib/upload-analytics';
+import type { UploadAnalytics } from '../../lib/upload-analytics';
+import type { MediaTokenProps } from '../../lib/get-media-token/types';
 import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
@@ -112,6 +115,7 @@ const useResumableUploader = ( {
 	const [ media, setMedia ] = useState< VideoMediaProps >();
 	const [ error, setError ] = useState< ResumableUploadError | null >( null );
 	const [ resumeHandler, setResumeHandler ] = useState< ResumaHandlerProps >();
+	const recordings = useRef( new WeakMap< File, UploadAnalytics >() );
 
 	/**
 	 * Upload a file
@@ -120,9 +124,22 @@ const useResumableUploader = ( {
 	 * @return {*} ???
 	 */
 	async function uploadHandler( file: File ) {
-		const tokenData = await getMediaToken( 'upload-jwt' );
-		if ( ! tokenData.token ) {
-			return onError( new UploadTokenError() );
+		let analytics = recordings.current.get( file );
+		if ( ! analytics || analytics.isComplete() ) {
+			analytics = createUploadAnalytics( file, 'block_editor' );
+			recordings.current.set( file, analytics );
+		}
+		analytics.start();
+		let tokenData: MediaTokenProps;
+		try {
+			tokenData = await getMediaToken( 'upload-jwt' );
+			if ( ! tokenData?.token ) {
+				throw new UploadTokenError();
+			}
+		} catch ( failure ) {
+			analytics.fail( failure, 'token' );
+			const tokenError = failure instanceof Error ? failure : new UploadTokenError();
+			return onError( tokenError );
 		}
 
 		// The file starts to upload automatically, so we need to set the status to uploading
@@ -136,6 +153,7 @@ const useResumableUploader = ( {
 		const resumableHandler = resumableFileUploader( {
 			file,
 			tokenData,
+			analytics,
 			onProgress: ( bytesSent: number, bytesTotal: number ) => {
 				// If the upload is done, don't update the progress
 				if ( isDone ) {
@@ -166,10 +184,12 @@ const useResumableUploader = ( {
 
 		const resumable = {
 			start: () => {
+				analytics.start();
 				setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 				resumableHandler.start();
 			},
 			abort: () => {
+				analytics.pause();
 				setUploadingData( prev => ( { ...prev, status: 'aborted' } ) );
 				resumableHandler.abort();
 			},

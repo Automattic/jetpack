@@ -69,6 +69,18 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Browser upload lifecycle analytics
+
+The modern dashboard, video block file uploader and Premium Analytics upload widget record the existing specification's `jetpack_videopress_upload_started`, `_succeeded`, `_failed`, `_canceled` and `_retried` names through shared Tracks controls. Their bounded sources are `dashboard`, `block_editor` and `analytics_widget`. PHP promotion/import, legacy/multipart routes and client-observed playability remain outside this browser batch.
+
+A random `upload_id` identifies a selected File within its queue/component lifetime. `attempt` starts at one and advances after a reported failure; pause/resume retains that attempt. `sequence` orders observations within the logical upload. Selecting a new File or reloading starts a new identity, including when tus resumes a previous server upload: `retry_type: stored_upload` marks that partial-history case. `network` retries count when a subsequent request starts, `resume` when the UI resumes a pause, and `user` when a failed selection is attempted again. These are not interchangeable with distinct newly uploaded videos.
+
+Started covers token acquisition. Outcomes describe client callbacks: success is the existing server response-header acknowledgment, not transcoding or playback. Only valid eight-character GUIDs are sent; `guid_valid: false` retains malformed/missing identifier coverage without collecting that value. Failure uses only bounded token/transfer/resume-lookup codes and an optional numeric HTTP status, never raw error text. Progress is client-reported bytes, not independently confirmed durable bytes. `_canceled` has `action: pause`: tus abort preserves resumability and does not imply server deletion. A lost browser without an outcome remains censored.
+
+`file_type` is allowlisted MIME or `other`/`unknown`; filenames, URLs and file contents are excluded from Tracks. Duration is monotonic elapsed milliseconds within the successful attempt, including pauses. Dashboard `is_free` is its known access flag, not a canonical paid/free classification, and `video_count_before` includes the known library count plus queued uploads at selection. Unknown context is omitted; the editor and widget currently omit it. Source and upload ID also enter tus metadata on new server uploads; this does not establish backend persistence or recover original metadata for an already-existing upload.
+
+Missing secure randomness suppresses correlation/events, and analytics exceptions do not interrupt uploads. Existing runtime host/consent controls and transport enrichment still require deployment validation; there is no claim of complete route coverage, server outcomes, warehouse availability or an all-product success rate. Keep server completion events separate from these client outcomes.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).

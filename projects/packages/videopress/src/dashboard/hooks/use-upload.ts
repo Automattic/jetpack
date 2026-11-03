@@ -5,6 +5,8 @@ import { dispatch } from '@wordpress/data';
 import { useCallback, useSyncExternalStore } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
+import { createUploadAnalytics } from '../../client/lib/upload-analytics';
+import type { UploadAnalytics, UploadContext } from '../../client/lib/upload-analytics';
 import { toLibraryItem } from '../utils/library-item';
 import { startVideoUpload } from '../utils/start-video-upload';
 import { LIBRARY_QUERY_KEY } from './use-library';
@@ -29,6 +31,7 @@ export type UploadItem = {
 	details?: VideoDetailsPatch;
 	isSavingDetails?: boolean;
 	detailsError?: boolean;
+	analytics?: UploadAnalytics;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -179,22 +182,26 @@ async function startNextPending( client: QueryClient ): Promise< void > {
 		} );
 		settle();
 	};
-	await startVideoUpload( file, {
-		onProgress: ( sent, total ) => {
-			if ( ! settled && store.activeId === id ) {
-				updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
-			}
+	await startVideoUpload(
+		file,
+		{
+			onProgress: ( sent, total ) => {
+				if ( ! settled && store.activeId === id ) {
+					updateItem( id, { progress: total > 0 ? sent / total : 0, status: 'uploading' } );
+				}
+			},
+			onSuccess: media => {
+				if ( settled || store.activeId !== id ) {
+					return;
+				}
+				updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
+				settle();
+				void finishUpload( id, client );
+			},
+			onError,
 		},
-		onSuccess: media => {
-			if ( settled || store.activeId !== id ) {
-				return;
-			}
-			updateItem( id, { progress: 1, status: 'success', mediaId: String( media.id ), media } );
-			settle();
-			void finishUpload( id, client );
-		},
-		onError,
-	} );
+		{ analytics: next.analytics }
+	);
 }
 
 /**
@@ -207,10 +214,19 @@ export function useUpload() {
 	const { queue, completed } = useSyncExternalStore( subscribeStore, readSnapshot, readSnapshot );
 
 	const startUpload = useCallback(
-		( file: File ): string => {
+		( file: File, context: UploadContext = {} ): string => {
 			const id = `upload-${ Date.now() }-${ Math.random().toString( 36 ).slice( 2, 10 ) }`;
 			updateSnapshot( {
-				queue: [ ...readSnapshot().queue, { id, file, progress: 0, status: 'pending' } ],
+				queue: [
+					...readSnapshot().queue,
+					{
+						id,
+						file,
+						progress: 0,
+						status: 'pending',
+						analytics: createUploadAnalytics( file, 'dashboard', context ),
+					},
+				],
 			} );
 			void startNextPending( client );
 			return id;

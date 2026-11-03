@@ -60,8 +60,14 @@ describe( 'useUploadIntake', () => {
 		expect( intake()( files ) ).toBe( 2 );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 2 );
-		expect( mockStartUpload ).toHaveBeenNthCalledWith( 1, files[ 0 ] );
-		expect( mockStartUpload ).toHaveBeenNthCalledWith( 2, files[ 1 ] );
+		expect( mockStartUpload ).toHaveBeenNthCalledWith( 1, files[ 0 ], {
+			isFree: false,
+			videoCountBefore: undefined,
+		} );
+		expect( mockStartUpload ).toHaveBeenNthCalledWith( 2, files[ 1 ], {
+			isFree: false,
+			videoCountBefore: undefined,
+		} );
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
 	} );
 
@@ -106,7 +112,10 @@ describe( 'useUploadIntake', () => {
 		expect( intake()( files ) ).toBe( 1 );
 
 		expect( mockStartUpload ).toHaveBeenCalledTimes( 1 );
-		expect( mockStartUpload ).toHaveBeenCalledWith( files[ 0 ] );
+		expect( mockStartUpload ).toHaveBeenCalledWith( files[ 0 ], {
+			isFree: true,
+			videoCountBefore: undefined,
+		} );
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
 			'2 videos weren’t uploaded because they exceed your plan’s limit.',
 			{ type: 'snackbar' }

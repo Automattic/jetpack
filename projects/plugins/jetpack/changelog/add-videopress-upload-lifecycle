@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Report failures when an upload cannot be initialized.
