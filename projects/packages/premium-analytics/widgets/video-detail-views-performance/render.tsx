@@ -3,6 +3,7 @@
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -18,7 +19,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useVideoMetrics, { COUNT_FORMAT } from './use-video-metrics';
+import useVideoMetrics from './use-video-metrics';
 import type {
 	VideoDetailViewsPerformanceAttributes,
 	VideoDetailViewsPerformanceChartType,
@@ -77,7 +78,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 			>
 				<MetricTabsChart
 					metrics={ metrics }
-					dataFormat={ COUNT_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					chartTitle={ __( 'Video performance', 'jetpack-premium-analytics-pkg' ) }

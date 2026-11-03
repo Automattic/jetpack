@@ -22,11 +22,14 @@ declare module '@automattic/jetpack-script-data' {
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
-			store_currency?: { code: string; symbol: string };
-			// The roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options.
+			store_currency?: { code: string; symbol: string; precision?: number };
+			// The settings the site offers, the roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options, or when the host offers no setting.
 			stats_settings?: {
+				// Absent from servers that predate the host's choice of fields.
+				fields?: string[];
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
+				features_screen: 'features' | 'modules' | null;
 				consent?: {
 					api_active: boolean;
 					api_installed: boolean;

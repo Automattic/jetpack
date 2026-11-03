@@ -303,7 +303,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 	/**
 	 * Permission for the data proxy: the prefix's configured capability grants access, and
-	 * `manage_options` always does (so `analytics`, whose capability is `manage_options`, stays
+	 * `manage_options` always does (so `wordads`, whose `activate_wordads` no role holds, stays
 	 * admin-only). The capability comes from {@see PREFIX_CONFIG}.
 	 *
 	 * @param WP_REST_Request $request Request object.

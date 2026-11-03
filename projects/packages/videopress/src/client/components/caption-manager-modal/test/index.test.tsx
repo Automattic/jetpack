@@ -173,14 +173,6 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	__experimentalConfirmDialog: ( { children, isOpen, onCancel, onConfirm, confirmButtonText } ) =>
-		isOpen ? (
-			<div role="alertdialog">
-				<p>{ children }</p>
-				<button onClick={ onCancel }>Cancel</button>
-				<button onClick={ onConfirm }>{ confirmButtonText }</button>
-			</div>
-		) : null,
 	Notice: ( { children } ) => <div role="alert">{ children }</div>,
 	SnackbarList: ( { notices, onRemove } ) => (
 		<div data-testid="snackbar-list">

@@ -104,24 +104,20 @@ describe( 'ModuleToggle', () => {
 					isBlockTheme: true,
 					isSharingBlockAvailable: true,
 					isLikeBlockAvailable: true,
-					activeThemeStylesheet: 'twentytwentyfour',
 				},
 			},
 		} as Window[ 'JetpackScriptData' ];
 	} );
 
-	it.each( blockThemeModules )(
-		'links inactive %s to the Single template on block themes',
-		module => {
-			render( <ModuleToggle module={ legacyModule( { module } ) } /> );
+	it.each( [
+		[ 'sharedaddy', 'https://example.com/wp-admin/options-general.php?page=sharing' ],
+		[ 'likes', 'https://example.com/wp-admin/options-general.php?page=sharing#likes' ],
+	] )( 'links inactive %s to Settings › Sharing on block themes', ( module, url ) => {
+		render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
-			expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
-				'href',
-				'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
-			);
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		}
-	);
+		expect( screen.getByRole( 'link', { name: 'Configure' } ) ).toHaveAttribute( 'href', url );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
 
 	it.each( blockThemeModules )(
 		'deactivates legacy %s when switching to the block',
