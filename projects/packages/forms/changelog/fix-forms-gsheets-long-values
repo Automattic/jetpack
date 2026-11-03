@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix exporting to Google Sheets when a response has a very long value.
+Fix exporting to Google Sheets when a response has a very long value, and say when an export is too large for Google Sheets.

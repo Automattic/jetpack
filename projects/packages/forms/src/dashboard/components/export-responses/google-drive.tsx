@@ -67,6 +67,9 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		onExport( 'grunion_export_to_gdrive', 'feedback_export_nonce_gdrive' )
 			.then( ( response: Response ) => response.json() )
 			.then( ( { success, data } ) => {
+				if ( data?.code === 'export_too_large' ) {
+					throw new Error( 'export_too_large' );
+				}
 				if ( ! success || ! data?.sheet_link ) {
 					throw new Error( 'Google Sheets export failed' );
 				}
@@ -80,12 +83,17 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 					}
 				);
 			} )
-			.catch( () => {
+			.catch( ( error: Error ) => {
 				createErrorNotice(
-					__(
-						'Could not export to Google Sheets. For a large number of responses, download a CSV file instead.',
-						'jetpack-forms'
-					),
+					error?.message === 'export_too_large'
+						? __(
+								'This export is too large for Google Sheets. Export fewer responses, or download a CSV file instead.',
+								'jetpack-forms'
+							)
+						: __(
+								'Could not export to Google Sheets. For a large number of responses, download a CSV file instead.',
+								'jetpack-forms'
+							),
 					{ type: 'snackbar', id: noticeId }
 				);
 			} )
