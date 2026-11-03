@@ -2,4 +2,3 @@ Significance: patch
 Type: other
 Comment: Add client-observed rendition readiness measurement without changing playback or polling.
 
-
