@@ -128,7 +128,11 @@ describe( 'PricingUpsell', () => {
 						target: button,
 						isIntersecting: true,
 						intersectionRatio: 1,
-					} as IntersectionObserverEntry,
+						time: 0,
+						rootBounds: null,
+						boundingClientRect: button.getBoundingClientRect(),
+						intersectionRect: button.getBoundingClientRect(),
+					},
 				],
 				{} as IntersectionObserver
 			)
