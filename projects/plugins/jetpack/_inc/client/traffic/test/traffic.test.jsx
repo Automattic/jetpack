@@ -13,7 +13,7 @@ jest.mock( '../related-posts-moved', () => ( {
 } ) );
 jest.mock( '../seo', () => () => null );
 jest.mock( '../seo-optin-banner', () => () => 'SEO opt-in banner' );
-jest.mock( '../shortlinks', () => () => null );
+jest.mock( '../shortlinks', () => () => 'shortlinks card' );
 jest.mock( '../site-stats', () => ( { SiteStats: () => null } ) );
 jest.mock( '../sitemaps', () => () => null );
 jest.mock( '../verification-services', () => ( { VerificationServices: () => null } ) );
@@ -23,6 +23,7 @@ const findsOnlySitemaps = module => module === 'sitemaps';
 const findsOnly = {
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
+	shortlinks: module => module === 'shortlinks',
 };
 
 describe( 'Traffic settings', () => {
@@ -53,6 +54,9 @@ describe( 'Traffic settings', () => {
 		[ 'blaze', 'off, in the tab', false, '', [ 'blaze card' ] ],
 		[ 'blaze', 'on, in the tab', true, '', [] ],
 		[ 'blaze', 'on, in a search', true, 'blaze', [ 'blaze pointer' ] ],
+		[ 'shortlinks', 'off, in the tab', false, '', [ 'shortlinks card' ] ],
+		[ 'shortlinks', 'on, in the tab', true, '', [] ],
+		[ 'shortlinks', 'on, in a search', true, 'shortlinks', [ 'shortlinks pointer' ] ],
 	] )( 'shows %s with the settings flag %s', ( module, _when, flag, searchTerm, expected ) => {
 		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
 		try {

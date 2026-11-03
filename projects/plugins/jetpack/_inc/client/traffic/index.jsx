@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
@@ -120,7 +120,18 @@ export class Traffic extends Component {
 					) : (
 						<Blaze { ...commonProps } />
 					) ) }
-				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
+				{ foundShortlinks &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && (
+							<FeaturesPointer
+								header={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								name={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								search="shortlinks"
+							/>
+						)
+					) : (
+						<Shortlinks { ...commonProps } />
+					) ) }
 				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundVerification && (
 					<VerificationServices { ...commonProps } />
