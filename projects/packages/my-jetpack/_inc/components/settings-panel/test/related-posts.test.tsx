@@ -6,6 +6,7 @@ import type { MyJetpackModule } from '../../../types';
 
 const mockFetchModules = jest.fn();
 const mockCreateErrorNotice = jest.fn();
+const mockCreateSuccessNotice = jest.fn();
 let mockIsBlockTheme = false;
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -15,6 +16,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		fetchModules: mockFetchModules,
 		createErrorNotice: mockCreateErrorNotice,
+		createSuccessNotice: mockCreateSuccessNotice,
 	} ),
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -22,8 +24,8 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( { myJetpack: { siteEditor: { isBlockTheme: mockIsBlockTheme } } } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
-	ModuleToggle: ( { labelledby }: { labelledby?: string } ) => (
-		<input type="checkbox" aria-labelledby={ labelledby } />
+	ModuleToggle: ( { labelledby, disabled }: { labelledby?: string; disabled?: boolean } ) => (
+		<input type="checkbox" aria-labelledby={ labelledby } disabled={ disabled } />
 	),
 } ) );
 
@@ -48,7 +50,7 @@ beforeEach( () => {
 
 describe( 'RelatedPostsSettings', () => {
 	it( 'names the module switch by the visible text', () => {
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 
 		expect(
 			screen.getByRole( 'checkbox', { name: 'Show related content after posts' } )
@@ -56,14 +58,14 @@ describe( 'RelatedPostsSettings', () => {
 	} );
 
 	it( 'shows the stored values of both options', () => {
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 
 		expect( screen.getByRole( 'switch', { name: /heading/ } ) ).toBeChecked();
 		expect( screen.getByRole( 'switch', { name: /thumbnail/ } ) ).not.toBeChecked();
 	} );
 
 	it( 'saves a changed option to the settings endpoint, then refetches the modules', async () => {
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 		await userEvent.click( screen.getByRole( 'switch', { name: /thumbnail/ } ) );
 
 		expect( apiFetch ).toHaveBeenCalledWith( {
@@ -71,24 +73,26 @@ describe( 'RelatedPostsSettings', () => {
 			method: 'POST',
 			data: { show_thumbnails: true },
 		} );
-		await waitFor( () => expect( mockFetchModules ).toHaveBeenCalledTimes( 1 ) );
+		await waitFor( () => expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockFetchModules ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'says so when the save fails, and shows the stored value again', async () => {
 		( apiFetch as unknown as jest.Mock ).mockRejectedValue( new Error( 'nope' ) );
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 		await userEvent.click( screen.getByRole( 'switch', { name: /thumbnail/ } ) );
 
 		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalledTimes( 1 ) );
 		expect( screen.getByRole( 'switch', { name: /thumbnail/ } ) ).not.toBeChecked();
 		expect( mockFetchModules ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [
-		[ 'the module is off', { activated: false } ],
-		[ 'the module is forced', { override: 'active' as const } ],
-	] )( 'locks both options when %s', ( _name, overrides ) => {
-		render( <RelatedPostsSettings module={ build( overrides ) } /> );
+		[ 'the module is off', { activated: false }, false ],
+		[ 'the site cannot use it', {}, true ],
+	] )( 'locks both options when %s', ( _name, overrides, disabled ) => {
+		render( <RelatedPostsSettings module={ build( overrides ) } disabled={ disabled } /> );
 
 		expect( screen.getByRole( 'switch', { name: /heading/ } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -100,8 +104,27 @@ describe( 'RelatedPostsSettings', () => {
 		);
 	} );
 
+	it( 'keeps the options editable when the host forces the module on', () => {
+		render(
+			<RelatedPostsSettings module={ build( { override: 'active' } ) } disabled={ false } />
+		);
+
+		expect( screen.getByRole( 'switch', { name: /heading/ } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'locks the module switch when the site cannot use it', () => {
+		render( <RelatedPostsSettings module={ build() } disabled /> );
+
+		expect(
+			screen.getByRole( 'checkbox', { name: 'Show related content after posts' } )
+		).toBeDisabled();
+	} );
+
 	it( 'reads a module with no options as off', () => {
-		render( <RelatedPostsSettings module={ build( { options: [] } ) } /> );
+		render( <RelatedPostsSettings module={ build( { options: [] } ) } disabled={ false } /> );
 
 		expect( screen.getByRole( 'switch', { name: /heading/ } ) ).not.toBeChecked();
 	} );
@@ -116,7 +139,9 @@ describe( 'RelatedPostsSettings', () => {
 				show_headline: { current_value: headline },
 				show_thumbnails: { current_value: thumbnails },
 			};
-			render( <RelatedPostsSettings module={ build( { options } as never ) } /> );
+			render(
+				<RelatedPostsSettings module={ build( { options } as never ) } disabled={ false } />
+			);
 			const preview = screen.getByRole( 'group', { name: 'Preview' } );
 
 			expect( within( preview ).getAllByRole( 'listitem' ) ).toHaveLength( 3 );
@@ -129,7 +154,7 @@ describe( 'RelatedPostsSettings', () => {
 
 	it( 'follows an option while its save is still running', async () => {
 		( apiFetch as unknown as jest.Mock ).mockReturnValue( new Promise( () => undefined ) );
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 		await userEvent.click( screen.getByRole( 'switch', { name: /thumbnail/ } ) );
 
 		expect(
@@ -138,13 +163,13 @@ describe( 'RelatedPostsSettings', () => {
 	} );
 
 	it( 'leaves out the preview while the module is off', () => {
-		render( <RelatedPostsSettings module={ build( { activated: false } ) } /> );
+		render( <RelatedPostsSettings module={ build( { activated: false } ) } disabled={ false } /> );
 
 		expect( screen.queryByRole( 'group', { name: 'Preview' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links to the Customizer on a classic theme, coming back to this page', () => {
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 		const href = screen
 			.getByRole( 'link', { name: 'Configure related posts in the Customizer' } )
 			.getAttribute( 'href' ) as string;
@@ -157,14 +182,17 @@ describe( 'RelatedPostsSettings', () => {
 
 	it( 'points a block theme to the site editor docs instead', () => {
 		mockIsBlockTheme = true;
-		render( <RelatedPostsSettings module={ build() } /> );
+		render( <RelatedPostsSettings module={ build() } disabled={ false } /> );
 
 		expect( screen.getByRole( 'link', { name: /site editor/ } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Customizer/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves out the appearance link while the module is off', () => {
-		render( <RelatedPostsSettings module={ build( { activated: false } ) } /> );
+	it.each( [
+		[ 'the module is off', { activated: false }, false ],
+		[ 'the site cannot use it', {}, true ],
+	] )( 'leaves out the appearance link while %s', ( _name, overrides, disabled ) => {
+		render( <RelatedPostsSettings module={ build( overrides ) } disabled={ disabled } /> );
 
 		expect( screen.queryByRole( 'link', { name: /Customizer/ } ) ).not.toBeInTheDocument();
 	} );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Settings panel: Lock the settings of a feature the site cannot use, such as in Offline Mode, and say why.

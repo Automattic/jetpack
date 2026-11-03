@@ -49,14 +49,15 @@ function AppearanceLink() {
 /**
  * The Related Posts options, moved here from the Settings screen's Traffic tab.
  *
- * @param props        - Component props.
- * @param props.module - The module.
+ * @param props          - Component props.
+ * @param props.module   - The module.
+ * @param props.disabled - Whether the site cannot use the module.
  * @return The settings.
  */
-export function RelatedPostsSettings( { module: $module }: ModuleSettingsProps ) {
+export function RelatedPostsSettings( { module: $module, disabled }: ModuleSettingsProps ) {
 	const headline = useModuleOption( $module, 'show_headline' );
 	const thumbnails = useModuleOption( $module, 'show_thumbnails' );
-	const optionsDisabled = ! $module.activated || !! $module.override;
+	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
 
 	return (
@@ -80,7 +81,7 @@ export function RelatedPostsSettings( { module: $module }: ModuleSettingsProps )
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Show related content after posts', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } />
+				<ModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			<SwitchControl
@@ -100,7 +101,7 @@ export function RelatedPostsSettings( { module: $module }: ModuleSettingsProps )
 				<RelatedPostsPreview showHeadline={ headline.value } showThumbnails={ thumbnails.value } />
 			) }
 
-			{ $module.activated && <AppearanceLink /> }
+			{ $module.activated && ! disabled && <AppearanceLink /> }
 		</Stack>
 	);
 }

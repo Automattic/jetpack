@@ -4,6 +4,7 @@ import { useNavigate } from '@wordpress/route';
 import { IconButton, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouteSearch } from '../../router-bridge';
+import { getModuleAvailability } from '../my-jetpack-tab-panel/features/module-availability';
 import { useAllJetpackModules } from '../my-jetpack-tab-panel/features/use-all-jetpack-modules';
 import { FallbackSettings } from './fallback-settings';
 import { moduleSettings } from './registry';
@@ -69,9 +70,26 @@ export function SettingsPanel() {
 		[ onClose ]
 	);
 
+	// Jetpack's own verdict, which covers offline mode, a missing connection or owner, and the plan.
+	const availability = $module ? getModuleAvailability( $module ) : undefined;
+	const disabled = availability?.isAvailable === false;
+
 	let body;
 	if ( $module ) {
-		body = Settings ? <Settings module={ $module } /> : <FallbackSettings module={ $module } />;
+		body = (
+			<>
+				{ disabled && (
+					<Notice.Root intent="warning">
+						<Notice.Description>{ availability?.reason }</Notice.Description>
+					</Notice.Root>
+				) }
+				{ Settings ? (
+					<Settings module={ $module } disabled={ disabled } />
+				) : (
+					<FallbackSettings module={ $module } disabled={ disabled } />
+				) }
+			</>
+		);
 	} else if ( hasLoaded ) {
 		body = (
 			<Notice.Root intent="warning">
