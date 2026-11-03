@@ -43,18 +43,34 @@ class Dashboard_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		Cache::clear();
+		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'doing_it_wrong_run' );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
+		self::reset_sections();
 		parent::tear_down();
 	}
 
 	/**
-	 * The constants that identify each host, and whether init() should queue the sidebar item.
+	 * Empty the private section registry.
+	 */
+	private static function reset_sections() {
+		$sections = new \ReflectionProperty( Dashboard::class, 'sections' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$sections->setAccessible( true );
+		}
+		$sections->setValue( null, array() );
+	}
+
+	/**
+	 * The constants that identify each host, and whether init() should queue the sidebar item and the REST routes.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_hosts() {
 		return array(
-			'self-hosted' => array( array(), true ),
-			'Simple'      => array( array( 'IS_WPCOM' => true ), false ),
+			'self-hosted' => array( array(), true, true ),
+			'Simple'      => array( array( 'IS_WPCOM' => true ), false, false ),
 			'Atomic'      => array(
 				array(
 					'ATOMIC_SITE_ID'       => 1,
@@ -62,6 +78,7 @@ class Dashboard_Test extends BaseTestCase {
 					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 				),
 				false,
+				true,
 			),
 		);
 	}
@@ -71,15 +88,17 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param array $constants Host constants to set.
 	 * @param bool  $queued    Whether the sidebar item should be queued.
+	 * @param bool  $routes    Whether the REST routes should be registered.
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_init_queues_the_item_only_off_the_wpcom_platform( $constants, $queued ) {
+	public function test_init_queues_the_item_off_the_wpcom_platform_and_routes_off_simple( $constants, $queued, $routes ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
 
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
+		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );
@@ -196,5 +215,36 @@ class Dashboard_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
+	}
+
+	public function test_load_sections_registers_each_file_class_once() {
+		$dir            = __DIR__ . '/fixtures/sections';
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::load_sections( $dir );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Loading twice is the behavior under test.
+		Dashboard::load_sections( $dir );
+
+		$this->assertSame( array( 'example' => array( 'loaded' => true ) ), Dashboard::get_initial_state() );
+		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	public function test_print_initial_state_escapes_section_state() {
+		Dashboard::load_sections( __DIR__ . '/fixtures/sections' );
+		add_filter( 'jetpack_monetize_example_section_state', static fn() => array( 'title' => '</script>' ) );
+
+		ob_start();
+		Dashboard::print_initial_state();
+		$output = ob_get_clean();
+		remove_all_filters( 'jetpack_monetize_example_section_state' );
+
+		$this->assertStringContainsString( 'window.jetpackMonetizeDashboard = {"example":{"title":"\\u003C/script\\u003E"}};', $output );
 	}
 }

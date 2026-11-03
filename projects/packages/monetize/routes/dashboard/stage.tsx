@@ -1,9 +1,12 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import ConnectionGate from './components/connection-gate';
 import Placeholder from './components/placeholder';
+import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
 import './route.scss';
 
@@ -27,32 +30,37 @@ const Stage = () => {
 	);
 
 	return (
-		<AdminPage
-			className="jp-monetize-dashboard"
-			title={ __( 'Monetize', 'jetpack-monetize' ) }
-			ariaLabel={ __( 'Monetize', 'jetpack-monetize' ) }
-		>
-			<Tabs.Root value={ activeTab } onValueChange={ openTab }>
-				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-					<Tabs.List variant="minimal">
+		<QueryClientProvider client={ queryClient }>
+			<AdminPage
+				className="jp-monetize-dashboard"
+				title={ __( 'Monetize', 'jetpack-monetize' ) }
+				ariaLabel={ __( 'Monetize', 'jetpack-monetize' ) }
+			>
+				<Tabs.Root value={ activeTab } onValueChange={ openTab }>
+					<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+						<Tabs.List variant="minimal">
+							{ TABS.map( tab => (
+								<Tabs.Tab key={ tab.value } value={ tab.value }>
+									{ tab.label() }
+								</Tabs.Tab>
+							) ) }
+						</Tabs.List>
+					</div>
+					<div className="jp-monetize-dashboard__body">
+						{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
+						<div id="jp-admin-notices" />
 						{ TABS.map( tab => (
-							<Tabs.Tab key={ tab.value } value={ tab.value }>
-								{ tab.label() }
-							</Tabs.Tab>
+							<Tabs.Panel key={ tab.value } value={ tab.value }>
+								{ /* Every tab so far needs WordPress.com; the Settings tab will gate only its WordPress.com parts. */ }
+								<ConnectionGate>
+									<Placeholder />
+								</ConnectionGate>
+							</Tabs.Panel>
 						) ) }
-					</Tabs.List>
-				</div>
-				<div className="jp-monetize-dashboard__body">
-					{ /* The JITM script moves its card here, since the page template hides the default spot. */ }
-					<div id="jp-admin-notices" />
-					{ TABS.map( tab => (
-						<Tabs.Panel key={ tab.value } value={ tab.value }>
-							<Placeholder />
-						</Tabs.Panel>
-					) ) }
-				</div>
-			</Tabs.Root>
-		</AdminPage>
+					</div>
+				</Tabs.Root>
+			</AdminPage>
+		</QueryClientProvider>
 	);
 };
 

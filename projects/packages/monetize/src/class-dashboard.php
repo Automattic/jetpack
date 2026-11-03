@@ -73,6 +73,13 @@ class Dashboard {
 	private static $original_screen_id = null;
 
 	/**
+	 * Registered sections, keyed by section key.
+	 *
+	 * @var Dashboard_Section[]
+	 */
+	private static $sections = array();
+
+	/**
 	 * Register the flag. Hosts call this before they decide whether to load the dashboard.
 	 *
 	 * @return void
@@ -113,6 +120,112 @@ class Dashboard {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		}
+
+		// Simple reaches WordPress.com directly, so it needs none of the forwarding routes.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		}
+
+		self::load_sections( __DIR__ . '/sections' );
+	}
+
+	/**
+	 * Register the section class each `class-<name>.php` file in a folder declares.
+	 *
+	 * The class for `class-paid-subscribers.php` is `Sections\Paid_Subscribers`; the file must have no
+	 * side effects, since the classmap autoloader can also load it.
+	 *
+	 * @param string $dir Folder holding the section files.
+	 * @return void
+	 */
+	public static function load_sections( $dir ) {
+		$files = glob( $dir . '/class-*.php' );
+		foreach ( is_array( $files ) ? $files : array() as $file ) {
+			$name  = str_replace( ' ', '_', ucwords( str_replace( '-', ' ', substr( basename( $file, '.php' ), 6 ) ) ) );
+			$class = __NAMESPACE__ . '\\Sections\\' . $name;
+			if ( ! class_exists( $class ) ) {
+				require_once $file;
+			}
+			if ( ! is_subclass_of( $class, Dashboard_Section::class ) || self::has_section_of_class( $class ) ) {
+				continue;
+			}
+			self::register_section( new $class() );
+		}
+	}
+
+	/**
+	 * Whether a section of the given class is already registered, so init() can run twice.
+	 *
+	 * @param string $class Section class name.
+	 * @return bool
+	 */
+	private static function has_section_of_class( $class ) {
+		foreach ( self::$sections as $section ) {
+			if ( $section instanceof $class ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Add a section to the dashboard.
+	 *
+	 * @param Dashboard_Section $section The section.
+	 * @return void
+	 */
+	public static function register_section( Dashboard_Section $section ) {
+		$key = $section->get_key();
+		if ( isset( self::$sections[ $key ] ) ) {
+			/* translators: %s is a dashboard section key. */
+			$message = sprintf( __( 'A Monetize dashboard section with the key "%s" is already registered.', 'jetpack-monetize' ), $key );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			return;
+		}
+		self::$sections[ $key ] = $section;
+	}
+
+	/**
+	 * Register every section's REST routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		foreach ( self::$sections as $section ) {
+			$section->register_routes();
+		}
+	}
+
+	/**
+	 * Whether the current user may see the dashboard and use its REST routes.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Each section's state, keyed by section key.
+	 *
+	 * @return array
+	 */
+	public static function get_initial_state() {
+		$state = array();
+		foreach ( self::$sections as $key => $section ) {
+			$state[ $key ] = $section->get_state();
+		}
+		return $state;
+	}
+
+	/**
+	 * Print the page's state as `window.jetpackMonetizeDashboard`, for its scripts.
+	 *
+	 * @return void
+	 */
+	public static function print_initial_state() {
+		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		wp_print_inline_script_tag( 'window.jetpackMonetizeDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
 	}
 
 	/**
@@ -269,6 +382,7 @@ class Dashboard {
 	public static function render() {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
+			self::print_initial_state();
 			$render_fn();
 			return;
 		}

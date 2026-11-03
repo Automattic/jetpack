@@ -48,7 +48,11 @@
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-monetize/init": "link:packages/init",
+		"@tanstack/react-query": "5.102.8",
+		"@wordpress/api-fetch": "8.1.0",
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
 		"@wordpress/route": "0.25.0",
