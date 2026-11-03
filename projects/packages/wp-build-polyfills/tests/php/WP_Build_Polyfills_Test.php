@@ -25,6 +25,10 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 				'slug'   => 'first-dashboard',
 			),
 			array( 'slug' => 'default-dashboard' ),
+			array(
+				'prefix' => '',
+				'slug'   => 'empty-prefix-dashboard',
+			),
 		);
 		$paths      = array(
 			'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
@@ -47,7 +51,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		);
 		WP_Build_Polyfills::register( 'first-consumer', array(), '7.0', $pages );
 
-		foreach ( array( 'example_plugin_first_dashboard', 'gutenberg_default_dashboard', 'other_plugin_later_dashboard' ) as $page ) {
+		foreach ( array( 'example_plugin_first_dashboard', 'gutenberg_default_dashboard', 'gutenberg_empty_prefix_dashboard', 'other_plugin_later_dashboard' ) as $page ) {
 			$filter = $page . '_wp_admin_preload_paths';
 			$actual = apply_filters( $filter, $paths );
 			$this->assertSame( $expected, $actual, $filter );
@@ -64,6 +68,34 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		WP_Build_Polyfills::register( 'other-plugin', array(), '7.0' );
 		$after = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
 		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Malformed page entries do not add preload hooks.
+	 *
+	 * @dataProvider malformed_pages
+	 * @param mixed $page Page entry.
+	 */
+	#[DataProvider( 'malformed_pages' )]
+	public function test_register_skips_malformed_pages( $page ) {
+		$before = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
+		WP_Build_Polyfills::register( 'example-plugin', array(), '7.0', array( $page ) );
+		$after = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Malformed page entries.
+	 *
+	 * @return array Test cases.
+	 */
+	public static function malformed_pages() {
+		return array(
+			'string entry'    => array( 'example-dashboard' ),
+			'missing slug'    => array( array( 'prefix' => 'example_plugin' ) ),
+			'empty slug'      => array( array( 'slug' => '' ) ),
+			'non-string slug' => array( array( 'slug' => 123 ) ),
+		);
 	}
 
 	/**

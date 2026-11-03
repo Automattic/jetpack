@@ -140,6 +140,9 @@ class WP_Build_Polyfills {
 		WP_Build_Admin_Frame::register();
 
 		foreach ( $pages as $page ) {
+			if ( ! is_array( $page ) || ! isset( $page['slug'] ) || ! is_string( $page['slug'] ) || '' === $page['slug'] ) {
+				continue;
+			}
 			add_filter( self::page_filter( $page, 'wp_admin_preload_paths' ), array( __CLASS__, 'add_site_data_preload' ) );
 		}
 
@@ -208,7 +211,11 @@ class WP_Build_Polyfills {
 	 * @return string Filter name.
 	 */
 	private static function page_filter( $page, $suffix ) {
-		return str_replace( '-', '_', ( $page['prefix'] ?? 'gutenberg' ) . '_' . $page['slug'] ) . '_' . $suffix;
+		$prefix = $page['prefix'] ?? 'gutenberg';
+		if ( '' === $prefix ) {
+			$prefix = 'gutenberg';
+		}
+		return str_replace( '-', '_', $prefix . '_' . $page['slug'] ) . '_' . $suffix;
 	}
 
 	/**
