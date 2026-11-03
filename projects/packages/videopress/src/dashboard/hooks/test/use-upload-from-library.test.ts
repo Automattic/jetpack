@@ -159,19 +159,26 @@ describe( 'uploadFromLibrary', () => {
 } );
 
 describe( 'promoteOnSimple', () => {
-	it( 'POSTs the wpcom/v2 promote route once and maps the response', async () => {
-		const paths: ( string | undefined )[] = [];
-		mockApiFetch( async ( { path, method } ) => {
-			paths.push( path );
-			expect( method ).toBe( 'POST' );
-			// `already_videopress` (the idempotent-replay marker) is unread
-			// by the mapper — same result shape either way.
-			return { guid: 'AbCd1234', media_id: 5, already_videopress: true };
-		} );
+	it.each( [ undefined, 'dashboard_promote', 'block_editor' ] as const )(
+		'POSTs the wpcom/v2 promote route once with source %s and maps the response',
+		async source => {
+			const paths: ( string | undefined )[] = [];
+			mockApiFetch( async ( { path, method, data } ) => {
+				paths.push( path );
+				expect( method ).toBe( 'POST' );
+				expect( data ).toEqual( source ? { source } : undefined );
+				// `already_videopress` (the idempotent-replay marker) is unread
+				// by the mapper — same result shape either way.
+				return { guid: 'AbCd1234', media_id: 5, already_videopress: true };
+			} );
 
-		await expect( promoteOnSimple( 5 ) ).resolves.toEqual( { guid: 'AbCd1234', mediaId: 5 } );
-		expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
-	} );
+			await expect( promoteOnSimple( 5, source ) ).resolves.toEqual( {
+				guid: 'AbCd1234',
+				mediaId: 5,
+			} );
+			expect( paths ).toEqual( [ '/wpcom/v2/videopress/promote/5' ] );
+		}
+	);
 
 	it( 'rejects with an Error carrying the REST payload message', async () => {
 		mockApiFetch( async () => {
@@ -211,8 +218,9 @@ describe( 'useUploadFromLibrary', () => {
 	it( 'routes through the one-shot wpcom/v2 promote on Simple (no walker)', async () => {
 		setSimpleSite();
 		const paths: ( string | undefined )[] = [];
-		mockApiFetch( async ( { path } ) => {
+		mockApiFetch( async ( { path, data } ) => {
 			paths.push( path );
+			expect( data ).toEqual( { source: 'dashboard_promote' } );
 			return { guid: 'g1234567', media_id: 3 };
 		} );
 

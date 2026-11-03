@@ -167,7 +167,7 @@ export function useUploadFromLibrary() {
 		// stays indeterminate until the mutation settles.
 		mutationFn: ( { id, onProgress } ) =>
 			isSimpleSite()
-				? promoteOnSimple( id )
+				? promoteOnSimple( id, 'dashboard_promote' )
 				: uploadFromLibrary( id, { onProgress, source: 'dashboard_promote' } ),
 		onSuccess: () => {
 			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );

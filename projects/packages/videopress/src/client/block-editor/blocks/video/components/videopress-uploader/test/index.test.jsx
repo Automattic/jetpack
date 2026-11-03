@@ -240,7 +240,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 			lastProps( mockMediaPlaceholder ).onSelect( libraryAttachment );
 		} );
 
-		expect( mockPromoteOnSimple ).toHaveBeenCalledWith( 10 );
+		expect( mockPromoteOnSimple ).toHaveBeenCalledWith( 10, 'block_editor' );
 		// The videopress/v1 probe 404s at the public-api router on Simple —
 		// the whole point of the promote branch is that it never fires.
 		expect( mockApiFetch ).not.toHaveBeenCalled();
@@ -295,7 +295,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 		} );
 
 		expect( mockPromoteOnSimple ).toHaveBeenCalledTimes( 2 );
-		expect( mockPromoteOnSimple ).toHaveBeenLastCalledWith( 10 );
+		expect( mockPromoteOnSimple ).toHaveBeenLastCalledWith( 10, 'block_editor' );
 	} );
 
 	it( 'Retry with nothing stored resets to the picker instead of crashing', async () => {
