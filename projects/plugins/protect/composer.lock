@@ -2008,7 +2008,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/transport-helper",
-                "reference": "16d03e30511f4a906282ec02fec1e8f113ab02e3"
+                "reference": "b13af95111fca98ac2ba310c4e8e258211f9f370"
             },
             "require": {
                 "automattic/jetpack-backup-helper-script-manager": "@dev",
@@ -2033,7 +2033,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-transport-helper/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-transport-helper"
             },
