@@ -61,6 +61,7 @@ class AbstractController_Test extends TestCase {
 	public function test_get_interval_label() {
 		$this->assertSame( 'Month', $this->invoke( 'get_interval_label', array( 'month' ) ) );
 		$this->assertSame( 'Hour', $this->invoke( 'get_interval_label', array( 'hour' ) ) );
+		$this->assertSame( 'Quarter', $this->invoke( 'get_interval_label', array( 'quarter' ) ) );
 		// Null / unknown interval falls back to "Date".
 		$this->assertSame( 'Date', $this->invoke( 'get_interval_label', array( null ) ) );
 		$this->assertSame( 'Date', $this->invoke( 'get_interval_label', array( 'decade' ) ) );
