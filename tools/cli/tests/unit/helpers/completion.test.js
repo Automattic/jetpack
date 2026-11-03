@@ -136,15 +136,18 @@ describe( 'completionHook', () => {
 		expect( error ).toHaveBeenCalledWith( expect.any( TypeError ) );
 		error.mockRestore();
 	} );
-	test( "prefers the command's own completer and escapes colons and backslashes for zsh", async () => {
-		process.env.SHELL = '/bin/zsh';
+	test( "prefers the command's own completer and escapes colons and backslashes unless the shell is fish", async () => {
 		const rsync = hook( [ 'rsync' ], [ 'rsync [plugin] [dest]' ], {
 			dest: () => [ 'site:a', 'site\\b', 'other' ],
 		} );
-		await expect( run( rsync, 's', [ 'jetpack', 'rsync', 'jetpack', 's' ] ) ).resolves.toEqual( [
+		const words = [ 'jetpack', 'rsync', 'jetpack', 's' ];
+		process.env.SHELL = '/bin/bash';
+		await expect( run( rsync, 's', words ) ).resolves.toEqual( [
 			'--help',
 			'site\\:a',
 			'site\\\\b',
 		] );
+		process.env.SHELL = '/usr/bin/fish';
+		await expect( run( rsync, 's', words ) ).resolves.toEqual( [ '--help', 'site:a', 'site\\b' ] );
 	} );
 } );

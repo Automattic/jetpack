@@ -108,10 +108,11 @@ function positionalCompletions( yargs, completers, current, argv ) {
 	}
 
 	const earlier = argv._.slice( commands.length + 1, -1 );
-	const zsh = /zsh/.test( process.env.SHELL ?? '' ) || /zsh/.test( process.env.ZSH_NAME ?? '' );
+	// Escaped for every shell but fish, as yargs does with `choices`.
+	const isFish = ( process.env.SHELL ?? '' ).includes( 'fish' );
 	return candidates
 		.filter( c => c.startsWith( current ) && ! ( positional.variadic && earlier.includes( c ) ) )
-		.map( c => ( zsh ? c.replace( /[\\:]/g, '\\$&' ) : c ) );
+		.map( c => ( isFish ? c : c.replace( /[\\:]/g, '\\$&' ) ) );
 }
 
 /**
