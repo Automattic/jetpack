@@ -27,7 +27,8 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
+import { getTickDecimals, hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
+import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
@@ -133,6 +134,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	animation,
 	children,
 	gap = 'md',
+	compactWhenShort = false,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -206,18 +208,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ dataSorted, isSeriesRendered ]
 	);
 
+	const { isCompact, compactMargin } = useCompactWhenShort(
+		compactWhenShort && ! horizontal,
+		height
+	);
+	const resolvedOptions = useMemo(
+		() =>
+			isCompact
+				? {
+						...options,
+						axis: {
+							...options.axis,
+							x: { ...options.axis?.x, display: false },
+							y: { ...options.axis?.y, display: false },
+						},
+					}
+				: options,
+		[ isCompact, options ]
+	);
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
 		horizontal,
-		options,
+		resolvedOptions,
 		isSeriesRendered
 	);
 	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
 	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
-	const wholeNumberTicksProps = {
+	const valueTickDecimals = getTickDecimals( hasWholeNumberValues, chartOptions.valueTickDecimals );
+	const tickDecimalsProps = {
 		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
 		numTicks: valueAxis.numTicks,
-		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
+		decimals: ! valueAxis.tickValues && ! callerValueDomain ? valueTickDecimals : undefined,
 	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
@@ -583,10 +604,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
-	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const gridVisibility = isCompact ? 'none' : ( gridVisibilityProp ?? chartOptions.gridVisibility );
 
 	const legendPosition = legend.position ?? 'bottom';
-	const legendElement = showLegend && (
+	const legendElement = showLegend && ! isCompact && (
 		<Legend
 			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
@@ -614,7 +635,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
-				legendChildren={ legendChildren }
+				legendChildren={ isCompact ? [] : legendChildren }
 				gap={ gap }
 				className={ clsx(
 					'bar-chart',
@@ -654,6 +675,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										height={ chartHeight }
 										margin={ {
 											...defaultMargin,
+											...compactMargin,
 											...margin,
 										} }
 										xScale={ xScale }
@@ -670,7 +692,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ ! allSeriesHidden && (
-											<WholeNumberTicks { ...wholeNumberTicksProps }>
+											<TickDecimals { ...tickDecimalsProps }>
 												{ valueTicks => (
 													<>
 														{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
@@ -696,7 +718,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 														/>
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 										) }
 
 										{ withPatterns && (
@@ -719,7 +741,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ getAllHiddenMessage( legendInteractive, 'series' ) }
+												{ getAllHiddenMessage( legendInteractive && ! isCompact, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 
@@ -768,7 +790,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										     visx collapses the domain and the axes render squished at the top. Drop them
 										     while the empty state stands in. */ }
 										{ ! allSeriesHidden && (
-											<WholeNumberTicks { ...wholeNumberTicksProps }>
+											<TickDecimals { ...tickDecimalsProps }>
 												{ valueTicks => (
 													<>
 														{ chartOptions.axis.x.display !== false && (
@@ -789,7 +811,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 														) }
 													</>
 												) }
-											</WholeNumberTicks>
+											</TickDecimals>
 										) }
 
 										{ withTooltips && selectedMembers && (

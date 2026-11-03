@@ -12,7 +12,8 @@ const meta: Meta< typeof DateIntervalDropdown > = {
 			description: {
 				component:
 					'The bucket size every chart on the page draws. The trigger names the active ' +
-					'bucket; a range with a single allowed bucket shows it without a menu.\n\n' +
+					'bucket; a range with a single allowed bucket still opens one, listing it ' +
+					'checked with a line on how a longer range adds more.\n\n' +
 					'The options are a prop, derived upstream from the active range — the ' +
 					'consumer passes `getAllowedIntervalsForPreset()` rather than a fixed list, ' +
 					'so the menu can never offer a bucket the range would coerce away.',
@@ -51,7 +52,7 @@ export const Default: Story = {
 };
 
 /**
- * The `Last 7 days` range, which allows a single bucket: named, but with no menu to open.
+ * The `Last 7 days` range, which allows a single bucket: the menu lists it checked and says how to get more.
  */
 export const SingleOption: Story = {
 	render: () => <DateIntervalDropdownWithState options={ [ 'day' ] } initialValue="day" />,
