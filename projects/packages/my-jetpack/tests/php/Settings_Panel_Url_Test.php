@@ -52,7 +52,7 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 
 	public function test_configure_url_and_manage_url_follow_the_flag() {
 		Initializer::register_settings_panel_urls();
-		$default = 'https://example.org/settings#/settings?term=related-posts';
+		$default = admin_url( 'admin.php?page=jetpack-settings' ) . '#/settings?term=related-posts';
 
 		$this->assertSame( $default, apply_filters( self::CONFIGURE, $default ) );
 		$this->assertStringContainsString( 'page=jetpack#/traffic', (string) Related_Posts::get_manage_url() );
@@ -61,5 +61,13 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'page=my-jetpack', apply_filters( self::CONFIGURE, $default ) );
 		$this->assertStringContainsString( 'page=my-jetpack', (string) Related_Posts::get_manage_url() );
+	}
+
+	public function test_configure_url_keeps_a_page_that_is_not_the_settings_search() {
+		Initializer::register_settings_panel_urls();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$own_page = admin_url( 'admin.php?page=jetpack-seo' );
+
+		$this->assertSame( $own_page, apply_filters( self::CONFIGURE, $own_page ) );
 	}
 }
