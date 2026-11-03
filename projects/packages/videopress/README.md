@@ -69,6 +69,14 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Dashboard privacy-change metrics
+
+`jetpack_videopress_privacy_changed` records one event per VideoPress video when the modern dashboard's Library action or Details save receives `code: success` from the metadata endpoint. It reports `from` and `to` as `public`, `private`, or `site-default`, plus `is_bulk` for a request containing multiple unique videos. Count event rows as acknowledged video changes, not unique users or bulk gestures. A partial failure records only acknowledged changes; duplicate IDs within a batch, unchanged settings, local videos, and missing/failed acknowledgments do not produce events.
+
+`from` is the setting displayed when the action started, not an atomic server-side before-state. Concurrent edits or stale caches can affect it. `site-default` is a configured setting, not proof that viewers have public or private access. This event does not establish a complete history across browsers or other editing paths. Metadata saves queued during a new upload and legacy/block-editor changes are outside this coverage.
+
+Tracking runs in the mutation after acknowledgment, including when its originating component unmounts. Rerenders do not emit it. The event adds no video IDs, names, URLs, text, or new identity; it uses the existing analytics transport and controls. Runtime host/opt-out behavior, delivery, and warehouse coverage dates still require validation before using it for reporting.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
@@ -76,4 +84,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 videopress is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-

@@ -438,7 +438,11 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 				isSaving={ isSaving || isDeleting }
 				onSave={ ( values, reset ) => {
 					updateMeta(
-						{ id: video.id, patch: values },
+						{
+							id: video.id,
+							patch: values,
+							previousPrivacy: video.type === 'videopress' ? video.privacy : undefined,
+						},
 						{
 							onSuccess: () => {
 								// The description is the single source of truth for the

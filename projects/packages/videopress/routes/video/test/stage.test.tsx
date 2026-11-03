@@ -303,7 +303,11 @@ async function renderUploadingStage() {
 function metaCall() {
 	expect( mockUpdateMeta ).toHaveBeenCalledTimes( 1 );
 	const [ vars, callbacks ] = mockUpdateMeta.mock.calls[ 0 ] as [
-		{ id: string; patch: { title?: string; description?: string } },
+		{
+			id: string;
+			patch: { title?: string; description?: string; privacy?: string };
+			previousPrivacy?: string;
+		},
 		{ onSuccess: () => void; onError: () => void },
 	];
 	return { vars, callbacks };
@@ -799,6 +803,20 @@ describe( 'video stage', () => {
 		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42/editor' } );
 
 		confirmSpy.mockRestore();
+	} );
+
+	it( 'passes the displayed privacy separately from the new setting on Save', async () => {
+		const user = userEvent.setup();
+		await renderReadyStage();
+		await user.click( screen.getByRole( 'button', { name: /Privacy & sharing/ } ) );
+		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'private' );
+		expect( mockUpdateMeta ).not.toHaveBeenCalled();
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars ).toMatchObject( {
+			id: '42',
+			previousPrivacy: 'public',
+			patch: { privacy: 'private' },
+		} );
 	} );
 
 	it( 'regenerates the chapters VTT only after a successful save that changed the description', async () => {

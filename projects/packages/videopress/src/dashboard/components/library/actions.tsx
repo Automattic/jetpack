@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import DeleteVideoConfirmationModal, {
 	getDeleteVideoConfirmationTitle,
 } from '../delete-video-confirmation-modal';
+import type { VideoPrivacyItem } from '../../hooks/use-set-privacy';
 import type { LibraryItem, LibraryItemPrivacy } from '../../types/library';
 import type { Action } from '@wordpress/dataviews';
 
@@ -9,7 +10,7 @@ type Api = {
 	promoteLocal: ( id: string ) => void;
 	retryUpload: ( id: string ) => void;
 	deleteItems: ( ids: string[] ) => void;
-	setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => void;
+	setPrivacy: ( items: VideoPrivacyItem[], privacy: LibraryItemPrivacy ) => void;
 	openVideoDetails: ( id: string ) => void;
 	manageCaptions: ( item: LibraryItem ) => void;
 };
@@ -103,7 +104,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			isEligible: isPrivacyChangeEligible( privacy ),
 			callback: ( items: LibraryItem[] ) => {
 				api.setPrivacy(
-					items.map( i => i.id ),
+					items.map( ( { id, type, privacy: from } ) => ( { id, type, privacy: from } ) ),
 					privacy
 				);
 			},
