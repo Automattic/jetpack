@@ -39,6 +39,7 @@ export default function PricingUpsell() {
 	const pricing = state?.pricing;
 	const siteSuffix = state?.jetpackStatus?.calypsoSlug ?? '';
 	const redirectUrl = VIDEOPRESS_ADMIN_PAGE;
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hooks must run before the missing-pricing guard.
 	const impressionRef = useUpsellImpression< HTMLButtonElement >( 'pricing_upsell' );
 
 	// These hooks must run unconditionally (Rules of Hooks) and therefore precede
