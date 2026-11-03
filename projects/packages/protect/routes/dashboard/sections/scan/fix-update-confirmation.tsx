@@ -2,7 +2,7 @@ import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
-import { fixThreats, isBulkFixable, refocusRow } from './threat-actions';
+import { fixThreats, isBulkFixable, refocusRow, useGetThreatBusy } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
 
@@ -12,8 +12,16 @@ import type { RenderModalProps } from '@wordpress/dataviews';
  * @param threats - Threats whose fixes update their software.
  * @return The threats that will be updated.
  */
-const getUpdated = ( threats: ScanThreat[] ) =>
+export const getUpdated = ( threats: ScanThreat[] ) =>
 	threats.length > 1 ? threats.filter( isBulkFixable ) : threats;
+
+/**
+ * The name of the software a threat's fix updates.
+ *
+ * @param threat - A threat whose fix updates its software.
+ * @return The name.
+ */
+const getName = ( threat: ScanThreat ) => threat.extension?.name || threat.title || '';
 
 /**
  * The confirmation's title: "Update this plugin?", "Update this theme?" or "Apply 3 updates?".
@@ -30,7 +38,11 @@ export function getUpdateFixTitle( threats: ScanThreat[] ): string {
 			updated.length
 		);
 	}
-	return updated[ 0 ]?.extension?.type === 'themes'
+	const type = ( updated[ 0 ] ?? threats[ 0 ] )?.extension?.type;
+	if ( type === 'core' ) {
+		return __( 'Update WordPress?', 'jetpack-protect-pkg' );
+	}
+	return type === 'themes'
 		? __( 'Update this theme?', 'jetpack-protect-pkg' )
 		: __( 'Update this plugin?', 'jetpack-protect-pkg' );
 }
@@ -42,7 +54,7 @@ export function getUpdateFixTitle( threats: ScanThreat[] ): string {
  * @return The change.
  */
 function describeUpdate( threat: ScanThreat ): string {
-	const name = threat.extension?.name || threat.title || '';
+	const name = getName( threat );
 	const from = threat.extension?.version;
 	const to = threat.fixable ? threat.fixable.target : null;
 	if ( from && to ) {
@@ -82,7 +94,7 @@ export function FixUpdateConfirmation( {
 	const [ only ] = updated;
 	const skipped = threats.length - updated.length;
 
-	let summary: string;
+	let summary = '';
 	if ( updated.length > 1 ) {
 		summary = __(
 			'Auto-fix will update these to versions without the vulnerability:',
@@ -92,24 +104,24 @@ export function FixUpdateConfirmation( {
 		summary = sprintf(
 			/* translators: 1: a plugin or theme name. 2: its installed version. 3: the version Auto-fix updates it to. */
 			__( 'Auto-fix will update %1$s from version %2$s to %3$s.', 'jetpack-protect-pkg' ),
-			only.extension.name || only.title || '',
+			getName( only ),
 			only.extension.version,
 			only.fixable.target
 		);
-	} else {
+	} else if ( only ) {
 		summary = sprintf(
 			/* translators: %s is a plugin or theme name. */
 			__(
 				'Auto-fix will update %s to a version without the vulnerability.',
 				'jetpack-protect-pkg'
 			),
-			only?.extension?.name || only?.title || ''
+			getName( only )
 		);
 	}
 
 	return (
 		<Stack direction="column" gap="lg">
-			<Text variant="body-md">{ summary }</Text>
+			{ summary && <Text variant="body-md">{ summary }</Text> }
 			{ updated.length > 1 && (
 				<ul className="jp-protect-fix-update__list">
 					{ updated.map( threat => (
@@ -160,6 +172,7 @@ export function FixUpdateConfirmation( {
 export function makeFixUpdateModal( onStart?: ( threats: ScanThreat[] ) => void ) {
 	return function FixUpdateModal( { items, closeModal }: RenderModalProps< ScanThreat > ) {
 		const open = useOpenThreat();
+		const getBusy = useGetThreatBusy();
 		const onConfirm = useCallback( () => {
 			const [ first ] = items;
 			closeModal?.();
@@ -170,7 +183,12 @@ export function makeFixUpdateModal( onStart?: ( threats: ScanThreat[] ) => void 
 			}
 		}, [ items, open, closeModal ] );
 		return (
-			<FixUpdateConfirmation threats={ items } onCancel={ closeModal } onConfirm={ onConfirm } />
+			<FixUpdateConfirmation
+				threats={ items }
+				isBusy={ items.some( item => getBusy( item.id ) ) }
+				onCancel={ closeModal }
+				onConfirm={ onConfirm }
+			/>
 		);
 	};
 }

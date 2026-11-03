@@ -343,7 +343,7 @@ function ConfirmFixButton( {
 					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
-					{ /* Mounted only while open, so the slug field starts empty each time. */ }
+					{ /* Mounted only while open, so a confirmation's fields start empty each time. */ }
 					{ confirmation( { isBusy: !! busy, onCancel, onConfirm } ) }
 				</Dialog.Content>
 			</Dialog.Popup>
