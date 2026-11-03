@@ -6,7 +6,7 @@ export type ConnectionScreenRoute = `${ typeof MyJetpackRoutes.Connection }?from
 /**
  * A link that connects the user's account, then returns them to `returnTo` without the plans page.
  *
- * @param from     - The entry-point name, such as `my_jetpack_header`.
+ * @param from     - A standard entry-point name, such as `my_jetpack_header`; any other format lands on the plans page.
  * @param returnTo - The absolute URL to return to; Calypso ignores a relative one. Defaults to the current page.
  * @return The URL.
  */

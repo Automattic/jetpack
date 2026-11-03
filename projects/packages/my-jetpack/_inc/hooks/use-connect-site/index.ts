@@ -5,6 +5,7 @@ import { NOTICE_SITE_CONNECTION_ERROR } from '../../context/notices/noticeTempla
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { leavePageFor } from '../../utils/reload-page';
 import useAnalytics from '../use-analytics';
 import type { TracksEvent, TracksProperties } from '../use-analytics';
 import type { MouseEvent } from 'react';
@@ -58,7 +59,7 @@ const useConnectSite = ( { tracksInfo, from }: useConnectSiteProps ) => {
 
 				recordEvent( `${ event }_success`, tracksEventData );
 
-				window.location.href = jetpackPlansPath;
+				leavePageFor( jetpackPlansPath );
 			} catch {
 				setNotice( NOTICE_SITE_CONNECTION_ERROR, resetNotice );
 			} finally {

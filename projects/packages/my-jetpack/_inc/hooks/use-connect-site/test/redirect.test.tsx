@@ -2,6 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
+import { leavePageFor } from '../../../utils/reload-page';
 import useConnectSite from '../index';
 
 jest.mock( '@automattic/jetpack-api', () => ( {
@@ -12,6 +13,7 @@ jest.mock( '@automattic/jetpack-api', () => ( {
 		registerSite: jest.fn(),
 	},
 } ) );
+jest.mock( '../../../utils/reload-page' );
 jest.mock( '../../../data/products/use-products-by-ownership', () => ( {
 	__esModule: true,
 	default: () => ( { refetch: jest.fn() } ),
@@ -32,30 +34,6 @@ jest.mock( '../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowConnectionState: () => ( { registrationNonce: 'r' } ),
 } ) );
 
-/**
- * Records every navigation the page attempts, since jsdom only logs them as "not implemented".
- *
- * @return The navigated URLs, in order.
- */
-function recordNavigations(): string[] {
-	const locationImpl = Object.getOwnPropertySymbols( window.location )
-		.map( symbol => window.location[ symbol ] )
-		.find( value => typeof value?._locationObjectNavigate === 'function' );
-	const navigations: string[] = [];
-	jest
-		.spyOn( locationImpl, '_locationObjectNavigate' )
-		.mockImplementation(
-			( url: { scheme: string; host: string; path: string[]; query: string | null } ) => {
-				navigations.push(
-					`${ url.scheme }://${ url.host }/${ url.path.join( '/' ) }${
-						url.query !== null ? '?' + url.query : ''
-					}`
-				);
-			}
-		);
-	return navigations;
-}
-
 describe( 'useConnectSite', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -66,12 +44,7 @@ describe( 'useConnectSite', () => {
 		 ).setConnectionStatus( { isRegistered: false } );
 	} );
 
-	afterEach( () => {
-		jest.restoreAllMocks();
-	} );
-
-	it( 'navigates once, to checkout, with the My Jetpack return in its query', async () => {
-		const navigations = recordNavigations();
+	it( 'leaves for checkout, with the My Jetpack return in its query', async () => {
 		const { result } = renderHook( () =>
 			useConnectSite( { tracksInfo: { event: 'jetpack_test', properties: {} } } )
 		);
@@ -80,16 +53,19 @@ describe( 'useConnectSite', () => {
 			await result.current.connectSite( undefined );
 		} );
 
-		expect( navigations ).toHaveLength( 1 );
-		expect( navigations[ 0 ] ).toContain( 'jetpack-my-jetpack-site-only-plans' );
-		expect( navigations[ 0 ] ).toContain( 'redirect_to%3Dadmin.php%3Fpage%3Dmy-jetpack' );
+		expect( leavePageFor ).toHaveBeenCalledTimes( 1 );
+		expect( leavePageFor ).toHaveBeenCalledWith(
+			expect.stringContaining( 'jetpack-my-jetpack-site-only-plans' )
+		);
+		expect( leavePageFor ).toHaveBeenCalledWith(
+			expect.stringContaining( 'redirect_to%3Dadmin.php%3Fpage%3Dmy-jetpack' )
+		);
 	} );
 
 	it.each( [
 		[ undefined, 'my-jetpack' ],
 		[ 'my_jetpack_products_backup', 'my_jetpack_products_backup' ],
 	] )( 'registers the site with from=%s', async ( from, expected ) => {
-		recordNavigations();
 		const { result } = renderHook( () =>
 			useConnectSite( { tracksInfo: { event: 'jetpack_test', properties: {} }, from } )
 		);
