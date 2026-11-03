@@ -105,7 +105,8 @@ export function endOfStepBucket( now: TZDate, unit: DateRangeSpanUnit ): TZDate 
 
 /**
  * Whether a hand-picked window runs from a month's first day to the end of
- * today and spans more than that month, so that it reads as months to date.
+ * today and spans more than that month, so that it reads as months to date,
+ * or as the year to date from January's.
  *
  * @param range - The window.
  * @param now   - The current instant, on the window's clock.
@@ -158,7 +159,10 @@ function completeForStep(
 		now &&
 		isMonthsToDate( range, now )
 	) {
-		return { ...range, to: endOfMonth( range.to ) };
+		return {
+			...range,
+			to: range.from.getMonth() === 0 ? endOfYear( range.to ) : endOfMonth( range.to ),
+		};
 	}
 
 	return completeToDateRange( range, presetId );

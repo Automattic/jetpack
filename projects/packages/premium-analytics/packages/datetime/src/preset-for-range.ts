@@ -24,6 +24,26 @@ const CALENDAR_PRESETS: readonly PrimaryPresetId[] = [
 	PRESET_LAST_YEAR,
 ];
 
+// In January the year to date is also the month to date; a year step names it as the year.
+const YEAR_PRESETS: readonly PrimaryPresetId[] = [ PRESET_YEAR_TO_DATE, PRESET_LAST_YEAR ];
+
+/**
+ * The presets a landing is tried against first, for the unit the step moved in.
+ *
+ * @param steppedBy - The unit the step moved in.
+ * @return The presets to try first, in order.
+ */
+function leadingPresets( steppedBy?: DateRangeSpanUnit ): readonly PrimaryPresetId[] {
+	switch ( steppedBy ) {
+		case 'year':
+			return [ ...YEAR_PRESETS, ...CALENDAR_PRESETS ];
+		case 'month':
+			return CALENDAR_PRESETS;
+		default:
+			return [];
+	}
+}
+
 /**
  * Context the window was reached in.
  */
@@ -59,14 +79,11 @@ export function findSelectablePresetForRange(
 	}
 
 	const { steppedBy, exclude = [] } = options;
-	const isCalendar = ( id: PrimaryPresetId ) => CALENDAR_PRESETS.includes( id );
-	const candidates =
-		steppedBy === 'month' || steppedBy === 'year'
-			? [
-					...SELECTABLE_PRESETS.filter( isCalendar ),
-					...SELECTABLE_PRESETS.filter( id => ! isCalendar( id ) ),
-				]
-			: SELECTABLE_PRESETS;
+	const selectable: readonly PrimaryPresetId[] = SELECTABLE_PRESETS;
+	const leading = leadingPresets( steppedBy ).filter( ( id ): id is SelectablePresetId =>
+		selectable.includes( id )
+	);
+	const candidates = [ ...new Set( [ ...leading, ...SELECTABLE_PRESETS ] ) ];
 
 	return candidates.find( id => {
 		if ( exclude.includes( id ) ) {

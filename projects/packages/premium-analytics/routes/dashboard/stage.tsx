@@ -253,7 +253,7 @@ function Dashboard(): JSX.Element {
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals, dateLimits } );
+	const dateFilters = useReportDateFilters( '/', { dateLimits } );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section

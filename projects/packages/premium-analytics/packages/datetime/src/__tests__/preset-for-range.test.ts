@@ -47,6 +47,23 @@ describe( 'findSelectablePresetForRange', () => {
 		}
 	} );
 
+	it( 'names the window a month and a year preset share in January by the unit stepped', () => {
+		const now = Date.now();
+		jest.setSystemTime( Date.parse( '2026-01-15T12:00:00.000Z' ) );
+		try {
+			const range = computePrimaryRange( 'year-to-date', TIMEZONE )!;
+
+			expect( findSelectablePresetForRange( range, TIMEZONE, { steppedBy: 'month' } ) ).toBe(
+				'month-to-date'
+			);
+			expect( findSelectablePresetForRange( range, TIMEZONE, { steppedBy: 'year' } ) ).toBe(
+				'year-to-date'
+			);
+		} finally {
+			jest.setSystemTime( now );
+		}
+	} );
+
 	it( 'never names a window as an excluded preset', () => {
 		const range = computePrimaryRange( 'last-7-days', TIMEZONE )!;
 

@@ -111,8 +111,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * Whether each arrow has somewhere to go, as the date filters decided it:
-	 * the plan's earliest date behind, today ahead. An arrow with nowhere to go
-	 * is disabled, not hidden.
+	 * the plan's earliest date behind, the running hour, day, month or year
+	 * ahead. An arrow with nowhere to go is disabled, not hidden.
 	 */
 	canStepBackward?: boolean;
 	canStepForward?: boolean;

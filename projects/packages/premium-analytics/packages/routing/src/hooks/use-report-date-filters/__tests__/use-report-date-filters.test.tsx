@@ -61,12 +61,15 @@ function renderDateFilters(
 describe( 'useReportDateFilters', () => {
 	beforeEach( () => {
 		mockSearch = {};
+		window.history.replaceState( null, '' );
 		mockNavigate.mockReset();
 		mockNavigate.mockImplementation(
 			( {
 				search,
+				state,
 			}: {
 				search: ( prev: Record< string, unknown > ) => Record< string, unknown >;
+				state?: Record< string, unknown >;
 			} ) => {
 				// The URL drops `undefined` on the way out, so a patch that only
 				// clears absent params must round-trip back unchanged — keeping the
@@ -74,6 +77,8 @@ describe( 'useReportDateFilters', () => {
 				mockSearch = Object.fromEntries(
 					Object.entries( search( mockSearch ) ).filter( ( [ , value ] ) => value !== undefined )
 				);
+				// The router gives a new entry the state it is handed, or none.
+				window.history.replaceState( state ?? null, '' );
 			}
 		);
 	} );
@@ -449,23 +454,30 @@ describe( 'useReportDateFilters', () => {
 		} );
 	} );
 
-	// Jun 1–30 is a whole month, which on its own would step as one.
-	it( 'undoes a step with the opposite one whatever shape it landed on', () => {
-		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
-		const july = { from: '2026-07-01T00:00:00.000+00:00', to: '2026-07-30T23:59:59.999+00:00' };
-		const { result, rerender } = renderDateFilters( { ...july, preset: 'custom' } );
+	// Jun 1–30 is a whole month, which on its own would step as one. The span
+	// rides on the history entry, so a reload of the landing keeps it too.
+	it.each( [ [ 'in place' ], [ 'after a reload' ] ] )(
+		'undoes a step with the opposite one whatever shape it landed on, %s',
+		reload => {
+			jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+			const july = { from: '2026-07-01T00:00:00.000+00:00', to: '2026-07-30T23:59:59.999+00:00' };
+			let { result, rerender } = renderDateFilters( { ...july, preset: 'custom' } );
 
-		act( () => result.current.onStep( 'previous' ) );
-		rerender();
-		expect( mockSearch ).toMatchObject( {
-			from: '2026-06-01T00:00:00.000+00:00',
-			to: '2026-06-30T23:59:59.999+00:00',
-		} );
+			act( () => result.current.onStep( 'previous' ) );
+			rerender();
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-06-01T00:00:00.000+00:00',
+				to: '2026-06-30T23:59:59.999+00:00',
+			} );
 
-		act( () => result.current.onStep( 'next' ) );
-		rerender();
-		expect( mockSearch ).toMatchObject( july );
-	} );
+			if ( reload === 'after a reload' ) {
+				( { result, rerender } = renderDateFilters( mockSearch ) );
+			}
+			act( () => result.current.onStep( 'next' ) );
+			rerender();
+			expect( mockSearch ).toMatchObject( july );
+		}
+	);
 
 	it( 'reads as the preset again when a step lands back on its window', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
@@ -839,7 +851,6 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it.each( [
-		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
 		[
 			'passed in with the date limits',
 			{ dateLimits: { lockedPresetIds: [], lockedIntervals: LOCKED_INTERVALS } },

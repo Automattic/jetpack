@@ -191,6 +191,20 @@ describe( 'planDateStep', () => {
 		} );
 	} );
 
+	it( 'names the year a year step lands on as the year to date, in January too', () => {
+		const now = new Date( '2026-01-15T12:00:00.000Z' );
+		jest.setSystemTime( now );
+		const lastYear = wholeDays( [ 2025, 1, 1 ], [ 2025, 12, 31 ] );
+
+		expect( planDateStep( lastYear, 'next', { ...context, now, presetId: 'last-year' } ) ).toEqual(
+			{
+				range: wholeDays( [ 2026, 1, 1 ], [ 2026, 1, 15 ] ),
+				presetId: 'year-to-date',
+				span: { unit: 'year', value: 1 },
+			}
+		);
+	} );
+
 	// A step by days can land on a whole month or the month to date, which
 	// would then step as months; the landing keeps the span that reached it.
 	it.each( [

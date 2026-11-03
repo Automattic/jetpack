@@ -161,6 +161,17 @@ describe( 'stepDateRange', () => {
 		);
 	} );
 
+	// From January's first day the same window is the year to date, which the
+	// preset steps as the whole year before.
+	it( 'steps a hand-picked year to date by the whole year', () => {
+		const range = wholeDays( at( 2026, 1, 1 ), at( 2026, 11, 2 ) );
+		const now = at( 2026, 11, 2, 12 );
+
+		expect( stepDateRange( range, 'previous', { presetId: 'custom', now } ) ).toEqual(
+			wholeDays( at( 2025, 1, 1 ), at( 2025, 12, 31 ) )
+		);
+	} );
+
 	it.each( [
 		[
 			'only the running month',

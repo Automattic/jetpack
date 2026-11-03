@@ -260,8 +260,8 @@ period: whole calendar months step by months (whole calendar years by years),
 any other day-aligned window by its days, an hour-snapped one by its hours.
 "This month", "This year" and "12 months" step as their completed month or
 year, as does a hand-picked window running from a month's first day to the end
-of today, so stepping back out of a forward step that was pulled back to today
-returns to where it started. A "Last N days" preset always steps by days, and
+of today (from January's, as the year to date), so stepping back out of a
+forward step that was pulled back to today returns to where it started. A "Last N days" preset always steps by days, and
 "All time" does not step. Steps move in calendar units, so a step across a DST
 boundary keeps the wall clock; where a calendar step cannot be undone, it falls
 back to whole days. A window reached by a step moves by that step's `span`
@@ -275,8 +275,8 @@ or year), so the live preset stays reachable from the window behind it and
 nothing steps past it; a step that runs past today is pulled back to the end of
 today, so stepping out of "12 months" lands on the to-date window again. The
 landing is named as the preset whose window it is today, preferring a calendar
-preset when the step moved by months, and never as a locked preset; otherwise
-it is `custom`.
+preset when the step moved by months (a year preset when it moved by years),
+and never as a locked preset; otherwise it is `custom`.
 
 ```typescript
 planDateStep( range, 'previous', { presetId: 'last-7-days', timeZone, now: new Date() } );

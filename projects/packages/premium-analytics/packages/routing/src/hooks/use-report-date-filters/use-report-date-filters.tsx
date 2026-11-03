@@ -11,7 +11,7 @@ import {
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { planDateStep, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -75,7 +75,7 @@ export type ReportDateFilters = {
 	/** Whether the applied window has an earlier one the plan lets the site read. */
 	canStepBackward: boolean;
 
-	/** Whether the applied window has a later one that has already happened. */
+	/** Whether the applied window has a later one, up to the running hour, day, month or year. */
 	canStepForward: boolean;
 
 	/**
@@ -118,15 +118,37 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 	};
 }
 
+const STEP_SPAN_STATE = 'jetpackPremiumAnalyticsDateStepSpan';
+const SPAN_UNITS: readonly string[] = [ 'hour', 'day', 'month', 'year' ];
+
 /**
- * Whether two ranges cover the same instants.
+ * The history state a step commits with: the span it moved by, on the entry it
+ * landed on. The next step from that entry, after a reload too, moves by the
+ * same span, so the reverse step undoes it. An entry reached any other way
+ * carries none and steps by its own shape.
  *
- * @param a - One range.
- * @param b - The other.
- * @return Whether both ends match.
+ * @param span - The span the step moved by.
+ * @return The state to commit with.
  */
-function isSameRange( a: DateRange, b?: DateRange ): boolean {
-	return !! b && a.from?.getTime() === b.from?.getTime() && a.to?.getTime() === b.to?.getTime();
+function stepSpanState( span: DateRangeSpan ): Record< string, unknown > {
+	return { [ STEP_SPAN_STATE ]: span };
+}
+
+/**
+ * The span the current history entry was reached by, if a step committed it.
+ *
+ * @return The span, or `undefined`.
+ */
+function stepSpanFromHistory(): DateRangeSpan | undefined {
+	const state = window.history.state as Record< string, unknown > | null;
+	const span = state?.[ STEP_SPAN_STATE ] as Partial< DateRangeSpan > | undefined;
+
+	return span &&
+		SPAN_UNITS.includes( span.unit as string ) &&
+		Number.isInteger( span.value ) &&
+		( span.value as number ) > 0
+		? ( span as DateRangeSpan )
+		: undefined;
 }
 
 /**
@@ -138,18 +160,14 @@ function isSameRange( a: DateRange, b?: DateRange ): boolean {
  * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
- * @param from                          - The route path the search params are bound to (e.g. `/`).
- * @param filterOptions                 - Hook options.
- * @param filterOptions.lockedIntervals - The buckets the plan locks; defaults to the report scope's.
- * @param filterOptions.dateLimits      - The dates and presets the plan locks, which bound a step; defaults to the report scope's.
+ * @param from                     - The route path the search params are bound to (e.g. `/`).
+ * @param filterOptions            - Hook options.
+ * @param filterOptions.dateLimits - The dates, presets and intervals the plan locks; defaults to the report scope's.
  * @return Props for `DateFiltersPanel`.
  */
 export function useReportDateFilters< TFrom extends string >(
 	from: TFrom,
-	filterOptions: {
-		lockedIntervals?: readonly LockableInterval[];
-		dateLimits?: DateLimits;
-	} = {}
+	filterOptions: { dateLimits?: DateLimits } = {}
 ): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
@@ -158,8 +176,7 @@ export function useReportDateFilters< TFrom extends string >(
 
 	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass limits in.
 	const scopedLocks = useScopeLockedIntervals();
-	const lockedIntervals =
-		filterOptions.lockedIntervals ?? filterOptions.dateLimits?.lockedIntervals ?? scopedLocks;
+	const lockedIntervals = filterOptions.dateLimits?.lockedIntervals ?? scopedLocks;
 	const scopedDateLimits = useReportScope().dateLimits;
 	const { earliestDate, lockedPresetIds } = filterOptions.dateLimits ?? scopedDateLimits ?? {};
 
@@ -299,27 +316,19 @@ export function useReportDateFilters< TFrom extends string >(
 	 * One decision for the arrows and the step: the plan function says whether
 	 * the window moves, where it lands and what the landing is called. The clock
 	 * is read on each render, not memoised, so a tab left open past midnight
-	 * offers the new day as soon as anything re-renders.
-	 *
-	 * The last landing is remembered with the span that reached it, so that the
-	 * next step from there moves by the same span and the reverse step undoes
-	 * it. A window reached any other way, Back included, steps by its own shape.
+	 * offers the new day as soon as anything re-renders. The span the entry was
+	 * reached by is read off the history state alongside it.
 	 */
-	const lastStep = useRef< { range: Required< DateRange >; span: DateRangeSpan } | undefined >(
-		undefined
-	);
-	const span = isSameRange( appliedRange, lastStep.current?.range )
-		? lastStep.current?.span
-		: undefined;
 	const stepContext = useMemo(
-		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds, span } ),
-		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds, span ]
+		() => ( { presetId: appliedPresetId, timeZone, earliestDate, lockedPresetIds } ),
+		[ appliedPresetId, timeZone, earliestDate, lockedPresetIds ]
 	);
 	const now = new Date();
+	const span = stepSpanFromHistory();
 	const canStepBackward =
-		planDateStep( appliedRange, 'previous', { ...stepContext, now } ) !== undefined;
+		planDateStep( appliedRange, 'previous', { ...stepContext, now, span } ) !== undefined;
 	const canStepForward =
-		planDateStep( appliedRange, 'next', { ...stepContext, now } ) !== undefined;
+		planDateStep( appliedRange, 'next', { ...stepContext, now, span } ) !== undefined;
 
 	/*
 	 * Commits and pushes a history entry so Back undoes the step. Steps the
@@ -329,7 +338,11 @@ export function useReportDateFilters< TFrom extends string >(
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
-			const step = planDateStep( appliedRange, direction, { ...stepContext, now: new Date() } );
+			const step = planDateStep( appliedRange, direction, {
+				...stepContext,
+				now: new Date(),
+				span: stepSpanFromHistory(),
+			} );
 			const patch =
 				step &&
 				buildRangePatch( {
@@ -345,8 +358,7 @@ export function useReportDateFilters< TFrom extends string >(
 			}
 
 			stage( patch );
-			commit();
-			lastStep.current = { range: step.range, span: step.span };
+			commit( { state: stepSpanState( step.span ) } );
 
 			return { ...step, interval: patch.interval ?? interval };
 		},
