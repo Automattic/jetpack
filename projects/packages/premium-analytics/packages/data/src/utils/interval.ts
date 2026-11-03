@@ -23,8 +23,15 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 
 export type { IntervalType };
 
-/** A bucket a plan can lock; days stay open so a range always has one. */
-export type LockableInterval = Extract< IntervalType, 'week' | 'month' | 'quarter' | 'year' >;
+/** The buckets a plan can lock; days stay open so a range always has one. */
+export const LOCKABLE_INTERVALS = [
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly IntervalType[];
+
+export type LockableInterval = ( typeof LOCKABLE_INTERVALS )[ number ];
 
 /** The locks of a surface whose plan sets no interval limits. */
 export const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];

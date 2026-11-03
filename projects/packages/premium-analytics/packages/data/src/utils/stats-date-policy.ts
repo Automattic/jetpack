@@ -25,7 +25,12 @@ import { startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { getDefaultPreset } from '../defaults/reports';
-import { NO_LOCKED_INTERVALS, resolveIntervalForRange, type LockableInterval } from './interval';
+import {
+	LOCKABLE_INTERVALS,
+	NO_LOCKED_INTERVALS,
+	resolveIntervalForRange,
+	type LockableInterval,
+} from './interval';
 import { isStatsFeatureLocked, type StatsFeatureKey } from './plan-gates';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { hasComparisonEnabled, type PresetType, type ReportParams } from './search';
@@ -76,8 +81,6 @@ const LONG_DATE_PRESETS: readonly QuickSurfacePresetId[] = [
 	PRESET_LAST_YEAR,
 	PRESET_ALL_TIME,
 ];
-
-const LOCKABLE_INTERVALS: readonly LockableInterval[] = [ 'week', 'month', 'quarter', 'year' ];
 
 export const OPEN_DATE_POLICY: StatsDatePolicy = {
 	lockedPresetIds: [],
