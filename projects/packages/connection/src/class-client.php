@@ -132,6 +132,10 @@ class Client {
 
 		$args['blog_id'] = (int) $args['blog_id'];
 
+		if ( ! self::is_safe_url_path( $args['url'] ) ) {
+			return new WP_Error( 'invalid_request_path', 'The request path contains a dot segment, a fragment or whitespace.' );
+		}
+
 		if ( 'header' !== $args['auth_location'] ) {
 			$args['auth_location'] = 'query_string';
 		}
@@ -236,7 +240,7 @@ class Client {
 			$url_args += $auth;
 		}
 
-		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
+		$url = self::add_query_args( $url_args, $args['url'] );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -259,10 +263,60 @@ class Client {
 		);
 
 		if ( 'header' !== $args['auth_location'] ) {
-			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
+			$url = self::add_query_args( array( 'signature' => $signature ), $url );
 		}
 
 		return compact( 'url', 'request', 'auth' );
+	}
+
+	/**
+	 * Checks that the part of a URL before its query names one resource, so the transport cannot resolve it to another.
+	 *
+	 * The HTTP transport removes `.` and `..` segments before it sends the request, and the receiving server can decode `%2e` and `%2f` into them.
+	 *
+	 * @param string $url The URL.
+	 * @return bool False when the path holds a dot segment, literal or encoded, a fragment, or whitespace.
+	 */
+	private static function is_safe_url_path( $url ) {
+		$position = strpos( $url, '?' );
+		$path     = false === $position ? $url : substr( $url, 0, $position );
+
+		if ( preg_match( '#[\#\s\x00-\x1f\x7f]#', $path ) ) {
+			return false;
+		}
+
+		return ! preg_match( '#(^|/)\.\.?(/|$)#', rawurldecode( $path ) );
+	}
+
+	/**
+	 * Adds arguments to the query string of a URL, keeping each existing key and value with the meaning the caller gave it.
+	 *
+	 * @param array  $args Unencoded scalar arguments to add. They replace existing arguments with the same name.
+	 * @param string $url  The URL.
+	 * @return string The URL with the arguments added and every key and value encoded.
+	 */
+	private static function add_query_args( $args, $url ) {
+		$fragment = '';
+		$position = strpos( $url, '#' );
+		if ( false !== $position ) {
+			$fragment = substr( $url, $position );
+			$url      = substr( $url, 0, $position );
+		}
+
+		$params   = array();
+		$position = strpos( $url, '?' );
+		if ( false !== $position ) {
+			parse_str( substr( $url, $position + 1 ), $params );
+			$url = substr( $url, 0, $position );
+		}
+
+		foreach ( $args as $key => $value ) {
+			$params[ $key ] = (string) $value;
+		}
+
+		$query = http_build_query( $params, '', '&' );
+
+		return $url . ( '' === $query ? '' : '?' . $query ) . $fragment;
 	}
 
 	/**

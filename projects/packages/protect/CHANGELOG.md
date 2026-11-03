@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-11-02
+### Added
+- Dashboard: Show the email address downtime monitoring alerts go to on the Settings tab. [#54300]
+
+### Changed
+- Dashboard: Refresh the Scan card with a last-scan badge, a live countdown to the next automatic scan, and a shorter upgrade tooltip. [#54077]
+- Dashboard: Remove the next-scan countdown from the Scan card and the Scan site button. [#54308]
+- Hide the threat count from the menu when the host turns off threat notifications. [#53983]
+- Protect Dashboard: Drop the "Jetpack" breadcrumb from the page header, to match other feature pages. [#54239]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Dashboard: Balance the line breaks in the upgrade cards so no single word sits alone on a line. [#54298]
+- Dashboard: Hide the next-scan countdown on paid Scan plans, which have no daily scan limit. [#54294]
+- Dashboard: Show the same address format hint under both IP allow list fields on the Settings tab. [#54297]
+- Dashboard: Stop logging a missing jetpackConfig error to the console on every load. [#54301]
+- Dashboard: Update the menu badge and admin bar threat count as soon as threats are fixed, ignored, or deleted. [#54253]
+- Protect dashboard: Ask for the plugin or theme slug before an auto-fix deletes it, and warn when it is active or not on WordPress.org. [#54080]
+- Scan: Hide the server credentials link on WoA sites, which don't need them. [#54270]
+- Scan: Show that the last scan didn't complete instead of saying no threats were found. [#54295]
+
 ## [0.4.0] - 2026-10-28
 ### Added
 - Dashboard: Show the table, row and values a database threat was found in, and delete a flagged option in place. [#54073]
@@ -73,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial version. [#53298]
 - Protect dashboard: Add a Scan history tab for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats. [#53196]
 
+[0.5.0]: https://github.com/Automattic/jetpack-protect/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-protect/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-protect/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-protect/compare/v0.1.0...v0.2.0

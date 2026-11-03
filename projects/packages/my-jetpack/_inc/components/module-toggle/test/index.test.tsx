@@ -328,4 +328,16 @@ describe( 'ModuleToggle', () => {
 		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
 	} );
+
+	it( 'is named by the element it is pointed at, in place of its own label', () => {
+		render(
+			<>
+				<span id="switch-name">Activate this feature</span>
+				<ModuleToggle module={ buildModule() } labelledby="switch-name" />
+			</>
+		);
+
+		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
+		expect( screen.queryByLabelText( 'Toggle Podcast module' ) ).not.toBeInTheDocument();
+	} );
 } );

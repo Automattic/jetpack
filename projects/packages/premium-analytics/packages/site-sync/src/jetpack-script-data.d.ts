@@ -13,6 +13,27 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
+			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
+			single_report_pages?: Array< {
+				id: string;
+				path: string;
+				label: string;
+				dashboard_section: string | null;
+				feature: string | null;
+				scope_param: string;
+				id_pattern: string;
+				icon: string | null;
+				controls: Array< Record< string, unknown > > | null;
+				reports_page: string | null;
+				preferences_scope: string;
+				default_layout: Array< Record< string, unknown > >;
+				sections: Array< {
+					slug: string;
+					label: string;
+					default_layout: Array< Record< string, unknown > >;
+					controls: Array< Record< string, unknown > > | null;
+				} >;
+			} >;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
@@ -23,8 +44,10 @@ declare module '@automattic/jetpack-script-data' {
 			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
 			store_currency?: { code: string; symbol: string; precision?: number };
-			// The roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options.
+			// The settings the site offers, the roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options, or when the host offers no setting.
 			stats_settings?: {
+				// Absent from servers that predate the host's choice of fields.
+				fields?: string[];
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 				features_screen: 'features' | 'modules' | null;

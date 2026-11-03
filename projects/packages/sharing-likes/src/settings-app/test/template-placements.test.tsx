@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { TemplatePlacements } from '../components/template-placements';
 import { LikeButtonsSection } from '../sections/like-buttons-section';
 import { apiCalls, baseSettings, baseStatus, renderWithData, setScriptData } from './helpers';
-import type { Feature, Settings, Status, TemplatePlacement } from '../types';
+import type { Feature, PlacementTemplate, Settings, Status, TemplatePlacement } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
@@ -49,6 +49,47 @@ function renderCards(
 		status: { ...baseStatus, ...status },
 		settings: { ...baseSettings, [ KEYS[ feature ] ]: stored },
 	} );
+}
+
+/**
+ * Render the section for a feature whose block some saved templates manage.
+ *
+ * @param feature - Feature.
+ * @param managed - Templates managing the block.
+ * @param pageUrl - Page template URL, empty when the theme has none.
+ * @return Render result.
+ */
+function renderManaged( feature: Feature, managed: PlacementTemplate[], pageUrl: string ) {
+	return renderCards( feature, [ 'after_content' ], {
+		page_template_editor_url: pageUrl,
+		[ feature ]: {
+			...baseStatus[ feature ],
+			state: 'block_call_to_action',
+			managed_templates: managed,
+		},
+	} );
+}
+
+/**
+ * Where the notice's "Edit the … template" links go, post template first.
+ *
+ * @param notice - The notice text.
+ * @return URLs.
+ */
+function noticeLinks( notice: string ): ( string | null )[] {
+	let container: HTMLElement | null = screen.getByText( notice );
+	while ( container && ! within( container ).queryAllByRole( 'link' ).length ) {
+		// eslint-disable-next-line testing-library/no-node-access -- The notice has no role to query it by.
+		container = container.parentElement;
+	}
+	return [ 'post', 'page' ]
+		.map( name =>
+			within( container as HTMLElement ).queryByRole( 'link', {
+				name: `Edit the ${ name } template`,
+			} )
+		)
+		.filter( link => link !== null )
+		.map( link => link.getAttribute( 'href' ) );
 }
 
 /**
@@ -158,20 +199,72 @@ describe( 'TemplatePlacements', () => {
 		).toContainElement( screen.getByText( 'edit the page template' ) );
 	} );
 
-	it.each( [ PAGE_TEMPLATE_URL, '' ] )(
-		'links the page template only with a URL, keeping the notes: "%s"',
-		url => {
-			renderCards( 'sharing', [], { page_template_editor_url: url } );
+	it.each( [ PAGE_TEMPLATE_URL, '' ] )( 'links the page template only with a URL: "%s"', url => {
+		renderCards( 'sharing', [], { page_template_editor_url: url } );
 
-			// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
-			expect( screen.queryByText( 'edit the page template' )?.getAttribute( 'href' ) ).toBe(
-				url || undefined
+		// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
+		expect( screen.queryByText( 'edit the page template' )?.getAttribute( 'href' ) ).toBe(
+			url || undefined
+		);
+		expect(
+			screen.queryByRole( 'link', { name: 'Edit the post template' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'sharing',
+			[ 'single' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+		],
+		[
+			'likes',
+			[ 'page' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your page template in the Site Editor. Add, move, or remove the Like block there.',
+		],
+		[
+			'sharing',
+			[ 'single', 'page' ],
+			PAGE_TEMPLATE_URL,
+			'You’ve customized your post and page templates in the Site Editor. Add, move, or remove the Sharing Buttons block there.',
+		],
+		[
+			'likes',
+			[ 'single' ],
+			'',
+			'You’ve customized your post template in the Site Editor. Add, move, or remove the Like block there.',
+		],
+	] as [ Feature, PlacementTemplate[], string, string ][] )(
+		'%s managed by %j, page template "%s": only a notice linking to the templates',
+		( feature, managed, pageUrl, notice ) => {
+			renderManaged( feature, managed, pageUrl );
+
+			expect( screen.getByText( notice ) ).toBeInTheDocument();
+			expect( noticeLinks( notice ) ).toEqual(
+				pageUrl ? [ baseStatus.site_editor_url, pageUrl ] : [ baseStatus.site_editor_url ]
 			);
-			expect(
-				screen.getByText( /Once you’ve saved a template in the Site Editor/ )
-			).toBeInTheDocument();
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Preview and edit' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Your choice applies to pages too/ ) ).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'shows no notice and previews the post template while neither template manages the block', () => {
+		renderCards( 'likes', [ 'after_content' ], { page_template_editor_url: PAGE_TEMPLATE_URL } );
+
+		expect(
+			screen.getByRole( 'radiogroup', {
+				name: 'Where should the Like block go on posts and pages?',
+			} )
+		).toBeInTheDocument();
+		expect( screen.queryByText( /customized your/ ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
+			'href',
+			baseStatus.site_editor_url
+		);
+	} );
 
 	it( 'shows the cards disabled, not the Site Editor button, while settings catch up with a switch', async () => {
 		const user = userEvent.setup();
@@ -180,13 +273,16 @@ describe( 'TemplatePlacements', () => {
 			if ( method === 'POST' ) {
 				return Promise.resolve( {
 					...baseStatus,
-					likes: { state: 'block_call_to_action', supported: true },
+					likes: { ...baseStatus.likes, state: 'block_call_to_action', supported: true },
 				} );
 			}
 			return path?.endsWith( '/settings' ) ? settings.promise : Promise.resolve( baseStatus );
 		} );
 		renderWithData( <LikeButtonsSection />, {
-			status: { ...baseStatus, likes: { state: 'configure_with_block_nudge', supported: true } },
+			status: {
+				...baseStatus,
+				likes: { ...baseStatus.likes, state: 'configure_with_block_nudge', supported: true },
+			},
 		} );
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch to the Like block' } ) );

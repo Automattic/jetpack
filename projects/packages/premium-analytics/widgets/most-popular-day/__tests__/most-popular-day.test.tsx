@@ -48,10 +48,9 @@ describe( 'MostPopularDayWidget', () => {
 		// widget title the host renders.
 		expect( screen.getByRole( 'heading', { level: 4, name: 'Day' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 4, name: 'Views' } ) ).toBeInTheDocument();
-		// The count appears twice by design: the abbreviated headline is hidden
-		// from assistive tech, and the exact count beside it is hidden visually.
-		expect( container ).toHaveTextContent( 'Views103K102,6310.16% of views' );
-		expect( screen.getByText( '103K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		// A single-figure widget: the exact count, with no compact one beside it.
+		expect( container ).toHaveTextContent( 'Views102,6310.16% of views' );
+		expect( screen.queryByText( '103K' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'requests the site summary without the date params the host injects', async () => {
@@ -83,7 +82,7 @@ describe( 'MostPopularDayWidget', () => {
 
 		await expect( screen.findByText( 'October 17' ) ).resolves.toBeInTheDocument();
 
-		expect( container ).toHaveTextContent( 'Views103K' );
+		expect( container ).toHaveTextContent( 'Views102,631' );
 		expect( screen.queryByText( /of views/ ) ).not.toBeInTheDocument();
 	} );
 

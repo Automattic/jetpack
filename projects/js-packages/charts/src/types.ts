@@ -437,6 +437,18 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** Compact mode for `compactWhenShort` line, area and bar charts */
+	compactWhenShort?: {
+		/** Height (px) below which the chart turns compact */
+		below?: number;
+		/** Margin the chart defaults to while compact */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
 	 * WPDS tokens in CSS, so only the compact sizing lives here.
@@ -466,6 +478,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
+	compactWhenShort: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] >[ 'margin' ] >;
 	};
 	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
@@ -520,6 +535,12 @@ export type AxisOptions = {
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
 	tickValues?: ScaleInput< AxisScale >[];
+	/**
+	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never repeat;
+	 * an axis holding fewer than two steps widens to the nearest ones. Whole-number data always uses 0.
+	 * Ignored on a log scale, or when `tickValues` or the value scale's `domain` is set. Line and bar charts only.
+	 */
+	tickDecimals?: number;
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -707,6 +728,18 @@ export interface SeriesVisibilityProps {
 	 * Omit to retain the provider's existing visibility for the chart ID.
 	 */
 	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Compact mode for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to `theme.compactWhenShort.margin`, while the
+	 * chart is shorter than `theme.compactWhenShort.below`. Series hidden through the legend stay
+	 * hidden until the chart is tall again. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
 }
 
 /**

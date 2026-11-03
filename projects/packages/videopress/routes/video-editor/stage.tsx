@@ -691,7 +691,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="video_editor">
 		<StageInner />
 	</QueryClientWrapper>
 );
