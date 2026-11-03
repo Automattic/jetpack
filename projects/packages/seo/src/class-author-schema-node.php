@@ -41,6 +41,7 @@ class Author_Schema_Node {
 				'single'            => true,
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => array( __CLASS__, 'can_edit_profile_meta' ),
 				'show_in_rest'      => true,
 			)
 		);
@@ -52,6 +53,7 @@ class Author_Schema_Node {
 				'single'            => true,
 				'default'           => array(),
 				'sanitize_callback' => array( __CLASS__, 'sanitize_url_list' ),
+				'auth_callback'     => array( __CLASS__, 'can_edit_profile_meta' ),
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'  => 'array',
@@ -68,6 +70,18 @@ class Author_Schema_Node {
 		add_action( 'edit_user_profile', array( __CLASS__, 'render_profile_fields' ) );
 		add_action( 'personal_options_update', array( __CLASS__, 'save_profile_fields' ) );
 		add_action( 'edit_user_profile_update', array( __CLASS__, 'save_profile_fields' ) );
+		add_action( 'user_profile_update_errors', array( __CLASS__, 'validate_profile_fields' ), 10, 3 );
+	}
+
+	/**
+	 * Retain core's metadata permissions while enforcing the SEO plan requirement.
+	 *
+	 * @since $$next-version$$
+	 * @param bool $allowed Whether WordPress permits editing the user metadata.
+	 * @return bool
+	 */
+	public static function can_edit_profile_meta( $allowed ) {
+		return $allowed && ! Initializer::is_gated();
 	}
 
 	/**
@@ -163,30 +177,71 @@ class Author_Schema_Node {
 		$job_title   = get_user_meta( $user->ID, $job_field, true );
 		$same_as     = self::sanitize_url_list( get_user_meta( $user->ID, $links_field, true ) );
 
+		$plan_locked = Initializer::is_gated();
+		echo '<h2>' . esc_html__( 'Jetpack SEO author schema', 'jetpack-seo' ) . '</h2>';
+		if ( $plan_locked ) {
+			printf(
+				'<p>%1$s <a href="%2$s">%3$s</a></p>',
+				esc_html__( 'Your saved SEO author fields require WordPress.com Premium or higher to edit.', 'jetpack-seo' ),
+				esc_url( Initializer::get_upsell_url() ),
+				esc_html__( 'Upgrade', 'jetpack-seo' )
+			);
+		}
+
 		printf(
-			'<h2>%1$s</h2>
-			<table class="form-table" role="presentation">
+			'<table class="form-table" role="presentation">
 				<tr>
-					<th><label for="%2$s">%3$s</label></th>
-					<td><input type="text" class="regular-text" name="%2$s" id="%2$s" value="%4$s" /></td>
+					<th><label for="%1$s">%2$s</label></th>
+					<td><input type="text" class="regular-text" name="%1$s" id="%1$s" value="%3$s" %8$s /></td>
 				</tr>
 				<tr>
-					<th><label for="%5$s">%6$s</label></th>
+					<th><label for="%4$s">%5$s</label></th>
 					<td>
-						<textarea class="large-text code" rows="5" name="%5$s" id="%5$s">%7$s</textarea>
-						<p class="description">%8$s</p>
+						<textarea class="large-text code" rows="5" name="%4$s" id="%4$s" %8$s>%6$s</textarea>
+						<p class="description">%7$s</p>
 					</td>
 				</tr>
 			</table>',
-			esc_html__( 'Jetpack SEO author schema', 'jetpack-seo' ),
 			esc_attr( $job_field ),
 			esc_html__( 'Job title', 'jetpack-seo' ),
 			esc_attr( $job_title ),
 			esc_attr( $links_field ),
 			esc_html__( 'Profile links', 'jetpack-seo' ),
 			esc_textarea( implode( "\n", $same_as ) ),
-			esc_html__( 'One public profile URL per line.', 'jetpack-seo' )
+			esc_html__( 'One public profile URL per line.', 'jetpack-seo' ),
+			disabled( $plan_locked, true, false )
 		);
+	}
+
+	/**
+	 * Report SEO edits from a profile form opened before the site lost its entitlement.
+	 *
+	 * @since $$next-version$$
+	 * @param \WP_Error $errors Profile validation errors.
+	 * @param bool      $update Whether this is an existing user.
+	 * @param object    $user   User being updated.
+	 * @return void
+	 */
+	public static function validate_profile_fields( $errors, $update, $user ) {
+		if ( ! $update || ! Initializer::is_gated() ) {
+			return;
+		}
+
+		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'update-user_' . $user->ID ) ) {
+			return;
+		}
+
+		$job_changed   = isset( $_POST[ self::META_JOB_TITLE ] )
+			&& self::text( sanitize_text_field( wp_unslash( $_POST[ self::META_JOB_TITLE ] ) ) ) !== (string) get_user_meta( $user->ID, self::META_JOB_TITLE, true );
+		$links_changed = isset( $_POST[ self::META_SAME_AS ] )
+			&& self::sanitize_url_list( preg_split( '/\r\n|\r|\n/', sanitize_textarea_field( wp_unslash( $_POST[ self::META_SAME_AS ] ) ) ) ) !== self::sanitize_url_list( get_user_meta( $user->ID, self::META_SAME_AS, true ) );
+		if ( $job_changed || $links_changed ) {
+			$errors->add(
+				'jetpack_seo_plan_required',
+				__( 'Upgrade to WordPress.com Premium or higher to edit these SEO author fields.', 'jetpack-seo' )
+			);
+		}
 	}
 
 	/**
@@ -196,7 +251,7 @@ class Author_Schema_Node {
 	 * @return void
 	 */
 	public static function save_profile_fields( $user_id ) {
-		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		if ( ! current_user_can( 'edit_user', $user_id ) || Initializer::is_gated() ) {
 			return;
 		}
 
