@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, SwitchControl, Text } from '@wordpress/ui';
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { ModuleToggle } from '../module-toggle';
 import { RelatedPostsPreview } from './related-posts-preview';
 import styles from './styles.module.scss';
@@ -35,9 +36,33 @@ function AppearanceLink() {
 		);
 	}
 
+	return <CustomizerLink />;
+}
+
+/**
+ * The Customizer section, previewing the latest post: its controls show only on a single post.
+ *
+ * @return The link.
+ */
+function CustomizerLink() {
+	const [ postUrl, setPostUrl ] = useState< string >();
+
+	useEffect( () => {
+		let current = true;
+		apiFetch< { link: string }[] >( { path: '/wp/v2/posts?per_page=1&_fields=link' } )
+			.then( posts => current && setPostUrl( posts[ 0 ]?.link ) )
+			.catch( () => undefined );
+		return () => {
+			current = false;
+		};
+	}, [] );
+
 	const customizer = new URL( getAdminUrl( 'customize.php' ) );
 	customizer.searchParams.set( 'autofocus[section]', 'jetpack_relatedposts' );
 	customizer.searchParams.set( 'return', window.location.href );
+	if ( postUrl ) {
+		customizer.searchParams.set( 'url', postUrl );
+	}
 
 	return (
 		<Link href={ customizer.href }>

@@ -107,11 +107,11 @@ describe( 'RelatedPostsSettings', () => {
 	} );
 
 	it.each( [
-		[ true, false, 'Related', 0 ],
-		[ false, true, null, 3 ],
+		[ true, false, 0 ],
+		[ false, true, 3 ],
 	] )(
 		'previews the stored options: headline %s, thumbnails %s',
-		( headline, thumbnails, headlineText, images ) => {
+		( headline, thumbnails, images ) => {
 			const options = {
 				show_headline: { current_value: headline },
 				show_thumbnails: { current_value: thumbnails },
@@ -120,9 +120,7 @@ describe( 'RelatedPostsSettings', () => {
 			const preview = screen.getByRole( 'group', { name: 'Preview' } );
 
 			expect( within( preview ).getAllByRole( 'listitem' ) ).toHaveLength( 3 );
-			expect( within( preview ).queryByText( 'Related' ) ).toBe(
-				headlineText ? within( preview ).getByText( headlineText ) : null
-			);
+			expect( !! within( preview ).queryByText( 'Related' ) ).toBe( headline );
 			expect( within( preview ).queryAllByRole( 'presentation' ) ).toHaveLength( images );
 		}
 	);
@@ -153,6 +151,22 @@ describe( 'RelatedPostsSettings', () => {
 		expect( url.pathname ).toBe( '/wp-admin/customize.php' );
 		expect( url.searchParams.get( 'autofocus[section]' ) ).toBe( 'jetpack_relatedposts' );
 		expect( url.searchParams.get( 'return' ) ).toBe( window.location.href );
+		expect( url.searchParams.has( 'url' ) ).toBe( false );
+	} );
+
+	it( 'opens the Customizer on the latest post, where its controls show', async () => {
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( [
+			{ link: 'https://example.com/hello/' },
+		] );
+		render( <RelatedPostsSettings module={ build() } /> );
+		const link = screen.getByRole( 'link', { name: 'Configure related posts in the Customizer' } );
+
+		await waitFor( () =>
+			expect( new URL( link.getAttribute( 'href' ) as string ).searchParams.get( 'url' ) ).toBe(
+				'https://example.com/hello/'
+			)
+		);
+		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/posts?per_page=1&_fields=link' } );
 	} );
 
 	it( 'points a block theme to the site editor docs instead', () => {
