@@ -30,6 +30,7 @@ class SEO_Visibility_Cohort_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		delete_option( $this->option );
+		delete_option( Jetpack_SEO_Initializer::SEO_TOOLS_ACTIVATION_PENDING_OPTION );
 	}
 
 	/**
@@ -89,6 +90,36 @@ class SEO_Visibility_Cohort_Test extends WP_UnitTestCase {
 		return array(
 			'seeded visible' => array( true ),
 			'seeded hidden'  => array( false ),
+		);
+	}
+
+	/**
+	 * Only a brand-new install asks for SEO tools to be switched on; an existing site keeps its choice.
+	 *
+	 * @dataProvider provide_switch_on_cases
+	 * @param bool         $cohort_seeded Whether the cohort option already exists.
+	 * @param string|false $old_version   The previous version, or false when none is stored.
+	 * @param bool         $expected      Whether the switch-on is requested.
+	 */
+	#[DataProvider( 'provide_switch_on_cases' )]
+	public function test_only_a_fresh_install_requests_the_seo_tools_switch_on( $cohort_seeded, $old_version, $expected ) {
+		if ( $cohort_seeded ) {
+			add_option( $this->option, false );
+		}
+
+		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', $old_version );
+
+		$this->assertSame( $expected, (bool) get_option( Jetpack_SEO_Initializer::SEO_TOOLS_ACTIVATION_PENDING_OPTION ) );
+	}
+
+	/**
+	 * @return array Seed inputs and whether the switch-on is requested.
+	 */
+	public static function provide_switch_on_cases() {
+		return array(
+			'fresh install'                    => array( false, false, true ),
+			'upgrade'                          => array( false, '13.9:1690000000', false ),
+			'reactivation of an existing site' => array( true, false, false ),
 		);
 	}
 }

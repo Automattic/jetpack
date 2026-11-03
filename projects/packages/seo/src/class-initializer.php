@@ -93,11 +93,11 @@ class Initializer {
 	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
-	 * Option recording that SEO tools was switched on once for a site with the SEO page.
+	 * Option the Jetpack plugin sets on a fresh install, asking for SEO tools to be switched on once.
 	 *
 	 * @var string
 	 */
-	const SEO_TOOLS_AUTO_ACTIVATED_OPTION = 'jetpack_seo_tools_auto_activated';
+	const SEO_TOOLS_ACTIVATION_PENDING_OPTION = 'jetpack_seo_tools_activation_pending';
 
 	/**
 	 * Whether the package has been initialized.
@@ -178,9 +178,8 @@ class Initializer {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
-		// Priority 0 on `admin_menu`, ahead of Admin_Menu dropping items for inactive modules;
-		// `admin_init` fires after the menu is built, so the first visit would miss the item.
-		add_action( 'admin_menu', array( __CLASS__, 'activate_seo_tools_once' ), 0 );
+		// Before the module check below and Jetpack's module loading, so this request is complete.
+		self::activate_seo_tools_on_fresh_install();
 
 		// The page registers whenever the surface is visible, even with `seo-tools` off, so
 		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
@@ -342,23 +341,24 @@ class Initializer {
 	}
 
 	/**
-	 * Turn SEO tools on the first time an admin opens wp-admin with the SEO page, since it can
-	 * start off; only once, so turning it off sticks. Simple runs every module regardless.
+	 * Turn SEO tools on for a fresh self-hosted install, where it starts off and its menu would
+	 * stay hidden. Existing sites and WordPress.com keep the module as their owner left it.
 	 *
 	 * @return void
 	 */
-	public static function activate_seo_tools_once() {
+	public static function activate_seo_tools_on_fresh_install() {
 		if (
-			( new Host() )->is_wpcom_simple()
-			|| get_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION )
+			! get_option( self::SEO_TOOLS_ACTIVATION_PENDING_OPTION )
+			|| ! is_admin()
 			|| ! current_user_can( 'manage_options' )
+			|| ( new Host() )->is_wpcom_platform()
 		) {
 			return;
 		}
 
-		// Activation fails before the site is connected; leave the option unset to retry.
+		// Activation fails before the site is connected; keep the option to retry.
 		if ( ( new Modules() )->activate( 'seo-tools', false, false ) ) {
-			update_option( self::SEO_TOOLS_AUTO_ACTIVATED_OPTION, true );
+			delete_option( self::SEO_TOOLS_ACTIVATION_PENDING_OPTION );
 		}
 	}
 

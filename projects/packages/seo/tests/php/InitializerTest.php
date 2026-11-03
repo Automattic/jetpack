@@ -516,47 +516,22 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The menu is built before `admin_init`, so a later hook would leave the first visit without it.
-	 */
-	public function test_seo_tools_is_switched_on_before_admin_menu_drops_inactive_items() {
-		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$initialized->setAccessible( true );
-		}
-		$initialized->setValue( null, false );
-		add_filter( 'rsm_jetpack_seo', '__return_true' );
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		$callback = array( Initializer::class, 'activate_seo_tools_once' );
-
-		try {
-			Initializer::init();
-			\Automattic\Jetpack\Admin_UI\Admin_Menu::init();
-
-			$priority = has_action( 'admin_menu', $callback );
-			$this->assertIsInt( $priority );
-			$this->assertLessThan( has_action( 'admin_menu', array( \Automattic\Jetpack\Admin_UI\Admin_Menu::class, 'admin_menu_hook_callback' ) ), $priority );
-		} finally {
-			remove_action( 'admin_menu', $callback, 0 );
-			remove_filter( 'rsm_jetpack_seo', '__return_true' );
-			$this->remove_sitemap_toggle_hooks();
-			delete_option( Initializer::VISIBILITY_OPTION );
-			$initialized->setValue( null, false );
-		}
-	}
-
-	/**
-	 * Run a callback as a user of the given role, with `seo-tools` available but off.
+	 * Run a callback in wp-admin as a user of the given role, with `seo-tools` available but off.
 	 *
 	 * @param string   $role     User role.
+	 * @param bool     $pending  Whether the fresh-install switch-on is pending.
 	 * @param callable $callback Test body.
 	 */
-	private function with_seo_tools_off( $role, callable $callback ) {
+	private function with_seo_tools_off( $role, $pending, callable $callback ) {
 		$available = static function () {
 			return array( 'seo-tools' );
 		};
 		add_filter( 'jetpack_get_available_standalone_modules', $available );
 		\Jetpack_Options::delete_option( 'active_modules' );
-		delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+		if ( $pending ) {
+			update_option( Initializer::SEO_TOOLS_ACTIVATION_PENDING_OPTION, true );
+		}
+		set_current_screen( 'dashboard' );
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -571,46 +546,34 @@ class InitializerTest extends TestCase {
 			$callback();
 		} finally {
 			wp_set_current_user( 0 );
+			unset( $GLOBALS['current_screen'] );
 			remove_filter( 'jetpack_get_available_standalone_modules', $available );
 			\Jetpack_Options::delete_option( 'active_modules' );
-			delete_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION );
+			delete_option( Initializer::SEO_TOOLS_ACTIVATION_PENDING_OPTION );
 		}
 	}
 
 	/**
-	 * SEO tools can start off; turning it on must happen once, so a later turn-off in My Jetpack sticks.
+	 * Run a callback on the given host.
 	 *
-	 * @dataProvider provide_sites_switched_on
-	 *
-	 * @param bool $on_atomic Whether the site is on Atomic.
+	 * @param string   $host     'self-hosted', 'atomic' or 'simple'.
+	 * @param callable $callback Test body.
 	 */
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_switched_on' )]
-	public function test_activate_seo_tools_once_does_not_undo_a_later_turn_off( $on_atomic ) {
-		$atomic = array( 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' );
-		if ( $on_atomic ) {
-			foreach ( $atomic as $constant ) {
-				\Automattic\Jetpack\Constants::set_constant( $constant, 1 );
-			}
-			\Automattic\Jetpack\Status\Cache::clear();
-			$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() );
+	private function on_host( $host, callable $callback ) {
+		$constants = array(
+			'self-hosted' => array(),
+			'atomic'      => array( 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ),
+			'simple'      => array( 'IS_WPCOM' ),
+		)[ $host ];
+		foreach ( $constants as $constant ) {
+			\Automattic\Jetpack\Constants::set_constant( $constant, true );
 		}
+		\Automattic\Jetpack\Status\Cache::clear();
 
 		try {
-			$this->with_seo_tools_off(
-				'administrator',
-				function () {
-					$modules = new \Automattic\Jetpack\Modules();
-
-					Initializer::activate_seo_tools_once();
-					$this->assertTrue( $modules->is_active( 'seo-tools' ) );
-
-					$modules->deactivate( 'seo-tools' );
-					Initializer::activate_seo_tools_once();
-					$this->assertFalse( $modules->is_active( 'seo-tools' ) );
-				}
-			);
+			$callback();
 		} finally {
-			foreach ( $atomic as $constant ) {
+			foreach ( $constants as $constant ) {
 				\Automattic\Jetpack\Constants::clear_single_constant( $constant );
 			}
 			\Automattic\Jetpack\Status\Cache::clear();
@@ -618,42 +581,81 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Sites where SEO tools gets switched on once.
-	 *
-	 * @return array<string, array{bool}>
+	 * The first wp-admin visit must come out complete, not only after a reload.
 	 */
-	public static function provide_sites_switched_on() {
-		return array(
-			'self-hosted site' => array( false ),
-			'Atomic site'      => array( true ),
+	public function test_fresh_install_first_visit_loads_seo_tools_features() {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		update_option( Initializer::VISIBILITY_OPTION, '1' );
+		$profile_fields = array( Author_Schema_Node::class, 'render_profile_fields' );
+		remove_action( 'show_user_profile', $profile_fields );
+
+		try {
+			$this->with_seo_tools_off(
+				'administrator',
+				true,
+				function () use ( $profile_fields ) {
+					Initializer::init();
+
+					$this->assertTrue( ( new \Automattic\Jetpack\Modules() )->is_active( 'seo-tools' ) );
+					$this->assertNotFalse( has_action( 'show_user_profile', $profile_fields ) );
+				}
+			);
+		} finally {
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * Turning SEO tools off in My Jetpack afterwards must stick.
+	 */
+	public function test_fresh_install_switch_on_does_not_undo_a_later_turn_off() {
+		$this->with_seo_tools_off(
+			'administrator',
+			true,
+			function () {
+				$modules = new \Automattic\Jetpack\Modules();
+
+				Initializer::activate_seo_tools_on_fresh_install();
+				$this->assertTrue( $modules->is_active( 'seo-tools' ) );
+
+				$modules->deactivate( 'seo-tools' );
+				Initializer::activate_seo_tools_on_fresh_install();
+				$this->assertFalse( $modules->is_active( 'seo-tools' ) );
+			}
 		);
 	}
 
 	/**
-	 * Simple runs every module regardless, and only an admin's visit switches it on.
+	 * An existing site may have turned SEO tools off on purpose, so only a fresh install is switched on.
 	 *
 	 * @dataProvider provide_sites_left_alone
 	 *
-	 * @param string $role     User role.
-	 * @param bool   $on_wpcom Whether the site is on WordPress.com Simple.
+	 * @param string $host    'self-hosted', 'atomic' or 'simple'.
+	 * @param string $role    User role.
+	 * @param bool   $pending Whether the fresh-install switch-on is pending.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_sites_left_alone' )]
-	public function test_activate_seo_tools_once_leaves_module_off( $role, $on_wpcom ) {
-		$this->with_seo_tools_off(
-			$role,
-			function () use ( $on_wpcom ) {
-				if ( $on_wpcom ) {
-					\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-				}
+	public function test_switch_on_leaves_module_off( $host, $role, $pending ) {
+		$this->on_host(
+			$host,
+			function () use ( $role, $pending ) {
+				$this->with_seo_tools_off(
+					$role,
+					$pending,
+					function () {
+						Initializer::activate_seo_tools_on_fresh_install();
 
-				try {
-					Initializer::activate_seo_tools_once();
-				} finally {
-					\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
-				}
-
-				$this->assertSame( array(), \Jetpack_Options::get_option( 'active_modules', array() ) );
-				$this->assertFalse( get_option( Initializer::SEO_TOOLS_AUTO_ACTIVATED_OPTION ) );
+						$this->assertFalse( ( new \Automattic\Jetpack\Modules() )->is_active( 'seo-tools' ) );
+					}
+				);
 			}
 		);
 	}
@@ -661,12 +663,14 @@ class InitializerTest extends TestCase {
 	/**
 	 * Sites where SEO tools must stay off.
 	 *
-	 * @return array<string, array{string, bool}>
+	 * @return array<string, array{string, string, bool}>
 	 */
 	public static function provide_sites_left_alone() {
 		return array(
-			'WordPress.com Simple site' => array( 'administrator', true ),
-			'non-admin visit'           => array( 'editor', false ),
+			'existing self-hosted site'   => array( 'self-hosted', 'administrator', false ),
+			'Atomic site'                 => array( 'atomic', 'administrator', true ),
+			'WordPress.com Simple site'   => array( 'simple', 'administrator', true ),
+			'non-admin visit, fresh site' => array( 'self-hosted', 'editor', true ),
 		);
 	}
 }

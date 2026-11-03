@@ -3253,7 +3253,14 @@ p {
 	public static function seed_seo_visibility_cohort( $version, $old_version ) {
 		// Drop the superseded key (see VISIBILITY_OPTION); it plays no part in the seed.
 		delete_option( 'jetpack_seo_surface_visible' );
-		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
+		$seeded = add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
+
+		// Fresh seed only: a reactivation clears the version but keeps the cohort option.
+		// Guarded, since an older SEO package can be the one loaded.
+		$pending_option = Jetpack_SEO_Initializer::class . '::SEO_TOOLS_ACTIVATION_PENDING_OPTION';
+		if ( $seeded && ! $old_version && defined( $pending_option ) ) {
+			add_option( constant( $pending_option ), true );
+		}
 	}
 
 	/**
