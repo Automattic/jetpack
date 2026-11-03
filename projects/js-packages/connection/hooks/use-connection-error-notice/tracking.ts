@@ -14,6 +14,8 @@ import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 export const CONNECTION_ERROR_NOTICE_EVENTS = {
 	/** The built-in "Restore Connection" CTA. */
 	reconnect: 'jetpack_connection_error_notice_reconnect_cta_click',
+	/** The built-in "Connect your account" CTA (`connect_user` action). */
+	connectUser: 'jetpack_connection_error_notice_connect_user_cta_click',
 	/** A link an error carries in the notice body, e.g. "Visit Site Health". */
 	noticeLink: 'jetpack_connection_error_notice_link_click',
 	/** The "Contact Jetpack Support" link. */

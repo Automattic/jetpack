@@ -3152,6 +3152,9 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
+	 * Branches on the current user's tokens, not the owner's. A user with no token of their own is sent
+	 * to authorize(), where an admin takes over a broken owner's slot when ownership is transferable.
+	 *
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
@@ -3403,11 +3406,17 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
+	 * A user with `jetpack_connect` takes a vacant owner slot. They also take an occupied one whose
+	 * owner's connection is broken, when ownership is transferable and the request comes from the
+	 * browser flow (`auth_type` of `client`); see can_take_broken_owner_slot().
+	 * Anyone else is linked as a secondary user.
+	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 * @since $$next-version$$ An admin connecting while the owner's connection is broken becomes the owner.
 	 *
 	 * @param array $data The request data.
-	 * @return string|\WP_Error Returns a string on success.
-	 *                          Returns a \WP_Error on failure.
+	 * @return string|\WP_Error 'authorized' when the user is now the connection owner, 'linked'
+	 *                          when connected as a secondary user, or a \WP_Error on failure.
 	 */
 	public function authorize( $data = array() ) {
 		/**
@@ -3473,7 +3482,19 @@ class Manager {
 		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
 		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
 
+		// Read before the token write, which clears the stored errors this depends on.
+		// Only the browser flow (Webhooks sets 'client'), where the user saw the ownership warning; not remote_authorize.
+		$take_broken_owner_slot = ! $is_connection_owner
+			&& 'client' === ( $data['auth_type'] ?? '' )
+			&& $this->can_take_broken_owner_slot( $current_user_id );
+
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+
+		// After the write: WordPress.com only accepts the switch signed with this user's new token.
+		// On failure the user stays linked as a secondary user.
+		if ( $take_broken_owner_slot && true === $this->update_connection_owner( $current_user_id ) ) {
+			$is_connection_owner = true;
+		}
 
 		// Delete cached connected user data, so a cached failure from the
 		// previous (broken) token doesn't linger after reconnecting.
@@ -3513,6 +3534,32 @@ class Manager {
 		( new Nonce_Handler() )->reschedule();
 
 		return 'authorized';
+	}
+
+	/**
+	 * Whether the authorizing user should take over a connection owner slot whose owner is broken.
+	 *
+	 * Without this, a second admin who connects to fix a broken owner is only linked, and the
+	 * broken owner stays in place.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The authorizing user's ID.
+	 * @return bool
+	 */
+	private function can_take_broken_owner_slot( $user_id ) {
+		if ( ! current_user_can( 'jetpack_connect' )
+			|| $this->get_connection_owner_id() === $user_id
+			|| ! $this->is_ownership_transferable() ) {
+			return false;
+		}
+
+		// A partial update can load this class alongside an Error_Handler that predates the method.
+		if ( ! method_exists( Error_Handler::class, 'has_owner_connection_error' ) ) {
+			return false;
+		}
+
+		return Error_Handler::get_instance()->has_owner_connection_error();
 	}
 
 	/**

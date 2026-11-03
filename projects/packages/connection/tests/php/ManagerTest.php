@@ -671,6 +671,107 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that an admin connecting while the connection owner's token is broken takes over the owner slot.
+	 *
+	 * @param string        $role            The authorizing user's role.
+	 * @param bool          $locked          Whether connection ownership is locked.
+	 * @param bool          $owner_error     Whether an owner-scoped error is on record.
+	 * @param true|WP_Error $owner_update    What update_connection_owner() returns.
+	 * @param string        $expected_result The expected `authorize` result.
+	 * @param string        $auth_type       The request's `auth_type`.
+	 * @dataProvider provide_authorize_broken_owner_slot
+	 */
+	#[DataProvider( 'provide_authorize_broken_owner_slot' )]
+	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $owner_update, $expected_result, $auth_type = 'client' ) {
+		$owner_id = 4242;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		if ( $owner_error ) {
+			update_option(
+				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+				array(
+					'no_valid_user_token' => array(
+						(string) $owner_id => array(
+							'error_code'    => 'no_valid_user_token',
+							'user_id'       => (string) $owner_id,
+							'error_message' => 'Test message',
+							'error_data'    => array(),
+							'timestamp'     => time(),
+							'nonce'         => 'test_nonce',
+							'error_type'    => 'xmlrpc',
+						),
+					),
+				)
+			);
+		}
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_broken_owner_slot',
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		// The real write clears stored errors, so the owner check must already have run.
+		$tokens->method( 'update_user_token' )->willReturnCallback(
+			static function () {
+				delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+				return true;
+			}
+		);
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'update_connection_owner' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
+		$manager->expects( 'authorized' === $expected_result || $owner_update instanceof WP_Error ? $this->once() : $this->never() )
+			->method( 'update_connection_owner' )
+			->with( $user_id )
+			->willReturn( $owner_update );
+
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		try {
+			$result = $manager->authorize(
+				array(
+					'state'     => (string) $user_id,
+					'code'      => 'authorization_code',
+					'auth_type' => $auth_type,
+				)
+			);
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+		}
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for test_authorize_broken_owner_slot.
+	 *
+	 * @return array
+	 */
+	public static function provide_authorize_broken_owner_slot() {
+		return array(
+			'admin takes a transferable broken slot' => array( 'administrator', false, true, true, 'authorized' ),
+			'locked ownership links'                 => array( 'administrator', true, true, true, 'linked' ),
+			'healthy owner links'                    => array( 'administrator', false, false, true, 'linked' ),
+			'user without jetpack_connect links'     => array( 'editor', false, true, true, 'linked' ),
+			'failed WordPress.com switch links'      => array( 'administrator', false, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
+			'remote authorize flow links'            => array( 'administrator', false, true, true, 'linked', 'calypso' ),
+		);
+	}
+
+	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 */
 	public function test_delete_all_connection_tokens() {

@@ -3,6 +3,7 @@ import {
 	DEFAULT_RECONNECT_TRACKING_EVENT,
 	resolveConnectionErrorActions,
 } from '../resolve-actions';
+import { CONNECTION_ERROR_NOTICE_EVENTS } from '../tracking';
 import type { ConnectionErrorObject } from '../types';
 
 describe( 'resolveConnectionErrorActions', () => {
@@ -167,6 +168,24 @@ describe( 'resolveConnectionErrorActions', () => {
 		);
 
 		expect( actions[ 0 ].label ).toBe( 'Take Action' );
+	} );
+
+	it( 'labels and tracks connect_user with its built-in defaults', () => {
+		const handler = jest.fn();
+		const trackingCallback = jest.fn();
+		const actions = resolveConnectionErrorActions(
+			{ error_message: 'Owner broken', error_data: { action: 'connect_user' } },
+			{ ...baseOptions, trackingCallback, actionHandlers: { connect_user: handler } }
+		);
+
+		expect( actions[ 0 ].label ).toBe( 'Connect your account' );
+
+		actions[ 0 ].onClick();
+		expect( handler ).toHaveBeenCalled();
+		expect( trackingCallback ).toHaveBeenCalledWith(
+			CONNECTION_ERROR_NOTICE_EVENTS.connectUser,
+			expect.any( Object )
+		);
 	} );
 
 	it( 'resolves a URL action and navigates via the supplied navigate handler', () => {

@@ -274,11 +274,13 @@ class Error_Handler {
 	 * and consumer-injected errors are appended after the gate. See docs/error-handling.md.
 	 *
 	 * error_data.action is only set when it deviates from the default behavior
-	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
-	 * to offering the reconnect CTA.
+	 * (e.g. 'none' to suppress the reconnect CTA, or 'connect_user' to offer the
+	 * viewer's own account connection); when absent, readers fall back to offering
+	 * the reconnect CTA.
 	 *
 	 * @since 6.13.10
 	 * @since 9.8.0 Withholds a non-admin's reconnect CTA while a site connection error is on record.
+	 * @since $$next-version$$ Offers `connect_user` to an admin without their own connection viewing an owner error.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -320,10 +322,12 @@ class Error_Handler {
 
 			$owner_id        = (int) \Jetpack_Options::get_option( 'master_user' );
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
-			$is_transferable = ( new Manager() )->is_ownership_transferable();
+			$manager         = new Manager();
+			$is_transferable = $manager->is_ownership_transferable();
 
 			// Viewer-wide, so resolved once rather than per error.
 			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
+			$viewer_lacks_connection = $viewer_id > 0 && $viewer_can_connect && ! $manager->is_user_connected( $viewer_id );
 			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
 			$site_connection_broken  = ! $viewer_can_connect && $this->has_site_connection_error( $verified_errors, $owner_id );
 
@@ -395,16 +399,39 @@ class Error_Handler {
 						$message = __( 'You need to reconnect your WordPress.com account to restore the connection.', 'jetpack-connection' );
 					} elseif ( 'owner' === $audience && ! $viewer_is_owner ) {
 						// A secondary admin looking at the connection owner's token error. What
-						// they can usefully be told depends on whether ownership is transferable.
-						// Only name the owner, or describe what reconnecting would do, for
-						// viewers who can act on connection issues.
+						// they can usefully be told depends on whether they have a connection of
+						// their own and whether ownership is transferable. Only name the owner, or
+						// describe what reconnecting would do, for viewers who can act on it.
 						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
-						if ( ! $is_transferable ) {
+						// Inbound failures (survives_owner_promotion) are not fixed by a new account, so no takeover.
+						if ( $viewer_lacks_connection && empty( $display_config['survives_owner_promotion'] ) ) {
+							// Restore cannot reconnect a token this admin never had; connecting their own
+							// account can, and Manager::authorize() makes them the owner when transferable.
+							if ( $is_transferable ) {
+								$message = $owner_name
+									? sprintf(
+										/* translators: %s is the display name of the Jetpack connection owner. */
+										__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection. If you connect your account instead, you will become the new connection owner.', 'jetpack-connection' ),
+										$owner_name
+									)
+									: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. If you connect your account instead, you will become the new connection owner.', 'jetpack-connection' );
+							} else {
+								$message = $owner_name
+									? sprintf(
+										/* translators: %s is the display name of the Jetpack connection owner. */
+										__( 'The connection owner (%s) needs to reconnect their WordPress.com account to restore the connection. You can still connect your own WordPress.com account.', 'jetpack-connection' ),
+										$owner_name
+									)
+									: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. You can still connect your own WordPress.com account.', 'jetpack-connection' );
+							}
+							// Promotion happens only in the browser (`client`) flow; see Manager::authorize().
+							$action = 'connect_user';
+						} elseif ( ! $is_transferable ) {
 							// Ownership is locked (a consumer declared it non-transferable).
 							// This admin cannot resolve the error themselves, so surface an
 							// informational notice naming the owner and offer no reconnect CTA.
@@ -417,10 +444,10 @@ class Error_Handler {
 								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection.', 'jetpack-connection' );
 							$action = 'none';
 						} elseif ( $viewer_can_connect ) {
-							// Ownership is transferable, so the reconnect CTA stays available
-							// to this admin — but it is destructive in a way the generic copy
-							// doesn't convey. Manager::restore() branches on the *clicking*
-							// user's tokens, not on whose token the error describes.
+							// Ownership is transferable and this admin is connected, so the reconnect
+							// CTA stays available — but it is destructive in a way the generic copy
+							// doesn't convey. Manager::restore() branches on the *clicking* user's
+							// tokens: with two healthy ones it runs a full reconnect.
 							$message = $owner_name
 								? sprintf(
 									/* translators: %s is the display name of the Jetpack connection owner. */
@@ -842,6 +869,47 @@ class Error_Handler {
 	 */
 	private function is_owner_scoped_error( $error_code, $audience ) {
 		return 'owner' === $audience || 'invalid_connection_owner' === $error_code;
+	}
+
+	/**
+	 * Whether a displayable error is on record for the current connection owner's own connection.
+	 *
+	 * Manager::authorize() reads this to decide whether a connecting admin takes over the owner slot.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public function has_owner_connection_error() {
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		if ( $owner_id <= 0 ) {
+			return false;
+		}
+
+		foreach ( $this->get_verified_errors() as $error_code => $users ) {
+			$display_config = $this->get_error_display_config( $error_code );
+
+			// Inbound failures (survives_owner_promotion) are not fixed by a new account, so they never justify a takeover.
+			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
+				continue;
+			}
+
+			foreach ( array_keys( $users ) as $user_id ) {
+				// Must precede classification, which would cast 'invalid' to 0 and read it as 'site'.
+				if ( 'invalid' === $user_id ) {
+					continue;
+				}
+
+				// Matched on ID so a previous owner's `invalid_connection_owner` error does not count.
+				if ( (int) $user_id === $owner_id
+					&& $this->is_owner_scoped_error( $error_code, $this->classify_error_audience( $user_id, $owner_id ) ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

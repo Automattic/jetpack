@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
+import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
 import useRestoreConnection from '../../hooks/use-restore-connection';
 import { getConnectionErrorDetails, isConnectionErrorMap } from './error-details';
 import { resolveConnectionErrorActions } from './resolve-actions';
@@ -152,11 +153,27 @@ export default function useConnectionErrorNotice( {
 		[ displayableErrors, viewer ]
 	);
 
+	// Built-in handlers for actions the server emits; a consumer's own handler wins.
+	// A connect_user override must use the standard authorize flow, or the user is linked, not promoted.
+	const resolvedActionHandlers = useMemo( () => {
+		const go =
+			navigate ??
+			( ( url: string ) => {
+				window.location.href = url;
+			} );
+
+		return {
+			connect_user: () =>
+				go( getUserConnectionUrl( { redirect_url: reconnectRedirectUrl, from: reconnectFrom } ) ),
+			...actionHandlers,
+		};
+	}, [ actionHandlers, navigate, reconnectRedirectUrl, reconnectFrom ] );
+
 	const actions = useMemo(
 		() =>
 			actionError
 				? resolveConnectionErrorActions( actionError, {
-						actionHandlers,
+						actionHandlers: resolvedActionHandlers,
 						trackingCallback,
 						trackingContext,
 						trackingPlacement,
@@ -169,7 +186,7 @@ export default function useConnectionErrorNotice( {
 				: [],
 		[
 			actionError,
-			actionHandlers,
+			resolvedActionHandlers,
 			trackingCallback,
 			trackingContext,
 			trackingPlacement,

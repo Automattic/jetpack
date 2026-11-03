@@ -3541,14 +3541,28 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a secondary admin sees an informational (no-CTA) notice for an owner-token
-	 * error when connection ownership is locked (non-transferable).
+	 * Test the message and action a secondary admin gets for the connection owner's token error.
+	 *
+	 * @param bool        $viewer_connected Whether the viewer has a user token of their own.
+	 * @param bool        $locked           Whether connection ownership is locked.
+	 * @param string|null $expected_action  The expected `error_data.action`, or null for none emitted.
+	 * @param string      $expected_message A fragment the message must contain.
+	 * @dataProvider provide_secondary_admin_owner_error
 	 */
-	public function test_get_displayable_errors_locked_owner_shows_informational_notice() {
-		$owner_id = 999;
+	#[DataProvider( 'provide_secondary_admin_owner_error' )]
+	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message ) {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 
-		// Act as a secondary admin (a different user than the owner).
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'secondary_admin',
@@ -3558,39 +3572,63 @@ class Error_Handler_Test extends BaseTestCase {
 			)
 		);
 		$this->assertIsInt( $admin_id );
-		$this->assertNotSame( $owner_id, $admin_id );
 		wp_set_current_user( $admin_id );
 
-		// Lock ownership.
-		Protected_Owner::set( 12345, $owner_id );
+		if ( $viewer_connected ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
+		}
 
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+		if ( $locked ) {
+			Protected_Owner::set( 12345, $owner_id );
+		}
 
-		$result = $this->error_handler->get_displayable_errors();
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
 
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+		$displayed = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $owner_id ];
+
 		$this->assertSame( 'owner', $displayed['audience'] );
-		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
-		$this->assertStringContainsString( 'reconnect their WordPress.com account', $displayed['error_message'] );
+		$this->assertSame( $expected_action, $displayed['error_data']['action'] ?? null );
+		$this->assertStringContainsString( 'The connection owner (Owner Person) needs to reconnect', $displayed['error_message'] );
+		$this->assertStringContainsString( $expected_message, $displayed['error_message'] );
 	}
 
 	/**
-	 * Test that a secondary admin still gets the reconnect CTA for an owner-token error
-	 * when ownership is transferable (the default model), and is warned that using it
-	 * disconnects every other user.
+	 * Data provider for test_get_displayable_errors_secondary_admin_owner_error.
+	 *
+	 * @return array
 	 */
-	public function test_get_displayable_errors_transferable_owner_keeps_reconnect() {
-		$owner_id = 999;
+	public static function provide_secondary_admin_owner_error() {
+		return array(
+			'not connected, transferable' => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
+			'not connected, locked'       => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
+			'connected, transferable'     => array( true, false, null, 'every other user will be disconnected' ),
+			'connected, locked'           => array( true, true, 'none', 'to restore the connection.' ),
+		);
+	}
+
+	/**
+	 * Test that an inbound-failure error recorded for the owner never offers an unconnected admin a takeover.
+	 *
+	 * Connecting a new account cannot fix a blocked request or a bad certificate, so neither the
+	 * `connect_user` action nor the Manager::authorize() takeover may follow from them.
+	 *
+	 * @param string $error_code The inbound-failure error code.
+	 * @dataProvider provide_inbound_failure_codes
+	 */
+	#[DataProvider( 'provide_inbound_failure_codes' )]
+	public function test_inbound_failure_recorded_for_owner_does_not_offer_takeover( $error_code ) {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'connection_owner',
+				'user_pass'  => 'password',
+				'user_email' => 'connection_owner@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		// A healthy owner token, so no `invalid_connection_owner` error is recorded on the way.
+		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => "token.secret.$owner_id" ) );
 
 		$admin_id = wp_insert_user(
 			array(
@@ -3600,37 +3638,27 @@ class Error_Handler_Test extends BaseTestCase {
 				'role'       => 'administrator',
 			)
 		);
+		$this->assertIsInt( $admin_id );
 		wp_set_current_user( $admin_id );
 
-		// The `jetpack_connect` cap is mapped by Manager::configure(), which doesn't run
-		// here, so grant it directly: this viewer is one who would be offered the CTA.
-		add_filter(
-			'user_has_cap',
-			function ( $caps ) {
-				$caps['jetpack_connect'] = true;
-				return $caps;
-			}
+		$this->store_single_verified_error( $error_code, (string) $owner_id );
+
+		$displayed = $this->error_handler->get_displayable_errors();
+
+		$this->assertNotSame( 'connect_user', $displayed[ $error_code ][ (string) $owner_id ]['error_data']['action'] ?? null );
+		$this->assertFalse( $this->error_handler->has_owner_connection_error() );
+	}
+
+	/**
+	 * Data provider for test_inbound_failure_recorded_for_owner_does_not_offer_takeover.
+	 *
+	 * @return array
+	 */
+	public static function provide_inbound_failure_codes() {
+		return array(
+			'blocked request'  => array( 'xmlrpc_request_blocked' ),
+			'SSL verification' => array( 'wpcom_ssl_verification_failed' ),
 		);
-
-		// Ownership transferable is the default (no filter added).
-
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
-
-		$result = $this->error_handler->get_displayable_errors();
-
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
-		$this->assertSame( 'owner', $displayed['audience'] );
-		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
-		$this->assertStringContainsString( 'every other user will be disconnected', $displayed['error_message'], 'A non-owner must be told that reconnecting deletes every other user token.' );
 	}
 
 	/**
@@ -3877,6 +3905,9 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		get_user_by( 'id', $admin_id )->add_cap( 'jetpack_connect' );
 		wp_set_current_user( $admin_id );
+
+		// Connected, so they are not offered `connect_user` instead.
+		\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
 
 		// Lock ownership.
 		Protected_Owner::set( 12345, $owner_id );
