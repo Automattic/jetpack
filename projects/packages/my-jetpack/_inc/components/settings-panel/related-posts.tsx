@@ -72,7 +72,7 @@ function CustomizerLink() {
 }
 
 /**
- * The Related Posts options, moved here from the Settings screen's Traffic tab.
+ * The Related Posts options.
  *
  * @param props          - Component props.
  * @param props.module   - The module.

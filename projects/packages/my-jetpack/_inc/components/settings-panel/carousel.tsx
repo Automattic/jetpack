@@ -14,7 +14,7 @@ type ListOption = { enum?: string[]; enum_labels?: Record< string, string > };
 const toColor = ( stored: unknown ) => ( typeof stored === 'string' ? stored : 'black' );
 
 /**
- * The Carousel options, moved here from the Settings screen's Writing tab.
+ * The Carousel options.
  *
  * @param props          - Component props.
  * @param props.module   - The module.
@@ -28,7 +28,6 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
 
-	// The choices and their labels come from Jetpack, as on the Settings screen.
 	const colorOption = (
 		Array.isArray( $module.options ) ? undefined : $module.options?.[ COLOR_OPTION ]
 	) as ListOption | undefined;
