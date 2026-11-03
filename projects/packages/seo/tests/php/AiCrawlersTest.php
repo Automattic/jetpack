@@ -380,7 +380,7 @@ class AiCrawlersTest extends TestCase {
 		}
 
 		$catalog = Ai_Crawlers::get_catalog();
-		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agent'] . "\nDisallow: /", $output );
+		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agents'][0] . "\nDisallow: /", $output );
 	}
 
 	/**
