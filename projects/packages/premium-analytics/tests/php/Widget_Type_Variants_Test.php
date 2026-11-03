@@ -64,7 +64,7 @@ class Widget_Type_Variants_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'most-viewed post', $help['content'] );
 	}
 
-	public function test_a_variant_without_its_base_is_not_registered() {
+	public function test_registers_only_the_variants_whose_base_is_registered() {
 		$GLOBALS['jpa_test_widget_manifest'] = array(
 			array(
 				'name'          => 'jpa/email-time-series',

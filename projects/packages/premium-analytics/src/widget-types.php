@@ -647,7 +647,7 @@ function register_widget_type_variants( $registry = null ) {
 				'category'      => $base->category,
 				'title'         => $variant['title'],
 				'description'   => $base->description,
-				'help'          => isset( $variant['help'] ) ? array( 'content' => $variant['help'] ) : $base->help,
+				'help'          => isset( $variant['help'] ) ? sanitize_widget_help( array( 'content' => $variant['help'] ) ) : $base->help,
 				'icon'          => $variant['icon'] ?? $base->icon,
 				'actions'       => $base->actions,
 				'attributes'    => $base->attributes,

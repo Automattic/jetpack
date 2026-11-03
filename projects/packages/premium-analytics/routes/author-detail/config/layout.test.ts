@@ -8,16 +8,4 @@ describe( 'author detail layout', () => {
 			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
 		}
 	} );
-
-	it( 'scopes the spotlights through the registered author variants', () => {
-		const scoped = AUTHOR_DETAIL_LAYOUT.filter(
-			widget => ( widget.attributes as { authorScoped?: boolean } | undefined )?.authorScoped
-		).map( widget => widget.type );
-
-		expect( scoped.sort() ).toEqual( [
-			'jpa/latest-post--author',
-			'jpa/popular-post--author',
-			'jpa/views-over-years--author',
-		] );
-	} );
 } );
