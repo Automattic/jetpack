@@ -1,6 +1,6 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
-import { createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { useFreeTier } from '../use-free-tier';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -40,10 +40,43 @@ describe( 'useFreeTier', () => {
 		} );
 
 		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
-		await waitFor( () => expect( result.current.videoCount ).toBeGreaterThanOrEqual( 1 ) );
+		await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
 		// 0 completed (server total) + 1 in-flight = 1; free tier limit = 1 → at limit
 		expect( result.current.videoCount ).toBe( 1 );
 		expect( result.current.isAtLimit ).toBe( true );
+	} );
+
+	it( 'keeps the count unknown until the library response arrives', async () => {
+		let resolveResponse: ( value: unknown ) => void;
+		mockApiFetch(
+			() =>
+				new Promise( resolve => {
+					resolveResponse = resolve;
+				} )
+		);
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+		expect( result.current.videoCountKnown ).toBe( false );
+		await act( async () =>
+			resolveResponse( {
+				headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? '3' : '1' ) },
+				json: async () => [],
+			} )
+		);
+		await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
+		expect( result.current.videoCount ).toBe( 4 );
+	} );
+
+	it( 'does not report a fallback count as known after a failed library request', async () => {
+		const api = mockApiFetch( async () => {
+			throw new Error( 'Library unavailable' );
+		} );
+		const client = createTestQueryClient();
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper( client ) } );
+		await waitFor( () => {
+			expect( api ).toHaveBeenCalled();
+			expect( client.isFetching() ).toBe( 0 );
+		} );
+		expect( result.current.videoCountKnown ).toBe( false );
 	} );
 
 	it.each( [ null, undefined ] )(

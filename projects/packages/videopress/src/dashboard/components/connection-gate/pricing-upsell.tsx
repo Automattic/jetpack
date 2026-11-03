@@ -14,6 +14,8 @@ import { store as noticesStore } from '@wordpress/notices';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
 import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
+import { useUpsellImpression } from '../../hooks/use-upsell-impression';
+import { recordVideoPressUpgradeClick } from '../../hooks/use-videopress-upgrade';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
 import './style.scss';
@@ -37,6 +39,7 @@ export default function PricingUpsell() {
 	const pricing = state?.pricing;
 	const siteSuffix = state?.jetpackStatus?.calypsoSlug ?? '';
 	const redirectUrl = VIDEOPRESS_ADMIN_PAGE;
+	const impressionRef = useUpsellImpression< HTMLButtonElement >( 'pricing_upsell' );
 
 	// These hooks must run unconditionally (Rules of Hooks) and therefore precede
 	// the `! pricing` guard below, which the gate already makes unreachable in
@@ -124,7 +127,11 @@ export default function PricingUpsell() {
 								currency={ yearly.currency }
 							/>
 							<Button
-								onClick={ () => run() }
+								ref={ impressionRef }
+								onClick={ () => {
+									recordVideoPressUpgradeClick( 'pricing_upsell' );
+									run();
+								} }
 								isLoading={ hasCheckoutStarted }
 								fullWidth
 								disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }

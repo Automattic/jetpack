@@ -1,11 +1,17 @@
+import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import useConnection from '@automattic/jetpack-connection/use-connection';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import PricingUpsell from '../pricing-upsell';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
@@ -34,15 +40,29 @@ jest.mock( '@automattic/jetpack-components/product-price', () => ( {
 	__esModule: true,
 	default: () => <div>price</div>,
 } ) );
-jest.mock( '@automattic/jetpack-components/button', () => ( {
-	__esModule: true,
-	default: ( { children, onClick }: { children: ReactNode; onClick?: () => void } ) => (
-		<button onClick={ onClick }>{ children }</button>
-	),
-} ) );
+jest.mock( '@automattic/jetpack-components/button', () => {
+	const { forwardRef } = jest.requireActual( 'react' );
+	return {
+		__esModule: true,
+		default: forwardRef(
+			(
+				{ children, onClick }: { children: ReactNode; onClick?: () => void },
+				ref: Ref< HTMLButtonElement >
+			) => (
+				<button ref={ ref } onClick={ onClick }>
+					{ children }
+				</button>
+			)
+		),
+	};
+} );
 
 const mockUseConnection = useConnection as jest.Mock;
 const mockCheckoutWorkflow = useProductCheckoutWorkflow as jest.Mock;
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
+const originalObserver = window.IntersectionObserver;
+let observerCallback: IntersectionObserverCallback;
+let observe: jest.Mock;
 
 const PRICING = {
 	title: 'High quality, ad-free video',
@@ -75,6 +95,12 @@ let mockRegisterSite: jest.Mock;
 describe( 'PricingUpsell', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.spyOn( document, 'visibilityState', 'get' ).mockReturnValue( 'visible' );
+		observe = jest.fn();
+		window.IntersectionObserver = jest.fn( callback => {
+			observerCallback = callback;
+			return { observe, disconnect: jest.fn() };
+		} ) as unknown as typeof IntersectionObserver;
 		mockRun = jest.fn();
 		mockRegisterSite = jest.fn().mockResolvedValue( undefined );
 		mockCheckoutWorkflow.mockReturnValue( { run: mockRun, hasCheckoutStarted: false } );
@@ -83,6 +109,34 @@ describe( 'PricingUpsell', () => {
 			userIsConnecting: false,
 		} );
 		setPricing( PRICING );
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = originalObserver;
+		jest.restoreAllMocks();
+	} );
+
+	it( 'counts exposure of the paid button, without claiming a known video count', () => {
+		render( <PricingUpsell /> );
+		const button = screen.getByRole( 'button', { name: 'Get VideoPress' } );
+		expect( observe ).toHaveBeenCalledWith( button );
+		expect( recordEvent ).not.toHaveBeenCalled();
+		act( () =>
+			observerCallback(
+				[
+					{
+						target: button,
+						isIntersecting: true,
+						intersectionRatio: 1,
+					} as IntersectionObserverEntry,
+				],
+				{} as IntersectionObserver
+			)
+		);
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upsell_impression', {
+			location: 'pricing_upsell',
+			video_count_known: false,
+		} );
 	} );
 
 	it( 'drives the checkout workflow with the yearly product slug and redirect', () => {
@@ -106,9 +160,16 @@ describe( 'PricingUpsell', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Get VideoPress' } ) );
 		expect( mockRun ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upgrade_trigger_link_click', {
+			location: 'pricing_upsell',
+		} );
+		expect( recordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockRun.mock.invocationCallOrder[ 0 ]
+		);
 
 		await user.click( screen.getByRole( 'button', { name: 'Start for free' } ) );
 		expect( mockRegisterSite ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'shows an error snackbar when checkout fails', () => {
@@ -147,5 +208,7 @@ describe( 'PricingUpsell', () => {
 		setPricing( undefined );
 		const { container } = render( <PricingUpsell /> );
 		expect( container ).toBeEmptyDOMElement();
+		expect( observe ).not.toHaveBeenCalled();
+		expect( recordEvent ).not.toHaveBeenCalled();
 	} );
 } );

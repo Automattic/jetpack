@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FreeTierNotice, { FREE_TIER_AT_LIMIT_MESSAGE } from '..';
 
@@ -33,6 +33,7 @@ const DEFAULT_STATE = {
 };
 
 let mockRun: jest.Mock;
+const originalObserver = window.IntersectionObserver;
 
 describe( 'FreeTierNotice', () => {
 	beforeEach( () => {
@@ -40,6 +41,45 @@ describe( 'FreeTierNotice', () => {
 		setInitialState( DEFAULT_STATE );
 		mockRun = jest.fn();
 		mockedCheckoutWorkflow.mockReturnValue( { run: mockRun } );
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = originalObserver;
+		jest.restoreAllMocks();
+	} );
+
+	it( 'observes the notice and records its current video count on exposure', () => {
+		jest.spyOn( document, 'visibilityState', 'get' ).mockReturnValue( 'visible' );
+		let observerCallback: IntersectionObserverCallback;
+		const observe = jest.fn();
+		window.IntersectionObserver = jest.fn( callback => {
+			observerCallback = callback;
+			return { observe, disconnect: jest.fn() };
+		} ) as unknown as typeof IntersectionObserver;
+		render( <FreeTierNotice location="library_at_limit" videoCount={ 1 } /> );
+		const notice = observe.mock.calls[ 0 ][ 0 ];
+		expect( notice ).toContainElement( screen.getByRole( 'link', { name: 'Upgrade' } ) );
+		expect( mockedAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		act( () =>
+			observerCallback(
+				[
+					{
+						target: notice,
+						isIntersecting: true,
+						intersectionRatio: 0.5,
+					} as IntersectionObserverEntry,
+				],
+				{} as IntersectionObserver
+			)
+		);
+		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_upsell_impression',
+			{
+				location: 'library_at_limit',
+				video_count_known: true,
+				video_count: 1,
+			}
+		);
 	} );
 
 	it( 'drives the shared checkout workflow with the VideoPress product and redirect', () => {
