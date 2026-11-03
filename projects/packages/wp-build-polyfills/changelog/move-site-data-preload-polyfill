@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add WordPress 7.1's site-data request to each wp-build page's preload list.
+Add support for WordPress 7.1's site-data preload on configured wp-build pages.

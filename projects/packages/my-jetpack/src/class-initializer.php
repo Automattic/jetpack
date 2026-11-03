@@ -849,7 +849,14 @@ class Initializer {
 
 		WP_Build_Polyfills::register(
 			'my-jetpack',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			'7.0',
+			array(
+				array(
+					'prefix' => 'jetpack_my_jetpack',
+					'slug'   => self::WP_BUILD_PAGE_ID,
+				),
+			)
 		);
 	}
 

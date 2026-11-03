@@ -26,34 +26,6 @@ class WP_Build_Polyfills {
 	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y', '@wordpress/widget-primitives' );
 
 	/**
-	 * Preload filters exposed by the wp-build pages.
-	 *
-	 * @var string[]
-	 */
-	private const PRELOAD_FILTERS = array(
-		'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_preload_paths',
-		'jetpack_backup_jetpack_backup_dashboard_wp_admin_preload_paths',
-		'jetpack_boost_jetpack_boost_dashboard_wp_admin_preload_paths',
-		'jetpack_forms_jetpack_forms_responses_wp_admin_preload_paths',
-		'jetpack_mu_wpcom_site_setup_wp_admin_preload_paths',
-		'jetpack_mu_wpcom_wpcom_backup_wp_admin_preload_paths',
-		'jetpack_mu_wpcom_wpcom_scan_wp_admin_preload_paths',
-		'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_preload_paths',
-		'jetpack_newsletter_jetpack_newsletter_dashboard_wp_admin_preload_paths',
-		'jetpack_plugin_jetpack_ai_hub_wp_admin_preload_paths',
-		'jetpack_plugin_jetpack_settings_dashboard_wp_admin_preload_paths',
-		'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_preload_paths',
-		'jetpack_protect_jetpack_protect_dashboard_wp_admin_preload_paths',
-		'jetpack_scan_jetpack_scan_wp_admin_preload_paths',
-		'jetpack_search_jetpack_search_dashboard_wp_admin_preload_paths',
-		'jetpack_seo_jetpack_seo_dashboard_wp_admin_preload_paths',
-		'jetpack_sharing_likes_jetpack_sharing_settings_wp_admin_preload_paths',
-		'jetpack_social_jetpack_social_dashboard_wp_admin_preload_paths',
-		'jetpack_videopress_jetpack_videopress_dashboard_wp_admin_preload_paths',
-		'jpa_jetpack_premium_analytics_wp_admin_preload_paths',
-	);
-
-	/**
 	 * Polyfills that only work when another polyfill is registered alongside them.
 	 *
 	 * These bundles call `__dangerousOptInToUnstableAPIsOnlyForCoreModules()` at
@@ -154,16 +126,22 @@ class WP_Build_Polyfills {
 	 *
 	 * Every call also arms WP_Build_Admin_Frame for the request, which keeps the boot
 	 * single-page layout in step with the wp-admin frame on every wp-build page.
-	 * The first call also adds WordPress 7.1's site-data path to the filters in PRELOAD_FILTERS.
+	 * Each call adds the site-data preload filter for its supplied wp-build pages.
 	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
 	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
 	 * @param string   $wp_version_threshold  The WordPress version below which force-replacements
 	 *                                        are applied. Defaults to '7.0'.
+	 * @param array[]  $pages                 wp-build pages, each with a 'slug' and an optional 'prefix'
+	 *                                        matching wpPlugin.name (defaults to 'gutenberg').
 	 */
-	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
+	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0', $pages = array() ) {
 		WP_Build_Admin_Frame::register();
+
+		foreach ( $pages as $page ) {
+			add_filter( self::page_filter( $page, 'wp_admin_preload_paths' ), array( __CLASS__, 'add_site_data_preload' ) );
+		}
 
 		$added = array();
 		foreach ( $polyfills as $handle ) {
@@ -203,10 +181,6 @@ class WP_Build_Polyfills {
 		}
 		self::$hooked = true;
 
-		foreach ( self::PRELOAD_FILTERS as $filter ) {
-			add_filter( $filter, array( __CLASS__, 'add_site_data_preload' ) );
-		}
-
 		// `wp_default_scripts` fires when `wp_scripts()` creates the WP_Scripts singleton, and again on
 		// `init` if it was created before then. Once it has fired (common on admin requests by
 		// `admin_menu`), a hook added now may never run, so register synchronously instead.
@@ -227,6 +201,17 @@ class WP_Build_Polyfills {
 	}
 
 	/**
+	 * Construct a wp-build page's filter name.
+	 *
+	 * @param array  $page   Page slug and optional plugin prefix.
+	 * @param string $suffix Filter suffix.
+	 * @return string Filter name.
+	 */
+	private static function page_filter( $page, $suffix ) {
+		return str_replace( '-', '_', ( $page['prefix'] ?? 'gutenberg' ) . '_' . $page['slug'] ) . '_' . $suffix;
+	}
+
+	/**
 	 * Add the site-data request used by WordPress 7.1.
 	 *
 	 * @since $$next-version$$
@@ -234,8 +219,8 @@ class WP_Build_Polyfills {
 	 * @return array REST API paths to preload.
 	 */
 	public static function add_site_data_preload( $paths ) {
-		// WordPress 7.1's core-data requests this list; removing it adds a live request on those sites.
-		// https://github.com/WordPress/gutenberg/pull/86185 lets pages survive a failed request without changing the list.
+		// Keep site data preloaded until no supported WordPress uses the 7.1 field list.
+		// https://github.com/WordPress/gutenberg/pull/86185 keeps routes available after failure but does not change the list.
 		$path = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
 		if ( ! in_array( $path, $paths, true ) ) {
 			$paths[] = $path;

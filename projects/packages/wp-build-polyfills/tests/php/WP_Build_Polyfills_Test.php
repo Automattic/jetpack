@@ -16,11 +16,16 @@ use WorDBless\BaseTestCase;
 class WP_Build_Polyfills_Test extends BaseTestCase {
 
 	/**
-	 * Each wp-build page preloads the WordPress 7.1 site record without duplicates.
+	 * Registered pages retain the upstream preload first and add the 7.1 path once.
 	 */
-	public function test_site_data_preload_keeps_the_upstream_path_first_on_every_page() {
-		$reflection = new \ReflectionClass( WP_Build_Polyfills::class );
-		$filters    = $reflection->getReflectionConstant( 'PRELOAD_FILTERS' )->getValue();
+	public function test_registered_pages_preload_site_data_once() {
+		$pages      = array(
+			array(
+				'prefix' => 'example-plugin',
+				'slug'   => 'first-dashboard',
+			),
+			array( 'slug' => 'default-dashboard' ),
+		);
 		$paths      = array(
 			'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
 			array( '/wp/v2/settings', 'OPTIONS' ),
@@ -28,14 +33,37 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$expected   = $paths;
 		$expected[] = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
 
-		WP_Build_Polyfills::register( 'first-page', array() );
-		WP_Build_Polyfills::register( 'second-page', array() );
+		WP_Build_Polyfills::register( 'first-consumer', array(), '7.0', $pages );
+		WP_Build_Polyfills::register(
+			'second-consumer',
+			array(),
+			'7.0',
+			array(
+				array(
+					'prefix' => 'other_plugin',
+					'slug'   => 'later-dashboard',
+				),
+			)
+		);
+		WP_Build_Polyfills::register( 'first-consumer', array(), '7.0', $pages );
 
-		foreach ( $filters as $filter ) {
+		foreach ( array( 'example_plugin_first_dashboard', 'gutenberg_default_dashboard', 'other_plugin_later_dashboard' ) as $page ) {
+			$filter = $page . '_wp_admin_preload_paths';
 			$actual = apply_filters( $filter, $paths );
 			$this->assertSame( $expected, $actual, $filter );
 			$this->assertSame( $expected, apply_filters( $filter, $actual ), $filter );
+			$this->assertCount( 1, $GLOBALS['wp_filter'][ $filter ]->callbacks[10], $filter );
 		}
+	}
+
+	/**
+	 * A consumer without page configuration does not add a page preload hook.
+	 */
+	public function test_register_without_pages_adds_no_preload_hook() {
+		$before = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
+		WP_Build_Polyfills::register( 'other-plugin', array(), '7.0' );
+		$after = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
+		$this->assertSame( $before, $after );
 	}
 
 	/**

@@ -140,7 +140,14 @@ class Admin {
 
 		WP_Build_Polyfills::register(
 			'jetpack-boost',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			'7.0',
+			array(
+				array(
+					'prefix' => 'jetpack_boost',
+					'slug'   => 'jetpack-boost-dashboard',
+				),
+			)
 		);
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.

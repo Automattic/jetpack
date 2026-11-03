@@ -1269,6 +1269,13 @@ class Jetpack_Backup {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			'7.0',
+			array(
+				array(
+					'prefix' => 'jetpack_backup',
+					'slug'   => 'jetpack-backup-dashboard',
+				),
 			)
 		);
 	}

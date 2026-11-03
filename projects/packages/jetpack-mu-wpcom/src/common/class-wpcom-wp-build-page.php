@@ -302,6 +302,13 @@ abstract class WPCOM_WP_Build_Page {
 			array_merge(
 				WP_Build_Polyfills::SCRIPT_HANDLES,
 				WP_Build_Polyfills::MODULE_IDS
+			),
+			'7.0',
+			array(
+				array(
+					'prefix' => 'jetpack_mu_wpcom',
+					'slug'   => static::WP_BUILD_PAGE,
+				),
 			)
 		);
 	}
