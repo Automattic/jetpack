@@ -36,13 +36,7 @@ export function completePlugin() {
 /**
  * Positionals that mean the same thing in every command, completed by name.
  */
-const byName = {
-	project: completeProject,
-	projects: completeProject,
-	plugin: completePlugin,
-	plugins: completePlugin,
-	plugin_slug: completePlugin,
-};
+const byName = { project: completeProject, plugin: completePlugin };
 
 /**
  * Parse the positionals out of a yargs command string such as `clean [project] [include]`.
