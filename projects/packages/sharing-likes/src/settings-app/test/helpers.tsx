@@ -40,8 +40,6 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 	( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {
 		site: { rest_root: 'https://example.com/wp-json/', rest_nonce: 'nonce' },
 		sharing_likes: {
-			status: baseStatus,
-			settings: baseSettings,
 			placement_choices: placementChoices,
 			multibyte_supported: true,
 			private_site: false,
@@ -64,7 +62,7 @@ interface StoreContents {
 let current: Registry | undefined;
 
 /**
- * A registry with the store seeded like the stage seeds it, and services when given.
+ * A registry with status and settings already read, and services when given.
  *
  * @param data          - Store contents.
  * @param data.status   - Status.
@@ -80,7 +78,10 @@ export function createTestRegistry( {
 	const registry = createRegistry();
 	registry.register( noticesStore );
 	registry.register( store );
-	registry.dispatch( store ).seed( { status, settings } );
+	registry.dispatch( store ).receive( 'status', status );
+	registry.dispatch( store ).receive( 'settings', settings );
+	registry.dispatch( store ).finishResolution( 'getStatus', [] );
+	registry.dispatch( store ).finishResolution( 'getSettings', [] );
 	if ( services ) {
 		registry.dispatch( store ).receive( 'services', services );
 		registry.dispatch( store ).finishResolution( 'getServices', [] );

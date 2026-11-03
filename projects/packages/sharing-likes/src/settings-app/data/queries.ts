@@ -22,6 +22,19 @@ export function useSettings(): Settings | undefined {
 }
 
 /**
+ * Whether the read of status or settings failed, which leaves the screen nothing to show.
+ *
+ * @return Whether it failed.
+ */
+export function useHasScreenReadFailed(): boolean {
+	return useSelect(
+		select =>
+			select( store ).hasReadFailed( 'status' ) || select( store ).hasReadFailed( 'settings' ),
+		[]
+	);
+}
+
+/**
  * The enabled services. The route answers 409 unless the Sharing section configures.
  *
  * @param enabled - Whether to fetch.
