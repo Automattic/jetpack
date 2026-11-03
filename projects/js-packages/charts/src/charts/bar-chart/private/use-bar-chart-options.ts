@@ -168,6 +168,7 @@ export function useBarChartOptions(
 	// render and would defeat every memo below.
 	const stableOptions = useDeepMemo( options );
 	const formatting = useChartFormatting();
+	const isStacked = !! stack;
 
 	// `labelOverflow`, `tickResolution` and `tickDecimals` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for none of them — and `tickFormat` is merged
@@ -192,7 +193,9 @@ export function useBarChartOptions(
 		const [ valueAxisOptions, valueTickDecimals ] = horizontal
 			? [ xAxisOptions, xTickDecimals ]
 			: [ yAxisOptions, yTickDecimals ];
-		const valueScaleType = ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
+		const valueScaleType = isStacked
+			? 'linear'
+			: ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
 
 		return {
 			xLabelOverflow,
@@ -208,7 +211,7 @@ export function useBarChartOptions(
 			valueTickDecimals:
 				valueAxisOptions.tickValues || valueScaleType === 'log' ? undefined : valueTickDecimals,
 		};
-	}, [ stableOptions, horizontal ] );
+	}, [ stableOptions, horizontal, isStacked ] );
 	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
@@ -289,17 +292,21 @@ export function useBarChartOptions(
 				? getStackedValueDomain( stack, axisConfig.valueTickDecimals )
 				: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
 		}
-		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
+		// Every stack starts at zero, which a log scale cannot place.
+		const valueScaleOverride: { domain?: [ number, number ]; type?: 'linear' } = {
+			...( domain && { domain } ),
+			...( stack && { type: 'linear' as const } ),
+		};
 
 		const xScale = {
 			...baseXScale,
 			...( stableOptions.xScale || {} ),
-			...( horizontal ? valueScaleDomainOverride : {} ),
+			...( horizontal ? valueScaleOverride : {} ),
 		};
 		const yScale = {
 			...baseYScale,
 			...( stableOptions.yScale || {} ),
-			...( ! horizontal ? valueScaleDomainOverride : {} ),
+			...( ! horizontal ? valueScaleOverride : {} ),
 		};
 		const { xLabelOverflow, yLabelOverflow, xTickFormat, yTickFormat, xAxisOptions, yAxisOptions } =
 			axisConfig;

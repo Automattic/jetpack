@@ -7,6 +7,7 @@ export { SelectedBarRing, type SelectedBar } from './selected-bar-ring';
 export { SlotTooltipMembers, type SlotMember } from './slot-tooltip-members';
 export { useBarSlots, getSelectedSlot, membersAt } from './use-bar-slots';
 export { isSameCategory } from './category';
+export { getDrawnSeries } from './stack-layout';
 export { useBarStops } from './use-bar-stops';
 export { ComparisonBars } from './comparison-bars';
 export type { ComparisonSeriesEntry } from './comparison-bars';

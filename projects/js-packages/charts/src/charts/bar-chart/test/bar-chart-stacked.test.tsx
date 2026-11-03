@@ -178,9 +178,8 @@ describe( 'BarChart stacked layout', () => {
 	it( 'scales the value axis to the tallest stack', () => {
 		renderStacked();
 
-		// The tallest single bar is 100; the Monday stack reaches 180 and must not run off the top.
-		expect( Math.max( ...valueTicks() ) ).toBeGreaterThan( 100 );
-		expect( barOf( 'Tablet' ).y ).toBeGreaterThanOrEqual( 0 );
+		// The tallest single bar is 100; a domain short of the 180 stack would clip Tablet's top segment.
+		expect( barOf( 'Tablet' ).height / barOf( 'Desktop' ).height ).toBeCloseTo( 20 / 100 );
 	} );
 
 	it( 'widens small stacked totals so rounded value ticks stay distinct', () => {
@@ -203,6 +202,29 @@ describe( 'BarChart stacked layout', () => {
 		const desktop = barOf( 'Desktop' );
 		expect( desktop.y + desktop.height ).toBeCloseTo( plotBottom() );
 	} );
+
+	it( 'says a log value scale is ignored', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		renderStacked( { options: { yScale: { type: 'log' } } } );
+
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'log scale' ) );
+		warn.mockRestore();
+	} );
+
+	it.each( [ 'vertical', 'horizontal' ] as const )(
+		'draws a %s stack on a linear value scale when a log scale is asked for',
+		orientation => {
+			const scale = orientation === 'horizontal' ? 'xScale' : 'yScale';
+			const bars = ( options: BarChartProps[ 'options' ] ) => {
+				const { unmount } = renderStacked( { orientation, options } );
+				const drawn = barRects().map( geometry );
+				unmount();
+				return drawn;
+			};
+
+			expect( bars( { [ scale ]: { type: 'log', zero: false } } ) ).toEqual( bars( {} ) );
+		}
+	);
 
 	it.each( [ 'vertical', 'horizontal' ] as const )(
 		'anchors the %s tooltip at the drawn stack end when its total exceeds the caller domain',
@@ -347,24 +369,43 @@ describe( 'BarChart stacked layout', () => {
 		{ label: 'Tablet', data: [ day( 'Mon', 5 ), day( 'Tue', 10 ) ] },
 	];
 
-	it.each( [
-		[ 'vertical', 'top', ( mon: number, tue: number ) => expect( mon ).toBeLessThan( tue ) ],
-		[ 'horizontal', 'left', ( mon: number, tue: number ) => expect( mon ).toBeGreaterThan( tue ) ],
-	] as const )(
-		'anchors the keyboard tooltip at the top of the %s stack',
-		async ( orientation, side, compare ) => {
+	const NEGATIVE_DATA: SeriesData[] = [
+		{ label: 'Desktop', data: [ day( 'Mon', -100 ) ] },
+		{ label: 'Tablet', data: [ day( 'Mon', -5 ) ] },
+	];
+
+	it.each< [ string, string, SeriesData[], 'top' | 'left', ( bar: Rect ) => number ] >( [
+		[ 'vertical', 'positive', ANCHOR_DATA, 'top', bar => bar.y ],
+		[ 'horizontal', 'positive', ANCHOR_DATA, 'left', bar => bar.x + bar.width ],
+		[ 'vertical', 'all-negative', NEGATIVE_DATA, 'top', bar => bar.y + bar.height ],
+		[ 'horizontal', 'all-negative', NEGATIVE_DATA, 'left', bar => bar.x ],
+	] )(
+		'anchors the keyboard tooltip at the drawn end of a %s %s stack',
+		async ( orientation, _sign, data, side, end ) => {
 			const user = userEvent.setup();
-			renderStacked( { orientation, data: ANCHOR_DATA } );
+			renderStacked( { orientation: orientation as BarChartProps[ 'orientation' ], data } );
 
 			await user.tab();
 			await user.keyboard( '{ArrowRight}' );
-			const mon = Number( lastAnchor()[ side ] );
-			await user.keyboard( '{ArrowRight}' );
-			const tue = Number( lastAnchor()[ side ] );
 
-			compare( mon, tue );
+			expect( Number( lastAnchor()[ side ] ) ).toBeCloseTo( end( barIn( data, 'Tablet' ) ) );
 		}
 	);
+
+	it( 'outlines both sides of a stack with positive and negative readings', async () => {
+		const user = userEvent.setup();
+		const data: SeriesData[] = [
+			{ label: 'A', data: [ day( 'Mon', 40 ) ] },
+			{ label: 'B', data: [ day( 'Mon', -20 ) ] },
+		];
+		renderStacked( { data } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		expect( rounded( selectedRing() ) ).toEqual(
+			rounded( union( [ barIn( data, 'A' ), barIn( data, 'B' ) ] ) )
+		);
+	} );
 
 	it( 'restacks and rescales when a series is hidden from the legend, and again when restored', async () => {
 		const user = userEvent.setup();

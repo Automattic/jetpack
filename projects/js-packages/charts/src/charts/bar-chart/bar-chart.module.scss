@@ -73,17 +73,17 @@
 		clip-path: inset(0 round var(--a8c-charts-border-radius-bar-chart) 0 0 var(--a8c-charts-border-radius-bar-chart));
 	}
 
+	// A stack grows from the zero line, set inline as `transform-origin`;
+	// with negatives, the group box's own edge is not that line.
 	&--stacked#{&}--animated :global(.visx-bar-group) {
-		transform-origin: bottom;
-		transform-box: fill-box;
+		transform-box: view-box;
 		animation:
 			rise var(--a8c-charts-motion-duration-entrance)
 			var(--a8c-charts-motion-easing-entrance) both;
 	}
 
 	&--stacked#{&}--animated-horizontal :global(.visx-bar-group) {
-		transform-origin: left;
-		transform-box: fill-box;
+		transform-box: view-box;
 		animation:
 			stretch var(--a8c-charts-motion-duration-entrance)
 			var(--a8c-charts-motion-easing-entrance) both;

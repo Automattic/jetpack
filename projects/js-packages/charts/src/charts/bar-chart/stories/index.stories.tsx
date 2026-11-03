@@ -969,7 +969,6 @@ export const StackedHorizontal: Story = {
 		gridVisibility: 'none',
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ].map(
 			( series, index ) =>
-				// Leave one reading out, so its bar is skipped and the segments above it close up.
 				index === 1
 					? {
 							...series,

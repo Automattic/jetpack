@@ -1,9 +1,9 @@
 import { getTickDecimalsDomain } from '../../private/tick-decimals';
 import { categoryKey } from './category';
 import { EMPTY_DOMAIN, getBarValue } from './value-domain';
-import type { DataPointDate, SeriesData } from '../../../types';
+import type { BarChartLayout, DataPointDate, SeriesData } from '../../../types';
 
-/** Where a bar runs along the value axis, from the stack below it to its own top. */
+/** Where a bar runs along the value axis: from where the stack reached before it, to where it ends. */
 export type StackSegment = { start: number; end: number };
 
 /** The one source of a stacked layout's value-axis positions, for its bars, ring, tooltip and domain. */
@@ -15,6 +15,22 @@ export type StackLayout = {
 	/** The widest `extentAt` over every category, or null without a finite value. */
 	extent: [ number, number ] | null;
 };
+
+/**
+ * The series a layout draws: a stacked layout leaves comparison series out for now.
+ *
+ * @param series - The chart's series.
+ * @param layout - The layout the bars are drawn in.
+ * @return The drawn series.
+ */
+export function getDrawnSeries< T extends SeriesData >(
+	series: T[],
+	layout?: BarChartLayout
+): T[] {
+	return layout === 'stacked'
+		? series.filter( item => item.options?.type !== 'comparison' )
+		: series;
+}
 
 /**
  * Stacks the series in order at each category: positives upward and negatives downward from zero.
@@ -35,6 +51,10 @@ export function getStackLayout( series: SeriesData[] ): StackLayout {
 				continue;
 			}
 			const key = categoryKey( point );
+			// A repeated category is invalid data; skipping it keeps the bars, total and tooltip in step.
+			if ( byCategory.has( key ) ) {
+				continue;
+			}
 			const extent = extents.get( key ) ?? [ 0, 0 ];
 			const side = value < 0 ? 0 : 1;
 			const start = extent[ side ];

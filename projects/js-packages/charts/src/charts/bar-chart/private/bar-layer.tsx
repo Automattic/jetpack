@@ -1,15 +1,18 @@
-import { BarGroup, BarSeries } from '@visx/xychart';
+import { BarGroup, BarSeries, DataContext } from '@visx/xychart';
+import { useContext } from 'react';
 import ClassifiedBarSeries from './classified-bar-series';
+import { getValueScalePosition } from './comparison-bars-geometry';
 import { SelectedBarRing } from './selected-bar-ring';
 import SlottedBarSeries from './slotted-bar-series';
 import StackedBarSeries from './stacked-bar-series';
+import type { ValueScale } from './comparison-bars-geometry';
 import type { SelectedBar } from './selected-bar-ring';
 import type { BarSlots } from './use-bar-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { BarChartProps } from '../types';
 import type { AxisScale } from '@visx/axis';
 import type { SeriesProps } from '@visx/xychart';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 type Accessors = Pick<
 	SeriesProps< AxisScale, AxisScale, DataPointDate >,
@@ -26,6 +29,34 @@ type Props = Accessors & {
 	barClassName: BarChartProps[ 'barClassName' ];
 	groupPadding: number;
 	horizontal: boolean;
+};
+
+/**
+ * Wraps the stacked bars so the entrance animation grows them from the zero line.
+ *
+ * Reading the scales here, not in `BarLayer`, keeps the series' own data registration from re-rendering it in a loop.
+ *
+ * @param props            - Component props.
+ * @param props.horizontal - Whether the bars run horizontally.
+ * @param props.children   - The stacked series.
+ * @return The group.
+ */
+const StackedBarGroup: FC< { horizontal: boolean; children: ReactNode } > = ( {
+	horizontal,
+	children,
+} ) => {
+	const { xScale, yScale } = useContext( DataContext );
+	const valueScale = ( horizontal ? xScale : yScale ) as ValueScale | undefined;
+	const zero = valueScale ? getValueScalePosition( valueScale, 0 ) : 0;
+
+	return (
+		<g
+			className="visx-bar-group"
+			style={ { transformOrigin: horizontal ? `${ zero }px 0` : `0 ${ zero }px` } }
+		>
+			{ children }
+		</g>
+	);
 };
 
 /**
@@ -61,7 +92,7 @@ export const BarLayer: FC< Props > = ( {
 	let bars;
 	if ( barSlots?.kind === 'stacked' ) {
 		bars = (
-			<g className="visx-bar-group">
+			<StackedBarGroup horizontal={ horizontal }>
 				{ barSlots.entries.map( ( { series, index } ) => (
 					<StackedBarSeries
 						key={ series.label }
@@ -77,7 +108,7 @@ export const BarLayer: FC< Props > = ( {
 						stack={ barSlots.stack }
 					/>
 				) ) }
-			</g>
+			</StackedBarGroup>
 		);
 	} else if ( barSlots ) {
 		bars = (

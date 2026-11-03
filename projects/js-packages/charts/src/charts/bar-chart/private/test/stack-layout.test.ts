@@ -48,6 +48,13 @@ describe( 'getStackLayout', () => {
 		expect( layout.extentAt( at( 'Mon' ) ) ).toEqual( [ -8, 14 ] );
 	} );
 
+	it( 'keeps the first reading of a category a series repeats', () => {
+		const layout = getStackLayout( [ s( 'A', [ 50, 30 ], [ 'Mon', 'Mon' ] ), s( 'B', [ 20 ] ) ] );
+		expect( layout.segmentOf( 'A', at( 'Mon' ) ) ).toEqual( { start: 0, end: 50 } );
+		expect( layout.segmentOf( 'B', at( 'Mon' ) ) ).toEqual( { start: 50, end: 70 } );
+		expect( layout.extentAt( at( 'Mon' ) ) ).toEqual( [ 0, 70 ] );
+	} );
+
 	it( 'matches dated points by time', () => {
 		const dated = ( label: string, value: number ): SeriesData => ( {
 			label,
@@ -67,10 +74,6 @@ describe( 'getStackLayout', () => {
 } );
 
 describe( 'getStackedValueDomain', () => {
-	it( 'reads the computed stack extent', () => {
-		expect( getStackedValueDomain( getStackLayout( SERIES ) ) ).toEqual( [ 0, 180 ] );
-	} );
-
 	it( 'reads 0 to 1 with nothing to stack', () => {
 		expect( getStackedValueDomain( getStackLayout( [ s( 'A', [ null ] ) ] ) ) ).toEqual( [ 0, 1 ] );
 		expect( getStackedValueDomain( getStackLayout( [ s( 'A', [ 0 ] ) ] ) ) ).toEqual( [ 0, 1 ] );

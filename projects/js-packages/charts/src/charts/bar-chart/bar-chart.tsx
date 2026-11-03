@@ -50,6 +50,7 @@ import {
 	getSelectedSlot,
 	isSameCategory,
 	membersAt,
+	getDrawnSeries,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -151,6 +152,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			'BarChart: a stacked layout does not draw comparison series yet.'
 		);
 	}
+	if (
+		layout === 'stacked' &&
+		( orientation === 'horizontal' ? options.xScale : options.yScale )?.type === 'log'
+	) {
+		warnOnce(
+			'bar-chart-stacked-log-scale',
+			'BarChart: a stacked layout draws on a linear value scale, so the log scale is ignored.'
+		);
+	}
 
 	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
 		warnOnce(
@@ -177,11 +187,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const transformedData = useChartDataTransform( data );
 	// A stacked layout does not draw comparisons yet, so they must not shade a primary's color or join the legend either.
 	const dataSorted = useMemo(
-		() =>
-			isStacked
-				? transformedData.filter( series => series.options?.type !== 'comparison' )
-				: transformedData,
-		[ isStacked, transformedData ]
+		() => getDrawnSeries( transformedData, layout ),
+		[ layout, transformedData ]
 	);
 
 	// Transform data to add a small value for zero bars to make them visible

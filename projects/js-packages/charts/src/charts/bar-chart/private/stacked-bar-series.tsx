@@ -74,10 +74,12 @@ const StackedBarSeries = ( {
 	];
 	const domainMin = Math.min( Number( domainStart ), Number( domainEnd ) );
 	const domainMax = Math.max( Number( domainStart ), Number( domainEnd ) );
-	// The domain already comes from raw totals; register the painted top so the tooltip stays on it.
-	const stackTop = useCallback(
-		( datum: DataPointDate ) =>
-			Math.min( domainMax, Math.max( domainMin, stack.extentAt( datum )[ 1 ] ) ),
+	// The positive end, or the negative end when nothing is positive; clamped so a caller domain keeps it on the drawn bar.
+	const stackEnd = useCallback(
+		( datum: DataPointDate ) => {
+			const [ low, high ] = stack.extentAt( datum );
+			return Math.min( domainMax, Math.max( domainMin, high > 0 ? high : low ) );
+		},
 		[ stack, domainMin, domainMax ]
 	);
 	const renderGlyph = useCallback(
@@ -121,8 +123,8 @@ const StackedBarSeries = ( {
 	return (
 		<GlyphSeries
 			{ ...props }
-			xAccessor={ horizontal ? stackTop : xAccessor }
-			yAccessor={ horizontal ? yAccessor : stackTop }
+			xAccessor={ horizontal ? stackEnd : xAccessor }
+			yAccessor={ horizontal ? yAccessor : stackEnd }
 			enableEvents={ false }
 			renderGlyph={ renderGlyph }
 		/>
