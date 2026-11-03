@@ -161,6 +161,7 @@ describe( 'PriceComponent', () => {
 		[ 'single-price, catalog loaded', false, { ...yearly, fullPricePerMonth: 10 }, tenDollars ],
 		[ 'tier-priced, catalog loaded', false, { tiers: { upgraded: yearly } }, tenDollars ],
 		[ 'free feature', true, { isFree: true }, /^Free$/ ],
+		[ 'free non-feature', false, { available: true, isFree: true }, /^Free$/ ],
 	] )( 'shows the right price for a %s product', ( _case, isFeature, pricingForUi, text ) => {
 		mockUseProduct.mockReturnValue( productState( featureDetail( { isFeature, pricingForUi } ) ) );
 
