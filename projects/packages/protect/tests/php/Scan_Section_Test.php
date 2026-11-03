@@ -186,15 +186,58 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a failed unignore still drops the cached history, since WordPress.com may have applied it.
+	 * @dataProvider provide_failed_unignore_replies
+	 *
+	 * @param \WP_Error|array $reply   What WordPress.com answers.
+	 * @param bool            $dropped Whether the caches are dropped.
 	 */
-	public function test_failed_unignore_still_drops_the_cached_history() {
+	#[DataProvider( 'provide_failed_unignore_replies' )]
+	public function test_failed_unignore_drops_the_caches_only_when_unanswered( $reply, $dropped ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
 		set_transient( Scan::HISTORY_CACHE, array( array( 'id' => 1 ) ), MINUTE_IN_SECONDS );
+		update_option( Scan_Status::OPTION_NAME, 'report' );
+		$timeout = null;
+		$answer  = function ( $pre, $args ) use ( $reply, &$timeout ) {
+			$timeout = $args['timeout'];
+			return $reply;
+		};
+		add_filter( 'pre_http_request', $answer, 10, 2 );
 
 		$result = self::call( 'set_ignored', 1, false );
+		remove_filter( 'pre_http_request', $answer );
 
 		$this->assertSame( 'threat_not_unignored', $result->get_error_code() );
-		$this->assertFalse( get_transient( Scan::HISTORY_CACHE ) );
+		$this->assertSame( 30, $timeout );
+		$this->assertSame( $dropped, false === get_transient( Scan::HISTORY_CACHE ) );
+		$this->assertSame( $dropped, false === get_option( Scan_Status::OPTION_NAME ) );
+	}
+
+	/**
+	 * WordPress.com replies that fail an unignore, and whether each may still have applied it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_unignore_replies() {
+		return array(
+			'timed out'    => array( new \WP_Error( 'http_request_failed', 'cURL error 28' ), true ),
+			'server error' => array(
+				array(
+					'response' => array( 'code' => 500 ),
+					'body'     => '',
+				),
+				false,
+			),
+		);
 	}
 
 	/**

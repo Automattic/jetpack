@@ -358,9 +358,11 @@ class Scan implements Dashboard_Section {
 	private static function set_ignored( $id, $ignore ) {
 		$response = self::alerts_request( '/' . $id, 'POST', array( $ignore ? 'ignore' : 'unignore' => true ) );
 
-		// Cleared even on failure: a request that timed out may still have gone through on WordPress.com.
-		Scan_Status::delete_option();
-		delete_transient( self::HISTORY_CACHE );
+		// A request left unanswered, such as one that timed out, may still have gone through on WordPress.com.
+		if ( ! is_wp_error( $response ) || 'alerts_request_unanswered' === $response->get_error_code() ) {
+			Scan_Status::delete_option();
+			delete_transient( self::HISTORY_CACHE );
+		}
 		if ( is_wp_error( $response ) ) {
 			return $ignore
 				? new WP_Error( 'threat_not_ignored', __( 'The threat couldn’t be ignored. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) )
@@ -690,6 +692,9 @@ class Scan implements Dashboard_Section {
 			null === $body ? null : wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
+		if ( is_wp_error( $response ) && 'http_request_failed' === $response->get_error_code() ) {
+			return new WP_Error( 'alerts_request_unanswered' );
+		}
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'alerts_request_failed' );
 		}
