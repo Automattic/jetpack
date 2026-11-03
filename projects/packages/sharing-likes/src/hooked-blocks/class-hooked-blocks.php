@@ -132,7 +132,7 @@ final class Hooked_Blocks {
 	 * That holds once it has the block, or once every `core/post-content` in it lists the block in `ignoredHookedBlocks`,
 	 * which core records on saving a template the block was hooked into, and keeps after the owner removes the block.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param string $content The saved template content, without block hooks applied.
 	 * @param string $block   Block type.

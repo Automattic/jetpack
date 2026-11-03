@@ -13,17 +13,9 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-single-report-page.php';
 require_once __DIR__ . '/class-single-report-page-registry.php';
-
-// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
-if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
-	require_once __DIR__ . '/dashboard-layout.php';
-}
-
+require_once __DIR__ . '/dashboard-layout.php';
 // A page icon is a widget icon: the same registered-name grammar, the same sanitizer.
-if ( ! function_exists( __NAMESPACE__ . '\\sanitize_widget_icon' ) ) {
-	require_once __DIR__ . '/widget-types.php';
-}
-
+require_once __DIR__ . '/widget-types.php';
 require_once __DIR__ . '/rest-namespace.php';
 
 /**
@@ -38,7 +30,7 @@ add_filter( SINGLE_REPORT_PAGE_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_
 /**
  * Registers a single-report page.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @param string $id             Page identifier, namespaced.
@@ -52,7 +44,7 @@ function register_single_report_page( $dashboard_name, $id, $args = array() ) {
 /**
  * A registered single-report page.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @param string $id             Page identifier.
@@ -65,7 +57,7 @@ function get_registered_single_report_page( $dashboard_name, $id ) {
 /**
  * The single-report pages available to the current reader.
  *
- * @since $$next-version$$
+ * @since 0.16.0
  *
  * @param string $dashboard_name Dashboard identifier.
  * @return Single_Report_Page[]

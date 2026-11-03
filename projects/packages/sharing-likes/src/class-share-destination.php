@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes;
 /**
  * Builds an endpoint URL on a site a reader names, and the prompt URL to ask them again.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  */
 final class Share_Destination {
 
@@ -33,7 +33,7 @@ final class Share_Destination {
 	/**
 	 * Build an endpoint URL on the site at the address a reader entered.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param string $address      Address the reader entered, with or without a scheme.
 	 * @param string $path         Path to append to the address, e.g. 'share'.
@@ -85,7 +85,7 @@ final class Share_Destination {
 	/**
 	 * URL of a service's address prompt for a post, where a reader can try another address.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param int    $post_id Post ID.
 	 * @param string $service Sharing service short name, e.g. 'mastodon'.

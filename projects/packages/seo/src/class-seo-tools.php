@@ -14,14 +14,14 @@ class Seo_Tools {
 	/**
 	 * Return the conflicting plugin's display name, or null when there is no conflict.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.3
 	 * @return string|null
 	 */
 	public static function get_conflicting_plugin() {
 		/**
 		 * Filters the name of the plugin managing SEO output instead of Jetpack.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.10.3
 		 * @param string|null $plugin The plugin's display name, or null for no conflict.
 		 */
 		$plugin = apply_filters( 'jetpack_seo_conflicting_plugin', null );
@@ -31,7 +31,7 @@ class Seo_Tools {
 	/**
 	 * Whether SEO output is disabled, defaulting to the plugin conflict state.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.3
 	 * @return bool
 	 */
 	public static function is_disabled() {
