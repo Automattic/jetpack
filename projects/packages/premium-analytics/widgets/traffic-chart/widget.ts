@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/fields';
 import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { trafficIntervalExtension } from './interval-extension';
-import { readStatsV1ChartType } from './stats-v1-chart-type';
+import { readStatsV1ChartType, saveStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
  * The bucket sizes this chart draws, offered by its own interval control.
@@ -124,6 +124,11 @@ export default {
 			id: 'chartType',
 			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
 				item.chartType ?? defaultChartType(),
+			// The switch's choice also goes where Stats v1 kept it, for the wp-admin Stats widget.
+			setValue: ( { value }: { value: TrafficChartType } ) => {
+				saveStatsV1ChartType( value );
+				return { chartType: value };
+			},
 		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
