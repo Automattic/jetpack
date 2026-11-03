@@ -102,7 +102,7 @@ Follow `references/class-skeleton.md`. Three abstract methods must be implemente
 - `get_category_definition(): array` — returns `[ 'label' => ..., 'description' => ... ]`.
 - `get_abilities(): array` — returns a `[ slug => spec ]` map.
 
-Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle, the `jetpack_wp_abilities_enabled` gate, and `did_action()` late-load. Just call `<Name>_Abilities::init()` from the bootstrap.
+Do NOT write an `init()` method. `Registrar::init()` handles the hook lifecycle and the `jetpack_wp_abilities_enabled` gate. Call `<Name>_Abilities::init()` from the bootstrap before WordPress fires `wp_abilities_api_init`, for example on `plugins_loaded`. WordPress rejects registrations after that action, so a later call registers nothing, and no notice says so.
 
 ### 6) Write each ability spec
 
@@ -213,7 +213,6 @@ Required coverage:
 - **Registrar wiring** (the differentiating value-add):
   - `jetpack_wp_abilities_enabled` defaulting false → `init()` registers nothing.
   - Filter enabled, neither action fired → both lifecycle hooks added.
-  - Filter enabled, `wp_abilities_api_categories_init` already fired → category registered directly, abilities still hooked.
   - Per-ability `jetpack_wp_abilities_should_register` filter — returning false skips that ability.
   - Category auto-injection — abilities whose spec omits `category` get the subclass's slug.
 - **Abstract getters** — `get_category_slug`, `get_category_definition`, `get_abilities` return the expected shapes.
@@ -322,7 +321,7 @@ Mark the PR ready-for-review only after the review loop converges (no open block
 ## Failure modes / debugging
 
 - **Nothing registers at runtime.** `jetpack_wp_abilities_enabled` defaults to `false`. Tests must filter it true (`Filters\expectApplied('jetpack_wp_abilities_enabled')->andReturn(true)`), and live sites need to opt in via a feature flag, option, or site-specific filter.
-- **The class loads but hooks don't fire.** You're loading the file too late — after `wp_abilities_api_init` has already fired — and you also skipped `Registrar::init()`'s late-load path by overriding `init()`. Don't override `init()`; let the base class run.
+- **The class loads but no abilities appear.** `init()` ran after WordPress fired `wp_abilities_api_init`, which happens the first time anything reads the abilities registry. WordPress rejects later registrations, so `Registrar::init()` registers nothing, and no notice says so. Call `init()` earlier, for example on `plugins_loaded`, and never from code that runs on `rest_api_init`.
 - **You see the legacy manual-hook pattern elsewhere** (e.g. `projects/plugins/jetpack/src/abilities/class-modules-abilities.php`, `projects/packages/forms/src/abilities/class-forms-abilities.php`). These predate the `Registrar` package. Don't copy them. Extend `Registrar` and implement the three abstract methods.
 - **Module-backed ability landed in `projects/plugins/jetpack/src/abilities/` and is wired from `class.jetpack.php`** (the PR #48284 pattern). Colocation lint will catch this. The ability loads on every request regardless of module state, pollutes the API surface when the module is off, and pays autoload cost for nothing. Move the file into `modules/<slug>/abilities/` and wire from `modules/<slug>.php`.
 - **Adding `if ( Jetpack::is_module_active( '<slug>' ) )` around the `::init()` call in `class.jetpack.php`.** Better than not guarding, but still wrong — you're re-implementing what `load_modules()` does for free. Move the wiring into the module file instead.

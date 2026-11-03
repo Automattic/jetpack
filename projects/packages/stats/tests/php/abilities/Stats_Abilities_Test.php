@@ -275,15 +275,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
-		// Only valid when the Abilities API lifecycle actions have NOT yet fired.
-		// WP_Abilities_Registry::get_instance() fires `wp_abilities_api_init` on first call
-		// (in response to any wp_has_ability / wp_register_ability call elsewhere in the run),
-		// which would push the Registrar down its synchronous late-load path and this test
-		// would assert against a world it doesn't apply to.
-		if ( did_action( 'wp_abilities_api_init' ) || did_action( 'wp_abilities_api_categories_init' ) ) {
-			$this->markTestSkipped( 'Abilities API lifecycle already fired in this test run; late-load path covered elsewhere.' );
-		}
-
 		Stats_Abilities::init();
 
 		$this->assertNotFalse(
