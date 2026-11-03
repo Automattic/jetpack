@@ -674,7 +674,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'period'    => 'day',
 				'date'      => $end,
-				'max'       => 20,
+				'max'       => 21,
 				'num'       => $days,
 				'summarize' => 1,
 			),
@@ -821,37 +821,59 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 	}
 
-	public function test_get_top_content_enforces_max_cap(): void {
-		$this->filter_wpcom_stats(
+	/**
+	 * Cap, requested row count, and whether rows were left out.
+	 */
+	public static function provide_max_caps(): array {
+		return array(
+			'cap below the rows'  => array( 2, 3, 2, true ),
+			'cap equals the rows' => array( 3, 4, 3, false ),
+			'max=0 returns all'   => array( 0, 0, 3, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_max_caps
+	 *
+	 * @param int  $max       Requested cap.
+	 * @param int  $requested Rows asked of WPCOM.
+	 * @param int  $count     Items returned.
+	 * @param bool $truncated Expected truncated flag.
+	 */
+	#[DataProvider( 'provide_max_caps' )]
+	public function test_get_top_content_caps_items_and_flags_truncation( int $max, int $requested, int $count, bool $truncated ): void {
+		$rows     = array(
 			array(
-				'get_top_posts' => self::days_fixture(
-					'postviews',
-					array(
-						array(
-							'title' => 'A',
-							'views' => 1,
-						),
-						array(
-							'title' => 'B',
-							'views' => 1,
-						),
-						array(
-							'title' => 'C',
-							'views' => 1,
-						),
-					)
-				),
+				'title' => 'A',
+				'views' => 3,
+			),
+			array(
+				'title' => 'B',
+				'views' => 2,
+			),
+			array(
+				'title' => 'C',
+				'views' => 1,
+			),
+		);
+		$requests = $this->filter_wpcom_stats(
+			array(
+				// WPCOM returns at most the rows asked for, and every row for max=0.
+				'get_top_posts' => self::days_fixture( 'postviews', 0 === $requested ? $rows : array_slice( $rows, 0, $requested ) ),
 			)
 		);
 
 		$result = Stats_Abilities::get_top_content(
 			array(
 				'type' => 'posts',
-				'max'  => 2,
+				'max'  => $max,
 			)
 		);
 
-		$this->assertCount( 2, $result['items'] );
+		$this->assertSame( $requested, $requests['get_top_posts']['max'] );
+		$this->assertCount( $count, $result['items'] );
+		$this->assertSame( $max, $result['max'] );
+		$this->assertSame( $truncated, $result['truncated'] );
 	}
 
 	public function test_get_top_content_propagates_wp_error(): void {
@@ -1219,8 +1241,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				'get_visits' => array(
 					'fields' => array( 'period', 'views', 'visitors' ),
 					'data'   => array(
-						array( '2026-04-22', 100, 70 ),
-						array( '2026-04-23', 120, 90 ),
+						// WPCOM labels each week with its Monday.
+						array( '2026W04W13', 100, 70 ),
+						array( '2026W04W20', 120, 90 ),
 					),
 				),
 			)
@@ -1248,7 +1271,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertCount( 2, $result['series'] );
 		$this->assertSame(
 			array(
-				'date'     => '2026-04-22',
+				'date'     => '2026-04-13',
 				'views'    => 100,
 				'visitors' => 70,
 			),
