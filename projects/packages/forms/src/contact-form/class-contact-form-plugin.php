@@ -4186,9 +4186,24 @@ class Contact_Form_Plugin {
 			return is_string( $value ) && mb_strlen( $value ) > 50000 ? mb_substr( $value, 0, 50000 ) : $value;
 		};
 
+		// WordPress.com refuses Sheets requests of about 20 MB, so stop before building one.
+		$max_bytes  = 15 * MB_IN_BYTES;
+		$bytes      = 0;
 		$sheet_data = array();
 		foreach ( $rows ?? array() as $row ) {
-			$sheet_data[] = empty( $sheet_data ) ? $row : array_map( $esc_cell, $row );
+			$row    = empty( $sheet_data ) ? $row : array_map( $esc_cell, $row );
+			$bytes += strlen( (string) wp_json_encode( $row, JSON_UNESCAPED_SLASHES ) );
+			if ( $bytes > $max_bytes ) {
+				wp_send_json_error(
+					array(
+						'code'    => 'export_too_large',
+						'message' => __( 'This export is too large for Google Sheets. Export fewer responses, or download a CSV file instead.', 'jetpack-forms' ),
+					),
+					413,
+					JSON_UNESCAPED_SLASHES
+				);
+			}
+			$sheet_data[] = $row;
 		}
 		if ( empty( $sheet_data ) ) {
 			$sheet_data[] = array();
