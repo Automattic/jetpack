@@ -1,0 +1,218 @@
+@use "@wordpress/base-styles/breakpoints";
+
+// Send › Overview before setup is finished: the task list and its preview.
+.jetpack-send-setup {
+
+	&__heading {
+		margin-block-end: var(--wpds-dimension-gap-xl);
+	}
+
+	&__weak {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__wrap {
+		overflow-wrap: anywhere;
+	}
+
+	&__grow {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+	}
+
+	// Tasks beside the preview; one column at WordPress's medium breakpoint.
+	&__columns {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) var(--wpds-dimension-surface-width-sm);
+		align-items: start;
+		gap: var(--wpds-dimension-gap-2xl);
+
+		@media ( max-width: breakpoints.$break-medium ) {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	&__main,
+	&__aside {
+		min-inline-size: 0;
+	}
+
+	// The grey tray that groups the white task cards.
+	&__tray {
+		padding: var(--wpds-dimension-padding-sm);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+	}
+
+	// Compact rows; the header-to-content gap comes back on the subtitle.
+	&__card {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: 0;
+	}
+
+	&__title {
+		color: var(--wpds-color-foreground-interactive-neutral);
+	}
+
+	// The state on the right never drops under the title: it keeps its size,
+	// and a long value (the From address) is cut short instead.
+	&__task-heading {
+		min-inline-size: 0;
+	}
+
+	&__header-end {
+		flex: none;
+	}
+
+	&__nowrap {
+		flex: none;
+		white-space: nowrap;
+	}
+
+	// It keeps enough room to show a few letters and the ellipsis, so the
+	// title wraps first when space runs out.
+	&__header-end.is-shrinkable {
+		flex: 1 1 0;
+		min-inline-size: calc(2 * var(--wpds-dimension-size-lg));
+		overflow: hidden;
+		text-align: end;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	// The preview card's padding matches the task cards beside it.
+	&__preview {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+
+	// The icons fill from `currentColor`, so tone them with `color`.
+	&__icon {
+		display: inline-flex;
+		flex-shrink: 0;
+		color: var(--wpds-color-foreground-interactive-neutral);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__card.is-completed &__title {
+		text-decoration: line-through;
+	}
+
+	&__card.is-completed &__title,
+	&__card.is-completed &__icon,
+	&__card.is-disabled &__title,
+	&__card.is-disabled &__icon {
+		color: var(--wpds-color-foreground-interactive-neutral-disabled);
+	}
+
+	&__card.is-error &__icon {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	// Padding, not margin: Text's unlayered `p` defense zeroes margins.
+	&__subtitle {
+		padding-block: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__hint {
+		padding-block-end: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-style: italic;
+	}
+
+	&__records {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	&__record {
+		margin: 0;
+		padding-block: var(--wpds-dimension-padding-md);
+
+		& + & {
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	&__row-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__record.is-found &__row-icon {
+		color: var(--wpds-color-foreground-content-success);
+	}
+
+	// Same tone as the row's badge.
+	&__record.is-needs-fix &__row-icon {
+		color: var(--wpds-color-foreground-content-warning-weak);
+	}
+
+	// Labels in one column, values in the other.
+	&__fields {
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs) var(--wpds-dimension-gap-md);
+		margin: 0;
+	}
+
+	&__field {
+		display: contents;
+
+		dd {
+			min-inline-size: 0;
+			margin: 0;
+		}
+	}
+
+	// A record value: one line, cut short on screen, copied in full.
+	// It takes the free space, so the Copy buttons line up at the end.
+	&__value {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		background: none;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-family: var(--wpds-typography-font-family-mono);
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-sm);
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	&__waiting {
+		padding-block: var(--wpds-dimension-padding-md);
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	// Same box as a record row's status icon, so the titles line up.
+	&__waiting-icon {
+		display: inline-flex;
+		flex-shrink: 0;
+		align-items: center;
+		justify-content: center;
+		inline-size: var(--wpds-dimension-size-sm);
+		block-size: var(--wpds-dimension-size-sm);
+	}
+
+	&__skeleton {
+		block-size: var(--wpds-typography-line-height-md);
+		border-radius: var(--wpds-border-radius-sm);
+	}
+}
