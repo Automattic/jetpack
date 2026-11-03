@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Private sites: Expose a minimal REST API index so clients can discover how to authenticate.
