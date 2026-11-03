@@ -387,6 +387,7 @@ describe( 'single-report stage', () => {
 		mockAdapters = {
 			video: {
 				useSummary: mockUseSummary,
+				untitledTitle: jest.requireActual( '../pages/video' ).videoAdapter.untitledTitle,
 				headerSlots: jest.requireActual( '../pages/video/video-header-slots' ).videoHeaderSlots,
 				notFoundDescription:
 					jest.requireActual( '../pages/video' ).videoAdapter.notFoundDescription,
@@ -520,6 +521,18 @@ describe( 'single-report stage', () => {
 			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Launch recap' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Page widgets' ) ).toBeInTheDocument();
+	} );
+
+	it( 'titles an untitled entity the same in the crumb and the header', () => {
+		mockSummary( { title: '   ' } );
+
+		render( stage() );
+
+		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Untitled video' } )
+		).toBeInTheDocument();
+		expect( getSummaryHeading( 'Untitled video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'crumbs the referring report instead when the URL names one', () => {
