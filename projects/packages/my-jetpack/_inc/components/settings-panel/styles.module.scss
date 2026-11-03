@@ -5,3 +5,41 @@
 .settings-panel__toggle {
 	padding-block: var(--wpds-dimension-padding-md);
 }
+
+.related-posts-preview {
+	padding: var(--wpds-dimension-padding-lg);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.related-posts-preview__headline {
+	display: block;
+	margin-block-end: var(--wpds-dimension-gap-md);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+// One column in the narrow panel, more where there is room.
+.related-posts-preview__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.related-posts-preview__item {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	margin: 0;
+}
+
+.related-posts-preview__image {
+	max-inline-size: 100%;
+	block-size: auto;
+}
+
+.related-posts-preview__context {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

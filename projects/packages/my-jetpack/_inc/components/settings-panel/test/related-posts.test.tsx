@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { RelatedPostsSettings } from '../related-posts';
@@ -104,6 +104,43 @@ describe( 'RelatedPostsSettings', () => {
 		render( <RelatedPostsSettings module={ build( { options: [] } ) } /> );
 
 		expect( screen.getByRole( 'switch', { name: /heading/ } ) ).not.toBeChecked();
+	} );
+
+	it.each( [
+		[ true, false, 'Related', 0 ],
+		[ false, true, null, 3 ],
+	] )(
+		'previews the stored options: headline %s, thumbnails %s',
+		( headline, thumbnails, headlineText, images ) => {
+			const options = {
+				show_headline: { current_value: headline },
+				show_thumbnails: { current_value: thumbnails },
+			};
+			render( <RelatedPostsSettings module={ build( { options } as never ) } /> );
+			const preview = screen.getByRole( 'group', { name: 'Preview' } );
+
+			expect( within( preview ).getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+			expect( within( preview ).queryByText( 'Related' ) ).toBe(
+				headlineText ? within( preview ).getByText( headlineText ) : null
+			);
+			expect( within( preview ).queryAllByRole( 'presentation' ) ).toHaveLength( images );
+		}
+	);
+
+	it( 'follows an option while its save is still running', async () => {
+		( apiFetch as unknown as jest.Mock ).mockReturnValue( new Promise( () => undefined ) );
+		render( <RelatedPostsSettings module={ build() } /> );
+		await userEvent.click( screen.getByRole( 'switch', { name: /thumbnail/ } ) );
+
+		expect(
+			within( screen.getByRole( 'group', { name: 'Preview' } ) ).queryAllByRole( 'presentation' )
+		).toHaveLength( 3 );
+	} );
+
+	it( 'leaves out the preview while the module is off', () => {
+		render( <RelatedPostsSettings module={ build( { activated: false } ) } /> );
+
+		expect( screen.queryByRole( 'group', { name: 'Preview' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links to the Customizer on a classic theme, coming back to this page', () => {

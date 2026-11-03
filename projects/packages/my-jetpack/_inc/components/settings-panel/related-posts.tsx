@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useId } from 'react';
 import { ModuleToggle } from '../module-toggle';
+import { RelatedPostsPreview } from './related-posts-preview';
 import styles from './styles.module.scss';
 import { useModuleOption } from './use-module-option';
 import type { ModuleSettingsProps } from './registry';
@@ -94,6 +95,10 @@ export function RelatedPostsSettings( { module: $module }: ModuleSettingsProps )
 				disabled={ optionsDisabled || thumbnails.isSaving }
 				onCheckedChange={ thumbnails.setValue }
 			/>
+
+			{ $module.activated && (
+				<RelatedPostsPreview showHeadline={ headline.value } showThumbnails={ thumbnails.value } />
+			) }
 
 			{ $module.activated && <AppearanceLink /> }
 		</Stack>
