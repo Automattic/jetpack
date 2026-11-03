@@ -8,9 +8,12 @@
 namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -37,12 +40,39 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'admin_enqueue_scripts' );
 		unset( $GLOBALS['submenu']['jetpack'] );
 		wp_set_current_user( 0 );
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
-	public function test_init_queues_an_item_that_renders_the_dashboard_with_the_init_options() {
+	/**
+	 * Whether the host is WordPress.com Simple, and whether init() should queue the sidebar item.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_hosts() {
+		return array(
+			'self-hosted' => array( false, true ),
+			'Simple'      => array( true, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_hosts
+	 *
+	 * @param bool $is_simple Whether the host is WordPress.com Simple.
+	 * @param bool $queued    Whether the sidebar item should be queued.
+	 */
+	#[DataProvider( 'provide_hosts' )]
+	public function test_init_queues_the_item_except_on_simple( $is_simple, $queued ) {
+		Constants::set_constant( 'IS_WPCOM', $is_simple );
+
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
+
+		if ( ! $queued ) {
+			$this->assertFalse( $priority );
+			return;
+		}
 		$this->assertIsInt( $priority );
 		$this->assertLessThan( 1000, $priority, 'Admin_Menu registers its queued items at 1000.' );
 
@@ -74,10 +104,6 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	public function test_render_says_so_when_the_build_is_missing() {
-		if ( function_exists( Dashboard::RENDER_FUNCTION ) ) {
-			$this->markTestSkipped( 'Needs the wp-build output not to be loaded.' );
-		}
-
 		ob_start();
 		Dashboard::render();
 		$output = ob_get_clean();
@@ -107,6 +133,29 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertFalse( Dashboard::load_wp_build( $build_index ) );
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( Dashboard::class, 'enqueue_i18n_loader' ) ) );
 		$this->assertNotContains( 'jetpack-monetize', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
+	}
+
+	/**
+	 * Runs alone because the fixture defines the render function for the rest of the process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_load_wp_build_wires_a_usable_build_inside_the_screen_alias() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'jetpack_page_jetpack-monetize' );
+
+		$this->assertTrue( Dashboard::load_wp_build( __DIR__ . '/fixtures/usable-build.php' ) );
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( Dashboard::class, 'enqueue_i18n_loader' ) ) );
+		$this->assertContains( 'jetpack-monetize', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
+
+		do_action( 'admin_enqueue_scripts' );
+
+		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $GLOBALS['jetpack_monetize_test_enqueue_screen_id'] );
+		$this->assertSame( 'jetpack_page_jetpack-monetize', get_current_screen()->id );
 	}
 
 	/**
