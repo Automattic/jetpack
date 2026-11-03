@@ -17,6 +17,7 @@ import {
 	type ComparisonPresetId,
 	type IntervalType,
 	MENU_SURFACE_PRESET_GROUPS,
+	PRESET_CUSTOM,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
 	parseSiteDateTime,
@@ -260,6 +261,8 @@ function ReportParamsControl( {
 	// What the widget is actually showing. Without it an open draft clears the
 	// preset, and the pill row reports no selection at all.
 	const appliedParams = normalizeReportParams( committed, defaultPreset );
+	// Normalizing reads a custom range as no preset; the menu needs the name to reopen on the calendar.
+	const appliedPresetId = committed.preset === PRESET_CUSTOM ? PRESET_CUSTOM : appliedParams.preset;
 
 	const appliedRange = {
 		from: decodeDateSearchParam( appliedParams.from ),
@@ -390,7 +393,7 @@ function ReportParamsControl( {
 		<DateFiltersPanel
 			range={ range }
 			attentionId={ attentionId }
-			appliedPresetId={ appliedParams.preset }
+			appliedPresetId={ appliedPresetId }
 			appliedRange={ appliedRange }
 			comparisonPresetId={
 				hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined

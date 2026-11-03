@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import {
-	DETAIL_HEADER_GLYPH_SIZE,
-	type DetailPageHeaderSlots,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { DETAIL_HEADER_GLYPH_SIZE } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
@@ -15,14 +12,8 @@ import { video } from '@wordpress/icons';
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
 import styles from './video-header-slots.module.scss';
-import type { VideoSummary } from '../../hooks';
-import type { DateRange } from '@jetpack-premium-analytics/datetime';
-
-type VideoHeaderSlotsArgs = {
-	summary: VideoSummary;
-	/** The committed report date range, stated as the performance window. */
-	performanceRange?: DateRange;
-};
+import type { VideoSummary } from './use-video-summary';
+import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
 
 /**
  * The video's poster. Poster URLs can be tokenless and 404 for private videos,
@@ -54,15 +45,15 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
  * summary state names the page, so the header keeps its `h1` and its box while
  * the video resolves or fails.
  *
- * @param args                  - The slot inputs.
- * @param args.summary          - The video summary, in any state.
- * @param args.performanceRange - The committed report date range.
- * @return The `SectionHeader` slots for this video.
+ * @param summary                  - The video summary, in any state.
+ * @param context                  - What the page knows: the committed report date range.
+ * @param context.performanceRange - The committed report date range.
+ * @return The header slots for this video.
  */
-export function videoHeaderSlots( {
-	summary,
-	performanceRange,
-}: VideoHeaderSlotsArgs ): DetailPageHeaderSlots {
+export function videoHeaderSlots(
+	summary: VideoSummary,
+	{ performanceRange }: HeaderContext
+): SingleReportHeaderSlots {
 	const glyph = <Icon icon={ video } size={ DETAIL_HEADER_GLYPH_SIZE } />;
 
 	// The title lands on its own request, so the header would otherwise read as
