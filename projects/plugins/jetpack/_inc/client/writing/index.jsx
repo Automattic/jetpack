@@ -3,7 +3,7 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
-import { isSwitchedInFeatures } from 'lib/settings-consolidation';
+import { isMovedOut, isSwitchedInFeatures } from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -168,6 +168,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isModuleFound: module_name =>
 				isModuleFound( state, module_name ) &&
+				! isMovedOut( module_name, state ) &&
 				( ! isSwitchedInFeatures( state, module_name ) || !! getSearchTerm( state ) ),
 			connectUrl: getConnectUrl( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),

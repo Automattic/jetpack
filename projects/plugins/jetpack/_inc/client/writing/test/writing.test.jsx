@@ -12,7 +12,10 @@ jest.mock( '../theme-enhancements', () => () => null );
 jest.mock( '../widgets', () => () => null );
 jest.mock( '../writing-media', () => () => null );
 
-const buildState = searchTerm => ( {
+const LATEX = { latex: { module: 'latex', name: 'Beautiful Math' } };
+const WIDGETS = { widgets: { module: 'widgets', name: 'Extra Sidebar Widgets', activated: false } };
+
+const buildState = ( searchTerm, modules, isBlockTheme ) => ( {
 	jetpack: {
 		connection: {
 			connectUrl: '',
@@ -20,9 +23,10 @@ const buildState = searchTerm => ( {
 			user: { currentUser: { isConnected: true } },
 		},
 		initialState: {
+			themeData: { isBlockTheme },
 			userData: { currentUser: { permissions: { manage_modules: true } } },
 		},
-		modules: { items: { latex: { module: 'latex', name: 'Beautiful Math' } } },
+		modules: { items: modules },
 		search: { searchTerm },
 		settings: { items: {} },
 	},
@@ -37,13 +41,22 @@ describe( 'Writing settings', () => {
 		[ 'renders', 'on the tab while the settings flag is off', false, '', true ],
 		[ 'renders nothing', 'on the tab once the flag is on', true, '', false ],
 		[ 'renders', 'for a search once the flag is on', true, 'latex', true ],
+		[
+			'renders nothing',
+			'for a search on a block theme where Features hides it',
+			true,
+			'widget',
+			false,
+			WIDGETS,
+			true,
+		],
 	] )(
 		'%s for a site whose only Writing module Features switches, %s',
-		( _verb, _when, flag, searchTerm, shown ) => {
+		( _verb, _when, flag, searchTerm, shown, modules = LATEX, isBlockTheme = false ) => {
 			window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
 
 			const { container } = render( <Writing active searchTerm={ searchTerm } />, {
-				initialState: buildState( searchTerm ),
+				initialState: buildState( searchTerm, modules, isBlockTheme ),
 			} );
 
 			expect( container.childElementCount > 0 ).toBe( shown );
