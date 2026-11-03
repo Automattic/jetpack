@@ -578,7 +578,7 @@ while IFS=$'\t' read -r FILE FILTER; do
 done < <( jq -r --argjson filters "$WP_BUILD_PRELOAD_FILTERS" '
 	.wpPlugin as $plugin | $plugin.pages[]? |
 	(if type == "string" then . else .id end) as $page |
-	(($plugin.name + "_" + $page | gsub("-"; "_")) + "_wp_admin_preload_paths") as $filter |
+	((($plugin.name // "gutenberg") + "_" + $page | gsub("-"; "_")) + "_wp_admin_preload_paths") as $filter |
 	select($filters | index($filter) | not) |
 	[input_filename, $filter] | @tsv
 ' projects/*/*/package.json )

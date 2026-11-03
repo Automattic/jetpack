@@ -154,6 +154,7 @@ class WP_Build_Polyfills {
 	 *
 	 * Every call also arms WP_Build_Admin_Frame for the request, which keeps the boot
 	 * single-page layout in step with the wp-admin frame on every wp-build page.
+	 * Every call also adds WordPress 7.1's site-data path to the filters in PRELOAD_FILTERS.
 	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.

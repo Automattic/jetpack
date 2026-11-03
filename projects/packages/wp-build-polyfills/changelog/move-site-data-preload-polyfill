@@ -1,5 +1,4 @@
-Significance: patch
-Type: changed
-Comment: Move the WordPress 7.1 site-data preload workaround out of the build patch without changing behavior.
+Significance: minor
+Type: added
 
-
+Add WordPress 7.1's site-data request to each wp-build page's preload list.
