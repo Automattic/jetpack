@@ -240,6 +240,189 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * On WoA, Protect keeps the slug where the plan includes Scan but its dashboard is turned off, and offers to turn it on.
+	 *
+	 * @param bool $available Whether the Jetpack plugin offers the dashboard module.
+	 * @param bool $active    Whether the module is on.
+	 * @param bool $registers Whether the page claims the slug.
+	 *
+	 * @dataProvider provide_protect_dashboard_states
+	 */
+	#[DataProvider( 'provide_protect_dashboard_states' )]
+	public function test_woa_protect_page_offers_to_turn_the_dashboard_on( $available, $active, $registers ) {
+		$this->set_up_protect_dashboard( $available, $active );
+
+		$this->assertSame( $registers, WPCOM_Scan::should_register() );
+		$this->assertSame( $registers, WPCOM_Scan::STATE_ENABLE === WPCOM_Scan::get_state( 1 ) );
+		if ( $registers ) {
+			$state = WPCOM_Scan::get_initial_state();
+			$this->assertStringContainsString( 'admin-post.php?action=' . WPCOM_Scan::ENABLE_ACTION, $state['enableUrl'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_woa_protect_page_offers_to_turn_the_dashboard_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_dashboard_states() {
+		return array(
+			'dashboard off'         => array( true, false, true ),
+			'dashboard on'          => array( true, true, false ),
+			// As beside the standalone Protect plugin, which serves the slug itself.
+			'dashboard unavailable' => array( false, false, false ),
+		);
+	}
+
+	/**
+	 * The prompt only names failure reasons handle_enable() sends.
+	 *
+	 * @param string|null $param    The `enable_failed` query arg, or null for none.
+	 * @param string|null $expected The `enableError` handed to the page.
+	 *
+	 * @dataProvider provide_enable_failed_params
+	 */
+	#[DataProvider( 'provide_enable_failed_params' )]
+	public function test_protect_prompt_reports_why_turning_it_on_failed( $param, $expected ) {
+		$this->set_up_protect_dashboard( true, false );
+		if ( null !== $param ) {
+			$_GET['enable_failed'] = $param;
+		}
+
+		$this->assertSame( $expected, WPCOM_Scan::get_initial_state()['enableError'] );
+	}
+
+	/**
+	 * Data provider for test_protect_prompt_reports_why_turning_it_on_failed.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_failed_params() {
+		return array(
+			'none'       => array( null, null ),
+			'connection' => array( 'connection', WPCOM_Scan::ENABLE_ERROR_CONNECTION ),
+			'unknown'    => array( 'unknown', WPCOM_Scan::ENABLE_ERROR_UNKNOWN ),
+			'anything'   => array( 'nope', null ),
+		);
+	}
+
+	/**
+	 * Turning the dashboard on lands back on its page, with why when activation did not stick, and only for those it is offered to.
+	 *
+	 * @param array  $site      Overrides for the request, as read below.
+	 * @param string $expected  The redirect target relative to the page URL, or `die` when refused outright.
+	 * @param bool   $activated Whether the module ends up on.
+	 *
+	 * @dataProvider provide_enable_outcomes
+	 */
+	#[DataProvider( 'provide_enable_outcomes' )]
+	public function test_turning_on_the_dashboard_returns_to_its_page( $site, $expected, $activated ) {
+		$site = array_merge(
+			array(
+				'atomic'    => true,
+				'feature'   => true,
+				'active'    => false,
+				'connected' => true,
+				'sticks'    => true,
+				'can'       => true,
+				'nonce'     => true,
+			),
+			$site
+		);
+
+		$this->set_up_admin_menu();
+		$this->set_up_protect_dashboard( true, $site['active'] );
+		Constants::set_constant( 'IS_ATOMIC', $site['atomic'] );
+		if ( ! $site['feature'] ) {
+			$this->grant_feature();
+		}
+		if ( $site['connected'] ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		}
+		if ( ! $site['sticks'] ) {
+			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
+		}
+		add_filter(
+			'user_has_cap',
+			fn( $caps ) => array_merge(
+				$caps,
+				array(
+					'jetpack_activate_modules' => $site['can'],
+					'manage_options'           => $site['can'],
+				)
+			)
+		);
+		$_REQUEST['_wpnonce'] = $site['nonce'] ? wp_create_nonce( WPCOM_Scan::ENABLE_ACTION ) : 'stale';
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			fn() => /** @return never */ static function () {
+				throw new \RuntimeException( 'die' );
+			}
+		);
+
+		$exit = null;
+		try {
+			WPCOM_Scan::handle_enable();
+		} catch ( \RuntimeException $e ) {
+			$exit = $e->getMessage();
+		}
+
+		$this->assertSame( 'die' === $expected ? 'die' : WPCOM_Scan::get_page_url() . $expected, $exit );
+
+		$this->assertSame( $activated, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
+	}
+
+	/**
+	 * Data provider for test_turning_on_the_dashboard_returns_to_its_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_enable_outcomes() {
+		return array(
+			'turned on'             => array( array(), '', true ),
+			'refused, connected'    => array( array( 'sticks' => false ), '&enable_failed=unknown', false ),
+			'refused, disconnected' => array(
+				array(
+					'sticks'    => false,
+					'connected' => false,
+				),
+				'&enable_failed=connection',
+				false,
+			),
+			'already on'            => array( array( 'active' => true ), '', true ),
+			'without Scan'          => array( array( 'feature' => false ), '', false ),
+			'on Simple'             => array( array( 'atomic' => false ), '', false ),
+			'without permission'    => array( array( 'can' => false ), 'die', false ),
+			'stale nonce'           => array( array( 'nonce' => false ), 'die', false ),
+		);
+	}
+
+	/**
+	 * Put a WoA admin request on a site whose plan includes Scan, with the Protect dashboard module in the given state.
+	 *
+	 * @param bool $available Whether the Jetpack plugin offers the module.
+	 * @param bool $active    Whether the module is on.
+	 * @return void
+	 */
+	private function set_up_protect_dashboard( $available, $active ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->grant_feature( \WPCOM_Features::SCAN_SELF_SERVE );
+		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
+		if ( $available ) {
+			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'protect-dashboard' ) : array() );
+	}
+
+	/**
 	 * Each page with the plan feature that unlocks it.
 	 *
 	 * @return array
@@ -385,7 +568,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_feature_upgrades() {
 		return array(
-			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup' ),
+			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup&checkout=complete' ),
 			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
 			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
 			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
@@ -472,7 +655,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$expected = null === $expected
-			? $page::get_page_url()
+			? $page::get_page_url() . '&checkout=complete'
 			: str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $expected );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $page::get_upgrade_url( 'example.org' ) );
@@ -488,6 +671,111 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
 			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
+		);
+	}
+
+	/**
+	 * Only a WoA buyer back from checkout, whose purchase has not synced yet, waits for it instead of seeing the upsell again.
+	 *
+	 * @dataProvider provide_checkout_returns
+	 *
+	 * @param bool        $atomic   Whether the site is on WoA.
+	 * @param string[]    $features The plan's features.
+	 * @param string|null $checkout The `checkout` query arg, if any.
+	 * @param bool        $pending  Whether the page waits for the purchase.
+	 */
+	#[DataProvider( 'provide_checkout_returns' )]
+	public function test_checkout_return_waits_for_the_purchase( $atomic, $features, $checkout, $pending ) {
+		Constants::set_constant( 'IS_ATOMIC', $atomic );
+		$this->grant_feature( ...$features );
+		if ( null !== $checkout ) {
+			$_GET['checkout'] = $checkout;
+		}
+
+		$state = WPCOM_Backup::get_initial_state();
+
+		$this->assertSame( $pending, $state['checkoutPending'] );
+		$this->assertSame( $pending ? '/wpcom/v2/hosting-feature-page/jetpack-backup' : null, $state['featureStatusPath'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_checkout_return_waits_for_the_purchase.
+	 *
+	 * @return array
+	 */
+	public static function provide_checkout_returns() {
+		return array(
+			'WoA, purchase not synced'   => array( true, array(), 'complete', true ),
+			'WoA, no checkout'           => array( true, array(), null, false ),
+			'WoA, other checkout value'  => array( true, array(), 'cancelled', false ),
+			'Simple, reads the purchase' => array( false, array(), 'complete', false ),
+			'Simple, activation pending' => array( false, array( \WPCOM_Features::ATOMIC, \WPCOM_Features::BACKUPS_SELF_SERVE ), 'complete', false ),
+		);
+	}
+
+	/**
+	 * The poll answers on WoA only, from the site's own copy of the plan, to someone who can see the page.
+	 *
+	 * Once the plan has synced it also refreshes Jetpack's stored plan, which the dashboard it reloads into reads.
+	 *
+	 * @dataProvider provide_feature_status_requests
+	 *
+	 * @param bool        $atomic    Whether the site is on WoA.
+	 * @param string|null $role      The requesting user's role, or null when logged out.
+	 * @param string[]    $features  The plan's features.
+	 * @param int         $status    Expected HTTP status.
+	 * @param bool        $has       Expected `hasFeature`, when allowed.
+	 * @param bool        $refreshes Whether Jetpack's stored plan is refreshed.
+	 */
+	#[DataProvider( 'provide_feature_status_requests' )]
+	public function test_feature_status_route_reports_the_synced_plan( $atomic, $role, $features, $status, $has, $refreshes ) {
+		Constants::set_constant( 'IS_ATOMIC', $atomic );
+		$this->grant_feature( ...$features );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		if ( null !== $role ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'wpcom_hosting_feature_' . $role,
+						'user_pass'  => 'password',
+						'role'       => $role,
+					)
+				)
+			);
+		}
+		$requested = array();
+		add_filter(
+			'jetpack_remote_request_url',
+			static function ( $url ) use ( &$requested ) {
+				$requested[] = $url;
+				return $url;
+			}
+		);
+		add_filter( 'pre_http_request', static fn() => new \WP_Error( 'http_request_blocked' ) );
+
+		WPCOM_Backup::init();
+		$response = rest_do_request( new \WP_REST_Request( 'GET', '/wpcom/v2' . WPCOM_Backup::get_rest_route() ) );
+
+		$this->assertSame( $status, $response->get_status() );
+		if ( 200 === $status ) {
+			$this->assertSame( array( 'hasFeature' => $has ), $response->get_data() );
+		}
+		$this->assertSame( $refreshes, (bool) preg_grep( '#/sites/1234\?force=wpcom#', $requested ) );
+	}
+
+	/**
+	 * Data provider for test_feature_status_route_reports_the_synced_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_feature_status_requests() {
+		return array(
+			'admin, not synced' => array( true, 'administrator', array(), 200, false, false ),
+			'admin, synced'     => array( true, 'administrator', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 200, true, true ),
+			'editor'            => array( true, 'editor', array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 403, false, false ),
+			'logged out'        => array( true, null, array( \WPCOM_Features::BACKUPS_SELF_SERVE ), 401, false, false ),
+			'Simple'            => array( false, 'administrator', array(), 404, false, false ),
 		);
 	}
 
@@ -633,7 +921,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			$GLOBALS['current_screen'],
 			$GLOBALS['pagenow'],
 			$GLOBALS['plugin_page'],
-			$_GET['page']
+			$_GET['page'],
+			$_GET['enable_failed'],
+			$_GET['checkout']
 		);
 		Constants::clear_constants();
 		remove_all_filters( WPCOM_Backup::MODERNIZATION_FILTER );
@@ -949,7 +1239,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed', 'checkoutPending' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

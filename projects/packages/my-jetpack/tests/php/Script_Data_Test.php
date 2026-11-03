@@ -68,6 +68,53 @@ class Script_Data_Test extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * The settings flag needs the flag on and My Jetpack available, and has no page check.
+	 */
+	public function test_settings_consolidation_needs_the_flag_and_an_available_my_jetpack() {
+		global $_registered_pages, $wp_actions;
+
+		$registered_pages = $_registered_pages;
+		$actions          = $wp_actions;
+		$user_id          = get_current_user_id();
+		$page_hook        = get_plugin_page_hookname( 'my-jetpack', 'jetpack' );
+		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		$key              = 'settingsConsolidation';
+
+		try {
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+			Initializer::register_feature_flags();
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'consolidation-admin',
+						'user_pass'  => 'test-password',
+						'role'       => 'administrator',
+					)
+				)
+			);
+			unset( $wp_actions['my_jetpack_init'] );
+			do_action( 'my_jetpack_init' );
+			$_registered_pages[ $page_hook ] = true;
+			$_GET['page']                    = 'edit.php';
+
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+
+			add_filter( $flag_filter, '__return_true' );
+			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+
+			unset( $_registered_pages[ $page_hook ] );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+		} finally {
+			remove_filter( $flag_filter, '__return_true' );
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+			$_registered_pages = $registered_pages;
+			$wp_actions        = $actions;
+			unset( $_GET['page'] );
+			wp_set_current_user( $user_id );
+		}
+	}
+
 	public function test_offline_features_seed_respects_host_veto_and_editor_permissions() {
 		$_GET['page'] = 'my-jetpack';
 		\Automattic\Jetpack\Status\Cache::clear();

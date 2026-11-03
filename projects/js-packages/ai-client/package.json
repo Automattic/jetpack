@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-ai-client",
-	"version": "0.35.9",
+	"version": "0.35.10",
 	"private": false,
 	"description": "A JS client for consuming Jetpack AI services",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
@@ -46,7 +46,7 @@
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "30.0.0",
 		"@types/react": "19.3.0",
-		"@types/wordpress__block-editor": "15.0.7",
+		"@types/wordpress__block-editor": "15.0.8",
 		"@wordpress/api-fetch": "8.0.0",
 		"@wordpress/base-styles": "14.0.0",
 		"@wordpress/blob": "5.0.0",

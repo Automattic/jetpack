@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Social: Focus Cancel first in the Delete confirmation for a scheduled share, so pressing Enter no longer deletes it.

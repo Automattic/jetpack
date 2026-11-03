@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.14.0';
+	const PACKAGE_VERSION = '6.15.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -152,6 +152,11 @@ class Initializer {
 	public const SETTINGS_CONSOLIDATION_FLAG = 'my-jetpack-settings-consolidation';
 
 	/**
+	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
+	 */
+	public const SETTINGS_PANEL_MODULES = array( 'related-posts' );
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -196,6 +201,8 @@ class Initializer {
 
 		// Answer "is this product on?" for admin menu registration.
 		Menu_Visibility::init();
+
+		self::register_settings_panel_urls();
 
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
@@ -1260,9 +1267,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_admin_script_data( $data ) {
-		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
-		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
-		$data['myJetpack']['productsSection'] = self::get_products_section();
+		$data['myJetpack']['isAvailable']           = self::is_admin_page_available();
+		$data['myJetpack']['assetsUrl']             = self::get_assets_url();
+		$data['myJetpack']['productsSection']       = self::get_products_section();
+		$data['myJetpack']['settingsConsolidation'] = self::is_settings_consolidation_enabled();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only selects which navigation data to seed.
 		if ( in_array( $_GET['page'] ?? '', array( 'my-jetpack', 'jetpack-settings', 'jetpack' ), true ) ) {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
@@ -1527,7 +1535,6 @@ class Initializer {
 			'headerControls'           => self::is_header_controls_enabled(),
 			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
-			'settingsConsolidation'    => Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ),
 		);
 
 		if ( $flags['accountConnect'] ) {
@@ -1545,6 +1552,65 @@ class Initializer {
 	 */
 	public static function is_overview_v1_enabled() {
 		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether settings move to My Jetpack: the flag is on and My Jetpack's page is available.
+	 *
+	 * Without the page, moved settings would have nowhere to go, so they stay on the Settings screen.
+	 *
+	 * @since 6.15.0
+	 *
+	 * @return bool
+	 */
+	public static function is_settings_consolidation_enabled() {
+		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) && self::is_admin_page_available();
+	}
+
+	/**
+	 * Point the module's configure URL at its settings panel while the flag is on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_settings_panel_urls() {
+		foreach ( self::SETTINGS_PANEL_MODULES as $module ) {
+			add_filter(
+				'jetpack_module_configuration_url_' . $module,
+				static function ( $url ) use ( $module ) {
+					// Only Jetpack's settings-search default: a module's own page, such as SEO's, is its real home.
+					return false === strpos( (string) $url, 'page=jetpack-settings#/settings?term=' )
+						? $url
+						: self::resolve_settings_url( $module, $url );
+				}
+			);
+		}
+	}
+
+	/**
+	 * Where a module's settings live: its panel in Features while the flag is on, `$fallback` otherwise.
+	 *
+	 * Reads the flag alone, not `is_settings_consolidation_enabled()`: that one needs the admin menu, which REST requests never build.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module   The module slug.
+	 * @param string $fallback The URL to use when the settings stay where they were.
+	 * @return string
+	 */
+	public static function resolve_settings_url( $module, $fallback ) {
+		if ( ! in_array( $module, self::SETTINGS_PANEL_MODULES, true ) || ! Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) ) {
+			return $fallback;
+		}
+
+		return add_query_arg(
+			array(
+				'page' => 'my-jetpack',
+				'p'    => rawurlencode( '/features?configure=' . $module ),
+			),
+			admin_url( 'admin.php' )
+		);
 	}
 
 	/**
@@ -1718,7 +1784,7 @@ class Initializer {
 		 * Enable local Features data and entry in offline mode.
 		 *
 		 * @since 6.10.0
-		 * @since $$next-version$$ Enabled by default.
+		 * @since 6.15.0 Enabled by default.
 		 * @param bool $enabled Whether to enable offline Features. Default true.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', true );

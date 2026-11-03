@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
 import { resolveFeatureState } from '../feature-state';
@@ -289,6 +290,49 @@ describe( 'MoreFeatures', () => {
 		rerender( section( configured, { 'module:sharedaddy': true } ) );
 		expect( link() ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[
+			'the settings-search default',
+			'https://example.com/wp-admin/admin.php?page=jetpack-settings#/settings?term=sharedaddy',
+			'/features?view=list&configure=sharedaddy',
+		],
+		[
+			'the panel URL',
+			'https://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dsharedaddy',
+			'/features?view=list&configure=sharedaddy',
+		],
+		[
+			'a page of its own, such as the SEO page',
+			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
+			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
+		],
+	] )(
+		'with settings consolidation on, links Configure by %s',
+		( _name, configureUrl, expectedHref ) => {
+			setSiteEditor( { isBlockTheme: false } );
+			window.JetpackScriptData = {
+				...window.JetpackScriptData,
+				myJetpack: { settingsConsolidation: true },
+			} as Window[ 'JetpackScriptData' ];
+
+			render(
+				<MemoryRouter initialEntries={ [ '/features?view=list' ] }>
+					{ section( {
+						...sharing,
+						activated: true,
+						options: { show_headline: true },
+						configure_url: configureUrl,
+					} ) }
+				</MemoryRouter>
+			);
+
+			expect( screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } ) ).toHaveAttribute(
+				'href',
+				expectedHref
+			);
+		}
+	);
 
 	it( 'links to no settings for a module still waiting for an account', () => {
 		setSiteEditor( { isBlockTheme: false } );

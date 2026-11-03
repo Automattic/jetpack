@@ -40,10 +40,33 @@ function getScanConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 		},
+		enable: {
+			title: __( 'Protect is turned off', 'jetpack-mu-wpcom' ),
+			description: __(
+				'Your plan includes Protect, but it’s turned off on this site. Turn it on to review scan results, fix threats, and manage your firewall and login protection.',
+				'jetpack-mu-wpcom'
+			),
+			action: __( 'Turn on Protect', 'jetpack-mu-wpcom' ),
+			failed: __(
+				'There was a problem turning on Protect. Contact our support team for help.',
+				'jetpack-mu-wpcom'
+			),
+			connectionFailed: __(
+				'Protect couldn’t be turned on because your site isn’t connected to WordPress.com. Contact our support team to reconnect it.',
+				'jetpack-mu-wpcom'
+			),
+		},
 		inProgress: {
 			title: __( 'Setting up Protect', 'jetpack-mu-wpcom' ),
 			description: __(
 				'Your site is being moved to our hosting platform so Protect can be switched on.',
+				'jetpack-mu-wpcom'
+			),
+		},
+		checkoutPending: {
+			title: __( 'Setting up Protect', 'jetpack-mu-wpcom' ),
+			description: __(
+				'Thanks for upgrading! Protect will be ready in a few moments.',
 				'jetpack-mu-wpcom'
 			),
 		},

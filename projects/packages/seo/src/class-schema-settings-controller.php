@@ -107,7 +107,7 @@ class Schema_Settings_Controller {
 	/**
 	 * Require administrator access and Jetpack ownership before saving SEO settings.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.3
 	 *
 	 * @return bool|\WP_Error
 	 */

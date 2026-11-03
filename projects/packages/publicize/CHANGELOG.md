@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.9] - 2026-11-02
+### Changed
+- Overview: Replace the traffic chart's date range dropdown with a menu button. [#54203]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Prevent PHP errors by limiting direct access to files. [#54244]
+- Sharing activity: Focus Cancel first in the Delete confirmation for a scheduled share, so pressing Enter no longer deletes it. [#54408]
+
 ## [0.88.8] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -1728,6 +1737,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.8...v0.88.9
 [0.88.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.7...v0.88.8
 [0.88.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.6...v0.88.7
 [0.88.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.5...v0.88.6
