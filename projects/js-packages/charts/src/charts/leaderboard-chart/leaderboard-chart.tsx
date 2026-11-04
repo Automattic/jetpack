@@ -1,8 +1,6 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
@@ -29,12 +27,6 @@ import {
 } from './private/resolve-leaderboard-entries';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
-
-// Handed to `Grid` as a chain rather than set in this component's stylesheet: `Grid` writes
-// its own gaps through an Emotion class, which a module class of equal specificity would not
-// reliably outrank. The chain lands on the element and resolves there.
-const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
-const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
 
 /** Indexed by `Math.sign( delta ) + 1`, so [negative, neutral, positive]. */
 const DELTA_TREND_CLASS = [ 'deltaValue--down', 'deltaValue--neutral', 'deltaValue--up' ] as const;
@@ -402,8 +394,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Comparing adds a delta track so the values and the deltas each line up in a column
 	// of their own; with either series hidden the grid keeps its two tracks.
 	const showComparisonColumn = withComparison && isComparisonVisible;
-	const templateColumns =
-		showComparisonColumn && isPrimaryVisible ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
+	const hasDeltaColumn = showComparisonColumn && isPrimaryVisible;
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -494,13 +485,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							{ getAllHiddenMessage( legendInteractive, 'series' ) }
 						</div>
 					) : (
-						<Grid
+						<div
 							role="list"
 							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
-							templateColumns={ templateColumns }
-							rowGap={ ROW_GAP }
-							columnGap={ COLUMN_GAP }
+							data-testid="leaderboard-chart-grid"
 							data-leaderboard-grid
+							className={ clsx( styles.grid, {
+								[ styles[ 'grid--comparison' ] ]: hasDeltaColumn,
+							} ) }
 						>
 							{ resolvedData.map( ( entry, rowIndex ) => {
 								// visibility, not clipping: hidden rows keep their geometry (so a
@@ -558,7 +550,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 													) }
 												>
 													<span aria-hidden="true">—</span>
-													<VisuallyHidden as="span">
+													<VisuallyHidden render={ <span /> }>
 														{ hasPreviousPeriodValue
 															? __( 'Percentage change unavailable', 'jetpack-charts' )
 															: __( 'No comparison data', 'jetpack-charts' ) }
@@ -630,7 +622,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									</div>
 								);
 							} ) }
-						</Grid>
+						</div>
 					) }
 				</div>
 			</ChartLayout>

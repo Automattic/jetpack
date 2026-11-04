@@ -31,6 +31,17 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 	}
 }
 
+.grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	row-gap: var(--a8c-charts-dimension-leaderboard-row-gap);
+	column-gap: var(--a8c-charts-dimension-leaderboard-column-gap);
+
+	&--comparison {
+		grid-template-columns: minmax(0, 1fr) auto auto;
+	}
+}
+
 .barWithLabelContainer {
 	display: grid;
 	align-items: center;
