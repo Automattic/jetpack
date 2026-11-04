@@ -6696,7 +6696,8 @@ endif;
 			return;
 		}
 
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
+		// Check the site first to avoid resolving the current user during plugins_loaded.
+		if ( static::is_connection_ready() || ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			( new Plugin_Tracking() )->init();
 		}
 	}
