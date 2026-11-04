@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Dashboard: Hide the empty "Detected on" heading when the free vulnerability check reports no detection dates, and keep the threats list always open.
+Dashboard: Show a dash instead of an empty cell for a threat with no detection date or severity, as from the free vulnerability check.
