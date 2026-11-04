@@ -28,7 +28,7 @@ export function useNoViewsEmptyState(
 	empty: WidgetStateEmpty | undefined;
 } {
 	const enabled = ! isLoading && ! isError && isEmpty;
-	const site = useStatsSite( undefined, { enabled } );
+	const site = useStatsSite( { stat_fields: 'views' }, { enabled } );
 	const hasNoViews = enabled && ! site.isError && summaryCount( site.data?.stats, 'views' ) === 0;
 
 	return {

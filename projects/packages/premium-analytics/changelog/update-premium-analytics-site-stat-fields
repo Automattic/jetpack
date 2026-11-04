@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Load the All-time stats and Most popular day widgets faster by requesting only the totals they show.

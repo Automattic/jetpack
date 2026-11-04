@@ -33,10 +33,13 @@ describe( 'AllTimeStatsWidget', () => {
 		mockApiFetch.mockResolvedValue( SITE_PAYLOAD );
 	} );
 
-	it( 'shows every lifetime total', async () => {
+	it( 'shows every lifetime total, requesting only those fields', async () => {
 		const { container } = renderWidget();
 
 		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
+		expect( String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ) ).toMatch(
+			/proxy\/v1\.1\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments$/
+		);
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
 		// A single-figure widget: the exact figure, with no compact one beside it.
 		expect( container ).toHaveTextContent( 'Views2,068' );

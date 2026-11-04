@@ -75,6 +75,8 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 	);
 };
 
+const STAT_FIELDS = 'views,views_best_day,views_best_day_total';
+
 function readBestDay( summary: Record< string, unknown > | undefined ) {
 	return parseSiteDateTime( summary?.views_best_day );
 }
@@ -85,7 +87,9 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * summary is site-wide, so it does not read the dashboard date range.
  */
 function MostPopularDayReport() {
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite( {
+		stat_fields: STAT_FIELDS,
+	} );
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );
