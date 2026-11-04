@@ -39,8 +39,9 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 		<Stack direction="column" gap="lg">
 			{ ! themeSupported && (
 				<Notice.Root intent="info">
+					<Notice.Title>{ __( 'Theme support required', 'jetpack-my-jetpack' ) }</Notice.Title>
 					<Notice.Description>
-						{ __( 'Your theme needs to support Infinite Scroll.', 'jetpack-my-jetpack' ) }{ ' ' }
+						{ __( "Your current theme doesn't support Infinite Scroll.", 'jetpack-my-jetpack' ) }{ ' ' }
 						<Link
 							href={ getRedirectUrl( 'jetpack-support-infinite-scroll', { anchor: 'theme' } ) }
 							target="_blank"
