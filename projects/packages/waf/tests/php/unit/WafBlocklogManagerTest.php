@@ -148,18 +148,22 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Only a block that isn't the firewall's own test marks the site as having blocked a request.
+	 * Only a block that isn't the firewall's own test, made in normal mode, marks the site as having blocked a request.
 	 *
-	 * @dataProvider provide_rule_ids
+	 * @runInSeparateProcess
+	 * @dataProvider provide_blocks
 	 *
-	 * @param string $rule_id  The rule that blocked the request.
+	 * @param string $mode     The firewall's mode.
+	 * @param string $rule_id  The rule that matched the request.
 	 * @param bool   $recorded Whether the block is recorded as a real one.
 	 */
-	#[DataProvider( 'provide_rule_ids' )]
-	public function testOnlyRealBlocksAreRecorded( $rule_id, $recorded ) {
+	#[RunInSeparateProcess]
+	#[DataProvider( 'provide_blocks' )]
+	public function testOnlyRealBlocksAreRecorded( $mode, $rule_id, $recorded ) {
+		define( 'JETPACK_WAF_MODE', $mode );
 		$connection = new class() {
-			/** @var string[] */
-			public $prepared = array();
+			/** @var array Every value bound to a prepared query. */
+			public $bound = array();
 
 			/** @var int */
 			public $insert_id = 1;
@@ -174,13 +178,25 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 			/**
 			 * @param string $query Query.
 			 */
-			public function prepare( $query ) {
-				$this->prepared[] = $query;
-				return new class() {
+			public function prepare( $query ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$bound = &$this->bound;
+				return new class( $bound ) {
+					/** @var array */
+					private $bound;
+
 					/**
-					 * @param mixed ...$args Arguments.
+					 * @param array $bound Where to record the bound values.
 					 */
-					public function bind_param( ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					public function __construct( &$bound ) {
+						$this->bound = &$bound;
+					}
+
+					/**
+					 * @param string $types   Types.
+					 * @param mixed  ...$args Values.
+					 */
+					public function bind_param( $types, ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+						array_push( $this->bound, ...$args );
 						return true;
 					}
 
@@ -203,8 +219,7 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 
 		Waf_Blocklog_Manager::write_blocklog( $rule_id, 'reason' );
 
-		$flagged = preg_grep( '/INSERT IGNORE INTO \S*options/', $connection->prepared );
-		$this->assertSame( $recorded, array() !== $flagged );
+		$this->assertSame( $recorded, in_array( Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_HAS_BLOCKED, $connection->bound, true ) );
 	}
 
 	/**
@@ -212,10 +227,11 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @return array
 	 */
-	public static function provide_rule_ids() {
+	public static function provide_blocks() {
 		return array(
-			'the firewall test' => array( '-2', false ),
-			'a rule'            => array( '1337', true ),
+			'the firewall test'    => array( 'normal', '-2', false ),
+			'a rule'               => array( 'normal', '1337', true ),
+			'a rule, only logging' => array( 'silent', '1337', false ),
 		);
 	}
 }

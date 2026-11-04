@@ -363,6 +363,19 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Blocked requests on each UTC day, keyed by `Y-m-d`. Days past 30 are only pruned when a block is written.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, int>
+	 */
+	public static function get_daily_block_counts() {
+		$stats = self::get_stored_option( self::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY, array() );
+
+		return is_array( $stats ) ? array_map( 'intval', $stats ) : array();
+	}
+
+	/**
 	 * Get the total number of blocked requests for last thirty days.
 	 *
 	 * @return int
@@ -543,7 +556,8 @@ class Waf_Blocklog_Manager {
 
 		self::write_daily_summary();
 		self::write_all_time_block_count();
-		if ( (string) Waf_Self_Check::RULE_ID !== (string) $rule_id ) {
+		// Silent mode only logs, so it hasn't blocked anything.
+		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE && (string) Waf_Self_Check::RULE_ID !== (string) $rule_id ) {
 			self::write_has_blocked_row();
 		}
 		self::write_blocklog_row( $log_data );

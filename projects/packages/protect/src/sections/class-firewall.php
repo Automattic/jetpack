@@ -155,17 +155,20 @@ class Firewall implements Dashboard_Section {
 	 * @return array<int, array{date: string, count: int}> Empty when the WAF package isn't loaded.
 	 */
 	private static function get_daily_blocks() {
-		global $wpdb;
-
 		if ( ! class_exists( Waf_Blocklog_Manager::class ) ) {
 			return array();
 		}
 
-		// Uncached, like `Waf_Blocklog_Manager::get_stored_option()`.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$stored = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY ) );
-		$counts = null === $stored ? array() : maybe_unserialize( $stored );
-		$counts = is_array( $counts ) ? $counts : array();
+		if ( method_exists( Waf_Blocklog_Manager::class, 'get_daily_block_counts' ) ) {
+			$counts = Waf_Blocklog_Manager::get_daily_block_counts();
+		} else {
+			// An older WAF package: read it uncached, as `Waf_Blocklog_Manager::get_stored_option()` does.
+			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$stored = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY ) );
+			$counts = null === $stored ? array() : maybe_unserialize( $stored );
+			$counts = is_array( $counts ) ? $counts : array();
+		}
 
 		$days = array();
 		for ( $ago = 29; $ago >= 0; $ago-- ) {
@@ -189,8 +192,8 @@ class Firewall implements Dashboard_Section {
 	private static function get_test_summary() {
 		global $wpdb;
 
-		// `Waf_Self_Check::RULE_ID`, inlined because an older WAF package doesn't define the class.
-		$test_rule = -2;
+		// An older WAF package doesn't define the class.
+		$test_rule = class_exists( Waf_Self_Check::class ) ? Waf_Self_Check::RULE_ID : -2;
 
 		// The table doesn't exist until the firewall is first turned on.
 		$suppress = $wpdb->suppress_errors();
