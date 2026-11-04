@@ -320,7 +320,13 @@ export const Loading: Story = {
 
 const onLeaderboardItemClick = action( 'leaderboard-item-click' );
 
-const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
+const InteractiveRowLabel = ( {
+	children,
+	title,
+}: {
+	children: React.ReactNode;
+	title: string;
+} ) => (
 	<span
 		data-testid="interactive-row-label"
 		style={ {
@@ -332,7 +338,10 @@ const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
 			fontSize: '13px',
 		} }
 	>
-		<span style={ { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+		<span
+			title={ title }
+			style={ { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }
+		>
 			{ children }
 		</span>
 	</span>
@@ -406,7 +415,9 @@ export const InteractiveOverlayLabel: Story = {
 	args: {
 		data: interactiveData.map( entry => ( {
 			...entry,
-			label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+			label: (
+				<InteractiveRowLabel title={ String( entry.label ) }>{ entry.label }</InteractiveRowLabel>
+			),
 			onClick: () => onLeaderboardItemClick( entry.id ),
 		} ) ),
 		withComparison: true,
@@ -449,7 +460,7 @@ export const InteractiveOverlayLabelLink: Story = {
 			...entry,
 			// The span fills the label cell, so only the name itself is the link.
 			label: (
-				<InteractiveRowLabel>
+				<InteractiveRowLabel title={ String( entry.label ) }>
 					<DemoLabelLink entry={ entry } />
 				</InteractiveRowLabel>
 			),
@@ -512,14 +523,18 @@ export const InteractiveOverlayLabelMixed: Story = {
 				case 'drill-down':
 					return {
 						...entry,
-						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+						label: (
+							<InteractiveRowLabel title={ String( entry.label ) }>
+								{ entry.label }
+							</InteractiveRowLabel>
+						),
 						onClick,
 					};
 				case 'drill-down-with-link':
 					return {
 						...entry,
 						label: (
-							<InteractiveRowLabel>
+							<InteractiveRowLabel title={ String( entry.label ) }>
 								<DemoLabelLink entry={ entry } />
 							</InteractiveRowLabel>
 						),
@@ -531,7 +546,7 @@ export const InteractiveOverlayLabelMixed: Story = {
 					return {
 						...entry,
 						label: (
-							<InteractiveRowLabel>
+							<InteractiveRowLabel title={ String( entry.label ) }>
 								<DemoLabelLink entry={ entry } />
 							</InteractiveRowLabel>
 						),
@@ -539,7 +554,11 @@ export const InteractiveOverlayLabelMixed: Story = {
 				default:
 					return {
 						...entry,
-						label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
+						label: (
+							<InteractiveRowLabel title={ String( entry.label ) }>
+								{ entry.label }
+							</InteractiveRowLabel>
+						),
 					};
 			}
 		} ),
