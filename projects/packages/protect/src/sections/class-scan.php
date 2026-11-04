@@ -366,12 +366,23 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether the user may read and change the site's files, which on multisite the whole network shares.
+	 * Whether the user may see and edit the site's code, as WordPress's plugin file editor requires.
+	 *
+	 * Core refuses `edit_plugins` under DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS, and on multisite to all but network admins.
+	 *
+	 * @return bool
+	 */
+	public static function can_view_threat_files() {
+		return current_user_can( 'edit_plugins' );
+	}
+
+	/**
+	 * Whether the user may view, delete or restore a threat's file.
 	 *
 	 * @return bool|WP_Error
 	 */
 	public static function can_act_on_threat_files() {
-		if ( is_multisite() && ! is_super_admin() ) {
+		if ( ! self::can_view_threat_files() ) {
 			return false;
 		}
 		return self::can_act_on_threats();

@@ -155,6 +155,50 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Who may view, delete or restore a threat's file.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_threat_file_users() {
+		return array(
+			'administrator'                   => array( 'administrator', false, true ),
+			'administrator, file editing off' => array( 'administrator', true, false ),
+			'editor'                          => array( 'editor', false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_threat_file_users
+	 *
+	 * @param string $role             The user's role.
+	 * @param bool   $file_editing_off Whether core refuses `edit_plugins`, as it does under DISALLOW_FILE_EDIT.
+	 * @param bool   $allowed          Whether the user may act on threat files.
+	 */
+	#[DataProvider( 'provide_threat_file_users' )]
+	public function test_threat_files_need_permission_to_edit_code( $role, $file_editing_off, $allowed ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => $role,
+					'user_pass'  => 'pass',
+					'role'       => $role,
+				)
+			)
+		);
+		$refuse = function ( $caps, $cap ) {
+			return 'edit_plugins' === $cap ? array( 'do_not_allow' ) : $caps;
+		};
+		if ( $file_editing_off ) {
+			add_filter( 'map_meta_cap', $refuse, 10, 2 );
+		}
+
+		$this->assertSame( $allowed, true === Scan::can_act_on_threat_files() );
+		remove_filter( 'map_meta_cap', $refuse );
+	}
+
+	/**
 	 * Test that a host turning ignoring off hides Ignore and refuses the ignore route, but leaves unignoring alone.
 	 *
 	 * @param string $action        `ignore` or `unignore`.

@@ -108,7 +108,7 @@ class Threat_File {
 	 * @return bool
 	 */
 	public static function can_restore( $path, $owner ) {
-		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path ) && wp_is_writable( dirname( $path ) ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
+		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && current_user_can( 'update_core' ) && wp_is_writable( $path ) && wp_is_writable( dirname( $path ) ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
 	}
 
 	/**
