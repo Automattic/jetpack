@@ -168,7 +168,9 @@ function getThreatRowActions(
 			id: 'delete',
 			label: softwareLabel( 'delete' ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteTitle( item ) : '' ),
-			isEligible: item => !! item.extension?.actions?.delete,
+			// Auto-fix already offers this delete, with the slug confirmation.
+			isEligible: item =>
+				!! item.extension?.actions?.delete && ! ( canFix( item ) && isDeleteFix( item ) ),
 			RenderModal: DeleteSoftwareModal,
 		},
 		{

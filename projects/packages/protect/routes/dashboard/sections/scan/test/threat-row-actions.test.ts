@@ -60,22 +60,29 @@ describe( 'useThreatRowActions', () => {
 	} );
 
 	it.each( [
-		[ 'a replace fix', { fixer: 'replace' }, [ 'auto-fix' ] ],
-		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix-update' ] ],
-		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
+		[ 'a replace fix', { fixer: 'replace' }, true, [ 'auto-fix', 'delete' ] ],
+		[ 'an update fix', { fixer: 'update' }, true, [ 'auto-fix-update', 'delete' ] ],
+		[ 'a delete fix, without a second Delete', { fixer: 'delete' }, true, [ 'auto-fix-delete' ] ],
+		[ 'a delete fix the plan can’t run', { fixer: 'delete' }, false, [ 'delete' ] ],
 		[
 			'a fix left out of bulk fixes',
 			{ fixer: 'replace', extras: { isBulkFixable: false } },
-			[ 'auto-fix' ],
+			true,
+			[ 'auto-fix', 'delete' ],
 		],
-	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
-		const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
-		const { result } = renderHook( () => useThreatRowActions( open, true ) );
+	] as const )(
+		'picks the Auto-fix and Delete actions for %s',
+		( _name, fixable, canAct, expected ) => {
+			const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
+			const { result } = renderHook( () => useThreatRowActions( open, canAct ) );
 
-		expect(
-			eligibleIds( result.current, item ).filter( id => id.startsWith( 'auto-fix' ) )
-		).toEqual( expected );
-	} );
+			expect(
+				eligibleIds( result.current, item ).filter(
+					id => id.startsWith( 'auto-fix' ) || id === 'delete'
+				)
+			).toEqual( expected );
+		}
+	);
 
 	it( 'gives a row its actions back when the fix fails', async () => {
 		let reject: ( e: unknown ) => void = () => {};

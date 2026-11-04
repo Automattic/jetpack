@@ -449,15 +449,19 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 }
 
 /**
- * Links that act on the affected software: update it, deactivate it, or look it up.
+ * Links that act on the affected software: update it, deactivate it, delete it, or look it up.
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
+ * @param props.canAct - Whether the site's plan can fix threats.
  * @return The links, or null when there are none.
  */
-function SoftwareActions( { threat }: { threat: ScanThreat } ) {
+function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const actions = threat.extension?.actions ?? {};
-	if ( ! actions.update && ! actions.deactivate && ! actions.delete && ! actions.details ) {
+	// The footer's Auto-fix already offers this delete, with the slug confirmation.
+	const canDelete =
+		!! actions.delete && ! ( canAct && threat.status !== 'ignored' && isDeleteFix( threat ) );
+	if ( ! actions.update && ! actions.deactivate && ! canDelete && ! actions.details ) {
 		return null;
 	}
 
@@ -627,7 +631,7 @@ export default function ThreatDetails( {
 				<Text variant="body-md" className="jp-protect-card__muted">
 					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
-				<SoftwareActions threat={ threat } />
+				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
 			{ canAct && <ThreatFooter threat={ threat } /> }
 		</div>
