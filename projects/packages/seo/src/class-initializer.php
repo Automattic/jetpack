@@ -304,20 +304,31 @@ class Initializer {
 	}
 
 	/**
-	 * The WordPress.com Premium checkout URL for this site, used by the upsell banner
-	 * shown to gated sites.
-	 *
-	 * Built server-side because the client doesn't have the site slug. `value_bundle`
-	 * is the wpcom Premium plan slug (see the `premium` entry in
-	 * `Automattic\Jetpack\Current_Plan`), and `Status::get_site_suffix()` resolves the
-	 * Calypso site slug (via `WPCOM_Masterbar::get_calypso_site_slug()` on wpcom).
+	 * Return the Premium checkout URL, or an empty string when upgrades are unavailable.
 	 *
 	 * @return string
 	 */
 	public static function get_upsell_url() {
-		$site_slug = ( new Status() )->get_site_suffix();
+		$host = new Host();
+		if ( $host->is_p2_site() ) {
+			return '';
+		}
 
-		return sprintf( 'https://wordpress.com/checkout/%s/value_bundle', $site_slug );
+		$plan       = $host->is_wpcom_simple() && class_exists( '\WPCOM_Store_API' )
+			? \WPCOM_Store_API::get_current_plan( get_current_blog_id() )
+			: Current_Plan::get();
+		$term       = substr( $plan['product_slug'] ?? '', -3 );
+		$product    = in_array( $term, array( '-2y', '-3y' ), true ) ? 'value_bundle' . $term : 'value_bundle';
+		$site_slug  = ( new Status() )->get_site_suffix();
+		$return_url = rawurlencode( Admin_Page::get_url() );
+
+		return add_query_arg(
+			array(
+				'redirect_to'     => $return_url,
+				'checkoutBackUrl' => $return_url,
+			),
+			sprintf( 'https://wordpress.com/checkout/%s/%s', $site_slug, $product )
+		);
 	}
 
 	/**
