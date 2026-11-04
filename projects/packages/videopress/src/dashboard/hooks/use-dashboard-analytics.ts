@@ -6,13 +6,10 @@ import { useEffect } from '@wordpress/element';
 // (`admin-page/index.tsx`).
 const PAGE_VIEW_EVENT = 'jetpack_videopress_admin_page_view';
 
-// window-scoped guard. The dashboard is a TanStack-routed SPA (`@wordpress/route`),
-// so switching tabs remounts route stages client-side without a page reload —
-// a per-mount effect would re-fire on every tab change. Keying the one-time
-// init + page view off `window` (which only resets on a real page load) fires
-// the page view once per load and never again on tab navigation, and shares
-// the flag across the separately-bundled route chunks. Mirrors the
-// window-singleton pattern used by the shared QueryClient.
+export type DashboardRoute =
+	'overview' | 'library' | 'playlists' | 'playlist' | 'settings' | 'video' | 'video_editor';
+
+// Share the once-per-load guard across separately bundled SPA route stages.
 const TRACKED_FLAG = '__jetpackVideoPressDashboardTracked' as const;
 
 declare global {
@@ -22,14 +19,12 @@ declare global {
 }
 
 /**
- * Identify the WPCOM user for Tracks and record the dashboard page-view event
- * once per page load, regardless of which tab the visitor lands on. User
- * identification is guarded for sites with no connected WPCOM user (e.g.
- * self-hosted, not yet connected). The event's `blog_id` is supplied
- * automatically by `window.jpTracksContext` (set alongside the connection
- * state in `class-initial-state.php`).
+ * Record the landing route once per page load using the existing Tracks identity.
+ * Site identity is supplied by the shared `window.jpTracksContext`.
+ *
+ * @param route - Bounded route name; never a URL or attachment identifier.
  */
-export function useDashboardAnalytics(): void {
+export function useDashboardAnalytics( route: DashboardRoute ): void {
 	useEffect( () => {
 		if ( window[ TRACKED_FLAG ] ) {
 			return;
@@ -41,6 +36,15 @@ export function useDashboardAnalytics(): void {
 			analytics.initialize( wpcomUser.ID, wpcomUser.login );
 		}
 
-		analytics.tracks.recordEvent( PAGE_VIEW_EVENT );
-	}, [] );
+		const access =
+			typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'
+				? JPVIDEOPRESS_INITIAL_STATE?.siteData?.hasVideoPressAccess
+				: undefined;
+
+		analytics.tracks.recordEvent( PAGE_VIEW_EVENT, {
+			route,
+			// Missing access data must not be counted as a free plan.
+			...( typeof access === 'boolean' ? { is_free: ! access } : {} ),
+		} );
+	}, [ route ] );
 }

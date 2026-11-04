@@ -63,6 +63,10 @@ export type InitialState = {
 	enableError?: 'connection' | 'unknown' | null;
 	/** Whether a WoA site's dashboard waits for the connection rather than a transfer. Only in the `in_progress` state. */
 	awaitingConnection?: boolean;
+	/** Whether a WoA buyer is back from checkout before the purchase reached the site. Only in the `upgrade` state. */
+	checkoutPending: boolean;
+	/** REST path reporting whether the purchase has reached the site. Only while `checkoutPending`. */
+	featureStatusPath?: string;
 };
 
 /**
@@ -102,6 +106,11 @@ export type FeatureConfig = {
 			description: string;
 			note: string;
 		};
+	};
+	/** Shown to a WoA buyer back from checkout while the purchase reaches the site. */
+	checkoutPending: {
+		title: string;
+		description: string;
 	};
 	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
 	enable?: {

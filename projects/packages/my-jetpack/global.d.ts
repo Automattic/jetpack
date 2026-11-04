@@ -666,6 +666,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;

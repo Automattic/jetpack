@@ -1,6 +1,12 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { FeatureContext } from './feature-context.ts';
-import { ActivateScreen, EnableScreen, InProgressScreen, UpgradeScreen } from './screens.tsx';
+import {
+	ActivateScreen,
+	CheckoutPendingScreen,
+	EnableScreen,
+	InProgressScreen,
+	UpgradeScreen,
+} from './screens.tsx';
 import { getInitialState } from './state.ts';
 import type { FeatureConfig } from './types.ts';
 import './style.scss';
@@ -30,7 +36,12 @@ export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
 					<div className="wpcom-hosting-feature__stage">
 						{ initialState.state === 'in_progress' && <InProgressScreen state={ initialState } /> }
 						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
-						{ initialState.state === 'upgrade' && <UpgradeScreen state={ initialState } /> }
+						{ initialState.state === 'upgrade' &&
+							( initialState.checkoutPending ? (
+								<CheckoutPendingScreen state={ initialState } />
+							) : (
+								<UpgradeScreen state={ initialState } />
+							) ) }
 						{ initialState.state === 'enable' && <EnableScreen state={ initialState } /> }
 					</div>
 				</div>
