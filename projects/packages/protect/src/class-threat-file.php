@@ -35,6 +35,13 @@ class Threat_File {
 	const PROTECTED_FILES = array( 'wp-config.php', '.htaccess', '.user.ini', 'php.ini', 'web.config' );
 
 	/**
+	 * The files WordPress itself ships inside wp-content, relative to it.
+	 *
+	 * @var string[]
+	 */
+	const CORE_CONTENT_FILES = array( 'index.php', 'plugins/index.php', 'themes/index.php' );
+
+	/**
 	 * What a file belongs to.
 	 *
 	 * @param string $path The file's real path, inside the site.
@@ -72,8 +79,9 @@ class Threat_File {
 				'modified' => md5_file( $path ) !== $checksum,
 			);
 		}
-		// Without WordPress.org's checksums, a core file outside wp-content looks like a stray one.
-		if ( null !== self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) && ! self::get_core_checksums() ) {
+		// Without WordPress.org's checksums, a core file outside wp-content, or one of the few inside it, looks like a stray one.
+		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
+		if ( null !== self::get_relative( $path, ABSPATH ) && ( null === $in_content || in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) && ! self::get_core_checksums() ) {
 			return array( 'type' => 'unknown' );
 		}
 
