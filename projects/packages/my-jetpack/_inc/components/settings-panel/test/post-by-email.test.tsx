@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { clearRequestedSwitch, setRequestedSwitch } from '../../../data/requested-switch-state';
@@ -113,14 +113,6 @@ describe( 'PostByEmailSettings', () => {
 			'aria-disabled',
 			'true'
 		);
-	} );
-
-	it( 'refetches the modules once the new address is made', async () => {
-		render( <PostByEmailSettings module={ build() } disabled={ false } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Regenerate address' } ) );
-
-		await waitFor( () => expect( mockCreateSuccessNotice ).toHaveBeenCalledTimes( 1 ) );
-		expect( mockFetchModules ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it.each( [

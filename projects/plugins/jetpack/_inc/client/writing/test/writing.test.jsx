@@ -43,6 +43,7 @@ const findsOnly = {
 };
 // Never settles, so the custom content types lookup changes no state after the test.
 const noFeatureDetails = () => new Promise( () => undefined );
+const isActive = () => true;
 
 describe( 'Writing settings', () => {
 	afterEach( () => {
@@ -102,4 +103,26 @@ describe( 'Writing settings', () => {
 			expect( shown ).toEqual( expected );
 		} );
 	} );
+
+	it.each( [
+		[ 'in the tab', '' ],
+		[ 'in a search', 'post-by-email' ],
+	] )(
+		'keeps the Post by Email card, %s, for a user who cannot manage modules',
+		( _name, searchTerm ) => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+			render(
+				<UnconnectedWriting
+					active
+					userCanEditPosts
+					searchTerm={ searchTerm }
+					isModuleFound={ findsOnly[ 'post-by-email' ] }
+					isModuleActivated={ isActive }
+					getActiveFeatureDetails={ noFeatureDetails }
+				/>
+			);
+
+			expect( screen.getByText( 'Post by Email card' ) ).toBeInTheDocument();
+		}
+	);
 } );

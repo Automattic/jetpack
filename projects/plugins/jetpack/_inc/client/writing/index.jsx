@@ -147,7 +147,7 @@ export class Writing extends Component {
 				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) &&
 					showPostByEmail &&
-					( isSettingsConsolidationEnabled() ? (
+					( isSettingsConsolidationEnabled() && this.props.userCanManageModules ? (
 						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
 					) : (
 						<PostByEmail
