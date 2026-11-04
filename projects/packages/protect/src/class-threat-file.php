@@ -81,7 +81,7 @@ class Threat_File {
 		}
 		// Without WordPress.org's checksums, a core file outside wp-content, or one of the few inside it, looks like a stray one.
 		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
-		if ( null !== self::get_relative( $path, ABSPATH ) && ( null === $in_content || in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) && ! self::get_core_checksums() ) {
+		if ( null !== self::get_core_relative( $path ) && ( null === $in_content || in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) && ! self::get_core_checksums() ) {
 			return array( 'type' => 'unknown' );
 		}
 
@@ -206,7 +206,7 @@ class Threat_File {
 	 * @return true|WP_Error
 	 */
 	public static function restore( $path ) {
-		$relative = self::get_relative( $path, ABSPATH );
+		$relative = self::get_core_relative( $path );
 		$checksum = self::get_core_checksum( $path );
 		if ( ! $checksum ) {
 			return new WP_Error( 'not_core_file', __( 'This isn’t a WordPress core file.', 'jetpack-protect-pkg' ), array( 'status' => 400 ) );
@@ -280,8 +280,23 @@ class Threat_File {
 	 * @return string|null Null when it isn't a core file.
 	 */
 	private static function get_core_checksum( $path ) {
-		$relative = self::get_relative( $path, ABSPATH );
+		$relative = self::get_core_relative( $path );
 		return null === $relative ? null : self::get_core_checksums()[ $relative ] ?? null;
+	}
+
+	/**
+	 * A file's path as WordPress.org's core package names it.
+	 *
+	 * @param string $path The file's real path.
+	 * @return string|null Null when it can't be a core file.
+	 */
+	private static function get_core_relative( $path ) {
+		// wp-content can be moved or renamed, which ABSPATH alone misses for the files core ships in it.
+		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
+		if ( null !== $in_content && in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) {
+			return 'wp-content/' . $in_content;
+		}
+		return self::get_relative( $path, ABSPATH );
 	}
 
 	/**
