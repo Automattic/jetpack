@@ -23,7 +23,8 @@ class Social_Abilities_Test extends BaseTestCase {
 	private $requests = array();
 
 	public function tearDown(): void {
-		$this->set_global( 'publicize', null );
+		$slot = 'publicize';
+		unset( $GLOBALS[ $slot ] );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'rest_pre_dispatch' );
 		remove_all_actions( 'rest_api_init' );
@@ -70,21 +71,7 @@ class Social_Abilities_Test extends BaseTestCase {
 			public function __construct() {} // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		};
 
-		$this->set_global( 'publicize', $fake );
-	}
-
-	/**
-	 * Set or clear a global by name, so phan does not fold it into the plugin's `$publicize` type.
-	 *
-	 * @param string $name  Global name.
-	 * @param mixed  $value Value, or null to unset.
-	 */
-	private function set_global( string $name, $value ): void {
-		if ( null === $value ) {
-			unset( $GLOBALS[ $name ] );
-			return;
-		}
-		$GLOBALS[ $name ] = $value;
+		$GLOBALS['publicize'] = $fake;
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
