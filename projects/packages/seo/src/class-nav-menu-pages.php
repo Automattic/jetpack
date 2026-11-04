@@ -20,14 +20,27 @@ class Nav_Menu_Pages {
 	const MAX_DEPTH = 5;
 
 	/**
+	 * Location slugs that never hold the main menu, even when they also say `main` or `header`.
+	 */
+	const NOT_MAIN_PATTERN = '/footer|secondary|social/';
+
+	/**
+	 * Core's fallback menu for this lookup: `false` until fetched, then a post or null.
+	 *
+	 * @var \WP_Post|null|false
+	 */
+	private static $fallback_menu = false;
+
+	/**
 	 * Page IDs from the main menu and from the other displayed menus, each in menu order,
 	 * with no page in both lists.
 	 *
 	 * @return array{main: int[], other: int[]}
 	 */
 	public static function get() {
-		$classic = self::classic_menu_pages();
-		$block   = self::block_theme_menu_pages();
+		self::$fallback_menu = false;
+		$classic             = self::classic_menu_pages();
+		$block               = self::block_theme_menu_pages();
 
 		$main  = array_values( array_unique( array_merge( $classic['main'], $block['main'] ) ) );
 		$other = array_values( array_diff( array_unique( array_merge( $classic['other'], $block['other'] ) ), $main ) );
@@ -46,13 +59,17 @@ class Nav_Menu_Pages {
 	 * @return bool
 	 */
 	public static function is_main_location( $location ) {
+		if ( preg_match( self::NOT_MAIN_PATTERN, $location ) ) {
+			return false;
+		}
 		return in_array( $location, array( 'menu-1', 'top' ), true )
 			|| (bool) preg_match( '/(?:^|[-_])(?:primary|main|header)(?:[-_]|$)/', $location );
 	}
 
 	/**
 	 * Pages in the menus assigned to the theme's registered locations. When no location
-	 * name looks like the main menu, the first registered location with a menu is used.
+	 * name looks like the main menu, the first assigned one that isn't a footer, secondary
+	 * or social menu is used.
 	 *
 	 * @return array{main: int[], other: int[]}
 	 */
@@ -69,7 +86,7 @@ class Nav_Menu_Pages {
 
 		$main = array_filter( $locations, array( __CLASS__, 'is_main_location' ) );
 		if ( empty( $main ) ) {
-			$main = array( reset( $locations ) );
+			$main = array_slice( preg_grep( self::NOT_MAIN_PATTERN, $locations, PREG_GREP_INVERT ), 0, 1 );
 		}
 
 		foreach ( $locations as $location ) {
@@ -140,10 +157,12 @@ class Nav_Menu_Pages {
 				if ( ! empty( $attrs['id'] ) && 'post-type' === ( $attrs['kind'] ?? '' ) && 'page' === ( $attrs['type'] ?? '' ) ) {
 					$ids[] = (int) $attrs['id'];
 				}
-			} elseif ( 'core/pattern' === $name && ! empty( $attrs['slug'] ) && $depth < self::MAX_DEPTH ) {
-				$pattern  = \WP_Block_Patterns_Registry::get_instance()->get_registered( $attrs['slug'] );
-				$inner    = parse_blocks( (string) ( $pattern['content'] ?? '' ) );
-				$followed = true;
+			} elseif ( $depth < self::MAX_DEPTH ) {
+				$content = self::referenced_content( $name, $attrs );
+				if ( null !== $content ) {
+					$inner    = parse_blocks( $content );
+					$followed = true;
+				}
 			}
 
 			if ( ! empty( $inner ) ) {
@@ -154,13 +173,39 @@ class Nav_Menu_Pages {
 	}
 
 	/**
+	 * Markup a pattern, synced pattern or nested template part block stands in for.
+	 *
+	 * @param string $name  Block name.
+	 * @param array  $attrs Block attributes.
+	 * @return string|null Null when the block references nothing.
+	 */
+	private static function referenced_content( $name, array $attrs ) {
+		if ( 'core/pattern' === $name && ! empty( $attrs['slug'] ) ) {
+			$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered( $attrs['slug'] );
+			return (string) ( $pattern['content'] ?? '' );
+		}
+		if ( 'core/block' === $name && ! empty( $attrs['ref'] ) ) {
+			$synced = get_post( (int) $attrs['ref'] );
+			return $synced instanceof \WP_Post && 'wp_block' === $synced->post_type && 'publish' === $synced->post_status ? $synced->post_content : null;
+		}
+		if ( 'core/template-part' === $name && ! empty( $attrs['slug'] ) ) {
+			$part = get_block_template( ( $attrs['theme'] ?? get_stylesheet() ) . '//' . $attrs['slug'], 'wp_template_part' );
+			return $part ? (string) $part->content : null;
+		}
+		return null;
+	}
+
+	/**
 	 * The menu a Navigation block without a reference falls back to: the newest published
 	 * `wp_navigation` post, as in core's `WP_Navigation_Fallback`, without creating one.
 	 *
 	 * @return \WP_Post|null
 	 */
 	private static function fallback_navigation() {
-		$menus = get_posts(
+		if ( false !== self::$fallback_menu ) {
+			return self::$fallback_menu;
+		}
+		$menus               = get_posts(
 			array(
 				'post_type'        => 'wp_navigation',
 				'post_status'      => 'publish',
@@ -171,6 +216,7 @@ class Nav_Menu_Pages {
 				'suppress_filters' => false,
 			)
 		);
-		return $menus[0] ?? null;
+		self::$fallback_menu = $menus[0] ?? null;
+		return self::$fallback_menu;
 	}
 }

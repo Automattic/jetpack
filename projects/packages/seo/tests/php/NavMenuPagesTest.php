@@ -27,6 +27,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 */
 	protected function tearDown(): void {
 		remove_all_filters( 'pre_get_block_templates' );
+		remove_all_filters( 'pre_get_block_template' );
 		remove_theme_support( 'block-template-parts' );
 		if ( WP_Block_Patterns_Registry::get_instance()->is_registered( self::PATTERN ) ) {
 			unregister_block_pattern( self::PATTERN );
@@ -55,19 +56,21 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
-	 * When no location name looks like the main menu, the first registered one is main.
+	 * When no location name looks like the main menu, the first one that isn't a footer,
+	 * secondary or social menu is main.
 	 *
 	 * @return void
 	 */
-	public function test_first_location_is_main_when_no_name_matches() {
-		list( $a, $b ) = $this->pages( 2 );
-		$this->add_nav_menu( array( $a ), 'topbar' );
-		$this->add_nav_menu( array( $b ), 'sidebar' );
+	public function test_first_non_footer_location_is_main_when_no_name_matches() {
+		list( $a, $b, $c ) = $this->pages( 3 );
+		$this->add_nav_menu( array( $a ), 'footer' );
+		$this->add_nav_menu( array( $b ), 'topbar' );
+		$this->add_nav_menu( array( $c ), 'sidebar' );
 
 		$this->assertSame(
 			array(
-				'main'  => array( $a ),
-				'other' => array( $b ),
+				'main'  => array( $b ),
+				'other' => array( $a, $c ),
 			),
 			Nav_Menu_Pages::get()
 		);
@@ -94,16 +97,19 @@ class NavMenuPagesTest extends SeoTestCase {
 	 */
 	public static function provide_locations() {
 		return array(
-			'primary'      => array( 'primary', true ),
-			'primary-menu' => array( 'primary-menu', true ),
-			'main_menu'    => array( 'main_menu', true ),
-			'header-menu'  => array( 'header-menu', true ),
-			'menu-1'       => array( 'menu-1', true ),
-			'top'          => array( 'top', true ),
-			'topbar_menu'  => array( 'topbar_menu', false ),
-			'secondary'    => array( 'secondary', false ),
-			'footer'       => array( 'footer', false ),
-			'social'       => array( 'social', false ),
+			'primary'          => array( 'primary', true ),
+			'primary-menu'     => array( 'primary-menu', true ),
+			'main_menu'        => array( 'main_menu', true ),
+			'header-menu'      => array( 'header-menu', true ),
+			'menu-1'           => array( 'menu-1', true ),
+			'top'              => array( 'top', true ),
+			'topbar_menu'      => array( 'topbar_menu', false ),
+			'secondary'        => array( 'secondary', false ),
+			'footer'           => array( 'footer', false ),
+			'social'           => array( 'social', false ),
+			'footer-main'      => array( 'footer-main', false ),
+			'primary-footer'   => array( 'primary-footer', false ),
+			'secondary-header' => array( 'secondary-header', false ),
 		);
 	}
 
@@ -137,7 +143,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 *
 	 * @dataProvider provide_navigation_blocks
 	 *
-	 * @param string $markup   Header markup; `{older}`, `{a}` and `{b}` are replaced with IDs.
+	 * @param string $markup   Header markup; `{older}`, `{synced}`, `{a}` and `{b}` are replaced with IDs.
 	 * @param string $expected Which pages it links: `older`, `newer` or `own`.
 	 * @return void
 	 */
@@ -154,15 +160,31 @@ class NavMenuPagesTest extends SeoTestCase {
 			)
 		);
 
+		$older_markup = sprintf( '<!-- wp:navigation {"ref":%d} /-->', $older );
+		$synced       = wp_insert_post(
+			array(
+				'post_type'    => 'wp_block',
+				'post_status'  => 'publish',
+				'post_title'   => 'Synced header',
+				'post_content' => $older_markup,
+			)
+		);
+
 		$markup = strtr(
 			$markup,
 			array(
-				'{older}' => $older,
-				'{a}'     => $a,
-				'{b}'     => $b,
+				'{older}'  => $older,
+				'{synced}' => $synced,
+				'{a}'      => $a,
+				'{b}'      => $b,
 			)
 		);
-		$this->use_template_parts( array( array( 'header', 'header', $markup ) ) );
+		$this->use_template_parts(
+			array(
+				array( 'header', 'header', $markup ),
+				array( 'site-nav', 'uncategorized', $older_markup ),
+			)
+		);
 
 		$pages = array(
 			'older' => array( $old_page ),
@@ -186,6 +208,8 @@ class NavMenuPagesTest extends SeoTestCase {
 				'own',
 			),
 			'inside a pattern'          => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
+			'inside a synced pattern'   => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
+			'inside a nested part'      => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
 		);
 	}
 
@@ -267,6 +291,19 @@ class NavMenuPagesTest extends SeoTestCase {
 			},
 			10,
 			3
+		);
+		add_filter(
+			'pre_get_block_template',
+			static function ( $result, $id ) use ( $templates ) {
+				foreach ( $templates as $template ) {
+					if ( substr( $id, -strlen( '//' . $template->slug ) ) === '//' . $template->slug ) {
+						return $template;
+					}
+				}
+				return $result;
+			},
+			10,
+			2
 		);
 	}
 }
