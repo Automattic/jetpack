@@ -182,7 +182,8 @@ describe( 'TransferConnectionOwnership', () => {
 	} );
 
 	describe( 'plan ownership note', () => {
-		const noteLink = () => screen.getByRole( 'link', { name: /transfer a relevant plan/ } );
+		const noteLink = () =>
+			screen.getByRole( 'link', { name: /relevant plans can be transferred/ } );
 
 		it( 'links to the plan transfer docs on both steps', async () => {
 			const user = userEvent.setup();
