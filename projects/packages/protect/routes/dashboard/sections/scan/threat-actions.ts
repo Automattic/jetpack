@@ -770,14 +770,14 @@ export function deleteThreatRow( threat: ScanThreat ): Promise< string | null > 
  * @param threat  - The threat.
  * @param action  - `delete` or `restore`.
  * @param hash    - The SHA-256 hash of the contents shown.
- * @param message - The snackbar once done.
+ * @param message - The snackbar once done, given how many threats were marked fixed.
  * @return The threat, now fixed, or why it failed.
  */
 export function changeThreatFile(
 	threat: ScanThreat,
 	action: 'delete' | 'restore',
 	hash: string,
-	message: string
+	message: ( fixed: number ) => string
 ): Promise< { threat?: ScanThreat; error?: string } > {
 	if ( isBusy( threat.id ) ) {
 		return Promise.resolve( {
@@ -800,7 +800,7 @@ export function changeThreatFile(
 				threats: ( current.threats ?? [] ).filter( open ),
 				ignored: current.ignored?.filter( open ),
 			} ) );
-			show( threat, message, 'success' );
+			show( threat, message( fixed.size ), 'success' );
 			loadHistory( true );
 			return { threat: response.threat };
 		} )

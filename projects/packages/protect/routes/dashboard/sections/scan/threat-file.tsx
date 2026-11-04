@@ -23,7 +23,14 @@ import {
 	Tooltip,
 } from '@wordpress/ui';
 import SeverityBadge from './severity-badge';
-import { SCAN_PATH, THREAT_PARAM, createStore, useCanIgnore, useSearchParam } from './store';
+import {
+	SCAN_PATH,
+	THREAT_PARAM,
+	createStore,
+	useCanIgnore,
+	useScan,
+	useSearchParam,
+} from './store';
 import {
 	changeThreatFile,
 	fixThreat,
@@ -31,7 +38,7 @@ import {
 	unignoreThreat,
 	useThreatAction,
 } from './threat-actions';
-import type { ScanThreat } from './types';
+import type { ScanState, ScanThreat } from './types';
 
 const COPIED_DURATION = 15000;
 
@@ -91,6 +98,20 @@ export const getThreatFileTitle = ( threat: ScanThreat, isLoading = false ) =>
 				__( 'Open: %s', 'jetpack-protect-pkg' ),
 				getThreatFileName( threat )
 			);
+
+/**
+ * How many other open or ignored threats Scan found in the same file, which the server marks fixed with it.
+ *
+ * @param threat - The threat.
+ * @param scan   - The scan report.
+ * @return The count.
+ */
+export function countOtherThreatsInFile( threat: ScanThreat, scan?: ScanState ): number {
+	const ids = [ ...( scan?.threats ?? [] ), ...( scan?.ignored ?? [] ) ]
+		.filter( item => item.filename && item.filename === threat.filename )
+		.map( item => String( item.id ) );
+	return new Set( ids.filter( id => id !== String( threat.id ) ) ).size;
+}
 
 /**
  * Where Scan's flagged lines are in the file: at their line numbers when those still match, else
@@ -390,6 +411,25 @@ function FileActions( {
 	const canIgnore = useCanIgnore();
 	const [ selected, setSelected ] = useSearchParam( THREAT_PARAM );
 	const name = getThreatFileName( threat );
+	const others = countOtherThreatsInFile( threat, useScan() );
+	let alsoFixed = '';
+	if ( others === 1 ) {
+		alsoFixed =
+			' ' + __( 'The other threat in this file is marked fixed too.', 'jetpack-protect-pkg' );
+	} else if ( others > 1 ) {
+		alsoFixed =
+			' ' +
+			sprintf(
+				/* translators: %d is how many other threats Scan found in the same file. */
+				_n(
+					'The %d other threat in this file is marked fixed too.',
+					'The %d other threats in this file are marked fixed too.',
+					others,
+					'jetpack-protect-pkg'
+				),
+				others
+			);
+	}
 	// The threat leaves the lists once its file is dealt with, so the inspector can't show it.
 	const closeInspector = useCallback( () => {
 		if ( selected === String( threat.id ) ) {
@@ -407,15 +447,24 @@ function FileActions( {
 		onClose();
 	}, [ threat, onClose ] );
 	const onDelete = useCallback( async () => {
-		const { error } = await changeThreatFile(
-			threat,
-			'delete',
-			file.hash,
-			sprintf(
-				/* translators: %s is a file name, such as "index.php". */
-				__( 'Deleted %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
-				name
-			)
+		const { error } = await changeThreatFile( threat, 'delete', file.hash, fixed =>
+			fixed > 1
+				? sprintf(
+						/* translators: 1: a file name, such as "index.php". 2: how many threats were marked fixed. */
+						_n(
+							'Deleted %1$s and marked %2$d threat fixed.',
+							'Deleted %1$s and marked %2$d threats fixed.',
+							fixed,
+							'jetpack-protect-pkg'
+						),
+						name,
+						fixed
+					)
+				: sprintf(
+						/* translators: %s is a file name, such as "index.php". */
+						__( 'Deleted %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
+						name
+					)
 		);
 		if ( ! error ) {
 			closeInspector();
@@ -424,20 +473,33 @@ function FileActions( {
 		return error ? { error } : undefined;
 	}, [ threat, file, name, onClose, closeInspector ] );
 	const onRestore = useCallback( async () => {
-		const { error, threat: fixed } = await changeThreatFile(
+		const { error, threat: restored } = await changeThreatFile(
 			threat,
 			'restore',
 			file.hash,
-			sprintf(
-				/* translators: %s is a file name, such as "index.php". */
-				__( 'Restored the original %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
-				name
-			)
+			fixed =>
+				fixed > 1
+					? sprintf(
+							/* translators: 1: a file name, such as "index.php". 2: how many threats were marked fixed. */
+							_n(
+								'Restored the original %1$s and marked %2$d threat fixed.',
+								'Restored the original %1$s and marked %2$d threats fixed.',
+								fixed,
+								'jetpack-protect-pkg'
+							),
+							name,
+							fixed
+						)
+					: sprintf(
+							/* translators: %s is a file name, such as "index.php". */
+							__( 'Restored the original %s and marked the threat fixed.', 'jetpack-protect-pkg' ),
+							name
+						)
 		);
-		if ( fixed ) {
+		if ( restored ) {
 			closeInspector();
 			// Stays on the restored file, whose threat is fixed now so its actions go.
-			openThreatFile( fixed );
+			openThreatFile( restored );
 			reload();
 		}
 		return error ? { error } : undefined;
@@ -468,10 +530,12 @@ function FileActions( {
 					</AlertDialog.Trigger>
 					<AlertDialog.Popup
 						title={ __( 'Restore the original file?', 'jetpack-protect-pkg' ) }
-						description={ __(
-							'Jetpack replaces this file with the copy WordPress.org ships for your version of WordPress. Any changes made to it are lost.',
-							'jetpack-protect-pkg'
-						) }
+						description={
+							__(
+								'Jetpack replaces this file with the copy WordPress.org ships for your version of WordPress. Any changes made to it are lost.',
+								'jetpack-protect-pkg'
+							) + alsoFixed
+						}
 						confirmButtonText={ __( 'Restore original', 'jetpack-protect-pkg' ) }
 					/>
 				</AlertDialog.Root>
@@ -486,14 +550,16 @@ function FileActions( {
 					<AlertDialog.Popup
 						intent="irreversible"
 						title={ __( 'Delete this file?', 'jetpack-protect-pkg' ) }
-						description={ sprintf(
-							/* translators: %s is a file path, such as "wp-content/uploads/evil.php". */
-							__(
-								'%s doesn’t belong to WordPress, a plugin or a theme, and Jetpack didn’t find WordPress using it. Deleting it can’t be undone.',
-								'jetpack-protect-pkg'
-							),
-							file.path
-						) }
+						description={
+							sprintf(
+								/* translators: %s is a file path, such as "wp-content/uploads/evil.php". */
+								__(
+									'%s doesn’t belong to WordPress, a plugin or a theme, and Jetpack didn’t find WordPress using it. Deleting it can’t be undone.',
+									'jetpack-protect-pkg'
+								),
+								file.path
+							) + alsoFixed
+						}
 						confirmButtonText={ __( 'Delete file', 'jetpack-protect-pkg' ) }
 					/>
 				</AlertDialog.Root>
