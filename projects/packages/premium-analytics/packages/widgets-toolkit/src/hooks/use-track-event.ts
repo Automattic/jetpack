@@ -72,7 +72,7 @@ export function useTrackEvent() {
 /**
  * The page a tracked event came from.
  */
-export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
+export type TrackingSurface = 'dashboard' | `${ string }_detail`;
 
 /**
  * The widgets in one layout whose instances the other lacks, in layout order.

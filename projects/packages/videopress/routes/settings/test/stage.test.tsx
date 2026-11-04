@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useFreeTier } from '../../../src/dashboard/hooks/use-free-tier';
+import { useVideoPressUpgrade } from '../../../src/dashboard/hooks/use-videopress-upgrade';
 import { stage as Stage } from '../stage';
 import type { FreeTierState } from '../../../src/dashboard/hooks/use-free-tier';
 import type { QueryClient } from '@tanstack/react-query';
@@ -100,7 +101,7 @@ jest.mock( '../../../src/dashboard/hooks/use-free-tier', () => ( {
 	useFreeTier: jest.fn(),
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => jest.fn(),
+	useVideoPressUpgrade: jest.fn( () => jest.fn() ),
 } ) );
 
 const mockedUseFreeTier = useFreeTier as jest.Mock;
@@ -133,6 +134,7 @@ describe( 'Settings stage', () => {
 			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+		expect( useVideoPressUpgrade ).toHaveBeenCalledWith( 'settings_at_limit' );
 	} );
 
 	it( 'shows no upgrade notice while the free upload is still available', () => {

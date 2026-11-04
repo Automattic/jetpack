@@ -190,6 +190,10 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			} ),
 		[ origin, state, tracking ]
 	);
+	const onManageClick = useCallback(
+		() => tracking?.trackManageClick( state, 'campaigns_warning' ),
+		[ state, tracking ]
+	);
 
 	if ( state.pending ) {
 		return (
@@ -258,6 +262,8 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 					reloadAfterToggle={ false }
 					describedby={ describedby }
 					onSwitch={ onModuleSwitch }
+					onManageClick={ onManageClick }
+					manageUrl={ manageUrl }
 				/>
 			);
 		}

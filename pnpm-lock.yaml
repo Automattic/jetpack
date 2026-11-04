@@ -531,8 +531,8 @@ importers:
         specifier: ^7
         version: 7.29.10
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@wordpress/a11y':
         specifier: 5.0.0
         version: 5.0.0
@@ -3087,8 +3087,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@gravatar-com/quick-editor':
         specifier: 0.8.0
         version: 0.8.0
@@ -3104,9 +3104,6 @@ importers:
       '@preact/signals':
         specifier: 1.2.2
         version: 1.2.2(preact@10.28.2)
-      '@sentry/browser':
-        specifier: 10.22.0
-        version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
         version: 5.102.8(react@19.3.0)
@@ -8753,8 +8750,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@gravatar-com/hovercards@0.16.0':
-    resolution: {integrity: sha512-NOB73YXOUALYyqLD8SeiQkKgwrmG8wYeVz8JfqFXiH5NjAt/0iDI0pC4TL/Cqxew3XaDmGUFhXEun7mzopaaCw==}
+  '@gravatar-com/hovercards@0.17.0':
+    resolution: {integrity: sha512-8T1UhflUYNe9gyTEf/PVisbPTAyvjCBsFzeBepLJ4EdjYoriyCrjPNwaXNflFVVOsBNRjJeBkxtMkM8RvAPJlQ==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.8.0':
@@ -10253,30 +10250,6 @@ packages:
         optional: true
       zen-observable:
         optional: true
-
-  '@sentry-internal/browser-utils@10.22.0':
-    resolution: {integrity: sha512-BpJoLZEyJr7ORzkCrIjxRTnFWwO1mJNICVh3B9g5d9245niGT4OJvRozmLz89WgJkZFHWu84ls6Xfq5b/3tGFQ==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/feedback@10.22.0':
-    resolution: {integrity: sha512-zXySOin/gGHPV+yKaHqjN9YZ7psEJwzLn8PzCLeo+4REzF1eQwbYZIgOxJFD32z8s3nZiABSWFM/n1CvVfMEsQ==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/replay-canvas@10.22.0':
-    resolution: {integrity: sha512-DE4JNUskJg+O+wFq42W5gAa/99aD5k7TfGOwABxvnzFv8vkKA7pqXwPbFFPzypdKIkln+df7RmbnDwQRNg6/lA==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/replay@10.22.0':
-    resolution: {integrity: sha512-JNE4kHAQSG4/V+J+Zog3vKBWgOe9H33ol/MEU1RuLM/4I+uLf4mTetwnS9ilpnnW/Z/gQYfA+R3CiMrZtqTivw==}
-    engines: {node: '>=18'}
-
-  '@sentry/browser@10.22.0':
-    resolution: {integrity: sha512-wD2XqN+yeBpQFfdPo6+wlKDMyyuDctVGzZWE4qTPntICKQuwMdAfeq5Ma89ad0Dw+bzG9UijGeyuJQlswF87Mw==}
-    engines: {node: '>=18'}
-
-  '@sentry/core@10.22.0':
-    resolution: {integrity: sha512-V1oeHbrOKzxadsCmgtPku3v3Emo/Bpb3VSuKmlLrQefiHX98MWtjJ3XDGfduzD5/dCdh0r/OOLwjcmrO/PZ2aw==}
-    engines: {node: '>=18'}
 
   '@sinclair/typebox@0.34.52':
     resolution: {integrity: sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==}
@@ -20234,7 +20207,7 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@gravatar-com/hovercards@0.16.0': {}
+  '@gravatar-com/hovercards@0.17.0': {}
 
   '@gravatar-com/quick-editor@0.8.0': {}
 
@@ -21685,34 +21658,6 @@ snapshots:
       rxjs: 6.6.7
     transitivePeerDependencies:
       - zenObservable
-
-  '@sentry-internal/browser-utils@10.22.0':
-    dependencies:
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/feedback@10.22.0':
-    dependencies:
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/replay-canvas@10.22.0':
-    dependencies:
-      '@sentry-internal/replay': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/replay@10.22.0':
-    dependencies:
-      '@sentry-internal/browser-utils': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry/browser@10.22.0':
-    dependencies:
-      '@sentry-internal/browser-utils': 10.22.0
-      '@sentry-internal/feedback': 10.22.0
-      '@sentry-internal/replay': 10.22.0
-      '@sentry-internal/replay-canvas': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry/core@10.22.0': {}
 
   '@sinclair/typebox@0.34.52': {}
 

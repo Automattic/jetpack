@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Downtime monitoring: Require a connected WordPress.com account before it can be turned on, and stop saying the site is monitored when no one will get alerts.

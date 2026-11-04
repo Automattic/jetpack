@@ -112,8 +112,9 @@ jest.mock( '../../../src/dashboard/hooks/use-set-privacy', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-upload-from-library', () => ( {
 	useUploadFromLibrary: () => ( { mutateAsync: jest.fn() } ),
 } ) );
+const mockUpgradeLocation = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => jest.fn(),
+	useVideoPressUpgrade: ( location: string ) => () => mockUpgradeLocation( location ),
 } ) );
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
 	usePersistedView: ( fallback: unknown ) => [ fallback, jest.fn() ],
@@ -254,6 +255,15 @@ describe( 'library stage empty state', () => {
 
 		// The dropzone's copy follows `allowMultiple`, which follows the plan.
 		expect( screen.getByText( 'Drag and drop your video here' ) ).toBeInTheDocument();
+	} );
+
+	it( 'attributes the at-limit library notice to the library', async () => {
+		const user = userEvent.setup();
+		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
+		render( <Stage /> );
+		await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
+		expect( mockUpgradeLocation ).toHaveBeenCalledTimes( 1 );
+		expect( mockUpgradeLocation ).toHaveBeenCalledWith( 'library_at_limit' );
 	} );
 } );
 
