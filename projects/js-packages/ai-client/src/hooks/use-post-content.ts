@@ -12,14 +12,14 @@ import { renderMarkdownFromHTML } from '../libs/markdown/index.ts';
 /**
  * Types
  */
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
+import type { BlockEditorSelectors } from '../types.ts';
 
 /*
  * Simple helper to get the post content as markdown
  */
 const usePostContent = () => {
 	const { getBlocks, isEditedPostEmpty } = useSelect( select => {
-		const blockEditorSelect = select( 'core/block-editor' ) as typeof BlockEditorSelectors;
+		const blockEditorSelect = select( 'core/block-editor' ) as unknown as BlockEditorSelectors;
 		const coreEditorSelect = select( editorStore );
 
 		return {

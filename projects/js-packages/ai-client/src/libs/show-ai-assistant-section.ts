@@ -2,9 +2,10 @@
  * External dependencies
  */
 import { dispatch } from '@wordpress/data';
+import type { BlockEditorActions } from '../types.ts';
 
 export const showAiAssistantSection = async () => {
-	const { clearSelectedBlock } = dispatch( 'core/block-editor' );
+	const { clearSelectedBlock } = dispatch( 'core/block-editor' ) as unknown as BlockEditorActions;
 	const { enableComplementaryArea } = dispatch( 'core/interface' ) as {
 		enableComplementaryArea: ( area: string, slot: string ) => Promise< void >;
 	};
