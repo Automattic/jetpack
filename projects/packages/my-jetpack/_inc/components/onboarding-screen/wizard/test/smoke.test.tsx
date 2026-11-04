@@ -32,6 +32,7 @@ const mockUseConnection = jest.fn( () => mockConnection );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
+	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
 } ) );
 

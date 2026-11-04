@@ -13,6 +13,7 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -516,7 +517,6 @@ class Protect extends Hybrid_Product {
 	public static function get_protect_page_module_urls() {
 		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
 		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
 		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
 			return array();
 		}
@@ -554,7 +554,7 @@ class Protect extends Hybrid_Product {
 			parent::get_info(),
 			array(
 				'has_protect_page' => static::has_protect_page(),
-				'scan_results_url' => Scan::get_manage_url(),
+				'scan_results_url' => static::get_manage_url(),
 			)
 		);
 	}
@@ -587,6 +587,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Where a site with Scan manages its threats without the Protect page: WordPress.com on WoA, Jetpack Cloud elsewhere.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_dashboard_url() {
+		return Redirect::get_url( ( new Host() )->is_woa_site() ? 'my-jetpack-manage-scan-wpcom' : 'my-jetpack-manage-scan' );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -598,8 +607,7 @@ class Protect extends Hybrid_Product {
 		}
 
 		if ( static::has_paid_plan_for_product() ) {
-			// Paid users without standalone plugin go to Jetpack Cloud Scan dashboard.
-			return Redirect::get_url( 'my-jetpack-manage-scan' );
+			return static::get_scan_dashboard_url();
 		}
 
 		// Free users without standalone plugin go to the Protect details page.

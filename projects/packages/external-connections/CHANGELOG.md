@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
 ## [0.2.8] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.5] - 2026-10-12
 ### Changed
-- Update dependencies. [#52349]
+- Update dependencies.
 
 ## [0.2.4] - 2026-10-05
 ### Changed
@@ -95,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.27] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.1.26] - 2026-05-04
 ### Changed
@@ -111,11 +115,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.23] - 2026-04-06
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.1.22] - 2026-03-30
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.1.21] - 2026-03-23
 ### Changed
@@ -151,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.13] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [0.1.12] - 2026-01-19
 ### Changed
@@ -205,6 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#44858]
 
+[0.2.9]: https://github.com/Automattic/jetpack-external-connections/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/Automattic/jetpack-external-connections/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Automattic/jetpack-external-connections/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/Automattic/jetpack-external-connections/compare/v0.2.5...v0.2.6

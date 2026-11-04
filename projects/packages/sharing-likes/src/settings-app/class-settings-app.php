@@ -195,10 +195,10 @@ final class Settings_App {
 		}
 
 		$data['sharing_likes'] = array(
-			'status'              => ( new Status_Controller() )->get_status()->get_data(),
+			'status'                     => ( new Status_Controller() )->get_status()->get_data(),
 			// An empty list would encode as `[]`.
-			'settings'            => (object) ( new Settings_Controller() )->get_item( new WP_REST_Request() )->get_data(),
-			'placement_choices'   => array_map(
+			'settings'                   => (object) ( new Settings_Controller() )->get_item( new WP_REST_Request() )->get_data(),
+			'placement_choices'          => array_map(
 				static function ( string $choice ): array {
 					return array(
 						'value' => $choice,
@@ -207,8 +207,12 @@ final class Settings_App {
 				},
 				Placement_Section::choices()
 			),
-			'multibyte_supported' => function_exists( 'mb_stripos' ),
-			'private_site'        => ( new Status() )->is_private_site(),
+			'multibyte_supported'        => function_exists( 'mb_stripos' ),
+			'private_site'               => ( new Status() )->is_private_site(),
+			// Only the default for new posts: each post can still open its comments.
+			// Unticking the box in Settings > Discussion stores '', not 'closed'.
+			'comments_closed_by_default' => 'open' !== get_option( 'default_comment_status' ),
+			'discussion_settings_url'    => admin_url( 'options-discussion.php' ),
 		);
 
 		return $data;

@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.10';
+	const PACKAGE_VERSION = '0.14.13';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.

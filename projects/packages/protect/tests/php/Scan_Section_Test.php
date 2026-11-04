@@ -45,6 +45,8 @@ class Scan_Section_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'id' );
 		delete_option( Scan_Status::OPTION_NAME );
 		Scan_Status::$status = null;
+		\Automattic\Jetpack\Constants::clear_constants();
+		\Automattic\Jetpack\Status\Cache::clear();
 		if ( self::$row_lookup ) {
 			remove_filter( 'wordbless_wpdb_query_results', self::$row_lookup );
 			self::$row_lookup = null;
@@ -66,6 +68,43 @@ class Scan_Section_Test extends BaseTestCase {
 			$reflection->setAccessible( true );
 		}
 		return $reflection->invoke( null, ...$args );
+	}
+
+	/**
+	 * A WoA site with Scan gets no credentials link or status, since WordPress.com runs Scan without them.
+	 *
+	 * @dataProvider provide_credentials_hosts
+	 *
+	 * @param bool $is_woa Whether the site is on WoA.
+	 */
+	#[DataProvider( 'provide_credentials_hosts' )]
+	public function test_credentials_follow_the_host( $is_woa ) {
+		if ( $is_woa ) {
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+			\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+			\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		}
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+
+		$state = ( new Scan() )->get_state();
+
+		$this->assertTrue( $state['hasPlan'] );
+		$this->assertSame( ! $is_woa, $state['needsCredentials'] );
+		$this->assertSame( $is_woa, '' === $state['url'] );
+		$this->assertSame( ! $is_woa, array_key_exists( 'hasCredentials', $state ) );
+	}
+
+	/**
+	 * Data provider for test_credentials_follow_the_host.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_credentials_hosts() {
+		return array(
+			'WoA'     => array( true ),
+			'not WoA' => array( false ),
+		);
 	}
 
 	/**
@@ -143,6 +182,61 @@ class Scan_Section_Test extends BaseTestCase {
 		return array(
 			'ignore'   => array( 'ignore', 'threat_ignoring_disabled' ),
 			'unignore' => array( 'unignore', 'threat_not_unignored' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_failed_unignore_replies
+	 *
+	 * @param \WP_Error|array $reply   What WordPress.com answers.
+	 * @param bool            $dropped Whether the caches are dropped.
+	 */
+	#[DataProvider( 'provide_failed_unignore_replies' )]
+	public function test_failed_unignore_drops_the_caches_only_when_unanswered( $reply, $dropped ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+		set_transient( Scan::HISTORY_CACHE, array( array( 'id' => 1 ) ), MINUTE_IN_SECONDS );
+		update_option( Scan_Status::OPTION_NAME, 'report' );
+		$timeout = null;
+		$answer  = function ( $pre, $args ) use ( $reply, &$timeout ) {
+			$timeout = $args['timeout'];
+			return $reply;
+		};
+		add_filter( 'pre_http_request', $answer, 10, 2 );
+
+		$result = self::call( 'set_ignored', 1, false );
+		remove_filter( 'pre_http_request', $answer );
+
+		$this->assertSame( 'threat_not_unignored', $result->get_error_code() );
+		$this->assertSame( 30, $timeout );
+		$this->assertSame( $dropped, false === get_transient( Scan::HISTORY_CACHE ) );
+		$this->assertSame( $dropped, false === get_option( Scan_Status::OPTION_NAME ) );
+	}
+
+	/**
+	 * WordPress.com replies that fail an unignore, and whether each may still have applied it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_unignore_replies() {
+		return array(
+			'timed out'    => array( new \WP_Error( 'http_request_failed', 'cURL error 28' ), true ),
+			'server error' => array(
+				array(
+					'response' => array( 'code' => 500 ),
+					'body'     => '',
+				),
+				false,
+			),
 		);
 	}
 
@@ -451,6 +545,36 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, self::call( 'has_credentials' ) );
+	}
+
+	/**
+	 * Report states with no scan on record, and whether the page should show a scan running.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_never_scanned_states() {
+		return array(
+			'Scan idle, no scan queued'         => array( true, 'idle', false ),
+			'Scan unavailable, plan just added' => array( true, 'unavailable', true ),
+			'free report idle, not built yet'   => array( false, 'idle', true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_never_scanned_states
+	 *
+	 * @param bool   $has_plan Whether the site has a Scan plan.
+	 * @param string $state    The state WordPress.com reports.
+	 * @param bool   $scanning Whether the report says a scan is running.
+	 */
+	#[DataProvider( 'provide_never_scanned_states' )]
+	public function test_a_site_with_no_scan_on_record_reads_as_scanning_only_while_setting_up( $has_plan, $state, $scanning ) {
+		Scan_Status::$status = new Status_Model( array( 'status' => $state ) );
+
+		$report = self::call( 'get_scan_report', $has_plan );
+
+		$this->assertSame( $scanning, $report['scanning'] );
+		$this->assertNull( $report['lastChecked'] );
 	}
 
 	/**

@@ -145,4 +145,15 @@ describe( 'sharing buttons block popups', () => {
 		clickShare( 'share' );
 		expect( window.open ).not.toHaveBeenCalled();
 	} );
+
+	it( 'lets the WordPress link open its own tab instead of a popup', () => {
+		renderButtons( [ 'wordpress' ] );
+		loadView();
+
+		const click = new MouseEvent( 'click', { bubbles: true, cancelable: true } );
+		document.querySelector( 'a.share-wordpress' ).dispatchEvent( click );
+
+		expect( window.open ).not.toHaveBeenCalled();
+		expect( click.defaultPrevented ).toBe( false );
+	} );
 } );

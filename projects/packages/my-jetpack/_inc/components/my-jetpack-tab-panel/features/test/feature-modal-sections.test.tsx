@@ -557,7 +557,7 @@ describe( 'FeatureModal Free column', () => {
 		const view = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
 		expect( screen.getByText( 'A connection is required' ) ).toBeVisible();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 		view.unmount();
 		renderModal( state );
 		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();

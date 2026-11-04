@@ -1,36 +1,43 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
-new file mode 100644
-index 0000000..bd9949b
+new file mode 100755
+index 0000000..529281e
 --- /dev/null
 +++ b/lib/build-shared.mjs
-@@ -0,0 +1,213 @@
+@@ -0,0 +1,241 @@
 +#!/usr/bin/env node
 +/**
 + * Bundles libraries that several wp-build plugins use into shared script modules.
 + *
 + * Reads `wpSharedModules` from the project's package.json:
 + * { namespace, outdir, modules: { specifier: name }, styles: { name: [ stylesheet ] }, exports: file, consumers: [ glob ] }
-+ * and writes `<outdir>/modules.php`. Consumers point `wpPlugin.sharedModules` at that package.json.
-+ * `exports` names a JSON file listing the names each module exports; `--update-exports` regenerates it.
++ * and writes the modules and `<outdir>/modules.php`. Consumers point `wpPlugin.sharedModules` at that package.json.
++ * Each module exports only the names `exports` lists for it; `--update-exports` regenerates that list from the built consumers.
 + */
 +import { mkdir, readFile, rm, writeFile } from 'fs/promises';
 +import path from 'path';
 +import { createHash } from 'crypto';
 +import { createRequire } from 'node:module';
-+import esbuild from 'esbuild';
 +import glob from 'fast-glob';
 +import browserslistToEsbuild from 'browserslist-to-esbuild';
-+import { sassPlugin } from 'esbuild-sass-plugin';
 +import { NodePackageImporter } from 'sass-embedded';
++import { build, rolldown } from 'rolldown';
 +import { getBrowserslistQueries } from './browserslist.mjs';
 +import { compileInlineStyle } from './compile-inline-style.mjs';
++import { compileStylesheet, disposeSassCompiler } from './sass-compiler.mjs';
 +import { createWordpressExternalsPlugin } from './wordpress-externals-plugin.mjs';
-+import { findSharedImports, readSharedModulesManifest } from './shared-modules-manifest.mjs';
++import {
++	findSharedImports,
++	readSharedModulesManifest,
++} from './shared-modules-manifest.mjs';
 +
 +const ROOT_DIR = process.cwd();
-+const manifest = await readSharedModulesManifest( path.join( ROOT_DIR, 'package.json' ) );
-+const config = manifest.config;
++const manifest = await readSharedModulesManifest(
++	path.join( ROOT_DIR, 'package.json' )
++);
++const { config } = manifest;
 +const outdir = path.join( ROOT_DIR, config.outdir );
++const ENTRY_PREFIX = '\0shared-entry:';
++
 +const styleRuntimeEntry = path.join(
 +	path.dirname(
 +		createRequire( import.meta.url ).resolve(
@@ -39,105 +46,101 @@ index 0000000..bd9949b
 +	),
 +	'src/index.ts'
 +);
-+
 +const sassOptions = {
 +	importers: [ new NodePackageImporter( ROOT_DIR ) ],
 +	loadPaths: [ path.join( ROOT_DIR, 'node_modules' ) ],
 +};
-+const stylePlugins = [
-+	{
-+		name: 'style-runtime-alias',
-+		setup( build ) {
-+			build.onResolve( { filter: /^@wordpress\/style-runtime$/ }, () => ( {
-+				path: styleRuntimeEntry,
-+			} ) );
-+		},
-+	},
-+	sassPlugin( {
-+		embedded: true,
-+		filter: /\.module\.(css|scss)$/,
-+		transform: compileInlineStyle( { cssModules: true } ),
-+		type: ( contents ) => contents,
-+		...sassOptions,
-+	} ),
-+	sassPlugin( {
-+		embedded: true,
-+		filter: /\.(css|scss)$/,
-+		transform: compileInlineStyle(),
-+		type: ( contents ) => contents,
-+		...sassOptions,
-+	} ),
-+];
 +
-+// `export *` skips a default export, so re-export it only where the library has one.
-+async function hasDefaultExport( specifier ) {
-+	let file;
-+	await esbuild.build( {
-+		stdin: { contents: '', resolveDir: ROOT_DIR },
-+		write: false,
-+		logLevel: 'silent',
-+		plugins: [
-+			{
-+				name: 'resolve-only',
-+				setup( build ) {
-+					build.onStart( async () => {
-+						file = (
-+							await build.resolve( specifier, {
-+								kind: 'import-statement',
-+								resolveDir: ROOT_DIR,
-+							} )
-+						).path;
-+					} );
-+				},
++/**
++ * Plugin compiling stylesheets into JS that injects them, as wp-build's own style plugins do.
++ *
++ * @param {RegExp}  filter     Stylesheets to compile.
++ * @param {boolean} cssModules Whether they are CSS modules.
++ * @return {import('rolldown').Plugin} Rolldown plugin.
++ */
++function stylePlugin( filter, cssModules ) {
++	const transform = compileInlineStyle( { cssModules } );
++	return {
++		name: cssModules ? 'shared-css-modules' : 'shared-styles',
++		load: {
++			filter: { id: filter },
++			async handler( id ) {
++				const css = await compileStylesheet( id, sassOptions );
++				return {
++					code: await transform( css, path.dirname( id ), id ),
++					moduleType: 'js',
++				};
 +			},
-+		],
-+	} );
-+	const result = await esbuild.build( {
-+		entryPoints: [ file ],
-+		bundle: false,
-+		write: false,
-+		metafile: true,
-+		format: 'esm',
-+		logLevel: 'silent',
-+	} );
-+	return Object.values( result.metafile.outputs ).some( ( output ) =>
-+		output.exports.includes( 'default' )
-+	);
++		},
++	};
 +}
 +
-+/*
-+ * With --update-exports, rewrite the export list from the built consumers. Every consumer must be built
-+ * first; a consumer build fails when it imports a name the list lacks.
++/**
++ * Whether a library has a default export, which `export *` leaves out.
++ *
++ * @param {string} specifier Bare specifier of the library.
++ * @return {Promise<boolean>} Whether it has one.
 + */
++async function hasDefaultExport( specifier ) {
++	const bundle = await rolldown( {
++		input: specifier,
++		cwd: ROOT_DIR,
++		// Only the entry's own exports matter, and `export *` never re-exports a default.
++		external: ( id, importer ) => !! importer && ! /^[./\0]/.test( id ),
++		logLevel: 'silent',
++	} );
++	const { output } = await bundle.generate( { format: 'esm' } );
++	await bundle.close();
++	return output[ 0 ].exports.includes( 'default' );
++}
++
 +if ( process.argv.includes( '--update-exports' ) ) {
 +	const ids = new Set( Object.keys( manifest.names ) );
 +	const used = {};
-+	for ( const file of await glob( config.consumers ?? [], { cwd: ROOT_DIR, absolute: true } ) ) {
-+		for ( const [ id, names ] of findSharedImports( await readFile( file, 'utf8' ), ids ) ) {
-+			names.forEach( ( name ) => ( used[ manifest.names[ id ] ] ??= new Set() ).add( name ) );
++	for ( const file of await glob( config.consumers ?? [], {
++		cwd: ROOT_DIR,
++		absolute: true,
++	} ) ) {
++		for ( const [ id, names ] of findSharedImports(
++			await readFile( file, 'utf8' ),
++			ids
++		) ) {
++			const name = manifest.names[ id ];
++			used[ name ] ??= new Set();
++			names.forEach( ( imported ) => used[ name ].add( imported ) );
 +		}
 +	}
-+	const list = Object.fromEntries(
++	manifest.exports = Object.fromEntries(
 +		Object.keys( used )
 +			.sort()
 +			.map( ( name ) => [ name, [ ...used[ name ] ].sort() ] )
 +	);
-+	await writeFile( manifest.exportsPath, JSON.stringify( list, null, '\t' ) + '\n' );
-+	manifest.exports = list;
++	await writeFile(
++		manifest.exportsPath,
++		JSON.stringify( manifest.exports, null, '\t' ) + '\n'
++	);
 +}
 +
++// One entry per module that a consumer imports; the others are not built.
 +const entries = {};
 +for ( const [ specifier, name ] of Object.entries( config.modules ) ) {
-+	// Without an export list, export everything; a module no consumer imports is not built.
-+	const listed = manifest.exports ? manifest.exports[ name ] : [ '*' ];
-+	if ( ! listed ) {
++	const listed = manifest.exports[ name ];
++	if ( ! listed?.length ) {
 +		continue;
 +	}
-+	const named = listed.filter( ( n ) => n !== '*' && n !== 'default' );
-+	const all = listed.includes( '*' );
 +	const from = JSON.stringify( specifier );
-+	const lines = all ? [ `export * from ${ from };` ] : [ `export { ${ named.join( ', ' ) } } from ${ from };` ];
-+	if ( ( all || listed.includes( 'default' ) ) && ( await hasDefaultExport( specifier ) ) ) {
++	const all = listed.includes( '*' );
++	const named = listed.filter( ( n ) => n !== '*' && n !== 'default' );
++	const lines = [];
++	if ( all ) {
++		lines.push( `export * from ${ from };` );
++	} else if ( named.length ) {
++		lines.push( `export { ${ named.join( ', ' ) } } from ${ from };` );
++	}
++	if (
++		listed.includes( 'default' ) ||
++		( all && ( await hasDefaultExport( specifier ) ) )
++	) {
 +		lines.push( `export { default } from ${ from };` );
 +	}
 +	for ( const style of config.styles?.[ name ] ?? [] ) {
@@ -148,65 +151,90 @@ index 0000000..bd9949b
 +
 +await rm( outdir, { recursive: true, force: true } );
 +await mkdir( outdir, { recursive: true } );
-+// The externals plugin hashes the file its asset is named after.
++// The externals plugin hashes the file its asset is named after, so it has to exist.
 +await writeFile( path.join( outdir, 'shared.min.js' ), '' );
 +
-+const result = await esbuild.build( {
-+	entryPoints: Object.keys( entries ).map( ( name ) => ( {
-+		in: `shared-entry:${ name }`,
-+		out: `${ name }.min`,
-+	} ) ),
-+	outdir,
-+	bundle: true,
-+	splitting: true,
-+	format: 'esm',
-+	minify: true,
-+	charset: 'utf8',
-+	metafile: true,
-+	target: browserslistToEsbuild( getBrowserslistQueries() ),
++const result = await build( {
++	input: Object.fromEntries(
++		Object.keys( entries ).map( ( name ) => [
++			`${ name }.min`,
++			ENTRY_PREFIX + name,
++		] )
++	),
++	cwd: ROOT_DIR,
 +	platform: 'browser',
-+	chunkNames: 'chunk-[hash]',
-+	define: {
-+		'process.env.NODE_ENV': '"production"',
-+		'process.env.IS_GUTENBERG_PLUGIN': 'false',
-+		'process.env.IS_WORDPRESS_CORE': 'false',
-+		'globalThis.IS_GUTENBERG_PLUGIN': 'false',
-+		'globalThis.IS_WORDPRESS_CORE': 'false',
-+		'globalThis.SCRIPT_DEBUG': 'false',
++	// An unbuilt workspace library would otherwise become an import of a bare specifier the browser can't resolve.
++	onLog( level, log, handler ) {
++		if ( log.code === 'UNRESOLVED_IMPORT' ) {
++			throw new Error( log.message );
++		}
++		handler( level, log );
++	},
++	moduleTypes: { '.svg': 'dataurl' },
++	checks: { moduleLevelDirective: false },
++	resolve: { conditionNames: [ 'module', 'browser', 'default' ] },
++	transform: {
++		target: browserslistToEsbuild( getBrowserslistQueries() ),
++		jsx: { runtime: 'automatic', importSource: 'react' },
++		define: {
++			'process.env.NODE_ENV': '"production"',
++			'process.env.IS_GUTENBERG_PLUGIN': 'false',
++			'process.env.IS_WORDPRESS_CORE': 'false',
++			'globalThis.IS_GUTENBERG_PLUGIN': 'false',
++			'globalThis.IS_WORDPRESS_CORE': 'false',
++			'globalThis.SCRIPT_DEBUG': 'false',
++		},
 +	},
 +	plugins: [
 +		{
 +			name: 'shared-entries',
-+			setup( build ) {
-+				build.onResolve( { filter: /^shared-entry:/ }, ( args ) => ( {
-+					path: args.path.slice( 'shared-entry:'.length ),
-+					namespace: 'shared-entry',
-+				} ) );
-+				build.onLoad( { filter: /.*/, namespace: 'shared-entry' }, ( args ) => ( {
-+					contents: entries[ args.path ],
-+					resolveDir: ROOT_DIR,
-+					loader: 'js',
-+				} ) );
++			resolveId: {
++				filter: { id: /^\0shared-entry:/ },
++				handler: ( id ) => id,
++			},
++			load: {
++				filter: { id: /^\0shared-entry:/ },
++				handler: ( id ) => ( {
++					code: entries[ id.slice( ENTRY_PREFIX.length ) ],
++					moduleType: 'js',
++				} ),
 +			},
 +		},
-+		...stylePlugins,
++		{
++			name: 'style-runtime-alias',
++			resolveId: {
++				filter: { id: /^@wordpress\/style-runtime$/ },
++				handler: () => styleRuntimeEntry,
++			},
++		},
++		stylePlugin( /\.module\.(css|scss)$/, true ),
++		stylePlugin( /(?<!\.module)\.(css|scss)$/, false ),
 +		createWordpressExternalsPlugin( 'wordpress', 'wp' )( 'shared.min', 'esm' ),
 +	],
++	output: {
++		dir: outdir,
++		format: 'esm',
++		minify: true,
++		entryFileNames: '[name].js',
++		chunkFileNames: 'chunk-[hash].js',
++		hashCharacters: 'hex',
++	},
 +} );
++await disposeSassCompiler();
 +await rm( path.join( outdir, 'shared.min.js' ) );
 +
++const files = result.output.map( ( { fileName } ) => fileName ).sort();
 +const hash = createHash( 'sha256' );
-+for ( const file of Object.keys( result.metafile.outputs ).sort() ) {
-+	hash.update( await readFile( path.join( ROOT_DIR, file ) ) );
++for ( const file of files ) {
++	hash.update( await readFile( path.join( outdir, file ) ) );
 +}
 +const version = hash.digest( 'hex' ).slice( 0, 20 );
 +
-+const ids = manifest.modules;
 +const phpModules = Object.entries( config.modules )
 +	.filter( ( [ , name ] ) => entries[ name ] )
 +	.map(
 +		( [ specifier, name ] ) =>
-+			`'${ ids[ specifier ] }' => '${ name }.min.js'`
++			`'${ manifest.modules[ specifier ] }' => '${ name }.min.js'`
 +	)
 +	.join( ', ' );
 +await writeFile(
@@ -214,35 +242,38 @@ index 0000000..bd9949b
 +	`<?php return array( 'modules' => array( ${ phpModules } ), 'version' => '${ version }' );\n`
 +);
 +
-+for ( const [ file, output ] of Object.entries( result.metafile.outputs ) ) {
-+	console.log( `   ${ path.relative( ROOT_DIR, file ) } ${ ( output.bytes / 1024 ) | 0 }K` );
++for ( const { fileName, code } of result.output ) {
++	console.log( `   ${ fileName } ${ ( code?.length / 1024 ) | 0 }K` );
 +}
 diff --git a/lib/build.mjs b/lib/build.mjs
-index f108eb2..0a75209 100755
+index aee05a0..7dd2bc6 100755
 --- a/lib/build.mjs
 +++ b/lib/build.mjs
-@@ -29,6 +29,7 @@ import { getPackageInfo, getPackageInfoFromFile } from './package-utils.mjs';
+@@ -27,6 +27,10 @@ import { getPackageInfo, getPackageInfoFromFile } from './package-utils.mjs';
  import { getBrowserslistQueries } from './browserslist.mjs';
  import { getSourceFileGlob, isTestSourceFile } from './source-files.mjs';
  import { createWordpressExternalsPlugin } from './wordpress-externals-plugin.mjs';
-+import { readSharedModulesManifest } from './shared-modules-manifest.mjs';
++import {
++	createSharedStylesImporter,
++	readSharedModulesManifest,
++} from './shared-modules-manifest.mjs';
  import {
  	getAllRoutes,
  	getRouteFiles,
-@@ -105,6 +106,12 @@ const PACKAGE_NAMESPACE = WP_PLUGIN_CONFIG.packageNamespace;
+@@ -104,6 +108,12 @@ const PACKAGE_NAMESPACE = WP_PLUGIN_CONFIG.packageNamespace;
  const HANDLE_PREFIX = WP_PLUGIN_CONFIG.handlePrefix || PACKAGE_NAMESPACE;
  const EXTERNAL_NAMESPACES = WP_PLUGIN_CONFIG.externalNamespaces || {};
  const PAGES = WP_PLUGIN_CONFIG.pages || [];
-+// The package.json whose `wpSharedModules` lists the libraries served by `wp-build-shared`.
++// The package.json whose `wpSharedModules` lists the libraries `wp-build-shared` builds once.
 +const SHARED_MODULES = WP_PLUGIN_CONFIG.sharedModules
 +	? await readSharedModulesManifest(
 +			path.resolve( ROOT_DIR, WP_PLUGIN_CONFIG.sharedModules )
 +	  )
-+	: { modules: {}, styles: [] };
++	: null;
  
  // Capability required to view a generated page when the page config does not
  // declare one. Pages rendering outside the menu page callback flow must
-@@ -151,7 +158,8 @@ const wordpressExternalsPlugin = createWordpressExternalsPlugin(
+@@ -185,7 +195,8 @@ const wordpressExternalsPlugin = createWordpressExternalsPlugin(
  	PACKAGE_NAMESPACE,
  	SCRIPT_GLOBAL,
  	EXTERNAL_NAMESPACES,
@@ -252,100 +283,96 @@ index f108eb2..0a75209 100755
  );
  
  const styleRuntimeRequire = createNodeRequire( import.meta.url );
-@@ -210,6 +218,28 @@ function inlineStyle( contents ) {
- 	return contents;
- }
- 
-+/**
-+ * Remove loads of stylesheets that a shared script module already injects once for every plugin.
-+ *
-+ * @param {string} source Sass source.
-+ * @return {string} Sass source without those loads.
-+ */
-+function dropSharedStyles( source ) {
-+	if ( ! SHARED_MODULES.styles.length ) {
-+		return source;
-+	}
-+	const urls = SHARED_MODULES.styles
-+		.map( ( url ) => url.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) )
-+		.join( '|' );
-+	return source.replace(
-+		new RegExp(
-+			`^\\s*@(?:include\\s+meta\\.load-css\\(|use\\s+)\\s*["'](?:${ urls })(?:\\.css)?["'][^;]*;`,
-+			'gm'
-+		),
-+		''
-+	);
-+}
-+
- /**
-  * Create style bundling plugins with the given working directory.
-  *
-@@ -217,7 +247,10 @@ function inlineStyle( contents ) {
-  * @return {object[]} Array of esbuild plugins for handling CSS/SCSS.
+@@ -275,6 +286,12 @@ function sassPlugin( { filter, transform, ...sassOptions } ) {
   */
  function createStyleBundlingPlugins( workingDir ) {
--	const sassOptions = getSassOptions( workingDir );
-+	const sassOptions = {
-+		...getSassOptions( workingDir ),
-+		precompile: dropSharedStyles,
-+	};
+ 	const sassOptions = getSassOptions( workingDir );
++	// A stylesheet a shared module injects once for every plugin compiles to nothing here.
++	if ( SHARED_MODULES?.styles.length ) {
++		sassOptions.importers.unshift(
++			createSharedStylesImporter( SHARED_MODULES.styles )
++		);
++	}
  	return [
  		styleRuntimeAliasPlugin(),
  		// Handle CSS modules (.module.css and .module.scss)
 diff --git a/lib/shared-modules-manifest.mjs b/lib/shared-modules-manifest.mjs
 new file mode 100644
-index 0000000..97cf4dd
+index 0000000..6a9a099
 --- /dev/null
 +++ b/lib/shared-modules-manifest.mjs
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,107 @@
 +import { readFile } from 'fs/promises';
 +import path from 'path';
 +
 +/**
-+ * Read a provider's `wpSharedModules` config and the export list it is pruned to.
++ * Read a provider's `wpSharedModules` config and the export list its modules are pruned to.
 + *
 + * @param {string} packageJsonPath Path to the providing package's package.json.
 + * @return {Promise<Object>} The config and its directory, the module ID per bare specifier (`modules`), the module
-+ *   name per ID (`names`), the stylesheets the modules inject, and the exported names per module name, if listed.
++ *   name per ID (`names`), the stylesheets the modules inject, and the exported names per module name.
 + */
 +export async function readSharedModulesManifest( packageJsonPath ) {
 +	const dir = path.dirname( packageJsonPath );
 +	const config = JSON.parse( await readFile( packageJsonPath, 'utf8' ) )
 +		.wpSharedModules;
-+	const ids = Object.fromEntries(
-+		Object.entries( config.modules ).map( ( [ specifier, name ] ) => [
-+			specifier,
-+			`@${ config.namespace }/${ name }`,
-+		] )
-+	);
-+	const exportsPath = config.exports
-+		? path.resolve( dir, config.exports )
-+		: null;
++	if ( ! config?.exports ) {
++		throw new Error(
++			`${ packageJsonPath } needs \`wpSharedModules.exports\`, the export list file.`
++		);
++	}
++	const modules = {};
++	const names = {};
++	for ( const [ specifier, name ] of Object.entries( config.modules ) ) {
++		modules[ specifier ] = `@${ config.namespace }/${ name }`;
++		names[ modules[ specifier ] ] = name;
++	}
++	const exportsPath = path.resolve( dir, config.exports );
++	let exports = {};
++	try {
++		exports = JSON.parse( await readFile( exportsPath, 'utf8' ) );
++	} catch ( error ) {
++		// `--update-exports` creates the file; until then, every import fails the check.
++		if ( error.code !== 'ENOENT' ) {
++			throw error;
++		}
++	}
 +	return {
 +		config,
 +		dir,
-+		modules: ids,
-+		names: Object.fromEntries(
-+			Object.entries( config.modules ).map( ( [ specifier, name ] ) => [
-+				ids[ specifier ],
-+				name,
-+			] )
-+		),
-+		styles: Object.values( config.styles ?? {} )
-+			.flat()
-+			.map( ( style ) => style.replace( /\.css$/, '' ) ),
-+		exports: exportsPath
-+			? JSON.parse( await readFile( exportsPath, 'utf8' ) )
-+			: null,
++		modules,
++		names,
++		styles: Object.values( config.styles ?? {} ).flat(),
++		exports,
 +		exportsPath,
++	};
++}
++
++/**
++ * Create a Sass importer that loads the given stylesheets as empty files.
++ *
++ * @param {string[]} styles Stylesheet URLs, as `@use` or `meta.load-css()` name them.
++ * @return {import('sass-embedded').Importer<'async'>} Sass importer.
++ */
++export function createSharedStylesImporter( styles ) {
++	const urls = new Set( styles.map( ( url ) => url.replace( /\.css$/, '' ) ) );
++	return {
++		canonicalize( url ) {
++			const name = url.replace( /\.css$/, '' );
++			return urls.has( name )
++				? new URL( `wp-build-shared-style:${ name }` )
++				: null;
++		},
++		load() {
++			return { contents: '', syntax: 'css' };
++		},
 +	};
 +}
 +
 +/**
 + * List the names a built ES module imports from each of the given module IDs.
 + *
-+ * Parses esbuild's output, not arbitrary source: `*` stands for a namespace or dynamic import.
++ * Parses Rolldown's output, not arbitrary source: `*` stands for a namespace or dynamic import.
 + *
 + * @param {string}      source Built module source.
 + * @param {Set<string>} ids    Module IDs to look for.
@@ -383,7 +410,7 @@ index 0000000..97cf4dd
 +	return used;
 +}
 diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
-index ab099e9..1aaab18 100644
+index e5ba17c..24cfaf7 100644
 --- a/lib/wordpress-externals-plugin.mjs
 +++ b/lib/wordpress-externals-plugin.mjs
 @@ -3,6 +3,7 @@ import path from 'path';
@@ -393,8 +420,8 @@ index ab099e9..1aaab18 100644
 +import { findSharedImports } from './shared-modules-manifest.mjs';
  
  /**
-  * Generate a content hash from file contents.
-@@ -34,6 +35,38 @@ async function generateContentHash(
+  * Prefix of the ids of the modules that expose a script's global to an ES
+@@ -40,6 +41,42 @@ async function generateContentHash(
  	return fullHash.slice( 0, length );
  }
  
@@ -423,22 +450,26 @@ index ab099e9..1aaab18 100644
 +	}
 +	if ( missing.length && ! process.env.WP_BUILD_SHARED_EXPORTS_UNCHECKED ) {
 +		throw new Error(
-+			`${ file } imports names missing from ${ sharedModules.exportsPath }:\n  ${ missing.join(
++			`${ file } imports names missing from ${
++				sharedModules.exportsPath
++			}:\n  ${ missing.join(
 +				'\n  '
-+			) }\nTo regenerate the list, build every consumer with WP_BUILD_SHARED_EXPORTS_UNCHECKED=1, then run \`wp-build-shared --update-exports\` in ${ sharedModules.dir }.`
++			) }\nTo regenerate the list, build every consumer with WP_BUILD_SHARED_EXPORTS_UNCHECKED=1, then run \`wp-build-shared --update-exports\` in ${
++				sharedModules.dir
++			}.`
 +		);
 +	}
 +}
 +
  /**
-  * Create WordPress externals plugin for esbuild.
+  * Create WordPress externals plugin for Rolldown.
   * This plugin handles WordPress package externals and vendor libraries,
-@@ -43,13 +76,15 @@ async function generateContentHash(
+@@ -49,13 +86,15 @@ async function generateContentHash(
   * @param {string|false} scriptGlobal       Global variable name (e.g., 'wp', 'myPlugin') or false to disable globals.
   * @param {Object}       externalNamespaces Additional namespaces to externalize (e.g., { 'woo': { global: 'woo', handlePrefix: 'woocommerce' } }).
   * @param {string}       handlePrefix       Handle prefix for main package (e.g., 'wp', 'mp'). Defaults to packageNamespace.
-+ * @param {Object}       sharedModules      Shared script modules, from readSharedModulesManifest().
-  * @return {Function} Function that creates the esbuild plugin instance.
++ * @param {Object|null}  sharedModules      Shared script modules, from readSharedModulesManifest(), or null.
+  * @return {Function} Function that creates the Rolldown plugin instance.
   */
  export function createWordpressExternalsPlugin(
  	packageNamespace,
@@ -446,49 +477,45 @@ index ab099e9..1aaab18 100644
  	externalNamespaces = {},
 -	handlePrefix
 +	handlePrefix,
-+	sharedModules = { modules: {} }
++	sharedModules = null
  ) {
  	/**
- 	 * WordPress externals plugin for esbuild.
-@@ -73,6 +108,22 @@ export function createWordpressExternalsPlugin(
- 				const dependencies = new Set();
- 				const moduleDependencies = new Map();
+ 	 * WordPress externals plugin for Rolldown.
+@@ -242,6 +281,18 @@ export function createWordpressExternalsPlugin(
+ 					return null;
+ 				}
  
-+				// Libraries that several plugins would each bundle load once, from a shared script module.
-+				if ( buildFormat === 'esm' ) {
-+					build.onResolve( { filter: /^[@a-z]/ }, ( args ) => {
-+						const id = sharedModules.modules[ args.path ];
-+						if ( ! id ) {
-+							return undefined;
-+						}
-+						if ( args.kind !== 'dynamic-import' ) {
-+							moduleDependencies.set( id, 'static' );
-+						} else if ( ! moduleDependencies.has( id ) ) {
-+							moduleDependencies.set( id, 'dynamic' );
-+						}
-+						return { path: id, external: true };
-+					} );
++				// A library listed in `wpSharedModules` is imported from its shared script module.
++				const sharedId =
++					buildFormat === 'esm' && sharedModules?.modules[ source ];
++				if ( sharedId ) {
++					if ( extraOptions.kind !== 'dynamic-import' ) {
++						moduleDependencies.set( sharedId, 'static' );
++					} else if ( ! moduleDependencies.has( sharedId ) ) {
++						moduleDependencies.set( sharedId, 'dynamic' );
++					}
++					return { id: sharedId, external: true };
 +				}
 +
- 				/**
- 				 * Check if a package import is a script module.
- 				 * A package is considered a script module if it has wpScriptModuleExports
-@@ -358,6 +409,10 @@ export function createWordpressExternalsPlugin(
- 							);
- 						}
+ 				if (
+ 					Object.prototype.hasOwnProperty.call(
+ 						vendorExternals,
+@@ -382,6 +433,10 @@ export function createWordpressExternalsPlugin(
+ 					);
+ 				}
  
-+						if ( outputFilePath && sharedModules.exports ) {
-+							await checkSharedImports( outputFilePath, sharedModules );
-+						}
++				if ( outputFilePath && sharedModules ) {
++					await checkSharedImports( outputFilePath, sharedModules );
++				}
 +
- 						// Collect files to hash
- 						const filesToHash = [];
- 						if ( outputFilePath ) {
+ 				// Collect files to hash
+ 				const filesToHash = [];
+ 				if ( outputFilePath ) {
 diff --git a/package.json b/package.json
-index 0ac559c..6e4fad9 100644
+index 54f059a..e5e6115 100644
 --- a/package.json
 +++ b/package.json
-@@ -31,7 +31,8 @@
+@@ -38,7 +38,8 @@
  		"./package.json": "./package.json"
  	},
  	"bin": {
@@ -497,12 +524,21 @@ index 0ac559c..6e4fad9 100644
 +		"wp-build-shared": "./lib/build-shared.mjs"
  	},
  	"dependencies": {
- 		"@babel/core": "^7.25.7",
+ 		"@wordpress/browserslist-config": "^7.1.0",
 diff --git a/templates/page-wp-admin.php.template b/templates/page-wp-admin.php.template
-index 32416c5..292e0e8 100644
+index e0c0587..d6ec70e 100644
 --- a/templates/page-wp-admin.php.template
 +++ b/templates/page-wp-admin.php.template
-@@ -176,7 +176,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -91,6 +91,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_preload_data() {
+ 	// same fields in the same order, or the preload is never consumed.
+ 	$preload_paths = array(
+ 		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
++		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
++		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+ 		array( '/wp/v2/settings', 'OPTIONS' ),
+ 	);
+ 
+@@ -188,7 +190,26 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  		( mountId, routes, initModules ) => {
  			const run = async () => {
  				const mod = await import( "@wordpress/boot" );
@@ -530,7 +566,7 @@ index 32416c5..292e0e8 100644
  			};
  			if ( document.readyState === "loading" ) {
  				document.addEventListener( "DOMContentLoaded", run );
-@@ -184,7 +203,7 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
+@@ -196,7 +217,7 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_wp_admin_enqueue_scripts( $hook_suf
  				run();
  			}
  		}
@@ -539,3 +575,16 @@ index 32416c5..292e0e8 100644
  		wp_add_inline_script(
  			'{{PAGE_SLUG}}-wp-admin-prerequisites',
  			sprintf(
+diff --git a/templates/page.php.template b/templates/page.php.template
+index fdd9d36..12e8d6c 100644
+--- a/templates/page.php.template
++++ b/templates/page.php.template
+@@ -92,6 +92,8 @@ function {{PREFIX}}_{{PAGE_SLUG_UNDERSCORE}}_preload_data() {
+ 	// same fields in the same order, or the preload is never consumed.
+ 	$preload_paths = array(
+ 		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
++		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
++		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+ 		array( '/wp/v2/settings', 'OPTIONS' ),
+ 	);
+ 

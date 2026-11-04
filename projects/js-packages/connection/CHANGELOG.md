@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.17.0] - 2026-11-04
+### Added
+- Add CONNECTION_FROM entry-point names with isStandardEntryPoint() and isUnifiedConnectionFlow(), and warn in development when a connect link has no `from`, a legacy `from`, or no return URL. [#54498]
+
+### Changed
+- Update package dependencies. [#54512]
+
+## [2.16.0] - 2026-11-02
+### Changed
+- Tracking: Send a null context instead of `jetpack-dashboard` when the connection dialogs get none, and add a ConnectionPlacement placement option to the dialogs, the ownership transfer and the error notice. [#54214]
+- Update package dependencies. [#53869]
+
+### Fixed
+- Show connection owner and administrator names containing characters like & correctly. [#54197]
+
 ## [2.15.0] - 2026-10-28
 ### Added
 - Add a refreshConnectionStatus() store action that reads the site's connection status from the server again. [#53941]
@@ -244,8 +259,7 @@
 
 ## [1.4.52] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.4.51] - 2026-05-19
 ### Changed
@@ -894,8 +908,7 @@
 
 ## [0.32.0] - 2024-02-05
 ### Changed
-- Allow using blog ID instead of site suffix in checkout URL. [#34996]
-- Allow using blog ID instead of site suffix in checkout URL. [#35004]
+- Allow using blog ID instead of site suffix in checkout URL. [#34996] [#35004]
 - Updated package dependencies.
 
 ## [0.31.2] - 2024-01-29
@@ -1587,6 +1600,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.17.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.16.0...v2.17.0
+[2.16.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.2...v2.14.0
 [2.13.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.1...v2.13.2

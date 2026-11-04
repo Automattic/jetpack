@@ -12,9 +12,7 @@ definition and lazily renders that report's page component. Adding a report does
    The component owns all of the page chrome (header, tabs, widget grid) — the
    stage renders it as-is.
 
-2. **Register one entry** in `REPORTS` in `registry.ts`. Names are getters so
-   translations resolve after the i18n locale data has loaded; `load` is a
-   dynamic import of the page component:
+2. **Register one entry** in `REPORTS` in `registry.ts`. Names are getters so translations resolve after the i18n locale data has loaded:
 
    ```ts
    import { __ } from '@wordpress/i18n';
@@ -27,10 +25,17 @@ definition and lazily renders that report's page component. Adding a report does
    		// resolveSection: value => resolveSectionId( value ),
    		// Optional, for a paid Stats feature: a plan without it gets the locked page.
    		// feature: 'utm',
-   		load: () => import( './posts/page' ),
    	},
    };
    ```
+
+3. **Add its page loader** to `REPORT_PAGE_LOADERS` in `report-page-loaders.ts`, keyed by the same id:
+
+   ```ts
+   posts: () => import( './posts/page' ),
+   ```
+
+   The docblock on `REPORT_PAGE_LOADERS` says why the loaders stay out of `registry.ts`. A registry test fails when a report has no loader.
 
 That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 `$report` redirects to the dashboard (`route.ts`).
@@ -68,7 +73,7 @@ owned by the report's page component.
 
 ## Note on lazy-loading
 
-`load` is a dynamic `import()` behind a `React.lazy` + `Suspense` boundary in the
+Each page loader is a dynamic `import()` behind a `React.lazy` + `Suspense` boundary in the
 stage, which is the correct seam for lazy report modules. Today the route build
 (`@wordpress/build`) bundles each route with esbuild using `outfile` and no code
 splitting, so a `import()` of an in-route module is inlined into the route's

@@ -12,8 +12,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * With the Protect page turned on, a self-hosted site has one security entry in the Jetpack menu: Protect.
- * Atomic keeps the entry it has today.
+ * With the Protect page turned on, a site has one security entry in the Jetpack menu: Protect. Turned off on Atomic, it has the Scan history link.
  *
  * Each row runs in its own process: the module loader includes a module file once, and the
  * standalone Protect plugin is detected by a class that cannot be undefined afterwards.
@@ -43,6 +42,9 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		// The Protect page is being built behind this flag, which is removed when it ships.
 		add_filter( 'jetpack_feature_flag_enabled_jetpack-protect-dashboard', '__return_true' );
+
+		// The wpcomsh run loads jetpack-mu-wpcom, which would drop the module, since the test site's plan has no Scan.
+		remove_filter( 'jetpack_get_available_modules', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_available_modules' ) );
 	}
 
 	/**
@@ -57,28 +59,34 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	/**
 	 * The site matrix.
 	 *
-	 * @return array[] Site name to whether it has Scan, the standalone Protect plugin, and is Atomic.
+	 * @return array[] Site name to whether it has Scan, the standalone Protect plugin, is Atomic, has the Protect page on, and the expected entries.
 	 */
 	public static function provide_sites() {
+		$protect = array( array( 'Protect', 'jetpack-protect' ) );
+
 		return array(
-			'self-hosted, no Scan'                 => array( false, false, false ),
-			'self-hosted, with Scan'               => array( true, false, false ),
-			'self-hosted, with the Protect plugin' => array( true, true, false ),
-			'Atomic'                               => array( true, false, true ),
+			'self-hosted, no Scan'                 => array( false, false, false, true, $protect ),
+			'self-hosted, with Scan'               => array( true, false, false, true, $protect ),
+			'self-hosted, with the Protect plugin' => array( true, true, false, true, $protect ),
+			'Atomic'                               => array( true, false, true, true, $protect ),
+			'Atomic, with the Protect plugin'      => array( true, true, true, true, $protect ),
+			'Atomic, Protect page off'             => array( true, false, true, false, null ),
 		);
 	}
 
 	/**
-	 * The Jetpack menu has one security entry: Protect, or on Atomic the Scan history link it already had.
+	 * The Jetpack menu has one security entry: Protect while its page is on, or on Atomic the Scan history link.
 	 *
 	 * @dataProvider provide_sites
 	 *
-	 * @param bool $has_scan           Whether the site has Scan.
-	 * @param bool $has_protect_plugin Whether the standalone Protect plugin is active.
-	 * @param bool $is_atomic          Whether the site is on WordPress.com Atomic.
+	 * @param bool         $has_scan           Whether the site has Scan.
+	 * @param bool         $has_protect_plugin Whether the standalone Protect plugin is active.
+	 * @param bool         $is_atomic          Whether the site is on WordPress.com Atomic.
+	 * @param bool         $protect_page_on    Whether the protect-dashboard module is active.
+	 * @param array[]|null $expected           Title and slug pairs, or null for the Scan history link.
 	 */
 	#[DataProvider( 'provide_sites' )]
-	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic ) {
+	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic, $protect_page_on, $expected ) {
 		if ( $is_atomic && is_multisite() ) {
 			$this->markTestSkipped( 'Atomic sites are never multisite.' );
 		}
@@ -93,12 +101,9 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 			$this->activate_standalone_protect_plugin();
 		}
 
-		// The first release changes nothing on Atomic, where the Protect page stays off.
-		$expected = $is_atomic
-			? array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) )
-			: array( array( 'Protect', 'jetpack-protect' ) );
+		$expected ??= array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) );
 
-		$this->assertSame( $expected, $this->security_entries( $this->render_jetpack_menu() ) );
+		$this->assertSame( $expected, $this->security_entries( $this->render_jetpack_menu( $protect_page_on ) ) );
 	}
 
 	/**
@@ -164,16 +169,17 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Turns the Protect page on, loads the site's modules, then builds the menu.
+	 * Turns the Protect page on or off, loads the site's modules, then builds the menu.
 	 *
+	 * @param bool $protect_page_on Whether the protect-dashboard module is active.
 	 * @return array[] The Jetpack submenu items, in the order WordPress rendered them.
 	 */
-	private function render_jetpack_menu() {
-		// The Protect page is not a default module: the owner turns it on.
+	private function render_jetpack_menu( $protect_page_on ) {
 		add_filter(
 			'jetpack_active_modules',
-			static function ( $modules ) {
-				return array_values( array_unique( array_merge( $modules, array( 'protect-dashboard' ) ) ) );
+			static function ( $modules ) use ( $protect_page_on ) {
+				$modules = array_diff( $modules, array( 'protect-dashboard' ) );
+				return array_values( array_unique( $protect_page_on ? array_merge( $modules, array( 'protect-dashboard' ) ) : $modules ) );
 			}
 		);
 		Jetpack::load_modules();
@@ -182,6 +188,8 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 
 		do_action( '_admin_menu' );
 		do_action( 'admin_menu' );
+		// Hidden items leave the submenu on admin_head, which this run does not fire.
+		Admin_Menu::remove_hidden_menu_items();
 
 		global $submenu;
 

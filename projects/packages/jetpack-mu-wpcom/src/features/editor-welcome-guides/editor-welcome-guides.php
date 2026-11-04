@@ -9,15 +9,6 @@
 declare( strict_types = 1 );
 
 /**
- * Whether the feature is enabled for the current site.
- *
- * @return bool
- */
-function wpcom_editor_welcome_guides_is_enabled(): bool {
-	return wpcom_has_blog_sticker( 'editor-welcome-guides-per-user', get_wpcom_blog_id() );
-}
-
-/**
  * The current site's editor preferences meta key.
  *
  * @return string
@@ -85,7 +76,7 @@ function wpcom_editor_welcome_guides_record_suppressed( string $scope, string $g
 function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta_key ) {
 	static $is_reading = false;
 
-	if ( null !== $value || $is_reading || wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! wpcom_editor_welcome_guides_is_enabled() ) {
+	if ( null !== $value || $is_reading || wpcom_editor_welcome_guides_meta_key() !== $meta_key ) {
 		return $value;
 	}
 
@@ -146,7 +137,7 @@ add_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences
  * @return void
  */
 function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $meta_key, $value ) {
-	if ( wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! is_array( $value ) || ! wpcom_editor_welcome_guides_is_enabled() ) {
+	if ( wpcom_editor_welcome_guides_meta_key() !== $meta_key || ! is_array( $value ) ) {
 		return;
 	}
 

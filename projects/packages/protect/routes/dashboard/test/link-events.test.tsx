@@ -69,7 +69,13 @@ it.each( [
 		'the Monitor connect link',
 		() => (
 			<MonitorCard
-				state={ { available: true, active: true, uptimeDays: 30, userConnected: false } }
+				state={ {
+					available: true,
+					active: true,
+					uptimeDays: 30,
+					userConnected: false,
+					alertEmail: null,
+				} }
 				settings={ settings }
 				openTab={ jest.fn() }
 			/>

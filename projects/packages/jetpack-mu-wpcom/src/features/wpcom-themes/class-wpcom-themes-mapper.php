@@ -80,6 +80,8 @@ class WPCom_Themes_Mapper {
 		$theme->tags                 = $this->build_theme_tags( $wpcom_theme );
 		$theme->theme_tier           = $wpcom_theme->theme_tier->slug ?? null;
 		$theme->is_retired           = $wpcom_theme->retired ?? false;
+		// Where it lives on WordPress.com, such as `pub/twentytwentyfive`, which a Simple site activates.
+		$theme->wpcom_stylesheet = $wpcom_theme->stylesheet ?? null;
 
 		return $theme;
 	}

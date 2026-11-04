@@ -31,6 +31,8 @@ Depending on connection state, the card surfaces:
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
 
+A link to the Connectors page with `connector=wordpress_com` in its query string, as My Jetpack's **Manage connection** sends, opens the card with its details already expanded: the Safe Mode options while in Safe Mode. Opening it that way sends no `details_open` event.
+
 **Disconnect site** opens the package's shared `DisconnectDialog`, the same one My Jetpack shows: it lists the connected plugins and links to help. The card leaves out the dialog's disconnect survey by not passing `connectedSiteId`. Its Tracks events carry `context: connectors`. The Safe Mode panel's disconnect keeps its own confirmation, which explains that only this site's stale connection is cleared.
 
 ## Where the card's data comes from
