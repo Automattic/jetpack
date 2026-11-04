@@ -1,8 +1,3 @@
-import * as Sentry from '@sentry/browser';
-import { addAction } from '@wordpress/hooks';
-
-const shouldActivateSentry = window.WPcom_Error_Reporting_Config?.shouldActivateSentry === 'true';
-
 /**
  * Errors that happened before this script had a chance to load are captured in a global array.
  *
@@ -10,28 +5,6 @@ const shouldActivateSentry = window.WPcom_Error_Reporting_Config?.shouldActivate
  */
 const headErrors = window._jsErr || [];
 const headErrorHandler = window._headJsErrorHandler;
-
-/**
- * Activate Sentry.
- */
-function activateSentry() {
-	const SENTRY_RELEASE_NAME = window.WPcom_Error_Reporting_Config.releaseName;
-
-	Sentry.init( {
-		dsn: 'https://658ae291b00242148af6b76494d4a49a@o248881.ingest.sentry.io/5876245',
-		release: SENTRY_RELEASE_NAME,
-	} );
-
-	// Capture exceptions from Gutenberg React Error Boundaries.
-	addAction( 'editor.ErrorBoundary.errorLogged', 'wpcom/error-reporting', error => {
-		// error is the exception's error object
-		Sentry.captureException( error );
-	} );
-
-	// We still need to report the head errors, if any.
-	headErrors.forEach( error => Sentry.captureException( error ) );
-	Sentry.flush().then( () => delete window._jsErr );
-}
 
 /**
  * Activate the WP.com Logstash error-reporting.
@@ -74,12 +47,8 @@ function activateLogstash() {
 	Promise.allSettled( headErrors.map( reportError ) ).then( () => delete window._jsErr );
 }
 
-if ( shouldActivateSentry ) {
-	activateSentry();
-} else {
-	activateLogstash();
-}
+activateLogstash();
 
-// Remove the head handler as it's not needed anymore after we set the main one above (either Sentry or homebrew)
+// Remove the head handler as it's not needed anymore after we set the main one above.
 window.removeEventListener( 'error', headErrorHandler );
 delete window._headJsErrorHandler;
