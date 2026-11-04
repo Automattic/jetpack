@@ -79,10 +79,11 @@ class Stats_Abilities extends Registrar {
 		'referrers'    => array(
 			// WPCOM `stats/referrers` keys per-day data under `groups`, not `referrers` —
 			// each group exposes `name`, `total`, and (sometimes) `url`.
-			'list'  => 'groups',
-			'label' => 'name',
-			'value' => 'total',
-			'href'  => 'url',
+			'list'     => 'groups',
+			'label'    => 'name',
+			'value'    => 'total',
+			'href'     => 'url',
+			'children' => 'results',
 		),
 		'search-terms' => array(
 			'list'  => 'search_terms',
@@ -90,10 +91,11 @@ class Stats_Abilities extends Registrar {
 			'value' => 'views',
 		),
 		'clicks'       => array(
-			'list'  => 'clicks',
-			'label' => array( 'name', 'url' ),
-			'value' => 'views',
-			'href'  => 'url',
+			'list'     => 'clicks',
+			'label'    => array( 'name', 'url' ),
+			'value'    => 'views',
+			'href'     => 'url',
+			'children' => 'children',
 		),
 		'authors'      => array(
 			'list'  => 'authors',
@@ -212,7 +214,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { site: { id, url }, type, period, date, num, max, truncated, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `max` caps the items; `max=0` returns every item. `truncated` is true when more items exist than `max` returned. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { site: { id, url }, type, period, date, num, max, truncated, items: [ { rank, label, value, href?, id?, children? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `max` caps the items; `max=0` returns every item. With `expand=true`, an item that groups other rows lists them in `children`: [ { label, value?, href?, type?, children? } ]. Referrers group the pages that sent views (and the Search Engines item each engine), clicks group the links under one domain, and a tags item lists each tag and category (`type`), which share its views so carry no `value` of their own. `max` caps each item\'s children too, as WordPress.com does at every level; `max=0` returns them all. Search terms, posts, authors, countries, downloads and video plays have no children. `truncated` is true when more items exist than `max` returned. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num` and covers the seven days ending yesterday. `site` is the WordPress.com blog ID and home URL of the site whose Stats were read. `definitions` explains, in plain words, each metric and time window in the response — read it before reporting a number. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -249,6 +251,11 @@ class Stats_Abilities extends Registrar {
 						'maximum'     => 100,
 						'default'     => 20,
 					),
+					'expand' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Also return the rows each item groups, as the Stats dashboard does when a row is opened: the pages and engines under a referrer, the links under a clicked domain, and the terms in a tags item.', 'jetpack-stats-pkg' ),
+						'default'     => false,
+					),
 				),
 				'additionalProperties' => false,
 			),
@@ -261,6 +268,7 @@ class Stats_Abilities extends Registrar {
 					'date'        => array( 'type' => 'string' ),
 					'num'         => array( 'type' => 'integer' ),
 					'max'         => array( 'type' => 'integer' ),
+					'expand'      => array( 'type' => 'boolean' ),
 					'truncated'   => array( 'type' => 'boolean' ),
 					'items'       => array( 'type' => 'array' ),
 					'definitions' => self::definitions_schema(),
@@ -756,6 +764,7 @@ class Stats_Abilities extends Registrar {
 		$date   = self::resolve_date( $input['date'] ?? null );
 		$num    = self::clamp_int( $input['num'] ?? 1, 1, 90, 1 );
 		$max    = self::clamp_int( $input['max'] ?? 20, 0, 100, 20 );
+		$expand = true === ( $input['expand'] ?? false );
 		if ( is_wp_error( $date ) ) {
 			return $date;
 		}
@@ -789,9 +798,10 @@ class Stats_Abilities extends Registrar {
 			'date'        => $date,
 			'num'         => $num,
 			'max'         => $max,
+			'expand'      => $expand,
 			'truncated'   => $max > 0 && $sent > $max,
-			'items'       => self::rank_and_cap( $rows, $max ),
-			'definitions' => self::top_content_definitions( $type ),
+			'items'       => self::rank_and_cap( $rows, $max, $expand ),
+			'definitions' => self::top_content_definitions( $type, $expand ),
 		);
 	}
 
@@ -1156,10 +1166,35 @@ class Stats_Abilities extends Registrar {
 		$rows = array();
 		foreach ( self::rows_at( $day_data, $map['list'] ) as $row ) {
 			$rows[] = array(
-				'label' => self::pick_field( $row, $map['label'] ),
-				'value' => self::pick_field( $row, $map['value'] ),
-				'href'  => isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null,
-				'id'    => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
+				'label'    => self::pick_field( $row, $map['label'] ),
+				'value'    => self::pick_field( $row, $map['value'] ),
+				'href'     => isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null,
+				'id'       => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
+				'children' => isset( $map['children'] ) ? self::child_rows( $row[ $map['children'] ] ?? null ) : array(),
+			);
+		}
+		return $rows;
+	}
+
+	/**
+	 * Project the rows a referrer or click row groups, and the rows those group in turn.
+	 *
+	 * A referrer group with nothing under it reports `results` as `{ views }` rather than a list, so it has none.
+	 *
+	 * @param mixed $list Raw list of `{ name, url, views, children? }`, or anything else for none.
+	 * @return array Rows of `{ label, value, href, children }`.
+	 */
+	private static function child_rows( $list ): array {
+		if ( ! is_array( $list ) || array_values( $list ) !== $list ) {
+			return array();
+		}
+		$rows = array();
+		foreach ( array_filter( $list, 'is_array' ) as $row ) {
+			$rows[] = array(
+				'label'    => self::pick_field( $row, array( 'name', 'url' ) ),
+				'value'    => $row['views'] ?? 0,
+				'href'     => self::pick_field( $row, 'url' ),
+				'children' => self::child_rows( $row['children'] ?? null ),
 			);
 		}
 		return $rows;
@@ -1179,9 +1214,19 @@ class Stats_Abilities extends Registrar {
 		foreach ( self::rows_at( $raw, 'tags' ) as $row ) {
 			$terms  = self::rows_at( $row, 'tags' );
 			$rows[] = array(
-				'label' => implode( ', ', array_column( $terms, 'name' ) ),
-				'value' => $row['views'] ?? 0,
-				'href'  => 1 === count( $terms ) ? ( array_column( $terms, 'link' )[0] ?? null ) : null,
+				'label'    => implode( ', ', array_column( $terms, 'name' ) ),
+				'value'    => $row['views'] ?? 0,
+				'href'     => 1 === count( $terms ) ? ( array_column( $terms, 'link' )[0] ?? null ) : null,
+				'children' => 1 === count( $terms ) ? array() : array_map(
+					function ( $term ) {
+						return array(
+							'label' => $term['name'] ?? '',
+							'href'  => $term['link'] ?? null,
+							'type'  => $term['type'] ?? null,
+						);
+					},
+					array_values( $terms )
+				),
 			);
 		}
 		return $rows;
@@ -1291,29 +1336,68 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Cap rows and turn them into ranked items, dropping empty `href`s and non-positive `id`s.
 	 *
-	 * @param array $rows Rows of `{ label, value, href?, id? }`.
-	 * @param int   $max  Result cap; 0 keeps every row.
-	 * @return array Items of `{ rank, label, value, href?, id? }`.
+	 * @param array $rows   Rows of `{ label, value, href?, id?, children? }`.
+	 * @param int   $max    Result cap; 0 keeps every row.
+	 * @param bool  $expand Whether to keep each row's `children`.
+	 * @return array Items of `{ rank, label, value, href?, id?, children? }`.
 	 */
-	private static function rank_and_cap( array $rows, int $max ): array {
+	private static function rank_and_cap( array $rows, int $max, bool $expand = false ): array {
 		$items = array();
 		foreach ( 0 === $max ? $rows : array_slice( $rows, 0, $max ) as $i => $row ) {
-			$item = array(
-				'rank'  => $i + 1,
-				// WordPress.com sends titles and names HTML-encoded.
-				'label' => html_entity_decode( (string) ( $row['label'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
-				'value' => (int) ( $row['value'] ?? 0 ),
-			);
-			if ( isset( $row['href'] ) && '' !== $row['href'] ) {
-				$item['href'] = (string) $row['href'];
-			}
-			$id = (int) ( $row['id'] ?? 0 );
+			$item = array( 'rank' => $i + 1 ) + self::item( $row );
+			$id   = (int) ( $row['id'] ?? 0 );
 			if ( $id > 0 ) {
 				$item['id'] = $id;
+			}
+			if ( $expand && ! empty( $row['children'] ) ) {
+				$item['children'] = self::child_items( $row['children'], $max );
 			}
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * Turn child rows into items, nested as WordPress.com nests them.
+	 *
+	 * WordPress.com caps every level at the requested `max`, which is one more than the cap asked for.
+	 *
+	 * @param array $rows Rows of `{ label, value?, href?, type?, children? }`.
+	 * @param int   $max  Cap per level; 0 keeps every row.
+	 * @return array Items of `{ label, value?, href?, type?, children? }`.
+	 */
+	private static function child_items( array $rows, int $max ): array {
+		$items = array();
+		foreach ( 0 === $max ? $rows : array_slice( $rows, 0, $max ) as $row ) {
+			$item = self::item( $row );
+			if ( ! empty( $row['type'] ) ) {
+				$item['type'] = (string) $row['type'];
+			}
+			if ( ! empty( $row['children'] ) ) {
+				$item['children'] = self::child_items( $row['children'], $max );
+			}
+			$items[] = $item;
+		}
+		return $items;
+	}
+
+	/**
+	 * The label, value and href of one row; a row without a `value` key (a term in a tags item) gets none.
+	 *
+	 * @param array $row Row of `{ label, value?, href? }`.
+	 * @return array
+	 */
+	private static function item( array $row ): array {
+		// WordPress.com sends titles and names HTML-encoded.
+		$item = array( 'label' => html_entity_decode( (string) ( $row['label'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
+		if ( array_key_exists( 'value', $row ) ) {
+			$item['value'] = (int) ( $row['value'] ?? 0 );
+		}
+		if ( isset( $row['href'] ) && '' !== $row['href'] ) {
+			// Links off a WordPress.com site go through the href.li redirector; report where they lead.
+			$item['href'] = (string) preg_replace( '#^https?://href\.li/\?#', '', (string) $row['href'] );
+		}
+		return $item;
 	}
 
 	/**
@@ -1838,6 +1922,9 @@ class Stats_Abilities extends Registrar {
 			'value_referrers'     => __( 'An item\'s `value` is the views that arrived from that referrer.', 'jetpack-stats-pkg' ),
 			'value_search-terms'  => __( 'An item\'s `value` is the views from searches for that term. Search engines hide most terms, so this list is a small sample.', 'jetpack-stats-pkg' ),
 			'value_clicks'        => __( 'An item\'s `value` is the clicks on links leading off the site to that destination.', 'jetpack-stats-pkg' ),
+			'children_referrers'  => __( 'An item\'s `children` are the pages, apps or search engines within that referrer that sent the views, each with its own `value`; a child can group further rows. Each item lists at most `max` children, its top ones, so they can add up to less than the item.', 'jetpack-stats-pkg' ),
+			'children_clicks'     => __( 'An item\'s `children` are the links under that domain that were clicked, each with its own `value`. Each item lists at most `max` children, its top ones, so they can add up to less than the item.', 'jetpack-stats-pkg' ),
+			'children_tags'       => __( 'An item\'s `children` are the tags and categories it groups. Posts filed under all of them share the item\'s `value`, so a child has none of its own.', 'jetpack-stats-pkg' ),
 			'value_tags'          => __( 'An item\'s `value` is the views of posts filed under those tags and categories.', 'jetpack-stats-pkg' ),
 			'value_authors'       => __( 'An item\'s `value` is the views of that author\'s posts and pages.', 'jetpack-stats-pkg' ),
 			'value_countries'     => __( 'An item\'s `value` is the views from visitors in that country.', 'jetpack-stats-pkg' ),
@@ -1866,15 +1953,19 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * The definitions block for get-top-content: what an item's `value` counts for this type, and the window it covers.
 	 *
-	 * @param string $type Content type enum.
+	 * @param string $type   Content type enum.
+	 * @param bool   $expand Whether the items carry `children`.
 	 * @return array<string, string>
 	 */
-	private static function top_content_definitions( string $type ): array {
+	private static function top_content_definitions( string $type, bool $expand = false ): array {
 		$texts = self::definition_texts();
 		$out   = array(
 			'value' => $texts[ 'value_' . $type ],
 			'items' => $texts[ 'tags' === $type ? 'window_tags' : 'window_top_content' ],
 		);
+		if ( $expand && isset( $texts[ 'children_' . $type ] ) ) {
+			$out['children'] = $texts[ 'children_' . $type ];
+		}
 		// Clicks, downloads and plays are not views.
 		if ( ! in_array( $type, array( 'clicks', 'downloads', 'video-plays' ), true ) ) {
 			$out['views'] = $texts['views'];
