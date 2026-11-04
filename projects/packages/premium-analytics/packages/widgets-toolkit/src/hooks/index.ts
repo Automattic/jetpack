@@ -1,6 +1,6 @@
 export { useAttributesWithSearchFallback } from './use-attributes-with-search-fallback';
 export { useChartRoleColor } from './use-chart-role-color';
-export { useMapName } from './use-chart-name';
+export { useChartName, useMapName } from './use-chart-name';
 export { useChartTheme } from './use-chart-theme';
 export { useDelayedLoading } from './use-delayed-loading';
 export { DashboardSectionProvider, useDashboardOriginSearch } from './use-dashboard-origin-search';
