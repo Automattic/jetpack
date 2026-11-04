@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace the Offline Mode screen icon, which @wordpress/icons removed in WordPress/gutenberg#85445.
