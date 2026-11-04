@@ -124,6 +124,9 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
+
+			// Not on admin_menu: wpcom checks this function exists before then.
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 		}
 
 		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple

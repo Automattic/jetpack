@@ -9,7 +9,6 @@ import {
 	mixHexColors,
 	useBarColors,
 	useGlobalChartsContext,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -22,6 +21,7 @@ import {
 	formatComparisonSeriesLabel,
 	getComparisonPeriodLabel,
 	isEmptyChartData,
+	type BucketResolution,
 	type ChartBaseline,
 } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
@@ -211,7 +211,7 @@ export interface MetricTabsChartProps {
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
 	 * date of that bucket. Omit to leave the chart non-interactive.
@@ -323,7 +323,7 @@ function MetricChart( {
 	baseline?: ChartBaseline;
 	chartId: string;
 	chartTitle?: string;
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
 	empty?: ReactNode;

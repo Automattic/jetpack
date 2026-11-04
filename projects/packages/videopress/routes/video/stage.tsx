@@ -363,7 +363,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
+	const { syncChapters } = useUpdateChapters( 'dashboard_details' );
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -562,7 +562,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="video">
 		<StageInner />
 	</QueryClientWrapper>
 );
