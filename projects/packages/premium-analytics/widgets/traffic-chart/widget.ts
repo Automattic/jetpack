@@ -15,7 +15,7 @@ import {
 } from '@jetpack-premium-analytics/fields';
 import type { ChartDisplayChartType, CountLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { trafficIntervalExtension } from './interval-extension';
-import { readStatsV1ChartType } from './stats-v1-chart-type';
+import { readStatsV1ChartType, saveStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
  * The bucket sizes this chart draws, offered by its own interval control.
@@ -29,7 +29,7 @@ export const TRAFFIC_PERIODS = [
 ] as const satisfies readonly StatsPeriod[];
 
 /**
- * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
+ * The chart type drawn when nothing is saved: the one last saved under the Stats v1 key in this browser, else bars.
  *
  * @return The default chart type.
  */
@@ -98,7 +98,7 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartType     - How to draw the selected metric. Defaults to the chart type last saved under the Stats v1 key, else `bar`.
  * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
 export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {
@@ -124,6 +124,11 @@ export default {
 			id: 'chartType',
 			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
 				item.chartType ?? defaultChartType(),
+			// The switch's choice also goes where Stats v1 kept it, for the wp-admin Stats widget.
+			setValue: ( { value }: { value: TrafficChartType } ) => {
+				saveStatsV1ChartType( value );
+				return { chartType: value };
+			},
 		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
