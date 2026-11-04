@@ -2,9 +2,8 @@
 /**
  * A lightweight My Jetpack page for WordPress.com Simple sites.
  *
- * The My Jetpack package doesn't run on Simple without the `my-jetpack` sticker, so this page lists
- * what the site's Jetpack menu already holds. It is a stopgap behind a feature flag: delete it once
- * My Jetpack itself runs on Simple.
+ * It lists what the site's Jetpack menu already holds, and steps aside wherever the real My Jetpack
+ * registers. It is a stopgap behind a feature flag: delete it once My Jetpack itself runs on Simple.
  *
  * @package automattic/jetpack-mu-wpcom
  */

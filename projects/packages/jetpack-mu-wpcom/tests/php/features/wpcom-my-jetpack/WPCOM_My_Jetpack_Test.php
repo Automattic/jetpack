@@ -85,7 +85,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The page steps aside when the real My Jetpack claimed the slug, as on a site with the sticker.
+	 * The page steps aside when the real My Jetpack claimed the slug.
 	 */
 	public function test_page_leaves_a_claimed_slug_alone() {
 		global $submenu;
