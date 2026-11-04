@@ -11,7 +11,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 /**
  * Class Jetpack_Debug_Data
  *
- * Collect and return debug data for Jetpack.
+ * Adds the Jetpack plugin's fields to the Jetpack Connection section of Site Health › Info.
  *
  * @since 7.3.0
  */
