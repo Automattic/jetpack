@@ -161,7 +161,8 @@ class Nav_Menu_Pages {
 			if ( $custom ) {
 				$hierarchy[] = $custom;
 			}
-			array_push( $hierarchy, 'page', 'singular' );
+			$hierarchy[] = 'page-' . urldecode( (string) get_post_field( 'post_name', $front_id ) );
+			array_push( $hierarchy, 'page-' . $front_id, 'page', 'singular' );
 		} else {
 			$hierarchy[] = 'home';
 		}
