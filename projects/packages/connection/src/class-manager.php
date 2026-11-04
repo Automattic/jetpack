@@ -3408,10 +3408,12 @@ class Manager {
 	 *
 	 * A user with `jetpack_connect` takes a vacant owner slot. They also take an occupied one whose
 	 * owner's connection is broken, when ownership is transferable; see can_take_broken_owner_slot().
+	 * A recorded owner with an unusable token still holds the slot; see can_fill_unconnected_owner_slot().
 	 * Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
 	 * @since $$next-version$$ An admin connecting while the owner's connection is broken becomes the owner.
+	 * @since $$next-version$$ A locked owner with an unusable token is no longer replaced.
 	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error 'authorized' when the user is now the connection owner, 'linked'
@@ -3479,7 +3481,9 @@ class Manager {
 		}
 
 		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
-		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
+		$is_connection_owner = ! $this->has_connected_owner()
+			&& current_user_can( 'jetpack_connect' )
+			&& $this->can_fill_unconnected_owner_slot( $current_user_id );
 
 		// Read before the token write, which clears the stored errors this depends on.
 		$take_broken_owner_slot = ! $is_connection_owner && $this->can_take_broken_owner_slot( $current_user_id );
@@ -3533,6 +3537,26 @@ class Manager {
 	}
 
 	/**
+	 * Whether the authorizing user may fill an owner slot that has no connected owner.
+	 *
+	 * A recorded owner whose token is missing or malformed is not a connected owner, but a lock must
+	 * still protect them. A deleted owner can never reconnect, so their slot counts as vacant.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The authorizing user's ID.
+	 * @return bool
+	 */
+	private function can_fill_unconnected_owner_slot( $user_id ) {
+		$recorded_owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+
+		return ! $recorded_owner_id
+			|| $recorded_owner_id === $user_id
+			|| ! get_userdata( $recorded_owner_id )
+			|| $this->is_ownership_transferable();
+	}
+
+	/**
 	 * Whether the authorizing user should take over a connection owner slot whose owner is broken.
 	 *
 	 * Without this, a second admin who connects to fix a broken owner is only linked, and the
@@ -3555,7 +3579,14 @@ class Manager {
 			return false;
 		}
 
-		return Error_Handler::get_instance()->has_owner_connection_error();
+		if ( Error_Handler::get_instance()->has_owner_connection_error() ) {
+			return true;
+		}
+
+		// A site data fetch clears the record on blog token evidence alone, so ask WordPress.com.
+		$health = $this->get_tokens()->validate( $this->get_connection_owner_id() );
+
+		return is_array( $health ) && false === ( $health['user_token']['is_healthy'] ?? null );
 	}
 
 	/**

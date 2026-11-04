@@ -5,10 +5,12 @@ import type { ConnectionOwner } from '../types.ts';
  * What connecting their account means for a viewer whose account is not linked:
  * - `reconnect-owner`: they own the connection and their token is broken.
  * - `take-over`: the owner's token is broken, so connecting makes them the new owner.
+ * - `locked-owner`: the owner's token is broken but ownership is locked, so they connect as an additional user.
  * - `secondary`: a connected owner exists, so they connect as an additional user.
  * - `first`: there is no owner of record.
  */
-export type UserConnectKind = 'reconnect-owner' | 'take-over' | 'secondary' | 'first';
+export type UserConnectKind =
+	'reconnect-owner' | 'take-over' | 'locked-owner' | 'secondary' | 'first';
 
 /**
  * Classify what connecting their account means for the viewer.
@@ -16,11 +18,12 @@ export type UserConnectKind = 'reconnect-owner' | 'take-over' | 'secondary' | 'f
  * The owner of record is withheld from viewers without `jetpack_connect`, so for them a broken
  * owner reads as `first`.
  *
- * @param {object}               state                   - Connection state.
- * @param {boolean}              state.isRegistered      - Whether the site has a blog token.
- * @param {boolean}              state.hasConnectedOwner - Whether the owner's token works.
- * @param {ConnectionOwner|null} state.owner             - The owner of record, from `master_user`.
- * @param {number|undefined}     state.currentUserId     - The viewer's local user ID.
+ * @param {object}               state                         - Connection state.
+ * @param {boolean}              state.isRegistered            - Whether the site has a blog token.
+ * @param {boolean}              state.hasConnectedOwner       - Whether the owner's token works.
+ * @param {ConnectionOwner|null} state.owner                   - The owner of record, from `master_user`.
+ * @param {number|undefined}     state.currentUserId           - The viewer's local user ID.
+ * @param {boolean}              state.isOwnershipTransferable - Whether ownership can move to the viewer. Only `false` means locked.
  * @return {UserConnectKind} The kind of connection the viewer would make.
  */
 export function getUserConnectKind( {
@@ -28,11 +31,13 @@ export function getUserConnectKind( {
 	hasConnectedOwner,
 	owner,
 	currentUserId,
+	isOwnershipTransferable,
 }: {
 	isRegistered: boolean;
 	hasConnectedOwner: boolean;
 	owner: ConnectionOwner | null;
 	currentUserId: number | undefined;
+	isOwnershipTransferable?: boolean | null;
 } ): UserConnectKind {
 	if ( hasConnectedOwner ) {
 		return 'secondary';
@@ -41,9 +46,11 @@ export function getUserConnectKind( {
 	// An unregistered site has no owner to reconnect, whatever `master_user` still says.
 	if ( owner && isRegistered ) {
 		// JS callers pass the store's owner unchecked, so an unknown viewer must not match a partial owner.
-		return currentUserId !== undefined && owner.id === currentUserId
-			? 'reconnect-owner'
-			: 'take-over';
+		if ( currentUserId !== undefined && owner.id === currentUserId ) {
+			return 'reconnect-owner';
+		}
+
+		return false === isOwnershipTransferable ? 'locked-owner' : 'take-over';
 	}
 
 	return 'first';
@@ -69,6 +76,11 @@ export function getUserConnectMessage( kind: UserConnectKind ): string {
 		case 'take-over':
 			return __(
 				"The connection owner's WordPress.com account is no longer connected. If you connect your account, you will become the new connection owner.",
+				'jetpack-connection-js'
+			);
+		case 'locked-owner':
+			return __(
+				'The connection owner needs to reconnect their WordPress.com account to restore the connection. You can still connect your own WordPress.com account.',
 				'jetpack-connection-js'
 			);
 		case 'secondary':

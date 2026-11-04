@@ -327,9 +327,11 @@ class Error_Handler {
 
 			// Viewer-wide, so resolved once rather than per error.
 			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
-			$viewer_lacks_connection = $viewer_id > 0 && $viewer_can_connect && ! $manager->is_user_connected( $viewer_id );
 			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
-			$site_connection_broken  = ! $viewer_can_connect && $this->has_site_connection_error( $verified_errors, $owner_id );
+			$site_error_on_record    = $this->has_site_connection_error( $verified_errors, $owner_id );
+			$site_connection_broken  = ! $viewer_can_connect && $site_error_on_record;
+			// Connecting runs over the blog token, so a site error needs the reconnect CTA first.
+			$viewer_can_connect_directly = $viewer_id > 0 && $viewer_can_connect && ! $site_error_on_record && ! $manager->is_user_connected( $viewer_id );
 
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
@@ -408,7 +410,7 @@ class Error_Handler {
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
-						if ( $viewer_lacks_connection ) {
+						if ( $viewer_can_connect_directly ) {
 							// Restore cannot reconnect a token this admin never had; connecting their own
 							// account can, and Manager::authorize() makes them the owner when transferable.
 							if ( $is_transferable ) {

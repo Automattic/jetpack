@@ -48,6 +48,7 @@ The card reads connection state from the `jetpack-connection` store, which `Init
 | Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status. Its local `displayName` and `email` fill in when the WordPress.com lookup fails                                                                                                                            |
 | Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`). Other viewers get the name alone from `getUserConnectionData().connectionOwner` |
 | Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                                                                                                   |
+| Connect prompt            | `getIsOwnershipTransferable()` — so a locked owner's slot is not promised                                                                                                                                                                                                                 |
 
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
