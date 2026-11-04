@@ -111,6 +111,7 @@ function useCardConnection() {
 		plugins,
 		isOfflineMode,
 		blogId,
+		isOwnershipTransferable,
 	} = useSelect( select => {
 		const store = select( CONNECTION_STORE_ID );
 		return {
@@ -120,6 +121,8 @@ function useCardConnection() {
 			plugins: store.getConnectedPlugins(),
 			isOfflineMode: store.getIsOfflineMode(),
 			blogId: store.getBlogId() || null,
+			// Optional: an older shared connection bundle has no such selector.
+			isOwnershipTransferable: store.getIsOwnershipTransferable?.(),
 		};
 	}, [] );
 
@@ -138,6 +141,7 @@ function useCardConnection() {
 
 		return {
 			...connection,
+			isOwnershipTransferable,
 			tracksIdentity: getTracksIdentity( connection.currentUser ),
 			subjectNoun: connection.hasWooPlugin
 				? _x(
@@ -147,7 +151,15 @@ function useCardConnection() {
 					)
 				: _x( 'site', 'The thing connected to WordPress.com.', 'jetpack-connection' ),
 		};
-	}, [ connectionStatus, userConnectionData, storeOwner, plugins, isOfflineMode, blogId ] );
+	}, [
+		connectionStatus,
+		userConnectionData,
+		storeOwner,
+		plugins,
+		isOfflineMode,
+		blogId,
+		isOwnershipTransferable,
+	] );
 }
 
 const TRACKING_CONTEXT = 'connectors';
@@ -774,12 +786,14 @@ function ProtectedOwnerSection() {
  * @return {object} React element.
  */
 function ConnectPrompt( { onConnect, isConnecting } ) {
-	const { isRegistered, isConnected, isOfflineMode, owner, currentUser } = useCardConnection();
+	const { isRegistered, isConnected, isOfflineMode, owner, currentUser, isOwnershipTransferable } =
+		useCardConnection();
 	const promptKind = getUserConnectKind( {
 		isRegistered,
 		hasConnectedOwner: isConnected,
 		owner,
 		currentUserId: currentUser?.id,
+		isOwnershipTransferable,
 	} );
 	const isReconnectingOwner = 'reconnect-owner' === promptKind;
 	const promptText = getUserConnectMessage( promptKind );

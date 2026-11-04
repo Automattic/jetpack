@@ -9,6 +9,26 @@ describe( 'getUserConnectKind', () => {
 			{ isRegistered: true, hasConnectedOwner: false, owner, currentUserId: 1 },
 		],
 		[ 'take-over', { isRegistered: true, hasConnectedOwner: false, owner, currentUserId: 2 } ],
+		[
+			'locked-owner',
+			{
+				isRegistered: true,
+				hasConnectedOwner: false,
+				owner,
+				currentUserId: 2,
+				isOwnershipTransferable: false,
+			},
+		],
+		[
+			'reconnect-owner',
+			{
+				isRegistered: true,
+				hasConnectedOwner: false,
+				owner,
+				currentUserId: 1,
+				isOwnershipTransferable: false,
+			},
+		],
 		[ 'secondary', { isRegistered: true, hasConnectedOwner: true, owner, currentUserId: 2 } ],
 		// Viewers without jetpack_connect get no owner object, but a connected owner still exists.
 		[ 'secondary', { isRegistered: true, hasConnectedOwner: true, owner: null, currentUserId: 2 } ],
@@ -23,6 +43,7 @@ describe( 'getUserConnectMessage', () => {
 	it.each( [
 		[ 'reconnect-owner', 'Reconnect it' ],
 		[ 'take-over', 'become the new connection owner' ],
+		[ 'locked-owner', 'You can still connect' ],
 		[ 'secondary', 'sign in via WordPress.com' ],
 		[ 'first', 'Your site is registered' ],
 	] as const )( 'describes %s', ( kind, phrase ) => {

@@ -142,6 +142,8 @@ The one code with special-cased copy today is `invalid_connection_owner`, via `g
 | Connected | Transferable | Reconnecting makes them the owner and disconnects every other user | Default (reconnect) |
 | Connected | Locked | Nothing | `'none'` |
 
+With a site-level error also on record, an unconnected admin gets the Connected rows instead, because connecting runs over the blog token and would fail. Codes that set `survives_owner_promotion` don't count, since those leave outbound requests working.
+
 `Manager::restore()` cannot refresh a token the viewer never had, which is why an unconnected admin is offered `connect_user` rather than the reconnect CTA; `Manager::authorize()` then [makes them the owner](authorize-user.md) when ownership is transferable. A JS bundle that predates `connect_user` falls back to the reconnect CTA, which reaches the same `authorize()` call. `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` are the other special codes, for the same reason: reconnecting cannot fix them — the former because the reconnect would be rejected by the same firewall rule, the latter because it would run over the same broken TLS. Their (deliberately brief) messages name the real cause and point at Site Health — the source of truth with the detailed diagnosis — which the admin notice also links to via `notice_link`. Both set `survives_owner_promotion`, since neither is a token problem the owner reconnecting would fix. So when one is recorded for the owner, a secondary admin gets that message rather than the table above, and connecting does not make them the owner.
 
 ### Viewer capability gate
