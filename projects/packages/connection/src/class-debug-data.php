@@ -1,6 +1,6 @@
 <?php
 /**
- * The Jetpack section of the Site Health Info tab.
+ * The Jetpack Connection section of the Site Health Info tab.
  *
  * @package automattic/jetpack-connection
  */
@@ -29,13 +29,13 @@ class Debug_Data {
 	const LEGACY_CALLBACK = array( 'Jetpack_Debug_Data', 'core_debug_data' );
 
 	/**
-	 * Add the Jetpack section, unless an older Jetpack plugin adds its own.
+	 * Add the Jetpack Connection section, unless an older Jetpack plugin adds its own.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $debug The debug information already compiled by Core.
 	 *
-	 * @return array The debug information with the Jetpack section.
+	 * @return array The debug information with the Jetpack Connection section.
 	 */
 	public static function add_section( $debug ) {
 		if ( has_filter( 'debug_information', self::LEGACY_CALLBACK ) ) {
@@ -48,7 +48,7 @@ class Debug_Data {
 	}
 
 	/**
-	 * Build the Jetpack section.
+	 * Build the Jetpack Connection section.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -59,7 +59,7 @@ class Debug_Data {
 		$support_url = apply_filters( 'jetpack_connection_support_url', Redirect::get_url( 'jetpack-contact-support' ) );
 
 		return array(
-			'label'       => __( 'Jetpack', 'jetpack-connection' ),
+			'label'       => __( 'Jetpack Connection', 'jetpack-connection' ),
 			'description' => sprintf(
 				/* translators: %1$s is URL to jetpack.com's contact support page. %2$s accessibility text */
 				__(
@@ -199,8 +199,9 @@ class Debug_Data {
 		);
 
 		/**
-		 * Filters the fields of the Jetpack section in Site Health › Info.
+		 * Filters the fields of the Jetpack Connection section in Site Health › Info.
 		 *
+		 * For connection-related fields; a product's own status belongs in its own `debug_information` section.
 		 * The IDC and connection test fields are added after this runs, so they stay last and can't be overwritten.
 		 *
 		 * @since $$next-version$$

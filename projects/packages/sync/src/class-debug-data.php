@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync fields for the Jetpack section of the Site Health Info tab.
+ * Sync fields for the Jetpack Connection section of the Site Health Info tab.
  *
  * @package automattic/jetpack-sync
  */
