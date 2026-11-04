@@ -2,7 +2,7 @@ import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jet
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
@@ -231,7 +231,10 @@ export const LEVELS = [
 	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
 	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
 	{ value: 'low', label: __( 'Low', 'jetpack-protect-pkg' ) },
-	{ value: 'unknown', label: __( 'Unknown', 'jetpack-protect-pkg' ) },
+	{
+		value: 'unknown',
+		label: _x( 'Unknown', 'Severity label for issues with no rating.', 'jetpack-protect-pkg' ),
+	},
 ];
 
 const TYPES = [
