@@ -95,6 +95,22 @@ describe( 'a failed ignore or unignore', () => {
 			expect( result.current?.error ).toBe( false );
 		}
 	);
+
+	it( 'keeps the lists it has when the refetch fails too', async () => {
+		setScan( current => ( { ...current, threats: [ threat ], ignored: [], error: false } ) );
+		mockApiFetch.mockReset().mockRejectedValue( { message: 'Request timed out.' } );
+		const { result } = renderHook( () => useScan() );
+
+		await act( async () => {
+			await ignoreThreat( threat );
+		} );
+
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/jetpack/v4/protect-dashboard/scan' } )
+		);
+		expect( result.current?.threats ).toEqual( [ threat ] );
+		expect( result.current?.error ).toBe( false );
+	} );
 } );
 
 describe( 'threat notices', () => {
