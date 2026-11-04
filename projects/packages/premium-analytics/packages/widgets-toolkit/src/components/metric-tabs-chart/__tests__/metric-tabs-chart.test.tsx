@@ -601,6 +601,30 @@ describe( 'MetricTabsChart', () => {
 		expect( legendInteractive ).toBe( true );
 	} );
 
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )(
+		"seeds the counterpart's previous period hidden before it arrives (%s)",
+		( chartType, spy ) => {
+			render(
+				<MetricTabsChart
+					metrics={ [
+						{ ...VIEWS, previous: undefined, counterpartHidden: true },
+						{ ...VISITORS, previous: undefined },
+					] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+
+			expect( recordedPropsFor( spy, 'Views' ).defaultHiddenSeries ).toEqual( [
+				'Visitors',
+				'Visitors · previous period',
+			] );
+		}
+	);
+
 	it( 'renames the comparison without touching what keeps the counterpart hidden', () => {
 		const chart = ( reportParams: ReportParams ) => (
 			<WidgetRootContext.Provider value={ { reportParams } }>

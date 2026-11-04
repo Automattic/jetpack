@@ -3,12 +3,12 @@
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -33,11 +33,6 @@ export type PostDetailHighlightsAttributes = Record< never, never >;
 type PostDetailHighlightsRenderAttributes = PostDetailHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type PostDetailHighlightsWidgetProps = WidgetRenderProps< PostDetailHighlightsRenderAttributes >;
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 const ALL_TIME_NOTE = () =>
 	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
@@ -118,7 +113,7 @@ function PostDetailHighlightsInner() {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);

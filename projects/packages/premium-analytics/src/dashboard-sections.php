@@ -16,11 +16,6 @@ require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
-// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
-if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
-	require_once __DIR__ . '/dashboard-policy.php';
-}
-
 /**
  * Registers a dashboard section.
  *
@@ -91,8 +86,7 @@ function get_plan_date_limited_section_slugs() {
 	$slugs = array();
 
 	foreach ( Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME ) as $section ) {
-		// An older copy of the class has no such property.
-		if ( ! empty( $section->follows_plan_date_limits ) ) {
+		if ( $section->follows_plan_date_limits ) {
 			$slugs[] = $section->slug;
 		}
 	}
@@ -109,34 +103,6 @@ function get_plan_date_limited_section_slugs() {
  */
 function configure_dashboard_sections_script_data() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
-}
-
-/**
- * Kept for older copies of the package, whose Dashboard_Section::is_available() calls it on every
- * availability check. Every section is in scope now, so the section's own rule decides.
- *
- * @since 0.6.0
- * @deprecated 0.10.0 The preview scope is gone.
- *
- * @param string $dashboard_name Dashboard identifier.
- * @param string $slug           URL-facing section slug.
- * @return bool Always true.
- */
-function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for the signature older copies call.
-	return true;
-}
-
-/**
- * Kept for older copies of the package: they guard their include of this file on another
- * symbol and call this, so a newer copy loading first must still define it.
- *
- * @since 0.6.0
- * @deprecated 0.10.0 Use configure_dashboard_sections_script_data().
- *
- * @return void
- */
-function configure_dashboard_preview_scope() {
-	configure_dashboard_sections_script_data();
 }
 
 /**
@@ -159,7 +125,7 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
 
 	// Switching the dashboard off sends the reader to classic Stats, so the client is told where that is.
-	$data['premium_analytics']['classic_stats_url'] = get_classic_stats_url();
+	$data['premium_analytics']['classic_stats_url'] = Classic_Stats::page_url();
 
 	$sections = get_available_dashboard_section_slugs();
 
@@ -169,22 +135,6 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	}
 
 	return $data;
-}
-
-/**
- * The URL of the classic Stats page, or null while no plugin registers a `stats` menu page.
- *
- * Read from the menu rather than `$admin_page_hooks`, which keys top-level pages only: with
- * Odyssey Stats off, the Jetpack plugin registers the page under its own menu.
- *
- * @since 0.14.0
- *
- * @return string|null
- */
-function get_classic_stats_url(): ?string {
-	$url = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
-
-	return '' === $url ? null : $url;
 }
 
 /**

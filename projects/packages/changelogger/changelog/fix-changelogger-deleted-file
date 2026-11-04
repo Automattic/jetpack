@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-When a change entry file was deleted and then re-created locally, don't attribute it to the PR that deleted it.

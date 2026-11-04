@@ -7,7 +7,7 @@
  * First Introduced: 4.4
  * Requires Connection: No
  * Requires User Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Social, Appearance
  * Feature: Traffic
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format, seo, sitemap, open graph, search engine, title tag
@@ -37,9 +37,6 @@ $jetpack_seo_conflicting_plugins = array(
 
 foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin => $seo_plugin_name ) {
 	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
-		// Disable all custom meta tags that SEO tools manages.
-		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
-
 		// Also disable default meta tags.
 		add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
 
@@ -53,6 +50,15 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin => $seo_plugin_name ) 
 		break;
 	}
 }
+
+// Preserve the general disable switch while deriving plugin conflicts from their own filter.
+add_filter(
+	'jetpack_disable_seo_tools',
+	static function ( $disabled ) {
+		/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
+		return $disabled || (bool) apply_filters( 'jetpack_seo_conflicting_plugin', null );
+	}
+);
 
 /** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
