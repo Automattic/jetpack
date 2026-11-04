@@ -39,7 +39,6 @@ function AverageOrderValue( { chartType }: { chartType?: ChartDisplayChartType }
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
-			chartTitle={ __( 'Average order value', 'jetpack-woocommerce-stats-pkg' ) }
 			field="average_order_value"
 			label={ __( 'Average order value', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }
