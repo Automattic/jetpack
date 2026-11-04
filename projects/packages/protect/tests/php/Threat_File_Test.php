@@ -74,6 +74,7 @@ class Threat_File_Test extends BaseTestCase {
 			'beside a separate WP folder'    => array( 'site-root', 'none', false ),
 			'theme in a registered folder'   => array( 'registered-theme', 'theme', false ),
 			'loaded by the site'             => array( 'loaded', 'none', false ),
+			'drop-in in wp-content'          => array( 'drop-in', 'none', false ),
 		);
 	}
 
@@ -107,6 +108,7 @@ class Threat_File_Test extends BaseTestCase {
 			'site-root'         => dirname( ABSPATH ) . '/protect-test-site/protect-test.php',
 			'registered-theme'  => WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/functions.php',
 			'loaded'            => ABSPATH . 'protect-test-db-config.php',
+			'drop-in'           => WP_CONTENT_DIR . '/db-error.php',
 		);
 		if ( 'plugin' === $where ) {
 			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
