@@ -32,6 +32,7 @@ class Threat_File_Test extends BaseTestCase {
 			wp_delete_file( $file );
 		}
 		delete_transient( Threat_File::CHECKSUMS_CACHE );
+		$GLOBALS['wp_theme_directories'] = array_values( array_diff( (array) $GLOBALS['wp_theme_directories'], array( WP_CONTENT_DIR . '/protect-test-themes' ) ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		parent::tear_down();
 	}
 
@@ -67,6 +68,7 @@ class Threat_File_Test extends BaseTestCase {
 			'site configuration'             => array( 'wp-config', 'none', false ),
 			'loader of a separate WP folder' => array( 'site-index', 'none', false ),
 			'beside a separate WP folder'    => array( 'site-root', 'none', false ),
+			'theme in a registered folder'   => array( 'registered-theme', 'theme', false ),
 		);
 	}
 
@@ -97,10 +99,15 @@ class Threat_File_Test extends BaseTestCase {
 			'wp-config'         => ABSPATH . 'protect-test/wp-config.php',
 			'site-index'        => dirname( ABSPATH ) . '/protect-test-site/index.php',
 			'site-root'         => dirname( ABSPATH ) . '/protect-test-site/protect-test.php',
+			'registered-theme'  => WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/functions.php',
 		);
 		if ( 'plugin' === $where ) {
 			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
 			wp_clean_plugins_cache( false );
+		}
+		if ( 'registered-theme' === $where ) {
+			$this->write( WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/style.css', "/*\nTheme Name: Protect Test Theme\n*/\n" );
+			register_theme_directory( WP_CONTENT_DIR . '/protect-test-themes' );
 		}
 		$path = $this->write( $paths[ $where ] );
 

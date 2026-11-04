@@ -46,10 +46,12 @@ class Threat_File {
 			return $plugin;
 		}
 
-		$slug = self::get_first_segment( $path, get_theme_root() );
-		if ( $slug ) {
-			$theme = wp_get_theme( $slug );
-			if ( $theme->exists() ) {
+		// Every theme root, since plugins can register more with register_theme_directory().
+		$theme_roots = empty( $GLOBALS['wp_theme_directories'] ) ? array( get_theme_root() ) : (array) $GLOBALS['wp_theme_directories'];
+		foreach ( $theme_roots as $theme_root ) {
+			$slug  = self::get_first_segment( $path, $theme_root );
+			$theme = $slug ? wp_get_theme( $slug, $theme_root ) : null;
+			if ( $theme && $theme->exists() ) {
 				return array(
 					'type'    => 'theme',
 					'name'    => $theme->get( 'Name' ),
