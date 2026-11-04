@@ -229,6 +229,10 @@ class Initializer {
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
+		// Not on admin_init: modules are usually toggled over REST, where admin_init never fires.
+		add_action( 'jetpack_activate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+		add_action( 'jetpack_deactivate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
 		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
@@ -1817,7 +1821,6 @@ class Initializer {
 
 		// Modules are often updated async, so we need to update them right away as there will sometimes be no page reload.
 		add_action( 'jetpack_activate_module', array( $ham, 'update_historically_active_jetpack_modules' ), 5 );
-		add_action( 'jetpack_deactivate_module', array( $ham, 'expire_refresh' ) );
 	}
 
 	/**

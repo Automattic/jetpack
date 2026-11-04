@@ -23,15 +23,14 @@ class Historically_Active_Modules_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( Historically_Active_Modules::REFRESHED_TRANSIENT_KEY );
-		remove_all_actions( 'jetpack_deactivate_module' );
 		parent::tear_down();
 	}
 
 	/**
-	 * A rebuild satisfies later visits until a module is deactivated.
+	 * A rebuild satisfies later visits until a module is deactivated, including over REST where admin_init never runs.
 	 */
 	public function test_refresh_is_due_until_rebuilt_and_again_after_module_deactivation() {
-		Initializer::setup_historically_active_jetpack_modules_sync();
+		Initializer::init();
 		$this->assertTrue( Historically_Active_Modules::is_refresh_due() );
 
 		Historically_Active_Modules::update_historically_active_jetpack_modules();

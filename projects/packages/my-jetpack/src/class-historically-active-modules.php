@@ -66,8 +66,10 @@ class Historically_Active_Modules {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$product_classes             = Products::get_products_classes();
 
-		foreach ( $product_classes as $product_slug => $product_class ) {
-			$status = $product_class::get_status();
+		foreach ( $product_classes as $product_class ) {
+			// Not the array key: the class map also lists Jetpack AI under an 'ai' alias.
+			$product_slug = $product_class::$slug;
+			$status       = $product_class::get_status();
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
 			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
