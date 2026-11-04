@@ -352,7 +352,7 @@ const interactiveData: LeaderboardEntry[] = [
 const nearlyFullWidthLabel =
 	'Partner newsletter for returning subscribers in Europe and North America during the holiday sale week of 2026';
 
-export const InteractiveStringLabels: Story = {
+export const Interactive: Story = {
 	args: {
 		data: [
 			...sampleData,
@@ -402,7 +402,7 @@ const DemoLabelLink = ( { entry }: { entry: LeaderboardEntry } ) => {
 	);
 };
 
-export const Interactive: Story = {
+export const InteractiveOverlayLabel: Story = {
 	args: {
 		data: interactiveData.map( entry => ( {
 			...entry,
@@ -442,7 +442,7 @@ export const Interactive: Story = {
 	},
 };
 
-export const InteractiveLabel: Story = {
+export const InteractiveOverlayLabelLink: Story = {
 	args: {
 		...sharedThemeArgs,
 		data: interactiveData.map( entry => ( {
@@ -492,7 +492,7 @@ const MIXED_ROW_KINDS = [
 	'drill-down',
 ] as const;
 
-export const InteractiveMixed: Story = {
+export const InteractiveOverlayLabelMixed: Story = {
 	args: {
 		...sharedThemeArgs,
 		data: interactiveData.map( ( entry, index ): LeaderboardEntry => {
