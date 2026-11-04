@@ -27,6 +27,9 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 
 // What a click has asked of the module, when a test wants it to differ from the store.
 let mockAskedFor: boolean | null = null;
+let mockConfirmation: string | null = null;
+// The page the switch was told its confirmation links to.
+let mockManageUrl: string | undefined;
 let mockBusy = false;
 let mockInstallError: string | null = null;
 
@@ -41,13 +44,20 @@ jest.mock( '../use-main-features', () => ( {
 
 jest.mock( '../../../module-toggle', () => ( {
 	// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
-	ModuleToggle: () => <input type="checkbox" aria-label="Module toggle" readOnly />,
+	ModuleToggle: ( { manageUrl }: { manageUrl?: string } ) => {
+		mockManageUrl = manageUrl;
+		return <input type="checkbox" aria-label="Module toggle" readOnly />;
+	},
 	// Mirrors the hook: `isActive` is the value the switch shows, asked-for or stored.
-	useModuleActivation: ( $module: { activated: boolean } ) => ( {
-		setModuleActive: mockSetModuleActive,
-		isUpdating: false,
-		isActive: mockAskedFor ?? $module.activated,
-	} ),
+	useModuleActivation: ( $module: { activated: boolean }, options?: { manageUrl?: string } ) => {
+		mockManageUrl = options?.manageUrl;
+		return {
+			setModuleActive: mockSetModuleActive,
+			isUpdating: false,
+			isActive: mockAskedFor ?? $module.activated,
+			confirmation: mockConfirmation,
+		};
+	},
 } ) );
 
 const buildFeature = ( overrides: Partial< MainFeature > = {} ) =>
@@ -85,6 +95,8 @@ beforeEach( () => {
 	( reloadPage as jest.Mock ).mockClear();
 	( getUserConnectionUrl as jest.Mock ).mockClear();
 	mockAskedFor = null;
+	mockConfirmation = null;
+	mockManageUrl = undefined;
 	mockBusy = false;
 	mockInstallError = null;
 } );
@@ -124,6 +136,27 @@ it.each( [
 		window.JetpackScriptData = previousData;
 	}
 } );
+
+it.each( [
+	[ 'details window', FeatureModalActions ],
+	[ 'card', FeatureAction ],
+] as const )(
+	'tells the %s switch where Open goes, for its confirmation to link there',
+	( _, Component ) => {
+		const manageUrl = '/wp-admin/admin.php?page=advertising';
+
+		render(
+			<Component
+				state={ buildState(
+					{ kind: 'module', module: $module },
+					{ status: 'active', feature: buildFeature( { manage_url: manageUrl } ) }
+				) }
+			/>
+		);
+
+		expect( mockManageUrl ).toBe( manageUrl );
+	}
+);
 
 describe( 'FeatureAction', () => {
 	it( 'offers Install, and no switch, for a feature whose plugin is missing', () => {
@@ -418,6 +451,14 @@ describe( 'FeatureModalActions', () => {
 		render( <FeatureModalActions state={ buildState( { kind: 'module', module: $module } ) } /> );
 
 		expect( screen.getByRole( 'button', { name: 'Activate Boost' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows what the switch asks before going off, such as the Blaze campaigns warning', () => {
+		mockConfirmation = 'Active Blaze campaigns are still running';
+
+		render( <FeatureModalActions state={ buildState( { kind: 'module', module: $module } ) } /> );
+
+		expect( screen.getByText( mockConfirmation ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers no Open for a module-backed feature with nowhere to go', () => {

@@ -144,6 +144,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertSame( '/v1/checkout/payment-resources', $body['path'] );
 		$this->assertSame( array( 'type' => 'BUY_NOW' ), $body['body'] );
 		$this->assertSame( 'request-1', $body['request_id'] );
+		$this->assertSame( PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $body['partner_attribution_id'] );
 		// A site onboarded before the tracking ID was kept has none to present.
 		$this->assertArrayNotHasKey( 'tracking_id', $body );
 
@@ -259,6 +260,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertSame( 'GET', $requests[0]['args']['method'] );
 		$this->assertStringContainsString( 'environment=sandbox', $requests[0]['url'] );
 		$this->assertStringContainsString( 'tracking_id=woo-ncps-1234-1', $requests[0]['url'] );
+		$this->assertStringContainsString( 'partner_attribution_id=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $requests[0]['url'] );
 		$this->assertStringNotContainsString( 'merchant_id=', $requests[0]['url'] );
 	}
 

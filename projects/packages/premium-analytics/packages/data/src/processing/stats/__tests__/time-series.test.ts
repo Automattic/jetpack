@@ -185,6 +185,27 @@ describe( 'Stats time-series normalizer', () => {
 		);
 	} );
 
+	it( 'reads quarter rows by their start, cutting the quarters the range starts or ends inside', () => {
+		const result = sanitizeStatsTimeSeriesResponse(
+			{
+				unit: 'quarter',
+				fields: [ 'period', 'views' ],
+				data: [
+					[ '2025-10-01', 5 ],
+					[ '2026-04-01', 30 ],
+					[ '2026-10-01', 7 ],
+				],
+			},
+			{ period: 'quarter', start_date: '2025-12-01', end_date: '2026-11-03' }
+		);
+
+		expect( result.data.map( ( { date_start, date_end } ) => [ date_start, date_end ] ) ).toEqual( [
+			[ '2025-12-01T00:00:00', '2025-12-31T23:59:59' ],
+			[ '2026-04-01T00:00:00', '2026-06-30T23:59:59' ],
+			[ '2026-10-01T00:00:00', '2026-11-03T23:59:59' ],
+		] );
+	} );
+
 	it( 'normalizes scalar days maps into numeric value rows', () => {
 		const result = sanitizeStatsTimeSeriesResponse( scalarDaysTimeSeriesFixture );
 
