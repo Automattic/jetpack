@@ -27,6 +27,7 @@ Every connect link tells WordPress.com where it came from (`from`) and where to 
 
 - **Name it with `CONNECTION_FROM`.** For a new surface, add its name there first. A standard name is `owner_surface[_detail]` (the product, the screen, and optionally which button on it): lowercase letters, digits and underscores, at most 64 characters, such as `my_jetpack_header`. `isStandardEntryPoint()` checks the format and `isUnifiedConnectionFlow()` whether WordPress.com shows the unified screen; both mirror Calypso's [`entry-points.ts`](https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts).
 - **Pass `getUserConnectionUrl()` an absolute `redirect_url`.** WordPress.com ignores a relative one and shows the plans page instead.
+- **Give each surface its own name.** Don't reuse another surface's name to get its screen: every standard name already gets the unified screen, and a shared name merges both surfaces in WordPress.com's counts.
 - **Never rename a name once it has shipped.** Reports key on it, and older plugin versions keep sending it.
 
 ```jsx

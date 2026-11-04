@@ -13,6 +13,9 @@ const toNamePart = ( slug: string ): string =>
 
 /**
  * The `from` each connect link sends to WordPress.com, which counts connections and picks its screen by it.
+ *
+ * Every Jetpack entry point's name lives here: add a new one in the format `isStandardEntryPoint()` accepts.
+ * Never rename a shipped name, or reuse another surface's.
  */
 export const CONNECTION_FROM = {
 	// Kept name of My Jetpack's onboarding takeover: My Jetpack starts its tour when it comes back.

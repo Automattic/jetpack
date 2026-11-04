@@ -29,13 +29,14 @@ describe( 'isStandardEntryPoint and isUnifiedConnectionFlow', () => {
 } );
 
 describe( 'CONNECTION_FROM', () => {
-	const fixedNames = Object.values( CONNECTION_FROM ).flatMap( value =>
-		typeof value === 'string' ? [ value ] : []
+	// Each per-product function is sampled with one slug, so a new function is checked like a new name.
+	const names = Object.values( CONNECTION_FROM ).map( value =>
+		typeof value === 'string' ? value : value( 'backup' )
 	);
 
 	it( 'holds distinct names that WordPress.com sends to the unified flow', () => {
-		expect( new Set( fixedNames ).size ).toBe( fixedNames.length );
-		expect( fixedNames.filter( name => ! isUnifiedConnectionFlow( name ) ) ).toEqual( [] );
+		expect( new Set( names ).size ).toBe( names.length );
+		expect( names.filter( name => ! isUnifiedConnectionFlow( name ) ) ).toEqual( [] );
 	} );
 
 	it.each( [

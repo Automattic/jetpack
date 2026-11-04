@@ -357,6 +357,7 @@ Before introducing new dependencies:
 - **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
+- **Connect buttons need their own `from` and an absolute return URL** — take the name from `CONNECTION_FROM` in `@automattic/jetpack-connection`, adding one there for a new surface. See *Adding a connect button* in `projects/js-packages/connection/README.md` before adding or changing a connect link.
 
 ## Referencing wpcom-only symbols from Jetpack (Phan stubs)
 
