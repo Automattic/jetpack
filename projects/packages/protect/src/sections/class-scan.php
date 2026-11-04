@@ -357,14 +357,18 @@ class Scan implements Dashboard_Section {
 	 */
 	private static function set_ignored( $id, $ignore ) {
 		$response = self::alerts_request( '/' . $id, 'POST', array( $ignore ? 'ignore' : 'unignore' => true ) );
+
+		// A request left unanswered, such as one that timed out, may still have gone through on WordPress.com.
+		if ( ! is_wp_error( $response ) || 'alerts_request_unanswered' === $response->get_error_code() ) {
+			Scan_Status::delete_option();
+			delete_transient( self::HISTORY_CACHE );
+		}
 		if ( is_wp_error( $response ) ) {
 			return $ignore
 				? new WP_Error( 'threat_not_ignored', __( 'The threat couldn’t be ignored. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) )
 				: new WP_Error( 'threat_not_unignored', __( 'The threat couldn’t be unignored. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 		}
 
-		Scan_Status::delete_option();
-		delete_transient( self::HISTORY_CACHE );
 		return array( 'ok' => true );
 	}
 
@@ -680,10 +684,17 @@ class Scan implements Dashboard_Section {
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/alerts%s', $blog_id, $path ),
 			'2',
-			array( 'method' => $method ),
+			// WordPress.com answers only once VaultPress has, which can take longer than the 10 second default.
+			array(
+				'method'  => $method,
+				'timeout' => 30,
+			),
 			null === $body ? null : wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
+		if ( is_wp_error( $response ) && 'http_request_failed' === $response->get_error_code() ) {
+			return new WP_Error( 'alerts_request_unanswered' );
+		}
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'alerts_request_failed' );
 		}
@@ -815,7 +826,9 @@ class Scan implements Dashboard_Section {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$is_initializing = empty( $status->last_checked ) && empty( $status->last_scan_failed ) && in_array( $status->status, self::INITIALIZING_STATUSES, true );
+		// Scan can stay idle with no scan on record, which isn't a scan running.
+		$is_initializing = empty( $status->last_checked ) && empty( $status->last_scan_failed ) && in_array( $status->status, self::INITIALIZING_STATUSES, true )
+			&& ! ( $has_plan && 'idle' === $status->status );
 
 		return array(
 			'error'          => false,

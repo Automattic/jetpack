@@ -19,3 +19,11 @@
 .tabList :global([role="tablist"]) {
 	max-inline-size: 100%;
 }
+
+.pendingLabel {
+	display: inline-block;
+	block-size: 1em;
+	inline-size: 5em;
+	vertical-align: middle;
+	border-radius: var(--wpds-border-radius-md);
+}
