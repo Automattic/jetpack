@@ -4,8 +4,8 @@ import { __, _x } from '@wordpress/i18n';
 import { Button, InputControl, InputLayout, Link, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useId, useState } from 'react';
 import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
-import { ModuleToggle } from '../module-toggle';
 import { useAccountConnected } from '../my-jetpack-tab-panel/features/feature-state';
+import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
 import type { ModuleSettingsProps } from './registry';
@@ -76,7 +76,7 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 				<Text variant="body-md" id={ labelId }>
 					{ $module.description }
 				</Text>
-				<ModuleToggle
+				<PanelModuleToggle
 					module={ $module }
 					labelledby={ labelId }
 					disabled={ disabled || ! accountConnected }
