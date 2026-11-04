@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Publicize\Publicize;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -64,10 +63,12 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	private function fake_publicize(): void {
-		global $publicize;
-
-		Connection_Utils::init_default_constants();
-		$publicize = new Publicize();
+		$GLOBALS['publicize'] = new class() extends Publicize {
+			/**
+			 * Skip the parent constructor, which needs a connection.
+			 */
+			public function __construct() {} // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
+		};
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
@@ -274,7 +275,10 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_body_reaches_a_route_that_forwards_only_the_raw_body(): void {
-		$seen                      = array();
+		$seen                      = array(
+			'body'  => '',
+			'query' => array(),
+		);
 		$GLOBALS['wp_rest_server'] = null;
 		add_action(
 			'rest_api_init',
@@ -315,7 +319,7 @@ class Social_Abilities_Test extends BaseTestCase {
 				'message' => 'Hello',
 				'async'   => true,
 			),
-			json_decode( (string) ( $seen['body'] ?? '' ), true )
+			json_decode( (string) $seen['body'], true )
 		);
 	}
 
