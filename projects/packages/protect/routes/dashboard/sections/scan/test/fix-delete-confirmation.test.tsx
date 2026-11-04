@@ -59,13 +59,12 @@ describe( 'FixDeleteModal', () => {
 		const busyThreat = { ...threat, id: 8 };
 		render( <FixDeleteModal items={ [ busyThreat ] } closeModal={ jest.fn() } /> );
 		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+		const confirm = screen.getByRole( 'button', { name: 'Confirm deletion' } );
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
 
 		act( () => void ignoreThreat( busyThreat ) );
 
-		expect( screen.getByRole( 'button', { name: 'Confirm deletion' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	it( 'advises a backup for software not on WordPress.org', () => {
