@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Read whether the site has Scan from Protect Status for the Scan product too, so it matches the Protect card and page.
+Scan: Decide whether the site owns Scan with the same check as the Protect card and page.
