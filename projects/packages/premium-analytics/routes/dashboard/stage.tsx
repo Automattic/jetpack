@@ -337,7 +337,7 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
-		onStep: stepDateRange,
+		stepping,
 	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -381,6 +381,7 @@ function Dashboard(): JSX.Element {
 	);
 	// A step applies at once and is tracked like a range the reader picked. It
 	// never changes the remembered preset: turning the page is not picking one.
+	const stepDateRange = stepping.onStep;
 	const onDateStep = useCallback< typeof stepDateRange >(
 		direction => {
 			const stepped = stepDateRange( direction );
@@ -396,6 +397,10 @@ function Dashboard(): JSX.Element {
 			return stepped;
 		},
 		[ stepDateRange, trackedOnChange, trackedOnApply ]
+	);
+	const dateStepping = useMemo(
+		() => ( { ...stepping, onStep: onDateStep } ),
+		[ stepping, onDateStep ]
 	);
 
 	/*
@@ -478,7 +483,7 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
-					onStep={ onDateStep }
+					stepping={ dateStepping }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

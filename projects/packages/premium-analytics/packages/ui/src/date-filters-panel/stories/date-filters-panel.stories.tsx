@@ -157,7 +157,7 @@ function DateFiltersPanelStory( {
 		[ committedPrimary ]
 	);
 
-	// Stepping applies on click, decided the way the report params decide it.
+	// Stepping applies on click, as planDateStep decides it.
 	const stepContext = { presetId: committedPrimary.presetId, timeZone: STORYBOOK_TIMEZONE };
 	const handleStep = useCallback(
 		( direction: StepDirection ) => {
@@ -222,9 +222,7 @@ function DateFiltersPanelStory( {
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
-				onStep={ handleStep }
-				canStepBackward={ canStepBackward }
-				canStepForward={ canStepForward }
+				stepping={ { onStep: handleStep, canStepBackward, canStepForward } }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }

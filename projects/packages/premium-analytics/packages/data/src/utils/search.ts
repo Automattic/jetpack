@@ -5,6 +5,7 @@ import {
 	PRESET_ALL_TIME,
 	isSelectablePreset,
 	isYearPresetId,
+	parseDateStepId,
 	readSiteTimestamp,
 	type SelectablePresetId,
 	type ComparisonPresetId,
@@ -141,12 +142,15 @@ export function normalizeReportParams(
 
 	const postId = toPostId( search?.post_id );
 	const authorId = toAuthorId( search?.author_id );
+	// Only a hand-picked window carries its step: a preset steps by its own unit.
+	const step = preset ? undefined : parseDateStepId( search?.step );
 
 	const normalized: ReportParams = {
 		from,
 		to,
 		interval,
 		preset,
+		...( step ? { step } : {} ),
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		// Preserve the post_id / author_id scope so detail-page widgets stay bound
 		// to their resource; drop an invalid one so a hand-edited deep link can't

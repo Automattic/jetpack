@@ -49,7 +49,7 @@ describe( 'DateFiltersPanel', () => {
 			const onStep = jest.fn();
 			const user = userEvent.setup();
 
-			renderPanel( { onStep } );
+			renderPanel( { stepping: { onStep, canStepBackward: true, canStepForward: true } } );
 
 			await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 			expect( onStep ).toHaveBeenCalledWith( 'previous' );
@@ -58,7 +58,7 @@ describe( 'DateFiltersPanel', () => {
 			expect( onStep ).toHaveBeenCalledWith( 'next' );
 		} );
 
-		it( 'renders no arrows without onStep', () => {
+		it( 'renders no arrows without stepping', () => {
 			renderPanel();
 
 			expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
@@ -69,8 +69,10 @@ describe( 'DateFiltersPanel', () => {
 		it.each( [
 			[ 'Next period', 'Previous period', { canStepForward: false } ],
 			[ 'Previous period', 'Next period', { canStepBackward: false } ],
-		] )( 'disables %s when the filters say it has nowhere to go', ( disabled, live, props ) => {
-			renderPanel( { onStep: jest.fn(), ...props } );
+		] )( 'disables %s when the filters say it has nowhere to go', ( disabled, live, edge ) => {
+			renderPanel( {
+				stepping: { onStep: jest.fn(), canStepBackward: true, canStepForward: true, ...edge },
+			} );
 
 			expect( screen.getByRole( 'button', { name: disabled } ) ).toHaveAttribute(
 				'aria-disabled',
@@ -316,7 +318,7 @@ describe( 'DateFiltersPanel', () => {
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,
-			onStep: jest.fn(),
+			stepping: { onStep: jest.fn(), canStepBackward: true, canStepForward: true },
 			appliedRange: {
 				from: new TZDate( '2020-07-01T00:00:00.000Z', 'UTC' ),
 				to: new TZDate( '2020-07-30T23:59:59.999Z', 'UTC' ),

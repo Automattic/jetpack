@@ -75,18 +75,18 @@ export type ReportDateFilters = {
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
-	/** Whether the applied window has an earlier one the plan lets the site read. */
-	canStepBackward: boolean;
-
-	/** Whether the applied window has a later one that has begun. */
-	canStepForward: boolean;
-
 	/**
-	 * Step the applied window backward or forward and commit it. Returns what
-	 * was committed, so a caller can track it as applied: the preset the step
-	 * set out from when it lands back on it, or `custom`, and the interval kept.
+	 * The arrows' step and whether each has somewhere to go: an earlier window
+	 * the plan lets the site read, a later one that has begun. `onStep` commits
+	 * the step and returns what it committed, so a caller can track it as
+	 * applied: the preset the step set out from when it lands back on it, or
+	 * `custom`, and the interval kept.
 	 */
-	onStep: ( direction: StepDirection ) => ( DateStep & { interval: IntervalType } ) | undefined;
+	stepping: {
+		canStepBackward: boolean;
+		canStepForward: boolean;
+		onStep: ( direction: StepDirection ) => ( DateStep & { interval: IntervalType } ) | undefined;
+	};
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -332,6 +332,11 @@ export function useReportDateFilters< TFrom extends string >(
 		[ appliedRange, stepContext, commit, effective, interval, lockedIntervals, stage ]
 	);
 
+	const stepping = useMemo(
+		() => ( { canStepBackward, canStepForward, onStep } ),
+		[ canStepBackward, canStepForward, onStep ]
+	);
+
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -365,9 +370,7 @@ export function useReportDateFilters< TFrom extends string >(
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		canStepBackward,
-		canStepForward,
-		onStep,
+		stepping,
 		onApply,
 		onCancel,
 		canApply: isDirty,

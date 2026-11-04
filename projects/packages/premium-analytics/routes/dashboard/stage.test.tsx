@@ -59,7 +59,7 @@ let mockDateFiltersPanelProps: {
 	onChange: ( ...args: unknown[] ) => void;
 	onComparisonChange: ( ...args: unknown[] ) => void;
 	onApply: () => void;
-	onStep: ( direction: 'previous' | 'next' ) => unknown;
+	stepping: { onStep: ( direction: 'previous' | 'next' ) => unknown };
 };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 const mockUseTrackedDateRangeApply = jest.fn<
@@ -114,7 +114,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		onComparisonChange: mockChangeComparison,
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
-		onStep: mockStepDateRange,
+		stepping: { canStepBackward: true, canStepForward: true, onStep: mockStepDateRange },
 	} ),
 } ) );
 
@@ -1200,7 +1200,7 @@ describe( 'Dashboard header date control', () => {
 
 		render( <Dashboard /> );
 		act( () => {
-			mockDateFiltersPanelProps.onStep( 'previous' );
+			mockDateFiltersPanelProps.stepping.onStep( 'previous' );
 		} );
 
 		expect( mockStepDateRange ).toHaveBeenCalledWith( 'previous' );
@@ -1225,7 +1225,7 @@ describe( 'Dashboard header date control', () => {
 
 		render( <Dashboard /> );
 		act( () => {
-			mockDateFiltersPanelProps.onStep( 'previous' );
+			mockDateFiltersPanelProps.stepping.onStep( 'previous' );
 		} );
 
 		expect( trackedOnChange ).not.toHaveBeenCalled();

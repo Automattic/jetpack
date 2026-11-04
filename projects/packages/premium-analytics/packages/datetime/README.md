@@ -261,7 +261,7 @@ hours), or the shape a hand-picked window has on its first step, written as an
 ISO 8601 duration (`P30D`, `P1M`, `P1Y`, `PT6H`: whole calendar months step by
 months, whole years by years, any other run of whole days by its days, anything
 else by its hours). The applied preset wins over a `step` the URL carries; a
-`step` the URL cannot name is ignored. Every later step moves the same way
+`step` the URL cannot name, or longer than a century, is ignored. Every later step moves the same way
 whatever shape it lands on, so the reverse step always undoes it: a 30-day
 window stepped back onto a whole June returns to its 30 days. "All time" does
 not step.

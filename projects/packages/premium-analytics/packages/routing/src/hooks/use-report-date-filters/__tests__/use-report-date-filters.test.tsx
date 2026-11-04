@@ -429,7 +429,7 @@ describe( 'useReportDateFilters', () => {
 
 		let stepped;
 		act( () => {
-			stepped = result.current.onStep( 'previous' );
+			stepped = result.current.stepping.onStep( 'previous' );
 		} );
 		rerender();
 
@@ -460,7 +460,7 @@ describe( 'useReportDateFilters', () => {
 			const july = { from: '2026-07-01T00:00:00.000+00:00', to: '2026-07-30T23:59:59.999+00:00' };
 			let { result, rerender } = renderDateFilters( { ...july, preset: 'custom' } );
 
-			act( () => result.current.onStep( 'previous' ) );
+			act( () => result.current.stepping.onStep( 'previous' ) );
 			rerender();
 			expect( mockSearch ).toMatchObject( {
 				from: '2026-06-01T00:00:00.000+00:00',
@@ -483,7 +483,7 @@ describe( 'useReportDateFilters', () => {
 				);
 				rerender();
 			}
-			act( () => result.current.onStep( 'next' ) );
+			act( () => result.current.stepping.onStep( 'next' ) );
 			rerender();
 			expect( mockSearch ).toMatchObject( july );
 			expect( mockSearch.comp ).toBe( between === 'after turning Compare on' ? '1' : undefined );
@@ -539,7 +539,7 @@ describe( 'useReportDateFilters', () => {
 			preset: 'last-7-days',
 		} );
 
-		act( () => result.current.onStep( 'previous' ) );
+		act( () => result.current.stepping.onStep( 'previous' ) );
 		rerender();
 		expect( mockSearch ).toMatchObject( {
 			from: '2026-08-07T00:00:00.000+00:00',
@@ -549,7 +549,7 @@ describe( 'useReportDateFilters', () => {
 
 		let stepped;
 		act( () => {
-			stepped = result.current.onStep( 'next' );
+			stepped = result.current.stepping.onStep( 'next' );
 		} );
 		rerender();
 
@@ -562,12 +562,12 @@ describe( 'useReportDateFilters', () => {
 	it( 'ignores a step without a measurable window', () => {
 		const { result } = renderDateFilters();
 
-		expect( result.current.canStepBackward ).toBe( false );
-		expect( result.current.canStepForward ).toBe( false );
+		expect( result.current.stepping.canStepBackward ).toBe( false );
+		expect( result.current.stepping.canStepForward ).toBe( false );
 
 		let stepped;
 		act( () => {
-			stepped = result.current.onStep( 'previous' );
+			stepped = result.current.stepping.onStep( 'previous' );
 		} );
 
 		expect( stepped ).toBeUndefined();
@@ -584,11 +584,11 @@ describe( 'useReportDateFilters', () => {
 			interval: 'week',
 		} );
 
-		act( () => result.current.onStep( 'previous' ) );
+		act( () => result.current.stepping.onStep( 'previous' ) );
 		rerender();
 		let stepped;
 		act( () => {
-			stepped = result.current.onStep( 'next' );
+			stepped = result.current.stepping.onStep( 'next' );
 		} );
 		rerender();
 
@@ -632,14 +632,15 @@ describe( 'useReportDateFilters', () => {
 			to: '2026-08-13T23:59:59.999+00:00',
 			preset: 'custom',
 		};
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
 
-		expect( result.current.canStepBackward ).toBe( false );
-		expect( result.current.canStepForward ).toBe( true );
+		expect( result.current.stepping.canStepBackward ).toBe( false );
+		expect( result.current.stepping.canStepForward ).toBe( true );
 
 		let stepped;
 		act( () => {
-			stepped = result.current.onStep( 'previous' );
+			stepped = result.current.stepping.onStep( 'previous' );
 		} );
 
 		expect( stepped ).toBeUndefined();
@@ -795,7 +796,7 @@ describe( 'useReportDateFilters', () => {
 			compare_preset: 'previous-period',
 		} );
 
-		act( () => result.current.onStep( 'previous' ) );
+		act( () => result.current.stepping.onStep( 'previous' ) );
 		rerender();
 
 		expect( mockSearch ).toMatchObject( {
@@ -820,7 +821,7 @@ describe( 'useReportDateFilters', () => {
 			compare_preset: 'previous-period',
 		} );
 
-		act( () => result.current.onStep( 'previous' ) );
+		act( () => result.current.stepping.onStep( 'previous' ) );
 		rerender();
 
 		expect( mockSearch ).toMatchObject( {
@@ -848,7 +849,7 @@ describe( 'useReportDateFilters', () => {
 			interval: 'month',
 		} );
 
-		act( () => result.current.onStep( 'next' ) );
+		act( () => result.current.stepping.onStep( 'next' ) );
 		rerender();
 
 		expect( mockSearch ).toMatchObject( {
@@ -867,12 +868,12 @@ describe( 'useReportDateFilters', () => {
 		};
 		const { result, rerender } = renderHook( () => useReportDateFilters( '/' ) );
 
-		expect( result.current.canStepForward ).toBe( false );
+		expect( result.current.stepping.canStepForward ).toBe( false );
 
 		jest.setSystemTime( Date.parse( '2026-08-21T01:00:00.000Z' ) );
 		rerender();
 
-		expect( result.current.canStepForward ).toBe( true );
+		expect( result.current.stepping.canStepForward ).toBe( true );
 	} );
 
 	it( 'binds to the route it is given', () => {

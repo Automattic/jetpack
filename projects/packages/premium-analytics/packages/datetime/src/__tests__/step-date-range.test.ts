@@ -84,6 +84,8 @@ describe( 'parseDateStepId', () => {
 		[ 'a duration of nothing', 'P0D' ],
 		[ 'a lower-case unit', 'P7d' ],
 		[ 'a duration in weeks', 'P1W' ],
+		[ 'a duration past a century', 'P999999999D' ],
+		[ 'a century and a year', 'P101Y' ],
 		[ 'a number', 7 ],
 		[ 'nothing', undefined ],
 	] )( 'rejects %s', ( _name, value ) => {

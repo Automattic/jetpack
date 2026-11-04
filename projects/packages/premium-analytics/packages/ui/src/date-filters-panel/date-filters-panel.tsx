@@ -31,6 +31,17 @@ type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
 export type DateRange = DatePeriodDropdownProps[ 'range' ];
 
+/**
+ * The step the arrows offer, and whether each has somewhere to go, as the date
+ * filters decided it: the plan's earliest date behind, a window that has begun
+ * ahead. An arrow with nowhere to go is disabled, not hidden.
+ */
+export type DateStepping = {
+	onStep: ( direction: StepDirection ) => void;
+	canStepBackward: boolean;
+	canStepForward: boolean;
+};
+
 export type DateFiltersPanelProps = {
 	range: DateRange;
 
@@ -103,19 +114,11 @@ export type DateFiltersPanelProps = {
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
-	 * Steps the applied window backward or forward by its own length. Left out,
-	 * the navigation arrows are not rendered at all: a surface whose range is
-	 * not a movable window has nowhere to step.
+	 * The arrows that step the applied window by its own length. Left out, they
+	 * are not rendered at all: a surface whose range is not a movable window has
+	 * nowhere to step.
 	 */
-	onStep?: ( direction: StepDirection ) => void;
-
-	/**
-	 * Whether each arrow has somewhere to go, as the date filters decided it:
-	 * the plan's earliest date behind, a window that has begun ahead. An arrow
-	 * with nowhere to go is disabled, not hidden.
-	 */
-	canStepBackward?: boolean;
-	canStepForward?: boolean;
+	stepping?: DateStepping;
 
 	/**
 	 * Props for the date range popover.
@@ -173,9 +176,7 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
-	onStep,
-	canStepBackward = true,
-	canStepForward = true,
+	stepping,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -274,16 +275,8 @@ export function DateFiltersPanel( {
 	);
 
 	const navigationControl = useMemo(
-		() =>
-			onStep ? (
-				<DatePeriodNavigation
-					canStepBackward={ canStepBackward }
-					canStepForward={ canStepForward }
-					disabled={ disabled }
-					onStep={ onStep }
-				/>
-			) : null,
-		[ canStepBackward, canStepForward, disabled, onStep ]
+		() => ( stepping ? <DatePeriodNavigation { ...stepping } disabled={ disabled } /> : null ),
+		[ disabled, stepping ]
 	);
 
 	const intervalControl = useMemo(

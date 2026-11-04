@@ -15,7 +15,7 @@ type DetailDateControls = {
 	presetIds: typeof MENU_SURFACE_PRESETS_WITH_ALL_TIME;
 	allTimeStart: Date | undefined;
 	withIntervalControl: false;
-	onStep: undefined;
+	stepping: undefined;
 };
 
 /**
@@ -82,7 +82,7 @@ export function useDetailDateControls(
 			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			allTimeStart,
 			withIntervalControl: false,
-			onStep: undefined,
+			stepping: undefined,
 		} ),
 		[ allTimeStart ]
 	);

@@ -82,8 +82,19 @@ const PRESET_STEP_SPANS: Record< SelectablePresetId, DateRangeSpan > = {
 const DURATION_PATTERN = /^P(?:T(\d+)H|(\d+)D|(\d+)M|(\d+)Y)$/;
 
 /**
+ * The longest step a URL may name, in each unit: a century, so a hand-edited
+ * value cannot carry the window past the dates a `Date` can hold.
+ */
+const MAX_STEP_VALUES: Record< DateRangeSpanUnit, number > = {
+	hour: 100 * 366 * 24,
+	day: 100 * 366,
+	month: 100 * 12,
+	year: 100,
+};
+
+/**
  * The step a URL value names, or `undefined` for anything else, so a
- * hand-edited value cannot move the window by nothing.
+ * hand-edited value cannot move the window by nothing or by a century and more.
  *
  * @param value - The `step` search value.
  * @return The step id.
@@ -95,7 +106,9 @@ export function parseDateStepId( value: unknown ): DateStepId | undefined {
 
 	const span = typeof value === 'string' ? parseDuration( value ) : undefined;
 
-	return span?.value ? ( value as DateStepDuration ) : undefined;
+	return span && span.value > 0 && span.value <= MAX_STEP_VALUES[ span.unit ]
+		? ( value as DateStepDuration )
+		: undefined;
 }
 
 /**

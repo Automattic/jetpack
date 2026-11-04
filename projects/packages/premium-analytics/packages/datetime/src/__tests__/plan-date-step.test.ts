@@ -188,6 +188,7 @@ describe( 'planDateStep', () => {
 			'last-7-days',
 		],
 		[ 'the window’s shape over a step the URL cannot name', { step: 'P0D' }, 'P7D' ],
+		[ 'the window’s shape over a step no date can hold', { step: 'P999999999D' }, 'P7D' ],
 	] as const )( 'reads %s', ( _name, extra, step ) => {
 		expect( planDateStep( weekBeforeLast, 'previous', { ...context, ...extra } ) ).toMatchObject( {
 			range: wholeDays( [ 2026, 7, 31 ], [ 2026, 8, 6 ] ),
