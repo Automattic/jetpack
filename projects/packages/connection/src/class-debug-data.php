@@ -60,14 +60,25 @@ class Debug_Data {
 
 		return array(
 			'label'       => __( 'Jetpack Connection', 'jetpack-connection' ),
-			'description' => sprintf(
-				/* translators: %1$s is URL to jetpack.com's contact support page. %2$s accessibility text */
-				__(
-					'Diagnostic information helpful to <a href="%1$s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team<span class="screen-reader-text">%2$s</span></a>',
-					'jetpack-connection'
+			// Core prints the description unescaped.
+			'description' => wp_kses(
+				sprintf(
+					/* translators: %1$s is URL to jetpack.com's contact support page. %2$s accessibility text */
+					__(
+						'Diagnostic information helpful to <a href="%1$s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team<span class="screen-reader-text">%2$s</span></a>',
+						'jetpack-connection'
+					),
+					esc_url( $support_url ),
+					__( '(opens in a new tab)', 'jetpack-connection' )
 				),
-				esc_url( $support_url ),
-				__( '(opens in a new tab)', 'jetpack-connection' )
+				array(
+					'a'    => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'span' => array( 'class' => array() ),
+				)
 			),
 			'fields'      => self::get_fields(),
 		);
