@@ -218,7 +218,7 @@ describe( 'ScanCard threat list', () => {
 		await user.click( await screen.findByRole( 'checkbox', { name: 'Select all' } ) );
 
 		await act( async () => setScan( current => ( { ...current, threats: [ other ] } ) ) );
-		expect( screen.getByText( '1 Item selected' ) ).toBeInTheDocument();
+		expect( screen.getByText( '1 item selected' ) ).toBeInTheDocument();
 
 		await act( async () => setScan( current => ( { ...current, threats: [ fixable ] } ) ) );
 		expect( screen.queryByText( /selected/ ) ).not.toBeInTheDocument();
@@ -235,7 +235,7 @@ describe( 'ScanCard threat list', () => {
 		await user.click( menu );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Ignore' } ) );
 
-		expect( screen.getByText( '1 Item selected' ) ).toBeInTheDocument();
+		expect( screen.getByText( '1 item selected' ) ).toBeInTheDocument();
 	} );
 
 	it( 'collapses the list from its heading', async () => {

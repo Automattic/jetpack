@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JetpackFooter: Keep the footer styles in production builds.
