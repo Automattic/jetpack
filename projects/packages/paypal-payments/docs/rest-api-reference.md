@@ -19,25 +19,25 @@ Store PayPal OAuth credentials and validate via token exchange.
 
 ```json
 {
-  "client_id": "AaBbCcDd...",
-  "client_secret": "EeFfGgHh...",
-  "environment": "production"
+	"client_id": "AaBbCcDd...",
+	"client_secret": "EeFfGgHh...",
+	"environment": "production"
 }
 ```
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `client_id` | string | Yes | — | PayPal OAuth client ID |
-| `client_secret` | string | Yes | — | PayPal OAuth client secret |
-| `environment` | string | No | `production` | `sandbox` or `production` |
+| Parameter       | Type   | Required | Default      | Description                |
+| --------------- | ------ | -------- | ------------ | -------------------------- |
+| `client_id`     | string | Yes      | —            | PayPal OAuth client ID     |
+| `client_secret` | string | Yes      | —            | PayPal OAuth client secret |
+| `environment`   | string | No       | `production` | `sandbox` or `production`  |
 
 **Response (200):**
 
 ```json
 {
-  "connected": true,
-  "environment": "production",
-  "message": "PayPal account connected successfully."
+	"connected": true,
+	"environment": "production",
+	"message": "PayPal account connected successfully."
 }
 ```
 
@@ -45,9 +45,9 @@ Store PayPal OAuth credentials and validate via token exchange.
 
 ```json
 {
-  "code": "paypal_credentials_invalid",
-  "message": "The Client ID or Client Secret is incorrect.",
-  "data": { "status": 401 }
+	"code": "paypal_credentials_invalid",
+	"message": "The Client ID or Client Secret is incorrect.",
+	"data": { "status": 401 }
 }
 ```
 
@@ -61,8 +61,8 @@ Check current PayPal connection status.
 
 ```json
 {
-  "connected": true,
-  "environment": "production"
+	"connected": true,
+	"environment": "production"
 }
 ```
 
@@ -76,8 +76,8 @@ Remove stored credentials and cached token.
 
 ```json
 {
-  "connected": false,
-  "message": "PayPal account disconnected."
+	"connected": false,
+	"message": "PayPal account disconnected."
 }
 ```
 
@@ -91,7 +91,7 @@ Switch between sandbox and production.
 
 ```json
 {
-  "environment": "production"
+	"environment": "production"
 }
 ```
 
@@ -99,8 +99,8 @@ Switch between sandbox and production.
 
 ```json
 {
-  "environment": "production",
-  "message": "PayPal environment set to production. Cached token has been cleared."
+	"environment": "production",
+	"message": "PayPal environment set to production. Cached token has been cleared."
 }
 ```
 
@@ -118,42 +118,42 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 
 ```json
 {
-  "type": "BUY_NOW",
-  "integration_mode": "LINK",
-  "reusable": "MULTIPLE",
-  "line_items": [
-    {
-      "name": "Premium Widget",
-      "description": "A high-quality widget",
-      "unit_amount": {
-        "currency_code": "USD",
-        "value": "29.99"
-      }
-    }
-  ],
-  "return_url": "https://example.com/thank-you"
+	"type": "BUY_NOW",
+	"integration_mode": "LINK",
+	"reusable": "MULTIPLE",
+	"line_items": [
+		{
+			"name": "Premium Widget",
+			"description": "A high-quality widget",
+			"unit_amount": {
+				"currency_code": "USD",
+				"value": "29.99"
+			}
+		}
+	],
+	"return_url": "https://example.com/thank-you"
 }
 ```
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `type` | string | No | `BUY_NOW` | Payment type (only `BUY_NOW` in Phase 1) |
-| `integration_mode` | string | No | `LINK` | `LINK` or `BUTTON` |
-| `reusable` | string | No | `MULTIPLE` | `MULTIPLE` or `SINGLE` |
-| `line_items` | array | Yes | — | Array of line item objects (min 1) |
-| `line_items[].name` | string | Yes | — | Product name (max 127 chars) |
-| `line_items[].description` | string | No | — | Product description (max 2048 chars) |
-| `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
-| `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
-| `line_items[].quantity` | string | No | `1` | Quantity |
-| `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
-| `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
-| `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
-| `line_items[].images[].asset_id` | string | No | — | An image uploaded through the images route. Up to 5; the sanitizer caps the list |
-| `line_items[].images[].is_primary` | boolean | No | first | Exactly one image leads at checkout: the one flagged, or else the first |
-| `line_items[].variants.dimensions[].options[].images[].asset_id` | string | No | — | One image per option, kept on the primary dimension only |
-| `return_url` | string | No | — | Post-payment redirect URL |
-| `name` | string | No | — | Display name for the resource |
+| Parameter                                                        | Type    | Required | Default      | Description                                                                      |
+| ---------------------------------------------------------------- | ------- | -------- | ------------ | -------------------------------------------------------------------------------- |
+| `type`                                                           | string  | No       | `BUY_NOW`    | Payment type (only `BUY_NOW` in Phase 1)                                         |
+| `integration_mode`                                               | string  | No       | `LINK`       | `LINK` or `BUTTON`                                                               |
+| `reusable`                                                       | string  | No       | `MULTIPLE`   | `MULTIPLE` or `SINGLE`                                                           |
+| `line_items`                                                     | array   | Yes      | —            | Array of line item objects (min 1)                                               |
+| `line_items[].name`                                              | string  | Yes      | —            | Product name (max 127 chars)                                                     |
+| `line_items[].description`                                       | string  | No       | —            | Product description (max 2048 chars)                                             |
+| `line_items[].unit_amount.currency_code`                         | string  | Yes      | —            | ISO currency code                                                                |
+| `line_items[].unit_amount.value`                                 | string  | Yes      | —            | Price (positive, max 2 decimals)                                                 |
+| `line_items[].quantity`                                          | string  | No       | `1`          | Quantity                                                                         |
+| `line_items[].taxes[].type`                                      | string  | No       | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE`                                             |
+| `line_items[].taxes[].value`                                     | string  | No       | `0`          | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE`    |
+| `line_items[].taxes[].name`                                      | string  | No       | —            | Tax label. Sent only when set                                                    |
+| `line_items[].images[].asset_id`                                 | string  | No       | —            | An image uploaded through the images route. Up to 5; the sanitizer caps the list |
+| `line_items[].images[].is_primary`                               | boolean | No       | first        | Exactly one image leads at checkout: the one flagged, or else the first          |
+| `line_items[].variants.dimensions[].options[].images[].asset_id` | string  | No       | —            | One image per option, kept on the primary dimension only                         |
+| `return_url`                                                     | string  | No       | —            | Post-payment redirect URL                                                        |
+| `name`                                                           | string  | No       | —            | Display name for the resource                                                    |
 
 **Response (201):**
 
@@ -184,10 +184,10 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 
 List payment resources with pagination.
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `page_size` | integer | No | `100` | Results per page (1–100) |
-| `page_token` | string | No | — | Pagination cursor |
+| Parameter    | Type    | Required | Default | Description              |
+| ------------ | ------- | -------- | ------- | ------------------------ |
+| `page_size`  | integer | No       | `100`   | Results per page (1–100) |
+| `page_token` | string  | No       | —       | Pagination cursor        |
 
 **Response (200):**
 
@@ -223,9 +223,9 @@ stacked preview boots from it until the block has its own `scriptSrc`.
 Full replacement update of a payment resource. Same request body as create, plus one parameter of
 its own.
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `include_snippets` | boolean | No | `false` | Read the resource back from PayPal after updating it, so the response includes `code_snippets` |
+| Parameter          | Type    | Required | Default | Description                                                                                    |
+| ------------------ | ------- | -------- | ------- | ---------------------------------------------------------------------------------------------- |
+| `include_snippets` | boolean | No       | `false` | Read the resource back from PayPal after updating it, so the response includes `code_snippets` |
 
 **Response (200):** The request body echoed back, plus `id`. PayPal answers a successful update with
 `204 No Content`, so `status`, `payment_link` and `links` are absent - use the GET route to read
@@ -249,9 +249,9 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 
 ```json
 {
-  "deleted": true,
-  "resource_id": "PLB-ABC123DEF456",
-  "message": "Payment resource deleted successfully."
+	"deleted": true,
+	"resource_id": "PLB-ABC123DEF456",
+	"message": "Payment resource deleted successfully."
 }
 ```
 
@@ -270,9 +270,9 @@ Send media library images to PayPal. Each attachment is checked against PayPal's
 (JPEG, PNG, BMP or TIFF; 12 MB; 10 to 9000 px a side), then every file that passes goes in one
 multipart request.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `attachment_ids` | integer[] | Yes | Media library attachments, 1 to 15 |
+| Parameter        | Type      | Required | Description                        |
+| ---------------- | --------- | -------- | ---------------------------------- |
+| `attachment_ids` | integer[] | Yes      | Media library attachments, 1 to 15 |
 
 **Response (200):** one row per attachment, in the order asked. A row carries either PayPal's
 `asset_id`, `status`, `url` and `thumbnail_url`, or an `error` with PayPal's `name` and a message
@@ -280,10 +280,22 @@ for the merchant. A failure of the whole call is an error response instead.
 
 ```json
 {
-  "images": [
-    { "attachment_id": 12, "asset_id": "LzAw…", "status": "APPROVED", "url": "https://…", "thumbnail_url": "https://…" },
-    { "attachment_id": 13, "error": { "name": "UNSUPPORTED_FORMAT", "message": "PayPal does not accept the format of logo.gif. Use a JPEG, PNG, BMP or TIFF image." } }
-  ]
+	"images": [
+		{
+			"attachment_id": 12,
+			"asset_id": "LzAw…",
+			"status": "APPROVED",
+			"url": "https://…",
+			"thumbnail_url": "https://…"
+		},
+		{
+			"attachment_id": 13,
+			"error": {
+				"name": "UNSUPPORTED_FORMAT",
+				"message": "PayPal does not accept the format of logo.gif. Use a JPEG, PNG, BMP or TIFF image."
+			}
+		}
+	]
 }
 ```
 
@@ -292,9 +304,9 @@ for the merchant. A failure of the whole call is an error response instead.
 Delete an image no payment carries. The update route deletes the images a PUT took off a payment
 itself; the editor calls this for an image it uploaded and then removed before any save.
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `asset_id` | string | Yes | The image, as PayPal identifies it |
+| Parameter  | Type   | Required | Description                        |
+| ---------- | ------ | -------- | ---------------------------------- |
+| `asset_id` | string | Yes      | The image, as PayPal identifies it |
 
 **Response (200):** `{ "deleted": true, "asset_id": "…" }`. An image PayPal no longer has (404)
 counts as deleted; one still on a payment is a 422.
@@ -303,38 +315,38 @@ counts as deleted; one still on a payment is a 422.
 
 ## Block Attributes
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `isApiManaged` | boolean | `false` | Whether this block uses the V2 API flow |
-| `buttonText` | string | `Buy Now` | Text shown on the theme-native button (wp-element-button class) |
-| `resourceId` | string | — | PayPal resource ID (`PLB-...`) |
-| `paymentLink` | string | — | PayPal payment URL |
-| `productName` | string | — | Product name |
-| `price` | string | — | Price value (e.g., `29.99`) |
-| `currencyCode` | string | `USD` | ISO currency code |
-| `productDescription` | string | — | Product description |
-| `imageUrl` | string | — | Product image URL. No longer set from the editor; kept for blocks that already have one |
-| `images` | array | `[]` | Product images PayPal shows at checkout, the primary one first: `assetId`, `status`, `url`, `thumbnailUrl`, plus the media library's `attachmentId`, `name` and local `thumbnailUrl` for the editor list. Variant options carry one image each in the same shape, under `variants` |
-| `returnUrl` | string | — | Post-payment redirect URL |
-| `scriptSrc` | string | — | Legacy: PayPal script URL |
-| `hostedButtonId` | string | — | Legacy: hosted button ID |
+| Attribute            | Type    | Default   | Description                                                                                                                                                                                                                                                                        |
+| -------------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isApiManaged`       | boolean | `false`   | Whether this block uses the V2 API flow                                                                                                                                                                                                                                            |
+| `buttonText`         | string  | `Buy Now` | Text shown on the theme-native button (wp-element-button class)                                                                                                                                                                                                                    |
+| `resourceId`         | string  | —         | PayPal resource ID (`PLB-...`)                                                                                                                                                                                                                                                     |
+| `paymentLink`        | string  | —         | PayPal payment URL                                                                                                                                                                                                                                                                 |
+| `productName`        | string  | —         | Product name                                                                                                                                                                                                                                                                       |
+| `price`              | string  | —         | Price value (e.g., `29.99`)                                                                                                                                                                                                                                                        |
+| `currencyCode`       | string  | `USD`     | ISO currency code                                                                                                                                                                                                                                                                  |
+| `productDescription` | string  | —         | Product description                                                                                                                                                                                                                                                                |
+| `imageUrl`           | string  | —         | Product image URL. No longer set from the editor; kept for blocks that already have one                                                                                                                                                                                            |
+| `images`             | array   | `[]`      | Product images PayPal shows at checkout, the primary one first: `assetId`, `status`, `url`, `thumbnailUrl`, plus the media library's `attachmentId`, `name` and local `thumbnailUrl` for the editor list. Variant options carry one image each in the same shape, under `variants` |
+| `returnUrl`          | string  | —         | Post-payment redirect URL                                                                                                                                                                                                                                                          |
+| `scriptSrc`          | string  | —         | Legacy: PayPal script URL                                                                                                                                                                                                                                                          |
+| `hostedButtonId`     | string  | —         | Legacy: hosted button ID                                                                                                                                                                                                                                                           |
 
 ---
 
 ## Error Codes
 
-| Code | HTTP | Meaning |
-|------|------|---------|
-| `paypal_no_credentials` | — | No PayPal credentials stored |
-| `paypal_credentials_invalid` | 401 | Client ID or secret incorrect |
-| `paypal_api_invalid_request` | 400 | Missing required fields |
-| `paypal_api_not_authorized` | 403 | Account not authorized for Payment Links |
-| `paypal_api_resource_not_found` | 404 | Resource deleted or expired |
-| `paypal_api_unprocessable_entity` | 422 | Invalid amount (may be below currency minimum), unsupported currency/amount combination, or account-level business rule violation |
-| `paypal_api_internal_server_error` | 500 | PayPal server error (retried automatically) |
-| `paypal_api_timeout` | — | Request timed out (retried automatically) |
-| `paypal_invalid_resource_id` | 400 | Invalid `PLB-` format |
-| `paypal_untrusted_domain` | 502 | Payment link from non-PayPal domain |
+| Code                               | HTTP | Meaning                                                                                                                           |
+| ---------------------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `paypal_no_credentials`            | —    | No PayPal credentials stored                                                                                                      |
+| `paypal_credentials_invalid`       | 401  | Client ID or secret incorrect                                                                                                     |
+| `paypal_api_invalid_request`       | 400  | Missing required fields                                                                                                           |
+| `paypal_api_not_authorized`        | 403  | Account not authorized for Payment Links                                                                                          |
+| `paypal_api_resource_not_found`    | 404  | Resource deleted or expired                                                                                                       |
+| `paypal_api_unprocessable_entity`  | 422  | Invalid amount (may be below currency minimum), unsupported currency/amount combination, or account-level business rule violation |
+| `paypal_api_internal_server_error` | 500  | PayPal server error (retried automatically)                                                                                       |
+| `paypal_api_timeout`               | —    | Request timed out (retried automatically)                                                                                         |
+| `paypal_invalid_resource_id`       | 400  | Invalid `PLB-` format                                                                                                             |
+| `paypal_untrusted_domain`          | 502  | Payment link from non-PayPal domain                                                                                               |
 
 ---
 
