@@ -322,6 +322,7 @@ const onLeaderboardItemClick = action( 'leaderboard-item-click' );
 
 const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
 	<span
+		data-testid="interactive-row-label"
 		style={ {
 			display: 'flex',
 			alignItems: 'center',
@@ -446,6 +447,16 @@ export const InteractiveLabel: Story = {
 		expect( button ).not.toContainElement(
 			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
 		);
+
+		// A focused nested control turns the row's hover inset off, but must not lift the label cap.
+		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
+		const label = canvas.getAllByTestId( 'interactive-row-label' ).at( -1 );
+		const restingRight = label.getBoundingClientRect().right;
+
+		canvas.getByRole( 'link', { name: longLabel } ).focus();
+		await Promise.all( document.getAnimations().map( ( { finished } ) => finished ) );
+
+		expect( label.getBoundingClientRect().right ).toBeLessThan( restingRight );
 	},
 };
 
