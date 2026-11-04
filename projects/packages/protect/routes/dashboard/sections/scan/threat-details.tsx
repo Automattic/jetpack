@@ -479,7 +479,7 @@ function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: bool
 					{ labels.deactivate }
 				</ButtonLink>
 			) }
-			<DeleteSoftwareButton threat={ threat } />
+			{ canDelete && <DeleteSoftwareButton threat={ threat } /> }
 			{ actions.details && (
 				<ButtonLink
 					href={ actions.details }

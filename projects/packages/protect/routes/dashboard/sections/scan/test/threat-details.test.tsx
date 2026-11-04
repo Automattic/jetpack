@@ -78,7 +78,17 @@ describe( 'ThreatDetails', () => {
 		const threat = threatIn( 6, fixer );
 		render(
 			<ThreatDetails
-				threat={ { ...threat, extension: { ...threat.extension!, actions: { delete: true } } } }
+				threat={ {
+					...threat,
+					extension: {
+						...threat.extension!,
+						actions: {
+							delete: true,
+							// Any other link skips SoftwareActions' early return.
+							details: 'https://wordpress.org/plugins/akismet/',
+						},
+					},
+				} }
 				canAct={ canAct }
 			/>
 		);
