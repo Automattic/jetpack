@@ -336,7 +336,7 @@ describe( 'TrafficChart drill-down', () => {
 		} );
 	} );
 
-	it( 'opens the quarter a quarter bar drew, ticked by its first month', () => {
+	it( 'opens the quarter a quarter bar drew, declared to the chart as quarters', () => {
 		const openPeriod = jest.fn();
 		render(
 			<ReportScopeProvider openPeriod={ openPeriod }>
@@ -347,7 +347,7 @@ describe( 'TrafficChart drill-down', () => {
 		);
 
 		const calls = mockMetricTabsChart.mock.calls;
-		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'month' );
+		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'quarter' );
 
 		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
 
