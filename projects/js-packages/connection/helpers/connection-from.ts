@@ -2,19 +2,19 @@ const STANDARD_ENTRY_POINT_PATTERN = /^[a-z][a-z0-9]*(_[a-z0-9]+)+$/;
 const STANDARD_ENTRY_POINT_MAX_LENGTH = 64;
 
 // My Jetpack slugs that drop a `jetpack-` prefix or a tab's suffix, so each product has one name.
-const SLUG_OVERRIDES: Record< string, string > = {
-	'jetpack-ai': 'ai',
-	'jetpack-forms': 'forms',
-	'protect-dashboard': 'protect',
-};
+const SLUG_OVERRIDES = new Map( [
+	[ 'jetpack-ai', 'ai' ],
+	[ 'jetpack-forms', 'forms' ],
+	[ 'protect-dashboard', 'protect' ],
+] );
 
 const toNamePart = ( slug: string ): string =>
-	( SLUG_OVERRIDES[ slug ] ?? slug ).replace( /-/g, '_' );
+	( SLUG_OVERRIDES.get( slug ) ?? slug ).replace( /-/g, '_' );
 
 /**
  * The `from` each connect link sends to WordPress.com, which counts connections and picks its screen by it.
  *
- * Every Jetpack entry point's name lives here: add a new one in the format `isStandardEntryPoint()` accepts.
+ * A new entry point adds its name here, in the format `isStandardEntryPoint()` accepts.
  * Never rename a shipped name, or reuse another surface's.
  */
 export const CONNECTION_FROM = {

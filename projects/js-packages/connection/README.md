@@ -26,8 +26,8 @@ function my_app_enqueue_script() {
 Every connect link tells WordPress.com where it came from (`from`) and where to send the user afterwards. WordPress.com counts connections by `from` and picks its connection screen by it: a standard name gets the unified screen and returns the user straight to the return URL, without the plans page.
 
 - **Name it with `CONNECTION_FROM`.** For a new surface, add its name there first. A standard name is `owner_surface[_detail]` (the product, the screen, and optionally which button on it): lowercase letters, digits and underscores, at most 64 characters, such as `my_jetpack_header`. `isStandardEntryPoint()` checks the format and `isUnifiedConnectionFlow()` whether WordPress.com shows the unified screen; both mirror Calypso's [`entry-points.ts`](https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts).
-- **Pass `getUserConnectionUrl()` an absolute `redirect_url`.** WordPress.com ignores a relative one and shows the plans page instead.
-- **Give each surface its own name.** Don't reuse another surface's name to get its screen: every standard name already gets the unified screen, and a shared name merges both surfaces in WordPress.com's counts.
+- **Pass `getUserConnectionUrl()` an absolute `redirect_url`.** WordPress.com ignores a relative one and shows the plans page instead. `ConnectScreen`, `ConnectButton` and `useConnection()` are the opposite: their `redirectUri` is relative to wp-admin, because the connection REST API prefixes it with the admin URL.
+- **Give each surface its own name.** Don't reuse another surface's name to get its screen: every standard name already gets the unified screen, and a shared name merges both surfaces in WordPress.com's counts. The examples in this README use My Jetpack's own names.
 - **Never rename a name once it has shipped.** Reports key on it, and older plugin versions keep sending it.
 
 ```jsx
@@ -49,7 +49,7 @@ The component implements the connection screen page, and loads the `ConnectButto
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *redirectUri* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *redirectUri* - string, the page to return the user to after connecting, relative to wp-admin (e.g. `admin.php?page=my-jetpack`).
 - *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
 - *title* - string, page title.
 - *buttonLabel* - string, the "Connect" button label.
@@ -77,7 +77,7 @@ const statusCallback = useCallback(
 	apiNonce="12345"
 	registrationNonce="54321"
 	from={ CONNECTION_FROM.myJetpackConnectionScreen }
-	redirectUri="tools.php?page=wpcom-connection-manager"
+	redirectUri="admin.php?page=my-jetpack"
 	statusCallback={ statusCallback }
 >
 	<p>The connection screen copy.</p>
@@ -93,7 +93,7 @@ The component displays the connection button and handles the connection process,
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
 - *from* - string, the entry-point name from `CONNECTION_FROM` (see [Adding a connect button](#adding-a-connect-button)).
-- *redirectUri* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *redirectUri* - string, the page to return the user to after connecting, relative to wp-admin (e.g. `admin.php?page=my-jetpack`).
 - *statusCallback* - callback to pull connection status from the component.
 - *connectionStatus* - object, the connection status info.
 - *connectionStatusIsFetching* - boolean, whether the connection status is being fetched at the moment.
@@ -111,7 +111,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiNonce="12345"
 	registrationNonce="54321"
 	from={ CONNECTION_FROM.myJetpackConnectionCard }
-	redirectUri="tools.php?page=wpcom-connection-manager"
+	redirectUri="admin.php?page=my-jetpack"
 	connectionStatus={ connectionStatus }
 	connectionStatusIsFetching={ isFetching }
 />

@@ -28,6 +28,8 @@ jest.unstable_mockModule( '../../../state/store', () => ( {
 const useRestoreConnection = ( await import( '../index' ) ).default;
 
 describe( 'restoreConnection', () => {
+	beforeEach( () => getUserConnectionUrl.mockClear() );
+
 	it( 'reports the message of a failed request without the error name', async () => {
 		const error = new Error( 'Ask an administrator (Status 403)' );
 		error.name = 'ApiError';
