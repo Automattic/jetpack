@@ -14,6 +14,7 @@ import { useThreatAction, type ThreatActionState } from './threat-actions';
 import ThreatMedia from './threat-media';
 import { useThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
+import type { ReactNode } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
 
@@ -143,14 +144,21 @@ function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
 }
 
 /**
- * The severity badge, or nothing when the threat has no severity, as with the free vulnerability check.
+ * The severity badge, or the fallback when the threat has no severity, as with the free vulnerability check.
  *
  * @param props          - Component props.
  * @param props.severity - The severity, 0 to 10, or null when unknown.
- * @return The badge, or null.
+ * @param props.fallback - What to show without a severity.
+ * @return The badge, or the fallback.
  */
-function KnownSeverityBadge( { severity }: { severity?: number | null } ) {
-	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : null;
+function KnownSeverityBadge( {
+	severity,
+	fallback = null,
+}: {
+	severity?: number | null;
+	fallback?: ReactNode;
+} ) {
+	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : fallback;
 }
 
 type ThreatFieldOptions = {
@@ -185,12 +193,9 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) =>
-				typeof item.severity === 'number' ? (
-					<ThreatSeverityBadge severity={ item.severity } />
-				) : (
-					NOT_AVAILABLE
-				),
+			render: ( { item } ) => (
+				<KnownSeverityBadge severity={ item.severity } fallback={ NOT_AVAILABLE } />
+			),
 		},
 		{
 			id: 'threat',
