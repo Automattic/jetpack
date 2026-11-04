@@ -99,8 +99,8 @@ export default function useScanStatusQuery( {
 			// Refetch on a shorter interval for the first few updates.
 			const interval = query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
 
-			// Refetch when scanning.
-			if ( isScanInProgress( query.state.data ) ) {
+			// Refetch when scanning, or until WordPress.com queues a first scan.
+			if ( isScanInProgress( query.state.data ) || isFirstScanNeeded( query.state.data ) ) {
 				return interval;
 			}
 
