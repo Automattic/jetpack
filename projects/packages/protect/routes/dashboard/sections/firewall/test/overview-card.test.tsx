@@ -326,6 +326,18 @@ describe( 'FirewallOverviewCard', () => {
 			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days57' );
 		} );
 
+		it.each( [
+			[ 'off', { active: false } ],
+			[ 'unavailable', { available: false } ],
+			[ 'provided by the host', { providedByHost: true } ],
+		] )( 'leaves the counts alone while the firewall is %s', async ( _, state ) => {
+			render( <FirewallOverviewCard { ...props } state={ { ...props.state!, ...state } } /> );
+
+			await tick();
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
 		it( 'keeps the newest counts when an older read lands last', async () => {
 			const answers: Array< ( value: unknown ) => void > = [];
 			( apiFetch as unknown as jest.Mock ).mockImplementation(
