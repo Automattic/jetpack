@@ -1,7 +1,7 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, offline } from '@wordpress/icons';
+import { error, Icon } from '@wordpress/icons';
 import { Card, Link, Text } from '@wordpress/ui';
 
 /**
@@ -14,7 +14,7 @@ export default function OfflineModeScreen() {
 		<div className="jpb-gates__stage">
 			<Card.Root className="jpb-gates__card">
 				<span className="jpb-gates__badge" aria-hidden="true">
-					<Icon icon={ offline } />
+					<Icon icon={ error } />
 				</span>
 				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
 					{ __( 'Backup is unavailable in Offline Mode', 'jetpack-backup-pkg' ) }
