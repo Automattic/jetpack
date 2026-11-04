@@ -218,9 +218,6 @@ const isInserterOpened = (): boolean => {
 };
 
 const registerInInserter = ( mediaCategoryProvider: () => object ) =>
-	// Remove as soon @types/wordpress__block-editor is up to date
-	// eslint-disable-next-line
-	// @ts-ignore
 	dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( mediaCategoryProvider() );
 
 /**
