@@ -138,9 +138,10 @@ function getThreatRowActions(
 					: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			isEligible: item => canFix( item ) && isUpdateFix( item ),
-			// A batch of updates Scan runs only on their own would start nothing.
+			// A batch of updates Scan runs only on their own starts nothing, but without Ignore it keeps them selectable.
 			supportsBulk:
-				!! onBulk && ( selectedUpdates.length < 2 || getUpdated( selectedUpdates ).length > 0 ),
+				!! onBulk &&
+				( ! canIgnore || selectedUpdates.length < 2 || getUpdated( selectedUpdates ).length > 0 ),
 			modalHeader: items => getUpdateFixTitle( items ),
 			RenderModal: FixUpdate,
 		},
