@@ -1,12 +1,12 @@
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { DropZone, Tooltip } from '@wordpress/components';
+import { DropZone } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Tooltip } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
@@ -505,22 +505,25 @@ const StageInner = () => {
 							style={ { display: 'none' } }
 							onChange={ onFilePicked }
 						/>
-						<Tooltip
-							text={
-								isAtLimit
-									? FREE_TIER_AT_LIMIT_MESSAGE
-									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-							}
-						>
-							<Button
-								className="vp-library__upload-button"
-								size="compact"
-								onClick={ onClickHeaderUpload }
-								aria-disabled={ isAtLimit }
+						<Tooltip.Root>
+							<Tooltip.Trigger
+								render={
+									<Button
+										className="vp-library__upload-button"
+										size="compact"
+										onClick={ onClickHeaderUpload }
+										aria-disabled={ isAtLimit }
+									/>
+								}
 							>
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</Tooltip>
+							</Tooltip.Trigger>
+							<Tooltip.Popup>
+								{ isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' ) }
+							</Tooltip.Popup>
+						</Tooltip.Root>
 						<RecordVideoButton
 							onRecorded={ file => handleFilesSelected( [ file ] ) }
 							disabled={ isAtLimit }

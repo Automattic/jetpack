@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { Tooltip } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Tooltip } from '@wordpress/ui';
 import {
 	type Threat,
 	getFixerState,
@@ -80,23 +80,29 @@ export default function ThreatFixerButton( {
 
 	return (
 		<div>
-			<Tooltip className={ styles.tooltip } text={ tooltipText }>
-				<Button
-					size="small"
-					weight="regular"
-					variant="secondary"
-					onClick={ handleClick }
-					children={ buttonText }
-					className={ className }
-					isLoading={ fixerState.inProgress }
-					isDestructive={
-						( threat.fixable && threat.fixable.fixer === 'delete' ) ||
-						fixerState.error ||
-						fixerState.stale
+			<Tooltip.Root>
+				<Tooltip.Trigger
+					render={
+						<Button
+							size="small"
+							weight="regular"
+							variant="secondary"
+							onClick={ handleClick }
+							className={ className }
+							isLoading={ fixerState.inProgress }
+							isDestructive={
+								( threat.fixable && threat.fixable.fixer === 'delete' ) ||
+								fixerState.error ||
+								fixerState.stale
+							}
+							style={ { minWidth: '72px' } }
+						/>
 					}
-					style={ { minWidth: '72px' } }
-				/>
-			</Tooltip>
+				>
+					{ buttonText }
+				</Tooltip.Trigger>
+				<Tooltip.Popup className={ styles.tooltip }>{ tooltipText }</Tooltip.Popup>
+			</Tooltip.Root>
 		</div>
 	);
 }
