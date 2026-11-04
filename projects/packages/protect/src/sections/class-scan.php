@@ -499,7 +499,9 @@ class Scan implements Dashboard_Section {
 	 */
 	public static function delete_threat_file( WP_REST_Request $request ) {
 		$threat = self::find_threat( (int) $request['id'] );
-		$path   = self::resolve_file_to_change( $threat, (string) $request['hash'] );
+		// Before the hash check, since it can wait on WordPress.com.
+		$siblings = self::get_other_threats_in_file( $threat );
+		$path     = self::resolve_file_to_change( $threat, (string) $request['hash'] );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
@@ -507,8 +509,7 @@ class Scan implements Dashboard_Section {
 			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or your site needs it to run, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
-		$siblings = self::get_other_threats_in_file( $path, $threat );
-		$deleted  = Threat_File::delete( $path );
+		$deleted = Threat_File::delete( $path );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
@@ -522,15 +523,15 @@ class Scan implements Dashboard_Section {
 	 * @return array|WP_Error The fixed `threat`.
 	 */
 	public static function restore_threat_file( WP_REST_Request $request ) {
-		$threat = self::find_threat( (int) $request['id'] );
-		$path   = self::resolve_file_to_change( $threat, (string) $request['hash'] );
+		$threat   = self::find_threat( (int) $request['id'] );
+		$siblings = self::get_other_threats_in_file( $threat );
+		$path     = self::resolve_file_to_change( $threat, (string) $request['hash'] );
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
 		if ( ! Threat_File::can_restore( $path, Threat_File::get_owner( $path ) ) ) {
 			return new WP_Error( 'threat_file_not_restorable', __( 'Only a changed WordPress core file can be restored.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
-		$siblings = self::get_other_threats_in_file( $path, $threat );
 		$restored = Threat_File::restore( $path );
 		if ( is_wp_error( $restored ) ) {
 			return $restored;
@@ -557,13 +558,16 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
-	 * The other open or ignored threats Scan found in the same file.
+	 * The other open or ignored threats Scan found in the same file as a threat.
 	 *
-	 * @param string       $path   The file's real path.
-	 * @param object|array $threat The threat acted on.
+	 * @param object|array|WP_Error|null $threat The threat acted on, from find_threat().
 	 * @return array[] The threats, formatted.
 	 */
-	private static function get_other_threats_in_file( $path, $threat ) {
+	private static function get_other_threats_in_file( $threat ) {
+		$path = self::resolve_threat_file( $threat );
+		if ( is_wp_error( $path ) ) {
+			return array();
+		}
 		$id     = (string) ( is_array( $threat ) ? $threat['id'] : $threat->id );
 		$status = self::get_stored_report();
 		$others = array();
@@ -662,9 +666,8 @@ class Scan implements Dashboard_Section {
 		}
 
 		// The site's own record of one it fixed, which history only adds once WordPress.com answers.
-		$fixed = Dashboard_Threats::get_resolved()[ (string) $id ] ?? null;
-		if ( $fixed ) {
-			return $fixed;
+		if ( isset( $resolved[ (string) $id ] ) ) {
+			return $resolved[ (string) $id ];
 		}
 		$history = self::get_history_threats();
 		if ( is_wp_error( $history ) ) {
