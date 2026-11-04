@@ -13,7 +13,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-const threatIn = ( id: number, fixer: 'update' | 'delete' ): ScanThreat => ( {
+const threatIn = ( id: number, fixer: 'replace' | 'update' | 'delete' ): ScanThreat => ( {
 	id,
 	signature: 'Vulnerable.WP.Extension',
 	title: 'Vulnerable plugin',
@@ -32,17 +32,21 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
-		[ 'starts an update fix at once', 1, 'update', false ],
-		[ 'asks for the slug before a delete fix', 2, 'delete', true ],
-	] as const )( '%s', async ( _name, id, fixer, confirms ) => {
+		[ 'starts a replace fix at once', 1, 'replace', 1, [] ],
+		[ 'asks for the slug before a delete fix', 2, 'delete', 0, [ 'Confirm deletion' ] ],
+		[ 'asks before an update fix', 4, 'update', 0, [ 'Update' ] ],
+	] as const )( '%s', async ( _name, id, fixer, calls, confirm ) => {
 		render( <ThreatDetails threat={ threatIn( id, fixer ) } canAct /> );
 
 		const autoFix = screen.getAllByRole( 'button', { name: 'Auto-fix it' } );
 		expect( autoFix ).toHaveLength( 1 );
 		await userEvent.click( autoFix[ 0 ] );
 
-		expect( mockApiFetch ).toHaveBeenCalledTimes( confirms ? 0 : 1 );
-		expect( !! screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).toBe( confirms );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( calls );
+		const shown = [ 'Confirm deletion', 'Update' ].filter( name =>
+			screen.queryByRole( 'button', { name } )
+		);
+		expect( shown ).toEqual( confirm );
 	} );
 
 	it( 'disables Confirm deletion while another action runs on the threat', async () => {

@@ -1,13 +1,15 @@
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
+import { getUpdated, getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { useCanIgnore } from './store';
 import {
 	fixThreats,
 	ignoreThreats,
 	isDeleteFix,
+	isUpdateFix,
 	refocusRow,
 	unignoreThreat,
 	useGetThreatBusy,
@@ -19,6 +21,8 @@ type LinkKey = 'update' | 'deactivate' | 'details';
 
 type OpenThreat = ( item: ScanThreat ) => void;
 
+type FixUpdateModal = ReturnType< typeof makeFixUpdateModal >;
+
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
@@ -26,6 +30,7 @@ type OpenThreat = ( item: ScanThreat ) => void;
  * @param canAct    - Whether the site's plan can fix and ignore threats.
  * @param canIgnore - Whether the host lets the site ignore threats.
  * @param getBusy   - Gets the action running on a threat.
+ * @param FixUpdate - The confirmation for fixes that update software.
  * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
@@ -34,6 +39,7 @@ function getThreatRowActions(
 	canAct: boolean,
 	canIgnore: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
+	FixUpdate: FixUpdateModal,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
 	const link =
@@ -68,12 +74,12 @@ function getThreatRowActions(
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
 		},
-		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
+		// The Auto-fix actions are mutually exclusive: delete and update fixes confirm first.
 		{
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ) && ! isUpdateFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {
@@ -88,6 +94,27 @@ function getThreatRowActions(
 			isEligible: item => canFix( item ) && isDeleteFix( item ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
 			RenderModal: FixDeleteModal,
+		},
+		{
+			id: 'auto-fix-update',
+			label: items =>
+				items.length > 1
+					? sprintf(
+							/* translators: %d is a number of plugin and theme updates, two or more. */
+							_n(
+								'Auto-fix %d update',
+								'Auto-fix %d updates',
+								getUpdated( items ).length,
+								'jetpack-protect-pkg'
+							),
+							getUpdated( items ).length
+						)
+					: __( 'Auto-fix', 'jetpack-protect-pkg' ),
+			isPrimary: true,
+			isEligible: item => canFix( item ) && isUpdateFix( item ),
+			supportsBulk: !! onBulk,
+			modalHeader: items => getUpdateFixTitle( items ),
+			RenderModal: FixUpdate,
 		},
 		{
 			id: 'unignore',
@@ -167,8 +194,10 @@ export function useThreatRowActions(
 ): Action< ScanThreat >[] {
 	const canIgnore = useCanIgnore();
 	const getBusy = useGetThreatBusy();
+	// Kept apart from the actions, which change with every fix, so an open confirmation isn't remounted.
+	const FixUpdate = useMemo( () => makeFixUpdateModal( onBulk ), [ onBulk ] );
 	return useMemo(
-		() => getThreatRowActions( open, canAct, canIgnore, getBusy, onBulk ),
-		[ open, canAct, canIgnore, getBusy, onBulk ]
+		() => getThreatRowActions( open, canAct, canIgnore, getBusy, FixUpdate, onBulk ),
+		[ open, canAct, canIgnore, getBusy, FixUpdate, onBulk ]
 	);
 }
