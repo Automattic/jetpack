@@ -92,6 +92,11 @@
 			grid-template-columns: repeat(4, minmax(0, 1fr));
 		}
 
+		// wp-admin gives every li a bottom margin.
+		> li {
+			margin: 0;
+		}
+
 		// Push each action to the bottom so a row of actions lines up.
 		> li > :last-child {
 			margin-block-start: auto;

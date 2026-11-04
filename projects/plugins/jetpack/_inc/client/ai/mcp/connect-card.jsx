@@ -149,9 +149,10 @@ function AgentTile( { agent } ) {
  * @param {boolean}  props.mcpEnabled  - Whether MCP access is on for this site.
  * @param {Function} props.onTurnOn    - Turns MCP access on.
  * @param {boolean}  props.isTurningOn - Whether turning it on is in progress.
+ * @param {Function} props.onDismiss   - Called after the on notice closes, to move focus.
  * @return {object|null} Component markup.
  */
-function AccessNotice( { mcpEnabled, onTurnOn, isTurningOn } ) {
+function AccessNotice( { mcpEnabled, onTurnOn, isTurningOn, onDismiss } ) {
 	const [ wasEnabled, setWasEnabled ] = useState( mcpEnabled );
 	const [ showTurnedOn, setShowTurnedOn ] = useState( false );
 
@@ -161,7 +162,16 @@ function AccessNotice( { mcpEnabled, onTurnOn, isTurningOn } ) {
 		setShowTurnedOn( mcpEnabled );
 	}
 
-	const handleDismiss = useCallback( () => setShowTurnedOn( false ), [] );
+	useEffect( () => {
+		if ( showTurnedOn ) {
+			speak( __( 'MCP access is on', 'jetpack' ) );
+		}
+	}, [ showTurnedOn ] );
+
+	const handleDismiss = useCallback( () => {
+		setShowTurnedOn( false );
+		onDismiss();
+	}, [ onDismiss ] );
 
 	if ( ! mcpEnabled ) {
 		return (
@@ -221,11 +231,13 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 		recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' )
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
+	const headingRef = useRef();
+	const focusHeading = useCallback( () => headingRef.current?.focus(), [] );
 
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>
+				<Card.Title ref={ headingRef } tabIndex={ -1 } render={ <h2 /> }>
 					{ __( 'Connect an external AI agent', 'jetpack' ) }
 				</Card.Title>
 			</Card.Header>
@@ -241,6 +253,7 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 						mcpEnabled={ mcpEnabled }
 						onTurnOn={ onTurnOn }
 						isTurningOn={ isTurningOn }
+						onDismiss={ focusHeading }
 					/>
 					<ul className="jetpack-ai-mcp__connect-grid">
 						{ getConnectAgents().map( agent => (

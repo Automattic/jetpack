@@ -167,6 +167,9 @@ describe( 'McpConnectCard', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 		expect( screen.queryByText( 'MCP access is on' ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { name: 'Connect an external AI agent' } )
+		).toHaveFocus();
 	} );
 
 	test( 'Manual setup opens the setup view', async () => {
