@@ -205,9 +205,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	private static function build_consent_gate( $pushes ) {
 		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
-		// Only on a stored allow, which holds under any consent type: before a late banner sets the type, wp_has_consent() reads a fallback that can allow anyone.
+		// That recheck needs a stored allow: until a banner sets the consent type (waitfor_consent_hook), wp_has_consent() reads a fallback that can allow anyone.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
-		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
 			'_stq = window._stq || [];
 function _jpStatsFire() {
@@ -220,7 +219,7 @@ function _jpStatsStoredChoice() {
 		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) : "";
 }
 function _jpStatsCheck() {
-	if ( typeof window.wp_has_consent !== "function" ) { return; }
+	if ( _jpStatsFire.done || typeof window.wp_has_consent !== "function" ) { return; }
 	if ( window.waitfor_consent_hook && typeof window.wp_consent_type === "undefined" ) { return; }
 	var consented;
 	try {
@@ -241,7 +240,7 @@ document.addEventListener( "load", function ( event ) {
 }, true );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {
-		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats counts this view only once a stored or new choice allows statistics." );
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats waits for it and for a consent choice." );
 	}
 	_jpStatsCheck();
 }, { once: true } );

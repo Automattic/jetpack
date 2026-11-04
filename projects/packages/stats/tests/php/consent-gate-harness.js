@@ -89,8 +89,10 @@ const scenarios = {
 		page.consent_api_get_cookie = name => ( name === 'wp_consent_statistics' ? 'allow' : '' );
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 	},
-	'banner that switches the consent type to opt-in after the consent API script loads': () => {
+	'script load with no stored choice while the fallback allows': () => {
 		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
+		page.consent_api = { cookie_prefix: 'wp_consent' };
+		page.consent_api_get_cookie = () => '';
 		loadGate();
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 		page.wp_consent_type = 'optin';
