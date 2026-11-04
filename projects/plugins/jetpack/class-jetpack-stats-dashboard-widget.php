@@ -120,4 +120,23 @@ class Jetpack_Stats_Dashboard_Widget {
 			</script>
 		<?php
 	}
+
+	/**
+	 * Renders the Jetpack Stats widget.
+	 *
+	 * @deprecated $$next-version$$ Use WP_Dashboard_Odyssey_Widget::render() instead.
+	 */
+	public static function render_widget() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', Dashboard_Stats_Widget::class . '::render' );
+		( new Dashboard_Stats_Widget() )->render();
+	}
+
+	/**
+	 * Formerly rendered the brute force protection and Akismet footer. Outputs nothing.
+	 *
+	 * @deprecated $$next-version$$
+	 */
+	public static function render_footer() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	}
 }
