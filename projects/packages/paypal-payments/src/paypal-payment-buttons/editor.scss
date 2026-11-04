@@ -5,15 +5,16 @@
  * @since 0.8.0
  */
 
-@use '@wordpress/base-styles/colors';
-@use '@wordpress/base-styles/mixins' as *;
-@use '@wordpress/base-styles/variables';
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins" as *;
+@use "@wordpress/base-styles/variables";
 
 // ---------------------------------------------------------------
 // Paste-code editor (V1)
 // ---------------------------------------------------------------
 
 .wp-block-jetpack-paypal-payment-buttons {
+
 	.block-editor-plain-text {
 		width: auto;
 
@@ -54,13 +55,13 @@
 // Three classes beat core's doubled .components-placeholder in any load order.
 .jetpack-paypal-payment-buttons__placeholder.components-placeholder.components-placeholder {
 	box-shadow: none;
-	border: variables.$border-width dashed var( --wpds-color-stroke-surface-neutral-strong );
+	border: variables.$border-width dashed var(--wpds-color-stroke-surface-neutral-strong);
 }
 
 .jetpack-paypal-payment-buttons__connect {
 	padding: 16px;
 	// Design: about 30% down the side panel, at most 300px from the top.
-	margin-block-start: min( 30vh, 300px );
+	margin-block-start: min(30vh, 300px);
 
 	h3 {
 		margin-top: 0;
@@ -79,7 +80,8 @@
 
 // While the wizard is up, the sidebar shows nothing but it: not the block card
 // with the block's name and description, and not the Advanced panel.
-.block-editor-block-inspector:has( .jetpack-paypal-payment-buttons__connect ) {
+.block-editor-block-inspector:has(.jetpack-paypal-payment-buttons__connect) {
+
 	.block-editor-block-card,
 	.block-editor-block-inspector__advanced {
 		display: none;
@@ -91,10 +93,10 @@
 // ---------------------------------------------------------------
 
 // Our row is the whole card, so what core drew in it goes.
-.block-editor-block-card:has( .jetpack-paypal-payment-buttons__account-header ) {
+.block-editor-block-card:has(.jetpack-paypal-payment-buttons__account-header) {
 	padding: 0;
 
-	> :not( .jetpack-paypal-payment-buttons__account-header ) {
+	> :not(.jetpack-paypal-payment-buttons__account-header) {
 		display: none;
 	}
 }
@@ -126,7 +128,9 @@
 // The design greys the menu glyphs so the labels read first. Core paints them
 // currentColor. Log out keeps its red, where the glyph matches the label.
 .jetpack-paypal-payment-buttons__account-menu {
-	.components-menu-item__button:not( .is-destructive ) {
+
+	.components-menu-item__button:not(.is-destructive) {
+
 		.components-menu-items__item-icon {
 			color: colors.$gray-700;
 		}
@@ -137,7 +141,8 @@
 // ring on any focus. Keep the ring for the keyboard only.
 .jetpack-paypal-payment-buttons__account-menu,
 .jetpack-paypal-payment-buttons__link-menu {
-	.components-menu-item__button:focus:not( :focus-visible ) {
+
+	.components-menu-item__button:focus:not(:focus-visible) {
 		box-shadow: none;
 	}
 }
@@ -194,6 +199,7 @@
 .jetpack-paypal-wizard__welcome,
 .jetpack-paypal-wizard__dashboard,
 .jetpack-paypal-wizard__credentials {
+
 	h3 {
 		margin-top: 0;
 		margin-bottom: 8px;
@@ -308,6 +314,7 @@
 // The connection wizard's Client ID field. It colors its border, where
 // the error state below is a message row.
 .jetpack-paypal-payment-buttons__has-warning {
+
 	.components-text-control__input {
 		border-color: #dba617;
 
@@ -336,17 +343,17 @@
 
 	&::before {
 		background-color: currentColor;
-		content: '';
+		content: "";
 		flex: 0 0 auto;
 		height: 16px;
 		// The error glyph on a 16 grid, where @wordpress/icons ships a 24-grid
 		// one. Inlined so one rule covers every field, -webkit- duplicated for
 		// older Safari as the search block does.
-		mask-image: url( "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>" );
+		mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
 		mask-repeat: no-repeat;
 		mask-position: center;
 		mask-size: 16px 16px;
-		-webkit-mask-image: url( "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>" );
+		-webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8.50015 11.6402H7.50015V10.6402H8.50015V11.6402Z'/><path d='M7.50015 9.64018H8.50015V6.30684H7.50015V9.64018Z'/><path fill-rule='evenodd' clip-rule='evenodd' d='M6.98331 3.0947C7.42933 2.30177 8.57096 2.30177 9.01698 3.09469L13.8771 11.7349C14.3145 12.5126 13.7525 13.4735 12.8602 13.4735H3.14004C2.24774 13.4735 1.68575 12.5126 2.12321 11.7349L6.98331 3.0947ZM8.14541 3.58496C8.08169 3.47168 7.9186 3.47168 7.85488 3.58496L2.99478 12.2251C2.93229 12.3362 3.01257 12.4735 3.14004 12.4735H12.8602C12.9877 12.4735 13.068 12.3362 13.0055 12.2251L8.14541 3.58496Z'/></svg>");
 		-webkit-mask-repeat: no-repeat;
 		-webkit-mask-position: center;
 		-webkit-mask-size: 16px 16px;
@@ -356,23 +363,24 @@
 
 // Most controls put the error straight in the help slot.
 .jetpack-paypal-payment-buttons__has-error .components-base-control__help {
+
 	@extend %field-error-row;
 }
 
 // The error goes below the field.
 .jetpack-paypal-payment-buttons__field-error {
+
 	@extend %field-error-row;
 
 	// Only when a hint or a select is above it.
-	&:not( :first-child ) {
+	&:not(:first-child) {
 		margin-top: 8px;
 	}
 }
 
 // Its own rule, so a browser missing `:has()` drops this one and keeps the
 // errors above.
-.jetpack-paypal-payment-buttons__has-error
-	.components-base-control__help:has( .jetpack-paypal-payment-buttons__field-error ) {
+.jetpack-paypal-payment-buttons__has-error .components-base-control__help:has(.jetpack-paypal-payment-buttons__field-error) {
 	color: #757575;
 	display: block;
 
@@ -384,7 +392,9 @@
 // The form renders into the inspector, so the class is the scope. Tripled
 // because Emotion injects its rules after this file.
 .jetpack-paypal-payment-buttons__field {
+
 	&#{&}#{&} {
+
 		// Two class names for one label: InputBase on the amount fields,
 		// BaseControl on the text fields and the selects.
 		.components-input-control__label,
@@ -404,6 +414,7 @@
 		// Suffix and placeholder share one color. Tripled because the
 		// placeholder ties with core on specificity.
 		&.components-input-control {
+
 			.components-input-control__suffix {
 				color: #5d5d5d;
 			}
@@ -416,8 +427,8 @@
 
 	// `Maximum quantity` is a number field too. Core styles the spinners only
 	// mid-drag, so plain specificity wins.
-	.components-input-control__input[type='number'],
-	.components-text-control__input[type='number'] {
+	.components-input-control__input[type="number"],
+	.components-text-control__input[type="number"] {
 		appearance: textfield;
 
 		&::-webkit-inner-spin-button,
@@ -429,7 +440,7 @@
 
 	// Core dims a disabled native select. The custom one needs the same, or it
 	// reads as live.
-	[role='combobox']:disabled {
+	[role="combobox"]:disabled {
 		color: #8d8d8d;
 		cursor: default;
 	}
@@ -450,7 +461,7 @@
 // so the hint is its own element.
 .jetpack-paypal-payment-buttons__field-hint {
 	// Both sides tie this to the same token, so follow the variable.
-	color: var( --wp-components-color-gray-700, #707070 );
+	color: var(--wp-components-color-gray-700, #707070);
 	font-size: 12px;
 
 	// `.components-panel__body p` zeroes both margins and outranks one class.
@@ -462,10 +473,11 @@
 // The check leads and the hint takes its own line. Selected by Ariakit's
 // roles, which a components bump can change.
 .jetpack-paypal-payment-buttons__select-menu {
-	[role='listbox'] {
+
+	[role="listbox"] {
 		// Both sides tie this to the same token, so follow the variable. The 4px
 		// radius has no custom property behind it, so it stays a literal.
-		border-color: var( --wp-components-color-gray-300, #ddd );
+		border-color: var(--wp-components-color-gray-300, #ddd);
 		border-radius: 4px;
 		padding: 4px;
 	}
@@ -482,17 +494,17 @@
 
 	// The check is an unclassed aria-hidden span core appends after the label.
 	// Its margins assume it sits last, on core's line height.
-	.components-custom-select-control__item > [aria-hidden='true']:last-child {
+	.components-custom-select-control__item > [aria-hidden="true"]:last-child {
 		// The design puts the check on the option's first line.
 		align-self: flex-start;
-		color: var( --wp-components-color-gray-700, #707070 );
+		color: var(--wp-components-color-gray-700, #707070);
 		margin-block-start: 0;
 		margin-inline-start: 0;
 		order: -1;
 	}
 
 	.components-custom-select-control__item-hint {
-		color: var( --wp-components-color-gray-700, #707070 );
+		color: var(--wp-components-color-gray-700, #707070);
 		flex-basis: 100%;
 		font-size: 12px;
 		line-height: 16px;
@@ -506,7 +518,7 @@
 .jetpack-paypal-payment-buttons__return-url {
 	min-width: auto;
 
-	input[type='text'] {
+	input[type="text"] {
 		width: 100%;
 	}
 
@@ -568,27 +580,24 @@
 // shows the frame's rounded border through it.
 %pending-placeholder {
 	background-color: #eeeff5; // QR_OPTIONS.color.dark at 8% over white
-	background-image: linear-gradient(
-		90deg,
-		rgba( 255, 255, 255, 0 ),
-		rgba( 255, 255, 255, 0.6 ),
-		rgba( 255, 255, 255, 0 )
-	);
+	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
 	background-repeat: no-repeat;
 	background-size: 200% 100%;
 	animation: jetpack-paypal-shimmer 1.4s ease-in-out infinite;
 
-	@media ( prefers-reduced-motion: reduce ) {
+	@media (prefers-reduced-motion: reduce) {
 		animation: none;
 	}
 }
 
 // No link to encode yet, so the canvas is sized but never drawn into.
 .jetpack-paypal-button__qr-canvas--pending {
+
 	@extend %pending-placeholder;
 }
 
 @keyframes jetpack-paypal-shimmer {
+
 	from {
 		background-position: -100% 0;
 	}
@@ -607,12 +616,13 @@
 // Gray until the block has a link. Repeated on hover, focus and active to
 // override the theme's button colors.
 .jetpack-paypal-button-preview__checkout-button.is-disabled {
+
 	&,
 	&:hover,
 	&:focus,
 	&:active {
 		background: #edf0f2;
-		color: rgba( 0, 0, 0, 0.6 );
+		color: rgba(0, 0, 0, 0.6);
 	}
 }
 
@@ -663,14 +673,14 @@
 	list-style: none;
 	margin: 0 0 8px;
 	padding: 0;
-	border: 1px solid rgba( 0, 0, 0, 0.16 );
+	border: 1px solid rgba(0, 0, 0, 0.16);
 	border-radius: 2px;
 }
 
 .jetpack-paypal-images__row {
 	margin: 0;
 	padding: 8px;
-	border-block-end: 1px solid rgba( 0, 0, 0, 0.16 );
+	border-block-end: 1px solid rgba(0, 0, 0, 0.16);
 
 	&:last-child {
 		border-block-end: 0;
@@ -836,10 +846,10 @@
 	left: 16px;
 	z-index: 100001;
 	background: #fff;
-	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.2 );
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 
-	&:hover:not( :disabled ),
-	&:focus:not( :disabled ) {
+	&:hover:not(:disabled),
+	&:focus:not(:disabled) {
 		background: #fff;
 	}
 }
@@ -847,6 +857,7 @@
 .jetpack-paypal-payment-buttons__delete-dialog,
 .jetpack-paypal-payment-buttons__log-out-dialog,
 .jetpack-paypal-payment-buttons__unsaved-dialog {
+
 	p {
 		margin: 0 0 12px;
 	}
@@ -942,6 +953,7 @@
 	}
 }
 
+
 // Width Settings — presets beside a free value. Same layout as the Jetpack
 // plugin's shared width control; without the explicit widths the presets
 // collapse on top of each other.
@@ -999,7 +1011,7 @@
 .jetpack-paypal-payment-buttons__details-list {
 	display: grid;
 	// A fixed label column, so the values line up down the panel.
-	grid-template-columns: ( variables.$grid-unit * 12 ) 1fr;
+	grid-template-columns: (variables.$grid-unit * 12) 1fr;
 	column-gap: variables.$grid-unit-10;
 	row-gap: 0;
 	margin: 0;
@@ -1014,15 +1026,15 @@
 		min-height: variables.$grid-unit-40;
 	}
 
-	> dt:not( :first-of-type ),
-	> dt:not( :first-of-type ) + dd {
+	> dt:not(:first-of-type),
+	> dt:not(:first-of-type) + dd {
 		margin-block-start: -#{variables.$grid-unit-10};
 	}
 
 	// The value is greyer than its label.
 	dd {
 		margin: 0;
-		color: var( --wp-components-color-gray-600, var( --wpds-color-stroke-interactive-neutral ) );
+		color: var(--wp-components-color-gray-600, var(--wpds-color-stroke-interactive-neutral));
 		overflow-wrap: anywhere;
 	}
 }
@@ -1034,8 +1046,8 @@
 	margin-block-end: variables.$grid-unit-10;
 	padding-inline-start: 0;
 
-	&.components-button:hover:not( :disabled, [aria-disabled='true'] ) {
-		color: var( --wp-components-color-foreground, var( --wpds-color-foreground-content-neutral ) );
+	&.components-button:hover:not(:disabled, [aria-disabled="true"]) {
+		color: var(--wp-components-color-foreground, var(--wpds-color-foreground-content-neutral));
 	}
 }
 
@@ -1106,8 +1118,8 @@
 	text-align: start;
 	color: #1e1e1e;
 
-	&:hover:not( :disabled ),
-	&:focus:not( :disabled ) {
+	&:hover:not(:disabled),
+	&:focus:not(:disabled) {
 		background: #f0f0f0;
 		color: #1e1e1e;
 	}
@@ -1165,6 +1177,7 @@
 
 // Shown until a save brings the SDK URL back.
 .jetpack-paypal-button-preview--stacked-pending {
+
 	@extend %pending-placeholder;
 	border-radius: 4px;
 }
