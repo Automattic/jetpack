@@ -1,11 +1,11 @@
 import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Tooltip } from '@wordpress/ui';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { useBlockHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
@@ -18,6 +18,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
 	const { hasFeature } = useAiFeature();
+	const descriptionId = useId();
 
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
@@ -101,6 +102,7 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 			onClick={ handleGenerate }
 			disabled={ blockLoading || ! hasFeature }
 			accessibleWhenDisabled
+			aria-describedby={ hasFeature ? undefined : descriptionId }
 			className="jetpack-content-guidelines-ai__section-generate-button"
 		>
 			{ label }
@@ -112,6 +114,10 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 			{ ! hasFeature ? (
 				<Tooltip.Root>
 					<Tooltip.Trigger render={ button } />
+					{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+					<VisuallyHidden id={ descriptionId } render={ <span /> }>
+						{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }
+					</VisuallyHidden>
 					<Tooltip.Popup>{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }</Tooltip.Popup>
 				</Tooltip.Root>
 			) : (
