@@ -479,7 +479,7 @@ function FileActions( {
 						description={ sprintf(
 							/* translators: %s is a file path, such as "wp-content/uploads/evil.php". */
 							__(
-								'%s doesn’t belong to WordPress, a plugin or a theme, so your site doesn’t need it. Deleting it can’t be undone.',
+								'%s doesn’t belong to WordPress, a plugin or a theme, and Jetpack didn’t find WordPress using it. Deleting it can’t be undone.',
 								'jetpack-protect-pkg'
 							),
 							file.path

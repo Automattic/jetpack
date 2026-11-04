@@ -506,7 +506,7 @@ class Scan implements Dashboard_Section {
 			return $path;
 		}
 		if ( ! Threat_File::can_delete( $path, Threat_File::get_owner( $path ) ) ) {
-			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or your site needs it to run, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or WordPress is using it, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
 		$deleted = Threat_File::delete( $path );
