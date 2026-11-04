@@ -32,6 +32,9 @@ class Threat_File_Test extends BaseTestCase {
 			wp_delete_file( $file );
 		}
 		delete_transient( Threat_File::CHECKSUMS_CACHE );
+		remove_all_filters( 'map_meta_cap' );
+		remove_all_filters( 'pre_http_request' );
+		wp_set_current_user( 0 );
 		$GLOBALS['wp_theme_directories'] = array_values( array_diff( (array) $GLOBALS['wp_theme_directories'], array( WP_CONTENT_DIR . '/protect-test-themes' ) ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		parent::tear_down();
 	}
@@ -234,7 +237,5 @@ class Threat_File_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( $expected, Threat_File::can_restore( $path, $owner ) );
-		remove_filter( 'map_meta_cap', $refuse );
-		wp_set_current_user( 0 );
 	}
 }

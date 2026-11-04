@@ -42,7 +42,11 @@ describe( 'Deleting a threat file', () => {
 						}
 			)
 		);
-		setScan( current => ( { ...current, threats: [ threat, other ], ignored: [ threat ] } ) );
+		setScan( current => ( {
+			...current,
+			threats: [ threat, other ],
+			ignored: [ threat, other ],
+		} ) );
 		render( <ThreatFileViewer /> );
 		act( () => openThreatFile( threat ) );
 
@@ -52,6 +56,6 @@ describe( 'Deleting a threat file', () => {
 
 		await waitFor( () => expect( getScan()?.threats ).toEqual( remaining ) );
 		expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { data: { hash: 'abc' } } ) );
-		expect( getScan()?.ignored ).toEqual( [] );
+		expect( getScan()?.ignored ).toEqual( remaining );
 	} );
 } );

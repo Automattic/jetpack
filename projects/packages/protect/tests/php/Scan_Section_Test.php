@@ -45,6 +45,9 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		remove_all_filters( 'map_meta_cap' );
+		remove_all_filters( 'pre_http_request' );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
 		remove_all_filters( 'jetpack_protect_threat_ignoring_enabled' );
@@ -196,7 +199,6 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertSame( $allowed, true === Scan::can_act_on_threat_files() );
 		$this->assertSame( $allowed, ( new Scan() )->get_state()['canViewFiles'] );
-		remove_filter( 'map_meta_cap', $refuse );
 	}
 
 	/**
@@ -881,7 +883,6 @@ class Scan_Section_Test extends BaseTestCase {
 
 		$this->assertEqualsCanonicalizing( array( 11, 10 ), $response['others'] );
 		$this->assertEqualsCanonicalizing( array( '9', '10', '11' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 
 	public function test_restore_threat_file_refuses_a_file_that_is_not_changed_core() {
@@ -969,8 +970,6 @@ class Scan_Section_Test extends BaseTestCase {
 		$request->set_url_params( array( 'id' => '9' ) );
 
 		$response = Scan::get_threat_file( $request );
-		remove_filter( 'pre_http_request', $fail );
-		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 
 		$this->assertSame( $expected, is_wp_error( $response ) ? $response->get_error_code() : null );
 	}
