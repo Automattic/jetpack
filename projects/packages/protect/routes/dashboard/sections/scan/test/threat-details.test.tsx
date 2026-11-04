@@ -50,25 +50,48 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
-		[ 'a vulnerable plugin', 'plugins', undefined, 'current', 'Deactivate and delete it' ],
-		[ 'a vulnerable theme', 'themes', undefined, 'current', 'Switch to another theme' ],
-		[ 'vulnerable WordPress', 'core', undefined, 'current', 'update as soon as' ],
-		[ 'a fixed vulnerable plugin', 'plugins', undefined, 'fixed', 'Review the affected' ],
+		[
+			'a vulnerable plugin',
+			'plugins',
+			undefined,
+			'inactive',
+			'current',
+			'Deactivate and delete it',
+		],
+		[ 'a vulnerable theme', 'themes', undefined, 'inactive', 'current', 'Switch to another theme' ],
+		[
+			'a vulnerable parent theme',
+			'themes',
+			undefined,
+			'parent',
+			'current',
+			'switch to an unrelated theme',
+		],
+		[ 'vulnerable WordPress', 'core', undefined, undefined, 'current', 'update as soon as' ],
+		[
+			'a fixed vulnerable plugin',
+			'plugins',
+			undefined,
+			'inactive',
+			'fixed',
+			'Review the affected',
+		],
 		[
 			'a file in a plugin',
 			'plugins',
 			'wp-content/plugins/akismet/x.php',
+			'inactive',
 			'current',
 			'Review the affected',
 		],
-	] as const )( 'advises on unfixable %s', ( _name, type, filename, status, advice ) => {
+	] as const )( 'advises on unfixable %s', ( _name, type, filename, state, status, advice ) => {
 		const threat: ScanThreat = {
 			id: 4,
 			signature: 'Vulnerable.WP.Extension',
 			title: 'Vulnerable plugin',
 			status,
 			filename,
-			extension: { type, slug: 'akismet', name: 'Akismet', version: '1.0' },
+			extension: { type, slug: 'akismet', name: 'Akismet', version: '1.0', state },
 		};
 		render( <ThreatDetails threat={ threat } canAct={ false } /> );
 

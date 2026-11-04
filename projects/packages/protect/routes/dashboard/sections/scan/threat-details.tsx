@@ -143,6 +143,12 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 				'jetpack-protect-pkg'
 			);
 		}
+		if ( type === 'themes' && threat.extension?.state === 'parent' ) {
+			return __(
+				'No version of this theme fixes this vulnerability yet. Your active theme is a child of it, so switch to an unrelated theme, then delete both until an update fixes it.',
+				'jetpack-protect-pkg'
+			);
+		}
 		if ( type === 'themes' ) {
 			return __(
 				'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
