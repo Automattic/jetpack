@@ -12,6 +12,7 @@ export {
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
+	getYTickDecimals,
 	getYTickFormat,
 	type ChartBaseline,
 	type FixedYAxis,
@@ -27,6 +28,7 @@ export {
 export { sharePercentage } from './share-percentage';
 export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
+export { getPostTypeCopy } from './post-type-copy';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
@@ -65,3 +67,4 @@ export { siteChartFormatting } from './site-chart-formatting';
 export { formatChartName, formatMapName } from './format-chart-name';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
+export { toTickResolution, type BucketResolution } from './bucket-resolution';

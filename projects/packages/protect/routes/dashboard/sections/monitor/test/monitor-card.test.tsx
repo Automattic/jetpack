@@ -114,11 +114,28 @@ describe( 'MonitorCard', () => {
 				screen.findByRole( 'link', { name: 'Connect your account' } )
 			).resolves.toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 			expect( screen.getByText( 'On' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( /^Downtime monitoring is on\. .* get alerts/ )
+			).toBeInTheDocument();
 			expect( screen.queryByText( /days uptime$/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 			expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
 		}
 	);
+
+	it( 'keeps Monitor from being turned on until the user connects their account', () => {
+		renderCard( {}, { active: false, userConnected: false } );
+
+		const toggle = screen.getByRole( 'switch', { name: 'Enable downtime monitoring' } );
+		expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect(
+			screen.getByText( 'Connect your WordPress.com account to turn on downtime monitoring.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=my-jetpack#/connection'
+		);
+	} );
 
 	it( 'offers the toggle when the server says Monitor was turned off elsewhere', async () => {
 		mockApiFetch.mockRejectedValue( { code: 'monitor_inactive' } );

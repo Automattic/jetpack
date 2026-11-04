@@ -224,6 +224,12 @@ it.each( [
 		{ product_term: 'year', currency_code: 'USD', full_price: 120, discount_price: 60 },
 		[ '$0', '$5', '$10', '$5', '$10' ],
 	],
+	[ 'not loaded for a tier-priced product', { tiers: { upgraded: {} } }, [ '$0' ] ],
+	[
+		'loaded for a tier-priced product',
+		{ tiers: { upgraded: { currency_code: 'USD', full_price: 120, discount_price: 60 } } },
+		[ '$0', '$5', '$10' ],
+	],
 ] )( 'shows only real paid prices when the catalog is %s', ( _state, pricing, prices ) => {
 	const detail = prepareProductData( {
 		slug: 'search',
