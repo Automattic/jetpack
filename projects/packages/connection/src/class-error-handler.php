@@ -890,21 +890,12 @@ class Error_Handler {
 		foreach ( $this->get_verified_errors() as $error_code => $users ) {
 			$display_config = $this->get_error_display_config( $error_code );
 
-			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
-				continue;
-			}
-
-			foreach ( array_keys( $users ) as $user_id ) {
-				// Must precede classification, which would cast 'invalid' to 0 and read it as 'site'.
-				if ( 'invalid' === $user_id ) {
-					continue;
-				}
-
-				// Matched on ID so a previous owner's `invalid_connection_owner` error does not count.
-				if ( (int) $user_id === $owner_id
-					&& $this->is_owner_scoped_error( $error_code, $this->classify_error_audience( $user_id, $owner_id ) ) ) {
-					return true;
-				}
+			// Keyed on the owner's ID so a previous owner's `invalid_connection_owner` error does not count.
+			if ( null !== $display_config
+				&& empty( $display_config['survives_owner_promotion'] )
+				&& is_array( $users )
+				&& isset( $users[ $owner_id ] ) ) {
+				return true;
 			}
 		}
 
