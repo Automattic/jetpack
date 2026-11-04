@@ -3579,10 +3579,11 @@ class Error_Handler_Test extends BaseTestCase {
 	 * @param bool        $locked           Whether connection ownership is locked.
 	 * @param string|null $expected_action  The expected `error_data.action`, or null for none emitted.
 	 * @param string      $expected_message A fragment the message must contain.
+	 * @param string|null $site_error       A site-level error code also on record, if any.
 	 * @dataProvider provide_secondary_admin_owner_error
 	 */
 	#[DataProvider( 'provide_secondary_admin_owner_error' )]
-	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message ) {
+	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message, $site_error = null ) {
 		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
 
 		if ( $viewer_connected ) {
@@ -3594,6 +3595,12 @@ class Error_Handler_Test extends BaseTestCase {
 		}
 
 		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
+
+		if ( $site_error ) {
+			$verified                = get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			$verified[ $site_error ] = array( '0' => $verified['no_valid_user_token'][ (string) $owner_id ] );
+			update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified );
+		}
 
 		$displayed = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $owner_id ];
 
@@ -3610,10 +3617,13 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public static function provide_secondary_admin_owner_error() {
 		return array(
-			'not connected, transferable' => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
-			'not connected, locked'       => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
-			'connected, transferable'     => array( true, false, null, 'every other user will be disconnected' ),
-			'connected, locked'           => array( true, true, 'none', 'to restore the connection.' ),
+			'not connected, transferable'              => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
+			'not connected, locked'                    => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
+			'connected, transferable'                  => array( true, false, null, 'every other user will be disconnected' ),
+			'connected, locked'                        => array( true, true, 'none', 'to restore the connection.' ),
+			'not connected, transferable, broken site' => array( false, false, null, 'every other user will be disconnected', 'no_valid_blog_token' ),
+			'not connected, locked, broken site'       => array( false, true, 'none', 'to restore the connection.', 'no_valid_blog_token' ),
+			'not connected, site request blocked'      => array( false, false, 'connect_user', 'If you connect your account instead', 'xmlrpc_request_blocked' ),
 		);
 	}
 

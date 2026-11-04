@@ -363,6 +363,22 @@ describe( 'Connectors card', () => {
 			expect( decorateAuthUrl ).toHaveBeenCalledWith( AUTH_URL );
 		} );
 
+		it.each( [
+			[ 'promises the owner slot', true, /you will become the new connection owner/ ],
+			[ 'does not promise a locked owner slot', false, /You can still connect/ ],
+		] )( '%s to an admin connecting past a broken owner', ( _, transferable, copy ) => {
+			renderCard( {
+				state: {
+					...unlinkedAdmin,
+					connectionStatus: { isRegistered: true, hasConnectedOwner: false },
+					isOwnershipTransferable: transferable,
+				},
+				search: '?connector=wordpress_com',
+			} );
+
+			expect( screen.getByText( copy ) ).toBeInTheDocument();
+		} );
+
 		it( 'shows why registration failed and lets the admin retry', async () => {
 			const { user } = renderCard( { state: neverConnected } );
 			respondWith( { code: 'unknown_code', message: 'The site said no.' }, false );
