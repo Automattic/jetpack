@@ -25,6 +25,8 @@ class Social_Abilities_Test extends BaseTestCase {
 		unset( $GLOBALS['publicize'] );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'rest_pre_dispatch' );
+		remove_all_actions( 'rest_api_init' );
+		$GLOBALS['wp_rest_server'] = null;
 		parent::tearDown();
 	}
 
@@ -247,6 +249,47 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'jetpack_social_not_published', $result->get_error_code() );
 		$this->assertSame( 'Only published posts can be shared.', $result->get_error_message() );
+		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
+	}
+
+	public function test_share_post_body_reaches_a_route_that_forwards_only_the_raw_body(): void {
+		$seen                      = array();
+		$GLOBALS['wp_rest_server'] = null;
+		add_action(
+			'rest_api_init',
+			function () use ( &$seen ) {
+				register_rest_route(
+					'wpcom/v2',
+					'/publicize/share-post/(?P<postId>\d+)',
+					array(
+						'methods'             => 'POST',
+						'permission_callback' => '__return_true',
+						'args'                => array(
+							'message' => array(
+								'type'     => 'string',
+								'required' => true,
+							),
+						),
+						'callback'            => function ( $request ) use ( &$seen ) {
+							$seen = array(
+								'body'  => $request->get_body(),
+								'query' => $request->get_query_params(),
+							);
+							return rest_ensure_response( array() );
+						},
+					)
+				);
+			}
+		);
+
+		Social_Abilities::share_post(
+			array(
+				'post_id' => 42,
+				'message' => 'Hello',
+			)
+		);
+
+		$this->assertSame( array( 'message' => 'Hello' ), json_decode( $seen['body'], true ) );
 	}
 
 	public function test_delete_connection_calls_delete_route(): void {

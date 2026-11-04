@@ -34,7 +34,7 @@ class Social_Abilities extends Registrar {
 
 	const CONNECTIONS_ROUTE = '/wpcom/v2/publicize/connections';
 	const SHARE_POST_ROUTE  = '/wpcom/v2/publicize/share-post';
-	const MAX_CONNECTIONS   = 100;
+	const MAX_SKIPPED       = 100;
 
 	/**
 	 * Return the ability category slug.
@@ -123,7 +123,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, results: [ { connection_id, service_name, status } ], errors: [ { connection_id, message } ] }. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. The call waits for every network, so a timeout error does not mean the share failed: check the share status of the post before sharing again.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, results: [ { connection_id, service_name, status } ], errors: [ { connection_id, message } ] }. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com. The call waits for every network, so a timeout error does not mean the share failed: check the post on the social network before sharing again.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -145,7 +145,7 @@ class Social_Abilities extends Registrar {
 							'type'        => 'array',
 							'description' => __( 'Connection IDs to leave out of this share.', 'jetpack-publicize-pkg' ),
 							'items'       => $connection_id_schema,
-							'maxItems'    => self::MAX_CONNECTIONS,
+							'maxItems'    => self::MAX_SKIPPED,
 						),
 					),
 					'additionalProperties' => false,
@@ -173,7 +173,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/delete-connection' => array(
 				'label'               => __( 'Delete a social connection', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Remove one connected social account from the site. Shape: { deleted: bool, connection_id }. Posts already shared stay on the network; future shares skip this account. A connection cannot be restored through abilities, because connecting an account needs a sign-in on the network in the Jetpack Social settings. Editors can delete any connection; other users can delete their own. An unknown connection_id returns an error. Find IDs with jetpack-social/get-connections.',
+					'Remove one connected social account from the site. Shape: { deleted: bool, connection_id }. Posts already shared stay on the network; future shares skip this account. A connection cannot be restored through abilities, because connecting an account needs a sign-in on the network in the Jetpack Social settings. Editors can delete any connection; other users can delete their own. An unknown connection_id returns an error. Find IDs with jetpack-social/get-connections. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -222,10 +222,7 @@ class Social_Abilities extends Registrar {
 				'external_handle' => array( 'type' => array( 'string', 'null' ) ),
 				'profile_link'    => array( 'type' => 'string' ),
 				'shared'          => array( 'type' => 'boolean' ),
-				'status'          => array(
-					'type' => array( 'string', 'null' ),
-					'enum' => array( 'ok', 'broken', 'must_reauth', null ),
-				),
+				'status'          => array( 'type' => array( 'string', 'null' ) ),
 			),
 		);
 	}
