@@ -284,6 +284,8 @@ class Llms_Txt {
 			if ( ! $query->get( $flag ) ) {
 				return $sql;
 			}
+			// `menu_order = 0` is 0 for pages with an Order set and 1 for untouched ones, so ASC lists
+			// pages with an Order first; each group then sorts by Order, then title.
 			return "({$wpdb->posts}.menu_order = 0) ASC, {$wpdb->posts}.menu_order ASC, {$wpdb->posts}.post_title ASC";
 		};
 
