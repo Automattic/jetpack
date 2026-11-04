@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Users: Keep a user's posts and pages when they are removed from a site without choosing to delete their content.
