@@ -315,10 +315,17 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasBlocks = hasAnyBlocks( blocks );
 	const isEmpty = active && ! hasBlocks;
 
-	// A test from the empty state that logs a block swaps its Run test for the header's; focus follows, unless it moved on.
+	// A read that swaps the empty state for the counts takes focus from its Run test to the header's, unless focus moved on.
 	const emptyState = useRef< HTMLDivElement >( null );
 	const headerTest = useRef< HTMLButtonElement >( null );
 	const focusHeaderTest = useRef( false );
+	const wasEmpty = useRef( isEmpty );
+	if ( wasEmpty.current !== isEmpty ) {
+		// Read focus now, before the commit removes the empty state.
+		const empty = emptyState.current;
+		focusHeaderTest.current = ! isEmpty && !! empty?.contains( empty.ownerDocument.activeElement );
+		wasEmpty.current = isEmpty;
+	}
 	useEffect( () => {
 		const button = headerTest.current;
 		if ( ! isEmpty && focusHeaderTest.current && button ) {
@@ -342,17 +349,12 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
-		const empty = emptyState.current;
-		const fromEmptyState = !! empty?.contains( empty.ownerDocument.activeElement );
 		notify( 'testing' );
-		// Set before any read lands, as a background read can also swap the empty state for the counts.
-		focusHeaderTest.current = fromEmptyState;
 		const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
 		let testResult: TestResult;
 		try {
 			testResult = await runFirewallTest( active );
 		} catch ( e ) {
-			focusHeaderTest.current = false;
 			if ( isMounted.current ) {
 				notifyFailure( e );
 				setIsTesting( false );
@@ -364,15 +366,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		let isRecorded: boolean | null = null;
 		try {
 			const fresh = await refreshBlocks();
-			if ( ! hasAnyBlocks( fresh ) ) {
-				focusHeaderTest.current = false;
-			}
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
 		} catch {
 			// The counts stay as they were.
-			focusHeaderTest.current = false;
 		}
 		if ( ! isMounted.current ) {
 			return;

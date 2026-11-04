@@ -338,6 +338,17 @@ describe( 'FirewallOverviewCard', () => {
 			expect( apiFetch ).not.toHaveBeenCalled();
 		} );
 
+		it( 'moves focus to the header’s Run test when a background read replaces the empty state', async () => {
+			const empty = { ...props.state!, blockedCount: 0, blockedLast30Days: 0 };
+			render( <FirewallOverviewCard { ...props } state={ empty } /> );
+			act( () => screen.getByRole( 'button', { name: 'Run test' } ).focus() );
+
+			await tick();
+
+			expect( document.body ).toHaveTextContent( 'Blocked in the last 30 days56' );
+			expect( screen.getByRole( 'button', { name: 'Run test' } ) ).toHaveFocus();
+		} );
+
 		it( 'keeps the newest counts when an older read lands last', async () => {
 			const answers: Array< ( value: unknown ) => void > = [];
 			( apiFetch as unknown as jest.Mock ).mockImplementation(
