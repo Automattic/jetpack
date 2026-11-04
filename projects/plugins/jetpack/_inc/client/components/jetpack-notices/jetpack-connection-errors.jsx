@@ -1,3 +1,4 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
@@ -28,6 +29,25 @@ export default class JetpackConnectionErrors extends Component {
 						action={ action }
 						display={ this.props.display }
 					/>
+				);
+			case 'connect_user':
+				// An admin with no connection of their own: connecting is the fix, not restoring.
+				return (
+					<SimpleNotice
+						text={ message }
+						status={ 'is-error' }
+						showDismiss={ false }
+						display={ this.props.display }
+					>
+						<NoticeAction
+							href={ getUserConnectionUrl( {
+								redirect_url: window.location.href,
+								from: 'jetpack-dashboard',
+							} ) }
+						>
+							{ __( 'Connect your account', 'jetpack' ) }
+						</NoticeAction>
+					</SimpleNotice>
 				);
 			case 'support':
 				return (
