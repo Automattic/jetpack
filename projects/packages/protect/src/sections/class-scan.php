@@ -598,8 +598,8 @@ class Scan implements Dashboard_Section {
 	/**
 	 * The file to delete or restore, refused once the threat is fixed or the file changed since the viewer showed it.
 	 *
-	 * @param object|array|null $threat The threat, from find_threat().
-	 * @param string            $hash   The SHA-256 hash of the contents shown.
+	 * @param object|array|WP_Error|null $threat The threat, from find_threat().
+	 * @param string                     $hash   The SHA-256 hash of the contents shown.
 	 * @return string|WP_Error The file's real path.
 	 */
 	private static function resolve_file_to_change( $threat, $hash ) {
@@ -620,10 +620,13 @@ class Scan implements Dashboard_Section {
 	/**
 	 * The real path of the file a threat was found in.
 	 *
-	 * @param object|array|null $threat The threat, from find_threat().
+	 * @param object|array|WP_Error|null $threat The threat, from find_threat().
 	 * @return string|WP_Error
 	 */
 	private static function resolve_threat_file( $threat ) {
+		if ( is_wp_error( $threat ) ) {
+			return $threat;
+		}
 		$filename = is_array( $threat ) ? $threat['filename'] ?? null : $threat->filename ?? null;
 		$path     = $filename ? self::locate_threat_file( $filename ) : null;
 		return $path ? $path : new WP_Error( 'threat_file_not_found', __( 'This file couldn’t be found on your site. It may have been moved or deleted since the scan.', 'jetpack-protect-pkg' ), array( 'status' => 404 ) );
@@ -646,7 +649,7 @@ class Scan implements Dashboard_Section {
 	 * A threat from the current report or, for an ignored threat, history.
 	 *
 	 * @param int $id The threat id.
-	 * @return object|array|null Scan's threat from the report, a formatted one from history, or null.
+	 * @return object|array|WP_Error|null Scan's threat from the report, a formatted one from history, or null; an error when history is unavailable.
 	 */
 	private static function find_threat( $id ) {
 		$status = self::get_stored_report();
@@ -658,8 +661,16 @@ class Scan implements Dashboard_Section {
 			}
 		}
 
+		// The site's own record of one it fixed, which history only adds once WordPress.com answers.
+		$fixed = Dashboard_Threats::get_resolved()[ (string) $id ] ?? null;
+		if ( $fixed ) {
+			return $fixed;
+		}
 		$history = self::get_history_threats();
-		foreach ( is_array( $history ) ? $history : array() as $threat ) {
+		if ( is_wp_error( $history ) ) {
+			return new WP_Error( 'threat_history_unavailable', __( 'Jetpack couldn’t look this threat up on WordPress.com. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+		}
+		foreach ( $history as $threat ) {
 			if ( (int) $threat['id'] === $id ) {
 				return $threat;
 			}

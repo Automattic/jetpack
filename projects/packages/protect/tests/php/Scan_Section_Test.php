@@ -932,6 +932,50 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Threats looked up while WordPress.com can't answer for history, and what the viewer gets.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_lookups_without_history() {
+		return array(
+			'ignored threat'    => array( false, 'threat_history_unavailable' ),
+			'threat site fixed' => array( true, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_lookups_without_history
+	 *
+	 * @param bool        $fixed    Whether the site marked the threat fixed itself.
+	 * @param string|null $expected The error code, or null when the file is shown.
+	 */
+	#[DataProvider( 'provide_lookups_without_history' )]
+	public function test_get_threat_file_without_history( $fixed, $expected ) {
+		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
+		if ( $fixed ) {
+			Dashboard_Threats::resolve(
+				array(
+					'id'       => 9,
+					'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+				)
+			);
+		}
+		$fail = function () {
+			return new \WP_Error( 'offline' );
+		};
+		add_filter( 'pre_http_request', $fail );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
+		$request->set_url_params( array( 'id' => '9' ) );
+
+		$response = Scan::get_threat_file( $request );
+		remove_filter( 'pre_http_request', $fail );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+
+		$this->assertSame( $expected, is_wp_error( $response ) ? $response->get_error_code() : null );
+	}
+
+	/**
 	 * Why deleting a file is refused: a threat History lists as fixed, or a file changed since the viewer showed it.
 	 *
 	 * @return array[]
