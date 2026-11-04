@@ -25,6 +25,7 @@ export const TRAFFIC_PERIODS = [
 	'day',
 	'week',
 	'month',
+	'quarter',
 	'year',
 ] as const satisfies readonly StatsPeriod[];
 

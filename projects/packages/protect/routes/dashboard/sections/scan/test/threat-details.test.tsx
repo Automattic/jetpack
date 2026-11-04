@@ -57,4 +57,14 @@ describe( 'ThreatDetails', () => {
 
 		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
+
+	it.each( [
+		[ undefined, null ],
+		[ null, null ],
+		[ 5, 'Critical severity' ],
+	] )( 'shows severity %p as %p', ( severity, label ) => {
+		render( <ThreatDetails threat={ { ...threatIn( 4, 'update' ), severity } } canAct /> );
+
+		expect( screen.queryByText( /severity$/ )?.textContent ?? null ).toBe( label );
+	} );
 } );

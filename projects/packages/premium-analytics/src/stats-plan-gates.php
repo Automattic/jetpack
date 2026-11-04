@@ -452,7 +452,7 @@ function get_stats_feature_copy( $feature ) {
 			);
 		case 'intervals':
 			return array(
-				'description' => __( 'Group your charts by week, month or year.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Group your charts by week, month, quarter or year.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => '',
 			);
 		default:

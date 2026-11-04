@@ -6,25 +6,32 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useState } from 'react';
 import type { MyJetpackModule } from '../../types';
 
+type ModuleOptionValue = boolean | string;
+
 /**
- * A module's on/off option: the stored value, saved through `jetpack/v4/settings`.
+ * A module's option: the stored value, saved through `jetpack/v4/settings`.
  *
  * The asked-for value shows until the save settles, then the modules store is refetched.
  *
  * @param $module - The module that owns the option.
- * @param name    - The option name, such as `show_headline`.
+ * @param name    - The option name, such as `carousel_background_color`.
+ * @param parse   - Turns the stored `current_value` into the value to show.
  * @return The value to show, whether a save is running, and the setter.
  */
-export function useModuleOption( $module: MyJetpackModule, name: string ) {
+export function useModuleSetting< T extends ModuleOptionValue >(
+	$module: MyJetpackModule,
+	name: string,
+	parse: ( stored: unknown ) => T
+) {
 	const { fetchModules } = useDispatch( modulesStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
-	const [ requested, setRequested ] = useState< boolean | null >( null );
+	const [ requested, setRequested ] = useState< T | null >( null );
 
 	const option = Array.isArray( $module.options ) ? undefined : $module.options?.[ name ];
-	const stored = Boolean( ( option as { current_value?: unknown } | undefined )?.current_value );
+	const stored = parse( ( option as { current_value?: unknown } | undefined )?.current_value );
 
 	const setValue = useCallback(
-		async ( value: boolean ) => {
+		async ( value: T ) => {
 			setRequested( value );
 			try {
 				await apiFetch( {
@@ -48,4 +55,15 @@ export function useModuleOption( $module: MyJetpackModule, name: string ) {
 	);
 
 	return { value: requested ?? stored, isSaving: requested !== null, setValue };
+}
+
+/**
+ * A module's on/off option. See `useModuleSetting()`.
+ *
+ * @param $module - The module that owns the option.
+ * @param name    - The option name, such as `show_headline`.
+ * @return The value to show, whether a save is running, and the setter.
+ */
+export function useModuleOption( $module: MyJetpackModule, name: string ) {
+	return useModuleSetting( $module, name, Boolean );
 }

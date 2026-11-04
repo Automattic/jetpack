@@ -3,7 +3,11 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
-import { isMovedOut, isSwitchedInFeatures } from 'lib/settings-consolidation';
+import {
+	isMovedOut,
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
@@ -15,6 +19,7 @@ import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { getSearchTerm, isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import PostByEmail from './post-by-email';
@@ -127,7 +132,12 @@ export class Writing extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Writing', 'jetpack' ) }</h2>
 				) }
-				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
+				{ this.props.isModuleFound( 'carousel' ) &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && <CarouselMoved getModule={ this.props.module } />
+					) : (
+						<WritingMedia { ...commonProps } />
+					) ) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }

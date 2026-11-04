@@ -105,6 +105,24 @@ describe( 'ScanCard with Scan', () => {
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ true, 'Your site hasn’t been scanned yet' ],
+		[ false, 'Your site hasn’t been checked yet' ],
+	] )(
+		'with hasPlan %s, offers a first scan instead of an all clear when none is on record',
+		async ( hasPlan, title ) => {
+			renderCard( { hasPlan, lastChecked: null } );
+
+			await expect(
+				screen.findByRole( 'heading', { level: 3, name: title } )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
+			expect(
+				screen.queryByText( /^No (threats|vulnerabilities) found$/ )
+			).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'still lists threats from earlier scans after a failed scan', async () => {
 		const threat = { id: 5, title: 'Threat 5', severity: 3, status: 'current' as const };
 		renderCard( { hasPlan: true, lastScanFailed: true, threats: [ threat ] } );
@@ -233,13 +251,14 @@ describe( 'ScanCard threat list', () => {
 } );
 
 describe( 'Severity filter', () => {
-	it.each( [ undefined, 0, 2, 3, 4, 5, 9 ] )(
-		'puts severity %p in the same level as its badge',
-		severity => {
-			render( <ThreatSeverityBadge severity={ severity } /> );
-			const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
+	it.each( [ 0, 2, 3, 4, 5, 9 ] )( 'puts severity %p in the same level as its badge', severity => {
+		render( <ThreatSeverityBadge severity={ severity } /> );
+		const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
 
-			expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ undefined, null ] )( 'puts a threat whose severity is %p under Unknown', severity => {
+		expect( getLevel( { id: 1, severity } ) ).toBe( 'unknown' );
+	} );
 } );
