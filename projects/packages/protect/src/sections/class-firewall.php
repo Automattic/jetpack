@@ -205,8 +205,11 @@ class Firewall implements Dashboard_Section {
 		$tests    = $row ? (int) $row->tests : 0;
 		$recorded = method_exists( Waf_Blocklog_Manager::class, 'has_blocked_requests' ) && Waf_Blocklog_Manager::has_blocked_requests();
 
+		// Silent mode logs requests without blocking them, so its log rows aren't blocks.
+		$is_silent = class_exists( Waf_Runner::class ) && 'silent' === get_option( Waf_Runner::MODE_OPTION_NAME );
+
 		return array(
-			'hasBlocked' => $recorded || $total > $tests,
+			'hasBlocked' => $recorded || ( ! $is_silent && $total > $tests ),
 			'lastTestAt' => $row && $row->last_test ? gmdate( 'Y-m-d\TH:i:s\Z', strtotime( $row->last_test . ' UTC' ) ) : null,
 		);
 	}

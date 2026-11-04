@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Protect\Sections\Firewall;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -237,9 +238,11 @@ class Firewall_Section_Test extends BaseTestCase {
 	 * @param bool        $recorded     Whether the firewall recorded a block that wasn't a test.
 	 * @param bool        $has_blocked  The expected `hasBlocked`.
 	 * @param string|null $last_test_at The expected `lastTestAt`.
+	 * @param string      $mode         The firewall's mode.
 	 */
 	#[DataProvider( 'provide_blocklog_tables' )]
-	public function test_tests_alone_dont_count_as_blocked_requests( $row, $all_time, $recorded, $has_blocked, $last_test_at ) {
+	public function test_tests_alone_dont_count_as_blocked_requests( $row, $all_time, $recorded, $has_blocked, $last_test_at, $mode = 'normal' ) {
+		update_option( Waf_Runner::MODE_OPTION_NAME, $mode );
 		$stored = array(
 			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => (string) $all_time,
 		);
@@ -287,6 +290,7 @@ class Firewall_Section_Test extends BaseTestCase {
 			'a recorded real block pruned away'      => array( $row( 100, 100, '2026-10-09 16:54:03' ), 150, true, true, '2026-10-09T16:54:03Z' ),
 			'never tested'                           => array( $row( 3, 0, null ), 3, false, true, null ),
 			'no table yet'                           => array( null, 0, false, false, null ),
+			'a request only logged in silent mode'   => array( $row( 12, 11, '2026-10-09 16:54:03' ), 12, false, false, '2026-10-09T16:54:03Z', 'silent' ),
 		);
 	}
 }
