@@ -14,8 +14,12 @@ import { useThreatAction, type ThreatActionState } from './threat-actions';
 import ThreatMedia from './threat-media';
 import { useThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
+import type { ReactNode } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
+
+// A cell with nothing to show, as the firewall log does, so no cell is blank.
+const NOT_AVAILABLE = <span className="jp-protect-card__muted">—</span>;
 
 /**
  * When a threat was found: "Today, 7:45 AM", else "Aug 15, 7:00 AM", in the site's timezone.
@@ -113,6 +117,8 @@ function getBusyLabel( busy: NonNullable< ThreatActionState[ 'busy' ] > ): strin
 /**
  * The date column: the date, or what is happening to the threat while an action runs.
  *
+ * The free vulnerability check reports no dates, so its threats show a dash.
+ *
  * @param props      - Component props.
  * @param props.item - The threat.
  * @param props.date - The ISO date.
@@ -132,18 +138,27 @@ function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
 		<span className="jp-protect-card__muted jp-protect-threats__nowrap">
 			{ formatDetected( date ) }
 		</span>
-	) : null;
+	) : (
+		NOT_AVAILABLE
+	);
 }
 
 /**
- * The severity badge, or nothing when the threat has no severity, as with the free vulnerability check.
+ * The severity badge, or the fallback when the threat has no severity, as with the free vulnerability check.
  *
  * @param props          - Component props.
  * @param props.severity - The severity, 0 to 10, or null when unknown.
- * @return The badge, or null.
+ * @param props.fallback - What to show without a severity.
+ * @return The badge, or the fallback.
  */
-function KnownSeverityBadge( { severity }: { severity?: number | null } ) {
-	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : null;
+function KnownSeverityBadge( {
+	severity,
+	fallback = null,
+}: {
+	severity?: number | null;
+	fallback?: ReactNode;
+} ) {
+	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : fallback;
 }
 
 type ThreatFieldOptions = {
@@ -178,7 +193,9 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) => <KnownSeverityBadge severity={ item.severity } />,
+			render: ( { item } ) => (
+				<KnownSeverityBadge severity={ item.severity } fallback={ NOT_AVAILABLE } />
+			),
 		},
 		{
 			id: 'threat',

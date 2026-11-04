@@ -1,9 +1,10 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { DataViews } from '@wordpress/dataviews';
 import { resetScan } from '../store';
 import { fixThreat, ignoreThreat } from '../threat-actions';
-import ThreatsList from '../threats-list';
+import ThreatsList, { createThreatView, getThreatFields } from '../threats-list';
 import type { ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -13,6 +14,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const getItemId = ( item: ScanThreat ) => String( item.id );
 
 const vulnerable = (
 	id: number,
@@ -56,6 +58,31 @@ describe( 'ThreatsList', () => {
 
 		expect( screen.getByText( status ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Aug 15, 7:00 AM' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'date', { firstDetected: undefined } ],
+		[ 'severity', { severity: null } ],
+	] )( 'shows a dash for a threat with no %s', ( fieldId, missing ) => {
+		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', ...missing };
+		const fields = getThreatFields( jest.fn(), {
+			threatLabel: 'Threat',
+			dateLabel: 'Detected on',
+			getDate: item => item.firstDetected ?? '',
+		} );
+		render(
+			<DataViews
+				data={ [ threat ] }
+				fields={ fields }
+				view={ { ...createThreatView( 'severity' ), fields: [ fieldId ] } }
+				onChangeView={ jest.fn() }
+				paginationInfo={ { totalItems: 1, totalPages: 1 } }
+				defaultLayouts={ { table: {} } }
+				getItemId={ getItemId }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
