@@ -67,3 +67,4 @@ export { siteChartFormatting } from './site-chart-formatting';
 export { formatChartName, formatMapName } from './format-chart-name';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
+export { toTickResolution, type BucketResolution } from './bucket-resolution';
