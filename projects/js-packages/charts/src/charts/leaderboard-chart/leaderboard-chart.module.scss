@@ -235,9 +235,9 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	}
 
 	.barWithLabelContainer > :not(.bar, .barTrack) {
-		margin-inline-end: var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0);
+		max-inline-size: calc(100% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px));
 		transition:
-			margin-inline-end var(--wpds-motion-duration-sm)
+			max-inline-size var(--wpds-motion-duration-sm)
 			var(--wpds-motion-easing-subtle);
 	}
 
