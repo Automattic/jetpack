@@ -99,7 +99,7 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 				disabled={ locked }
 				suffix={
 					<InputLayout.Slot padding="minimal">
-						{ /* A disabled Button still gets clicks, so only an enabled one copies. */ }
+						{ /* A disabled @wordpress/ui Button does not block the hook's DOM click listener, so attach the ref only while copying is allowed. */ }
 						<Button
 							ref={ canCopy ? copyRef : undefined }
 							variant="minimal"
