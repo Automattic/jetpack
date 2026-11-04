@@ -22,13 +22,17 @@ class Social_Abilities_Test extends BaseTestCase {
 	/** @var WP_REST_Request[] */
 	private $requests = array();
 
+	/** @var mixed */
+	private $original_publicize = null;
+
 	public function tearDown(): void {
-		$slot = 'publicize';
-		unset( $GLOBALS[ $slot ] );
+		global $publicize, $wp_rest_server;
+
+		$publicize      = $this->original_publicize;
+		$wp_rest_server = null;
 		wp_set_current_user( 0 );
 		remove_all_filters( 'rest_pre_dispatch' );
 		remove_all_actions( 'rest_api_init' );
-		$GLOBALS['wp_rest_server'] = null;
 		parent::tearDown();
 	}
 
@@ -71,7 +75,10 @@ class Social_Abilities_Test extends BaseTestCase {
 			public function __construct() {} // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		};
 
-		$GLOBALS['publicize'] = $fake;
+		global $publicize;
+
+		$this->original_publicize = $publicize;
+		$publicize                = $fake;
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
@@ -278,11 +285,13 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_body_reaches_a_route_that_forwards_only_the_raw_body(): void {
-		$seen                      = array(
+		global $wp_rest_server;
+
+		$seen           = array(
 			'body'  => '',
 			'query' => array(),
 		);
-		$GLOBALS['wp_rest_server'] = null;
+		$wp_rest_server = null;
 		add_action(
 			'rest_api_init',
 			function () use ( &$seen ) {
