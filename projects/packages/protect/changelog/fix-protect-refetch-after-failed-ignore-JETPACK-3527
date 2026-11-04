@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect page: Reload the threat lists after an ignore or unignore fails, so the page shows what WordPress.com applied.
