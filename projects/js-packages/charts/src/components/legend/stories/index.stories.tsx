@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Button } from '@wordpress/components';
-import { Stack } from '@wordpress/ui';
+import { Button, Stack } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { BarChart } from '../../../charts/bar-chart';
 import { LineChart } from '../../../charts/line-chart';
@@ -213,16 +212,17 @@ const ProgrammaticVisibilityComponent = () => {
 		<Stack direction="column" gap="md">
 			<Stack direction="row" gap="sm">
 				<Button
-					variant="secondary"
+					variant="outline"
+					tone="neutral"
 					disabled={ ! isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, 'Desktop' ) }
 					onClick={ hideDesktop }
 				>
 					Hide Desktop
 				</Button>
-				<Button variant="secondary" disabled={ allSeriesHidden } onClick={ hideAll }>
+				<Button variant="outline" tone="neutral" disabled={ allSeriesHidden } onClick={ hideAll }>
 					Hide all
 				</Button>
-				<Button variant="secondary" disabled={ allSeriesVisible } onClick={ showAll }>
+				<Button variant="outline" tone="neutral" disabled={ allSeriesVisible } onClick={ showAll }>
 					Show all
 				</Button>
 			</Stack>
