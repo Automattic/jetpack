@@ -19,7 +19,7 @@ export class JetpackChildrenFormHandler extends BlockHandler {
 	}
 
 	handleBehavior = ( { context } ) => {
-		const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
+		const blockEditorDispatch = dispatch( 'core/block-editor' ) as unknown as BlockEditorDispatch;
 
 		const { getBlockParentsByBlockName } = select( 'core/block-editor' ) as unknown as {
 			getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
