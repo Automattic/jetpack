@@ -2,7 +2,7 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, InputControl, Notice, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
-import { fixThreat, refocusRow, useThreatAction } from './threat-actions';
+import { fixThreat, refocusRow, useGetThreatBusy } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
@@ -24,31 +24,27 @@ export function getDeleteFixTitle( threat: ScanThreat ): string {
  *
  * @param props           - Component props.
  * @param props.threat    - A threat whose fix deletes its software.
- * @param props.onClose   - Closes the confirmation, on Cancel or once the fix starts.
- * @param props.onStarted - Runs after the fix starts.
+ * @param props.isBusy    - Whether another action is running on the threat, so the fix can't start.
+ * @param props.onCancel  - Closes the confirmation.
+ * @param props.onConfirm - Starts the fix, once the slug matches.
  * @return The confirmation.
  */
 export function FixDeleteConfirmation( {
 	threat,
-	onClose,
-	onStarted,
+	isBusy = false,
+	onCancel,
+	onConfirm,
 }: {
 	threat: ScanThreat;
-	onClose?: () => void;
-	onStarted?: () => void;
+	isBusy?: boolean;
+	onCancel?: () => void;
+	onConfirm: () => void;
 } ) {
-	const { busy } = useThreatAction( threat.id );
-	const open = useOpenThreat();
 	const [ confirmation, setConfirmation ] = useState( '' );
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => setConfirmation( event.target.value ),
 		[]
 	);
-	const onConfirm = useCallback( () => {
-		onClose?.();
-		fixThreat( threat, open );
-		onStarted?.();
-	}, [ threat, open, onClose, onStarted ] );
 	const isTheme = threat.extension?.type === 'themes';
 	const slug = threat.extension?.slug || 'unknown-slug';
 	const fixable = threat.fixable || undefined;
@@ -126,10 +122,10 @@ export function FixDeleteConfirmation( {
 				autoComplete="off"
 			/>
 			<Stack direction="row" gap="sm" justify="end">
-				<Button variant="minimal" tone="neutral" onClick={ onClose }>
+				<Button variant="minimal" tone="neutral" onClick={ onCancel }>
 					{ __( 'Cancel', 'jetpack-protect-pkg' ) }
 				</Button>
-				<Button onClick={ onConfirm } disabled={ !! busy || confirmation.trim() !== slug }>
+				<Button onClick={ onConfirm } disabled={ isBusy || confirmation.trim() !== slug }>
 					{ __( 'Confirm deletion', 'jetpack-protect-pkg' ) }
 				</Button>
 			</Stack>
@@ -147,9 +143,22 @@ export function FixDeleteConfirmation( {
  */
 export function FixDeleteModal( { items, closeModal }: RenderModalProps< ScanThreat > ) {
 	const [ threat ] = items;
-	const onStarted = useCallback( () => setTimeout( () => refocusRow( threat ) ), [ threat ] );
+	const open = useOpenThreat();
+	const getBusy = useGetThreatBusy();
+	const onConfirm = useCallback( () => {
+		closeModal?.();
+		fixThreat( threat, open );
+		setTimeout( () => refocusRow( threat ) );
+	}, [ threat, open, closeModal ] );
 	if ( ! threat ) {
 		return null;
 	}
-	return <FixDeleteConfirmation threat={ threat } onClose={ closeModal } onStarted={ onStarted } />;
+	return (
+		<FixDeleteConfirmation
+			threat={ threat }
+			isBusy={ !! getBusy( threat.id ) }
+			onCancel={ closeModal }
+			onConfirm={ onConfirm }
+		/>
+	);
 }

@@ -46,7 +46,7 @@ describe( 'FixDeleteModal', () => {
 	} );
 
 	it( 'ignores spaces around a pasted slug', async () => {
-		render( <FixDeleteConfirmation threat={ threat } /> );
+		render( <FixDeleteConfirmation threat={ threat } onConfirm={ jest.fn() } /> );
 		await userEvent.type( screen.getByRole( 'textbox' ), ' akismet ' );
 		expect( screen.getByRole( 'button', { name: 'Confirm deletion' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -75,6 +75,7 @@ describe( 'FixDeleteModal', () => {
 					...threat,
 					fixable: { fixer: 'delete', extras: { isDotorg: false } },
 				} }
+				onConfirm={ jest.fn() }
 			/>
 		);
 		expect(
@@ -97,6 +98,7 @@ describe( 'FixDeleteModal', () => {
 						fixable: { fixer: 'delete', extensionStatus },
 						extension: { ...threat.extension, type, state },
 					} }
+					onConfirm={ jest.fn() }
 				/>
 			);
 			expect( screen.getByText( warning ) ).toBeInTheDocument();
