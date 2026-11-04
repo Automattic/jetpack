@@ -78,7 +78,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/get-connections'   => array(
 				'label'               => __( 'Get social connections', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'List the social network accounts connected to this site through Jetpack Social. Shape: { total, connections: [ { connection_id, service_name, service_label, display_name, external_handle, profile_link, shared, status } ] }. `status` is ok, broken or must_reauth; a connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower. Returns an empty list when nothing is connected. Use connection_id with jetpack-social/delete-connection.',
+					'List the social network accounts connected to this site through Jetpack Social. Shape: { total, connections: [ { connection_id, service_name, service_label, display_name, external_handle, profile_link, shared, status } ] }. `status` is ok, broken or must_reauth; a connection that is not ok cannot publish until it is reconnected in the Jetpack Social settings. `shared` is true when every author on the site can use the connection. Filter by `service_name` (for example facebook or linkedin). Set `test_connections` to check each connection against its network, which is slower. Returns an empty list when nothing is connected. Use connection_id with jetpack-social/delete-connection. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -88,7 +88,7 @@ class Social_Abilities extends Registrar {
 						'service_name'     => array(
 							'type'        => 'string',
 							'description' => __( 'Only return connections to this network, for example facebook.', 'jetpack-publicize-pkg' ),
-							'pattern'     => '^[a-z0-9_-]+\z',
+							'pattern'     => '^[a-z0-9_-]+$',
 						),
 						'test_connections' => array(
 							'type'        => 'boolean',
@@ -123,7 +123,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, results: [ { connection_id, service_name, status } ], errors: [ { connection_id, message } ] }. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, results: [ { connection_id, service_name, status } ], errors: [ { connection_id, message } ] }. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. The call waits for every network, so a timeout error does not mean the share failed: check the share status of the post before sharing again.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -215,14 +215,17 @@ class Social_Abilities extends Registrar {
 		return array(
 			'type'       => 'object',
 			'properties' => array(
-				'connection_id'   => array( 'type' => 'string' ),
+				'connection_id'   => array( 'type' => 'integer' ),
 				'service_name'    => array( 'type' => 'string' ),
 				'service_label'   => array( 'type' => 'string' ),
 				'display_name'    => array( 'type' => 'string' ),
 				'external_handle' => array( 'type' => array( 'string', 'null' ) ),
 				'profile_link'    => array( 'type' => 'string' ),
 				'shared'          => array( 'type' => 'boolean' ),
-				'status'          => array( 'type' => array( 'string', 'null' ) ),
+				'status'          => array(
+					'type' => array( 'string', 'null' ),
+					'enum' => array( 'ok', 'broken', 'must_reauth', null ),
+				),
 			),
 		);
 	}
@@ -247,7 +250,7 @@ class Social_Abilities extends Registrar {
 	public static function can_share_post( $input = null ): bool {
 		global $publicize;
 
-		$post_id = is_array( $input ) && isset( $input['post_id'] ) && is_int( $input['post_id'] ) ? $input['post_id'] : 0;
+		$post_id = is_array( $input ) ? (int) ( $input['post_id'] ?? 0 ) : 0;
 
 		return $post_id > 0 && ! empty( $publicize ) && $publicize->current_user_can_access_publicize_data( $post_id ) && current_user_can( 'edit_post', $post_id );
 	}
@@ -261,7 +264,7 @@ class Social_Abilities extends Registrar {
 	public static function get_connections( $input = null ) {
 		$input   = is_array( $input ) ? $input : array();
 		$request = new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE );
-		$request->set_param( 'test_connections', ! empty( $input['test_connections'] ) );
+		$request->set_param( 'test_connections', rest_sanitize_boolean( $input['test_connections'] ?? false ) );
 
 		$items = self::dispatch( $request );
 		if ( is_wp_error( $items ) ) {
@@ -275,7 +278,7 @@ class Social_Abilities extends Registrar {
 				continue;
 			}
 			$connections[] = array(
-				'connection_id'   => (string) ( $item['connection_id'] ?? '' ),
+				'connection_id'   => (int) ( $item['connection_id'] ?? 0 ),
 				'service_name'    => (string) ( $item['service_name'] ?? '' ),
 				'service_label'   => (string) ( $item['service_label'] ?? '' ),
 				'display_name'    => (string) ( $item['display_name'] ?? '' ),
@@ -307,11 +310,15 @@ class Social_Abilities extends Registrar {
 			return new WP_Error( 'jetpack_social_missing_message', __( 'message is required and cannot be empty.', 'jetpack-publicize-pkg' ) );
 		}
 
-		$request = new WP_REST_Request( 'POST', self::SHARE_POST_ROUTE . '/' . $post_id );
-		$request->set_param( 'message', $message );
+		$body = array( 'message' => $message );
 		if ( ! empty( $input['skipped_connections'] ) && is_array( $input['skipped_connections'] ) ) {
-			$request->set_param( 'skipped_connections', array_map( 'absint', $input['skipped_connections'] ) );
+			$body['skipped_connections'] = array_map( 'absint', $input['skipped_connections'] );
 		}
+
+		// A JSON body is what the Jetpack-site proxy forwards to WordPress.com.
+		$request = new WP_REST_Request( 'POST', self::SHARE_POST_ROUTE . '/' . $post_id );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( (string) wp_json_encode( $body ) );
 
 		$result = self::dispatch( $request );
 		if ( is_wp_error( $result ) ) {
@@ -361,7 +368,8 @@ class Social_Abilities extends Registrar {
 			$error = $response->as_error();
 			return new WP_Error(
 				'jetpack_social_' . $error->get_error_code(),
-				$error->get_error_message()
+				$error->get_error_message(),
+				$error->get_error_data()
 			);
 		}
 

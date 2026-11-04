@@ -73,6 +73,27 @@ class Social_Abilities_Test extends BaseTestCase {
 		};
 	}
 
+	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+		global $wp_current_filter;
+		$wp_current_filter[] = 'wp_abilities_api_init';
+		$wp_current_filter[] = 'wp_abilities_api_categories_init';
+		wp_register_ability_category( Social_Abilities::get_category_slug(), Social_Abilities::get_category_definition() );
+		array_pop( $wp_current_filter );
+		Social_Abilities::register_abilities();
+		array_pop( $wp_current_filter );
+
+		foreach ( array_keys( Social_Abilities::get_abilities() ) as $slug ) {
+			$ability = wp_get_ability( $slug );
+			$this->assertNotNull( $ability, $slug );
+			$this->assertSame( 'jetpack-social', $ability->get_category(), $slug );
+			wp_unregister_ability( $slug );
+		}
+		wp_unregister_ability_category( 'jetpack-social' );
+	}
+
 	public function test_annotations_mark_share_and_delete_destructive(): void {
 		$abilities = Social_Abilities::get_abilities();
 
@@ -123,6 +144,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertFalse( Social_Abilities::can_share_post( array( 'post_id' => $other ) ) );
 		$this->assertFalse( Social_Abilities::can_share_post( array() ) );
 		$this->assertFalse( Social_Abilities::can_share_post( array( 'post_id' => '0' ) ) );
+		$this->assertTrue( Social_Abilities::can_share_post( array( 'post_id' => (string) $own ) ), 'Numeric strings pass schema validation.' );
 	}
 
 	public function test_get_connections_filters_by_service_and_trims_fields(): void {
@@ -148,7 +170,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		$result = Social_Abilities::get_connections( array( 'service_name' => 'facebook' ) );
 
 		$this->assertSame( 1, $result['total'] );
-		$this->assertSame( '11', $result['connections'][0]['connection_id'] );
+		$this->assertSame( 11, $result['connections'][0]['connection_id'] );
 		$this->assertSame( 'ok', $result['connections'][0]['status'] );
 		$this->assertArrayNotHasKey( 'wpcom_user_id', $result['connections'][0] );
 		$this->assertSame( 'GET', $this->requests[0]->get_method() );
@@ -187,8 +209,14 @@ class Social_Abilities_Test extends BaseTestCase {
 		$request = $this->requests[0];
 		$this->assertSame( 'POST', $request->get_method() );
 		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
-		$this->assertSame( 'Hello', $request->get_param( 'message' ) );
-		$this->assertSame( array( 12, 13 ), $request->get_param( 'skipped_connections' ) );
+		$this->assertSame( 'application/json', $request->get_content_type()['value'] );
+		$this->assertSame(
+			array(
+				'message'             => 'Hello',
+				'skipped_connections' => array( 12, 13 ),
+			),
+			$request->get_json_params()
+		);
 	}
 
 	public function test_share_post_rejects_blank_message_without_calling_the_route(): void {
