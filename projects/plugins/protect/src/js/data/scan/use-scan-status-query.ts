@@ -35,11 +35,21 @@ export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
 	return true;
 };
 
+/**
+ * Whether Scan reports no scan on record and nothing running, so the site needs a first scan.
+ *
+ * @param status - The scan status.
+ * @return Whether the site has never been scanned.
+ */
+export const isFirstScanNeeded = ( status: ScanStatus ) =>
+	status?.dataSource === 'scan_api' && ! status?.lastChecked && status?.status === SCAN_STATUS_IDLE;
+
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
 	const scanIsInitializing =
 		! status?.lastChecked &&
-		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status );
+		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status ) &&
+		! isFirstScanNeeded( status );
 
 	const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
 
