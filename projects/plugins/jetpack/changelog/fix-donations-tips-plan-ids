@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations Form: Fix the checkout of Tips blocks and Pop-up forms, which opened without a payment plan.
