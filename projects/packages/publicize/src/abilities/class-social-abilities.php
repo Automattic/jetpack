@@ -164,12 +164,12 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Returns an error when no working connection would receive it. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Returns an error when no working connection would receive it. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is optional text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
 					'type'                 => 'object',
-					'required'             => array( 'post_id', 'message' ),
+					'required'             => array( 'post_id' ),
 					'properties'           => array(
 						'post_id'             => array(
 							'type'        => 'integer',
@@ -178,9 +178,8 @@ class Social_Abilities extends Registrar {
 						),
 						'message'             => array(
 							'type'        => 'string',
-							'minLength'   => 1,
 							'maxLength'   => 1000,
-							'description' => __( 'Text to post with the link.', 'jetpack-publicize-pkg' ),
+							'description' => __( 'Optional text to post with the link. When omitted or empty, a message saved on a connection is used, then the custom message saved on the post, then each network\'s default text built from the post title and link.', 'jetpack-publicize-pkg' ),
 						),
 						'skipped_connections' => array(
 							'type'        => 'array',
@@ -340,10 +339,6 @@ class Social_Abilities extends Registrar {
 		$input   = is_array( $input ) ? $input : array();
 		$post_id = (int) ( $input['post_id'] ?? 0 );
 		$message = trim( (string) ( $input['message'] ?? '' ) );
-
-		if ( '' === $message ) {
-			return new WP_Error( 'jetpack_social_missing_message', __( 'message is required and cannot be empty.', 'jetpack-publicize-pkg' ) );
-		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {

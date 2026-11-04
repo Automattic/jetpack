@@ -272,20 +272,25 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_social_share_failed', $result->get_error_code() );
 	}
 
-	public function test_share_post_rejects_blank_message_without_calling_the_route(): void {
+	public function test_share_post_without_a_message_sends_an_empty_one_like_the_social_ui(): void {
 		$post_id = $this->make_post();
-		$this->fake_rest( array() );
+		$this->fake_share_rest( array() );
 
-		$result = Social_Abilities::share_post(
-			array(
-				'post_id' => $post_id,
-				'message' => '   ',
-			)
-		);
+		foreach ( array( array(), array( 'message' => '   ' ) ) as $extra ) {
+			$this->requests = array();
+			$result         = Social_Abilities::share_post( array( 'post_id' => $post_id ) + $extra );
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'jetpack_social_missing_message', $result->get_error_code() );
-		$this->assertCount( 0, $this->requests );
+			$this->assertSame( true, $result['queued'] );
+			$body = json_decode( $this->requests[1]->get_body(), true );
+			$this->assertSame( '', $body['message'], 'The route needs the key present; an empty string is accepted.' );
+		}
+	}
+
+	public function test_share_post_input_schema_only_requires_the_post(): void {
+		$schema = Social_Abilities::get_abilities()['jetpack-social/share-post']['input_schema'];
+
+		$this->assertSame( array( 'post_id' ), $schema['required'] );
+		$this->assertArrayNotHasKey( 'minLength', $schema['properties']['message'] );
 	}
 
 	public function test_route_errors_come_back_as_prefixed_wp_errors(): void {
