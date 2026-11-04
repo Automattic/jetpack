@@ -80,7 +80,7 @@ function OpenAction( { agent, id, labelledBy } ) {
 			aria-labelledby={ labelledBy }
 			href={ agent.href }
 			openInNewTab
-			variant="outline"
+			variant="minimal"
 			size="small"
 			onClick={ handleClick }
 		>
@@ -104,7 +104,7 @@ function CopyAction( { agent, id, labelledBy } ) {
 	);
 
 	return (
-		<Button ref={ ref } id={ id } aria-labelledby={ labelledBy } variant="outline" size="small">
+		<Button ref={ ref } id={ id } aria-labelledby={ labelledBy } variant="minimal" size="small">
 			{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
 		</Button>
 	);
