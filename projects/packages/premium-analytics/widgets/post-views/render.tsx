@@ -10,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
+	getPostTypeCopy,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -42,7 +43,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 	const postId = toPostId( reportParams.post_id );
 	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 
-	const { current, isLoading, isFetching, isError, refetch } = usePostViews(
+	const { current, postType, isLoading, isFetching, isError, refetch } = usePostViews(
 		postId,
 		reportParams,
 		period
@@ -92,7 +93,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ __( 'Post views', 'jetpack-premium-analytics-pkg' ) }
+					chartTitle={ getPostTypeCopy( postType ).views }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>
