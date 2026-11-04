@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.1] - 2026-11-04
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+## [8.4.0] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+### Removed
+- Search Dashboard: Remove the AI Agent Access toggle. [#53734]
+
 ## [8.3.5] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -594,7 +605,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.4] - 2025-11-18
 ### Changed
-- Update dependencies. [#45745]
+- Update dependencies.
 
 ## [0.54.3] - 2025-11-17
 ### Changed
@@ -644,11 +655,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.20] - 2025-09-29
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.19] - 2025-09-22
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.18] - 2025-09-19
 ### Changed
@@ -664,7 +675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.15] - 2025-09-01
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.14] - 2025-08-25
 ### Fixed
@@ -673,7 +684,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.13] - 2025-08-18
 ### Changed
-- Update dependencies. [#44615]
+- Update dependencies.
 
 ## [0.52.12] - 2025-08-14
 ### Changed
@@ -716,7 +727,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.4] - 2025-06-24
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.3] - 2025-06-23
 ### Changed
@@ -724,11 +735,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.52.2] - 2025-06-16
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.1] - 2025-06-10
 ### Changed
-- Update dependencies. [#42919]
+- Update dependencies.
 
 ## [0.52.0] - 2025-06-09
 ### Fixed
@@ -852,11 +863,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.11] - 2025-02-17
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.10] - 2025-02-11
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.9] - 2025-02-10
 ### Changed
@@ -892,7 +903,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.47.2] - 2024-11-26
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.47.1] - 2024-11-25
 ### Changed
@@ -1023,7 +1034,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.44.8] - 2024-05-27
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.44.7] - 2024-05-20
 ### Changed
@@ -1091,7 +1102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.43.3] - 2024-02-27
 ### Changed
-- Update dependencies. [#35170]
+- Update dependencies.
 
 ## [0.43.2] - 2024-02-19
 ### Changed
@@ -1108,7 +1119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.42.1] - 2024-01-29
 ### Changed
-- Update dependencies. [#35170]
+- Update dependencies.
 
 ## [0.42.0] - 2024-01-25
 ### Added
@@ -1976,6 +1987,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.4.1]: https://github.com/Automattic/jetpack-search/compare/v8.4.0...v8.4.1
+[8.4.0]: https://github.com/Automattic/jetpack-search/compare/v8.3.5...v8.4.0
 [8.3.5]: https://github.com/Automattic/jetpack-search/compare/v8.3.4...v8.3.5
 [8.3.4]: https://github.com/Automattic/jetpack-search/compare/v8.3.3...v8.3.4
 [8.3.3]: https://github.com/Automattic/jetpack-search/compare/v8.3.2...v8.3.3

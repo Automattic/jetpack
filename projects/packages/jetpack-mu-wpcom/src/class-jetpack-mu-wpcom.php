@@ -123,6 +123,10 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_stats_settings_fields' ) );
+
+			// Not on admin_menu: wpcom checks this function exists before then.
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/odyssey-stats-replaced.php';
 		}
 
 		// The Backup and Protect pages serve both platforms: they offer the transfer on Simple
@@ -401,6 +405,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
+		require_once __DIR__ . '/features/editor-polyfills/editor-polyfills.php';
 		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides-atomic.php';
@@ -957,6 +962,15 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_premium_analytics_videopress_widgets() {
 		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
+	}
+
+	/**
+	 * Limit the Premium Analytics Settings tab on Simple to the Stats settings WordPress.com honors there.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_stats_settings_fields() {
+		require_once __DIR__ . '/features/premium-analytics/stats-settings-fields.php';
 	}
 
 	/**

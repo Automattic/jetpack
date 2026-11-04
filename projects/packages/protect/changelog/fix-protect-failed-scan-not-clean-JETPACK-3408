@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scan: Show that the last scan didn't complete instead of saying no threats were found.

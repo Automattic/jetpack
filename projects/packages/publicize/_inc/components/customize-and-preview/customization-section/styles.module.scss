@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/mixins";
 
 .customization-section {
 	padding: 1rem;
@@ -8,12 +9,12 @@
 	// Allow fieldset to shrink below its content size in grid/flex layouts.
 	min-inline-size: 0;
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 		overflow-y: auto;
 	}
 
 	legend {
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 		// Float fixes the default fieldset/legend border and padding issues.
 		float: inline-start;
 		// Prevents height collapse in flex fieldsets.
@@ -31,16 +32,16 @@
 			// for per-network customization.
 			display: none;
 
-			@include gb.break-medium() {
+			@include mixins.break-medium() {
 				display: block;
 			}
 		}
 	}
 
-	@include gb.break-medium() {
+	@include mixins.break-medium() {
 
 		&[data-variant="global"] {
-			border-inline-end: 1px solid gb.$gray-200;
+			border-inline-end: 1px solid colors.$gray-200;
 		}
 	}
 }
