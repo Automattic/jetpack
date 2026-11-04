@@ -7,9 +7,12 @@ import type { ComponentProps } from 'react';
  *
  * @param props          - Component props.
  * @param props.severity - The severity, 0 to 10.
- * @return The badge.
+ * @return The badge, or null when the threat has no severity.
  */
-export default function SeverityBadge( { severity = 0 }: { severity?: number } ) {
+export default function SeverityBadge( { severity }: { severity?: number | null } ) {
+	if ( typeof severity !== 'number' ) {
+		return null;
+	}
 	let intent: ComponentProps< typeof Badge >[ 'intent' ] = 'draft';
 	let label: string = __( 'Low severity', 'jetpack-protect-pkg' );
 	if ( severity >= 5 ) {
