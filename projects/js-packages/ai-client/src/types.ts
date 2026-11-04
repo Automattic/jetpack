@@ -1,4 +1,5 @@
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors.js';
+import type { store as blockEditorStore } from '@wordpress/block-editor';
+import type { dispatch, select } from '@wordpress/data';
 
 export const ERROR_SERVICE_UNAVAILABLE = 'error_service_unavailable' as const;
 export const ERROR_QUOTA_EXCEEDED = 'error_quota_exceeded' as const;
@@ -125,8 +126,9 @@ export type TranscriptionState = RecordingState | 'validating' | 'processing' | 
  */
 export type { RenderHTMLRules } from './libs/index.ts';
 
+export type BlockEditorSelectors = ReturnType< typeof select< typeof blockEditorStore > >;
+export type BlockEditorActions = ReturnType< typeof dispatch< typeof blockEditorStore > >;
+
 export interface BlockEditorStore {
-	selectors: {
-		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
-	};
+	selectors: BlockEditorSelectors;
 }

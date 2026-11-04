@@ -78,7 +78,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 			{ blockClientId, richTextIdentifier }
 		) {
 			return ( formats: Array< RichTextFormatList >, text: string ) => {
-				const { getBlock } = select( 'core/block-editor' ) as CoreBlockEditorSelect;
+				const { getBlock } = select( 'core/block-editor' ) as unknown as CoreBlockEditorSelect;
 				const { getBlockMd5 } = select( breveStore ) as unknown as BreveSelect;
 				const { invalidateSuggestions, setBlockMd5 } = dispatch(
 					'jetpack/ai-breve'

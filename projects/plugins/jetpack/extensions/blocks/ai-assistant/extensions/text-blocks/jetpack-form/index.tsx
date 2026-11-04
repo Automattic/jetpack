@@ -35,7 +35,7 @@ export class JetpackFormHandler extends BlockHandler {
 	private setContent( newContent: string, isRequestDone = false ): void {
 		const { replaceInnerBlocks, updateBlockAttributes } = dispatch(
 			'core/block-editor'
-		) as BlockEditorDispatch;
+		) as unknown as BlockEditorDispatch;
 
 		// Parse the content first to extract variation name properly
 		const parsedBlocks = parse( newContent );

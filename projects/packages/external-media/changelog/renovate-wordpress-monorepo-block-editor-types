@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove a ts-ignore that @wordpress/block-editor 20 types no longer need.
+
+

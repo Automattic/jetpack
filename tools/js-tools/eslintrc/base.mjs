@@ -278,7 +278,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 						alias: {
 							// These somehow confuse import/named (maybe they're outdated or incomplete?), alias them to nothing.
 							'@types/lodash': [ null ],
-							'@types/wordpress__block-editor': [ null ],
 						},
 					},
 				},

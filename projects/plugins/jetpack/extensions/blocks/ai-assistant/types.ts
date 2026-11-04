@@ -1,7 +1,7 @@
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
+import type { BlockEditorSelectors } from '@automattic/jetpack-ai-client';
 
 export interface BlockEditorStore {
 	selectors: {
-		[ key in keyof typeof BlockEditorSelectors ]: ( typeof BlockEditorSelectors )[ key ];
+		[ key in keyof BlockEditorSelectors ]: BlockEditorSelectors[ key ];
 	};
 }

@@ -38,9 +38,9 @@ export class BlockHandler {
 	}
 
 	public getBlock(): Block {
-		const { getBlock } = select( 'core/block-editor' ) as BlockEditorSelect;
+		const { getBlock } = select( 'core/block-editor' ) as unknown as BlockEditorSelect;
 
-		return getBlock( this.clientId );
+		return getBlock( this.clientId ) as Block;
 	}
 
 	public getContent() {
@@ -78,7 +78,7 @@ export class BlockHandler {
 		}
 
 		const { updateBlockAttributes, replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
-			dispatch( 'core/block-editor' ) as BlockEditorDispatch;
+			dispatch( 'core/block-editor' ) as unknown as BlockEditorDispatch;
 
 		// Do not mark the very first change as not persistent.
 		if ( this.firstUpdate ) {
