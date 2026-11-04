@@ -11,10 +11,13 @@ jest.mock( '../post-by-email', () => () => 'Post by Email card' );
 jest.mock( '../post-by-email-moved', () => ( {
 	PostByEmailMoved: () => 'Post by Email pointer',
 } ) );
-jest.mock( '../theme-enhancements', () => () => null );
+jest.mock( '../theme-enhancements', () => () => <p>Infinite Scroll card</p> );
 jest.mock( '../widgets', () => () => null );
-jest.mock( '../writing-media', () => () => 'Carousel card' );
-jest.mock( '../carousel-moved', () => ( { CarouselMoved: () => 'Carousel pointer' } ) );
+jest.mock( '../writing-media', () => () => <p>Carousel card</p> );
+jest.mock( '../carousel-moved', () => ( { CarouselMoved: () => <p>Carousel pointer</p> } ) );
+jest.mock( '../infinite-scroll-moved', () => ( {
+	InfiniteScrollMoved: () => <p>Infinite Scroll pointer</p>,
+} ) );
 
 const LATEX = { latex: { module: 'latex', name: 'Beautiful Math' } };
 const WIDGETS = { widgets: { module: 'widgets', name: 'Extra Sidebar Widgets', activated: false } };
@@ -39,6 +42,7 @@ const buildState = ( searchTerm, modules, isBlockTheme ) => ( {
 // Module scope keeps the prop references stable (react/jsx-no-bind).
 const findsOnly = {
 	carousel: module => module === 'carousel',
+	'infinite-scroll': module => module === 'infinite-scroll',
 	'post-by-email': module => module === 'post-by-email',
 };
 // Never settles, so the custom content types lookup changes no state after the test.
@@ -76,8 +80,10 @@ describe( 'Writing settings', () => {
 		}
 	);
 
+	// The Infinite Scroll card renders without a found check, so its mock shows for every row.
 	describe.each( [
 		[ 'Carousel', 'carousel' ],
+		[ 'Infinite Scroll', 'infinite-scroll' ],
 		[ 'Post by Email', 'post-by-email' ],
 	] )( '%s', ( name, slug ) => {
 		it.each( [
