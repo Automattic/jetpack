@@ -95,7 +95,7 @@ class Threat_File_Test extends BaseTestCase {
 			)
 		);
 		$paths = array(
-			'uploads'           => WP_CONTENT_DIR . '/uploads/protect-test.php',
+			'uploads'           => wp_upload_dir( null, false )['basedir'] . '/protect-test.php',
 			'plugin'            => WP_PLUGIN_DIR . '/protect-test-plugin/includes/helper.php',
 			'loose-plugin-file' => WP_PLUGIN_DIR . '/protect-test-loose.php',
 			'core'              => ABSPATH . 'wp-includes/protect-test-core.php',

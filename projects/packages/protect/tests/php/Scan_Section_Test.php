@@ -801,13 +801,22 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A path as Scan reports it, with `{root}` and `{content}` standing for the site root's and content directory's names.
+	 * A path as Scan reports it, with `{root}`, `{content}` and `{uploads}` standing for the site root's, content directory's and uploads folder's names.
 	 *
 	 * @param string $path The path with placeholders.
 	 * @return string
 	 */
 	private static function scan_path( $path ) {
-		return str_replace( array( '{root}', '{content}' ), array( basename( realpath( dirname( WP_CONTENT_DIR ) ) ), basename( WP_CONTENT_DIR ) ), $path );
+		return str_replace( array( '{root}', '{content}', '{uploads}' ), array( basename( realpath( dirname( WP_CONTENT_DIR ) ) ), basename( WP_CONTENT_DIR ), basename( self::uploads_dir() ) ), $path );
+	}
+
+	/**
+	 * The uploads folder, which the bootstrap gives Protect alone.
+	 *
+	 * @return string
+	 */
+	private static function uploads_dir() {
+		return wp_upload_dir( null, false )['basedir'];
 	}
 
 	/**
@@ -822,19 +831,19 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	private function act_on_history_threat_file( $status, $changed_to = null, $current = array(), $history = array(), $action = 'delete' ) {
 		// Invalid UTF-8, which the viewer scrubs from what it shows but not from what it hashes.
-		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', "<?php // \xff" );
+		$this->write_file( self::uploads_dir() . '/protect-threat-file.php', "<?php // \xff" );
 		Scan_Status::$status = new Status_Model( array( 'threats' => $current ) );
 		$threat              = array(
 			'id'       => 9,
 			'status'   => $status,
-			'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+			'filename' => self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' ),
 		);
 		set_transient( Scan::HISTORY_CACHE, array_merge( array( $threat ), $history ), MINUTE_IN_SECONDS );
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
 		$request->set_url_params( array( 'id' => '9' ) );
 		$shown = Scan::get_threat_file( $request );
 		if ( null !== $changed_to ) {
-			$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', $changed_to );
+			$this->write_file( self::uploads_dir() . '/protect-threat-file.php', $changed_to );
 		}
 		$request = new WP_REST_Request( 'POST', "/jetpack/v4/protect-dashboard/scan/threats/9/file/$action" );
 		$request->set_url_params( array( 'id' => '9' ) );
@@ -848,7 +857,7 @@ class Scan_Section_Test extends BaseTestCase {
 	public function test_delete_threat_file_marks_an_ignored_threat_fixed() {
 		$response = $this->act_on_history_threat_file( 'ignored' );
 
-		$this->assertFileDoesNotExist( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+		$this->assertFileDoesNotExist( self::uploads_dir() . '/protect-threat-file.php' );
 		$this->assertSame( 'fixed', $response['threat']['status'] );
 		$this->assertSame( array(), Scan::get_ignored_threats() );
 		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
@@ -856,7 +865,7 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	public function test_delete_threat_file_marks_the_file_s_other_threats_fixed() {
-		$in_file = self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' );
+		$in_file = self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' );
 		$current = array(
 			new Threat_Model(
 				array(
@@ -867,7 +876,7 @@ class Scan_Section_Test extends BaseTestCase {
 			new Threat_Model(
 				array(
 					'id'       => 12,
-					'filename' => self::scan_path( '/{root}/{content}/uploads/elsewhere.php' ),
+					'filename' => self::scan_path( '/{root}/{content}/{uploads}/elsewhere.php' ),
 				)
 			),
 		);
@@ -889,7 +898,7 @@ class Scan_Section_Test extends BaseTestCase {
 		$response = $this->act_on_history_threat_file( 'ignored', null, array(), array(), 'restore' );
 
 		$this->assertSame( 'threat_file_not_restorable', $response->get_error_code() );
-		$this->assertSame( "<?php // \xff", file_get_contents( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( "<?php // \xff", file_get_contents( self::uploads_dir() . '/protect-threat-file.php' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$this->assertSame( array(), Dashboard_Threats::get_resolved() );
 	}
 
@@ -913,7 +922,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_unviewable_files' )]
 	public function test_get_threat_file_refuses_files_it_cannot_show( $contents, $expected ) {
-		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', $contents );
+		$this->write_file( self::uploads_dir() . '/protect-threat-file.php', $contents );
 		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
 		set_transient(
 			Scan::HISTORY_CACHE,
@@ -921,7 +930,7 @@ class Scan_Section_Test extends BaseTestCase {
 				array(
 					'id'       => 9,
 					'status'   => 'ignored',
-					'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+					'filename' => self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' ),
 				),
 			),
 			MINUTE_IN_SECONDS
@@ -952,13 +961,13 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_lookups_without_history' )]
 	public function test_get_threat_file_without_history( $fixed, $expected ) {
-		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+		$this->write_file( self::uploads_dir() . '/protect-threat-file.php' );
 		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
 		if ( $fixed ) {
 			Dashboard_Threats::resolve(
 				array(
 					'id'       => 9,
-					'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+					'filename' => self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' ),
 				)
 			);
 		}
@@ -998,7 +1007,7 @@ class Scan_Section_Test extends BaseTestCase {
 		$response = $this->act_on_history_threat_file( $status, $changed_to );
 
 		$this->assertSame( $expected, $response->get_error_code() );
-		$this->assertFileExists( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
+		$this->assertFileExists( self::uploads_dir() . '/protect-threat-file.php' );
 	}
 
 	/**
@@ -1008,10 +1017,10 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	public static function provide_threat_files() {
 		return array(
-			'Scan root above ours'                => array( 'uploads', '/{root}/{content}/uploads/protect-threat-file.php', true ),
+			'Scan root above ours'                => array( 'uploads', '/{root}/{content}/{uploads}/protect-threat-file.php', true ),
 			'deleted plugin file, same basename'  => array( 'uploads', '/{root}/{content}/plugins/gone/protect-threat-file.php', false ),
-			'nested copy of the site'             => array( 'uploads', '/{root}/staging/{content}/uploads/protect-threat-file.php', false ),
-			'Scan root unrelated to ours'         => array( 'uploads', '/var/www/elsewhere/{content}/uploads/protect-threat-file.php', false ),
+			'nested copy of the site'             => array( 'uploads', '/{root}/staging/{content}/{uploads}/protect-threat-file.php', false ),
+			'Scan root unrelated to ours'         => array( 'uploads', '/var/www/elsewhere/{content}/{uploads}/protect-threat-file.php', false ),
 			'traversal out of the site'           => array( 'uploads', '/{root}/{content}/../../../../../../../etc/passwd', false ),
 			'file in the site root'               => array( 'root', '/{root}/protect-threat-file.php', true ),
 			'deleted folder, same basename above' => array( 'root', '/{root}/gone/protect-threat-file.php', false ),
@@ -1028,7 +1037,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_threat_files' )]
 	public function test_threat_files_are_found_only_inside_the_site( $where, $filename, $is_found ) {
-		$dir = 'root' === $where ? dirname( WP_CONTENT_DIR ) : WP_CONTENT_DIR . '/uploads';
+		$dir = 'root' === $where ? dirname( WP_CONTENT_DIR ) : self::uploads_dir();
 		$this->write_file( "$dir/protect-threat-file.php" );
 		if ( 'linked' === $where ) {
 			symlink( $dir, WP_PLUGIN_DIR . '/protect-linked' );
