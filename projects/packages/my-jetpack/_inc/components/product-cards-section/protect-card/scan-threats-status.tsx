@@ -1,6 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import {
+	protectCardShieldInactive as ShieldInactive,
 	protectCardShieldOff as ShieldOff,
 	protectCardShieldPartial as ShieldPartial,
 	protectCardShieldSuccess as ShieldSuccess,
@@ -174,7 +175,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 					<div>
 						<img
 							className="value-section__status-icon"
-							src={ ShieldPartial }
+							src={ ShieldInactive }
 							alt={ __( 'Shield icon - Scan Status: Not scanned yet', 'jetpack-my-jetpack' ) }
 						/>
 					</div>
