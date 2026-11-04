@@ -671,7 +671,7 @@ class Scan implements Dashboard_Section {
 			return $resolved[ (string) $id ];
 		}
 		$history = self::get_history_threats();
-		if ( is_wp_error( $history ) ) {
+		if ( ! is_array( $history ) ) {
 			return new WP_Error( 'threat_history_unavailable', __( 'Jetpack couldn’t look this threat up on WordPress.com. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 		}
 		foreach ( $history as $threat ) {
