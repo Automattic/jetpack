@@ -63,7 +63,7 @@ SITES='{
 # Fetch the latest data from the Jetpack Beta Builder for each plugin.
 for PLUGIN in "${PLUGINS[@]}"; do
   echo "Fetching latest $PLUGIN data from the Jetpack Beta Builder..."
-  if ! RESPONSE=$(curl -s https://betadownload.jetpack.me/$PLUGIN-branches.json); then
+  if ! RESPONSE=$(curl -s "https://betadownload.jetpack.me/$PLUGIN-branches.json"); then
     echo "Error: unable to fetch data from Jetpack Beta Builder for $PLUGIN."
     exit 1
   fi
@@ -137,5 +137,5 @@ done
 
 echo 'Cleaning up...'
 rm -rf "$TMP_DIR"
-echo "$(basename $0) script finished."
+echo "$(basename "$0") script finished."
 exit $EXIT_CODE
