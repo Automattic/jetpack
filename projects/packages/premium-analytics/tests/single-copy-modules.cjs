@@ -35,7 +35,8 @@ const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
  * Resolve one package to the file jest should load for it.
  *
  * The packages the shared resolver loads as ESM take their `import` entry here
- * too, since a mapped path never reaches that resolver.
+ * too, since a mapped path never reaches that resolver. Remove that branch
+ * together with jetpack-js-tools/jest/resolver.js.
  *
  * @param {string} name - Package name.
  * @param {string} from - Directory to resolve from.

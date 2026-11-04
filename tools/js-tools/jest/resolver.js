@@ -5,6 +5,11 @@
  * before the exporting module has run, so `BaseControl` and the block list
  * arrive as `undefined` in jest. Babel's ESM interop reads bindings at use
  * time instead, which is what every ESM consumer already relies on.
+ *
+ * Remove once WordPress/gutenberg#86322 and WordPress/gutenberg#86323 ship in
+ * the versions installed here: delete this file, the `resolver` entry in
+ * config.base.js, the matching entries in transform-ignore.js and the ESM
+ * branch of premium-analytics' single-copy mapper.
  */
 const ESM_PACKAGES = new Set( [ '@wordpress/components', '@wordpress/block-editor' ] );
 

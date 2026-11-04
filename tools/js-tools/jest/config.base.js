@@ -31,6 +31,7 @@ module.exports = {
 		],
 	},
 	transformIgnorePatterns: [ transformIgnorePattern() ],
+	// Remove with resolver.js once its upstream fixes ship.
 	resolver: path.join( __dirname, 'resolver.js' ),
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),

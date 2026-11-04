@@ -11,7 +11,7 @@ const TRANSFORMED_NODE_MODULES = [
 	'marked/',
 	'uuid/',
 	'@wordpress/theme/',
-	// loaded as ESM through resolver.js
+	// loaded as ESM through resolver.js; remove these three with it
 	'@wordpress/components/',
 	'@wordpress/block-editor/',
 	// esm-only, pulled in by @wordpress/block-editor's ESM build
