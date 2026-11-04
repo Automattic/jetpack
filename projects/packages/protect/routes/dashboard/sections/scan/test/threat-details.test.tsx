@@ -49,18 +49,26 @@ describe( 'ThreatDetails', () => {
 		expect( shown ).toEqual( confirm );
 	} );
 
-	it( 'disables Confirm deletion while another action runs on the threat', async () => {
-		const threat = threatIn( 3, 'delete' );
-		render( <ThreatDetails threat={ threat } canAct /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
-		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
-		const confirm = screen.getByRole( 'button', { name: 'Confirm deletion' } );
-		expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
+	it.each( [
+		[ 'Confirm deletion', 3, 'delete' ],
+		[ 'Update', 5, 'update' ],
+	] as const )(
+		'disables %s while another action runs on the threat',
+		async ( name, id, fixer ) => {
+			const threat = threatIn( id, fixer );
+			render( <ThreatDetails threat={ threat } canAct /> );
+			await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
+			if ( fixer === 'delete' ) {
+				await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+			}
+			const confirm = screen.getByRole( 'button', { name } );
+			expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
 
-		act( () => void ignoreThreat( threat ) );
+			act( () => void ignoreThreat( threat ) );
 
-		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
-	} );
+			expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
+		}
+	);
 
 	it.each( [
 		[ undefined, null ],
