@@ -59,6 +59,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "7.1.0",
 		"@wordpress/theme": "4.0.0",
+		"@wordpress/theme-build-tools": "1.0.0",
 		"autoprefixer": "10.4.20",
 		"concurrently": "10.0.5",
 		"postcss": "8.5.23",

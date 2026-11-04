@@ -65,6 +65,7 @@
 		"@wordpress/block-serialization-default-parser": "6.1.0",
 		"@wordpress/browserslist-config": "7.1.0",
 		"@wordpress/theme": "4.0.0",
+		"@wordpress/theme-build-tools": "1.0.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.5.2",
 		"jest": "30.5.2",

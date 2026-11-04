@@ -476,6 +476,9 @@ importers:
       '@wordpress/private-apis':
         specifier: 3.1.0
         version: 3.1.0
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(lightningcss@1.33.0)
       babel-jest:
         specifier: 30.5.2
         version: 30.5.2(@babel/core@7.29.7)
@@ -1590,6 +1593,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(lightningcss@1.33.0)
       babel-jest:
         specifier: 30.5.2
         version: 30.5.2(@babel/core@7.29.7)
@@ -2203,6 +2209,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -2744,6 +2753,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       postcss:
         specifier: 8.5.23
         version: 8.5.23
@@ -2973,6 +2985,9 @@ importers:
       '@wordpress/date':
         specifier: 6.1.0
         version: 6.1.0
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -3315,6 +3330,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -3594,6 +3612,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -3781,6 +3802,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -3936,6 +3960,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -4651,6 +4678,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -5080,6 +5110,9 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin':
         specifier: 7.1.0
         version: 7.1.0(webpack@5.112.2)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -5592,6 +5625,9 @@ importers:
       '@wordpress/build':
         specifier: 0.27.0
         version: 0.27.0(patch_hash=bbcac5b08698d64339f3d6ad560d14b8214f10b24f4adc5f23de9bd4fdacb72f)(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -6122,6 +6158,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -6534,6 +6573,9 @@ importers:
       '@wordpress/preferences':
         specifier: 5.1.0
         version: 5.1.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       '@wordpress/token-list':
         specifier: 4.1.0
         version: 4.1.0
@@ -6788,6 +6830,9 @@ importers:
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
@@ -7271,10 +7316,13 @@ importers:
         version: 28.1.0(@vitest/eslint-plugin@1.6.28(eslint@10.13.0)(typescript@6.0.3))(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(eslint-config-prettier@10.1.8(eslint@10.13.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.17.0(eslint@10.13.0)(jest@30.5.2)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.4(eslint@10.13.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.13.0))(eslint-plugin-playwright@2.12.1(eslint@10.13.0))(eslint-plugin-prettier@5.5.7(eslint-config-prettier@10.1.8(eslint@10.13.0))(eslint@10.13.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.13.0))(eslint-plugin-react@7.37.5(eslint@10.13.0))(eslint@10.13.0)(typescript@6.0.3)(wp-prettier@3.9.6)
       '@wordpress/stylelint-config':
         specifier: 27.1.0
-        version: 27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
+        version: 27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
       '@wordpress/theme':
         specifier: 4.0.0
         version: 4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/theme-build-tools':
+        specifier: 1.0.0
+        version: 1.0.0(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3))
       babel-jest:
         specifier: 30.5.2
         version: 30.5.2(@babel/core@7.29.7)
@@ -26735,9 +26783,10 @@ snapshots:
 
   '@wordpress/style-runtime@0.15.0': {}
 
-  '@wordpress/stylelint-config@27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))':
+  '@wordpress/stylelint-config@27.1.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))':
     dependencies:
       '@stylistic/stylelint-plugin': 5.2.1(stylelint@17.14.1(typescript@6.0.3))
+      '@wordpress/theme-build-tools': 1.0.0(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3))
       stylelint: 17.14.1(typescript@6.0.3)
       stylelint-config-recommended: 18.0.0(stylelint@17.14.1(typescript@6.0.3))
       stylelint-config-recommended-scss: 17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3))
@@ -26754,6 +26803,17 @@ snapshots:
       lib0: 0.2.99
       y-protocols: 1.0.7(yjs@13.6.29)
       yjs: 13.6.29
+
+  '@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(lightningcss@1.33.0)':
+    dependencies:
+      '@babel/parser': 7.29.11
+      '@babel/types': 7.29.11
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/trace-mapping': 0.3.31
+      magic-string: 0.30.21
+    optionalDependencies:
+      '@wordpress/theme': 4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      lightningcss: 1.33.0
 
   '@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)':
     dependencies:
@@ -26776,6 +26836,18 @@ snapshots:
     optionalDependencies:
       '@wordpress/theme': 4.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       postcss: 8.5.23
+
+  '@wordpress/theme-build-tools@1.0.0(@wordpress/theme@4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3))':
+    dependencies:
+      '@babel/parser': 7.29.11
+      '@babel/types': 7.29.11
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/trace-mapping': 0.3.31
+      magic-string: 0.30.21
+    optionalDependencies:
+      '@wordpress/theme': 4.0.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      postcss: 8.5.23
+      stylelint: 17.14.1(typescript@6.0.3)
 
   '@wordpress/theme-build-tools@1.0.0(postcss@8.5.23)':
     dependencies:

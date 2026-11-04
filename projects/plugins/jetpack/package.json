@@ -159,6 +159,7 @@
 		"@wordpress/keycodes": "5.1.0",
 		"@wordpress/notices": "6.1.0",
 		"@wordpress/preferences": "5.1.0",
+		"@wordpress/theme-build-tools": "1.0.0",
 		"@wordpress/token-list": "4.1.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.5.2",
