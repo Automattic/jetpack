@@ -38,6 +38,9 @@ const renderCard = ( props = {} ) => {
 	return { onNavigate, onTurnOn, rerender };
 };
 
+// speak() copies announcements into a hidden live region, so skip it when matching text.
+const NOT_SPOKEN = { ignore: 'script, style, .a11y-speak-region' };
+
 // userEvent.setup() installs its own clipboard stub, so spy after it.
 const setupClipboard = ( writeText = jest.fn().mockResolvedValue() ) => {
 	const user = userEvent.setup();
@@ -70,7 +73,9 @@ describe( 'McpConnectCard', () => {
 		renderCard();
 
 		expect( screen.getAllByRole( 'heading', { level: 3 } ) ).toHaveLength( 8 );
-		expect( screen.getByRole( 'button', { name: 'Claude Code Copy command' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'Claude Code Copy command' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Codex Copy command' } ) ).toBeInTheDocument();
 	} );
 
@@ -161,15 +166,13 @@ describe( 'McpConnectCard', () => {
 
 		rerender( { mcpEnabled: true } );
 
-		expect( screen.queryByText( 'MCP access is off' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'MCP access is on' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'MCP access is off', NOT_SPOKEN ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'MCP access is on', NOT_SPOKEN ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
-		expect( screen.queryByText( 'MCP access is on' ) ).not.toBeInTheDocument();
-		expect(
-			screen.getByRole( 'heading', { name: 'Connect an external AI agent' } )
-		).toHaveFocus();
+		expect( screen.queryByText( 'MCP access is on', NOT_SPOKEN ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Connect an external AI agent' } ) ).toHaveFocus();
 	} );
 
 	test( 'Manual setup opens the setup view', async () => {
