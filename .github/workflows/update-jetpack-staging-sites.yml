@@ -10,7 +10,8 @@ permissions:
 
 concurrency:
   group: update-jetpack-staging-sites-all
-  cancel-in-progress: true
+  # Don't cancel mid-sync, which can leave sites half-updated.
+  cancel-in-progress: false
 
 jobs:
   run_shell_script:
