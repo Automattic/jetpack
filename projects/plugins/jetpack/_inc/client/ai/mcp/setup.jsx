@@ -18,13 +18,16 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { __ } from '@wordpress/i18n';
 import { check, copy } from '@wordpress/icons';
 import { Button, Link, Stack } from '@wordpress/ui';
-import { MCP_SERVER_NAME, MCP_SERVER_URL } from './connect-agents';
+import {
+	CHATGPT_CONNECTOR_REDIRECT_SOURCE,
+	CHATGPT_SELF_HOSTED_REDIRECT_SOURCE,
+	CLAUDE_CODE_COMMAND,
+	CLAUDE_CONNECTOR_REDIRECT_SOURCE,
+	CLAUDE_SELF_HOSTED_REDIRECT_SOURCE,
+	MCP_SERVER_NAME,
+	MCP_SERVER_URL,
+} from './connect-agents';
 
-// Each resolves to the client's connector or plugin page.
-const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
-const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude-self-hosted';
-const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
-const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
 const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
 
 const CLIENT_OPTIONS = [
@@ -181,7 +184,7 @@ export default function McpSetup() {
 													{
 														code: (
 															<code className="jetpack-ai-mcp-setup__code">
-																{ `claude mcp add --transport http ${ MCP_SERVER_NAME } ${ MCP_SERVER_URL }` }
+																{ CLAUDE_CODE_COMMAND }
 															</code>
 														),
 													}

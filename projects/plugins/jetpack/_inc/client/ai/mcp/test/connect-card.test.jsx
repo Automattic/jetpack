@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
 import {
+	CLAUDE_CODE_COMMAND,
 	getConnectAgents,
 	MCP_SERVER_NAME,
 	MCP_SERVER_URL,
@@ -41,14 +42,25 @@ describe( 'McpConnectCard', () => {
 	} );
 
 	test.each( [
-		[ 'ChatGPT', 'https://wp.me/chatgpt' ],
-		[ 'Claude', 'https://wp.me/claude' ],
-	] )( '%s links to its listed app', ( name, href ) => {
+		[ 'ChatGPT', true, 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'ChatGPT', false, 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'Claude', true, 'jetpack-ai-hub-mcp-setup-claude-self-hosted' ],
+		[ 'Claude', false, 'jetpack-ai-hub-mcp-setup-claude' ],
+	] )( '%s with isSelfHosted %s links to the %s redirect', ( name, isSelfHosted, source ) => {
+		window.jetpackAiSettings = { isSelfHosted };
 		renderCard();
 
-		expect( screen.getByRole( 'link', { name: new RegExp( `^${ name }` ) } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute(
 			'href',
-			href
+			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
+		);
+	} );
+
+	test( 'a tile is named by the agent and described by the rest', () => {
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: 'Claude Code' } ) ).toHaveAccessibleDescription(
+			'Run in your terminal, then use /mcp to sign in Copy command'
 		);
 	} );
 
@@ -71,9 +83,7 @@ describe( 'McpConnectCard', () => {
 		await user.click( tile );
 
 		await waitFor( () => expect( within( tile ).getByText( 'Copied' ) ).toBeInTheDocument() );
-		expect( writeText ).toHaveBeenCalledWith(
-			`claude mcp add --transport http ${ MCP_SERVER_NAME } ${ MCP_SERVER_URL }`
-		);
+		expect( writeText ).toHaveBeenCalledWith( CLAUDE_CODE_COMMAND );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_mcp_connect_click',
 			expect.objectContaining( { agent: 'claude-code', action: 'copy' } )

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: Remove the "How it works" card from the MCP and Connectors tab, use "agent" in the connect card copy, and give the connect tiles short accessible names.

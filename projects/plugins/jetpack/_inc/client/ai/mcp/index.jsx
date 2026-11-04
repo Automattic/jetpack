@@ -15,7 +15,6 @@ import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
 import McpConnectCard from './connect-card';
-import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
@@ -238,7 +237,6 @@ export default function McpHub( {
 				isTurningOn={ savingToolIds.has( '__site_level__' ) }
 				onNavigate={ onNavigate }
 			/>
-			<McpHowItWorks />
 			<Card.Root className="jetpack-ai-mcp__access-card">
 				<Card.Header>
 					<Card.Title render={ <h2 /> }>{ __( 'External AI agent access', 'jetpack' ) }</Card.Title>
