@@ -81,7 +81,7 @@ class Threat_File {
 	}
 
 	/**
-	 * Whether the file is a stray one, belonging to nothing the site needs, so deleting it is safe.
+	 * Whether the file is a stray one: no plugin, theme or core file, and nothing this request loaded.
 	 *
 	 * @param string $path  The file's real path.
 	 * @param array  $owner The file's owner, from get_owner().
