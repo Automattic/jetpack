@@ -24,8 +24,6 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 
 		'request_format'       => array(
 			'reassign'       => '(int) An optional id of a user to reassign posts to.',
-			// Core uses reassign=false here, but older versions of this endpoint turn that into user 0 and reject it.
-			// They drop unknown keys, so callers can send delete_content before every site has updated.
 			'delete_content' => '(bool) Delete the user\'s content instead of reassigning it. On single sites, one of this or reassign is required when the user owns content.',
 		),
 
