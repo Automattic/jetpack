@@ -345,6 +345,14 @@ class Social_Abilities extends Registrar {
 			return new WP_Error( 'jetpack_social_missing_message', __( 'message is required and cannot be empty.', 'jetpack-publicize-pkg' ) );
 		}
 
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return new WP_Error( 'jetpack_social_post_not_found', __( 'No post with that id.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
+		}
+		if ( 'publish' !== $post->post_status ) {
+			return new WP_Error( 'jetpack_social_not_published', __( 'Only published posts can be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
+		}
+
 		$body = array(
 			'message' => $message,
 			'async'   => true,

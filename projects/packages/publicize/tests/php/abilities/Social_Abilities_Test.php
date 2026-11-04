@@ -67,6 +67,15 @@ class Social_Abilities_Test extends BaseTestCase {
 		);
 	}
 
+	private function make_post( string $status = 'publish' ): int {
+		return (int) wp_insert_post(
+			array(
+				'post_title'  => 'A post',
+				'post_status' => $status,
+			)
+		);
+	}
+
 	private function login( string $role ): int {
 		$id = wp_insert_user(
 			array(
@@ -196,6 +205,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_sends_message_and_skips_to_the_route(): void {
+		$post_id = $this->make_post();
 		$this->fake_share_rest(
 			array(
 				'results' => array( array( 'connection_id' => 11 ) ),
@@ -205,7 +215,7 @@ class Social_Abilities_Test extends BaseTestCase {
 
 		$result = Social_Abilities::share_post(
 			array(
-				'post_id'             => 42,
+				'post_id'             => $post_id,
 				'message'             => '  Hello  ',
 				'skipped_connections' => array( 12, 13 ),
 			)
@@ -213,7 +223,7 @@ class Social_Abilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'post_id'     => 42,
+				'post_id'     => $post_id,
 				'queued'      => true,
 				'connections' => 1,
 			),
@@ -221,7 +231,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		);
 		$request = $this->requests[1];
 		$this->assertSame( 'POST', $request->get_method() );
-		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
+		$this->assertSame( '/wpcom/v2/publicize/share-post/' . $post_id, $request->get_route() );
 		$this->assertSame( 'application/json', $request->get_header( 'content_type' ) );
 		$this->assertSame(
 			array(
@@ -243,6 +253,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_fails_when_the_route_reports_only_errors(): void {
+		$post_id = $this->make_post();
 		$this->fake_share_rest(
 			array(
 				'results' => array(),
@@ -252,7 +263,7 @@ class Social_Abilities_Test extends BaseTestCase {
 
 		$result = Social_Abilities::share_post(
 			array(
-				'post_id' => 42,
+				'post_id' => $post_id,
 				'message' => 'Hi',
 			)
 		);
@@ -262,11 +273,12 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_rejects_blank_message_without_calling_the_route(): void {
+		$post_id = $this->make_post();
 		$this->fake_rest( array() );
 
 		$result = Social_Abilities::share_post(
 			array(
-				'post_id' => 42,
+				'post_id' => $post_id,
 				'message' => '   ',
 			)
 		);
@@ -277,11 +289,12 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_route_errors_come_back_as_prefixed_wp_errors(): void {
+		$post_id = $this->make_post();
 		$this->fake_share_rest( new WP_Error( 'not_published', 'Only published posts can be shared.', array( 'status' => 400 ) ) );
 
 		$result = Social_Abilities::share_post(
 			array(
-				'post_id' => 42,
+				'post_id' => $post_id,
 				'message' => 'Hi',
 			)
 		);
@@ -293,6 +306,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_with_no_reachable_connection_is_an_error_not_a_queued_share(): void {
+		$post_id     = $this->make_post();
 		$connections = array(
 			array(
 				'connection_id' => '11',
@@ -312,7 +326,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		foreach ( array( array(), array( 11 ) ) as $skipped ) {
 			$result = Social_Abilities::share_post(
 				array(
-					'post_id'             => 42,
+					'post_id'             => $post_id,
 					'message'             => 'Hi',
 					'skipped_connections' => $skipped,
 				)
@@ -334,6 +348,22 @@ class Social_Abilities_Test extends BaseTestCase {
 			}
 		);
 		$this->assertCount( 1, $posts, 'Nothing is posted when no connection can receive the share.' );
+	}
+
+	public function test_share_post_on_a_draft_says_not_published_before_looking_at_connections(): void {
+		$post_id = $this->make_post( 'draft' );
+		$this->fake_share_rest( array() );
+
+		$result = Social_Abilities::share_post(
+			array(
+				'post_id' => $post_id,
+				'message' => 'Hi',
+			)
+		);
+
+		$this->assertSame( 'jetpack_social_not_published', $result->get_error_code() );
+		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
+		$this->assertCount( 0, $this->requests );
 	}
 
 	public function test_delete_unknown_connection_is_a_404_not_a_generic_failure(): void {
