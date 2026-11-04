@@ -105,6 +105,24 @@ describe( 'ScanCard with Scan', () => {
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ true, 'Your site hasn’t been scanned yet' ],
+		[ false, 'Your site hasn’t been checked yet' ],
+	] )(
+		'with hasPlan %s, offers a first scan instead of an all clear when none is on record',
+		async ( hasPlan, title ) => {
+			renderCard( { hasPlan, lastChecked: null } );
+
+			await expect(
+				screen.findByRole( 'heading', { level: 3, name: title } )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Scan site' } ) ).toBeEnabled();
+			expect(
+				screen.queryByText( /^No (threats|vulnerabilities) found$/ )
+			).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'still lists threats from earlier scans after a failed scan', async () => {
 		const threat = { id: 5, title: 'Threat 5', severity: 3, status: 'current' as const };
 		renderCard( { hasPlan: true, lastScanFailed: true, threats: [ threat ] } );

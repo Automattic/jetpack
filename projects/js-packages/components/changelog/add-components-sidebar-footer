@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a SidebarFooter component for actions pinned to the bottom of a sidebar.

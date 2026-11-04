@@ -316,6 +316,16 @@ describe( 'usePostDetailTabs', () => {
 		}
 	);
 
+	it( 'labels the first tab for the post type', () => {
+		mockSearch( 'post-traffic' );
+
+		const { result } = renderHook( () =>
+			usePostDetailTabs( POST_ID, undefined, false, 'product' )
+		);
+
+		expect( result.current.tabs ).toEqual( [ { id: 'post-traffic', label: 'Product traffic' } ] );
+	} );
+
 	it( 'keeps the email tabs for a standard post', () => {
 		mockSearch( 'email-opens' );
 
