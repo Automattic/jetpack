@@ -1435,6 +1435,36 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( $site, Stats_Abilities::get_followers()['site'] );
 	}
 
+	public function test_every_reader_defines_the_metrics_it_returns(): void {
+		$post_id = wp_insert_post( array( 'post_title' => 'Hello' ) );
+		$this->filter_wpcom_stats(
+			self::overview_responses() + array(
+				'get_clicks'              => self::days_fixture( 'clicks', array() ),
+				'get_post_views'          => array( 'views' => 5 ),
+				'get_followers'           => array(
+					'total_email' => 1,
+					'total_wpcom' => 2,
+				),
+				'get_comment_followers'   => array(),
+				'get_publicize_followers' => array(),
+			)
+		);
+
+		$readers = array(
+			'overview'         => array( Stats_Abilities::get_site_overview(), array( 'date', 'views', 'visitors', 'views_today', 'visitors_today', 'views_week', 'views_month', 'streak', 'top_post', 'top_referrer' ) ),
+			'top posts'        => array( Stats_Abilities::get_top_content( array( 'type' => 'posts' ) ), array( 'value', 'items', 'views' ) ),
+			// Clicks are not views, so views is not defined for them.
+			'top clicks'       => array( Stats_Abilities::get_top_content( array( 'type' => 'clicks' ) ), array( 'value', 'items' ) ),
+			'post views'       => array( Stats_Abilities::get_post_views( array( 'post_id' => $post_id ) ), array( 'views', 'series', 'total_views' ) ),
+			'visits by fields' => array( Stats_Abilities::get_visits( array( 'fields' => array( 'likes', 'views' ) ) ), array( 'views', 'likes', 'series' ) ),
+			'followers'        => array( Stats_Abilities::get_followers(), array( 'total', 'email', 'wpcom', 'comment', 'publicize' ) ),
+		);
+		foreach ( $readers as $reader => list( $result, $terms ) ) {
+			$this->assertEqualsCanonicalizing( $terms, array_keys( $result['definitions'] ), $reader );
+			$this->assertNotContains( '', $result['definitions'], $reader );
+		}
+	}
+
 	public function test_get_settings_returns_whitelisted_fields_only(): void {
 		$result = Stats_Abilities::get_settings();
 
