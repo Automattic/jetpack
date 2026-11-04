@@ -1,5 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { __, isRTL } from '@wordpress/i18n';
+import HighlightBanner from '@automattic/jetpack-components/highlight-banner';
+import { Button } from '@wordpress/components';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	audio,
 	chevronLeft,
@@ -27,7 +29,7 @@ import {
 } from './icons.tsx';
 import { groupTools } from './sections.ts';
 import type { InitialState, Tool } from './types.ts';
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 
 const ICONS: Record< string, ReactElement > = {
 	'activity-log': listView,
@@ -100,7 +102,10 @@ function ToolCard( { tool }: { tool: Tool } ) {
  * @return The rendered page.
  */
 export function App() {
-	const { tools }: InitialState = window.wpcomMyJetpackInitialState ?? { tools: [] };
+	const { tools, plan }: InitialState = window.wpcomMyJetpackInitialState ?? {
+		tools: [],
+		plan: null,
+	};
 	const sections = useMemo( () => groupTools( tools ), [ tools ] );
 
 	return (
@@ -108,6 +113,40 @@ export function App() {
 			{ /* AdminPage's layout restyles the page's direct child and that child's children, so the grids sit one level below them. */ }
 			<div className="wpcom-my-jetpack__body">
 				<Stack direction="column" gap="2xl">
+					<HighlightBanner
+						title={ __( 'Jetpack is built into your site', 'jetpack-mu-wpcom' ) }
+						description={ __(
+							'Jetpack is made by Automattic, the team behind WordPress.com, and millions of WordPress sites rely on it. Here it comes built in, with nothing to install, update or connect, including an AI assistant in the editor that helps you write and edit posts. Your plan decides which tools you get, and paid plans add more, like backups, security scanning and ad revenue.',
+							'jetpack-mu-wpcom'
+						) }
+						actions={
+							plan && (
+								<>
+									<Button
+										className="jp-highlight-banner__cta"
+										variant="primary"
+										href={ plan.url }
+										onClick={ ( event: MouseEvent< HTMLAnchorElement > ) =>
+											recordLinkClick( event, 'wpcom_my_jetpack_compare_plans_clicked', {
+												plan: plan.name,
+											} )
+										}
+									>
+										{ __( 'Compare plans', 'jetpack-mu-wpcom' ) }
+									</Button>
+									{ plan.name && (
+										<span className="wpcom-my-jetpack__plan">
+											{ sprintf(
+												/* translators: %s: the name of the site's WordPress.com plan, such as Free or Premium. */
+												__( 'You’re on the %s plan.', 'jetpack-mu-wpcom' ),
+												plan.name
+											) }
+										</span>
+									) }
+								</>
+							)
+						}
+					/>
 					{ sections.length ? (
 						sections.map( section => (
 							<Stack key={ section.key } render={ <section /> } direction="column" gap="md">

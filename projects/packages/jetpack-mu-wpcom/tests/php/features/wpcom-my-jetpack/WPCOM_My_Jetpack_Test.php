@@ -255,6 +255,38 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Admins get the plan link and Editors don't, though both get the tools.
+	 */
+	public function test_state_gives_the_plan_link_to_admins_only() {
+		$state = WPCOM_My_Jetpack::get_initial_state();
+		$this->assertSame( 'https://wordpress.com/plans/' . $this->domain, $state['plan']['url'] );
+
+		wp_set_current_user( $this->insert_user( 'editor' ) );
+
+		$state = WPCOM_My_Jetpack::get_initial_state();
+		$this->assertNull( $state['plan'] );
+		$this->assertCount( 3, $state['tools'] );
+	}
+
+	/**
+	 * Staging sites don't get the plan link, as they don't get the Upgrades menu.
+	 */
+	public function test_state_leaves_the_plan_link_off_staging_sites() {
+		update_option( 'wpcom_is_staging_site', true );
+
+		$this->assertNull( WPCOM_My_Jetpack::get_initial_state()['plan'] );
+	}
+
+	/**
+	 * Sites an agency fully manages don't get the plan link, as the agency handles billing.
+	 */
+	public function test_state_leaves_the_plan_link_off_agency_managed_sites() {
+		update_option( 'is_fully_managed_agency_site', true );
+
+		$this->assertNull( WPCOM_My_Jetpack::get_initial_state()['plan'] );
+	}
+
+	/**
 	 * The Jetpack submenu as it stands, read in its own scope so Phan doesn't
 	 * narrow it to the empty menu a test started from.
 	 *
