@@ -20,7 +20,7 @@ import useRerenderEvery from '../../components/use-rerender-every';
 import isModuleActive from '../../data/is-module-active';
 import { createStore } from '../scan/store';
 import BlocksSummary from './blocks-summary';
-import { FirewallFooter, NoBlockListState, NoBlocksState } from './empty-state';
+import { FirewallFooter, NoBlockListState, NoBlocksState, UPSELL_EVENT } from './empty-state';
 import {
 	CrossOriginError,
 	FIREWALL_PATH,
@@ -231,13 +231,24 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ refreshed, firewall ]
 	);
 	const [ blockListOpen, setBlockListOpen ] = useState( false );
+	// Only the calls to action turn the list on when saving; Edit block list leaves it on or off.
+	const [ enableBlockList, setEnableBlockList ] = useState( false );
 	// A save can swap out the button that opened the dialog; focus then goes to the footer's link.
 	const blockListOpener = useRef< Element | null >( null );
 	const editBlockListLink = useRef< HTMLButtonElement >( null );
-	const openBlockList = useCallback( ( event?: { currentTarget: Element } ) => {
-		blockListOpener.current = event?.currentTarget ?? null;
+	const openBlockList = useCallback( ( opener: Element | null, enable: boolean ) => {
+		blockListOpener.current = opener;
+		setEnableBlockList( enable );
 		setBlockListOpen( true );
 	}, [] );
+	const editBlockList = useCallback(
+		( event?: { currentTarget: Element } ) => openBlockList( event?.currentTarget ?? null, false ),
+		[ openBlockList ]
+	);
+	const addToBlockList = useCallback(
+		( event?: { currentTarget: Element } ) => openBlockList( event?.currentTarget ?? null, true ),
+		[ openBlockList ]
+	);
 	const blockListFinalFocus = useCallback(
 		() => blockListOpener.current?.isConnected || ( editBlockListLink.current ?? true ),
 		[]
@@ -375,7 +386,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			{ isFreeEmptyState && (
 				<NoBlockListState
 					upgradeUrl={ firewall.upgradeUrl }
-					onAddIps={ openBlockList }
+					onAddIps={ addToBlockList }
 					isListOff={ isBlockListOff }
 				/>
 			) }
@@ -385,7 +396,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			{ hasNothingToBlock && (
 				<NothingToBlockNotice
 					upgradeUrl={ firewall.upgradeUrl }
-					onAddIps={ openBlockList }
+					onAddIps={ addToBlockList }
 					isListOff={ isBlockListOff }
 				/>
 			) }
@@ -394,7 +405,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				<FirewallFooter
 					data={ ipData }
 					currentIp={ firewall.currentIp }
-					onEditBlockList={ isFreeEmptyState ? undefined : openBlockList }
+					onEditBlockList={ isFreeEmptyState ? undefined : editBlockList }
 					editBlockListRef={ editBlockListLink }
 					settingsLink={ settingsLink }
 					aside={
@@ -420,7 +431,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					open={ blockListOpen }
 					onOpenChange={ setBlockListOpen }
 					finalFocus={ blockListFinalFocus }
-					enableOnSave
+					enableOnSave={ enableBlockList }
 				/>
 			) }
 			{ showStaleRules && (
@@ -438,7 +449,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 						dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined )
 					) }
 					url={ firewall.upgradeUrl }
-					event="jetpack_protect_dashboard_firewall_upsell"
+					event={ UPSELL_EVENT }
 					eventProps={ { state: 'stopped' } }
 				/>
 			) }

@@ -3,8 +3,8 @@ import { __ } from '@wordpress/i18n';
 import { Button, ButtonLink, Notice } from '@wordpress/ui';
 import { CardRow } from '../../components/card';
 import { recordEvent, recordViewOnce } from '../../data/tracks';
+import { UPSELL_EVENT } from './empty-state';
 
-const UPSELL_EVENT = 'jetpack_protect_dashboard_firewall_upsell';
 const UPSELL_PROPS = { state: 'nothing_to_block' };
 
 /**

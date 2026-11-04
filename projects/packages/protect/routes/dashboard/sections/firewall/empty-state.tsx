@@ -11,7 +11,8 @@ import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ReactElement, ReactNode, Ref } from 'react';
 
-const UPSELL_EVENT = 'jetpack_protect_dashboard_firewall_upsell';
+/** The Tracks event, plus `_view` or `_click`, for every firewall upsell. */
+export const UPSELL_EVENT = 'jetpack_protect_dashboard_firewall_upsell';
 const UPSELL_PROPS = { state: 'empty' };
 
 /**
@@ -225,7 +226,6 @@ export function FirewallFooter( {
 						dialogTitle={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
 						currentIp={ currentIp }
 						trigger={ <Button variant="unstyled" className={ linkClass } /> }
-						enableOnSave
 					>
 						{ __( 'Edit allow list', 'jetpack-protect-pkg' ) }
 					</IpListDialog>

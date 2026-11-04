@@ -14,7 +14,7 @@ type DialogProps = {
 	currentIp?: string;
 	/** The element that opens the dialog, such as a link-styled button; leave out when `open` is controlled. */
 	trigger?: ReactElement< Record< string, unknown > >;
-	/** Also turn the list on when saving addresses, for entry points without its toggle. */
+	/** Also turn the list on when saving addresses, for a call to action that offers to. */
 	enableOnSave?: boolean;
 	/** Whether the dialog is open, for a dialog opened from outside it. */
 	open?: boolean;
@@ -87,9 +87,9 @@ export function IpListDialog( {
 		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
 		[ currentIp ]
 	);
+	const isOff = ! data.settings?.[ enabledKey( name ) ];
 	// Saving can be the change itself: turning on a list someone left off.
-	const enable =
-		enableOnSave && splitIps( draft ).length > 0 && ! data.settings?.[ enabledKey( name ) ];
+	const enable = enableOnSave && isOff && splitIps( draft ).length > 0;
 	const onSave = useCallback( async () => {
 		const isSaved = await save( {
 			[ name ]: draft,
@@ -111,6 +111,14 @@ export function IpListDialog( {
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="sm" align="start">
+						{ isOff && ! enableOnSave && (
+							<Text variant="body-sm" className="jp-protect-card__muted">
+								{ __(
+									'This list is turned off, so it has no effect until you turn it on in Settings.',
+									'jetpack-protect-pkg'
+								) }
+							</Text>
+						) }
 						{ saveFailed && data.error && (
 							<Text variant="body-sm" className="jp-protect-card__error" role="alert">
 								{ data.error }

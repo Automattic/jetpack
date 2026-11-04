@@ -110,10 +110,18 @@ describe( 'FirewallOverviewCard', () => {
 	} );
 
 	it( 'counts the IP lists from page load before settings are fetched', () => {
-		render( <FirewallOverviewCard { ...props } /> );
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ {
+					...props.state,
+					ipRules: { ...props.state.ipRules, jetpack_waf_ip_allow_list: '198.51.100.9' },
+				} }
+			/>
+		);
 
 		expect( screen.getByText( '2 addresses on the list' ) ).toBeInTheDocument();
-		expect( screen.getByText( '0 addresses on the list' ) ).toBeInTheDocument();
+		expect( screen.getByText( '1 address on the list' ) ).toBeInTheDocument();
 	} );
 
 	it( 'saves an edited block list from its dialog', async () => {
@@ -365,30 +373,70 @@ describe( 'FirewallOverviewCard', () => {
 	} );
 	const EMPTY_LIST = { ...props.state.ipRules, jetpack_waf_ip_block_list: '' };
 
-	it( 'keeps the block list dialog open with its error when the save fails', async () => {
+	it( 'keeps a block list off when the server refuses to turn it on with the visitor’s own address', async () => {
+		const OFF = { ...props.state.ipRules, jetpack_waf_ip_block_list_enabled: false };
+		const refusal =
+			'Your IP address (192.0.2.44) is on the block list, so saving it would block you from your own site. Remove it, or the range that includes it, and try again.';
 		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method, path } ) => {
 			if ( method === 'POST' ) {
-				return Promise.reject( { message: 'Nope' } );
+				return Promise.reject( {
+					code: 'rest_invalid_param',
+					data: { params: { jetpack_waf_ip_block_list: refusal } },
+				} );
 			}
-			return Promise.resolve( path === '/jetpack/v4/settings' ? { waf: true, ...EMPTY_LIST } : {} );
+			return Promise.resolve( path === '/jetpack/v4/settings' ? { waf: true, ...OFF } : {} );
 		} );
 		const Live = () => (
 			<FirewallOverviewCard
 				{ ...props }
-				state={ noBlocks( { ipRules: EMPTY_LIST } ) }
+				state={ noBlocks( { ipRules: OFF } ) }
 				settings={ useProtectSettings() }
 			/>
 		);
 		render( <Live /> );
 
-		await userEvent.click( await screen.findByRole( 'button', { name: 'Add IPs to list' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on and edit list' } ) );
 		const dialog = await screen.findByRole( 'dialog', { name: 'Blocked IP addresses' } );
-		await userEvent.type( within( dialog ).getByRole( 'textbox' ), '198.51.100.1' );
 		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Save' } ) );
 
-		await expect( within( dialog ).findByText( 'Nope' ) ).resolves.toBeInTheDocument();
-		expect( within( dialog ).getByRole( 'textbox' ) ).toHaveValue( '198.51.100.1' );
+		await expect( within( dialog ).findByRole( 'alert' ) ).resolves.toHaveTextContent( refusal );
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				method: 'POST',
+				data: expect.objectContaining( {
+					jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
+				} ),
+			} )
+		);
+		// The open dialog hides the card from the accessibility tree.
+		expect( screen.getByText( 'Your block list is turned off' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'Edit block list', 'Blocked IP addresses', 'jetpack_waf_ip_block_list_enabled' ],
+		[ 'Edit allow list', 'Always allowed IP addresses', 'jetpack_waf_ip_allow_list_enabled' ],
+	] )(
+		'leaves a list that is off as it is when %s opens it from the footer',
+		async ( link, title, enabledKey ) => {
+			const ipRules = {
+				...props.state.ipRules,
+				jetpack_waf_ip_allow_list: '198.51.100.9',
+				[ enabledKey ]: false,
+			};
+			render(
+				<FirewallOverviewCard { ...props } state={ { ...props.state, hasScan: true, ipRules } } />
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: link } ) );
+			const dialog = await screen.findByRole( 'dialog', { name: title } );
+
+			expect( dialog ).toHaveTextContent( 'This list is turned off' );
+			expect( within( dialog ).getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		}
+	);
 
 	it( 'moves focus to Edit block list when saving swaps out the button that opened the dialog', async () => {
 		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method, path } ) =>
