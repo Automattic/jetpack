@@ -6,7 +6,8 @@ import { useEffect } from '@wordpress/element';
 // (`admin-page/index.tsx`).
 const PAGE_VIEW_EVENT = 'jetpack_videopress_admin_page_view';
 
-export type DashboardRoute = 'overview' | 'library' | 'settings' | 'video' | 'video_editor';
+export type DashboardRoute =
+	'overview' | 'library' | 'playlists' | 'playlist' | 'settings' | 'video' | 'video_editor';
 
 // Share the once-per-load guard across separately bundled SPA route stages.
 const TRACKED_FLAG = '__jetpackVideoPressDashboardTracked' as const;
