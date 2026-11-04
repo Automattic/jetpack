@@ -68,8 +68,8 @@ for PLUGIN in "${PLUGINS[@]}"; do
     exit 1
   fi
 
-  DOWNLOAD_URL=$(jq -r ".master.download_url" <<<"$RESPONSE")
-  PLUGIN_VERSION=$(jq -r ".master.version" <<<"$RESPONSE")
+  DOWNLOAD_URL=$(jq -r '.master.download_url // empty' <<<"$RESPONSE")
+  PLUGIN_VERSION=$(jq -r '.master.version // empty' <<<"$RESPONSE")
 
   if [[ -z "$DOWNLOAD_URL" || -z "$PLUGIN_VERSION" ]]; then
     echo "Error: unable to extract data from Jetpack Beta Builder response for $PLUGIN."
