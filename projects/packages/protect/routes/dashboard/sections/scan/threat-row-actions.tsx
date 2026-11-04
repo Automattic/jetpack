@@ -1,13 +1,15 @@
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
+import { getUpdated, getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
 import { getSoftwareActionLabels } from './labels';
 import { useCanIgnore, useCanViewFiles } from './store';
 import {
 	fixThreats,
 	ignoreThreats,
 	isDeleteFix,
+	isUpdateFix,
 	refocusRow,
 	unignoreThreat,
 	useGetThreatBusy,
@@ -20,6 +22,10 @@ type LinkKey = 'update' | 'deactivate' | 'details';
 
 type OpenThreat = ( item: ScanThreat ) => void;
 
+type FixUpdateModal = ReturnType< typeof makeFixUpdateModal >;
+
+const NO_THREATS: ScanThreat[] = [];
+
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
  *
@@ -28,6 +34,8 @@ type OpenThreat = ( item: ScanThreat ) => void;
  * @param canIgnore - Whether the host lets the site ignore threats.
  * @param canView   - Whether the user may view threat files.
  * @param getBusy   - Gets the action running on a threat.
+ * @param FixUpdate - The confirmation for fixes that update software.
+ * @param selected  - The selected threats, which the bulk Auto-fix actions are labeled for.
  * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
  */
@@ -37,6 +45,8 @@ function getThreatRowActions(
 	canIgnore: boolean,
 	canView: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
+	FixUpdate: FixUpdateModal,
+	selected: ScanThreat[],
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
 	const link =
@@ -64,6 +74,28 @@ function getThreatRowActions(
 	const canFix = ( item: ScanThreat ) =>
 		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
 
+	/*
+	 * DataViews can't disable an action for one row, so a busy row keeps only View. A deleting row
+	 * keeps them, since hiding Delete would close its open modal; deleteSoftware refuses a repeat.
+	 */
+	const isLocked = ( item: ScanThreat ) => {
+		const busy = getBusy( item.id );
+		return !! busy && busy !== 'deleting';
+	};
+	const selectedFixes = ( updates: boolean ) =>
+		selected.filter(
+			item =>
+				! isLocked( item ) &&
+				canFix( item ) &&
+				! isDeleteFix( item ) &&
+				isUpdateFix( item ) === updates
+		);
+	const selectedUpdates = selectedFixes( true );
+	// Both bulk Auto-fix buttons show then, so the update one names its count even for one.
+	const isMixed = selectedUpdates.length > 0 && selectedFixes( false ).length > 0;
+	const isSelectedUpdates = ( items: ScanThreat[] ) =>
+		isMixed && items.every( item => selectedUpdates.some( other => other.id === item.id ) );
+
 	const actions: Action< ScanThreat >[] = [
 		{
 			id: 'view',
@@ -77,12 +109,12 @@ function getThreatRowActions(
 			isEligible: item => canAct && canView && !! item.filename,
 			callback: ( [ item ] ) => item && openThreatFile( item ),
 		},
-		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
+		// The Auto-fix actions are mutually exclusive: delete and update fixes confirm first.
 		{
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && ! isDeleteFix( item ),
+			isEligible: item => canFix( item ) && ! isDeleteFix( item ) && ! isUpdateFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {
@@ -97,6 +129,30 @@ function getThreatRowActions(
 			isEligible: item => canFix( item ) && isDeleteFix( item ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
 			RenderModal: FixDeleteModal,
+		},
+		{
+			id: 'auto-fix-update',
+			label: items =>
+				items.length > 1 || isSelectedUpdates( items )
+					? sprintf(
+							/* translators: %d is a number of plugin and theme updates, one or more. */
+							_n(
+								'Auto-fix %d update',
+								'Auto-fix %d updates',
+								getUpdated( items ).length,
+								'jetpack-protect-pkg'
+							),
+							getUpdated( items ).length
+						)
+					: __( 'Auto-fix', 'jetpack-protect-pkg' ),
+			isPrimary: true,
+			isEligible: item => canFix( item ) && isUpdateFix( item ),
+			// A batch of updates Scan runs only on their own starts nothing, but without Ignore it keeps them selectable.
+			supportsBulk:
+				!! onBulk &&
+				( ! canIgnore || selectedUpdates.length < 2 || getUpdated( selectedUpdates ).length > 0 ),
+			modalHeader: items => getUpdateFixTitle( items ),
+			RenderModal: FixUpdate,
 		},
 		{
 			id: 'unignore',
@@ -143,14 +199,6 @@ function getThreatRowActions(
 		},
 	];
 
-	/*
-	 * DataViews can't disable an action for one row, so a busy row keeps only View. A deleting row
-	 * keeps them, since hiding Delete would close its open modal; deleteSoftware refuses a repeat.
-	 */
-	const isLocked = ( item: ScanThreat ) => {
-		const busy = getBusy( item.id );
-		return !! busy && busy !== 'deleting';
-	};
 	return actions.map( action =>
 		action.id === 'view'
 			? action
@@ -164,21 +212,26 @@ function getThreatRowActions(
 /**
  * A threats table's row actions, updated as actions on its threats start and finish.
  *
- * @param open   - Opens a threat in the inspector.
- * @param canAct - Whether the site's plan can fix and ignore threats.
- * @param onBulk - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
+ * @param open     - Opens a threat in the inspector.
+ * @param canAct   - Whether the site's plan can fix and ignore threats.
+ * @param onBulk   - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
+ * @param selected - The selected threats, for a list with bulk actions.
  * @return The actions.
  */
 export function useThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
-	onBulk?: ( items: ScanThreat[] ) => void
+	onBulk?: ( items: ScanThreat[] ) => void,
+	selected: ScanThreat[] = NO_THREATS
 ): Action< ScanThreat >[] {
 	const canIgnore = useCanIgnore();
 	const canView = useCanViewFiles();
 	const getBusy = useGetThreatBusy();
+	// Kept apart from the actions, which change with every fix, so an open confirmation isn't remounted.
+	const FixUpdate = useMemo( () => makeFixUpdateModal( onBulk ), [ onBulk ] );
 	return useMemo(
-		() => getThreatRowActions( open, canAct, canIgnore, canView, getBusy, onBulk ),
-		[ open, canAct, canIgnore, canView, getBusy, onBulk ]
+		() =>
+			getThreatRowActions( open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ),
+		[ open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ]
 	);
 }

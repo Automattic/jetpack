@@ -18,6 +18,10 @@ jest.mock( '@wordpress/data', () => ( {
 		createSuccessNotice: mockCreateSuccessNotice,
 	} ),
 } ) );
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( { labelledby, disabled }: { labelledby?: string; disabled?: boolean } ) => (
 		<input type="checkbox" aria-labelledby={ labelledby } disabled={ disabled } />
