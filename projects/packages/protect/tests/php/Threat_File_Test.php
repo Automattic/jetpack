@@ -160,4 +160,12 @@ class Threat_File_Test extends BaseTestCase {
 		$this->assertSame( 0640, fileperms( $path ) & 0777 );
 		$this->assertSame( array(), self::temp_files( $path ) );
 	}
+
+	public function test_restore_refuses_a_download_that_fails_its_checksum_before_writing() {
+		list( $result, $path ) = $this->restore_core_file( '<?php // localized' );
+
+		$this->assertSame( 'original_mismatch', $result->get_error_code() );
+		$this->assertSame( '<?php // changed', file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( array(), self::temp_files( $path ) );
+	}
 }
