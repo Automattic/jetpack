@@ -204,6 +204,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return string
 	 */
 	private static function build_consent_gate( $pushes ) {
+		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load.
+		// Script `load` events don't bubble, so the listener has to capture.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
@@ -234,9 +236,12 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 } );
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
+document.addEventListener( "load", function ( event ) {
+	if ( ! _jpStatsFire.done && event && event.target && event.target.tagName === "SCRIPT" ) { _jpStatsCheck(); }
+}, true );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {
-		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded, so Stats waits for a consent change." );
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats checks again when a script loads." );
 	}
 	_jpStatsCheck();
 }, { once: true } );

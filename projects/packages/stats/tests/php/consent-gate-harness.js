@@ -9,8 +9,10 @@ const listeners = { document: {}, window: {} };
 const on = target => ( type, listener ) => {
 	( listeners[ target ][ type ] = listeners[ target ][ type ] || [] ).push( listener );
 };
-const dispatch = ( target, type, detail ) =>
-	( listeners[ target ][ type ] || [] ).forEach( listener => listener( { detail } ) );
+const dispatch = ( target, type, detail, eventTarget ) =>
+	( listeners[ target ][ type ] || [] ).forEach( listener =>
+		listener( { detail, target: eventTarget } )
+	);
 
 const result = { views: 0, warnings: 0, error: null };
 const page = {
@@ -75,6 +77,14 @@ const scenarios = {
 		dispatch( 'document', 'DOMContentLoaded' );
 		page.wp_has_consent = () => true;
 		dispatch( 'window', 'load' );
+	},
+	'consent API that a delay-JS optimizer loads after the load event': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
+		page.wp_has_consent = () => true;
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 	},
 	'consent API that never loads': () => {
 		loadGate();
