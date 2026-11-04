@@ -407,45 +407,30 @@ export const trafficSourcesData: LeaderboardEntry[] = [
 		label: 'Direct',
 		currentValue: 12500,
 		previousValue: 10000,
-		currentShare: 100,
-		previousShare: 80,
-		delta: 25,
 	},
 	{
 		id: 'social',
 		label: 'Social Media',
 		currentValue: 8750,
 		previousValue: 9500,
-		currentShare: 70,
-		previousShare: 76,
-		delta: -7.9,
 	},
 	{
 		id: 'email',
 		label: 'Email Marketing',
 		currentValue: 6250,
 		previousValue: 5800,
-		currentShare: 50,
-		previousShare: 46,
-		delta: 7.8,
 	},
 	{
 		id: 'search',
 		label: 'Search Engine',
 		currentValue: 4375,
 		previousValue: 4200,
-		currentShare: 35,
-		previousShare: 33,
-		delta: 4.2,
 	},
 	{
 		id: 'referral',
 		label: 'Referral',
 		currentValue: 180,
 		previousValue: 150,
-		currentShare: 4,
-		previousShare: 3,
-		delta: 20,
 	},
 ];
 
@@ -463,18 +448,12 @@ export const shortTrafficSourcesData: LeaderboardEntry[] = [
 		label: 'Direct',
 		currentValue: 12500,
 		previousValue: 10000,
-		currentShare: 100,
-		previousShare: 80,
-		delta: 25,
 	},
 	{
 		id: 'social',
 		label: 'Social Media',
 		currentValue: 8750,
 		previousValue: 9500,
-		currentShare: 70,
-		previousShare: 76,
-		delta: -7.9,
 	},
 ];
 
@@ -492,27 +471,18 @@ export const revenueMetricsData: LeaderboardEntry[] = [
 		label: 'Large Value 1',
 		currentValue: 1250000,
 		previousValue: 1000000,
-		currentShare: 100,
-		previousShare: 80,
-		delta: 25,
 	},
 	{
 		id: 'large2',
 		label: 'Large Value 2',
 		currentValue: 875000,
 		previousValue: 950000,
-		currentShare: 70,
-		previousShare: 76,
-		delta: -7.9,
 	},
 	{
 		id: 'large3',
 		label: 'Large Value 3',
 		currentValue: 625000,
 		previousValue: 580000,
-		currentShare: 50,
-		previousShare: 46,
-		delta: 7.8,
 	},
 ];
 
@@ -530,34 +500,24 @@ export const decliningMetricsData: LeaderboardEntry[] = [
 		label: 'Declining Channel',
 		currentValue: 5000,
 		previousValue: 8000,
-		currentShare: 62.5,
-		previousShare: 100,
-		delta: -37.5,
 	},
 	{
 		id: 'negative2',
 		label: 'Another Declining',
 		currentValue: 3000,
 		previousValue: 6000,
-		currentShare: 37.5,
-		previousShare: 75,
-		delta: -50,
 	},
 	{
 		id: 'negative3',
 		label: 'Slight Decline',
 		currentValue: 4500,
 		previousValue: 4800,
-		currentShare: 56.25,
-		previousShare: 60,
-		delta: -6.25,
 	},
 ];
 
 /**
  * Net sales by source, where refunds push some sources below zero
  *
- * Shares are a % of the largest absolute value across both periods ($4,200)
  * - Category: performance
  * - Data points: 6
  * - Suitable for: LeaderboardChart
@@ -568,54 +528,36 @@ export const netSalesBySourceData: LeaderboardEntry[] = [
 		label: 'Google',
 		currentValue: 4200,
 		previousValue: 3800,
-		currentShare: 100,
-		previousShare: 90.48,
-		delta: 10.53,
 	},
 	{
 		id: 'direct',
 		label: 'Direct',
 		currentValue: 2600,
 		previousValue: 2900,
-		currentShare: 61.9,
-		previousShare: 69.05,
-		delta: -10.34,
 	},
 	{
 		id: 'paid-search',
 		label: 'Paid search',
 		currentValue: 1500,
 		previousValue: 2200,
-		currentShare: 35.71,
-		previousShare: 52.38,
-		delta: -31.82,
 	},
 	{
 		id: 'facebook',
 		label: 'Facebook',
 		currentValue: 650,
 		previousValue: -300,
-		currentShare: 15.48,
-		previousShare: -7.14,
-		delta: 316.67,
 	},
 	{
 		id: 'affiliate',
 		label: 'Affiliate',
 		currentValue: -900,
 		previousValue: -400,
-		currentShare: -21.43,
-		previousShare: -9.52,
-		delta: -125,
 	},
 	{
 		id: 'newsletter',
 		label: 'Newsletter',
 		currentValue: -1800,
 		previousValue: 1200,
-		currentShare: -42.86,
-		previousShare: 28.57,
-		delta: -250,
 	},
 ];
 
@@ -633,9 +575,6 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		label: 'Direct',
 		currentValue: 12500,
 		previousValue: 10000,
-		currentShare: 100,
-		previousShare: 80,
-		delta: 25,
 		imageColor: '#3858E9',
 	},
 	{
@@ -643,9 +582,6 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		label: 'Social Media',
 		currentValue: 8750,
 		previousValue: 9500,
-		currentShare: 30,
-		previousShare: 76,
-		delta: -7.9,
 		imageColor: '#66BDFF',
 	},
 	{
@@ -653,9 +589,6 @@ export const categorizedMetricsData: LeaderboardEntry[] = [
 		label: 'Referral',
 		currentValue: 8750,
 		previousValue: 9500,
-		currentShare: 10,
-		previousShare: 16,
-		delta: -7.9,
 		imageColor: '#8B5CF6',
 	},
 ];

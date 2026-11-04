@@ -3,12 +3,12 @@
  */
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -31,11 +31,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 // picker — but the host (and Storybook) may also inject them via `attributes`.
 type SiteOverviewRenderAttributes = SiteOverviewAttributes & Partial< ReportParamsFieldAttributes >;
 type SiteOverviewWidgetProps = WidgetRenderProps< SiteOverviewRenderAttributes >;
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 /**
  * Render-only per-metric config; ids/labels are shared with the settings
@@ -137,7 +132,7 @@ function SiteOverviewReport( {
 				} }
 				renderLoading={ <MetricTileGridSkeleton tiles={ visibleMetrics.length } /> }
 			>
-				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 			</WidgetState>
 		</div>
 	);

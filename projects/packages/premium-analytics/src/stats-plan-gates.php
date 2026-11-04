@@ -14,10 +14,7 @@ use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-// Guarded on a symbol the file declares; see the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\ensure_widget_registry_ready' ) ) {
-	require_once __DIR__ . '/widget-modules.php';
-}
+require_once __DIR__ . '/widget-modules.php';
 
 /**
  * Filter overriding the Stats plan tier.
@@ -455,7 +452,7 @@ function get_stats_feature_copy( $feature ) {
 			);
 		case 'intervals':
 			return array(
-				'description' => __( 'Group your charts by week, month or year.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Group your charts by week, month, quarter or year.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => '',
 			);
 		default:

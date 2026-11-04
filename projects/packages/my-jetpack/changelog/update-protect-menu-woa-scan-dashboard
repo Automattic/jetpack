@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: On WordPress.com sites without the Protect page, send Scan's manage links to the WordPress.com dashboard instead of Jetpack Cloud.

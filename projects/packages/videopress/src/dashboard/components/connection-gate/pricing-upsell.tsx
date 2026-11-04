@@ -11,8 +11,8 @@ import useConnection from '@automattic/jetpack-connection/use-connection';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { Text } from '@wordpress/ui';
-import { useEffect, useState } from 'react';
+import { Notice } from '@wordpress/ui';
+import { useEffect, useRef, useState } from 'react';
 import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
 import PageSubTitle from '../page-subtitle';
@@ -71,6 +71,14 @@ export default function PricingUpsell() {
 		}
 	}, [ checkoutError, createErrorNotice ] );
 
+	// Below the large breakpoint the table stacks, so the notice can be off screen.
+	const noticeRef = useRef< HTMLDivElement >( null );
+	useEffect( () => {
+		if ( registrationError ) {
+			noticeRef.current?.scrollIntoView?.( { block: 'nearest' } );
+		}
+	}, [ registrationError ] );
+
 	if ( ! pricing ) {
 		return null;
 	}
@@ -84,6 +92,19 @@ export default function PricingUpsell() {
 			subTitle={ <PageSubTitle /> }
 		>
 			<div className="vp-connection-gate__upsell">
+				{ registrationError && (
+					<Notice.Root
+						ref={ noticeRef }
+						intent="error"
+						role="alert"
+						className="vp-connection-gate__notice"
+					>
+						<Notice.Description>
+							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+								__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
+						</Notice.Description>
+					</Notice.Root>
+				) }
 				<PricingTable title={ title } items={ pricingItems }>
 					<PricingTableColumn primary>
 						<PricingTableHeader>
@@ -131,12 +152,6 @@ export default function PricingUpsell() {
 							>
 								{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 							</Button>
-							{ registrationError && (
-								<Text className="vp-connection-gate__error" role="alert">
-									{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
-										__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
-								</Text>
-							) }
 						</PricingTableHeader>
 						<PricingTableItem
 							isIncluded={ false }

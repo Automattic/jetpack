@@ -17,6 +17,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -46,7 +47,7 @@ import styles from './style.module.scss';
  */
 export default function ProductInterstitial( {
 	bundle,
-	existingLicenseKeyUrl = 'admin.php?page=my-jetpack#/add-license',
+	existingLicenseKeyUrl = getMyJetpackRouteUrl( '/add-license' ),
 	installsPlugin = false,
 	slug,
 	supportingInfo,

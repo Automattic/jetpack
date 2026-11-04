@@ -5,7 +5,7 @@ import type { ComponentProps, ComponentType } from 'react';
  * The prompts this page can show. Kept in sync with the STATE_* constants in
  * class-wpcom-hosting-feature-page.php.
  */
-export type FeatureState = 'upgrade' | 'in_progress' | 'activate';
+export type FeatureState = 'upgrade' | 'in_progress' | 'activate' | 'enable';
 
 /**
  * One blocking eligibility error, in the shape the wpcom eligibility API
@@ -57,6 +57,16 @@ export type InitialState = {
 	hasRevertedTransfer: boolean;
 	/** Whether the site's last transfer failed. Only in the `activate` state. */
 	transferFailed: boolean;
+	/** Link that turns the Jetpack plugin's dashboard on. Only in the `enable` state. */
+	enableUrl?: string;
+	/** Why the last attempt to turn the dashboard on failed, if it did. Only in the `enable` state. */
+	enableError?: 'connection' | 'unknown' | null;
+	/** Whether a WoA site's dashboard waits for the connection rather than a transfer. Only in the `in_progress` state. */
+	awaitingConnection?: boolean;
+	/** Whether a WoA buyer is back from checkout before the purchase reached the site. Only in the `upgrade` state. */
+	checkoutPending: boolean;
+	/** REST path reporting whether the purchase has reached the site. Only while `checkoutPending`. */
+	featureStatusPath?: string;
 };
 
 /**
@@ -91,6 +101,26 @@ export type FeatureConfig = {
 	inProgress: {
 		title: string;
 		description: string;
+		/** Copy for a WoA site whose dashboard waits for the connection, for a feature that has one. */
+		awaitingConnection?: {
+			description: string;
+			note: string;
+		};
+	};
+	/** Shown to a WoA buyer back from checkout while the purchase reaches the site. */
+	checkoutPending: {
+		title: string;
+		description: string;
+	};
+	/** For a feature whose Jetpack plugin dashboard a WoA site can turn off. */
+	enable?: {
+		title: string;
+		description: string;
+		action: string;
+		/** Notice shown when turning it on failed. */
+		failed: string;
+		/** Notice shown when turning it on failed because the site is not connected. */
+		connectionFailed: string;
 	};
 	/** Rendered below the upgrade prompt, for anything only this feature offers there. */
 	UpgradeExtra?: ComponentType< { state: InitialState } >;

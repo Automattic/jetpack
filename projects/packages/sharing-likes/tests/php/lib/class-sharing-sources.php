@@ -65,6 +65,15 @@ class Sharing_Source {
 	public function is_deprecated() {
 		return 'deprecated' === $this->id;
 	}
+
+	/**
+	 * Whether the service is only kept for the sites that use it.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy() {
+		return 'legacy' === $this->id;
+	}
 }
 
 /**
