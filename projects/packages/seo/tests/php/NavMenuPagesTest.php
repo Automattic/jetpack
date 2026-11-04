@@ -122,15 +122,16 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * @param array[] $parts    Each `array( slug, area, linked page index )`.
 	 * @param int[]   $main     Indexes of the expected main-menu pages.
 	 * @param int[]   $other    Indexes of the expected other-menu pages.
+	 * @param array   $home     Template part slugs the home page template includes.
 	 * @return void
 	 */
 	#[DataProvider( 'provide_template_parts' )]
-	public function test_block_theme_header_is_main_and_footer_is_other( $parts, $main, $other ) {
+	public function test_block_theme_header_is_main_and_footer_is_other( $parts, $main, $other, $home = array() ) {
 		$pages = $this->pages( 3 );
 		foreach ( $parts as &$part ) {
 			$part[2] = $this->navigation_markup( $pages[ $part[2] ] );
 		}
-		$this->use_template_parts( $parts );
+		$this->use_template_parts( $parts, $home );
 
 		$pick = static function ( $indexes ) use ( $pages ) {
 			return array_map(
@@ -165,6 +166,12 @@ class NavMenuPagesTest extends SeoTestCase {
 				array( array( 'header', 'header', 0 ), array( 'header-large-title', 'header', 2 ), array( 'footer', 'footer', 1 ) ),
 				array( 0 ),
 				array( 1 ),
+			),
+			'home page part wins'    => array(
+				array( array( 'header', 'header', 0 ), array( 'header-large-title', 'header', 2 ), array( 'footer', 'footer', 1 ) ),
+				array( 2 ),
+				array( 1 ),
+				array( 'header-large-title', 'footer' ),
 			),
 		);
 	}
@@ -302,10 +309,11 @@ class NavMenuPagesTest extends SeoTestCase {
 	/**
 	 * Serve template parts in place of the theme's, with block template parts supported.
 	 *
-	 * @param array[] $parts Each `array( slug, area, content )`.
+	 * @param array[]  $parts Each `array( slug, area, content )`.
+	 * @param string[] $home  Parts the home page's `index` template includes.
 	 * @return void
 	 */
-	private function use_template_parts( array $parts ) {
+	private function use_template_parts( array $parts, array $home = array() ) {
 		$templates = array();
 		foreach ( $parts as list( $slug, $area, $content ) ) {
 			$template          = new WP_Block_Template();
@@ -316,11 +324,25 @@ class NavMenuPagesTest extends SeoTestCase {
 			$templates[]       = $template;
 		}
 
+		$index = array();
+		if ( $home ) {
+			$index[0]          = new WP_Block_Template();
+			$index[0]->type    = 'wp_template';
+			$index[0]->slug    = 'index';
+			$index[0]->content = '';
+			foreach ( $home as $slug ) {
+				$index[0]->content .= sprintf( '<!-- wp:group --><!-- wp:template-part {"slug":"%s"} /--><!-- /wp:group -->', $slug );
+			}
+		}
+
 		add_theme_support( 'block-template-parts' );
 		add_filter(
 			'pre_get_block_templates',
-			static function ( $result, $query, $type ) use ( $templates ) {
-				return 'wp_template_part' === $type ? $templates : $result;
+			static function ( $result, $query, $type ) use ( $templates, $index ) {
+				if ( 'wp_template_part' === $type ) {
+					return $templates;
+				}
+				return $index ? $index : $result;
 			},
 			10,
 			3

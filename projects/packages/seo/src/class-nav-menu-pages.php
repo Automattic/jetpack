@@ -104,8 +104,7 @@ class Nav_Menu_Pages {
 
 	/**
 	 * Pages in the Navigation blocks of a block theme's header (main) and footer (other)
-	 * template parts. A part named `header` or `footer` stands in for its whole area, so
-	 * unused variants such as `header-large-title` don't count.
+	 * template parts, preferring the parts the home page uses.
 	 *
 	 * @return array{main: int[], other: int[]}
 	 */
@@ -130,17 +129,65 @@ class Nav_Menu_Pages {
 			}
 		}
 
+		$home = array_flip( self::home_template_part_slugs() );
 		foreach ( array(
 			'header' => 'main',
 			'footer' => 'other',
 		) as $area => $group ) {
-			$parts = isset( $areas[ $area ][ $area ] ) ? array( $areas[ $area ][ $area ] ) : $areas[ $area ];
+			// Prefer the parts the home page includes, then the one named after the area, so
+			// unused variants such as `header-large-title` don't count.
+			$parts = array_intersect_key( $areas[ $area ], $home );
+			if ( empty( $parts ) ) {
+				$parts = isset( $areas[ $area ][ $area ] ) ? array( $areas[ $area ][ $area ] ) : $areas[ $area ];
+			}
 			foreach ( $parts as $part ) {
 				$pages[ $group ] = array_merge( $pages[ $group ], self::page_ids_in_blocks( parse_blocks( (string) $part->content ) ) );
 			}
 		}
 
 		return $pages;
+	}
+
+	/**
+	 * Slugs of the template parts in the block template the home page uses.
+	 *
+	 * @return string[]
+	 */
+	private static function home_template_part_slugs() {
+		$hierarchy = array( 'front-page' );
+		$front_id  = 'page' === get_option( 'show_on_front' ) ? (int) get_option( 'page_on_front' ) : 0;
+		if ( $front_id ) {
+			$custom = get_page_template_slug( $front_id );
+			if ( $custom ) {
+				$hierarchy[] = $custom;
+			}
+			array_push( $hierarchy, 'page', 'singular' );
+		} else {
+			$hierarchy[] = 'home';
+		}
+		$hierarchy[] = 'index';
+
+		$template = resolve_block_template( 'frontpage', $hierarchy, '' );
+		return $template ? self::template_part_slugs( parse_blocks( (string) $template->content ) ) : array();
+	}
+
+	/**
+	 * Slugs of the template part blocks in a block tree.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return string[]
+	 */
+	private static function template_part_slugs( array $blocks ) {
+		$slugs = array();
+		foreach ( $blocks as $block ) {
+			if ( 'core/template-part' === ( $block['blockName'] ?? '' ) && ! empty( $block['attrs']['slug'] ) ) {
+				$slugs[] = $block['attrs']['slug'];
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$slugs = array_merge( $slugs, self::template_part_slugs( $block['innerBlocks'] ) );
+			}
+		}
+		return $slugs;
 	}
 
 	/**
