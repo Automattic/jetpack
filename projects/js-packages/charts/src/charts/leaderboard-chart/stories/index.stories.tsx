@@ -326,13 +326,27 @@ const InteractiveRowLabel = ( { children }: { children: React.ReactNode } ) => (
 			display: 'flex',
 			alignItems: 'center',
 			minHeight: '40px',
+			minWidth: 0,
 			padding: '0 6px',
 			fontSize: '13px',
 		} }
 	>
-		{ children }
+		<span style={ { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }>
+			{ children }
+		</span>
 	</span>
 );
+
+const interactiveData: LeaderboardEntry[] = [
+	...sampleData,
+	{
+		id: 'long-campaign',
+		label:
+			'black_friday_early_access_wordpress_hosting_bundle_2026_newsletter_campaign_for_returning_subscribers_in_europe_and_north_america',
+		currentValue: 1500,
+		previousValue: 1200,
+	},
+];
 
 const onLeaderboardLabelLinkClick = action( 'label-link-click' );
 
@@ -355,7 +369,7 @@ const DemoLabelLink = ( { entry }: { entry: LeaderboardEntry } ) => {
 
 export const Interactive: Story = {
 	args: {
-		data: sampleData.map( entry => ( {
+		data: interactiveData.map( entry => ( {
 			...entry,
 			label: <InteractiveRowLabel>{ entry.label }</InteractiveRowLabel>,
 			onClick: () => onLeaderboardItemClick( entry.id ),
@@ -380,7 +394,7 @@ export const Interactive: Story = {
 export const InteractiveLabel: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: sampleData.map( entry => ( {
+		data: interactiveData.map( entry => ( {
 			...entry,
 			// The span fills the label cell, so only the name itself is the link.
 			label: (
@@ -430,7 +444,7 @@ const MIXED_ROW_KINDS = [
 export const InteractiveMixed: Story = {
 	args: {
 		...sharedThemeArgs,
-		data: sampleData.map( ( entry, index ): LeaderboardEntry => {
+		data: interactiveData.map( ( entry, index ): LeaderboardEntry => {
 			const onClick = () => onLeaderboardItemClick( entry.id );
 
 			switch ( MIXED_ROW_KINDS[ index % MIXED_ROW_KINDS.length ] ) {
@@ -488,12 +502,12 @@ export const InteractiveMixed: Story = {
 
 		// Every entry is a list item; only the plain drill-down ones are a button directly.
 		const rows = grid.querySelectorAll( ':scope > [role="listitem"]' );
-		expect( rows ).toHaveLength( sampleData.length );
+		expect( rows ).toHaveLength( interactiveData.length );
 
 		// The story must actually mix both row types for the rest to mean anything.
 		const interactiveRows = grid.querySelectorAll( ':scope > [role="listitem"] > button' ).length;
 		expect( interactiveRows ).toBeGreaterThan( 0 );
-		expect( interactiveRows ).toBeLessThan( sampleData.length );
+		expect( interactiveRows ).toBeLessThan( interactiveData.length );
 
 		// Interactive and static list items must have the same height.
 		const heights = new Set( [ ...rows ].map( row => row.getBoundingClientRect().height ) );
