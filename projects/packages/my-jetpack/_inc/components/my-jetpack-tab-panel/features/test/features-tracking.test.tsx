@@ -51,7 +51,7 @@ jest.mock( '../../../module-toggle', () => ( {
 		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
 
 		// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
-		return <input type="checkbox" aria-label="Module toggle" readOnly />;
+		return <input type="checkbox" role="switch" aria-label="Module toggle" readOnly />;
 	},
 	useModuleActivation: ( _module: unknown, { onSwitch, onManageClick }: MockModuleSwitch ) => {
 		Object.assign( mockModuleSwitch, { onSwitch, onManageClick } );
@@ -427,7 +427,7 @@ describe( 'Feature action tracking', () => {
 			/>
 		);
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( lastEvent( 'jetpack_myjetpack_feature_action' ) ).toMatchObject( {
 			action: 'deactivate',
