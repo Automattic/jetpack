@@ -68,3 +68,18 @@ describe( 'McpSetup: ChatGPT and Claude quick setup', () => {
 		);
 	} );
 } );
+
+describe( 'McpSetup: manual configuration', () => {
+	test( 'names the configuration field and gives Continue a keyed server entry', async () => {
+		render( <McpSetup /> );
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Choose your AI agent' } ),
+			'continue'
+		);
+
+		const config = JSON.parse( screen.getByRole( 'textbox', { name: 'MCP configuration' } ).value );
+		expect( config ).toEqual( {
+			mcpServers: { 'wpcom-mcp': { url: 'https://public-api.wordpress.com/wpcom/v2/mcp/v1' } },
+		} );
+	} );
+} );

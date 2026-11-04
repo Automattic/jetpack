@@ -77,8 +77,6 @@ function generateMcpConfig( client ) {
 			return { servers: { [ MCP_SERVER_NAME ]: baseConfig } };
 		case 'cursor':
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
-		case 'continue':
-			return { mcpServers: [ { name: MCP_SERVER_NAME, ...baseConfig } ] };
 		default:
 			return { mcpServers: { [ MCP_SERVER_NAME ]: baseConfig } };
 	}
@@ -330,6 +328,8 @@ export default function McpSetup() {
 							<TextareaControl
 								className="jetpack-ai-mcp-setup__config-textarea"
 								__nextHasNoMarginBottom
+								label={ __( 'MCP configuration', 'jetpack' ) }
+								hideLabelFromVision
 								value={ configText }
 								onChange={ handleConfigChange }
 								readOnly
