@@ -209,7 +209,7 @@
 		},
 		{
 			"source": "creator",
-			"rules": [ { "destination": "admin.php?page=my-jetpack#/features?search=creator" } ],
+			"rules": [ { "destination": "admin.php?page=jetpack-newsletter" } ],
 			"linkedFrom": [ "packages/my-jetpack Creator::get_manage_url()" ]
 		},
 		{

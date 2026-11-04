@@ -359,12 +359,16 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		],
 		[ open ]
 	);
-	const actions = useThreatRowActions( open, canAct, deselect );
-
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
 	);
+	// Like DataViews' bulk toolbar, which acts on the selected rows on this page.
+	const selectedThreats = useMemo(
+		() => data.filter( item => selection.includes( getItemId( item ) ) ),
+		[ data, selection, getItemId ]
+	);
+	const actions = useThreatRowActions( open, canAct, deselect, selectedThreats );
 	const { totalPages } = paginationInfo;
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -375,7 +379,7 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 	);
 	// Collapsed, the arrow keys would open threats the reader can't see.
 	useArrowKeyNavigation( data, isOpen ? selected : undefined, getItemId, open );
-	const hasSelectedRows = data.some( item => selection.includes( getItemId( item ) ) );
+	const hasSelectedRows = selectedThreats.length > 0;
 
 	return (
 		<Collapsible.Root open={ isOpen } onOpenChange={ setIsOpen } className="jp-protect-threats">
