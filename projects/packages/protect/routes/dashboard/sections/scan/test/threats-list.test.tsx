@@ -32,4 +32,12 @@ describe( 'ThreatsList', () => {
 		expect( screen.getByText( status ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Aug 15, 7:00 AM' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
+		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', severity: null };
+		render( <ThreatsList threats={ [ threat ] } canAct /> );
+
+		expect( screen.getByText( 'Vulnerable plugin' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Low' ) ).not.toBeInTheDocument();
+	} );
 } );

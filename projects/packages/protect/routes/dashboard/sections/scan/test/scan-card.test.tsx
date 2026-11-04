@@ -251,13 +251,14 @@ describe( 'ScanCard threat list', () => {
 } );
 
 describe( 'Severity filter', () => {
-	it.each( [ undefined, 0, 2, 3, 4, 5, 9 ] )(
-		'puts severity %p in the same level as its badge',
-		severity => {
-			render( <ThreatSeverityBadge severity={ severity } /> );
-			const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
+	it.each( [ 0, 2, 3, 4, 5, 9 ] )( 'puts severity %p in the same level as its badge', severity => {
+		render( <ThreatSeverityBadge severity={ severity } /> );
+		const level = LEVELS.find( item => item.value === getLevel( { id: 1, severity } ) );
 
-			expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.getByText( level?.label ?? '' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ undefined, null ] )( 'puts a threat whose severity is %p under Unknown', severity => {
+		expect( getLevel( { id: 1, severity } ) ).toBe( 'unknown' );
+	} );
 } );
