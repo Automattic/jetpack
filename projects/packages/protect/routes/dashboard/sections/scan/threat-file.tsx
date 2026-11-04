@@ -702,7 +702,7 @@ function ThreatFileBody( {
 	return (
 		<Stack direction="column" gap="md">
 			<FileMeta threat={ threat } file={ file } />
-			{ threat.context?.length && ! runs.length ? (
+			{ threat.status !== 'fixed' && threat.context?.length && ! runs.length ? (
 				<Text variant="body-md">
 					{ __(
 						'The flagged code isn’t in this file anymore. It may have changed since the last scan.',
