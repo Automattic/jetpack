@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
 
-Send WordPress.com one attribution event through Sync after a comment from a signed-in commenter is saved.
+Record the commenter identity with the comment so WordPress.com can attribute it as soon as the comment arrives.
