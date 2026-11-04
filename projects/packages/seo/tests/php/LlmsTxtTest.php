@@ -445,12 +445,12 @@ class LlmsTxtTest extends SeoTestCase {
 		for ( $i = 1; $i <= 50; $i++ ) {
 			$this->insert_page( sprintf( 'Page %02d', $i ) );
 		}
-		$scan     = $this->insert_page( 'Zz Scan' );
-		$in_menu  = $this->insert_page( 'Zx Included' );
-		$included = $this->insert_page( 'Zw Included' );
-		$hidden   = $this->insert_page( 'Zv Hidden' );
-		foreach ( array( $in_menu, $included, $hidden ) as $page ) {
-			update_post_meta( $page->ID, Llms_Txt::META_INCLUDE, '1' );
+		$scan            = $this->insert_page( 'Zz Scan' );
+		$in_menu         = $this->insert_page( 'Zx Included' );
+		$always_included = $this->insert_page( 'Zw Included' );
+		$hidden          = $this->insert_page( 'Zv Hidden' );
+		foreach ( array( $in_menu, $always_included, $hidden ) as $page ) {
+			update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
 		}
 		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
 		$this->add_nav_menu( array( $scan->ID, $in_menu->ID ), 'primary' );

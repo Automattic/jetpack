@@ -32,7 +32,7 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 ];
 
 // Pre-resolved for the same reason as SCHEMA_OPTIONS.
-const LLMS_TXT_INCLUDE_HELP = {
+const LLMS_TXT_ALWAYS_INCLUDE_HELP = {
 	shown: __(
 		'While llms.txt is on, lists this page first, even if it isn’t in a menu.',
 		'jetpack-seo'
@@ -56,7 +56,7 @@ type EditableMeta = Pick<
 	| 'jetpack_seo_html_title'
 	| 'jetpack_seo_noindex'
 	| 'jetpack_seo_schema_type'
-	| 'jetpack_seo_llms_txt_include'
+	| 'jetpack_seo_llms_txt_always_include'
 >;
 
 const EMPTY_META: EditableMeta = {
@@ -77,7 +77,9 @@ const EMPTY_META: EditableMeta = {
  */
 function toEditableMeta( meta: Partial< SeoPostMeta > | undefined, isPage: boolean ): EditableMeta {
 	return {
-		...( isPage && { jetpack_seo_llms_txt_include: !! meta?.jetpack_seo_llms_txt_include } ),
+		...( isPage && {
+			jetpack_seo_llms_txt_always_include: !! meta?.jetpack_seo_llms_txt_always_include,
+		} ),
 		advanced_seo_description: meta?.advanced_seo_description ?? '',
 		jetpack_seo_html_title: meta?.jetpack_seo_html_title ?? '',
 		jetpack_seo_noindex: !! meta?.jetpack_seo_noindex,
@@ -301,7 +303,7 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					onChange={ next =>
 						setField( {
 							jetpack_seo_noindex: next,
-							...( next && isPage && { jetpack_seo_llms_txt_include: false } ),
+							...( next && isPage && { jetpack_seo_llms_txt_always_include: false } ),
 						} )
 					}
 					disabled={ isResolving }
@@ -311,10 +313,12 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					<ToggleControl
 						label={ __( 'Always include in llms.txt', 'jetpack-seo' ) }
 						help={
-							local.jetpack_seo_noindex ? LLMS_TXT_INCLUDE_HELP.hidden : LLMS_TXT_INCLUDE_HELP.shown
+							local.jetpack_seo_noindex
+								? LLMS_TXT_ALWAYS_INCLUDE_HELP.hidden
+								: LLMS_TXT_ALWAYS_INCLUDE_HELP.shown
 						}
-						checked={ !! local.jetpack_seo_llms_txt_include && ! local.jetpack_seo_noindex }
-						onChange={ next => setField( { jetpack_seo_llms_txt_include: next } ) }
+						checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
+						onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
 						disabled={ isResolving || local.jetpack_seo_noindex }
 						__nextHasNoMarginBottom
 					/>

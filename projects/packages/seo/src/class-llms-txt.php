@@ -49,7 +49,7 @@ class Llms_Txt {
 	 *
 	 * @var string
 	 */
-	const META_INCLUDE = 'jetpack_seo_llms_txt_include';
+	const META_ALWAYS_INCLUDE = 'jetpack_seo_llms_txt_always_include';
 
 	/**
 	 * Wire the front-end request handler.
@@ -69,7 +69,7 @@ class Llms_Txt {
 	public static function register_meta() {
 		register_post_meta(
 			'page',
-			self::META_INCLUDE,
+			self::META_ALWAYS_INCLUDE,
 			array(
 				'type'         => 'boolean',
 				// Not translated: this runs before `init`, too early to load the text domain.
@@ -230,22 +230,22 @@ class Llms_Txt {
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages() {
-		$included = self::get_included_pages();
-		$skip     = wp_list_pluck( $included, 'ID' );
-		$menus    = Nav_Menu_Pages::get();
-		$main     = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
-		$room     = max( 0, self::MAX_POSTS_PER_TYPE - count( $included ) - count( $main ) );
-		$other    = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
-		$room    -= count( $other );
+		$always_included = self::get_always_included_pages();
+		$skip            = wp_list_pluck( $always_included, 'ID' );
+		$menus           = Nav_Menu_Pages::get();
+		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
+		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) - count( $main ) );
+		$other           = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
+		$room           -= count( $other );
 		if ( $room <= 0 ) {
-			return array_merge( $included, $main, $other );
+			return array_merge( $always_included, $main, $other );
 		}
 
 		$args                   = self::query_args( 'page' );
 		$args['posts_per_page'] = $room;
 		$args['post__not_in']   = array_merge( $skip, $menus['main'], $menus['other'] );
 
-		return array_merge( $included, $main, $other, self::get_pages_by_order( $args ) );
+		return array_merge( $always_included, $main, $other, self::get_pages_by_order( $args ) );
 	}
 
 	/**
@@ -253,14 +253,14 @@ class Llms_Txt {
 	 *
 	 * @return \WP_Post[]
 	 */
-	private static function get_included_pages() {
+	private static function get_always_included_pages() {
 		$args                   = self::query_args( 'page' );
 		$args['meta_query']     = array(
 			// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 			'relation' => 'AND',
 			$args['meta_query'],
 			array(
-				'key'   => self::META_INCLUDE,
+				'key'   => self::META_ALWAYS_INCLUDE,
 				'value' => '1',
 			),
 		);

@@ -14,7 +14,7 @@ export interface SeoPostMeta {
 	jetpack_seo_noindex: boolean;
 	jetpack_seo_schema_type: SchemaType;
 	// Registered for pages only, in `Llms_Txt::register_meta()`.
-	jetpack_seo_llms_txt_include?: boolean;
+	jetpack_seo_llms_txt_always_include?: boolean;
 }
 
 // The post type slug the Content tab is currently listing/editing.

@@ -52,7 +52,7 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 		[ 'page', true ],
 		[ 'post', undefined ],
 	] )( 'saves the switch only for a %s that has it', async ( postType, expected ) => {
-		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_include: false };
+		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_always_include: false };
 		render( <SeoInspector postId={ 1 } postType={ postType } onClose={ jest.fn() } /> );
 
 		const toggle = screen.queryByLabelText( LABEL );
@@ -65,11 +65,11 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		const saved = mockApiFetch.mock.calls[ 0 ][ 0 ].data.meta as Record< string, unknown >;
-		expect( saved.jetpack_seo_llms_txt_include ).toBe( expected );
+		expect( saved.jetpack_seo_llms_txt_always_include ).toBe( expected );
 	} );
 
 	it( 'switches it off when the page is hidden from search', async () => {
-		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_include: true };
+		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_always_include: true };
 		render( <SeoInspector postId={ 1 } postType="page" onClose={ jest.fn() } /> );
 
 		/* eslint-disable testing-library/prefer-user-event -- No user-event devDep for two clicks. */
@@ -79,13 +79,13 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].data.meta ).toHaveProperty(
-			'jetpack_seo_llms_txt_include',
+			'jetpack_seo_llms_txt_always_include',
 			false
 		);
 	} );
 
 	it( 'shows the switch off and disabled while the page is hidden from search', () => {
-		meta = { jetpack_seo_noindex: true, jetpack_seo_llms_txt_include: true };
+		meta = { jetpack_seo_noindex: true, jetpack_seo_llms_txt_always_include: true };
 		render( <SeoInspector postId={ 1 } postType="page" onClose={ jest.fn() } /> );
 
 		const toggle = screen.getByLabelText( LABEL );
