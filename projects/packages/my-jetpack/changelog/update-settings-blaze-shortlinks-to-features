@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Warn about running Blaze campaigns before Blaze is switched off in Features, behind the settings consolidation flag.
+
+

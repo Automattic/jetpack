@@ -21,6 +21,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		chartTitle,
 		empty,
 		hideSingleMetricLabel,
 	}: {
@@ -33,12 +34,14 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		chartTitle?: string;
 		empty?: ReactNode;
 		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-chart-title={ chartTitle }
 			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
@@ -180,6 +183,23 @@ describe( 'PostViewsWidget', () => {
 		// Mon 6/29 (5 + 7), Mon 7/6 and Mon 7/13 (zero).
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chartedMetrics( chart )[ 0 ].values ).toEqual( [ 9, 12, 0, 0 ] );
+	} );
+
+	it.each( [
+		[ 'page', 'Page views' ],
+		[ 'product', 'Product views' ],
+		[ 'post', 'Post views' ],
+	] )( 'names the chart for a %s post type', async ( postType, title ) => {
+		jest.useFakeTimers();
+		mockApiFetch.mockResolvedValue( {
+			...STATS_POST_RESPONSE,
+			post: { ID: 779, post_type: postType },
+		} );
+
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		expect( chart ).toHaveAttribute( 'data-chart-title', title );
 	} );
 
 	it( 'draws a line when the chartType attribute says so', async () => {

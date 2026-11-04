@@ -48,16 +48,16 @@ describe( 'ZoomSchedulerEdit', () => {
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'link', {
-				name: 'New to Zoom Scheduler? Get started(opens in a new tab)',
+				name: 'New to Scheduler? Sign up(opens in a new tab)',
 			} )
-		).toHaveAttribute( 'href', 'https://scheduler.zoom.us/sign-up?signUpFrom=wordpress.com' );
+		).toHaveAttribute( 'href', 'https://scheduler.zoom.us/sign-up?signUpFrom=wordpress-com' );
 		expect(
 			screen.getByRole( 'link', {
-				name: 'Find your booking page URL(opens in a new tab)',
+				name: 'How to find your Scheduler link(opens in a new tab)',
 			} )
 		).toHaveAttribute(
 			'href',
-			'https://support.zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0058092'
+			'https://wordpress.com/support/wordpress-editor/blocks/zoom-scheduler-block#find-your-zoom-scheduler-booking-page-url'
 		);
 	} );
 
