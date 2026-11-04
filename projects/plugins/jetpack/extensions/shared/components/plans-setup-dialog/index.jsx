@@ -1,9 +1,7 @@
 import { useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
-import {
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { AlertDialog } from '@wordpress/ui';
 import { getPaidPlanLink } from '../../memberships/utils';
 
 export default function PlansSetupDialog( { showDialog, closeDialog } ) {
@@ -22,54 +20,50 @@ export default function PlansSetupDialog( { showDialog, closeDialog } ) {
 	const needsTier = ! hasTierPlans;
 
 	let title;
-	let body;
+	let description;
+	let steps;
 	if ( needsStripe && needsTier ) {
 		title = __( 'Set up payments', 'jetpack' );
-		body = (
-			<>
-				<p>{ __( 'To start collecting payments, you’ll just need to:', 'jetpack' ) }</p>
-				<ol>
-					<li>
-						{ __(
-							'Create a newsletter tier and choose a price for access to paid content',
-							'jetpack'
-						) }
-					</li>
-					<li>{ __( 'Set up or connect your Stripe account', 'jetpack' ) }</li>
-				</ol>
-			</>
+		description = __( 'To start collecting payments, you’ll just need to:', 'jetpack' );
+		steps = (
+			<ol>
+				<li>
+					{ __(
+						'Create a newsletter tier and choose a price for access to paid content',
+						'jetpack'
+					) }
+				</li>
+				<li>{ __( 'Set up or connect your Stripe account', 'jetpack' ) }</li>
+			</ol>
 		);
 	} else if ( needsTier ) {
 		title = __( 'Add a newsletter tier', 'jetpack' );
-		body = (
-			<p>
-				{ __(
-					'To offer paid subscriptions, create a newsletter tier and choose a price for access to paid content.',
-					'jetpack'
-				) }
-			</p>
+		description = __(
+			'To offer paid subscriptions, create a newsletter tier and choose a price for access to paid content.',
+			'jetpack'
 		);
 	} else {
 		title = __( 'Connect Stripe', 'jetpack' );
-		body = (
-			<p>
-				{ __( 'To start collecting payments, set up or connect your Stripe account.', 'jetpack' ) }
-			</p>
+		description = __(
+			'To start collecting payments, set up or connect your Stripe account.',
+			'jetpack'
 		);
 	}
 
 	return (
-		<ConfirmDialog
-			onRequestClose={ closeDialog }
-			cancelButtonText={ __( 'Not now', 'jetpack' ) }
-			confirmButtonText={ __( 'Get started', 'jetpack' ) }
-			isOpen={ showDialog }
-			onCancel={ closeDialog }
+		<AlertDialog.Root
+			open={ showDialog }
+			onOpenChange={ open => ! open && closeDialog() }
 			onConfirm={ autosaveAndRedirect }
-			style={ { maxWidth: 400 } }
 		>
-			<h2>{ title }</h2>
-			{ body }
-		</ConfirmDialog>
+			<AlertDialog.Popup
+				title={ title }
+				description={ description }
+				cancelButtonText={ __( 'Not now', 'jetpack' ) }
+				confirmButtonText={ __( 'Get started', 'jetpack' ) }
+			>
+				{ steps }
+			</AlertDialog.Popup>
+		</AlertDialog.Root>
 	);
 }

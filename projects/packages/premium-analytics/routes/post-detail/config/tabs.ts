@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -23,6 +24,7 @@ export const DEFAULT_TAB_ID: PostDetailTabId = 'post-traffic';
 export type PostDetailTab = {
 	id: PostDetailTabId;
 	label: string;
+	isPending?: boolean;
 };
 
 /**
@@ -32,7 +34,9 @@ export type PostDetailTab = {
  */
 const TAB_DEFINITIONS: ReadonlyArray< {
 	id: PostDetailTabId;
-	getLabel: () => string;
+	getLabel: ( postType?: string ) => string;
+	/** The label names the post type, so it waits for the type to load. */
+	isLabelledByType?: boolean;
 	/**
 	 * Which window the tab reports over: the URL date range, or the fixed
 	 * send window pinned by `useEmailTabScope`. `send-window` tabs also take
@@ -42,7 +46,8 @@ const TAB_DEFINITIONS: ReadonlyArray< {
 } > = [
 	{
 		id: 'post-traffic',
-		getLabel: () => __( 'Post traffic', 'jetpack-premium-analytics-pkg' ),
+		getLabel: postType => getPostTypeCopy( postType ).traffic,
+		isLabelledByType: true,
 		scope: 'url',
 	},
 	{
@@ -68,22 +73,18 @@ export const EMAIL_TAB_IDS: readonly PostDetailTabId[] = TAB_DEFINITIONS.filter(
 ).map( tab => tab.id );
 
 /**
- * Get the translated display label for a tab.
- *
- * @param id - The tab identifier.
- * @return Translated label for the tab.
- */
-export function getTabLabel( id: PostDetailTabId ): string {
-	return TAB_DEFINITIONS.find( tab => tab.id === id )?.getLabel() ?? id;
-}
-
-/**
  * Build the ordered list of tab definitions ({ id, label }).
  *
+ * @param postType      - The post type slug, once known.
+ * @param isTypePending - The type is still loading, so labels that name it are placeholders.
  * @return Ordered list of tab definitions.
  */
-export function getPostDetailTabs(): PostDetailTab[] {
-	return TAB_DEFINITIONS.map( ( { id, getLabel } ) => ( { id, label: getLabel() } ) );
+export function getPostDetailTabs( postType?: string, isTypePending = false ): PostDetailTab[] {
+	return TAB_DEFINITIONS.map( ( { id, getLabel, isLabelledByType } ) => ( {
+		id,
+		label: getLabel( postType ),
+		...( isTypePending && isLabelledByType ? { isPending: true } : {} ),
+	} ) );
 }
 
 /**

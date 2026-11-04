@@ -5,6 +5,7 @@ import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
+	HEADLINE_COUNT_FORMAT,
 	AbbreviatedValue,
 	describeError,
 	HighlightField,
@@ -43,8 +44,6 @@ type MostPopularDayHighlightProps = {
 	share?: number;
 };
 
-const VIEWS_FORMAT = { type: 'number' as const, options: { useMultipliers: true } };
-
 /**
  * Presentational body for the "Most popular day" widget. Loading / error / empty
  * are handled by `<WidgetState>` in the report component.
@@ -59,7 +58,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 			/>
 			<HighlightField
 				label={ __( 'Views', 'jetpack-premium-analytics-pkg' ) }
-				value={ <AbbreviatedValue value={ views } dataFormat={ VIEWS_FORMAT } /> }
+				value={ <AbbreviatedValue value={ views } dataFormat={ HEADLINE_COUNT_FORMAT } /> }
 				// A summary without an all-time total gives no share to state; "0% of
 				// views" would read as a measurement rather than a missing one.
 				caption={

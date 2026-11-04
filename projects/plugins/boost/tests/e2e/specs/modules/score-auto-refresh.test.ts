@@ -67,7 +67,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 		await test.step( 'Verify score refresh has not started within debounce window', async () => {
 			const scores = jetpackBoostPage.scoresCard();
-			await expect( scores.getByText( 'Calculating…' ) ).toBeHidden();
+			await expect( scores.getByText( 'Checking site speed…' ) ).toBeHidden();
 			await expect( scores.locator( '[aria-busy="true"]' ) ).toHaveCount( 0 );
 			await expect( scores.getByRole( 'region', { name: 'Overall', exact: true } ) ).toBeVisible();
 		} );

@@ -5,6 +5,7 @@ import {
 	NOT_A_VIDEO_MESSAGE,
 } from '../../components/upload-dropzone/video-files';
 import { useUploadIntake } from '../use-upload-intake';
+import { useVideoPressUpgrade } from '../use-videopress-upgrade';
 import type { FreeTierState } from '../use-free-tier';
 
 const mockStartUpload = jest.fn();
@@ -19,7 +20,7 @@ jest.mock( '../use-free-tier', () => ( {
 
 const mockRunUpgrade = jest.fn();
 jest.mock( '../use-videopress-upgrade', () => ( {
-	useVideoPressUpgrade: () => mockRunUpgrade,
+	useVideoPressUpgrade: jest.fn( () => mockRunUpgrade ),
 } ) );
 
 const mockCreateErrorNotice = jest.fn();
@@ -91,6 +92,7 @@ describe( 'useUploadIntake', () => {
 		mockFreeTier = { ...mockFreeTier, isFree: true, videoCount: 1, isAtLimit: true };
 
 		expect( intake()( [ video( 'a.mp4' ) ] ) ).toBe( 0 );
+		expect( useVideoPressUpgrade ).toHaveBeenCalledWith( 'upload_limit' );
 
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( FREE_TIER_AT_LIMIT_MESSAGE, {

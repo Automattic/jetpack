@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Sharing: read a site's share totals for all services in one query, cached for an hour. Only WordPress.com has the sharing_stats table these totals come from.
+

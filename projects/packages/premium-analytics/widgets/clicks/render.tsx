@@ -15,11 +15,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	clicksCsvExporter,
@@ -109,16 +106,9 @@ export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
-	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxClicks = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -142,16 +132,7 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxClicks ),
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxClicks )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -182,7 +163,7 @@ export function ClicksLeaderboard( {
 	return (
 		<LeaderboardChart
 			chartTitle={ __( 'Top links clicked', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }

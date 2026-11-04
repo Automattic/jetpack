@@ -31,8 +31,7 @@ class Ai_Seo {
 	public static function is_available() {
 		/** This filter is documented in projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php */
 		return (bool) apply_filters( 'ai_seo_enhancer_enabled', true )
-			/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
+			&& ! Seo_Tools::is_disabled()
 			&& ( new Modules() )->is_active( 'seo-tools' )
 			&& Current_Plan::supports( 'advanced-seo' );
 	}

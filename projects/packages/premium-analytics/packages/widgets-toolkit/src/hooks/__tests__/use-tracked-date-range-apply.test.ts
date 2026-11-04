@@ -111,7 +111,7 @@ describe( 'useTrackedDateRangeApply', () => {
 	it( 'records the bucket the chart draws when the plan locks the range default', () => {
 		const { trackedOnChange, trackedOnApply } = renderTracked(
 			{},
-			{ ...DASHBOARD, lockedIntervals: [ 'week', 'month', 'year' ] }
+			{ ...DASHBOARD, lockedIntervals: [ 'week', 'month', 'quarter', 'year' ] }
 		);
 
 		act( () => {

@@ -348,7 +348,13 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 /**
  * Number of days a unit step spans, used to lay out mock visits buckets.
  */
-const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
+const VISITS_STEP_DAYS: Record< string, number > = {
+	day: 1,
+	week: 7,
+	month: 30,
+	quarter: 91,
+	year: 365,
+};
 
 /**
  * Build an hour-of-day response over the requested date range.
@@ -472,6 +478,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 				2,
 				'0'
 			) }`;
+		} else if ( unit === 'quarter' ) {
+			// The stats/visits quarterly label is the quarter's first day.
+			bucket.setUTCDate( 1 );
+			bucket.setUTCMonth( Math.floor( bucket.getUTCMonth() / 3 ) * 3 - i * 3 );
+			period = bucket.toISOString().slice( 0, 10 );
 		} else if ( unit === 'week' ) {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			// The stats/visits weekly label is `YYYYWMMWDD` — the week's start date.

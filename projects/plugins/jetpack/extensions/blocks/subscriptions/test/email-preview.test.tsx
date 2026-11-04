@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { select, useSelect, useDispatch } from '@wordpress/data';
+import { useState } from 'react';
 import { NewsletterTestEmailModal, NewsletterPreviewModal } from '../email-preview';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -59,6 +60,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
+	// components 44 builds its Spinner on this one.
+	Spinner: () => <span data-testid="spinner" />,
 	// Renders its children, so the accessible name still includes the hidden label.
 	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
 	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
@@ -206,6 +209,26 @@ describe( 'Email preview connection errors', () => {
 	} );
 } );
 
+/**
+ * Owns `isOpen` the way the editor does, so dismissing flips it in the same commit that clears
+ * the preview cache -- leaving it open makes the refetch depend on React's flush timing.
+ *
+ * @return The modal, open, with a control to reopen it.
+ */
+function PreviewModalHarness() {
+	const [ isOpen, setIsOpen ] = useState( true );
+	return (
+		<>
+			<button onClick={ () => setIsOpen( true ) }>Reopen</button>
+			<NewsletterPreviewModal
+				isOpen={ isOpen }
+				postId={ 123 }
+				onClose={ () => setIsOpen( false ) }
+			/>
+		</>
+	);
+}
+
 describe( 'Newsletter preview: save before fetching', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -260,20 +283,16 @@ describe( 'Newsletter preview: save before fetching', () => {
 		mockIsPostDirty = true;
 		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
 
-		const { rerender } = render(
-			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
-		);
+		render( <PreviewModalHarness /> );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 		expect( saveForPreview ).toHaveBeenCalledTimes( 1 );
 
-		// Dismiss via the modal's  close control, which clears the preview cache…
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
-		// Then simulate the parent responding to onClose by unmounting/remounting the open modal.
-		rerender( <NewsletterPreviewModal isOpen={ false } postId={ 123 } onClose={ jest.fn() } /> );
-		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		// The modal hides the rest of the document while open, so finding Reopen means it closed.
+		await user.click( await screen.findByRole( 'button', { name: 'Reopen' } ) );
 
-		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
-		expect( saveForPreview ).toHaveBeenCalledTimes( 2 );
+		await waitFor( () => expect( saveForPreview ).toHaveBeenCalledTimes( 2 ) );
+		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
 

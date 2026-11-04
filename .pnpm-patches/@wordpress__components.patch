@@ -1,0 +1,12 @@
+diff --git a/build/base-control/hooks.cjs b/build/base-control/hooks.cjs
+--- a/build/base-control/hooks.cjs
++++ b/build/base-control/hooks.cjs
+@@ -37,7 +37,7 @@
+ */
+ function useBaseControlProps(props) {
+ 	const { help, id: preferredId, ...restProps } = props;
+-	const uniqueId = (0, _wordpress_compose.useInstanceId)(__index_tsx.default, "wp-components-base-control", preferredId);
++	const uniqueId = (0, _wordpress_compose.useInstanceId)(require("./index.cjs").default, "wp-components-base-control", preferredId);
+ 	return {
+ 		baseControlProps: {
+ 			id: uniqueId,
