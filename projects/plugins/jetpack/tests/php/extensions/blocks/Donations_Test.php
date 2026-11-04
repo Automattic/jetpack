@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/donations/donations.php';
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
+require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
 /**
  * Donations block tests.
@@ -17,12 +18,114 @@ require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
  * @covers ::Automattic\Jetpack\Extensions\Donations\build_custom_styles
  * @covers ::Automattic\Jetpack\Extensions\Donations\sanitize_css_value
  * @covers ::Automattic\Jetpack\Extensions\Donations\build_security_data_attrs
+ * @covers ::Automattic\Jetpack\Extensions\Donations\render_block
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\sanitize_css_value' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_custom_styles' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_security_data_attrs' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\render_block' )]
 class Donations_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Clean up the front-end render state.
+	 */
+	public function tear_down() {
+		unset( $GLOBALS['post'] );
+		delete_option( 'jetpack-memberships-has-connected-account' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Render the block on the front end of a page, with a connected Stripe account.
+	 *
+	 * @param array $attr Block attributes.
+	 * @return string
+	 */
+	private function render_on_page( $attr ) {
+		update_option( 'jetpack-memberships-has-connected-account', true );
+		$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_type' => 'page' ) );
+
+		return Donations\render_block(
+			array_merge(
+				array(
+					'currency'         => 'USD',
+					'showCustomAmount' => false,
+					'oneTimeDonation'  => array( 'show' => false ),
+					'monthlyDonation'  => array( 'show' => false ),
+					'annualDonation'   => array( 'show' => false ),
+				),
+				$attr
+			),
+			''
+		);
+	}
+
+	/**
+	 * An interval whose plan ID doesn't point at a payment plan is left out, instead of linking to a broken checkout.
+	 *
+	 * @dataProvider invalid_plan_id_provider
+	 *
+	 * @param string $invalid_plan Which kind of invalid plan ID the monthly interval gets.
+	 */
+	#[DataProvider( 'invalid_plan_id_provider' )]
+	public function test_render_block_leaves_out_intervals_without_a_plan( $invalid_plan ) {
+		$plan_id    = self::factory()->post->create( array( 'post_type' => Jetpack_Memberships::$post_type_plan ) );
+		$regular_id = self::factory()->post->create();
+
+		$html = $this->render_on_page(
+			array(
+				'oneTimeDonation' => array(
+					'show'    => true,
+					'planId'  => $plan_id,
+					'amounts' => array( 5 ),
+				),
+				'monthlyDonation' => array(
+					'show'    => true,
+					'planId'  => 'regular post' === $invalid_plan ? $regular_id : null,
+					'amounts' => array( 5 ),
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'plan=' . $plan_id . '&', html_entity_decode( $html ) );
+		$this->assertStringNotContainsString( 'donations__monthly-item', $html );
+	}
+
+	/**
+	 * Invalid plan IDs for test_render_block_leaves_out_intervals_without_a_plan.
+	 *
+	 * @return array
+	 */
+	public static function invalid_plan_id_provider() {
+		return array(
+			'missing plan ID'      => array( 'missing' ),
+			'ID of a regular post' => array( 'regular post' ),
+		);
+	}
+
+	/**
+	 * A block with no valid plan at all renders nothing, rather than a button that opens an empty form.
+	 */
+	public function test_render_block_renders_nothing_without_any_plan() {
+		$html = $this->render_on_page(
+			array(
+				'displayMode'     => 'modal',
+				'oneTimeDonation' => array(
+					'show'    => true,
+					'planId'  => null,
+					'amounts' => array( 3, 5, 8 ),
+				),
+				'monthlyDonation' => array(
+					'show'    => true,
+					'planId'  => null,
+					'amounts' => array( 3, 5, 8 ),
+				),
+			)
+		);
+
+		$this->assertSame( '', $html );
+	}
 
 	/**
 	 * Sanitizer accepts safe color values and rejects unsafe ones.

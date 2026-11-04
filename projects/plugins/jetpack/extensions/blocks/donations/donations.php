@@ -134,11 +134,19 @@ function render_block( $attr, $content ) {
 	// against the actually-rendered set, not the configured set.
 	$valid_donations = array();
 	foreach ( $donations as $interval => $donation ) {
-		$plan = get_post( (int) $donation['planId'] );
-		if ( $plan && ! is_wp_error( $plan ) ) {
+		// get_post( 0 ) falls back to the current post, so a missing plan ID must not reach it.
+		$plan_id = (int) $donation['planId'];
+		$plan    = $plan_id > 0 ? get_post( $plan_id ) : null;
+		if ( $plan instanceof WP_Post && \Jetpack_Memberships::$post_type_plan === $plan->post_type ) {
 			$valid_donations[ $interval ] = $donation;
 		}
 	}
+
+	// With no valid plan, there is nothing a visitor could donate to.
+	if ( empty( $valid_donations ) ) {
+		return '';
+	}
+
 	$donations          = $valid_donations;
 	$rendered_intervals = array_keys( $donations );
 
