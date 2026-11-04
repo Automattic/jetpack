@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
@@ -49,6 +49,52 @@ describe( 'ignoreThreat', () => {
 		} );
 		expect( result.current?.ignored ).toEqual( [] );
 	} );
+} );
+
+describe( 'a failed ignore or unignore', () => {
+	const other = { id: 71, title: 'Malicious code found in file: c.php' };
+	const ignored = ( item: typeof threat ) => ( { ...item, status: 'ignored' as const } );
+
+	it.each( [
+		[ 'an ignore', () => ignoreThreat( threat ), [ threat ], [], [], [ ignored( threat ) ] ],
+		[ 'an unignore', () => unignoreThreat( threat ), [], [ ignored( threat ) ], [ threat ], [] ],
+		[
+			'a bulk ignore',
+			() => ignoreThreats( [ threat, other ] ),
+			[ threat, other ],
+			[],
+			[],
+			[ ignored( threat ), ignored( other ) ],
+		],
+	] )(
+		'after %s, shows what WordPress.com has',
+		async ( _name, run, threats, before, serverThreats, serverIgnored ) => {
+			setScan( current => ( { ...current, threats, ignored: before } ) );
+			mockApiFetch.mockReset().mockImplementation( ( { path, method } ) => {
+				if ( method === 'POST' ) {
+					return Promise.reject( { message: 'Request timed out.' } );
+				}
+				if ( path.endsWith( '/scan' ) ) {
+					return Promise.resolve( {
+						hasPlan: true,
+						url: '#',
+						error: false,
+						threats: serverThreats,
+					} );
+				}
+				return Promise.resolve( serverIgnored );
+			} );
+			const { result } = renderHook( () => useScan() );
+
+			await act( async () => {
+				await run();
+			} );
+
+			await waitFor( () => expect( result.current?.threats ).toEqual( serverThreats ) );
+			expect( result.current?.ignored ).toEqual( serverIgnored );
+			expect( result.current?.error ).toBe( false );
+		}
+	);
 } );
 
 describe( 'threat notices', () => {
@@ -115,11 +161,12 @@ describe( 'bulk actions', () => {
 		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		const [ a, b, c ] = [ fileThreat( 31 ), fileThreat( 32 ), fileThreat( 33 ) ];
 		setScan( current => ( { ...current, threats: [ a, b, c ], ignored: [] } ) );
-		mockApiFetch
-			.mockReset()
-			.mockImplementation( ( { path } ) =>
-				path.includes( '/32/' ) ? Promise.reject( {} ) : Promise.resolve( {} )
-			);
+		mockApiFetch.mockReset().mockImplementation( ( { path, method } ) => {
+			if ( method !== 'POST' ) {
+				return Promise.resolve( [] );
+			}
+			return path.includes( '/32/' ) ? Promise.reject( {} ) : Promise.resolve( {} );
+		} );
 		const { result } = renderHook( () => useScan() );
 
 		await act( () => ignoreThreats( [ a, b, c ] ) );
@@ -142,7 +189,11 @@ describe( 'bulk actions', () => {
 		// The failed threat isn't left busy, so it can be tried again.
 		await act( () => ignoreThreat( b ) );
 
-		expect( mockApiFetch.mock.calls.map( ( [ { path } ] ) => path ) ).toEqual( [
+		expect(
+			mockApiFetch.mock.calls
+				.filter( ( [ { method } ] ) => method === 'POST' )
+				.map( ( [ { path } ] ) => path )
+		).toEqual( [
 			'/jetpack/v4/protect-dashboard/scan/threats/31/unignore',
 			'/jetpack/v4/protect-dashboard/scan/threats/33/unignore',
 			'/jetpack/v4/protect-dashboard/scan/threats/32/ignore',

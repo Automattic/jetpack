@@ -191,6 +191,19 @@ export function loadIgnored(): Promise< void > {
 }
 
 /**
+ * Fetch the threat lists and history again after an ignore or unignore fails, since WordPress.com may have applied it anyway.
+ * A failed read keeps what the page shows rather than marking the scan failed.
+ */
+function resyncAfterFailure() {
+	const apply = startReportRead();
+	apiFetch< ScanState >( { path: SCAN_PATH } )
+		.then( apply )
+		.catch( () => {} );
+	loadIgnored();
+	loadHistory( true );
+}
+
+/**
  * Ignore or unignore a threat, moving it between the active and ignored lists, with Undo.
  *
  * @param threat - The threat.
@@ -255,6 +268,7 @@ function setIgnored(
 					: /* translators: %s is a threat, such as "Contact Form 7 (5.3.1)" or "index.php". */
 						__( 'The threat in %s couldn’t be unignored.', 'jetpack-protect-pkg' )
 			);
+			resyncAfterFailure();
 			return false;
 		} );
 }
@@ -598,6 +612,9 @@ async function setManyIgnored(
 		idle.map( threat => setIgnored( threat, ignore, open, true ) )
 	);
 	const done = idle.filter( ( _, index ) => results[ index ] );
+	if ( done.length < total ) {
+		resyncAfterFailure();
+	}
 	const undo: NoticeAction = {
 		label: __( 'Undo', 'jetpack-protect-pkg' ),
 		onClick: () => setManyIgnored( done, ! ignore, open ),
