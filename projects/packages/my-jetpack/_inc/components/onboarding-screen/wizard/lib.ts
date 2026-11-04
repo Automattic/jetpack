@@ -5,15 +5,14 @@ import {
 	cloud,
 	comment,
 	image,
-	megaphone,
 	page,
 	plus,
 	post,
 	postCommentsForm,
 	shield,
 	store,
-	trendingUp,
 } from '@wordpress/icons';
+import type { SetupModuleResult } from './use-setup-modules';
 
 /**
  * One choice offered by a step.
@@ -21,7 +20,7 @@ import {
 export interface WizardStepOption {
 	value: string;
 	label: string;
-	// Not rendered by the hairline row, which is label-only; kept for stage 3.
+	// The line under the label on a choice card.
 	description: string;
 	icon: typeof plus;
 	// Opens a text field for an answer the list does not cover.
@@ -34,6 +33,12 @@ export interface WizardStepOption {
  * set, and free text must never reach Tracks.
  */
 export const SITE_TYPE_OTHER = 'other';
+
+/*
+ * The ThemeProvider seed for everything Jetpack green: --jp-green-50. Seeded
+ * with #069e08 the label turns near-black; this one keeps it near-white, 4.58:1.
+ */
+export const BRAND_COLOR = { primary: '#008710' };
 
 /**
  * One row of the start screen's benefits list.
@@ -48,13 +53,13 @@ export interface WizardBenefit {
 /**
  * Which shape a step takes: the start screen, or a question with options.
  */
-export type WizardStepKind = 'start' | 'question';
+export type WizardStepKind = 'start' | 'question' | 'features' | 'finish';
 
 /**
  * A step, as the rail and the question column both read it.
  */
 export interface WizardStepMeta {
-	// Stable across reorders: the React key, and the analytics name stage 2 reports.
+	// Stable across reorders: the React key, and how `siteTypeAnswer` finds its step.
 	id: string;
 	// Which component the shell renders for this step.
 	kind: WizardStepKind;
@@ -92,11 +97,9 @@ const UNKNOWN_CONNECTION_ERROR = 'unknown_error';
 /**
  * The bounded code for a failed registration, safe to send to Tracks.
  *
- * Either the server's own `WP_Error` code or, when the request never got as far
- * as a parsed body, the name of the error class the API client threw
- * (`JsonParseError`, `Api404Error`, `FetchNetworkError`, and so on). Both are
- * fixed vocabularies. The error's `message` is deliberately not considered:
- * it interpolates the server's prose and can carry the site's own URL.
+ * The server's own `WP_Error` code, or the name of the class the API client
+ * threw. The `message` is deliberately not considered: it interpolates the
+ * server's prose and can carry the site's own URL.
  *
  * @param error - The rejection from `handleRegisterSite`, or the stored error.
  * @return A slug from a fixed set, never free text.
@@ -139,13 +142,25 @@ export type WizardStep = 0 | 1 | 2 | 3;
 // The WizardStep union has to be hand-written; the count is read off the steps.
 export const TOTAL_STEPS = wizardSteps().length;
 
+/**
+ * Hold a step number inside the steps that exist, so it is safe to type as one.
+ *
+ * @param index - Any step number, including one read back from storage.
+ * @return The nearest real step.
+ */
+export function clampStep( index: number ): WizardStep {
+	return Math.min( Math.max( index, 0 ), TOTAL_STEPS - 1 ) as WizardStep;
+}
+
 export interface WizardState {
 	// The option chosen on each step, keyed by step index.
 	choices: Partial< Record< WizardStep, string > >;
+	// What was typed into the field a `freeText` option opens, if anything.
+	freeText?: string;
 }
 
 /**
- * The steps, in order. Placeholder content until stage 3 brings the real steps.
+ * The steps, in order.
  *
  * @return One entry per step, translated at call time.
  */
@@ -166,14 +181,21 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'site-type',
 			kind: 'question',
 			label: __( 'Your site', 'jetpack-my-jetpack' ),
-			title: __( "Tell us what you're building", 'jetpack-my-jetpack' ),
 			/*
-			 * The prototype's line here says the site is new and there is nothing to
-			 * read yet, which is true of its own new-site scenario only. V1 asks every
-			 * site the same question, so the reassurance it carries is what survives.
+			 * Asked of the site, not of the person's plans: Jetpack is installed on a
+			 * site that already exists far more often than on one being started, and
+			 * "what are you building" is the wrong question for a five-year-old blog.
+			 * This one is true either way, so it needs no second question about which.
+			 */
+			title: __( "What's this site for?", 'jetpack-my-jetpack' ),
+			/*
+			 * Says what the answer does and no more. It only orders the features —
+			 * all six are offered and all six start on whatever is picked — so
+			 * anything about recommending a different set would be a promise the
+			 * next step does not keep.
 			 */
 			description: __(
-				'Pick the closest fit — you can change any of this later.',
+				'Pick the closest fit. We’ll put the most useful features first.',
 				'jetpack-my-jetpack'
 			),
 			/*
@@ -219,43 +241,23 @@ export function wizardSteps(): WizardStepMeta[] {
 		},
 		{
 			id: 'features',
-			kind: 'question',
+			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
-			title: __( 'The feature list is not decided yet', 'jetpack-my-jetpack' ),
-			description: __(
-				'These three are stand-ins for it. Picking one turns nothing on and saves nothing.',
-				'jetpack-my-jetpack'
-			),
-			options: [
-				{
-					value: 'protect',
-					label: __( 'Example: keeping the site safe', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: shield,
-				},
-				{
-					value: 'grow',
-					label: __( 'Example: reaching more people', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: megaphone,
-				},
-				{
-					value: 'speed',
-					label: __( 'Example: making the site faster', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: trendingUp,
-				},
-			],
+			title: __( 'What we recommend', 'jetpack-my-jetpack' ),
+			// Replaced by featuresDescription() once the site type is known; this is
+			// what someone who skipped the question or typed their own answer reads.
+			description: __( 'Turn off any you don’t need.', 'jetpack-my-jetpack' ),
+			// The rows are the modules Jetpack reports, not a fixed list written here.
+			options: [],
 		},
 		{
 			id: 'done',
-			kind: 'question',
+			kind: 'finish',
 			label: __( 'Finish', 'jetpack-my-jetpack' ),
-			title: __( 'The rest of this is not built yet', 'jetpack-my-jetpack' ),
-			description: __(
-				'Nothing has been turned on and nothing is saved. This step exists so the end of the flow can be judged alongside the rest.',
-				'jetpack-my-jetpack'
-			),
+			// Written from what happened rather than here, because a finish screen that
+			// says the same thing whatever the result is the one thing it must not do.
+			title: '',
+			description: '',
 			options: [],
 		},
 	];
@@ -323,6 +325,96 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
 }
 
 /**
+ * What a run did: switched on, switched off, and failed.
+ *
+ * @param results - What became of each module.
+ * @return The three counts.
+ */
+export function tallyResults( results: SetupModuleResult[] ) {
+	return {
+		on: results.filter( result => result.changed && result.wanted && result.ok ).length,
+		off: results.filter( result => result.changed && ! result.wanted && result.ok ).length,
+		failed: results.filter( result => ! result.ok ).length,
+	};
+}
+
+/**
+ * Whether a module is switched on, given what the user has moved.
+ *
+ * An untouched row keeps what the site has, and one the host forces cannot move.
+ * One function, so the switch and the request cannot disagree.
+ *
+ * @param wanted           - What the user has moved, by slug.
+ * @param module           - The module in question.
+ * @param module.slug      - Its slug.
+ * @param module.activated - Whether the site runs it now.
+ * @param module.locked    - Whether the host forces its state.
+ * @return Whether it should end up on.
+ */
+export function isWanted(
+	wanted: Record< string, boolean >,
+	module: { slug: string; activated: boolean; locked?: boolean }
+): boolean {
+	if ( module.locked ) {
+		return module.activated;
+	}
+
+	return wanted[ module.slug ] ?? module.activated;
+}
+
+/**
+ * What the user said the site was for, if they said.
+ *
+ * Found by id rather than by index, because the step's position moves with the
+ * connection and a number here would be right only for a connected site.
+ *
+ * @param state - The answers so far.
+ * @return The chosen site type, or undefined.
+ */
+export function siteTypeAnswer( state: WizardState ): string | undefined {
+	const at = wizardSteps().findIndex( step => step.id === 'site-type' );
+
+	return at === -1 ? undefined : state.choices[ at as WizardStep ];
+}
+
+/**
+ * The line under the feature heading, per site type. One whole sentence each
+ * rather than a name interpolated into a frame: a translator given "For %s" and
+ * a list of nouns cannot agree the article or the case. Each is short enough to
+ * set on one line at the column's 470px, so a translation will wrap.
+ *
+ * @return The line for each site type that has one, translated at call time.
+ */
+function featuresDescriptions(): Record< string, string > {
+	return {
+		blog: __( 'For a blog, these matter most. Turn off any you don’t need.', 'jetpack-my-jetpack' ),
+		store: __(
+			'For a store, these matter most. Turn off any you don’t need.',
+			'jetpack-my-jetpack'
+		),
+		portfolio: __(
+			'For a portfolio, these matter most. Turn off any you don’t need.',
+			'jetpack-my-jetpack'
+		),
+		business: __(
+			'For a business site, these matter most. Turn off any you don’t need.',
+			'jetpack-my-jetpack'
+		),
+	};
+}
+
+/**
+ * The line under the feature heading, given what the site is for.
+ *
+ * @param siteType - The answer to the site-type question, if there was one.
+ * @param fallback - The step's own line, for a site type with nothing to say.
+ * @return The line to render.
+ */
+export function featuresDescription( siteType: string | undefined, fallback: string ): string {
+	return ( siteType && featuresDescriptions()[ siteType ] ) || fallback;
+}
+
+/**
  * Which step the wizard opens on after the round trip to WordPress.com.
  *
  * Derived, not stored: a `step` parameter would be editable by the person it
@@ -348,16 +440,28 @@ export function openingStep( isUserConnected: boolean ): WizardStep {
 export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	const meta = wizardSteps()[ step ];
 
-	// The start screen asks nothing, and carries its own way forward.
-	return meta.kind === 'start' || meta.options.length === 0 || state.choices[ step ] !== undefined;
-}
+	// The start screen asks nothing and carries its own way forward, and the feature
+	// step starts with every row answered.
+	if ( meta.kind === 'start' || meta.options.length === 0 ) {
+		return true;
+	}
 
-/**
- * Whether the given step is the final one.
- *
- * @param step - The current step index.
- * @return True on the last step.
- */
-export function isLastStep( step: WizardStep ): boolean {
-	return step === TOTAL_STEPS - 1;
+	const choice = state.choices[ step ];
+	/*
+	 * Found, not just present. A restored run can carry a value this step no longer
+	 * offers, and an answer nothing matches is not an answer: it left Continue
+	 * enabled with nothing selected on screen, and recorded the stale value.
+	 */
+	const chosen = meta.options.find( option => option.value === choice );
+
+	if ( ! chosen ) {
+		return false;
+	}
+
+	/*
+	 * An option that opens a field is not answered until the field is. Otherwise the
+	 * wizard focuses someone into a box and then lets them walk straight past it,
+	 * and the answer it records is "other" with nothing after it.
+	 */
+	return chosen.freeText ? Boolean( state.freeText?.trim() ) : true;
 }

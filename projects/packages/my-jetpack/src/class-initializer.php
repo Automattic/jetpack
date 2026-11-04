@@ -650,6 +650,11 @@ class Initializer {
 			return false;
 		}
 
+		// Its features step switches Jetpack modules, whose routes only the Jetpack plugin has.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+
 		// The wizard registers the site at its own first step, which writes the marker
 		// below, so asking again on the way back from WordPress.com would drop someone
 		// out of a run already under way.
@@ -993,6 +998,7 @@ class Initializer {
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'assetsUrl'              => self::get_assets_url(),
+				'webpackPublicPath'      => self::get_build_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
@@ -1337,6 +1343,17 @@ class Initializer {
 	}
 
 	/**
+	 * Get the base URL of the package's build directory, with a trailing slash.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private static function get_build_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../build/', __FILE__ ) ) );
+	}
+
+	/**
 	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
 	 * @since 6.3.0
@@ -1344,7 +1361,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function get_assets_url() {
-		return trailingslashit( Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ) );
+		return self::get_build_url() . 'images/';
 	}
 
 	/**
