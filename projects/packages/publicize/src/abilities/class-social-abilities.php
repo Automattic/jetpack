@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
+use Automattic\Jetpack\Publicize\Publicize_Utils;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
 use WP_REST_Request;
@@ -55,6 +56,46 @@ class Social_Abilities extends Registrar {
 			'label'       => __( 'Jetpack Social', 'jetpack-publicize-pkg' ),
 			'description' => __( 'Abilities for the social networks connected to the site and for sharing posts to them.', 'jetpack-publicize-pkg' ),
 		);
+	}
+
+	/**
+	 * Register the category only while Jetpack Social sharing is on.
+	 *
+	 * @return void
+	 */
+	public static function register_category() {
+		if ( self::social_is_on() ) {
+			parent::register_category();
+		}
+	}
+
+	/**
+	 * Register the abilities only while Jetpack Social sharing is on.
+	 *
+	 * With the Publicize module off, its REST routes do not exist and every call would fail.
+	 *
+	 * @return void
+	 */
+	public static function register_abilities() {
+		if ( self::social_is_on() ) {
+			parent::register_abilities();
+		}
+	}
+
+	/**
+	 * Is Jetpack Social sharing turned on for this site?
+	 *
+	 * @return bool
+	 */
+	private static function social_is_on(): bool {
+		/**
+		 * Filters whether the Jetpack Social abilities register. Defaults to whether the Publicize module is active.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $should_load Whether to register the Jetpack Social abilities.
+		 */
+		return (bool) apply_filters( 'jetpack_social_abilities_should_load', Publicize_Utils::is_publicize_active() );
 	}
 
 	/**
@@ -123,7 +164,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued }. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued, connections }, where connections counts the working accounts the share goes to. Returns an error when no working connection would receive it. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -153,8 +194,9 @@ class Social_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'post_id' => array( 'type' => 'integer' ),
-						'queued'  => array( 'type' => 'boolean' ),
+						'post_id'     => array( 'type' => 'integer' ),
+						'queued'      => array( 'type' => 'boolean' ),
+						'connections' => array( 'type' => 'integer' ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'share_post' ),
@@ -233,8 +275,7 @@ class Social_Abilities extends Registrar {
 	 * @return bool
 	 */
 	public static function can_view_connections(): bool {
-		// This filter is documented in class-publicize-base.php. The routes also check that Social is available.
-		return current_user_can( apply_filters( 'jetpack_publicize_capability', 'publish_posts' ) );
+		return Publicize_Utils::current_user_can_access_publicize_data();
 	}
 
 	/**
@@ -312,6 +353,26 @@ class Social_Abilities extends Registrar {
 			$body['skipped_connections'] = array_map( 'absint', $input['skipped_connections'] );
 		}
 
+		$skipped = isset( $body['skipped_connections'] ) ? $body['skipped_connections'] : array();
+		$items   = self::dispatch( new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE ) );
+		if ( is_wp_error( $items ) ) {
+			return $items;
+		}
+		$reachable = 0;
+		foreach ( (array) $items as $item ) {
+			$working = is_array( $item ) && ! in_array( $item['status'] ?? null, array( 'broken', 'must_reauth' ), true );
+			if ( $working && ! in_array( (int) ( $item['connection_id'] ?? 0 ), $skipped, true ) ) {
+				++$reachable;
+			}
+		}
+		if ( 0 === $reachable ) {
+			return new WP_Error(
+				'jetpack_social_no_connections',
+				__( 'No working social connection would receive this share. Call jetpack-social/get-connections to see the accounts and their status; connecting an account is done in the Jetpack Social settings.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		// A JSON body is what the Jetpack-site proxy forwards to WordPress.com.
 		$request = new WP_REST_Request( 'POST', self::SHARE_POST_ROUTE . '/' . $post_id );
 		$request->set_header( 'Content-Type', 'application/json' );
@@ -328,8 +389,9 @@ class Social_Abilities extends Registrar {
 		}
 
 		return array(
-			'post_id' => $post_id,
-			'queued'  => true,
+			'post_id'     => $post_id,
+			'queued'      => true,
+			'connections' => $reachable,
 		);
 	}
 
@@ -345,6 +407,14 @@ class Social_Abilities extends Registrar {
 
 		$result = self::dispatch( new WP_REST_Request( 'DELETE', self::CONNECTIONS_ROUTE . '/' . $connection_id ) );
 		if ( is_wp_error( $result ) ) {
+			// The route answers an unknown id with a generic failure; confirm against the list.
+			if ( empty( $result->get_error_data()['status'] ) && ! self::connection_is_listed( $connection_id ) ) {
+				return new WP_Error(
+					'jetpack_social_connection_not_found',
+					__( 'No connection with that id. Call jetpack-social/get-connections to list the ids.', 'jetpack-publicize-pkg' ),
+					array( 'status' => 404 )
+				);
+			}
 			return $result;
 		}
 
@@ -352,6 +422,24 @@ class Social_Abilities extends Registrar {
 			'deleted'       => true,
 			'connection_id' => $connection_id,
 		);
+	}
+
+	/**
+	 * Is this connection id in the list the current user can see?
+	 *
+	 * @param int $connection_id Connection id.
+	 * @return bool
+	 */
+	private static function connection_is_listed( int $connection_id ): bool {
+		$items = self::dispatch( new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE ) );
+
+		foreach ( is_wp_error( $items ) ? array() : (array) $items as $item ) {
+			if ( is_array( $item ) && (int) ( $item['connection_id'] ?? 0 ) === $connection_id ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

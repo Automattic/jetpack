@@ -31,19 +31,39 @@ class Social_Abilities_Test extends BaseTestCase {
 	/**
 	 * Answer every REST call with $data (or a WP_Error) and record the request.
 	 *
-	 * @param mixed $data Response data or WP_Error.
+	 * @param mixed $data Response data, a WP_Error, or a Closure taking the request and returning either.
 	 */
 	private function fake_rest( $data ): void {
 		$this->requests = array();
-		$data           = is_wp_error( $data ) ? $data : rest_ensure_response( $data );
 		add_filter(
 			'rest_pre_dispatch',
 			function ( $result, $server, $request ) use ( $data ) {
 				$this->requests[] = $request;
-				return $data;
+				$answer           = $data instanceof \Closure ? $data( $request ) : $data;
+				return is_wp_error( $answer ) ? $answer : rest_ensure_response( $answer );
 			},
 			10,
 			3
+		);
+	}
+
+	/**
+	 * Answer the connection list with one working account and the share POST with $share.
+	 *
+	 * @param mixed $share Response data or WP_Error for the share request.
+	 */
+	private function fake_share_rest( $share ): void {
+		$this->fake_rest(
+			function ( $request ) use ( $share ) {
+				return 'GET' === $request->get_method()
+					? array(
+						array(
+							'connection_id' => '11',
+							'status'        => 'ok',
+						),
+					)
+					: $share;
+			}
 		);
 	}
 
@@ -63,6 +83,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'Abilities API not available.' );
 		}
+		add_filter( 'jetpack_social_abilities_should_load', '__return_true' );
 		global $wp_current_filter;
 		$wp_current_filter[] = 'wp_abilities_api_init';
 		$wp_current_filter[] = 'wp_abilities_api_categories_init';
@@ -78,6 +99,7 @@ class Social_Abilities_Test extends BaseTestCase {
 			wp_unregister_ability( $slug );
 		}
 		wp_unregister_ability_category( 'jetpack-social' );
+		remove_all_filters( 'jetpack_social_abilities_should_load' );
 	}
 
 	public function test_annotations_mark_share_and_delete_destructive(): void {
@@ -174,7 +196,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_sends_message_and_skips_to_the_route(): void {
-		$this->fake_rest(
+		$this->fake_share_rest(
 			array(
 				'results' => array( array( 'connection_id' => 11 ) ),
 				'errors'  => array(),
@@ -191,12 +213,13 @@ class Social_Abilities_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'post_id' => 42,
-				'queued'  => true,
+				'post_id'     => 42,
+				'queued'      => true,
+				'connections' => 1,
 			),
 			$result
 		);
-		$request = $this->requests[0];
+		$request = $this->requests[1];
 		$this->assertSame( 'POST', $request->get_method() );
 		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
 		$this->assertSame( 'application/json', $request->get_header( 'content_type' ) );
@@ -220,7 +243,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_fails_when_the_route_reports_only_errors(): void {
-		$this->fake_rest(
+		$this->fake_share_rest(
 			array(
 				'results' => array(),
 				'errors'  => array( array( 'connection_id' => 11 ) ),
@@ -254,7 +277,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_route_errors_come_back_as_prefixed_wp_errors(): void {
-		$this->fake_rest( new WP_Error( 'not_published', 'Only published posts can be shared.', array( 'status' => 400 ) ) );
+		$this->fake_share_rest( new WP_Error( 'not_published', 'Only published posts can be shared.', array( 'status' => 400 ) ) );
 
 		$result = Social_Abilities::share_post(
 			array(
@@ -267,6 +290,103 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_social_not_published', $result->get_error_code() );
 		$this->assertSame( 'Only published posts can be shared.', $result->get_error_message() );
 		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
+	}
+
+	public function test_share_post_with_no_reachable_connection_is_an_error_not_a_queued_share(): void {
+		$connections = array(
+			array(
+				'connection_id' => '11',
+				'status'        => 'ok',
+			),
+			array(
+				'connection_id' => '12',
+				'status'        => 'broken',
+			),
+		);
+		$this->fake_rest(
+			function ( $request ) use ( $connections ) {
+				return 'GET' === $request->get_method() ? $connections : array( 'results' => array() );
+			}
+		);
+
+		foreach ( array( array(), array( 11 ) ) as $skipped ) {
+			$result = Social_Abilities::share_post(
+				array(
+					'post_id'             => 42,
+					'message'             => 'Hi',
+					'skipped_connections' => $skipped,
+				)
+			);
+
+			if ( array() === $skipped ) {
+				$this->assertSame( 1, $result['connections'], 'One working connection, one broken.' );
+			} else {
+				$this->assertInstanceOf( WP_Error::class, $result );
+				$this->assertSame( 'jetpack_social_no_connections', $result->get_error_code() );
+				$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
+			}
+		}
+
+		$posts = array_filter(
+			$this->requests,
+			function ( $request ) {
+				return 'POST' === $request->get_method();
+			}
+		);
+		$this->assertCount( 1, $posts, 'Nothing is posted when no connection can receive the share.' );
+	}
+
+	public function test_delete_unknown_connection_is_a_404_not_a_generic_failure(): void {
+		$this->fake_rest(
+			function ( $request ) {
+				return 'DELETE' === $request->get_method()
+					? new WP_Error( 'jp_connection_deletion_failed', 'Something went wrong while deleting the connection.' )
+					: array( array( 'connection_id' => '12' ) );
+			}
+		);
+
+		$result = Social_Abilities::delete_connection( array( 'connection_id' => 11 ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_social_connection_not_found', $result->get_error_code() );
+		$this->assertSame( array( 'status' => 404 ), $result->get_error_data() );
+	}
+
+	public function test_delete_failure_for_a_listed_connection_keeps_the_route_error(): void {
+		$this->fake_rest(
+			function ( $request ) {
+				return 'DELETE' === $request->get_method()
+					? new WP_Error( 'jp_connection_deletion_failed', 'Something went wrong while deleting the connection.' )
+					: array( array( 'connection_id' => '11' ) );
+			}
+		);
+
+		$result = Social_Abilities::delete_connection( array( 'connection_id' => 11 ) );
+
+		$this->assertSame( 'jetpack_social_jp_connection_deletion_failed', $result->get_error_code() );
+	}
+
+	public function test_abilities_are_not_registered_while_the_publicize_module_is_off(): void {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API not available.' );
+		}
+		add_filter( 'jetpack_social_abilities_should_load', '__return_false' );
+		global $wp_current_filter;
+		$wp_current_filter[] = 'wp_abilities_api_init';
+		$wp_current_filter[] = 'wp_abilities_api_categories_init';
+		wp_register_ability_category( Social_Abilities::get_category_slug(), Social_Abilities::get_category_definition() );
+		array_pop( $wp_current_filter );
+		Social_Abilities::register_abilities();
+		array_pop( $wp_current_filter );
+
+		$registered = array_filter(
+			array_keys( Social_Abilities::get_abilities() ),
+			'wp_has_ability'
+		);
+		wp_unregister_ability_category( 'jetpack-social' );
+		remove_all_filters( 'jetpack_social_abilities_should_load' );
+
+		$this->assertSame( array(), array_values( $registered ) );
 	}
 
 	public function test_delete_connection_calls_delete_route(): void {
