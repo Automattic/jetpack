@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Publicize\Publicize;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -65,12 +66,8 @@ class Social_Abilities_Test extends BaseTestCase {
 	private function fake_publicize(): void {
 		global $publicize;
 
-		$publicize = $this->createStub( Publicize::class );
-		$publicize->method( 'current_user_can_access_publicize_data' )->willReturnCallback(
-			function ( $post_id = 0 ) {
-				return $post_id ? current_user_can( 'publish_post', $post_id ) : current_user_can( 'publish_posts' );
-			}
-		);
+		Connection_Utils::init_default_constants();
+		$publicize = new Publicize();
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
