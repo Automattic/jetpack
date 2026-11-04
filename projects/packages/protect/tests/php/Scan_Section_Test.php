@@ -35,6 +35,7 @@ class Scan_Section_Test extends BaseTestCase {
 	public function tear_down() {
 		delete_transient( Scan::REQUEST_LOCK );
 		delete_transient( Scan::HISTORY_CACHE );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_protect_dashboard_scan_upsell_variant' );
 		remove_all_filters( 'jetpack_protect_threat_ignoring_enabled' );
@@ -126,6 +127,62 @@ class Scan_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( 2 ), array_column( Scan::get_ignored_threats(), 'id' ) );
+	}
+
+	/**
+	 * Whether the scan after a fix failed, and the threats the Scan card and History list then show.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_scans_after_a_fix() {
+		return array(
+			'a failed scan keeps the fix'             => array( true, array(), array( '1' ) ),
+			'a completed scan shows the threat again' => array( false, array( '1' ), array() ),
+		);
+	}
+
+	/**
+	 * Test that a fix the site recorded stays out of the Scan card and in History until a scan completes.
+	 *
+	 * @dataProvider provide_scans_after_a_fix
+	 *
+	 * @param bool     $failed  Whether the scan after the fix failed.
+	 * @param string[] $open    Ids on the Scan card.
+	 * @param string[] $history Ids in History.
+	 */
+	#[DataProvider( 'provide_scans_after_a_fix' )]
+	public function test_a_recorded_fix_holds_until_a_scan_completes( $failed, $open, $history ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		update_option(
+			Scan_Status::OPTION_NAME,
+			maybe_serialize(
+				(object) array(
+					'state'       => 'idle',
+					'most_recent' => (object) array(
+						'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+						'error'     => $failed,
+					),
+					'threats'     => array(
+						(object) array(
+							'id'        => 1,
+							'signature' => 'PHP.Generic',
+							'title'     => 'A suspicious file',
+							'status'    => 'current',
+							'filename'  => ABSPATH . 'x.php',
+						),
+					),
+				)
+			)
+		);
+		Scan_Status::$status = Scan_Status::get_cached_status();
+		set_transient( Scan::HISTORY_CACHE, array() );
+
+		$report = self::call( 'get_scan_report', true );
+
+		$this->assertSame( $open, array_map( 'strval', array_column( $report['threats'], 'id' ) ) );
+		$this->assertSame( $history, array_map( 'strval', array_column( Scan::get_history_threats(), 'id' ) ) );
 	}
 
 	/**
