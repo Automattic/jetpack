@@ -405,7 +405,7 @@ describe( 'Download screen with a file selection', () => {
 		} );
 	} );
 
-	it( 'offers Contact support when the download fails', async () => {
+	it( 'links the failed download guide when the download fails', async () => {
 		window.JP_CONNECTION_INITIAL_STATE = {
 			...window.JP_CONNECTION_INITIAL_STATE,
 			siteSuffix: 'example.wordpress.com',
@@ -423,10 +423,10 @@ describe( 'Download screen with a file selection', () => {
 
 		render( <DownloadStage /> );
 
-		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		const link = await screen.findByRole( 'link', { name: /^How to fix a failed download/ } );
 		expect( link ).toHaveAttribute(
 			'href',
-			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+			'https://jetpack.com/redirect/?source=jetpack-backup-download-failed&site=example.wordpress.com'
 		);
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

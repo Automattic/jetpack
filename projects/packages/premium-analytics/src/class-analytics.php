@@ -361,8 +361,9 @@ class Analytics {
 		require_once __DIR__ . '/default-dashboard-sections.php';
 		configure_dashboard_sections_script_data();
 
-		// Single-report page API; other plugins and, later, the package register pages through it.
+		// Single-report page API, then the package's own pages registered through it.
 		require_once __DIR__ . '/single-report-pages.php';
+		require_once __DIR__ . '/default-single-report-pages.php';
 		configure_single_report_pages_script_data();
 
 		// Default-on CSV export settings and server-side disable filter.

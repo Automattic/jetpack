@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Add internal metrics for trim and cut submissions and observed processing outcomes.
