@@ -208,6 +208,10 @@ class Scan extends Module_Product {
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}
 
+		if ( method_exists( Protect::class, 'get_scan_dashboard_url' ) ) {
+			return Protect::get_scan_dashboard_url();
+		}
+
 		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
 

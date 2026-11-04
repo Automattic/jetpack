@@ -107,7 +107,7 @@ class Plugin_Locator {
 				break;
 		}
 
-		return $this->convert_plugins_to_paths( $plugin_slugs );
+		return $this->convert_plugins_to_paths( $plugin_slugs, true );
 	}
 
 	/**
@@ -116,10 +116,11 @@ class Plugin_Locator {
 	 * if they are plugin paths!
 	 *
 	 * @param string[] $plugins Plugin paths or slugs to filter.
+	 * @param bool     $safe_mode Reject plugins in unsafe paths.
 	 *
 	 * @return string[]
 	 */
-	private function convert_plugins_to_paths( $plugins ) {
+	private function convert_plugins_to_paths( $plugins, $safe_mode = false ) {
 		if ( ! is_array( $plugins ) || empty( $plugins ) ) {
 			return array();
 		}
@@ -129,12 +130,12 @@ class Plugin_Locator {
 
 		$plugin_paths = array();
 		foreach ( $plugins as $key => $value ) {
-			$path = $this->path_processor->find_directory_with_autoloader( $key, $path_constants );
+			$path = $this->path_processor->find_directory_with_autoloader( $key, $path_constants, $safe_mode );
 			if ( $path ) {
 				$plugin_paths[] = $path;
 			}
 
-			$path = $this->path_processor->find_directory_with_autoloader( $value, $path_constants );
+			$path = $this->path_processor->find_directory_with_autoloader( $value, $path_constants, $safe_mode );
 			if ( $path ) {
 				$plugin_paths[] = $path;
 			}

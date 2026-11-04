@@ -34,6 +34,7 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'
@@ -74,8 +75,11 @@ ignoredOptionalDependencies:
 
 audit:
   ignore:
-    # "OMG it can throw an exception" is not a real vulnerability. See also https://github.com/github/advisory-database/pull/10132
-    - GHSA-vfj7-8cjw-p6xm
+    # Maintainer of various eslint plugins seems unwilling to upgrade from minimatch v3, and this one isn't going to be backported. Sigh.
+    # https://github.com/import-js/eslint-plugin-import/issues/3249
+    # https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1054
+    # https://github.com/jsx-eslint/eslint-plugin-react/issues/4066
+    - GHSA-g3hv-75wg-m249
 
 # Dependencies needing patching.
 patchedDependencies:
@@ -88,4 +92,22 @@ patchedDependencies:
   # It also restores the `boot-layout-container` class on the mount element,
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
+  # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
+  # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
+  # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
+
+  # The CommonJS build of 44.0.0 resolves `BaseControl` for `useBaseControlProps`
+  # through a circular require that rolldown snapshots before `index.cjs` has set
+  # its exports, so every CJS consumer (jest) renders ToggleGroupControl, and the
+  # DataViews view options built on it, with `useInstanceId( undefined )` and dies
+  # with "Invalid value used as weak map key". The ESM build is unaffected.
+  # Remove once the fix in WordPress/gutenberg (base-control hooks) ships.
+  "@wordpress/components@44.0.0": .pnpm-patches/@wordpress__components.patch
+
+  # Same rolldown CommonJS snapshot in block-editor 20.0.0: inner-blocks and the
+  # auto block preview memoize block-list exports at load, before that circular
+  # module has set them, so InnerBlocks renders in jest die with "Element type
+  # is invalid" and `memo()` warns about an undefined component.
+  # Remove once the fix in WordPress/gutenberg ships.
+  "@wordpress/block-editor@20.0.0": .pnpm-patches/@wordpress__block-editor.patch

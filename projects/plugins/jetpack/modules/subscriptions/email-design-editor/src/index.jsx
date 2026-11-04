@@ -24,17 +24,24 @@ import {
 	Disabled,
 	Notice,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalConfirmDialog as ConfirmDialog,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select, subscribe, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
-import { createRoot, RawHTML, StrictMode, useCallback, useState } from '@wordpress/element';
+import {
+	createPortal,
+	createRoot,
+	RawHTML,
+	StrictMode,
+	useCallback,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
+import { AlertDialog, Progress } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { designKeys, forwardEditorEvents, initializeTracks, recordDesignEvent } from './analytics';
 import { watchDerivedTextColor } from './derived-text-color';
@@ -666,18 +673,55 @@ function hasAnyDesign( design ) {
  * Clears the creator's layer rather than writing the defaults into it: the canvas draws that
  * layer over the theme, so an empty one already *is* the default design.
  *
+ * Addressed to the route rather than saved through core-data, which would mean clearing the record
+ * first for {@see createDesignSaveMiddleware} to read — an edit the screen would show for as long
+ * as the save and the reload take, and would be left holding if either failed.
+ *
  * @param {number} id - The global-styles id the bundle named.
  * @return {Promise<void>} Resolves once WordPress.com has stored the cleared design.
  */
 async function resetDesign( id ) {
-	dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', id, {
-		styles: {},
-		settings: {},
+	const edited = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+	await apiFetch( {
+		path: BOOTSTRAP_PATH,
+		method: 'POST',
+		data: { design: { styles: {}, settings: {} } },
 	} );
 
-	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id, {
-		throwOnError: true,
-	} );
+	// Afterwards, and in one dispatch: `UnsavedChangesWarning` blocks the reload below while a half
+	// is pending, and `watchDerivedTextColor()` writes a colour for a cleared background whenever
+	// one is. Naming what was sent is what drops them, the way core-data's own saves do.
+	dispatch( coreStore ).receiveEntityRecords(
+		'root',
+		'globalStyles',
+		[ { id, styles: {}, settings: {} } ],
+		undefined,
+		false,
+		{ styles: edited?.styles, settings: edited?.settings }
+	);
+}
+
+/**
+ * Cover the screen while the design is cleared and the page is fetched again.
+ *
+ * @param {object}       props           - Component props.
+ * @param {Element|null} props.container - The screen's own container, which caps the overlay below
+ *                                       the admin bar.
+ * @return {import('react').ReactElement} The overlay.
+ */
+function ResetOverlay( { container } ) {
+	return createPortal(
+		<div className="jetpack-email-design-reset-overlay" role="status">
+			<Progress.Root value={ null }>
+				<Progress.Label>{ __( 'Resetting your email design…', 'jetpack' ) }</Progress.Label>
+				<Progress.Track>
+					<Progress.Indicator />
+				</Progress.Track>
+			</Progress.Root>
+		</div>,
+		container ?? document.body
+	);
 }
 
 /**
@@ -686,11 +730,12 @@ async function resetDesign( id ) {
  * The panels reset one screen at a time, which leaves a creator who has changed several with no
  * way back to where they started. See NL-970.
  *
- * @param {object} props    - Component props.
- * @param {number} props.id - The global-styles id the bundle named.
+ * @param {object}       props           - Component props.
+ * @param {number}       props.id        - The global-styles id the bundle named.
+ * @param {Element|null} props.container - The screen's own container, for the busy overlay.
  * @return {import('react').ReactElement} The control.
  */
-function ResetDesignControl( { id } ) {
+function ResetDesignControl( { id, container } ) {
 	const [ isConfirming, setIsConfirming ] = useState( false );
 	const [ isResetting, setIsResetting ] = useState( false );
 
@@ -702,11 +747,20 @@ function ResetDesignControl( { id } ) {
 		[ id ]
 	);
 
-	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
+	// The dialog closes after a confirm too, and that close is not a cancellation.
+	const hasConfirmed = useRef( false );
 
-	const cancelConfirmation = useCallback( () => {
-		setIsConfirming( false );
-		recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+	const openConfirmation = useCallback( () => {
+		hasConfirmed.current = false;
+		setIsConfirming( true );
+	}, [] );
+
+	const onOpenChange = useCallback( open => {
+		setIsConfirming( open );
+
+		if ( ! open && ! hasConfirmed.current ) {
+			recordDesignEvent( 'reset', { outcome: 'cancelled' } );
+		}
 	}, [] );
 
 	/**
@@ -715,7 +769,6 @@ function ResetDesignControl( { id } ) {
 	 * @return {Promise<void>} Resolves once the reload is under way, or the creator has been told.
 	 */
 	const confirmReset = useCallback( async () => {
-		setIsConfirming( false );
 		setIsResetting( true );
 
 		try {
@@ -745,8 +798,15 @@ function ResetDesignControl( { id } ) {
 		}
 	}, [ id ] );
 
+	// Not returned, so the dialog closes at once and the overlay covers the reset.
+	const startReset = useCallback( () => {
+		hasConfirmed.current = true;
+		confirmReset();
+	}, [ confirmReset ] );
+
 	return (
 		<>
+			{ isResetting && <ResetOverlay container={ container } /> }
 			<Button
 				variant="secondary"
 				disabled={ ! hasDesign || isResetting }
@@ -756,19 +816,21 @@ function ResetDesignControl( { id } ) {
 			>
 				{ __( 'Reset to defaults', 'jetpack' ) }
 			</Button>
-			<ConfirmDialog
-				title={ __( 'Reset email design', 'jetpack' ) }
-				isOpen={ isConfirming }
-				onCancel={ cancelConfirmation }
-				onConfirm={ confirmReset }
-				confirmButtonText={ __( 'Reset', 'jetpack' ) }
-				size="medium"
+			<AlertDialog.Root
+				open={ isConfirming }
+				onOpenChange={ onOpenChange }
+				onConfirm={ startReset }
 			>
-				{ __(
-					'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
-					'jetpack'
-				) }
-			</ConfirmDialog>
+				<AlertDialog.Popup
+					intent="irreversible"
+					title={ __( 'Reset email design', 'jetpack' ) }
+					description={ __(
+						'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
+						'jetpack'
+					) }
+					confirmButtonText={ __( 'Reset', 'jetpack' ) }
+				/>
+			</AlertDialog.Root>
 		</>
 	);
 }
@@ -779,11 +841,12 @@ function ResetDesignControl( { id } ) {
  * The panel's own affordance is an unlabelled icon in the top right, and the Template tab this
  * lands in has nothing else to offer while block editing is off. See NL-948.
  *
- * @param {object}      props    - Component props.
- * @param {number|null} props.id - The global-styles id the bundle named.
+ * @param {object}       props           - Component props.
+ * @param {number|null}  props.id        - The global-styles id the bundle named.
+ * @param {Element|null} props.container - The screen's own container, for the reset overlay.
  * @return {import('react').ReactElement} The panel.
  */
-function StylesPanelLink( { id } ) {
+function StylesPanelLink( { id, container } ) {
 	return (
 		<PluginDocumentSettingPanel
 			name={ STYLES_PANEL_NAME }
@@ -795,7 +858,7 @@ function StylesPanelLink( { id } ) {
 				</Button>
 				{ /* Without an id there is no record to clear, and nothing installed to carry the
 				     clearing to WordPress.com. */ }
-				{ !! id && <ResetDesignControl id={ id } /> }
+				{ !! id && <ResetDesignControl id={ id } container={ container } /> }
 			</VStack>
 		</PluginDocumentSettingPanel>
 	);
@@ -836,13 +899,14 @@ export function expandStylesPanelOnce() {
 /**
  * Register the fills the editor renders through its own plugin area.
  *
- * @param {number|null} [globalStylesPostId] - The global-styles id the bundle named.
+ * @param {number|null}  [globalStylesPostId] - The global-styles id the bundle named.
+ * @param {Element|null} [container]          - The screen's own container, for the reset overlay.
  * @return {void}
  */
-export function registerEditorPlugin( globalStylesPostId = null ) {
+export function registerEditorPlugin( globalStylesPostId = null, container = null ) {
 	registerPlugin( PLUGIN_NAME, {
 		scope: PLUGIN_SCOPE,
-		render: () => <StylesPanelLink id={ globalStylesPostId } />,
+		render: () => <StylesPanelLink id={ globalStylesPostId } container={ container } />,
 	} );
 }
 
@@ -1247,7 +1311,7 @@ export async function mountEmailDesignEditor() {
 
 		// Everything that leads to the Styles panel, only for a creator the package will give one.
 		if ( canEditDesign( bundle ) ) {
-			registerEditorPlugin( config.globalStylesPostId );
+			registerEditorPlugin( config.globalStylesPostId, container );
 			expandStylesPanelOnce();
 		}
 

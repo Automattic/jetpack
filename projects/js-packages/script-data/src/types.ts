@@ -62,7 +62,6 @@ export interface MyJetpackScriptData {
 		isBlockTheme: boolean;
 		isSharingBlockAvailable: boolean;
 		isLikeBlockAvailable: boolean;
-		activeThemeStylesheet: string;
 	};
 	/** Absolute URL of My Jetpack's built images directory, with a trailing slash. */
 	assetsUrl?: string;
@@ -70,6 +69,8 @@ export interface MyJetpackScriptData {
 	productsSection?: { slug: 'features'; label: string } | null;
 	/** Where Jetpack AI is managed: the Jetpack AI Hub, or My Jetpack's AI page while the Hub is not open to the site. */
 	aiManageUrl?: string;
+	/** Whether settings move to My Jetpack: the settings consolidation flag is on and My Jetpack is available. */
+	settingsConsolidation?: boolean;
 }
 
 export interface JetpackScriptData {

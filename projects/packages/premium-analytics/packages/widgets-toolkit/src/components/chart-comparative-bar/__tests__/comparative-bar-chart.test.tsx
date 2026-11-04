@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -10,9 +10,7 @@ import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
 	mockOverlapBarColor,
-	mockSparklineMargin,
 	resetMockCharts,
-	setMockChartHeight,
 	setMockElementStyles,
 	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
@@ -120,6 +118,7 @@ function recordedProps(): {
 		interactive: boolean;
 	};
 	gridVisibility?: string;
+	compactWhenShort?: boolean;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
 	renderTooltip: ( params: unknown ) => { props: DatedTooltipProps } | null;
@@ -192,6 +191,7 @@ describe( 'ComparativeBarChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'names the chart from chartTitle', () => {
@@ -206,6 +206,15 @@ describe( 'ComparativeBarChart', () => {
 		expect( mockBarChartSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
 		);
+	} );
+
+	it( "holds store money ticks to the store's decimals", () => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
+		} as unknown as typeof window.JetpackScriptData;
+		render( <ComparativeBarChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
+
+		expect( recordedOptions().axis.y.tickDecimals ).toBe( 3 );
 	} );
 
 	it( 'passes no x tickFormat when no tick format is requested', () => {
@@ -385,6 +394,23 @@ describe( 'ComparativeBarChart', () => {
 		] );
 	} );
 
+	it( 'keeps previous-period values in the tooltip while their bars are hidden', () => {
+		setMockHiddenSeries( [ 'June', 'Visitors · June' ] );
+		render( <ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			readings(
+				tooltipModelFor( hoveredJuly( JULY_1 ), {
+					datum: { date: JULY_1, value: 40 },
+					key: 'Visitors',
+				} )
+			)
+		).toEqual( [
+			[ 'July', 100, 80 ],
+			[ 'Visitors', 40, 30 ],
+		] );
+	} );
+
 	it( 'draws an overlap layout with the tooltip and legend swatches in its opaque bar colors', () => {
 		render(
 			<ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } layout="overlap" />
@@ -529,40 +555,16 @@ describe( 'ComparativeBarChart', () => {
 		} );
 	} );
 
-	describe( 'compactWhenShort', () => {
-		it( 'degrades to a sparkline on a short tile', () => {
-			setMockChartHeight( 80 );
-			render(
-				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
-			);
+	it.each( [ true, false ] )( 'forwards compactWhenShort=%s to the chart', compactWhenShort => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				compactWhenShort={ compactWhenShort }
+			/>
+		);
 
-			expect( recordedOptions().axis.x.display ).toBe( false );
-			expect( recordedOptions().axis.y.display ).toBe( false );
-			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			expect( recordedProps().margin ).toBe( mockSparklineMargin );
-			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'keeps the axis, grid, and legend when the tile is tall enough', () => {
-			setMockChartHeight( 400 );
-			render(
-				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
-			);
-
-			expect( recordedOptions().axis.x ).not.toHaveProperty( 'display' );
-			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
-			expect( recordedProps().gridVisibility ).toBeUndefined();
-			expect( recordedProps().margin ).toBeUndefined();
-			expect( screen.getByTestId( 'bar-chart-legend' ) ).toBeInTheDocument();
-		} );
-
-		it( 'ignores the breakpoint when not opted in', () => {
-			setMockChartHeight( 80 );
-			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
-			expect( recordedProps().gridVisibility ).toBeUndefined();
-		} );
+		expect( recordedProps().compactWhenShort ).toBe( compactWhenShort );
 	} );
 } );
 

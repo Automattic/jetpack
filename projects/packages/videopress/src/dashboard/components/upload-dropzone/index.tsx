@@ -1,10 +1,11 @@
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { EmptyState, Text } from '@wordpress/ui';
+import { EmptyState, Text, Tooltip } from '@wordpress/ui';
+import RecordVideoButton from '../../../client/components/video-recording';
 import {
 	FREE_TIER_AT_LIMIT_MESSAGE,
 	FREE_TIER_AT_LIMIT_NOTICE_ID,
@@ -144,6 +145,9 @@ const UploadDropzone = ( {
 
 	const onSurfaceClick = useCallback(
 		( event: MouseEvent< HTMLDivElement > ) => {
+			if ( ! event.currentTarget.contains( event.target as Node ) ) {
+				return;
+			}
 			// The picker button lives inside this surface and opens the picker
 			// itself, so its click has to stop here or the file dialog would be
 			// asked for twice.
@@ -153,20 +157,6 @@ const UploadDropzone = ( {
 			openPicker();
 		},
 		[ openPicker ]
-	);
-
-	const pickerButton = (
-		<Button
-			className="vp-upload-dropzone__button"
-			variant="primary"
-			__next40pxDefaultSize
-			onClick={ openPicker }
-			aria-disabled={ disabled }
-		>
-			{ plural
-				? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
-				: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
-		</Button>
 	);
 
 	return (
@@ -247,15 +237,31 @@ const UploadDropzone = ( {
 				 * mouse user gets before committing, and the click-to-explain
 				 * is the only path a touch user has.
 				 */ }
-				{ disabled ? (
-					// Only at the limit. An enabled tooltip here would just
-					// restate the button's own label; the header needs one
-					// because it is refusing from a toolbar with no copy
-					// around it.
-					<Tooltip text={ FREE_TIER_AT_LIMIT_MESSAGE }>{ pickerButton }</Tooltip>
-				) : (
-					pickerButton
-				) }
+				{ /*
+				 * Only at the limit. An enabled tooltip here would just
+				 * restate the button's own label; the header needs one
+				 * because it is refusing from a toolbar with no copy
+				 * around it.
+				 */ }
+				<Tooltip.Root disabled={ ! disabled }>
+					<Tooltip.Trigger
+						render={
+							<Button
+								className="vp-upload-dropzone__button"
+								variant="primary"
+								__next40pxDefaultSize
+								onClick={ openPicker }
+								aria-disabled={ disabled }
+							/>
+						}
+					>
+						{ plural
+							? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
+							: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ FREE_TIER_AT_LIMIT_MESSAGE }</Tooltip.Popup>
+				</Tooltip.Root>
+				<RecordVideoButton onRecorded={ file => onFiles( [ file ] ) } disabled={ disabled } />
 			</div>
 			<input
 				ref={ inputRef }

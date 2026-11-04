@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Link the Activation card to the Modules screen on sites where My Jetpack redirects to Stats, so Stats can be switched off there.

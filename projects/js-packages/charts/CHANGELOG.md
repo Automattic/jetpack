@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.15.0] - 2026-11-04
+### Added
+- Axis: Add a `tickDecimals` option that keeps value-axis ticks to a number of decimal places, so rounded labels never repeat. [#54399]
+- Bar chart: Add a stacked layout. [#54447]
+- Line, area and bar charts: Add `compactWhenShort`, which drops the axes, grid and legend while the chart is shorter than the new `theme.compactWhenShort.below` (140px by default). [#54338]
+
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+## [4.14.0] - 2026-11-02
+### Added
+- Leaderboard chart: Derive bar shares and percentage change from the values when an entry omits them, and add a `negativeBars` option to draw negative values as empty bars. [#54250]
+- Legend: Let an interactive legend item own its pressed state and toggle handler. [#54328]
+
+### Changed
+- Update package dependencies. [#53869]
+
+### Fixed
+- Leaderboard chart: Inset overlay labels from the inline start, so they keep their padding in right-to-left languages, and expose the label inset as a CSS custom property. [#54192]
+
 ## [4.13.0] - 2026-10-28
 ### Added
 - Conversion funnel chart: Add `getTooltipContent` to set what each step's tooltip shows, which screen readers also read, and show the default tooltip's count and conversion rate as labeled lines. [#53637]
@@ -1209,6 +1229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.15.0]: https://github.com/Automattic/charts/compare/v4.14.0...v4.15.0
+[4.14.0]: https://github.com/Automattic/charts/compare/v4.13.0...v4.14.0
 [4.13.0]: https://github.com/Automattic/charts/compare/v4.12.0...v4.13.0
 [4.12.0]: https://github.com/Automattic/charts/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/charts/compare/v4.11.0...v4.11.1

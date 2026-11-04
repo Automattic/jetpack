@@ -40,9 +40,10 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	min-block-size: wpvariables.$header-height;
+	min-block-size: calc(#{wpvariables.$header-height} + var(--wpds-border-width-xs));
 	padding-block: var(--wpds-dimension-padding-md);
 	padding-inline: var(--wpds-dimension-padding-xl);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 }
 
 .jetpack-boost-overview__score-icon {
@@ -97,12 +98,6 @@
 		border-inline-start: 0;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
-}
-
-// components 42 doubles the divider class: the element wins.
-.jetpack-boost-overview hr.jetpack-boost-overview__scores-divider {
-	margin: 0;
-	border-color: var(--wpds-color-stroke-surface-neutral);
 }
 
 .jetpack-boost-overview__info-trigger {
@@ -218,18 +213,20 @@
 }
 
 .jetpack-boost-overview .jetpack-boost-overview__progress {
-	border-radius: var(--wpds-border-radius-md);
-	block-size: var(--wpds-dimension-size-5xs);
 	inline-size: 100%;
-	background-color: transparent;
 
 	@media ( max-width: wpbreakpoints.$break-medium ) {
 		flex: 0 0 50%;
 	}
 }
 
-// ProgressBar's indicator has only a hashed class, hence the child selector.
-.jetpack-boost-overview__progress--good > div {
+.jetpack-boost-overview .jetpack-boost-overview__progress-track {
+	border-radius: var(--wpds-border-radius-md);
+	block-size: var(--wpds-dimension-size-5xs);
+	background-color: transparent;
+}
+
+.jetpack-boost-overview__progress--good {
 	background-color: var(--jetpack-boost-score-good);
 }
 
@@ -243,7 +240,7 @@
 	white-space: nowrap;
 }
 
-.jetpack-boost-overview__progress--medium > div {
+.jetpack-boost-overview__progress--medium {
 	background-color: var(--jetpack-boost-score-medium);
 }
 
@@ -251,7 +248,7 @@
 	color: var(--wpds-color-foreground-content-warning-weak);
 }
 
-.jetpack-boost-overview__progress--poor > div {
+.jetpack-boost-overview__progress--poor {
 	background-color: var(--jetpack-boost-score-poor);
 }
 
