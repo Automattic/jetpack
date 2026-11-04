@@ -126,6 +126,8 @@ class Jetpack_Test extends WP_UnitTestCase {
 	public function test_connected_tracking_initialization_does_not_resolve_current_user() {
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
+		Jetpack_Options::update_option( 'master_user', self::$admin_id );
+		Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'dummy.usertoken.' . self::$admin_id ) );
 		Jetpack_Options::update_option( 'tos_agreed', false );
 		StatusCache::set( 'is_offline_mode', false );
 		$connection = new Connection_Manager();
