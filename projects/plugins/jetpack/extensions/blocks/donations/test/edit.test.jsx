@@ -24,16 +24,26 @@ jest.mock( '../fetch-default-products', () => jest.fn() );
 jest.mock( '../controls', () => () => null );
 jest.mock( '../style-controls', () => () => null );
 
+// The order in which the block writes its plan IDs and unlocks saving.
+let events;
+let blockAttributes;
+
 const noop = () => ( { type: 'NOOP' } );
 const registry = createRegistry();
 registry.registerStore( 'core/block-editor', {
 	reducer: () => ( {} ),
-	selectors: { getSettings: () => ( {} ) },
+	selectors: { getSettings: () => ( {} ), getBlockAttributes: () => blockAttributes },
 } );
 registry.registerStore( 'core/editor', {
 	reducer: () => ( {} ),
 	selectors: { getCurrentPost: () => ( { id: 1 } ), isPostSavingLocked: () => false },
-	actions: { lockPostSaving: noop, unlockPostSaving: noop },
+	actions: {
+		lockPostSaving: noop,
+		unlockPostSaving: () => {
+			events.push( 'unlock' );
+			return noop();
+		},
+	},
 } );
 registry.registerStore( 'jetpack/membership-products', {
 	reducer: () => ( {} ),
@@ -55,6 +65,7 @@ const donationsFormAttributes = {
 describe( 'Donations Edit', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		events = [];
 		fetchStatus.mockResolvedValue( {
 			connect_url: '',
 			connected_account_default_currency: 'usd',
@@ -69,26 +80,31 @@ describe( 'Donations Edit', () => {
 	test.each( [
 		[ 'a Tips block in Pop-up mode', tipsVariationAttributes ],
 		[ 'a Donations Form in In-page mode', donationsFormAttributes ],
-	] )( "writes the site's donation plan IDs into %s", async ( _, attributes ) => {
-		const setAttributes = jest.fn();
-		render(
-			<RegistryProvider value={ registry }>
-				<Edit
-					attributes={ { ...attributes, currency: 'USD' } }
-					setAttributes={ setAttributes }
-					clientId="donations-1"
-				/>
-			</RegistryProvider>
-		);
+	] )(
+		"writes the site's donation plan IDs into %s before saving unlocks",
+		async ( _, attributes ) => {
+			blockAttributes = { ...attributes, currency: 'USD' };
+			const setAttributes = jest.fn( updates => updates.oneTimeDonation && events.push( 'plans' ) );
+			render(
+				<RegistryProvider value={ registry }>
+					<Edit
+						attributes={ blockAttributes }
+						setAttributes={ setAttributes }
+						clientId="donations-1"
+					/>
+				</RegistryProvider>
+			);
 
-		await waitFor( () =>
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( {
-					oneTimeDonation: expect.objectContaining( { planId: 11 } ),
-					monthlyDonation: expect.objectContaining( { planId: 12 } ),
-					annualDonation: expect.objectContaining( { planId: 13 } ),
-				} )
-			)
-		);
-	} );
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						oneTimeDonation: expect.objectContaining( { planId: 11 } ),
+						monthlyDonation: expect.objectContaining( { planId: 12 } ),
+						annualDonation: expect.objectContaining( { planId: 13 } ),
+					} )
+				)
+			);
+			expect( events.lastIndexOf( 'unlock' ) ).toBeGreaterThan( events.indexOf( 'plans' ) );
+		}
+	);
 } );

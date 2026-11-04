@@ -28,9 +28,6 @@ const Edit = props => {
 	const { attributes, setAttributes, clientId } = props;
 	const {
 		currency,
-		oneTimeDonation,
-		monthlyDonation,
-		annualDonation,
 		tabsAppearance,
 		className,
 		displayMode,
@@ -71,8 +68,8 @@ const Edit = props => {
 		.join( ' ' );
 	const blockProps = useBlockProps( { className: wrapperClassName } );
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ products, setProducts ] = useState( [] );
 	const isUserConnected = useIsUserConnected();
+	const { getBlockAttributes } = useSelect( blockEditorStore );
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
@@ -179,6 +176,29 @@ const Edit = props => {
 				{}
 			);
 
+		// Called before saving is unlocked, so a save can't go out without the plan IDs.
+		// Reads the attributes from the store because the user may edit them during the fetch.
+		const savePlanIds = productIdsPerInterval => {
+			const current = getBlockAttributes( clientId );
+			if ( ! current ) {
+				return;
+			}
+			const updates = {};
+			for ( const [ key, interval ] of [
+				[ 'oneTimeDonation', 'one-time' ],
+				[ 'monthlyDonation', '1 month' ],
+				[ 'annualDonation', '1 year' ],
+			] ) {
+				const planId = productIdsPerInterval[ interval ];
+				if ( planId && current[ key ]?.planId !== planId ) {
+					updates[ key ] = { ...current[ key ], planId };
+				}
+			}
+			if ( Object.keys( updates ).length ) {
+				setAttributes( updates );
+			}
+		};
+
 		fetchStatus( 'donation' ).then( result => {
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
 				unlockPostSaving( 'donations' );
@@ -193,18 +213,13 @@ const Edit = props => {
 			const filteredProducts = filterProducts( result.products );
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
-				setProducts( filteredProducts );
+				savePlanIds( filteredProducts );
 				unlockPostSaving( 'donations' );
 				return;
 			}
 
-			// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
+			// No Stripe connection yet: the block shows the connect nudge instead of the form.
 			if ( result.connect_url ) {
-				setProducts( {
-					'one-time': -1,
-					'1 month': -1,
-					'1 year': -1,
-				} );
 				unlockPostSaving( 'donations' );
 				return;
 			}
@@ -212,7 +227,7 @@ const Edit = props => {
 			if ( currency ) {
 				// Only create products if we have the correct plan and stripe connection.
 				fetchDefaultProducts( currency ).then( defaultProducts => {
-					setProducts( filterProducts( defaultProducts ) );
+					savePlanIds( filterProducts( defaultProducts ) );
 					unlockPostSaving( 'donations' );
 				}, apiError );
 			}
@@ -227,27 +242,10 @@ const Edit = props => {
 		setConnectedAccountDefaultCurrency,
 		unlockPostSaving,
 		isPreviewMode,
+		clientId,
+		getBlockAttributes,
+		setAttributes,
 	] );
-
-	// Write the plan IDs from here rather than from Tabs, which Pop-up mode never renders.
-	// The -1 placeholders used until Stripe is connected are left out.
-	useEffect( () => {
-		const current = { oneTimeDonation, monthlyDonation, annualDonation };
-		const plans = {
-			oneTimeDonation: products[ 'one-time' ],
-			monthlyDonation: products[ '1 month' ],
-			annualDonation: products[ '1 year' ],
-		};
-		const updates = {};
-		for ( const [ key, planId ] of Object.entries( plans ) ) {
-			if ( planId > 0 && current[ key ]?.planId !== planId ) {
-				updates[ key ] = { ...current[ key ], planId };
-			}
-		}
-		if ( Object.keys( updates ).length ) {
-			setAttributes( updates );
-		}
-	}, [ products, oneTimeDonation, monthlyDonation, annualDonation, setAttributes ] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
 	// a valid currency to render a representative form.
