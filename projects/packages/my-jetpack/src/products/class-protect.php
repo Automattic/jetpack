@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
-use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
@@ -468,7 +467,7 @@ class Protect extends Hybrid_Product {
 	 * @return bool
 	 */
 	public static function has_paid_plan_for_product() {
-		return Plan::has_required_plan();
+		return Scan::has_paid_plan_for_product();
 	}
 
 	/**

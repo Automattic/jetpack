@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Read whether the site has Scan from Protect Status for the Scan product too, so it matches the Protect card and page.
+Protect: Show the card as expired, with a renewal link, when the Scan or bundle purchase that included Scan has lapsed. The Scan product now uses the same check as Protect.

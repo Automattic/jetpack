@@ -43,6 +43,7 @@ class Protect_Product_Test extends TestCase {
 		);
 		delete_option( 'jetpack_active_plan' );
 		delete_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 
 	/**
@@ -225,6 +226,34 @@ class Protect_Product_Test extends TestCase {
 
 		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
 		$this->assertSame( $expected, Scan::has_paid_plan_for_product() );
+	}
+
+	/**
+	 * A lapsed Security purchase still counts, so both cards can offer the renewal.
+	 */
+	public function test_lapsed_bundle_counts_as_an_expired_paid_plan() {
+		set_transient(
+			Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'scan' => array( 'jetpack_security_t1_yearly' ) ),
+			)
+		);
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => 'jetpack_security_t1_yearly',
+					'expiry_status' => 'expired',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
+				),
+			)
+		);
+
+		foreach ( array( Protect::class, Scan::class ) as $product ) {
+			$this->assertTrue( $product::has_paid_plan_for_product(), $product );
+			$this->assertTrue( $product::is_paid_plan_expired(), $product );
+		}
 	}
 
 	/**
