@@ -57,7 +57,7 @@ class LCP_Analyzer {
 	 */
 	public function start_partial_analysis( $pages ) {
 		$current_state = $this->state->get();
-		if ( empty( $current_state['pages'] ) || ! is_array( $current_state['pages'] ) ) {
+		if ( empty( $current_state['pages'] ) ) {
 			return $current_state;
 		}
 

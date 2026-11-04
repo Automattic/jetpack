@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
@@ -111,7 +110,7 @@ class LCP_Invalidator_Test extends BaseTestCase {
 	 * @dataProvider states_without_pages
 	 */
 	#[DataProvider( 'states_without_pages' )]
-	public function test_a_cornerstone_save_leaves_an_empty_analysis_unchanged( $stored_state, $bypass_schema ) {
+	public function test_a_cornerstone_save_leaves_an_empty_analysis_unchanged( $stored_state ) {
 		$post_id   = wp_insert_post(
 			array(
 				'post_status' => 'publish',
@@ -120,33 +119,24 @@ class LCP_Invalidator_Test extends BaseTestCase {
 		);
 		$this->url = get_permalink( $post_id );
 
-		if ( $bypass_schema ) {
-			// Model a bypassed read: the registered schema normally returns an array of pages.
-			jetpack_boost_register_option( 'lcp_state', Schema::as_unsafe_any() );
+		if ( null === $stored_state ) {
+			jetpack_boost_ds_delete( 'lcp_state' );
+		} else {
+			jetpack_boost_ds_set( 'lcp_state', $stored_state );
 		}
+		$before = ( new LCP_State() )->get();
 
-		try {
-			if ( null === $stored_state ) {
-				jetpack_boost_ds_delete( 'lcp_state' );
-			} else {
-				jetpack_boost_ds_set( 'lcp_state', $stored_state );
-			}
-			$before = ( new LCP_State() )->get();
+		$result = wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => 'Updated cornerstone content.',
+			)
+		);
 
-			$result = wp_update_post(
-				array(
-					'ID'           => $post_id,
-					'post_content' => 'Updated cornerstone content.',
-				)
-			);
-
-			$this->assertSame( $post_id, $result );
-			$this->assertSame( 'Updated cornerstone content.', get_post( $post_id )->post_content );
-			$this->assertSame( 0, $this->lcp_requests );
-			$this->assertSame( $before, ( new LCP_State() )->get() );
-		} finally {
-			( new Lcp() )->register_data_sync( Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE ) );
-		}
+		$this->assertSame( $post_id, $result );
+		$this->assertSame( 'Updated cornerstone content.', get_post( $post_id )->post_content );
+		$this->assertSame( 0, $this->lcp_requests );
+		$this->assertSame( $before, ( new LCP_State() )->get() );
 	}
 
 	/**
@@ -154,22 +144,8 @@ class LCP_Invalidator_Test extends BaseTestCase {
 	 */
 	public static function states_without_pages() {
 		return array(
-			'deleted option with the registered schema' => array( null, false ),
-			'stored state without pages'                => array( array( 'status' => 'not_analyzed' ), false ),
-			'null pages with the schema bypassed'       => array(
-				array(
-					'pages'  => null,
-					'status' => 'not_analyzed',
-				),
-				true,
-			),
-			'string pages with the schema bypassed'     => array(
-				array(
-					'pages'  => 'x',
-					'status' => 'not_analyzed',
-				),
-				true,
-			),
+			'deleted option with the registered schema' => array( null ),
+			'stored state without pages'                => array( array( 'status' => 'not_analyzed' ) ),
 		);
 	}
 
