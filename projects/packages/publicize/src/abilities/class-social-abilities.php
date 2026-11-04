@@ -233,9 +233,8 @@ class Social_Abilities extends Registrar {
 	 * @return bool
 	 */
 	public static function can_view_connections(): bool {
-		global $publicize;
-
-		return ! empty( $publicize ) && $publicize->current_user_can_access_publicize_data();
+		// This filter is documented in class-publicize-base.php. The routes also check that Social is available.
+		return current_user_can( apply_filters( 'jetpack_publicize_capability', 'publish_posts' ) );
 	}
 
 	/**
@@ -245,11 +244,9 @@ class Social_Abilities extends Registrar {
 	 * @return bool
 	 */
 	public static function can_share_post( $input = null ): bool {
-		global $publicize;
-
 		$post_id = is_array( $input ) ? (int) ( $input['post_id'] ?? 0 ) : 0;
 
-		return $post_id > 0 && ! empty( $publicize ) && $publicize->current_user_can_access_publicize_data( $post_id ) && current_user_can( 'edit_post', $post_id );
+		return $post_id > 0 && self::can_view_connections() && current_user_can( 'publish_post', $post_id ) && current_user_can( 'edit_post', $post_id );
 	}
 
 	/**

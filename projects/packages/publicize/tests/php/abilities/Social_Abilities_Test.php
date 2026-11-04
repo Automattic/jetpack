@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
-use Automattic\Jetpack\Publicize\Publicize;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Error;
@@ -22,14 +21,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	/** @var WP_REST_Request[] */
 	private $requests = array();
 
-	/** @var mixed */
-	private $original_publicize = null;
-
 	public function tearDown(): void {
-		global $publicize, $wp_rest_server;
-
-		$publicize      = $this->original_publicize;
-		$wp_rest_server = null;
 		wp_set_current_user( 0 );
 		remove_all_filters( 'rest_pre_dispatch' );
 		remove_all_actions( 'rest_api_init' );
@@ -65,20 +57,6 @@ class Social_Abilities_Test extends BaseTestCase {
 		);
 		wp_set_current_user( $id );
 		return $id;
-	}
-
-	private function fake_publicize(): void {
-		$fake = new class() extends Publicize {
-			/**
-			 * Skip the parent constructor, which needs a connection.
-			 */
-			public function __construct() {} // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
-		};
-
-		global $publicize;
-
-		$this->original_publicize = $publicize;
-		$publicize                = $fake;
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
@@ -121,9 +99,8 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_permissions_follow_the_publicize_capability(): void {
-		$this->assertFalse( Social_Abilities::can_view_connections(), 'No Publicize global.' );
+		$this->assertFalse( Social_Abilities::can_view_connections(), 'Logged out.' );
 
-		$this->fake_publicize();
 		$this->login( 'subscriber' );
 		$this->assertFalse( Social_Abilities::can_view_connections() );
 
@@ -132,7 +109,6 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_permission_needs_the_post_id_and_edit_rights_on_it(): void {
-		$this->fake_publicize();
 		$author_id = $this->login( 'author' );
 		$own       = wp_insert_post(
 			array(
@@ -230,6 +206,15 @@ class Social_Abilities_Test extends BaseTestCase {
 				'async'               => true,
 				'skipped_connections' => array( 12, 13 ),
 			),
+			json_decode( $request->get_body(), true ),
+			'The Jetpack-site proxy forwards only the raw body.'
+		);
+		$this->assertSame(
+			array(
+				'message'             => 'Hello',
+				'async'               => true,
+				'skipped_connections' => array( 12, 13 ),
+			),
 			$request->get_json_params()
 		);
 	}
@@ -282,57 +267,6 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_social_not_published', $result->get_error_code() );
 		$this->assertSame( 'Only published posts can be shared.', $result->get_error_message() );
 		$this->assertSame( array( 'status' => 400 ), $result->get_error_data() );
-	}
-
-	public function test_share_post_body_reaches_a_route_that_forwards_only_the_raw_body(): void {
-		global $wp_rest_server;
-
-		$seen           = array(
-			'body'  => '',
-			'query' => array(),
-		);
-		$wp_rest_server = null;
-		add_action(
-			'rest_api_init',
-			function () use ( &$seen ) {
-				register_rest_route(
-					'wpcom/v2',
-					'/publicize/share-post/(?P<postId>\d+)',
-					array(
-						'methods'             => 'POST',
-						'permission_callback' => '__return_true',
-						'args'                => array(
-							'message' => array(
-								'type'     => 'string',
-								'required' => true,
-							),
-						),
-						'callback'            => function ( $request ) use ( &$seen ) {
-							$seen = array(
-								'body'  => $request->get_body(),
-								'query' => $request->get_query_params(),
-							);
-							return rest_ensure_response( array() );
-						},
-					)
-				);
-			}
-		);
-
-		Social_Abilities::share_post(
-			array(
-				'post_id' => 42,
-				'message' => 'Hello',
-			)
-		);
-
-		$this->assertSame(
-			array(
-				'message' => 'Hello',
-				'async'   => true,
-			),
-			json_decode( (string) $seen['body'], true )
-		);
 	}
 
 	public function test_delete_connection_calls_delete_route(): void {
