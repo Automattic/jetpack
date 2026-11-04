@@ -7,6 +7,7 @@ export interface Tool {
 
 export interface InitialState {
 	tools: Tool[];
+	plan: { name: string | null; url: string } | null;
 }
 
 declare global {
