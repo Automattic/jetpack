@@ -74,7 +74,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`barClassName`**: A callback returning an additional CSS class for each primary bar's datum, on top of `visx-bar`. Use it to style empty or zero-value marks independently of their fill color.
 - **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
-- **`layout`**: How series share a category (`'grouped'` or `'overlap'`, defaults to `'grouped'`). See [Overlap Layout](#overlap-layout)
+- **`layout`**: How series share a category (`'grouped'`, `'overlap'` or `'stacked'`, defaults to `'grouped'`). See [Overlap Layout](#overlap-layout) and [Stacked Layout](#stacked-layout)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 
@@ -238,6 +238,39 @@ Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats v1 dr
 - The tooltip lists every series at the hovered category, and a `null` reading as "No data". Pointer callbacks report the front-most bar of the slot under the pointer.
 - Arrow keys step one slot at a time. The selected slot is outlined as a whole, and the keyboard tooltip lists every bar at its category.
 - The theme's `barChart.barStyles.comparison` does not apply in this layout.
+
+## Stacked Layout
+
+Set `layout="stacked"` to draw every series of a category as one bar, each series a segment of it, as the Devices widget breaks a day's views down by device. The first series in `data` sits on the axis, and each later one stacks away from it.
+
+<Canvas of={ BarChartStories.Stacked } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		layout="stacked"
+		data={[
+			{ label: 'Desktop', data: desktopViews },
+			{ label: 'Mobile', data: mobileViews },
+			{ label: 'Tablet', data: tabletViews },
+		]}
+		withTooltips
+		showLegend
+	/>` }
+/>
+
+**Notes:**
+
+- Unless the caller sets a domain, the value axis includes zero and covers the tallest stack. Negative values stack downward from zero, apart from the positives, and extend the axis below it. The value axis is always linear and starts every stack at zero, so another scale `type` or `zero: false` is ignored, with a warning in development.
+- A series with no reading at a category is skipped there, and the segment above it starts where the one below ends.
+- Hiding a series from the legend closes the stacks up and rescales the axis.
+- The tooltip covers the whole stack: every series, last series first, with a `null` reading as "No data", then the total when there is more than one reading. It sits at the end of the positive values, or of the negative ones when the category has no positive value.
+- Arrow keys step one category at a time, and the selected stack is outlined as a whole. Enter hands `onDatumActivate` the top segment, while pointer callbacks report the segment under the pointer.
+- A bar radius (`--a8c-charts-border-radius-bar-chart`) rounds only the outer end of each stack, so the seams between segments stay flush. An outer segment shorter than the radius rounds only as far as its own length.
+- `type: 'comparison'` series are left out of this layout for now, from the bars and the legend alike, and `showZeroValues` has no effect; both warn once in development.
+- Works with `orientation="horizontal"`, where the first series is the left-most segment.
+
+<Canvas of={ BarChartStories.StackedHorizontal } />
 
 ## Visual Features
 
@@ -532,6 +565,22 @@ By default, charts **fill their parent container's dimensions**. The parent must
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
+### Compact When Short
+
+Set `compactWhenShort` to drop the axes, grid and legend while the chart is shorter than `theme.compactWhenShort.below` (140px by default). Only the bars remain, and they keep their tooltips and keyboard navigation. The chart compares the height it was given, legend included, so hiding the legend never flips it back. Series hidden through the legend stay hidden until the chart is tall enough to show the legend again. Horizontal bar charts ignore it.
+
+<Canvas of={ BarChartStories.CompactWhenShort } />
+
+In compact mode the margin defaults to `theme.compactWhenShort.margin`, and any side you pass through `margin` still wins. To change the threshold, set it on the theme:
+
+<Source
+	language="jsx"
+	code={ `// Applies to every chart under this provider
+	<GlobalChartsProvider theme={ { compactWhenShort: { below: 180 } } }>
+		<BarChart data={ data } compactWhenShort />
+	</GlobalChartsProvider>` }
+/>
+
 ## Animation
 
 The Bar Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
@@ -631,6 +680,10 @@ The value axis starts at zero, so a bar's length is proportional to its value an
 When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
 
 <Canvas of={ BarChartStories.SmallWholeNumberRange } />
+
+When values carry decimals the labels round away, pass `options.axis.y.tickDecimals` (`axis.x` on a horizontal chart) with the decimals the labels show, such as `0` for whole dollars, and ticks land only where a label can be told apart. When fewer than two steps fall inside the values' range, the axis widens to the nearest steps, so at least two ticks show. A pinned value domain, `tickValues` or a log scale turns the option off.
+
+<Canvas of={ BarChartStories.TickDecimals } />
 
 ## Accessibility
 

@@ -154,7 +154,10 @@ export {
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
+	UtmUrlBuilderButton,
 	UtmUrlBuilderDialog,
+	getUtmUrlBuilderValues,
+	type UtmUrlBuilderValues,
 	LocationsGeoChart,
 	type LocationsGeoChartProps,
 	type LocationsGeoFocusCountry,
@@ -287,7 +290,6 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	calculateDelta,
 	flagUrl,
 	formatLegendLabels,
 	formatChartName,
@@ -298,10 +300,9 @@ export {
 	saveCsv,
 	type CsvColumn,
 	type CsvDateRange,
-	getCombinedPeriodMax,
-	sharePercentage,
 	getVideoPosterUrl,
 	describeError,
+	getPostTypeCopy,
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
@@ -318,6 +319,7 @@ export {
 	formatViewCount,
 	formatListMetricCount,
 	getListMetricLabel,
+	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,

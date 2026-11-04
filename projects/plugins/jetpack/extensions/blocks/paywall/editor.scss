@@ -1,7 +1,7 @@
 /**
  * Editor styles for Paywall
  */
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/variables";
 
 .wp-block-jetpack-paywall-block {
 	display: flex;
@@ -11,9 +11,9 @@
 
 	// Label
 	span {
-		font-size: gb.$default-font-size;
+		font-size: variables.$default-font-size;
 		text-transform: uppercase;
-		font-family: gb.$default-font;
+		font-family: variables.$default-font;
 		padding: 0 8px;
 		white-space: nowrap;
 		text-align: center;

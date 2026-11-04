@@ -19,11 +19,11 @@ try {
 
 	$versions = array(
 		'jetpack'            => '6.8.0.1',
-		'jetpack-boost'      => '6.13.0-alpha',
-		'jetpack-videopress' => '6.13.0-alpha',
+		'jetpack-boost'      => '6.15.0',
+		'jetpack-videopress' => '6.15.0',
 	);
 	if ( 'jetpack-and-host' === $argv[1] ) {
-		$versions['jetpack']       = '6.10.0';
+		$versions['jetpack']       = '6.15.0';
 		$versions['jetpack-boost'] = '6.7.0';
 	}
 	$active = array();
@@ -41,7 +41,6 @@ try {
 	update_option( 'active_plugins', $active );
 	wp_cache_delete( 'plugins', 'plugins' );
 	add_filter( 'jetpack_offline_mode', '__return_true' );
-	add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 	wp_set_current_user(
 		wp_insert_user(
 			array(

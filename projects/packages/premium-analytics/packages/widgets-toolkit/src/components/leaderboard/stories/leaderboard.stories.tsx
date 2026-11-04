@@ -15,12 +15,14 @@ import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 registerReportMocks();
 
+// Six rows fill the card; a seventh would drop out of view.
 const ROWS: LeaderboardRowInput[] = [
 	{ id: '1', label: 'Getting Started Walkthrough', value: 3820, previousValue: 3000 },
 	{ id: '2', label: 'Product Launch Highlights', value: 2640, previousValue: 2700 },
 	{ id: '3', label: 'Customer Story: Acme', value: 1210, previousValue: 900 },
 	{ id: '4', label: 'Behind the Scenes', value: 640 },
-	{ id: '5', label: 'Q&A Session', value: 310, previousValue: 420 },
+	{ id: '6', label: 'Relaunch Teaser', value: 280, previousValue: -150 },
+	{ id: '7', label: 'Refunded Workshop', value: -450, previousValue: 200 },
 ];
 
 const READY = { isLoading: false, isError: false };
@@ -53,7 +55,7 @@ const meta: Meta< typeof Leaderboard > = {
 		docs: {
 			description: {
 				component:
-					'The ranked-rows widget body: hand it domain rows and the request status, and it renders the leaderboard chart with its loading, error and empty states, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. Renders inside `WidgetRoot`.',
+					'The ranked-rows widget body: hand it domain rows and the request status, and it renders the leaderboard chart with its loading, error and empty states and the dashboard window on detail links; the chart derives the bar shares and deltas from the values. Renders inside `WidgetRoot`.',
 			},
 		},
 	},
@@ -81,8 +83,19 @@ export const Bars: Story = {
 };
 
 export const BarsWithComparison: Story = {
-	args: { variant: 'bars', status: { ...READY, hasComparison: true } },
-	parameters: { reportParams: getDefaultQueryParams( true ) },
+	args: {
+		variant: 'bars',
+		status: { ...READY, hasComparison: true },
+	},
+	parameters: {
+		reportParams: getDefaultQueryParams( true ),
+		docs: {
+			description: {
+				story:
+					'Net revenue after refunds can fall below zero. Negative values draw below a shared zero point, and a negative previous value still reads as a rise when the current value is higher.',
+			},
+		},
+	},
 };
 
 export const WithMediaAndLinks: Story = {

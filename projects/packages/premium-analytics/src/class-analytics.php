@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.15.0';
+	const PACKAGE_VERSION = '0.16.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -84,7 +84,8 @@ class Analytics {
 	 *                         a textdomain can load, unlike init time.
 	 *                       - replaces_pre_connection_stats_page (bool): Stop stats-admin from
 	 *                         registering its own Stats page while the site is not connected, so
-	 *                         this dashboard is the only Stats entry. Defaults to false.
+	 *                         this dashboard is the only Stats entry. Defaults to whether classic
+	 *                         Stats is retired.
 	 *                       A later call still applies its options, so a host that calls this after
 	 *                       another plugin did keeps its configuration.
 	 * @return void
@@ -109,6 +110,17 @@ class Analytics {
 	}
 
 	/**
+	 * Whether Stats v2 booted in this request, whichever plugin or platform booted it.
+	 *
+	 * @since 0.16.0
+	 *
+	 * @return bool
+	 */
+	public static function is_initialized() {
+		return self::$initialized;
+	}
+
+	/**
 	 * Load the dashboard render surface, on the requests that can render it.
 	 *
 	 * With the rollout flag on, init() runs on every request — including every WPCOM public-api
@@ -118,6 +130,8 @@ class Analytics {
 	 */
 	private static function load_dashboard_surface() {
 		if ( ! self::renders_admin_chrome() ) {
+			// Calypso's sidebar replays wp-admin/menu.php over REST, where nothing else lists the dashboard.
+			add_action( 'admin_menu', array( static::class, 'register_replayed_admin_menu' ) );
 			return;
 		}
 
@@ -186,7 +200,7 @@ class Analytics {
 	}
 
 	/**
-	 * Let a host replace stats-admin's pre-connection Stats page with this dashboard.
+	 * Replace stats-admin's pre-connection Stats page with this dashboard when the host asks, or once classic Stats is retired.
 	 *
 	 * The callback reads the option when stats-admin initializes on `plugins_loaded`, so a host whose
 	 * init() call comes after another plugin's still takes effect.
@@ -197,7 +211,7 @@ class Analytics {
 		add_filter(
 			'jetpack_stats_admin_pre_connection_dashboard',
 			static function ( $register ) {
-				return self::$replaces_pre_connection_stats_page ? false : $register;
+				return self::$replaces_pre_connection_stats_page || Classic_Stats::is_retired() ? false : $register;
 			}
 		);
 	}
@@ -209,12 +223,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
-		// On every request: flags are read and toggled outside the admin too.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
-			require_once __DIR__ . '/dashboard-policy.php';
-		}
-		register_dashboard_feature_flags();
-
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
 
@@ -342,76 +350,44 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
-		/*
-		 * Every include below is guarded on a symbol the target file declares.
-		 *
-		 * Two copies of this package can be loaded in one request — WPCOM Simple ships
-		 * one under jetpack-plugin and another under jetpack-mu-wpcom-plugin. The
-		 * autoloader dedupes classes by version, but these files declare functions and
-		 * constants at file scope, so they are absent from the classmap entirely and
-		 * reach us through `require_once`, which dedupes by path and not by symbol.
-		 * Once a class from one copy and a class from the other both run their
-		 * includes, PHP fatals on the redeclared functions. The guards make the second
-		 * copy's include a no-op, which also keeps the files' file-scope side effects
-		 * (add_filter() calls, registry bootstrapping) from running twice.
-		 */
-
 		// Widget modules for the client's dynamic import() map.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
-			require_once __DIR__ . '/widget-modules.php';
-		}
+		require_once __DIR__ . '/widget-modules.php';
 
 		// Default layout primitives and the bundled defaults' seed.
-		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
-			require_once __DIR__ . '/dashboard-layout.php';
-		}
+		require_once __DIR__ . '/dashboard-layout.php';
 
 		// Dashboard section API, then the package's own sections registered through it.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
-			require_once __DIR__ . '/dashboard-sections.php';
-		}
-		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
-			require_once __DIR__ . '/default-dashboard-sections.php';
-		}
-		// An older copy of the package may have loaded dashboard-sections.php under the previous name.
-		if ( function_exists( __NAMESPACE__ . '\\configure_dashboard_sections_script_data' ) ) {
-			configure_dashboard_sections_script_data();
-		}
+		require_once __DIR__ . '/dashboard-sections.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+		configure_dashboard_sections_script_data();
+
+		// Single-report page API, then the package's own pages registered through it.
+		require_once __DIR__ . '/single-report-pages.php';
+		require_once __DIR__ . '/default-single-report-pages.php';
+		configure_single_report_pages_script_data();
 
 		// Default-on CSV export settings and server-side disable filter.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
-			require_once __DIR__ . '/csv-exports.php';
-		}
+		require_once __DIR__ . '/csv-exports.php';
 		configure_csv_exports();
 
 		// VideoPress availability for the client's video routes. The widget layer
 		// reads the same signal through widget-type-support.php.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {
-			require_once __DIR__ . '/videopress-availability.php';
-		}
+		require_once __DIR__ . '/videopress-availability.php';
 		configure_videopress_availability();
 
 		// The plan's locked Stats features, for the client's locked states.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
-			require_once __DIR__ . '/stats-plan-gates.php';
-		}
+		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
 
 		// The purchase a Stats checkout returned with, for the thank-you notice.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
-			require_once __DIR__ . '/purchase-success.php';
-		}
+		require_once __DIR__ . '/purchase-success.php';
 		configure_purchase_success();
 
 		// When the site first opened the dashboard, for notices that wait a while before showing.
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_first_visit' ) ) {
-			require_once __DIR__ . '/dashboard-first-visit.php';
-		}
+		require_once __DIR__ . '/dashboard-first-visit.php';
 		configure_dashboard_first_visit();
 
-		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
-			require_once __DIR__ . '/assets-url.php';
-		}
+		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
 
 		// Temporary: carries a default layout move into layouts readers customized before it.
@@ -471,9 +447,6 @@ class Analytics {
 
 	/**
 	 * Absolute path to the generated widget manifest.
-	 *
-	 * On the class, not beside its readers in widget-modules.php: two copies of this package can
-	 * load in one request, and only classes get the autoloader's version dedupe (see load_dashboard_components()).
 	 *
 	 * @return string
 	 */
@@ -592,9 +565,33 @@ class Analytics {
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 
-		$menu_title = self::menu_title();
+		self::add_dashboard_menu_entry( $render_callback );
+	}
 
-		$menu_title = esc_html( $menu_title );
+	/**
+	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
+	 *
+	 * Loads the section registry but not the build: the menu capability depends on the sections.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_replayed_admin_menu() {
+		require_once __DIR__ . '/dashboard-layout.php';
+		require_once __DIR__ . '/default-dashboard-sections.php';
+
+		self::add_dashboard_menu_entry( '__return_null' );
+	}
+
+	/**
+	 * Add the dashboard's top-level menu entry.
+	 *
+	 * @param callable $render_callback Renders the page.
+	 * @return void
+	 */
+	private static function add_dashboard_menu_entry( $render_callback ) {
+		$menu_title = esc_html( self::menu_title() );
 		$capability = Capabilities::dashboard_page_capability();
 
 		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
@@ -644,9 +641,14 @@ class Analytics {
 
 		// A positive check rather than a null coalesce: a closure may return an empty string, or
 		// something that isn't a string at all, and either would reach esc_html() as a broken label.
-		self::$resolved_menu_title = is_string( $title ) && '' !== $title
-			? $title
-			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		if ( is_string( $title ) && '' !== $title ) {
+			self::$resolved_menu_title = $title;
+		} elseif ( Classic_Stats::is_retired() ) {
+			// No classic Stats menu is left to tell apart from.
+			self::$resolved_menu_title = __( 'Stats', 'jetpack-premium-analytics-pkg' );
+		} else {
+			self::$resolved_menu_title = __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
+		}
 
 		return self::$resolved_menu_title;
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize LCP Images: Show an error instead of staying on "optimizing" when a page re-analysis can't be started.

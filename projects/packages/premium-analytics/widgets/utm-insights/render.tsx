@@ -6,9 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
 	describeError,
-	getCombinedPeriodMax,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
@@ -17,16 +15,17 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	resolveLeaderboardRowAction,
-	sharePercentage,
 	useWidgetDrillDown,
 	useReportActions,
 	useWidgetRootContext,
 	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
+	UtmUrlBuilderButton,
 	UtmUrlBuilderDialog,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -58,11 +57,25 @@ type UtmInsightsInnerProps = {
 	showReportLink: boolean;
 };
 
+type PostBuilderButtonProps = {
+	label: string;
+	values: Partial< UtmUrlBuilderValues >;
+	onOpen: ( values: Partial< UtmUrlBuilderValues > ) => void;
+};
+
+function PostBuilderButton( { label, values, onOpen }: PostBuilderButtonProps ) {
+	const open = useCallback( () => onOpen( values ), [ onOpen, values ] );
+
+	return <UtmUrlBuilderButton label={ label } onClick={ open } />;
+}
+
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
-	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
-	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
+	const [ builderValues, setBuilderValues ] = useState< Partial< UtmUrlBuilderValues > | null >(
+		null
+	);
+	const openBuilder = useCallback( () => setBuilderValues( {} ), [] );
+	const closeBuilder = useCallback( () => setBuilderValues( null ), [] );
 	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -103,13 +116,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = getCombinedPeriodMax(
-			activeData.map( item => item.value ),
-			withComparison ? activeData.map( item => item.previousValue ) : []
-		);
-
 		return activeData.map( ( item, index ) => {
-			const previousValue = item.previousValue;
 			const postRow = 'postId' in item ? item : null;
 			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
@@ -126,6 +133,15 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 										report: 'utm',
 										section: reportSection,
 									} }
+									trailingAction={
+										postRow.urlBuilder ? (
+											<PostBuilderButton
+												label={ postRow.label }
+												values={ postRow.urlBuilder }
+												onOpen={ setBuilderValues }
+											/>
+										) : undefined
+									}
 								/>
 							),
 						}
@@ -145,19 +161,10 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 							} ),
 						} ) ),
 				currentValue: item.value,
-				currentShare: sharePercentage( item.value, maxValue ),
-				previousValue,
-				previousShare:
-					withComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					withComparison && previousValue !== undefined
-						? calculateDelta( item.value, previousValue )
-						: undefined,
+				previousValue: item.previousValue,
 			};
 		} );
-	}, [ activeData, isDrillDown, reportSection, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -235,7 +242,9 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					/>
 				</WidgetState>
 			</div>
-			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
+			{ builderValues && (
+				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
+			) }
 		</>
 	);
 }

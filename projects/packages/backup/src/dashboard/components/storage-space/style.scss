@@ -63,35 +63,35 @@
 }
 
 .jpb-storage-meter {
-	// `ProgressBar` styles its track with an emotion class of equal
-	// specificity that lands after this file, so each rule nests one more class.
-	& &__bar {
-		block-size: 8px;
+	// `Progress.Root` is 160px wide by default.
+	&__bar {
 		inline-size: 100%;
-		border-radius: 4px;
-		background-color: var(--wpds-color-background-track-neutral);
-
-		> div {
-			border-radius: 4px;
-			min-inline-size: 24px;
-		}
 	}
 
-	& &__bar--brand > div {
-		background-color: var(--wpds-color-background-interactive-brand-strong);
+	&__track {
+		block-size: 8px;
+		border-radius: 4px;
+	}
+
+	&__indicator {
+		min-inline-size: 24px;
+	}
+
+	&__bar--brand &__indicator {
+		color: var(--wpds-color-background-interactive-brand-strong);
 	}
 
 	// WPDS has no saturated caution fill; this is the strongest caution tone
 	// that still reads against the track.
-	& &__bar--caution > div {
-		background-color: var(--wpds-color-stroke-surface-caution-strong);
+	&__bar--caution &__indicator {
+		color: var(--wpds-color-stroke-surface-caution-strong);
 	}
 
-	& &__bar--error > div {
-		background-color: var(--wpds-color-background-interactive-error-strong);
+	&__bar--error &__indicator {
+		color: var(--wpds-color-background-interactive-error-strong);
 	}
 
-	& &__placeholder {
+	&__placeholder {
 		block-size: 8px;
 		inline-size: 100%;
 		border-radius: 4px;
