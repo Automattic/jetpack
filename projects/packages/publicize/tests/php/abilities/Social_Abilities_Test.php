@@ -227,6 +227,25 @@ class Social_Abilities_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_share_post_fails_when_the_route_reports_only_errors(): void {
+		$this->fake_rest(
+			array(
+				'results' => array(),
+				'errors'  => array( array( 'connection_id' => 11 ) ),
+			)
+		);
+
+		$result = Social_Abilities::share_post(
+			array(
+				'post_id' => 42,
+				'message' => 'Hi',
+			)
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_social_share_failed', $result->get_error_code() );
+	}
+
 	public function test_share_post_rejects_blank_message_without_calling_the_route(): void {
 		$this->fake_rest( array() );
 

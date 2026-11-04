@@ -324,6 +324,11 @@ class Social_Abilities extends Registrar {
 			return $result;
 		}
 
+		$data = (array) $result;
+		if ( ! empty( $data['errors'] ) && empty( $data['results'] ) ) {
+			return new WP_Error( 'jetpack_social_share_failed', __( 'No connection accepted the share. Call jetpack-social/get-connections to check their status.', 'jetpack-publicize-pkg' ) );
+		}
+
 		return array(
 			'post_id' => $post_id,
 			'queued'  => true,
