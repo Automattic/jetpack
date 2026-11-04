@@ -24,18 +24,18 @@ export default function AccountProtectionToggle( {
 	label: string;
 	help: string;
 } ) {
-	const available = Boolean( login?.accountProtection.available );
+	const unavailable = login !== undefined && ! login.accountProtection.available;
 
 	return (
 		<SettingToggle
 			data={ data }
 			name="account-protection"
-			disabled={ ! available }
+			disabled={ ! login?.accountProtection.available }
 			label={ label }
 			help={
-				available
-					? help
-					: __( 'Account protection isn’t available on this site.', 'jetpack-protect-pkg' )
+				unavailable
+					? __( 'Account protection isn’t available on this site.', 'jetpack-protect-pkg' )
+					: help
 			}
 		/>
 	);
