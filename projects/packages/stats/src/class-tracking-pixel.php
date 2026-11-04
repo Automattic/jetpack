@@ -204,8 +204,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return string
 	 */
 	private static function build_consent_gate( $pushes ) {
-		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load.
-		// Script `load` events don't bubble, so the listener has to capture.
+		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
+		// Only after DOMContentLoaded and once a consent type exists, or a banner that sets the type later would read "no consent management" and allow.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
@@ -237,7 +237,9 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 document.addEventListener( "load", function ( event ) {
-	if ( ! _jpStatsFire.done && event && event.target && event.target.tagName === "SCRIPT" ) { _jpStatsCheck(); }
+	if ( document.readyState === "loading" || ! event || ! event.target || event.target.tagName !== "SCRIPT" ) { return; }
+	if ( typeof window.wp_consent_type === "undefined" && ! window.wp_fallback_consent_type ) { return; }
+	_jpStatsCheck();
 }, true );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {

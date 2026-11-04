@@ -6,13 +6,15 @@ const [ gatePath, scenario ] = process.argv.slice( 2 );
 const gate = fs.readFileSync( gatePath, 'utf8' );
 
 const listeners = { document: {}, window: {} };
-const on = target => ( type, listener ) => {
-	( listeners[ target ][ type ] = listeners[ target ][ type ] || [] ).push( listener );
+const on = target => ( type, listener, options ) => {
+	const capture = options === true || !! ( options && options.capture );
+	( listeners[ target ][ type ] = listeners[ target ][ type ] || [] ).push( { listener, capture } );
 };
+// An eventTarget means the event was fired at a script inside the document, which only capturing listeners see.
 const dispatch = ( target, type, detail, eventTarget ) =>
-	( listeners[ target ][ type ] || [] ).forEach( listener =>
-		listener( { detail, target: eventTarget } )
-	);
+	( listeners[ target ][ type ] || [] )
+		.filter( ( { capture } ) => capture || ! eventTarget )
+		.forEach( ( { listener } ) => listener( { detail, target: eventTarget } ) );
 
 const result = { views: 0, warnings: 0, error: null };
 const page = {
@@ -79,12 +81,32 @@ const scenarios = {
 		dispatch( 'window', 'load' );
 	},
 	'consent API that a delay-JS optimizer loads after the load event': () => {
+		page.wp_fallback_consent_type = 'optin';
 		loadGate();
 		dispatch( 'document', 'DOMContentLoaded' );
+		page.document.readyState = 'complete';
 		dispatch( 'window', 'load' );
 		page.wp_has_consent = () => true;
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'consent API that a delay-JS optimizer loads before the banner sets the consent type': () => {
+		loadGate();
+		dispatch( 'document', 'DOMContentLoaded' );
+		page.document.readyState = 'complete';
+		dispatch( 'window', 'load' );
+		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		page.wp_consent_type = 'optin';
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+	},
+	'banner that switches the consent type to opt-in after the consent API script loads': () => {
+		page.wp_fallback_consent_type = 'optout';
+		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
+		loadGate();
+		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
+		page.wp_consent_type = 'optin';
+		dispatch( 'document', 'DOMContentLoaded' );
+		dispatch( 'window', 'load' );
 	},
 	'consent API that never loads': () => {
 		loadGate();

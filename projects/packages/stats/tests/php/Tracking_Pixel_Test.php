@@ -607,6 +607,8 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 			'denied in a banner that sets no consent type' => array( 'denied in a banner that sets no consent type', 0, 0, null ),
 			'consent API that loads only by the load event' => array( 'consent API that loads only by the load event', 1, 0, null ),
 			'consent API that a delay-JS optimizer loads after the load event' => array( 'consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
+			'consent API that a delay-JS optimizer loads before the banner sets the consent type' => array( 'consent API that a delay-JS optimizer loads before the banner sets the consent type', 0, 1, null ),
+			'banner that switches the consent type to opt-in after the consent API script loads' => array( 'banner that switches the consent type to opt-in after the consent API script loads', 0, 0, null ),
 			'consent API that never loads'                 => array( 'consent API that never loads', 0, 1, null ),
 			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
 			'stats sender that throws'                     => array( 'stats sender that throws', 0, 0, 'stats sender' ),
