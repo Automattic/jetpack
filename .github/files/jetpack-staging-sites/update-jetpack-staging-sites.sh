@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This script is ran as part of the `UpdateJetpackStaging` TeamCity build.
-# It updates pre-defined Atomic test sites with the latest plugin versions.
+# It updates pre-defined Atomic test sites with the latest plugin versions, then tests their Jetpack connection.
 
 ####################################################
 ## Script variables.
@@ -123,6 +123,12 @@ for key in $(jq -r 'keys[]' <<<"$SITES"); do
       echo "Successfully synced $PLUGIN files to $key | blog_id: $blog_id"
     fi
   done
+
+  echo "Testing Jetpack connection on $key"
+  if ! ssh "$ssh_string" 'wp jetpack test-connection'; then
+    echo "Jetpack connection test failed on $key"
+    EXIT_CODE=1
+  fi
 done
 
 ####################################################
