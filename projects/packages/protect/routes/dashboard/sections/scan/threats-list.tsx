@@ -2,7 +2,7 @@ import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jet
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
@@ -71,7 +71,7 @@ function ThreatCell( { item, onOpen, inline = false }: RowProps ) {
 						{ subject }
 					</span>
 				</button>
-				<ThreatSeverityBadge severity={ item.severity } />
+				<KnownSeverityBadge severity={ item.severity } />
 			</span>
 		);
 	}
@@ -135,6 +135,17 @@ function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
 	) : null;
 }
 
+/**
+ * The severity badge, or nothing when the threat has no severity, as with the free vulnerability check.
+ *
+ * @param props          - Component props.
+ * @param props.severity - The severity, 0 to 10, or null when unknown.
+ * @return The badge, or null.
+ */
+function KnownSeverityBadge( { severity }: { severity?: number | null } ) {
+	return typeof severity === 'number' ? <ThreatSeverityBadge severity={ severity } /> : null;
+}
+
 type ThreatFieldOptions = {
 	threatLabel: string;
 	dateLabel: string;
@@ -167,7 +178,7 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) => <ThreatSeverityBadge severity={ item.severity } />,
+			render: ( { item } ) => <KnownSeverityBadge severity={ item.severity } />,
 		},
 		{
 			id: 'threat',
@@ -220,6 +231,10 @@ export const LEVELS = [
 	{ value: 'critical', label: __( 'Critical', 'jetpack-protect-pkg' ) },
 	{ value: 'high', label: __( 'High', 'jetpack-protect-pkg' ) },
 	{ value: 'low', label: __( 'Low', 'jetpack-protect-pkg' ) },
+	{
+		value: 'unknown',
+		label: _x( 'Unknown', 'Severity label for issues with no rating.', 'jetpack-protect-pkg' ),
+	},
 ];
 
 const TYPES = [
@@ -233,10 +248,13 @@ const TYPES = [
  * A threat's severity level, matching the badge: Critical from 5, High from 3, else Low.
  *
  * @param item - The threat.
- * @return The level.
+ * @return The level, or `unknown` when the threat has no severity, as with the free vulnerability check.
  */
 export function getLevel( item: ScanThreat ): string {
-	const severity = item.severity ?? 0;
+	const severity = item.severity;
+	if ( typeof severity !== 'number' ) {
+		return 'unknown';
+	}
 	if ( severity >= 5 ) {
 		return 'critical';
 	}

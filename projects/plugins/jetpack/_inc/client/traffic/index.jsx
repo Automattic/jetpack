@@ -1,9 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
+import { FeaturesPointer } from 'components/pointer-card';
 import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import {
 	isSiteConnected,
@@ -111,8 +112,34 @@ export class Traffic extends Component {
 				{ foundAnalytics && (
 					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
 				) }
-				{ foundBlaze && <Blaze { ...commonProps } /> }
-				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
+				{ foundBlaze &&
+					( isSettingsConsolidationEnabled() ? (
+						// The Blaze card renders nothing on WoA, so its pointer stays out there too.
+						this.props.searchTerm &&
+						! isWoASite() && (
+							<FeaturesPointer
+								header={ __( 'Blaze', 'jetpack' ) }
+								name="Blaze"
+								search="blaze"
+								linksToSettings={ false }
+							/>
+						)
+					) : (
+						<Blaze { ...commonProps } />
+					) ) }
+				{ foundShortlinks &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && (
+							<FeaturesPointer
+								header={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								name={ _x( 'WP.me Shortlinks', 'Settings header', 'jetpack' ) }
+								search="shortlinks"
+								linksToSettings={ false }
+							/>
+						)
+					) : (
+						<Shortlinks { ...commonProps } />
+					) ) }
 				{ ! seoMovedToDashboard && foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ ! seoMovedToDashboard && foundVerification && (
 					<VerificationServices { ...commonProps } />

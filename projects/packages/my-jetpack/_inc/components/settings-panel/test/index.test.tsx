@@ -17,21 +17,24 @@ jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
 		module: $module,
 		labelledby,
+		disabled,
 	}: {
 		module: MyJetpackModule;
 		labelledby?: string;
+		disabled?: boolean;
 	} ) => (
 		<input
 			type="checkbox"
 			aria-label={ labelledby ? undefined : `Toggle ${ $module.name }` }
 			aria-labelledby={ labelledby }
+			disabled={ disabled }
 		/>
 	),
 } ) );
 
-const carousel = {
-	module: 'carousel',
-	name: 'Carousel',
+const tiledGallery = {
+	module: 'tiled-gallery',
+	name: 'Tiled Galleries',
 	description: 'Show images in a slideshow.',
 	configure_url: 'https://example.com/settings',
 } as MyJetpackModule;
@@ -43,24 +46,24 @@ const likes = {
 
 beforeEach( () => {
 	jest.clearAllMocks();
-	mockSearch = { configure: 'carousel', view: 'list' };
-	mockModules = { modules: { carousel, likes }, hasLoaded: true };
+	mockSearch = { configure: 'tiled-gallery', view: 'list' };
+	mockModules = { modules: { 'tiled-gallery': tiledGallery, likes }, hasLoaded: true };
 } );
 
 afterEach( () => {
-	delete moduleSettings.carousel;
+	delete moduleSettings[ 'tiled-gallery' ];
 } );
 
 describe( 'SettingsPanel', () => {
 	it( 'shows the fallback for a module with no settings of its own', () => {
 		render( <SettingsPanel /> );
 
-		expect( screen.getByRole( 'heading', { name: 'Carousel' } ) ).toHaveFocus();
-		expect( screen.getByText( carousel.description ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Tiled Galleries' } ) ).toHaveFocus();
+		expect( screen.getByText( tiledGallery.description ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeEnabled();
 		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
 			'href',
-			carousel.configure_url
+			tiledGallery.configure_url
 		);
 	} );
 
@@ -72,11 +75,52 @@ describe( 'SettingsPanel', () => {
 	} );
 
 	it( 'shows a registered component in place of the fallback', () => {
-		moduleSettings.carousel = ( { module: $module } ) => <p>Options of { $module.name }</p>;
+		moduleSettings[ 'tiled-gallery' ] = ( { module: $module } ) => (
+			<p>Options of { $module.name }</p>
+		);
 		render( <SettingsPanel /> );
 
-		expect( screen.getByText( 'Options of Carousel' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Options of Tiled Galleries' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'the fallback', 'Activate this feature', false ],
+		[ 'a registered component', 'Show captions', true ],
+	] )( 'locks %s for a module the site cannot use, and says why', ( _name, label, registered ) => {
+		if ( registered ) {
+			moduleSettings[ 'tiled-gallery' ] = ( { disabled } ) => (
+				<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
+			);
+		}
+		mockModules = {
+			modules: {
+				'tiled-gallery': {
+					...tiledGallery,
+					available: false,
+					unavailable_reason: 'Unavailable in Offline Mode',
+				},
+			},
+			hasLoaded: true,
+		};
+		render( <SettingsPanel /> );
+
+		expect( screen.getByText( 'Unavailable in Offline Mode' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeDisabled();
+	} );
+
+	it( 'says the host forced a module on, and leaves its options unlocked', () => {
+		mockModules = {
+			modules: { 'tiled-gallery': { ...tiledGallery, override: 'active' } },
+			hasLoaded: true,
+		};
+		moduleSettings[ 'tiled-gallery' ] = ( { disabled } ) => (
+			<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
+		);
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Show captions' } ) ).toBeEnabled();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
 	it( 'returns focus to what opened it on close', () => {
@@ -109,7 +153,7 @@ describe( 'SettingsPanel', () => {
 		rerender( <SettingsPanel /> );
 
 		expect( screen.getByRole( 'heading', { name: 'Likes' } ) ).toHaveFocus();
-		expect( screen.queryByText( carousel.description ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( tiledGallery.description ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows a plain failure notice for a slug the site does not have, once the modules have loaded', () => {
@@ -145,7 +189,7 @@ describe( 'SettingsPanel', () => {
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];
 		expect( options ).toMatchObject( { replace: true, viewTransition: false } );
-		expect( options.search( { configure: 'carousel', view: 'list' } ) ).toEqual( {
+		expect( options.search( { configure: 'tiled-gallery', view: 'list' } ) ).toEqual( {
 			configure: undefined,
 			view: 'list',
 		} );
@@ -160,7 +204,7 @@ describe( 'SettingsPanel', () => {
 		if ( handled ) {
 			event.preventDefault();
 		}
-		screen.getByRole( 'heading', { name: 'Carousel' } ).dispatchEvent( event );
+		screen.getByRole( 'heading', { name: 'Tiled Galleries' } ).dispatchEvent( event );
 
 		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );

@@ -8,7 +8,6 @@ import {
 	useBarColors,
 	useGlobalChartsContext,
 	type BarChartLayout,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
@@ -27,6 +26,8 @@ import {
 	getFixedYAxis,
 	getYTickDecimals,
 	formatBucketTooltipDate,
+	toTickResolution,
+	type BucketResolution,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
@@ -69,7 +70,7 @@ export type ComparativeBarChartProps = {
 	 * from a known granularity instead of measuring the gaps between points, which a
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
 	 * Drop the axes, grid and legend while the chart is shorter than
@@ -166,7 +167,8 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const { displayResolution } = getBucketInfo( series, tickResolution );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
 	const { isSeriesVisible } = useGlobalChartsContext();
@@ -338,8 +340,9 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
-		[ displayResolution ]
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	/**
@@ -432,7 +435,7 @@ export function ComparativeBarChart( {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
-					tickResolution,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -446,7 +449,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
+	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
 	return (
 		<Stack direction="column" className={ clsx( styles.chart, className ) }>

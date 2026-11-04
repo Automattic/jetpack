@@ -8,12 +8,7 @@ const PlanLockedNote: FC< { id?: string } > = ( { id } ) => {
 	return (
 		<Text variant="body-sm" render={ <p id={ id } /> }>
 			{ __( 'Editing is disabled on your current plan.', 'jetpack-seo' ) }{ ' ' }
-			<Link
-				href={ getUpsellUrl() }
-				target="_blank"
-				rel="noopener noreferrer"
-				onClick={ markUpgradePending }
-			>
+			<Link href={ getUpsellUrl() } onClick={ markUpgradePending }>
 				{ __( 'Upgrade', 'jetpack-seo' ) }
 			</Link>
 		</Text>

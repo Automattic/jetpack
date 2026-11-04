@@ -152,9 +152,9 @@ class Initializer {
 	public const SETTINGS_CONSOLIDATION_FLAG = 'my-jetpack-settings-consolidation';
 
 	/**
-	 * Modules whose Jetpack settings link opens in the Features panel. Mirrors `moduleSettings` in `settings-panel/registry.ts`.
+	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
 	 */
-	public const SETTINGS_PANEL_MODULES = array( 'related-posts' );
+	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'related-posts' );
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)

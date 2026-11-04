@@ -17,7 +17,7 @@ it( 'connects a card upgrade link to the existing return-from-checkout reload', 
 		'href',
 		'https://wordpress.com/checkout/example.com/value_bundle'
 	);
-	expect( upgrade ).toHaveAttribute( 'target', '_blank' );
+	expect( upgrade ).not.toHaveAttribute( 'target', '_blank' );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Only the link's click handler is needed.
 	fireEvent.click( upgrade );
 	expect( consumePendingUpgrade() ).toBe( true );

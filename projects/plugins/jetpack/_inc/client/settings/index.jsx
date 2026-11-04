@@ -126,7 +126,7 @@ export default connect( state => {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
 		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state, [
 			...( hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : [] ),
-			...getMovedOutModules(),
+			...getMovedOutModules( state ),
 		] ),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );
