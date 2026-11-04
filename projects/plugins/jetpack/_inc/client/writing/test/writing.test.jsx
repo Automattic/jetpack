@@ -1,5 +1,5 @@
-import { render } from 'test/test-utils';
-import Writing from '../index';
+import { render, screen } from 'test/test-utils';
+import Writing, { Writing as UnconnectedWriting } from '../index';
 
 jest.mock( 'components/data/query-site', () => () => null );
 jest.mock( 'state/feature-check', () => ( {
@@ -10,7 +10,8 @@ jest.mock( '../custom-content-types', () => () => null );
 jest.mock( '../post-by-email', () => () => null );
 jest.mock( '../theme-enhancements', () => () => null );
 jest.mock( '../widgets', () => () => null );
-jest.mock( '../writing-media', () => () => null );
+jest.mock( '../writing-media', () => () => 'Carousel card' );
+jest.mock( '../carousel-moved', () => ( { CarouselMoved: () => 'Carousel pointer' } ) );
 
 const LATEX = { latex: { module: 'latex', name: 'Beautiful Math' } };
 const WIDGETS = { widgets: { module: 'widgets', name: 'Extra Sidebar Widgets', activated: false } };
@@ -31,6 +32,11 @@ const buildState = ( searchTerm, modules, isBlockTheme ) => ( {
 		settings: { items: {} },
 	},
 } );
+
+// Module scope keeps the prop references stable (react/jsx-no-bind).
+const findsOnlyCarousel = module => module === 'carousel';
+// Never settles, so the custom content types lookup changes no state after the test.
+const noFeatureDetails = () => new Promise( () => undefined );
 
 describe( 'Writing settings', () => {
 	afterEach( () => {
@@ -62,4 +68,27 @@ describe( 'Writing settings', () => {
 			expect( container.childElementCount > 0 ).toBe( shown );
 		}
 	);
+
+	it.each( [
+		[ 'off, in the tab', false, '', [ 'Carousel card' ] ],
+		[ 'off, in a search', false, 'carousel', [ 'Carousel card' ] ],
+		[ 'on, in the tab', true, '', [] ],
+		[ 'on, in a search', true, 'carousel', [ 'Carousel pointer' ] ],
+	] )( 'with the settings flag %s', ( _name, flag, searchTerm, expected ) => {
+		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+		render(
+			<UnconnectedWriting
+				active
+				userCanManageModules
+				searchTerm={ searchTerm }
+				isModuleFound={ findsOnlyCarousel }
+				getActiveFeatureDetails={ noFeatureDetails }
+			/>
+		);
+
+		const shown = [ 'Carousel card', 'Carousel pointer' ].filter( text =>
+			screen.queryByText( text )
+		);
+		expect( shown ).toEqual( expected );
+	} );
 } );
