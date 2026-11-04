@@ -397,7 +397,7 @@ class Error_Handler {
 						&& 'invalid_connection_owner' === $error_code
 						&& ! ( $error['error_data']['has_user_token'] ?? true ) ) {
 						$message = __( 'You need to reconnect your WordPress.com account to restore the connection.', 'jetpack-connection' );
-					} elseif ( 'owner' === $audience && ! $viewer_is_owner ) {
+					} elseif ( 'owner' === $audience && ! $viewer_is_owner && empty( $display_config['survives_owner_promotion'] ) ) {
 						// A secondary admin looking at the connection owner's token error. What
 						// they can usefully be told depends on whether they have a connection of
 						// their own and whether ownership is transferable. Only name the owner, or
@@ -408,8 +408,7 @@ class Error_Handler {
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
 						}
 
-						// Inbound failures (survives_owner_promotion) are not fixed by a new account, so no takeover.
-						if ( $viewer_lacks_connection && empty( $display_config['survives_owner_promotion'] ) ) {
+						if ( $viewer_lacks_connection ) {
 							// Restore cannot reconnect a token this admin never had; connecting their own
 							// account can, and Manager::authorize() makes them the owner when transferable.
 							if ( $is_transferable ) {
@@ -429,7 +428,6 @@ class Error_Handler {
 									)
 									: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. You can still connect your own WordPress.com account.', 'jetpack-connection' );
 							}
-							// Promotion happens only in the browser (`client`) flow; see Manager::authorize().
 							$action = 'connect_user';
 						} elseif ( ! $is_transferable ) {
 							// Ownership is locked (a consumer declared it non-transferable).
@@ -472,7 +470,7 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					$notice_link = $display_config['notice_link'] ?? null;
+					$notice_link = $display_config['notice_link'] ?? array();
 					$has_link    = ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] );
 
 					if ( null !== $action || ! empty( $display_config['support_link'] ) || $has_link ) {
@@ -599,6 +597,8 @@ class Error_Handler {
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
 	 *   the owner's reconnect to become actionable. Setting it does not make the code
 	 *   trigger that reduction — it only exempts it from one.
+	 *   Such a code is also never offered `connect_user` and never counts as a broken
+	 *   owner for the takeover in Manager::authorize(): a new account cannot fix it.
 	 * - `support_link` (bool): when true, `error_data['support_link']` is set on the
 	 *   displayable error, and My Jetpack's notice appends a "Contact Jetpack
 	 *   Support" link next to the reconnect CTA. Set it only where reconnecting is
@@ -890,7 +890,6 @@ class Error_Handler {
 		foreach ( $this->get_verified_errors() as $error_code => $users ) {
 			$display_config = $this->get_error_display_config( $error_code );
 
-			// Inbound failures (survives_owner_promotion) are not fixed by a new account, so they never justify a takeover.
 			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
 				continue;
 			}

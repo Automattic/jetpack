@@ -676,14 +676,25 @@ class ManagerTest extends TestCase {
 	 * @param string        $role            The authorizing user's role.
 	 * @param bool          $locked          Whether connection ownership is locked.
 	 * @param bool          $owner_error     Whether an owner-scoped error is on record.
+	 * @param bool          $expect_switch   Whether update_connection_owner() should be asked to switch the owner.
 	 * @param true|WP_Error $owner_update    What update_connection_owner() returns.
 	 * @param string        $expected_result The expected `authorize` result.
-	 * @param string        $auth_type       The request's `auth_type`.
+	 * @param string        $auth_type       The request's `auth_type`; `calypso` is the default flow.
+	 * @param bool          $user_is_owner   Whether the authorizing user is the broken owner themselves.
 	 * @dataProvider provide_authorize_broken_owner_slot
 	 */
 	#[DataProvider( 'provide_authorize_broken_owner_slot' )]
-	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $owner_update, $expected_result, $auth_type = 'client' ) {
-		$owner_id = 4242;
+	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $expect_switch, $owner_update, $expected_result, $auth_type = 'calypso', $user_is_owner = false ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_broken_owner_slot',
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$owner_id = $user_is_owner ? $user_id : 4242;
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 
 		if ( $owner_error ) {
@@ -705,15 +716,6 @@ class ManagerTest extends TestCase {
 			);
 		}
 
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_authorize_broken_owner_slot',
-				'user_pass'  => '123',
-				'role'       => $role,
-			)
-		);
-		wp_set_current_user( $user_id );
-
 		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
 			->onlyMethods( array( 'get', 'update_user_token' ) )
 			->getMock();
@@ -732,7 +734,7 @@ class ManagerTest extends TestCase {
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
 		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
-		$manager->expects( 'authorized' === $expected_result || $owner_update instanceof WP_Error ? $this->once() : $this->never() )
+		$manager->expects( $expect_switch ? $this->once() : $this->never() )
 			->method( 'update_connection_owner' )
 			->with( $user_id )
 			->willReturn( $owner_update );
@@ -762,12 +764,13 @@ class ManagerTest extends TestCase {
 	 */
 	public static function provide_authorize_broken_owner_slot() {
 		return array(
-			'admin takes a transferable broken slot' => array( 'administrator', false, true, true, 'authorized' ),
-			'locked ownership links'                 => array( 'administrator', true, true, true, 'linked' ),
-			'healthy owner links'                    => array( 'administrator', false, false, true, 'linked' ),
-			'user without jetpack_connect links'     => array( 'editor', false, true, true, 'linked' ),
-			'failed WordPress.com switch links'      => array( 'administrator', false, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
-			'remote authorize flow links'            => array( 'administrator', false, true, true, 'linked', 'calypso' ),
+			'admin takes a transferable broken slot' => array( 'administrator', false, true, true, true, 'authorized' ),
+			'locked ownership links'                 => array( 'administrator', true, true, false, true, 'linked' ),
+			'healthy owner links'                    => array( 'administrator', false, false, false, true, 'linked' ),
+			'user without jetpack_connect links'     => array( 'editor', false, true, false, true, 'linked' ),
+			'failed WordPress.com switch links'      => array( 'administrator', false, true, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
+			'browser client flow takes the slot'     => array( 'administrator', false, true, true, true, 'authorized', 'client' ),
+			'broken owner reconnecting is no switch' => array( 'administrator', false, true, false, true, 'linked', 'calypso', true ),
 		);
 	}
 
