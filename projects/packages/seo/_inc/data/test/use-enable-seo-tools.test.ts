@@ -24,9 +24,9 @@ jest.unstable_mockModule( '@wordpress/notices', () => ( {
 	store: 'core/notices',
 } ) );
 
-const { default: useSeoToolsToggle } = await import( '../use-seo-tools-toggle' );
+const { default: useEnableSeoTools } = await import( '../use-enable-seo-tools' );
 
-describe( 'useSeoToolsToggle', () => {
+describe( 'useEnableSeoTools', () => {
 	// The success path calls `window.location.reload()`. jsdom can't navigate and
 	// can't be made to spy on `location.reload` (`window.location` is
 	// non-configurable and can't be redefined), so the call surfaces as a
@@ -46,15 +46,15 @@ describe( 'useSeoToolsToggle', () => {
 		consoleErrorSpy.mockRestore();
 	} );
 
-	it( 'POSTs to the module endpoint with the requested active state on success', async () => {
+	it( 'POSTs active: true to the module endpoint on success', async () => {
 		mockApiFetch.mockResolvedValue( undefined );
 
-		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
+		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
 
-		expect( result.current.isToggling ).toBe( false );
+		expect( result.current.isEnabling ).toBe( false );
 
 		await act( async () => {
-			await result.current.setActive( true );
+			await result.current.enable();
 		} );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
@@ -66,24 +66,7 @@ describe( 'useSeoToolsToggle', () => {
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'passes active: false when disabling', async () => {
-		mockApiFetch.mockResolvedValue( undefined );
-
-		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
-
-		await act( async () => {
-			await result.current.setActive( false );
-		} );
-
-		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: '/jetpack/v4/module/seo-tools/active',
-			method: 'POST',
-			data: { active: false },
-		} );
-		expect( createErrorNotice ).not.toHaveBeenCalled();
-	} );
-
-	it( 'sets isToggling while the request is in flight', async () => {
+	it( 'sets isEnabling while the request is in flight', async () => {
 		let resolveFetch: () => void;
 		mockApiFetch.mockReturnValue(
 			new Promise< void >( resolve => {
@@ -91,13 +74,13 @@ describe( 'useSeoToolsToggle', () => {
 			} )
 		);
 
-		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
+		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
 
 		act( () => {
-			result.current.setActive( true );
+			result.current.enable();
 		} );
 
-		await waitFor( () => expect( result.current.isToggling ).toBe( true ) );
+		await waitFor( () => expect( result.current.isEnabling ).toBe( true ) );
 
 		await act( async () => {
 			resolveFetch();
@@ -107,13 +90,13 @@ describe( 'useSeoToolsToggle', () => {
 		expect( createErrorNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'surfaces an error snackbar notice and clears isToggling when the request rejects', async () => {
+	it( 'surfaces an error snackbar notice and clears isEnabling when the request rejects', async () => {
 		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
 
-		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
+		const { result } = renderHook( () => useEnableSeoTools( 'overview' ) );
 
 		await act( async () => {
-			await result.current.setActive( true );
+			await result.current.enable();
 		} );
 
 		// On failure we don't reload (no jsdom navigation error) — just notify.
@@ -121,21 +104,6 @@ describe( 'useSeoToolsToggle', () => {
 			'Could not enable SEO tools. Please try again.',
 			{ id: 'seo-tools-toggle', type: 'snackbar' }
 		);
-		await waitFor( () => expect( result.current.isToggling ).toBe( false ) );
-	} );
-
-	it( 'uses the disable error message when disabling fails', async () => {
-		mockApiFetch.mockRejectedValue( new Error( 'nope' ) );
-
-		const { result } = renderHook( () => useSeoToolsToggle( 'overview' ) );
-
-		await act( async () => {
-			await result.current.setActive( false );
-		} );
-
-		expect( createErrorNotice ).toHaveBeenCalledWith(
-			'Could not disable SEO tools. Please try again.',
-			{ id: 'seo-tools-toggle', type: 'snackbar' }
-		);
+		await waitFor( () => expect( result.current.isEnabling ).toBe( false ) );
 	} );
 } );
