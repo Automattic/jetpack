@@ -22,12 +22,12 @@ jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( { plugins: {}, themes: {} } ),
 } ) );
 
-const scanData = ( lastScanFailed: boolean ) =>
+const scanData = ( lastScanFailed?: boolean, numThreats = 0 ) =>
 	( {
 		scanData: {
 			last_checked: new Date().toISOString(),
 			last_scan_failed: lastScanFailed,
-			num_threats: 0,
+			num_threats: numThreats,
 			num_plugins_threats: 0,
 			num_themes_threats: 0,
 			plugins: [],
@@ -40,13 +40,18 @@ const scanData = ( lastScanFailed: boolean ) =>
 
 describe( 'Protect card scan status', () => {
 	it.each( [
-		[ false, 'Secure', /^Last scan: / ],
-		[ true, 'Incomplete', /^Last scan didn’t complete$/ ],
-	] )( 'with last_scan_failed %s shows %s', ( lastScanFailed, status, lastScanText ) => {
-		const data = scanData( lastScanFailed );
-		render( <ScanAndThreatStatus data={ data } /> );
+		[ false, 0, 'Secure', /^Last scan: / ],
+		[ undefined, 0, 'Secure', /^Last scan: / ],
+		[ true, 0, 'Incomplete', /^Last scan didn’t complete$/ ],
+		[ true, 2, 'Threats', /^Last scan didn’t complete$/ ],
+	] )(
+		'with last_scan_failed %s and %d threats shows %s',
+		( lastScanFailed, numThreats, status, lastScanText ) => {
+			const data = scanData( lastScanFailed, numThreats );
+			render( <ScanAndThreatStatus data={ data } /> );
 
-		expect( screen.getByText( status ) ).toBeInTheDocument();
-		expect( renderHook( () => useLastScanText( data ) ).result.current ).toMatch( lastScanText );
-	} );
+			expect( screen.getAllByText( status )[ 0 ] ).toBeInTheDocument();
+			expect( renderHook( () => useLastScanText( data ) ).result.current ).toMatch( lastScanText );
+		}
+	);
 } );
