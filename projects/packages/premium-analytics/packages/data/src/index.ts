@@ -74,6 +74,8 @@ export {
 	getApiErrorStatus,
 	findAuthorRow,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,

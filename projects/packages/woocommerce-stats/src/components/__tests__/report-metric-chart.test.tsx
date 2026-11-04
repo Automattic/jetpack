@@ -19,6 +19,7 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		current: [],
 	} ) ),
 	ChartEmptyState: () => <div />,
+	describeError: jest.fn(),
 	MetricTabsChart: ( props: unknown ) => {
 		mockMetricTabsChart( props );
 		return <div />;
