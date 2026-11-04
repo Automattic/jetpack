@@ -5,6 +5,7 @@ import { useCallback, useId } from 'react';
 import { ModuleToggle } from '../module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 const COLOR_OPTION = 'carousel_background_color';
@@ -27,6 +28,7 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 	const color = useModuleSetting( $module, COLOR_OPTION, toColor );
 	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
+	const { trackModuleToggle } = useSettingsPanelTracking( $module.module );
 
 	const colorOption = (
 		Array.isArray( $module.options ) ? undefined : $module.options?.[ COLOR_OPTION ]
@@ -70,7 +72,12 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Display images in a full-screen carousel gallery', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
+				<ModuleToggle
+					module={ $module }
+					labelledby={ labelId }
+					disabled={ disabled }
+					onSwitch={ trackModuleToggle }
+				/>
 			</Stack>
 
 			<SwitchControl
