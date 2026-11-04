@@ -28,6 +28,9 @@ const Edit = props => {
 	const { attributes, setAttributes, clientId } = props;
 	const {
 		currency,
+		oneTimeDonation,
+		monthlyDonation,
+		annualDonation,
 		tabsAppearance,
 		className,
 		displayMode,
@@ -226,11 +229,29 @@ const Edit = props => {
 		isPreviewMode,
 	] );
 
+	// Write the plan IDs from here rather than from Tabs, which Pop-up mode never renders.
+	// The -1 placeholders used until Stripe is connected are left out.
+	useEffect( () => {
+		const current = { oneTimeDonation, monthlyDonation, annualDonation };
+		const plans = {
+			oneTimeDonation: products[ 'one-time' ],
+			monthlyDonation: products[ '1 month' ],
+			annualDonation: products[ '1 year' ],
+		};
+		const updates = {};
+		for ( const [ key, planId ] of Object.entries( plans ) ) {
+			if ( planId > 0 && current[ key ]?.planId !== planId ) {
+				updates[ key ] = { ...current[ key ], planId };
+			}
+		}
+		if ( Object.keys( updates ).length ) {
+			setAttributes( updates );
+		}
+	}, [ products, oneTimeDonation, monthlyDonation, annualDonation, setAttributes ] );
+
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
-	// placeholder products and a valid currency to render a representative form
-	// rather than a perpetual spinner or a "connect Stripe" nudge.
-	const previewProducts = { 'one-time': -1, '1 month': -1, '1 year': -1 };
-	const effectiveProducts = isPreviewMode ? previewProducts : products;
+	// a valid currency to render a representative form rather than a perpetual
+	// spinner or a "connect Stripe" nudge.
 	const effectiveProps =
 		isPreviewMode && ! currency
 			? { ...props, attributes: { ...attributes, currency: 'USD' } }
@@ -272,7 +293,7 @@ const Edit = props => {
 			</>
 		);
 	} else {
-		content = <Tabs { ...effectiveProps } products={ effectiveProducts } />;
+		content = <Tabs { ...effectiveProps } />;
 	}
 
 	return (
