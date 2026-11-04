@@ -46,11 +46,13 @@ Integrates the health tests into WordPress Site Health. It:
 - Registers each `direct` test as a Site Health direct test (runs on page load).
 - Registers an async test suite entry (`jetpack-connection-health`) with a corresponding AJAX handler.
 - Defers to the legacy Jetpack debugger when an old Jetpack version is active (detected via `has_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' )`).
+- Adds the Jetpack Connection section to the Info tab via the `debug_information` filter (see `Debug_Data`). It defers when an old Jetpack plugin hooks `Jetpack_Debug_Data::core_debug_data` to add its own.
 - Runs `test__wpcom_connection_test` once a day via `do_daily_connection_check()` on the `jetpack_heartbeat` cron action, so the `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` connection errors stay fresh while their conditions persist and clear within a day of being resolved. The hook is deliberately the cron-only `jetpack_heartbeat` action, not `jetpack_heartbeat_stats_array`, which also fires in synchronous request contexts (XML-RPC, REST, WP-CLI) where a remote test would be slow and an amplification vector.
 
 ## When tests run
 
 - **Site Health page** (`/wp-admin/site-health.php`): Direct tests run synchronously on page load. The async test suite runs via an AJAX request after the page loads.
+- **Site Health Info tab** (`/wp-admin/site-health.php?tab=debug`): Building the Jetpack Connection section runs every registered test, including those other plugins add, so `test__wpcom_connection_test` makes one request to WordPress.com when the site is connected.
 - **Cron**: Core's weekly `wp_site_health_scheduled_check` event runs all direct tests (this feeds the dashboard "Site Health Status" widget counts). The daily `jetpack_v2_heartbeat` event runs `test__wpcom_connection_test` only, via `Site_Health::do_daily_connection_check()`.
 - **WP-CLI**: Tests can be run programmatically via `$tests = new Connection_Health_Tests(); $tests->output_results_for_cli();`.
 - **REST API / other consumers**: Instantiate `Connection_Health_Tests` and call `run_test()`, `pass()`, or `output_fails_as_wp_error()` as needed.
@@ -164,8 +166,9 @@ add_filter(
 | `jetpack_connection_tests_loaded` | Action. Fires after built-in tests are registered. Receives the `Connection_Health_Tests` instance. | — |
 | `jetpack_debugger_run_self_test` | Whether to include the WP.com self-test. | `false` |
 | `jetpack_connection_support_url` | Support URL shown in failing test results and in the Jetpack Connection section of Site Health › Info. | Jetpack support contact page |
+| `jetpack_connection_debug_data` | Fields of the Jetpack Connection section in Site Health › Info. Runs before the IDC and connection test fields are added, so it can't change them. A non-array return is ignored. | The connection fields |
 | `jetpack_connection_reconnect_url` | Reconnect URL shown in connection failure results. | Empty string by default; the Jetpack plugin provides the reconnect URL when available. |
-| `jetpack_connection_site_health_badge_label` | Badge label shown in Site Health. | `'Jetpack'` |
+| `jetpack_connection_site_health_badge_label` | Badge label shown in Site Health. | `'Jetpack Connection'` |
 
 ## Test result format
 
@@ -204,6 +207,7 @@ The framework and individual tests are covered by PHPUnit tests in `tests/php/`:
 
 - **`Connection_Health_Test_Base_Test.php`** — Tests the base framework: test registration, execution, result helpers, output methods, encryption, filters, and the subclass extension pattern.
 - **`Connection_Health_Tests_Test.php`** — Tests individual health test methods: verifies skipped/pass/fail paths for each built-in test using partial mocks for helper methods, including the reporting/clearing of the `xmlrpc_request_blocked` and `wpcom_ssl_verification_failed` connection errors by the WP.com connection test.
+- **`Debug_Data_Test.php`** — Tests the Info tab section: deferral to the legacy Jetpack callback, token keys reported without their secret, and the `jetpack_connection_debug_data` filter, including its non-array fallback.
 - **`Site_Health_Test.php`** — Tests Site Health integration: registration, legacy Jetpack detection, direct test callback invocation, AJAX action registration, and the daily heartbeat check wiring.
 
 Run the tests from the package directory:
