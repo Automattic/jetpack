@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { useId } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
-import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 /**
@@ -16,7 +15,6 @@ import type { ModuleSettingsProps } from './registry';
  */
 export function FallbackSettings( { module: $module, disabled }: ModuleSettingsProps ) {
 	const labelId = useId();
-	const { trackModuleToggle } = useSettingsPanelTracking( $module.module );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -31,12 +29,7 @@ export function FallbackSettings( { module: $module, disabled }: ModuleSettingsP
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Activate this feature', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle
-					module={ $module }
-					labelledby={ labelId }
-					disabled={ disabled }
-					onSwitch={ trackModuleToggle }
-				/>
+				<PanelModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			{ $module.configure_url && (

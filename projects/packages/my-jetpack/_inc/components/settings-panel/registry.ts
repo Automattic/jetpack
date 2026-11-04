@@ -16,7 +16,6 @@ export type ModuleSettingsProps = {
  *
  * Add an entry to give a feature its own options in the panel. Also add its slug to `Initializer::SETTINGS_PANEL_MODULES` in PHP,
  * unless the Configure link already reaches the panel in JS, as it does for the SEO modules.
- * For Tracks, pass `trackModuleToggle` from `useSettingsPanelTracking()` as `ModuleToggle`'s `onSwitch`, and save switches with `useModuleOption()`.
  */
 export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps > > = {
 	carousel: CarouselSettings,

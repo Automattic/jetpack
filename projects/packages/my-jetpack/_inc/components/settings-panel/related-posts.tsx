@@ -5,11 +5,10 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useEffect, useId, useState } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { PanelModuleToggle } from './panel-module-toggle';
 import { RelatedPostsPreview } from './related-posts-preview';
 import styles from './styles.module.scss';
 import { useModuleOption } from './use-module-option';
-import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { ModuleSettingsProps } from './registry';
 
 const SUPPORT_URL = getRedirectUrl( 'jetpack-support-related-posts' );
@@ -85,7 +84,6 @@ export function RelatedPostsSettings( { module: $module, disabled }: ModuleSetti
 	const thumbnails = useModuleOption( $module, 'show_thumbnails' );
 	const optionsDisabled = ! $module.activated || disabled;
 	const labelId = useId();
-	const { trackModuleToggle } = useSettingsPanelTracking( $module.module );
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -108,12 +106,7 @@ export function RelatedPostsSettings( { module: $module, disabled }: ModuleSetti
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Show related content after posts', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle
-					module={ $module }
-					labelledby={ labelId }
-					disabled={ disabled }
-					onSwitch={ trackModuleToggle }
-				/>
+				<PanelModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			<SwitchControl
