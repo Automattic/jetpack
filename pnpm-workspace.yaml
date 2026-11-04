@@ -104,3 +104,9 @@ patchedDependencies:
   # with "Invalid value used as weak map key". The ESM build is unaffected.
   # Remove once the fix in WordPress/gutenberg (base-control hooks) ships.
   "@wordpress/components@44.0.0": .pnpm-patches/@wordpress__components.patch
+
+  # Same rolldown CommonJS snapshot in block-editor 20.0.0: inner-blocks memoizes
+  # `BlockListItems` at load, before the circular block-list module has exported
+  # it, so every InnerBlocks render in jest dies with "Element type is invalid".
+  # Remove once the fix in WordPress/gutenberg ships.
+  "@wordpress/block-editor@20.0.0": .pnpm-patches/@wordpress__block-editor.patch

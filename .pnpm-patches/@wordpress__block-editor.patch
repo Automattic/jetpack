@@ -1,0 +1,12 @@
+diff --git a/build/components/inner-blocks/index.cjs b/build/components/inner-blocks/index.cjs
+--- a/build/components/inner-blocks/index.cjs
++++ b/build/components/inner-blocks/index.cjs
+@@ -60,7 +60,7 @@
+ 		children
+ 	});
+ }
+-const BlockListItemsMemo = (0, _wordpress_element.memo)(___block_list_index_tsx.BlockListItems);
++const BlockListItemsMemo = (0, _wordpress_element.memo)((props) => (0, react_jsx_runtime.jsx)(___block_list_index_tsx.BlockListItems, props));
+ /**
+ * InnerBlocks is a component which allows a single block to have multiple blocks
+ * as children. The UncontrolledInnerBlocks component is used whenever the inner
