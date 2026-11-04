@@ -2,8 +2,8 @@
 /**
  * AI Assistant Banner for the WordPress.com dashboard.
  *
- * Displays a banner prompting Business/Commerce admins to set up AI tools until
- * they dismiss it or both the WordPress Agent and MCP access have been on once.
+ * Prompts admins without agent access to connect ChatGPT, and admins with
+ * access to set up AI tools until they dismiss it or finish setup.
  * Works on both Simple and Atomic sites via cross-platform utilities.
  *
  * @package automattic/jetpack-mu-wpcom
@@ -11,6 +11,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
 // The audience helpers live in the AI Launchpad feature, loaded by a different
@@ -20,8 +21,7 @@ require_once __DIR__ . '/../ai-launchpad/helpers.php';
 /**
  * Determines whether the current user is eligible for the AI assistant banner.
  *
- * Eligible users see it while either tool is off, until they dismiss it or
- * both tools have been on once for that user.
+ * Eligible users see the variant for their plan until they dismiss it.
  *
  * @return bool
  */
@@ -30,12 +30,11 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	// Check dismissal early — most users will have dismissed over time.
-	if ( get_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', true ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY ) ) {
+	if ( get_user_meta( get_current_user_id(), wpcom_ai_assistant_banner_dismissal_key(), true ) ) {
 		return false;
 	}
 
@@ -54,6 +53,24 @@ function wpcom_should_show_ai_assistant_banner() {
 	}
 
 	return true;
+}
+
+/**
+ * Whether this site lacks the plan feature that grants access to the agent.
+ *
+ * @return bool
+ */
+function wpcom_ai_assistant_banner_is_free_variant() {
+	return function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY );
+}
+
+/**
+ * Keep dismissals separate so a plan change can show the other banner.
+ *
+ * @return string
+ */
+function wpcom_ai_assistant_banner_dismissal_key() {
+	return wpcom_ai_assistant_banner_is_free_variant() ? 'wpcom_ai_assistant_banner_free_dismissed' : 'wpcom_ai_assistant_banner_dismissed';
 }
 
 /**
@@ -123,9 +140,17 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
  * Data for the banner's script: Tracks props and banner visibility.
  *
  * @param string $screen_id The current admin screen id.
- * @return array{trackProps: array<string,string>, shouldShowBanner: string}
+ * @return array{trackProps: array<string,string>, shouldShowBanner: string, variant: string}
  */
 function wpcom_ai_assistant_banner_script_data( $screen_id ) {
+	if ( wpcom_ai_assistant_banner_is_free_variant() ) {
+		return array(
+			'trackProps'       => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
+			'shouldShowBanner' => '1',
+			'variant'          => 'free',
+		);
+	}
+
 	$agent_enabled         = wpcom_is_wordpress_agent_enabled();
 	$agent_and_mcp_enabled = $agent_enabled ? wpcom_ai_assistant_banner_mcp_enabled() : null;
 
@@ -137,6 +162,7 @@ function wpcom_ai_assistant_banner_script_data( $screen_id ) {
 	return array(
 		'trackProps'       => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
 		'shouldShowBanner' => ( ! $agent_enabled || false === $agent_and_mcp_enabled ) ? '1' : '0',
+		'variant'          => 'setup',
 	);
 }
 
@@ -175,24 +201,35 @@ function wpcom_ai_assistant_banner_tracks_props( $screen_id ) {
  * Renders the AI assistant banner markup.
  */
 function wpcom_render_ai_assistant_banner() {
-	$site_slug = wpcom_get_site_slug();
-	$cta_url   = wpcom_get_calypso_origin() . '/sites/' . $site_slug . '/settings/ai-tools';
-	$nonce     = wp_create_nonce( 'dismiss_ai_assistant_banner' );
+	$is_free = wpcom_ai_assistant_banner_is_free_variant();
+	$cta_url = $is_free
+		? Redirect::get_url( 'jetpack-ai-hub-mcp-setup-chatgpt' )
+		: wpcom_get_calypso_origin() . '/sites/' . wpcom_get_site_slug() . '/settings/ai-tools';
+	$nonce   = wp_create_nonce( 'dismiss_ai_assistant_banner' );
 	// With the WordPress Agent already on, the banner starts hidden and the script
 	// reveals it only if MCP access is still off.
 	?>
-	<div id="wpcom-ai-assistant-banner" class="notice is-dismissible" style="border-left-color: #3858E9;" data-nonce="<?php echo esc_attr( $nonce ); ?>"<?php echo wpcom_is_wordpress_agent_enabled() ? ' hidden' : ''; ?>>
+	<div id="wpcom-ai-assistant-banner" class="notice is-dismissible" style="border-left-color: #3858E9;" data-nonce="<?php echo esc_attr( $nonce ); ?>"<?php echo ! $is_free && wpcom_is_wordpress_agent_enabled() ? ' hidden' : ''; ?>>
 		<div class="wpcom-ai-assistant-banner__layout">
 			<svg width="24" height="24" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M391.528 188.061L309.455 159.75C276.997 148.597 251.403 123.003 240.25 90.5451L211.939 8.47185C208.079 -2.82395 191.921 -2.82395 188.061 8.47185L159.75 90.5451C148.597 123.003 123.003 148.597 90.5451 159.75L8.47185 188.061C-2.82395 191.921 -2.82395 208.079 8.47185 211.939L90.5451 240.25C123.003 251.403 148.597 276.997 159.75 309.455L188.061 391.528C191.921 402.824 208.079 402.824 211.939 391.528L240.25 309.455C251.403 276.997 276.997 251.403 309.455 240.25L391.528 211.939C402.824 208.079 402.824 191.921 391.528 188.061ZM295.728 206.077L254.692 220.232C238.391 225.809 225.666 238.677 220.089 254.835L205.934 295.871C203.932 301.591 195.925 301.591 193.923 295.871L179.768 254.835C174.191 238.534 161.323 225.809 145.165 220.232L104.129 206.077C98.4093 204.075 98.4093 196.068 104.129 194.066L145.165 179.911C161.466 174.334 174.191 161.466 179.768 145.308L193.923 104.272C195.925 98.5523 203.932 98.5523 205.934 104.272L220.089 145.308C225.666 161.609 238.534 174.334 254.692 179.911L295.728 194.066C301.448 196.068 301.448 204.075 295.728 206.077Z" fill="#3858E9"/>
 			</svg>
 			<div class="wpcom-ai-assistant-banner__body">
 				<div class="wpcom-ai-assistant-banner__text">
-					<strong><?php esc_html_e( 'Build and manage your site with AI.', 'jetpack-mu-wpcom' ); ?></strong><br>
-					<?php esc_html_e( 'Use ChatGPT, Claude, or the WordPress Agent to edit, design, and handle everyday site tasks.', 'jetpack-mu-wpcom' ); ?>
+					<?php if ( $is_free ) : ?>
+						<strong><?php esc_html_e( 'Connect your site to ChatGPT.', 'jetpack-mu-wpcom' ); ?></strong><br>
+						<?php esc_html_e( 'Use ChatGPT to help create content and manage your site.', 'jetpack-mu-wpcom' ); ?>
+					<?php else : ?>
+						<strong><?php esc_html_e( 'Build and manage your site with AI.', 'jetpack-mu-wpcom' ); ?></strong><br>
+						<?php esc_html_e( 'Use ChatGPT, Claude, or the WordPress Agent to edit, design, and handle everyday site tasks.', 'jetpack-mu-wpcom' ); ?>
+					<?php endif; ?>
 				</div>
 				<a href="<?php echo esc_url( $cta_url ); ?>" class="button-secondary">
-					<?php esc_html_e( 'Set up AI tools', 'jetpack-mu-wpcom' ); ?>
+					<?php if ( $is_free ) : ?>
+						<?php esc_html_e( 'Connect to ChatGPT', 'jetpack-mu-wpcom' ); ?>
+					<?php else : ?>
+						<?php esc_html_e( 'Set up AI tools', 'jetpack-mu-wpcom' ); ?>
+					<?php endif; ?>
 				</a>
 			</div>
 		</div>
@@ -295,7 +332,7 @@ add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
  * @param bool $automatic Whether both AI tools were enabled.
  */
 function wpcom_ai_assistant_banner_record_dismissal( $automatic = false ) {
-	update_user_meta( get_current_user_id(), 'wpcom_ai_assistant_banner_dismissed', $automatic ? time() : 1 );
+	update_user_meta( get_current_user_id(), wpcom_ai_assistant_banner_dismissal_key(), $automatic ? time() : 1 );
 }
 
 /**

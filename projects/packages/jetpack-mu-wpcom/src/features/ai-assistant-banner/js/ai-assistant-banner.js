@@ -1,5 +1,5 @@
 import { wpcomTrackEvent } from '../../../common/tracks';
-import { showBanner } from './show-banner';
+import { bannerEventName, showBanner } from './show-banner';
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	const banner = document.getElementById( 'wpcom-ai-assistant-banner' );
@@ -10,17 +10,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	// Shared context props, computed server-side, with a fallback if the global is ever absent.
 	const trackProps = window.wpcomAiAssistantBanner?.trackProps || {};
+	const variant = window.wpcomAiAssistantBanner?.variant;
 
 	showBanner( banner, window.wpcomAiAssistantBanner, wpcomTrackEvent );
 
 	const ctaBtn = banner.querySelector( '.button-secondary' );
 	ctaBtn?.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click', trackProps );
+		wpcomTrackEvent( bannerEventName( variant, 'cta_click' ), trackProps );
 	} );
 
 	const attachDismissHandler = btn => {
 		btn.addEventListener( 'click', () => {
-			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss', trackProps );
+			wpcomTrackEvent( bannerEventName( variant, 'dismiss' ), trackProps );
 
 			const body = new FormData();
 			body.append( 'action', 'dismiss_ai_assistant_banner' );
