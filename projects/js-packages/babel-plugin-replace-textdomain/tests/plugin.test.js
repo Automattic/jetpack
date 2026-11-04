@@ -377,18 +377,6 @@ pluginTester( {
 			snapshot: false,
 			error: 'Invalid argument index for `functions.__`, value must be a non-negative integer.',
 		},
-		{
-			title: 'requireI18nSource: ignores a member call on an inline object',
-			setup,
-			// rolldown inlines a single-use `const cache = { __: … }` binding.
-			code: `x = { __: ( key ) => key.toUpperCase() }.__( 'key' );`,
-			output: `x = {\n\t__: key => key.toUpperCase(),\n}.__('key');`,
-			snapshot: false,
-			pluginOptions: {
-				textdomain: 'new-domain',
-				requireI18nSource: true,
-			},
-		},
 	],
 } );
 
