@@ -2,9 +2,6 @@
 /**
  * When Stats v2 takes the Odyssey Stats page's place on WordPress.com Simple.
  *
- * Loaded at mu-plugin time, apart from the page itself: wpcom checks for this function before
- * it retires classic Stats on Simple, since Simple can run a jetpack-mu-wpcom that predates it.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 

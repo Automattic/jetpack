@@ -55,11 +55,6 @@ class Wpcom_Simple_Odyssey_Stats_Test extends \WorDBless\BaseTestCase {
 	 * @param bool $booted Whether Stats v2 booted in this request.
 	 */
 	private function set_stats_v2_booted( $booted ) {
-		$initialized = new \ReflectionProperty( Analytics::class, 'initialized' );
-		// @todo Remove once we drop PHP < 8.1 support.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$initialized->setAccessible( true );
-		}
-		$initialized->setValue( null, $booted );
+		( new \ReflectionProperty( Analytics::class, 'initialized' ) )->setValue( null, $booted );
 	}
 }
