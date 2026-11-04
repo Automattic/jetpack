@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useId, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Tooltip } from '@wordpress/ui';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 import {
 	type Threat,
 	getFixerState,
@@ -74,6 +74,8 @@ export default function ThreatFixerButton( {
 		[ onClick, threat ]
 	);
 
+	const descriptionId = useId();
+
 	if ( ! threat.fixable ) {
 		return null;
 	}
@@ -96,6 +98,7 @@ export default function ThreatFixerButton( {
 								fixerState.stale
 							}
 							style={ { minWidth: '72px' } }
+							aria-describedby={ tooltipText ? descriptionId : undefined }
 						/>
 					}
 				>
@@ -103,6 +106,12 @@ export default function ThreatFixerButton( {
 				</Tooltip.Trigger>
 				<Tooltip.Popup className={ styles.tooltip }>{ tooltipText }</Tooltip.Popup>
 			</Tooltip.Root>
+			{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+			{ tooltipText && (
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ tooltipText }
+				</VisuallyHidden>
+			) }
 		</div>
 	);
 }

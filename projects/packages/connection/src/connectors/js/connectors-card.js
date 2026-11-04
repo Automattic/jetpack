@@ -53,7 +53,6 @@ import {
 	useRef,
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import * as ui from '@wordpress/ui';
 import { getAccountSections } from './account-sections.mjs';
 import { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus } from './card-state.mjs';
 import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
@@ -546,16 +545,6 @@ function ProtectedOwnerShield() {
 		tabIndex: 0,
 		'aria-label': notice,
 	} );
-
-	// components' Tooltip is deprecated in favour of the design system one (WP 7.3).
-	if ( ui.Tooltip ) {
-		return createElement(
-			ui.Tooltip.Root,
-			null,
-			createElement( ui.Tooltip.Trigger, { render: icon } ),
-			createElement( ui.Tooltip.Popup, null, notice )
-		);
-	}
 
 	if ( ! Tooltip ) {
 		return createElement( 'span', { title: notice }, icon );

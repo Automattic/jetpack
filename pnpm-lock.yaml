@@ -2486,9 +2486,6 @@ importers:
       '@wordpress/i18n':
         specifier: 7.1.0
         version: 7.1.0
-      '@wordpress/ui':
-        specifier: 0.26.0
-        version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*

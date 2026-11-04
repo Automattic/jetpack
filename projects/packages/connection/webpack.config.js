@@ -16,7 +16,6 @@ const AS_MODULE = new Set( [
 	'@wordpress/boot',
 	'@wordpress/route',
 	'@wordpress/widget-primitives',
-	'@wordpress/ui',
 ] );
 
 // Jetpack packages shipped as shared scripts; bundling one loads a second copy, and shared-stores would register its stores twice.
