@@ -205,7 +205,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	private static function build_consent_gate( $pushes ) {
 		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
-		// Only after DOMContentLoaded and once a consent type exists, or a banner that sets the type later would read "no consent management" and allow.
+		// Only on a stored allow, which holds under any consent type: before a late banner sets the type, wp_has_consent() reads a fallback that can allow anyone.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		// Under waitfor_consent_hook the banner sets the type later, and until then wp_has_consent() reads a fallback that can allow.
 		return sprintf(
@@ -215,16 +215,16 @@ function _jpStatsFire() {
 	_jpStatsFire.done = true;
 	%1$s
 }
-function _jpStatsDenied() {
-	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api &&
-		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) === "deny";
+function _jpStatsStoredChoice() {
+	return typeof window.consent_api_get_cookie === "function" && !! window.consent_api ?
+		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) : "";
 }
 function _jpStatsCheck() {
 	if ( typeof window.wp_has_consent !== "function" ) { return; }
 	if ( window.waitfor_consent_hook && typeof window.wp_consent_type === "undefined" ) { return; }
 	var consented;
 	try {
-		consented = ! _jpStatsDenied() && window.wp_has_consent( "statistics" );
+		consented = _jpStatsStoredChoice() !== "deny" && window.wp_has_consent( "statistics" );
 	} catch ( e ) {
 		window.console && console.warn( "Jetpack Stats: wp_has_consent() threw, so Stats waits for a consent change.", e );
 		return;
@@ -237,13 +237,11 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 document.addEventListener( "load", function ( event ) {
-	if ( document.readyState === "loading" || ! event || ! event.target || event.target.tagName !== "SCRIPT" ) { return; }
-	if ( typeof window.wp_consent_type === "undefined" && ! window.wp_fallback_consent_type ) { return; }
-	_jpStatsCheck();
+	if ( event && event.target && event.target.tagName === "SCRIPT" && _jpStatsStoredChoice() === "allow" ) { _jpStatsCheck(); }
 }, true );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {
-		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats checks again when a script loads." );
+		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats counts this view only once a stored or new choice allows statistics." );
 	}
 	_jpStatsCheck();
 }, { once: true } );

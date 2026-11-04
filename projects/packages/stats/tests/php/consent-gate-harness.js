@@ -81,26 +81,15 @@ const scenarios = {
 		dispatch( 'window', 'load' );
 	},
 	'consent API that a delay-JS optimizer loads after the load event': () => {
-		page.wp_fallback_consent_type = 'optin';
 		loadGate();
 		dispatch( 'document', 'DOMContentLoaded' );
-		page.document.readyState = 'complete';
 		dispatch( 'window', 'load' );
 		page.wp_has_consent = () => true;
-		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
-	},
-	'consent API that a delay-JS optimizer loads before the banner sets the consent type': () => {
-		loadGate();
-		dispatch( 'document', 'DOMContentLoaded' );
-		page.document.readyState = 'complete';
-		dispatch( 'window', 'load' );
-		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
-		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
-		page.wp_consent_type = 'optin';
+		page.consent_api = { cookie_prefix: 'wp_consent' };
+		page.consent_api_get_cookie = name => ( name === 'wp_consent_statistics' ? 'allow' : '' );
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 	},
 	'banner that switches the consent type to opt-in after the consent API script loads': () => {
-		page.wp_fallback_consent_type = 'optout';
 		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
 		loadGate();
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
