@@ -389,6 +389,22 @@ export const Interactive: Story = {
 			},
 		},
 	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
+		const row = canvas.getByRole( 'button', { name: name => name.startsWith( longLabel ) } );
+		const label = within( row ).getByText( longLabel );
+		const value = within( row ).getByText( '1.5K' );
+		const valueRestingLeft = value.getBoundingClientRect().left;
+
+		row.focus();
+		await Promise.all( row.getAnimations( { subtree: true } ).map( ( { finished } ) => finished ) );
+
+		expect( value.getBoundingClientRect().left ).toBeLessThan( valueRestingLeft );
+		expect( label.getBoundingClientRect().right ).toBeLessThanOrEqual(
+			value.getBoundingClientRect().left
+		);
+	},
 };
 
 export const InteractiveLabel: Story = {
