@@ -11,11 +11,9 @@ const TRANSFORMED_NODE_MODULES = [
 	'marked/',
 	'uuid/',
 	'@wordpress/theme/',
-	// loaded as ESM through resolver.js; remove these three with it
+	// loaded as ESM through jest-resolver.js; remove with its ESM_PACKAGES
 	'@wordpress/components/',
 	'@wordpress/block-editor/',
-	// esm-only, pulled in by @wordpress/block-editor's ESM build
-	'parsel-js/',
 	// stylesheets imported by components
 	'uplot/.*\\.css',
 	'@wordpress/admin-ui/.*\\.css',

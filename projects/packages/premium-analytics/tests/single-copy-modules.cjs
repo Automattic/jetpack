@@ -8,7 +8,7 @@
  */
 
 const path = require( 'path' );
-const { ESM_PACKAGES } = require( 'jetpack-js-tools/jest/resolver.js' );
+const { ESM_PACKAGES } = require( 'jetpack-js-tools/jest/jest-resolver.js' );
 
 // Where the copies come from: this package's own dependencies, so the suite runs the versions it
 // declares. DataViews' prerelease asks for newer `components`/`ui` than that, and does not get them
@@ -36,7 +36,7 @@ const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
  *
  * The packages the shared resolver loads as ESM take their `import` entry here
  * too, since a mapped path never reaches that resolver. Remove that branch
- * together with jetpack-js-tools/jest/resolver.js.
+ * with the resolver's `ESM_PACKAGES`.
  *
  * @param {string} name - Package name.
  * @param {string} from - Directory to resolve from.
