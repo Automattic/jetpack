@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FreeTierNotice, { FREE_TIER_AT_LIMIT_MESSAGE } from '..';
 
@@ -33,7 +33,6 @@ const DEFAULT_STATE = {
 };
 
 let mockRun: jest.Mock;
-const originalObserver = window.IntersectionObserver;
 
 describe( 'FreeTierNotice', () => {
 	beforeEach( () => {
@@ -43,35 +42,10 @@ describe( 'FreeTierNotice', () => {
 		mockedCheckoutWorkflow.mockReturnValue( { run: mockRun } );
 	} );
 
-	afterEach( () => {
-		window.IntersectionObserver = originalObserver;
-		jest.restoreAllMocks();
-	} );
-
-	it( 'observes the notice and records its current video count on exposure', () => {
-		jest.spyOn( document, 'visibilityState', 'get' ).mockReturnValue( 'visible' );
-		let observerCallback: IntersectionObserverCallback;
-		const observe = jest.fn();
-		window.IntersectionObserver = jest.fn( callback => {
-			observerCallback = callback;
-			return { observe, disconnect: jest.fn() };
-		} ) as unknown as typeof IntersectionObserver;
+	it( 'records the notice and its current video count when rendered', async () => {
 		render( <FreeTierNotice location="library_at_limit" videoCount={ 1 } /> );
-		const notice = observe.mock.calls[ 0 ][ 0 ];
-		expect( notice ).toContainElement( screen.getByRole( 'link', { name: 'Upgrade' } ) );
-		expect( mockedAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
-		act( () =>
-			observerCallback(
-				[
-					{
-						target: notice,
-						isIntersecting: true,
-						intersectionRatio: 0.5,
-					} as IntersectionObserverEntry,
-				],
-				{} as IntersectionObserver
-			)
-		);
+		await Promise.resolve();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_videopress_upsell_impression',
 			{
@@ -120,7 +94,12 @@ describe( 'FreeTierNotice', () => {
 			const user = userEvent.setup();
 			const { rerender } = render( <FreeTierNotice location={ location } /> );
 			rerender( <FreeTierNotice location={ location } /> );
-			expect( mockedAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+			await Promise.resolve();
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_videopress_upsell_impression',
+				{ location, video_count_known: false }
+			);
 
 			await user.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
@@ -128,7 +107,7 @@ describe( 'FreeTierNotice', () => {
 				'jetpack_videopress_upgrade_trigger_link_click',
 				{ location }
 			);
-			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 2 );
 			// `run` is deferred to a microtask; userEvent's await flushes it.
 			expect( mockRun ).toHaveBeenCalledTimes( 1 );
 		}
