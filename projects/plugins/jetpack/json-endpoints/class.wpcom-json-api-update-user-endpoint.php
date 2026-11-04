@@ -23,8 +23,7 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 		),
 
 		'request_format'       => array(
-			'reassign'       => '(int) An optional id of a user to reassign posts to.',
-			'delete_content' => '(bool) Delete the user\'s content instead of reassigning it. On single sites, one of this or reassign is required when the user owns content.',
+			'reassign' => '(int) An optional id of a user to reassign posts to.',
 		),
 
 		'response_format'      => array(
@@ -90,26 +89,6 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Whether a user owns content, using the same check as wp-admin/users.php.
-	 *
-	 * @param  int $user_id User ID.
-	 * @return bool
-	 */
-	protected function user_has_content( $user_id ) {
-		global $wpdb;
-
-		/** This filter is documented in wp-admin/users.php */
-		if ( apply_filters( 'users_have_additional_content', false, array( $user_id ) ) ) {
-			return true;
-		}
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_author = %d LIMIT 1", $user_id ) )
-			|| $wpdb->get_var( $wpdb->prepare( "SELECT link_id FROM {$wpdb->links} WHERE link_owner = %d LIMIT 1", $user_id ) );
-		// phpcs:enable
-	}
-
-	/**
 	 * Return the domain name of a subscription.
 	 *
 	 * @param  Store_Subscription $subscription Subscription object.
@@ -165,7 +144,25 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_input', 'A user does not exist with that ID.', 400 );
 		}
 
-		return is_multisite() ? $this->remove_user( $user_id ) : $this->delete_user( $user_id );
+		if ( is_multisite() ) {
+			return $this->remove_user( $user_id );
+		}
+
+		return get_current_user_id() === (int) $user_id ? $this->leave_site( $user_id ) : $this->delete_user( $user_id );
+	}
+
+	/**
+	 * Removes the current user's role on a single site, keeping their account and content as on multisite.
+	 *
+	 * @param  int $user_id User ID.
+	 * @return array
+	 */
+	public function leave_site( $user_id ) {
+		get_userdata( $user_id )->set_role( '' );
+
+		return array(
+			'success' => true,
+		);
 	}
 
 	/**
@@ -190,7 +187,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Deletes a user, reassigning or deleting their content as the caller asks.
+	 * Deletes a user and optionally reassigns posts to another user.
 	 *
 	 * @param  int $user_id User ID.
 	 * @return array|WP_Error
@@ -201,9 +198,8 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'User cannot delete users for specified site.', 403 );
 		}
 
-		$input          = (array) $this->input();
-		$reassign       = isset( $input['reassign'] ) ? (int) $input['reassign'] : null;
-		$delete_content = ! empty( $input['delete_content'] );
+		$input    = (array) $this->input();
+		$reassign = isset( $input['reassign'] ) ? (int) $input['reassign'] : null;
 
 		if ( $reassign !== null ) {
 			if ( (int) $user_id === $reassign ) {
@@ -213,8 +209,6 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( ! $this->user_exists( $reassign ) ) {
 				return new WP_Error( 'invalid_input', 'User specified in reassign argument is not a member of the specified site.', 400 );
 			}
-		} elseif ( ! $delete_content && $this->user_has_content( $user_id ) ) {
-			return new WP_Error( 'reassign_required', 'This user owns content. Set reassign to attribute it to another user, or delete_content to delete it.', 400 );
 		}
 
 		$success = $reassign !== null ? wp_delete_user( $user_id, $reassign ) : wp_delete_user( $user_id );

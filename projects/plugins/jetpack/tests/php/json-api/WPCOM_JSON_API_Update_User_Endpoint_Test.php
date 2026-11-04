@@ -42,66 +42,46 @@ class WPCOM_JSON_API_Update_User_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Clean up after each test.
-	 */
-	public function tear_down() {
-		WPCOM_JSON_API::init()->post_body    = null;
-		WPCOM_JSON_API::init()->content_type = null;
-
-		parent::tear_down();
-	}
-
-	/**
-	 * Data provider for test_delete_user.
+	 * Data provider for test_remove_user_with_content.
 	 *
 	 * @return array
 	 */
-	public static function provide_delete_requests() {
+	public static function provide_remover() {
 		return array(
-			'no answer keeps a user who owns content'    => array( array(), true, false ),
-			'delete_content deletes and trashes content' => array( array( 'delete_content' => true ), true, true ),
-			// Replaced with the admin's ID in the test.
-			'reassign deletes and keeps content'         => array( array( 'reassign' => true ), true, true ),
-			'no answer deletes a user who owns nothing'  => array( array(), false, true ),
+			'leaving keeps the account and content'  => array( true ),
+			'an admin removing someone deletes both' => array( false ),
 		);
 	}
 
 	/**
-	 * Content is only deleted when the caller asks for it.
+	 * Leaving a single site only drops the role, as on multisite; admin removals still delete.
 	 *
-	 * @dataProvider provide_delete_requests
+	 * @dataProvider provide_remover
 	 *
-	 * @param array $input     Request body.
-	 * @param bool  $owns_post Whether the user authors a post.
-	 * @param bool  $deleted   Whether the user should be deleted.
+	 * @param bool $self Whether the user removes themselves.
 	 */
-	#[DataProvider( 'provide_delete_requests' )]
-	public function test_delete_user( $input, $owns_post, $deleted ) {
+	#[DataProvider( 'provide_remover' )]
+	public function test_remove_user_with_content( $self ) {
 		$user_id = self::factory()->user->create( array( 'role' => 'author' ) );
-		$post_id = $owns_post ? self::factory()->post->create( array( 'post_author' => $user_id ) ) : 0;
-		if ( isset( $input['reassign'] ) ) {
-			$input['reassign'] = get_current_user_id();
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		if ( $self ) {
+			wp_set_current_user( $user_id );
 		}
 
-		WPCOM_JSON_API::init()->post_body    = wp_json_encode( $input, JSON_UNESCAPED_SLASHES );
-		WPCOM_JSON_API::init()->content_type = 'application/json';
+		$this->assertSame( array( 'success' => true ), $this->get_endpoint()->delete_or_remove_user( $user_id ) );
 
-		$response = $this->get_endpoint()->delete_user( $user_id );
-
-		if ( $deleted ) {
-			$this->assertSame( array( 'success' => true ), $response );
+		$user = get_userdata( $user_id );
+		if ( $self ) {
+			$this->assertSame( array(), $user->roles );
+			$this->assertSame( 'publish', get_post_status( $post_id ) );
 		} else {
-			$this->assertWPError( $response );
-			$this->assertSame( 'reassign_required', $response->get_error_code() );
-		}
-		$this->assertSame( ! $deleted, (bool) get_userdata( $user_id ) );
-		if ( $post_id ) {
-			$this->assertSame( isset( $input['delete_content'] ) ? 'trash' : 'publish', get_post_status( $post_id ) );
+			$this->assertFalse( $user );
+			$this->assertSame( 'trash', get_post_status( $post_id ) );
 		}
 	}
 
 	/**
-	 * The endpoint the plugin registers, so the test sees its real request_format.
+	 * The endpoint the plugin registers.
 	 *
 	 * @return WPCOM_JSON_API_Update_User_Endpoint
 	 *
