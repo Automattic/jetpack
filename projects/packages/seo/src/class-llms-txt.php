@@ -35,7 +35,7 @@ class Llms_Txt {
 
 	/**
 	 * Max items listed per supported content type, so a large site doesn't dump
-	 * its whole tree.
+	 * its whole tree. Pages in the main menu are listed even past it.
 	 */
 	const MAX_POSTS_PER_TYPE = 50;
 
@@ -178,11 +178,74 @@ class Llms_Txt {
 	 * @return \WP_Post[]
 	 */
 	private static function get_posts_for_type( $post_type ) {
-		$args = array(
+		if ( 'page' === $post_type ) {
+			return self::get_pages();
+		}
+
+		$args                   = self::query_args( $post_type );
+		$args['posts_per_page'] = self::MAX_POSTS_PER_TYPE;
+		$args['orderby']        = 'date';
+		$args['order']          = 'DESC';
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Pages ranked main menu first, then other displayed menus, then the rest by title.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function get_pages() {
+		$menus = Nav_Menu_Pages::get();
+		$main  = self::get_pages_in_order( $menus['main'], count( $menus['main'] ) );
+		$room  = max( 0, self::MAX_POSTS_PER_TYPE - count( $main ) );
+		$other = self::get_pages_in_order( $menus['other'], $room );
+		$room -= count( $other );
+		if ( $room <= 0 ) {
+			return array_merge( $main, $other );
+		}
+
+		$args                   = self::query_args( 'page' );
+		$args['posts_per_page'] = $room;
+		$args['post__not_in']   = array_merge( $menus['main'], $menus['other'] );
+		$args['orderby']        = 'title';
+		$args['order']          = 'ASC';
+
+		return array_merge( $main, $other, get_posts( $args ) );
+	}
+
+	/**
+	 * Fetch listable pages by ID, keeping the given order.
+	 *
+	 * @param int[] $ids   Page IDs.
+	 * @param int   $limit Max pages to return.
+	 * @return \WP_Post[]
+	 */
+	private static function get_pages_in_order( array $ids, $limit ) {
+		if ( empty( $ids ) || $limit <= 0 ) {
+			return array();
+		}
+
+		$args                   = self::query_args( 'page' );
+		$args['post__in']       = $ids;
+		$args['orderby']        = 'post__in';
+		$args['posts_per_page'] = $limit;
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Query arguments for published content that isn't password protected or hidden from
+	 * search engines.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return array
+	 */
+	private static function query_args( $post_type ) {
+		return array(
 			'post_type'        => $post_type,
 			'post_status'      => 'publish',
 			'has_password'     => false,
-			'posts_per_page'   => self::MAX_POSTS_PER_TYPE,
 			'suppress_filters' => false,
 			'meta_query'       => array(
 				// WP_Query's meta_query takes its `relation` as a keyed entry alongside
@@ -200,16 +263,6 @@ class Llms_Txt {
 				),
 			),
 		);
-
-		if ( 'page' === $post_type ) {
-			$args['orderby'] = 'menu_order title';
-			$args['order']   = 'ASC';
-		} else {
-			$args['orderby'] = 'date';
-			$args['order']   = 'DESC';
-		}
-
-		return get_posts( $args );
 	}
 
 	/**
