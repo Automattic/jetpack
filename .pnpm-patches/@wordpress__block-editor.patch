@@ -10,3 +10,15 @@ diff --git a/build/components/inner-blocks/index.cjs b/build/components/inner-bl
  /**
  * InnerBlocks is a component which allows a single block to have multiple blocks
  * as children. The UncontrolledInnerBlocks component is used whenever the inner
+diff --git a/build/components/block-preview/auto.cjs b/build/components/block-preview/auto.cjs
+--- a/build/components/block-preview/auto.cjs
++++ b/build/components/block-preview/auto.cjs
+@@ -37,7 +37,7 @@
+ let ______store_index_ts = require("../../store/index.cjs");
+ let react_jsx_runtime = require("react/jsx-runtime");
+ // packages/block-editor/src/components/block-preview/auto.tsx
+-const MemoizedBlockList = (0, _wordpress_element.memo)(___block_list_index_tsx.default);
++const MemoizedBlockList = (0, _wordpress_element.memo)((props) => (0, react_jsx_runtime.jsx)(___block_list_index_tsx.default, props));
+ const MAX_HEIGHT = 2e3;
+ const EMPTY_ADDITIONAL_STYLES = [];
+ function ScaledBlockPreview({ viewportWidth, containerWidth, minHeight, additionalStyles = EMPTY_ADDITIONAL_STYLES }) {
