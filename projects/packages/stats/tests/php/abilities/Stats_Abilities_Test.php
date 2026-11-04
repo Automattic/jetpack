@@ -1301,6 +1301,141 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertNull( $result['series'][0]['comments'], 'WordPress.com sends -1 when it could not count.' );
 	}
 
+	/**
+	 * Visits windows and the end date each preset compares them with.
+	 */
+	public static function provide_compare_windows(): array {
+		return array(
+			'previous days'                  => array( 'day', 7, '2026-04-23', 'previous-period', '2026-04-16' ),
+			'days rounded up to whole weeks' => array( 'day', 10, '2026-04-23', 'previous-period-match-day-of-week', '2026-04-09' ),
+			'leap day a year earlier'        => array( 'day', 1, '2024-02-29', 'previous-year', '2023-02-28' ),
+			'days 52 weeks earlier'          => array( 'day', 7, '2026-04-23', 'previous-year-match-day-of-week', '2025-04-24' ),
+			'previous weeks'                 => array( 'week', 4, '2026-04-23', 'previous-period', '2026-03-26' ),
+			'weeks a year earlier'           => array( 'week', 4, '2026-04-23', 'previous-year', '2025-04-24' ),
+			'month to date'                  => array( 'month', 2, '2026-11-03', 'previous-period', '2026-09-03' ),
+			'a 31st clamped to a 30th'       => array( 'month', 1, '2026-10-31', 'previous-period', '2026-09-30' ),
+			'month end stays month end'      => array( 'month', 1, '2026-03-31', 'previous-period', '2026-02-28' ),
+			'months a year earlier'          => array( 'month', 3, '2026-03-31', 'previous-year', '2025-03-31' ),
+			'previous years'                 => array( 'year', 2, '2026-04-23', 'previous-period', '2024-04-23' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_compare_windows
+	 *
+	 * @param string $period  Requested period.
+	 * @param int    $num     Requested number of periods.
+	 * @param string $date    Requested date.
+	 * @param string $preset  Comparison preset.
+	 * @param string $compare Expected end date of the compared window.
+	 */
+	#[DataProvider( 'provide_compare_windows' )]
+	public function test_get_visits_compares_the_window_the_preset_names( string $period, int $num, string $date, string $preset, string $compare ): void {
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_visits' => array(
+					'fields' => array( 'period', 'views' ),
+					'data'   => array( array( '2026-04-01', 5 ) ),
+				),
+			)
+		);
+
+		$result = Stats_Abilities::get_visits(
+			array(
+				'period'  => $period,
+				'num'     => $num,
+				'date'    => $date,
+				'fields'  => array( 'views' ),
+				'compare' => $preset,
+			)
+		);
+
+		// The second read is the compared window: the same periods, ending earlier.
+		$this->assertSame(
+			array(
+				'date'        => $compare,
+				'unit'        => $period,
+				'quantity'    => $num,
+				'stat_fields' => 'views',
+			),
+			$requests['get_visits']
+		);
+		$this->assertSame( $preset, $result['comparison']['preset'] );
+		$this->assertSame( $compare, $result['comparison']['date'] );
+		$this->assertSame( $result['series'], $result['comparison']['series'] );
+		$this->assertArrayHasKey( 'comparison', $result['definitions'] );
+	}
+
+	public function test_get_visits_refuses_to_line_up_months_or_years_by_weekday(): void {
+		$this->filter_wpcom_stats( array( 'get_visits' => array() ) );
+
+		foreach ( array( 'month', 'year' ) as $period ) {
+			$result = Stats_Abilities::get_visits(
+				array(
+					'period'  => $period,
+					'compare' => 'previous-year-match-day-of-week',
+				)
+			);
+			$this->assertInstanceOf( \WP_Error::class, $result );
+			$this->assertSame( 'jetpack_stats_invalid_compare', $result->get_error_code() );
+		}
+	}
+
+	public function test_get_site_overview_compares_each_figure_with_its_shifted_window(): void {
+		$utc   = new \DateTimeZone( 'UTC' );
+		$today = \DateTimeImmutable::createFromFormat( '!Y-m-d', current_time( 'Y-m-d' ), $utc );
+		$data  = array();
+		// 90 days ending today, each with views equal to how many days ago it was.
+		for ( $ago = 89; $ago >= 0; $ago-- ) {
+			if ( 45 === $ago ) {
+				continue; // A day WordPress.com did not report, inside the compared 30 days.
+			}
+			$data[] = array( $today->modify( "-{$ago} days" )->format( 'Y-m-d' ), $ago, 1 );
+		}
+		$requests = $this->filter_wpcom_stats(
+			array(
+				'get_visits' => array(
+					'fields' => array( 'period', 'views', 'visitors' ),
+					'data'   => $data,
+				),
+			) + self::overview_responses()
+		);
+
+		$result = Stats_Abilities::get_site_overview( array( 'compare' => 'previous-period' ) );
+
+		$day = function ( int $ago ) use ( $today ) {
+			return $today->modify( "-{$ago} days" )->format( 'Y-m-d' );
+		};
+		// One read from the first compared day (59 days ago) to the last (yesterday).
+		$this->assertSame( 59, $requests['get_visits']['quantity'] );
+		$this->assertSame( $day( 1 ), $requests['get_visits']['date'] );
+		$this->assertSame(
+			array(
+				'preset'         => 'previous-period',
+				'views_today'    => 1,
+				'visitors_today' => 1,
+				'views_week'     => 7 + 8 + 9 + 10 + 11 + 12 + 13,
+				'views_month'    => null,
+				'windows'        => array(
+					'today' => array(
+						'from' => $day( 1 ),
+						'to'   => $day( 1 ),
+					),
+					'week'  => array(
+						'from' => $day( 13 ),
+						'to'   => $day( 7 ),
+					),
+					'month' => array(
+						'from' => $day( 59 ),
+						'to'   => $day( 30 ),
+					),
+				),
+			),
+			$result['comparison']
+		);
+		$this->assertArrayHasKey( 'comparison', $result['definitions'] );
+	}
+
 	public function test_get_followers_composes_three_subcalls(): void {
 		$this->filter_wpcom_stats(
 			array(
