@@ -448,7 +448,7 @@ describe( 'useKeyboardNavigation', () => {
 		}
 	} );
 
-	// `@wordpress/components` Modal skips its own close-on-Escape once the event is defaultPrevented.
+	// A host Modal skips its own close-on-Escape once the event is defaultPrevented.
 	it( 'leaves Escape to the page when there is no selection to dismiss', async () => {
 		const user = userEvent.setup();
 		render( <NavigationHarness totalPoints={ 6 } /> );

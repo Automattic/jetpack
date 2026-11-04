@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove a bundled copy of the WordPress components package; the leaderboard lays out its rows with CSS grid.
