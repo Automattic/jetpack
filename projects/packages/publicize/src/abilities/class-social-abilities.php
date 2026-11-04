@@ -300,19 +300,15 @@ class Social_Abilities extends Registrar {
 	 */
 	public static function share_post( $input = null ) {
 		$input   = is_array( $input ) ? $input : array();
-		$post_id = isset( $input['post_id'] ) && is_int( $input['post_id'] ) ? $input['post_id'] : 0;
-		$message = isset( $input['message'] ) && is_string( $input['message'] ) ? trim( $input['message'] ) : '';
+		$post_id = (int) ( $input['post_id'] ?? 0 );
+		$message = trim( (string) ( $input['message'] ?? '' ) );
 
-		if ( $post_id < 1 ) {
-			return new WP_Error( 'jetpack_social_invalid_post_id', __( 'post_id must be a positive integer. Find posts with the content abilities.', 'jetpack-publicize-pkg' ) );
-		}
 		if ( '' === $message ) {
 			return new WP_Error( 'jetpack_social_missing_message', __( 'message is required and cannot be empty.', 'jetpack-publicize-pkg' ) );
 		}
 
 		$request = new WP_REST_Request( 'POST', self::SHARE_POST_ROUTE . '/' . $post_id );
 		$request->set_param( 'message', $message );
-		$request->set_param( 'async', false );
 		if ( ! empty( $input['skipped_connections'] ) && is_array( $input['skipped_connections'] ) ) {
 			$request->set_param( 'skipped_connections', array_map( 'absint', $input['skipped_connections'] ) );
 		}
@@ -339,11 +335,7 @@ class Social_Abilities extends Registrar {
 	 */
 	public static function delete_connection( $input = null ) {
 		$input         = is_array( $input ) ? $input : array();
-		$connection_id = isset( $input['connection_id'] ) && is_int( $input['connection_id'] ) ? $input['connection_id'] : 0;
-
-		if ( $connection_id < 1 ) {
-			return new WP_Error( 'jetpack_social_invalid_connection_id', __( 'connection_id must be a positive integer. Call jetpack-social/get-connections to list IDs.', 'jetpack-publicize-pkg' ) );
-		}
+		$connection_id = (int) ( $input['connection_id'] ?? 0 );
 
 		$result = self::dispatch( new WP_REST_Request( 'DELETE', self::CONNECTIONS_ROUTE . '/' . $connection_id ) );
 		if ( is_wp_error( $result ) ) {

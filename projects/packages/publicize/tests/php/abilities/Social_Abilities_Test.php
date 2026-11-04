@@ -189,7 +189,6 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
 		$this->assertSame( 'Hello', $request->get_param( 'message' ) );
 		$this->assertSame( array( 12, 13 ), $request->get_param( 'skipped_connections' ) );
-		$this->assertFalse( $request->get_param( 'async' ) );
 	}
 
 	public function test_share_post_rejects_blank_message_without_calling_the_route(): void {
