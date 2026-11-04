@@ -47,12 +47,14 @@ window.jetpackProtectDashboard = {
  */
 async function openFile(
 	shown: ScanThreat,
-	file: Partial< typeof shownFile > = {},
+	file: Record< string, unknown > = {},
 	deleted: object = {}
 ) {
-	( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method } ) =>
-		Promise.resolve( method === 'POST' ? deleted : { ...shownFile, ...file } )
-	);
+	( apiFetch as unknown as jest.Mock )
+		.mockClear()
+		.mockImplementation( ( { method } ) =>
+			Promise.resolve( method === 'POST' ? deleted : { ...shownFile, ...file } )
+		);
 	render( <ThreatFileViewer /> );
 	act( () => openThreatFile( shown ) );
 	await expect( screen.findByText( shownFile.path ) ).resolves.toBeInTheDocument();
@@ -102,6 +104,40 @@ describe( 'Deleting a threat file', () => {
 		expect( getScan()?.ignored ).toEqual( [] );
 		expect( select( noticesStore ).getNotices() ).toContainEqual(
 			expect.objectContaining( { content: notice } )
+		);
+	} );
+} );
+
+describe( 'Restoring a threat file', () => {
+	it( 'stays open on the fixed threat and reloads the file, without its actions', async () => {
+		setScan( current => ( { ...current, threats: [ threat ], ignored: [] } ) );
+		await openFile(
+			threat,
+			{
+				canDelete: false,
+				canRestore: true,
+				owner: { type: 'core', version: '6.8', modified: true },
+			},
+			{ threat: { ...threat, status: 'fixed' }, others: [] }
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Restore original' } ) );
+		const confirm = screen.getAllByRole( 'button', { name: 'Restore original' } ).pop();
+		await userEvent.click( confirm as HTMLElement );
+
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Restore original' } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByText( shownFile.path ) ).toBeInTheDocument();
+		expect(
+			( apiFetch as unknown as jest.Mock ).mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/file' )
+			)
+		).toHaveLength( 2 );
+		expect( select( noticesStore ).getNotices() ).toContainEqual(
+			expect.objectContaining( {
+				content: 'Restored the original photo.jpg.php and marked the threat fixed.',
+			} )
 		);
 	} );
 } );
