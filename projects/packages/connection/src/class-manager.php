@@ -3407,8 +3407,7 @@ class Manager {
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
 	 * A user with `jetpack_connect` takes a vacant owner slot. They also take an occupied one whose
-	 * owner's connection is broken, when ownership is transferable and the request comes from the
-	 * browser flow (`auth_type` of `client`); see can_take_broken_owner_slot().
+	 * owner's connection is broken, when ownership is transferable; see can_take_broken_owner_slot().
 	 * Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
@@ -3483,10 +3482,7 @@ class Manager {
 		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
 
 		// Read before the token write, which clears the stored errors this depends on.
-		// Only the browser flow (Webhooks sets 'client'), where the user saw the ownership warning; not remote_authorize.
-		$take_broken_owner_slot = ! $is_connection_owner
-			&& 'client' === ( $data['auth_type'] ?? '' )
-			&& $this->can_take_broken_owner_slot( $current_user_id );
+		$take_broken_owner_slot = ! $is_connection_owner && $this->can_take_broken_owner_slot( $current_user_id );
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 

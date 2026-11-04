@@ -3144,6 +3144,38 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Creates the connection owner and a second administrator, and makes the administrator the viewer.
+	 *
+	 * @return int[] The owner's and the administrator's user IDs.
+	 */
+	private function create_owner_and_admin_viewer() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		wp_set_current_user( $admin_id );
+
+		return array( $owner_id, $admin_id );
+	}
+
+	/**
 	 * Stores a single verified error under a given error code and user ID.
 	 *
 	 * @param string $error_code The (displayable) error code.
@@ -3551,28 +3583,7 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_secondary_admin_owner_error' )]
 	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message ) {
-		$owner_id = wp_insert_user(
-			array(
-				'user_login'   => 'connection_owner',
-				'user_pass'    => 'password',
-				'user_email'   => 'connection_owner@example.org',
-				'display_name' => 'Owner Person',
-				'role'         => 'administrator',
-			)
-		);
-		$this->assertIsInt( $owner_id );
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
-
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'secondary_admin',
-				'user_pass'  => 'password',
-				'user_email' => 'secondary_admin@example.org',
-				'role'       => 'administrator',
-			)
-		);
-		$this->assertIsInt( $admin_id );
-		wp_set_current_user( $admin_id );
+		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
 
 		if ( $viewer_connected ) {
 			\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
@@ -3607,45 +3618,33 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that an inbound-failure error recorded for the owner never offers an unconnected admin a takeover.
+	 * Test that an inbound-failure error recorded for the owner keeps its own message and offers no takeover.
 	 *
-	 * Connecting a new account cannot fix a blocked request or a bad certificate, so neither the
-	 * `connect_user` action nor the Manager::authorize() takeover may follow from them.
+	 * Connecting or reconnecting an account cannot fix a blocked request or a bad certificate, so
+	 * neither the `connect_user` action nor the "you will become the new connection owner" copy
+	 * may follow from them, whether or not the viewing admin is connected.
 	 *
-	 * @param string $error_code The inbound-failure error code.
+	 * @param string $error_code       The inbound-failure error code.
+	 * @param bool   $viewer_connected Whether the viewing admin has a user token.
 	 * @dataProvider provide_inbound_failure_codes
 	 */
 	#[DataProvider( 'provide_inbound_failure_codes' )]
-	public function test_inbound_failure_recorded_for_owner_does_not_offer_takeover( $error_code ) {
-		$owner_id = wp_insert_user(
-			array(
-				'user_login' => 'connection_owner',
-				'user_pass'  => 'password',
-				'user_email' => 'connection_owner@example.org',
-				'role'       => 'administrator',
-			)
-		);
-		$this->assertIsInt( $owner_id );
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
+	public function test_inbound_failure_recorded_for_owner_does_not_offer_takeover( $error_code, $viewer_connected ) {
+		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
 		// A healthy owner token, so no `invalid_connection_owner` error is recorded on the way.
-		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => "token.secret.$owner_id" ) );
-
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'secondary_admin',
-				'user_pass'  => 'password',
-				'user_email' => 'secondary_admin@example.org',
-				'role'       => 'administrator',
-			)
-		);
-		$this->assertIsInt( $admin_id );
-		wp_set_current_user( $admin_id );
+		$tokens = array( $owner_id => "token.secret.$owner_id" );
+		if ( $viewer_connected ) {
+			$tokens[ $admin_id ] = "token.secret.$admin_id";
+		}
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		$this->store_single_verified_error( $error_code, (string) $owner_id );
 
 		$displayed = $this->error_handler->get_displayable_errors();
+		$error     = $displayed[ $error_code ][ (string) $owner_id ];
 
-		$this->assertNotSame( 'connect_user', $displayed[ $error_code ][ (string) $owner_id ]['error_data']['action'] ?? null );
+		$this->assertNotSame( 'connect_user', $error['error_data']['action'] ?? null );
+		$this->assertStringNotContainsString( 'new connection owner', $error['error_message'] );
 		$this->assertFalse( $this->error_handler->has_owner_connection_error() );
 	}
 
@@ -3656,8 +3655,44 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public static function provide_inbound_failure_codes() {
 		return array(
-			'blocked request'  => array( 'xmlrpc_request_blocked' ),
-			'SSL verification' => array( 'wpcom_ssl_verification_failed' ),
+			'blocked request, viewer unconnected'  => array( 'xmlrpc_request_blocked', false ),
+			'blocked request, viewer connected'    => array( 'xmlrpc_request_blocked', true ),
+			'SSL verification, viewer unconnected' => array( 'wpcom_ssl_verification_failed', false ),
+			'SSL verification, viewer connected'   => array( 'wpcom_ssl_verification_failed', true ),
+		);
+	}
+
+	/**
+	 * Test which stored errors count as the current owner's own broken connection.
+	 *
+	 * @param int    $master_user The recorded owner's user ID (0 for none).
+	 * @param string $error_code  The stored error code.
+	 * @param string $error_key   The user key the error is stored under.
+	 * @param bool   $expected    Whether the owner's connection counts as broken.
+	 * @dataProvider provide_owner_connection_error_cases
+	 */
+	#[DataProvider( 'provide_owner_connection_error_cases' )]
+	public function test_has_owner_connection_error( $master_user, $error_code, $error_key, $expected ) {
+		\Jetpack_Options::update_option( 'master_user', $master_user );
+		$this->store_single_verified_error( $error_code, $error_key );
+
+		$this->assertSame( $expected, $this->error_handler->has_owner_connection_error() );
+	}
+
+	/**
+	 * Data provider for test_has_owner_connection_error.
+	 *
+	 * @return array
+	 */
+	public static function provide_owner_connection_error_cases() {
+		return array(
+			'owner token error'            => array( 11, 'no_valid_user_token', '11', true ),
+			'current owner missing token'  => array( 11, 'invalid_connection_owner', '11', true ),
+			'previous owner missing token' => array( 11, 'invalid_connection_owner', '99', false ),
+			'another user token error'     => array( 11, 'no_valid_user_token', '99', false ),
+			'site-level error'             => array( 11, 'no_valid_blog_token', '0', false ),
+			'unattributable error'         => array( 11, 'no_valid_user_token', 'invalid', false ),
+			'no recorded owner'            => array( 0, 'no_valid_user_token', '11', false ),
 		);
 	}
 

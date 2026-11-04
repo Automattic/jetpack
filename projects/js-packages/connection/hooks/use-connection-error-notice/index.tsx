@@ -154,7 +154,6 @@ export default function useConnectionErrorNotice( {
 	);
 
 	// Built-in handlers for actions the server emits; a consumer's own handler wins.
-	// A connect_user override must use the standard authorize flow, or the user is linked, not promoted.
 	const resolvedActionHandlers = useMemo( () => {
 		const go =
 			navigate ??
