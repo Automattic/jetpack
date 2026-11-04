@@ -28,12 +28,13 @@ import {
 	DetailPageSection,
 	DetailPageShell,
 	describeError,
+	getPostTypeCopy,
 	useDetailPageCustomize,
 	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
@@ -45,8 +46,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { getPostTypeCopy, postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS } from './config';
+import { postHeaderSlots } from './components';
+import { EMAIL_TAB_IDS, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -131,7 +132,13 @@ function PostDetail(): JSX.Element {
 		layout: fixedLayout,
 		isEmailNotSent,
 		isEmailSendPending,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
+	} = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams,
+		emailScopeBlocked,
+		summary.type,
+		summary.isLoading
+	);
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -172,6 +179,11 @@ function PostDetail(): JSX.Element {
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
+
+	const pageWidgetTypes = useMemo(
+		() => withPostTypeTitles( widgetTypes, summary.type ),
+		[ widgetTypes, summary.type ]
+	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
@@ -226,7 +238,7 @@ function PostDetail(): JSX.Element {
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
-							widgetTypes={ widgetTypes }
+							widgetTypes={ pageWidgetTypes }
 							isResolvingWidgetTypes={ isResolvingWidgetTypes }
 							resolveWidgetModule={ resolveWidgetModule }
 							layout={ layout }

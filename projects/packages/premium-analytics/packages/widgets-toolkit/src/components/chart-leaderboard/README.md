@@ -135,11 +135,11 @@ down links it from the title, and only a row that needs several, such as a Top r
 action: { kind: 'viewLink', href: 'https://example.com' },
 ```
 
-A `viewLink`, `static` or `drillDown` row can also take a `trailingAction`, an element rendered
+Any row except a `link` row can also take a `trailingAction`, an element rendered
 after the label (and after the "View" action when there is one) and revealed on hover or focus,
 for a widget's own row actions such as the Top referrers widget's `MarkAsSpamButton`. A drill-down
 row with one becomes a layered row, so the action's own click wins over the drill-down. The type
-rejects it on rows that link out as a whole or open a detail page:
+rejects it on a row that links out as a whole:
 
 ```tsx
 ...buildLeaderboardRow( {

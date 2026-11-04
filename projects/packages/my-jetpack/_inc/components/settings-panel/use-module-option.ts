@@ -17,7 +17,7 @@ import type { MyJetpackModule } from '../../types';
  */
 export function useModuleOption( $module: MyJetpackModule, name: string ) {
 	const { fetchModules } = useDispatch( modulesStore );
-	const { createErrorNotice } = useDispatch( noticesStore );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 	const [ requested, setRequested ] = useState< boolean | null >( null );
 
 	const option = Array.isArray( $module.options ) ? undefined : $module.options?.[ name ];
@@ -33,6 +33,9 @@ export function useModuleOption( $module: MyJetpackModule, name: string ) {
 					data: { [ name ]: value },
 				} );
 				await fetchModules();
+				createSuccessNotice( __( 'Updated settings.', 'jetpack-my-jetpack' ), {
+					type: 'snackbar',
+				} );
 			} catch {
 				createErrorNotice( __( 'Failed to save the setting.', 'jetpack-my-jetpack' ), {
 					type: 'snackbar',
@@ -41,7 +44,7 @@ export function useModuleOption( $module: MyJetpackModule, name: string ) {
 				setRequested( null );
 			}
 		},
-		[ name, fetchModules, createErrorNotice ]
+		[ name, fetchModules, createErrorNotice, createSuccessNotice ]
 	);
 
 	return { value: requested ?? stored, isSaving: requested !== null, setValue };

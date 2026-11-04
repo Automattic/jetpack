@@ -28,26 +28,36 @@ export default function PointerCard( { header, href, linkText, children } ) {
 /**
  * A search result that sends a product's settings to its card in My Jetpack › Features.
  *
- * @param {object} props        - Component props.
- * @param {string} props.header - Card header.
- * @param {string} props.name   - Product name.
- * @param {string} props.search - Search term that finds the product in Features.
+ * @param {object}  props                        - Component props.
+ * @param {string}  props.header                 - Card header.
+ * @param {string}  props.name                   - Product name.
+ * @param {string}  [props.search]               - Search term that finds the product in Features.
+ * @param {string}  [props.feature]              - Features card to open instead of searching.
+ * @param {boolean} [props.linksToSettings=true] - False for a feature Features only switches on or off.
  * @return {import('react').ReactNode} The card.
  */
-export function FeaturesPointer( { header, name, search } ) {
+export function FeaturesPointer( { header, name, search, feature, linksToSettings = true } ) {
+	const query = feature
+		? `feature=${ encodeURIComponent( feature ) }`
+		: `search=${ encodeURIComponent( search ) }`;
+	const withSettings = sprintf(
+		/* translators: %s: a product name, such as VideoPress. */
+		__( 'Turn %s on or off in My Jetpack › Features, which links to its settings.', 'jetpack' ),
+		name
+	);
+	const switchOnly = sprintf(
+		/* translators: %s: a feature name, such as Notifications. */
+		__( 'Turn %s on or off in My Jetpack › Features.', 'jetpack' ),
+		name
+	);
+
 	return (
 		<PointerCard
 			header={ header }
-			href={ getAdminUrl(
-				`admin.php?page=my-jetpack#/features?search=${ encodeURIComponent( search ) }`
-			) }
+			href={ getAdminUrl( `admin.php?page=my-jetpack#/features?${ query }` ) }
 			linkText={ __( 'Open Features', 'jetpack' ) }
 		>
-			{ sprintf(
-				/* translators: %s: a product name, such as VideoPress. */
-				__( 'Turn %s on or off in My Jetpack › Features, which links to its settings.', 'jetpack' ),
-				name
-			) }
+			{ linksToSettings ? withSettings : switchOnly }
 		</PointerCard>
 	);
 }

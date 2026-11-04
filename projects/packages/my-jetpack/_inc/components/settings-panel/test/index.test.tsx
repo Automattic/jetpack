@@ -17,14 +17,17 @@ jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
 		module: $module,
 		labelledby,
+		disabled,
 	}: {
 		module: MyJetpackModule;
 		labelledby?: string;
+		disabled?: boolean;
 	} ) => (
 		<input
 			type="checkbox"
 			aria-label={ labelledby ? undefined : `Toggle ${ $module.name }` }
 			aria-labelledby={ labelledby }
+			disabled={ disabled }
 		/>
 	),
 } ) );
@@ -57,7 +60,7 @@ describe( 'SettingsPanel', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'Carousel' } ) ).toHaveFocus();
 		expect( screen.getByText( carousel.description ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeEnabled();
 		expect( screen.getByRole( 'link', { name: 'Manage in Settings' } ) ).toHaveAttribute(
 			'href',
 			carousel.configure_url
@@ -77,6 +80,42 @@ describe( 'SettingsPanel', () => {
 
 		expect( screen.getByText( 'Options of Carousel' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Manage in Settings' } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'the fallback', 'Activate this feature', false ],
+		[ 'a registered component', 'Show captions', true ],
+	] )( 'locks %s for a module the site cannot use, and says why', ( _name, label, registered ) => {
+		if ( registered ) {
+			moduleSettings.carousel = ( { disabled } ) => (
+				<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
+			);
+		}
+		mockModules = {
+			modules: {
+				carousel: {
+					...carousel,
+					available: false,
+					unavailable_reason: 'Unavailable in Offline Mode',
+				},
+			},
+			hasLoaded: true,
+		};
+		render( <SettingsPanel /> );
+
+		expect( screen.getByText( 'Unavailable in Offline Mode' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: label } ) ).toBeDisabled();
+	} );
+
+	it( 'says the host forced a module on, and leaves its options unlocked', () => {
+		mockModules = { modules: { carousel: { ...carousel, override: 'active' } }, hasLoaded: true };
+		moduleSettings.carousel = ( { disabled } ) => (
+			<input type="checkbox" aria-label="Show captions" disabled={ disabled } />
+		);
+		render( <SettingsPanel /> );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Show captions' } ) ).toBeEnabled();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
 	it( 'returns focus to what opened it on close', () => {

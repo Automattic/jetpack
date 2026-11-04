@@ -63,6 +63,13 @@ function getScanConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 		},
+		checkoutPending: {
+			title: __( 'Setting up Protect', 'jetpack-mu-wpcom' ),
+			description: __(
+				'Thanks for upgrading! Protect will be ready in a few moments.',
+				'jetpack-mu-wpcom'
+			),
+		},
 		modal: {
 			blockedTitle: __( 'Protect cannot be activated', 'jetpack-mu-wpcom' ),
 			intro: __(

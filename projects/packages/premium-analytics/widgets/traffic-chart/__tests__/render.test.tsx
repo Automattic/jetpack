@@ -212,6 +212,37 @@ describe( 'Traffic chart type switch', () => {
 
 		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
 	} );
+
+	function switchChartType( value: 'line' | 'bar' ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return (
+			field as unknown as { setValue: ( args: { item: object; value: string } ) => unknown }
+		 ).setValue( { item: {}, value } );
+	}
+
+	it( 'saves a choice where Stats v1 keeps it, as well as on the widget', () => {
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'line' );
+
+		expect( switchChartType( 'bar' ) ).toEqual( { chartType: 'bar' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'bar' );
+	} );
+
+	it( 'saves a choice on the widget alone when the site id is unknown', () => {
+		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage ).toHaveLength( 0 );
+	} );
+
+	it( 'saves a choice on the widget alone when browser storage cannot be written', () => {
+		jest.spyOn( Storage.prototype, 'setItem' ).mockImplementation( () => {
+			throw new Error( 'blocked' );
+		} );
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		jest.restoreAllMocks();
+	} );
 } );
 
 describe( 'Traffic chart interval menu', () => {
