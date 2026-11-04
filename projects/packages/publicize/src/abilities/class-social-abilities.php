@@ -161,9 +161,10 @@ class Social_Abilities extends Registrar {
 				'permission_callback' => array( __CLASS__, 'can_share_post' ),
 				'meta'                => array(
 					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => true,
-						'idempotent'  => false,
+						'readonly'      => false,
+						'destructive'   => true,
+						'idempotent'    => false,
+						'openWorldHint' => true,
 					),
 					'show_in_rest' => true,
 					'mcp'          => $mcp,

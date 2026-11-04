@@ -105,6 +105,7 @@ class Social_Abilities_Test extends BaseTestCase {
 			$this->assertTrue( $abilities[ $slug ]['meta']['annotations']['destructive'], $slug );
 		}
 		$this->assertFalse( $abilities['jetpack-social/share-post']['meta']['annotations']['idempotent'] );
+		$this->assertTrue( $abilities['jetpack-social/share-post']['meta']['annotations']['openWorldHint'] );
 	}
 
 	public function test_descriptions_avoid_words_the_mcp_compliance_check_rejects(): void {
