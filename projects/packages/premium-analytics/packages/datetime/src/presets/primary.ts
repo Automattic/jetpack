@@ -243,9 +243,10 @@ export function getPresetLabel( id: PrimaryPresetId | null | undefined ): string
 /**
  * Build a DateContext for a given timezone.
  * @param timeZone
+ * @param now      - The instant to build it at; the clock by default.
  */
-function buildDateContext( timeZone: string ): DateContext {
-	const nowWithTZ = toLocalTZ( undefined, timeZone );
+function buildDateContext( timeZone: string, now?: Date ): DateContext {
+	const nowWithTZ = toLocalTZ( now, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
 	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
@@ -503,18 +504,19 @@ export function getMenuSurfacePresetGroups(
 /**
  * Compute the absolute date range for a preset ID in the given timezone.
  *
- * @param presetId - A valid computable preset identifier.
- * @param timeZone - IANA timezone string.
- * @param options  - All-time options; only read for the all-time preset,
- *                 whose start is a property of the surface, not of the ID.
+ * @param presetId    - A valid computable preset identifier.
+ * @param timeZone    - IANA timezone string.
+ * @param options     - All-time options; only read for the all-time preset,
+ *                    whose start is a property of the surface, not of the ID.
+ * @param options.now - The instant to read the preset at; the clock by default.
  * @return The computed range, or undefined if the preset is not recognized.
  */
 export function computePrimaryRange(
 	presetId: ComputablePresetId,
 	timeZone: string,
-	options: AllTimeRangeOptions = {}
+	options: AllTimeRangeOptions & { now?: Date } = {}
 ): Required< DateRange > | undefined {
-	const ctx = buildDateContext( timeZone );
+	const ctx = buildDateContext( timeZone, options.now );
 
 	if ( presetId === PRESET_ALL_TIME ) {
 		return computeAllTimeRange( resolveAllTimeStart( options, ctx ), ctx );

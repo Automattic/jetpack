@@ -181,12 +181,23 @@ describe( 'planDateStep', () => {
 		} );
 	} );
 
+	// A week-old bookmark of Last 7 days: the page shows today's week, so the step starts there.
+	it( 'steps a preset from the window it names today, whatever dates the URL kept', () => {
+		const stale = { ...context, presetId: 'last-7-days', step: 'P1M' } as const;
+		const lastWeek = computePrimaryRange( 'last-7-days', TIMEZONE )!;
+
+		expect( planDateStep( weekBeforeLast, 'previous', stale ) ).toEqual( {
+			range: wholeDays( [ 2026, 8, 7 ], [ 2026, 8, 13 ] ),
+			presetId: 'custom',
+			step: 'last-7-days',
+		} );
+		expect( planDateStep( weekBeforeLast, 'next', stale ) ).toBeUndefined();
+		expect( planDateStep( lastWeek, 'previous', stale ) ).toEqual(
+			planDateStep( weekBeforeLast, 'previous', stale )
+		);
+	} );
+
 	it.each( [
-		[
-			'the applied preset over a step the URL carries',
-			{ presetId: 'last-7-days', step: 'P1M' },
-			'last-7-days',
-		],
 		[ 'the window’s shape over a step the URL cannot name', { step: 'P0D' }, 'P7D' ],
 		[ 'the window’s shape over a step no date can hold', { step: 'P999999999D' }, 'P7D' ],
 	] as const )( 'reads %s', ( _name, extra, step ) => {

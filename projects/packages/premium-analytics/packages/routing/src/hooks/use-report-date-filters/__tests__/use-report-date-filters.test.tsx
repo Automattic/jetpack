@@ -420,6 +420,7 @@ describe( 'useReportDateFilters', () => {
 	 * rides in the URL with it, so the next step moves the same way.
 	 */
 	it( 'steps the applied window by the preset and commits it as custom, with the step', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-10T14:30:00.000Z' ) );
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-07-09T15:00:00.000+00:00',
 			to: '2026-07-10T14:59:59.999+00:00',
@@ -787,6 +788,7 @@ describe( 'useReportDateFilters', () => {
 	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
 		// `last-12-months` as read on 20 August 2026. Stepped by its day count
 		// the window would start on 12 September and its comparison on the 24th.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const { result, rerender } = renderDateFilters( {
 			from: '2025-09-01T00:00:00.000+00:00',
 			to: '2026-08-20T23:59:59.999+00:00',

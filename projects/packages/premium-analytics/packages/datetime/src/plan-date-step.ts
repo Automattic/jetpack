@@ -72,7 +72,7 @@ export type DateStep = {
  * away from it rebuilds the whole unit. The landing reads as a preset only
  * when it is the window of the preset the reader set out from.
  *
- * @param range     - The applied window.
+ * @param range     - The applied window. A preset steps from the window it names today.
  * @param direction - Which way to move it.
  * @param context   - What the step is decided against.
  * @return The step, or `undefined` when the window cannot move that way.
@@ -88,10 +88,17 @@ export function planDateStep(
 		return undefined;
 	}
 
+	// A preset is the window it names today, whatever dates the URL kept: a bookmark or a
+	// tab left open shows today's window, so a step sets out from there too.
+	const applied =
+		( isSelectablePreset( presetId ) &&
+			computePrimaryRange( presetId, timeZone, { now: context.now } ) ) ||
+		range;
+
 	// Everything below cuts boundaries on the site's calendar, whatever clock the ends arrived on.
 	const zoned = {
-		from: new TZDate( range.from.getTime(), timeZone ),
-		to: new TZDate( range.to.getTime(), timeZone ),
+		from: new TZDate( applied.from.getTime(), timeZone ),
+		to: new TZDate( applied.to.getTime(), timeZone ),
 	};
 	const step = isSelectablePreset( presetId )
 		? presetId
@@ -119,7 +126,7 @@ export function planDateStep(
 		to: stepped.to.getTime() > horizon.getTime() ? horizon : stepped.to,
 	};
 	const origin = isSelectablePreset( step ) ? step : undefined;
-	const home = origin && computePrimaryRange( origin, timeZone );
+	const home = origin && computePrimaryRange( origin, timeZone, { now: context.now } );
 	const isHome =
 		home?.from.getTime() === landing.from.getTime() && home.to.getTime() === landing.to.getTime();
 
