@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\Abilities;
 
+use Automattic\Jetpack\Publicize\Publicize;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WP_Error;
@@ -62,17 +63,14 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	private function fake_publicize(): void {
-		$GLOBALS['publicize'] = new class() {
-			/**
-			 * Mirror of the real check.
-			 *
-			 * @param int $post_id Post ID.
-			 * @return bool
-			 */
-			public function current_user_can_access_publicize_data( $post_id = 0 ) {
+		global $publicize;
+
+		$publicize = $this->createStub( Publicize::class );
+		$publicize->method( 'current_user_can_access_publicize_data' )->willReturnCallback(
+			function ( $post_id = 0 ) {
 				return $post_id ? current_user_can( 'publish_post', $post_id ) : current_user_can( 'publish_posts' );
 			}
-		};
+		);
 	}
 
 	public function test_register_abilities_registers_the_three_slugs_in_the_social_category(): void {
@@ -217,7 +215,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		$request = $this->requests[0];
 		$this->assertSame( 'POST', $request->get_method() );
 		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
-		$this->assertSame( 'application/json', $request->get_content_type()['value'] );
+		$this->assertSame( 'application/json', $request->get_header( 'content_type' ) );
 		$this->assertSame(
 			array(
 				'message'             => 'Hello',
@@ -320,7 +318,7 @@ class Social_Abilities_Test extends BaseTestCase {
 				'message' => 'Hello',
 				'async'   => true,
 			),
-			json_decode( $seen['body'], true )
+			json_decode( (string) ( $seen['body'] ?? '' ), true )
 		);
 	}
 
