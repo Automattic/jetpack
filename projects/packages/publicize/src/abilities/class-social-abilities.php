@@ -353,7 +353,7 @@ class Social_Abilities extends Registrar {
 			$body['skipped_connections'] = array_map( 'absint', $input['skipped_connections'] );
 		}
 
-		$skipped = isset( $body['skipped_connections'] ) ? $body['skipped_connections'] : array();
+		$skipped = $body['skipped_connections'] ?? array();
 		$items   = self::dispatch( new WP_REST_Request( 'GET', self::CONNECTIONS_ROUTE ) );
 		if ( is_wp_error( $items ) ) {
 			return $items;
