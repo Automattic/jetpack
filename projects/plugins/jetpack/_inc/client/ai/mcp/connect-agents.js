@@ -39,7 +39,7 @@ export function getConnectAgents() {
 			name: 'ChatGPT',
 			description: __( 'OpenAI’s chat app', 'jetpack' ),
 			logo: 'chatgpt.svg',
-			actionLabel: __( 'Add app', 'jetpack' ),
+			actionLabel: __( 'Add plugin', 'jetpack' ),
 			href: getRedirectUrl(
 				isSelfHosted ? CHATGPT_SELF_HOSTED_REDIRECT_SOURCE : CHATGPT_CONNECTOR_REDIRECT_SOURCE
 			),
@@ -49,7 +49,7 @@ export function getConnectAgents() {
 			name: 'Claude',
 			description: __( 'App and desktop', 'jetpack' ),
 			logo: 'claude.svg',
-			actionLabel: __( 'Add app', 'jetpack' ),
+			actionLabel: __( 'Add connector', 'jetpack' ),
 			href: getRedirectUrl(
 				isSelfHosted ? CLAUDE_SELF_HOSTED_REDIRECT_SOURCE : CLAUDE_CONNECTOR_REDIRECT_SOURCE
 			),
