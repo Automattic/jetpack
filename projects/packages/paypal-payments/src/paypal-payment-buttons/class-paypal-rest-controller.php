@@ -1843,7 +1843,7 @@ class PayPal_REST_Controller {
 		}
 
 		if ( $is_line_item ) {
-			$primary_at = $primary_at ?? 0;
+			$primary_at ??= 0;
 			foreach ( $clean as $index => $image ) {
 				$clean[ $index ]['is_primary'] = ( $index === $primary_at );
 			}
