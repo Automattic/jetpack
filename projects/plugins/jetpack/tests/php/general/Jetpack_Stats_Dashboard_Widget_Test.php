@@ -8,6 +8,7 @@
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+require_once ABSPATH . 'wp-admin/includes/admin.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 
 /**
@@ -51,10 +52,16 @@ class Jetpack_Stats_Dashboard_Widget_Test extends WP_UnitTestCase {
 	#[DataProvider( 'deprecated_method_provider' )]
 	public function test_deprecated_methods_still_exist( $method ) {
 		$this->setExpectedDeprecated( 'Jetpack_Stats_Dashboard_Widget::' . $method );
+		// render_widget() checks the screen's hidden widgets.
+		set_current_screen( 'dashboard' );
 
 		ob_start();
-		Jetpack_Stats_Dashboard_Widget::$method();
-		ob_end_clean();
+		try {
+			Jetpack_Stats_Dashboard_Widget::$method();
+		} finally {
+			ob_end_clean();
+			$GLOBALS['current_screen'] = null;
+		}
 	}
 
 	/**
