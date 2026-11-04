@@ -983,8 +983,39 @@ class Scan_Section_Test extends BaseTestCase {
 		$this->assertSame( $expected, is_wp_error( $response ) ? $response->get_error_code() : null );
 	}
 
+	public function test_delete_threat_file_refuses_when_history_cannot_name_the_file_s_ignored_threats() {
+		$this->write_file( self::uploads_dir() . '/protect-threat-file.php' );
+		Scan_Status::$status = new Status_Model(
+			array(
+				'threats' => array(
+					new Threat_Model(
+						array(
+							'id'       => 9,
+							'filename' => self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' ),
+						)
+					),
+				),
+			)
+		);
+		$request             = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
+		$request->set_url_params( array( 'id' => '9' ) );
+		$hash = Scan::get_threat_file( $request )['hash'];
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'offline' );
+			}
+		);
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
+		$request->set_url_params( array( 'id' => '9' ) );
+		$request->set_param( 'hash', $hash );
+
+		$this->assertSame( 'threat_history_unavailable', Scan::delete_threat_file( $request )->get_error_code() );
+		$this->assertFileExists( self::uploads_dir() . '/protect-threat-file.php' );
+	}
+
 	/**
-	 * Why deleting a file is refused: a threat History lists as fixed, or a file changed since the viewer showed it.
+	 * Why deleting a file is refused: a fixed threat, a file changed since the viewer showed it, or one WordPress won't let go.
 	 *
 	 * @return array[]
 	 */
@@ -992,6 +1023,7 @@ class Scan_Section_Test extends BaseTestCase {
 		return array(
 			'threat already fixed'           => array( 'fixed', null, 'threat_not_open' ),
 			'file changed since it was seen' => array( 'ignored', '<?php echo 1;', 'threat_file_changed' ),
+			'file changes turned off'        => array( 'ignored', null, 'threat_file_not_deletable', false ),
 		);
 	}
 
@@ -1001,10 +1033,15 @@ class Scan_Section_Test extends BaseTestCase {
 	 * @param string      $status     The threat's status in History.
 	 * @param string|null $changed_to What the file is changed to after it was viewed.
 	 * @param string      $expected   The error code.
+	 * @param bool        $file_mods  Whether WordPress allows file changes.
 	 */
 	#[DataProvider( 'provide_refused_deletes' )]
-	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $changed_to, $expected ) {
+	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $changed_to, $expected, $file_mods = true ) {
+		if ( ! $file_mods ) {
+			add_filter( 'file_mod_allowed', '__return_false' );
+		}
 		$response = $this->act_on_history_threat_file( $status, $changed_to );
+		remove_filter( 'file_mod_allowed', '__return_false' );
 
 		$this->assertSame( $expected, $response->get_error_code() );
 		$this->assertFileExists( self::uploads_dir() . '/protect-threat-file.php' );
