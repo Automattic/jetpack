@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Send WordPress.com one attribution event through Sync after a comment from a signed-in commenter is saved.

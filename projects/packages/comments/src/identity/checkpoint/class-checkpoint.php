@@ -69,6 +69,7 @@ class Checkpoint {
 		add_action( 'pre_comment_on_post', array( $this, 'admit' ), 20 );
 		add_filter( 'preprocess_comment', array( $this, 'attribute' ), 0 );
 		add_action( 'comment_post', array( $this, 'record' ) );
+		add_action( 'comment_post', array( $this, 'announce' ), 20 );
 		add_filter( 'akismet_request_args', array( $this, 'akismet_request_args' ), 10, 2 );
 
 		Checkpoint_Endpoint::init();
@@ -445,5 +446,47 @@ class Checkpoint {
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );
 		}
+	}
+
+	/**
+	 * Tell WordPress.com who left the comment, through Sync so it arrives after the comment and its meta.
+	 *
+	 * @param int $comment_id The comment ID.
+	 * @return void
+	 */
+	public function announce( $comment_id ) {
+		// Simple has no Sync, and stores the WordPress.com account on the comment itself.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		$comment = get_comment( $comment_id );
+		if ( ! $comment instanceof \WP_Comment ) {
+			return;
+		}
+
+		$attribution = array( 'v' => 1 );
+
+		if ( null !== $this->identity ) {
+			$attribution['method']      = 'identity';
+			$attribution['identity_id'] = $this->identity['site_commenter_id'];
+		} elseif ( (int) $comment->user_id > 0 ) {
+			// Signed in on this site: WordPress.com resolves the account from the user's connection.
+			$attribution['method']       = 'site_user';
+			$attribution['site_user_id'] = (int) $comment->user_id;
+		} else {
+			return;
+		}
+
+		/**
+		 * Fires once per attributable comment, after the comment and its identity meta are saved.
+		 * Jetpack Sync sends it to WordPress.com.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int   $comment_id  The comment ID.
+		 * @param array $attribution Version, method, and the identity_id or site_user_id.
+		 */
+		do_action( 'jetpack_comment_attributed', (int) $comment_id, $attribution );
 	}
 }

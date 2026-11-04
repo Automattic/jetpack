@@ -107,11 +107,13 @@ class Comments extends Module {
 		add_action( 'comment_unapproved_to_approved', $callable );
 		add_action( 'jetpack_modified_comment_contents', $callable, 10, 2 );
 		add_action( 'untrashed_comment', $callable, 10, 2 );
+		add_action( 'jetpack_comment_attributed', $callable, 10, 2 );
 		add_action( 'unspammed_comment', $callable, 10, 2 );
 		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// comment actions.
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'filter_jetpack_sync_before_enqueue_wp_insert_comment' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_comment_attributed', array( $this, 'filter_comment_attributed' ) );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
 		add_filter( 'jetpack_sync_before_enqueue_trashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
 		add_filter( 'jetpack_sync_before_enqueue_untrashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
@@ -306,6 +308,16 @@ class Comments extends Module {
 		}
 
 		return $this->expand_wp_insert_comment( $args );
+	}
+
+	/**
+	 * Keep an attribution event only for a whitelisted comment type.
+	 *
+	 * @param array $args The comment ID and the attribution.
+	 * @return false|array
+	 */
+	public function filter_comment_attributed( $args ) {
+		return isset( $args[0] ) && $this->is_comment_type_allowed( $args[0] ) ? $args : false;
 	}
 
 	/**

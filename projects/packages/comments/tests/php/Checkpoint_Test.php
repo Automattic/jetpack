@@ -84,4 +84,74 @@ class Checkpoint_Test extends BaseTestCase {
 
 		$this->assertSame( 0, get_option( 'comment_registration', 1 ) );
 	}
+
+	/**
+	 * @dataProvider provide_announce
+	 */
+	#[DataProvider( 'provide_announce' )]
+	public function test_announce( $identity, $user_id, $expected ) {
+		wp_cache_set(
+			7,
+			new \WP_Comment(
+				(object) array(
+					'comment_ID' => 7,
+					'user_id'    => $user_id,
+				)
+			),
+			'comment'
+		);
+
+		$checkpoint = Checkpoint::init();
+		$property   = new \ReflectionProperty( Checkpoint::class, 'identity' );
+		$property->setValue( $checkpoint, $identity );
+
+		$fired = array();
+		add_action(
+			'jetpack_comment_attributed',
+			function ( ...$args ) use ( &$fired ) {
+				$fired[] = $args;
+			},
+			10,
+			2
+		);
+
+		$checkpoint->announce( 7 );
+		$property->setValue( $checkpoint, null );
+
+		$this->assertSame( $expected, $fired );
+	}
+
+	public static function provide_announce() {
+		return array(
+			'identity'        => array(
+			array( 'site_commenter_id' => 'abc' ),
+			0,
+			array(
+			array(
+			7,
+			array(
+			'v'           => 1,
+			'method'      => 'identity',
+			'identity_id' => 'abc',
+				),
+			),
+				),
+			), // phpcs:ignore Universal.Arrays.MixedArrayKeyTypes
+			'site user'       => array(
+		null,
+		3,
+		array(
+		array(
+		7,
+		array(
+		'v'            => 1,
+		'method'       => 'site_user',
+		'site_user_id' => 3,
+			),
+		),
+			),
+		), // phpcs:ignore Universal.Arrays.MixedArrayKeyTypes
+			'anonymous guest' => array( null, 0, array() ),
+		);
+	}
 }
