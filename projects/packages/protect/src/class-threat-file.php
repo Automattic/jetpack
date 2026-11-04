@@ -92,7 +92,7 @@ class Threat_File {
 			return false;
 		}
 		// Not in either, such as the site root's index.php that loads WordPress kept in its own directory.
-		if ( ! is_file( $path ) || is_link( $path ) || ! self::get_deletable_root( $path ) ) {
+		if ( ! is_file( $path ) || is_link( $path ) || ! self::get_deletable_root( $path ) || self::is_loaded( $path ) ) {
 			return false;
 		}
 		// Drop-ins such as object-cache.php sit loose in wp-content but run the site.
@@ -129,12 +129,25 @@ class Threat_File {
 	}
 
 	/**
+	 * Whether this request loaded the file, as wp-config.php and drop-ins load files such as db-config.php.
+	 *
+	 * @param string $path The file's real path.
+	 * @return bool
+	 */
+	public static function is_loaded( $path ) {
+		return in_array( $path, array_map( 'realpath', get_included_files() ), true );
+	}
+
+	/**
 	 * Delete a stray file that can_delete() allows, and only that regular file.
 	 *
 	 * @param string $path The file's real path.
 	 * @return true|WP_Error
 	 */
 	public static function delete( $path ) {
+		if ( self::is_loaded( $path ) ) {
+			return new WP_Error( 'threat_file_loaded', __( 'Your site loads this file, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
+		}
 		$root = self::get_deletable_root( $path );
 		if ( $root && is_file( $path ) && ! is_link( $path ) && wp_delete_file_from_directory( $path, $root ) ) {
 			clearstatcache( true, $path );

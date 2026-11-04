@@ -69,6 +69,7 @@ class Threat_File_Test extends BaseTestCase {
 			'loader of a separate WP folder' => array( 'site-index', 'none', false ),
 			'beside a separate WP folder'    => array( 'site-root', 'none', false ),
 			'theme in a registered folder'   => array( 'registered-theme', 'theme', false ),
+			'loaded by the site'             => array( 'loaded', 'none', false ),
 		);
 	}
 
@@ -100,6 +101,7 @@ class Threat_File_Test extends BaseTestCase {
 			'site-index'        => dirname( ABSPATH ) . '/protect-test-site/index.php',
 			'site-root'         => dirname( ABSPATH ) . '/protect-test-site/protect-test.php',
 			'registered-theme'  => WP_CONTENT_DIR . '/protect-test-themes/protect-test-theme/functions.php',
+			'loaded'            => ABSPATH . 'protect-test-db-config.php',
 		);
 		if ( 'plugin' === $where ) {
 			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );
@@ -110,6 +112,9 @@ class Threat_File_Test extends BaseTestCase {
 			register_theme_directory( WP_CONTENT_DIR . '/protect-test-themes' );
 		}
 		$path = $this->write( $paths[ $where ] );
+		if ( 'loaded' === $where ) {
+			require_once $path;
+		}
 
 		$found = Threat_File::get_owner( $path );
 
@@ -174,5 +179,13 @@ class Threat_File_Test extends BaseTestCase {
 		$this->assertSame( 'original_mismatch', $result->get_error_code() );
 		$this->assertSame( '<?php // changed', file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$this->assertSame( array(), self::temp_files( $path ) );
+	}
+
+	public function test_delete_refuses_a_file_the_site_loaded() {
+		$path = $this->write( WP_CONTENT_DIR . '/protect-test-wp-cache-config.php' );
+		require_once $path;
+
+		$this->assertSame( 'threat_file_loaded', Threat_File::delete( $path )->get_error_code() );
+		$this->assertFileExists( $path );
 	}
 }
