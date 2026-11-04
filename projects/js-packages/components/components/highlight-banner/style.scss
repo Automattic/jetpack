@@ -6,8 +6,11 @@
 	isolation: isolate;
 	display: flex;
 	align-items: flex-start;
+	flex-shrink: 0;
 	box-sizing: border-box;
 	padding: 32px;
+	// overflow: hidden clips the orbs, but also lets a shrinking flex column
+	// squash the banner below its content, hence flex-shrink: 0 above.
 	overflow: hidden;
 	border-radius: 8px;
 	background: #003010;
