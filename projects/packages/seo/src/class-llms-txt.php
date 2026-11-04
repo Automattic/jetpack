@@ -225,8 +225,7 @@ class Llms_Txt {
 
 	/**
 	 * Pages ranked: the ones the owner always includes, then the main menu, then other
-	 * displayed menus, then the rest in the order core's Page List block shows them: menu
-	 * order, then title.
+	 * displayed menus, then the rest by {@see get_pages_by_order()}.
 	 *
 	 * @return \WP_Post[]
 	 */
@@ -245,14 +244,12 @@ class Llms_Txt {
 		$args                   = self::query_args( 'page' );
 		$args['posts_per_page'] = $room;
 		$args['post__not_in']   = array_merge( $skip, $menus['main'], $menus['other'] );
-		$args['orderby']        = 'menu_order title';
-		$args['order']          = 'ASC';
 
-		return array_merge( $included, $main, $other, get_posts( $args ) );
+		return array_merge( $included, $main, $other, self::get_pages_by_order( $args ) );
 	}
 
 	/**
-	 * Listable pages the owner switched on to always include, by menu order, then title.
+	 * Listable pages the owner switched on to always include, sorted by {@see get_pages_by_order()}.
 	 *
 	 * @return \WP_Post[]
 	 */
@@ -268,10 +265,33 @@ class Llms_Txt {
 			),
 		);
 		$args['posts_per_page'] = -1;
-		$args['orderby']        = 'menu_order title';
-		$args['order']          = 'ASC';
 
-		return get_posts( $args );
+		return self::get_pages_by_order( $args );
+	}
+
+	/**
+	 * Run a page query sorted by the page Order, lowest first, with pages whose Order was
+	 * set ahead of untouched ones (Order 0), then by title.
+	 *
+	 * @param array $args Query arguments.
+	 * @return \WP_Post[]
+	 */
+	private static function get_pages_by_order( array $args ) {
+		$flag          = 'jetpack_seo_llms_txt_order';
+		$args[ $flag ] = true;
+		$orderby       = static function ( $sql, $query ) use ( $flag ) {
+			global $wpdb;
+			if ( ! $query->get( $flag ) ) {
+				return $sql;
+			}
+			return "({$wpdb->posts}.menu_order = 0) ASC, {$wpdb->posts}.menu_order ASC, {$wpdb->posts}.post_title ASC";
+		};
+
+		add_filter( 'posts_orderby', $orderby, 10, 2 );
+		$posts = get_posts( $args );
+		remove_filter( 'posts_orderby', $orderby, 10 );
+
+		return $posts;
 	}
 
 	/**

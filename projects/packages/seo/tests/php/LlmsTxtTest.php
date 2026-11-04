@@ -413,8 +413,8 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Pages list the main menu first, then other displayed menus, then the rest by menu
-	 * order and title, up to the per-type limit.
+	 * Pages list the main menu first, then other displayed menus, then pages with an Order
+	 * set ahead of untouched ones, up to the per-type limit.
 	 *
 	 * @return void
 	 */
@@ -422,6 +422,7 @@ class LlmsTxtTest extends SeoTestCase {
 		for ( $i = 1; $i <= 50; $i++ ) {
 			$this->insert_page( sprintf( 'Page %02d', $i ), 51 - $i );
 		}
+		$this->insert_page( 'Aa Untouched' );
 		$scan    = $this->insert_page( 'Zz Scan' );
 		$privacy = $this->insert_page( 'Zy Privacy' );
 		$this->add_nav_menu( array( $scan->ID ), 'primary' );
