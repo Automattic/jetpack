@@ -802,6 +802,16 @@ describe( 'LeaderboardChart', () => {
 			);
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
+
+		it( 'titles only an interactive row’s string label with its full text', () => {
+			const [ interactive, inert ] = mockData;
+			render( <LeaderboardChart data={ [ { ...interactive, onClick: jest.fn() }, inert ] } /> );
+			expect( screen.getByText( String( interactive.label ) ) ).toHaveAttribute(
+				'title',
+				interactive.label
+			);
+			expect( screen.getByText( String( inert.label ) ) ).not.toHaveAttribute( 'title' );
+		} );
 	} );
 
 	describe( 'grid gaps', () => {

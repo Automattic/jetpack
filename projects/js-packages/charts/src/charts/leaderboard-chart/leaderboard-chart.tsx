@@ -107,8 +107,22 @@ function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
 	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
 }
 
-const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
-	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
+const BarLabel = ( {
+	label,
+	isInteractiveRow,
+}: {
+	label: LeaderboardEntry[ 'label' ];
+	isInteractiveRow: boolean;
+} ) => (
+	<>
+		{ typeof label === 'string' ? (
+			<Text className={ styles.label } title={ isInteractiveRow ? label : undefined }>
+				{ label }
+			</Text>
+		) : (
+			label
+		) }
+	</>
 );
 
 /** The largest negative and positive share magnitudes, which size each side of zero. */
@@ -213,7 +227,7 @@ const BarWithLabel = ( {
 			} ) }
 			data-testid={ divergingScale ? 'leaderboard-chart-diverging-row' : undefined }
 		>
-			<BarLabel label={ entry.label } />
+			<BarLabel label={ entry.label } isInteractiveRow={ Boolean( entry.onClick ) } />
 			{ bars }
 		</div>
 	);
