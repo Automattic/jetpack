@@ -80,6 +80,16 @@ jest.mock( '@wordpress/ui', () => ( {
 			</div>
 		),
 		Description: ( { children } ) => <span>{ children }</span>,
+		CloseIconButton: ( { onClick } ) => (
+			<button type="button" onClick={ onClick }>
+				Dismiss
+			</button>
+		),
+	},
+	Field: {
+		VisualLabel: ( { children } ) => (
+			<span className="components-base-control__label">{ children }</span>
+		),
 	},
 	Link: ( { href, children, openInNewTab } ) => (
 		<a
@@ -116,7 +126,10 @@ jest.mock( '@wordpress/icons', () => {
 		chevronLeft: icon( 'chevron-left' ),
 		chevronRight: icon( 'chevron-right' ),
 		copy: icon( 'copy' ),
+		image: icon( 'image' ),
+		lineSolid: icon( 'line-solid' ),
 		moreVertical: icon( 'more-vertical' ),
+		plus: icon( 'plus' ),
 		pencil: icon( 'pencil' ),
 		replace: icon( 'replace' ),
 		trash: icon( 'trash' ),
@@ -168,6 +181,9 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
+	// The media modal is the browser's business; the button that opens it is enough here.
+	MediaUploadCheck: ( { children } ) => children,
+	MediaUpload: ( { render: renderButton } ) => renderButton( { open: () => {} } ),
 	InspectorControls: ( { children, group } ) => (
 		<div data-testid={ group ? `inspector-controls-${ group }` : 'inspector-controls' }>
 			{ children }
@@ -499,6 +515,7 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
+	Icon: ( { icon } ) => <span data-testid="icon">{ icon }</span>,
 	SearchControl: ( { label, value, onChange, placeholder } ) => (
 		<input
 			type="search"
@@ -4035,7 +4052,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByText( 'Prices are set on variant 2.' )
+				screen.findByText( 'Images and prices are set on variant 2.' )
 			).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Add price per variant' ) ).toBeChecked();
 
