@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { arrowUpRight, copy } from '@wordpress/icons';
 import { Button, Card, Icon, Notice, Stack, Text } from '@wordpress/ui';
 import assetUrl from '../asset-url';
-import { getConnectAgents, getHelperPrompt } from './connect-agents';
+import { getConnectAgents, HELPER_PROMPT } from './connect-agents';
 import { recordMcpTracksEvent } from './tracks';
 
 const COPIED_DURATION_MS = 1600;
@@ -242,7 +242,7 @@ function AccessNotice( { mcpEnabled, onTurnOn, isTurningOn, onDismiss } ) {
  * @return {object} Component markup.
  */
 export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onNavigate } ) {
-	const [ helperRef, isHelperCopied ] = useCopyWithFeedback( getHelperPrompt(), () =>
+	const [ helperRef, isHelperCopied ] = useCopyWithFeedback( HELPER_PROMPT, () =>
 		recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' )
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );

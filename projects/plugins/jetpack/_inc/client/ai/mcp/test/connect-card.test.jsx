@@ -4,7 +4,7 @@ import analytics from 'lib/analytics';
 import {
 	CLAUDE_CODE_COMMAND,
 	getConnectAgents,
-	getHelperPrompt,
+	HELPER_PROMPT,
 	MCP_SERVER_NAME,
 	MCP_SERVER_URL,
 } from '../connect-agents';
@@ -138,8 +138,8 @@ describe( 'McpConnectCard', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Copy prompt' } ) );
 
-		await waitFor( () => expect( writeText ).toHaveBeenCalledWith( getHelperPrompt() ) );
-		expect( getHelperPrompt() ).toContain( MCP_SERVER_URL );
+		await waitFor( () => expect( writeText ).toHaveBeenCalledWith( HELPER_PROMPT ) );
+		expect( HELPER_PROMPT ).toContain( MCP_SERVER_URL );
 		await waitFor( () =>
 			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 				'jetpack_mcp_connect_helper_copy',
