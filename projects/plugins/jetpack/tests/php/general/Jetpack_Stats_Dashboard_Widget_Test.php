@@ -6,6 +6,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 
@@ -38,5 +39,33 @@ class Jetpack_Stats_Dashboard_Widget_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertFalse( $reached );
+	}
+
+	/**
+	 * Third-party callers of the removed footer get a notice, not a fatal.
+	 *
+	 * @dataProvider deprecated_method_provider
+	 *
+	 * @param string $method Deprecated method name.
+	 */
+	#[DataProvider( 'deprecated_method_provider' )]
+	public function test_deprecated_methods_still_exist( $method ) {
+		$this->setExpectedDeprecated( 'Jetpack_Stats_Dashboard_Widget::' . $method );
+
+		ob_start();
+		Jetpack_Stats_Dashboard_Widget::$method();
+		ob_end_clean();
+	}
+
+	/**
+	 * Deprecated methods.
+	 *
+	 * @return array
+	 */
+	public static function deprecated_method_provider() {
+		return array(
+			'render_widget' => array( 'render_widget' ),
+			'render_footer' => array( 'render_footer' ),
+		);
 	}
 }
