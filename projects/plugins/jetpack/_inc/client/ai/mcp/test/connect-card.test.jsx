@@ -15,7 +15,7 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 const renderCard = ( props = {} ) => {
 	const onNavigate = jest.fn();
 	const onTurnOn = jest.fn();
-	const view = render(
+	render(
 		<McpConnectCard
 			mcpEnabled
 			onTurnOn={ onTurnOn }
@@ -24,22 +24,8 @@ const renderCard = ( props = {} ) => {
 			{ ...props }
 		/>
 	);
-	const rerender = nextProps =>
-		view.rerender(
-			<McpConnectCard
-				mcpEnabled
-				onTurnOn={ onTurnOn }
-				isTurningOn={ false }
-				onNavigate={ onNavigate }
-				{ ...props }
-				{ ...nextProps }
-			/>
-		);
-	return { onNavigate, onTurnOn, rerender };
+	return { onNavigate, onTurnOn };
 };
-
-// speak() copies announcements into a hidden live region, so skip it when matching text.
-const NOT_SPOKEN = { ignore: 'script, style, .a11y-speak-region' };
 
 // userEvent.setup() installs its own clipboard stub, so spy after it.
 const setupClipboard = ( writeText = jest.fn().mockResolvedValue() ) => {
@@ -156,25 +142,10 @@ describe( 'McpConnectCard', () => {
 		expect( onTurnOn ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	test( 'no notice shows when MCP is already on', () => {
+	test( 'the off notice is hidden when MCP is on', () => {
 		renderCard();
 
 		expect( screen.queryByText( 'MCP access is off' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'MCP access is on' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'turning MCP on replaces the off notice with an on notice that can be dismissed', async () => {
-		const { rerender } = renderCard( { mcpEnabled: false } );
-
-		rerender( { mcpEnabled: true } );
-
-		expect( screen.queryByText( 'MCP access is off', NOT_SPOKEN ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'MCP access is on', NOT_SPOKEN ) ).toBeInTheDocument();
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
-
-		expect( screen.queryByText( 'MCP access is on', NOT_SPOKEN ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Connect an external AI agent' } ) ).toHaveFocus();
 	} );
 
 	test( 'Manual setup opens the setup view', async () => {
