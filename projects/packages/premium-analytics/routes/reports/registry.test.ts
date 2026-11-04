@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { getReportDefinition, REPORTS } from './registry';
+import { REPORT_PAGE_LOADERS } from './report-page-loaders';
 
 /**
  * Publish the script data of a Simple site running VideoPress, with any overrides applied.
@@ -21,6 +22,10 @@ function setSite( {
 		value: { site: { host }, premium_analytics: { has_videopress: videos, sections } },
 	} );
 }
+
+it( 'has a page loader for every report, and none for an unregistered one', () => {
+	expect( Object.keys( REPORT_PAGE_LOADERS ).sort() ).toEqual( Object.keys( REPORTS ).sort() );
+} );
 
 describe( 'getReportDefinition', () => {
 	beforeEach( () => {

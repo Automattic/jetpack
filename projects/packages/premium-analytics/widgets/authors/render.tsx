@@ -104,9 +104,6 @@ export function AuthorsLeaderboard( {
 				),
 				currentValue: post.currentValue,
 				previousValue: post.previousValue,
-				currentShare: post.currentShare,
-				previousShare: post.previousShare,
-				delta: post.delta,
 			} ) );
 		}
 
@@ -135,9 +132,6 @@ export function AuthorsLeaderboard( {
 				} ),
 				currentValue: row.currentValue,
 				previousValue: row.previousValue,
-				currentShare: row.currentShare,
-				previousShare: row.previousShare,
-				delta: row.delta,
 			};
 		} );
 	}, [ rows, selectedAuthor, selectAuthor ] );

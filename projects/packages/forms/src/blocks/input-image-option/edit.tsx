@@ -21,7 +21,7 @@ import { getImageOptionLetter } from './label.tsx';
 /**
  * Types
  */
-import type { BlockEditorStoreSelect } from '../../types/index.ts';
+import type { BlockEditorStoreSelect, BlockTemplate } from '../../types/index.ts';
 
 // Attributes synced with other image option blocks.
 const SYNCED_ATTRIBUTE_KEYS = [
@@ -77,7 +77,7 @@ export default function ImageOptionInputEdit( props ) {
 
 	// Handle key events to prevent newlines and add new option on Enter
 	const handleKeyDown = useCallback(
-		( event: KeyboardEvent ) => {
+		( event: React.KeyboardEvent< HTMLElement > ) => {
 			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 				addOption( positionIndex );
@@ -88,7 +88,7 @@ export default function ImageOptionInputEdit( props ) {
 
 	// Filter pasted content to remove newlines
 	const handlePaste = useCallback(
-		( event: ClipboardEvent ) => {
+		( event: React.ClipboardEvent< HTMLElement > ) => {
 			event.preventDefault();
 
 			const pastedText = event.clipboardData?.getData( 'text/plain' ) || '';
@@ -111,10 +111,10 @@ export default function ImageOptionInputEdit( props ) {
 		style: {
 			...blockStyle,
 			'--row-options-count': rowOptionsCount >= 1 ? rowOptionsCount : 1,
-		},
+		} as React.CSSProperties,
 	} );
 
-	const template = useMemo( () => {
+	const template = useMemo< BlockTemplate >( () => {
 		return [
 			[
 				'core/image',

@@ -4,6 +4,11 @@ import { connect } from 'react-redux';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import {
+	isMovedOut,
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
+import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
@@ -12,11 +17,13 @@ import {
 import { getActiveFeatureDetails } from 'state/feature-check';
 import { userCanManageModules, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
-import { isModuleFound } from 'state/search';
+import { getSearchTerm, isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import PostByEmail from './post-by-email';
+import { PostByEmailMoved } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
@@ -126,21 +133,30 @@ export class Writing extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Writing', 'jetpack' ) }</h2>
 				) }
-				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
+				{ this.props.isModuleFound( 'carousel' ) &&
+					( isSettingsConsolidationEnabled() ? (
+						this.props.searchTerm && <CarouselMoved getModule={ this.props.module } />
+					) : (
+						<WritingMedia { ...commonProps } />
+					) ) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
 				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
 				<ThemeEnhancements { ...commonProps } />
 				<Widgets { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
-					<PostByEmail
-						{ ...commonProps }
-						connectUrl={ this.props.connectUrl }
-						isLinked={ this.props.isLinked }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
-				) }
+				{ this.props.isModuleFound( 'post-by-email' ) &&
+					showPostByEmail &&
+					( isSettingsConsolidationEnabled() && this.props.userCanManageModules ? (
+						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
+					) : (
+						<PostByEmail
+							{ ...commonProps }
+							connectUrl={ this.props.connectUrl }
+							isLinked={ this.props.isLinked }
+							userCanManageModules={ this.props.userCanManageModules }
+						/>
+					) ) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
@@ -165,7 +181,10 @@ export default connect(
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
+			isModuleFound: module_name =>
+				isModuleFound( state, module_name ) &&
+				! isMovedOut( module_name, state ) &&
+				( ! isSwitchedInFeatures( state, module_name ) || !! getSearchTerm( state ) ),
 			connectUrl: getConnectUrl( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};

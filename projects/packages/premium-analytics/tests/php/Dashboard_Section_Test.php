@@ -1409,26 +1409,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * Older copies' Dashboard_Section::is_available() still asks the removed preview scope.
-	 */
-	public function test_previous_preview_scope_check_leaves_every_section_in_scope() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
-		$this->assertTrue( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
-	}
-
-	/**
-	 * Older copies of the package call the configurator by its previous name.
-	 */
-	public function test_previous_configurator_name_still_hooks_the_section_slugs() {
-		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
-		configure_dashboard_preview_scope();
-
-		$this->assertNotFalse(
-			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data' )
-		);
-	}
-
 	public function test_section_script_data_keeps_the_other_premium_analytics_keys() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
@@ -1465,6 +1445,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 			);
 		} finally {
 			unset( $GLOBALS['_parent_pages']['jetpack'], $GLOBALS['_parent_pages']['stats'] );
+		}
+	}
+
+	public function test_section_script_data_offers_no_classic_stats_page_once_retired_despite_simples_index_stats_page() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_true' );
+		$GLOBALS['_parent_pages']['stats'] = 'index.php';
+		try {
+			$this->assertNull( inject_dashboard_sections_script_data( array() )['premium_analytics']['classic_stats_url'] );
+		} finally {
+			unset( $GLOBALS['_parent_pages']['stats'] );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
 		}
 	}
 

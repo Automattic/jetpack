@@ -1,3 +1,4 @@
+import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
@@ -6,6 +7,7 @@ import { AlertDialog, Badge, Button, ButtonLink, Dialog, Link, Stack, Text } fro
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
+import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
 import {
@@ -14,6 +16,7 @@ import {
 	getThreatRow,
 	ignoreThreat,
 	isDeleteFix,
+	isUpdateFix,
 	unignoreThreat,
 	useThreatAction,
 	type ThreatRow,
@@ -26,9 +29,12 @@ import type { ComponentProps, ReactNode } from 'react';
  *
  * @param props          - Component props.
  * @param props.severity - The severity, 0 to 10.
- * @return The badge.
+ * @return The badge, or null when the threat has no severity.
  */
-function SeverityBadge( { severity = 0 }: { severity?: number } ) {
+function SeverityBadge( { severity }: { severity?: number | null } ) {
+	if ( typeof severity !== 'number' ) {
+		return null;
+	}
 	let intent: ComponentProps< typeof Badge >[ 'intent' ] = 'draft';
 	let label: string = __( 'Low severity', 'jetpack-protect-pkg' );
 	if ( severity >= 5 ) {
@@ -318,15 +324,29 @@ function DatabaseRow( {
 	);
 }
 
+type ConfirmationProps = { isBusy: boolean; onCancel: () => void; onConfirm: () => void };
+
 /**
- * Auto-fix it for a fix that deletes the software, behind a confirmation that asks for its slug.
+ * Auto-fix it for a fix that deletes or updates the software, behind a confirmation.
  *
- * @param props        - Component props.
- * @param props.threat - A threat whose fix deletes its software.
- * @param props.onFix  - Starts the fix.
+ * @param props              - Component props.
+ * @param props.threat       - A threat whose fix deletes or updates its software.
+ * @param props.onFix        - Starts the fix.
+ * @param props.title        - The confirmation's title.
+ * @param props.confirmation - Renders the confirmation's content.
  * @return The button and its confirmation.
  */
-function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => void } ) {
+function ConfirmFixButton( {
+	threat,
+	onFix,
+	title,
+	confirmation,
+}: {
+	threat: ScanThreat;
+	onFix: () => void;
+	title: string;
+	confirmation: ( props: ConfirmationProps ) => ReactNode;
+} ) {
 	const { busy } = useThreatAction( threat.id );
 	const [ open, setOpen ] = useState( false );
 	const onCancel = useCallback( () => setOpen( false ), [] );
@@ -344,17 +364,12 @@ function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => 
 			</Dialog.Trigger>
 			<Dialog.Popup>
 				<Dialog.Header>
-					<Dialog.Title>{ getDeleteFixTitle( threat ) }</Dialog.Title>
+					<Dialog.Title>{ title }</Dialog.Title>
 					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
-					{ /* Mounted only while open, so the slug field starts empty each time. */ }
-					<FixDeleteConfirmation
-						threat={ threat }
-						isBusy={ !! busy }
-						onCancel={ onCancel }
-						onConfirm={ onConfirm }
-					/>
+					{ /* Mounted only while open, so a confirmation's fields start empty each time. */ }
+					{ confirmation( { isBusy: !! busy, onCancel, onConfirm } ) }
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
@@ -376,21 +391,32 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
+	const confirmDelete = useCallback(
+		( props: ConfirmationProps ) => <FixDeleteConfirmation threat={ threat } { ...props } />,
+		[ threat ]
+	);
+	const confirmUpdate = useCallback(
+		( props: ConfirmationProps ) => <FixUpdateConfirmation threats={ [ threat ] } { ...props } />,
+		[ threat ]
+	);
 
 	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
 		return null;
 	}
 
 	return (
-		<div className="jp-protect-threat-details__footer">
-			{ busy === 'fixing' && (
-				<Text variant="body-sm" className="jp-protect-card__muted">
-					{ __(
-						'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
-						'jetpack-protect-pkg'
-					) }
-				</Text>
-			) }
+		<SidebarFooter
+			description={
+				busy === 'fixing' && (
+					<Text variant="body-sm" className="jp-protect-card__muted">
+						{ __(
+							'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+				)
+			}
+		>
 			{ isIgnored ? (
 				<Button
 					variant="outline"
@@ -401,7 +427,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 					{ __( 'Unignore it', 'jetpack-protect-pkg' ) }
 				</Button>
 			) : (
-				<Stack direction="row" gap="sm" justify={ canIgnore ? 'space-between' : 'end' }>
+				<>
 					{ canIgnore && (
 						<Button
 							className="jp-protect-threat-details__ignore"
@@ -414,17 +440,32 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ threat.fixable && ! isDeleteFix( threat ) && (
+					{ threat.fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
 						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
 							{ busy === 'fixing'
 								? __( 'Fixing…', 'jetpack-protect-pkg' )
 								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } onFix={ onFix } /> }
-				</Stack>
+					{ isDeleteFix( threat ) && (
+						<ConfirmFixButton
+							threat={ threat }
+							onFix={ onFix }
+							title={ getDeleteFixTitle( threat ) }
+							confirmation={ confirmDelete }
+						/>
+					) }
+					{ isUpdateFix( threat ) && (
+						<ConfirmFixButton
+							threat={ threat }
+							onFix={ onFix }
+							title={ getUpdateFixTitle( [ threat ] ) }
+							confirmation={ confirmUpdate }
+						/>
+					) }
+				</>
 			) }
-		</div>
+		</SidebarFooter>
 	);
 }
 

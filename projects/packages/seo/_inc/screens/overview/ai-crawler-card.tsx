@@ -76,13 +76,19 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const answerBlocked = answerBots.filter( isBotBlocked ).length;
 	const trainingBlocked = trainingBots.filter( isBotBlocked ).length;
 
-	// The card reports the state of optimization, not who owns it. An llms.txt that
-	// exists reads as published whoever wrote it — `canServe` is false precisely
-	// because something else is already answering that path (a static file, or a
-	// host that fronts it), so calling that "not published" would be wrong. The one
-	// state we can call unpublished is the one Jetpack could fix: it can serve the
-	// file and the setting is off. The GEO tab explains who owns it.
-	const llmsPublished = ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled );
+	// A host or static file can own the path; a plugin conflict pauses Jetpack generation.
+	const llmsPublished =
+		! llmsTxt?.disabled && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
+	let llmsLabel: string = llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel;
+	if ( llmsTxt?.disabled ) {
+		llmsLabel = llmsTxt.conflictingPlugin
+			? sprintf(
+					/* translators: %s: name of the active SEO plugin. */
+					__( 'Jetpack llms.txt paused while %s is active', 'jetpack-seo' ),
+					llmsTxt.conflictingPlugin
+				)
+			: __( 'Jetpack llms.txt paused while SEO tools are disabled', 'jetpack-seo' );
+	}
 
 	// When the settings can't apply, choose the highest-precedence reason.
 	// Module-scope labels keep
@@ -131,16 +137,9 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 					// (the vertically-centred dot next to wrapping text reads oddly).
 					<Text>{ blockedLabel }</Text>
 				) }
-				{ /* Outside the crawler branch on purpose. `Llms_Txt::maybe_serve()` gates
-				     only on the setting and `blog_public`, so a static robots.txt, the
-				     data-sharing opt-out and path-based multisite stop the *crawler*
-				     settings applying without touching llms.txt — reporting it inside that
-				     branch hid a working llms.txt on every one of those sites. */ }
+				{ /* llms.txt has its own availability rules, independent of crawler controls. */ }
 				{ llmsTxt && searchEnginesVisible && (
-					<StatusDot
-						status={ llmsPublished ? 'ok' : 'warn' }
-						label={ llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel }
-					/>
+					<StatusDot status={ llmsPublished ? 'ok' : 'warn' } label={ llmsLabel } />
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" size="compact" onClick={ onManage }>

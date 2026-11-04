@@ -18,12 +18,12 @@ declare global {
 }
 
 /**
- * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
+ * UnstyledJetpackFooter displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right, without loading its stylesheet.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @return {ReactNode} JetpackFooter component.
+ * @return {ReactNode} UnstyledJetpackFooter component.
  */
-const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
+const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
 	if (
@@ -110,4 +110,4 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	);
 };
 
-export default JetpackFooter;
+export default UnstyledJetpackFooter;
