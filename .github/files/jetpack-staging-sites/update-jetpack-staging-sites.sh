@@ -114,15 +114,22 @@ for key in $(jq -r 'keys[]' <<<"$SITES"); do
   blog_id=$(jq -r --arg key "$key" '.[$key].blog_id' <<<"$SITES")
 
   # Attempt to rsync each plugin directory files over SSH.
+  SYNC_FAILED=0
   for PLUGIN in "${PLUGINS[@]}"; do
     echo "Attempting to sync $PLUGIN files to $key | blog_id: $blog_id"
     if ! rsync -az --quiet --delete "$TMP_DIR/$PLUGIN-dev/" "$ssh_string:$REMOTE_DIR/$PLUGIN/"; then
       echo "Failed to sync $PLUGIN files to $key | blog_id: $blog_id"
       EXIT_CODE=1
+      SYNC_FAILED=1
     else
       echo "Successfully synced $PLUGIN files to $key | blog_id: $blog_id"
     fi
   done
+
+  if [[ $SYNC_FAILED -eq 1 ]]; then
+    echo "Skipping Jetpack connection test on $key due to sync failure"
+    continue
+  fi
 
   echo "Testing Jetpack connection on $key"
   if ! ssh "$ssh_string" 'wp jetpack test-connection'; then
