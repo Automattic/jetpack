@@ -72,7 +72,8 @@ class Llms_Txt {
 			self::META_INCLUDE,
 			array(
 				'type'         => 'boolean',
-				'description'  => __( 'Whether to always list the page in llms.txt.', 'jetpack-seo' ),
+				// Not translated: this runs before `init`, too early to load the text domain.
+				'description'  => 'Whether to always list the page in llms.txt.',
 				'single'       => true,
 				'default'      => false,
 				'show_in_rest' => true,

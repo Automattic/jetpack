@@ -68,6 +68,22 @@ describe( 'SeoInspector — Always include in llms.txt', () => {
 		expect( saved.jetpack_seo_llms_txt_include ).toBe( expected );
 	} );
 
+	it( 'switches it off when the page is hidden from search', async () => {
+		meta = { jetpack_seo_noindex: false, jetpack_seo_llms_txt_include: true };
+		render( <SeoInspector postId={ 1 } postType="page" onClose={ jest.fn() } /> );
+
+		/* eslint-disable testing-library/prefer-user-event -- No user-event devDep for two clicks. */
+		fireEvent.click( screen.getByLabelText( 'Hide from search engines' ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		/* eslint-enable testing-library/prefer-user-event */
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].data.meta ).toHaveProperty(
+			'jetpack_seo_llms_txt_include',
+			false
+		);
+	} );
+
 	it( 'shows the switch off and disabled while the page is hidden from search', () => {
 		meta = { jetpack_seo_noindex: true, jetpack_seo_llms_txt_include: true };
 		render( <SeoInspector postId={ 1 } postType="page" onClose={ jest.fn() } /> );

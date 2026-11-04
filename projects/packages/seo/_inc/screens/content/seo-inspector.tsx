@@ -33,7 +33,10 @@ const SCHEMA_OPTIONS: Array< { value: SchemaType; label: string } > = [
 
 // Pre-resolved for the same reason as SCHEMA_OPTIONS.
 const LLMS_TXT_INCLUDE_HELP = {
-	shown: __( 'Lists this page first in llms.txt, even if it isn’t in a menu.', 'jetpack-seo' ),
+	shown: __(
+		'While llms.txt is on, lists this page first, even if it isn’t in a menu.',
+		'jetpack-seo'
+	),
 	hidden: __( 'Pages hidden from search engines are left out of llms.txt.', 'jetpack-seo' ),
 };
 
@@ -293,7 +296,14 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 						'jetpack-seo'
 					) }
 					checked={ local.jetpack_seo_noindex }
-					onChange={ next => setField( { jetpack_seo_noindex: next } ) }
+					// Hiding a page also switches off "Always include", so the saved value matches
+					// the switch, which shows off while the page is hidden.
+					onChange={ next =>
+						setField( {
+							jetpack_seo_noindex: next,
+							...( next && isPage && { jetpack_seo_llms_txt_include: false } ),
+						} )
+					}
 					disabled={ isResolving }
 					__nextHasNoMarginBottom
 				/>
