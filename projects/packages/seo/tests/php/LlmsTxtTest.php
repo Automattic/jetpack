@@ -27,6 +27,13 @@ class LlmsTxtTest extends TestCase {
 	private $post_ids = array();
 
 	/**
+	 * Site title before the test.
+	 *
+	 * @var string
+	 */
+	private $blogname = '';
+
+	/**
 	 * Reset the enable option before each test.
 	 *
 	 * @return void
@@ -35,6 +42,7 @@ class LlmsTxtTest extends TestCase {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
 		Llms_Txt::clear_cache();
+		$this->blogname = get_option( 'blogname' );
 	}
 
 	/**
@@ -59,7 +67,7 @@ class LlmsTxtTest extends TestCase {
 		if ( $tag ) {
 			wp_delete_term( $tag->term_id, 'post_tag' );
 		}
-		update_option( 'blogname', 'Test Blog' );
+		update_option( 'blogname', $this->blogname );
 		Llms_Txt::clear_cache();
 
 		parent::tearDown();
@@ -452,7 +460,6 @@ class LlmsTxtTest extends TestCase {
 	 */
 	#[DataProvider( 'provide_changes' )]
 	public function test_changes_clear_the_stored_copy( $change, $clears ) {
-		Llms_Txt::init();
 		update_option( Llms_Txt::OPTION, true );
 		$page = $this->insert_post(
 			array(
@@ -462,7 +469,19 @@ class LlmsTxtTest extends TestCase {
 		);
 		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
 
-		$change( $page->ID );
+		// Keep the clearing hooks out of the rest of the suite.
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Llms_Txt::register_invalidation();
+			$change( $page->ID );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
 
 		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
 	}
@@ -474,7 +493,7 @@ class LlmsTxtTest extends TestCase {
 	 */
 	public static function provide_changes() {
 		return array(
-			'page edited'             => array(
+			'page edited'              => array(
 				static function ( $page_id ) {
 					wp_update_post(
 						array(
@@ -485,31 +504,37 @@ class LlmsTxtTest extends TestCase {
 				},
 				true,
 			),
-			'page hidden from search' => array(
+			'page deleted permanently' => array(
+				static function ( $page_id ) {
+					wp_delete_post( $page_id, true );
+				},
+				true,
+			),
+			'page hidden from search'  => array(
 				static function ( $page_id ) {
 					update_post_meta( $page_id, Content_Coverage::META_NOINDEX, '1' );
 				},
 				true,
 			),
-			'site title changed'      => array(
+			'site title changed'       => array(
 				static function () {
 					update_option( 'blogname', 'Renamed Site' );
 				},
 				true,
 			),
-			'llms.txt turned off'     => array(
+			'llms.txt turned off'      => array(
 				static function () {
 					update_option( Llms_Txt::OPTION, false );
 				},
 				true,
 			),
-			'classic menu saved'      => array(
+			'classic menu saved'       => array(
 				static function () {
 					wp_create_nav_menu( 'Main' );
 				},
 				true,
 			),
-			'oEmbed cache saved'      => array(
+			'oEmbed cache saved'       => array(
 				static function () {
 					wp_insert_post(
 						array(
@@ -521,13 +546,13 @@ class LlmsTxtTest extends TestCase {
 				},
 				false,
 			),
-			'tag created'             => array(
+			'tag created'              => array(
 				static function () {
 					wp_insert_term( 'Unlisted Tag', 'post_tag' );
 				},
 				false,
 			),
-			'editor lock refreshed'   => array(
+			'editor lock refreshed'    => array(
 				static function ( $page_id ) {
 					update_post_meta( $page_id, '_edit_lock', time() . ':1' );
 				},

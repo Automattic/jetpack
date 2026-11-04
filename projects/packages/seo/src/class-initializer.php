@@ -144,9 +144,6 @@ class Initializer {
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'flag_sitemap_user_disabled' ) );
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'clear_sitemap_user_disabled' ) );
 
-		// llms.txt's clearing hooks only run while SEO tools is on, so drop a copy stored before it was off.
-		add_action( 'jetpack_activate_module_seo-tools', array( Llms_Txt::class, 'clear_cache' ) );
-
 		// When the user has deliberately turned the sitemap off, suppress WordPress
 		// core's own sitemap too — otherwise "off" silently falls back to core's
 		// `/wp-sitemap.xml` (and its `/sitemap.xml` → `/wp-sitemap.xml` redirect). Keyed
@@ -195,6 +192,7 @@ class Initializer {
 		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
 		// cache has to be dropped wherever that happens, not just where it's read.
 		Content_Coverage::register_invalidation();
+		Llms_Txt::register_invalidation();
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST

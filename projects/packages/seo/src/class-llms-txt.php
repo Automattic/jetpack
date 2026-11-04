@@ -57,12 +57,20 @@ class Llms_Txt {
 	/**
 	 * Options whose changes alter llms.txt.
 	 */
-	const CACHE_OPTIONS = array( self::OPTION, 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure' );
+	const CACHE_OPTIONS = array( self::OPTION, 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure', 'home', 'siteurl', 'WPLANG' );
 
 	/**
-	 * Post meta the editor writes on its own, which never changes llms.txt.
+	 * Post meta that changes whether or how a post appears in llms.txt, including the
+	 * always-include switch and page template the menu ranking reads.
 	 */
-	const CACHE_IGNORED_META = array( '_edit_lock', '_edit_last' );
+	const CACHE_META = array(
+		Content_Coverage::META_NOINDEX,
+		Content_Gate::META_CONTAINS_PAID_CONTENT,
+		Content_Gate::META_CONTAINS_PAYWALLED_CONTENT,
+		Content_Gate::META_NEWSLETTER_ACCESS,
+		'jetpack_seo_llms_txt_always_include',
+		'_wp_page_template',
+	);
 
 	/**
 	 * Non-public post types that still shape llms.txt: menus and the theme parts that hold them.
@@ -70,17 +78,25 @@ class Llms_Txt {
 	const CACHE_POST_TYPES = array( 'nav_menu_item', 'wp_navigation', 'wp_template', 'wp_template_part', 'wp_block' );
 
 	/**
-	 * Wire the front-end request handler and the hooks that clear the stored copy.
+	 * Wire the front-end request handler.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+	}
 
-		foreach ( array( 'wp_update_nav_menu', 'switch_theme', 'customize_save_after' ) as $hook ) {
+	/**
+	 * Clear the stored copy when something it lists changes. Registered even while llms.txt
+	 * can't be served, so a copy stored earlier is not served stale once it can again.
+	 *
+	 * @return void
+	 */
+	public static function register_invalidation() {
+		foreach ( array( 'wp_update_nav_menu', 'switch_theme', 'customize_save_after', 'activated_plugin', 'deactivated_plugin' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache' ) );
 		}
-		add_action( 'clean_post_cache', array( __CLASS__, 'clear_cache_for_post' ) );
+		add_action( 'clean_post_cache', array( __CLASS__, 'clear_cache_for_post' ), 10, 2 );
 		add_action( 'clean_term_cache', array( __CLASS__, 'clear_cache_for_terms' ), 10, 2 );
 		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
@@ -98,7 +114,8 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function clear_cache() {
-		if ( delete_transient( self::CACHE_KEY ) ) {
+		// The lookup is cached when nothing is stored, so bulk edits and imports don't query on every write.
+		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
 			self::purge_edge_cache();
 		}
 	}
@@ -124,17 +141,18 @@ class Llms_Txt {
 	/**
 	 * Drop the stored llms.txt after a change to a post llms.txt can list or a menu it reads.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int           $post_id Post ID.
+	 * @param \WP_Post|null $post    Post object; still set after a permanent delete, when the ID no longer resolves.
 	 * @return void
 	 */
-	public static function clear_cache_for_post( $post_id ) {
-		if ( self::shapes_llms_txt( $post_id ) ) {
+	public static function clear_cache_for_post( $post_id, $post = null ) {
+		if ( self::shapes_llms_txt( $post instanceof \WP_Post ? $post->post_type : get_post_type( $post_id ) ) ) {
 			self::clear_cache();
 		}
 	}
 
 	/**
-	 * Drop the stored llms.txt after a post meta write, unless the editor wrote it on its own.
+	 * Drop the stored llms.txt after a write to post meta that llms.txt reads.
 	 *
 	 * @param int|int[] $meta_id  Meta ID or IDs.
 	 * @param int       $post_id  Post ID.
@@ -142,7 +160,7 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function clear_cache_for_meta( $meta_id, $post_id, $meta_key ) {
-		if ( ! in_array( $meta_key, self::CACHE_IGNORED_META, true ) && self::shapes_llms_txt( $post_id ) ) {
+		if ( in_array( $meta_key, self::CACHE_META, true ) ) {
 			self::clear_cache();
 		}
 	}
@@ -161,14 +179,13 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Whether a post's type can appear in llms.txt or holds a menu, so a sitemap, oEmbed
+	 * Whether posts of a type can appear in llms.txt or hold a menu, so a sitemap, oEmbed
 	 * cache or revision write leaves the stored copy alone.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param string|false $type Post type slug.
 	 * @return bool
 	 */
-	private static function shapes_llms_txt( $post_id ) {
-		$type = get_post_type( $post_id );
+	private static function shapes_llms_txt( $type ) {
 		return $type && ( is_post_type_viewable( $type ) || in_array( $type, self::CACHE_POST_TYPES, true ) );
 	}
 
@@ -240,7 +257,12 @@ class Llms_Txt {
 			return;
 		}
 
-		header( 'Cache-Control: public, max-age=' . self::HTTP_MAX_AGE );
+		// A private site (`blog_public` -1) serves members only, so shared caches must not keep it.
+		if ( 1 === (int) get_option( 'blog_public' ) ) {
+			header( 'Cache-Control: public, max-age=' . self::HTTP_MAX_AGE );
+		} else {
+			nocache_headers();
+		}
 		status_header( 200 );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 
