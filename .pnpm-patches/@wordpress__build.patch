@@ -1,6 +1,6 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
 new file mode 100755
-index 0000000..529281e
+index 0000000..3b466b6
 --- /dev/null
 +++ b/lib/build-shared.mjs
 @@ -0,0 +1,241 @@
@@ -86,7 +86,7 @@ index 0000000..529281e
 +		input: specifier,
 +		cwd: ROOT_DIR,
 +		// Only the entry's own exports matter, and `export *` never re-exports a default.
-+		external: ( id, importer ) => !! importer && ! /^[./\0]/.test( id ),
++		external: ( id, importer ) => !! importer,
 +		logLevel: 'silent',
 +	} );
 +	const { output } = await bundle.generate( { format: 'esm' } );

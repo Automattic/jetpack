@@ -60,7 +60,13 @@
 		"useProductCheckoutWorkflow",
 		"useRestoreConnection"
 	],
-	"dataviews": [ "DataForm", "DataViews", "filterSortAndPaginate", "useFormValidity" ],
+	"dataviews": [
+		"DataForm",
+		"DataViews",
+		"DataViewsPicker",
+		"filterSortAndPaginate",
+		"useFormValidity"
+	],
 	"number-formatters": [
 		"formatCurrency",
 		"formatNumber",
@@ -111,17 +117,22 @@
 		"Icon",
 		"IconButton",
 		"InputControl",
+		"InputLayout",
 		"Link",
 		"Notice",
 		"Popover",
+		"Progress",
+		"RadioGroupControl",
 		"RangeCalendar",
 		"SelectControl",
 		"Skeleton",
 		"Spinner",
 		"Stack",
+		"Switch",
 		"SwitchControl",
 		"Tabs",
 		"Text",
+		"TextareaControl",
 		"Tooltip",
 		"VisuallyHidden"
 	]
