@@ -737,6 +737,8 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$rows = self::top_content_rows( $type, $raw, isset( $args['summarize'] ) );
+		// Countries drops and folds rows, so whether WordPress.com held more is read from its own list.
+		$sent = 'countries' === $type ? count( self::rows_at( self::first_period_block( $raw, isset( $args['summarize'] ) ), 'views' ) ) : count( $rows );
 
 		return array(
 			'site'      => self::site(),
@@ -745,7 +747,7 @@ class Stats_Abilities extends Registrar {
 			'date'      => $date,
 			'num'       => $num,
 			'max'       => $max,
-			'truncated' => $max > 0 && count( $rows ) > $max,
+			'truncated' => $max > 0 && $sent > $max,
 			'items'     => self::rank_and_cap( $rows, $max ),
 		);
 	}

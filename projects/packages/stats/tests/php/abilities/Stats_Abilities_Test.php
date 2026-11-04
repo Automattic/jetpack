@@ -765,6 +765,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				'type' => 'countries',
 				'date' => '2026-04-23',
+				'max'  => 3,
 			)
 		);
 
@@ -773,6 +774,8 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array_column( $result['items'], 'label' )
 		);
 		$this->assertSame( array( 12, 6 + 5, 9 ), array_column( $result['items'], 'value' ) );
+		// Folding left three items, but WordPress.com sent more rows than `max`, so more may exist.
+		$this->assertTrue( $result['truncated'] );
 	}
 
 	public function test_get_top_content_tags_names_every_term_a_row_groups(): void {
