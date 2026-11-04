@@ -557,6 +557,50 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that `authorize` rejects an administrator without `manage_options` before requesting a token.
+	 */
+	public function test_authorize_rejects_role_without_cap_before_token_request() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_rejects_role_without_cap',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get' ) )
+			->getMock();
+		$tokens->expects( $this->never() )->method( 'get' );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+
+		$remove_manage_options = static function ( $allcaps ) {
+			$allcaps['manage_options'] = false;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $remove_manage_options );
+
+		try {
+			$result = $manager->authorize(
+				array(
+					'state' => (string) $user_id,
+					'code'  => 'authorization_code',
+				)
+			);
+		} finally {
+			remove_filter( 'user_has_cap', $remove_manage_options );
+		}
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'current_user_cannot', $result->get_error_code() );
+	}
+
+	/**
 	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
 	 *
 	 * @param string $role            The authorizing user's role.

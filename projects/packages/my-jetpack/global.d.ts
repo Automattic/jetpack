@@ -322,6 +322,7 @@ type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAl
 type PluginsNeedingInstallAlertData = {
 	needs_installed?: JetpackModule[];
 	needs_activated_only?: JetpackModule[];
+	is_silent?: true;
 };
 
 type PluginsNeedingInstallAlert = Record<
@@ -562,6 +563,7 @@ interface Window {
 		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -664,6 +666,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;

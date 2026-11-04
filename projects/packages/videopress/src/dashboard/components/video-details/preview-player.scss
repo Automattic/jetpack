@@ -1,0 +1,28 @@
+// The player's own box fills whatever frame the host gives it: the details
+// page's 16:9 slot or a dashboard widget tile. Black is the letterbox the
+// embed draws against.
+.vp-preview-player {
+	position: relative;
+	inline-size: 100%;
+	block-size: 100%;
+	background: #000;
+
+	iframe,
+	video {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+	}
+
+	&__status {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		margin: 0;
+		padding: var(--wpds-dimension-padding-lg);
+		color: #fff;
+		text-align: center;
+	}
+}

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .services {
 	display: flex;
@@ -203,7 +203,7 @@
 			justify-content: flex-start;
 		}
 
-		@include gb.break-medium {
+		@include mixins.break-medium {
 			flex-direction: row;
 		}
 	}
@@ -215,11 +215,11 @@
 		flex-basis: 100%;
 		min-width: 220px;
 
-		@include gb.break-medium {
+		@include mixins.break-medium {
 			flex-basis: 50%;
 		}
 
-		@include gb.break-small {
+		@include mixins.break-small {
 
 			button {
 				align-self: start;

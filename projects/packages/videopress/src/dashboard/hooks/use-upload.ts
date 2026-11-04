@@ -126,6 +126,7 @@ async function finishUpload( id: string, client: QueryClient ): Promise< void > 
 					path: `/wp/v2/media/${ initial.media.id }`,
 				} );
 				await syncChapters( toLibraryItem( raw, isSimpleSite() ), details.description, {
+					source: 'upload_details',
 					onWarning: message =>
 						dispatch( noticesStore ).createWarningNotice( message, { type: 'snackbar' } ),
 				} );

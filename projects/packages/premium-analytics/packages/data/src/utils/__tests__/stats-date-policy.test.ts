@@ -94,7 +94,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'long-date-presets', 'intervals' ),
 			'last-30-days',
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[
@@ -102,7 +102,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'intervals' ),
 			undefined,
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[ 'nothing', lockOnly(), undefined, true, [], undefined ],
@@ -111,7 +111,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'recent-7-days', 'intervals' ),
 			'last-7-days',
 			false,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			new Date( '2026-10-09T00:00:00Z' ),
 		],
 	] )(

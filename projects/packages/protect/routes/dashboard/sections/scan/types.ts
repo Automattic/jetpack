@@ -2,7 +2,9 @@ import type { DashboardContext } from '../types';
 import type { Threat } from '@automattic/jetpack-scan';
 
 /** A threat as the dashboard's PHP shapes it, with the plugin's own name and directory icon. */
-export type ScanThreat = Omit< Threat, 'extension' > & {
+export type ScanThreat = Omit< Threat, 'extension' | 'severity' > & {
+	/** Null when the free vulnerability check reports no severity. */
+	severity?: number | null;
 	source?: string | null;
 	context?: { line: number; code: string }[];
 	vulnerabilities?: { id?: string; title?: string; source?: string }[];

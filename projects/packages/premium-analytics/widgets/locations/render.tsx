@@ -12,13 +12,10 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
 	flagUrl,
-	getCombinedPeriodMax,
 	getLocationsReportSection,
 	getLocationsSectionLabel,
 	locationsCsvExporter,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -178,14 +175,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			return { kind: 'static' as const };
 		};
 
-		const maxValue = getCombinedPeriodMax(
-			data.map( location => location.value ),
-			hasComparison ? data.map( location => location.previousValue ) : []
-		);
-
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
-			const previousValue = location.previousValue;
 
 			return {
 				id: location.key,
@@ -199,19 +190,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					action: getDrillDownAction( location ),
 				} ),
 				currentValue: location.value,
-				previousValue,
-				currentShare: sharePercentage( location.value, maxValue ),
-				previousShare:
-					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					hasComparison && previousValue !== undefined
-						? calculateDelta( location.value, previousValue )
-						: undefined,
+				previousValue: location.previousValue,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, isHeld, regionsLocked, setDrillDownPath ] );
+	}, [ data, geoMode, isHeld, regionsLocked, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =

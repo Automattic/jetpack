@@ -22,8 +22,8 @@
 		"@actions/core": "3.0.1",
 		"@actions/github": "9.1.1",
 		"@slack/web-api": "7.15.1",
-		"glob": "13.0.6",
-		"minimatch": "10.2.6"
+		"glob": "14.0.2",
+		"minimatch": "11.0.3"
 	},
 	"devDependencies": {
 		"jest": "30.5.2",
