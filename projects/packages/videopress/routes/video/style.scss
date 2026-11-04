@@ -346,13 +346,11 @@
 
 .vp-video-details__upload-bar {
 	inline-size: 70%;
+}
+
+.vp-video-details__upload-track {
 	block-size: 4px;
 	background-color: rgb(255 255 255 / 40%);
-	text-align: start;
-
-	> div {
-		background-color: #fff;
-	}
 }
 
 .vp-video-details__upload-status {
