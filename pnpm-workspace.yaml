@@ -22,6 +22,10 @@ autoInstallPeers: false
 dedupePeerDependents: false
 dedupePeers: false
 strictPeerDependencies: true
+peerDependencyRules:
+  allowedVersions:
+    # @wordpress/build 0.27 bundles with rolldown, which rejects CSS module imports; 0.26 builds fine against theme 4.
+    '@wordpress/build>@wordpress/theme': '4'
 
 # No hoisting by default.
 hoistPattern: []

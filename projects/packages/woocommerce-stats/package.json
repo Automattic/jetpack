@@ -38,7 +38,7 @@
 		"@wordpress/hooks": "5.0.0",
 		"@wordpress/i18n": "7.0.0",
 		"@wordpress/url": "5.0.0",
-		"@wordpress/widget-primitives": "0.10.0",
+		"@wordpress/widget-primitives": "0.11.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0"
 	},
