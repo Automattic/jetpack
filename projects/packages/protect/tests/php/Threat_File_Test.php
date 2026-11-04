@@ -109,4 +109,55 @@ class Threat_File_Test extends BaseTestCase {
 		$this->assertSame( $owner, $found['type'], 'Owner' );
 		$this->assertSame( $can_delete, Threat_File::can_delete( $path, $found ), 'Deletable' );
 	}
+
+	/**
+	 * Restore a changed core file, with WordPress.org serving the given copy of it.
+	 *
+	 * @param string $download What WordPress.org serves.
+	 * @return array The restore's result, and the file's path.
+	 */
+	private function restore_core_file( $download ) {
+		set_transient(
+			Threat_File::CHECKSUMS_CACHE,
+			array(
+				'version'   => get_bloginfo( 'version' ),
+				'locale'    => 'en_US',
+				'checksums' => array( 'wp-includes/protect-test-core.php' => md5( '<?php // original' ) ),
+			)
+		);
+		$path = $this->write( ABSPATH . 'wp-includes/protect-test-core.php', '<?php // changed' );
+		chmod( $path, 0640 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
+		$serve = function () use ( $download ) {
+			return array(
+				'headers'  => array(),
+				'body'     => $download,
+				'response' => array( 'code' => 200 ),
+				'cookies'  => array(),
+			);
+		};
+		add_filter( 'pre_http_request', $serve );
+		$result = Threat_File::restore( $path );
+		remove_filter( 'pre_http_request', $serve );
+		clearstatcache();
+		return array( $result, $path );
+	}
+
+	/**
+	 * Files in a folder that a restore might have left behind.
+	 *
+	 * @param string $path A file in the folder.
+	 * @return string[]
+	 */
+	private static function temp_files( $path ) {
+		return glob( dirname( $path ) . '/*.tmp' );
+	}
+
+	public function test_restore_replaces_the_file_whole_and_keeps_its_mode() {
+		list( $result, $path ) = $this->restore_core_file( '<?php // original' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( '<?php // original', file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( 0640, fileperms( $path ) & 0777 );
+		$this->assertSame( array(), self::temp_files( $path ) );
+	}
 }

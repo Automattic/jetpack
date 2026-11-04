@@ -108,7 +108,7 @@ class Threat_File {
 	 * @return bool
 	 */
 	public static function can_restore( $path, $owner ) {
-		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
+		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path ) && wp_is_writable( dirname( $path ) ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
 	}
 
 	/**
@@ -177,13 +177,25 @@ class Threat_File {
 			return new WP_Error( 'original_mismatch', __( 'WordPress.org’s copy of this file doesn’t match your site’s WordPress package, so it can’t be restored here. Reinstall WordPress from Dashboard → Updates instead.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
 		}
 
-		if ( false === file_put_contents( $path, $original ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Checked writable, and verified against WordPress.org.
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		// Written beside the file, then renamed over it, so a failed write never leaves it half written.
+		$temp    = wp_tempnam( basename( $path ), trailingslashit( dirname( $path ) ) );
+		$written = file_put_contents( $temp, $original ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Checked writable, and verified against WordPress.org.
+		if ( strlen( $original ) !== $written || md5_file( $temp ) !== $checksum ) {
+			wp_delete_file( $temp );
+			return new WP_Error( 'file_not_written', __( 'WordPress couldn’t write the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+		}
+		$perms = fileperms( $path );
+		if ( $perms ) {
+			chmod( $temp, $perms & 0777 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod -- Keep the original file's mode.
+		}
+		if ( ! rename( $temp, $path ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Same directory, so it replaces the file in one step.
+			wp_delete_file( $temp );
 			return new WP_Error( 'file_not_written', __( 'WordPress couldn’t write the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
 		}
 		// Else PHP can keep running the modified file's compiled code.
-		if ( ! function_exists( 'wp_opcache_invalidate' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
 		wp_opcache_invalidate( $path, true );
 		return true;
 	}
