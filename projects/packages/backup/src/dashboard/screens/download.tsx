@@ -346,11 +346,11 @@ export default function DownloadScreen() {
 								<ExternalLink
 									openInNewTab
 									href={ getRedirectUrl(
-										'jetpack-contact-support',
+										'jetpack-backup-download-failed',
 										siteSuffix ? { site: siteSuffix } : {}
 									) }
 								>
-									{ __( 'Contact support', 'jetpack-backup-pkg' ) }
+									{ __( 'How to fix a failed download', 'jetpack-backup-pkg' ) }
 								</ExternalLink>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ handleRetry }>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop showing $0 and NaN for paid plans on the Boost, Protect and Jetpack AI upgrade pages, and $0.00 on recommendation cards, when prices cannot be loaded.

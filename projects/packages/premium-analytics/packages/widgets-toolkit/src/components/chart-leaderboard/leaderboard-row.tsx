@@ -88,7 +88,7 @@ export type LeaderboardRowActionOptions = {
 /** The actions whose row keeps its label in place, so a trailing action has somewhere to go. */
 export type LeaderboardRowActionWithTrailing = Extract<
 	LeaderboardRowAction,
-	{ kind: 'viewLink' | 'static' | 'drillDown' }
+	{ kind: 'viewLink' | 'postLink' | 'videoLink' | 'static' | 'drillDown' }
 >;
 
 export type LeaderboardRowProps = {
@@ -109,7 +109,7 @@ export type LeaderboardRowProps = {
 			trailingAction?: ReactElement;
 	  }
 	| {
-			/** Any action; a row that links out as a whole or opens a detail page has no room for another. */
+			/** Any action; a row that links out as a whole has no room for another. */
 			action: LeaderboardRowAction;
 			trailingAction?: never;
 	  }
@@ -171,6 +171,7 @@ export function LeaderboardRow( {
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
+	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -191,21 +192,26 @@ export function LeaderboardRow( {
 			title: label,
 		};
 
-		// A row with a "View" action holds two links, so the row chrome goes on a
+		// A row with a trailing action holds two controls, so the row chrome goes on a
 		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined ) {
+		if ( liveUrl !== undefined || trailing ) {
 			return (
 				<span className={ rowClassName }>
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {
 							internal: clsx( styles.labelLink, styles.titleLink ),
+							external: clsx( styles.labelLink, styles.titleLink ),
+							plain: styles.plainLabel,
 							text: styles.label,
 						} }
 					>
 						{ content }
 					</TitleLink>
-					<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
+					{ liveUrl !== undefined && (
+						<ViewLiveLink href={ liveUrl } label={ label } className={ styles.rowAction } />
+					) }
+					{ trailing }
 				</span>
 			);
 		}
@@ -226,7 +232,6 @@ export function LeaderboardRow( {
 		);
 	}
 
-	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
 	// A drill-down row's value slides over the label end on hover; keep the action clear of it.
 	const trailingRowClassName = clsx(
 		rowClassName,

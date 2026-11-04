@@ -87,6 +87,11 @@
 			"types": "./build/components/radio-card/index.d.ts",
 			"default": "./build/components/radio-card/index.js"
 		},
+		"./sidebar-footer": {
+			"jetpack:src": "./components/sidebar-footer/index.tsx",
+			"types": "./build/components/sidebar-footer/index.d.ts",
+			"default": "./build/components/sidebar-footer/index.js"
+		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",
 			"types": "./build/tools/jp-redirect/index.d.ts",
@@ -111,7 +116,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
-		"@gravatar-com/hovercards": "0.16.0",
+		"@gravatar-com/hovercards": "0.17.0",
 		"@wordpress/a11y": "5.0.0",
 		"@wordpress/admin-ui": "3.0.0",
 		"@wordpress/browserslist-config": "7.0.0",
