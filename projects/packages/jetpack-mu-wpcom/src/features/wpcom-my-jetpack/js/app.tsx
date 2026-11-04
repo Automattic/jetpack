@@ -25,6 +25,7 @@ import {
 	videopress,
 } from './icons.tsx';
 import { groupTools } from './sections.ts';
+import { recordLinkClick } from './tracks.ts';
 import type { InitialState, Tool } from './types.ts';
 import type { ReactElement } from 'react';
 
@@ -57,10 +58,23 @@ function ToolCard( { tool }: { tool: Tool } ) {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 
 	return (
-		<Link className="wpcom-my-jetpack__tool" variant="unstyled" href={ tool.url }>
+		<Link
+			className="wpcom-my-jetpack__tool"
+			variant="unstyled"
+			href={ tool.url }
+			onClick={ event =>
+				recordLinkClick( event, 'wpcom_my_jetpack_tool_clicked', {
+					tool: tool.key || 'other',
+					section: tool.section,
+				} )
+			}
+		>
 			<Stack direction="row" gap="md" align="flex-start">
 				<span className="wpcom-my-jetpack__tool-icon" aria-hidden="true">
-					<Icon icon={ ICONS[ tool.key ] ?? jetpack } size={ 20 } />
+					<Icon
+						icon={ Object.hasOwn( ICONS, tool.key ) ? ICONS[ tool.key ] : jetpack }
+						size={ 20 }
+					/>
 				</span>
 				<Stack className="wpcom-my-jetpack__tool-text" direction="column" gap="xs">
 					<Text variant="heading-lg" className="wpcom-my-jetpack__tool-title">

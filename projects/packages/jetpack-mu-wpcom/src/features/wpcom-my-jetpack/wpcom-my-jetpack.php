@@ -33,14 +33,19 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	const WP_BUILD_PAGE = 'wpcom-my-jetpack';
 
 	/**
-	 * Matches the real My Jetpack, so the Jetpack menu's top link works for anyone who can see the menu.
+	 * Authors and up: Contributors can reach no Jetpack tool on Simple, so the page would only ever be empty for them.
 	 */
-	const CAPABILITY = 'edit_posts';
+	const CAPABILITY = 'publish_posts';
 
 	/**
 	 * Global the page's boot script reads get_initial_state() from.
 	 */
 	const INITIAL_STATE_VAR = 'wpcomMyJetpackInitialState';
+
+	/**
+	 * Records clicks, to see which tools people reach from here.
+	 */
+	const ENQUEUE_TRACKS = true;
 
 	/**
 	 * Feature flag that turns the page on.
@@ -138,7 +143,7 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 			$tools[ $url ] = array(
 				'title'       => static::get_tool_title( $item[0] ),
 				'description' => $tool['description'] ?? '',
-				'key'         => $tool ? $key : '',
+				'key'         => $key,
 				'section'     => $tool['section'] ?? 'more',
 				'url'         => $url,
 			);
@@ -170,13 +175,15 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	 * Gets the key a menu slug is known by: the path of a WordPress.com link to this site, or the slug without `jetpack-`.
 	 *
 	 * @param string $slug The menu slug.
-	 * @return string
+	 * @return string The key, or '' for any other link that leaves wp-admin, so no address reaches Tracks.
 	 */
 	private static function get_tool_key( $slug ) {
 		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
 		if ( preg_match( '#^https://wordpress\.com/(.+)/' . preg_quote( $domain, '#' ) . '/?$#', $slug, $matches ) ) {
 			$key = $matches[1];
+		} elseif ( wp_parse_url( $slug, PHP_URL_HOST ) ) {
+			return '';
 		} else {
 			$key = preg_replace( '/^jetpack-/', '', $slug );
 		}

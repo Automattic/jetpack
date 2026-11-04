@@ -97,7 +97,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The page registers on a site without My Jetpack, for anyone who can edit posts.
+	 * The page registers on a site without My Jetpack, for Authors and up.
 	 */
 	public function test_page_registers_when_the_slug_is_free() {
 		global $submenu;
@@ -109,7 +109,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 		$items = $this->get_jetpack_submenu();
 		$this->assertTrue( WPCOM_My_Jetpack::owns_page() );
 		$this->assertSame( array( 'my-jetpack' ), array_column( $items, 2 ) );
-		$this->assertSame( 'edit_posts', $items[0][1] ?? null );
+		$this->assertSame( 'publish_posts', $items[0][1] ?? null );
 	}
 
 	/**
@@ -135,14 +135,14 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 				array(
 					'title'       => 'New Tool',
 					'description' => '',
-					'key'         => '',
+					'key'         => 'new-tool',
 					'section'     => 'more',
 					'url'         => admin_url( 'admin.php?page=jetpack-new-tool' ),
 				),
 				array(
 					'title'       => 'Feedback',
 					'description' => '',
-					'key'         => '',
+					'key'         => 'edit.php?post_type=feedback',
 					'section'     => 'more',
 					'url'         => admin_url( 'edit.php?post_type=feedback' ),
 				),
@@ -170,7 +170,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Only Jetpack's own slugs and this site's WordPress.com links pick up a description and icon.
+	 * Only Jetpack's own slugs and this site's WordPress.com links land in a section, and no other address becomes a key.
 	 */
 	public function test_tools_match_known_slugs_exactly() {
 		global $submenu;
@@ -184,7 +184,10 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 			array( 'Other site', 'manage_options', 'https://wordpress.com/scan/other.example' ),
 		);
 
-		$this->assertSame( array( '', '', 'forms', 'marketing/traffic', 'protect', '' ), array_column( WPCOM_My_Jetpack::get_tools(), 'key' ) );
+		$tools = WPCOM_My_Jetpack::get_tools();
+
+		$this->assertSame( array( 'wpforms-admin', 'museo-settings', 'forms', 'marketing/traffic', 'protect', '' ), array_column( $tools, 'key' ) );
+		$this->assertSame( array( 'more', 'more', 'content', 'growth', 'security', 'more' ), array_column( $tools, 'section' ) );
 	}
 
 	/**
