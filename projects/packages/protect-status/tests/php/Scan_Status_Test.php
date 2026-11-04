@@ -514,25 +514,55 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A plugin's vulnerability is left out once the plugin is updated, before Scan scans again.
+	 * A plugin's vulnerability is left out once the plugin is updated to the fixed version, before Scan scans again.
+	 *
+	 * @param string $installed_version The installed WooCommerce version.
+	 * @param bool   $listed            Whether the vulnerability, fixed in 3.0.2, is listed.
+	 * @dataProvider updated_plugin_data
 	 */
-	public function test_get_status_drops_vulnerability_of_updated_plugin() {
+	#[DataProvider( 'updated_plugin_data' )]
+	public function test_get_status_after_plugin_update( $installed_version, $listed ) {
 		$this->mock_connection();
-		$updated = function () {
+		$response                      = $this->get_sample_response();
+		$response->threats[1]->fixer   = (object) array(
+			'fixer'  => 'update',
+			'target' => '3.0.2',
+		);
+		$response->threats[1]->fixable = $response->threats[1]->fixer;
+		$fixable_response              = function () use ( $response ) {
+			return array(
+				'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+				'response' => array( 'code' => 200 ),
+			);
+		};
+		$updated                       = function () use ( $installed_version ) {
 			return array(
 				'woocommerce' => array(
 					'Name'    => 'Woocommerce',
-					'Version' => '3.0.1',
+					'Version' => $installed_version,
 				),
 			);
 		};
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'pre_http_request', $fixable_response );
 		add_filter( 'all_plugins', $updated, 11 );
 
 		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		remove_filter( 'pre_http_request', $fixable_response );
 		remove_filter( 'all_plugins', $updated, 11 );
 
-		$this->assertNotContains( '71625245', $ids );
-		$this->assertCount( 3, $ids );
+		$this->assertSame( $listed, in_array( '71625245', $ids, true ) );
+	}
+
+	/**
+	 * Data provider for test_get_status_after_plugin_update
+	 */
+	public static function updated_plugin_data() {
+		return array(
+			'still below the fix' => array( '3.0.1', true ),
+			'the fixed version'   => array( '3.0.2', false ),
+			'past it'             => array( '3.1', false ),
+		);
 	}
 
 	/**

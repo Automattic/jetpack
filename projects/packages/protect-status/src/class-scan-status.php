@@ -285,8 +285,8 @@ class Scan_Status extends Status {
 						continue;
 					}
 
-					// A vulnerability in a version since updated or replaced is gone until Scan's next scan says otherwise.
-					if ( 'Vulnerable.WP.Extension' === $threat->signature && isset( $scan_threat->extension->version ) && $installed_extension->version !== $scan_threat->extension->version ) {
+					// Updated to the fixed version, the vulnerability is gone, though Scan's report shows it until the next scan.
+					if ( 'Vulnerable.WP.Extension' === $threat->signature && ! empty( $threat->fixed_in ) && version_compare( (string) $installed_extension->version, (string) $threat->fixed_in, '>=' ) ) {
 						continue;
 					}
 

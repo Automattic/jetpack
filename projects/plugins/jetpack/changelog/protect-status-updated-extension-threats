@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Protect: Stop counting a vulnerability on the Protect page and in the admin bar once its plugin or theme is updated, without waiting for the next scan.
+Protect: Stop counting a vulnerability on the Protect page and in the admin bar once its plugin or theme is updated to the fixed version, without waiting for the next scan.
