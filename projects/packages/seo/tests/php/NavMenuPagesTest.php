@@ -29,6 +29,8 @@ class NavMenuPagesTest extends SeoTestCase {
 		remove_all_filters( 'pre_get_block_templates' );
 		remove_all_filters( 'pre_get_block_template' );
 		remove_theme_support( 'block-template-parts' );
+		update_option( 'show_on_front', 'posts' );
+		update_option( 'page_on_front', 0 );
 		if ( WP_Block_Patterns_Registry::get_instance()->is_registered( self::PATTERN ) ) {
 			unregister_block_pattern( self::PATTERN );
 		}
@@ -122,7 +124,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * @param array[] $parts    Each `array( slug, area, linked page index )`.
 	 * @param int[]   $main     Indexes of the expected main-menu pages.
 	 * @param int[]   $other    Indexes of the expected other-menu pages.
-	 * @param array   $home     Template part slugs the home page template includes.
+	 * @param array   $home     Home page templates, as template slug => part slugs it includes.
 	 * @return void
 	 */
 	#[DataProvider( 'provide_template_parts' )]
@@ -171,9 +173,38 @@ class NavMenuPagesTest extends SeoTestCase {
 				array( array( 'header', 'header', 0 ), array( 'header-large-title', 'header', 2 ), array( 'footer', 'footer', 1 ) ),
 				array( 2 ),
 				array( 1 ),
-				array( 'header-large-title', 'footer' ),
+				array( 'index' => array( 'header-large-title', 'footer' ) ),
 			),
 		);
+	}
+
+	/**
+	 * A static front page with its own `page-{slug}` template uses that template's header.
+	 *
+	 * @return void
+	 */
+	public function test_static_front_page_uses_its_own_template() {
+		list( $a, $b, $front ) = $this->pages( 3 );
+		wp_update_post(
+			array(
+				'ID'        => $front,
+				'post_name' => 'welcome',
+			)
+		);
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front );
+		$this->use_template_parts(
+			array(
+				array( 'header', 'header', $this->navigation_markup( $a ) ),
+				array( 'header-large-title', 'header', $this->navigation_markup( $b ) ),
+			),
+			array(
+				'page'         => array( 'header' ),
+				'page-welcome' => array( 'header-large-title' ),
+			)
+		);
+
+		$this->assertSame( array( $b ), Nav_Menu_Pages::get()['main'] );
 	}
 
 	/**
@@ -309,8 +340,8 @@ class NavMenuPagesTest extends SeoTestCase {
 	/**
 	 * Serve template parts in place of the theme's, with block template parts supported.
 	 *
-	 * @param array[]  $parts Each `array( slug, area, content )`.
-	 * @param string[] $home  Parts the home page's `index` template includes.
+	 * @param array[] $parts Each `array( slug, area, content )`.
+	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes.
 	 * @return void
 	 */
 	private function use_template_parts( array $parts, array $home = array() ) {
@@ -324,25 +355,34 @@ class NavMenuPagesTest extends SeoTestCase {
 			$templates[]       = $template;
 		}
 
-		$index = array();
-		if ( $home ) {
-			$index[0]          = new WP_Block_Template();
-			$index[0]->type    = 'wp_template';
-			$index[0]->slug    = 'index';
-			$index[0]->content = '';
-			foreach ( $home as $slug ) {
-				$index[0]->content .= sprintf( '<!-- wp:group --><!-- wp:template-part {"slug":"%s"} /--><!-- /wp:group -->', $slug );
+		$page_templates = array();
+		foreach ( $home as $template_slug => $part_slugs ) {
+			$template          = new WP_Block_Template();
+			$template->type    = 'wp_template';
+			$template->slug    = $template_slug;
+			$template->content = '';
+			foreach ( $part_slugs as $slug ) {
+				$template->content .= sprintf( '<!-- wp:group --><!-- wp:template-part {"slug":"%s"} /--><!-- /wp:group -->', $slug );
 			}
+			$page_templates[] = $template;
 		}
 
 		add_theme_support( 'block-template-parts' );
 		add_filter(
 			'pre_get_block_templates',
-			static function ( $result, $query, $type ) use ( $templates, $index ) {
+			static function ( $result, $query, $type ) use ( $templates, $page_templates ) {
 				if ( 'wp_template_part' === $type ) {
 					return $templates;
 				}
-				return $index ? $index : $result;
+				$slugs = $query['slug__in'] ?? array();
+				return array_values(
+					array_filter(
+						$page_templates,
+						static function ( $template ) use ( $slugs ) {
+							return in_array( $template->slug, $slugs, true );
+						}
+					)
+				);
 			},
 			10,
 			3
