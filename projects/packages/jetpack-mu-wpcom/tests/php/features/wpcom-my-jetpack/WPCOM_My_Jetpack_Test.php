@@ -78,15 +78,18 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_page_registers_when_the_slug_is_free() {
 		global $submenu;
-		// An empty Jetpack menu, so Phan knows the key the assertions read.
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$submenu = array( 'jetpack' => array() );
+		$submenu = array();
 
 		WPCOM_My_Jetpack::register_page();
 
+		// Otherwise Phan still reads the menu as the empty array set above.
+		/** @var array<string,array<int,array<int,string>>> $menu */
+		$menu = $submenu;
+
 		$this->assertTrue( WPCOM_My_Jetpack::owns_page() );
-		$this->assertSame( array( 'my-jetpack' ), array_column( $submenu['jetpack'], 2 ) );
-		$this->assertSame( 'edit_posts', $submenu['jetpack'][0][1] );
+		$this->assertSame( array( 'my-jetpack' ), array_column( $menu['jetpack'], 2 ) );
+		$this->assertSame( 'edit_posts', $menu['jetpack'][0][1] );
 	}
 
 	/**
