@@ -250,8 +250,7 @@ const Edit = props => {
 	}, [ products, oneTimeDonation, monthlyDonation, annualDonation, setAttributes ] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
-	// a valid currency to render a representative form rather than a perpetual
-	// spinner or a "connect Stripe" nudge.
+	// a valid currency to render a representative form.
 	const effectiveProps =
 		isPreviewMode && ! currency
 			? { ...props, attributes: { ...attributes, currency: 'USD' } }
