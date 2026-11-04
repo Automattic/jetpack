@@ -237,6 +237,17 @@ describe( 'ScanCard threat list', () => {
 
 		expect( screen.getByText( '1 item selected' ) ).toBeInTheDocument();
 	} );
+
+	it( 'collapses the list from its heading', async () => {
+		const user = userEvent.setup();
+		renderCard( { threats: [ fixable ] } );
+		const toggle = screen.getByRole( 'button', { name: 'Review and fix threats' } );
+
+		await user.click( toggle );
+
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'Severity filter', () => {

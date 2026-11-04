@@ -3,7 +3,8 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Spinner, Stack } from '@wordpress/ui';
+import { chevronDown } from '@wordpress/icons';
+import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { recordViewChange } from '../../data/threat-events';
 import useOpenThreat from '../use-open-threat';
@@ -15,6 +16,9 @@ import { useThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
 
 const DEFAULT_LAYOUTS = { table: {} };
+
+// A cell with nothing to show, as the firewall log does, so no cell is blank.
+const NOT_AVAILABLE = <span className="jp-protect-card__muted">—</span>;
 
 /**
  * When a threat was found: "Today, 7:45 AM", else "Aug 15, 7:00 AM", in the site's timezone.
@@ -112,6 +116,8 @@ function getBusyLabel( busy: NonNullable< ThreatActionState[ 'busy' ] > ): strin
 /**
  * The date column: the date, or what is happening to the threat while an action runs.
  *
+ * The free vulnerability check reports no dates, so its threats show a dash.
+ *
  * @param props      - Component props.
  * @param props.item - The threat.
  * @param props.date - The ISO date.
@@ -131,7 +137,9 @@ function DateCell( { item, date }: { item: ScanThreat; date: string } ) {
 		<span className="jp-protect-card__muted jp-protect-threats__nowrap">
 			{ formatDetected( date ) }
 		</span>
-	) : null;
+	) : (
+		NOT_AVAILABLE
+	);
 }
 
 /**
@@ -151,25 +159,22 @@ type ThreatFieldOptions = {
 	getDate: ( item: ScanThreat ) => string;
 	/** Show each threat on one line, with its severity, for a list without a Severity column. */
 	inline?: boolean;
-	/** Blank the date column's heading and sorting, for threats with no dates to show. */
-	hideDateHeader?: boolean;
 };
 
 /**
  * A threats table's columns: severity, the threat, then a date.
  *
- * @param open                   - Opens a threat in the inspector.
- * @param options                - The columns' labels and date.
- * @param options.threatLabel    - The threat column's heading.
- * @param options.dateLabel      - The date column's heading.
- * @param options.getDate        - The ISO date the date column shows.
- * @param options.inline         - Whether each threat takes one line, with its severity.
- * @param options.hideDateHeader - Whether the date column has no heading or sorting.
+ * @param open                - Opens a threat in the inspector.
+ * @param options             - The columns' labels and date.
+ * @param options.threatLabel - The threat column's heading.
+ * @param options.dateLabel   - The date column's heading.
+ * @param options.getDate     - The ISO date the date column shows.
+ * @param options.inline      - Whether each threat takes one line, with its severity.
  * @return The fields.
  */
 export function getThreatFields(
 	open: ( item: ScanThreat ) => void,
-	{ threatLabel, dateLabel, getDate, inline = false, hideDateHeader = false }: ThreatFieldOptions
+	{ threatLabel, dateLabel, getDate, inline = false }: ThreatFieldOptions
 ): Field< ScanThreat >[] {
 	return [
 		{
@@ -180,7 +185,12 @@ export function getThreatFields(
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
 			getValue: ( { item } ) => item.severity ?? 0,
-			render: ( { item } ) => <KnownSeverityBadge severity={ item.severity } />,
+			render: ( { item } ) =>
+				typeof item.severity === 'number' ? (
+					<ThreatSeverityBadge severity={ item.severity } />
+				) : (
+					NOT_AVAILABLE
+				),
 		},
 		{
 			id: 'threat',
@@ -197,9 +207,6 @@ export function getThreatFields(
 		{
 			id: 'date',
 			label: dateLabel,
-			// DataViews shows the label, then the id, when the header is empty; with nothing to
-			// sort or filter (and moving off), the heading renders as plain text, not a menu button.
-			...( hideDateHeader && { header: <span />, enableSorting: false, filterBy: false as const } ),
 			type: 'datetime',
 			enableHiding: false,
 			getValue: ( { item } ) => getDate( item ),
@@ -297,7 +304,7 @@ type ThreatsListProps = {
 };
 
 /**
- * The threats a scan found, under a heading, with search, filters and bulk actions.
+ * The threats a scan found, under a heading that collapses them, with search, filters and bulk actions.
  *
  * Choosing a threat opens its details in the inspector.
  *
@@ -308,16 +315,12 @@ type ThreatsListProps = {
  */
 export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 	// As the title field, the threat column also names each row's checkbox.
-	const [ view, setView ] = useState< View >( () => {
-		const base = createThreatView( 'severity' );
-		// The date is the only column that could move, so moving is a no-op; off, a blank date heading isn't a button.
-		return {
-			...base,
-			titleField: 'threat',
-			fields: [ 'date' ],
-			layout: { ...base.layout, enableMoving: false },
-		};
-	} );
+	const [ view, setView ] = useState< View >( () => ( {
+		...createThreatView( 'severity' ),
+		titleField: 'threat',
+		fields: [ 'date' ],
+	} ) );
+	const [ isOpen, setIsOpen ] = useState( true );
 	const [ selection, setSelection ] = useState< string[] >( NO_SELECTION );
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
@@ -339,8 +342,6 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		[ getItemId ]
 	);
 
-	// The free check reports no detection dates; the column stays for the busy label alone.
-	const hasDates = threats.some( item => item.firstDetected );
 	const fields = useMemo(
 		() => [
 			...getThreatFields( open, {
@@ -348,11 +349,10 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 				dateLabel: __( 'Detected on', 'jetpack-protect-pkg' ),
 				getDate: item => item.firstDetected ?? '',
 				inline: true,
-				hideDateHeader: ! hasDates,
 			} ),
 			...FILTER_FIELDS,
 		],
-		[ open, hasDates ]
+		[ open ]
 	);
 	const actions = useThreatRowActions( open, canAct, deselect );
 
@@ -368,44 +368,50 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		},
 		[ view, totalPages ]
 	);
-	useArrowKeyNavigation( data, selected, getItemId, open );
+	// Collapsed, the arrow keys would open threats the reader can't see.
+	useArrowKeyNavigation( data, isOpen ? selected : undefined, getItemId, open );
 	const hasSelectedRows = data.some( item => selection.includes( getItemId( item ) ) );
 
 	return (
-		<div className="jp-protect-threats">
+		<Collapsible.Root open={ isOpen } onOpenChange={ setIsOpen } className="jp-protect-threats">
 			<h3 className="jp-protect-threats__heading">
-				{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
+				<Collapsible.Trigger className="jp-protect-threats__toggle">
+					{ __( 'Review and fix threats', 'jetpack-protect-pkg' ) }
+					<Icon icon={ chevronDown } size={ 24 } />
+				</Collapsible.Trigger>
 			</h3>
-			<DataViews
-				data={ data }
-				fields={ fields }
-				actions={ actions }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ DEFAULT_LAYOUTS }
-				getItemId={ getItemId }
-				selection={ selection }
-				onChangeSelection={ setSelection }
-			>
-				<Stack
-					direction="row"
-					align="center"
-					justify="space-between"
-					gap="xs"
-					className="jp-protect-threats__toolbar"
+			<Collapsible.Panel>
+				<DataViews
+					data={ data }
+					fields={ fields }
+					actions={ actions }
+					view={ view }
+					onChangeView={ onChangeView }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ DEFAULT_LAYOUTS }
+					getItemId={ getItemId }
+					selection={ selection }
+					onChangeSelection={ setSelection }
 				>
-					<Stack direction="row" align="center" gap="sm">
-						<DataViews.Search />
-						<DataViews.FiltersToggle />
+					<Stack
+						direction="row"
+						align="center"
+						justify="space-between"
+						gap="xs"
+						className="jp-protect-threats__toolbar"
+					>
+						<Stack direction="row" align="center" gap="sm">
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+						</Stack>
+						<DataViews.ViewConfig />
 					</Stack>
-					<DataViews.ViewConfig />
-				</Stack>
-				<DataViews.FiltersToggled className="jp-protect-threats__filters" />
-				<DataViews.Layout />
-				{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
-				{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
-			</DataViews>
-		</div>
+					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
+					<DataViews.Layout />
+					{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
+					{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
+				</DataViews>
+			</Collapsible.Panel>
+		</Collapsible.Root>
 	);
 }

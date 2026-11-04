@@ -1,7 +1,8 @@
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { DataViews } from '@wordpress/dataviews';
 import { fixThreat, ignoreThreat } from '../threat-actions';
-import ThreatsList from '../threats-list';
+import ThreatsList, { createThreatView, getThreatFields } from '../threats-list';
 import type { ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -11,6 +12,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const getItemId = ( item: ScanThreat ) => String( item.id );
 
 describe( 'ThreatsList', () => {
 	it.each( [
@@ -34,18 +36,28 @@ describe( 'ThreatsList', () => {
 	} );
 
 	it.each( [
-		[ 'shows', '2026-08-15T07:00:00Z' ],
-		[ 'hides', undefined ],
-	] )( '%s the Detected on heading by whether threats have dates', ( _, firstDetected ) => {
-		const threat: ScanThreat = {
-			id: 3,
-			title: 'Vulnerable plugin: Contact Form 7 (version 5.3.1)',
-			firstDetected,
-		};
-		render( <ThreatsList threats={ [ threat ] } canAct={ false } /> );
-		const header = screen.queryByRole( 'columnheader', { name: /detected on|date/i } );
-		expect( !! header ).toBe( !! firstDetected );
-		expect( screen.queryByRole( 'button', { name: '' } ) ).not.toBeInTheDocument();
+		[ 'date', { firstDetected: undefined } ],
+		[ 'severity', { severity: null } ],
+	] )( 'shows a dash for a threat with no %s', ( fieldId, missing ) => {
+		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', ...missing };
+		const fields = getThreatFields( jest.fn(), {
+			threatLabel: 'Threat',
+			dateLabel: 'Detected on',
+			getDate: item => item.firstDetected ?? '',
+		} );
+		render(
+			<DataViews
+				data={ [ threat ] }
+				fields={ fields }
+				view={ { ...createThreatView( 'severity' ), fields: [ fieldId ] } }
+				onChangeView={ jest.fn() }
+				paginationInfo={ { totalItems: 1, totalPages: 1 } }
+				defaultLayouts={ { table: {} } }
+				getItemId={ getItemId }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
