@@ -1849,7 +1849,7 @@ class Stats_Abilities extends Registrar {
 			'comment'             => __( 'People following the comments on every post, now. Following one post\'s comments is not counted.', 'jetpack-stats-pkg' ),
 			'publicize'           => __( 'Followers of each connected social media account, now.', 'jetpack-stats-pkg' ),
 			'comparison_series'   => __( 'The same figures for the window `compare` names, ending on `comparison.date`: row i of `comparison.series` is the earlier period matching row i of `series`. Weeks, months and years shift by whole periods, so a previous year of weeks is 52 weeks earlier, and both last rows end at the same point in their period. `comparison.series` is null when WordPress.com could not be read.', 'jetpack-stats-pkg' ),
-			'comparison_overview' => __( 'The same figures for the windows `compare` names, listed in `comparison.windows`: today, the 7 days and the 30 days, each shifted back. A figure is null when WordPress.com did not report every day of its window.', 'jetpack-stats-pkg' ),
+			'comparison_overview' => __( 'The same figures for the windows `compare` names, listed in `comparison.windows`: today, the 7 days and the 30 days, each shifted back. The current figures include today so far while the compared windows are whole days, so early in the day today trails its comparison. A figure is null when WordPress.com did not report every day of its window.', 'jetpack-stats-pkg' ),
 		);
 	}
 
