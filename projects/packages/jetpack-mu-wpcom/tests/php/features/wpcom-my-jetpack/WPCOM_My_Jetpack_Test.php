@@ -83,13 +83,10 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 
 		WPCOM_My_Jetpack::register_page();
 
-		// Otherwise Phan still reads the menu as the empty array set above.
-		/** @var array<string,array<int,array<int,string>>> $menu */
-		$menu = $submenu;
-
+		$items = $this->get_jetpack_submenu();
 		$this->assertTrue( WPCOM_My_Jetpack::owns_page() );
-		$this->assertSame( array( 'my-jetpack' ), array_column( $menu['jetpack'], 2 ) );
-		$this->assertSame( 'edit_posts', $menu['jetpack'][0][1] );
+		$this->assertSame( array( 'my-jetpack' ), array_column( $items, 2 ) );
+		$this->assertSame( 'edit_posts', $items[0][1] ?? null );
 	}
 
 	/**
@@ -226,5 +223,16 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 		update_option( 'is_fully_managed_agency_site', true );
 
 		$this->assertNull( WPCOM_My_Jetpack::get_initial_state()['plan'] );
+	}
+
+	/**
+	 * The Jetpack submenu as it stands, read in its own scope so Phan doesn't
+	 * narrow it to the empty menu a test started from.
+	 *
+	 * @return array<int,array<int,string>>
+	 */
+	private function get_jetpack_submenu() {
+		global $submenu;
+		return $submenu['jetpack'] ?? array();
 	}
 }

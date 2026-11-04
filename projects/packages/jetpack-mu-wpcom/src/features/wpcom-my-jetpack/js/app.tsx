@@ -26,6 +26,7 @@ import {
 	social,
 	videopress,
 } from './icons.tsx';
+import { groupTools } from './sections.ts';
 import { recordEvent, recordLinkClick } from './tracks.ts';
 import type { InitialState, Tool } from './types.ts';
 import type { MouseEvent, ReactElement } from 'react';
@@ -47,57 +48,6 @@ const ICONS: Record< string, ReactElement > = {
 	'marketing/traffic': trendingUp,
 	videopress,
 };
-
-/**
- * Which section each known tool sits in, by icon key. Anything else goes under "More".
- */
-const SECTION_OF: Record< string, string > = {
-	'activity-log': 'security',
-	'akismet-key-config': 'security',
-	backup: 'security',
-	scan: 'security',
-	advertising: 'growth',
-	earn: 'growth',
-	newsletter: 'growth',
-	social: 'growth',
-	'marketing/traffic': 'growth',
-	seo: 'growth',
-	'forms-admin': 'content',
-	'forms-responses-wp-admin': 'content',
-	podcast: 'content',
-	search: 'content',
-	videopress: 'content',
-};
-
-/**
- * The sections, in page order.
- *
- * @return Each section's key, title and blurb.
- */
-function getSections() {
-	return [
-		{
-			key: 'security',
-			title: __( 'Security', 'jetpack-mu-wpcom' ),
-			blurb: __( 'Keep your site and its visitors safe.', 'jetpack-mu-wpcom' ),
-		},
-		{
-			key: 'growth',
-			title: __( 'Growth', 'jetpack-mu-wpcom' ),
-			blurb: __( 'Bring in visitors and earn from your content.', 'jetpack-mu-wpcom' ),
-		},
-		{
-			key: 'content',
-			title: __( 'Content', 'jetpack-mu-wpcom' ),
-			blurb: __( 'Collect, publish and find what is on your site.', 'jetpack-mu-wpcom' ),
-		},
-		{
-			key: 'more',
-			title: __( 'More', 'jetpack-mu-wpcom' ),
-			blurb: __( 'Other Jetpack tools on this site.', 'jetpack-mu-wpcom' ),
-		},
-	];
-}
 
 /**
  * One tool in the list, laid out like a card on My Jetpack's Features tab.
@@ -154,16 +104,7 @@ export function App() {
 		tools: [],
 		plan: null,
 	};
-	const sections = useMemo(
-		() =>
-			getSections()
-				.map( section => ( {
-					...section,
-					tools: tools.filter( tool => ( SECTION_OF[ tool.icon ] ?? 'more' ) === section.key ),
-				} ) )
-				.filter( section => section.tools.length ),
-		[ tools ]
-	);
+	const sections = useMemo( () => groupTools( tools ), [ tools ] );
 
 	useEffect( () => {
 		recordEvent( 'wpcom_my_jetpack_page_viewed', { tool_count: tools.length } );
