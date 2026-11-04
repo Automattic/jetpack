@@ -285,6 +285,11 @@ class Scan_Status extends Status {
 						continue;
 					}
 
+					// A vulnerability in a version since updated or replaced is gone until Scan's next scan says otherwise.
+					if ( 'Vulnerable.WP.Extension' === $threat->signature && isset( $scan_threat->extension->version ) && $installed_extension->version !== $scan_threat->extension->version ) {
+						continue;
+					}
+
 					// Push the threat to the appropriate extension.
 					switch ( $scan_threat->extension->type ) {
 						case 'plugin':

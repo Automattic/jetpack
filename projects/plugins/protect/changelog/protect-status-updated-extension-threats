@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop counting a plugin or theme vulnerability in the admin bar and threat list once it is updated, without waiting for the next scan.

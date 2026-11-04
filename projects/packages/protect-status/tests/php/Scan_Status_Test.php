@@ -514,6 +514,28 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A plugin's vulnerability is left out once the plugin is updated, before Scan scans again.
+	 */
+	public function test_get_status_drops_vulnerability_of_updated_plugin() {
+		$this->mock_connection();
+		$updated = function () {
+			return array(
+				'woocommerce' => array(
+					'Name'    => 'Woocommerce',
+					'Version' => '3.0.1',
+				),
+			);
+		};
+		add_filter( 'all_plugins', $updated, 11 );
+
+		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		remove_filter( 'all_plugins', $updated, 11 );
+
+		$this->assertNotContains( '71625245', $ids );
+		$this->assertCount( 3, $ids );
+	}
+
+	/**
 	 * Test get total threats
 	 */
 	public function test_get_total_threats() {
