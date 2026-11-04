@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Show that a site with Scan hasn't been scanned yet on the Protect card instead of calling it secure.

@@ -21,7 +21,12 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
 
-	const { plugins, themes, num_threats: numThreats = 0 } = data?.scanData || {};
+	const {
+		plugins,
+		themes,
+		num_threats: numThreats = 0,
+		last_checked: lastChecked = null,
+	} = data?.scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
 		const { core, database, files, num_plugins_threats, num_themes_threats } = data?.scanData || {};
@@ -55,7 +60,8 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 					/>
 				);
 			}
-			return <ScanStatus data={ data } status="success" />;
+			// No scan on record yet, so there's nothing to call secure.
+			return <ScanStatus data={ data } status={ lastChecked ? 'success' : 'not-scanned' } />;
 		}
 		return numThreats ? (
 			<ThreatStatus data={ data } numThreats={ numThreats } />
@@ -136,7 +142,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 
 interface ScanStatusProps {
 	data: ProtectData;
-	status: 'success' | 'partial' | 'off';
+	status: 'success' | 'not-scanned' | 'partial' | 'off';
 }
 
 const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
@@ -156,6 +162,25 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 						/>
 					</div>
 					<div className="value-section__status-text">{ __( 'Secure', 'jetpack-my-jetpack' ) }</div>
+				</div>
+			</>
+		);
+	}
+	if ( status === 'not-scanned' ) {
+		return (
+			<>
+				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+				<div className="value-section__data">
+					<div>
+						<img
+							className="value-section__status-icon"
+							src={ ShieldPartial }
+							alt={ __( 'Shield icon - Scan Status: Not scanned yet', 'jetpack-my-jetpack' ) }
+						/>
+					</div>
+					<div className="value-section__status-text">
+						{ __( 'Not scanned yet', 'jetpack-my-jetpack' ) }
+					</div>
 				</div>
 			</>
 		);
