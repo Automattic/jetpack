@@ -293,14 +293,14 @@ class Threat_File {
 	private static function get_core_relative( $path ) {
 		// wp-content can be moved or renamed, which ABSPATH alone misses for the files core ships in it.
 		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
-		if ( null !== $in_content && ! self::is_core_in_content() && in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) {
+		if ( null !== $in_content && in_array( $in_content, self::CORE_CONTENT_FILES, true ) && ! ( 'index.php' === $in_content && self::is_core_in_content() ) ) {
 			return 'wp-content/' . $in_content;
 		}
 		return self::get_relative( $path, ABSPATH );
 	}
 
 	/**
-	 * Whether WordPress sits inside the content directory, as when that is the site root, so its files aren't wp-content's.
+	 * Whether WordPress sits inside the content directory, as when that is the site root, whose index.php loads the site.
 	 *
 	 * @return bool
 	 */
