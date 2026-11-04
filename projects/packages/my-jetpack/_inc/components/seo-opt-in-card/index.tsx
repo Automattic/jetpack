@@ -59,7 +59,7 @@ export default function SeoOptInCard() {
 			<Notice.Title>{ __( 'A fresh way to manage your SEO', 'jetpack-my-jetpack' ) }</Notice.Title>
 			<Notice.Description>
 				{ __(
-					'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switch over whenever you like; your existing settings come with you.',
+					'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switching also enables Jetpack SEO tools if they are off. Your existing settings are kept.',
 					'jetpack-my-jetpack'
 				) }
 			</Notice.Description>

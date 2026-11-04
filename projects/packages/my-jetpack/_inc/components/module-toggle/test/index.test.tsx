@@ -340,4 +340,10 @@ describe( 'ModuleToggle', () => {
 		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Toggle Podcast module' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'locks the switch when told the site cannot use the module', () => {
+		render( <ModuleToggle module={ buildModule() } disabled /> );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Toggle Podcast module' } ) ).toBeDisabled();
+	} );
 } );

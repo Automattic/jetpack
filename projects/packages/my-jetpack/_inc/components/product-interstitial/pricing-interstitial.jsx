@@ -24,6 +24,7 @@ import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useProduct from '../../data/products/use-product';
+import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
@@ -139,8 +140,10 @@ export default function PricingInterstitial( { slug } ) {
 			? {
 					...detail.pricingForUi.tiers.upgraded,
 					// Calculate monthly prices from annual if needed
-					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
-					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+					fullPricePerMonth: tierPricePerMonth( detail.pricingForUi.tiers.upgraded.fullPrice ),
+					discountPricePerMonth: tierPricePerMonth(
+						detail.pricingForUi.tiers.upgraded.discountPrice
+					),
 				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
