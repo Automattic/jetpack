@@ -291,7 +291,7 @@ class Social_Abilities extends Registrar {
 
 		return array(
 			'total'       => count( $connections ),
-			'connections' => array_slice( $connections, 0, self::MAX_CONNECTIONS ),
+			'connections' => $connections,
 		);
 	}
 
