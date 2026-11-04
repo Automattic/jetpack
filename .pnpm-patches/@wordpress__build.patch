@@ -1,9 +1,9 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
 new file mode 100755
-index 0000000..3b466b6
+index 0000000..179b921
 --- /dev/null
 +++ b/lib/build-shared.mjs
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,270 @@
 +#!/usr/bin/env node
 +/**
 + * Bundles libraries that several wp-build plugins use into shared script modules.
@@ -69,6 +69,8 @@ index 0000000..3b466b6
 +				return {
 +					code: await transform( css, path.dirname( id ), id ),
 +					moduleType: 'js',
++					// Libraries like DataViews declare `sideEffects: false`, which would drop their stylesheet.
++					moduleSideEffects: true,
 +				};
 +			},
 +		},
@@ -94,13 +96,26 @@ index 0000000..3b466b6
 +	return output[ 0 ].exports.includes( 'default' );
 +}
 +
++/*
++ * Names are only added: a plugin bundling an older admin-ui may still import one a newer list would drop.
++ * Remove a name by editing the list.
++ */
 +if ( process.argv.includes( '--update-exports' ) ) {
 +	const ids = new Set( Object.keys( manifest.names ) );
 +	const used = {};
-+	for ( const file of await glob( config.consumers ?? [], {
++	for ( const [ name, names ] of Object.entries( manifest.exports ) ) {
++		used[ name ] = new Set( names );
++	}
++	const files = await glob( config.consumers ?? [], {
 +		cwd: ROOT_DIR,
 +		absolute: true,
-+	} ) ) {
++	} );
++	if ( ! files.length ) {
++		throw new Error(
++			'No built consumers match `wpSharedModules.consumers`; build them first.'
++		);
++	}
++	for ( const file of files ) {
 +		for ( const [ id, names ] of findSharedImports(
 +			await readFile( file, 'utf8' ),
 +			ids
@@ -121,11 +136,11 @@ index 0000000..3b466b6
 +	);
 +}
 +
-+// One entry per module that a consumer imports; the others are not built.
++// One entry per module the list names; the others are not built.
 +const entries = {};
 +for ( const [ specifier, name ] of Object.entries( config.modules ) ) {
 +	const listed = manifest.exports[ name ];
-+	if ( ! listed?.length ) {
++	if ( ! listed ) {
 +		continue;
 +	}
 +	const from = JSON.stringify( specifier );
@@ -147,6 +162,11 @@ index 0000000..3b466b6
 +		lines.push( `import ${ JSON.stringify( style ) };` );
 +	}
 +	entries[ name ] = lines.join( '\n' );
++}
++if ( ! Object.keys( entries ).length ) {
++	throw new Error(
++		`${ manifest.exportsPath } lists no exports; run \`wp-build-shared --update-exports\`.`
++	);
 +}
 +
 +await rm( outdir, { recursive: true, force: true } );
@@ -222,6 +242,13 @@ index 0000000..3b466b6
 +} );
 +await disposeSassCompiler();
 +await rm( path.join( outdir, 'shared.min.js' ) );
++// Keep the dependencies the externals plugin found; its version hashed the empty placeholder.
++const assetPath = path.join( outdir, 'shared.min.asset.php' );
++const asset = await readFile( assetPath, 'utf8' );
++const dependencies = [ 'dependencies', 'module_dependencies' ]
++	.map( ( key ) => asset.match( new RegExp( `'${ key }' => array\\(.*?\\)(?=, '|\\);)` ) )?.[ 0 ] )
++	.filter( Boolean );
++await rm( assetPath );
 +
 +const files = result.output.map( ( { fileName } ) => fileName ).sort();
 +const hash = createHash( 'sha256' );
@@ -239,7 +266,9 @@ index 0000000..3b466b6
 +	.join( ', ' );
 +await writeFile(
 +	path.join( outdir, 'modules.php' ),
-+	`<?php return array( 'modules' => array( ${ phpModules } ), 'version' => '${ version }' );\n`
++	`<?php return array( 'modules' => array( ${ phpModules } ), ${ dependencies
++		.map( ( entry ) => entry + ', ' )
++		.join( '' ) }'version' => '${ version }' );\n`
 +);
 +
 +for ( const { fileName, code } of result.output ) {
@@ -298,10 +327,10 @@ index aee05a0..7dd2bc6 100755
  		// Handle CSS modules (.module.css and .module.scss)
 diff --git a/lib/shared-modules-manifest.mjs b/lib/shared-modules-manifest.mjs
 new file mode 100644
-index 0000000..6a9a099
+index 0000000..cebf754
 --- /dev/null
 +++ b/lib/shared-modules-manifest.mjs
-@@ -0,0 +1,107 @@
+@@ -0,0 +1,113 @@
 +import { readFile } from 'fs/promises';
 +import path from 'path';
 +
@@ -370,28 +399,31 @@ index 0000000..6a9a099
 +}
 +
 +/**
-+ * List the names a built ES module imports from each of the given module IDs.
++ * List the names a built ES module imports or re-exports from each of the given module IDs.
 + *
-+ * Parses Rolldown's output, not arbitrary source: `*` stands for a namespace or dynamic import.
++ * Parses Rolldown's output, not arbitrary source: `*` stands for a namespace, `export *` or dynamic import.
 + *
 + * @param {string}      source Built module source.
 + * @param {Set<string>} ids    Module IDs to look for.
-+ * @return {Map<string, Set<string>>} Imported names per module ID.
++ * @return {Map<string, Set<string>>} Imported names per module ID, empty for a bare `import "id"`.
 + */
 +export function findSharedImports( source, ids ) {
 +	const used = new Map();
 +	const add = ( id, name ) => {
 +		if ( ids.has( id ) ) {
-+			( used.get( id ) ?? used.set( id, new Set() ).get( id ) ).add( name );
++			const names = used.get( id ) ?? used.set( id, new Set() ).get( id );
++			if ( name ) {
++				names.add( name );
++			}
 +		}
 +	};
-+	for ( const [ , clause, id ] of source.matchAll(
-+		/import\s*([^"';]*?)\s*from\s*["']([^"']+)["']/g
++	for ( const [ , keyword, clause, id ] of source.matchAll(
++		/\b(import|export)\s*([^"';]*?)\s*from\s*["']([^"']+)["']/g
 +	) ) {
-+		if ( /^\*/.test( clause ) ) {
++		if ( /(^|,)\s*\*/.test( clause ) ) {
 +			add( id, '*' );
 +		}
-+		if ( /^[\w$]+/.test( clause ) ) {
++		if ( keyword === 'import' && /^[\w$]+/.test( clause ) ) {
 +			add( id, 'default' );
 +		}
 +		for ( const part of clause.match( /\{([^}]*)\}/ )?.[ 1 ].split( ',' ) ??
@@ -402,15 +434,18 @@ index 0000000..6a9a099
 +			}
 +		}
 +	}
++	for ( const [ , id ] of source.matchAll( /\bimport\s*["']([^"']+)["']/g ) ) {
++		add( id );
++	}
 +	for ( const [ , id ] of source.matchAll(
-+		/import\(\s*["']([^"']+)["']\s*\)/g
++		/\bimport\(\s*["']([^"']+)["']\s*\)/g
 +	) ) {
 +		add( id, '*' );
 +	}
 +	return used;
 +}
 diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
-index e5ba17c..24cfaf7 100644
+index e5ba17c..75d3a4b 100644
 --- a/lib/wordpress-externals-plugin.mjs
 +++ b/lib/wordpress-externals-plugin.mjs
 @@ -3,6 +3,7 @@ import path from 'path';
@@ -421,7 +456,7 @@ index e5ba17c..24cfaf7 100644
  
  /**
   * Prefix of the ids of the modules that expose a script's global to an ES
-@@ -40,6 +41,42 @@ async function generateContentHash(
+@@ -40,6 +41,44 @@ async function generateContentHash(
  	return fullHash.slice( 0, length );
  }
  
@@ -439,8 +474,10 @@ index e5ba17c..24cfaf7 100644
 +		new Set( Object.keys( names ) )
 +	);
 +	for ( const [ id, imported ] of used ) {
-+		const listed = exports[ names[ id ] ] ?? [];
-+		if ( ! listed.includes( '*' ) ) {
++		const listed = exports[ names[ id ] ];
++		if ( ! listed ) {
++			missing.push( `${ id }: the whole module` );
++		} else if ( ! listed.includes( '*' ) ) {
 +			missing.push(
 +				...[ ...imported ]
 +					.filter( ( name ) => ! listed.includes( name ) )
@@ -464,7 +501,7 @@ index e5ba17c..24cfaf7 100644
  /**
   * Create WordPress externals plugin for Rolldown.
   * This plugin handles WordPress package externals and vendor libraries,
-@@ -49,13 +86,15 @@ async function generateContentHash(
+@@ -49,13 +88,15 @@ async function generateContentHash(
   * @param {string|false} scriptGlobal       Global variable name (e.g., 'wp', 'myPlugin') or false to disable globals.
   * @param {Object}       externalNamespaces Additional namespaces to externalize (e.g., { 'woo': { global: 'woo', handlePrefix: 'woocommerce' } }).
   * @param {string}       handlePrefix       Handle prefix for main package (e.g., 'wp', 'mp'). Defaults to packageNamespace.
@@ -481,7 +518,7 @@ index e5ba17c..24cfaf7 100644
  ) {
  	/**
  	 * WordPress externals plugin for Rolldown.
-@@ -242,6 +281,18 @@ export function createWordpressExternalsPlugin(
+@@ -242,6 +283,35 @@ export function createWordpressExternalsPlugin(
  					return null;
  				}
  
@@ -494,13 +531,30 @@ index e5ba17c..24cfaf7 100644
 +					} else if ( ! moduleDependencies.has( sharedId ) ) {
 +						moduleDependencies.set( sharedId, 'dynamic' );
 +					}
-+					return { id: sharedId, external: true };
++					return {
++						id: sharedId,
++						external: true,
++						moduleSideEffects: false,
++					};
++				}
++				// A subpath bundles a second copy of the library, with its own stores and contexts.
++				const sharedRoot =
++					buildFormat === 'esm' &&
++					sharedModules &&
++					! /\.s?css$/.test( source ) &&
++					Object.keys( sharedModules.modules ).find( ( specifier ) =>
++						source.startsWith( specifier + '/' )
++					);
++				if ( sharedRoot ) {
++					this.warn(
++						`${ source } bundles a copy of ${ sharedRoot }, which is shared; import from ${ sharedRoot } instead.`
++					);
 +				}
 +
  				if (
  					Object.prototype.hasOwnProperty.call(
  						vendorExternals,
-@@ -382,6 +433,10 @@ export function createWordpressExternalsPlugin(
+@@ -382,6 +452,10 @@ export function createWordpressExternalsPlugin(
  					);
  				}
  
