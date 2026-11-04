@@ -86,7 +86,7 @@ class CLI extends WP_CLI_Command {
 	 * Turn on the firewall module and set up the WAF to run.
 	 * ## OPTIONS
 	 *
-	 * [<mode>]
+	 * <mode>
 	 * : The new mode to be set.
 	 * ---
 	 * options:
