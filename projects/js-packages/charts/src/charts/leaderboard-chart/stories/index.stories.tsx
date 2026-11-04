@@ -366,7 +366,7 @@ export const Interactive: Story = {
 		docs: {
 			description: {
 				story:
-					'Interactive rows with plain string labels and comparison bars. A label that nearly fills its column keeps its line breaks on hover and focus, so the rows below stay put.',
+					'Interactive rows with plain string labels and comparison bars. A string label on an interactive row stays on one line and ends in an ellipsis, so the narrower label on hover and focus never wraps and the rows below stay put.',
 			},
 		},
 	},
@@ -481,6 +481,16 @@ export const InteractiveOverlayLabelLink: Story = {
 		expect( button ).not.toContainElement(
 			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
 		);
+
+		// A focused nested control turns the row's hover inset off, but must not lift the label cap.
+		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
+		const label = canvas.getAllByTestId( 'interactive-row-label' ).at( -1 );
+		const restingRight = label.getBoundingClientRect().right;
+
+		canvas.getByRole( 'link', { name: longLabel } ).focus();
+		await Promise.all( document.getAnimations().map( ( { finished } ) => finished ) );
+
+		expect( label.getBoundingClientRect().right ).toBeLessThan( restingRight );
 	},
 };
 
