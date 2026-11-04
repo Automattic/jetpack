@@ -23,6 +23,7 @@ import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import PostByEmail from './post-by-email';
+import { PostByEmailMoved } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
@@ -144,14 +145,18 @@ export class Writing extends Component {
 				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
 				<ThemeEnhancements { ...commonProps } />
 				<Widgets { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
-					<PostByEmail
-						{ ...commonProps }
-						connectUrl={ this.props.connectUrl }
-						isLinked={ this.props.isLinked }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
-				) }
+				{ this.props.isModuleFound( 'post-by-email' ) &&
+					showPostByEmail &&
+					( isSettingsConsolidationEnabled() && this.props.userCanManageModules ? (
+						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
+					) : (
+						<PostByEmail
+							{ ...commonProps }
+							connectUrl={ this.props.connectUrl }
+							isLinked={ this.props.isLinked }
+							userCanManageModules={ this.props.userCanManageModules }
+						/>
+					) ) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(
