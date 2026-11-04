@@ -39,11 +39,10 @@ test.describe( 'Admin shell: history', () => {
 	} );
 
 	test( 'Back after a framed page (Stats) needs one press', async ( { page } ) => {
-		// Intermittent on the spike, so not test.fail(): an unexpected pass would fail the run.
-		test.info().annotations.push( {
-			type: 'spike bug',
-			description: 'Stats adds its own history entry, so Back needs an extra press.',
-		} );
+		test.fail(
+			true,
+			'Spike bug: the Stats frame writes its own #!/stats route, so Back needs an extra press.'
+		);
 		await openMember( page, 'my-jetpack' );
 		const start = await historyLength( page );
 		await page.locator( '#adminmenu a[href$="page=stats"]' ).first().click();
@@ -68,31 +67,41 @@ test.describe( 'Admin shell: history', () => {
 			via: 'my-jetpack',
 			tabs: [ 'AI Features', 'MCP and Connectors' ],
 			urls: [ /#\/features$/, /#\/mcp$/ ],
+			intermittent: 'Spike bug: Jetpack AI’s tabs sometimes never write their hash.',
 		},
 		{
 			slug: 'jetpack-newsletter',
 			via: 'my-jetpack',
 			tabs: [ 'Subscribers', 'Settings' ],
-			urls: [ /p=%2F%3Ftab%3Dsubscribers$/, /p=%2F%3Ftab%3Dsettings$/ ],
+			// The subscriber list adds its own `pp` and `sort` params, shell or not.
+			urls: [ /p=%2F%3Ftab%3Dsubscribers(&|$)/, /p=%2F%3Ftab%3Dsettings(&|$)/ ],
 		},
 	];
-	for ( const { slug, via, tabs, urls } of tabRoutes ) {
-		test( `Back walks ${ slug } tabs after leaving and returning`, async ( { page } ) => {
-			await openMember( page, slug );
-			for ( const [ i, tab ] of tabs.entries() ) {
-				await page.getByRole( 'tab', { name: tab } ).filter( { visible: true } ).click();
-				await expect.poll( () => where( page ), `${ tab } is in the URL` ).toMatch( urls[ i ] );
+	for ( const { slug, via, tabs, urls, intermittent } of tabRoutes ) {
+		test(
+			`Back walks ${ slug } tabs after leaving and returning`,
+			{
+				annotation: intermittent
+					? [ { type: 'intermittent spike bug', description: intermittent } ]
+					: [],
+			},
+			async ( { page } ) => {
+				await openMember( page, slug );
+				for ( const [ i, tab ] of tabs.entries() ) {
+					await page.getByRole( 'tab', { name: tab } ).filter( { visible: true } ).click();
+					await expect.poll( () => where( page ), `${ tab } is in the URL` ).toMatch( urls[ i ] );
+				}
+				await switchTo( page, via );
+				await page.goBack();
+				await waitForShown( page, slug );
+				expect( await where( page ) ).toMatch( urls[ 1 ] );
+				await page.goBack();
+				await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
+				await expect(
+					page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
+				).toHaveAttribute( 'aria-selected', 'true' );
 			}
-			await switchTo( page, via );
-			await page.goBack();
-			await waitForShown( page, slug );
-			expect( await where( page ) ).toMatch( urls[ 1 ] );
-			await page.goBack();
-			await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
-			await expect(
-				page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
-			).toHaveAttribute( 'aria-selected', 'true' );
-		} );
+		);
 	}
 
 	for ( const m of MEMBERS ) {

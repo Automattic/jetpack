@@ -9,30 +9,33 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 	} );
 
 	for ( const via of [ 'jetpack-newsletter', 'jetpack-settings' ] ) {
-		const notes = [ 'jetpack-settings' ].includes( via )
-			? [
-					{
-						type: 'spike bug',
-						description: 'Intermittent: My Jetpack on the wrong tab after Settings.',
-					},
-				]
-			: [];
+		const intermittent =
+			via === 'jetpack-settings'
+				? 'Spike bug: My Jetpack is sometimes on the wrong tab after Settings.'
+				: null;
 
-		test( `My Jetpack keeps its tab after visiting ${ via }`, async ( { page } ) => {
-			test.info().annotations.push( ...notes );
-			// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
-			await openMember( page, 'jetpack-podcast' );
-			await switchTo( page, 'my-jetpack' );
-			const features = page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } );
-			await features.click();
-			await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
-			const url = await where( page );
+		test(
+			`My Jetpack keeps its tab after visiting ${ via }`,
+			{
+				annotation: intermittent
+					? [ { type: 'intermittent spike bug', description: intermittent } ]
+					: [],
+			},
+			async ( { page } ) => {
+				// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
+				await openMember( page, 'jetpack-podcast' );
+				await switchTo( page, 'my-jetpack' );
+				const features = page.getByRole( 'tab', { name: 'Features' } ).filter( { visible: true } );
+				await features.click();
+				await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
+				const url = await where( page );
 
-			await switchTo( page, via );
-			await switchTo( page, 'my-jetpack' );
-			await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
-			expect( await where( page ) ).toBe( url );
-		} );
+				await switchTo( page, via );
+				await switchTo( page, 'my-jetpack' );
+				await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
+				expect( await where( page ) ).toBe( url );
+			}
+		);
 	}
 
 	test( 'Forms keeps its tab and search', async ( { page } ) => {

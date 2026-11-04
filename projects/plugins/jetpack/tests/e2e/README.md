@@ -152,8 +152,7 @@ pnpm test:admin-shell
 - `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
 - Add `--project='shell on: chromium'` to run one browser.
 
-Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. Until the client ships them it falls back to the spike's DOM; that branch is marked `SPIKE_DOM_FALLBACK`. Known bugs are `test.fail()` with a reason, so a fix shows up as an unexpected pass: remove the marker in the same PR.
-
+Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. Until the client ships them it falls back to the spike's DOM; that branch is marked `SPIKE_DOM_FALLBACK`. Known bugs are `test.fail()` with a reason, so a fix shows up as an unexpected pass: remove the marker in the same PR. Intermittent bugs can't use `test.fail()`. They carry an `intermittent spike bug` annotation instead, and the config's retries report them as flaky.
 ## CI Configuration
 
 Both local runs and CI are sharing the same Docker based configuration.

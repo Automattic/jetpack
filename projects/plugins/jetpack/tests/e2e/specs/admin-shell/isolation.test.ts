@@ -48,7 +48,8 @@ test.describe( 'Admin shell: hidden apps stay out of the way', () => {
 				'jetpack-ai': /^\?page=jetpack-ai(#\/[a-z-]+)?$/,
 				'jetpack-forms-responses-wp-admin':
 					/^\?page=jetpack-forms-responses-wp-admin(&p=%2F(forms|responses)[^#&]*)?$/,
-				'jetpack-newsletter': /^\?page=jetpack-newsletter(&p=%2F%3Ftab%3D[a-z]+)?$/,
+				'jetpack-newsletter':
+					/^\?page=jetpack-newsletter(&p=%2F%3Ftab%3D[a-z]+)?(&(?!p=)[a-z_]+=[^&#]*)*$/,
 			};
 			return own && ! ( ownRoutes[ own.slug ] ?? own.landing ).test( href );
 		} );
