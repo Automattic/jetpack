@@ -98,11 +98,12 @@ class Checkpoint_Test extends BaseTestCase {
 			)
 		);
 
-		$data = $checkpoint->attribute( array() );
+		$data = $checkpoint->attribute( array( 'comment_meta' => array( 'other' => 'kept' ) ) );
 		$property->setValue( $checkpoint, null );
 
 		$this->assertSame(
 			array(
+				'other'                 => 'kept',
 				Checkpoint::META_ID     => 'abc',
 				Checkpoint::META_AVATAR => 'https://example.com/a.png',
 			),
