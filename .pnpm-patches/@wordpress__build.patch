@@ -1,6 +1,6 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
 new file mode 100755
-index 0000000..179b921
+index 0000000..246d53b
 --- /dev/null
 +++ b/lib/build-shared.mjs
 @@ -0,0 +1,270 @@
@@ -258,7 +258,7 @@ index 0000000..179b921
 +const version = hash.digest( 'hex' ).slice( 0, 20 );
 +
 +const phpModules = Object.entries( config.modules )
-+	.filter( ( [ , name ] ) => entries[ name ] )
++	.filter( ( [ , name ] ) => name in entries )
 +	.map(
 +		( [ specifier, name ] ) =>
 +			`'${ manifest.modules[ specifier ] }' => '${ name }.min.js'`
