@@ -232,7 +232,7 @@ describe( 'Traffic chart type switch', () => {
 		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
 
 		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
-		expect( window.localStorage.getItem( V1_KEY ) ).toBeNull();
+		expect( window.localStorage ).toHaveLength( 0 );
 	} );
 
 	it( 'saves a choice on the widget alone when browser storage cannot be written', () => {

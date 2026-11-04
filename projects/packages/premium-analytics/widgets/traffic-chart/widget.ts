@@ -29,7 +29,7 @@ export const TRAFFIC_PERIODS = [
 ] as const satisfies readonly StatsPeriod[];
 
 /**
- * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
+ * The chart type drawn when nothing is saved: the one last saved under the Stats v1 key in this browser, else bars.
  *
  * @return The default chart type.
  */
@@ -98,7 +98,7 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartType     - How to draw the selected metric. Defaults to the chart type last saved under the Stats v1 key, else `bar`.
  * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
 export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {

@@ -19,7 +19,7 @@ function statsV1ChartTypeKey(): string | undefined {
 }
 
 /**
- * The chart type Jetpack Stats v1 saved in this browser, if it saved one.
+ * The chart type last saved under the Stats v1 key in this browser, if any.
  * Only readable where v1 and this dashboard share an origin.
  */
 export function readStatsV1ChartType(): TrafficChartType | undefined {
