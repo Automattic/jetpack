@@ -365,7 +365,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	.interactiveRow {
 
 		.bar,
-		.barWithLabelContainer > *,
+		.barWithLabelContainer > :not(.bar, .barTrack),
 		.valueContainer,
 		.chevron {
 			transition: none;
