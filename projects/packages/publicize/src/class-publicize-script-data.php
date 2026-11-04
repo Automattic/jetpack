@@ -146,6 +146,7 @@ class Publicize_Script_Data {
 				'supported_services'  => self::get_supported_services(),
 				'urls'                => self::get_urls(),
 				'store_initial_state' => self::get_store_initial_state(),
+				'companion_plugins'   => Companion_Plugins::get_script_data(),
 				'message_templates'   => array(
 					'placeholders' => Message_Templates_Placeholders::get_all(),
 				),

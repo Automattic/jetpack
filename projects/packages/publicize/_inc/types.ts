@@ -54,9 +54,15 @@ export type SocialUpgrade = {
 	plan_name: string | null;
 };
 
+export type CompanionPluginSlug = 'atmosphere' | 'activitypub';
+
+/** How the notice turns a plugin on; see `Companion_Plugins::get_script_data()`. */
+export type CompanionPluginAction = 'install' | 'activate' | 'enable' | 'marketplace';
+
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	assets_url: string;
+	companion_plugins?: Partial< Record< CompanionPluginSlug, CompanionPluginAction > >;
 	nonces?: {
 		refresh_plan: string;
 	};
