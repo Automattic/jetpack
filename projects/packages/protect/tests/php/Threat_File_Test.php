@@ -123,6 +123,7 @@ class Threat_File_Test extends BaseTestCase {
 
 		$this->assertSame( $owner, $found['type'], 'Owner' );
 		$this->assertSame( $can_delete, Threat_File::can_delete( $path, $found ), 'Deletable' );
+		$this->assertSame( 'loaded' === $where, Threat_File::is_loaded_stray( $path, $found ), 'Loaded' );
 	}
 
 	/**

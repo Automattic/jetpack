@@ -51,6 +51,8 @@ type ThreatFile = {
 	inUploads: boolean;
 	canDelete: boolean;
 	canRestore: boolean;
+	/** Whether the site loads the file, the only reason it can't be deleted. */
+	loaded: boolean;
 	contents: string;
 	hash: string;
 };
@@ -307,6 +309,14 @@ function FileMeta( { threat, file }: { threat: ScanThreat; file: ThreatFile } ) 
 				<CopyButton text={ file.path } label={ __( 'Copy file path', 'jetpack-protect-pkg' ) } />
 			</Stack>
 			<Text variant="body-sm">{ describeOwner( file.owner ) }</Text>
+			{ file.loaded && (
+				<Text variant="body-sm">
+					{ __(
+						'Your site loads this file, so it can’t be deleted here. Find what loads it, usually wp-config.php or a must-use plugin, and remove that first.',
+						'jetpack-protect-pkg'
+					) }
+				</Text>
+			) }
 			{ file.inUploads && (
 				<Text variant="body-sm" className="jp-protect-threat-file__warning">
 					{ __(

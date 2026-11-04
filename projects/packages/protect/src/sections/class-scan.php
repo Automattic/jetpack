@@ -457,7 +457,7 @@ class Scan implements Dashboard_Section {
 	 * The whole file a threat was found in, looked up by threat so the client can't name a path.
 	 *
 	 * @param WP_REST_Request $request The request, with the threat `id`.
-	 * @return array|WP_Error The file's site-relative `path`, `modified` time, `owner`, what can be done with it, and its `contents` and their `hash`.
+	 * @return array|WP_Error The file's site-relative `path`, `modified` time, `owner`, what can be done with it, whether the site `loaded` it, and its `contents` and their `hash`.
 	 */
 	public static function get_threat_file( WP_REST_Request $request ) {
 		$path = self::resolve_threat_file( self::find_threat( (int) $request['id'] ) );
@@ -485,6 +485,7 @@ class Scan implements Dashboard_Section {
 			'inUploads'  => Threat_File::is_code_in_uploads( $path ),
 			'canDelete'  => Threat_File::can_delete( $path, $owner ),
 			'canRestore' => Threat_File::can_restore( $path, $owner ),
+			'loaded'     => Threat_File::is_loaded_stray( $path, $owner ),
 			'hash'       => hash( 'sha256', $contents ),
 			// JSON can't carry invalid UTF-8, which obfuscated code often has.
 			'contents'   => wp_scrub_utf8( $contents ),

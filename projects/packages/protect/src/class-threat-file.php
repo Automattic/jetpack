@@ -88,11 +88,33 @@ class Threat_File {
 	 * @return bool
 	 */
 	public static function can_delete( $path, $owner ) {
+		return self::is_stray( $path, $owner ) && ! self::is_loaded( $path );
+	}
+
+	/**
+	 * Whether the site loading the file is all that stops can_delete() allowing it.
+	 *
+	 * @param string $path  The file's real path.
+	 * @param array  $owner The file's owner, from get_owner().
+	 * @return bool
+	 */
+	public static function is_loaded_stray( $path, $owner ) {
+		return self::is_stray( $path, $owner ) && self::is_loaded( $path );
+	}
+
+	/**
+	 * Whether the file is no plugin, theme, core or configuration file, in a place a stray file is deleted from.
+	 *
+	 * @param string $path  The file's real path.
+	 * @param array  $owner The file's owner, from get_owner().
+	 * @return bool
+	 */
+	private static function is_stray( $path, $owner ) {
 		if ( 'none' !== $owner['type'] || in_array( basename( $path ), self::PROTECTED_FILES, true ) || ! wp_is_file_mod_allowed( 'jetpack_protect_threat_file' ) ) {
 			return false;
 		}
 		// Not in either, such as the site root's index.php that loads WordPress kept in its own directory.
-		if ( ! is_file( $path ) || is_link( $path ) || ! self::get_deletable_root( $path ) || self::is_loaded( $path ) ) {
+		if ( ! is_file( $path ) || is_link( $path ) || ! self::get_deletable_root( $path ) ) {
 			return false;
 		}
 		// Drop-ins such as object-cache.php sit loose in wp-content but run the site.
