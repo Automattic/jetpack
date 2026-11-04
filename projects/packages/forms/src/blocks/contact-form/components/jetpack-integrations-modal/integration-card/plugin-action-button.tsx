@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { Button, Spinner } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useId, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Tooltip } from '@wordpress/ui';
+import { Tooltip, VisuallyHidden } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -27,6 +27,7 @@ const PluginActionButton = ( {
 	refreshStatus,
 	trackEventName,
 }: PluginActionButtonProps ) => {
+	const descriptionId = useId();
 	const trackEventProps = {
 		screen: 'block-editor',
 	};
@@ -105,9 +106,14 @@ const PluginActionButton = ( {
 					style={ isDisabled ? { pointerEvents: 'none' } : undefined }
 					icon={ isInstalling || isReconcilingStatus ? <Spinner /> : undefined }
 					__next40pxDefaultSize
+					aria-describedby={ descriptionId }
 				>
 					{ getButtonText() }
 				</Button>
+				{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+				<VisuallyHidden id={ descriptionId } render={ <span /> }>
+					{ getTooltipText() }
+				</VisuallyHidden>
 			</Tooltip.Trigger>
 			<Tooltip.Popup>{ getTooltipText() }</Tooltip.Popup>
 		</Tooltip.Root>

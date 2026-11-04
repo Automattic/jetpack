@@ -3,9 +3,10 @@
  */
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { useId } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link, Stack, Text, Tooltip } from '@wordpress/ui';
+import { Badge, Link, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -67,6 +68,7 @@ export type ResponseMetaProps = {
  * @return {import('react').JSX.Element} The response meta component.
  */
 const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.Element => {
+	const ipLookupId = useId();
 	const dateSettings = getDateSettings();
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
@@ -146,6 +148,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 									<Tooltip.Trigger
 										render={
 											<Link
+												aria-describedby={ ipLookupId }
 												openInNewTab
 												href={ `https://apps.db.ripe.net/db-web-ui/query?searchtext=${ encodeURIComponent(
 													response.ip
@@ -155,6 +158,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import( 'react' ).JSX.
 											</Link>
 										}
 									/>
+									{ /* The popup is visual-only, so this carries the sentence to screen readers. */ }
+									<VisuallyHidden id={ ipLookupId } render={ <span /> }>
+										{ __( 'Lookup IP address', 'jetpack-forms' ) }
+									</VisuallyHidden>
 									<Tooltip.Popup>{ __( 'Lookup IP address', 'jetpack-forms' ) }</Tooltip.Popup>
 								</Tooltip.Root>
 							</TextWithFlag>
