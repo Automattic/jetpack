@@ -8,6 +8,6 @@ import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 export const DASHBOARD_GRID: WidgetGridSettings = {
 	model: 'grid',
 	columns: 6,
-	minColumnWidth: 400,
+	minColumnWidth: 385,
 	rowHeight: 200,
 };
