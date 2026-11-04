@@ -184,8 +184,7 @@ class Scan extends Module_Product {
 	 * @return bool
 	 */
 	public static function has_paid_plan_for_product() {
-		// Plan reads only live products, but a lapsed purchase must still reach the Expired status and its renewal link.
-		return Plan::has_required_plan() || static::is_paid_plan_expired();
+		return Plan::has_required_plan();
 	}
 
 	/**
