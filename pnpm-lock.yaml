@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-1hiCL/+wKFirv0BclRIGYHDHW9b60ObkaNLbqliNL7Q=
+pnpmfileChecksum: sha256-l7/MTtZKvPfUzFXOrhKScl8kL0vuTJ52TYNY4gLziEk=
 
 patchedDependencies:
   '@wordpress/block-editor@20.0.0': 0a0f97ea42e0d158da2834725034abecbe1aea92c81d3fda94a71c44e7355ed2
@@ -174,9 +174,6 @@ importers:
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
-      '@types/wordpress__block-editor':
-        specifier: 15.0.8
-        version: 15.0.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/api-fetch':
         specifier: 8.1.0
         version: 8.1.0
@@ -6533,9 +6530,6 @@ importers:
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
-      '@types/wordpress__block-editor':
-        specifier: 15.0.8
-        version: 15.0.8(@date-fns/tz@1.5.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
@@ -10804,9 +10798,6 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
-
-  '@types/wordpress__block-editor@15.0.8':
-    resolution: {integrity: sha512-TvC9JKOUiDc/S7JcU3S2ukPsMjIfTHe0Fa1JPQ0oQk/zIMjDoXfpnH7MJPifNIwphbKjHM6hY92tB8u5efdSCg==}
 
   '@types/ws@8.18.2':
     resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
@@ -22298,38 +22289,6 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/use-sync-external-store@0.0.6': {}
-
-  '@types/wordpress__block-editor@15.0.8(@date-fns/tz@1.5.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
-    dependencies:
-      '@types/react': 19.3.0
-      '@wordpress/blocks': 17.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/components': 44.0.0(patch_hash=dd89cc780626599c6721f4e05e7091dd7b0aed577d8a66774ee88de983b57100)(@date-fns/tz@1.5.0)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/data': 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/element': 10.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/global-styles-engine': 2.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/keycodes': 5.1.0(@types/react@19.3.0)
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@emotion/is-prop-valid'
-      - '@types/react-dom'
-      - react
-      - react-dom
-
-  '@types/wordpress__block-editor@15.0.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
-    dependencies:
-      '@types/react': 19.3.0
-      '@wordpress/blocks': 17.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/components': 44.0.0(patch_hash=dd89cc780626599c6721f4e05e7091dd7b0aed577d8a66774ee88de983b57100)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/data': 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/element': 10.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/global-styles-engine': 2.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/keycodes': 5.1.0(@types/react@19.3.0)
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@emotion/is-prop-valid'
-      - '@types/react-dom'
-      - react
-      - react-dom
 
   '@types/ws@8.18.2':
     dependencies:

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Drop the @types/wordpress__block-editor dev dependency; @wordpress/block-editor 20 ships its own types.
+
+
