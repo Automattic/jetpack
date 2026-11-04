@@ -179,9 +179,9 @@ class CSVExportController_Test extends TestCase {
 	public function test_accepts_a_quarterly_interval() {
 		$this->controller->register_routes();
 
-		$routes = rest_get_server()->get_routes();
+		$args = rest_get_server()->get_routes()['/jetpack-premium-analytics/v1/reports/csv-export'][0]['args'];
 
-		$this->assertContains( 'quarter', $routes['/jetpack-premium-analytics/v1/reports/csv-export'][0]['args']['interval']['enum'] );
+		$this->assertTrue( rest_validate_value_from_schema( 'quarter', $args['interval'], 'interval' ) );
 	}
 
 	public function test_create_export_rejects_unknown_report_type() {
