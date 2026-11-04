@@ -411,7 +411,7 @@ function wpcom_add_jetpack_submenu() {
 	}
 	// @codeCoverageIgnoreEnd
 
-	// Jetpack > Scan.
+	// Jetpack > Scan, beside Protect until Protect replaces it.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
@@ -423,11 +423,6 @@ function wpcom_add_jetpack_submenu() {
 		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
-
-	// Jetpack > Protect, hidden with a class so Calypso's sidebar drops it too; the standalone plugin keeps its entry.
-	if ( ! class_exists( 'Jetpack_Protect' ) ) {
-		wpcom_hide_submenu_page( 'jetpack', 'jetpack-protect' );
-	}
 
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
@@ -757,8 +752,8 @@ function wpcom_add_plugins_menu() {
 		if ( function_exists( 'wpcom_plugins_display_marketplace' ) ) {
 			add_submenu_page(
 				'plugins.php',
-				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
-				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
+				__( 'Add Plugin', 'jetpack-mu-wpcom' ),
+				__( 'Add Plugin', 'jetpack-mu-wpcom' ),
 				'manage_options', // Roughly means "is a site admin"
 				'wpcom-install-plugin',
 				'wpcom_plugins_display_marketplace'

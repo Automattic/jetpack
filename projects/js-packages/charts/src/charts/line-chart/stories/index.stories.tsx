@@ -122,6 +122,23 @@ Zoomable.parameters = {
 	},
 };
 
+export const CompactWhenShort: StoryObj< StoryArgs > = Template.bind( {} );
+CompactWhenShort.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+	compactWhenShort: true,
+	containerHeight: '120px',
+	resize: 'vertical',
+};
+CompactWhenShort.parameters = {
+	docs: {
+		description: {
+			story:
+				'Below `theme.compactWhenShort.below` (140px by default) the chart drops its axes, grid and legend. Drag the container taller to bring them back.',
+		},
+	},
+};
+
 export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
 FixedDimensions.args = {
 	...lineChartStoryArgs,
@@ -440,6 +457,37 @@ SmallWholeNumberRange.parameters = {
 		description: {
 			story:
 				'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself. A y domain you pin with `options.yScale.domain` keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
+		},
+	},
+};
+
+const centsAmounts: SeriesData[] = [
+	{
+		label: 'Average order value',
+		data: [ 0.4, 1.2, 2.1, 1.8, 2.4, 2.6 ].map( ( value, month ) => ( {
+			date: new Date( 2026, month, 1 ),
+			value,
+		} ) ),
+	},
+];
+
+export const TickDecimals: StoryObj< StoryArgs > = Template.bind( {} );
+TickDecimals.args = {
+	...Default.args,
+	data: centsAmounts,
+	options: {
+		yScale: { zero: true },
+		axis: { y: { tickDecimals: 0, tickFormat: ( value: number ) => `$${ Math.round( value ) }` } },
+	},
+};
+TickDecimals.argTypes = {
+	seriesCount: { table: { disable: true } },
+};
+TickDecimals.parameters = {
+	docs: {
+		description: {
+			story:
+				'Values with cents, labelled in whole dollars. `options.axis.y.tickDecimals: 0` keeps ticks on whole dollars, so no two labels read the same.',
 		},
 	},
 };

@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.9] - 2026-11-04
+### Changed
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
 ## [5.1.8] - 2026-11-02
 ### Changed
 - Keep per-screen messages on My Jetpack working once it keeps its route in the p query argument. [#54296]
@@ -1241,6 +1246,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[5.1.9]: https://github.com/Automattic/jetpack-jitm/compare/v5.1.8...v5.1.9
 [5.1.8]: https://github.com/Automattic/jetpack-jitm/compare/v5.1.7...v5.1.8
 [5.1.7]: https://github.com/Automattic/jetpack-jitm/compare/v5.1.6...v5.1.7
 [5.1.6]: https://github.com/Automattic/jetpack-jitm/compare/v5.1.5...v5.1.6

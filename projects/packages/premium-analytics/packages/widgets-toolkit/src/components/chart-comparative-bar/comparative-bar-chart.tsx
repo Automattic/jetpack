@@ -8,16 +8,14 @@ import {
 	useBarColors,
 	useGlobalChartsContext,
 	type BarChartLayout,
-	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
-import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,7 +24,10 @@ import {
 	isEmptyChartData,
 	formatChartName,
 	getFixedYAxis,
+	getYTickDecimals,
 	formatBucketTooltipDate,
+	toTickResolution,
+	type BucketResolution,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
@@ -38,13 +39,6 @@ import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
-
-/**
- * Chart-area height (px) below which `compactWhenShort` degrades the chart to
- * a sparkline (no axes, grid, or legend). Matches the comparative line chart
- * so a metric switching chart type keeps the same breakpoint.
- */
-const COMPACT_CHART_HEIGHT = 140;
 
 type BarChartProps = ComponentProps< typeof BarChart >;
 type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderTooltip' ] > >[ 0 ];
@@ -76,11 +70,12 @@ export type ComparativeBarChartProps = {
 	 * from a known granularity instead of measuring the gaps between points, which a
 	 * single-bucket or DST-shortened series gives it no way to read.
 	 */
-	tickResolution?: TickResolution;
+	tickResolution?: BucketResolution;
 
 	/**
-	 * Degrade to a sparkline (no axes, grid, or legend) when the chart area
-	 * is too short for readable axis labels. Defaults to false.
+	 * Drop the axes, grid and legend while the chart is shorter than
+	 * `theme.compactWhenShort.below`.
+	 * Forwarded to `BarChart`. Defaults to false.
 	 */
 	compactWhenShort?: boolean;
 
@@ -172,26 +167,16 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const { displayResolution } = getBucketInfo( series, tickResolution );
+	const libraryTickResolution = toTickResolution( tickResolution );
+	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { isSeriesVisible, theme } = useGlobalChartsContext();
+	const { isSeriesVisible } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 	const previousPeriodToggle = overlapLayout !== undefined && previousPeriodShown !== undefined;
 	const interactiveLegend =
 		legendInteractive || ( previousPeriodToggle && onPreviousPeriodShownChange !== undefined );
-
-	// The measured Stack fills its container (flex), so its height is independent
-	// of whether the axis/legend are shown — no measure/hide feedback loop.
-	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );
-	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
-		const rect = entries[ 0 ]?.contentRect;
-		if ( rect ) {
-			setChartAreaHeight( rect.height );
-		}
-	} );
-	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
 
 	// Aligning moves comparison dates onto the primary series' band slots; the
 	// originals survive in `realDate` for tooltips.
@@ -222,6 +207,7 @@ export function ComparativeBarChart( {
 			} ),
 		[ dataFormat ]
 	);
+	const yTickDecimals = getYTickDecimals( dataFormat.type, dataFormat.options?.currencyCode );
 
 	// `undefined` hands the axis to the chart's derived formatter; `formatDate`'s
 	// `medium` default would otherwise put full site-format dates on every tick.
@@ -354,8 +340,9 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
-		[ displayResolution ]
+		( point: ComparativeDatePointDate ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		[ displayResolution, tickResolution ]
 	);
 
 	/**
@@ -444,17 +431,15 @@ export function ComparativeBarChart( {
 	);
 
 	const chartOptions = useMemo( () => {
-		const hiddenWhenCompact = isCompact ? { display: false } : {};
 		const baseOptions = {
 			axis: {
 				x: {
 					tickFormat: xTickFormat,
-					tickResolution,
-					...hiddenWhenCompact,
+					tickResolution: libraryTickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
-					...hiddenWhenCompact,
+					tickDecimals: yTickDecimals,
 				},
 			},
 		};
@@ -464,10 +449,10 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
+	}, [ xTickFormat, libraryTickResolution, yTickFormat, yTickDecimals, fixedYAxis ] );
 
 	return (
-		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
 				ariaLabel={ formatChartName( chartTitle ) }
@@ -478,8 +463,7 @@ export function ComparativeBarChart( {
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
 				maxWidth={ maxWidth }
-				gridVisibility={ isCompact ? 'none' : undefined }
-				margin={ isCompact ? theme.sparkline.margin : undefined }
+				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				// A zero-value bar has no height, so a quiet day would otherwise read as
 				// missing data. This draws it as a hairline stub instead.
@@ -491,23 +475,21 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ ! isCompact && (
-					<BarChart.Legend
-						items={ legendItems }
-						interactive={ interactiveLegend }
-						shape="rect"
-						className={ styles.legend }
-						itemClassName={ styles.legendItem }
-						itemStyles={ { margin: 0 } }
-						labelClassName={ styles.legendLabel }
-						labelStyles={ {
-							maxWidth: '100%',
-							textOverflow: 'ellipsis',
-							margin: 0,
-						} }
-						shapeStyles={ { margin: 0 } }
-					/>
-				) }
+				<BarChart.Legend
+					items={ legendItems }
+					interactive={ interactiveLegend }
+					shape="rect"
+					className={ styles.legend }
+					itemClassName={ styles.legendItem }
+					itemStyles={ { margin: 0 } }
+					labelClassName={ styles.legendLabel }
+					labelStyles={ {
+						maxWidth: '100%',
+						textOverflow: 'ellipsis',
+						margin: 0,
+					} }
+					shapeStyles={ { margin: 0 } }
+				/>
 			</BarChart>
 		</Stack>
 	);

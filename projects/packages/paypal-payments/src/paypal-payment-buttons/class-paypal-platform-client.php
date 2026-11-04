@@ -60,12 +60,13 @@ class PayPal_Platform_Client {
 		}
 
 		$params = array(
-			'environment' => PayPal_OAuth::get_environment(),
-			'merchant_id' => $merchant_id,
-			'method'      => $method,
-			'path'        => $path,
-			'body'        => $body,
-			'request_id'  => $request_id,
+			'environment'            => PayPal_OAuth::get_environment(),
+			'merchant_id'            => $merchant_id,
+			'method'                 => $method,
+			'path'                   => $path,
+			'body'                   => $body,
+			'request_id'             => $request_id,
+			'partner_attribution_id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
 		);
 
 		// Proof this site referred the seller; a site onboarded before it was kept has none.
@@ -109,7 +110,10 @@ class PayPal_Platform_Client {
 	 * @return array|\WP_Error PayPal's merchant integration, or WP_Error.
 	 */
 	public static function get_merchant_integration( $merchant_id = '', $tracking_id = '' ) {
-		$params = array( 'environment' => PayPal_OAuth::get_environment() );
+		$params = array(
+			'environment'            => PayPal_OAuth::get_environment(),
+			'partner_attribution_id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
+		);
 		if ( '' !== $merchant_id ) {
 			$params['merchant_id'] = $merchant_id;
 		}
