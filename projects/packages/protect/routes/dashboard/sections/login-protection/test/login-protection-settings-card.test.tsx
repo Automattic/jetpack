@@ -122,12 +122,21 @@ describe( 'LoginProtectionSettingsCard', () => {
 		);
 	} );
 
-	it( 'says why account protection can’t be changed when it is unavailable', () => {
-		renderCard( { state: { accountProtection: { available: false, active: false } } } );
+	it.each( [
+		[
+			'unavailable',
+			{ available: false, active: false },
+			'Account protection isn’t available on this site.',
+		],
+		[
+			'available',
+			available,
+			'Asks users with a compromised password to verify their identity and choose a new one.',
+		],
+	] )( 'describes account protection when it is %s', ( _name, accountProtection, help ) => {
+		renderCard( { state: { accountProtection } } );
 
-		expect(
-			screen.getByText( 'Account protection isn’t available on this site.' )
-		).toBeInTheDocument();
+		expect( screen.getByText( help ) ).toBeInTheDocument();
 	} );
 
 	it( 'locks a forced option to the value WordPress.com login applies', () => {
