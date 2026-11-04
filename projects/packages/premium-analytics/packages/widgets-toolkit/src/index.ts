@@ -351,6 +351,7 @@ export {
 	useElementSize,
 	type ElementSize,
 	useHostLinkSearch,
+	useMapName,
 	useWidgetNavigationSearch,
 	useReportActions,
 	type ReportActionsOptions,
