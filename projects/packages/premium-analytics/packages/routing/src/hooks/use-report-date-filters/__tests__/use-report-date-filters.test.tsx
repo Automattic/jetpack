@@ -80,6 +80,7 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it( 'derives the applied state from the URL search params', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
 			to: '2026-07-30T23:59:59.999+00:00',
@@ -96,6 +97,42 @@ describe( 'useReportDateFilters', () => {
 		);
 		expect( result.current.intervalOptions ).toEqual( [ 'day', 'week' ] );
 		expect( result.current.canApply ).toBe( false );
+	} );
+
+	// A week-old bookmark of Last 7 days. The widgets recompute the preset and show this
+	// week, so the controls name, compare and edit this week too, not the dates the URL kept.
+	it( 'reads a preset as the window it names today, whatever dates the URL kept', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+
+		const thisWeek = {
+			from: Date.parse( '2026-08-14T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-20T23:59:59.999Z' ),
+		};
+		expect( result.current.appliedRange.from?.getTime() ).toBe( thisWeek.from );
+		expect( result.current.appliedRange.to?.getTime() ).toBe( thisWeek.to );
+		expect( result.current.range.from?.getTime() ).toBe( thisWeek.from );
+		expect( result.current.range.to?.getTime() ).toBe( thisWeek.to );
+	} );
+
+	it( 'reads a hand-picked range as the dates the URL carries', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'custom',
+		} );
+
+		expect( result.current.appliedRange.from?.getTime() ).toBe(
+			Date.parse( '2026-08-07T00:00:00.000Z' )
+		);
+		expect( result.current.appliedRange.to?.getTime() ).toBe(
+			Date.parse( '2026-08-13T23:59:59.999Z' )
+		);
 	} );
 
 	it( 'drops an unparseable URL date instead of an invalid picker Date', () => {

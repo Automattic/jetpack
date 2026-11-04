@@ -8,7 +8,11 @@ import {
 	useScopeLockedIntervals,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
-import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import {
+	computePrimaryRange,
+	isSelectablePreset,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -101,6 +105,31 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
+ * The window a preset or a pair of URL dates names. A preset is the window it names today: the
+ * widgets read it that way (`normalizeReportParams` recomputes it and ignores the dates), so the
+ * controls do too. Otherwise a bookmark's week-old dates would name last week in the trigger's
+ * tooltip, seed the comparison and the calendar with it, and step from it, while the numbers show
+ * this week. A hand-picked range is its dates.
+ *
+ * @param presetId - The preset the URL carries, if any.
+ * @param from     - The `from` search param.
+ * @param to       - The `to` search param.
+ * @param timeZone - The site's reporting zone.
+ * @return The window.
+ */
+function resolveRange(
+	presetId: unknown,
+	from: string | undefined,
+	to: string | undefined,
+	timeZone: string
+): DateRange {
+	return (
+		( isSelectablePreset( presetId ) && computePrimaryRange( presetId, timeZone ) ) ||
+		toPickerRange( from, to, timeZone )
+	);
+}
+
+/**
  * Controller for the date-range and comparison filters, backed by the URL
  * search params on a given route.
  *
@@ -131,14 +160,14 @@ export function useReportDateFilters< TFrom extends string >(
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
-		() => toPickerRange( effective.from, effective.to, timeZone ),
-		[ effective.from, effective.to, timeZone ]
+		() => resolveRange( presetId, effective.from, effective.to, timeZone ),
+		[ presetId, effective.from, effective.to, timeZone ]
 	);
 
 	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
 	const appliedRange = useMemo(
-		() => toPickerRange( committed.from, committed.to, timeZone ),
-		[ committed.from, committed.to, timeZone ]
+		() => resolveRange( appliedPresetId, committed.from, committed.to, timeZone ),
+		[ appliedPresetId, committed.from, committed.to, timeZone ]
 	);
 
 	const onChange = useCallback(
