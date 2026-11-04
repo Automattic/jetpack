@@ -50,6 +50,11 @@ describe( 'getUserConnectionUrl', () => {
 			'"jetpack-newsletter"',
 		],
 		[ 'no return URL', { from: 'my_jetpack_header' }, 'without `redirect_url`' ],
+		[
+			'an empty return URL',
+			{ from: 'my_jetpack_header', redirect_url: '' },
+			'without `redirect_url`',
+		],
 	] )( 'warns once per page about %s', ( _, options, phrase ) => {
 		getUserConnectionUrl( options );
 		getUserConnectionUrl( options );

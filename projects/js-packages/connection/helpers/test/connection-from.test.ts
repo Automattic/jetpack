@@ -1,11 +1,12 @@
 import { CONNECTION_FROM, isStandardEntryPoint, isUnifiedConnectionFlow } from '../connection-from';
 
-// The shared test vectors that Calypso's and WordPress.com's copies of the rule also pass.
+// Cases from Calypso's and WordPress.com's tests of their copies of the rule, plus `wpcom-connector`.
 const VECTORS: [ string | null | undefined, boolean, boolean ][] = [
 	[ 'jetpack-connector', false, true ],
 	[ 'jetpack-onboarding', false, true ],
 	[ 'my_jetpack_onboarding', true, true ],
 	[ 'my_jetpack_products_backup', true, true ],
+	[ 'jetpack2_stats_v2', true, true ],
 	[ 'a_' + 'b'.repeat( 62 ), true, true ],
 	[ 'a_' + 'b'.repeat( 63 ), false, false ],
 	[ 'my-jetpack', false, false ],
@@ -15,6 +16,10 @@ const VECTORS: [ string | null | undefined, boolean, boolean ][] = [
 	[ 'jetpack__stats', false, false ],
 	[ 'jetpack_stats_', false, false ],
 	[ '_jetpack_stats', false, false ],
+	[ 'jetpack', false, false ],
+	[ 'Jetpack_stats', false, false ],
+	[ '2fa_notice', false, false ],
+	[ 'jetpack_stats\n', false, false ],
 	[ '', false, false ],
 	[ null, false, false ],
 	[ undefined, false, false ],

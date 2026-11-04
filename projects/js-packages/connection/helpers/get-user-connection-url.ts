@@ -47,10 +47,11 @@ function warnAboutDeprecatedOptions( options: UserConnectionUrlOptions ): void {
 		);
 	}
 
-	if ( redirect_url == null ) {
+	// An empty string gets no default here, and the site then sends the user to its own default page.
+	if ( ! redirect_url ) {
 		warnOnce(
 			'missing-redirect-url',
-			'getUserConnectionUrl() was called without `redirect_url`, so the user returns to My Jetpack. Pass the absolute URL to return to.'
+			'getUserConnectionUrl() was called without `redirect_url`, so the user returns to a default page instead of where they started. Pass the absolute URL to return to.'
 		);
 	}
 }

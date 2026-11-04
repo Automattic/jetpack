@@ -36,6 +36,10 @@ export const CONNECTION_FROM = {
 		`my_jetpack_recommendations_${ toNamePart( slug ) }`,
 	myJetpackFeatures: ( slug: string ) => `my_jetpack_features_${ toNamePart( slug ) }`,
 	myJetpackOverview: ( slug: string ) => `my_jetpack_overview_${ toNamePart( slug ) }`,
+	jetpackPremiumAnalyticsOnboarding: 'jetpack_premium_analytics_onboarding',
+	jetpackPremiumAnalyticsUpsell: 'jetpack_premium_analytics_upsell',
+	// Sent by this package's PHP notice to a user about to delete the connection owner.
+	deleteConnectionOwnerNotice: 'delete_connection_owner_notice',
 } as const;
 
 // Both functions below mirror https://github.com/Automattic/wp-calypso/blob/99b8d308db6/client/jetpack-connect/entry-points.ts
