@@ -89,8 +89,8 @@ class Threat_File {
 		if ( 'none' !== $owner['type'] || in_array( basename( $path ), self::PROTECTED_FILES, true ) || ! wp_is_file_mod_allowed( 'jetpack_protect_threat_file' ) ) {
 			return false;
 		}
-		// With WordPress in its own directory, the site root's index.php is what loads it.
-		if ( 'index.php' === basename( $path ) && null === self::get_relative( $path, ABSPATH ) && null === self::get_relative( $path, WP_CONTENT_DIR ) ) {
+		// Not in either, such as the site root's index.php that loads WordPress kept in its own directory.
+		if ( ! is_file( $path ) || is_link( $path ) || ! self::get_deletable_root( $path ) ) {
 			return false;
 		}
 		// Drop-ins such as object-cache.php sit loose in wp-content but run the site.
@@ -109,6 +109,38 @@ class Threat_File {
 	 */
 	public static function can_restore( $path, $owner ) {
 		return 'core' === $owner['type'] && ! empty( $owner['modified'] ) && wp_is_writable( $path ) && wp_is_file_mod_allowed( 'jetpack_protect_threat_file' );
+	}
+
+	/**
+	 * The WordPress directory or content directory a file is in, the only places a stray file is deleted from.
+	 *
+	 * @param string $path The file's real path.
+	 * @return string|null The directory's real path, or null when the file is in neither.
+	 */
+	public static function get_deletable_root( $path ) {
+		foreach ( array( WP_CONTENT_DIR, ABSPATH ) as $directory ) {
+			if ( null !== self::get_relative( $path, $directory ) ) {
+				return realpath( $directory );
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Delete a stray file that can_delete() allows, and only that regular file.
+	 *
+	 * @param string $path The file's real path.
+	 * @return true|WP_Error
+	 */
+	public static function delete( $path ) {
+		$root = self::get_deletable_root( $path );
+		if ( $root && is_file( $path ) && ! is_link( $path ) && wp_delete_file_from_directory( $path, $root ) ) {
+			clearstatcache( true, $path );
+			if ( ! file_exists( $path ) ) {
+				return true;
+			}
+		}
+		return new WP_Error( 'threat_file_not_deleted', __( 'WordPress couldn’t delete the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
 	}
 
 	/**

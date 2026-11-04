@@ -66,6 +66,7 @@ class Threat_File_Test extends BaseTestCase {
 			'core file, checksums unknown'   => array( 'core', 'unknown', false, false ),
 			'site configuration'             => array( 'wp-config', 'none', false ),
 			'loader of a separate WP folder' => array( 'site-index', 'none', false ),
+			'beside a separate WP folder'    => array( 'site-root', 'none', false ),
 		);
 	}
 
@@ -95,6 +96,7 @@ class Threat_File_Test extends BaseTestCase {
 			'stray-core'        => ABSPATH . 'wp-includes/protect-test-stray.php',
 			'wp-config'         => ABSPATH . 'protect-test/wp-config.php',
 			'site-index'        => dirname( ABSPATH ) . '/protect-test-site/index.php',
+			'site-root'         => dirname( ABSPATH ) . '/protect-test-site/protect-test.php',
 		);
 		if ( 'plugin' === $where ) {
 			$this->write( WP_PLUGIN_DIR . '/protect-test-plugin/protect-test-plugin.php', "<?php\n/**\n * Plugin Name: Protect Test Plugin\n */\n" );

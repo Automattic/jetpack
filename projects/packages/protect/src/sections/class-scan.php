@@ -495,10 +495,9 @@ class Scan implements Dashboard_Section {
 			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or configures your site, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
-		wp_delete_file( $path );
-		clearstatcache( true, $path );
-		if ( file_exists( $path ) ) {
-			return new WP_Error( 'threat_file_not_deleted', __( 'WordPress couldn’t delete the file. Check its permissions.', 'jetpack-protect-pkg' ), array( 'status' => 500 ) );
+		$deleted = Threat_File::delete( $path );
+		if ( is_wp_error( $deleted ) ) {
+			return $deleted;
 		}
 		return self::resolve_file_threat( $threat );
 	}
@@ -607,6 +606,9 @@ class Scan implements Dashboard_Section {
 	 */
 	private static function locate_threat_file( $filename ) {
 		$parts = array_values( array_filter( explode( '/', wp_normalize_path( $filename ) ), 'strlen' ) );
+		if ( ! $parts || array_intersect( $parts, array( '.', '..' ) ) ) {
+			return null;
+		}
 		$roots = array_merge( self::get_site_roots(), array( untrailingslashit( wp_normalize_path( ABSPATH ) ), wp_normalize_path( dirname( WP_CONTENT_DIR ) ) ) );
 
 		// Strip only a prefix the site's root ends with, such as `/htdocs` for `/srv/htdocs`, so a missing or nested file can't map to a same-named one elsewhere.
