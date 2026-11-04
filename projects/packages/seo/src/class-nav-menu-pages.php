@@ -104,7 +104,8 @@ class Nav_Menu_Pages {
 
 	/**
 	 * Pages in the Navigation blocks of a block theme's header (main) and footer (other)
-	 * template parts.
+	 * template parts. A part named `header` or `footer` stands in for its whole area, so
+	 * unused variants such as `header-large-title` don't count.
 	 *
 	 * @return array{main: int[], other: int[]}
 	 */
@@ -117,15 +118,26 @@ class Nav_Menu_Pages {
 			return $pages;
 		}
 
+		$areas = array(
+			'header' => array(),
+			'footer' => array(),
+		);
 		foreach ( get_block_templates( array(), 'wp_template_part' ) as $part ) {
-			if ( 'header' === $part->area || 'header' === $part->slug ) {
-				$group = 'main';
-			} elseif ( 'footer' === $part->area || 'footer' === $part->slug ) {
-				$group = 'other';
-			} else {
-				continue;
+			foreach ( array_keys( $areas ) as $area ) {
+				if ( $area === $part->area || $area === $part->slug ) {
+					$areas[ $area ][ $part->slug ] = $part;
+				}
 			}
-			$pages[ $group ] = array_merge( $pages[ $group ], self::page_ids_in_blocks( parse_blocks( (string) $part->content ) ) );
+		}
+
+		foreach ( array(
+			'header' => 'main',
+			'footer' => 'other',
+		) as $area => $group ) {
+			$parts = isset( $areas[ $area ][ $area ] ) ? array( $areas[ $area ][ $area ] ) : $areas[ $area ];
+			foreach ( $parts as $part ) {
+				$pages[ $group ] = array_merge( $pages[ $group ], self::page_ids_in_blocks( parse_blocks( (string) $part->content ) ) );
+			}
 		}
 
 		return $pages;
@@ -154,6 +166,7 @@ class Nav_Menu_Pages {
 					$followed = true;
 				}
 			} elseif ( in_array( $name, array( 'core/navigation-link', 'core/navigation-submenu' ), true ) ) {
+				// Only explicit links rank a page; a Page List block shows every page, so it ranks none.
 				if ( ! empty( $attrs['id'] ) && 'post-type' === ( $attrs['kind'] ?? '' ) && 'page' === ( $attrs['type'] ?? '' ) ) {
 					$ids[] = (int) $attrs['id'];
 				}

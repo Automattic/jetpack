@@ -117,24 +117,55 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * In a block theme, header template parts hold the main menu and footer parts the
 	 * others; other parts don't count.
 	 *
+	 * @dataProvider provide_template_parts
+	 *
+	 * @param array[] $parts    Each `array( slug, area, linked page index )`.
+	 * @param int[]   $main     Indexes of the expected main-menu pages.
+	 * @param int[]   $other    Indexes of the expected other-menu pages.
 	 * @return void
 	 */
-	public function test_block_theme_header_is_main_and_footer_is_other() {
-		list( $a, $b, $c ) = $this->pages( 3 );
-		$this->use_template_parts(
-			array(
-				array( 'site-header', 'header', $this->navigation_markup( $a ) ),
-				array( 'footer', 'uncategorized', $this->navigation_markup( $b ) ),
-				array( 'sidebar', 'uncategorized', $this->navigation_markup( $c ) ),
-			)
-		);
+	#[DataProvider( 'provide_template_parts' )]
+	public function test_block_theme_header_is_main_and_footer_is_other( $parts, $main, $other ) {
+		$pages = $this->pages( 3 );
+		foreach ( $parts as &$part ) {
+			$part[2] = $this->navigation_markup( $pages[ $part[2] ] );
+		}
+		$this->use_template_parts( $parts );
 
+		$pick = static function ( $indexes ) use ( $pages ) {
+			return array_map(
+				static function ( $index ) use ( $pages ) {
+					return $pages[ $index ];
+				},
+				$indexes
+			);
+		};
 		$this->assertSame(
 			array(
-				'main'  => array( $a ),
-				'other' => array( $b ),
+				'main'  => $pick( $main ),
+				'other' => $pick( $other ),
 			),
 			Nav_Menu_Pages::get()
+		);
+	}
+
+	/**
+	 * Template parts and the pages each group should get.
+	 *
+	 * @return array
+	 */
+	public static function provide_template_parts() {
+		return array(
+			'found by area or slug'  => array(
+				array( array( 'site-header', 'header', 0 ), array( 'footer', 'uncategorized', 1 ), array( 'sidebar', 'uncategorized', 2 ) ),
+				array( 0 ),
+				array( 1 ),
+			),
+			'part named header wins' => array(
+				array( array( 'header', 'header', 0 ), array( 'header-large-title', 'header', 2 ), array( 'footer', 'footer', 1 ) ),
+				array( 0 ),
+				array( 1 ),
+			),
 		);
 	}
 
@@ -144,7 +175,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * @dataProvider provide_navigation_blocks
 	 *
 	 * @param string $markup   Header markup; `{older}`, `{synced}`, `{a}` and `{b}` are replaced with IDs.
-	 * @param string $expected Which pages it links: `older`, `newer` or `own`.
+	 * @param string $expected Which pages it links: `older`, `newer`, `own` or `none`.
 	 * @return void
 	 */
 	#[DataProvider( 'provide_navigation_blocks' )]
@@ -190,6 +221,7 @@ class NavMenuPagesTest extends SeoTestCase {
 			'older' => array( $old_page ),
 			'newer' => array( $new_page ),
 			'own'   => array( $a, $b ),
+			'none'  => array(),
 		);
 		$this->assertSame( $pages[ $expected ], Nav_Menu_Pages::get()['main'] );
 	}
@@ -210,6 +242,7 @@ class NavMenuPagesTest extends SeoTestCase {
 			'inside a pattern'          => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
 			'inside a synced pattern'   => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
 			'inside a nested part'      => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
+			'page list ranks none'      => array( '<!-- wp:navigation --><!-- wp:page-list /--><!-- /wp:navigation -->', 'none' ),
 		);
 	}
 

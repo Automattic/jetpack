@@ -40,6 +40,11 @@ class Llms_Txt {
 	const MAX_POSTS_PER_TYPE = 50;
 
 	/**
+	 * Max main-menu pages listed, so a mega menu can't list a whole site.
+	 */
+	const MAX_MAIN_MENU_PAGES = 100;
+
+	/**
 	 * Wire the front-end request handler.
 	 *
 	 * @return void
@@ -191,13 +196,14 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Pages ranked main menu first, then other displayed menus, then the rest by title.
+	 * Pages ranked main menu first, then other displayed menus, then the rest in the
+	 * order core's Page List block shows them: menu order, then title.
 	 *
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages() {
 		$menus = Nav_Menu_Pages::get();
-		$main  = self::get_pages_in_order( $menus['main'], count( $menus['main'] ) );
+		$main  = self::get_pages_in_order( $menus['main'], self::MAX_MAIN_MENU_PAGES );
 		$room  = max( 0, self::MAX_POSTS_PER_TYPE - count( $main ) );
 		$other = self::get_pages_in_order( $menus['other'], $room );
 		$room -= count( $other );
@@ -208,7 +214,7 @@ class Llms_Txt {
 		$args                   = self::query_args( 'page' );
 		$args['posts_per_page'] = $room;
 		$args['post__not_in']   = array_merge( $menus['main'], $menus['other'] );
-		$args['orderby']        = 'title';
+		$args['orderby']        = 'menu_order title';
 		$args['order']          = 'ASC';
 
 		return array_merge( $main, $other, get_posts( $args ) );

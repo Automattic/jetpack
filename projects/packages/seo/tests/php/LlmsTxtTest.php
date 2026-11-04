@@ -413,14 +413,14 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
-	 * Pages list the main menu first, then other displayed menus, then the rest by title,
-	 * up to the per-type limit.
+	 * Pages list the main menu first, then other displayed menus, then the rest by menu
+	 * order and title, up to the per-type limit.
 	 *
 	 * @return void
 	 */
 	public function test_pages_rank_main_menu_then_other_menus_then_title() {
 		for ( $i = 1; $i <= 50; $i++ ) {
-			$this->insert_page( sprintf( 'Page %02d', $i ) );
+			$this->insert_page( sprintf( 'Page %02d', $i ), 51 - $i );
 		}
 		$scan    = $this->insert_page( 'Zz Scan' );
 		$privacy = $this->insert_page( 'Zy Privacy' );
@@ -428,26 +428,27 @@ class LlmsTxtTest extends SeoTestCase {
 		$this->add_nav_menu( array( $privacy->ID ), 'footer' );
 
 		$expected = array( 'Zz Scan', 'Zy Privacy' );
-		for ( $i = 1; $i <= 48; $i++ ) {
+		for ( $i = 50; $i >= 3; $i-- ) {
 			$expected[] = sprintf( 'Page %02d', $i );
 		}
 		$this->assertSame( $expected, $this->page_titles() );
 	}
 
 	/**
-	 * Every main-menu page is listed, even past the per-type limit.
+	 * Main-menu pages are listed past the per-type limit, up to their own.
 	 *
 	 * @return void
 	 */
-	public function test_main_menu_pages_are_never_cut() {
+	public function test_main_menu_pages_pass_the_page_limit_up_to_their_own() {
 		$this->insert_page( 'Aa Extra' );
 		$ids      = array();
 		$expected = array();
-		for ( $i = 1; $i <= Llms_Txt::MAX_POSTS_PER_TYPE + 1; $i++ ) {
-			$expected[] = sprintf( 'Menu %02d', $i );
+		for ( $i = 1; $i <= Llms_Txt::MAX_MAIN_MENU_PAGES + 1; $i++ ) {
+			$expected[] = sprintf( 'Menu %03d', $i );
 			$ids[]      = $this->insert_page( end( $expected ) )->ID;
 		}
 		$this->add_nav_menu( $ids, 'primary' );
+		array_pop( $expected );
 
 		$this->assertSame( $expected, $this->page_titles() );
 	}
@@ -455,14 +456,16 @@ class LlmsTxtTest extends SeoTestCase {
 	/**
 	 * Insert and track a published page.
 	 *
-	 * @param string $title Page title.
+	 * @param string $title      Page title.
+	 * @param int    $menu_order Page order.
 	 * @return WP_Post
 	 */
-	private function insert_page( $title ): WP_Post {
+	private function insert_page( $title, $menu_order = 0 ): WP_Post {
 		return $this->insert_post(
 			array(
 				'post_type'  => 'page',
 				'post_title' => $title,
+				'menu_order' => $menu_order,
 			)
 		);
 	}
