@@ -18,7 +18,7 @@ const getItemId = ( item: ScanThreat ) => String( item.id );
 
 const vulnerable = (
 	id: number,
-	fixer: 'replace' | 'update',
+	fixer: 'replace' | 'update' | 'delete',
 	isBulkFixable = true
 ): ScanThreat => ( {
 	id,
@@ -114,6 +114,30 @@ describe( 'ThreatsList', () => {
 				.getAllByRole( 'button' )
 				.map( button => button.textContent )
 		).toEqual( expected );
+	} );
+
+	it.each( [
+		[ 'a delete fix', [ vulnerable( 21, 'replace' ), vulnerable( 22, 'delete' ) ], [ 22 ] ],
+		[
+			'an update Scan runs only on its own',
+			[ vulnerable( 23, 'update' ), vulnerable( 24, 'update', false ) ],
+			[ 24 ],
+		],
+		[
+			'nothing when each bulk Auto-fix gets one threat',
+			[ vulnerable( 25, 'replace', false ), vulnerable( 26, 'update', false ) ],
+			[],
+		],
+	] )( 'lists the selected threats bulk Auto-fix leaves out: %s', async ( _name, threats, ids ) => {
+		render( <ThreatsList threats={ threats } canAct /> );
+
+		await selectAll( threats );
+
+		const listed = screen
+			.queryAllByRole( 'listitem' )
+			.map( item => item.textContent )
+			.filter( text => text?.startsWith( 'Plugin' ) );
+		expect( listed ).toEqual( ids.map( id => `Plugin ${ id } (1.0)` ) );
 	} );
 
 	it( 'counts only the updates a batch runs, on the button and in the confirmation', async () => {

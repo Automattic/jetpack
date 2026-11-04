@@ -8,6 +8,7 @@ import { useCanIgnore } from './store';
 import {
 	fixThreats,
 	ignoreThreats,
+	isBulkFixable,
 	isDeleteFix,
 	isUpdateFix,
 	refocusRow,
@@ -24,6 +25,34 @@ type OpenThreat = ( item: ScanThreat ) => void;
 type FixUpdateModal = ReturnType< typeof makeFixUpdateModal >;
 
 const NO_THREATS: ScanThreat[] = [];
+
+const canFix = ( item: ScanThreat, canAct: boolean ) =>
+	canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
+
+/**
+ * The selected threats bulk Auto-fix leaves out: delete fixes, and fixes Scan runs only on their own.
+ *
+ * @param selected - The selected threats.
+ * @param canAct   - Whether the site's plan can fix threats.
+ * @param getBusy  - Gets the action running on a threat.
+ * @return The threats left out, which need fixing one at a time.
+ */
+export function getLeftOutOfBulkFix(
+	selected: ScanThreat[],
+	canAct: boolean,
+	getBusy: ReturnType< typeof useGetThreatBusy >
+): ScanThreat[] {
+	const fixes = selected.filter( item => canFix( item, canAct ) && ! getBusy( item.id ) );
+	// A bulk Auto-fix given only one threat still runs it, as fixThreats does.
+	const alone = ( group: ScanThreat[] ) =>
+		group.length > 1 ? group.filter( item => ! isBulkFixable( item ) ) : [];
+	const others = fixes.filter( item => ! isDeleteFix( item ) );
+	return [
+		...fixes.filter( isDeleteFix ),
+		...alone( others.filter( item => ! isUpdateFix( item ) ) ),
+		...alone( others.filter( isUpdateFix ) ),
+	];
+}
 
 /**
  * A row's DataViews actions: primary ones show as buttons without hovering, and the ⋯ menu lists them all.
@@ -68,9 +97,6 @@ function getThreatRowActions(
 				setTimeout( () => refocusRow( item ) );
 			}
 		};
-	const canFix = ( item: ScanThreat ) =>
-		canAct && !! item.fixable && item.status !== 'ignored' && item.status !== 'fixed';
-
 	/*
 	 * DataViews can't disable an action for one row, so a busy row keeps only View. A deleting row
 	 * keeps them, since hiding Delete would close its open modal; deleteSoftware refuses a repeat.
@@ -83,7 +109,7 @@ function getThreatRowActions(
 		selected.filter(
 			item =>
 				! isLocked( item ) &&
-				canFix( item ) &&
+				canFix( item, canAct ) &&
 				! isDeleteFix( item ) &&
 				isUpdateFix( item ) === updates
 		);
@@ -105,7 +131,7 @@ function getThreatRowActions(
 			id: 'auto-fix',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && ! isDeleteFix( item ) && ! isUpdateFix( item ),
+			isEligible: item => canFix( item, canAct ) && ! isDeleteFix( item ) && ! isUpdateFix( item ),
 			supportsBulk: !! onBulk,
 			// Not awaited: a fix can take minutes, and its snackbar follows it.
 			callback: locking( ( items, from ) => {
@@ -117,7 +143,7 @@ function getThreatRowActions(
 			id: 'auto-fix-delete',
 			label: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && isDeleteFix( item ),
+			isEligible: item => canFix( item, canAct ) && isDeleteFix( item ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteFixTitle( item ) : '' ),
 			RenderModal: FixDeleteModal,
 		},
@@ -137,7 +163,7 @@ function getThreatRowActions(
 						)
 					: __( 'Auto-fix', 'jetpack-protect-pkg' ),
 			isPrimary: true,
-			isEligible: item => canFix( item ) && isUpdateFix( item ),
+			isEligible: item => canFix( item, canAct ) && isUpdateFix( item ),
 			// A batch of updates Scan runs only on their own starts nothing, but without Ignore it keeps them selectable.
 			supportsBulk:
 				!! onBulk &&
