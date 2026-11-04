@@ -43,6 +43,14 @@ $config->ensure(
 );
 ```
 
+## Library interaction metrics
+
+`jetpack_videopress_library_interaction` describes committed library view changes. Its `interaction` is `view`, `sort`, `filter`, or `search`. View events include `view_type: grid | table`; sort events include `field: title | filename | uploadDate` and `direction: asc | desc`. Filter events include `field: type | privacy | uploadDate` and `action: applied | cleared`. Search events include only `action: applied | cleared`, after the trimmed search has stayed unchanged for 500 ms. No search text, query hashes, filter values/dates, content, filenames or identifiers are added to the event.
+
+Initial/restored preferences, equivalent rerenders, pagination, page size, column visibility and density changes do not emit events. Filter reordering and duplicates do not inflate counts. Each changed filter field emits once, so clearing several filters is several events, not one gesture. Search edits abandoned or reverted before the quiet period, including navigation away, are omitted. React effects run after the view commits and do not put analytics in a state updater.
+
+These events measure use of library controls, not successful result retrieval, unique users, completed video actions or persistent preference writes. View events count switches, not total grid/table usage. They use the existing analytics transport and controls; runtime host eligibility, consent/opt-out, delivery and warehouse coverage still need validation before reporting.
+
 ## Development
 
 Build all bundles
