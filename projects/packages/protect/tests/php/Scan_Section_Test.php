@@ -809,15 +809,16 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * View, then delete, the uploaded test file of a threat History lists, as the viewer would.
+	 * View, then delete or restore, the uploaded test file of a threat History lists, as the viewer would.
 	 *
 	 * @param string      $status     The threat's status in History.
 	 * @param string|null $changed_to What the file is changed to after it was viewed.
 	 * @param array       $current    Scan's current threats.
 	 * @param array[]     $history    Other threats History lists.
+	 * @param string      $action     `delete` or `restore`.
 	 * @return array|\WP_Error The response.
 	 */
-	private function delete_history_threat_file( $status, $changed_to = null, $current = array(), $history = array() ) {
+	private function act_on_history_threat_file( $status, $changed_to = null, $current = array(), $history = array(), $action = 'delete' ) {
 		// Invalid UTF-8, which the viewer scrubs from what it shows but not from what it hashes.
 		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', "<?php // \xff" );
 		Scan_Status::$status = new Status_Model( array( 'threats' => $current ) );
@@ -833,17 +834,17 @@ class Scan_Section_Test extends BaseTestCase {
 		if ( null !== $changed_to ) {
 			$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', $changed_to );
 		}
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/protect-dashboard/scan/threats/9/file/delete' );
+		$request = new WP_REST_Request( 'POST', "/jetpack/v4/protect-dashboard/scan/threats/9/file/$action" );
 		$request->set_url_params( array( 'id' => '9' ) );
 		$request->set_param( 'hash', $shown['hash'] );
-		return Scan::delete_threat_file( $request );
+		return 'restore' === $action ? Scan::restore_threat_file( $request ) : Scan::delete_threat_file( $request );
 	}
 
 	/**
 	 * Test that deleting an ignored threat's file moves it from Ignored to History as fixed.
 	 */
 	public function test_delete_threat_file_marks_an_ignored_threat_fixed() {
-		$response = $this->delete_history_threat_file( 'ignored' );
+		$response = $this->act_on_history_threat_file( 'ignored' );
 
 		$this->assertFileDoesNotExist( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );
 		$this->assertSame( 'fixed', $response['threat']['status'] );
@@ -876,11 +877,58 @@ class Scan_Section_Test extends BaseTestCase {
 			),
 		);
 
-		$response = $this->delete_history_threat_file( 'ignored', null, $current, $history );
+		$response = $this->act_on_history_threat_file( 'ignored', null, $current, $history );
 
 		$this->assertEqualsCanonicalizing( array( 11, 10 ), $response['others'] );
 		$this->assertEqualsCanonicalizing( array( '9', '10', '11' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	public function test_restore_threat_file_refuses_a_file_that_is_not_changed_core() {
+		$response = $this->act_on_history_threat_file( 'ignored', null, array(), array(), 'restore' );
+
+		$this->assertSame( 'threat_file_not_restorable', $response->get_error_code() );
+		$this->assertSame( "<?php // \xff", file_get_contents( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$this->assertSame( array(), Dashboard_Threats::get_resolved() );
+	}
+
+	/**
+	 * Files the viewer won't show, by what they hold.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_unviewable_files() {
+		return array(
+			'larger than the viewer shows' => array( '<?php // ' . str_repeat( 'x', Scan::MAX_FILE_BYTES ), 'threat_file_too_large' ),
+			'binary'                       => array( "<?php // \0", 'threat_file_binary' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_unviewable_files
+	 *
+	 * @param string $contents The file's contents.
+	 * @param string $expected The error code.
+	 */
+	#[DataProvider( 'provide_unviewable_files' )]
+	public function test_get_threat_file_refuses_files_it_cannot_show( $contents, $expected ) {
+		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', $contents );
+		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
+		set_transient(
+			Scan::HISTORY_CACHE,
+			array(
+				array(
+					'id'       => 9,
+					'status'   => 'ignored',
+					'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
+				),
+			),
+			MINUTE_IN_SECONDS
+		);
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
+		$request->set_url_params( array( 'id' => '9' ) );
+
+		$this->assertSame( $expected, Scan::get_threat_file( $request )->get_error_code() );
 	}
 
 	/**
@@ -904,7 +952,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_refused_deletes' )]
 	public function test_delete_threat_file_refuses_and_keeps_the_file( $status, $changed_to, $expected ) {
-		$response = $this->delete_history_threat_file( $status, $changed_to );
+		$response = $this->act_on_history_threat_file( $status, $changed_to );
 
 		$this->assertSame( $expected, $response->get_error_code() );
 		$this->assertFileExists( WP_CONTENT_DIR . '/uploads/protect-threat-file.php' );

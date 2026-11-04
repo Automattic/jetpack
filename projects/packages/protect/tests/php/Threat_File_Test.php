@@ -188,4 +188,53 @@ class Threat_File_Test extends BaseTestCase {
 		$this->assertSame( 'threat_file_loaded', Threat_File::delete( $path )->get_error_code() );
 		$this->assertFileExists( $path );
 	}
+
+	/**
+	 * Files by owner, with whether the user may update core, and whether Restore is offered.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_restorable_files() {
+		return array(
+			'changed core file'                 => array( 'core', true, true, true ),
+			'unchanged core file'               => array( 'core', false, true, false ),
+			'stray file'                        => array( 'none', false, true, false ),
+			'changed core file, no core update' => array( 'core', true, false, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_restorable_files
+	 *
+	 * @param string $type        The file's owner type.
+	 * @param bool   $modified    Whether it differs from WordPress.org's copy.
+	 * @param bool   $update_core Whether the user may update core.
+	 * @param bool   $expected    Whether Restore is offered.
+	 */
+	#[DataProvider( 'provide_restorable_files' )]
+	public function test_only_changed_core_files_can_be_restored( $type, $modified, $update_core, $expected ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$refuse = function ( $caps, $cap ) use ( $update_core ) {
+			return 'update_core' === $cap && ! $update_core ? array( 'do_not_allow' ) : $caps;
+		};
+		add_filter( 'map_meta_cap', $refuse, 10, 2 );
+		$path = $this->write( ABSPATH . 'wp-includes/protect-test-core.php' );
+
+		$owner = array(
+			'type'     => $type,
+			'modified' => $modified,
+		);
+
+		$this->assertSame( $expected, Threat_File::can_restore( $path, $owner ) );
+		remove_filter( 'map_meta_cap', $refuse );
+		wp_set_current_user( 0 );
+	}
 }
