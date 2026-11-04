@@ -105,7 +105,6 @@ function CopyAction( { agent, id, labelledBy } ) {
 
 	return (
 		<Button ref={ ref } id={ id } aria-labelledby={ labelledBy } variant="outline" size="small">
-			<Button.Icon icon={ copy } />
 			{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
 		</Button>
 	);
@@ -129,7 +128,7 @@ function AgentTile( { agent } ) {
 		<Stack direction="column" gap="sm" align="flex-start" render={ <li /> }>
 			<AgentLogo agent={ agent } />
 			<Stack direction="column" gap="xs">
-				<Text id={ nameId } render={ <h3 /> } variant="heading-sm">
+				<Text id={ nameId } render={ <h3 /> } variant="heading-md">
 					{ agent.name }
 				</Text>
 				<Text render={ <p /> } variant="body-sm" className="jetpack-ai-mcp__muted">
