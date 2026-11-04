@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Classify an inline callee object the same way as the binding it replaces, instead of special-casing it as foreign.
