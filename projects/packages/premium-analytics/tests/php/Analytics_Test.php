@@ -542,6 +542,28 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Calypso's sidebar comes from the admin-menu endpoint, which replays wp-admin/menu.php over REST.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_menu_replayed_outside_wp_admin_lists_the_dashboard_without_its_build() {
+		Analytics::init();
+
+		$GLOBALS['menu'] = array();
+		$this->connect_site();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
+		$this->capture_doing_it_wrong();
+		do_action( 'admin_menu' );
+
+		$this->assertContains( self::MENU_SLUG, array_column( $GLOBALS['menu'], 2 ) );
+		$this->assertSame( array(), $this->doing_it_wrong );
+	}
+
+	/**
 	 * The menu is gated on the dashboard capability rather than manage_options, so a
 	 * site that granted an editor view_stats keeps that editor's access to stats.
 	 */

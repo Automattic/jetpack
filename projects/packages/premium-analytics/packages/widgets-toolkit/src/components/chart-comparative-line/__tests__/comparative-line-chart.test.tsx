@@ -9,9 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockLineChartLegendSpy,
 	mockLineChartSpy,
-	mockSparklineMargin,
 	resetMockCharts,
-	setMockChartHeight,
 	setMockHiddenSeries,
 } from '../../../../../../tests/js/chart-test-utils';
 import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
@@ -107,6 +105,7 @@ type RecordedLineProps = {
 		interactive: boolean;
 	};
 	margin?: Record< string, number >;
+	compactWhenShort?: boolean;
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
 		axis: {
@@ -114,6 +113,7 @@ type RecordedLineProps = {
 			y: {
 				display?: boolean;
 				tickValues?: number[];
+				tickDecimals?: number;
 				tickFormat: ( value: number ) => string;
 			};
 		};
@@ -176,6 +176,16 @@ describe( 'ComparativeLineChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+		delete window.JetpackScriptData;
+	} );
+
+	it( "holds store money ticks to the store's decimals", () => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 3 } },
+		} as unknown as typeof window.JetpackScriptData;
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ { type: 'currency' } } /> );
+
+		expect( recordedProps().options.axis.y.tickDecimals ).toBe( 3 );
 	} );
 
 	it( 'names the chart from chartTitle', () => {
@@ -204,15 +214,16 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps().options.axis.y.display ).toBeUndefined();
 	} );
 
-	it( 'draws a short tile as a sparkline the pointer can reach edge to edge', () => {
-		setMockChartHeight( 80 );
+	it.each( [ true, false ] )( 'forwards compactWhenShort=%s to the chart', compactWhenShort => {
 		render(
-			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				compactWhenShort={ compactWhenShort }
+			/>
 		);
 
-		expect( recordedProps().options.axis.x.display ).toBe( false );
-		expect( recordedProps().options.axis.y.display ).toBe( false );
-		expect( recordedProps().margin ).toBe( mockSparklineMargin );
+		expect( recordedProps().compactWhenShort ).toBe( compactWhenShort );
 	} );
 
 	describe( 'value axis baseline', () => {

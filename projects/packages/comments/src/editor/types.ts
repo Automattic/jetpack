@@ -1,4 +1,5 @@
 import type { EditorLabels } from '../shared/types';
+import type { BlockEditorProvider } from '@wordpress/block-editor';
 import type { Block, BlockEditProps } from '@wordpress/blocks';
 import type { DropdownMenu } from '@wordpress/components';
 import type { ComponentProps, ReactNode } from 'react';
@@ -44,11 +45,9 @@ export type ImageAttributes = { url?: string };
 export type ImageEditProps = BlockEditProps< ImageAttributes >;
 
 /** The caret as the block editor reports it with an edit, which an undo puts back. */
-export type EditorSelection = {
-	selectionStart?: object;
-	selectionEnd?: object;
-	initialPosition?: number | null;
-};
+export type EditorSelection = NonNullable<
+	ComponentProps< typeof BlockEditorProvider >[ 'selection' ]
+>;
 
 type HistoryStep = { blocks: Block[]; markup: string; selection?: EditorSelection };
 

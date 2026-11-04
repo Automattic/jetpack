@@ -47,4 +47,12 @@ describe( 'ThreatsList', () => {
 		expect( !! header ).toBe( !! firstDetected );
 		expect( screen.queryByRole( 'button', { name: '' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'shows no severity for a threat without one, as from the free vulnerability check', () => {
+		const threat: ScanThreat = { id: 3, title: 'Vulnerable plugin', severity: null };
+		render( <ThreatsList threats={ [ threat ] } canAct /> );
+
+		expect( screen.getByText( 'Vulnerable plugin' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Low' ) ).not.toBeInTheDocument();
+	} );
 } );

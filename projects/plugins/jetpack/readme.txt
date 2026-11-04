@@ -1,7 +1,7 @@
 === Jetpack - AI Agents & MCP, Security, Backup & Analytics ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: AI, MCP, security, backup, migration
-Stable tag: 16.4-beta
+Stable tag: 16.4
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -279,7 +279,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 
 == Changelog ==
-### 16.4-beta - 2026-11-02
+### 16.4 - 2026-11-03
 #### Enhancements
 - Account Protection: Stop turning the feature on automatically for new connections and upgrades from versions before 14.5. Sites where it is already on keep it on.
 - AI: Add a remote abilities allowlist to the MCP Read and Write views on self-hosted sites.
@@ -483,7 +483,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 - Admin Bar: Fix a fatal error in the admin bar endpoint when a plugin adds a menu page outside the admin_menu hook.
 - Admin menu: Make the top-level Jetpack menu link open My Jetpack instead of Akismet Anti-spam.
 - Admin pages: Keep administrators signed in on the Settings and Modules pages when another plugin's REST authentication filter returns an empty value such as null or false.
-- AI: Open the new SEO page from the SEO settings link on every site that has it, instead of the Traffic settings.
 - AI Assistant: Keep the Excerpt field in the post editor when the AI excerpt panel cannot be loaded.
 - Backup: Keep the dashboard available after a Jetpack Pro plan expires.
 - Backup: Show a finished backup in the list without a page reload, even when WordPress.com is slow to list it, and add a "Backup complete" notice that stays until it is dismissed.
@@ -629,11 +628,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 - Search: Avoid requesting the Search plan in offline mode.
 - Search: Open the Instant Search filters panel below the results header on small screens, so the Filters toggle stays visible.
 - Search: Show the fallback starting price per month, billed yearly, instead of $100 a month on the Search upgrade page when prices cannot be loaded.
-- SEO: Fix breadcrumb structured data repeating the current post, or adding an unrelated post, on sites with a static front page and no Posts page.
-- SEO: Fix saving settings, clearing front-page descriptions, and switching sitemaps off on private sites. Preserve unsaved title structure edits when saving another row.
 - SEO: Generate alt text for newly inserted images when "Auto-generate metadata" is on, even if "Image alt text" was unticked earlier.
-- SEO: Keep disabled GEO settings off after reloading. Detect static robots.txt and llms.txt files on supported managed hosting. Hide the Site visibility progress badge on private sites.
-- SEO: Line up the Enable SEO tools card on the Settings, Content, and GEO tabs with the Overview tab.
 - SEO Tools: Fix the homepage and archive pages being hidden from search engines when their newest post is.
 - Settings: Return the Akismet key only to users who can manage options.
 - Settings: Show the classic Modules list when the REST API rejects authentication.
@@ -664,7 +659,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 - Subscriptions: Make the subscribe pop-up a labelled dialog that takes keyboard focus and keeps Tab inside it until it closes.
 - Subscriptions: Treat readers who follow a WordPress.com site in the Reader as subscribed in the Subscriptions widget, instead of showing them the subscribe form.
 - Tiled Gallery: Keep every image when uploading several at once with client-side media processing enabled.
-- Traffic settings: Add spacing below the notice pointing to the SEO dashboard.
 - VideoPress: Attach newly uploaded videos to the post or page being edited.
 - VideoPress: Fix incorrect video statistics on sites configured to use HTML query separators.
 - VideoPress: Fix local video uploads reporting an error instead of inserting the Video block.

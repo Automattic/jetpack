@@ -1,3 +1,4 @@
+import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
@@ -26,9 +27,12 @@ import type { ComponentProps, ReactNode } from 'react';
  *
  * @param props          - Component props.
  * @param props.severity - The severity, 0 to 10.
- * @return The badge.
+ * @return The badge, or null when the threat has no severity.
  */
-function SeverityBadge( { severity = 0 }: { severity?: number } ) {
+function SeverityBadge( { severity }: { severity?: number | null } ) {
+	if ( typeof severity !== 'number' ) {
+		return null;
+	}
 	let intent: ComponentProps< typeof Badge >[ 'intent' ] = 'draft';
 	let label: string = __( 'Low severity', 'jetpack-protect-pkg' );
 	if ( severity >= 5 ) {
@@ -361,15 +365,18 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	}
 
 	return (
-		<div className="jp-protect-threat-details__footer">
-			{ busy === 'fixing' && (
-				<Text variant="body-sm" className="jp-protect-card__muted">
-					{ __(
-						'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
-						'jetpack-protect-pkg'
-					) }
-				</Text>
-			) }
+		<SidebarFooter
+			description={
+				busy === 'fixing' && (
+					<Text variant="body-sm" className="jp-protect-card__muted">
+						{ __(
+							'Jetpack is fixing this threat. You can close this panel; the list updates when it’s done.',
+							'jetpack-protect-pkg'
+						) }
+					</Text>
+				)
+			}
+		>
 			{ isIgnored ? (
 				<Button
 					variant="outline"
@@ -380,7 +387,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 					{ __( 'Unignore it', 'jetpack-protect-pkg' ) }
 				</Button>
 			) : (
-				<Stack direction="row" gap="sm" justify={ canIgnore ? 'space-between' : 'end' }>
+				<>
 					{ canIgnore && (
 						<Button
 							className="jp-protect-threat-details__ignore"
@@ -401,9 +408,9 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 						</Button>
 					) }
 					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } onFix={ onFix } /> }
-				</Stack>
+				</>
 			) }
-		</div>
+		</SidebarFooter>
 	);
 }
 
