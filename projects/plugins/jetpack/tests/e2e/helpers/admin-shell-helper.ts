@@ -86,6 +86,19 @@ export const member = ( slug: string ): Member => {
 	return found;
 };
 
+/** What the probe exposes on `window.__jpShell`. */
+interface ShellProbe {
+	read: () => ShellSnapshot;
+	events: { type: string; detail: Record< string, unknown > }[];
+	tracks: string[];
+	frames: Frame[];
+	record: ( on: boolean ) => void;
+}
+type ProbeWindow = { __jpShell: ShellProbe };
+
+export const FORMS_LEAK =
+	'Spike bug: Forms leaves p=/forms in the next member’s URL, which renders "Route not found".';
+
 export const VIEW_EVENT = /(_page_view|_tab_view|_viewed)$/;
 
 export interface Frame {
@@ -146,7 +159,13 @@ function shellProbe( mountIds: Record< string, string > ) {
 
 	// Tracks' loader replaces `_tkq`, so wrap whatever queue is assigned.
 	const tracks: string[] = [];
+	const wrapped = new WeakSet< object >();
 	const wrap = ( queue: { push: ( ...a: unknown[] ) => unknown } ) => {
+		// `_tkq = _tkq || []` reassigns the same queue; wrapping it twice would record each event twice.
+		if ( ! queue || wrapped.has( queue ) ) {
+			return queue;
+		}
+		wrapped.add( queue );
 		const push = queue.push.bind( queue );
 		queue.push = ( ...items: unknown[] ) => {
 			for ( const item of items ) {
@@ -232,9 +251,7 @@ export async function installShellProbe( page: Page ): Promise< void > {
  * @return Current shell state.
  */
 export function readShell( page: Page ): Promise< ShellSnapshot > {
-	return page.evaluate( () =>
-		( window as unknown as { __jpShell: { read: () => ShellSnapshot } } ).__jpShell.read()
-	);
+	return page.evaluate( () => ( window as unknown as ProbeWindow ).__jpShell.read() );
 }
 
 /**
@@ -364,11 +381,7 @@ export async function expectShown( page: Page, slug: string ): Promise< void > {
  * @param page - Page under test.
  */
 export async function startFrames( page: Page ): Promise< void > {
-	await page.evaluate( () =>
-		( window as unknown as { __jpShell: { record: ( on: boolean ) => void } } ).__jpShell.record(
-			true
-		)
-	);
+	await page.evaluate( () => ( window as unknown as ProbeWindow ).__jpShell.record( true ) );
 }
 
 /**
@@ -379,11 +392,7 @@ export async function startFrames( page: Page ): Promise< void > {
  */
 export async function stopFrames( page: Page ): Promise< Frame[] > {
 	return page.evaluate( () => {
-		const shell = (
-			window as unknown as {
-				__jpShell: { frames: Frame[]; record: ( on: boolean ) => void };
-			}
-		 ).__jpShell;
+		const shell = ( window as unknown as ProbeWindow ).__jpShell;
 		const frames = [ ...shell.frames ];
 		shell.record( false );
 		return frames;
@@ -397,9 +406,7 @@ export async function stopFrames( page: Page ): Promise< Frame[] > {
  * @return Event names in order.
  */
 export function tracksEvents( page: Page ): Promise< string[] > {
-	return page.evaluate( () => [
-		...( window as unknown as { __jpShell: { tracks: string[] } } ).__jpShell.tracks,
-	] );
+	return page.evaluate( () => [ ...( window as unknown as ProbeWindow ).__jpShell.tracks ] );
 }
 
 /**
@@ -411,11 +418,5 @@ export function tracksEvents( page: Page ): Promise< string[] > {
 export function shellEvents(
 	page: Page
 ): Promise< { type: string; detail: Record< string, unknown > }[] > {
-	return page.evaluate( () => [
-		...(
-			window as unknown as {
-				__jpShell: { events: { type: string; detail: Record< string, unknown > }[] };
-			}
-		 ).__jpShell.events,
-	] );
+	return page.evaluate( () => [ ...( window as unknown as ProbeWindow ).__jpShell.events ] );
 }

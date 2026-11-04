@@ -40,12 +40,15 @@ test.describe( 'Admin shell: fallback', () => {
 	}
 
 	test( 'a failing guest endpoint still gets the user to the page', async ( { page } ) => {
-		await page.route( /admin-ajax\.php\?.*action=jetpack_admin_shell_guest/, route =>
-			route.abort()
-		);
+		let aborted = 0;
+		await page.route( /admin-ajax\.php\?.*action=jetpack_admin_shell_guest/, route => {
+			aborted++;
+			return route.abort();
+		} );
 		await openMember( page, 'my-jetpack' );
 		await menuLink( page, 'jetpack-newsletter' ).click();
 		await waitForShown( page, 'jetpack-newsletter' );
+		expect( aborted, 'the guest endpoint was called and failed' ).toBeGreaterThan( 0 );
 		await expectShown( page, 'jetpack-newsletter' );
 		expect( new URL( page.url() ).searchParams.get( 'page' ) ).toBe( 'jetpack-newsletter' );
 	} );

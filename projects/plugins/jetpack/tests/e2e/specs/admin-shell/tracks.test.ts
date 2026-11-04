@@ -57,6 +57,7 @@ test.describe( 'Admin shell: Tracks page views', () => {
 		await openMember( page, 'my-jetpack' );
 		await settle( page, SETTLE );
 		const own = new Set( await viewsSince( page, 0 ) );
+		expect( own.size, 'the probe sees My Jetpack’s own page view' ).toBeGreaterThan( 0 );
 
 		// Settings' router stays mounted while hidden; My Jetpack's hash writes reach it.
 		await openMember( page, 'jetpack-settings' );

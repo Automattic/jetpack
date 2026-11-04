@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import {
+	FORMS_LEAK,
 	MEMBERS,
 	expectShown,
 	installShellProbe,
@@ -22,8 +23,7 @@ const SPIKE_BUGS: { a?: string; b?: string; reason: string }[] = [
 	},
 	{
 		a: FORMS,
-		reason:
-			'Spike bug: Forms leaves p=/forms in the next member’s URL, which renders "Route not found".',
+		reason: FORMS_LEAK,
 	},
 	{
 		b: FORMS,

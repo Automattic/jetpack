@@ -1,11 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
+	FORMS_LEAK,
 	installShellProbe,
 	menuLink,
 	openMember,
 	settle,
 	startFrames,
 	stopFrames,
+	switchTo,
 	waitForShown,
 	type Frame,
 } from '../../helpers/admin-shell-helper';
@@ -19,12 +21,10 @@ const SWITCHES = [
 	[ 'jetpack-podcast', 'jetpack-activity-log' ],
 ] as const;
 
-/* Keyed `from → to (visit)`; each reproduced on every Chromium run against the spike. */
+/* Keyed `from → to (visit)`. */
 const SPIKE_BUGS: Record< string, string > = {
-	'jetpack-forms-responses-wp-admin → jetpack-newsletter (first)':
-		'Spike bug: Forms’ p=/forms leaks into Newsletter’s URL, so Newsletter stays on "Route not found".',
-	'jetpack-forms-responses-wp-admin → jetpack-newsletter (later)':
-		'Spike bug: Forms’ p=/forms leaks into Newsletter’s URL, so Newsletter stays on "Route not found".',
+	'jetpack-forms-responses-wp-admin → jetpack-newsletter (first)': FORMS_LEAK,
+	'jetpack-forms-responses-wp-admin → jetpack-newsletter (later)': FORMS_LEAK,
 	'my-jetpack → jetpack-forms-responses-wp-admin (later)':
 		'Known spike bug: the outgoing app renders "Route not found" while the switch is under way.',
 };
@@ -55,10 +55,8 @@ async function recordSwitch( page: Page, to: string ): Promise< Frame[] > {
 async function arrive( page: Page, from: string, to: string, visit: string ) {
 	await openMember( page, from );
 	if ( visit === 'later' ) {
-		await menuLink( page, to ).click();
-		await waitForShown( page, to );
-		await menuLink( page, from ).click();
-		await waitForShown( page, from );
+		await switchTo( page, to );
+		await switchTo( page, from );
 	}
 }
 

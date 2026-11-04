@@ -37,7 +37,12 @@ test.describe( 'Admin shell: hidden apps stay out of the way', () => {
 			await switchTo( page, slug );
 			await settle( page, 2000 );
 		}
-		const urls = [ ...new Set( ( await stopFrames( page ) ).map( f => f.href ) ) ];
+		const frames = await stopFrames( page );
+		// A full load mid-tour would reset the recording and pass vacuously.
+		expect( frames[ 0 ]?.href, 'recorded from the first switch' ).toMatch(
+			/^\?page=jetpack-podcast/
+		);
+		const urls = [ ...new Set( frames.map( f => f.href ) ) ];
 		const stray = urls.filter( href => {
 			const slug = new URLSearchParams( href.split( '#' )[ 0 ] ).get( 'page' );
 			const own = MEMBERS.find( m => m.slug === slug );
