@@ -318,7 +318,7 @@ class Social_Abilities extends Registrar {
 		// A JSON body is what the Jetpack-site proxy forwards to WordPress.com.
 		$request = new WP_REST_Request( 'POST', self::SHARE_POST_ROUTE . '/' . $post_id );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( (string) wp_json_encode( $body ) );
+		$request->set_body( (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$result = self::dispatch( $request );
 		if ( is_wp_error( $result ) ) {
