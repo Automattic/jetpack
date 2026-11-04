@@ -10,6 +10,7 @@ import {
 	ignoreThreats,
 	isDeleteFix,
 	isUpdateFix,
+	offersDeleteFix,
 	refocusRow,
 	unignoreThreat,
 	useGetThreatBusy,
@@ -168,9 +169,7 @@ function getThreatRowActions(
 			id: 'delete',
 			label: softwareLabel( 'delete' ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteTitle( item ) : '' ),
-			// Auto-fix already offers this delete, with the slug confirmation.
-			isEligible: item =>
-				!! item.extension?.actions?.delete && ! ( canFix( item ) && isDeleteFix( item ) ),
+			isEligible: item => !! item.extension?.actions?.delete && ! offersDeleteFix( item, canAct ),
 			RenderModal: DeleteSoftwareModal,
 		},
 		{

@@ -17,6 +17,7 @@ import {
 	ignoreThreat,
 	isDeleteFix,
 	isUpdateFix,
+	offersDeleteFix,
 	unignoreThreat,
 	useThreatAction,
 	type ThreatRow,
@@ -458,9 +459,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
  */
 function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const actions = threat.extension?.actions ?? {};
-	// The footer's Auto-fix already offers this delete, with the slug confirmation.
-	const canDelete =
-		!! actions.delete && ! ( canAct && threat.status !== 'ignored' && isDeleteFix( threat ) );
+	const canDelete = !! actions.delete && ! offersDeleteFix( threat, canAct );
 	if ( ! actions.update && ! actions.deactivate && ! canDelete && ! actions.details ) {
 		return null;
 	}

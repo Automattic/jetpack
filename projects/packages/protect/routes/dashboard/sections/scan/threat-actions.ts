@@ -340,6 +340,19 @@ export function isDeleteFix( threat: ScanThreat ): boolean {
 }
 
 /**
+ * Whether Auto-fix offers the delete fix, so no separate Delete is shown: it already has the slug confirmation.
+ *
+ * @param threat - The threat.
+ * @param canAct - Whether the site's plan can fix threats.
+ * @return True when Auto-fix is the threat's delete.
+ */
+export function offersDeleteFix( threat: ScanThreat, canAct: boolean ): boolean {
+	return (
+		canAct && threat.status !== 'ignored' && threat.status !== 'fixed' && isDeleteFix( threat )
+	);
+}
+
+/**
  * Whether Scan's fix for the threat updates the plugin or theme it is in.
  *
  * @param threat - The threat.

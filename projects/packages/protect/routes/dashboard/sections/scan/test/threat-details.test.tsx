@@ -74,8 +74,12 @@ describe( 'ThreatDetails', () => {
 		[ 'only Auto-fix for a delete fix', 'delete', true, [ 'Auto-fix it' ] ],
 		[ 'Delete plugin where the plan can’t fix', 'delete', false, [ 'Delete plugin' ] ],
 		[ 'both for a fix that doesn’t delete', 'replace', true, [ 'Delete plugin', 'Auto-fix it' ] ],
-	] as const )( 'offers %s', ( _name, fixer, canAct, expected ) => {
-		const threat = threatIn( 6, fixer );
+		[ 'Delete plugin for an ignored delete fix', 'delete', true, [ 'Delete plugin' ], 'ignored' ],
+	] as const )( 'offers %s', ( _name, fixer, canAct, expected, status = 'current' ) => {
+		const threat: ScanThreat = {
+			...threatIn( 6, fixer ),
+			status: status as ScanThreat[ 'status' ],
+		};
 		render(
 			<ThreatDetails
 				threat={ {

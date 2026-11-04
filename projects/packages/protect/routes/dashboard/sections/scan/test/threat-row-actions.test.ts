@@ -60,20 +60,32 @@ describe( 'useThreatRowActions', () => {
 	} );
 
 	it.each( [
-		[ 'a replace fix', { fixer: 'replace' }, true, [ 'auto-fix', 'delete' ] ],
-		[ 'an update fix', { fixer: 'update' }, true, [ 'auto-fix-update', 'delete' ] ],
-		[ 'a delete fix, without a second Delete', { fixer: 'delete' }, true, [ 'auto-fix-delete' ] ],
-		[ 'a delete fix the plan can’t run', { fixer: 'delete' }, false, [ 'delete' ] ],
+		[ 'a replace fix', { fixer: 'replace' }, {}, [ 'auto-fix', 'delete' ] ],
+		[ 'an update fix', { fixer: 'update' }, {}, [ 'auto-fix-update', 'delete' ] ],
+		[ 'a delete fix, without a second Delete', { fixer: 'delete' }, {}, [ 'auto-fix-delete' ] ],
+		[ 'a delete fix the plan can’t run', { fixer: 'delete' }, { canAct: false }, [ 'delete' ] ],
+		[ 'an ignored delete fix', { fixer: 'delete' }, { status: 'ignored' }, [ 'delete' ] ],
+		[ 'a fixed delete fix', { fixer: 'delete' }, { status: 'fixed' }, [ 'delete' ] ],
 		[
 			'a fix left out of bulk fixes',
 			{ fixer: 'replace', extras: { isBulkFixable: false } },
-			true,
+			{},
 			[ 'auto-fix', 'delete' ],
 		],
 	] as const )(
 		'picks the Auto-fix and Delete actions for %s',
-		( _name, fixable, canAct, expected ) => {
-			const item = { ...threatIn( 4 ), signature: 'Vulnerable.WP.Extension', fixable };
+		(
+			_name,
+			fixable,
+			{ canAct = true, status = 'current' }: { canAct?: boolean; status?: string },
+			expected
+		) => {
+			const item = {
+				...threatIn( 4 ),
+				signature: 'Vulnerable.WP.Extension',
+				fixable,
+				status,
+			} as ScanThreat;
 			const { result } = renderHook( () => useThreatRowActions( open, canAct ) );
 
 			expect(
