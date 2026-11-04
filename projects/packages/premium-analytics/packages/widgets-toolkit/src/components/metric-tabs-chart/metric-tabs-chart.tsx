@@ -205,7 +205,7 @@ export interface MetricTabsChartProps {
 	groupLabel?: string;
 	/** Visually hide the label in the static single-metric headline. */
 	hideSingleMetricLabel?: boolean;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
