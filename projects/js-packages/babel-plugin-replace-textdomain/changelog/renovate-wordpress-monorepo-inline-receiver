@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Skip gettext-shaped calls on an inline object, array, function or literal when `requireI18nSource` is set; rolldown inlines a single-use `cache` binding into that shape.

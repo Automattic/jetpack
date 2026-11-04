@@ -218,7 +218,7 @@ it( 'synchronizes chapters only after the description is saved', async () => {
 	expect( syncChapters ).toHaveBeenCalledWith(
 		expect.objectContaining( { guid: 'abc123' } ),
 		'0:00 Intro',
-		expect.anything()
+		expect.objectContaining( { source: 'upload_details' } )
 	);
 } );
 

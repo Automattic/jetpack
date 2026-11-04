@@ -196,6 +196,61 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @dataProvider provide_failed_unignore_replies
+	 *
+	 * @param \WP_Error|array $reply   What WordPress.com answers.
+	 * @param bool            $dropped Whether the caches are dropped.
+	 */
+	#[DataProvider( 'provide_failed_unignore_replies' )]
+	public function test_failed_unignore_drops_the_caches_only_when_unanswered( $reply, $dropped ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 123 );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+		set_transient( Scan::HISTORY_CACHE, array( array( 'id' => 1 ) ), MINUTE_IN_SECONDS );
+		update_option( Scan_Status::OPTION_NAME, 'report' );
+		$timeout = null;
+		$answer  = function ( $pre, $args ) use ( $reply, &$timeout ) {
+			$timeout = $args['timeout'];
+			return $reply;
+		};
+		add_filter( 'pre_http_request', $answer, 10, 2 );
+
+		$result = self::call( 'set_ignored', 1, false );
+		remove_filter( 'pre_http_request', $answer );
+
+		$this->assertSame( 'threat_not_unignored', $result->get_error_code() );
+		$this->assertSame( 30, $timeout );
+		$this->assertSame( $dropped, false === get_transient( Scan::HISTORY_CACHE ) );
+		$this->assertSame( $dropped, false === get_option( Scan_Status::OPTION_NAME ) );
+	}
+
+	/**
+	 * WordPress.com replies that fail an unignore, and whether each may still have applied it.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_failed_unignore_replies() {
+		return array(
+			'timed out'    => array( new \WP_Error( 'http_request_failed', 'cURL error 28' ), true ),
+			'server error' => array(
+				array(
+					'response' => array( 'code' => 500 ),
+					'body'     => '',
+				),
+				false,
+			),
+		);
+	}
+
+	/**
 	 * Test that a held request lock refuses a second scan, and a released one allows a retry.
 	 */
 	public function test_request_lock_refuses_a_second_claim_until_released() {
@@ -500,6 +555,36 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $expected, self::call( 'has_credentials' ) );
+	}
+
+	/**
+	 * Report states with no scan on record, and whether the page should show a scan running.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_never_scanned_states() {
+		return array(
+			'Scan idle, no scan queued'         => array( true, 'idle', false ),
+			'Scan unavailable, plan just added' => array( true, 'unavailable', true ),
+			'free report idle, not built yet'   => array( false, 'idle', true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_never_scanned_states
+	 *
+	 * @param bool   $has_plan Whether the site has a Scan plan.
+	 * @param string $state    The state WordPress.com reports.
+	 * @param bool   $scanning Whether the report says a scan is running.
+	 */
+	#[DataProvider( 'provide_never_scanned_states' )]
+	public function test_a_site_with_no_scan_on_record_reads_as_scanning_only_while_setting_up( $has_plan, $state, $scanning ) {
+		Scan_Status::$status = new Status_Model( array( 'status' => $state ) );
+
+		$report = self::call( 'get_scan_report', $has_plan );
+
+		$this->assertSame( $scanning, $report['scanning'] );
+		$this->assertNull( $report['lastChecked'] );
 	}
 
 	/**

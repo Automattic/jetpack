@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Single-report pages: Serve the video page from /report/video/<id>, rendered from its registered record; the old /video/<id> address redirects.
