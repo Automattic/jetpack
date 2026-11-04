@@ -32,13 +32,15 @@ class Dashboard_Threats {
 	 * @return array The fixed snapshot.
 	 */
 	public static function resolve( $threat ) {
-		$fixed                              = array_merge(
+		$fixed = array_merge(
 			$threat,
 			array(
 				'status'  => 'fixed',
 				'fixedOn' => gmdate( 'Y-m-d\TH:i:s.000\Z' ),
 			)
 		);
+		// Re-read, since another request may have recorded a fix while this one waited on WordPress.com.
+		wp_cache_delete( self::RESOLVED_OPTION, 'options' );
 		$resolved                           = self::get_resolved();
 		$resolved[ (string) $threat['id'] ] = $fixed;
 		update_option( self::RESOLVED_OPTION, $resolved, false );
