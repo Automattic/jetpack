@@ -64,25 +64,27 @@ describe( 'McpConnectCard', () => {
 		window.jetpackAiSettings = { isSelfHosted };
 		renderCard();
 
-		expect(
-			screen.getByRole( 'link', { name: new RegExp( `^${ name } Add app` ) } )
-		).toHaveAttribute( 'href', expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) ) );
+		expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
+		);
 	} );
 
-	test( 'each agent is a heading, and its action is named by the agent', () => {
+	test( 'a tile is named by the agent and described by the rest', () => {
 		renderCard();
 
-		expect( screen.getAllByRole( 'heading', { level: 3 } ) ).toHaveLength( 8 );
-		expect(
-			screen.getByRole( 'button', { name: 'Claude Code Copy command' } )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Codex Copy command' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Claude Code' } ) ).toHaveAccessibleDescription(
+			'Run in your terminal, then use /mcp to sign in Copy command'
+		);
+		expect( screen.getByRole( 'link', { name: 'VS Code' } ) ).toHaveAccessibleDescription(
+			'Opens VS Code to approve the server Add server'
+		);
 	} );
 
 	test( 'the VS Code link opens the install page with the server config', () => {
 		renderCard();
 
-		const link = screen.getByRole( 'link', { name: /^VS Code Add server/ } );
+		const link = screen.getByRole( 'link', { name: 'VS Code' } );
 		const url = new URL( link.getAttribute( 'href' ) );
 
 		expect( url.origin + url.pathname ).toBe( 'https://vscode.dev/redirect/mcp/install' );
@@ -101,11 +103,11 @@ describe( 'McpConnectCard', () => {
 		expect( copyKeys ).toEqual( [ 'claude-code', 'cursor', 'codex', 'antigravity', 'mcp' ] );
 	} );
 
-	test( 'a copy action copies its command, shows Copied, and records the copy', async () => {
+	test( 'a copy tile copies its command, shows Copied, and records the copy', async () => {
 		const { user, writeText } = setupClipboard();
 		renderCard();
 
-		const button = screen.getByRole( 'button', { name: 'Claude Code Copy command' } );
+		const button = screen.getByRole( 'button', { name: 'Claude Code' } );
 		await user.click( button );
 
 		await waitFor( () => expect( within( button ).getByText( 'Copied' ) ).toBeInTheDocument() );
@@ -122,7 +124,7 @@ describe( 'McpConnectCard', () => {
 		);
 		renderCard();
 
-		const button = screen.getByRole( 'button', { name: 'Codex Copy command' } );
+		const button = screen.getByRole( 'button', { name: 'Codex' } );
 		await user.click( button );
 
 		await waitFor( () => expect( writeText ).toHaveBeenCalled() );

@@ -83,7 +83,7 @@
 	&__connect-grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--wpds-dimension-gap-xl) var(--wpds-dimension-gap-lg);
+		gap: 10px;
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -93,29 +93,97 @@
 		}
 
 		// wp-admin gives every li a bottom margin.
-		> li {
+		li {
 			margin: 0;
 		}
+	}
 
-		// Push each action to the bottom so a row of actions lines up.
-		> li > :last-child {
-			margin-block-start: auto;
+	// A Card rendered as a link or button.
+	&__connect-tile {
+		--wp-ui-card-padding: 14px;
+
+		width: 100%;
+		height: 100%;
+		min-height: 124px;
+		padding: 0;
+		font: inherit;
+		text-align: start;
+		text-decoration: none;
+		cursor: pointer;
+
+		&,
+		&:visited {
+			color: inherit;
 		}
+
+		&:hover {
+			border-color: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 12%, transparent);
+			background: color-mix(in srgb, var(--wp-admin-theme-color, #3858e9) 2%, transparent);
+			color: var(--wp-admin-theme-color, #3858e9);
+		}
+
+		&:focus {
+			box-shadow: none;
+		}
+
+		&:focus-visible {
+			outline: var(--wp-admin-border-width-focus, 2px) solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 1px;
+		}
+	}
+
+	&__connect-tile-content {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 10px;
 	}
 
 	&__connect-logo {
 		display: grid;
+		flex: none;
 		place-items: center;
-		width: 24px;
-		height: 24px;
+		width: 32px;
+		height: 32px;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral);
+		color: var(--wpds-color-foreground-content-neutral);
 		font-weight: 600;
 
 		img {
 			display: block;
-			width: 100%;
-			height: 100%;
+			width: 20px;
+			height: 20px;
 			object-fit: contain;
 		}
+	}
+
+	&__connect-tile-action {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin-block-start: auto;
+		color: var(--wp-admin-theme-color, #3858e9);
+		font-weight: 600;
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__connect-footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px 16px;
+		box-sizing: border-box;
+		margin-block-start: var(--wpds-dimension-gap-xl);
+		padding-block: 12px;
+		padding-inline: 24px;
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	// Pinned in the page's scroll area. Padding hides tools scrolling beneath;
