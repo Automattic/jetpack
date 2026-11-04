@@ -10,6 +10,7 @@ use Automattic\Jetpack\Waf\CLI;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Initializer;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -94,14 +95,66 @@ final class WafCliTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Setup with a bad mode must fail before it turns anything on.
+	 *
+	 * @dataProvider provideInvalidSetupArgs
+	 *
+	 * @param array $args Arguments passed to setup.
 	 */
-	public function testSetupWithAnInvalidModeChangesNothing() {
+	#[DataProvider( 'provideInvalidSetupArgs' )]
+	public function testSetupWithAnInvalidModeChangesNothing( $args ) {
 		try {
-			( new CLI() )->setup( array( 'bogus' ) );
+			( new CLI() )->setup( $args );
 			$this->fail( 'Expected setup to error.' );
 		} catch ( RuntimeException $e ) {
 			$this->assertFalse( Waf_Runner::is_enabled() );
 		}
+	}
+
+	/**
+	 * Arguments setup must reject.
+	 *
+	 * @return array
+	 */
+	public static function provideInvalidSetupArgs() {
+		return array(
+			'unknown mode' => array( array( 'bogus' ) ),
+			'no mode'      => array( array() ),
+		);
+	}
+
+	/**
+	 * Setup must not leave the module on when it fails to generate the rules.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function testSetupTurnsTheModuleBackOffWhenTheRulesFail() {
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'pre_http_request', array( $this, 'return_server_error' ) );
+
+		try {
+			( new CLI() )->setup( array( 'normal' ) );
+			$this->fail( 'Expected setup to error.' );
+		} catch ( RuntimeException $e ) {
+			$this->assertFalse( Waf_Runner::is_enabled() );
+		}
+	}
+
+	/**
+	 * Return a server error from the rules API.
+	 *
+	 * @return array
+	 */
+	public function return_server_error() {
+		return array(
+			'body'     => '',
+			'response' => array(
+				'code'    => 500,
+				'message' => '',
+			),
+		);
 	}
 
 	/**
