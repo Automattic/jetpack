@@ -148,6 +148,20 @@ final class WafCliTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Setup that fails must not tear down a firewall set up while the module was off.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function testSetupKeepsAnEarlierSetupWhenTheRulesFail() {
+		update_option( Waf_Runner::MODE_OPTION_NAME, 'silent' );
+		$this->assertSetupFailureLeavesModule( true );
+		$this->assertSame( 'normal', get_option( Waf_Runner::MODE_OPTION_NAME ) );
+	}
+
+	/**
 	 * Run setup against a failing rules API and check the module's state afterwards.
 	 *
 	 * @param bool $enabled Whether the module should be on after the failed setup.

@@ -108,9 +108,10 @@ class CLI extends WP_CLI_Command {
 		define( 'WAF_CLI_MODE', $args[0] );
 
 		// Turn the module on first: its activation hook resets the mode to "normal".
-		$was_enabled = Waf_Runner::is_enabled();
+		$was_set_up = Waf_Runner::is_enabled() || get_option( Waf_Runner::MODE_OPTION_NAME );
 		Waf_Runner::enable();
-		$turned_on = ! $was_enabled && Waf_Runner::is_enabled();
+		// Turning the module off runs its teardown, so only undo a first-time setup.
+		$roll_back = ! $was_set_up && Waf_Runner::is_enabled();
 
 		// Set the mode and generate the bootstrap
 		$this->mode( array( $args[0] ) );
@@ -119,7 +120,7 @@ class CLI extends WP_CLI_Command {
 			// Add relevant options and generate the rules.php file
 			Waf_Runner::activate();
 		} catch ( \Exception $e ) {
-			if ( $turned_on ) {
+			if ( $roll_back ) {
 				Waf_Runner::disable();
 			}
 
