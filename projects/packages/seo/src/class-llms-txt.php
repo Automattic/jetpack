@@ -11,8 +11,8 @@
  * path rather than registering a rewrite rule, so it needs no rewrite flush and
  * works under any permalink structure. The tradeoff — it matches a root-level
  * request only, and like robots.txt won't apply on a multisite subdirectory or
- * a site fronted by a static file. Hardening the serving path (a rewrite rule,
- * caching) is tracked separately in JETPACK-1830.
+ * a site fronted by a static file. A rewrite rule is tracked separately in
+ * JETPACK-1830.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -40,12 +40,92 @@ class Llms_Txt {
 	const MAX_POSTS_PER_TYPE = 50;
 
 	/**
-	 * Wire the front-end request handler.
+	 * Transient holding the last built llms.txt until {@see clear_cache()} runs.
+	 */
+	const CACHE_KEY = 'jetpack_seo_llms_txt';
+
+	/**
+	 * How long a stored llms.txt is kept at most, for changes no hook reports.
+	 */
+	const CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
+	 * How long CDNs and page caches may keep a served llms.txt.
+	 */
+	const HTTP_MAX_AGE = 15 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Options whose changes alter llms.txt.
+	 */
+	const CACHE_OPTIONS = array( self::OPTION, 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure' );
+
+	/**
+	 * Post meta the editor writes on its own, which never changes llms.txt.
+	 */
+	const CACHE_IGNORED_META = array( '_edit_lock', '_edit_last' );
+
+	/**
+	 * Wire the front-end request handler and the hooks that clear the stored copy.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+
+		foreach ( array( 'clean_post_cache', 'clean_term_cache', 'wp_update_nav_menu', 'switch_theme', 'customize_save_after' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache' ) );
+		}
+		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
+		}
+		foreach ( array_merge( self::CACHE_OPTIONS, array( 'theme_mods_' . get_stylesheet() ) ) as $option ) {
+			foreach ( array( 'add_option_', 'update_option_', 'delete_option_' ) as $prefix ) {
+				add_action( $prefix . $option, array( __CLASS__, 'clear_cache' ) );
+			}
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt so the next request rebuilds it.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		if ( delete_transient( self::CACHE_KEY ) ) {
+			self::purge_edge_cache();
+		}
+	}
+
+	/**
+	 * Ask WordPress.com to drop its edge copy of llms.txt on every domain of the site, as
+	 * it does for robots.txt; a no-op elsewhere.
+	 *
+	 * @return void
+	 */
+	private static function purge_edge_cache() {
+		if ( ! function_exists( 'wpcom_get_all_blog_domains_with_path' ) || ! function_exists( 'queue_async_job' ) ) {
+			return;
+		}
+		// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
+		$urls = wpcom_get_all_blog_domains_with_path( 0, '/llms.txt', true );
+		if ( ! empty( $urls ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
+			queue_async_job( array( 'output_cache' => array( 'url' => $urls ) ), 'wpcom_invalidate_output_cache_job', -16, 0 );
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a post meta write, unless the editor wrote it on its own.
+	 *
+	 * @param int|int[] $meta_id  Meta ID or IDs.
+	 * @param int       $post_id  Post ID.
+	 * @param string    $meta_key Meta key.
+	 * @return void
+	 */
+	public static function clear_cache_for_meta( $meta_id, $post_id, $meta_key ) {
+		if ( ! in_array( $meta_key, self::CACHE_IGNORED_META, true ) ) {
+			self::clear_cache();
+		}
 	}
 
 	/**
@@ -116,13 +196,37 @@ class Llms_Txt {
 			return;
 		}
 
-		nocache_headers();
+		header( 'Cache-Control: public, max-age=' . self::HTTP_MAX_AGE );
 		status_header( 200 );
 		header( 'Content-Type: text/plain; charset=utf-8' );
 
 		// Content is plain-text Markdown; not HTML, so it's emitted as-is.
-		echo self::generate(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo self::get_stored(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
+	}
+
+	/**
+	 * The stored llms.txt, built and stored first when there is none.
+	 *
+	 * @return string
+	 */
+	public static function get_stored() {
+		$body = get_transient( self::CACHE_KEY );
+		if ( is_string( $body ) && '' !== $body ) {
+			return $body;
+		}
+
+		// Every visitor gets the stored copy, so build it as a logged-out visitor sees it.
+		$user_id = get_current_user_id();
+		wp_set_current_user( 0 );
+		try {
+			$body = self::generate();
+		} finally {
+			wp_set_current_user( $user_id );
+		}
+
+		set_transient( self::CACHE_KEY, $body, self::CACHE_TTL );
+		return $body;
 	}
 
 	/**

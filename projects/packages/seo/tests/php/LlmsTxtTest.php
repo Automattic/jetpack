@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
@@ -33,6 +34,7 @@ class LlmsTxtTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		delete_option( Llms_Txt::OPTION );
+		Llms_Txt::clear_cache();
 	}
 
 	/**
@@ -49,6 +51,12 @@ class LlmsTxtTest extends TestCase {
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
 		}
+
+		foreach ( wp_get_nav_menus() as $menu ) {
+			wp_delete_nav_menu( $menu->term_id );
+		}
+		update_option( 'blogname', 'Test Blog' );
+		Llms_Txt::clear_cache();
 
 		parent::tearDown();
 	}
@@ -411,5 +419,121 @@ class LlmsTxtTest extends TestCase {
 		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
 
 		$this->assertSame( 'Public summary.', $this->summary( $post ) );
+	}
+
+	/**
+	 * A stored llms.txt is served as is; without one, the file is built and stored.
+	 *
+	 * @return void
+	 */
+	public function test_stored_copy_is_served_without_rebuilding() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored body', HOUR_IN_SECONDS );
+		$this->assertSame( 'stored body', Llms_Txt::get_stored() );
+
+		Llms_Txt::clear_cache();
+		update_option( 'blogname', 'Built Title' );
+		$built = Llms_Txt::get_stored();
+		$this->assertStringStartsWith( '# Built Title', $built );
+		$this->assertSame( $built, get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes to what llms.txt lists clear the stored copy; the editor's own bookkeeping doesn't.
+	 *
+	 * @dataProvider provide_changes
+	 *
+	 * @param callable $change Makes the change, given a published page's ID.
+	 * @param bool     $clears Whether the stored copy should be cleared.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_changes' )]
+	public function test_changes_clear_the_stored_copy( $change, $clears ) {
+		Llms_Txt::init();
+		update_option( Llms_Txt::OPTION, true );
+		$page = $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => 'Existing Page',
+			)
+		);
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+
+		$change( $page->ID );
+
+		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Changes and whether each clears the stored llms.txt.
+	 *
+	 * @return array
+	 */
+	public static function provide_changes() {
+		return array(
+			'page edited'             => array(
+				static function ( $page_id ) {
+					wp_update_post(
+						array(
+							'ID'         => $page_id,
+							'post_title' => 'Renamed Page',
+						)
+					);
+				},
+				true,
+			),
+			'page hidden from search' => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, Content_Coverage::META_NOINDEX, '1' );
+				},
+				true,
+			),
+			'site title changed'      => array(
+				static function () {
+					update_option( 'blogname', 'Renamed Site' );
+				},
+				true,
+			),
+			'llms.txt turned off'     => array(
+				static function () {
+					update_option( Llms_Txt::OPTION, false );
+				},
+				true,
+			),
+			'classic menu saved'      => array(
+				static function () {
+					wp_create_nav_menu( 'Main' );
+				},
+				true,
+			),
+			'editor lock refreshed'   => array(
+				static function ( $page_id ) {
+					update_post_meta( $page_id, '_edit_lock', time() . ':1' );
+				},
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Clearing asks WordPress.com to purge its edge copy only when a stored copy existed.
+	 *
+	 * @return void
+	 */
+	public function test_clearing_purges_the_edge_copy_only_when_one_was_stored() {
+		\Wpcom_Test_Async_Jobs::$queued = array();
+		Llms_Txt::clear_cache();
+		$this->assertSame( array(), \Wpcom_Test_Async_Jobs::$queued );
+
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		Llms_Txt::clear_cache();
+		$this->assertSame(
+			array(
+				array(
+					'type' => 'wpcom_invalidate_output_cache_job',
+					'data' => array( 'output_cache' => array( 'url' => array( home_url( '/llms.txt' ) ) ) ),
+				),
+			),
+			\Wpcom_Test_Async_Jobs::$queued
+		);
 	}
 }
