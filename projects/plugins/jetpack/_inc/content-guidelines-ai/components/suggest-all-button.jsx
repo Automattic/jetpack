@@ -1,8 +1,9 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 import { useAllSectionsEmpty } from '../hooks/use-drafts';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
@@ -41,7 +42,10 @@ export default function SuggestAllButton() {
 
 	if ( ! hasFeature && ! hidden ) {
 		return (
-			<Tooltip text={ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }>{ button }</Tooltip>
+			<Tooltip.Root>
+				<Tooltip.Trigger render={ button } />
+				<Tooltip.Popup>{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }</Tooltip.Popup>
+			</Tooltip.Root>
 		);
 	}
 

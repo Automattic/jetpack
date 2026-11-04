@@ -39,7 +39,6 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</button>
 	),
-	Tooltip: ( { children } ) => children,
 	Notice: ( { children, onRemove, isDismissible } ) => (
 		<div>
 			{ children }

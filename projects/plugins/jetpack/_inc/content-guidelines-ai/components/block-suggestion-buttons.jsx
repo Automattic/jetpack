@@ -1,10 +1,11 @@
 import { useAiFeature } from '@automattic/jetpack-ai-client';
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { Tooltip } from '@wordpress/ui';
 import { useBlockHasDraft } from '../hooks/use-drafts';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
@@ -109,7 +110,10 @@ export default function BlockSuggestionButtons( { blockName, blockModal } ) {
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion-actions">
 			{ ! hasFeature ? (
-				<Tooltip text={ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }>{ button }</Tooltip>
+				<Tooltip.Root>
+					<Tooltip.Trigger render={ button } />
+					<Tooltip.Popup>{ __( 'Upgrade to unlock the AI assistant', 'jetpack' ) }</Tooltip.Popup>
+				</Tooltip.Root>
 			) : (
 				button
 			) }

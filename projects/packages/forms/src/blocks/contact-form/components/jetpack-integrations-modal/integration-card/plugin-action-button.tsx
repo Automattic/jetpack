@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button, Spinner, Tooltip } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Tooltip } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -95,8 +96,8 @@ const PluginActionButton = ( {
 	};
 
 	return (
-		<Tooltip text={ getTooltipText() }>
-			<span style={ { display: 'inline-flex' } }>
+		<Tooltip.Root>
+			<Tooltip.Trigger render={ <span style={ { display: 'inline-flex' } } /> }>
 				<Button
 					variant="primary"
 					onClick={ handleAction }
@@ -107,8 +108,9 @@ const PluginActionButton = ( {
 				>
 					{ getButtonText() }
 				</Button>
-			</span>
-		</Tooltip>
+			</Tooltip.Trigger>
+			<Tooltip.Popup>{ getTooltipText() }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 };
 
