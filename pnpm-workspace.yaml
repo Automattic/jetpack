@@ -104,3 +104,10 @@ patchedDependencies:
   # with "Invalid value used as weak map key". The ESM build is unaffected.
   # Remove once the fix in WordPress/gutenberg (base-control hooks) ships.
   "@wordpress/components@44.0.0": .pnpm-patches/@wordpress__components.patch
+
+  # Same rolldown CommonJS snapshot in block-editor 20.0.0: inner-blocks and the
+  # auto block preview memoize block-list exports at load, before that circular
+  # module has set them, so InnerBlocks renders in jest die with "Element type
+  # is invalid" and `memo()` warns about an undefined component.
+  # Remove once the fix in WordPress/gutenberg ships.
+  "@wordpress/block-editor@20.0.0": .pnpm-patches/@wordpress__block-editor.patch

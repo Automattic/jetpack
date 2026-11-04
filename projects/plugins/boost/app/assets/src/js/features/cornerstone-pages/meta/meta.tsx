@@ -390,7 +390,8 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 					{ buttonState.title }
 				</VisuallyHidden>
 			</Tooltip.Trigger>
-			<Tooltip.Popup>{ buttonState.title }</Tooltip.Popup>
+			{ /* Base UI leaves the popup without a role; the e2e suite finds it by this one. */ }
+			<Tooltip.Popup role="tooltip">{ buttonState.title }</Tooltip.Popup>
 		</Tooltip.Root>
 	);
 };
