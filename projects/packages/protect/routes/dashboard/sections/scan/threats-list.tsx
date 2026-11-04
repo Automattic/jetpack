@@ -320,7 +320,7 @@ function LeftOutNotice( { threats }: { threats: ScanThreat[] } ) {
 					threats.length,
 					'jetpack-protect-pkg'
 				) }
-				<ul className="jp-protect-fix-update__list">
+				<ul className="jp-protect-threats__left-out-list">
 					{ threats.map( threat => (
 						<li key={ threat.id }>{ getThreatLabel( threat ).subject || threat.title }</li>
 					) ) }

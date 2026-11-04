@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { DataViews } from '@wordpress/dataviews';
 import { resetScan } from '../store';
-import { fixThreat, ignoreThreat } from '../threat-actions';
+import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
 import ThreatsList, { createThreatView, getThreatFields } from '../threats-list';
 import type { ScanThreat } from '../types';
 
@@ -37,6 +37,16 @@ const selectAll = async ( threats: ScanThreat[] ) => {
 	}
 	// eslint-disable-next-line testing-library/no-node-access -- DataViews gives its bulk toolbar no role.
 	return document.querySelector( '.dataviews-bulk-actions__actions' ) as HTMLElement;
+};
+
+const leftOut = () => {
+	// eslint-disable-next-line testing-library/no-node-access -- Notice gives the list no role of its own.
+	const notice = document.querySelector( '.jp-protect-threats__left-out' ) as HTMLElement | null;
+	return notice
+		? within( notice )
+				.getAllByRole( 'listitem' )
+				.map( item => item.textContent )
+		: [];
 };
 
 describe( 'ThreatsList', () => {
@@ -119,13 +129,36 @@ describe( 'ThreatsList', () => {
 	it.each( [
 		[ 'a delete fix', [ vulnerable( 21, 'replace' ), vulnerable( 22, 'delete' ) ], [ 22 ] ],
 		[
+			'a fix Scan runs only on its own',
+			[ vulnerable( 27, 'replace' ), vulnerable( 28, 'replace', false ) ],
+			[ 28 ],
+		],
+		[
 			'an update Scan runs only on its own',
 			[ vulnerable( 23, 'update' ), vulnerable( 24, 'update', false ) ],
 			[ 24 ],
 		],
 		[
+			'one from each Auto-fix when both get two',
+			[
+				vulnerable( 29, 'replace' ),
+				vulnerable( 30, 'replace', false ),
+				vulnerable( 31, 'update' ),
+				vulnerable( 32, 'update', false ),
+			],
+			[ 30, 32 ],
+		],
+		[
 			'nothing when each bulk Auto-fix gets one threat',
 			[ vulnerable( 25, 'replace', false ), vulnerable( 26, 'update', false ) ],
+			[],
+		],
+		[
+			'nothing for an ignored delete fix',
+			[
+				vulnerable( 33, 'replace' ),
+				{ ...vulnerable( 34, 'delete' ), status: 'ignored' as const },
+			],
 			[],
 		],
 	] )( 'lists the selected threats bulk Auto-fix leaves out: %s', async ( _name, threats, ids ) => {
@@ -133,11 +166,18 @@ describe( 'ThreatsList', () => {
 
 		await selectAll( threats );
 
-		const listed = screen
-			.queryAllByRole( 'listitem' )
-			.map( item => item.textContent )
-			.filter( text => text?.startsWith( 'Plugin' ) );
-		expect( listed ).toEqual( ids.map( id => `Plugin ${ id } (1.0)` ) );
+		expect( leftOut() ).toEqual( ids.map( id => `Plugin ${ id } (1.0)` ) );
+	} );
+
+	it( 'counts a selected threat whose plugin is being deleted, as the bulk Auto-fix gets it too', async () => {
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
+		const threats = [ vulnerable( 35, 'replace', false ), vulnerable( 36, 'replace' ) ];
+		render( <ThreatsList threats={ threats } canAct /> );
+		await selectAll( threats );
+
+		act( () => void deleteSoftware( threats[ 1 ] ) );
+
+		expect( leftOut() ).toEqual( [ 'Plugin 35 (1.0)' ] );
 	} );
 
 	it( 'counts only the updates a batch runs, on the button and in the confirmation', async () => {
