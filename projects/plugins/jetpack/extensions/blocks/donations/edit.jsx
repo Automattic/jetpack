@@ -165,6 +165,10 @@ const Edit = props => {
 
 		lockPostSaving( 'donations' );
 
+		// Set when the effect re-runs or the block goes away: an outdated response must not
+		// unlock saving or write plans while a newer fetch is still in flight.
+		let isStale = false;
+
 		const filterProducts = productList =>
 			productList.reduce(
 				( filteredProducts, { id, currency: productCurrency, type, interval } ) => {
@@ -200,6 +204,9 @@ const Edit = props => {
 		};
 
 		fetchStatus( 'donation' ).then( result => {
+			if ( isStale ) {
+				return;
+			}
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
 				unlockPostSaving( 'donations' );
 				setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
@@ -227,6 +234,9 @@ const Edit = props => {
 			if ( currency ) {
 				// Only create products if we have the correct plan and stripe connection.
 				fetchDefaultProducts( currency ).then( defaultProducts => {
+					if ( isStale ) {
+						return;
+					}
 					savePlanIds( filterProducts( defaultProducts ) );
 					unlockPostSaving( 'donations' );
 				}, apiError );
@@ -234,6 +244,11 @@ const Edit = props => {
 
 			unlockPostSaving( 'donations' );
 		}, apiError );
+
+		return () => {
+			isStale = true;
+			unlockPostSaving( 'donations' );
+		};
 	}, [
 		lockPostSaving,
 		currency,

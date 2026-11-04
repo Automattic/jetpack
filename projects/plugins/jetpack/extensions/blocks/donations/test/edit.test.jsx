@@ -1,5 +1,6 @@
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { createRegistry, RegistryProvider } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import Edit from '../edit';
 import fetchStatus from '../fetch-status';
 import { tipsVariationAttributes } from '../tips-variation';
@@ -24,10 +25,14 @@ jest.mock( '../fetch-default-products', () => jest.fn() );
 jest.mock( '../controls', () => () => null );
 jest.mock( '../style-controls', () => () => null );
 
-// The order in which the block writes its plan IDs and unlocks saving.
+// The order in which the block locks saving, writes its plan IDs and unlocks saving.
 let events;
 let blockAttributes;
 
+const record = event => () => {
+	events.push( event );
+	return { type: 'NOOP' };
+};
 const noop = () => ( { type: 'NOOP' } );
 const registry = createRegistry();
 registry.registerStore( 'core/block-editor', {
@@ -37,13 +42,7 @@ registry.registerStore( 'core/block-editor', {
 registry.registerStore( 'core/editor', {
 	reducer: () => ( {} ),
 	selectors: { getCurrentPost: () => ( { id: 1 } ), isPostSavingLocked: () => false },
-	actions: {
-		lockPostSaving: noop,
-		unlockPostSaving: () => {
-			events.push( 'unlock' );
-			return noop();
-		},
-	},
+	actions: { lockPostSaving: record( 'lock' ), unlockPostSaving: record( 'unlock' ) },
 } );
 registry.registerStore( 'jetpack/membership-products', {
 	reducer: () => ( {} ),
@@ -55,56 +54,80 @@ registry.registerStore( 'core/rich-text', {
 	selectors: { getFormatTypes: () => [] },
 } );
 
+const status = {
+	connect_url: '',
+	connected_account_default_currency: 'usd',
+	products: [
+		{ id: 11, currency: 'USD', type: 'donation', interval: 'one-time' },
+		{ id: 12, currency: 'USD', type: 'donation', interval: '1 month' },
+		{ id: 13, currency: 'USD', type: 'donation', interval: '1 year' },
+	],
+};
+
 const donationsFormAttributes = {
+	currency: 'USD',
 	oneTimeDonation: { show: true, planId: null, amounts: [ 5, 15, 100 ] },
 	monthlyDonation: { show: true, planId: null, amounts: [ 5, 15, 100 ] },
 	annualDonation: { show: true, planId: null, amounts: [ 5, 15, 100 ] },
 	showCustomAmount: true,
 };
 
+// Keeps the attributes in state, as the block editor does, so setAttributes re-renders the block.
+const Block = ( { initialAttributes } ) => {
+	const [ attributes, setState ] = useState( initialAttributes );
+	blockAttributes = attributes;
+	const setAttributes = useCallback( updates => {
+		if ( updates.oneTimeDonation?.planId ) {
+			events.push( 'plans' );
+		}
+		setState( previous => ( { ...previous, ...updates } ) );
+	}, [] );
+	return <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="donations-1" />;
+};
+
+const renderBlock = initialAttributes =>
+	render(
+		<RegistryProvider value={ registry }>
+			<Block initialAttributes={ initialAttributes } />
+		</RegistryProvider>
+	);
+
 describe( 'Donations Edit', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		events = [];
-		fetchStatus.mockResolvedValue( {
-			connect_url: '',
-			connected_account_default_currency: 'usd',
-			products: [
-				{ id: 11, currency: 'USD', type: 'donation', interval: 'one-time' },
-				{ id: 12, currency: 'USD', type: 'donation', interval: '1 month' },
-				{ id: 13, currency: 'USD', type: 'donation', interval: '1 year' },
-			],
-		} );
+		fetchStatus.mockResolvedValue( status );
 	} );
 
 	test.each( [
-		[ 'a Tips block in Pop-up mode', tipsVariationAttributes ],
+		[ 'a Tips block in Pop-up mode', { ...tipsVariationAttributes, currency: 'USD' } ],
 		[ 'a Donations Form in In-page mode', donationsFormAttributes ],
 	] )(
 		"writes the site's donation plan IDs into %s before saving unlocks",
 		async ( _, attributes ) => {
-			blockAttributes = { ...attributes, currency: 'USD' };
-			const setAttributes = jest.fn( updates => updates.oneTimeDonation && events.push( 'plans' ) );
-			render(
-				<RegistryProvider value={ registry }>
-					<Edit
-						attributes={ blockAttributes }
-						setAttributes={ setAttributes }
-						clientId="donations-1"
-					/>
-				</RegistryProvider>
-			);
+			renderBlock( attributes );
 
-			await waitFor( () =>
-				expect( setAttributes ).toHaveBeenCalledWith(
-					expect.objectContaining( {
-						oneTimeDonation: expect.objectContaining( { planId: 11 } ),
-						monthlyDonation: expect.objectContaining( { planId: 12 } ),
-						annualDonation: expect.objectContaining( { planId: 13 } ),
-					} )
-				)
-			);
-			expect( events.lastIndexOf( 'unlock' ) ).toBeGreaterThan( events.indexOf( 'plans' ) );
+			await waitFor( () => expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 ) );
+			expect( blockAttributes.monthlyDonation.planId ).toBe( 12 );
+			expect( blockAttributes.annualDonation.planId ).toBe( 13 );
+			expect( events.slice( -2 ) ).toEqual( [ 'plans', 'unlock' ] );
 		}
 	);
+
+	test( 'keeps saving locked while the fetch for the currency it just picked is in flight', async () => {
+		// A new Tips block has no currency, so it picks Stripe's and fetches again.
+		const fetches = [];
+		fetchStatus.mockImplementation(
+			() => new Promise( resolve => fetches.push( () => resolve( status ) ) )
+		);
+		renderBlock( tipsVariationAttributes );
+		await waitFor( () => expect( fetches ).toHaveLength( 2 ) );
+
+		await act( async () => fetches[ 0 ]() );
+		expect( events.at( -1 ) ).toBe( 'lock' );
+
+		await act( async () => fetches[ 1 ]() );
+		expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 );
+		expect( events.slice( -2 ) ).toEqual( [ 'plans', 'unlock' ] );
+	} );
 } );
