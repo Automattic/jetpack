@@ -113,14 +113,15 @@ class Api_Proxy_Controller {
 				'callback'            => array( $this, 'handle_request' ),
 				'permission_callback' => array( $this, 'check_permission' ),
 				'args'                => array(
-					'endpoint'  => array(
+					'endpoint' => array(
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_endpoint' ),
 					),
-					'execution' => array(
+					'provider' => array(
+						'description'       => __( 'Provider to serve the report from. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
 						'type'              => 'string',
-						'enum'              => Report_Executor::EXECUTION_VALUES,
+						'enum'              => Report_Executor::PROVIDERS,
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -162,7 +163,7 @@ class Api_Proxy_Controller {
 		$payload = ( new Report_Executor( Report_Registry::create() ) )->execute(
 			$route,
 			$this->get_forwarded_params( $request ),
-			$request->get_param( 'execution' ),
+			$request->get_param( 'provider' ),
 			null !== $request->get_param( 'force_refresh' )
 		);
 
@@ -259,7 +260,7 @@ class Api_Proxy_Controller {
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ) {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['execution'] );
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['provider'] );
 
 		return $params;
 	}

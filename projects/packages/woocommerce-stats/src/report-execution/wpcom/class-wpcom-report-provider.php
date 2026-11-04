@@ -11,18 +11,11 @@ use Automattic\Jetpack\Connection\Manager;
 use WP_Error;
 
 /**
- * The `remote` provider: every remote handler needs the Jetpack connection.
+ * The `wpcom` provider: every WordPress.com handler needs the Jetpack connection.
  *
  * @since $$next-version$$
  */
-class Remote_Report_Provider implements Report_Provider {
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function get_name() {
-		return 'remote';
-	}
+class Wpcom_Report_Provider implements Report_Provider {
 
 	/**
 	 * {@inheritDoc}

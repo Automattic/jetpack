@@ -17,14 +17,14 @@ use WP_Error;
 class Report_Executor {
 
 	/**
-	 * Values the `execution` param accepts.
+	 * Values the `provider` param accepts.
 	 */
-	const EXECUTION_VALUES = array( 'auto', 'local', 'remote' );
+	const PROVIDERS = array( 'local', 'wpcom' );
 
 	/**
-	 * Provider of a request that names none, or `auto`.
+	 * Provider of a request that names none.
 	 */
-	private const DEFAULT_PROVIDER = 'remote';
+	private const DEFAULT_PROVIDER = 'wpcom';
 
 	/**
 	 * Reports, handlers and providers.
@@ -46,13 +46,13 @@ class Report_Executor {
 	 * Serve a report from the handler the request resolves to.
 	 *
 	 * @param string      $route         Route below `analytics/reports/`.
-	 * @param array       $params        The report's query params, without `execution` and `force_refresh`.
-	 * @param string|null $execution     The validated `execution` param, or null when the request names none.
+	 * @param array       $params        The report's query params, without `provider` and `force_refresh`.
+	 * @param string|null $provider      The validated `provider` param, or null when the request names none.
 	 * @param bool        $force_refresh Whether to skip caches.
 	 * @return array|WP_Error The handler's payload, or an error: `unknown_report` (404),
 	 *                        `unsupported_provider` (422), the provider's when it is not ready, or the handler's.
 	 */
-	public function execute( $route, array $params, $execution = null, $force_refresh = false ) {
+	public function execute( $route, array $params, $provider = null, $force_refresh = false ) {
 		$definition = $this->registry->get_definition_for_route( $route );
 		if ( null === $definition ) {
 			return new WP_Error(
@@ -62,25 +62,25 @@ class Report_Executor {
 			);
 		}
 
-		$provider = null === $execution || 'auto' === $execution ? self::DEFAULT_PROVIDER : $execution;
-		$handler  = $this->registry->get_handler( $definition->id, $provider );
+		$name    = $provider ?? self::DEFAULT_PROVIDER;
+		$handler = $this->registry->get_handler( $definition->id, $name );
 		if ( null === $handler ) {
 			return new WP_Error(
 				'unsupported_provider',
 				/* translators: %s: provider name, such as local or remote. */
-				sprintf( __( 'This report cannot be served by the %s provider.', 'jetpack-woocommerce-stats-pkg' ), $provider ),
+				sprintf( __( 'This report cannot be served by the %s provider.', 'jetpack-woocommerce-stats-pkg' ), $name ),
 				array( 'status' => 422 )
 			);
 		}
 
 		// A request naming no provider leaves readiness to the handler: the forward serves its cache before checking the connection.
-		if ( null !== $execution ) {
-			$ready = $this->registry->get_provider( $provider )->check_ready();
+		if ( null !== $provider ) {
+			$ready = $this->registry->get_provider( $name )->check_ready();
 			if ( is_wp_error( $ready ) ) {
 				return $ready;
 			}
 		}
 
-		return $handler->run( new Report_Query( $definition, $route, $params, $force_refresh ) );
+		return $handler->run( new Report_Request( $definition, $route, $params, $force_refresh ) );
 	}
 }

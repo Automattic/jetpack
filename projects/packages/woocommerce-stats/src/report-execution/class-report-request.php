@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
  *
  * @since $$next-version$$
  */
-class Report_Query {
+class Report_Request {
 
 	/**
 	 * The report.

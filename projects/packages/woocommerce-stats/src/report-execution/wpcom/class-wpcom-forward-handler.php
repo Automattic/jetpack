@@ -35,9 +35,9 @@ class Wpcom_Forward_Handler implements Report_Handler {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param Report_Query $query The request.
+	 * @param Report_Request $request The request.
 	 */
-	public function run( Report_Query $query ) {
-		return $this->controller->fetch_remote( $query->route, $query->params, $query->force_refresh );
+	public function run( Report_Request $request ) {
+		return $this->controller->fetch_remote( $request->route, $request->params, $request->force_refresh );
 	}
 }

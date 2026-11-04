@@ -12,8 +12,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
-use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Query;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -237,60 +237,38 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_refuses_an_unknown_execution_value() {
-		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'execution' => 'mars' ) )->get_status() );
+	public function test_refuses_an_unknown_provider() {
+		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'provider' => 'mars' ) )->get_status() );
 		$this->assertSame( array(), $this->requests );
 	}
 
 	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {
-		$response = $this->get_report( 'orders/by-date', array( 'execution' => 'local' ) );
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => 'local' ) );
 
 		$this->assertSame( 422, $response->get_status() );
 		$this->assertSame( 'unsupported_provider', $response->get_data()['code'] );
 		$this->assertSame( array(), $this->requests );
 	}
 
-	/**
-	 * @dataProvider data_remote_executions
-	 *
-	 * @param string $execution Value of the `execution` param.
-	 */
-	#[DataProvider( 'data_remote_executions' )]
-	public function test_never_forwards_the_execution_param_and_shares_the_cache( $execution ) {
+	public function test_never_forwards_the_provider_param_and_shares_the_cache() {
 		$this->get_report();
-		$this->get_report( 'orders/by-date', array( 'execution' => $execution ) + array( 'force_refresh' => '1' ) );
-		$cached = $this->get_report( 'orders/by-date', array( 'execution' => $execution ) );
+		$this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) + array( 'force_refresh' => '1' ) );
+		$cached = $this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) );
 
 		$this->assertSame( 200, $cached->get_status() );
 		$this->assertCount( 2, $this->requests );
-		$this->assertStringNotContainsString( 'execution', $this->requests[1]['url'] );
+		$this->assertStringNotContainsString( 'provider', $this->requests[1]['url'] );
 	}
 
-	/**
-	 * @dataProvider data_remote_executions
-	 *
-	 * @param string $execution Value of the `execution` param.
-	 */
-	#[DataProvider( 'data_remote_executions' )]
-	public function test_answers_needs_connection_when_a_request_names_a_provider( $execution ) {
+	public function test_answers_needs_connection_when_a_request_names_a_provider() {
 		$this->get_report();
 		\Jetpack_Options::delete_option( 'blog_token' );
 		( new Connection_Manager() )->reset_connection_status();
 
-		$response = $this->get_report( 'orders/by-date', array( 'execution' => $execution ) );
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) );
 
 		$this->assertSame( 503, $response->get_status() );
 		$this->assertSame( 'needs_connection', $response->get_data()['code'] );
-	}
-
-	/**
-	 * @return array<string, array{0: string}>
-	 */
-	public static function data_remote_executions() {
-		return array(
-			'auto'   => array( 'auto' ),
-			'remote' => array( 'remote' ),
-		);
 	}
 
 	/**
@@ -301,16 +279,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'data_registered_reports' )]
 	public function test_serves_a_report_handler_registered_through_the_hook( $route, $id ) {
+		// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for another package's handler.
 		$handler = new class() implements Report_Handler {
 			/**
 			 * Answer with the report's id.
 			 *
-			 * @param Report_Query $query The request.
+			 * @param Report_Request $request The request.
 			 * @return array
 			 */
-			public function run( Report_Query $query ) {
+			public function run( Report_Request $request ) {
 				return array(
-					'data'    => array( 'id' => $query->definition->id ),
+					'data'    => array( 'id' => $request->definition->id ),
 					'status'  => 200,
 					'headers' => array(),
 				);
@@ -320,8 +299,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			Report_Registry::REGISTER_ACTION,
 			static function ( Report_Registry $registry ) use ( $handler ) {
 				$registry->register_report( new Report_Definition( 'owner.report', 0, array( 'owner/report' ) ) );
-				$registry->register_handler( 'owner.report', 'remote', $handler );
-				$registry->register_handler( 'orders.by_date', 'remote', $handler );
+				$registry->register_handler( 'owner.report', 'wpcom', $handler );
+				$registry->register_handler( 'orders.by_date', 'wpcom', $handler );
 			}
 		);
 

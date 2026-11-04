@@ -17,7 +17,7 @@ class Report_Registry {
 	/**
 	 * Action that fills a new registry.
 	 */
-	const REGISTER_ACTION = 'jetpack_analytics_register_reports';
+	const REGISTER_ACTION = 'jetpack_woocommerce_stats_register_reports';
 
 	/**
 	 * Report id under which a handler serves every report.
@@ -54,7 +54,8 @@ class Report_Registry {
 		$registry = new self();
 
 		/**
-		 * Fires to register store reports, their handlers and providers.
+		 * Fires to register store reports, their handlers and providers. Experimental: the
+		 * registry's interfaces change in the next steps.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -68,11 +69,12 @@ class Report_Registry {
 	/**
 	 * Register a provider. The first one registered under a name wins.
 	 *
+	 * @param string          $name     Provider name, as the `provider` param names it.
 	 * @param Report_Provider $provider The provider.
 	 * @return void
 	 */
-	public function register_provider( Report_Provider $provider ) {
-		$this->providers[ $provider->get_name() ] ??= $provider;
+	public function register_provider( $name, Report_Provider $provider ) {
+		$this->providers[ $name ] ??= $provider;
 	}
 
 	/**

@@ -51,8 +51,8 @@ class Default_Reports {
 			return;
 		}
 
-		$registry->register_provider( new Remote_Report_Provider() );
-		$registry->register_handler( Report_Registry::ANY_REPORT, 'remote', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
+		$registry->register_provider( 'wpcom', new Wpcom_Report_Provider() );
+		$registry->register_handler( Report_Registry::ANY_REPORT, 'wpcom', new Wpcom_Forward_Handler( new Api_Proxy_Controller() ) );
 
 		foreach ( self::ROUTES as $id => $route ) {
 			$registry->register_report( new Report_Definition( $id, 0, array( $route ) ) );
