@@ -56,6 +56,15 @@ describe( 'McpConnectCard', () => {
 		);
 	} );
 
+	test( 'Cursor links to the WordPress.com plugin through the redirect source', () => {
+		renderCard();
+
+		expect( screen.getByRole( 'link', { name: 'Cursor' } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( /source=jetpack-ai-hub-mcp-setup-cursor(&|$)/ )
+		);
+	} );
+
 	test( 'a tile is named by the agent and described by the rest', () => {
 		renderCard();
 
@@ -81,12 +90,12 @@ describe( 'McpConnectCard', () => {
 		} );
 	} );
 
-	test( 'only the Claude Code, Cursor, Codex, Antigravity and MCP tiles copy', () => {
+	test( 'only the Claude Code, Codex, Antigravity and MCP tiles copy', () => {
 		const copyKeys = getConnectAgents()
 			.filter( agent => agent.code )
 			.map( agent => agent.key );
 
-		expect( copyKeys ).toEqual( [ 'claude-code', 'cursor', 'codex', 'antigravity', 'mcp' ] );
+		expect( copyKeys ).toEqual( [ 'claude-code', 'codex', 'antigravity', 'mcp' ] );
 	} );
 
 	test( 'a copy tile copies its command, shows Copied, and records the copy', async () => {

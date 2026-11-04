@@ -15,6 +15,7 @@ export const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude
 export const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude-self-hosted';
 export const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
 export const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
+export const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
 
 export const VSCODE_INSTALL_URL = `https://vscode.dev/redirect/mcp/install?${ new URLSearchParams( {
 	name: MCP_SERVER_NAME,
@@ -64,10 +65,10 @@ export function getConnectAgents() {
 		{
 			key: 'cursor',
 			name: 'Cursor',
-			description: __( 'Run in Cursor’s chat', 'jetpack' ),
+			description: __( 'From the Cursor Marketplace', 'jetpack' ),
 			logo: 'cursor.svg',
-			actionLabel: __( 'Copy command', 'jetpack' ),
-			code: '/add-plugin wordpress-com',
+			actionLabel: __( 'Add plugin', 'jetpack' ),
+			href: getRedirectUrl( CURSOR_PLUGIN_REDIRECT_SOURCE ),
 		},
 		{
 			key: 'vscode',

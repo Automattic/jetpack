@@ -24,11 +24,10 @@ import {
 	CLAUDE_CODE_COMMAND,
 	CLAUDE_CONNECTOR_REDIRECT_SOURCE,
 	CLAUDE_SELF_HOSTED_REDIRECT_SOURCE,
+	CURSOR_PLUGIN_REDIRECT_SOURCE,
 	MCP_SERVER_NAME,
 	MCP_SERVER_URL,
 } from './connect-agents';
-
-const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
