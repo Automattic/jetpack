@@ -43,11 +43,6 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	const INITIAL_STATE_VAR = 'wpcomMyJetpackInitialState';
 
 	/**
-	 * Records page views and clicks, to see which tools people reach from here.
-	 */
-	const ENQUEUE_TRACKS = true;
-
-	/**
 	 * Feature flag that turns the page on.
 	 */
 	const FEATURE_FLAG = 'wpcom-simple-my-jetpack';
@@ -109,45 +104,89 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	/**
 	 * Gets the tools to list: the visible Jetpack menu items, in menu order.
 	 *
-	 * @return array[] Tools with `title`, `description`, `icon` and `url` keys.
+	 * @return array[] Tools with `title`, `description`, `key`, `section` and `url` keys.
 	 */
 	public static function get_tools() {
 		global $submenu;
 
-		// This runs at enqueue, before admin_head drops the items admin-ui hides.
+		// This runs at enqueue, before admin_head drops hidden items, so an entry stays off this page
+		// only if admin-ui hides it or it carries `hide-if-js`.
 		if ( method_exists( Admin_Menu::class, 'remove_hidden_menu_items' ) ) {
 			Admin_Menu::remove_hidden_menu_items();
 		}
 
-		$domain       = wp_parse_url( home_url(), PHP_URL_HOST );
-		$descriptions = static::get_descriptions();
-		$tools        = array();
+		$known = static::get_known_tools();
+		$tools = array();
 
-		foreach ( $submenu['jetpack'] ?? array() as $item ) {
+		foreach ( $submenu[ static::PARENT_SLUG ] ?? array() as $item ) {
 			if ( static::MENU_SLUG === $item[2] || str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
 				continue;
 			}
 
 			// Slugs and titles are escaped for wp-admin's menu HTML, and React escapes them again.
 			$slug = html_entity_decode( $item[2], ENT_QUOTES, 'UTF-8' );
-			$host = wp_parse_url( $slug, PHP_URL_HOST );
-			$key  = preg_replace( '/^jetpack-/', '', str_replace( array( 'https://wordpress.com/', "/$domain" ), '', $slug ) );
 
 			// Drops a link in any protocol WordPress doesn't allow, like `javascript:`.
-			$url = esc_url_raw( $host ? $slug : admin_url( 'admin.php?page=' . $slug ) );
-			if ( '' === $url ) {
+			$url = esc_url_raw( static::get_tool_url( $slug ) );
+			if ( '' === $url || isset( $tools[ $url ] ) ) {
 				continue;
 			}
 
-			$tools[] = array(
+			$key  = static::get_tool_key( $slug );
+			$tool = $known[ $key ] ?? null;
+
+			$tools[ $url ] = array(
 				'title'       => static::get_tool_title( $item[0] ),
-				'description' => $descriptions[ $key ] ?? '',
-				'icon'        => isset( $descriptions[ $key ] ) ? $key : '',
+				'description' => $tool['description'] ?? '',
+				'key'         => $tool ? $key : '',
+				'section'     => $tool['section'] ?? 'more',
 				'url'         => $url,
 			);
 		}
 
-		return $tools;
+		return array_values( $tools );
+	}
+
+	/**
+	 * Gets where a menu slug leads, the way wp-admin's sidebar links it.
+	 *
+	 * @param string $slug The menu slug.
+	 * @return string
+	 */
+	private static function get_tool_url( $slug ) {
+		if ( wp_parse_url( $slug, PHP_URL_HOST ) ) {
+			return $slug;
+		}
+
+		// Only a slug with a page callback goes through admin.php; any other is a path under wp-admin.
+		if ( get_plugin_page_hook( $slug, static::PARENT_SLUG ) ) {
+			return add_query_arg( 'page', $slug, admin_url( 'admin.php' ) );
+		}
+
+		return admin_url( $slug );
+	}
+
+	/**
+	 * Gets the key a menu slug is known by: the path of a WordPress.com link to this site, or the slug without `jetpack-`.
+	 *
+	 * @param string $slug The menu slug.
+	 * @return string
+	 */
+	private static function get_tool_key( $slug ) {
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		if ( preg_match( '#^https://wordpress\.com/(.+)/' . preg_quote( $domain, '#' ) . '/?$#', $slug, $matches ) ) {
+			$key = $matches[1];
+		} else {
+			$key = preg_replace( '/^jetpack-/', '', $slug );
+		}
+
+		$aliases = array(
+			'forms-admin'              => 'forms',
+			'forms-responses-wp-admin' => 'forms',
+		);
+
+		return $aliases[ $key ] ?? $key;
 	}
 
 	/**
@@ -164,30 +203,48 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	}
 
 	/**
-	 * Gets each known tool's description. A tool's key also names its icon in the page's script.
+	 * Gets each known tool's section and description, keyed as get_tool_key() returns.
 	 *
-	 * A tool missing from this list still shows, with its title and the Jetpack mark.
+	 * The key also names the tool's icon in the page's script. A tool missing here shows under More, with the Jetpack mark.
 	 *
-	 * @return string[] Descriptions, keyed by menu slug without its `jetpack-` prefix or WordPress.com address.
+	 * @return array[] Tools with `section` and `description` keys.
 	 */
-	private static function get_descriptions() {
-		return array(
-			'activity-log'             => __( 'See every change made to this site', 'jetpack-mu-wpcom' ),
-			'akismet-key-config'       => __( 'Filter spam from comments and forms', 'jetpack-mu-wpcom' ),
-			'backup'                   => __( 'Restorable copies of your site', 'jetpack-mu-wpcom' ),
-			'advertising'              => __( 'Promote posts across WordPress.com and Tumblr', 'jetpack-mu-wpcom' ),
-			'forms-admin'              => __( 'Collect and review form responses', 'jetpack-mu-wpcom' ),
-			'forms-responses-wp-admin' => __( 'Collect and review form responses', 'jetpack-mu-wpcom' ),
-			'earn'                     => __( 'Earn from ads, donations and paid content', 'jetpack-mu-wpcom' ),
-			'newsletter'               => __( 'Send your posts to subscribers', 'jetpack-mu-wpcom' ),
-			'podcast'                  => __( 'Publish your posts as a podcast feed', 'jetpack-mu-wpcom' ),
-			'scan'                     => __( 'Check your site for malware and threats', 'jetpack-mu-wpcom' ),
-			'search'                   => __( 'Fast, relevant search for your visitors', 'jetpack-mu-wpcom' ),
-			'seo'                      => __( 'Titles and descriptions for search engines', 'jetpack-mu-wpcom' ),
-			'social'                   => __( 'Share posts to your social accounts', 'jetpack-mu-wpcom' ),
-			'marketing/traffic'        => __( 'Analytics and site verification', 'jetpack-mu-wpcom' ),
-			'videopress'               => __( 'Ad-free video hosting', 'jetpack-mu-wpcom' ),
+	private static function get_known_tools() {
+		$tools = array(
+			'security' => array(
+				'activity-log'       => __( 'See every change made to this site', 'jetpack-mu-wpcom' ),
+				'akismet-key-config' => __( 'Filter spam from comments and forms', 'jetpack-mu-wpcom' ),
+				'backup'             => __( 'Restorable copies of your site', 'jetpack-mu-wpcom' ),
+				'protect'            => __( 'Protect your site from malware and attacks', 'jetpack-mu-wpcom' ),
+				'scan'               => __( 'Check your site for malware and threats', 'jetpack-mu-wpcom' ),
+			),
+			'growth'   => array(
+				'advertising'       => __( 'Promote posts across WordPress.com and Tumblr', 'jetpack-mu-wpcom' ),
+				'earn'              => __( 'Earn from ads, donations and paid content', 'jetpack-mu-wpcom' ),
+				'marketing/traffic' => __( 'Analytics and site verification', 'jetpack-mu-wpcom' ),
+				'newsletter'        => __( 'Send your posts to subscribers', 'jetpack-mu-wpcom' ),
+				'seo'               => __( 'Titles and descriptions for search engines', 'jetpack-mu-wpcom' ),
+				'social'            => __( 'Share posts to your social accounts', 'jetpack-mu-wpcom' ),
+			),
+			'content'  => array(
+				'forms'      => __( 'Collect and review form responses', 'jetpack-mu-wpcom' ),
+				'podcast'    => __( 'Publish your posts as a podcast feed', 'jetpack-mu-wpcom' ),
+				'search'     => __( 'Fast, relevant search for your visitors', 'jetpack-mu-wpcom' ),
+				'videopress' => __( 'Ad-free video hosting', 'jetpack-mu-wpcom' ),
+			),
 		);
+
+		$known = array();
+		foreach ( $tools as $section => $descriptions ) {
+			foreach ( $descriptions as $key => $description ) {
+				$known[ $key ] = array(
+					'section'     => $section,
+					'description' => $description,
+				);
+			}
+		}
+
+		return $known;
 	}
 
 	/**

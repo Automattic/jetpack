@@ -352,6 +352,16 @@ add_filter(
 );
 
 /**
+ * Whether the Jetpack menu has a My Jetpack entry, whichever page registered it.
+ *
+ * @return bool
+ */
+function wpcom_jetpack_menu_has_my_jetpack() {
+	global $submenu;
+	return in_array( 'my-jetpack', array_column( $submenu['jetpack'] ?? array(), 2 ), true );
+}
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -558,7 +568,7 @@ function wpcom_sort_jetpack_submenu() {
 	);
 
 	// Without a My Jetpack page, pin Activity Log rather than let the translated A to Z order pick the top link.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! in_array( 'my-jetpack', array_column( $submenu['jetpack'], 2 ), true ) ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! wpcom_jetpack_menu_has_my_jetpack() ) {
 		$named_tiers['jetpack-activity-log'] = -5;
 		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
 	}

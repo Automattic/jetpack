@@ -11,7 +11,7 @@ import {
 	trendingUp,
 } from '@wordpress/icons';
 import { EmptyState, Icon, Link, Stack, Text } from '@wordpress/ui';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
 	akismet,
 	blaze,
@@ -25,7 +25,6 @@ import {
 	videopress,
 } from './icons.tsx';
 import { groupTools } from './sections.ts';
-import { recordEvent, recordLinkClick } from './tracks.ts';
 import type { InitialState, Tool } from './types.ts';
 import type { ReactElement } from 'react';
 
@@ -34,11 +33,11 @@ const ICONS: Record< string, ReactElement > = {
 	'akismet-key-config': akismet,
 	backup: cloud,
 	advertising: blaze,
-	'forms-admin': forms,
-	'forms-responses-wp-admin': forms,
+	forms,
 	earn: currencyDollar,
 	newsletter,
 	podcast: audio,
+	protect: scan,
 	scan,
 	search,
 	seo: globe,
@@ -50,29 +49,18 @@ const ICONS: Record< string, ReactElement > = {
 /**
  * One tool in the list, laid out like a card on My Jetpack's Features tab.
  *
- * @param props         - Component props.
- * @param props.tool    - The tool.
- * @param props.section - Key of the section the card sits in.
+ * @param props      - Component props.
+ * @param props.tool - The tool.
  * @return The rendered card.
  */
-function ToolCard( { tool, section }: { tool: Tool; section: string } ) {
+function ToolCard( { tool }: { tool: Tool } ) {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 
 	return (
-		<Link
-			className="wpcom-my-jetpack__tool"
-			variant="unstyled"
-			href={ tool.url }
-			onClick={ event =>
-				recordLinkClick( event, 'wpcom_my_jetpack_tool_clicked', {
-					tool: tool.icon || 'other',
-					section,
-				} )
-			}
-		>
+		<Link className="wpcom-my-jetpack__tool" variant="unstyled" href={ tool.url }>
 			<Stack direction="row" gap="md" align="flex-start">
 				<span className="wpcom-my-jetpack__tool-icon" aria-hidden="true">
-					<Icon icon={ ICONS[ tool.icon ] ?? jetpack } size={ 20 } />
+					<Icon icon={ ICONS[ tool.key ] ?? jetpack } size={ 20 } />
 				</span>
 				<Stack className="wpcom-my-jetpack__tool-text" direction="column" gap="xs">
 					<Text variant="heading-lg" className="wpcom-my-jetpack__tool-title">
@@ -101,10 +89,6 @@ export function App() {
 	const { tools }: InitialState = window.wpcomMyJetpackInitialState ?? { tools: [] };
 	const sections = useMemo( () => groupTools( tools ), [ tools ] );
 
-	useEffect( () => {
-		recordEvent( 'wpcom_my_jetpack_page_viewed', { tool_count: tools.length } );
-	}, [ tools.length ] );
-
 	return (
 		<AdminPage title={ __( 'My Jetpack', 'jetpack-mu-wpcom' ) } unwrapped>
 			{ /* AdminPage's layout restyles the page's direct child and that child's children, so the grids sit one level below them. */ }
@@ -123,7 +107,7 @@ export function App() {
 								</Stack>
 								<div className="wpcom-my-jetpack__tools">
 									{ section.tools.map( tool => (
-										<ToolCard key={ tool.url } tool={ tool } section={ section.key } />
+										<ToolCard key={ tool.url } tool={ tool } />
 									) ) }
 								</div>
 							</Stack>

@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_My_Jetpack;
 
@@ -40,8 +41,30 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 				array( 'Activity Log', 'manage_options', 'jetpack-activity-log', '', 'hide-if-js' ),
 				array( 'Scan', 'manage_options', 'https://wordpress.com/scan/' . $this->domain ),
 				array( 'New Tool', 'manage_options', 'jetpack-new-tool' ),
+				array( 'Feedback', 'manage_options', 'edit.php?post_type=feedback' ),
 			),
 		);
+		$this->add_page_callback( 'akismet-key-config' );
+		$this->add_page_callback( 'jetpack-new-tool' );
+	}
+
+	/**
+	 * Clears the feature flag and host overrides.
+	 */
+	public function tear_down() {
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG );
+		remove_all_filters( 'stylesheet' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		parent::tear_down();
+	}
+
+	/**
+	 * Gives a menu slug a page callback, as add_submenu_page() does.
+	 *
+	 * @param string $slug The menu slug.
+	 */
+	private function add_page_callback( $slug ) {
+		add_action( get_plugin_page_hookname( $slug, 'jetpack' ), '__return_null' );
 	}
 
 	/**
@@ -98,20 +121,30 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 				array(
 					'title'       => 'Akismet Anti-spam',
 					'description' => 'Filter spam from comments and forms',
-					'icon'        => 'akismet-key-config',
+					'key'         => 'akismet-key-config',
+					'section'     => 'security',
 					'url'         => admin_url( 'admin.php?page=akismet-key-config' ),
 				),
 				array(
 					'title'       => 'Scan',
 					'description' => 'Check your site for malware and threats',
-					'icon'        => 'scan',
+					'key'         => 'scan',
+					'section'     => 'security',
 					'url'         => 'https://wordpress.com/scan/' . $this->domain,
 				),
 				array(
 					'title'       => 'New Tool',
 					'description' => '',
-					'icon'        => '',
+					'key'         => '',
+					'section'     => 'more',
 					'url'         => admin_url( 'admin.php?page=jetpack-new-tool' ),
+				),
+				array(
+					'title'       => 'Feedback',
+					'description' => '',
+					'key'         => '',
+					'section'     => 'more',
+					'url'         => admin_url( 'edit.php?post_type=feedback' ),
 				),
 			),
 			WPCOM_My_Jetpack::get_tools()
@@ -137,7 +170,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Only Jetpack's own slugs pick up a description and icon, and each address form of a tool does.
+	 * Only Jetpack's own slugs and this site's WordPress.com links pick up a description and icon.
 	 */
 	public function test_tools_match_known_slugs_exactly() {
 		global $submenu;
@@ -147,9 +180,25 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 			array( 'Museo', 'manage_options', 'museo-settings' ),
 			array( 'Forms', 'manage_options', 'jetpack-forms-responses-wp-admin' ),
 			array( 'Traffic', 'manage_options', 'https://wordpress.com/marketing/traffic/' . $this->domain ),
+			array( 'Protect', 'manage_options', 'jetpack-protect' ),
+			array( 'Other site', 'manage_options', 'https://wordpress.com/scan/other.example' ),
 		);
 
-		$this->assertSame( array( '', '', 'forms-responses-wp-admin', 'marketing/traffic' ), array_column( WPCOM_My_Jetpack::get_tools(), 'icon' ) );
+		$this->assertSame( array( '', '', 'forms', 'marketing/traffic', 'protect', '' ), array_column( WPCOM_My_Jetpack::get_tools(), 'key' ) );
+	}
+
+	/**
+	 * Two menu entries with the same destination make one card.
+	 */
+	public function test_tools_skip_repeated_destinations() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Akismet Anti-spam', 'manage_options', 'akismet-key-config' ),
+			array( 'Akismet Anti-spam <span class="count">2</span>', 'manage_options', 'akismet-key-config' ),
+		);
+
+		$this->assertCount( 1, WPCOM_My_Jetpack::get_tools() );
 	}
 
 	/**
@@ -176,7 +225,22 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG, '__return_true' );
 
 		$this->assertTrue( WPCOM_My_Jetpack::should_register() );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG );
+	}
+
+	/**
+	 * P2s drop the Jetpack menu, so the page stays off there with its flag on.
+	 */
+	public function test_page_skips_p2_sites() {
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG, '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter(
+			'stylesheet',
+			function () {
+				return 'pub/p2';
+			}
+		);
+
+		$this->assertFalse( WPCOM_My_Jetpack::should_register() );
 	}
 
 	/**
