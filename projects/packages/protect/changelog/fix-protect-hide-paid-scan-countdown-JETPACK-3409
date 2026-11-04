@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Hide the next-scan countdown on paid Scan plans, which have no daily scan limit.

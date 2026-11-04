@@ -340,6 +340,26 @@ export function isDeleteFix( threat: ScanThreat ): boolean {
 }
 
 /**
+ * Whether Scan's fix for the threat updates the plugin or theme it is in.
+ *
+ * @param threat - The threat.
+ * @return True when the fix updates the software.
+ */
+export function isUpdateFix( threat: ScanThreat ): boolean {
+	return !! threat.fixable && threat.fixable.fixer === 'update';
+}
+
+/**
+ * Whether a fix runs when it is one of several, which Scan rules out for some.
+ *
+ * @param threat - The threat.
+ * @return True when the fix can run in a batch.
+ */
+export function isBulkFixable( threat: ScanThreat ): boolean {
+	return ! ( threat.fixable && threat.fixable.extras?.isBulkFixable === false );
+}
+
+/**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
  * @param threat - The threat.
@@ -467,7 +487,7 @@ export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Pr
 			! isBusy( threat.id ) &&
 			! isDeleteFix( threat ) &&
 			// Like Protect, which fixes these one at a time but never as part of fixing several.
-			! ( threats.length > 1 && threat.fixable && threat.fixable.extras?.isBulkFixable === false )
+			( threats.length < 2 || isBulkFixable( threat ) )
 	);
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );

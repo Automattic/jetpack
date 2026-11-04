@@ -54,6 +54,7 @@ import {
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getAccountSections } from './account-sections.mjs';
+import { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus } from './card-state.mjs';
 import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
 
 const registerConnector =
@@ -95,31 +96,7 @@ const idc = data.idc || null;
 // `platform` matches what the Identity Crisis screen sends with the same jetpack_idc_* events.
 const idcTrackingProps = idc?.platform ? { platform: idc.platform } : {};
 const protectedOwner = data.protectedOwner || null;
-
-/**
- * The viewer's account row, or null when they have no user connection.
- *
- * WordPress.com values win; the local name and email fill in when the WordPress.com lookup failed.
- *
- * @param {object}  currentUser     - userConnectionData.currentUser from the store.
- * @param {boolean} isUserConnected - Whether the viewer holds a user token.
- * @return {object|null} Viewer row data.
- */
-function buildViewer( currentUser, isUserConnected ) {
-	if ( ! isUserConnected || ! currentUser ) {
-		return null;
-	}
-
-	const wpcomUser = currentUser.wpcomUser || {};
-
-	return {
-		displayName: wpcomUser.display_name || currentUser.displayName || currentUser.username || '',
-		login: wpcomUser.login || currentUser.username || '',
-		email: wpcomUser.email || currentUser.email || '',
-		avatar: currentUser.gravatar || '',
-		isOwner: Boolean( currentUser.isMaster ),
-	};
-}
+const protectedOwnerStatus = getProtectedOwnerStatus( protectedOwner );
 
 /**
  * Connection state for the card, read from the jetpack-connection store.
@@ -147,71 +124,22 @@ function useCardConnection() {
 	}, [] );
 
 	return useMemo( () => {
-		const isRegistered = Boolean( connectionStatus.isRegistered );
-		const isConnected = isRegistered && Boolean( connectionStatus.hasConnectedOwner );
-		const currentUser = userConnectionData?.currentUser || null;
-		// The store's owner comes from the master_user option, so it still names an owner whose token
-		// is broken; the card flags them so the rows and prompt can say who has to reconnect.
-		let owner = isRegistered ? storeOwner : null;
-		const isOwnerConnectionBroken = Boolean( owner ) && ! isConnected;
-		// Without jetpack_connect (offline mode, network-restricted site admins) the store withholds the
-		// owner object, but userConnectionData still names the connected owner.
-		if ( isConnected && ! owner && userConnectionData?.connectionOwner ) {
-			owner = { id: null, displayName: userConnectionData.connectionOwner };
-		}
-		const ownerIsViewer = owner?.id
-			? Boolean( currentUser && owner.id === currentUser.id )
-			: Boolean( owner && currentUser?.isMaster );
-		// Not gated on isConnected, so a healthy viewer keeps their row when the owner's token breaks.
-		const viewer = isRegistered
-			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
-			: null;
-		// Tracks `viewer_connection_type`: `site_only` whenever the viewer's own account isn't connected, owner or not.
-		let viewerConnectionType = 'site_only';
-		if ( viewer ) {
-			viewerConnectionType = ownerIsViewer || viewer.isOwner ? 'owner' : 'user';
-		}
-		// The initial state sends a WP_Error object when the plugin list can't be read.
-		const connectedPlugins = ( Array.isArray( plugins ) ? plugins : [] ).map( plugin => ( {
-			name: plugin.name || plugin.slug,
-			slug: plugin.slug,
-			logoUrl: pluginLogos[ plugin.slug ] || null,
-		} ) );
-		// Per the Jetpack Connection language guidelines, use "store" whenever a
-		// WooCommerce-family plugin is connected (Woo is the user's primary context),
-		// and "site" otherwise.
-		const hasWooPlugin = connectedPlugins.some( plugin => plugin.slug.startsWith( 'woocommerce' ) );
+		const connection = getCardConnection(
+			{
+				connectionStatus,
+				userConnectionData,
+				owner: storeOwner,
+				plugins,
+				isOfflineMode,
+				blogId,
+			},
+			{ pluginLogos, ownerEditUrl: connectionOwnerEditUrl }
+		);
 
 		return {
-			isRegistered,
-			isConnected,
-			isOfflineMode: Boolean( isOfflineMode ),
-			isFirstConnection: ! isRegistered && ! blogId,
-			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
-			blogId,
-			currentUser,
-			tracksIdentity: getTracksIdentity( currentUser ),
-			viewer,
-			owner: owner
-				? {
-						id: owner.id,
-						displayName: owner.displayName,
-						avatar: owner.avatar || '',
-						editUrl: connectionOwnerEditUrl,
-					}
-				: null,
-			isOwnerConnectionBroken,
-			ownerIsViewer,
-			viewerConnectionType,
-			connectedPlugins,
-			// Stats and Backups are Jetpack-plugin features, so only cite them as examples
-			// of paused features when a Jetpack-family plugin is actually connected.
-			// Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
-			// generic "features that sync with WordPress.com" wording.
-			hasJetpackPlugin: connectedPlugins.some(
-				plugin => plugin.slug === 'jetpack' || plugin.slug.startsWith( 'jetpack-' )
-			),
-			subjectNoun: hasWooPlugin
+			...connection,
+			tracksIdentity: getTracksIdentity( connection.currentUser ),
+			subjectNoun: connection.hasWooPlugin
 				? _x(
 						'store',
 						'The thing connected to WordPress.com, in a WooCommerce context.',
@@ -291,29 +219,6 @@ async function apiRequest( endpoint, { method = 'GET', body = null, fallbackErro
 	// an unparseable body as a successful no-content response rather than a
 	// failure.
 	return response.json().catch( () => null );
-}
-
-/**
- * Decorate a Calypso authorize URL with the params every connector flow needs:
- * `from=jetpack-connector` so Calypso returns the user to the Connectors page,
- * and `skip_pricing` so the post-auth redirect honours redirect_after_auth
- * instead of routing through the Calypso plans page.
- *
- * TEMPORARY: `skip_pricing` can be dropped once Calypso recognises
- * `from=jetpack-connector` natively and redirects to redirectAfterAuth.
- *
- * @param {string} url - Calypso authorize URL.
- * @return {string} Decorated URL (unchanged if it can't be parsed).
- */
-function decorateAuthUrl( url ) {
-	try {
-		const parsed = new URL( url );
-		parsed.searchParams.set( 'from', 'jetpack-connector' );
-		parsed.searchParams.set( 'skip_pricing', 'true' );
-		return parsed.toString();
-	} catch {
-		return url;
-	}
 }
 
 /**
@@ -633,7 +538,7 @@ function SectionHeading( { title, showShield = false } ) {
 function ProtectedOwnerShield() {
 	// Shared with the confirmation dialog, so the badge and the dialog describe one lock.
 	const { lockedNotice, pendingLockNotice } = getProtectedOwnerConfirmationCopy();
-	const notice = protectedOwnerState()?.anchored ? lockedNotice : pendingLockNotice;
+	const notice = protectedOwnerStatus.anchored ? lockedNotice : pendingLockNotice;
 	const icon = createElement( 'span', {
 		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
 		role: 'img',
@@ -659,41 +564,11 @@ function connectedAccountTitle( user ) {
 		return __( 'Connected as', 'jetpack-connection' );
 	}
 
-	if ( protectedOwnerIsPending() ) {
+	if ( protectedOwnerStatus.isPending ) {
 		return __( 'Connection owner — unconfirmed', 'jetpack-connection' );
 	}
 
 	return __( 'Connected as owner', 'jetpack-connection' );
-}
-
-/**
- * What each Manager::PO_STATE_* value means for the card: which slot it asks for, and whether
- * an anchor is stored. A status missing here, such as `NOT_ELIGIBLE`, leaves the card as it is.
- */
-const PROTECTED_OWNER_STATES = {
-	CAN_ESTABLISH: { slot: 'confirm', anchored: false },
-	NEEDS_CONNECT_TO_ESTABLISH: { slot: 'connect', anchored: false },
-	NEEDS_OWNER_RECONNECT: { slot: 'reconnect', anchored: true },
-	NEEDS_DIFFERENT_OWNER: { slot: 'other-owner', anchored: true },
-	RE_EVALUATE: { slot: null, anchored: true },
-};
-
-/**
- * What the card should do about this site's protected owner.
- *
- * @return {object|null} Entry from PROTECTED_OWNER_STATES, or null when there is nothing to do.
- */
-function protectedOwnerState() {
-	return ( protectedOwner && PROTECTED_OWNER_STATES[ protectedOwner.status ] ) || null;
-}
-
-/**
- * Which protected-owner slot to render, if any.
- *
- * @return {string|null} `confirm`, `connect`, `reconnect`, `other-owner`, or null.
- */
-function protectedOwnerSlotKind() {
-	return protectedOwnerState()?.slot || null;
 }
 
 /**
@@ -710,30 +585,7 @@ function supportLink() {
 }
 
 /**
- * Whether a protected owner is requested or stored but not yet the connection owner.
- *
- * Derived from the same table as the slot so the two cannot disagree about one site.
- *
- * @return {boolean} True while the connection owner is unconfirmed.
- */
-function protectedOwnerIsPending() {
-	return protectedOwnerSlotKind() !== null;
-}
-
-/**
- * Whether the connection owner is the protected owner the anchor names.
- *
- * @return {boolean} True once a protected owner is settled.
- */
-function protectedOwnerIsEstablished() {
-	return Boolean( protectedOwnerState()?.anchored ) && ! protectedOwnerIsPending();
-}
-
-/**
  * Whether the viewer can give up this site's protected ownership.
- *
- * Only the confirmed owner, and only once ownership is settled: every pending state already
- * offers its own slot, and releasing from one of those would unlock a lock nobody holds yet.
  *
  * @param {object|null} viewer - The viewer's row data from useCardConnection().
  * @return {boolean} True when the release row should be shown.
@@ -741,11 +593,7 @@ function protectedOwnerIsEstablished() {
 function canReleaseProtectedOwner( viewer ) {
 	// Holding the connection too, which is the gate the release endpoint applies: a settled site
 	// has the anchored owner there, and a shared binding alone would earn a 403.
-	return (
-		protectedOwnerIsEstablished() &&
-		Boolean( protectedOwner?.viewerIsConfirmedOwner ) &&
-		Boolean( viewer?.isOwner )
-	);
+	return protectedOwnerStatus.canRelease && Boolean( viewer?.isOwner );
 }
 
 /**
@@ -799,7 +647,7 @@ function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
 	const { subjectNoun, isOfflineMode, viewerConnectionType } = useCardConnection();
 	const { trackingContext, track } = useTracking( { isOfflineMode, viewerConnectionType } );
-	const kind = protectedOwnerSlotKind();
+	const kind = protectedOwnerStatus.slot;
 	let title;
 	let body;
 
@@ -1632,7 +1480,7 @@ function ExpandedDetails( {
 		isOwnerConnectionBroken,
 		canConnect: Boolean( onConnect ),
 		isErrorBannerShown,
-		isProtectedOwnerPending: protectedOwnerIsPending(),
+		isProtectedOwnerPending: protectedOwnerStatus.isPending,
 	} );
 
 	return createElement(
@@ -1653,7 +1501,7 @@ function ExpandedDetails( {
 					user: viewer,
 					// This row stands in for the connection-owner row when the viewer is the
 					// owner, so it carries the shield the other row would have shown.
-					showShield: viewer.isOwner && protectedOwnerIsEstablished(),
+					showShield: viewer.isOwner && protectedOwnerStatus.isEstablished,
 					actionSlot:
 						isManagedPlatformSite && viewer.isOwner
 							? null
@@ -1720,7 +1568,7 @@ function ExpandedDetails( {
 				} )
 			: null,
 
-		protectedOwnerSlotKind() ? createElement( ProtectedOwnerSection ) : null,
+		protectedOwnerStatus.slot ? createElement( ProtectedOwnerSection ) : null,
 
 		// Connection owner, once a protected owner is established or was never requested.
 		sections.ownerRow
@@ -1728,7 +1576,7 @@ function ExpandedDetails( {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: owner,
 					subtitle: false,
-					showShield: protectedOwnerIsEstablished(),
+					showShield: protectedOwnerStatus.isEstablished,
 				} )
 			: null,
 

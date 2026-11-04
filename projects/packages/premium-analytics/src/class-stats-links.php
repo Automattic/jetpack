@@ -74,7 +74,7 @@ class Stats_Links {
 	}
 
 	/**
-	 * Whether this request is for `page=stats`, with no such page registered for this user, by a user who can read Stats here.
+	 * Whether this request is for `page=stats` with no classic Stats page to open, by a user who can read Stats here.
 	 *
 	 * @return bool
 	 */
@@ -83,7 +83,7 @@ class Stats_Links {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
 		return 'stats' === $page
-			&& '' === menu_page_url( 'stats', false )
+			&& null === Classic_Stats::page_url()
 			&& Capabilities::current_user_can_open_stats();
 	}
 
@@ -159,14 +159,15 @@ class Stats_Links {
 	 * Point a Stats link at the dashboard page for the view it opens.
 	 *
 	 * @param string $url  Stats URL.
-	 * @param array  $args The page the link opens: `view`, plus `id` for the `post` view.
+	 * @param array  $args The page the link opens: `view`, plus `id` for the `post` view, or `section` and a
+	 *                     `range` of `from`/`to` days as `Y-m-d` for the `dashboard` view.
 	 * @return string
 	 */
 	public static function filter_url( $url, $args ) {
 		$view = is_array( $args ) ? ( $args['view'] ?? null ) : null;
 
 		if ( 'dashboard' === $view ) {
-			return self::route_url( $url, '/' );
+			return self::route_url( $url, self::dashboard_path( $args ) );
 		}
 
 		if ( 'post' === $view ) {
@@ -174,6 +175,60 @@ class Stats_Links {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * The dashboard root, opened on the section and the days the link names.
+	 *
+	 * @param array $args The link's `section` and `range`, both optional.
+	 * @return string
+	 */
+	private static function dashboard_path( array $args ) {
+		$query   = array();
+		$section = sanitize_key( $args['section'] ?? '' );
+
+		if ( '' !== $section ) {
+			$query['section'] = $section;
+		}
+
+		$query += self::date_window_params( $args['range'] ?? null );
+
+		return '/' . ( $query ? '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) : '' );
+	}
+
+	/**
+	 * The dashboard's date params for a range of whole days, on the site's calendar.
+	 *
+	 * A "Last N days" window ending today is sent as its preset, so the date picker reads
+	 * "Last 7 days" rather than two dates; the day counts mirror the dashboard's presets.
+	 *
+	 * @param mixed $range `from` and `to` days as `Y-m-d`.
+	 * @return array `preset`, or `from` and `to`, or nothing for a range the dashboard cannot open.
+	 */
+	private static function date_window_params( $range ) {
+		if ( ! is_array( $range ) || ! is_string( $range['from'] ?? null ) || ! is_string( $range['to'] ?? null ) ) {
+			return array();
+		}
+
+		$zone = wp_timezone();
+		$from = \DateTimeImmutable::createFromFormat( '!Y-m-d', $range['from'], $zone );
+		$to   = \DateTimeImmutable::createFromFormat( '!Y-m-d', $range['to'], $zone );
+
+		if ( ! $from || ! $to || $to < $from ) {
+			return array();
+		}
+
+		$today = ( new \DateTimeImmutable( 'now', $zone ) )->setTime( 0, 0 );
+		$days  = $from->diff( $to )->days + 1;
+
+		if ( $to->getTimestamp() === $today->getTimestamp() && in_array( $days, array( 7, 30, 90, 365 ), true ) ) {
+			return array( 'preset' => 'last-' . $days . '-days' );
+		}
+
+		return array(
+			'from' => $from->format( 'Y-m-d\TH:i:s.vP' ),
+			'to'   => $to->setTime( 23, 59, 59, 999999 )->format( 'Y-m-d\TH:i:s.vP' ),
+		);
 	}
 
 	/**

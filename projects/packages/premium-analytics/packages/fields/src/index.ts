@@ -7,10 +7,10 @@ export {
 	chartIntervalAttributeField,
 	chartIntervalElements,
 	type ChartIntervalFieldAttributes,
-} from './chart-interval-field/chart-interval-field';
+} from './field-chart-interval';
 export {
 	defaultReportParamsForGrain,
 	reportParamsAttributeField,
 	type ReportGrain,
 	type ReportParamsFieldAttributes,
-} from './report-params-field/report-params-field';
+} from './field-report-params';
