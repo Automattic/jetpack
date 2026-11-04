@@ -13,6 +13,12 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
+// `WidgetRender` provides the widget title the chart is named after.
+jest.mock( '@wordpress/widget-primitives', () => ( {
+	...jest.requireActual( '@wordpress/widget-primitives' ),
+	useWidgetIdentity: () => ( { title: 'Monthly posting activity' } ),
+} ) );
+
 // Keep visx out of jsdom and make the series the widget passes assertable.
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
