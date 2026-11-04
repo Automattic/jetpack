@@ -6,6 +6,7 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { speak } from '@wordpress/a11y';
 import {
 	Card,
 	CardBody,
@@ -100,6 +101,7 @@ export default function McpSetup() {
 		try {
 			await navigator.clipboard.writeText( configText );
 			setCopyStatus( 'success' );
+			speak( __( 'Copied', 'jetpack' ) );
 			setTimeout( () => setCopyStatus( 'idle' ), 2000 );
 		} catch {
 			// Clipboard may be blocked — silently fail.

@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import userEvent from '@testing-library/user-event';
 import McpSetup from '../setup';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const renderWithCursorSelected = async () => {
 	render( <McpSetup /> );
@@ -81,5 +84,20 @@ describe( 'McpSetup: manual configuration', () => {
 		expect( config ).toEqual( {
 			mcpServers: { 'wpcom-mcp': { url: 'https://public-api.wordpress.com/wpcom/v2/mcp/v1' } },
 		} );
+	} );
+} );
+
+describe( 'McpSetup: copy configuration', () => {
+	test( 'announces a successful copy to screen readers', async () => {
+		const user = userEvent.setup();
+		const writeText = jest
+			.spyOn( window.navigator.clipboard, 'writeText' )
+			.mockResolvedValue( undefined );
+		render( <McpSetup /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Copy configuration to clipboard' } ) );
+
+		expect( writeText ).toHaveBeenCalled();
+		expect( speak ).toHaveBeenCalledWith( 'Copied' );
 	} );
 } );
