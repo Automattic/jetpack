@@ -45,12 +45,39 @@ class Llms_Txt {
 	const MAX_MAIN_MENU_PAGES = 100;
 
 	/**
+	 * Page meta an owner sets to always list a page in llms.txt.
+	 *
+	 * @var string
+	 */
+	const META_INCLUDE = 'jetpack_seo_llms_txt_include';
+
+	/**
 	 * Wire the front-end request handler.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
+	}
+
+	/**
+	 * Register the always-include page meta, so the Content tab can read and save it
+	 * through core REST like the page's other SEO fields.
+	 *
+	 * @return void
+	 */
+	public static function register_meta() {
+		register_post_meta(
+			'page',
+			self::META_INCLUDE,
+			array(
+				'type'         => 'boolean',
+				'description'  => __( 'Whether to always list the page in llms.txt.', 'jetpack-seo' ),
+				'single'       => true,
+				'default'      => false,
+				'show_in_rest' => true,
+			)
+		);
 	}
 
 	/**
@@ -196,28 +223,54 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Pages ranked main menu first, then other displayed menus, then the rest in the
-	 * order core's Page List block shows them: menu order, then title.
+	 * Pages ranked: the ones the owner always includes, then the main menu, then other
+	 * displayed menus, then the rest in the order core's Page List block shows them: menu
+	 * order, then title.
 	 *
 	 * @return \WP_Post[]
 	 */
 	private static function get_pages() {
-		$menus = Nav_Menu_Pages::get();
-		$main  = self::get_pages_in_order( $menus['main'], self::MAX_MAIN_MENU_PAGES );
-		$room  = max( 0, self::MAX_POSTS_PER_TYPE - count( $main ) );
-		$other = self::get_pages_in_order( $menus['other'], $room );
-		$room -= count( $other );
+		$included = self::get_included_pages();
+		$skip     = wp_list_pluck( $included, 'ID' );
+		$menus    = Nav_Menu_Pages::get();
+		$main     = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
+		$room     = max( 0, self::MAX_POSTS_PER_TYPE - count( $included ) - count( $main ) );
+		$other    = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
+		$room    -= count( $other );
 		if ( $room <= 0 ) {
-			return array_merge( $main, $other );
+			return array_merge( $included, $main, $other );
 		}
 
 		$args                   = self::query_args( 'page' );
 		$args['posts_per_page'] = $room;
-		$args['post__not_in']   = array_merge( $menus['main'], $menus['other'] );
+		$args['post__not_in']   = array_merge( $skip, $menus['main'], $menus['other'] );
 		$args['orderby']        = 'menu_order title';
 		$args['order']          = 'ASC';
 
-		return array_merge( $main, $other, get_posts( $args ) );
+		return array_merge( $included, $main, $other, get_posts( $args ) );
+	}
+
+	/**
+	 * Listable pages the owner switched on to always include, by menu order, then title.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function get_included_pages() {
+		$args                   = self::query_args( 'page' );
+		$args['meta_query']     = array(
+			// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+			'relation' => 'AND',
+			$args['meta_query'],
+			array(
+				'key'   => self::META_INCLUDE,
+				'value' => '1',
+			),
+		);
+		$args['posts_per_page'] = -1;
+		$args['orderby']        = 'menu_order title';
+		$args['order']          = 'ASC';
+
+		return get_posts( $args );
 	}
 
 	/**

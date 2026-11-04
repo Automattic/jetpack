@@ -208,6 +208,7 @@ class Initializer {
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Schema_Builder::init();
 			Author_Schema_Node::init();
+			Llms_Txt::register_meta();
 
 			// Paid front-end output. A plan-gated WordPress.com site has these controls
 			// hidden from its dashboard, so it must not keep emitting their output either —

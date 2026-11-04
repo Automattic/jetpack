@@ -435,6 +435,33 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Pages the owner always includes come first, once, ahead of the main menu; hiding a
+	 * page from search engines still leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_included_pages_come_first_unless_hidden_from_search() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ) );
+		}
+		$scan     = $this->insert_page( 'Zz Scan' );
+		$in_menu  = $this->insert_page( 'Zx Included' );
+		$included = $this->insert_page( 'Zw Included' );
+		$hidden   = $this->insert_page( 'Zv Hidden' );
+		foreach ( array( $in_menu, $included, $hidden ) as $page ) {
+			update_post_meta( $page->ID, Llms_Txt::META_INCLUDE, '1' );
+		}
+		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+		$this->add_nav_menu( array( $scan->ID, $in_menu->ID ), 'primary' );
+
+		$expected = array( 'Zw Included', 'Zx Included', 'Zz Scan' );
+		for ( $i = 1; $i <= 47; $i++ ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
 	 * Main-menu pages are listed past the per-type limit, up to their own.
 	 *
 	 * @return void
