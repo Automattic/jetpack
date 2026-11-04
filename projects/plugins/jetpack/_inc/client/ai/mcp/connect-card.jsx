@@ -4,14 +4,13 @@
  */
 
 import { speak } from '@wordpress/a11y';
-import { Icon } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowUpRight, copy } from '@wordpress/icons';
-import { Button, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { copy } from '@wordpress/icons';
+import { Button, ButtonLink, Card, Notice, Stack, Text } from '@wordpress/ui';
 import assetUrl from '../asset-url';
-import { getConnectAgents, HELPER_PROMPT } from './connect-agents';
+import { getConnectAgents, getHelperPrompt } from './connect-agents';
 import { recordMcpTracksEvent } from './tracks';
 
 const COPIED_DURATION_MS = 1600;
@@ -61,97 +60,149 @@ function AgentLogo( { agent } ) {
 }
 
 /**
- * Accessible-name props for a tile: the agent name is the name, the rest is the description.
+ * Button that opens the agent's connector, plugin or install page.
  *
- * @param {string} id - Base id from useId().
- * @return {object} ARIA props for the tile element.
- */
-function getTileAriaProps( id ) {
-	return {
-		'aria-labelledby': `${ id }-name`,
-		'aria-describedby': `${ id }-description ${ id }-action`,
-	};
-}
-
-/**
- * Shared contents of a link or copy tile.
- *
- * @param {object}  props            - Component props.
- * @param {string}  props.id         - Base id for the name, description and action.
- * @param {object}  props.agent      - Agent tile data.
- * @param {boolean} [props.isCopied] - Whether to show the "Copied" state.
+ * @param {object} props            - Component props.
+ * @param {object} props.agent      - Agent tile data.
+ * @param {string} props.id         - Id for the action.
+ * @param {string} props.labelledBy - Ids that name the action.
  * @return {object} Component markup.
  */
-function TileContent( { id, agent, isCopied = false } ) {
-	return (
-		<>
-			<AgentLogo agent={ agent } />
-			<span className="jetpack-ai-mcp__connect-tile-text">
-				<span id={ `${ id }-name` } className="jetpack-ai-mcp__connect-tile-name">
-					{ agent.name }
-				</span>
-				<span id={ `${ id }-description` } className="jetpack-ai-mcp__connect-tile-description">
-					{ agent.description }
-				</span>
-			</span>
-			<span id={ `${ id }-action` } className="jetpack-ai-mcp__connect-tile-action">
-				<span>{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }</span>
-				<Icon icon={ agent.href ? arrowUpRight : copy } size={ 12 } />
-			</span>
-		</>
-	);
-}
-
-/**
- * Tile that opens the agent's connector or plugin page.
- *
- * @param {object} props       - Component props.
- * @param {object} props.agent - Agent tile data.
- * @return {object} Component markup.
- */
-function LinkTile( { agent } ) {
-	const id = useId();
+function OpenAction( { agent, id, labelledBy } ) {
 	const handleClick = useCallback(
 		() => recordMcpTracksEvent( 'jetpack_mcp_connect_click', { agent: agent.key, action: 'open' } ),
 		[ agent.key ]
 	);
 
 	return (
-		<a
-			className="jetpack-ai-mcp__connect-tile"
+		<ButtonLink
+			id={ id }
+			aria-labelledby={ labelledBy }
 			href={ agent.href }
-			target="_blank"
-			rel="noreferrer"
+			openInNewTab
+			variant="outline"
+			size="small"
 			onClick={ handleClick }
-			{ ...getTileAriaProps( id ) }
 		>
-			<TileContent id={ id } agent={ agent } />
-		</a>
+			{ agent.actionLabel }
+		</ButtonLink>
 	);
 }
 
 /**
- * Tile that copies a command, prompt or URL.
+ * Button that copies a command, prompt or URL.
  *
- * @param {object} props       - Component props.
- * @param {object} props.agent - Agent tile data.
+ * @param {object} props            - Component props.
+ * @param {object} props.agent      - Agent tile data.
+ * @param {string} props.id         - Id for the action.
+ * @param {string} props.labelledBy - Ids that name the action.
  * @return {object} Component markup.
  */
-function CopyTile( { agent } ) {
-	const id = useId();
+function CopyAction( { agent, id, labelledBy } ) {
 	const [ ref, isCopied ] = useCopyWithFeedback( agent.code, () =>
 		recordMcpTracksEvent( 'jetpack_mcp_connect_click', { agent: agent.key, action: 'copy' } )
 	);
 
 	return (
-		<button
-			ref={ ref }
-			type="button"
-			className="jetpack-ai-mcp__connect-tile"
-			{ ...getTileAriaProps( id ) }
-		>
-			<TileContent id={ id } agent={ agent } isCopied={ isCopied } />
-		</button>
+		<Button ref={ ref } id={ id } aria-labelledby={ labelledBy } variant="outline" size="small">
+			<Button.Icon icon={ copy } />
+			{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
+		</Button>
+	);
+}
+
+/**
+ * One agent in the grid: logo, name, description and its action.
+ *
+ * @param {object} props       - Component props.
+ * @param {object} props.agent - Agent tile data.
+ * @return {object} Component markup.
+ */
+function AgentTile( { agent } ) {
+	const id = useId();
+	const nameId = `${ id }-name`;
+	const actionId = `${ id }-action`;
+	// Name each action by its agent too, e.g. "Claude Code Copy command".
+	const Action = agent.href ? OpenAction : CopyAction;
+
+	return (
+		<Stack direction="column" gap="sm" align="flex-start" render={ <li /> }>
+			<AgentLogo agent={ agent } />
+			<Stack direction="column" gap="xs">
+				<Text id={ nameId } render={ <h3 /> } variant="heading-sm">
+					{ agent.name }
+				</Text>
+				<Text render={ <p /> } variant="body-sm" className="jetpack-ai-mcp__muted">
+					{ agent.description }
+				</Text>
+			</Stack>
+			<Action agent={ agent } id={ actionId } labelledBy={ `${ nameId } ${ actionId }` } />
+		</Stack>
+	);
+}
+
+/**
+ * Notice above the grid: a warning while MCP access is off, and a success
+ * message in the same place once it turns on, so the layout below stays put.
+ *
+ * @param {object}   props             - Component props.
+ * @param {boolean}  props.mcpEnabled  - Whether MCP access is on for this site.
+ * @param {Function} props.onTurnOn    - Turns MCP access on.
+ * @param {boolean}  props.isTurningOn - Whether turning it on is in progress.
+ * @return {object|null} Component markup.
+ */
+function AccessNotice( { mcpEnabled, onTurnOn, isTurningOn } ) {
+	const [ wasEnabled, setWasEnabled ] = useState( mcpEnabled );
+	const [ showTurnedOn, setShowTurnedOn ] = useState( false );
+
+	// Set during render, not in an effect, so no frame paints without a notice.
+	if ( mcpEnabled !== wasEnabled ) {
+		setWasEnabled( mcpEnabled );
+		setShowTurnedOn( mcpEnabled );
+	}
+
+	const handleDismiss = useCallback( () => setShowTurnedOn( false ), [] );
+
+	if ( ! mcpEnabled ) {
+		return (
+			<Notice.Root intent="warning">
+				<Notice.Title>{ __( 'MCP access is off', 'jetpack' ) }</Notice.Title>
+				<Notice.Description>
+					{ __(
+						'Agents can still connect, but they can’t read or change this site until you turn it on.',
+						'jetpack'
+					) }
+				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton
+						variant="outline"
+						onClick={ onTurnOn }
+						loading={ isTurningOn }
+						loadingAnnouncement={ __( 'Turning on MCP access', 'jetpack' ) }
+					>
+						{ __( 'Turn on MCP access', 'jetpack' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
+		);
+	}
+
+	if ( ! showTurnedOn ) {
+		return null;
+	}
+
+	return (
+		<Notice.Root intent="success">
+			<Notice.Title>{ __( 'MCP access is on', 'jetpack' ) }</Notice.Title>
+			<Notice.Description>
+				{ __( 'Connected agents can now use the tools you allow below.', 'jetpack' ) }
+			</Notice.Description>
+			<Notice.Actions>
+				<Notice.ActionButton variant="outline" onClick={ handleDismiss }>
+					{ __( 'Dismiss', 'jetpack' ) }
+				</Notice.ActionButton>
+			</Notice.Actions>
+		</Notice.Root>
 	);
 }
 
@@ -166,67 +217,51 @@ function CopyTile( { agent } ) {
  * @return {object} Component markup.
  */
 export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onNavigate } ) {
-	const [ helperRef, isHelperCopied ] = useCopyWithFeedback( HELPER_PROMPT, () =>
+	const [ helperRef, isHelperCopied ] = useCopyWithFeedback( getHelperPrompt(), () =>
 		recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' )
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 
 	return (
-		<Card.Root className="jetpack-ai-mcp__connect-card">
+		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>{ __( 'Connect an external AI agent', 'jetpack' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>
+					{ __( 'Connect an external AI agent', 'jetpack' ) }
+				</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="md">
-					<Text className="jetpack-ai-mcp__muted">
+				<Stack direction="column" gap="lg">
+					<Text render={ <p /> } className="jetpack-ai-mcp__muted">
 						{ __(
 							'Add this site to your agent, then sign in with your WordPress.com account to approve the connection.',
 							'jetpack'
 						) }
 					</Text>
-					{ ! mcpEnabled && (
-						<Notice.Root intent="warning">
-							<Notice.Title>{ __( 'MCP access is off', 'jetpack' ) }</Notice.Title>
-							<Notice.Description>
-								{ __(
-									'Agents can still connect, but they can’t read or change this site until you turn it on.',
-									'jetpack'
-								) }
-							</Notice.Description>
-							<Notice.Actions>
-								<Notice.ActionButton
-									variant="outline"
-									onClick={ onTurnOn }
-									loading={ isTurningOn }
-									loadingAnnouncement={ __( 'Turning on MCP access', 'jetpack' ) }
-								>
-									{ __( 'Turn on MCP access', 'jetpack' ) }
-								</Notice.ActionButton>
-							</Notice.Actions>
-						</Notice.Root>
-					) }
+					<AccessNotice
+						mcpEnabled={ mcpEnabled }
+						onTurnOn={ onTurnOn }
+						isTurningOn={ isTurningOn }
+					/>
 					<ul className="jetpack-ai-mcp__connect-grid">
 						{ getConnectAgents().map( agent => (
-							<li key={ agent.key }>
-								{ agent.href ? <LinkTile agent={ agent } /> : <CopyTile agent={ agent } /> }
-							</li>
+							<AgentTile key={ agent.key } agent={ agent } />
 						) ) }
 					</ul>
-				</Stack>
-				<Card.FullBleed className="jetpack-ai-mcp__connect-footer">
-					<span>
-						{ __( 'Not sure where to start? Have the agent connect itself.', 'jetpack' ) }
-					</span>
-					<Stack direction="row" gap="sm" align="center" justify="flex-end">
-						<Button ref={ helperRef } variant="minimal" size="small">
-							<Button.Icon icon={ copy } />
-							{ isHelperCopied ? __( 'Copied', 'jetpack' ) : __( 'Copy prompt', 'jetpack' ) }
-						</Button>
-						<Button variant="minimal" size="small" onClick={ handleManualSetup }>
-							{ __( 'Manual setup', 'jetpack' ) }
-						</Button>
+					<Stack direction="row" gap="sm" align="center" justify="space-between" wrap="wrap">
+						<Text variant="body-sm">
+							{ __( 'Not sure where to start? Have the agent connect itself.', 'jetpack' ) }
+						</Text>
+						<Stack direction="row" gap="sm" align="center">
+							<Button ref={ helperRef } variant="minimal" size="small">
+								<Button.Icon icon={ copy } />
+								{ isHelperCopied ? __( 'Copied', 'jetpack' ) : __( 'Copy prompt', 'jetpack' ) }
+							</Button>
+							<Button variant="minimal" size="small" onClick={ handleManualSetup }>
+								{ __( 'Manual setup', 'jetpack' ) }
+							</Button>
+						</Stack>
 					</Stack>
-				</Card.FullBleed>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

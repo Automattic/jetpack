@@ -55,6 +55,22 @@ describe( 'McpHub connect card', () => {
 		expect( onUpdate ).toHaveBeenCalledWith( {
 			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
 		} );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_enabled_toggled',
+			expect.objectContaining( { enabled: true, source: 'connect_notice' } )
+		);
+	} );
+
+	test( 'the toggle records its own source', async () => {
+		analytics.tracks.recordEvent.mockClear();
+		renderHub( { siteLevelEnabled: false } );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable MCP access' } ) );
+
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_enabled_toggled',
+			expect.objectContaining( { enabled: true, source: 'toggle' } )
+		);
 	} );
 } );
 

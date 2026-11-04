@@ -3,7 +3,7 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export const MCP_SERVER_NAME = 'wpcom-mcp';
 export const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
@@ -16,7 +16,26 @@ export const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-clau
 export const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
 export const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
 
-export const HELPER_PROMPT = `Connect yourself to my WordPress site over MCP. The server is ${ MCP_SERVER_URL }. Tell me what to click or run for this app, wait while I sign in with my WordPress.com account and approve the connection, then list my sites to confirm it works.`;
+export const VSCODE_INSTALL_URL = `https://vscode.dev/redirect/mcp/install?${ new URLSearchParams( {
+	name: MCP_SERVER_NAME,
+	config: JSON.stringify( { type: 'http', url: MCP_SERVER_URL } ),
+} ) }`;
+
+/**
+ * Prompt that asks an agent to connect itself to the MCP server.
+ *
+ * @return {string} The translated prompt.
+ */
+export function getHelperPrompt() {
+	return sprintf(
+		/* translators: %s: MCP server URL. */
+		__(
+			'Connect yourself to my WordPress site over MCP. The server is %s. Tell me what to click or run for this app, wait while I sign in with my WordPress.com account and approve the connection, then list my sites to confirm it works.',
+			'jetpack'
+		),
+		MCP_SERVER_URL
+	);
+}
 
 /**
  * Build the agent tiles. Each has either an `href` to open or `code` to copy.
@@ -66,13 +85,10 @@ export function getConnectAgents() {
 		{
 			key: 'vscode',
 			name: 'VS Code',
-			description: __( 'Run in your terminal, then approve in VS Code', 'jetpack' ),
+			description: __( 'Opens VS Code to approve the server', 'jetpack' ),
 			logo: 'vscode.svg',
-			actionLabel: __( 'Copy command', 'jetpack' ),
-			// Percent-encoded because `code --add-mcp` takes raw JSON, which no single quoting works for in every shell.
-			code: `code --open-url "vscode:mcp/install?${ encodeURIComponent(
-				JSON.stringify( { name: MCP_SERVER_NAME, type: 'http', url: MCP_SERVER_URL } )
-			) }"`,
+			actionLabel: __( 'Add server', 'jetpack' ),
+			href: VSCODE_INSTALL_URL,
 		},
 		{
 			key: 'codex',
@@ -88,7 +104,7 @@ export function getConnectAgents() {
 			description: __( 'Paste into its agent chat', 'jetpack' ),
 			logo: 'antigravity.svg',
 			actionLabel: __( 'Copy prompt', 'jetpack' ),
-			code: HELPER_PROMPT,
+			code: getHelperPrompt(),
 		},
 		{
 			key: 'mcp',

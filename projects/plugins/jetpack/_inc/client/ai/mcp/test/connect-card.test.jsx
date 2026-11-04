@@ -4,9 +4,9 @@ import analytics from 'lib/analytics';
 import {
 	CLAUDE_CODE_COMMAND,
 	getConnectAgents,
+	getHelperPrompt,
 	MCP_SERVER_NAME,
 	MCP_SERVER_URL,
-	HELPER_PROMPT,
 } from '../connect-agents';
 import McpConnectCard from '../connect-card';
 
@@ -15,7 +15,7 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 const renderCard = ( props = {} ) => {
 	const onNavigate = jest.fn();
 	const onTurnOn = jest.fn();
-	render(
+	const view = render(
 		<McpConnectCard
 			mcpEnabled
 			onTurnOn={ onTurnOn }
@@ -24,7 +24,18 @@ const renderCard = ( props = {} ) => {
 			{ ...props }
 		/>
 	);
-	return { onNavigate, onTurnOn };
+	const rerender = nextProps =>
+		view.rerender(
+			<McpConnectCard
+				mcpEnabled
+				onTurnOn={ onTurnOn }
+				isTurningOn={ false }
+				onNavigate={ onNavigate }
+				{ ...props }
+				{ ...nextProps }
+			/>
+		);
+	return { onNavigate, onTurnOn, rerender };
 };
 
 // userEvent.setup() installs its own clipboard stub, so spy after it.
@@ -50,39 +61,49 @@ describe( 'McpConnectCard', () => {
 		window.jetpackAiSettings = { isSelfHosted };
 		renderCard();
 
-		expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute(
-			'href',
-			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
-		);
+		expect(
+			screen.getByRole( 'link', { name: new RegExp( `^${ name } Add app` ) } )
+		).toHaveAttribute( 'href', expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) ) );
 	} );
 
-	test( 'a tile is named by the agent and described by the rest', () => {
+	test( 'each agent is a heading, and its action is named by the agent', () => {
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: 'Claude Code' } ) ).toHaveAccessibleDescription(
-			'Run in your terminal, then use /mcp to sign in Copy command'
-		);
+		expect( screen.getAllByRole( 'heading', { level: 3 } ) ).toHaveLength( 8 );
+		expect( screen.getByRole( 'button', { name: 'Claude Code Copy command' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Codex Copy command' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'the VS Code command has no inner quotes and decodes to the server config', () => {
-		const { code } = getConnectAgents().find( agent => agent.key === 'vscode' );
-		const [ , query ] = code.match( /^code --open-url "vscode:mcp\/install\?([^"\s]+)"$/ );
+	test( 'the VS Code link opens the install page with the server config', () => {
+		renderCard();
 
-		expect( JSON.parse( decodeURIComponent( query ) ) ).toEqual( {
-			name: MCP_SERVER_NAME,
+		const link = screen.getByRole( 'link', { name: /^VS Code Add server/ } );
+		const url = new URL( link.getAttribute( 'href' ) );
+
+		expect( url.origin + url.pathname ).toBe( 'https://vscode.dev/redirect/mcp/install' );
+		expect( url.searchParams.get( 'name' ) ).toBe( MCP_SERVER_NAME );
+		expect( JSON.parse( url.searchParams.get( 'config' ) ) ).toEqual( {
 			type: 'http',
 			url: MCP_SERVER_URL,
 		} );
 	} );
 
-	test( 'a copy tile copies its command, shows Copied, and records the copy', async () => {
+	test( 'only the Claude Code, Cursor, Codex, Antigravity and MCP tiles copy', () => {
+		const copyKeys = getConnectAgents()
+			.filter( agent => agent.code )
+			.map( agent => agent.key );
+
+		expect( copyKeys ).toEqual( [ 'claude-code', 'cursor', 'codex', 'antigravity', 'mcp' ] );
+	} );
+
+	test( 'a copy action copies its command, shows Copied, and records the copy', async () => {
 		const { user, writeText } = setupClipboard();
 		renderCard();
 
-		const tile = screen.getByRole( 'button', { name: /^Claude Code/ } );
-		await user.click( tile );
+		const button = screen.getByRole( 'button', { name: 'Claude Code Copy command' } );
+		await user.click( button );
 
-		await waitFor( () => expect( within( tile ).getByText( 'Copied' ) ).toBeInTheDocument() );
+		await waitFor( () => expect( within( button ).getByText( 'Copied' ) ).toBeInTheDocument() );
 		expect( writeText ).toHaveBeenCalledWith( CLAUDE_CODE_COMMAND );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_mcp_connect_click',
@@ -96,11 +117,11 @@ describe( 'McpConnectCard', () => {
 		);
 		renderCard();
 
-		const tile = screen.getByRole( 'button', { name: /^Codex/ } );
-		await user.click( tile );
+		const button = screen.getByRole( 'button', { name: 'Codex Copy command' } );
+		await user.click( button );
 
 		await waitFor( () => expect( writeText ).toHaveBeenCalled() );
-		expect( within( tile ).queryByText( 'Copied' ) ).not.toBeInTheDocument();
+		expect( within( button ).queryByText( 'Copied' ) ).not.toBeInTheDocument();
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
 
@@ -110,7 +131,8 @@ describe( 'McpConnectCard', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Copy prompt' } ) );
 
-		await waitFor( () => expect( writeText ).toHaveBeenCalledWith( HELPER_PROMPT ) );
+		await waitFor( () => expect( writeText ).toHaveBeenCalledWith( getHelperPrompt() ) );
+		expect( getHelperPrompt() ).toContain( MCP_SERVER_URL );
 		await waitFor( () =>
 			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 				'jetpack_mcp_connect_helper_copy',
@@ -127,10 +149,24 @@ describe( 'McpConnectCard', () => {
 		expect( onTurnOn ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	test( 'the off notice is hidden when MCP is on', () => {
+	test( 'no notice shows when MCP is already on', () => {
 		renderCard();
 
 		expect( screen.queryByText( 'MCP access is off' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'MCP access is on' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'turning MCP on replaces the off notice with an on notice that can be dismissed', async () => {
+		const { rerender } = renderCard( { mcpEnabled: false } );
+
+		rerender( { mcpEnabled: true } );
+
+		expect( screen.queryByText( 'MCP access is off' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'MCP access is on' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+
+		expect( screen.queryByText( 'MCP access is on' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'Manual setup opens the setup view', async () => {
@@ -155,7 +191,7 @@ describe( 'McpConnectCard', () => {
 
 		fireEvent.error( logos[ 0 ] );
 
-		const tile = screen.getByRole( 'link', { name: /^ChatGPT/ } );
-		expect( within( tile ).getByText( 'C' ) ).toBeInTheDocument();
+		const [ chatgpt ] = screen.getAllByRole( 'listitem' );
+		expect( within( chatgpt ).getByText( 'C' ) ).toBeInTheDocument();
 	} );
 } );
