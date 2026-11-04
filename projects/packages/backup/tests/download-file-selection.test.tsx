@@ -476,7 +476,7 @@ describe( 'Download screen with a file selection', () => {
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
 		const bar = await screen.findByRole( 'progressbar' );
-		await waitFor( () => expect( bar ).toHaveValue( '36' ) );
+		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
 		// `role="presentation"`, which is the handle on it — minus the
