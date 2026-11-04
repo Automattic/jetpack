@@ -12,6 +12,7 @@ import {
 } from '@wordpress/icons';
 import { EmptyState, Icon, Link, Stack, Text } from '@wordpress/ui';
 import { useMemo } from 'react';
+import { wpcomTrackEvent } from '../../../common/tracks.js';
 import {
 	akismet,
 	blaze,
@@ -25,7 +26,6 @@ import {
 	videopress,
 } from './icons.tsx';
 import { groupTools } from './sections.ts';
-import { recordLinkClick } from './tracks.ts';
 import type { InitialState, Tool } from './types.ts';
 import type { ReactElement } from 'react';
 
@@ -62,8 +62,8 @@ function ToolCard( { tool }: { tool: Tool } ) {
 			className="wpcom-my-jetpack__tool"
 			variant="unstyled"
 			href={ tool.url }
-			onClick={ event =>
-				recordLinkClick( event, 'wpcom_my_jetpack_tool_clicked', {
+			onClick={ () =>
+				wpcomTrackEvent( 'wpcom_my_jetpack_tool_clicked', {
 					tool: tool.key || 'other',
 					section: tool.section,
 				} )
