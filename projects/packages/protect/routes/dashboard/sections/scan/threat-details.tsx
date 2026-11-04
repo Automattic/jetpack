@@ -1,5 +1,5 @@
 import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
-import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
+import { getFixerDescription, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -94,6 +94,52 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
+ * What to do about vulnerable software that no release fixes yet, given whether the site uses it.
+ *
+ * @param type  - The threat's type, from getThreatType().
+ * @param state - Whether the plugin or theme is active, inactive, or the active theme's parent.
+ * @return The advice, or null when the threat isn't vulnerable software.
+ */
+function getNoFixAdvice( type: string | null, state?: string | null ): string | null {
+	if ( type === 'core' ) {
+		return __(
+			'No version of WordPress fixes this vulnerability yet. Update as soon as a release fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'plugins' ) {
+		return state === 'active'
+			? __(
+					'No version of this plugin fixes this vulnerability yet. Deactivate and delete it, or replace it with another plugin, until an update fixes it.',
+					'jetpack-protect-pkg'
+				)
+			: __(
+					'No version of this plugin fixes this vulnerability yet. Delete it until an update fixes it.',
+					'jetpack-protect-pkg'
+				);
+	}
+	if ( type === 'themes' && state === 'active' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'themes' && state === 'parent' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Your active theme is built on it, so switch to a theme that isn’t, then delete this one until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'themes' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Delete it until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	return null;
+}
+
+/**
  * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice for its kind.
  *
  * @param threat    - The threat.
@@ -136,30 +182,9 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 		);
 	}
 	if ( ! threat.filename && threat.status !== 'fixed' ) {
-		const type = threat.extension?.type;
-		if ( type === 'plugins' ) {
-			return __(
-				'No version of this plugin fixes this vulnerability yet. Deactivate and delete it, or replace it with another plugin, until an update fixes it.',
-				'jetpack-protect-pkg'
-			);
-		}
-		if ( type === 'themes' && threat.extension?.state === 'parent' ) {
-			return __(
-				'No version of this theme fixes this vulnerability yet. Your active theme is a child of it, so switch to an unrelated theme, then delete both until an update fixes it.',
-				'jetpack-protect-pkg'
-			);
-		}
-		if ( type === 'themes' ) {
-			return __(
-				'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
-				'jetpack-protect-pkg'
-			);
-		}
-		if ( type === 'core' ) {
-			return __(
-				'No version of WordPress fixes this vulnerability yet. Keep WordPress up to date, and update as soon as a release fixes it.',
-				'jetpack-protect-pkg'
-			);
+		const advice = getNoFixAdvice( getThreatType( threat as Threat ), threat.extension?.state );
+		if ( advice ) {
+			return advice;
 		}
 	}
 	return __(

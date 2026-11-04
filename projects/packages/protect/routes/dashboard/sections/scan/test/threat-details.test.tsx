@@ -51,52 +51,77 @@ describe( 'ThreatDetails', () => {
 
 	it.each( [
 		[
-			'a vulnerable plugin',
+			'an active plugin',
 			'plugins',
+			'Extension',
+			undefined,
+			'active',
+			'current',
+			'Deactivate and delete',
+		],
+		[
+			'an inactive plugin',
+			'plugins',
+			'Extension',
 			undefined,
 			'inactive',
 			'current',
-			'Deactivate and delete it',
+			'Delete it until',
 		],
-		[ 'a vulnerable theme', 'themes', undefined, 'inactive', 'current', 'Switch to another theme' ],
 		[
-			'a vulnerable parent theme',
+			'the active theme',
 			'themes',
+			'Extension',
 			undefined,
-			'parent',
+			'active',
 			'current',
-			'switch to an unrelated theme',
+			'Switch to another',
 		],
-		[ 'vulnerable WordPress', 'core', undefined, undefined, 'current', 'update as soon as' ],
+		[ 'a parent theme', 'themes', 'Extension', undefined, 'parent', 'current', 'built on it' ],
 		[
-			'a fixed vulnerable plugin',
-			'plugins',
+			'an unused theme',
+			'themes',
+			'Extension',
 			undefined,
 			'inactive',
+			'current',
+			'Delete it until',
+		],
+		[ 'WordPress', undefined, 'Core', undefined, undefined, 'current', 'Update as soon as' ],
+		[
+			'a fixed plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'active',
 			'fixed',
 			'Review the affected',
 		],
 		[
 			'a file in a plugin',
 			'plugins',
+			'Extension',
 			'wp-content/plugins/akismet/x.php',
-			'inactive',
+			'active',
 			'current',
 			'Review the affected',
 		],
-	] as const )( 'advises on unfixable %s', ( _name, type, filename, state, status, advice ) => {
-		const threat: ScanThreat = {
-			id: 4,
-			signature: 'Vulnerable.WP.Extension',
-			title: 'Vulnerable plugin',
-			status,
-			filename,
-			extension: { type, slug: 'akismet', name: 'Akismet', version: '1.0', state },
-		};
-		render( <ThreatDetails threat={ threat } canAct={ false } /> );
+	] as const )(
+		'advises on unfixable %s',
+		( _name, type, signature, filename, state, status, advice ) => {
+			const threat: ScanThreat = {
+				id: 4,
+				signature: `Vulnerable.WP.${ signature }`,
+				title: 'Vulnerable software',
+				status,
+				filename,
+				extension: type && { type, slug: 'akismet', name: 'Akismet', version: '1.0', state },
+			};
+			render( <ThreatDetails threat={ threat } canAct={ false } /> );
 
-		expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[ 'Confirm deletion', 3, 'delete' ],
