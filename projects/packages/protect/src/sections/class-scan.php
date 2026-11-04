@@ -130,8 +130,9 @@ class Scan implements Dashboard_Section {
 
 		return array_merge(
 			array(
-				'hasPlan'   => $has_plan,
-				'canIgnore' => self::allows_ignoring(),
+				'hasPlan'      => $has_plan,
+				'canIgnore'    => self::allows_ignoring(),
+				'canViewFiles' => self::can_view_threat_files(),
 			),
 			$plan_state,
 			$report

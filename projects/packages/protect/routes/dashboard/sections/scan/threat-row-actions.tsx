@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels } from './labels';
-import { useCanIgnore } from './store';
+import { useCanIgnore, useCanViewFiles } from './store';
 import {
 	fixThreats,
 	ignoreThreats,
@@ -26,6 +26,7 @@ type OpenThreat = ( item: ScanThreat ) => void;
  * @param open      - Opens a threat in the inspector.
  * @param canAct    - Whether the site's plan can fix and ignore threats.
  * @param canIgnore - Whether the host lets the site ignore threats.
+ * @param canView   - Whether the user may view threat files.
  * @param getBusy   - Gets the action running on a threat.
  * @param onBulk    - Offers Auto-fix and Ignore on selected rows; gets the threats either starts on.
  * @return The actions.
@@ -34,6 +35,7 @@ function getThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
 	canIgnore: boolean,
+	canView: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
@@ -72,7 +74,7 @@ function getThreatRowActions(
 		{
 			id: 'view-file',
 			label: __( 'View file', 'jetpack-protect-pkg' ),
-			isEligible: item => canAct && !! item.filename,
+			isEligible: item => canAct && canView && !! item.filename,
 			callback: ( [ item ] ) => item && openThreatFile( item ),
 		},
 		// `auto-fix` and `auto-fix-delete` are mutually exclusive by isDeleteFix.
@@ -173,9 +175,10 @@ export function useThreatRowActions(
 	onBulk?: ( items: ScanThreat[] ) => void
 ): Action< ScanThreat >[] {
 	const canIgnore = useCanIgnore();
+	const canView = useCanViewFiles();
 	const getBusy = useGetThreatBusy();
 	return useMemo(
-		() => getThreatRowActions( open, canAct, canIgnore, getBusy, onBulk ),
-		[ open, canAct, canIgnore, getBusy, onBulk ]
+		() => getThreatRowActions( open, canAct, canIgnore, canView, getBusy, onBulk ),
+		[ open, canAct, canIgnore, canView, getBusy, onBulk ]
 	);
 }

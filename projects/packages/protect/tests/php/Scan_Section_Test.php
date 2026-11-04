@@ -172,7 +172,7 @@ class Scan_Section_Test extends BaseTestCase {
 	 *
 	 * @param string $role             The user's role.
 	 * @param bool   $file_editing_off Whether core refuses `edit_plugins`, as it does under DISALLOW_FILE_EDIT.
-	 * @param bool   $allowed          Whether the user may act on threat files.
+	 * @param bool   $allowed          Whether the user may act on threat files, and the dashboard offers to.
 	 */
 	#[DataProvider( 'provide_threat_file_users' )]
 	public function test_threat_files_need_permission_to_edit_code( $role, $file_editing_off, $allowed ) {
@@ -195,6 +195,7 @@ class Scan_Section_Test extends BaseTestCase {
 		}
 
 		$this->assertSame( $allowed, true === Scan::can_act_on_threat_files() );
+		$this->assertSame( $allowed, ( new Scan() )->get_state()['canViewFiles'] );
 		remove_filter( 'map_meta_cap', $refuse );
 	}
 

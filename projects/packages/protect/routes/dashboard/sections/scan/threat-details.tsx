@@ -9,7 +9,7 @@ import { DeleteSoftwareButton } from './delete-software';
 import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import SeverityBadge from './severity-badge';
-import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
+import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useSearchParam } from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
@@ -455,6 +455,7 @@ export default function ThreatDetails( {
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
+	const canViewFile = useCanViewFiles();
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -537,7 +538,7 @@ export default function ThreatDetails( {
 								<Text variant="body-md" className="jp-protect-card__muted">
 									{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
 								</Text>
-								{ canAct && <ThreatFileLink threat={ threat } /> }
+								{ canAct && canViewFile && <ThreatFileLink threat={ threat } /> }
 							</Stack>
 							<pre className="jp-protect-threat-details__code">{ threat.filename }</pre>
 							{ context.length > 0 && (
