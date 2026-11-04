@@ -236,23 +236,10 @@ $focus-ring-width: var(--wpds-border-width-focus);
 			var(--wpds-motion-easing-subtle);
 	}
 
+	// Reserved at rest too, so a hover never rewraps the label or moves a
+	// trailing action out from under the pointer.
 	.barWithLabelContainer > :not(.bar, .barTrack) {
-		max-inline-size: 100%;
-		transition:
-			max-inline-size var(--wpds-motion-duration-sm)
-			var(--wpds-motion-easing-subtle);
-	}
-
-	// The label stays clear of the slid value on any hover or focus, nested
-	// controls included: lifting it while a trailing action is hovered would
-	// move that action out from under the pointer.
-	&:hover,
-	&:focus-visible,
-	&:has(:focus-visible) {
-
-		.barWithLabelContainer > :not(.bar, .barTrack) {
-			max-inline-size: calc(100% - #{$hover-reserve});
-		}
+		max-inline-size: calc(100% - #{$hover-reserve});
 	}
 
 	.valueContainer {
@@ -365,7 +352,6 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	.interactiveRow {
 
 		.bar,
-		.barWithLabelContainer > :not(.bar, .barTrack),
 		.valueContainer,
 		.chevron {
 			transition: none;

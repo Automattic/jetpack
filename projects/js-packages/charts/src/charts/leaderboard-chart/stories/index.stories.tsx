@@ -349,6 +349,40 @@ const interactiveData: LeaderboardEntry[] = [
 	},
 ];
 
+const nearlyFullWidthLabel =
+	'Partner newsletter for returning subscribers in Europe and North America during the holiday sale week of 2026';
+
+export const InteractiveStringLabels: Story = {
+	args: {
+		data: [
+			...sampleData,
+			{ id: 'long-label', label: nearlyFullWidthLabel, currentValue: 1500, previousValue: 1200 },
+		].map( entry => ( { ...entry, onClick: () => onLeaderboardItemClick( entry.id ) } ) ),
+		withComparison: true,
+		containerWidth: '800px',
+	},
+	render: args => <LeaderboardChartUnresponsive { ...args } />,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive rows with plain string labels and comparison bars. A label that nearly fills its column keeps its line breaks on hover and focus, so the rows below stay put.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const row = within( canvasElement ).getByRole( 'button', {
+			name: name => name.startsWith( nearlyFullWidthLabel ),
+		} );
+		const restingHeight = row.getBoundingClientRect().height;
+
+		row.focus();
+		await Promise.all( row.getAnimations( { subtree: true } ).map( ( { finished } ) => finished ) );
+
+		expect( row.getBoundingClientRect().height ).toBe( restingHeight );
+	},
+};
+
 const onLeaderboardLabelLinkClick = action( 'label-link-click' );
 
 const DemoLabelLink = ( { entry }: { entry: LeaderboardEntry } ) => {
@@ -447,16 +481,6 @@ export const InteractiveLabel: Story = {
 		expect( button ).not.toContainElement(
 			canvas.getByRole( 'link', { name: String( sampleData[ 0 ].label ) } )
 		);
-
-		// A focused nested control turns the row's hover inset off, but must not lift the label cap.
-		const longLabel = String( interactiveData[ interactiveData.length - 1 ].label );
-		const label = canvas.getAllByTestId( 'interactive-row-label' ).at( -1 );
-		const restingRight = label.getBoundingClientRect().right;
-
-		canvas.getByRole( 'link', { name: longLabel } ).focus();
-		await Promise.all( document.getAnimations().map( ( { finished } ) => finished ) );
-
-		expect( label.getBoundingClientRect().right ).toBeLessThan( restingRight );
 	},
 };
 
