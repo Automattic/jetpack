@@ -3,7 +3,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Notice, RadioGroupControl, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleSetting } from './use-module-option';
 import type { ModuleSettingsProps } from './registry';
@@ -75,7 +75,7 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Load more posts without leaving the page', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle
+				<PanelModuleToggle
 					module={ $module }
 					labelledby={ labelId }
 					// Without theme support, turning it on does nothing, but an active module can still go off.
