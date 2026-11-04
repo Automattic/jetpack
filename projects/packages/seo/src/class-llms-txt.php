@@ -65,6 +65,11 @@ class Llms_Txt {
 	const CACHE_IGNORED_META = array( '_edit_lock', '_edit_last' );
 
 	/**
+	 * Non-public post types that still shape llms.txt: menus and the theme parts that hold them.
+	 */
+	const CACHE_POST_TYPES = array( 'nav_menu_item', 'wp_navigation', 'wp_template', 'wp_template_part', 'wp_block' );
+
+	/**
 	 * Wire the front-end request handler and the hooks that clear the stored copy.
 	 *
 	 * @return void
@@ -72,9 +77,11 @@ class Llms_Txt {
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'maybe_serve' ) );
 
-		foreach ( array( 'clean_post_cache', 'clean_term_cache', 'wp_update_nav_menu', 'switch_theme', 'customize_save_after' ) as $hook ) {
+		foreach ( array( 'wp_update_nav_menu', 'switch_theme', 'customize_save_after' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache' ) );
 		}
+		add_action( 'clean_post_cache', array( __CLASS__, 'clear_cache_for_post' ) );
+		add_action( 'clean_term_cache', array( __CLASS__, 'clear_cache_for_terms' ), 10, 2 );
 		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
 		}
@@ -115,6 +122,18 @@ class Llms_Txt {
 	}
 
 	/**
+	 * Drop the stored llms.txt after a change to a post llms.txt can list or a menu it reads.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return void
+	 */
+	public static function clear_cache_for_post( $post_id ) {
+		if ( self::shapes_llms_txt( $post_id ) ) {
+			self::clear_cache();
+		}
+	}
+
+	/**
 	 * Drop the stored llms.txt after a post meta write, unless the editor wrote it on its own.
 	 *
 	 * @param int|int[] $meta_id  Meta ID or IDs.
@@ -123,9 +142,34 @@ class Llms_Txt {
 	 * @return void
 	 */
 	public static function clear_cache_for_meta( $meta_id, $post_id, $meta_key ) {
-		if ( ! in_array( $meta_key, self::CACHE_IGNORED_META, true ) ) {
+		if ( ! in_array( $meta_key, self::CACHE_IGNORED_META, true ) && self::shapes_llms_txt( $post_id ) ) {
 			self::clear_cache();
 		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a classic menu's terms change.
+	 *
+	 * @param int[]  $ids      Term IDs.
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return void
+	 */
+	public static function clear_cache_for_terms( $ids, $taxonomy ) {
+		if ( 'nav_menu' === $taxonomy ) {
+			self::clear_cache();
+		}
+	}
+
+	/**
+	 * Whether a post's type can appear in llms.txt or holds a menu, so a sitemap, oEmbed
+	 * cache or revision write leaves the stored copy alone.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	private static function shapes_llms_txt( $post_id ) {
+		$type = get_post_type( $post_id );
+		return $type && ( is_post_type_viewable( $type ) || in_array( $type, self::CACHE_POST_TYPES, true ) );
 	}
 
 	/**

@@ -55,6 +55,10 @@ class LlmsTxtTest extends TestCase {
 		foreach ( wp_get_nav_menus() as $menu ) {
 			wp_delete_nav_menu( $menu->term_id );
 		}
+		$tag = get_term_by( 'name', 'Unlisted Tag', 'post_tag' );
+		if ( $tag ) {
+			wp_delete_term( $tag->term_id, 'post_tag' );
+		}
 		update_option( 'blogname', 'Test Blog' );
 		Llms_Txt::clear_cache();
 
@@ -504,6 +508,24 @@ class LlmsTxtTest extends TestCase {
 					wp_create_nav_menu( 'Main' );
 				},
 				true,
+			),
+			'oEmbed cache saved'      => array(
+				static function () {
+					wp_insert_post(
+						array(
+							'post_type'   => 'oembed_cache',
+							'post_status' => 'publish',
+							'post_title'  => 'Embed',
+						)
+					);
+				},
+				false,
+			),
+			'tag created'             => array(
+				static function () {
+					wp_insert_term( 'Unlisted Tag', 'post_tag' );
+				},
+				false,
 			),
 			'editor lock refreshed'   => array(
 				static function ( $page_id ) {
