@@ -180,6 +180,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 	public function test_update_protect_global_whitelist_reports_invalid_ip() {
 		$this->setExpectedDeprecated( 'jetpack/v4/settings' );
+		update_option( 'jetpack_waf_ip_allow_list', '1.1.1.1' );
 
 		$request = new WP_REST_Request();
 		$request->set_body_params( array( 'jetpack_protect_global_whitelist' => 'not-an-ip' ) );
@@ -188,6 +189,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'some_updated', $result->get_error_code() );
+		$this->assertSame( '1.1.1.1', get_option( 'jetpack_waf_ip_allow_list' ) );
 	}
 
 	/**

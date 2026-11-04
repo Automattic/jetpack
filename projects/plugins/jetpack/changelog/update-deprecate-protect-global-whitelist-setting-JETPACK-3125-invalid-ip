@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Protect: Return an error when the jetpack_protect_global_whitelist setting is saved with an invalid IP address.
