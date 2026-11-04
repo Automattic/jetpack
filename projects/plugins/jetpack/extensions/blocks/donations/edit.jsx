@@ -163,11 +163,21 @@ const Edit = props => {
 			return;
 		}
 
-		lockPostSaving( 'donations' );
+		// One lock per block, so one block's response can't unlock saving for another.
+		const lockName = `donations-${ clientId }`;
+		lockPostSaving( lockName );
 
 		// Set when the effect re-runs or the block goes away: an outdated response must not
 		// unlock saving or write plans while a newer fetch is still in flight.
 		let isStale = false;
+
+		const onError = message => {
+			if ( isStale ) {
+				return;
+			}
+			unlockPostSaving( lockName );
+			apiError( message );
+		};
 
 		const filterProducts = productList =>
 			productList.reduce(
@@ -208,7 +218,7 @@ const Edit = props => {
 				return;
 			}
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 				return;
 			}
@@ -221,13 +231,13 @@ const Edit = props => {
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
 				savePlanIds( filteredProducts );
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				return;
 			}
 
 			// No Stripe connection yet: the block shows the connect nudge instead of the form.
 			if ( result.connect_url ) {
-				unlockPostSaving( 'donations' );
+				unlockPostSaving( lockName );
 				return;
 			}
 
@@ -238,16 +248,17 @@ const Edit = props => {
 						return;
 					}
 					savePlanIds( filterProducts( defaultProducts ) );
-					unlockPostSaving( 'donations' );
-				}, apiError );
+					unlockPostSaving( lockName );
+				}, onError );
+				return;
 			}
 
-			unlockPostSaving( 'donations' );
-		}, apiError );
+			unlockPostSaving( lockName );
+		}, onError );
 
 		return () => {
 			isStale = true;
-			unlockPostSaving( 'donations' );
+			unlockPostSaving( lockName );
 		};
 	}, [
 		lockPostSaving,

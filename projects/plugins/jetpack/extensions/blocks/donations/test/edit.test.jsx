@@ -2,6 +2,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { createRegistry, RegistryProvider } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import Edit from '../edit';
+import fetchDefaultProducts from '../fetch-default-products';
 import fetchStatus from '../fetch-status';
 import { tipsVariationAttributes } from '../tips-variation';
 
@@ -110,9 +111,39 @@ describe( 'Donations Edit', () => {
 			await waitFor( () => expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 ) );
 			expect( blockAttributes.monthlyDonation.planId ).toBe( 12 );
 			expect( blockAttributes.annualDonation.planId ).toBe( 13 );
-			expect( events.slice( -2 ) ).toEqual( [ 'plans', 'unlock' ] );
+			expect( events ).toEqual( [ 'lock', 'plans', 'unlock' ] );
 		}
 	);
+
+	test( 'keeps saving locked until the plans it asked WordPress.com to create come back', async () => {
+		let createPlans;
+		fetchStatus.mockResolvedValue( { ...status, products: [] } );
+		fetchDefaultProducts.mockImplementation(
+			() => new Promise( resolve => ( createPlans = () => resolve( status.products ) ) )
+		);
+		renderBlock( donationsFormAttributes );
+		await waitFor( () => expect( fetchDefaultProducts ).toHaveBeenCalled() );
+		expect( events ).toEqual( [ 'lock' ] );
+
+		await act( async () => createPlans() );
+		expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 );
+		expect( events ).toEqual( [ 'lock', 'plans', 'unlock' ] );
+	} );
+
+	test( 'unlocks saving when the plans cannot be loaded', async () => {
+		fetchStatus.mockRejectedValue( 'Network error' );
+		renderBlock( donationsFormAttributes );
+		await waitFor( () => expect( events ).toEqual( [ 'lock', 'unlock' ] ) );
+	} );
+
+	test( 'unlocks saving when the block is removed while its plans load', async () => {
+		fetchStatus.mockReturnValue( new Promise( () => {} ) );
+		const { unmount } = renderBlock( donationsFormAttributes );
+		await waitFor( () => expect( events ).toEqual( [ 'lock' ] ) );
+
+		unmount();
+		expect( events ).toEqual( [ 'lock', 'unlock' ] );
+	} );
 
 	test( 'keeps saving locked while the fetch for the currency it just picked is in flight', async () => {
 		// A new Tips block has no currency, so it picks Stripe's and fetches again.
