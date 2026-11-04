@@ -57,6 +57,14 @@ Build in watching dog mode 🐕
 jetpack watch packages/videopress
 ```
 
+## Chapter-save metrics
+
+`jetpack_videopress_chapters_saved` measures acknowledged writes of the automatically generated player chapter track. It emits once after a nonempty filename response from track upload, with `chapter_count` equal to the validated generated chapter count. An acknowledged removal of an existing generated track emits zero. Invalid descriptions with no track, protected manual tracks, failed requests, and missing acknowledgments emit nothing. Saving description text alone is not this outcome.
+
+`source` identifies `dashboard_details`, `dashboard_editor`, `block_editor`, or `upload_details`. These values describe the editing path, not a customer's eligibility or plan. Positive counts can include regenerating the same chapter set after a prose edit; event rows count acknowledged writes, not distinct videos, first adoption, or content changes. The metric does not establish that replication completed or that a viewer used the chapters. Only the existing generated English chapter track is covered; manual VTT uploads and the legacy dashboard remain outside this event.
+
+The existing server track-upload event remains unchanged and covers a different population; do not sum it with this client outcome as separate saves. This event sends no GUID, filename, URL, title, timestamp labels, or description content. It uses existing analytics controls. Host eligibility, opt-out behavior, delivery and warehouse coverage must still be verified before reporting or building customer cohorts.
+
 ## Trim and cut metrics
 
 The dashboard editor and block-editor modal record three Tracks events:
