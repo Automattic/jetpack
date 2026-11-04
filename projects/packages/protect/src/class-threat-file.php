@@ -81,7 +81,7 @@ class Threat_File {
 		}
 		// Without WordPress.org's checksums, a core file outside wp-content, or one of the few inside it, looks like a stray one.
 		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
-		if ( null !== self::get_core_relative( $path ) && ( null === $in_content || in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) && ! self::get_core_checksums() ) {
+		if ( null !== self::get_core_relative( $path ) && ( null === $in_content || self::is_core_in_content() || in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) && ! self::get_core_checksums() ) {
 			return array( 'type' => 'unknown' );
 		}
 
@@ -293,10 +293,21 @@ class Threat_File {
 	private static function get_core_relative( $path ) {
 		// wp-content can be moved or renamed, which ABSPATH alone misses for the files core ships in it.
 		$in_content = self::get_relative( $path, WP_CONTENT_DIR );
-		if ( null !== $in_content && in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) {
+		if ( null !== $in_content && ! self::is_core_in_content() && in_array( $in_content, self::CORE_CONTENT_FILES, true ) ) {
 			return 'wp-content/' . $in_content;
 		}
 		return self::get_relative( $path, ABSPATH );
+	}
+
+	/**
+	 * Whether WordPress sits inside the content directory, as when that is the site root, so its files aren't wp-content's.
+	 *
+	 * @return bool
+	 */
+	private static function is_core_in_content() {
+		$abspath = realpath( ABSPATH );
+		$content = realpath( WP_CONTENT_DIR );
+		return $abspath && $content && ( $abspath === $content || null !== self::get_relative( $abspath, $content ) );
 	}
 
 	/**
