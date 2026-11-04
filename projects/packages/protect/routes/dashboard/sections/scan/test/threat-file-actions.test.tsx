@@ -22,11 +22,14 @@ window.jetpackProtectDashboard = {
 };
 
 describe( 'Deleting a threat file', () => {
-	it( 'drops the threat from the lists', async () => {
+	it.each( [
+		[ 'the threat', { threat }, [ other ] ],
+		[ 'the threat and the others found in the file', { threat, others: [ 8 ] }, [] ],
+	] )( 'drops %s from the lists', async ( _name, deleted, remaining ) => {
 		( apiFetch as unknown as jest.Mock ).mockImplementation( ( { method } ) =>
 			Promise.resolve(
 				method === 'POST'
-					? { ok: true }
+					? deleted
 					: {
 							path: 'wp-content/uploads/photo.jpg.php',
 							modified: null,
@@ -47,7 +50,7 @@ describe( 'Deleting a threat file', () => {
 		const confirm = screen.getAllByRole( 'button', { name: 'Delete file' } ).pop();
 		await userEvent.click( confirm as HTMLElement );
 
-		await waitFor( () => expect( getScan()?.threats ).toEqual( [ other ] ) );
+		await waitFor( () => expect( getScan()?.threats ).toEqual( remaining ) );
 		expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { data: { hash: 'abc' } } ) );
 		expect( getScan()?.ignored ).toEqual( [] );
 	} );

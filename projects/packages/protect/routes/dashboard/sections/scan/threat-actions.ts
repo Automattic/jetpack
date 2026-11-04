@@ -786,16 +786,19 @@ export function changeThreatFile(
 	}
 	setBusy( threat.id, action === 'delete' ? 'deleting' : 'restoring' );
 
-	return apiFetch< { threat: ScanThreat } >( {
+	return apiFetch< { threat: ScanThreat; others?: ScanThreat[ 'id' ][] } >( {
 		path: threatPath( threat.id, `file/${ action }` ),
 		method: 'POST',
 		data: { hash },
 	} )
 		.then( response => {
+			// Other threats in the same file were marked fixed with it.
+			const fixed = new Set( [ threat.id, ...( response.others ?? [] ) ].map( String ) );
+			const open = ( item: ScanThreat ) => ! fixed.has( String( item.id ) );
 			editScan( current => ( {
 				...current,
-				threats: ( current.threats ?? [] ).filter( otherThan( threat ) ),
-				ignored: current.ignored?.filter( otherThan( threat ) ),
+				threats: ( current.threats ?? [] ).filter( open ),
+				ignored: current.ignored?.filter( open ),
 			} ) );
 			show( threat, message, 'success' );
 			loadHistory( true );

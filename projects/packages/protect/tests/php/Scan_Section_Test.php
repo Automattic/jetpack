@@ -813,18 +813,20 @@ class Scan_Section_Test extends BaseTestCase {
 	 *
 	 * @param string      $status     The threat's status in History.
 	 * @param string|null $changed_to What the file is changed to after it was viewed.
+	 * @param array       $current    Scan's current threats.
+	 * @param array[]     $history    Other threats History lists.
 	 * @return array|\WP_Error The response.
 	 */
-	private function delete_history_threat_file( $status, $changed_to = null ) {
+	private function delete_history_threat_file( $status, $changed_to = null, $current = array(), $history = array() ) {
 		// Invalid UTF-8, which the viewer scrubs from what it shows but not from what it hashes.
 		$this->write_file( WP_CONTENT_DIR . '/uploads/protect-threat-file.php', "<?php // \xff" );
-		Scan_Status::$status = new Status_Model( array( 'threats' => array() ) );
+		Scan_Status::$status = new Status_Model( array( 'threats' => $current ) );
 		$threat              = array(
 			'id'       => 9,
 			'status'   => $status,
 			'filename' => self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' ),
 		);
-		set_transient( Scan::HISTORY_CACHE, array( $threat ), MINUTE_IN_SECONDS );
+		set_transient( Scan::HISTORY_CACHE, array_merge( array( $threat ), $history ), MINUTE_IN_SECONDS );
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/scan/threats/9/file' );
 		$request->set_url_params( array( 'id' => '9' ) );
 		$shown = Scan::get_threat_file( $request );
@@ -847,6 +849,37 @@ class Scan_Section_Test extends BaseTestCase {
 		$this->assertSame( 'fixed', $response['threat']['status'] );
 		$this->assertSame( array(), Scan::get_ignored_threats() );
 		$this->assertSame( array( 'fixed' ), array_column( Scan::get_history_threats(), 'status' ) );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+	}
+
+	public function test_delete_threat_file_marks_the_file_s_other_threats_fixed() {
+		$in_file = self::scan_path( '/{root}/{content}/uploads/protect-threat-file.php' );
+		$current = array(
+			new Threat_Model(
+				array(
+					'id'       => 11,
+					'filename' => $in_file,
+				)
+			),
+			new Threat_Model(
+				array(
+					'id'       => 12,
+					'filename' => self::scan_path( '/{root}/{content}/uploads/elsewhere.php' ),
+				)
+			),
+		);
+		$history = array(
+			array(
+				'id'       => 10,
+				'status'   => 'ignored',
+				'filename' => $in_file,
+			),
+		);
+
+		$response = $this->delete_history_threat_file( 'ignored', null, $current, $history );
+
+		$this->assertEqualsCanonicalizing( array( 11, 10 ), $response['others'] );
+		$this->assertEqualsCanonicalizing( array( '9', '10', '11' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 	}
 

@@ -507,11 +507,12 @@ class Scan implements Dashboard_Section {
 			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or your site needs it to run, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
 
-		$deleted = Threat_File::delete( $path );
+		$siblings = self::get_other_threats_in_file( $path, $threat );
+		$deleted  = Threat_File::delete( $path );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
 		}
-		return self::resolve_file_threat( $threat );
+		return self::resolve_file_threat( $threat, $siblings );
 	}
 
 	/**
@@ -529,21 +530,69 @@ class Scan implements Dashboard_Section {
 		if ( ! Threat_File::can_restore( $path, Threat_File::get_owner( $path ) ) ) {
 			return new WP_Error( 'threat_file_not_restorable', __( 'Only a changed WordPress core file can be restored.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
+		$siblings = self::get_other_threats_in_file( $path, $threat );
 		$restored = Threat_File::restore( $path );
 		if ( is_wp_error( $restored ) ) {
 			return $restored;
 		}
-		return self::resolve_file_threat( $threat );
+		return self::resolve_file_threat( $threat, $siblings );
 	}
 
 	/**
-	 * Mark a threat fixed now its file was deleted or restored, since Scan only notices on its next scan.
+	 * Mark a threat, and the others in its file, fixed now the file was deleted or restored, since Scan only notices on its next scan.
 	 *
-	 * @param object|array $threat The threat, from find_threat().
-	 * @return array The fixed `threat`.
+	 * @param object|array $threat   The threat, from find_threat().
+	 * @param array        $siblings The file's other open threats, from get_other_threats_in_file().
+	 * @return array The fixed `threat`, and the ids of the `others` fixed with it.
 	 */
-	private static function resolve_file_threat( $threat ) {
-		return array( 'threat' => Dashboard_Threats::resolve( is_array( $threat ) ? $threat : Dashboard_Threats::format( $threat ) ) );
+	private static function resolve_file_threat( $threat, $siblings = array() ) {
+		$others = array();
+		foreach ( $siblings as $sibling ) {
+			$others[] = Dashboard_Threats::resolve( $sibling )['id'];
+		}
+		return array(
+			'threat' => Dashboard_Threats::resolve( is_array( $threat ) ? $threat : Dashboard_Threats::format( $threat ) ),
+			'others' => $others,
+		);
+	}
+
+	/**
+	 * The other open or ignored threats Scan found in the same file.
+	 *
+	 * @param string       $path   The file's real path.
+	 * @param object|array $threat The threat acted on.
+	 * @return array[] The threats, formatted.
+	 */
+	private static function get_other_threats_in_file( $path, $threat ) {
+		$id     = (string) ( is_array( $threat ) ? $threat['id'] : $threat->id );
+		$status = self::get_stored_report();
+		$others = array();
+		foreach ( Dashboard_Threats::without_resolved( $status->threats ?? array(), $status->last_checked ?? null ) as $current ) {
+			if ( self::is_other_threat_in_file( $current->id ?? null, $current->filename ?? null, $id, $path, $others ) ) {
+				$others[ (string) $current->id ] = Dashboard_Threats::format( $current );
+			}
+		}
+		$history = self::get_history_threats();
+		foreach ( is_array( $history ) ? $history : array() as $past ) {
+			if ( 'ignored' === ( $past['status'] ?? null ) && self::is_other_threat_in_file( $past['id'] ?? null, $past['filename'] ?? null, $id, $path, $others ) ) {
+				$others[ (string) $past['id'] ] = $past;
+			}
+		}
+		return array_values( $others );
+	}
+
+	/**
+	 * Whether a threat is another one, not yet collected, found in the file at a path.
+	 *
+	 * @param mixed       $id       The threat's id.
+	 * @param string|null $filename The path as Scan names it.
+	 * @param string      $acted_on The id of the threat acted on.
+	 * @param string      $path     The file's real path.
+	 * @param array       $found    The threats collected so far, keyed by id.
+	 * @return bool
+	 */
+	private static function is_other_threat_in_file( $id, $filename, $acted_on, $path, $found ) {
+		return null !== $id && (string) $id !== $acted_on && ! isset( $found[ (string) $id ] ) && $filename && self::locate_threat_file( $filename ) === $path;
 	}
 
 	/**
@@ -581,18 +630,26 @@ class Scan implements Dashboard_Section {
 	}
 
 	/**
+	 * Scan's report as stored on the site, which is enough to map a threat to its file and skips a WordPress.com request.
+	 *
+	 * @return object|null
+	 */
+	private static function get_stored_report() {
+		if ( ! class_exists( Status::class ) ) {
+			return null;
+		}
+		$status = method_exists( Scan_Status::class, 'get_cached_status' ) ? Scan_Status::get_cached_status() : null;
+		return $status ?? Scan_Status::get_status();
+	}
+
+	/**
 	 * A threat from the current report or, for an ignored threat, history.
 	 *
 	 * @param int $id The threat id.
 	 * @return object|array|null Scan's threat from the report, a formatted one from history, or null.
 	 */
 	private static function find_threat( $id ) {
-		$status = null;
-		if ( class_exists( Status::class ) ) {
-			// The stored report is enough to map an id to a file, and skips a WordPress.com request.
-			$status   = method_exists( Scan_Status::class, 'get_cached_status' ) ? Scan_Status::get_cached_status() : null;
-			$status ??= Scan_Status::get_status();
-		}
+		$status = self::get_stored_report();
 		// One the site resolved is still in the report until Scan's next scan, but history has it as fixed.
 		$resolved = Dashboard_Threats::get_resolved( $status->last_checked ?? null );
 		foreach ( (array) ( $status->threats ?? array() ) as $threat ) {
