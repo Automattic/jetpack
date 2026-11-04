@@ -506,6 +506,9 @@ class Scan implements Dashboard_Section {
 		if ( is_wp_error( $path ) ) {
 			return $path;
 		}
+		if ( is_wp_error( $siblings ) ) {
+			return $siblings;
+		}
 		if ( ! Threat_File::can_delete( $path, Threat_File::get_owner( $path ) ) ) {
 			return new WP_Error( 'threat_file_not_deletable', __( 'This file belongs to WordPress, a plugin or a theme, or WordPress is using it, so it can’t be deleted here.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
 		}
@@ -529,6 +532,9 @@ class Scan implements Dashboard_Section {
 		$path     = self::resolve_file_to_change( $threat, (string) $request['hash'] );
 		if ( is_wp_error( $path ) ) {
 			return $path;
+		}
+		if ( is_wp_error( $siblings ) ) {
+			return $siblings;
 		}
 		if ( ! Threat_File::can_restore( $path, Threat_File::get_owner( $path ) ) ) {
 			return new WP_Error( 'threat_file_not_restorable', __( 'Only a changed WordPress core file can be restored.', 'jetpack-protect-pkg' ), array( 'status' => 403 ) );
@@ -562,7 +568,7 @@ class Scan implements Dashboard_Section {
 	 * The other open or ignored threats Scan found in the same file as a threat.
 	 *
 	 * @param object|array|WP_Error|null $threat The threat acted on, from find_threat().
-	 * @return array[] The threats, formatted.
+	 * @return array[]|WP_Error The threats, formatted; an error when history is unavailable, so ignored ones aren't left behind.
 	 */
 	private static function get_other_threats_in_file( $threat ) {
 		$path = self::resolve_threat_file( $threat );
@@ -578,12 +584,24 @@ class Scan implements Dashboard_Section {
 			}
 		}
 		$history = self::get_history_threats();
-		foreach ( is_array( $history ) ? $history : array() as $past ) {
+		if ( ! is_array( $history ) ) {
+			return self::history_unavailable();
+		}
+		foreach ( $history as $past ) {
 			if ( 'ignored' === ( $past['status'] ?? null ) && self::is_other_threat_in_file( $past['id'] ?? null, $past['filename'] ?? null, $id, $path, $others ) ) {
 				$others[ (string) $past['id'] ] = $past;
 			}
 		}
 		return array_values( $others );
+	}
+
+	/**
+	 * The error for a request that needs Scan history when WordPress.com can't be reached.
+	 *
+	 * @return WP_Error
+	 */
+	private static function history_unavailable() {
+		return new WP_Error( 'threat_history_unavailable', __( 'Jetpack couldn’t look this threat up on WordPress.com. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
 	}
 
 	/**
@@ -672,7 +690,7 @@ class Scan implements Dashboard_Section {
 		}
 		$history = self::get_history_threats();
 		if ( ! is_array( $history ) ) {
-			return new WP_Error( 'threat_history_unavailable', __( 'Jetpack couldn’t look this threat up on WordPress.com. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+			return self::history_unavailable();
 		}
 		foreach ( $history as $threat ) {
 			if ( (int) $threat['id'] === $id ) {
