@@ -101,7 +101,6 @@
 					"@jetpack-backup/init"
 				]
 			}
-		],
-		"sharedModules": "../admin-ui/package.json"
+		]
 	}
 }

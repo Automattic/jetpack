@@ -133,7 +133,6 @@
 					"@jetpack-my-jetpack/init"
 				]
 			}
-		],
-		"sharedModules": "../admin-ui/package.json"
+		]
 	}
 }

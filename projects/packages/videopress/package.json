@@ -134,7 +134,6 @@
 					"@jetpack-videopress/init"
 				]
 			}
-		],
-		"sharedModules": "../admin-ui/package.json"
+		]
 	}
 }

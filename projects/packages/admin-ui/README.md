@@ -198,7 +198,7 @@ Unlike `add_menu()`, the page gets neither the core-notice CSS nor the WPDS desi
 
 ## Shared script modules
 
-Libraries that several wp-build dashboards use (`@wordpress/ui`, DataViews, Jetpack components, and the rest of `wpSharedModules` in `package.json`) are built once into `build/shared-modules/` and loaded once per page. A dashboard opts in with `"sharedModules": "<path to this package.json>"` in its `wpPlugin` config.
+Libraries that several wp-build dashboards use (`@wordpress/ui`, DataViews, Jetpack components, and the rest of `wpSharedModules` in `package.json`) are built once into `build/shared-modules/` and loaded once per page. A dashboard opts in with `"sharedModules": "<path to this package.json>"` in its `wpPlugin` config. No dashboard does yet, so `.gitattributes` leaves `build/shared-modules/` out of the production build.
 
 Each module exports only the names listed in `shared-modules-exports.json`, so the build does not depend on which dashboards were built first. A dashboard build fails when it imports a name the list lacks. To regenerate the list, build every dashboard with `WP_BUILD_SHARED_EXPORTS_UNCHECKED=1`, then run `pnpm run build:shared-exports` here and commit the result.
 

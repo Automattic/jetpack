@@ -144,7 +144,6 @@
 					"@jetpack-forms/init"
 				]
 			}
-		],
-		"sharedModules": "../admin-ui/package.json"
+		]
 	}
 }

@@ -112,7 +112,6 @@
 					"@jetpack-newsletter/init"
 				]
 			}
-		],
-		"sharedModules": "../admin-ui/package.json"
+		]
 	}
 }
