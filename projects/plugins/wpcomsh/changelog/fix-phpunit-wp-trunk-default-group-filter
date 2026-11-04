@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Tests only: Alias the removed PHPUnit TestListener to an interface so WordPress trunk's test bootstrap loads.
+
