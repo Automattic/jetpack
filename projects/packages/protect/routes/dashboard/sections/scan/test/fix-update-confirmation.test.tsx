@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -6,6 +6,7 @@ import {
 	getUpdateFixTitle,
 	makeFixUpdateModal,
 } from '../fix-update-confirmation';
+import { ignoreThreat } from '../threat-actions';
 import type { ScanThreat } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -59,6 +60,19 @@ describe( 'FixUpdateModal', () => {
 		);
 		expect( closeModal ).toHaveBeenCalled();
 		expect( onStart ).toHaveBeenCalledWith( [ threat ] );
+	} );
+
+	it( 'disables Update while any of the threats it updates is busy', () => {
+		( apiFetch as unknown as jest.Mock ).mockReturnValue( new Promise( () => {} ) );
+		const FixUpdateModal = makeFixUpdateModal();
+		const threats = [ threatIn( 8, 'Akismet' ), threatIn( 9, 'Hello Dolly' ) ];
+		render( <FixUpdateModal items={ threats } closeModal={ jest.fn() } /> );
+		const update = screen.getByRole( 'button', { name: 'Update' } );
+		expect( update ).toHaveAttribute( 'aria-disabled', 'false' );
+
+		act( () => void ignoreThreat( threats[ 1 ] ) );
+
+		expect( update ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	it( 'lists only the updates a batch runs', () => {
