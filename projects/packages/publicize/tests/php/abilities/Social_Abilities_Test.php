@@ -206,8 +206,13 @@ class Social_Abilities_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( 42, $result['post_id'] );
-		$this->assertCount( 1, $result['results'] );
+		$this->assertSame(
+			array(
+				'post_id' => 42,
+				'queued'  => true,
+			),
+			$result
+		);
 		$request = $this->requests[0];
 		$this->assertSame( 'POST', $request->get_method() );
 		$this->assertSame( '/wpcom/v2/publicize/share-post/42', $request->get_route() );
@@ -215,6 +220,7 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'message'             => 'Hello',
+				'async'               => true,
 				'skipped_connections' => array( 12, 13 ),
 			),
 			$request->get_json_params()
@@ -289,7 +295,13 @@ class Social_Abilities_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertSame( array( 'message' => 'Hello' ), json_decode( $seen['body'], true ) );
+		$this->assertSame(
+			array(
+				'message' => 'Hello',
+				'async'   => true,
+			),
+			json_decode( $seen['body'], true )
+		);
 	}
 
 	public function test_delete_connection_calls_delete_route(): void {

@@ -123,7 +123,7 @@ class Social_Abilities extends Registrar {
 			'jetpack-social/share-post'        => array(
 				'label'               => __( 'Share a post to social networks', 'jetpack-publicize-pkg' ),
 				'description'         => __(
-					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, results: [ { connection_id, service_name, status } ], errors: [ { connection_id, message } ] }. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com. The call waits for every network, so a timeout error does not mean the share failed: check the post on the social network before sharing again.',
+					'Share one published post to the site\'s connected social networks right now, as a new public post on each network. Shape: { post_id, queued }. The shares are queued and go out in the background, so the call returns before they are posted. Each call publishes again, so repeating it posts a duplicate. Only published posts can be shared. `message` is the text posted with the link. Connections listed in `skipped_connections` are left out; list connection IDs with jetpack-social/get-connections. Requires at least one working connection. Works on posts the user can edit. On a Jetpack site the current user must be connected to WordPress.com.',
 					'jetpack-publicize-pkg'
 				),
 				'input_schema'        => array(
@@ -154,8 +154,7 @@ class Social_Abilities extends Registrar {
 					'type'       => 'object',
 					'properties' => array(
 						'post_id' => array( 'type' => 'integer' ),
-						'results' => array( 'type' => 'array' ),
-						'errors'  => array( 'type' => 'array' ),
+						'queued'  => array( 'type' => 'boolean' ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'share_post' ),
@@ -307,7 +306,10 @@ class Social_Abilities extends Registrar {
 			return new WP_Error( 'jetpack_social_missing_message', __( 'message is required and cannot be empty.', 'jetpack-publicize-pkg' ) );
 		}
 
-		$body = array( 'message' => $message );
+		$body = array(
+			'message' => $message,
+			'async'   => true,
+		);
 		if ( ! empty( $input['skipped_connections'] ) && is_array( $input['skipped_connections'] ) ) {
 			$body['skipped_connections'] = array_map( 'absint', $input['skipped_connections'] );
 		}
@@ -322,12 +324,9 @@ class Social_Abilities extends Registrar {
 			return $result;
 		}
 
-		$result = (array) $result;
-
 		return array(
 			'post_id' => $post_id,
-			'results' => array_values( (array) ( $result['results'] ?? array() ) ),
-			'errors'  => array_values( (array) ( $result['errors'] ?? array() ) ),
+			'queued'  => true,
 		);
 	}
 
