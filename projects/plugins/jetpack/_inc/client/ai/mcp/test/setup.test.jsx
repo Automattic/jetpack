@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { speak } from '@wordpress/a11y';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import McpSetup from '../setup';
 
 jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
