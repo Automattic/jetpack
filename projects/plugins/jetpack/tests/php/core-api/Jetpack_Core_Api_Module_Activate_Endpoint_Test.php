@@ -189,6 +189,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertWPError( $result );
 		$this->assertSame( 'some_updated', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
 		$this->assertSame( '1.1.1.1', get_option( 'jetpack_waf_ip_allow_list' ) );
 	}
 
