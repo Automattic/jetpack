@@ -312,6 +312,46 @@ class PayPal_REST_Controller {
 			)
 		);
 
+		// Product images: send media library files to PayPal, and delete one no payment carries.
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::ROUTE_BASE . '/images',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'handle_upload_images' ),
+					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
+					'args'                => array(
+						'attachment_ids' => array(
+							'required'    => true,
+							'type'        => 'array',
+							'minItems'    => 1,
+							'maxItems'    => PayPal_API_Client::MAX_IMAGES_PER_UPLOAD,
+							'items'       => array(
+								'type'    => 'integer',
+								'minimum' => 1,
+							),
+							'description' => __( 'Media library attachments to send to PayPal.', 'jetpack-paypal-payments' ),
+						),
+					),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( __CLASS__, 'handle_delete_image' ),
+					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
+					'args'                => array(
+						'asset_id' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+							'validate_callback' => array( __CLASS__, 'validate_non_empty_string' ),
+							'description'       => __( 'The image, as PayPal identifies it.', 'jetpack-paypal-payments' ),
+						),
+					),
+				),
+			)
+		);
+
 		// Environment switch.
 		register_rest_route(
 			self::REST_NAMESPACE,
@@ -804,6 +844,9 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// A PUT detaches the images it leaves out but keeps them in the account.
+		self::delete_detached_images( $current, $resource_data );
+
 		// PayPal answers a PUT with an empty 204, so a stacked block's save asks for a re-read
 		// to get its SDK URL in the same save. Only the re-read gets `attributes`. The echo has
 		// no code_snippets, so mapping it would blank a stacked block's scriptSrc.
@@ -897,6 +940,345 @@ class PayPal_REST_Controller {
 			),
 			200
 		);
+	}
+
+	/**
+	 * Handle POST /paypal/images -- send media library images to PayPal.
+	 *
+	 * Answers one row per attachment, in the order asked: `asset_id` and `status` for
+	 * an image PayPal took, or `error` (name and message) for one it, or the checks
+	 * here, refused. A failure of the whole call is an error response instead.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
+	 */
+	public static function handle_upload_images( WP_REST_Request $request ) {
+		$attachment_ids = array_values( array_unique( array_map( 'absint', (array) $request->get_param( 'attachment_ids' ) ) ) );
+
+		$rows  = array();
+		$files = array();
+		foreach ( $attachment_ids as $attachment_id ) {
+			$file = self::read_image_attachment( $attachment_id );
+			if ( is_wp_error( $file ) ) {
+				$rows[ $attachment_id ] = array(
+					'attachment_id' => $attachment_id,
+					'error'         => array(
+						'name'    => $file->get_error_code(),
+						'message' => $file->get_error_message(),
+					),
+				);
+				continue;
+			}
+			$file['attachment_id']  = $attachment_id;
+			$files[]                = $file;
+			$rows[ $attachment_id ] = array( 'attachment_id' => $attachment_id );
+		}
+
+		if ( ! empty( $files ) ) {
+			$result = PayPal_API_Client::upload_images(
+				array_map(
+					function ( $file ) {
+						return array(
+							'name'    => $file['name'],
+							'type'    => $file['type'],
+							'content' => $file['content'],
+						);
+					},
+					$files
+				)
+			);
+			if ( is_wp_error( $result ) ) {
+				return self::api_error_to_rest_error( $result );
+			}
+
+			// PayPal answers in the order sent; a refused file also says which it was.
+			$answers = isset( $result['images'] ) && is_array( $result['images'] ) ? array_values( $result['images'] ) : array();
+			foreach ( $answers as $position => $answer ) {
+				if ( ! is_array( $answer ) ) {
+					continue;
+				}
+				$index = isset( $answer['input_index'] ) ? (int) $answer['input_index'] : $position;
+				if ( ! isset( $files[ $index ] ) ) {
+					continue;
+				}
+				$attachment_id          = $files[ $index ]['attachment_id'];
+				$rows[ $attachment_id ] = self::uploaded_image_row( $attachment_id, $files[ $index ]['name'], $answer );
+			}
+		}
+
+		$taken = 0;
+		foreach ( $rows as $attachment_id => $row ) {
+			if ( isset( $row['asset_id'] ) ) {
+				++$taken;
+			} elseif ( ! isset( $row['error'] ) ) {
+				$rows[ $attachment_id ]['error'] = array(
+					'name'    => 'NO_RESPONSE',
+					'message' => self::image_error_message( 'NO_RESPONSE', $row['attachment_id'] ? self::attachment_name( $row['attachment_id'] ) : '' ),
+				);
+			}
+		}
+
+		PayPal_Tracks::record_event(
+			'jetpack_paypal_images_uploaded',
+			array(
+				'environment' => PayPal_OAuth::get_environment(),
+				'sent'        => count( $files ),
+				'taken'       => $taken,
+			)
+		);
+
+		return new WP_REST_Response( array( 'images' => array_values( $rows ) ), 200 );
+	}
+
+	/**
+	 * Handle DELETE /paypal/images -- delete an image no payment carries.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
+	 */
+	public static function handle_delete_image( WP_REST_Request $request ) {
+		$asset_id = (string) $request->get_param( 'asset_id' );
+
+		$result = PayPal_API_Client::delete_image( $asset_id );
+
+		if ( is_wp_error( $result ) ) {
+			// Gone already is the outcome asked for.
+			$error_data = $result->get_error_data();
+			if ( 404 !== (int) ( $error_data['status'] ?? 0 ) ) {
+				return self::api_error_to_rest_error( $result );
+			}
+		}
+
+		return new WP_REST_Response(
+			array(
+				'deleted'  => true,
+				'asset_id' => $asset_id,
+			),
+			200
+		);
+	}
+
+	/**
+	 * The file name shown for a media library item.
+	 *
+	 * @param int $attachment_id The attachment.
+	 * @return string Its file name, or its title.
+	 */
+	private static function attachment_name( $attachment_id ) {
+		$name = wp_basename( (string) get_attached_file( $attachment_id ) );
+
+		return '' !== $name ? $name : (string) get_the_title( $attachment_id );
+	}
+
+	/**
+	 * Read a media library image, checked against PayPal's limits first.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $attachment_id The attachment.
+	 * @return array|WP_Error Its name, type and content, or why it cannot go, as PayPal would name it.
+	 */
+	private static function read_image_attachment( $attachment_id ) {
+		$post = get_post( $attachment_id );
+		if ( ! $post || 'attachment' !== $post->post_type ) {
+			return new WP_Error( 'IMAGE_NOT_FOUND', __( 'This image is not in the media library.', 'jetpack-paypal-payments' ) );
+		}
+
+		$name = self::attachment_name( $attachment_id );
+		$type = (string) $post->post_mime_type;
+		if ( ! in_array( $type, PayPal_API_Client::IMAGE_MIME_TYPES, true ) ) {
+			return new WP_Error( 'UNSUPPORTED_FORMAT', self::image_error_message( 'UNSUPPORTED_FORMAT', $name ) );
+		}
+
+		$meta = wp_get_attachment_metadata( $attachment_id );
+		$meta = is_array( $meta ) ? $meta : array();
+		foreach ( array( 'width', 'height' ) as $side ) {
+			$px = (int) ( $meta[ $side ] ?? 0 );
+			if ( $px > 0 && ( $px < PayPal_API_Client::MIN_IMAGE_PX || $px > PayPal_API_Client::MAX_IMAGE_PX ) ) {
+				return new WP_Error( 'DIMENSION_OUT_OF_RANGE', self::image_error_message( 'DIMENSION_OUT_OF_RANGE', $name ) );
+			}
+		}
+		if ( (int) ( $meta['filesize'] ?? 0 ) > PayPal_API_Client::MAX_IMAGE_BYTES ) {
+			return new WP_Error( 'FILE_TOO_LARGE', self::image_error_message( 'FILE_TOO_LARGE', $name ) );
+		}
+
+		$content = self::read_attachment_bytes( $attachment_id );
+		if ( is_wp_error( $content ) ) {
+			return $content;
+		}
+		if ( strlen( $content ) > PayPal_API_Client::MAX_IMAGE_BYTES ) {
+			return new WP_Error( 'FILE_TOO_LARGE', self::image_error_message( 'FILE_TOO_LARGE', $name ) );
+		}
+
+		return array(
+			'name'    => $name,
+			'type'    => $type,
+			'content' => $content,
+		);
+	}
+
+	/**
+	 * The bytes of a media library file: from disk, or over HTTP when it only lives on a CDN.
+	 *
+	 * @param int $attachment_id The attachment.
+	 * @return string|WP_Error The bytes, or IMAGE_UNREADABLE.
+	 */
+	private static function read_attachment_bytes( $attachment_id ) {
+		$path = get_attached_file( $attachment_id );
+		if ( $path && is_readable( $path ) ) {
+			$content = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- A local upload, not a URL.
+			if ( false !== $content && '' !== $content ) {
+				return $content;
+			}
+		}
+
+		$url      = wp_get_attachment_url( $attachment_id );
+		$response = $url ? wp_remote_get( $url, array( 'timeout' => PayPal_API_Client::REQUEST_TIMEOUT ) ) : null;
+		$content  = $response && ! is_wp_error( $response ) && 200 === (int) wp_remote_retrieve_response_code( $response )
+			? (string) wp_remote_retrieve_body( $response )
+			: '';
+
+		if ( '' === $content ) {
+			return new WP_Error(
+				'IMAGE_UNREADABLE',
+				sprintf(
+					/* translators: %s: file name */
+					__( '%s could not be read from the media library.', 'jetpack-paypal-payments' ),
+					self::attachment_name( $attachment_id )
+				)
+			);
+		}
+
+		return $content;
+	}
+
+	/**
+	 * One row of the upload response, from PayPal's row for the file.
+	 *
+	 * @param int    $attachment_id The attachment the file came from.
+	 * @param string $name          Its file name.
+	 * @param array  $answer        PayPal's row: asset_id and status, or error and input_index.
+	 * @return array The row.
+	 */
+	private static function uploaded_image_row( $attachment_id, $name, array $answer ) {
+		if ( ! empty( $answer['asset_id'] ) ) {
+			$urls = array();
+			foreach ( ( isset( $answer['sizes'] ) && is_array( $answer['sizes'] ) ? $answer['sizes'] : array() ) as $size ) {
+				if ( is_array( $size ) && isset( $size['type'] ) && isset( $size['url'] ) ) {
+					$urls[ (string) $size['type'] ] = esc_url_raw( (string) $size['url'] );
+				}
+			}
+
+			return array(
+				'attachment_id' => $attachment_id,
+				'asset_id'      => sanitize_text_field( (string) $answer['asset_id'] ),
+				'status'        => 'IN_REVIEW' === ( $answer['status'] ?? '' ) ? 'IN_REVIEW' : 'APPROVED',
+				'url'           => $urls['medium'] ?? '',
+				'thumbnail_url' => $urls['thumbnail'] ?? '',
+			);
+		}
+
+		$error_name = sanitize_text_field( (string) ( $answer['error']['name'] ?? 'UNKNOWN' ) );
+
+		return array(
+			'attachment_id' => $attachment_id,
+			'error'         => array(
+				'name'    => $error_name,
+				'message' => self::image_error_message( $error_name, $name ),
+			),
+		);
+	}
+
+	/**
+	 * What to tell the merchant about a file PayPal refused.
+	 *
+	 * @param string $error_name PayPal's row error name.
+	 * @param string $file_name  The file.
+	 * @return string The message.
+	 */
+	private static function image_error_message( $error_name, $file_name ) {
+		switch ( $error_name ) {
+			case 'IMAGE_REJECTED':
+				/* translators: %s: file name */
+				$message = __( '%s did not pass PayPal\'s content check.', 'jetpack-paypal-payments' );
+				break;
+			case 'UNSUPPORTED_FORMAT':
+				/* translators: %s: file name */
+				$message = __( 'PayPal does not accept the format of %s. Use a JPEG, PNG, BMP or TIFF image.', 'jetpack-paypal-payments' );
+				break;
+			case 'FILE_TOO_LARGE':
+				/* translators: %s: file name */
+				$message = __( '%s is over 12 MB.', 'jetpack-paypal-payments' );
+				break;
+			case 'DIMENSION_OUT_OF_RANGE':
+				/* translators: %s: file name */
+				$message = __( '%s must be between 10 and 9000 pixels on each side.', 'jetpack-paypal-payments' );
+				break;
+			case 'SCAN_FAILED':
+			case 'OWNERSHIP_PERSIST_FAILED':
+			case 'NO_RESPONSE':
+				/* translators: %s: file name */
+				$message = __( 'PayPal could not take %s just now. Please try again.', 'jetpack-paypal-payments' );
+				break;
+			default:
+				/* translators: %s: file name */
+				$message = __( 'PayPal did not accept %s.', 'jetpack-paypal-payments' );
+		}
+
+		return sprintf( $message, $file_name );
+	}
+
+	/**
+	 * Delete the images an update took off a payment.
+	 *
+	 * Best effort: a delete that fails leaves an unused image in the account, nothing more.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $current The payment as the GET before the update returned it.
+	 * @param array $updated The body the update sent.
+	 * @return void
+	 */
+	private static function delete_detached_images( array $current, array $updated ) {
+		$gone = array_diff( self::image_asset_ids( $current ), self::image_asset_ids( $updated ) );
+		foreach ( $gone as $asset_id ) {
+			PayPal_API_Client::delete_image( $asset_id );
+		}
+	}
+
+	/**
+	 * Every image a payment carries, on its line items and its variant options.
+	 *
+	 * @param array $resource A payment, as PayPal returns it or as a body sends it.
+	 * @return string[] The asset ids.
+	 */
+	private static function image_asset_ids( array $resource ) {
+		$ids = array();
+
+		foreach ( ( $resource['line_items'] ?? array() ) as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$lists = array( $item['images'] ?? array() );
+			foreach ( ( $item['variants']['dimensions'] ?? array() ) as $dimension ) {
+				foreach ( ( $dimension['options'] ?? array() ) as $option ) {
+					$lists[] = $option['images'] ?? array();
+				}
+			}
+			foreach ( $lists as $images ) {
+				foreach ( ( is_array( $images ) ? $images : array() ) as $image ) {
+					if ( is_array( $image ) && ! empty( $image['asset_id'] ) ) {
+						$ids[] = (string) $image['asset_id'];
+					}
+				}
+			}
+		}
+
+		return array_values( array_unique( $ids ) );
 	}
 
 	// --- Shared helpers ---
@@ -1040,6 +1422,7 @@ class PayPal_REST_Controller {
 			'integration_mode' => $resource_data['integration_mode'],
 			'currency'         => strtoupper( $currency ),
 			'has_variants'     => ! empty( $line_item['variants'] ),
+			'image_count'      => count( self::image_asset_ids( $resource_data ) ),
 		);
 	}
 
@@ -1164,6 +1547,16 @@ class PayPal_REST_Controller {
 																'value'         => array( 'type' => 'string' ),
 															),
 														),
+														// One per option, on the primary group only.
+														'images'      => array(
+															'type'  => 'array',
+															'items' => array(
+																'type'       => 'object',
+																'properties' => array(
+																	'asset_id' => array( 'type' => 'string' ),
+																),
+															),
+														),
 													),
 												),
 											),
@@ -1208,6 +1601,19 @@ class PayPal_REST_Controller {
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,
+						),
+						// Uploaded first through the images route; the first, or the one
+						// flagged, is the primary image.
+						'images'                   => array(
+							'type'     => 'array',
+							'required' => false,
+							'items'    => array(
+								'type'       => 'object',
+								'properties' => array(
+									'asset_id'   => array( 'type' => 'string' ),
+									'is_primary' => array( 'type' => 'boolean' ),
+								),
+							),
 						),
 						'shipping'                 => $amount_list,
 						'handling'                 => $amount_list,
@@ -1377,6 +1783,14 @@ class PayPal_REST_Controller {
 			if ( '' !== $product_id ) {
 				$clean_item['product_id'] = $product_id;
 			}
+
+			if ( ! empty( $item['images'] ) && is_array( $item['images'] ) ) {
+				$clean_images = self::sanitize_images( $item['images'], true );
+				if ( ! empty( $clean_images ) ) {
+					$clean_item['images'] = $clean_images;
+				}
+			}
+
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
 				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {
 					$clean_amounts = self::sanitize_amount_list( $item[ $field ] );
@@ -1395,6 +1809,47 @@ class PayPal_REST_Controller {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize an image list for PayPal API submission.
+	 *
+	 * Line-item images are capped at five with exactly one primary: the one flagged,
+	 * or else the first. A variant option takes one image and no flag.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $images       Raw entries from the REST request.
+	 * @param bool  $is_line_item Whether these are the line item's images rather than an option's.
+	 * @return array Sanitized entries, each with asset_id and, on a line item, is_primary.
+	 */
+	private static function sanitize_images( array $images, $is_line_item ) {
+		$limit      = $is_line_item ? PayPal_Attribute_Mapper::MAX_PRODUCT_IMAGES : 1;
+		$clean      = array();
+		$primary_at = null;
+
+		foreach ( $images as $image ) {
+			$asset_id = is_array( $image ) ? trim( sanitize_text_field( (string) ( $image['asset_id'] ?? '' ) ) ) : '';
+			if ( '' === $asset_id ) {
+				continue;
+			}
+			if ( null === $primary_at && ! empty( $image['is_primary'] ) ) {
+				$primary_at = count( $clean );
+			}
+			$clean[] = array( 'asset_id' => $asset_id );
+			if ( count( $clean ) >= $limit ) {
+				break;
+			}
+		}
+
+		if ( $is_line_item ) {
+			$primary_at = $primary_at ?? 0;
+			foreach ( $clean as $index => $image ) {
+				$clean[ $index ]['is_primary'] = ( $index === $primary_at );
+			}
+		}
+
+		return $clean;
 	}
 
 	/**
@@ -1473,6 +1928,14 @@ class PayPal_REST_Controller {
 										: 'USD',
 									'value'         => $value,
 								);
+							}
+						}
+						// One image per option, on the primary group only: PayPal rejects
+						// an image on any other group.
+						if ( $clean_dim['primary'] && ! empty( $option['images'] ) && is_array( $option['images'] ) ) {
+							$clean_images = self::sanitize_images( $option['images'], false );
+							if ( ! empty( $clean_images ) ) {
+								$clean_opt['images'] = $clean_images;
 							}
 						}
 						$clean_opts[] = $clean_opt;
