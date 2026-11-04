@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
+import { categoryKey, isSameCategory } from './category';
 import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
+import { getStackLayout } from './stack-layout';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
 import type { SlotMember } from './slot-tooltip-members';
-import type { DataPointDate, SeriesData } from '../../../types';
+import type { StackLayout } from './stack-layout';
+import type { BarChartLayout, DataPointDate, SeriesData } from '../../../types';
 
 type SeriesEntry = { series: SeriesData; index: number };
 
-export type OverlapSlots = {
-	/** The visible series, back to front. */
+export type BarSlots = {
+	/** The visible series, back to front; bottom to top in a stack. */
 	entries: SeriesEntry[];
 	keys: string[];
 	/** The slots of a category, in the order the band lays them out. */
@@ -17,7 +20,7 @@ export type OverlapSlots = {
 	thicknessOf: ( key: string ) => number;
 	/** The keyboard stops: every category a slot draws a bar at, category by category. */
 	positions: StopPosition[];
-};
+} & ( { kind: 'overlap' } | { kind: 'stacked'; stack: StackLayout } );
 
 /** A slot at one category, named by its front-most bar there. */
 export type StopPosition = {
@@ -30,36 +33,39 @@ export type StopPosition = {
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
 /**
- * Whether two data points sit at the same category: the same label, or the same date.
+ * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one.
  *
- * @param point    - A data point.
- * @param category - The data point naming the category.
- * @return Whether `point` is at `category`.
- */
-export function isSameCategory( point: DataPointDate, category: DataPointDate ): boolean {
-	// An empty label falls back to the date, as the band axis's accessor does.
-	return category.label
-		? point.label === category.label
-		: !! category.date && !! point.date && point.date.getTime() === category.date.getTime();
-}
-
-/**
- * Lays out the visible series of an overlap layout in slots and layers.
- *
- * @param enabled              - Whether the chart draws an overlap layout.
+ * @param layout               - How the chart places its series in a category.
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
- * @return The layout, or undefined when the chart is not an overlap layout.
+ * @return The slots, or undefined for a grouped layout.
  */
-export function useOverlapSlots(
-	enabled: boolean,
+export function useBarSlots(
+	layout: BarChartLayout,
 	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
-): OverlapSlots | undefined {
+): BarSlots | undefined {
 	return useMemo( () => {
-		if ( ! enabled ) {
+		if ( layout === 'grouped' ) {
 			return undefined;
 		}
 
 		const visible = seriesWithVisibility.filter( ( { isVisible } ) => isVisible );
+
+		if ( layout === 'stacked' ) {
+			// Bottom to top, so the top segment names each keyboard stop.
+			const entries = visible.map( ( { series, index } ) => ( { series, index } ) );
+			const slotKeys = [ PRIMARY_SLOT ];
+			const slotOf = () => PRIMARY_SLOT;
+			return {
+				kind: 'stacked',
+				stack: getStackLayout( entries.map( ( { series } ) => series ) ),
+				entries,
+				keys: entries.map( ( { series } ) => series.label ),
+				slotKeys,
+				slotOf,
+				thicknessOf: () => 1,
+				positions: getStopPositions( entries, slotKeys, slotOf ),
+			};
+		}
 		const placements = getOverlapPlacements( visible.map( ( { series } ) => series ) );
 		const placed = visible
 			.map( ( { series, index }, position ) => ( {
@@ -85,6 +91,7 @@ export function useOverlapSlots(
 		];
 
 		return {
+			kind: 'overlap',
 			entries,
 			keys: entries.map( ( { series } ) => series.label ),
 			slotKeys,
@@ -92,17 +99,7 @@ export function useOverlapSlots(
 			thicknessOf,
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
-	}, [ enabled, seriesWithVisibility ] );
-}
-
-/**
- * The category a data point sits at, as a key two points share when `isSameCategory` holds.
- *
- * @param point - A data point.
- * @return The category key.
- */
-function categoryKey( point: DataPointDate ): string {
-	return point.label ? `label:${ point.label }` : `date:${ point.date?.getTime() }`;
+	}, [ layout, seriesWithVisibility ] );
 }
 
 /**
@@ -184,12 +181,12 @@ export function membersAt(
 /**
  * The slot a keyboard index selects, and every bar at its category.
  *
- * @param slots         - The overlap layout.
+ * @param slots         - The overlap or stacked slots.
  * @param selectedIndex - The keyboard index into `slots.positions`.
  * @return The selected slot, or undefined when nothing is selected or drawn there.
  */
 export function getSelectedSlot(
-	slots: OverlapSlots | undefined,
+	slots: BarSlots | undefined,
 	selectedIndex: number | undefined
 ): SelectedSlot | undefined {
 	const position = selectedIndex === undefined ? undefined : slots?.positions[ selectedIndex ];
@@ -209,5 +206,6 @@ export function getSelectedSlot(
 		slotKey,
 		thickness: Math.max( ...slotBars.map( ( { key } ) => slots.thicknessOf( key ) ) ),
 		members,
+		...( slots.kind === 'stacked' && { valueExtent: slots.stack.extentAt( category ) } ),
 	};
 }
