@@ -29,7 +29,13 @@ describe( 'geo-store', () => {
 
 	it( 'replaces the llms.txt state on setLlmsTxt without touching other slices', () => {
 		const registry = makeRegistry();
-		const next = { enabled: true, url: SEEDED_GEO.llmsTxt.url, canServe: true };
+		const next = {
+			enabled: true,
+			url: SEEDED_GEO.llmsTxt.url,
+			canServe: true,
+			disabled: false,
+			conflictingPlugin: '',
+		};
 		registry.dispatch( geoStore ).setLlmsTxt( next );
 		expect( registry.select( geoStore ).getLlmsTxt() ).toEqual( next );
 		expect( registry.select( geoStore ).getEnhancer() ).toEqual( SEEDED_GEO.enhancer );

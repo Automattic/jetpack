@@ -26,7 +26,7 @@ const TZ_SUITES = [
 	'packages/widgets-toolkit/src/components/post-highlight-card/__tests__/post-highlight-card.test.tsx',
 	'routes/detail-header.test.ts',
 	'routes/post-detail/components/post-header-slots/post-header-slots.test.tsx',
-	'routes/video-detail/components/video-header-slots/video-header-slots.test.tsx',
+	'routes/single-report/pages/video/video-header-slots.test.tsx',
 	'widgets/popular-days/__tests__/bucket-views-by-weekday.test.ts',
 	'widgets/video-detail-views-performance/__tests__/video-detail-views-performance.test.tsx',
 	'widgets/views-over-years/__tests__/build-views-over-years.test.ts',

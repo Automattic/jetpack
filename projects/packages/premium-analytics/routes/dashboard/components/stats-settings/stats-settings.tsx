@@ -17,38 +17,61 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ConsentCard } from './consent-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
+import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
 
 type CardGroup = { id: string; label: string; children: Array< keyof StatsSettings > };
 
 /**
- * The form's cards and the fields each one holds.
+ * The form's cards and the fields each one holds, keeping only the fields the site offers.
  *
- * @return The cards, in order.
+ * @param offered - The settings the site offers; every setting when the site does not say.
+ * @return The cards left holding a field, in order.
  */
-const getCardGroups = (): CardGroup[] => [
-	{
-		id: 'admin-bar',
-		label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'admin_bar' ],
-	},
-	{
-		id: 'permissions',
-		label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'roles', 'count_roles' ],
-	},
-	{
-		id: 'reader',
-		label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
-		children: [ 'wpcom_reader_views_enabled' ],
-	},
-];
+const getCardGroups = ( offered?: string[] ): CardGroup[] => {
+	const groups: CardGroup[] = [
+		{
+			id: 'admin-bar',
+			label: __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'admin_bar' ],
+		},
+		{
+			id: 'permissions',
+			label: __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'roles', 'count_roles' ],
+		},
+		{
+			id: 'reader',
+			label: __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ),
+			children: [ 'wpcom_reader_views_enabled' ],
+		},
+	];
+	if ( ! offered ) {
+		return groups;
+	}
+
+	return groups
+		.map( group => ( {
+			...group,
+			children: group.children.filter( id => offered.includes( id ) ),
+		} ) )
+		.filter( group => group.children.length > 0 );
+};
+
+// Long enough for a usual plan usage answer, short enough that a slow one leaves the settings usable.
+const PLAN_USAGE_HOLD_MS = 2000;
 
 // apiFetch writes these itself when the request never reached the site.
 const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
@@ -78,7 +101,7 @@ type SettingChange = { setting: keyof StatsSettings; enabled: boolean; role?: st
  * @return One entry per change.
  */
 function getSettingChanges(
-	before: StatsSettings,
+	before: Partial< StatsSettings >,
 	edits: Partial< StatsSettings >
 ): SettingChange[] {
 	return ( Object.keys( edits ) as ( keyof StatsSettings )[] ).flatMap( setting => {
@@ -86,7 +109,7 @@ function getSettingChanges(
 		if ( ! Array.isArray( value ) ) {
 			return [ { setting, enabled: Boolean( value ) } ];
 		}
-		const previous = before[ setting ] as string[];
+		const previous = ( before[ setting ] ?? [] ) as string[];
 		return [
 			...value
 				.filter( role => ! previous.includes( role ) )
@@ -104,17 +127,51 @@ function getSettingChanges(
  * @return The Settings tab content.
  */
 export function StatsSettingsPanel(): JSX.Element {
+	return (
+		// Outside any widget, so outside the provider `WidgetRoot` mounts for widgets.
+		<AnalyticsQueryClientProvider>
+			<StatsSettingsContent />
+		</AnalyticsQueryClientProvider>
+	);
+}
+
+/**
+ * The Settings tab's cards, once it is known whether the plan usage card is among them.
+ *
+ * @return The Settings tab content.
+ */
+function StatsSettingsContent(): JSX.Element {
+	const { isLoading: isLoadingPlanUsage, failureCount } = usePlanUsage();
+	// Latched: the card refetches a failed usage on mount, which must not swap the tab back and unmount it.
+	const [ isHolding, setHolding ] = useState( isLoadingPlanUsage );
+	// After a failed attempt, the card shows the retries rather than the whole tab waiting them out.
+	if ( isHolding && ( ! isLoadingPlanUsage || failureCount > 0 ) ) {
+		setHolding( false );
+	}
+	useEffect( () => {
+		if ( ! isHolding ) {
+			return;
+		}
+		const timer = setTimeout( () => setHolding( false ), PLAN_USAGE_HOLD_MS );
+		return () => clearTimeout( timer );
+	}, [ isHolding ] );
 	const premiumAnalytics = getScriptData()?.premium_analytics;
 	const roles = premiumAnalytics?.stats_settings?.roles;
 	const featuresUrl = premiumAnalytics?.stats_settings?.features_url;
+	const featuresScreen = premiumAnalytics?.stats_settings?.features_screen;
+	const offered = premiumAnalytics?.stats_settings?.fields;
 	const fields = useMemo( () => getFields( roles ?? [] ), [ roles ] );
-	const cardGroups = useMemo( getCardGroups, [] );
+	const cardGroups = useMemo( () => getCardGroups( offered ), [ offered ] );
+	const offeredSettings = useMemo(
+		() => cardGroups.flatMap( group => group.children ),
+		[ cardGroups ]
+	);
 	const formLayout = useMemo< Form >(
 		() => ( { layout: { type: 'card', isCollapsible: false }, fields: cardGroups } ),
 		[ cardGroups ]
 	);
 
-	const { settings, isError, saveChange } = useStatsSettings();
+	const { settings, isError, saveChange } = useStatsSettings( offeredSettings );
 	const trackEvent = useTrackEvent();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( 'core/notices' );
 
@@ -136,8 +193,7 @@ export function StatsSettingsPanel(): JSX.Element {
 				);
 				return;
 			}
-			// DataForm only renders once the settings have loaded.
-			getSettingChanges( settings as StatsSettings, edits ).forEach( change =>
+			getSettingChanges( settings ?? {}, edits ).forEach( change =>
 				trackEvent( 'jetpack_premium_analytics_settings_changed', change )
 			);
 			createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
@@ -148,8 +204,22 @@ export function StatsSettingsPanel(): JSX.Element {
 		[ createErrorNotice, createSuccessNotice, saveChange, settings, trackEvent ]
 	);
 
-	let form: JSX.Element;
-	if ( settings ) {
+	// A plan without a view limit has no usage card, so briefly hold the whole tab rather than shift it once that is known.
+	if ( isHolding ) {
+		return (
+			<Stack direction="column" align="center" className={ styles.root } aria-busy="true">
+				<Spinner />
+				<VisuallyHidden role="status">
+					{ __( 'Loading your Stats settings…', 'jetpack-premium-analytics-pkg' ) }
+				</VisuallyHidden>
+			</Stack>
+		);
+	}
+
+	let form: JSX.Element | null;
+	if ( cardGroups.length === 0 ) {
+		form = null;
+	} else if ( settings ) {
 		form = (
 			<DataForm data={ settings } fields={ fields } form={ formLayout } onChange={ onChange } />
 		);
@@ -187,10 +257,7 @@ export function StatsSettingsPanel(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="xl" className={ styles.root }>
-			{ /* Outside any widget, so outside the provider `WidgetRoot` mounts for widgets. */ }
-			<AnalyticsQueryClientProvider>
-				<PlanUsageCard />
-			</AnalyticsQueryClientProvider>
+			<PlanUsageCard />
 			{ form }
 			<ConsentCard />
 			{ featuresUrl && (
@@ -201,10 +268,15 @@ export function StatsSettingsPanel(): JSX.Element {
 					<Card.Content>
 						<Text>
 							{ createInterpolateElement(
-								__(
-									'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
-									'jetpack-premium-analytics-pkg'
-								),
+								'modules' === featuresScreen
+									? __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack modules</link>.',
+											'jetpack-premium-analytics-pkg'
+										)
+									: __(
+											'Stats is a Jetpack feature. Activate or deactivate it from <link>Jetpack features</link>.',
+											'jetpack-premium-analytics-pkg'
+										),
 								{ link: <Link href={ featuresUrl } /> }
 							) }
 						</Text>

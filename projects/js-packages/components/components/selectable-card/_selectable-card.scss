@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 // Shared by CheckboxCard and RadioCard, which differ only in their control.
 
@@ -26,7 +26,7 @@
 
 	&:has(:focus-visible) {
 
-		@include gb.outset-ring__focus();
+		@include mixins.outset-ring__focus();
 	}
 
 	@media (prefers-reduced-motion: no-preference) {

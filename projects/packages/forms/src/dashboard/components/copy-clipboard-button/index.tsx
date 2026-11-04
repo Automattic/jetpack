@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -35,15 +36,23 @@ export default function CopyClipboardButton( {
 	const label = showCopyConfirmation ? copied : copy;
 
 	return (
-		<Tooltip key={ label } delay={ 0 } hideOnClick={ false } text={ label }>
-			<Button
-				className="jp-forms__copy-clipboard-button"
-				size="small"
-				aria-label={ label }
-				ref={ ref }
-				icon={ showCopyConfirmation ? check : copySmall }
-				showTooltip={ false }
+		<Tooltip.Root>
+			{ /* Stays open on click so the label can flip to "Copied!" under the pointer. */ }
+			<Tooltip.Trigger
+				delay={ 0 }
+				closeOnClick={ false }
+				render={
+					<Button
+						className="jp-forms__copy-clipboard-button"
+						size="small"
+						aria-label={ label }
+						ref={ ref }
+						icon={ showCopyConfirmation ? check : copySmall }
+						showTooltip={ false }
+					/>
+				}
 			/>
-		</Tooltip>
+			<Tooltip.Popup>{ label }</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }

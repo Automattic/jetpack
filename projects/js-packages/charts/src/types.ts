@@ -214,20 +214,18 @@ type LeaderboardEntryFields = {
 	previousValue?: number;
 
 	/**
-	 * Width of current bar, as % of the largest absolute value across rows. A negative share
-	 * extends the bar from a shared zero point toward the inline start, for every row.
+	 * Width of current bar, as %. Derived from the values when omitted; a passed value wins.
+	 * A negative share extends the bar from a shared zero point toward the inline start, for every row.
 	 */
-	currentShare: number;
+	currentShare?: number;
 
 	/**
-	 * Width of previous bar, as % of the largest absolute value across rows. Omit when this
-	 * row has no matching comparison-period value.
+	 * Width of previous bar, as %. Derived from `previousValue` when omitted; a passed value wins.
 	 */
 	previousShare?: number;
 
 	/**
-	 * Delta of the entry. Omit when the percentage change is unavailable, such
-	 * as when the row has no comparison value or its previous value is zero.
+	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
 
@@ -319,9 +317,9 @@ export type BarStyles = {
 };
 
 /**
- * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot.
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot; `stacked` stacks every primary in one bar, the first series at the bottom.
  */
-export type BarChartLayout = 'grouped' | 'overlap';
+export type BarChartLayout = 'grouped' | 'overlap' | 'stacked';
 
 export type MultipleDataPointsDate = {
 	label: string;
@@ -439,6 +437,18 @@ export type ChartTheme = {
 		/** Stroke width for the sparkline line */
 		strokeWidth?: number;
 	};
+	/** Compact mode for `compactWhenShort` line, area and bar charts */
+	compactWhenShort?: {
+		/** Height (px) below which the chart turns compact */
+		below?: number;
+		/** Margin the chart defaults to while compact */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
 	 * WPDS tokens in CSS, so only the compact sizing lives here.
@@ -468,6 +478,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
+	compactWhenShort: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'compactWhenShort' ] >[ 'margin' ] >;
 	};
 	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
@@ -522,6 +535,12 @@ export type AxisOptions = {
 	 * so callers can force a specific axis (e.g. integer-only steps on a sparse chart).
 	 */
 	tickValues?: ScaleInput< AxisScale >[];
+	/**
+	 * Most decimal places a value-axis tick may carry, so labels rounded to that precision never repeat;
+	 * an axis holding fewer than two steps widens to the nearest ones. Whole-number data always uses 0.
+	 * Ignored on a log scale, or when `tickValues` or the value scale's `domain` is set. Line and bar charts only.
+	 */
+	tickDecimals?: number;
 	axisClassName?: string;
 	axisLineClassName?: string;
 	labelClassName?: string;
@@ -709,6 +728,18 @@ export interface SeriesVisibilityProps {
 	 * Omit to retain the provider's existing visibility for the chart ID.
 	 */
 	defaultHiddenSeries?: readonly string[];
+}
+
+/**
+ * Compact mode for cartesian charts placed in short containers.
+ */
+export interface CompactWhenShortProps {
+	/**
+	 * Drop the axes, grid and legend, and default to `theme.compactWhenShort.margin`, while the
+	 * chart is shorter than `theme.compactWhenShort.below`. Series hidden through the legend stay
+	 * hidden until the chart is tall again. Horizontal bar charts ignore it.
+	 */
+	compactWhenShort?: boolean;
 }
 
 /**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Error reporting: Remove Sentry support and the `a8c_enable_sentry_error_reporting` filter; errors are always reported to Logstash.

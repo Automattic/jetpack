@@ -12,11 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Status\Host;
 
-// Guarded on a symbol the file declares, so a second copy of the package can't
-// redeclare it. See the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
-	require_once __DIR__ . '/videopress-availability.php';
-}
+require_once __DIR__ . '/videopress-availability.php';
 
 /**
  * Widget types that only have data on a site running VideoPress. The Top videos widget is not

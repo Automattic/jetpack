@@ -14,7 +14,7 @@ const open = jest.fn();
 const threatIn = ( id: number | string ): ScanThreat => ( {
 	id,
 	title: 'Vulnerable plugin',
-	fixable: { fixer: 'update' },
+	fixable: { fixer: 'replace' },
 	extension: {
 		type: 'plugins',
 		slug: 'akismet',
@@ -60,11 +60,12 @@ describe( 'useThreatRowActions', () => {
 	} );
 
 	it.each( [
-		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix' ] ],
+		[ 'a replace fix', { fixer: 'replace' }, [ 'auto-fix' ] ],
+		[ 'an update fix', { fixer: 'update' }, [ 'auto-fix-update' ] ],
 		[ 'a delete fix', { fixer: 'delete' }, [ 'auto-fix-delete' ] ],
 		[
 			'a fix left out of bulk fixes',
-			{ fixer: 'update', extras: { isBulkFixable: false } },
+			{ fixer: 'replace', extras: { isBulkFixable: false } },
 			[ 'auto-fix' ],
 		],
 	] as const )( 'picks the Auto-fix action for %s', ( _name, fixable, expected ) => {
@@ -112,7 +113,7 @@ describe( 'useThreatRowActions', () => {
 } );
 
 describe( 'useThreatRowActions with bulk actions', () => {
-	const BULK = [ 'auto-fix', 'ignore' ];
+	const BULK = [ 'auto-fix', 'auto-fix-update', 'ignore' ];
 	const threats = [ threatIn( 10 ), threatIn( 11 ) ];
 
 	// Scan history and the threat report pass no onBulk, so they must not grow checkboxes.
