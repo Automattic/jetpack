@@ -1,5 +1,5 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { ProgressBar, VisuallyHidden } from '@wordpress/components';
+import { VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
@@ -17,6 +17,7 @@ import {
 	EmptyState,
 	Link as ExternalLink,
 	ButtonLink,
+	Progress,
 	Spinner,
 	Stack,
 	Text,
@@ -300,11 +301,15 @@ export default function DownloadScreen() {
 						{ isPreparing && (
 							<EmptyState.Root className="jpb-download__status">
 								{ state.phase === 'progress' ? (
-									<ProgressBar
+									<Progress.Root
 										className="jpb-download__bar"
 										value={ state.percent }
 										aria-label={ __( 'Preparing your download', 'jetpack-backup-pkg' ) }
-									/>
+									>
+										<Progress.Track className="jpb-download__track">
+											<Progress.Indicator className="jpb-download__indicator" />
+										</Progress.Track>
+									</Progress.Root>
 								) : (
 									<Spinner />
 								) }
@@ -346,11 +351,11 @@ export default function DownloadScreen() {
 								<ExternalLink
 									openInNewTab
 									href={ getRedirectUrl(
-										'jetpack-contact-support',
+										'jetpack-backup-download-failed',
 										siteSuffix ? { site: siteSuffix } : {}
 									) }
 								>
-									{ __( 'Contact support', 'jetpack-backup-pkg' ) }
+									{ __( 'How to fix a failed download', 'jetpack-backup-pkg' ) }
 								</ExternalLink>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ handleRetry }>

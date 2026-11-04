@@ -1,3 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Keep Protect-managed modules out of Features bulk changes before the Protect dashboard's initial release.

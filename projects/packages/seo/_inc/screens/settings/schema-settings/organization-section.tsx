@@ -10,6 +10,7 @@ import type { FC } from 'react';
 interface Props {
 	/** The schema-settings form controller, owned by the Schema card group. */
 	form: SchemaSettingsForm;
+	disabled?: boolean;
 }
 
 /**
@@ -17,11 +18,12 @@ interface Props {
  * Save button (which persists these values together with the LocalBusiness
  * refinement below) lives in the parent Schema card.
  *
- * @param props      - Component props.
- * @param props.form - The shared schema-settings form controller.
+ * @param props          - Component props.
+ * @param props.form     - The shared schema-settings form controller.
+ * @param props.disabled - Whether editing is disabled.
  * @return The Organization settings fields.
  */
-const OrganizationSection: FC< Props > = ( { form } ) => {
+const OrganizationSection: FC< Props > = ( { form, disabled = false } ) => {
 	const { organization, defaults, isSaving, setOrganizationField } = form;
 	const { name, description, sameAs, email } = organization;
 
@@ -47,7 +49,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				placeholder={ defaults.name }
 				value={ name }
 				onChange={ next => setOrganizationField( { name: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>
@@ -62,7 +64,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				value={ description }
 				onChange={ next => setOrganizationField( { description: next } ) }
 				rows={ 3 }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__nextHasNoMarginBottom
 			/>
 
@@ -74,7 +76,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				) }
 				urls={ sameAs }
 				onChange={ next => setOrganizationField( { sameAs: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 			/>
 
 			<TextControl
@@ -83,7 +85,7 @@ const OrganizationSection: FC< Props > = ( { form } ) => {
 				type="email"
 				value={ email }
 				onChange={ next => setOrganizationField( { email: next } ) }
-				disabled={ isSaving }
+				disabled={ disabled || isSaving }
 				__next40pxDefaultSize
 				__nextHasNoMarginBottom
 			/>

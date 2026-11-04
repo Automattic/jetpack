@@ -65,10 +65,11 @@ class WP_Build_Polyfills {
 
 	/**
 	 * Minimum Gutenberg plugin version whose widget-primitives script module ships
-	 * `HostLink`, which widget-dashboard >= 0.8.0 imports at module scope (Gutenberg
-	 * PR #82952, first released in 24.1.0).
+	 * every export our bundles import at module scope: `HostLink` for
+	 * widget-dashboard >= 0.8.0 (Gutenberg PR #82952, 24.1.0) and `useWidgetActions`
+	 * for Premium Analytics (widget-primitives 0.9.0, first released in 24.2.0).
 	 */
-	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '24.1.0';
+	const GUTENBERG_WIDGET_PRIMITIVES_MIN_VERSION = '24.2.0';
 
 	/**
 	 * Global holding the bundled package version each polyfilled module was registered from.

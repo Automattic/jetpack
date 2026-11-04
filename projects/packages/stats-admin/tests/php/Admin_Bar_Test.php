@@ -47,6 +47,10 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_die_handler' );
 		remove_all_filters( 'jetpack_stats_url' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG );
+		wp_deregister_script( Admin_Bar::SCRIPT_HANDLE );
+		wp_deregister_style( Admin_Bar::SCRIPT_HANDLE );
+		delete_option( 'timezone_string' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
@@ -135,6 +139,93 @@ class Admin_Bar_Test extends Stats_TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
+	public function test_seven_day_chart_replaces_the_image_and_keeps_the_text_label() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+
+		$node = $this->render_chart_node();
+
+		$this->assertStringNotContainsString( '<img', $node->title );
+		$this->assertStringContainsString( 'id="jetpack-stats-admin-bar-panel"', $node->meta['html'] );
+		$this->assertSame( 'Stats', $node->meta['menu_title'] );
+	}
+
+	/**
+	 * @dataProvider site_timezone_provider
+	 *
+	 * @param string $timezone The site's timezone_string.
+	 */
+	#[DataProvider( 'site_timezone_provider' )]
+	public function test_seven_day_panel_links_to_the_last_seven_days_in_the_site_timezone( $timezone ) {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+		update_option( 'timezone_string', $timezone );
+		$traffic = null;
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) use ( &$traffic ) {
+				if ( ! isset( $args['range'] ) ) {
+					return $url;
+				}
+				$traffic = array( $url, $args );
+				return 'https://example.org/new-traffic';
+			},
+			10,
+			2
+		);
+
+		$site_today = static function () use ( $timezone ) {
+			return ( new \DateTimeImmutable( 'now', new \DateTimeZone( $timezone ) ) )->format( 'Y-m-d' );
+		};
+		$before     = $site_today();
+		$node       = $this->render_chart_node();
+		$after      = $site_today();
+
+		$this->assertNotNull( $traffic, 'The traffic link does not go through the jetpack_stats_url filter.' );
+		list( $url, $args ) = $traffic;
+		$from               = $args['range']['from'];
+		$to                 = $args['range']['to'];
+		$this->assertSame( array( 'dashboard', 'traffic' ), array( $args['view'], $args['section'] ) );
+		$this->assertContains( $to, array( $before, $after ) );
+		$this->assertSame( 6, ( new \DateTimeImmutable( $from ) )->diff( new \DateTimeImmutable( $to ) )->days );
+		$this->assertStringEndsWith( "#!/stats/day/999?chartStart=$from&chartEnd=$to", $url );
+		$this->assertStringContainsString( 'href="https://example.org/new-traffic"', $node->meta['html'] );
+	}
+
+	/**
+	 * Zones at UTC+14 and UTC-11: at any moment, one of them is on a different date from UTC.
+	 *
+	 * @return array
+	 */
+	public static function site_timezone_provider() {
+		return array(
+			'UTC+14' => array( 'Pacific/Kiritimati' ),
+			'UTC-11' => array( 'Pacific/Pago_Pago' ),
+		);
+	}
+
+	public function test_seven_day_chart_enqueues_its_script_with_the_visits_endpoint_instead_of_the_image_styles() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+
+		$styles = $this->admin_bar_inline_styles();
+
+		$this->assertStringNotContainsString( '#wp-admin-bar-stats', $styles );
+		$this->assertTrue( wp_script_is( Admin_Bar::SCRIPT_HANDLE, 'enqueued' ) );
+		$inline = implode( '', (array) wp_scripts()->get_data( Admin_Bar::SCRIPT_HANDLE, 'before' ) );
+		$this->assertMatchesRegularExpression( '/^window\.jetpackStatsAdminBar = (\{.*\});$/', $inline );
+		$config = (array) json_decode( substr( $inline, strlen( 'window.jetpackStatsAdminBar = ' ), -1 ), true );
+		$this->assertSame( wp_create_nonce( 'wp_rest' ), $config['nonce'] );
+		$this->assertSame(
+			rest_url( 'jetpack/v4/stats-app/sites/999/stats/visits' ),
+			urldecode( remove_query_arg( array( 'unit', 'quantity', 'stat_fields' ), $config['restUrl'] ) )
+		);
+		wp_parse_str( (string) wp_parse_url( $config['restUrl'], PHP_URL_QUERY ), $query );
+		$this->assertSame( 'day', $query['unit'] );
+		$this->assertSame( '7', $query['quantity'] );
+		$this->assertSame( 'views,visitors', $query['stat_fields'] );
 	}
 
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {

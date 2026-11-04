@@ -72,7 +72,7 @@ const StageInner = () => {
 			}
 		>
 			<div className="vp-overview">
-				{ isFree && <FreeTierNotice /> }
+				{ isFree && <FreeTierNotice location="overview" /> }
 				{ statsUnavailable ? (
 					<FetchErrorNotice
 						className="vp-overview__error"
@@ -120,7 +120,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="overview">
 		<StageInner />
 	</QueryClientWrapper>
 );

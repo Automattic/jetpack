@@ -550,6 +550,81 @@ describe( 'BarChart', () => {
 			}
 		);
 
+		test.each( [
+			[ 'small amounts', 0, [ 0.4, 1.2, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', 0, [ 0.31, 0.73 ], [ '0', '1' ] ],
+			[ 'cents', 2, [ 0.4, 1.2, 1.6 ], [ '0.00', '0.50', '1.00', '1.50' ] ],
+		] )( 'holds value ticks to tickDecimals for %s', ( _, tickDecimals, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+					},
+				],
+				options: {
+					axis: {
+						y: { tickDecimals, tickFormat: ( value: number ) => value.toFixed( tickDecimals ) },
+					},
+				},
+			} );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps logarithmic bars unchanged by tickDecimals (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				const barGeometry = ( tickDecimals?: number ) => {
+					const { unmount } = renderWithTheme( {
+						orientation,
+						data: [
+							{
+								label: 'Series A',
+								data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+							},
+						],
+						options: {
+							[ `${ valueAxis }Scale` ]: { type: 'log', zero: false },
+							axis: { [ valueAxis ]: { tickDecimals } },
+						},
+					} );
+					const geometry = Array.from( getBarRects(), geometryOf );
+					unmount();
+					return geometry;
+				};
+
+				const baseline = barGeometry();
+				expect( baseline ).toHaveLength( 2 );
+				expect( barGeometry( 0 ) ).toEqual( baseline );
+			}
+		);
+
+		test( "leaves a caller's value tickValues axis unwidened by tickDecimals", () => {
+			const barHeights = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.73 ].map( ( value, i ) => ( { label: `Day ${ i }`, value } ) ),
+						},
+					],
+					options: { yScale: { zero: false }, axis: { y } },
+				} );
+				const heights = Array.from( getBarRects(), rect => rect.getAttribute( 'height' ) );
+				unmount();
+				return heights;
+			};
+
+			expect( barHeights( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toEqual(
+				barHeights( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
+
 		test( "keeps a caller's value tickValues", () => {
 			renderWithTheme( {
 				data: wholeNumberData,

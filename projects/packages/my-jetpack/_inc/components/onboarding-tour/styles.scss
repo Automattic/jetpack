@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
+@use "@wordpress/base-styles/variables";
 
 $tour-footer-spacing: 16px;
 
@@ -20,16 +21,16 @@ $tour-footer-spacing: 16px;
 		}
 
 		.myjetpack-onboarding-welcome-tour__heading {
-			margin: gb.$grid-unit-20 0 8px 0;
-			padding: 0 gb.$grid-unit-20;
+			margin: variables.$grid-unit-20 0 8px 0;
+			padding: 0 variables.$grid-unit-20;
 
-			@include gb.heading-x-large;
+			@include mixins.heading-x-large;
 		}
 
 		.myjetpack-onboarding-welcome-tour__text {
 			line-height: 1.4;
-			margin: 0 0 gb.$grid-unit-30 0;
-			padding: 0 gb.$grid-unit-20;
+			margin: 0 0 variables.$grid-unit-30 0;
+			padding: 0 variables.$grid-unit-20;
 			min-height: 74px; // avoid layout shift when the text is short
 		}
 

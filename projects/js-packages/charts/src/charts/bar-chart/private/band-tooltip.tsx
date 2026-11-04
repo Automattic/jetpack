@@ -1,7 +1,10 @@
 import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
+import { getValueScalePosition } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
+import type { ValueScale } from './comparison-bars-geometry';
+import type { StackLayout, StackSegment } from './stack-layout';
 import type { BarChartProps } from '../types';
 
 type PointerHandler = NonNullable< Parameters< typeof useEventEmitter >[ 1 ] >;
@@ -38,10 +41,32 @@ export function nearestBandIndex< Datum >(
 }
 
 /**
+ * How far a pointer sits from a stacked segment along the value axis.
+ *
+ * @param segment  - The segment, or undefined when its series has no reading there.
+ * @param scale    - The value scale.
+ * @param position - Pointer coordinate on the value axis.
+ * @return 0 inside the segment, Infinity without one, otherwise the gap to its nearer end.
+ */
+function distanceToSegment(
+	segment: StackSegment | undefined,
+	scale: ValueScale,
+	position: number
+): number {
+	if ( ! segment ) {
+		return Infinity;
+	}
+	const [ low, high ] = [ segment.start, segment.end ]
+		.map( value => getValueScalePosition( scale, value ) )
+		.sort( ( a, b ) => a - b );
+	return Math.max( low - position, 0, position - high );
+}
+
+/**
  * Correct visx's range-based band inversion, which omits outer padding.
  * @param root0               - Registered series selection.
  * @param root0.keys          - Visible series keys, back to front where bars overlap.
- * @param root0.slots         - Where series share slots: the slots of a category, in the order the band lays them out, and the slot each series sits in.
+ * @param root0.slots         - Where series share slots: the slots of a category, in the order the band lays them out, the slot each series sits in, and for a stack where each segment runs.
  * @param root0.groupPadding  - Padding between grouped bars.
  * @param root0.withTooltips  - Whether pointer events update the tooltip.
  * @param root0.onPointerDown - Receives the corrected pointer-down datum.
@@ -59,13 +84,14 @@ export function BandTooltip( {
 	onPointerMove,
 }: {
 	keys: string[];
-	slots?: { keys: string[]; slotOf: ( key: string ) => string };
+	slots?: { keys: string[]; slotOf: ( key: string ) => string; stack?: StackLayout };
 	groupPadding: number;
 	onPointerMove?: ( selection: PointerSelection ) => void;
 } & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
 	const { showTooltip, hideTooltip, updateTooltip } = useContext( TooltipContext );
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
+	const valueScale = ( horizontal ? xScale : yScale ) as ValueScale | undefined;
 	const bandwidth = scale?.bandwidth?.() ?? 0;
 	const groupScale = useMemo(
 		() => createGroupScale( slots?.keys ?? keys, bandwidth, groupPadding ),
@@ -96,6 +122,15 @@ export function BandTooltip( {
 				const end = start + groupScale.step();
 				const distance =
 					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
+				// Stacked segments share a slot, so the value axis tells them apart; one with no reading loses to any that has one.
+				const valueDistance =
+					slots?.stack && valueScale
+						? distanceToSegment(
+								slots.stack.segmentOf( key, datum ),
+								valueScale,
+								horizontal ? point.x : point.y
+							)
+						: 0;
 				bands.push( band );
 				selections.push( {
 					event: params.event,
@@ -103,8 +138,8 @@ export function BandTooltip( {
 					datum,
 					index,
 					svgPoint: point,
-					distanceX: horizontal ? 0 : distance,
-					distanceY: horizontal ? distance : 0,
+					distanceX: horizontal ? valueDistance : distance,
+					distanceY: horizontal ? distance : valueDistance,
 				} );
 			}
 			if ( ! slots ) {
@@ -119,7 +154,7 @@ export function BandTooltip( {
 			);
 			return selections.filter( ( _, index ) => bands[ index ] === hoveredBand );
 		},
-		[ scale, dataRegistry, horizontal, keys, slots, groupScale ]
+		[ scale, valueScale, dataRegistry, horizontal, keys, slots, groupScale ]
 	);
 	const handlePointer = useCallback< PointerHandler >(
 		params => {

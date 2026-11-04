@@ -86,7 +86,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
-	 * Every `jetpack_waf_*` option, plus the Protect options carrying the same data.
+	 * Every `jetpack_waf_*` option, the Protect options carrying the same data, and the Akismet API key.
 	 *
 	 * `jetpack_protect_global_whitelist` is populated from `jetpack_waf_ip_allow_list`,
 	 * and `jetpack_protect_key` is a shared secret.
@@ -102,11 +102,12 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			'share debug data'   => array( 'jetpack_waf_share_debug_data' ),
 			'protect key'        => array( 'jetpack_protect_key' ),
 			'protect allow list' => array( 'jetpack_protect_global_whitelist' ),
+			'akismet key'        => array( 'wordpress_api_key' ),
 		);
 	}
 
 	/**
-	 * Tests that firewall settings are stripped for users without `manage_options`.
+	 * Tests that restricted options are removed for users without `manage_options`.
 	 *
 	 * @dataProvider restricted_options
 	 *
@@ -123,7 +124,7 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 	}
 
 	/**
-	 * Tests that firewall settings are still returned to administrators.
+	 * Tests that restricted options are returned to administrators.
 	 *
 	 * @dataProvider restricted_options
 	 *
