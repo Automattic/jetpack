@@ -718,7 +718,7 @@ function createUtmMock( topUtmValues: Record< string, number > ): UtmMock {
 const MOCK_UTM_SOURCE_MEDIUM = createUtmMock( {
 	'["google","organic"]': 5200,
 	'["twitter","social"]': 1800,
-	'["jetpack-newsletter-subscribers-november-roundup","email"]': 950,
+	'["newsletter","email"]': 950,
 	'["facebook","paid"]': 720,
 	'["bing","cpc"]': 380,
 } );
@@ -726,14 +726,14 @@ const MOCK_UTM_SOURCE_MEDIUM = createUtmMock( {
 const MOCK_UTM_SOURCE_MEDIUM_COMPARISON = createUtmMock( {
 	'["google","organic"]': 4800,
 	'["twitter","social"]': 2100,
-	'["jetpack-newsletter-subscribers-november-roundup","email"]': 760,
+	'["newsletter","email"]': 760,
 	'["facebook","paid"]': 840,
 	'["bing","cpc"]': 300,
 } );
 
 const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM = createUtmMock( {
 	'["spring_sale","google","organic"]': 5200,
-	'["black_friday_early_access_wordpress_hosting_bundle_2026","newsletter","email"]': 1800,
+	'["newsletter_q2","newsletter","email"]': 1800,
 	'["brand_awareness","twitter","social"]': 950,
 	'["retargeting","facebook","paid"]': 720,
 	'["product_launch","bing","cpc"]': 380,
@@ -741,7 +741,7 @@ const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM = createUtmMock( {
 
 const MOCK_UTM_CAMPAIGN_SOURCE_MEDIUM_COMPARISON = createUtmMock( {
 	'["spring_sale","google","organic"]': 4700,
-	'["black_friday_early_access_wordpress_hosting_bundle_2026","newsletter","email"]': 2100,
+	'["newsletter_q2","newsletter","email"]': 2100,
 	'["brand_awareness","twitter","social"]': 780,
 	'["retargeting","facebook","paid"]': 810,
 	'["product_launch","bing","cpc"]': 330,
