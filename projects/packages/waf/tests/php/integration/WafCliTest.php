@@ -131,6 +131,28 @@ final class WafCliTest extends WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function testSetupTurnsTheModuleBackOffWhenTheRulesFail() {
+		$this->assertSetupFailureLeavesModule( false );
+	}
+
+	/**
+	 * Setup that fails must not turn off a module that was already on.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function testSetupKeepsAnActiveModuleOnWhenTheRulesFail() {
+		Waf_Runner::enable();
+		$this->assertSetupFailureLeavesModule( true );
+	}
+
+	/**
+	 * Run setup against a failing rules API and check the module's state afterwards.
+	 *
+	 * @param bool $enabled Whether the module should be on after the failed setup.
+	 */
+	private function assertSetupFailureLeavesModule( $enabled ) {
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'pre_http_request', array( $this, 'return_server_error' ) );
 
@@ -138,7 +160,7 @@ final class WafCliTest extends WorDBless\BaseTestCase {
 			( new CLI() )->setup( array( 'normal' ) );
 			$this->fail( 'Expected setup to error.' );
 		} catch ( RuntimeException $e ) {
-			$this->assertFalse( Waf_Runner::is_enabled() );
+			$this->assertSame( $enabled, Waf_Runner::is_enabled() );
 		}
 	}
 
