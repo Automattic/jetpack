@@ -406,7 +406,7 @@ class Checkpoint {
 			$meta[ self::META_AVATAR ] = $this->identity['avatar'];
 		}
 
-		$commentdata['comment_meta'] = array_merge( (array) ( $commentdata['comment_meta'] ?? array() ), $meta );
+		$commentdata['comment_meta'] = array_merge( is_array( $commentdata['comment_meta'] ?? null ) ? $commentdata['comment_meta'] : array(), $meta );
 
 		return $commentdata;
 	}

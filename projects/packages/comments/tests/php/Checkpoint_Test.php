@@ -88,6 +88,9 @@ class Checkpoint_Test extends BaseTestCase {
 	public function test_attribute_carries_identity_as_comment_meta() {
 		$checkpoint = Checkpoint::init();
 		$property   = new \ReflectionProperty( Checkpoint::class, 'identity' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue(
 			$checkpoint,
 			array(
