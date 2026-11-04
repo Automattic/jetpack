@@ -77,13 +77,13 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider provide_feature_search_manage_urls
+	 * @dataProvider provide_moved_manage_urls
 	 * @param string $product  The product class.
 	 * @param bool   $flag     Whether settings consolidation is on.
 	 * @param string $expected The manage URL, relative to wp-admin.
 	 */
-	#[DataProvider( 'provide_feature_search_manage_urls' )]
-	public function test_manage_url_searches_features_behind_the_flag( $product, $flag, $expected ) {
+	#[DataProvider( 'provide_moved_manage_urls' )]
+	public function test_manage_url_moves_behind_the_flag( $product, $flag, $expected ) {
 		// update_init_options() never turns admin_ui off again, so clear it to reach the fallback.
 		$options = new ReflectionProperty( VideoPress_Initializer::class, 'init_options' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -102,14 +102,14 @@ class Settings_Panel_Url_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Products whose manage URL moves to a Features search.
+	 * Products whose manage URL moves off the Settings screen.
 	 *
 	 * @return array
 	 */
-	public static function provide_feature_search_manage_urls() {
+	public static function provide_moved_manage_urls() {
 		return array(
 			'creator, flag off'    => array( Creator::class, false, 'admin.php?page=jetpack#/settings?term=creator' ),
-			'creator, flag on'     => array( Creator::class, true, 'admin.php?page=my-jetpack#/features?search=creator' ),
+			'creator, flag on'     => array( Creator::class, true, 'admin.php?page=jetpack-newsletter' ),
 			'videopress, flag off' => array( Videopress::class, false, 'admin.php?page=jetpack#/settings?term=videopress' ),
 			'videopress, flag on'  => array( Videopress::class, true, 'admin.php?page=my-jetpack#/features?search=videopress' ),
 		);

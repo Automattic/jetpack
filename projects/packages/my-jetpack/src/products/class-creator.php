@@ -299,7 +299,7 @@ class Creator extends Product {
 	 */
 	public static function get_manage_url() {
 		if ( Feature_Flags::is_enabled( Initializer::SETTINGS_CONSOLIDATION_FLAG ) ) {
-			return admin_url( 'admin.php?page=my-jetpack#/features?search=creator' );
+			return admin_url( 'admin.php?page=jetpack-newsletter' );
 		}
 
 		return admin_url( 'admin.php?page=jetpack#/settings?term=creator' );
