@@ -332,8 +332,8 @@ importers:
         specifier: workspace:*
         version: link:../number-formatters
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@date-fns/tz':
         specifier: 1.5.0
         version: 1.5.0
@@ -529,10 +529,10 @@ importers:
         version: link:../number-formatters
       '@babel/runtime':
         specifier: ^7
-        version: 7.29.7
+        version: 7.29.10
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@wordpress/a11y':
         specifier: 5.0.0
         version: 5.0.0
@@ -1048,8 +1048,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
@@ -1469,8 +1469,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -1784,8 +1784,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
@@ -2010,8 +2010,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@jest/globals':
         specifier: 30.5.2
         version: 30.5.2
@@ -2177,8 +2177,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@tanstack/react-router':
         specifier: ^1.167.1
         version: 1.167.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2292,8 +2292,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -2413,8 +2413,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -2483,8 +2483,17 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@testing-library/user-event':
+        specifier: 14.6.8
+        version: 14.6.8(@testing-library/dom@10.4.2)
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -2926,8 +2935,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@tanstack/react-router':
         specifier: ^1.139.12
         version: 1.167.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3078,8 +3087,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@gravatar-com/hovercards':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.17.0
+        version: 0.17.0
       '@gravatar-com/quick-editor':
         specifier: 0.8.0
         version: 0.8.0
@@ -3095,9 +3104,6 @@ importers:
       '@preact/signals':
         specifier: 1.2.2
         version: 1.2.2(preact@10.28.2)
-      '@sentry/browser':
-        specifier: 10.22.0
-        version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
         version: 5.102.8(react@19.3.0)
@@ -3274,8 +3280,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7(@babel/core@7.29.7)
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@lezer/generator':
         specifier: 1.8.1
         version: 1.8.1
@@ -3309,9 +3315,6 @@ importers:
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.23)
-      babel-plugin-polyfill-corejs3:
-        specifier: 0.14.0
-        version: 0.14.0(@babel/core@7.29.7)
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.29.7)
@@ -3321,9 +3324,6 @@ importers:
       c8:
         specifier: ^11.0.0
         version: 11.0.0
-      core-js:
-        specifier: 3.51.0
-        version: 3.51.0
       jsdom:
         specifier: 30.0.1
         version: 30.0.1
@@ -3755,8 +3755,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -4108,8 +4108,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/canvas-confetti':
         specifier: 1.9.0
         version: 1.9.0
@@ -4619,8 +4619,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@storybook/react':
         specifier: 10.6.3
         version: 10.6.3(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(storybook@10.6.3(@types/react@19.3.0)(react@19.3.0))(typescript@6.0.3)
@@ -5042,8 +5042,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@size-limit/file':
         specifier: ^12.1.0
         version: 12.1.0(size-limit@12.1.0)
@@ -5326,8 +5326,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -5365,7 +5365,32 @@ importers:
         specifier: 30.5.2
         version: 30.5.2
 
-  projects/packages/stats-admin: {}
+  projects/packages/stats-admin:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@wordpress/browserslist-config':
+        specifier: 7.0.0
+        version: 7.0.0
+      jest:
+        specifier: 30.5.2
+        version: 30.5.2
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.112.2)
+      webpack:
+        specifier: 5.112.2
+        version: 5.112.2(webpack-cli@7.2.1)
+      webpack-cli:
+        specifier: 7.2.1
+        version: 7.2.1(webpack@5.112.2)
 
   projects/packages/transport-helper: {}
 
@@ -5814,8 +5839,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -5884,8 +5909,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -6447,8 +6472,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -6598,8 +6623,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -6746,8 +6771,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -6896,8 +6921,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -6987,8 +7012,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
+        specifier: 7.29.10
+        version: 7.29.10
       '@types/react':
         specifier: 19.3.0
         version: 19.3.0
@@ -8171,8 +8196,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/runtime@7.29.7':
-    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
+  '@babel/runtime@7.29.10':
+    resolution: {integrity: sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.29.7':
@@ -8725,8 +8750,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@gravatar-com/hovercards@0.16.0':
-    resolution: {integrity: sha512-NOB73YXOUALYyqLD8SeiQkKgwrmG8wYeVz8JfqFXiH5NjAt/0iDI0pC4TL/Cqxew3XaDmGUFhXEun7mzopaaCw==}
+  '@gravatar-com/hovercards@0.17.0':
+    resolution: {integrity: sha512-8T1UhflUYNe9gyTEf/PVisbPTAyvjCBsFzeBepLJ4EdjYoriyCrjPNwaXNflFVVOsBNRjJeBkxtMkM8RvAPJlQ==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.8.0':
@@ -10225,30 +10250,6 @@ packages:
         optional: true
       zen-observable:
         optional: true
-
-  '@sentry-internal/browser-utils@10.22.0':
-    resolution: {integrity: sha512-BpJoLZEyJr7ORzkCrIjxRTnFWwO1mJNICVh3B9g5d9245niGT4OJvRozmLz89WgJkZFHWu84ls6Xfq5b/3tGFQ==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/feedback@10.22.0':
-    resolution: {integrity: sha512-zXySOin/gGHPV+yKaHqjN9YZ7psEJwzLn8PzCLeo+4REzF1eQwbYZIgOxJFD32z8s3nZiABSWFM/n1CvVfMEsQ==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/replay-canvas@10.22.0':
-    resolution: {integrity: sha512-DE4JNUskJg+O+wFq42W5gAa/99aD5k7TfGOwABxvnzFv8vkKA7pqXwPbFFPzypdKIkln+df7RmbnDwQRNg6/lA==}
-    engines: {node: '>=18'}
-
-  '@sentry-internal/replay@10.22.0':
-    resolution: {integrity: sha512-JNE4kHAQSG4/V+J+Zog3vKBWgOe9H33ol/MEU1RuLM/4I+uLf4mTetwnS9ilpnnW/Z/gQYfA+R3CiMrZtqTivw==}
-    engines: {node: '>=18'}
-
-  '@sentry/browser@10.22.0':
-    resolution: {integrity: sha512-wD2XqN+yeBpQFfdPo6+wlKDMyyuDctVGzZWE4qTPntICKQuwMdAfeq5Ma89ad0Dw+bzG9UijGeyuJQlswF87Mw==}
-    engines: {node: '>=18'}
-
-  '@sentry/core@10.22.0':
-    resolution: {integrity: sha512-V1oeHbrOKzxadsCmgtPku3v3Emo/Bpb3VSuKmlLrQefiHX98MWtjJ3XDGfduzD5/dCdh0r/OOLwjcmrO/PZ2aw==}
-    engines: {node: '>=18'}
 
   '@sinclair/typebox@0.34.52':
     resolution: {integrity: sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw==}
@@ -18717,7 +18718,7 @@ snapshots:
 
   '@automattic/load-script@1.0.0':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       debug: 3.2.7
     transitivePeerDependencies:
       - supports-color
@@ -18735,7 +18736,7 @@ snapshots:
   '@automattic/request-external-access@1.0.1':
     dependencies:
       '@automattic/popup-monitor': 1.0.2
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
 
   '@automattic/site-launch-modals@1.0.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(postcss@8.5.23)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -19564,7 +19565,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/runtime@7.29.7': {}
+  '@babel/runtime@7.29.10': {}
 
   '@babel/template@7.29.7':
     dependencies:
@@ -19591,7 +19592,7 @@ snapshots:
 
   '@base-ui/react@1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@base-ui/utils': 0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@floating-ui/react-dom': 2.1.9(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@floating-ui/utils': 0.2.12
@@ -19605,7 +19606,7 @@ snapshots:
 
   '@base-ui/react@1.9.0(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@base-ui/utils': 0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@floating-ui/react-dom': 2.1.9(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@floating-ui/utils': 0.2.12
@@ -19618,7 +19619,7 @@ snapshots:
 
   '@base-ui/utils@0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@floating-ui/utils': 0.2.12
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -20206,7 +20207,7 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@gravatar-com/hovercards@0.16.0': {}
+  '@gravatar-com/hovercards@0.17.0': {}
 
   '@gravatar-com/quick-editor@0.8.0': {}
 
@@ -21522,7 +21523,7 @@ snapshots:
 
   '@redux-saga/core@1.5.1':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@redux-saga/deferred': 1.3.1
       '@redux-saga/delay-p': 1.3.1
       '@redux-saga/is': 1.2.1
@@ -21657,34 +21658,6 @@ snapshots:
       rxjs: 6.6.7
     transitivePeerDependencies:
       - zenObservable
-
-  '@sentry-internal/browser-utils@10.22.0':
-    dependencies:
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/feedback@10.22.0':
-    dependencies:
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/replay-canvas@10.22.0':
-    dependencies:
-      '@sentry-internal/replay': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry-internal/replay@10.22.0':
-    dependencies:
-      '@sentry-internal/browser-utils': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry/browser@10.22.0':
-    dependencies:
-      '@sentry-internal/browser-utils': 10.22.0
-      '@sentry-internal/feedback': 10.22.0
-      '@sentry-internal/replay': 10.22.0
-      '@sentry-internal/replay-canvas': 10.22.0
-      '@sentry/core': 10.22.0
-
-  '@sentry/core@10.22.0': {}
 
   '@sinclair/typebox@0.34.52': {}
 
@@ -21954,7 +21927,7 @@ snapshots:
   '@testing-library/dom@10.4.2':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -21965,7 +21938,7 @@ snapshots:
   '@testing-library/dom@8.20.1':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@types/aria-query': 5.0.4
       aria-query: 5.1.3
       chalk: 4.1.2
@@ -21989,7 +21962,7 @@ snapshots:
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@testing-library/dom': 10.4.2
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -21999,7 +21972,7 @@ snapshots:
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@testing-library/dom': 10.4.2
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -22008,7 +21981,7 @@ snapshots:
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@testing-library/dom': 10.4.2
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -22582,7 +22555,7 @@ snapshots:
 
   '@videojs/http-streaming@3.17.5(video.js@8.24.2)':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@videojs/vhs-utils': 4.1.2
       aes-decrypter: 4.0.2
       global: 4.4.0
@@ -22593,12 +22566,12 @@ snapshots:
 
   '@videojs/vhs-utils@4.1.2':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       global: 4.4.0
 
   '@videojs/xhr@2.7.0':
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       global: 4.4.0
       is-function: 1.0.2
 
@@ -30059,7 +30032,7 @@ snapshots:
 
   aes-decrypter@4.0.2:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@videojs/vhs-utils': 4.1.2
       global: 4.4.0
       pkcs7: 1.0.4
@@ -31132,7 +31105,7 @@ snapshots:
 
   date-fns@2.30.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
 
   date-fns@4.4.0: {}
 
@@ -31274,7 +31247,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       csstype: 3.2.3
 
   dom-serializer@1.4.1:
@@ -32398,7 +32371,7 @@ snapshots:
 
   history@5.3.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
 
   hookable@6.1.2: {}
 
@@ -33557,7 +33530,7 @@ snapshots:
 
   m3u8-parser@7.2.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@videojs/vhs-utils': 4.1.2
       global: 4.4.0
 
@@ -34087,7 +34060,7 @@ snapshots:
 
   mpd-parser@1.4.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@videojs/vhs-utils': 4.1.2
       '@xmldom/xmldom': 0.8.15
       global: 4.4.0
@@ -34107,7 +34080,7 @@ snapshots:
 
   mux.js@7.1.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       global: 4.4.0
 
   nanoid@3.3.20: {}
@@ -34562,7 +34535,7 @@ snapshots:
 
   pkcs7@1.0.4:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
 
   pkg-dir@4.2.0:
     dependencies:
@@ -35068,7 +35041,7 @@ snapshots:
 
   react-transition-group@4.4.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -35122,7 +35095,7 @@ snapshots:
 
   redux-saga@1.5.1:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@redux-saga/core': 1.5.1
 
   redux-thunk@3.1.0(redux@5.0.1):
@@ -35131,7 +35104,7 @@ snapshots:
 
   redux@4.2.1:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
 
   redux@5.0.1: {}
 
@@ -36750,7 +36723,7 @@ snapshots:
 
   video.js@8.24.2:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       '@videojs/http-streaming': 3.17.5(video.js@8.24.2)
       '@videojs/vhs-utils': 4.1.2
       '@videojs/xhr': 2.7.0
@@ -37189,7 +37162,7 @@ snapshots:
 
   wpcom-proxy-request@7.1.0:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       debug: 4.4.3
       wp-error: 1.3.0
     transitivePeerDependencies:

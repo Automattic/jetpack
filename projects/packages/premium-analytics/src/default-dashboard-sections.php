@@ -12,11 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Modules;
 
-// Guarded on a symbol the file declares, so a second copy of the package can't
-// redeclare it. See the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
-	require_once __DIR__ . '/dashboard-sections.php';
-}
+require_once __DIR__ . '/dashboard-sections.php';
 
 /**
  * Filter through which Subscribers section availability is resolved.

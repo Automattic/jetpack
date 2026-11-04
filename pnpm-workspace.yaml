@@ -34,6 +34,7 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@gravatar-com/*'
   - '@woocommerce/*'
   - '@wordpress/*'
   - 'gridicons'

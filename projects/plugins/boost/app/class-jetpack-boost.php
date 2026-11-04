@@ -23,6 +23,7 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Cleanup_Transients;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Pages;
@@ -134,7 +135,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
-		add_action( 'jetpack_boost_general_cleanup', array( Transient::class, 'delete_expired' ) );
+		add_action( 'jetpack_boost_general_cleanup', array( Cleanup_Transients::class, 'run_cleanup' ) );
+		add_action( Cleanup_Transients::FOLLOWUP_HOOK, array( Cleanup_Transients::class, 'run_cleanup' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -310,6 +312,7 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 
 		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
+		wp_clear_scheduled_hook( Cleanup_Transients::FOLLOWUP_HOOK );
 
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();

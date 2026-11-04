@@ -6,7 +6,7 @@ import { buildReportLink, readReportOriginSearch } from '@jetpack-premium-analyt
 /**
  * Internal dependencies
  */
-import { resolveReportOrigin } from './reports/registry';
+import { getReportDefinition, resolveReportOrigin } from './reports/registry';
 
 type BreadcrumbItem = { label: string; to?: string };
 
@@ -16,19 +16,25 @@ type BreadcrumbItem = { label: string; to?: string };
  * `StatsBreadcrumbs` renders the root crumb and its dashboard link, so this
  * hook returns only the crumbs that follow it.
  *
- * @param title - The resolved detail-page title.
+ * @param title            - The resolved detail-page title.
+ * @param fallbackReportId - The reports page of the same entities, the crumb when the URL carries no origin.
  * @return Breadcrumb data for the current detail page.
  */
-export function useDetailBreadcrumbs( title?: string ): BreadcrumbItem[] {
+export function useDetailBreadcrumbs(
+	title?: string,
+	fallbackReportId?: string
+): BreadcrumbItem[] {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const origin = readReportOriginSearch( search );
 	const { definition, section: originSection } = resolveReportOrigin( origin );
 	const items: BreadcrumbItem[] = [];
 
-	if ( definition ) {
+	const crumb =
+		definition ?? ( fallbackReportId ? getReportDefinition( fallbackReportId ) : undefined );
+	if ( crumb ) {
 		items.push( {
-			label: definition.getLabel(),
-			to: buildReportLink( definition.id, search, originSection ),
+			label: crumb.getLabel(),
+			to: buildReportLink( crumb.id, search, definition ? originSection : undefined ),
 		} );
 	}
 
