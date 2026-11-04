@@ -476,13 +476,14 @@ describe( 'Download screen with a file selection', () => {
 		// bar that never took a number from the poll. The polled value is
 		// the assertion that matters.
 		const bar = await screen.findByRole( 'progressbar' );
-		// A number, not a string: `toHaveValue` on `<progress>` reads
-		// `element.value`, which the DOM has already coerced.
-		await waitFor( () => expect( bar ).toHaveValue( 36 ) );
+		await waitFor( () => expect( bar ).toHaveValue( '36' ) );
 		// The spinner is the state the bar replaces, so its departure is
 		// half the behaviour. `Spinner` renders an explicit
-		// `role="presentation"`, which is the handle on it.
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		// `role="presentation"`, which is the handle on it — minus the
+		// visually-hidden span `Progress.Root` renders with the same role.
+		expect(
+			screen.queryAllByRole( 'presentation' ).filter( el => ! bar.contains( el ) )
+		).toHaveLength( 0 );
 	} );
 
 	// The same latch hid the ending: `isPending` was read above every other

@@ -169,7 +169,7 @@ describe( 'BackupStatusPanel', () => {
 
 	it( 'reports a value only while a backup is actually running', () => {
 		const { rerender } = render( <BackupStatusPanel state="in-progress" progress={ 42 } /> );
-		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 42 );
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( '42' );
 
 		// A retryable failure reports the percentage the attempt died at,
 		// which would read as a stalled backup rather than a pending retry.
@@ -196,11 +196,11 @@ describe( 'BackupStatusPanel', () => {
 	// backup starts.
 	it( 'takes a value once the first backup starts', () => {
 		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
-		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
+		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'aria-valuenow' );
 
 		rerender( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
 
-		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 19 );
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( '19' );
 	} );
 
 	it( 'offers a way to reach support when no attempt produced a restore point', () => {
