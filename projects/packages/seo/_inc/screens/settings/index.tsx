@@ -16,7 +16,6 @@ import UpsellBanner from '../../components/upsell-banner';
 import getOutput from '../../data/get-output';
 import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
-import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
@@ -184,7 +183,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
 	} else if ( visibilityEnabledCount > 0 ) {
-		visibilityStatus = 'in-progress';
+		visibilityStatus = 'incomplete';
 	}
 
 	// Count code points, not UTF-16 units, so an emoji or an astral character
@@ -480,12 +479,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
-			{ /* Higher-risk settings last, after everything routine. Hidden on
-			   WordPress.com Simple, where `Modules::is_active()` reports every module
-			   active regardless of stored state, so turning SEO tools off would appear
-			   to do nothing. Outside the `gated` branch: a gated site still has the
-			   module and can still switch it off. */ }
-			{ ! isSimpleSite() && <AdvancedCard /> }
 
 			{ /* Not dismissible, so it sits below the settings rather than pushing them
 			   down; the Stack's lg gap keeps space between it and the last section. */ }

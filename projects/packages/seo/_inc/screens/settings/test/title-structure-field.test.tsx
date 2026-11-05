@@ -97,13 +97,13 @@ describe( 'TitleStructureField', () => {
 			renderField();
 			expect( screen.getByText( 'Complete' ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Not started' ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( 'In progress' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Incomplete' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'still reports complete when only some page types are customized', () => {
 			renderField( { posts: [ { type: 'token', value: 'post_title' } ] } );
 			expect( screen.getByText( 'Complete' ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'In progress' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Incomplete' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

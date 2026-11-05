@@ -28,6 +28,7 @@ import {
 	DetailPageSection,
 	DetailPageShell,
 	describeError,
+	getPostTypeCopy,
 	useDetailPageCustomize,
 	useHostLinkSearch,
 	useStoredDetailLayout,
@@ -45,9 +46,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
-import { getPostTypeCopy, postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import { postHeaderSlots } from './components';
+import { EMAIL_TAB_IDS, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -83,7 +83,7 @@ function PostDetail(): JSX.Element {
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -132,7 +132,13 @@ function PostDetail(): JSX.Element {
 		layout: fixedLayout,
 		isEmailNotSent,
 		isEmailSendPending,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
+	} = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams,
+		emailScopeBlocked,
+		summary.type,
+		summary.isLoading
+	);
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -175,8 +181,8 @@ function PostDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const pageWidgetTypes = useMemo(
-		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-		[ widgetTypes ]
+		() => withPostTypeTitles( widgetTypes, summary.type ),
+		[ widgetTypes, summary.type ]
 	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );

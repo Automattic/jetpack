@@ -149,12 +149,12 @@ describe( 'SchemaCard', () => {
 		// so it must be the trigger's *description*, never part of its name. A loose
 		// /Schema/ would still pass if "Not started" leaked back into the name.
 		expect( headers[ 0 ] ).toHaveAccessibleName( 'Schema' );
-		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'In progress' );
+		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'Incomplete' );
 		// The module header is a real heading, matching the other Settings modules.
 		expect( screen.getByRole( 'heading', { level: 2, name: /Schema/ } ) ).toBeInTheDocument();
 	} );
 
-	it( 'counts the smart defaults as configured — the default state is In progress', () => {
+	it( 'counts the smart defaults as configured — the default state is Incomplete', () => {
 		renderCard();
 
 		const header = screen.getByRole( 'button', { name: /Schema/ } );
@@ -162,7 +162,7 @@ describe( 'SchemaCard', () => {
 		// Name + description are covered by their Site Title / Tagline defaults (the
 		// preferred state), so a site that hasn't added social links reads as In
 		// progress — not Not started.
-		expect( header ).toHaveTextContent( 'In progress' );
+		expect( header ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'shows Not started only when even the smart defaults are empty', () => {
@@ -194,7 +194,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'does not count an invalid or duplicate profile link toward completion', () => {
@@ -205,7 +205,7 @@ describe( 'SchemaCard', () => {
 			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
 		} );
 		const view = renderCard();
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 		view.unmount();
 
 		// A duplicate collapses to one link, so it still counts — once.
@@ -239,7 +239,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'counts an explicit value, not just its default', () => {
@@ -252,7 +252,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'ignores the contact email in the completion status', () => {

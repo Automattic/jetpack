@@ -48,9 +48,6 @@ jest.unstable_mockModule( '../title-structure-field', () => ( {
 jest.unstable_mockModule( '../google-verification-field', () => ( {
 	default: () => <div>google field</div>,
 } ) );
-jest.unstable_mockModule( '../advanced-card', () => ( {
-	default: () => <div>advanced</div>,
-} ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 
@@ -107,7 +104,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 	} as unknown as SettingsForm;
 };
 
-const STATUS_LABELS = [ 'Not started', 'In progress', 'Complete', 'Paused' ];
+const STATUS_LABELS = [ 'Not started', 'Incomplete', 'Complete', 'Paused' ];
 
 /**
  * Report Jetpack's SEO output as paused in the page bootstrap `getOutput()` reads.
@@ -346,7 +343,7 @@ describe( 'Settings module completion status', () => {
 
 		it( 'reports in progress when indexing is on but the sitemap is not', () => {
 			render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
-			expect( statusFor( 'Site visibility' ) ).toBe( 'In progress' );
+			expect( statusFor( 'Site visibility' ) ).toBe( 'Incomplete' );
 		} );
 
 		it( 'reports complete when both are on', () => {
@@ -433,9 +430,9 @@ describe( 'Settings module completion status', () => {
 
 		// Deliberate: verifying with a single search engine is the realistic end
 		// state, so this module goes straight to complete and never sits at
-		// in-progress (JETPACK-2051). Bing rather than Google, to show no single
+		// incomplete. Bing rather than Google, to show no single
 		// service is privileged.
-		it( 'reports complete — not in progress — with a single service verified', () => {
+		it( 'reports complete — not incomplete — with a single service verified', () => {
 			render(
 				<SettingsScreen
 					form={ buildForm( {
@@ -549,22 +546,6 @@ describe( 'WordPress.com Simple settings', () => {
 			);
 		}
 	);
-
-	it( 'renders the module on a self-hosted site', () => {
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.getByText( 'advanced' ) ).toBeInTheDocument();
-	} );
-
-	it( 'hides it on Simple, where SEO tools cannot actually be turned off', () => {
-		// `Modules::is_active()` reports every module active there, so the control
-		// would appear to do nothing.
-		setSimpleSite();
-
-		render( <SettingsScreen form={ buildForm() } /> );
-
-		expect( screen.queryByText( 'advanced' ) ).not.toBeInTheDocument();
-	} );
 
 	it.each( [ true, false ] )(
 		'keeps the sitemap control read-only without claiming publication when indexing is %s',

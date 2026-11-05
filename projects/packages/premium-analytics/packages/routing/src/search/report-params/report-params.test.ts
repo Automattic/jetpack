@@ -44,10 +44,11 @@ describe( 'pickReportDateParams', () => {
 			pickReportDateParams( {
 				from: '2026-01-01',
 				to: '2026-01-31',
+				step: 'P31D',
 				post_id: '42',
 				section: 'archives',
 			} )
-		).toEqual( { from: '2026-01-01', to: '2026-01-31' } );
+		).toEqual( { from: '2026-01-01', to: '2026-01-31', step: 'P31D' } );
 	} );
 
 	it( 'returns an empty object for undefined search', () => {
@@ -132,10 +133,13 @@ describe( 'origin window params', () => {
 		).toEqual( { ref_preset: 'last-30-days', ref_interval: 'week' } );
 	} );
 
-	it( 'stores a custom range by its dates', () => {
+	it( 'stores a custom range by its dates, with the step that reached it', () => {
 		expect(
 			toReportOriginWindowParams( { from: '2026-01-01', to: '2026-01-31', interval: 'day' } )
 		).toEqual( { ref_from: '2026-01-01', ref_to: '2026-01-31' } );
+		expect(
+			toReportOriginWindowParams( { from: '2026-01-01', to: '2026-01-31', step: 'last-month' } )
+		).toEqual( { ref_from: '2026-01-01', ref_to: '2026-01-31', ref_step: 'last-month' } );
 	} );
 
 	it( 'stores a named comparison as its preset alone', () => {

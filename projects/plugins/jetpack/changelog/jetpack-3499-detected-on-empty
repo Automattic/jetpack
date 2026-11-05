@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Show a dash instead of an empty "Detected on" cell on sites without Scan.

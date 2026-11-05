@@ -49,7 +49,7 @@ function AuthorProfileCard( { disabled = false }: Props ) {
 	} else if ( setCount === fieldsSet.length ) {
 		profileStatus = 'complete';
 	} else if ( setCount > 0 ) {
-		profileStatus = 'in-progress';
+		profileStatus = 'incomplete';
 	}
 
 	return (

@@ -90,7 +90,7 @@ function SchemaCard( { initialSettings, onSave, disabled = false }: Props ) {
 	} else if ( configuredCount === configuredFields.length ) {
 		schemaStatus = 'complete';
 	} else if ( configuredCount > 0 ) {
-		schemaStatus = 'in-progress';
+		schemaStatus = 'incomplete';
 	}
 
 	// One Save covers both sections, so an error in either blocks it. Say which

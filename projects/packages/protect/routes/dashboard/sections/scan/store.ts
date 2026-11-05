@@ -303,7 +303,7 @@ export function useIsScanning(): boolean {
  *
  * @return True while the document is hidden.
  */
-function useIsDocumentHidden(): boolean {
+export function useIsDocumentHidden(): boolean {
 	const [ isHidden, setIsHidden ] = useState( () => document.hidden );
 	useEffect( () => {
 		const onChange = () => setIsHidden( document.hidden );
@@ -343,6 +343,15 @@ export function useScanPolling(): void {
  */
 export function useCanIgnore(): boolean {
 	return useScan()?.canIgnore !== false;
+}
+
+/**
+ * Whether the user may view, delete or restore the file a threat was found in.
+ *
+ * @return True when the site lets the user edit its code.
+ */
+export function useCanViewFiles(): boolean {
+	return useScan()?.canViewFiles === true;
 }
 
 /**

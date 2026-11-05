@@ -93,11 +93,10 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// No module gate: the menu must stay visible even when seo-tools is off so the
-			// user can turn it back on from the page. Hosts may still use the
-			// jetpack_admin_menu_visibility filter to hide it via the 'jetpack-seo' key.
+			// Hidden while seo-tools is off, like other Jetpack modules; My Jetpack turns it back on.
 			array(
-				'key' => 'jetpack-seo',
+				'module' => 'seo-tools',
+				'key'    => 'jetpack-seo',
 			)
 		);
 

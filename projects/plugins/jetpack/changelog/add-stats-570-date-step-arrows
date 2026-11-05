@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Premium Analytics: Add previous and next arrows beside the date range picker that step the range by its own length, as classic Stats does.
