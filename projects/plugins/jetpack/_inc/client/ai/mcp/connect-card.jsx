@@ -4,12 +4,20 @@
  */
 
 import { speak } from '@wordpress/a11y';
-import { TextareaControl } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowUpRight, copy } from '@wordpress/icons';
-import { Button, Card, Icon, Notice, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	Icon,
+	Notice,
+	Stack,
+	Text,
+	TextareaControl,
+	VisuallyHidden,
+} from '@wordpress/ui';
 import assetUrl from '../asset-url';
 import { getConnectAgents, HELPER_PROMPT } from './connect-agents';
 import { recordMcpTracksEvent } from './tracks';
@@ -183,7 +191,6 @@ function CopyTile( { agent, setFailedText } ) {
  */
 function CopyFallback( { text } ) {
 	const fieldRef = useRef();
-	const handleChange = useCallback( () => {}, [] );
 
 	// Select the text so people only need to press the copy shortcut.
 	useEffect( () => {
@@ -196,14 +203,12 @@ function CopyFallback( { text } ) {
 			<Notice.Title>{ __( 'Your browser blocked copying', 'jetpack' ) }</Notice.Title>
 			<Notice.Description render={ <div /> }>
 				<TextareaControl
-					__nextHasNoMarginBottom
 					ref={ fieldRef }
 					className="jetpack-ai-mcp__copy-fallback"
 					label={ __( 'Your browser blocked copying', 'jetpack' ) }
 					hideLabelFromVision
-					help={ __( 'Press Ctrl+C or ⌘C to copy this text.', 'jetpack' ) }
+					description={ __( 'Press Ctrl+C or ⌘C to copy this text.', 'jetpack' ) }
 					value={ text }
-					onChange={ handleChange }
 					readOnly
 					rows={ text.length > 100 ? 3 : 2 }
 				/>
@@ -263,11 +268,17 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 	const wasEnabled = useRef( mcpEnabled );
+	const gridRef = useRef();
 
 	// Turning access on removes the notice and its button, so say that it worked.
+	// If the button had focus, focus falls to the body, so move it to the first tile.
 	useEffect( () => {
 		if ( ! wasEnabled.current && mcpEnabled ) {
 			speak( __( 'MCP access is on', 'jetpack' ) );
+			const { activeElement, body } = gridRef.current.ownerDocument;
+			if ( ! activeElement || activeElement === body ) {
+				gridRef.current.querySelector( 'a, button' )?.focus();
+			}
 		}
 		wasEnabled.current = mcpEnabled;
 	}, [ mcpEnabled ] );
@@ -288,7 +299,7 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 						) }
 					</Text>
 					{ ! mcpEnabled && <AccessOffNotice onTurnOn={ onTurnOn } isTurningOn={ isTurningOn } /> }
-					<ul className="jetpack-ai-mcp__connect-grid">
+					<ul ref={ gridRef } className="jetpack-ai-mcp__connect-grid">
 						{ getConnectAgents().map( agent => (
 							<li key={ agent.key }>
 								{ agent.href ? (

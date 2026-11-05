@@ -182,6 +182,27 @@ describe( 'McpConnectCard', () => {
 		expect( speak ).toHaveBeenCalledWith( 'MCP access is on' );
 	} );
 
+	test( 'moves focus to the first tile when Turn on MCP access disappears', async () => {
+		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
+		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
+		rerender( <McpConnectCard mcpEnabled { ...props } /> );
+
+		expect( screen.getByRole( 'link', { name: 'ChatGPT' } ) ).toHaveFocus();
+	} );
+
+	test( 'keeps focus where it is when MCP access turns on from elsewhere', () => {
+		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
+		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );
+
+		const manualSetup = screen.getByRole( 'button', { name: 'Manual setup' } );
+		manualSetup.focus();
+		rerender( <McpConnectCard mcpEnabled { ...props } /> );
+
+		expect( manualSetup ).toHaveFocus();
+	} );
+
 	test( 'the off notice is hidden when MCP is on', () => {
 		renderCard();
 
