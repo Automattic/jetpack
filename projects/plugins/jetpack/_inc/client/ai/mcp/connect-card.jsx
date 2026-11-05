@@ -25,7 +25,7 @@ const COPIED_DURATION_MS = 1600;
 
 /**
  * Copy text to the clipboard. Plain HTTP sites have no Clipboard API, so fall back to
- * execCommand there. This works like copyToClipboard in @wordpress/compose, but WordPress
+ * execCommand there. This works like `copyToClipboard` in `@wordpress/compose`, but WordPress
  * core loads an older useCopyToClipboard that does not report a failed copy.
  *
  * @param {string}   text          - Text to copy.
