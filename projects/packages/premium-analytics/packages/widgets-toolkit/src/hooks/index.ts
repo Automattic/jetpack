@@ -7,6 +7,7 @@ export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
 export { useHostLinkSearch } from './use-host-link-search';
 export { useNormalizedReportParams } from './use-normalized-report-params';
+export { useOpenChartBucket } from './use-open-chart-bucket';
 export {
 	useReportActions,
 	type ReportActionsOptions,

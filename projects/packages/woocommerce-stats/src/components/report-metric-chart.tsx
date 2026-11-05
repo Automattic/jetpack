@@ -6,6 +6,8 @@ import {
 	ChartEmptyState,
 	describeError,
 	MetricTabsChart,
+	useOpenChartBucket,
+	useWidgetRootContext,
 	WidgetState,
 	type ChartDisplayChartType,
 	type DataFormat,
@@ -63,6 +65,8 @@ export function ReportMetricChart( {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
 	const { hasComparison, timezone, periodStarts } = report;
+	const { reportParams } = useWidgetRootContext();
+	const openBucket = useOpenChartBucket( reportParams.interval );
 
 	const metrics = useMemo(
 		() => [
@@ -111,6 +115,7 @@ export function ReportMetricChart( {
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 					chartTitle={ chartTitle }
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>
