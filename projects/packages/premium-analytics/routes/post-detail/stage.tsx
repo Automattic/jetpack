@@ -84,7 +84,7 @@ function PostDetail(): JSX.Element {
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,

@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.15.0';
+	const PACKAGE_VERSION = '6.16.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -154,7 +154,7 @@ class Initializer {
 	/**
 	 * Modules whose Jetpack settings link opens in the Features panel. A subset of `moduleSettings` in `settings-panel/registry.ts`; see there for which modules stay out.
 	 */
-	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'related-posts' );
+	public const SETTINGS_PANEL_MODULES = array( 'carousel', 'post-by-email', 'related-posts' );
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -1570,7 +1570,7 @@ class Initializer {
 	/**
 	 * Point the module's configure URL at its settings panel while the flag is on.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.16.0
 	 *
 	 * @return void
 	 */
@@ -1593,7 +1593,7 @@ class Initializer {
 	 *
 	 * Reads the flag alone, not `is_settings_consolidation_enabled()`: that one needs the admin menu, which REST requests never build.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.16.0
 	 *
 	 * @param string $module   The module slug.
 	 * @param string $fallback The URL to use when the settings stay where they were.

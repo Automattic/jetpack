@@ -4,6 +4,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useState } from 'react';
+import { useSettingsPanelTracking } from './use-settings-panel-tracking';
 import type { MyJetpackModule } from '../../types';
 
 type ModuleOptionValue = boolean | string;
@@ -65,5 +66,17 @@ export function useModuleSetting< T extends ModuleOptionValue >(
  * @return The value to show, whether a save is running, and the setter.
  */
 export function useModuleOption( $module: MyJetpackModule, name: string ) {
-	return useModuleSetting( $module, name, Boolean );
+	const setting = useModuleSetting( $module, name, Boolean );
+	const { trackSettingToggle } = useSettingsPanelTracking( $module.module );
+	const { setValue } = setting;
+
+	const setAndTrack = useCallback(
+		( value: boolean ) => {
+			trackSettingToggle( name, value );
+			return setValue( value );
+		},
+		[ name, setValue, trackSettingToggle ]
+	);
+
+	return { ...setting, setValue: setAndTrack };
 }

@@ -171,10 +171,8 @@ class Initializer {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
-		// The admin menu and app shell register whenever the surface is visible, even
-		// when the `seo-tools` module is inactive, so SEO stays discoverable and can be
-		// turned on from within the page itself (JETPACK-1700). When the module is off,
-		// the Overview renders only its "enable SEO tools" affordance.
+		// The page registers whenever the surface is visible, even with `seo-tools` off, so
+		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
 		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
