@@ -27,7 +27,6 @@
 /README.md                                    production-exclude
 /bin/**                                       production-exclude
 /build/**                                     production-exclude
-/Makefile                                     production-exclude
 /*/README.md                                  production-exclude
 
 # Cruft from git repos imported as packages
