@@ -1,3 +1,6 @@
+// Room for the chevron an interactive row reveals on hover or focus.
+$hover-reserve: var(--wpds-dimension-gap-2xl);
+
 .leaderboardChart {
 	transition:
 		opacity var(--wpds-motion-duration-lg)
@@ -233,6 +236,33 @@ $focus-ring-width: var(--wpds-border-width-focus);
 			var(--wpds-motion-easing-subtle);
 	}
 
+	.barWithLabelContainer > :not(.bar, .barTrack) {
+		max-inline-size: 100%;
+		transition:
+			max-inline-size var(--wpds-motion-duration-sm)
+			var(--wpds-motion-easing-subtle);
+	}
+
+	// Single-line, so the hover cap below moves the ellipsis instead of
+	// rewrapping the label and growing the row.
+	.label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	// The label stays clear of the slid value on any hover or focus, nested
+	// controls included: lifting it while a trailing action is hovered would
+	// move that action out from under the pointer.
+	&:hover,
+	&:focus-visible,
+	&:has(:focus-visible) {
+
+		.barWithLabelContainer > :not(.bar, .barTrack) {
+			max-inline-size: calc(100% - #{$hover-reserve});
+		}
+	}
+
 	.valueContainer {
 		transition:
 			transform var(--wpds-motion-duration-sm)
@@ -246,7 +276,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 
 		// Fixed reserve for the chevron — the value slides by it in full, and the
 		// bar width inset (see leaderboard-chart.tsx) scales it by the bar's share.
-		--a8c-charts-dimension-leaderboard-bar-hover-inset: var(--wpds-dimension-gap-2xl);
+		--a8c-charts-dimension-leaderboard-bar-hover-inset: #{$hover-reserve};
 
 		.bar {
 			opacity: 0.5;
@@ -343,6 +373,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	.interactiveRow {
 
 		.bar,
+		.barWithLabelContainer > :not(.bar, .barTrack),
 		.valueContainer,
 		.chevron {
 			transition: none;
