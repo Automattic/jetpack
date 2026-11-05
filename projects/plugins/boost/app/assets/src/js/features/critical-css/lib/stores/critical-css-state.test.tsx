@@ -141,17 +141,27 @@ describe( 'Critical CSS state poll', () => {
 			state( 'generated', 100, 400, 'success' ),
 			state( 'generated', 100, 400, 'success' ),
 		],
-	] )( 'keeps the newer state when the poll returns %s', async ( _label, polled, expected ) => {
-		const view = mount();
-		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: polled };
+		[
+			'a delayed pending copy after an older request was rewritten',
+			state( 'pending', 300, 300 ),
+			state( 'generated', 100, 400, 'success' ),
+			state( 'generated', 100, 400, 'success' ),
+		],
+	] )(
+		'keeps the newer state when the poll returns %s',
+		async ( _label, polled, expected, held = running ) => {
+			setWindowState( held );
+			const view = mount();
+			responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: polled };
 
-		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
-		await settle();
+			await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+			await settle();
 
-		expect( fetchMock ).toHaveBeenCalled();
-		expect( latest ).toEqual( expected );
-		view.unmount();
-	} );
+			expect( fetchMock ).toHaveBeenCalled();
+			expect( latest ).toEqual( expected );
+			view.unmount();
+		}
+	);
 
 	it( 'still accepts a state without a request time, such as an error reset', async () => {
 		const view = mount();

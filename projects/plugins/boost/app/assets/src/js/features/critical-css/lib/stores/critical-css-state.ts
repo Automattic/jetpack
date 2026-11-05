@@ -57,24 +57,17 @@ export function useCriticalCssState(): [
 }
 
 /**
- * Whether `fetched` was written before the state the dashboard holds: a copy of the same request taken
- * earlier, or a state of another request written before the held request existed. A state the site
- * rewrote later, even for an older request, is not earlier.
- *
  * @param {CriticalCssState} fetched - The state that was just fetched or set.
  * @param {CriticalCssState} held    - The state in the query cache.
  */
 function isWrittenBefore( fetched: CriticalCssState, held: CriticalCssState ): boolean {
 	const written = fetched.updated ?? fetched.created;
-	if ( ! written || ! held.created ) {
+	const heldWritten = held.updated ?? held.created;
+	if ( ! written || ! heldWritten ) {
 		return false;
 	}
 
-	if ( fetched.created === held.created ) {
-		return !! held.updated && written < held.updated;
-	}
-
-	return written < held.created;
+	return written < heldWritten;
 }
 
 // Set while a failed action restores the state it replaced, which is older by definition.
