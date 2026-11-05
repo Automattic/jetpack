@@ -78,13 +78,15 @@ describe( 'Security with the Protect page', () => {
 
 describe( 'Security without the Protect page', () => {
 	it.each( [
-		[ 'links to', true, [ `${ ADMIN }admin.php?page=jetpack-protect` ] ],
-		[ 'leaves out', false, [] ],
-	] )( '%s the Jetpack Protect plugin page', ( _name, isProtectPluginActive, hrefs ) => {
+		[ 'links to', true, {}, [ `${ ADMIN }admin.php?page=jetpack-protect` ] ],
+		[ 'leaves out', false, {}, [] ],
+		[ 'leaves search results without', true, { searchTerm: 'monitor' }, [] ],
+	] )( '%s the Jetpack Protect plugin page', ( _name, isProtectPluginActive, props, hrefs ) => {
 		renderSecurity( {
 			hasProtectPage: false,
 			isProtectPluginActive,
 			isModuleFound: finds( [ 'monitor' ] ),
+			...props,
 		} );
 
 		expect(
