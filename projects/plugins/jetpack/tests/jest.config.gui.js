@@ -1,3 +1,4 @@
+const { transformIgnorePattern } = require( 'jetpack-js-tools/jest/transform-ignore.js' );
 const baseConfig = require( './jest.config.base.js' );
 
 module.exports = {
@@ -27,10 +28,6 @@ module.exports = {
 	// latter for the lifted Gravatar component's hovercard styles) to be imported, and
 	// @wordpress/theme's untranspiled ESM to be transformed (mirroring the base config —
 	// this override otherwise shadows the base pattern's exception).
-	transformIgnorePatterns: [
-		'/node_modules/(?!.*/node_modules/)(?!@automattic/|uuid/|@wordpress/theme/|uplot/.*\\.css|@wordpress/admin-ui/.*\\.css|@gravatar-com/.*\\.css)',
-		...baseConfig.transformIgnorePatterns,
-	],
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

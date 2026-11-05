@@ -8,6 +8,7 @@
  */
 
 const path = require( 'path' );
+const { ESM_PACKAGES } = require( 'jetpack-js-tools/jest/jest-resolver.js' );
 
 // Where the copies come from: this package's own dependencies, so the suite runs the versions it
 // declares. DataViews' prerelease asks for newer `components`/`ui` than that, and does not get them
@@ -29,6 +30,28 @@ const DEDUPED_PACKAGES = [
 ];
 
 const escapeRegExp = value => value.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+
+/**
+ * Resolve one package to the file jest should load for it.
+ *
+ * The packages the shared resolver loads as ESM take their `import` entry here
+ * too, since a mapped path never reaches that resolver. Remove that branch
+ * with the resolver's `ESM_PACKAGES`.
+ *
+ * @param {string} name - Package name.
+ * @param {string} from - Directory to resolve from.
+ * @return {string} Absolute path of the module.
+ */
+function resolveCopy( name, from ) {
+	if ( ! ESM_PACKAGES.has( name ) ) {
+		return require.resolve( name, { paths: [ from ] } );
+	}
+	const packageJson = require.resolve( `${ name }/package.json`, { paths: [ from ] } );
+	const entry = require( packageJson ).exports?.[ '.' ]?.import;
+	return typeof entry === 'string'
+		? path.join( path.dirname( packageJson ), entry )
+		: require.resolve( name, { paths: [ from ] } );
+}
 
 /**
  * Builds the `moduleNameMapper` entries pinning each library to one copy.
@@ -54,7 +77,7 @@ function singleCopyModuleMapper( rootDir ) {
 	for ( const name of DEDUPED_PACKAGES ) {
 		for ( const from of searchDirs ) {
 			try {
-				mapper[ `^${ escapeRegExp( name ) }$` ] = require.resolve( name, { paths: [ from ] } );
+				mapper[ `^${ escapeRegExp( name ) }$` ] = resolveCopy( name, from );
 				break;
 			} catch {
 				// Not reachable from here; try the package root, then leave the import alone.

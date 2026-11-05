@@ -6,7 +6,30 @@ const badBrowserPackages = new Set( [
 	'parsel-js',
 ] );
 
+/**
+ * Load these packages as ESM: their CommonJS builds snapshot a circular
+ * import as `undefined`. Remove once WordPress/gutenberg#86322 and #86323 ship.
+ *
+ * @see https://github.com/WordPress/gutenberg/pull/86322
+ * @see https://github.com/WordPress/gutenberg/pull/86323
+ */
+const ESM_PACKAGES = new Set( [ '@wordpress/components', '@wordpress/block-editor' ] );
+
+/**
+ * Resolve a module, through its ESM entry for the packages listed above.
+ *
+ * @param {string} path    - Path to the module.
+ * @param {object} options - Jest resolver options, including `defaultResolver` and `conditions`.
+ * @return {string} Resolved path.
+ */
 module.exports = ( path, options ) => {
+	if ( ESM_PACKAGES.has( path ) ) {
+		return options.defaultResolver( path, {
+			...options,
+			conditions: [ ...( options.conditions ?? [] ), 'import' ],
+		} );
+	}
+
 	const basedir = options.basedir;
 	const conditions = options.conditions ? new Set( options.conditions ) : options.conditions;
 
@@ -29,3 +52,5 @@ module.exports = ( path, options ) => {
 
 	return resolver( path, opts );
 };
+
+module.exports.ESM_PACKAGES = ESM_PACKAGES;
