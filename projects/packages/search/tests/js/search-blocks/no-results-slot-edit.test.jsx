@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
 import NoResultsSlotEdit, {
-	conditionLabel,
+	conditionVariations,
 } from '../../../src/search-blocks/blocks/no-results/slot/edit';
 
 const mockSelectedStores = [];
@@ -24,12 +24,17 @@ jest.mock( '@wordpress/i18n', () => ( {
 let mockInnerBlockCount = 0;
 let mockIsSelected = false;
 let mockHasSelectedInnerBlock = false;
+let mockSiblings = [];
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
 		callback( store => {
 			mockSelectedStores.push( store );
 			return {
 				getBlockCount: () => mockInnerBlockCount,
+				getBlockRootClientId: () => 'nr-1',
+				getBlockOrder: () => mockSiblings.map( sibling => sibling.clientId ),
+				getBlockAttributes: id =>
+					mockSiblings.find( sibling => sibling.clientId === id )?.attributes,
 				isBlockSelected: () => mockIsSelected,
 				hasSelectedInnerBlock: () => mockHasSelectedInnerBlock,
 			};
@@ -47,6 +52,7 @@ describe( 'NoResultsSlotEdit', () => {
 		mockInnerBlockCount = 0;
 		mockIsSelected = false;
 		mockHasSelectedInnerBlock = false;
+		mockSiblings = [ { clientId: 'v-1', attributes: {} } ];
 	} );
 
 	// Selecting by store object rather than the 'core/block-editor' string survives a store rename.
@@ -56,11 +62,23 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( mockSelectedStores ).toContain( blockEditorStore );
 	} );
 
-	it( 'previews the filter-aware pair for an empty unscoped variant', () => {
+	it( 'previews the labelled filter-aware pair for an empty unscoped variant', () => {
+		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
+
+		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toHaveTextContent( 'Without filters' );
+		expect( screen.getByText( FILTERED_DEFAULT ) ).toHaveTextContent( 'With filters' );
+	} );
+
+	it( 'previews only the unfiltered line when a sibling covers the filtered state', () => {
+		mockSiblings = [
+			{ clientId: 'v-1', attributes: {} },
+			{ clientId: 'v-2', attributes: { condition: 'filtered' } },
+		];
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.getByText( UNFILTERED_DEFAULT ) ).toBeInTheDocument();
-		expect( screen.getByText( FILTERED_DEFAULT ) ).toBeInTheDocument();
+		expect( screen.queryByText( FILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Without filters' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'narrows the preview to the matching message for a scoped variant', () => {
@@ -90,11 +108,21 @@ describe( 'NoResultsSlotEdit', () => {
 		expect( authored ).not.toHaveClass( 'jetpack-search-no-results--default' );
 	} );
 
+	it.each( [
+		[ 'one default message', { condition: 'error' }, 'Default message. Add blocks to replace it.' ],
+		[ 'two default messages', {}, 'Default messages. Add blocks to replace them.' ],
+	] )( 'tells the author how to replace %s', ( _label, attributes, hint ) => {
+		render( <NoResultsSlotEdit attributes={ attributes } clientId="v-1" /> );
+
+		expect( screen.getByText( hint ) ).toBeInTheDocument();
+	} );
+
 	it( 'drops the preview once the variant has inner blocks', () => {
 		mockInnerBlockCount = 1;
 		render( <NoResultsSlotEdit attributes={ {} } clientId="v-1" /> );
 
 		expect( screen.queryByText( UNFILTERED_DEFAULT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Add blocks to replace/ ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'variant-inner-blocks' ) ).toBeInTheDocument();
 	} );
 
@@ -115,7 +143,7 @@ describe( 'NoResultsSlotEdit', () => {
 	it( 'paints no condition label on the canvas', () => {
 		render( <NoResultsSlotEdit attributes={ { condition: 'filtered' } } clientId="v-1" /> );
 
-		expect( screen.queryByText( 'Filters are active' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Filters Are Active' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the appender only while the variant is selected', () => {
@@ -148,20 +176,27 @@ describe( 'NoResultsSlotEdit', () => {
 	} );
 } );
 
-describe( 'conditionLabel', () => {
+describe( 'conditionVariations', () => {
+	const activeTitle = attributes =>
+		conditionVariations().find( variation => variation.isActive( attributes ) )?.title;
+
 	it.each( [
-		[ 'any', 'Any empty search' ],
-		[ 'filtered', 'Filters are active' ],
-		[ 'error', 'Search failed' ],
-	] )( 'names the %s condition', ( condition, label ) => {
-		expect( conditionLabel( { condition } ) ).toBe( label );
+		[ 'any', 'Any Empty Search' ],
+		[ 'filtered', 'Filters Are Active' ],
+		[ 'error', 'Search Failed' ],
+	] )( 'names the %s condition', ( condition, title ) => {
+		expect( activeTitle( { condition } ) ).toBe( title );
 	} );
 
 	it.each( [
 		[ 'no saved condition', {} ],
 		[ 'an unknown condition', { condition: 'bogus' } ],
 		[ 'no attributes', undefined ],
-	] )( 'falls back to the unscoped label for %s', ( _label, attributes ) => {
-		expect( conditionLabel( attributes ) ).toBe( 'Any empty search' );
+	] )( 'falls back to the unscoped variation for %s', ( _label, attributes ) => {
+		expect( activeTitle( attributes ) ).toBe( 'Any Empty Search' );
+	} );
+
+	it( 'keeps every variation out of the inserter and the block switcher', () => {
+		expect( conditionVariations().map( variation => variation.scope ) ).toEqual( [ [], [], [] ] );
 	} );
 } );
