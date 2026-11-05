@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import McpSetup from '../setup';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const renderWithCursorSelected = async () => {
 	render( <McpSetup /> );
@@ -66,5 +69,35 @@ describe( 'McpSetup: ChatGPT and Claude quick setup', () => {
 			'href',
 			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
 		);
+	} );
+} );
+
+describe( 'McpSetup: manual configuration', () => {
+	test( 'names the configuration field and gives Continue a keyed server entry', async () => {
+		render( <McpSetup /> );
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Choose your AI agent' } ),
+			'continue'
+		);
+
+		const config = JSON.parse( screen.getByRole( 'textbox', { name: 'MCP configuration' } ).value );
+		expect( config ).toEqual( {
+			mcpServers: { 'wpcom-mcp': { url: 'https://public-api.wordpress.com/wpcom/v2/mcp/v1' } },
+		} );
+	} );
+} );
+
+describe( 'McpSetup: copy configuration', () => {
+	test( 'announces a successful copy to screen readers', async () => {
+		const user = userEvent.setup();
+		const writeText = jest
+			.spyOn( window.navigator.clipboard, 'writeText' )
+			.mockResolvedValue( undefined );
+		render( <McpSetup /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Copy configuration to clipboard' } ) );
+
+		expect( writeText ).toHaveBeenCalled();
+		expect( speak ).toHaveBeenCalledWith( 'Copied' );
 	} );
 } );
