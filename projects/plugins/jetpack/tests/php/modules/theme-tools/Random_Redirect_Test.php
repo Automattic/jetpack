@@ -194,6 +194,38 @@ class Random_Redirect_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The random_cat_id parameter is a term ID, not a term taxonomy ID.
+	 */
+	public function test_random_cat_id_when_term_and_taxonomy_ids_differ() {
+		global $wpdb;
+
+		$dummy_term_id = self::factory()->term->create( array( 'taxonomy' => 'post_tag' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Deliberately create distinct term and term-taxonomy IDs.
+		$inserted = $wpdb->insert(
+			$wpdb->term_taxonomy,
+			array(
+				'term_id'     => $dummy_term_id,
+				'taxonomy'    => 'random_redirect_test',
+				'description' => '',
+				'parent'      => 0,
+				'count'       => 0,
+			)
+		);
+		$this->assertSame( 1, $inserted );
+
+		$category = wp_insert_term( 'Random Redirect Category', 'category' );
+		$this->assertNotWPError( $category );
+		$this->assertNotSame( (int) $category['term_id'], (int) $category['term_taxonomy_id'] );
+
+		$in_cat_id                = self::factory()->post->create( array( 'post_category' => array( $category['term_id'] ) ) );
+		$_GET['random']           = '1';
+		$_GET['random_post_type'] = 'post';
+		$_GET['random_cat_id']    = (string) $category['term_id'];
+
+		$this->assertSame( get_permalink( $in_cat_id ), $this->get_redirect_location() );
+	}
+
+	/**
 	 * No matching posts means no redirect.
 	 */
 	public function test_no_matching_posts_does_not_redirect() {

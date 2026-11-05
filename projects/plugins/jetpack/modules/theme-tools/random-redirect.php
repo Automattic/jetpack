@@ -106,7 +106,7 @@ if ( ! function_exists( 'jetpack_matt_random_redirect' ) ) {
 
 		// Pick a post via COUNT plus a random OFFSET rather than ORDER BY RAND(), which randomizes and sorts every candidate row on each request.
 		if ( isset( $random_cat_id ) ) {
-			$from_where = "FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where";
+			$from_where = "FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id) INNER JOIN $wpdb->term_taxonomy AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id AND tt.term_id = %s AND tt.taxonomy = 'category') WHERE $where";
 			$query_args = array_merge( array( $random_cat_id ), $where_args );
 		} else {
 			$from_where = "FROM $wpdb->posts AS p WHERE $where";
