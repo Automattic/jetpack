@@ -49,10 +49,9 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Clears the feature flag and host overrides.
+	 * Clears the host overrides.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG );
 		remove_all_filters( 'stylesheet' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		parent::tear_down();
@@ -220,21 +219,16 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The page stays off until its feature flag is on.
+	 * The page registers on Simple sites without any opt-in.
 	 */
-	public function test_page_registers_only_with_its_feature_flag() {
-		$this->assertFalse( WPCOM_My_Jetpack::should_register() );
-
-		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG, '__return_true' );
-
+	public function test_page_registers_by_default() {
 		$this->assertTrue( WPCOM_My_Jetpack::should_register() );
 	}
 
 	/**
-	 * P2s drop the Jetpack menu, so the page stays off there with its flag on.
+	 * P2s drop the Jetpack menu, so the page stays off there.
 	 */
 	public function test_page_skips_p2_sites() {
-		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_My_Jetpack::FEATURE_FLAG, '__return_true' );
 		Constants::set_constant( 'IS_WPCOM', true );
 		add_filter(
 			'stylesheet',

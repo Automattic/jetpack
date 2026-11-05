@@ -3,7 +3,7 @@
  * A lightweight My Jetpack page for WordPress.com Simple sites.
  *
  * It lists what the site's Jetpack menu already holds, and steps aside wherever the real My Jetpack
- * registers. It is a stopgap behind a feature flag: delete it once My Jetpack itself runs on Simple.
+ * registers. It is a stopgap: delete it once My Jetpack itself runs on Simple.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -11,7 +11,6 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/../../common/class-wpcom-wp-build-page.php';
@@ -47,33 +46,12 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	const ENQUEUE_TRACKS = true;
 
 	/**
-	 * Feature flag that turns the page on.
-	 */
-	const FEATURE_FLAG = 'wpcom-simple-my-jetpack';
-
-	/**
-	 * Registers the feature flag, so it is listed wherever flags are read or toggled.
-	 *
-	 * @return void
-	 */
-	public static function register_feature_flag() {
-		Feature_Flags::register(
-			self::FEATURE_FLAG,
-			array(
-				'default'     => false,
-				'description' => 'Show a lightweight My Jetpack page on Simple sites, listing what the Jetpack menu holds.',
-				'owner'       => 'jetpack-mu-wpcom',
-			)
-		);
-	}
-
-	/**
-	 * Whether this page should claim its slug: with the flag on, and not on P2s, which drop the Jetpack menu.
+	 * Whether this page should claim its slug: everywhere but P2s, which drop the Jetpack menu.
 	 *
 	 * @return bool
 	 */
 	public static function should_register() {
-		return Feature_Flags::is_enabled( self::FEATURE_FLAG ) && ! ( new Host() )->is_p2_site();
+		return ! ( new Host() )->is_p2_site();
 	}
 
 	/**
@@ -264,6 +242,5 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	}
 }
 
-WPCOM_My_Jetpack::register_feature_flag();
 add_action( 'init', array( WPCOM_My_Jetpack::class, 'init' ) );
 add_filter( 'jetpack_my_jetpack_modules_management_available', array( WPCOM_My_Jetpack::class, 'filter_modules_management_available' ) );
