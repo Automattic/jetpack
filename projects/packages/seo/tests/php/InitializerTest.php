@@ -280,9 +280,9 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * A plan-gated site pauses GEO services while preserving enabled archive canonicals.
+	 * A plan-gated site pauses GEO services and archive canonicals.
 	 */
-	public function test_init_preserves_canonical_output_when_gated() {
+	public function test_init_pauses_canonical_output_when_gated() {
 		$this->simulate_wpcom_site( false );
 
 		try {
@@ -290,7 +290,7 @@ class InitializerTest extends TestCase {
 
 			$this->assertFalse( $hooked['llms_txt'] );
 			$this->assertFalse( $hooked['ai_crawlers'] );
-			$this->assertTrue( $hooked['canonical'] );
+			$this->assertFalse( $hooked['canonical'] );
 		} finally {
 			$this->reset_wpcom_site();
 		}

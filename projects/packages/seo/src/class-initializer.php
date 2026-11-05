@@ -203,10 +203,10 @@ class Initializer {
 			// Register schema on every plan; its emitter separately checks SEO output eligibility.
 			Schema_Builder::init();
 			Author_Schema_Node::init();
-			Canonical_Urls::init();
 
 			// Pause paid output after a downgrade while retaining its saved preferences.
 			if ( ! self::is_gated() ) {
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();

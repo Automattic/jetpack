@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-SEO: Keep archive canonical URL editing consistent with the dashboard.
+SEO: Keep archive canonical URLs consistent across WordPress.com hosting environments.

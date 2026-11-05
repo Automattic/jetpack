@@ -127,7 +127,7 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByLabelText( 'Author job title' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
 		expect( screen.getByLabelText( 'Add canonical URLs to archive pages' ) ).toBeDisabled();
-		expect( screen.getByText( /Your saved canonical URL preference still applies/ ) ).toBeVisible();
+		expect( screen.getByText( /Archive canonical URLs are paused on this plan/ ) ).toBeVisible();
 		expect( screen.getByText( /AI crawler rules and llms.txt are paused/ ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(

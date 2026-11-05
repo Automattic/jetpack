@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Preserve enabled archive canonical URL output.
+Keep archive canonical URLs consistent across WordPress.com hosting environments.

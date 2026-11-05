@@ -23,7 +23,7 @@ const legacyDescriptionHelp = __(
 	'Your existing home page description still applies and can be edited.',
 	'jetpack-seo'
 );
-const canonicalHelp = __( 'Your saved canonical URL preference still applies.', 'jetpack-seo' );
+const canonicalHelp = __( 'Archive canonical URLs are paused on this plan.', 'jetpack-seo' );
 const canonicalDisabledHelp = __(
 	'Jetpack is not adding archive canonical URLs on this site.',
 	'jetpack-seo'
