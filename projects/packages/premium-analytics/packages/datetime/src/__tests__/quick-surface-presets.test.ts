@@ -66,3 +66,24 @@ describe( 'quick surface presets', () => {
 		expect( allTime.range.from.getTime() ).toBeLessThan( PUBLISHED.getTime() );
 	} );
 } );
+
+// Havana moves its clocks forward at midnight, so the day the rolling window
+// ends starts at 01:00; the days before it start at 00:00 all the same.
+describe( 'rolling windows where the clocks moved at midnight', () => {
+	const HAVANA = 'America/Havana';
+
+	it.each( [
+		[ 'yesterday', '2024-03-09T00:00:00.000-05:00', '2024-03-09T23:59:59.999-05:00' ],
+		[ 'last-7-days', '2024-03-04T00:00:00.000-05:00', '2024-03-10T23:59:59.999-04:00' ],
+	] as const )( 'starts %s at the first instant of its first day', ( presetId, from, to ) => {
+		jest.setSystemTime( new Date( '2024-03-10T16:00:00.000Z' ) );
+		try {
+			const range = computePrimaryRange( presetId, HAVANA )!;
+
+			expect( dateToISOStringWithTZ( range.from, HAVANA ) ).toBe( from );
+			expect( dateToISOStringWithTZ( range.to, HAVANA ) ).toBe( to );
+		} finally {
+			jest.setSystemTime( NOW );
+		}
+	} );
+} );
