@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Say when the last scan didn't complete, on the Scan page and in Site Health, instead of reporting no threats.

@@ -15,7 +15,7 @@ import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
 import styles from './styles.module.scss';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 const ScanAdminSectionHero: FC = () => {
 	const { hasPlan } = usePlan();
@@ -27,6 +27,7 @@ const ScanAdminSectionHero: FC = () => {
 		lastChecked,
 	} = useProtectData();
 	const { data: status } = useScanStatusQuery();
+	const lastScanFailed = Boolean( status?.lastScanFailed );
 
 	// Popover anchor
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
@@ -76,6 +77,51 @@ const ScanAdminSectionHero: FC = () => {
 		);
 	}
 
+	let heading: string = sprintf(
+		/* translators: %s: the pluralized type of threat/vulnerability. */
+		__( 'No %s found', 'jetpack-protect' ),
+		hasPlan
+			? __( 'threats', 'jetpack-protect' )
+			: _x( 'vulnerabilities', 'Plural of vulnerability', 'jetpack-protect' )
+	);
+	let subheading: ReactNode = __( 'Most recent results', 'jetpack-protect' );
+	if ( numThreats > 0 ) {
+		heading = sprintf(
+			/* translators: %1$s: the total number of threats/vulnerabilities, %2$s: the singular or plural form of "threat" or "vulnerability". */
+			__( '%1$s %2$s found', 'jetpack-protect' ),
+			numThreats.toString(),
+			hasPlan
+				? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
+				: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
+		);
+	} else if ( lastScanFailed ) {
+		heading = __( 'Your last scan didn’t complete', 'jetpack-protect' );
+	}
+
+	// A failed scan's time would pass for when the results are from.
+	if ( lastScanFailed ) {
+		subheading =
+			numThreats > 0
+				? __(
+						'Your last scan didn’t complete, so these results are from an earlier scan.',
+						'jetpack-protect'
+					)
+				: __(
+						'We can’t confirm your site is free of threats until a scan finishes.',
+						'jetpack-protect'
+					);
+	} else if ( lastCheckedLocalTimestamp ) {
+		subheading = (
+			<>
+				<span className={ styles[ 'subheading-content' ] }>
+					{ dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp, false ) }
+				</span>
+				&nbsp;
+				{ __( 'results', 'jetpack-protect' ) }
+			</>
+		);
+	}
+
 	return (
 		<AdminSectionHero
 			main={
@@ -84,39 +130,12 @@ const ScanAdminSectionHero: FC = () => {
 						status="active"
 						label={ __( 'Active', 'jetpack-protect' ) }
 					/>
-					<AdminSectionHero.Heading showIcon>
-						{ numThreats > 0
-							? sprintf(
-									/* translators: %1$s: the total number of threats/vulnerabilities, %2$s: the singular or plural form of "threat" or "vulnerability". */
-									__( '%1$s %2$s found', 'jetpack-protect' ),
-									numThreats.toString(),
-									hasPlan
-										? _n( 'threat', 'threats', numThreats, 'jetpack-protect' )
-										: _n( 'vulnerability', 'vulnerabilities', numThreats, 'jetpack-protect' )
-								)
-							: sprintf(
-									/* translators: %s: the pluralized type of threat/vulnerability. */
-									__( 'No %s found', 'jetpack-protect' ),
-									hasPlan
-										? __( 'threats', 'jetpack-protect' )
-										: _x( 'vulnerabilities', 'Plural of vulnerability', 'jetpack-protect' )
-								) }
+					<AdminSectionHero.Heading showIcon={ ! lastScanFailed }>
+						{ heading }
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>
 						<>
-							<Text ref={ setDailyScansPopoverAnchor }>
-								{ lastCheckedLocalTimestamp ? (
-									<>
-										<span className={ styles[ 'subheading-content' ] }>
-											{ dateI18n( 'F jS g:i A', lastCheckedLocalTimestamp, false ) }
-										</span>
-										&nbsp;
-										{ __( 'results', 'jetpack-protect' ) }
-									</>
-								) : (
-									__( 'Most recent results', 'jetpack-protect' )
-								) }
-							</Text>
+							<Text ref={ setDailyScansPopoverAnchor }>{ subheading }</Text>
 							{ ! hasPlan && (
 								<OnboardingPopover
 									id="free-daily-scans"

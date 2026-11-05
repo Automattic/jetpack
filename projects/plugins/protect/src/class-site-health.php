@@ -79,6 +79,20 @@ class Site_Health {
 			'test'        => 'jetpack_protect_checks',
 		);
 
+		if ( ! $total_threats && ! empty( Status::get_status()->last_scan_failed ) ) {
+			$result['label']       = __( 'Your last Jetpack Protect scan didn’t complete', 'jetpack-protect' );
+			$result['status']      = 'recommended';
+			$result['description'] = sprintf(
+				'<p>%s</p>',
+				esc_html__( 'We can’t confirm your site is free of threats until a scan finishes.', 'jetpack-protect' )
+			);
+			$result['actions']     = sprintf(
+				'<p><a href="%s">%s</a></p>',
+				esc_url( admin_url( 'admin.php?page=jetpack-protect' ) ),
+				esc_html__( 'Open Jetpack Protect', 'jetpack-protect' )
+			);
+		}
+
 		/**
 		 * If threats found.
 		 */

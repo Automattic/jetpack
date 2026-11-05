@@ -44,16 +44,16 @@ class Protect_Helper {
 			// Display a notice when this module overwrites Protect Status.
 			add_action( 'admin_notices', array( $this, 'display_protect_overwritten_notice' ) );
 
-			$protect_option_name = Automattic\Jetpack\Protect\Protect_Status::$option_name;
+			$protect_option_name = Automattic\Jetpack\Protect_Status\Protect_Status::OPTION_NAME;
 			add_filter( "option_$protect_option_name", array( $this, 'get_mock_response' ) );
 
-			$protect_option_time_name = Automattic\Jetpack\Protect\Protect_Status::$option_timestamp_name;
+			$protect_option_time_name = Automattic\Jetpack\Protect_Status\Protect_Status::OPTION_TIMESTAMP_NAME;
 			add_filter( "option_$protect_option_time_name", array( $this, 'filter_option_time' ) );
 
-			$scan_option_name = Automattic\Jetpack\Protect\Scan_Status::$option_name;
+			$scan_option_name = Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_NAME;
 			add_filter( "option_$scan_option_name", array( $this, 'get_mock_scan_api_response' ) );
 
-			$scan_option_time_name = Automattic\Jetpack\Protect\Scan_Status::$option_timestamp_name;
+			$scan_option_time_name = Automattic\Jetpack\Protect_Status\Scan_Status::OPTION_TIMESTAMP_NAME;
 			add_filter( "option_$scan_option_time_name", array( $this, 'filter_option_time' ) );
 
 			if ( 'error' === $settings['status'] ) {
@@ -107,6 +107,7 @@ class Protect_Helper {
 							<option value="error" <?php selected( 'error', $settings['status'] ); ?>>Error - When there's an error fetching the status</option>
 							<option value="incomplete" <?php selected( 'incomplete', $settings['status'] ); ?>>Incomplete - When we have results, but some extensions were not scanned</option>
 							<option value="complete" <?php selected( 'complete', $settings['status'] ); ?>>Complete - When we have results for all extensions</option>
+							<option value="failed" <?php selected( 'failed', $settings['status'] ); ?>>Failed - When the latest scan didn't complete, so the results are from an earlier one (Scan only)</option>
 						</select>
 					</td>
 				</tr>
@@ -357,6 +358,9 @@ class Protect_Helper {
 		}
 
 		$response->most_recent->timestamp = gmdate( 'Y-m-d H:i:s', time() - 1000 );
+		if ( 'failed' === $settings['status'] ) {
+			$response->most_recent->error = true;
+		}
 
 		if ( $settings['vuls_for_core'] ) {
 			$response->threats[] = self::get_mock_scan_api_threat( 1, 'core' );
@@ -472,7 +476,7 @@ class Protect_Helper {
 	 * @return mixed WP_Error if it's a request to Protect status API
 	 */
 	public function filter_status_fetch( $preempt, $parsed_args, $url ) {
-		if ( strpos( $url, Automattic\Jetpack\Protect\Protect_Status::get_api_url() ) !== false ) {
+		if ( strpos( $url, Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url() ) !== false ) {
 			return new WP_Error( 'error' );
 		}
 		return $preempt;

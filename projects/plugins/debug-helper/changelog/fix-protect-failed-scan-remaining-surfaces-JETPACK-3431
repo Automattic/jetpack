@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect: Restore status overrides, and add a status that simulates a scan that didn't complete.
