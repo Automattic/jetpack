@@ -31,7 +31,6 @@ function setup_tests() {
 	chmod 700 bin/install-wp-tests.sh
 	VER=$( jq -r '.["require-dev"]["yoast/phpunit-polyfills"]' composer.json )
 	"$HOME/composer" global require "yoast/phpunit-polyfills=$VER" --dev -W
-	# "$HOME/composer" install --no-dev --optimize-autoloader
 
 	bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASSWORD" "$DB_HOST" latest true
 
