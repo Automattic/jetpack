@@ -147,8 +147,6 @@ describe( 'normalizeReportParams', () => {
 		expect( result.step ).toBe( step );
 	} );
 
-	// The URL's comparison dates were measured from the dates it kept; the preset is measured
-	// again from the recomputed primary, as is one the primary no longer offers.
 	it.each( [
 		[ 'the comparison preset from the recomputed primary', 'previous-period' ],
 		[ 'the previous period for a comparison preset the primary does not offer', 'previous-week' ],
@@ -328,6 +326,23 @@ describe( 'normalizeReportParams', () => {
 		expect( result.preset ).toBe( 'all-time' );
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
 		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'keeps the comparison as given when the all-time start cannot be read', () => {
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000+99:00',
+			to: STALE_TO,
+			preset: 'all-time',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-20T00:00:00.000-05:00',
+			compare_to: '2026-01-18T23:59:59.999-05:00',
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.compare_from ).toBe( '2025-12-20T00:00:00.000-05:00' );
+		expect( result.compare_to ).toBe( '2026-01-18T23:59:59.999-05:00' );
+		expect( result.compare_preset ).toBe( 'previous-period' );
 	} );
 
 	it( 'rebuilds a year preset that arrives without its range', () => {

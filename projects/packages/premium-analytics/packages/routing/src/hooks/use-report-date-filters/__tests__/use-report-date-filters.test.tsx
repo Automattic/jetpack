@@ -102,8 +102,6 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.canApply ).toBe( false );
 	} );
 
-	// A week-old bookmark of Last 7 days. The widgets recompute the preset and show this
-	// week, so the controls name, compare and edit this week too, not the dates the URL kept.
 	it( 'reads a preset as the window it names today, whatever dates the URL kept', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
@@ -122,7 +120,6 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.range.to?.getTime() ).toBe( thisWeek.to );
 	} );
 
-	// The year surface and the detail pages' all time, which the widgets also read through today.
 	it.each( [
 		[ 'a year preset', 'year-2026', '2026-01-01T00:00:00.000Z' ],
 		[ 'all time, keeping the start the surface wrote', 'all-time', '2020-05-01T00:00:00.000Z' ],
@@ -158,8 +155,6 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.range.to?.getTime() ).toBe( picked.to );
 	} );
 
-	// The same bookmark with the comparison on: the widgets measure the previous period from
-	// this week, so the header names the week before this one, not the one before the URL's.
 	it( 'measures a comparison preset from the window the primary names today', () => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
@@ -179,6 +174,57 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedComparisonRange?.to?.getTime() ).toBe(
 			Date.parse( '2026-08-13T23:59:59.999Z' )
 		);
+	} );
+
+	it( 'names the comparison the window names today, not one the URL kept that it no longer offers', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-03-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-03-01T00:00:00.000+00:00',
+			to: '2026-03-07T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			comp: '1',
+			compare_preset: 'previous-week',
+			compare_from: '2026-02-22T00:00:00.000+00:00',
+			compare_to: '2026-02-28T23:59:59.999+00:00',
+		} );
+
+		expect( result.current.comparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonRange?.to?.getTime() ).toBe(
+			Date.parse( '2026-02-28T23:59:59.999Z' )
+		);
+	} );
+
+	it( 'shows a staged comparison edit before it is applied', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-03-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-03-01T00:00:00.000+00:00',
+			to: '2026-03-20T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			interval: 'day',
+		} );
+
+		act( () => {
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-03-14T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-03-20T23:59:59.999Z', 'UTC' ),
+				},
+				'last-7-days'
+			);
+		} );
+		act( () => {
+			result.current.onComparisonChange(
+				{
+					from: new TZDate( '2026-03-07T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-03-13T23:59:59.999Z', 'UTC' ),
+				},
+				'previous-week'
+			);
+		} );
+
+		expect( result.current.comparisonPresetId ).toBe( 'previous-week' );
+		expect( result.current.appliedComparisonPresetId ).toBeUndefined();
 	} );
 
 	it.each( [

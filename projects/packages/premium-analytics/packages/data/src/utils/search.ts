@@ -163,12 +163,12 @@ export function normalizeReportParams(
 	// Comparison only ever comes from the URL; a fresh load gets its default
 	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
-		// The URL's comparison dates were measured from the dates it keeps. A preset's window is
-		// re-read as today's above, so its comparison preset is measured again from that window;
-		// a hand-picked window is its dates, and so is its comparison.
+		// A preset window was re-read as today's above, so its comparison preset is measured again
+		// from it; a hand-picked window, or one that cannot be measured, keeps the URL's comparison.
 		const comparisonPresetId = presetRange && toComparisonPresetId( search.compare_preset );
-		if ( comparisonPresetId ) {
-			return withComparisonPreset( normalized, comparisonPresetId );
+		const measured = comparisonPresetId && withComparisonPreset( normalized, comparisonPresetId );
+		if ( measured?.comp ) {
+			return measured;
 		}
 
 		normalized.compare_from = canonicalTimestamp( search.compare_from );

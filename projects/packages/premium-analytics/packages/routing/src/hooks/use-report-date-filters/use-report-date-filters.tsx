@@ -129,12 +129,9 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
- * The window a preset or a pair of URL dates names. A preset is the window it names today: the
- * widgets read it that way (`normalizeReportParams` recomputes it and ignores the dates), so the
- * controls do too. Otherwise a bookmark's week-old dates would name last week in the trigger's
- * tooltip, seed the comparison and the calendar with it, and step from it, while the numbers show
- * this week. All time keeps the URL's start, which the surface that wrote it resolved for the
- * site, and reads its end as today. A hand-picked range is its dates.
+ * The window a preset or a pair of URL dates names: a preset is the window it names today, as
+ * `normalizeReportParams` reads it for the widgets, so a stale bookmark's controls match its numbers.
+ * All time keeps the URL's start and ends today; a hand-picked range is its dates.
  *
  * @param presetId - The preset the URL carries, if any.
  * @param from     - The `from` search param.
@@ -160,6 +157,44 @@ function resolveRange(
 	return allTime
 		? { from: decodeDateSearchParam( from, timeZone ), to: allTime.to }
 		: toPickerRange( from, to, timeZone );
+}
+
+/**
+ * The comparison the URL names, read as `normalizeReportParams` reads it for the widgets: a preset
+ * window's comparison preset is measured again from the window it names today, a hand-picked
+ * window's dates are kept. Gated on the window, so `compare_preset` alone compares nothing.
+ *
+ * @param params   - The search params, staged or committed.
+ * @param primary  - The primary window those params name.
+ * @param timeZone - The site's reporting zone.
+ * @return The comparison preset and window, or neither when comparison is off.
+ */
+function resolveComparison(
+	params: ReportQuerySearchParams,
+	primary: DateRange,
+	timeZone: string
+): { presetId?: ComparisonPresetId; range?: DateRange } {
+	if ( ! hasComparisonEnabled( params ) ) {
+		return {};
+	}
+
+	const isPresetWindow =
+		isSelectablePreset( params.preset ) || isYearSurfacePresetId( params.preset );
+	const from = encodeDateToSearchParam( primary.from );
+	const to = encodeDateToSearchParam( primary.to );
+	const measured =
+		isPresetWindow && toComparisonPresetId( params.compare_preset ) && from && to
+			? deriveComparisonRange( { ...params, from, to } )
+			: undefined;
+
+	return {
+		presetId: measured?.compare_preset ?? params.compare_preset ?? undefined,
+		range: toPickerRange(
+			measured?.compare_from ?? params.compare_from,
+			measured?.compare_to ?? params.compare_to,
+			timeZone
+		),
+	};
 }
 
 /**
@@ -227,44 +262,20 @@ export function useReportDateFilters< TFrom extends string >(
 		[ stage, effective, lockedIntervals ]
 	);
 
-	// Gated like the applied pair below: a link carrying `compare_preset` with no
-	// window compares nothing, and must not paint the control active.
+	// Read against the window being edited, so the control names what applying it would compare.
 	const comparisonPresetId = useMemo(
-		() =>
-			hasComparisonEnabled( effective ) ? ( effective.compare_preset ?? undefined ) : undefined,
-		[ effective ]
+		() => resolveComparison( effective, range, timeZone ).presetId,
+		[ effective, range, timeZone ]
 	);
 
 	/*
 	 * Applied, not staged: a comparison commits on its own but can ride
 	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
-	 * Gated like the report params, so it never shows an unrequested comparison.
 	 */
-	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
-		if ( ! hasComparisonEnabled( committed ) ) {
-			return { appliedComparisonPresetId: undefined, appliedComparisonRange: undefined };
-		}
-
-		// Read as the widgets query it (`normalizeReportParams`): a preset's comparison preset is
-		// measured again from the window the preset names today; a hand-picked window's is its dates.
-		const isPresetWindow =
-			isSelectablePreset( committed.preset ) || isYearSurfacePresetId( committed.preset );
-		const appliedFrom = encodeDateToSearchParam( appliedRange.from );
-		const appliedTo = encodeDateToSearchParam( appliedRange.to );
-		const measured =
-			isPresetWindow && toComparisonPresetId( committed.compare_preset ) && appliedFrom && appliedTo
-				? deriveComparisonRange( { ...committed, from: appliedFrom, to: appliedTo } )
-				: undefined;
-
-		return {
-			appliedComparisonPresetId: measured?.compare_preset ?? committed.compare_preset ?? undefined,
-			appliedComparisonRange: toPickerRange(
-				measured?.compare_from ?? committed.compare_from,
-				measured?.compare_to ?? committed.compare_to,
-				timeZone
-			),
-		};
-	}, [ committed, appliedRange, timeZone ] );
+	const { presetId: appliedComparisonPresetId, range: appliedComparisonRange } = useMemo(
+		() => resolveComparison( committed, appliedRange, timeZone ),
+		[ committed, appliedRange, timeZone ]
+	);
 
 	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 

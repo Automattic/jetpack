@@ -54,6 +54,11 @@ export function withComparisonPreset(
 	presetId: ComparisonPresetId
 ): ReportParams {
 	const reference = { from: localTZDate( params.from ), to: localTZDate( params.to ) };
+	// An unreadable window, say a hand-edited offset, has no comparison to measure.
+	if ( isNaN( reference.from.getTime() ) || isNaN( reference.to.getTime() ) ) {
+		return params;
+	}
+
 	const options = { primaryPresetId: params.preset };
 
 	// A preset the range does not offer, say the previous week of a year, falls back.
