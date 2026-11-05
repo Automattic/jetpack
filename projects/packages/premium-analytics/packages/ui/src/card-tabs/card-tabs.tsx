@@ -17,8 +17,8 @@ import type {
 } from './types';
 
 /**
- * Groups the cards and their panels: the `Tabs` of `@wordpress/ui` with each
- * tab drawn as a card, whose fill marks the selection.
+ * Groups the cards and their panels. Mirrors the `Tabs` API of `@wordpress/ui`,
+ * with each tab drawn as a card whose fill marks the selection.
  */
 export const Root = forwardRef< HTMLDivElement, CardTabsRootProps >(
 	function CardTabsRoot( props, forwardedRef ) {

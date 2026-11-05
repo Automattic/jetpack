@@ -100,7 +100,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The `Tabs` of `@wordpress/ui` with each tab drawn as a card: Base UI tabs underneath, the selected card marked by its fill rather than an indicator, and the design system’s interactive tokens for every state. The row wraps on its own once the cards would fall under their minimum width; the padding, that width and the column count are set through `--jpa-card-tabs-padding`, `--jpa-card-tabs-min-inline-size` and `--jpa-card-tabs-columns`.',
+					'Mirrors the `Tabs` API of `@wordpress/ui`, with each tab drawn as a card: Base UI tabs underneath, the selected card marked by its fill rather than an indicator, and the design system’s interactive tokens for every state. The row wraps on its own once the cards would fall under their minimum width; the padding, that width and the column count are set through `--jpa-card-tabs-padding`, `--jpa-card-tabs-min-inline-size` and `--jpa-card-tabs-columns`.',
 			},
 		},
 	},
