@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Take the setup wizard's unchanged `from` from CONNECTION_FROM, and mock the connect URL in a Features tab tracking test so the connection package's new development warning does not fail it.
-
