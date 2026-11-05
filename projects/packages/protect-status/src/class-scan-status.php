@@ -57,6 +57,13 @@ class Scan_Status extends Status {
 	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
+	 * Where a threat with no severity sorts: just above Low (below 3), as sortThreatSeverity does in js-packages/scan.
+	 *
+	 * @var float
+	 */
+	private const UNRATED_SEVERITY_SORT_VALUE = 2.5;
+
+	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
 	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
@@ -365,9 +372,9 @@ class Scan_Status extends Status {
 					return 'active' === $a->status ? -1 : 1;
 				}
 
-				// ...then by severity, with an unrated threat just above Low (below 3)...
-				$a_severity  = is_numeric( $a->severity ) ? $a->severity : 2.5;
-				$b_severity  = is_numeric( $b->severity ) ? $b->severity : 2.5;
+				// ...then by severity...
+				$a_severity  = is_numeric( $a->severity ) ? $a->severity : self::UNRATED_SEVERITY_SORT_VALUE;
+				$b_severity  = is_numeric( $b->severity ) ? $b->severity : self::UNRATED_SEVERITY_SORT_VALUE;
 				$by_severity = $b_severity <=> $a_severity;
 				if ( 0 !== $by_severity ) {
 					return $by_severity;

@@ -26,7 +26,7 @@ import {
 } from 'react';
 import {
 	ThreatSeverityBadge,
-	getThreatSeveritySortValue,
+	sortThreatSeverity,
 	getThreatType,
 	type Threat,
 } from '@automattic/jetpack-scan';
@@ -394,8 +394,9 @@ export default function ThreatsDataViews( {
 							label: __( 'Severity', 'jetpack-scan' ),
 							type: 'integer' as FieldTypeName,
 							getValue( { item }: { item: Threat } ) {
-								return getThreatSeveritySortValue( item );
+								return item.severity;
 							},
+							sort: sortThreatSeverity,
 							render( { item }: { item: Threat } ) {
 								return <ThreatSeverityBadge severity={ item.severity } />;
 							},

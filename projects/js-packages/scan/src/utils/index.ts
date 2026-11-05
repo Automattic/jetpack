@@ -18,14 +18,23 @@ export const getThreatType = ( threat: Threat ) => {
 };
 
 /**
- * A threat's severity as a sort key.
+ * Compares two threat severities for a DataViews `sort`, placing a missing one just above Low (below 3).
  *
- * @param threat          - The threat.
- * @param threat.severity - Its severity, missing on the free vulnerability check.
- * @return The severity, or 2.5 when missing, so an unrated threat sorts just above Low (below 3).
+ * @param a         - A severity, missing on the free vulnerability check.
+ * @param b         - Another severity.
+ * @param direction - The sort direction.
+ * @return A negative number when `a` sorts first, positive when `b` does, else 0.
  */
-export const getThreatSeveritySortValue = ( { severity }: { severity?: number | null } ) =>
-	typeof severity === 'number' ? severity : 2.5;
+export const sortThreatSeverity = (
+	a: number | null | undefined,
+	b: number | null | undefined,
+	direction: 'asc' | 'desc'
+) => {
+	const key = ( severity: number | null | undefined ) =>
+		typeof severity === 'number' ? severity : 2.5;
+	const diff = key( a ) - key( b );
+	return direction === 'asc' ? diff : -diff;
+};
 
 export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
 	const now = new Date();

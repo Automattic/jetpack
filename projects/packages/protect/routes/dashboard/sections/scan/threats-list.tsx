@@ -1,5 +1,5 @@
 import {
-	getThreatSeveritySortValue,
+	sortThreatSeverity,
 	getThreatType,
 	ThreatSeverityBadge,
 	type Threat,
@@ -201,7 +201,8 @@ export function getThreatFields(
 			enableHiding: false,
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
-			getValue: ( { item } ) => getThreatSeveritySortValue( item ),
+			getValue: ( { item } ) => item.severity,
+			sort: sortThreatSeverity,
 			render: ( { item } ) => (
 				<KnownSeverityBadge severity={ item.severity } fallback={ NOT_AVAILABLE } />
 			),
