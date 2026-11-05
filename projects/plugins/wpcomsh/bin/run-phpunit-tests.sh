@@ -25,20 +25,6 @@ function ensure_composer() {
 	fi
 }
 
-function checkout_project() {
-	cd "$HOME/htdocs/wp-content/mu-plugins"
-
-	if [ ! -d wpcomsh ]; then
-		git clone git@github.com:Automattic/wpcomsh.git
-	else
-		cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
-		git checkout .
-		git fetch --all
-		eval "git checkout $GITHUB_REF_NAME"
-		eval "git pull origin $GITHUB_REF_NAME --rebase"
-	fi
-}
-
 function setup_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
 	chmod 700 bin/install-wp-tests.sh
