@@ -3,10 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
-import {
-	useCriticalCssState,
-	useRegenerateCriticalCssAction,
-} from '../lib/stores/critical-css-state';
+import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import { useTooltipLayer } from '$features/module/surface';
@@ -23,7 +20,6 @@ type Props = {
 
 export default function ModernCriticalCssStatus( { cssState, isGenerating, progress }: Props ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
-	const [ , , { isFetching } ] = useCriticalCssState();
 	const tooltipLayer = useTooltipLayer();
 	const generating = isGenerating || cssState.status === 'pending';
 	const idle = cssState.status === 'not_generated';
@@ -64,9 +60,7 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 								variant="minimal"
 								size="compact"
 								onClick={ generate }
-								disabled={
-									regenerateAction.isPending || ( regenerateAction.isError && isFetching )
-								}
+								disabled={ regenerateAction.isPending }
 							>
 								{ idle
 									? _x( 'Generate', '', 'jetpack-boost' )

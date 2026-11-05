@@ -122,6 +122,45 @@ describe( 'Local Critical CSS generator failures', () => {
 		}
 	);
 
+	it( 'reports the error-save failure without an earlier CSS-save refusal', async () => {
+		const refused = new DataSyncError( 'DS request failed: 502', {
+			location: 'set-provider-css',
+			status: 'response_not_ok',
+			namespace: 'jetpack_boost_ds',
+			key: 'critical_css_state',
+			data: {
+				status: 502,
+				statusText: 'Bad Gateway',
+				clone: () => ( { text: async () => 'Bad Gateway' } ),
+			},
+		} );
+		const stopped = new DataSyncError( 'Could not save provider errors', {
+			location: 'set-provider-errors',
+			status: 'error_with_message',
+			namespace: 'jetpack_boost_ds',
+			key: 'critical_css_state',
+			data: 'Could not save provider errors',
+		} );
+		mockSetProviderCss.mockRejectedValueOnce( refused );
+		mockSetProviderErrors.mockRejectedValueOnce( stopped );
+		const showState = mountMeta();
+
+		await expect(
+			lastRunCallbacks().setProviderCss( 'core_front_page', '.top{color:red}' )
+		).rejects.toBe( refused );
+		await expect(
+			lastRunCallbacks().setProviderErrors( 'core_front_page', [] )
+		).rejects.toBe( stopped );
+		await failRunAndRollBack( showState, stopped );
+
+		expect( screen.getByTestId( 'status' ).textContent ).toBe( stopped.message );
+		expect( mockSetCssState ).toHaveBeenLastCalledWith( {
+			status: 'error',
+			status_error: stopped.message,
+			providers: [],
+		} );
+	} );
+
 	it( 'does not restart a failed run when its error save rolls the state back', async () => {
 		const showState = mountMeta();
 		expect( mockRunLocalGenerator ).toHaveBeenCalledTimes( 1 );

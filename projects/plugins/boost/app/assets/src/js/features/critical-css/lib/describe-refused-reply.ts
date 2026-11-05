@@ -56,14 +56,20 @@ export async function describeRefusedReply( error: unknown ): Promise< string | 
 
 	if ( status === 'json_parse_error' ) {
 		// Only a 2xx reply reaches the parser, and these endpoints answer 200.
-		return sprintf(
-			/* translators: %s is the start of the reply text. */
-			__(
-				'The site answered HTTP 200 with a page instead of a reply from Boost: %s',
-				'jetpack-boost'
-			),
-			textStart( String( data ?? '' ) )
-		);
+		const line = textStart( String( data ?? '' ) );
+		return line
+			? sprintf(
+					/* translators: %s is the start of the reply text. */
+					__(
+						'The site answered HTTP 200 with a page instead of a reply from Boost: %s',
+						'jetpack-boost'
+					),
+					line
+				)
+			: __(
+					'The site answered HTTP 200 with a page instead of a reply from Boost.',
+					'jetpack-boost'
+				);
 	}
 
 	if ( status === 'failed_to_sync' ) {

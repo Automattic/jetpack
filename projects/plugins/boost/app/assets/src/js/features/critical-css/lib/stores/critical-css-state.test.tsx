@@ -309,10 +309,16 @@ function mountDashboard() {
 }
 
 describe( 'Refused replies', () => {
-	it( 'shows what a refused Regenerate request answered until a run starts', async () => {
+	it.each( [
+		[
+			checkPage,
+			'The site answered HTTP 200 with a page instead of a reply from Boost: One moment, please... Checking your browser',
+		],
+		[ '', 'The site answered HTTP 200 with a page instead of a reply from Boost.' ],
+	] )( 'shows refused Regenerate reply %j until a run starts', async ( html, message ) => {
 		setWindowState( finishedEarlier );
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
-			html: checkPage,
+			html,
 		};
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: finishedEarlier };
 		const view = mountDashboard();
@@ -323,11 +329,7 @@ describe( 'Refused replies', () => {
 		await expect(
 			screen.findByText( 'Critical CSS generation did not start' )
 		).resolves.not.toBeNull();
-		expect(
-			screen.getByText(
-				'The site answered HTTP 200 with a page instead of a reply from Boost: One moment, please... Checking your browser'
-			)
-		).not.toBeNull();
+		expect( screen.getByText( message ) ).not.toBeNull();
 		// The old result stays on screen and Regenerate can be tried again once the state was re-read.
 		expect( screen.getByText( /1 file generated/ ) ).not.toBeNull();
 		await settle();

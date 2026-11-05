@@ -57,6 +57,8 @@ export function useCriticalCssState(): [
 }
 
 /**
+ * Check whether the fetched copy was written before the held state, by write time.
+ *
  * @param {CriticalCssState} fetched - The state that was just fetched or set.
  * @param {CriticalCssState} held    - The state in the query cache.
  */
