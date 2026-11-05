@@ -93,25 +93,6 @@ describe( 'JetpackConnectionErrors', () => {
 		expect( screen.queryByText( 'Restore Connection' ) ).not.toBeInTheDocument();
 	} );
 
-	it( "should offer to connect the user's own account for the 'connect_user' action", () => {
-		const errors = [
-			{
-				code: 'no_valid_user_token',
-				message: 'The connection owner needs to reconnect. You can connect your account instead.',
-				action: 'connect_user',
-				data: {},
-			},
-		];
-
-		render( <JetpackConnectionErrors errors={ errors } />, { initialState } );
-
-		expect( screen.getByRole( 'link', { name: 'Connect your account' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 'connect_url_redirect=1' )
-		);
-		expect( screen.queryByText( 'Restore Connection' ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'should handle multiple errors correctly', () => {
 		const errors = [
 			{

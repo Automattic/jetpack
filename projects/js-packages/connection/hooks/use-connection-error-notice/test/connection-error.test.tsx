@@ -71,43 +71,6 @@ describe( 'ConnectionError', () => {
 		expect( props.actions[ 0 ].label ).toBe( 'Restore Connection' );
 	} );
 
-	it( 'wires a built-in connect_user handler that navigates to the user connection flow', () => {
-		mockConnection( {
-			connectionErrors: {
-				no_valid_user_token: {
-					7: { error_message: 'Owner broken', error_data: { action: 'connect_user' } },
-				},
-			},
-		} );
-		const navigate = jest.fn();
-
-		render( <ConnectionError navigate={ navigate } reconnectFrom="test-surface" /> );
-
-		ConnectionErrorNotice.mock.calls[ 0 ][ 0 ].actions[ 0 ].onClick();
-		expect( navigate ).toHaveBeenCalledWith( expect.stringContaining( 'connect_url_redirect=1' ) );
-		expect( navigate ).toHaveBeenCalledWith( expect.stringContaining( 'from=test-surface' ) );
-	} );
-
-	it( "lets a consumer's own connect_user handler replace the built-in one", () => {
-		mockConnection( {
-			connectionErrors: {
-				no_valid_user_token: {
-					7: { error_message: 'Owner broken', error_data: { action: 'connect_user' } },
-				},
-			},
-		} );
-		const navigate = jest.fn();
-		const connectUser = jest.fn();
-
-		render(
-			<ConnectionError navigate={ navigate } actionHandlers={ { connect_user: connectUser } } />
-		);
-
-		ConnectionErrorNotice.mock.calls[ 0 ][ 0 ].actions[ 0 ].onClick();
-		expect( connectUser ).toHaveBeenCalled();
-		expect( navigate ).not.toHaveBeenCalled();
-	} );
-
 	it( 'wires notice-link and support-link click tracking with the standard payload', () => {
 		mockConnection( {
 			connectionErrors: {

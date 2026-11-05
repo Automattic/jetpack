@@ -3611,6 +3611,77 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that `connect_user` carries a link back to the admin page it was built on.
+	 *
+	 * @param bool   $in_admin        Whether the errors are built in a wp-admin page render.
+	 * @param string $request_uri     The current request URI.
+	 * @param string $expected_return The admin path the link should return to.
+	 * @param string $expected_from   The `from` the link should send.
+	 * @dataProvider provide_connect_user_return_pages
+	 */
+	#[DataProvider( 'provide_connect_user_return_pages' )]
+	public function test_connect_user_link_returns_to_the_current_admin_page( $in_admin, $request_uri, $expected_return, $expected_from ) {
+		list( $owner_id ) = $this->create_owner_and_admin_viewer();
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
+
+		$original_uri              = $_SERVER['REQUEST_URI'] ?? '';
+		$_SERVER['REQUEST_URI']    = $request_uri;
+		$GLOBALS['current_screen'] = new class( $in_admin ) {
+			/**
+			 * Whether this screen is in wp-admin.
+			 *
+			 * @var bool
+			 */
+			private $in_admin;
+
+			/**
+			 * Constructor.
+			 *
+			 * @param bool $in_admin Whether this screen is in wp-admin.
+			 */
+			public function __construct( $in_admin ) {
+				$this->in_admin = $in_admin;
+			}
+
+			/**
+			 * Mirrors WP_Screen::in_admin().
+			 *
+			 * @return bool
+			 */
+			public function in_admin() {
+				return $this->in_admin;
+			}
+		};
+
+		$data = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $owner_id ]['error_data'];
+
+		unset( $GLOBALS['current_screen'] );
+		$_SERVER['REQUEST_URI'] = $original_uri;
+
+		$this->assertSame( 'Connect your account', $data['action_label'] );
+		$this->assertSame( 'jetpack_connection_error_notice_reconnect_cta_click', $data['tracking_event'] );
+		wp_parse_str( (string) wp_parse_url( $data['action_url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( 'jetpack-connection-webhooks', $query['handler'] );
+		$this->assertSame( admin_url( $expected_return ), $query['redirect_after_auth'] );
+		$this->assertSame( $expected_from, $query['from'] );
+	}
+
+	/**
+	 * Data provider for test_connect_user_link_returns_to_the_current_admin_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_connect_user_return_pages() {
+		return array(
+			'core Connectors screen'     => array( true, '/wp-admin/options-connectors.php', 'options-connectors.php', 'jetpack-connector' ),
+			'Gutenberg Connectors page'  => array( true, '/wp-admin/options-general.php?page=options-connectors-wp-admin', 'options-general.php?page=options-connectors-wp-admin', 'jetpack-connector' ),
+			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'jetpack-dashboard' ),
+			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c', 'admin.php?page=jetpack-backup&a=b/c', 'my-jetpack' ),
+			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'my-jetpack' ),
+		);
+	}
+
+	/**
 	 * Data provider for test_get_displayable_errors_secondary_admin_owner_error.
 	 *
 	 * @return array
@@ -3619,9 +3690,9 @@ class Error_Handler_Test extends BaseTestCase {
 		return array(
 			'not connected, transferable'              => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
 			'not connected, locked'                    => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
-			'connected, transferable'                  => array( true, false, null, 'every other user will be disconnected' ),
+			'connected, transferable'                  => array( true, false, null, 'If you reconnect instead, you will become the new connection owner.' ),
 			'connected, locked'                        => array( true, true, 'none', 'to restore the connection.' ),
-			'not connected, transferable, broken site' => array( false, false, null, 'every other user will be disconnected', 'no_valid_blog_token' ),
+			'not connected, transferable, broken site' => array( false, false, null, 'If you reconnect instead, you will become the new connection owner.', 'no_valid_blog_token' ),
 			'not connected, locked, broken site'       => array( false, true, 'none', 'to restore the connection.', 'no_valid_blog_token' ),
 			'not connected, site request blocked'      => array( false, false, 'connect_user', 'If you connect your account instead', 'xmlrpc_request_blocked' ),
 		);
