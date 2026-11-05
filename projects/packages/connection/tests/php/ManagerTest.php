@@ -705,10 +705,11 @@ class ManagerTest extends TestCase {
 	 * @param string        $auth_type       The request's `auth_type`; `calypso` is the default flow.
 	 * @param bool          $user_is_owner   Whether the authorizing user is the broken owner themselves.
 	 * @param array|false   $owner_health    What Tokens::validate() returns; false is an inconclusive check.
+	 * @param bool          $user_connected  Whether the authorizing user already has a token of their own.
 	 * @dataProvider provide_authorize_broken_owner_slot
 	 */
 	#[DataProvider( 'provide_authorize_broken_owner_slot' )]
-	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $expect_switch, $owner_update, $expected_result, $auth_type = 'calypso', $user_is_owner = false, $owner_health = array( 'user_token' => array( 'is_healthy' => true ) ) ) {
+	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $expect_switch, $owner_update, $expected_result, $auth_type = 'calypso', $user_is_owner = false, $owner_health = false, $user_connected = false ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_authorize_broken_owner_slot',
@@ -754,10 +755,11 @@ class ManagerTest extends TestCase {
 		);
 
 		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'update_connection_owner' ) )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'update_connection_owner', 'is_user_connected' ) )
 			->getMock();
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'is_user_connected' )->willReturn( $user_connected );
 		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
 		$manager->expects( $expect_switch ? $this->once() : $this->never() )
 			->method( 'update_connection_owner' )
@@ -791,7 +793,8 @@ class ManagerTest extends TestCase {
 		return array(
 			'admin takes a transferable broken slot'     => array( 'administrator', false, true, true, true, 'authorized' ),
 			'locked ownership links'                     => array( 'administrator', true, true, false, true, 'linked' ),
-			'healthy owner links'                        => array( 'administrator', false, false, false, true, 'linked' ),
+			'healthy owner links'                        => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
+			'stale error, healthy owner links'           => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
 			'user without jetpack_connect links'         => array( 'editor', false, true, false, true, 'linked' ),
 			'failed WordPress.com switch links'          => array( 'administrator', false, true, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
 			'browser client flow takes the slot'         => array( 'administrator', false, true, true, true, 'authorized', 'client' ),
@@ -799,6 +802,7 @@ class ManagerTest extends TestCase {
 			'cleared error, unhealthy owner switches'    => array( 'administrator', false, false, true, true, 'authorized', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ) ),
 			'cleared error, inconclusive check links'    => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, false ),
 			'cleared error, no user token verdict links' => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'blog_token' => array( 'is_healthy' => true ) ) ),
+			'admin with a token of their own links'      => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ), true ),
 		);
 	}
 

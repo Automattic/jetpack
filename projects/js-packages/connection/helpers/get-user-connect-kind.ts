@@ -60,7 +60,7 @@ export function getUserConnectKind( {
  * The connect prompt for a viewer whose account is not linked.
  *
  * `take-over` names only what a plain account connection does. The connection-error notice's
- * reconnect is a full reconnect, which also disconnects every other user, so its copy says more.
+ * reconnect can be a full reconnect, which disconnects every other user; its copy doesn't say so.
  *
  * @param {UserConnectKind} kind - What connecting means for the viewer, from getUserConnectKind().
  * @return {string} The prompt text.
