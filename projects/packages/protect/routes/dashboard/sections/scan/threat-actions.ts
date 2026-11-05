@@ -362,6 +362,15 @@ export function isBulkFixable( threat: ScanThreat ): boolean {
 }
 
 /**
+ * The threats a bulk Auto-fix starts: Scan runs some fixes only on their own, so a batch leaves those out.
+ *
+ * @param threats - The threats one bulk Auto-fix is given.
+ * @return The threats it runs.
+ */
+export const getBulkRun = ( threats: ScanThreat[] ): ScanThreat[] =>
+	threats.length > 1 ? threats.filter( isBulkFixable ) : threats;
+
+/**
  * Ask Scan to fix a threat, then follow the fix until it finishes.
  *
  * @param threat - The threat.
@@ -484,12 +493,8 @@ let bulkRuns = 0;
  */
 export async function fixThreats( threats: ScanThreat[], open?: OpenThreat ): Promise< void > {
 	// A fix that deletes software needs its slug confirmed first, so a batch never starts one.
-	const idle = threats.filter(
-		threat =>
-			! isBusy( threat.id ) &&
-			! isDeleteFix( threat ) &&
-			// Like Protect, which fixes these one at a time but never as part of fixing several.
-			( threats.length < 2 || isBulkFixable( threat ) )
+	const idle = getBulkRun( threats ).filter(
+		threat => ! isBusy( threat.id ) && ! isDeleteFix( threat )
 	);
 	if ( idle.length < 2 ) {
 		await Promise.all( idle.map( threat => fixThreat( threat, open ) ) );
