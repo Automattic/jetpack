@@ -7,7 +7,10 @@ import AdminSectionHero from '../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
 import ScanNavigation from '../../components/scan-navigation';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, {
+	isFirstScanNeeded,
+	isScanInProgress,
+} from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import ScanningAdminSectionHero from './scanning-admin-section-hero';
@@ -44,6 +47,31 @@ const ScanAdminSectionHero: FC = () => {
 				baseErrorMessage={ __( 'We are having problems scanning your site.', 'jetpack-protect' ) }
 				errorMessage={ status.errorMessage }
 				errorCode={ status.errorCode }
+			/>
+		);
+	}
+
+	if ( isFirstScanNeeded( status ) ) {
+		return (
+			<AdminSectionHero
+				main={
+					<>
+						<AdminSectionHero.Heading>
+							{ __( 'Your site hasn’t been scanned yet', 'jetpack-protect' ) }
+						</AdminSectionHero.Heading>
+						<AdminSectionHero.Subheading>
+							<Text>
+								{ __(
+									'Run a scan to check your site for malware and vulnerabilities.',
+									'jetpack-protect'
+								) }
+							</Text>
+						</AdminSectionHero.Subheading>
+						<div className={ styles[ 'scan-navigation' ] }>
+							<ScanNavigation />
+						</div>
+					</>
+				}
 			/>
 		);
 	}

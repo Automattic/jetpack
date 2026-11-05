@@ -2,17 +2,17 @@ import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jet
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
-import { Collapsible, Icon, Spinner, Stack } from '@wordpress/ui';
+import { Collapsible, Icon, Notice, Spinner, Stack } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { recordViewChange } from '../../data/threat-events';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
-import { useThreatAction, type ThreatActionState } from './threat-actions';
+import { useGetThreatBusy, useThreatAction, type ThreatActionState } from './threat-actions';
 import ThreatMedia from './threat-media';
-import { useThreatRowActions } from './threat-row-actions';
+import { getLeftOutOfBulkFix, useThreatRowActions } from './threat-row-actions';
 import type { ScanThreat } from './types';
 import type { ReactNode } from 'react';
 
@@ -111,7 +111,11 @@ function getBusyLabel( busy: NonNullable< ThreatActionState[ 'busy' ] > ): strin
 			return __( 'Unignoring…', 'jetpack-protect-pkg' );
 		case 'deleting':
 			return __( 'Deleting…', 'jetpack-protect-pkg' );
+		case 'restoring':
+			return __( 'Restoring…', 'jetpack-protect-pkg' );
 	}
+	// A new busy state fails the type check here until it has a label.
+	return busy satisfies never;
 }
 
 /**
@@ -302,6 +306,34 @@ const FILTER_FIELDS: Field< ScanThreat >[] = [
 
 const NO_SELECTION: string[] = [];
 
+/**
+ * Names the selected threats bulk Auto-fix leaves out, and says why.
+ *
+ * @param props         - Component props.
+ * @param props.threats - The threats left out, one or more.
+ * @return The notice.
+ */
+function LeftOutNotice( { threats }: { threats: ScanThreat[] } ) {
+	return (
+		<Notice.Root intent="info" className="jp-protect-threats__left-out">
+			{ /* A div, as Text's default span can't hold a list. */ }
+			<Notice.Description render={ <div /> }>
+				{ _n(
+					'Auto-fix can’t fix this selected threat in bulk, since it needs its own confirmation. Fix it on its own:',
+					'Auto-fix can’t fix these selected threats in bulk, since each one needs its own confirmation. Fix them one at a time:',
+					threats.length,
+					'jetpack-protect-pkg'
+				) }
+				<ul className="jp-protect-threats__left-out-list">
+					{ threats.map( threat => (
+						<li key={ threat.id }>{ getThreatLabel( threat ).subject || threat.title }</li>
+					) ) }
+				</ul>
+			</Notice.Description>
+		</Notice.Root>
+	);
+}
+
 type ThreatsListProps = {
 	threats: ScanThreat[];
 	/** Whether the site's plan can fix and ignore threats. */
@@ -369,6 +401,12 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 		[ data, selection, getItemId ]
 	);
 	const actions = useThreatRowActions( open, canAct, deselect, selectedThreats );
+	const getBusy = useGetThreatBusy();
+	const leftOut = useMemo(
+		() =>
+			selectedThreats.length > 1 ? getLeftOutOfBulkFix( selectedThreats, canAct, getBusy ) : [],
+		[ selectedThreats, canAct, getBusy ]
+	);
 	const { totalPages } = paginationInfo;
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -417,6 +455,7 @@ export default function ThreatsList( { threats, canAct }: ThreatsListProps ) {
 					</Stack>
 					<DataViews.FiltersToggled className="jp-protect-threats__filters" />
 					<DataViews.Layout />
+					{ leftOut.length > 0 && <LeftOutNotice threats={ leftOut } /> }
 					{ /* Only for bulk actions or more pages; otherwise it repeats the header's select all. */ }
 					{ ( hasSelectedRows || paginationInfo.totalPages > 1 ) && <DataViews.Footer /> }
 				</DataViews>

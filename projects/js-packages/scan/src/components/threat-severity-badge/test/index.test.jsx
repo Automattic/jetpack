@@ -6,4 +6,9 @@ describe( 'ThreatSeverityBadge', () => {
 		render( <ThreatSeverityBadge severity={ 4 } /> );
 		expect( screen.getByText( 'High' ) ).toBeInTheDocument();
 	} );
+
+	it.each( [ undefined, null ] )( 'renders nothing when the severity is %p', severity => {
+		const { container } = render( <ThreatSeverityBadge severity={ severity } /> );
+		expect( container ).toBeEmptyDOMElement();
+	} );
 } );

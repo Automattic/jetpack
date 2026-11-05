@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Brute Force Protection: Honor CIDR ranges on the IP allow list, and accept them when saving the list.
