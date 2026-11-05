@@ -140,7 +140,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 
 	// The adapter's view of the record's sections; the URL picks among the ones shown.
 	const [ urlSection, setActiveSection ] = useActiveSection();
