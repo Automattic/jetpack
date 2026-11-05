@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop applying the default Babel preset to bundled `@wordpress/*` packages in projects without a `babel.config.js`.

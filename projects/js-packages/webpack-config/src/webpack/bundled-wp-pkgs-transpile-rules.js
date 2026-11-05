@@ -25,7 +25,7 @@ const BundledWpPkgsTranspileRules = ( options = {} ) => {
 	/**
 	 * Transpile `@wordpress/dataviews` in node_modules too.
 	 *
-	 * Uses configFile: false to avoid inheriting babel.config.js, and
+	 * Uses configFile: false and no presets so only the textdomain plugin runs, and
 	 * manually applies textdomain replacement with i18n function variants
 	 * to handle the aliased function names (e.g. __1, _x2) in the
 	 * dataviews build-wp bundle.
@@ -36,6 +36,7 @@ const BundledWpPkgsTranspileRules = ( options = {} ) => {
 		includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
 		babelOpts: {
 			configFile: false,
+			presets: [],
 			plugins: [
 				[ require.resolve( '@automattic/babel-plugin-replace-textdomain' ), { textdomain } ],
 			],
@@ -48,6 +49,7 @@ const BundledWpPkgsTranspileRules = ( options = {} ) => {
 		exclude: dataviewsWp.include,
 		babelOpts: {
 			configFile: false,
+			presets: [],
 			plugins: [
 				[ require.resolve( '@automattic/babel-plugin-replace-textdomain' ), { textdomain } ],
 			],

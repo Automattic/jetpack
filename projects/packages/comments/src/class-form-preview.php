@@ -128,7 +128,7 @@ class Form_Preview {
 			$value = 'var(--wp--' . str_replace( '|', '--', substr( $value, 4 ) ) . ')';
 		}
 
-		// A value, never a way out of one.
+		// Drop anything that could close the declaration or the style tag.
 		return preg_match( '/[;{}<>]/', $value ) ? '' : $value;
 	}
 }
