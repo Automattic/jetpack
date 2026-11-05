@@ -33,7 +33,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'post-utm',
-			// The alias carries the mock's "UTM" card title; the registry's
+			// The page's own type carries the mock's "UTM" card title; the registry's
 			// global "UTM Insights" title is owned by the copy spreadsheet work.
 			type: 'jpa/utm-insights--utm',
 			// No "View all" or "Download CSV": this page is the terminal page, and

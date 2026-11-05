@@ -46,9 +46,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES, withPostTypeTitles } from './config';
+import { EMAIL_TAB_IDS, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -182,11 +181,7 @@ function PostDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const pageWidgetTypes = useMemo(
-		() =>
-			withPostTypeTitles(
-				withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-				summary.type
-			),
+		() => withPostTypeTitles( widgetTypes, summary.type ),
 		[ widgetTypes, summary.type ]
 	);
 
