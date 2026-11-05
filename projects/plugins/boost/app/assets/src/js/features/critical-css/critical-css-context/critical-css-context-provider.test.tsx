@@ -25,6 +25,7 @@ jest.mock( '../lib/stores/critical-css-state', () => ( {
 	useSetProviderCssAction: () => ( { mutateAsync: mockSetProviderCss } ),
 	useSetProviderErrorsAction: () => ( { mutateAsync: mockSetProviderErrors } ),
 	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
+	useRegenerateRefusal: () => null,
 } ) );
 jest.mock( '../lib/generate-critical-css', () => ( { runLocalGenerator: jest.fn() } ) );
 jest.mock( '..', () => ( {

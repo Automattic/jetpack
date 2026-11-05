@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: fixed
 
 Keep the page load deadline over the status checks that follow a page load, and end page loads when the caller cancels generation.

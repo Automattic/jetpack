@@ -147,6 +147,14 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 	}
 
 	async loadPage( rawUrl: string ): Promise< void > {
+		// A cancelled run must not reuse the page it loaded before the cancel.
+		if ( this.signal?.aborted ) {
+			this.currentUrl = null;
+			const cancelled = new UnknownError( { url: rawUrl, message: 'Generation was cancelled' } );
+			this.trackUrlError( rawUrl, cancelled );
+			throw cancelled;
+		}
+
 		if ( rawUrl === this.currentUrl ) {
 			return;
 		}
@@ -192,6 +200,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			const onAbort = () => {
 				checks.abort();
 				this.iframe.src = 'about:blank';
+				this.currentUrl = null;
 				finish( () =>
 					reject( new UnknownError( { url: fullUrl, message: 'Generation was cancelled' } ) )
 				);

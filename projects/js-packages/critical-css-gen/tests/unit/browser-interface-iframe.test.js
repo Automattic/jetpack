@@ -274,4 +274,29 @@ describe( 'Iframe interface', () => {
 
 		await page.close();
 	} );
+
+	it( 'does not reuse a page it loaded before the caller cancelled generation', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		const result = await page.evaluate( async url => {
+			const controller = new AbortController();
+			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+				verifyPage: () => true,
+				signal: controller.signal,
+			} );
+			await iframeInterface.loadPage( url );
+			controller.abort();
+			return iframeInterface.loadPage( url ).then(
+				() => 'resolved',
+				error => error.message
+			);
+		}, innerUrl );
+
+		expect( result ).toMatch( /Generation was cancelled/ );
+
+		await page.close();
+	} );
 } );

@@ -45,10 +45,19 @@ const finishedEarlier = state( 'generated', 100, 100, 'success' );
 const errorState: CriticalCssState = { status: 'error', status_error: 'Stopped', providers: [] };
 
 // Responses by REST path; the default answers the regenerate-reason reset. `html` replaces the JSON body.
-type Reply = { ok?: boolean; status?: number; statusText?: string; body?: unknown; html?: string };
+type Reply = {
+	ok?: boolean;
+	status?: number;
+	statusText?: string;
+	body?: unknown;
+	html?: string;
+	// Held until resolved, to keep a request in flight.
+	gate?: Promise< void >;
+};
 let responses: Record< string, Reply >;
 const fetchMock = jest.fn( async ( url: string ) => {
 	const reply = responses[ new URL( url ).pathname ] ?? { body: null };
+	await reply.gate;
 	const text = async () => reply.html ?? JSON.stringify( { status: 'success', JSON: reply.body } );
 	return {
 		ok: reply.ok ?? true,
@@ -127,6 +136,11 @@ describe( 'Critical CSS state poll', () => {
 			state( 'pending', 200, 201, 'success' ),
 		],
 		[ 'a later request', state( 'pending', 300, 300 ), state( 'pending', 300, 300 ) ],
+		[
+			'an older request the site wrote back after the held one',
+			state( 'generated', 100, 400, 'success' ),
+			state( 'generated', 100, 400, 'success' ),
+		],
 	] )( 'keeps the newer state when the poll returns %s', async ( _label, polled, expected ) => {
 		const view = mount();
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: polled };
@@ -153,20 +167,48 @@ describe( 'Critical CSS state poll', () => {
 } );
 
 describe( 'Regenerate reply', () => {
-	it( 'reports a reply that did not start a new request instead of showing the old result', async () => {
+	it( 'keeps reporting a reply that did not start a new request when the re-read returns the old state', async () => {
+		setWindowState( finishedEarlier );
 		const view = mount();
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
 			body: { success: true, state: finishedEarlier },
 		};
-		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { ok: false };
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: finishedEarlier };
 
 		await act( async () => regenerate() );
+		await settle();
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
 		await settle();
 
 		expect( latest ).toMatchObject( {
 			status: 'error',
 			status_error: 'Critical CSS generation did not start. Reload the page and try again.',
 		} );
+		view.unmount();
+	} );
+
+	it( 'ignores an old copy polled while the Regenerate request is still in flight', async () => {
+		setWindowState( finishedEarlier );
+		const view = mount();
+		const started = state( 'pending', 300, 300 );
+		let release: () => void = () => {};
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
+			body: { success: true, state: started },
+			gate: new Promise< void >( resolve => {
+				release = resolve;
+			} ),
+		};
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: finishedEarlier };
+
+		await act( async () => regenerate() );
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+		await settle();
+		expect( latest ).toMatchObject( { status: 'pending', providers: [] } );
+
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: started };
+		release();
+		await settle();
+		expect( latest ).toEqual( started );
 		view.unmount();
 	} );
 
@@ -216,7 +258,7 @@ describe( 'Refused replies', () => {
 		).resolves.not.toBeNull();
 		expect(
 			screen.getByText(
-				'The site answered with a page instead of a reply from Boost: One moment, please... Checking your browser'
+				'The site answered HTTP 200 with a page instead of a reply from Boost: One moment, please... Checking your browser'
 			)
 		).not.toBeNull();
 		// The old result stays on screen and Regenerate can be tried again once the state was re-read.
@@ -225,6 +267,14 @@ describe( 'Refused replies', () => {
 		expect(
 			screen.getByRole< HTMLButtonElement >( 'button', { name: 'Regenerate' } ).disabled
 		).toBe( false );
+
+		// A run that did start, from anywhere, retires the notice.
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = {
+			body: state( 'pending', 300, 300 ),
+		};
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+		await settle();
+		expect( screen.queryByText( 'Critical CSS generation did not start' ) ).toBeNull();
 		view.unmount();
 	} );
 
@@ -253,6 +303,17 @@ describe( 'Refused replies', () => {
 		expect(
 			screen.getByText( 'Error: The site answered with HTTP 502 Bad Gateway: 502 Bad Gateway' )
 		).not.toBeNull();
+
+		// Refresh on the stopped-run view is a Regenerate too; a refused one shows the same notice.
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
+			html: checkPage,
+		};
+		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+		await expect(
+			screen.findByText( 'Critical CSS generation did not start' )
+		).resolves.not.toBeNull();
+		expect( screen.getByText( 'Failed to generate Critical CSS' ) ).not.toBeNull();
 		view.unmount();
 	} );
 } );

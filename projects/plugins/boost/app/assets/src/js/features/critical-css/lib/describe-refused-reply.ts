@@ -7,7 +7,9 @@ import { __, sprintf } from '@wordpress/i18n';
  * @param body - The reply body.
  */
 function firstLine( body: string ): string {
+	// A reply made of unclosed tags makes the patterns below slow, so bound the body first.
 	const text = body
+		.slice( 0, 4096 )
 		.replace( /<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ' )
 		.replace( /<[^>]+>/g, ' ' )
 		.replace( /\s+/g, ' ' )
@@ -53,9 +55,13 @@ export async function describeRefusedReply( error: unknown ): Promise< string | 
 	}
 
 	if ( status === 'json_parse_error' ) {
+		// Only a 2xx reply reaches the parser, and these endpoints answer 200.
 		return sprintf(
 			/* translators: %s is the first line of the reply. */
-			__( 'The site answered with a page instead of a reply from Boost: %s', 'jetpack-boost' ),
+			__(
+				'The site answered HTTP 200 with a page instead of a reply from Boost: %s',
+				'jetpack-boost'
+			),
 			firstLine( String( data ?? '' ) )
 		);
 	}

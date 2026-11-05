@@ -5,6 +5,7 @@ import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
+import { describeRefusedReply } from './describe-refused-reply';
 import { standardizeError } from '@automattic/jetpack-boost-score-api';
 
 type Viewport = {
@@ -279,6 +280,11 @@ async function generateForKeys(
 				maxPages: 10,
 			} );
 
+			// A run cancelled while the pages were loading built this CSS from fewer pages; do not keep it.
+			if ( signal.aborted ) {
+				return;
+			}
+
 			let providerFailed: unknown | Error | null = null;
 
 			try {
@@ -297,7 +303,9 @@ async function generateForKeys(
 			}
 
 			if ( providerFailed instanceof Error ) {
-				throw new ProviderCssSaveError( providerFailed.message );
+				throw new ProviderCssSaveError(
+					( await describeRefusedReply( providerFailed ) ) ?? providerFailed.message
+				);
 			}
 		} catch ( err ) {
 			// A cancelled run's page errors describe the cancellation, not the site.
