@@ -197,7 +197,8 @@ export function loadIgnored(): Promise< void > {
 function resyncAfterFailure() {
 	const apply = startReportRead();
 	apiFetch< ScanState >( { path: SCAN_PATH } )
-		.then( apply )
+		// The report answers an unreachable WordPress.com with `error: true`, not a rejection.
+		.then( next => ! next?.error && apply( next ) )
 		.catch( () => {} );
 	loadIgnored();
 	loadHistory( true );

@@ -96,9 +96,18 @@ describe( 'a failed ignore or unignore', () => {
 		}
 	);
 
-	it( 'keeps the lists it has when the refetch fails too', async () => {
+	it.each( [
+		[ 'fails', () => Promise.reject( { message: 'Request timed out.' } ) ],
+		[ 'reports an error', () => Promise.resolve( { error: true, scanning: false } ) ],
+	] )( 'keeps the lists it has when the refetch %s', async ( _name, scanAnswer ) => {
 		setScan( current => ( { ...current, threats: [ threat ], ignored: [], error: false } ) );
-		mockApiFetch.mockReset().mockRejectedValue( { message: 'Request timed out.' } );
+		mockApiFetch
+			.mockReset()
+			.mockImplementation( ( { path, method } ) =>
+				method !== 'POST' && path.endsWith( '/scan' )
+					? scanAnswer()
+					: Promise.reject( { message: 'Request timed out.' } )
+			);
 		const { result } = renderHook( () => useScan() );
 
 		await act( async () => {
