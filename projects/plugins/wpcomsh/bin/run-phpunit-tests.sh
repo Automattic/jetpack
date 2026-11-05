@@ -22,7 +22,6 @@ function ensure_composer() {
 
 function setup_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
-	chmod 700 bin/install-wp-tests.sh
 	VER=$( jq -r '.["require-dev"]["yoast/phpunit-polyfills"]' composer.json )
 	"$HOME/composer" global require "yoast/phpunit-polyfills=$VER" --dev -W
 
