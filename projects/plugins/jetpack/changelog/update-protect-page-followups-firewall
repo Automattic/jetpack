@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Firewall: Honor CIDR ranges on the brute force protection IP allow list, and make `wp jetpack-waf teardown` and `wp jetpack-waf setup` turn the Firewall module off and on.
