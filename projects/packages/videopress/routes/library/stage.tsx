@@ -129,7 +129,7 @@ const StageInner = () => {
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
@@ -536,7 +536,11 @@ const StageInner = () => {
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice
+						location="library_at_limit"
+						message={ FREE_TIER_AT_LIMIT_MESSAGE }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>

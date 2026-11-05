@@ -104,6 +104,15 @@ export {
 } from '@wordpress/ui';
 
 /**
+ * Base UI
+ *
+ * The unstyled parts `@wordpress/ui` is built on, so they are already compiled
+ * in here. Prefixed because `Tabs` above is the design system's styled one.
+ */
+export { DirectionProvider as BaseDirectionProvider } from '@base-ui/react/direction-provider';
+export { Tabs as BaseTabs } from '@base-ui/react/tabs';
+
+/**
  * DataViews
  */
 export {

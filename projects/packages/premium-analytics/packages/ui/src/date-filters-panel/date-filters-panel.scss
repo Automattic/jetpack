@@ -31,4 +31,9 @@
 	&__comparison {
 		flex: 0 0 auto;
 	}
+
+	// A glyph in a square box: nothing to give back when the row runs short.
+	.date-period-navigation {
+		flex: 0 0 auto;
+	}
 }
