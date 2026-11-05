@@ -11,9 +11,16 @@ const ALLOW_LIST = 'Always allowed IP addresses';
 const BRUTE_FORCE = 'Block repeated failed login attempts';
 const ACCOUNT_PROTECTION = 'Protect accounts with weak or leaked passwords';
 
+const BRUTE_FORCE_HELP =
+	'Stops brute force attacks by blocking IP addresses that keep failing to log in.';
+const ACCOUNT_PROTECTION_HELP =
+	'Asks users with a compromised password to verify their identity and choose a new one.';
+
 const available = { available: true, active: true };
+const unavailable = { available: false, active: false };
 
 type CardOptions = {
+	/** Null stands for a site where PHP registered no Login protection section. */
 	state?: Partial< LoginProtectionState > | null;
 	settings?: ProtectSettings;
 	save?: jest.Mock;
@@ -22,9 +29,8 @@ type CardOptions = {
 const card = ( { state = {}, settings = {}, save = jest.fn() }: CardOptions = {} ) => (
 	<LoginProtectionSettingsCard
 		state={
-			state === null
-				? undefined
-				: {
+			state
+				? {
 						bruteForce: available,
 						accountProtection: available,
 						sso: available,
@@ -36,6 +42,7 @@ const card = ( { state = {}, settings = {}, save = jest.fn() }: CardOptions = {}
 						currentIp: '203.0.113.7',
 						...state,
 					}
+				: undefined
 		}
 		settings={
 			{
@@ -126,21 +133,29 @@ describe( 'LoginProtectionSettingsCard', () => {
 		);
 	} );
 
-	const USUAL_HELP =
-		'Asks users with a compromised password to verify their identity and choose a new one.';
-
 	it.each( [
+		[ BRUTE_FORCE, 'it is available', {}, BRUTE_FORCE_HELP ],
 		[
+			BRUTE_FORCE,
 			'it is unavailable',
-			{ accountProtection: { available: false, active: false } },
+			{ bruteForce: unavailable },
+			'Login protection isn’t available on this site.',
+		],
+		[ BRUTE_FORCE, 'PHP registered no section', null, BRUTE_FORCE_HELP ],
+		[ ACCOUNT_PROTECTION, 'it is available', {}, ACCOUNT_PROTECTION_HELP ],
+		[
+			ACCOUNT_PROTECTION,
+			'it is unavailable',
+			{ accountProtection: unavailable },
 			'Account protection isn’t available on this site.',
 		],
-		[ 'it is available', {}, USUAL_HELP ],
-		[ 'the section state has not loaded', null, USUAL_HELP ],
-	] )( 'describes account protection when %s', ( _name, state, help ) => {
+		[ ACCOUNT_PROTECTION, 'PHP registered no section', null, ACCOUNT_PROTECTION_HELP ],
+	] )( 'describes "%s" when %s', ( label, _name, state, description ) => {
 		renderCard( { state } );
 
-		expect( screen.getByText( help ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: label } ) ).toHaveAccessibleDescription(
+			description
+		);
 	} );
 
 	it( 'locks a forced option to the value WordPress.com login applies', () => {
