@@ -148,9 +148,9 @@ describe( 'Local Critical CSS generator failures', () => {
 		await expect(
 			lastRunCallbacks().setProviderCss( 'core_front_page', '.top{color:red}' )
 		).rejects.toBe( refused );
-		await expect(
-			lastRunCallbacks().setProviderErrors( 'core_front_page', [] )
-		).rejects.toBe( stopped );
+		await expect( lastRunCallbacks().setProviderErrors( 'core_front_page', [] ) ).rejects.toBe(
+			stopped
+		);
 		await failRunAndRollBack( showState, stopped );
 
 		expect( screen.getByTestId( 'status' ).textContent ).toBe( stopped.message );
