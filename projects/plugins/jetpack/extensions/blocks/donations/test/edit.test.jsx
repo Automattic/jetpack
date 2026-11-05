@@ -33,6 +33,7 @@ jest.mock( '../style-controls', () => () => null );
 // The order in which the block locks saving, writes its plan IDs and unlocks saving.
 let events;
 let blockAttributes;
+let updateBlock;
 
 const record = event => () => {
 	events.push( event );
@@ -43,6 +44,13 @@ const registry = createRegistry();
 registry.registerStore( 'core/block-editor', {
 	reducer: () => ( {} ),
 	selectors: { getSettings: () => ( {} ), getBlockAttributes: () => blockAttributes },
+	actions: {
+		updateBlockAttributes: ( clientId, updates ) => {
+			events.push( `plans for ${ clientId }` );
+			updateBlock( updates );
+			return { type: 'NOOP' };
+		},
+	},
 } );
 registry.registerStore( 'core/editor', {
 	reducer: () => ( {} ),
@@ -77,16 +85,15 @@ const donationsFormAttributes = {
 	showCustomAmount: true,
 };
 
-// Keeps the attributes in state, as the block editor does, so setAttributes re-renders the block.
+// Keeps the attributes in state, as the block editor does, so attribute updates re-render the block.
 const Block = ( { initialAttributes } ) => {
 	const [ attributes, setState ] = useState( initialAttributes );
 	blockAttributes = attributes;
-	const setAttributes = useCallback( updates => {
-		if ( updates.oneTimeDonation?.planId ) {
-			events.push( 'plans' );
-		}
-		setState( previous => ( { ...previous, ...updates } ) );
-	}, [] );
+	const setAttributes = useCallback(
+		updates => setState( previous => ( { ...previous, ...updates } ) ),
+		[]
+	);
+	updateBlock = setAttributes;
 	return <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="donations-1" />;
 };
 
@@ -115,7 +122,7 @@ describe( 'Donations Edit', () => {
 			await waitFor( () => expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 ) );
 			expect( blockAttributes.monthlyDonation.planId ).toBe( 12 );
 			expect( blockAttributes.annualDonation.planId ).toBe( 13 );
-			expect( events ).toEqual( [ 'lock', 'plans', 'unlock' ] );
+			expect( events ).toEqual( [ 'lock', 'plans for donations-1', 'unlock' ] );
 		}
 	);
 
@@ -131,7 +138,7 @@ describe( 'Donations Edit', () => {
 
 		await act( async () => createPlans() );
 		expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 );
-		expect( events ).toEqual( [ 'lock', 'plans', 'unlock' ] );
+		expect( events ).toEqual( [ 'lock', 'plans for donations-1', 'unlock' ] );
 	} );
 
 	test( 'unlocks saving when the plans cannot be loaded', async () => {
@@ -163,6 +170,6 @@ describe( 'Donations Edit', () => {
 
 		await act( async () => fetches[ 1 ]() );
 		expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 );
-		expect( events.slice( -2 ) ).toEqual( [ 'plans', 'unlock' ] );
+		expect( events.slice( -2 ) ).toEqual( [ 'plans for donations-1', 'unlock' ] );
 	} );
 } );

@@ -70,6 +70,7 @@ const Edit = props => {
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const isUserConnected = useIsUserConnected();
 	const { getBlockAttributes } = useSelect( blockEditorStore );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
@@ -191,7 +192,8 @@ const Edit = props => {
 			);
 
 		// Called before saving is unlocked, so a save can't go out without the plan IDs.
-		// Reads the attributes from the store because the user may edit them during the fetch.
+		// Reads and writes through the store: the user may edit the block during the fetch,
+		// and setAttributes() writes to the multi-selection, if any, instead of this block.
 		const savePlanIds = productIdsPerInterval => {
 			const current = getBlockAttributes( clientId );
 			if ( ! current ) {
@@ -209,7 +211,7 @@ const Edit = props => {
 				}
 			}
 			if ( Object.keys( updates ).length ) {
-				setAttributes( updates );
+				updateBlockAttributes( clientId, updates );
 			}
 		};
 
@@ -270,7 +272,7 @@ const Edit = props => {
 		isPreviewMode,
 		clientId,
 		getBlockAttributes,
-		setAttributes,
+		updateBlockAttributes,
 	] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
