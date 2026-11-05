@@ -49,7 +49,7 @@ class Block_Editor {
 		// Either side of kses at 10, which lets the markup of these blocks through.
 		add_filter( 'pre_comment_content', array( $this, 'keep_allowed_blocks' ), 9 );
 		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
-		add_filter( 'pre_option_wpcom_publish_comments_with_markdown', array( __CLASS__, 'skip_markdown' ) );
+		add_filter( 'pre_comment_content', array( __CLASS__, 'skip_markdown' ), 8 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
@@ -121,13 +121,17 @@ class Block_Editor {
 	}
 
 	/**
-	 * Turn off Jetpack Markdown for comments while the editor is on, since it would rewrite the editor's markup.
+	 * Unhook Jetpack Markdown for comments while the editor is on, since it would rewrite the editor's markup.
 	 *
-	 * @param mixed $pre The short-circuit value, false to read the stored option.
-	 * @return mixed
+	 * @param string $content Slashed comment content.
+	 * @return string
 	 */
-	public static function skip_markdown( $pre ) {
-		return self::is_enabled() ? 0 : $pre;
+	public static function skip_markdown( $content ) {
+		if ( class_exists( 'WPCom_Markdown', false ) && self::is_enabled() ) {
+			remove_filter( 'pre_comment_content', array( \WPCom_Markdown::get_instance(), 'pre_comment_content' ), 9 );
+		}
+
+		return $content;
 	}
 
 	/**
