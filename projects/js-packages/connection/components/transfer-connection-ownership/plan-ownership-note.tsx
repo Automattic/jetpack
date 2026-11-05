@@ -18,7 +18,7 @@ const PlanOwnershipNote = () => (
 	<Text>
 		{ createInterpolateElement(
 			__(
-				'If you need to transfer a plan as well, <link>learn more about how relevant plans can be transferred here.</link>',
+				'If you need to transfer a plan as well, <link>learn more about how Jetpack plans can be transferred here.</link>',
 				'jetpack-connection-js'
 			),
 			{
