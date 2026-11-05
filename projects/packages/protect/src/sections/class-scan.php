@@ -578,7 +578,7 @@ class Scan implements Dashboard_Section {
 		$id     = (string) ( is_array( $threat ) ? $threat['id'] : $threat->id );
 		$status = self::get_stored_report();
 		$others = array();
-		foreach ( Dashboard_Threats::without_resolved( $status->threats ?? array(), $status->last_checked ?? null ) as $current ) {
+		foreach ( Dashboard_Threats::without_resolved( $status->threats ?? array(), Dashboard_Threats::get_scanned_at( $status ) ) as $current ) {
 			if ( self::is_other_threat_in_file( $current->id ?? null, $current->filename ?? null, $id, $path, $others ) ) {
 				$others[ (string) $current->id ] = Dashboard_Threats::format( $current );
 			}
@@ -677,7 +677,7 @@ class Scan implements Dashboard_Section {
 	private static function find_threat( $id ) {
 		$status = self::get_stored_report();
 		// One the site resolved is still in the report until Scan's next scan, but history has it as fixed.
-		$resolved = Dashboard_Threats::get_resolved( $status->last_checked ?? null );
+		$resolved = Dashboard_Threats::get_resolved( Dashboard_Threats::get_scanned_at( $status ) );
 		foreach ( (array) ( $status->threats ?? array() ) as $threat ) {
 			if ( (int) ( $threat->id ?? 0 ) === $id && ! isset( $resolved[ (string) $id ] ) ) {
 				return $threat;

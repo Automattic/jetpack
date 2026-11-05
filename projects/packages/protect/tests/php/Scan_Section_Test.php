@@ -154,7 +154,7 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a fix the site recorded stays out of the Scan card and in History until a scan completes.
+	 * Test that a fix the site recorded stays fixed in every view, and out of the file's other threats, until a scan completes.
 	 *
 	 * @dataProvider provide_scans_after_a_fix
 	 *
@@ -164,6 +164,8 @@ class Scan_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_scans_after_a_fix' )]
 	public function test_a_recorded_fix_holds_until_a_scan_completes( $failed, $open, $history ) {
+		$this->write_file( self::uploads_dir() . '/protect-threat-file.php' );
+		$in_file = self::scan_path( '/{root}/{content}/{uploads}/protect-threat-file.php' );
 		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
 		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		Dashboard_Threats::resolve( array( 'id' => '1' ) );
@@ -182,7 +184,7 @@ class Scan_Section_Test extends BaseTestCase {
 							'signature' => 'PHP.Generic',
 							'title'     => 'A suspicious file',
 							'status'    => 'current',
-							'filename'  => ABSPATH . 'x.php',
+							'filename'  => $in_file,
 						),
 					),
 				)
@@ -191,8 +193,16 @@ class Scan_Section_Test extends BaseTestCase {
 		Scan_Status::$status = Scan_Status::get_cached_status();
 		set_transient( Scan::HISTORY_CACHE, array() );
 
+		$this->assertSame( (bool) $open, is_object( self::call( 'find_threat', 1 ) ) );
+		$others = self::call(
+			'get_other_threats_in_file',
+			array(
+				'id'       => 9,
+				'filename' => $in_file,
+			)
+		);
+		$this->assertSame( $open, array_map( 'strval', array_column( $others, 'id' ) ) );
 		$report = self::call( 'get_scan_report', true );
-
 		$this->assertSame( $open, array_map( 'strval', array_column( $report['threats'], 'id' ) ) );
 		$this->assertSame( $history, array_map( 'strval', array_column( Scan::get_history_threats(), 'id' ) ) );
 	}
