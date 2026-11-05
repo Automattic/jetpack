@@ -4,6 +4,7 @@
  */
 
 import { speak } from '@wordpress/a11y';
+import { TextareaControl } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,25 +18,31 @@ const COPIED_DURATION_MS = 1600;
 
 /**
  * Copy `text` when the returned ref's element is clicked. Everything that confirms
- * the copy waits for it to succeed, so a blocked clipboard reports nothing.
+ * the copy waits for it to succeed. A blocked copy hands the text to `setFailedText`.
  *
- * @param {string}   text     - Text to copy.
- * @param {Function} onCopied - Called after a successful copy.
+ * @param {string}   text          - Text to copy.
+ * @param {Function} onCopied      - Called after a successful copy.
+ * @param {Function} setFailedText - Gets the text after a failed copy, and null after a success.
  * @return {Array} The ref for the trigger element, and whether "Copied" should show.
  */
-function useCopyWithFeedback( text, onCopied ) {
+function useCopyWithFeedback( text, onCopied, setFailedText ) {
 	const [ isCopied, setIsCopied ] = useState( false );
 	const timeout = useRef();
 
 	useEffect( () => () => clearTimeout( timeout.current ), [] );
 
-	const ref = useCopyToClipboard( text, () => {
-		onCopied();
-		speak( __( 'Copied', 'jetpack' ) );
-		setIsCopied( true );
-		clearTimeout( timeout.current );
-		timeout.current = setTimeout( () => setIsCopied( false ), COPIED_DURATION_MS );
-	} );
+	const ref = useCopyToClipboard(
+		text,
+		() => {
+			setFailedText( null );
+			onCopied();
+			speak( __( 'Copied', 'jetpack' ) );
+			setIsCopied( true );
+			clearTimeout( timeout.current );
+			timeout.current = setTimeout( () => setIsCopied( false ), COPIED_DURATION_MS );
+		},
+		() => setFailedText( text )
+	);
 
 	return [ ref, isCopied ];
 }
@@ -142,14 +149,17 @@ function LinkTile( { agent } ) {
 /**
  * Tile that copies a command, prompt or URL.
  *
- * @param {object} props       - Component props.
- * @param {object} props.agent - Agent tile data.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.agent         - Agent tile data.
+ * @param {Function} props.setFailedText - Receives the text when copying fails.
  * @return {object} Component markup.
  */
-function CopyTile( { agent } ) {
+function CopyTile( { agent, setFailedText } ) {
 	const id = useId();
-	const [ ref, isCopied ] = useCopyWithFeedback( agent.code, () =>
-		recordMcpTracksEvent( 'jetpack_mcp_connect_click', { agent: agent.key, action: 'copy' } )
+	const [ ref, isCopied ] = useCopyWithFeedback(
+		agent.code,
+		() => recordMcpTracksEvent( 'jetpack_mcp_connect_click', { agent: agent.key, action: 'copy' } ),
+		setFailedText
 	);
 
 	return (
@@ -161,6 +171,44 @@ function CopyTile( { agent } ) {
 		>
 			<TileContent id={ id } agent={ agent } isCopied={ isCopied } />
 		</Card.Root>
+	);
+}
+
+/**
+ * Shows the text to copy by hand when the browser blocks copying.
+ *
+ * @param {object} props      - Component props.
+ * @param {string} props.text - Text that failed to copy.
+ * @return {object} Component markup.
+ */
+function CopyFallback( { text } ) {
+	const fieldRef = useRef();
+	const handleChange = useCallback( () => {}, [] );
+
+	// Select the text so people only need to press the copy shortcut.
+	useEffect( () => {
+		fieldRef.current?.focus();
+		fieldRef.current?.select();
+	}, [ text ] );
+
+	return (
+		<Notice.Root intent="warning">
+			<Notice.Title>{ __( 'Your browser blocked copying', 'jetpack' ) }</Notice.Title>
+			<Notice.Description render={ <div /> }>
+				<TextareaControl
+					__nextHasNoMarginBottom
+					ref={ fieldRef }
+					className="jetpack-ai-mcp__copy-fallback"
+					label={ __( 'Your browser blocked copying', 'jetpack' ) }
+					hideLabelFromVision
+					help={ __( 'Press Ctrl+C or ⌘C to copy this text.', 'jetpack' ) }
+					value={ text }
+					onChange={ handleChange }
+					readOnly
+					rows={ text.length > 100 ? 3 : 2 }
+				/>
+			</Notice.Description>
+		</Notice.Root>
 	);
 }
 
@@ -207,8 +255,11 @@ function AccessOffNotice( { onTurnOn, isTurningOn } ) {
  * @return {object} Component markup.
  */
 export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onNavigate } ) {
-	const [ helperRef, isHelperCopied ] = useCopyWithFeedback( HELPER_PROMPT, () =>
-		recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' )
+	const [ failedText, setFailedText ] = useState( null );
+	const [ helperRef, isHelperCopied ] = useCopyWithFeedback(
+		HELPER_PROMPT,
+		() => recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' ),
+		setFailedText
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 	const wasEnabled = useRef( mcpEnabled );
@@ -240,10 +291,15 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 					<ul className="jetpack-ai-mcp__connect-grid">
 						{ getConnectAgents().map( agent => (
 							<li key={ agent.key }>
-								{ agent.href ? <LinkTile agent={ agent } /> : <CopyTile agent={ agent } /> }
+								{ agent.href ? (
+									<LinkTile agent={ agent } />
+								) : (
+									<CopyTile agent={ agent } setFailedText={ setFailedText } />
+								) }
 							</li>
 						) ) }
 					</ul>
+					{ failedText !== null && <CopyFallback text={ failedText } /> }
 				</Stack>
 				<Card.FullBleed className="jetpack-ai-mcp__connect-footer">
 					<Text variant="body-sm">

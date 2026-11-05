@@ -119,18 +119,33 @@ describe( 'McpConnectCard', () => {
 		);
 	} );
 
-	test( 'a failed copy records nothing and does not show Copied', async () => {
+	test( 'a failed copy records nothing, does not show Copied, and shows the text selected', async () => {
 		const { user, writeText } = setupClipboard(
-			jest.fn().mockRejectedValue( new Error( 'denied' ) )
+			jest.fn().mockRejectedValueOnce( new Error( 'denied' ) ).mockResolvedValue()
 		);
 		renderCard();
 
 		const button = screen.getByRole( 'button', { name: 'Codex' } );
 		await user.click( button );
 
-		await waitFor( () => expect( writeText ).toHaveBeenCalled() );
+		const field = await screen.findByRole( 'textbox', { name: 'Your browser blocked copying' } );
+		expect( field ).toHaveAccessibleDescription( 'Press Ctrl+C or ⌘C to copy this text.' );
+		expect( field ).toHaveValue( getConnectAgents().find( agent => agent.key === 'codex' ).code );
+		expect( field ).toHaveFocus();
+		expect( field.selectionStart ).toBe( 0 );
+		expect( field.selectionEnd ).toBe( field.value.length );
+		expect( writeText ).toHaveBeenCalledTimes( 1 );
 		expect( within( button ).queryByText( 'Copied' ) ).not.toBeInTheDocument();
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+
+		// A copy that works removes the field.
+		await user.click( screen.getByRole( 'button', { name: 'Claude Code' } ) );
+
+		await waitFor( () =>
+			expect(
+				screen.queryByRole( 'textbox', { name: 'Your browser blocked copying' } )
+			).not.toBeInTheDocument()
+		);
 	} );
 
 	test( 'Copy prompt copies the helper prompt and records it', async () => {

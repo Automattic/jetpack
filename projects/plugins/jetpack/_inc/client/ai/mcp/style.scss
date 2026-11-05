@@ -207,6 +207,11 @@
 		padding-inline: 24px;
 	}
 
+	&__copy-fallback textarea {
+		font-family: monospace;
+		font-size: 12px;
+	}
+
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
