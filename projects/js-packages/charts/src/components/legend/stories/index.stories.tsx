@@ -213,16 +213,15 @@ const ProgrammaticVisibilityComponent = () => {
 			<Stack direction="row" gap="sm">
 				<Button
 					variant="outline"
-					tone="neutral"
 					disabled={ ! isSeriesVisible( PROGRAMMATIC_VISIBILITY_CHART_ID, 'Desktop' ) }
 					onClick={ hideDesktop }
 				>
 					Hide Desktop
 				</Button>
-				<Button variant="outline" tone="neutral" disabled={ allSeriesHidden } onClick={ hideAll }>
+				<Button variant="outline" disabled={ allSeriesHidden } onClick={ hideAll }>
 					Hide all
 				</Button>
-				<Button variant="outline" tone="neutral" disabled={ allSeriesVisible } onClick={ showAll }>
+				<Button variant="outline" disabled={ allSeriesVisible } onClick={ showAll }>
 					Show all
 				</Button>
 			</Stack>
