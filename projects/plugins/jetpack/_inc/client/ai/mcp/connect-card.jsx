@@ -4,7 +4,6 @@
  */
 
 import { speak } from '@wordpress/a11y';
-import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowUpRight, copy } from '@wordpress/icons';
@@ -25,13 +24,44 @@ import { recordMcpTracksEvent } from './tracks';
 const COPIED_DURATION_MS = 1600;
 
 /**
- * Copy `text` when the returned ref's element is clicked. Everything that confirms
- * the copy waits for it to succeed. A blocked copy hands the text to `setFailedText`.
+ * Copy text to the clipboard. Plain HTTP sites have no Clipboard API, so fall back to
+ * execCommand there. This works like copyToClipboard in @wordpress/compose, but WordPress
+ * core loads an older useCopyToClipboard that does not report a failed copy.
+ *
+ * @param {string}   text          - Text to copy.
+ * @param {Document} ownerDocument - Document of the element that was clicked.
+ * @return {Promise<boolean>} Whether the copy worked.
+ */
+async function copyText( text, ownerDocument ) {
+	try {
+		const clipboard = ownerDocument.defaultView?.navigator?.clipboard;
+		if ( clipboard?.writeText ) {
+			await clipboard.writeText( text );
+			return true;
+		}
+		const field = ownerDocument.createElement( 'textarea' );
+		field.value = text;
+		field.setAttribute( 'readonly', '' );
+		field.style.position = 'fixed';
+		field.style.insetInlineStart = '-9999px';
+		ownerDocument.body.appendChild( field );
+		field.select();
+		const copied = ownerDocument.execCommand( 'copy' );
+		field.remove();
+		return copied;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Click handler that copies `text`. Everything that confirms the copy waits for it to
+ * succeed. A blocked copy hands the text to `setFailedText`.
  *
  * @param {string}   text          - Text to copy.
  * @param {Function} onCopied      - Called after a successful copy.
  * @param {Function} setFailedText - Gets the text after a failed copy, and null after a success.
- * @return {Array} The ref for the trigger element, and whether "Copied" should show.
+ * @return {Array} The click handler, and whether "Copied" should show.
  */
 function useCopyWithFeedback( text, onCopied, setFailedText ) {
 	const [ isCopied, setIsCopied ] = useState( false );
@@ -39,9 +69,15 @@ function useCopyWithFeedback( text, onCopied, setFailedText ) {
 
 	useEffect( () => () => clearTimeout( timeout.current ), [] );
 
-	const ref = useCopyToClipboard(
-		text,
-		() => {
+	const handleClick = useCallback(
+		async event => {
+			const trigger = event.currentTarget;
+			if ( ! ( await copyText( text, trigger.ownerDocument ) ) ) {
+				setFailedText( text );
+				return;
+			}
+			// The execCommand fallback moves focus to its field.
+			trigger.focus();
 			setFailedText( null );
 			onCopied();
 			speak( __( 'Copied', 'jetpack' ) );
@@ -49,10 +85,10 @@ function useCopyWithFeedback( text, onCopied, setFailedText ) {
 			clearTimeout( timeout.current );
 			timeout.current = setTimeout( () => setIsCopied( false ), COPIED_DURATION_MS );
 		},
-		() => setFailedText( text )
+		[ text, onCopied, setFailedText ]
 	);
 
-	return [ ref, isCopied ];
+	return [ handleClick, isCopied ];
 }
 
 /**
@@ -164,7 +200,7 @@ function LinkTile( { agent } ) {
  */
 function CopyTile( { agent, setFailedText } ) {
 	const id = useId();
-	const [ ref, isCopied ] = useCopyWithFeedback(
+	const [ handleClick, isCopied ] = useCopyWithFeedback(
 		agent.code,
 		() => recordMcpTracksEvent( 'jetpack_mcp_connect_click', { agent: agent.key, action: 'copy' } ),
 		setFailedText
@@ -172,9 +208,9 @@ function CopyTile( { agent, setFailedText } ) {
 
 	return (
 		<Card.Root
-			ref={ ref }
 			className="jetpack-ai-mcp__connect-tile"
 			render={ <button type="button" /> }
+			onClick={ handleClick }
 			{ ...getTileAriaProps( id ) }
 		>
 			<TileContent id={ id } agent={ agent } isCopied={ isCopied } />
@@ -261,7 +297,7 @@ function AccessOffNotice( { onTurnOn, isTurningOn } ) {
  */
 export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onNavigate } ) {
 	const [ failedText, setFailedText ] = useState( null );
-	const [ helperRef, isHelperCopied ] = useCopyWithFeedback(
+	const [ handleHelperClick, isHelperCopied ] = useCopyWithFeedback(
 		HELPER_PROMPT,
 		() => recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' ),
 		setFailedText
@@ -317,7 +353,7 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 						{ __( 'Not sure where to start? Have the agent connect itself.', 'jetpack' ) }
 					</Text>
 					<Stack direction="row" gap="sm" align="center" justify="flex-end">
-						<Button ref={ helperRef } variant="minimal" size="small">
+						<Button variant="minimal" size="small" onClick={ handleHelperClick }>
 							<Button.Icon icon={ copy } />
 							{ isHelperCopied ? __( 'Copied', 'jetpack' ) : __( 'Copy prompt', 'jetpack' ) }
 						</Button>
