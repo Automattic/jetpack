@@ -116,9 +116,9 @@ function placedAfter( state: CriticalCssState, replaced?: CriticalCssState ): Cr
 }
 
 /**
- * Whether a Regenerate reply carries a new pending request. A poll can bring that request in before
- * the reply lands, even with a later write of it, so a reply for the request the dashboard already
- * holds counts as started; any other reply is refused only when it was written before the held state.
+ * Whether a Regenerate reply carries a new pending request. A poll can deliver that request, or a later
+ * write of it, before the reply lands, so a pending reply for the request the dashboard already holds is
+ * accepted; any other reply is rejected when it was written before the held state.
  *
  * @param {CriticalCssState} reply - The state the action returned.
  * @param {CriticalCssState} held  - The state in the query cache when the reply arrived.
