@@ -2,11 +2,11 @@ import { DataSyncError } from '@automattic/jetpack-react-data-sync-client';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
- * The first line of text in a reply body, with any HTML markup removed.
+ * The start of the text in a reply body, with any HTML markup removed.
  *
  * @param body - The reply body.
  */
-function firstLine( body: string ): string {
+function textStart( body: string ): string {
 	// A reply made of unclosed tags makes the patterns below slow, so bound the body first.
 	const text = body
 		.slice( 0, 4096 )
@@ -19,7 +19,7 @@ function firstLine( body: string ): string {
 }
 
 /**
- * Describe a data-sync reply the site refused, naming the HTTP status and the first line of the body,
+ * Describe a data-sync reply the site refused, naming the HTTP status and the start of the body,
  * so the dashboard can show what answered instead of Boost.
  *
  * @param error - The error a data-sync request rejected with.
@@ -37,12 +37,12 @@ export async function describeRefusedReply( error: unknown ): Promise< string | 
 		const line = await response
 			.clone()
 			.text()
-			.then( firstLine, () => '' );
+			.then( textStart, () => '' );
 		const code = `${ response.status }${ response.statusText ? ' ' + response.statusText : '' }`;
 
 		return line
 			? sprintf(
-					/* translators: %1$s is an HTTP status such as "502 Bad Gateway"; %2$s is the first line of the reply. */
+					/* translators: %1$s is an HTTP status such as "502 Bad Gateway"; %2$s is the start of the reply text. */
 					__( 'The site answered with HTTP %1$s: %2$s', 'jetpack-boost' ),
 					code,
 					line
@@ -57,12 +57,12 @@ export async function describeRefusedReply( error: unknown ): Promise< string | 
 	if ( status === 'json_parse_error' ) {
 		// Only a 2xx reply reaches the parser, and these endpoints answer 200.
 		return sprintf(
-			/* translators: %s is the first line of the reply. */
+			/* translators: %s is the start of the reply text. */
 			__(
 				'The site answered HTTP 200 with a page instead of a reply from Boost: %s',
 				'jetpack-boost'
 			),
-			firstLine( String( data ?? '' ) )
+			textStart( String( data ?? '' ) )
 		);
 	}
 

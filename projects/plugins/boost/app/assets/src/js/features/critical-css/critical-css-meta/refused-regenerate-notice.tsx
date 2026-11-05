@@ -6,7 +6,7 @@ import { useCriticalCssState, useRegenerateRefusal } from '../lib/stores/critica
 
 /**
  * Tell the user what the site answered when a Regenerate request, from any button, was refused.
- * The notice belongs to the request the dashboard held at the time, so it goes once a run has started.
+ * The notice belongs to the request the dashboard held at the time, so it is removed once a run has started.
  */
 export default function RefusedRegenerateNotice() {
 	const refusal = useRegenerateRefusal();

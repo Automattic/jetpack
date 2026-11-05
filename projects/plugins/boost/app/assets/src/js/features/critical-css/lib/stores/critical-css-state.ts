@@ -209,7 +209,7 @@ function useCriticalCssAction< ActionSchema extends z.ZodType >(
 		},
 		mutationOptions: {
 			meta: { action },
-			// A failed action puts back the state it replaced; that state is older, so the guard steps aside.
+			// Put back the state the action replaced; see restoringReplacedState.
 			onError: ( _error, _request, context ) => {
 				if ( ! context?.previousValue ) {
 					return;

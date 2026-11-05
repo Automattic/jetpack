@@ -242,7 +242,7 @@ function mountDashboard() {
 }
 
 describe( 'Refused replies', () => {
-	it( 'shows the host check page a Regenerate request got instead of silently reverting', async () => {
+	it( 'shows what a refused Regenerate request answered until a run starts', async () => {
 		setWindowState( finishedEarlier );
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
 			html: checkPage,
@@ -278,7 +278,7 @@ describe( 'Refused replies', () => {
 		view.unmount();
 	} );
 
-	it( 'names the refused save that stopped a run', async () => {
+	it( 'names the refused save that stopped a run, and a refused Refresh after it', async () => {
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/set-provider-css' ] = refused;
 		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/set-provider-errors' ] =
 			refused;

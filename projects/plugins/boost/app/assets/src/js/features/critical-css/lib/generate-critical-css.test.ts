@@ -211,7 +211,7 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 		expect( byUrl[ members ].meta ).toMatchObject( { code: 403, login_required: true } );
 		expect( byUrl[ home ].meta ).toEqual( { code: 500 } );
 	} );
-	it( 'hands the cancel signal to the page loader and records nothing for a cancelled run', async () => {
+	it( 'records nothing for a run cancelled while a page is loading', async () => {
 		const { SuccessTargetError } = jest.requireMock( '@automattic/jetpack-critical-css-gen' );
 		type SignalledInterface = { options: { signal: AbortSignal } };
 

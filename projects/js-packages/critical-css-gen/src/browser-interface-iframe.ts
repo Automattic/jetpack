@@ -183,8 +183,8 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 				return;
 			}
 
-			// One deadline covers the iframe load and the checks that follow it; a check that never
-			// answered used to leave the whole run waiting with no limit.
+			// One deadline covers the iframe load and the checks that follow it, so a check that never
+			// answers cannot stall the run.
 			const checks = new AbortController();
 			let settled = false;
 			const finish = ( settle: () => void ) => {

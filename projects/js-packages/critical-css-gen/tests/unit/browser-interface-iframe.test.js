@@ -208,7 +208,6 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	// A status check that never answers used to clear the load timeout and wait without limit.
 	it( 'times out a page whose status check never answers', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
