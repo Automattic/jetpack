@@ -344,6 +344,12 @@
 		outline: none;
 	}
 
+	// Pinned, as the textarea's is: the box marks focus, and a theme's
+	// `:focus-visible` would ring the canvas inside it.
+	.block-editor-writing-flow:focus {
+		outline: none !important;
+	}
+
 	[data-rich-text-placeholder] {
 		pointer-events: none;
 
@@ -351,6 +357,16 @@
 			content: attr(data-rich-text-placeholder);
 			opacity: 0.62;
 		}
+	}
+
+	// Gutenberg prompts on every empty paragraph, left behind as the caret
+	// moves on. A comment prompts once, while it is a single paragraph.
+	.is-root-container > .wp-block-paragraph > [data-rich-text-placeholder]::after {
+		content: none;
+	}
+
+	.is-root-container > .wp-block-paragraph:only-child > [data-rich-text-placeholder]::after {
+		content: var(--jetpack-comments-placeholder, attr(data-rich-text-placeholder));
 	}
 
 	.wp-block-code code {

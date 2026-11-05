@@ -10,6 +10,7 @@ export type EditorProps = {
 	labels: EditorLabels;
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
+	/** The prompt in an empty comment. Empty, Gutenberg's own shows. */
 	placeholder: string;
 	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;

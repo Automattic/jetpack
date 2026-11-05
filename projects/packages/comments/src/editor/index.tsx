@@ -77,12 +77,11 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 }
 
 // A draft from the editor is block markup; anything else is plain text for one paragraph.
-const toBlocks = ( content: string, placeholder: string ) =>
+const toBlocks = ( content: string ) =>
 	content.includes( '<!-- wp:' )
 		? parse( content )
 		: [
 				createBlock( 'core/paragraph', {
-					placeholder,
 					content: content
 						.trim()
 						.replace( /&/g, '&amp;' )
@@ -136,11 +135,10 @@ const Editor = ( {
 	initialContent,
 	labels,
 	focus,
-	placeholder,
 	onChange,
-}: Omit< EditorProps, 'onError' > ) => {
+}: Omit< EditorProps, 'onError' | 'placeholder' > ) => {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
-		const blocks = toBlocks( initialContent, placeholder );
+		const blocks = toBlocks( initialContent );
 
 		return {
 			past: [],
@@ -242,6 +240,13 @@ const Editor = ( {
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
 	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
 	registerImageBlock( props.labels, props.previewEmbeds ?? true );
+	// For the stylesheet rather than a block attribute, which a split copies and the draft keeps.
+	if ( props.placeholder ) {
+		container.style.setProperty(
+			'--jetpack-comments-placeholder',
+			JSON.stringify( props.placeholder )
+		);
+	}
 	const root = createRoot( container );
 	root.render(
 		<Boundary onError={ props.onError }>

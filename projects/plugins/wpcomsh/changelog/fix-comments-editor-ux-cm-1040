@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Comments: Fix the leftover placeholder on empty lines, the doubled focus ring, the caret after clicking Reply, and gaps from empty paragraphs in the comment editor.
