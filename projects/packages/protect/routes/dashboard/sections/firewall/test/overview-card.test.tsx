@@ -338,6 +338,25 @@ describe( 'FirewallOverviewCard', () => {
 			expect( apiFetch ).not.toHaveBeenCalled();
 		} );
 
+		it.each( [
+			[ 'Run test', {} ],
+			[
+				'Add IPs to list',
+				{ ipRules: { ...props.state!.ipRules, jetpack_waf_ip_block_list: '' } },
+			],
+		] )(
+			'moves focus from the empty state’s %s to the header’s Run test when a background read finds blocks',
+			async ( name, state ) => {
+				const empty = { blockedCount: 0, blockedLast30Days: 0, hasBlocked: false, ...state };
+				render( <FirewallOverviewCard { ...props } state={ { ...props.state!, ...empty } } /> );
+				act( () => screen.getByRole( 'button', { name } ).focus() );
+
+				await tick();
+
+				expect( screen.getByRole( 'button', { name: 'Run test' } ) ).toHaveFocus();
+			}
+		);
+
 		it( 'keeps the newest counts when an older read lands last', async () => {
 			const answers: Array< ( value: unknown ) => void > = [];
 			( apiFetch as unknown as jest.Mock ).mockImplementation(

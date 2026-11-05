@@ -375,6 +375,29 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasBlocks = Boolean( blocks.hasBlocked );
 	const { lastTestAt } = blocks;
 	const isEmpty = active && ! hasBlocks;
+
+	// A read that swaps the empty state for the counts takes focus from it to the header's Run test, unless focus moved on.
+	const emptyState = useRef< HTMLDivElement >( null );
+	const headerTest = useRef< HTMLButtonElement >( null );
+	const focusHeaderTest = useRef( false );
+	const wasEmpty = useRef( isEmpty );
+	if ( wasEmpty.current !== isEmpty ) {
+		// Read focus now, before the commit removes the empty state.
+		const empty = emptyState.current;
+		focusHeaderTest.current = ! isEmpty && !! empty?.contains( empty.ownerDocument.activeElement );
+		wasEmpty.current = isEmpty;
+	}
+	useEffect( () => {
+		const button = headerTest.current;
+		if ( ! focusHeaderTest.current || ! button ) {
+			return;
+		}
+		focusHeaderTest.current = false;
+		const { activeElement, body } = button.ownerDocument;
+		if ( ! activeElement || activeElement === body ) {
+			button.focus();
+		}
+	}, [ isEmpty ] );
 	const hasBlockListIps = splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length > 0;
 	const isBlockListOff = hasBlockListIps && ! ipData.settings?.[ enabledKey( IP_BLOCK_LIST ) ];
 	const needsBlockList = ! firewall.hasScan && ( ! hasBlockListIps || isBlockListOff );
@@ -422,7 +445,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			}
 			actions={
 				hasBlocks && (
-					<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
+					<Button
+						ref={ headerTest }
+						variant="outline"
+						size="compact"
+						onClick={ runTest }
+						loading={ isTesting }
+					>
 						{ __( 'Run test', 'jetpack-protect-pkg' ) }
 					</Button>
 				)
@@ -444,13 +473,19 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ isFreeEmptyState && (
 				<NoBlockListState
+					rootRef={ emptyState }
 					upgradeUrl={ firewall.upgradeUrl }
 					onAddIps={ addToBlockList }
 					isListOff={ isBlockListOff }
 				/>
 			) }
 			{ isEmpty && ! isFreeEmptyState && (
-				<NoBlocksState lastTestAt={ lastTestAt } isTesting={ isTesting } onTest={ runTest } />
+				<NoBlocksState
+					rootRef={ emptyState }
+					lastTestAt={ lastTestAt }
+					isTesting={ isTesting }
+					onTest={ runTest }
+				/>
 			) }
 			{ hasNothingToBlock && (
 				<NothingToBlockNotice

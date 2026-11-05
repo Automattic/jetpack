@@ -23,6 +23,7 @@ const UPSELL_PROPS = { state: 'empty' };
  * @param props.title       - The heading.
  * @param props.description - The line under it.
  * @param props.children    - The buttons.
+ * @param props.rootRef     - Gets the empty state's element.
  * @return The row.
  */
 function FirewallEmptyState( {
@@ -30,15 +31,17 @@ function FirewallEmptyState( {
 	title,
 	description,
 	children,
+	rootRef,
 }: {
 	icon: ReactElement;
 	title: string;
 	description: string;
 	children: ReactNode;
+	rootRef?: Ref< HTMLDivElement >;
 } ) {
 	return (
 		<CardRow className="jp-protect-firewall-empty">
-			<EmptyState.Root>
+			<EmptyState.Root ref={ rootRef }>
 				<EmptyState.Icon icon={ icon } />
 				<EmptyState.Title render={ <h3 /> }>{ title }</EmptyState.Title>
 				<EmptyState.Description>{ description }</EmptyState.Description>
@@ -55,21 +58,25 @@ function FirewallEmptyState( {
  * @param props.upgradeUrl - Where to buy Scan.
  * @param props.onAddIps   - Opens the block list's dialog.
  * @param props.isListOff  - Whether the list has addresses but is turned off.
+ * @param props.rootRef    - Gets the empty state's element.
  * @return The row.
  */
 export function NoBlockListState( {
 	upgradeUrl,
 	onAddIps,
 	isListOff,
+	rootRef,
 }: {
 	upgradeUrl: string;
 	onAddIps: () => void;
 	isListOff: boolean;
+	rootRef?: Ref< HTMLDivElement >;
 } ) {
 	useEffect( () => recordViewOnce( `${ UPSELL_EVENT }_view`, UPSELL_PROPS ) );
 
 	return (
 		<FirewallEmptyState
+			rootRef={ rootRef }
 			icon={ info }
 			title={
 				isListOff
@@ -111,19 +118,23 @@ export function NoBlockListState( {
  * @param props.lastTestAt - When the firewall was last tested, if it has been.
  * @param props.isTesting  - Whether a test is running.
  * @param props.onTest     - Runs the test.
+ * @param props.rootRef    - Gets the empty state's element.
  * @return The row.
  */
 export function NoBlocksState( {
 	lastTestAt,
 	isTesting,
 	onTest,
+	rootRef,
 }: {
 	lastTestAt?: string | null;
 	isTesting: boolean;
 	onTest: () => void;
+	rootRef?: Ref< HTMLDivElement >;
 } ) {
 	return (
 		<FirewallEmptyState
+			rootRef={ rootRef }
 			icon={ check }
 			title={ __( 'No requests blocked yet', 'jetpack-protect-pkg' ) }
 			description={
