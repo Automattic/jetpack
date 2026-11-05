@@ -7,7 +7,7 @@
  * Requires Connection: Yes
  * Requires User Connection: No
  * Auto Activate: No
- * Module Tags: Account Protection
+ * Module Tags: Account protection
  * Feature: Security
  *
  * @package automattic/jetpack
