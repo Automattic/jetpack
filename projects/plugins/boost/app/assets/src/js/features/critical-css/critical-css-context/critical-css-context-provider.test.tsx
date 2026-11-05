@@ -20,7 +20,7 @@ jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
 } ) );
 jest.mock( '../lib/stores/critical-css-state', () => ( {
 	...jest.requireActual( '../lib/stores/critical-css-state' ),
-	useCriticalCssState: () => [ mockCssState, mockSetCssState ],
+	useCriticalCssState: () => [ mockCssState, mockSetCssState, { isFetching: false } ],
 	useProxyNonce: () => 'proxy-nonce',
 	useSetProviderCssAction: () => ( { mutateAsync: mockSetProviderCss } ),
 	useSetProviderErrorsAction: () => ( { mutateAsync: mockSetProviderErrors } ),

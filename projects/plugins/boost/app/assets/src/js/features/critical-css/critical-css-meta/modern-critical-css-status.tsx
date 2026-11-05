@@ -2,8 +2,13 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { useEffect, useState } from 'react';
 import { getProvidersWithErrors } from '../lib/critical-css-errors';
-import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
+import { describeRefusedReply } from '../lib/describe-refused-reply';
+import {
+	useCriticalCssState,
+	useRegenerateCriticalCssAction,
+} from '../lib/stores/critical-css-state';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import { useTooltipLayer } from '$features/module/surface';
@@ -20,7 +25,9 @@ type Props = {
 
 export default function ModernCriticalCssStatus( { cssState, isGenerating, progress }: Props ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
+	const [ , , { isFetching } ] = useCriticalCssState();
 	const tooltipLayer = useTooltipLayer();
+	const refusal = useRefusedReply( regenerateAction.error );
 	const generating = isGenerating || cssState.status === 'pending';
 	const idle = cssState.status === 'not_generated';
 	const successCount = cssState.providers.filter(
@@ -60,7 +67,9 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 								variant="minimal"
 								size="compact"
 								onClick={ generate }
-								disabled={ regenerateAction.isPending }
+								disabled={
+									regenerateAction.isPending || ( regenerateAction.isError && isFetching )
+								}
 							>
 								{ idle
 									? _x( 'Generate', '', 'jetpack-boost' )
@@ -107,6 +116,14 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 					{ generating && <ProgressBar progress={ progress } /> }
 				</Stack>
 			</div>
+			{ refusal && (
+				<Notice.Root intent="error">
+					<Notice.Title>
+						{ __( 'Critical CSS generation did not start', 'jetpack-boost' ) }
+					</Notice.Title>
+					<Notice.Description>{ refusal }</Notice.Description>
+				</Notice.Root>
+			) }
 			{ ! generating && failureCount > 0 && (
 				<Notice.Root intent="warning">
 					<Notice.Description>
@@ -135,4 +152,33 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 			) }
 		</Stack>
 	);
+}
+
+/**
+ * Describe the reply a failed Regenerate request got, once the body has been read.
+ *
+ * @param error - The Regenerate mutation's error, if any.
+ */
+function useRefusedReply( error: unknown ): string | null {
+	const [ refusal, setRefusal ] = useState< string | null >( null );
+
+	useEffect( () => {
+		if ( ! error ) {
+			setRefusal( null );
+			return;
+		}
+
+		let current = true;
+		describeRefusedReply( error ).then( described => {
+			if ( current ) {
+				setRefusal( described ?? ( error instanceof Error ? error.message : String( error ) ) );
+			}
+		} );
+
+		return () => {
+			current = false;
+		};
+	}, [ error ] );
+
+	return refusal;
 }

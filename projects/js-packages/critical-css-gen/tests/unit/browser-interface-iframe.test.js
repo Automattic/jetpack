@@ -207,4 +207,71 @@ describe( 'Iframe interface', () => {
 
 		await page.close();
 	} );
+
+	// A status check that never answers used to clear the load timeout and wait without limit.
+	it( 'times out a page whose status check never answers', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		const result = await page.evaluate( async url => {
+			window.fetch = ( _url, options ) =>
+				new Promise( ( _resolve, reject ) =>
+					options?.signal?.addEventListener( 'abort', () =>
+						reject( new DOMException( 'aborted', 'AbortError' ) )
+					)
+				);
+			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+				loadTimeout: 1000,
+				verifyPage: ( _url, innerWindow, innerDocument ) =>
+					!! innerDocument.querySelector( 'meta[name="testing-page"]' ),
+			} );
+			const started = Date.now();
+			const outcome = await Promise.race( [
+				iframeInterface.loadPage( url ).then(
+					() => 'resolved',
+					error => error.message
+				),
+				new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
+			] );
+			return { outcome, elapsed: Date.now() - started };
+		}, innerUrl );
+
+		expect( result.outcome ).toMatch( /^Timeout while reading/ );
+		expect( result.elapsed ).toBeLessThan( 4000 );
+
+		await page.close();
+	} );
+
+	it( 'ends a page load when the caller cancels generation', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+
+		const result = await page.evaluate( async url => {
+			window.fetch = () => new Promise( () => {} );
+			const controller = new AbortController();
+			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+				verifyPage: () => true,
+				signal: controller.signal,
+			} );
+			setTimeout( () => controller.abort(), 500 );
+			const started = Date.now();
+			const outcome = await Promise.race( [
+				iframeInterface.loadPage( url ).then(
+					() => 'resolved',
+					error => error.message
+				),
+				new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
+			] );
+			return { outcome, elapsed: Date.now() - started };
+		}, innerUrl );
+
+		expect( result.outcome ).toMatch( /Generation was cancelled/ );
+		expect( result.elapsed ).toBeLessThan( 4000 );
+
+		await page.close();
+	} );
 } );

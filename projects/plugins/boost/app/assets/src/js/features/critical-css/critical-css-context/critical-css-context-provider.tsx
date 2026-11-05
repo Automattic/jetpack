@@ -8,6 +8,7 @@ import {
 	useSetProviderErrorsAction,
 	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
+import { describeRefusedReply } from '../lib/describe-refused-reply';
 import { runLocalGenerator } from '../lib/generate-critical-css';
 import { isExpiredSessionError } from '../lib/is-expired-session-error';
 import { CriticalCssErrorDetails } from '../lib/stores/critical-css-state-types';
@@ -141,21 +142,25 @@ export function useLocalCriticalCssGenerator( autoStart = true ) {
 				let abortController: AbortController | undefined;
 				let holdTimerId: ReturnType< typeof setTimeout > | undefined;
 				let sessionExpired = false;
+				// What the site answered the last save with, when it was not Boost's reply.
+				let refusedReply: string | null = null;
 
 				const saving = < T, >( request: Promise< T > ) =>
 					request.catch( async ( error: unknown ) => {
 						sessionExpired = sessionExpired || ( await isExpiredSessionError( error ) );
+						refusedReply = ( await describeRefusedReply( error ) ) ?? refusedReply;
 						throw error;
 					} );
 
 				setGenerating( true );
 				abortController = runLocalGenerator( cssState.providers, proxyNonce, {
 					onError: ( error: Error ) => {
-						setFailedRun( { created: cssState.created, message: error.message, sessionExpired } );
+						const message = refusedReply ?? error.message;
+						setFailedRun( { created: cssState.created, message, sessionExpired } );
 
 						// Saving the error would fail the same way without a valid login.
 						if ( ! sessionExpired ) {
-							setCssState( criticalCssErrorState( error.message ) );
+							setCssState( criticalCssErrorState( message ) );
 						}
 					},
 

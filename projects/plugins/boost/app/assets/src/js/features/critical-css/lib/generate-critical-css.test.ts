@@ -32,7 +32,12 @@ jest.mock(
 				this.urlErrors = urlErrors;
 			}
 		}
-		class BrowserInterfaceIframe {}
+		class BrowserInterfaceIframe {
+			options: Record< string, unknown >;
+			constructor( options: Record< string, unknown > ) {
+				this.options = options;
+			}
+		}
 		return {
 			generateCriticalCSS: ( ...args: unknown[] ) => mockGenerateCriticalCSS( ...args ),
 			BrowserInterfaceIframe,
@@ -204,5 +209,42 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 		const byUrl = Object.fromEntries( errors.map( error => [ error.url, error ] ) );
 		expect( byUrl[ members ].meta ).toMatchObject( { code: 403, login_required: true } );
 		expect( byUrl[ home ].meta ).toEqual( { code: 500 } );
+	} );
+	it( 'hands the cancel signal to the page loader and records nothing for a cancelled run', async () => {
+		const { SuccessTargetError } = jest.requireMock( '@automattic/jetpack-critical-css-gen' );
+		type SignalledInterface = { options: { signal: AbortSignal } };
+
+		// The page loader rejects once cancelled, the way the real iframe interface does.
+		mockGenerateCriticalCSS.mockImplementationOnce(
+			( { browserInterface }: { browserInterface: SignalledInterface } ) =>
+				new Promise( ( _resolve, reject ) =>
+					browserInterface.options.signal.addEventListener( 'abort', () =>
+						reject(
+							new SuccessTargetError( {
+								'https://example.com/provider_a': { message: 'cancelled', type: 'UnknownError' },
+							} )
+						)
+					)
+				)
+		);
+
+		const callbacks = makeCallbacks();
+		const abort = runLocalGenerator(
+			[ makeProvider( 'provider_a' ), makeProvider( 'provider_b' ) ],
+			'nonce',
+			callbacks
+		);
+		// Cancel once the first provider's page load is under way, as leaving the page would.
+		await new Promise< void >( resolve => {
+			const check = () =>
+				mockGenerateCriticalCSS.mock.calls.length ? resolve() : setTimeout( check, 1 );
+			check();
+		} );
+		abort.abort();
+		await callbacks.finished;
+
+		expect( callbacks.setProviderErrors ).not.toHaveBeenCalled();
+		expect( callbacks.setProviderCss ).not.toHaveBeenCalled();
+		expect( mockGenerateCriticalCSS ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

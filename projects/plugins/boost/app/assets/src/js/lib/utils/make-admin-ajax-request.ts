@@ -15,10 +15,12 @@ class AdminAjaxError extends Error {
  *
  * @param {Record< string, string >} payload   Key/value pairs to send with the request.
  * @param {string}                   wpajaxurl
+ * @param {RequestInit}              init      Extra fetch options, such as an abort signal.
  */
 export async function prepareAdminAjaxRequest(
 	payload: Record< string, string >,
-	wpajaxurl = ajaxurl
+	wpajaxurl = ajaxurl,
+	init: Pick< RequestInit, 'signal' > = {}
 ): Promise< Response > {
 	const args = {
 		method: 'post',
@@ -26,6 +28,7 @@ export async function prepareAdminAjaxRequest(
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
+		...init,
 	};
 
 	const response = await fetch( wpajaxurl, args );

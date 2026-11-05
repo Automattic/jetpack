@@ -21,12 +21,15 @@ type BrowserInterfaceIframeOptions = {
 	loadTimeout?: number;
 	verifyPage: VerifyMethod;
 	allowScripts?: boolean;
+	// Ends page loads and their follow-up requests when the caller stops generating.
+	signal?: AbortSignal;
 };
 
 export class BrowserInterfaceIframe extends BrowserInterface {
 	private requestGetParameters: { [ key: string ]: string };
 	private loadTimeout: number;
 	private verifyPage: VerifyMethod;
+	private signal: AbortSignal | undefined;
 
 	private currentUrl: string | null;
 	private currentSize: NullableViewport;
@@ -39,12 +42,14 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		loadTimeout,
 		verifyPage,
 		allowScripts,
+		signal,
 	}: BrowserInterfaceIframeOptions ) {
 		super();
 
 		this.requestGetParameters = requestGetParameters || {};
 		this.loadTimeout = loadTimeout || defaultLoadTimeout;
 		this.verifyPage = verifyPage;
+		this.signal = signal;
 
 		// Default 'allowScripts' to true if not specified.
 		allowScripts = allowScripts !== false;
@@ -105,9 +110,9 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		return url.toString();
 	}
 
-	async diagnoseUrlError( url: string ): Promise< UrlError | null > {
+	async diagnoseUrlError( url: string, signal?: AbortSignal ): Promise< UrlError | null > {
 		try {
-			const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
+			const response = await this.fetch( url, { redirect: 'manual', signal }, 'html' );
 			const headers = response.headers;
 
 			if ( headers.get( 'x-frame-options' ) === 'DENY' ) {
@@ -131,8 +136,8 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 		}
 	}
 
-	async is404Page( url: string ): Promise< boolean > {
-		const response = await this.fetch( url, { redirect: 'manual' }, 'html' );
+	async is404Page( url: string, signal?: AbortSignal ): Promise< boolean > {
+		const response = await this.fetch( url, { redirect: 'manual', signal }, 'html' );
 
 		return response.status === 404;
 	}
@@ -170,20 +175,43 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 				return;
 			}
 
-			// Set a timeout.
-			const timeoutId = setTimeout( () => {
+			// One deadline covers the iframe load and the checks that follow it; a check that never
+			// answered used to leave the whole run waiting with no limit.
+			const checks = new AbortController();
+			let settled = false;
+			const finish = ( settle: () => void ) => {
+				if ( settled ) {
+					return;
+				}
+				settled = true;
+				clearTimeout( timeoutId );
 				this.iframe.onload = null;
-				reject( new LoadTimeoutError( { url: fullUrl } ) );
+				this.signal?.removeEventListener( 'abort', onAbort );
+				settle();
+			};
+			const onAbort = () => {
+				checks.abort();
+				this.iframe.src = 'about:blank';
+				finish( () =>
+					reject( new UnknownError( { url: fullUrl, message: 'Generation was cancelled' } ) )
+				);
+			};
+			const timeoutId = setTimeout( () => {
+				checks.abort();
+				finish( () => reject( new LoadTimeoutError( { url: fullUrl } ) ) );
 			}, this.loadTimeout );
+
+			if ( this.signal?.aborted ) {
+				onAbort();
+				return;
+			}
+			this.signal?.addEventListener( 'abort', onAbort, { once: true } );
 
 			// Catch load event.
 			this.iframe.onload = async () => {
 				try {
-					this.iframe.onload = null;
-					clearTimeout( timeoutId );
-
 					// Check HTTP status code first.
-					const is404 = await this.is404Page( fullUrl );
+					const is404 = await this.is404Page( fullUrl, checks.signal );
 					if ( is404 ) {
 						throw new HttpError( { url: fullUrl, code: 404 } );
 					}
@@ -191,7 +219,8 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					// Verify the inner document is readable.
 					if ( ! this.iframe.contentDocument || ! this.iframe.contentWindow ) {
 						throw (
-							( await this.diagnoseUrlError( fullUrl ) ) || new CrossDomainError( { url: fullUrl } )
+							( await this.diagnoseUrlError( fullUrl, checks.signal ) ) ||
+							new CrossDomainError( { url: fullUrl } )
 						);
 					}
 
@@ -200,14 +229,15 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					) {
 						// Diagnose and throw an appropriate error.
 						throw (
-							( await this.diagnoseUrlError( fullUrl ) ) || new UrlVerifyError( { url: fullUrl } )
+							( await this.diagnoseUrlError( fullUrl, checks.signal ) ) ||
+							new UrlVerifyError( { url: fullUrl } )
 						);
 					}
 
 					this.currentUrl = rawUrl;
-					resolve();
+					finish( resolve );
 				} catch ( err ) {
-					reject( err );
+					finish( () => reject( err ) );
 				}
 			};
 
