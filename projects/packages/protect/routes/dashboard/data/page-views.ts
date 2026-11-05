@@ -3,7 +3,7 @@ import { recordEvent } from './tracks';
 import type { ScanState } from '../sections/scan/types';
 
 /**
- * The scan status for the page view: the Protect plugin's values, plus `not_scanned` before the first scan.
+ * The scan status for the page view: the Protect plugin's values, plus `scan_failed` and `not_scanned`.
  *
  * @param scan - The latest report.
  * @return The status.
@@ -15,7 +15,7 @@ function getCheckStatus( scan: ScanState ): string {
 	if ( ! scan.scanning ) {
 		// The card's failed-scan and first-scan prompts, in its order.
 		if ( scan.lastScanFailed && ! scan.threats?.length ) {
-			return 'error';
+			return 'scan_failed';
 		}
 		if ( isNotScannedYet( scan ) ) {
 			return 'not_scanned';

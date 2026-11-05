@@ -40,8 +40,8 @@ describe( 'recordPageView', () => {
 		[
 			'overview',
 			undefined,
-			{ lastScanFailed: true },
-			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'error' } ],
+			{ lastScanFailed: true, lastChecked: '2026-10-01 10:00:00' },
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'scan_failed' } ],
 		],
 		[ 'history', undefined, {}, [ 'jetpack_protect_scan_history_page_view' ] ],
 		[
