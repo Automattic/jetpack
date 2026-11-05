@@ -86,14 +86,33 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Some hosts subclass each editor by name with eval(), so the name must be a plain identifier.
+	 * Whether the host has exiftool, and the editors that should result.
+	 *
+	 * @return array
 	 */
-	public function test_replaces_gd_with_the_wpcom_editor() {
-		$this->assertSame(
-			array( 'WP_Image_Editor_Imagick', 'Jetpack_WPCOM_Image_Editor_GD' ),
-			jetpack_wpcom_ai_marker_image_editors( array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) )
+	public static function data_exiftool() {
+		return array(
+			'with exiftool'    => array( true, array( 'WP_Image_Editor_Imagick', 'Jetpack_WPCOM_Image_Editor_GD' ) ),
+			'without exiftool' => array( false, array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) ),
 		);
-		$this->assertInstanceOf( 'Jetpack_WPCOM_Image_Editor_GD', wp_get_image_editor( $this->jpeg() ) );
+	}
+
+	/**
+	 * Some hosts subclass each editor by name with eval(), so the name must be a plain identifier.
+	 *
+	 * @dataProvider data_exiftool
+	 *
+	 * @param bool     $has_exiftool Whether the host has exiftool.
+	 * @param string[] $expected     The editors after the swap.
+	 */
+	#[DataProvider( 'data_exiftool' )]
+	public function test_replaces_gd_only_when_exiftool_exists( $has_exiftool, $expected ) {
+		if ( $has_exiftool ) {
+			$this->fake_exiftool( '' );
+		}
+
+		$this->assertSame( $expected, jetpack_wpcom_ai_marker_image_editors( array( 'WP_Image_Editor_Imagick', 'WP_Image_Editor_GD' ) ) );
+		$this->assertSame( end( $expected ), get_class( wp_get_image_editor( $this->jpeg() ) ) );
 	}
 
 	/**
@@ -198,9 +217,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'data_tools' )]
 	public function test_stops_a_tool_at_the_time_limit( $tool ) {
-		if ( 'c2patool' === $tool ) {
-			$this->fake_exiftool( '', 0, true );
-		}
+		$this->fake_exiftool( '', 0, true );
 		$this->fake_tool( $tool, "exec sleep 5\n" );
 		add_filter(
 			'jetpack_wpcom_ai_marker_tool_time_limit',
@@ -292,27 +309,35 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertFileEquals( Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/c2pa-settings.json', $args[1] );
 	}
 
-	public function test_xmp_wins_over_the_c2pa_manifest() {
-		$this->fake_exiftool( self::CAMERA, 0, true );
-		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
-
-		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
-
-		$this->assertSame( array( self::CAMERA ), $this->written_types() );
-		$this->assertSame( array(), $this->calls( 'c2patool' ) );
+	/**
+	 * What exiftool reports when c2patool must not run, and the types the saved file should get.
+	 *
+	 * @return array
+	 */
+	public static function data_no_c2patool() {
+		return array(
+			'XMP wins over the manifest' => array( self::CAMERA, true, array( self::CAMERA ) ),
+			// Most uploads have no manifest, so c2patool would otherwise run on nearly every save.
+			'no manifest'                => array( '', false, array() ),
+		);
 	}
 
 	/**
-	 * Most uploads have no manifest, so c2patool would otherwise run on nearly every save.
+	 * @dataProvider data_no_c2patool
+	 *
+	 * @param string   $type     The XMP type exiftool reports.
+	 * @param bool     $has_c2pa Whether exiftool reports a C2PA box.
+	 * @param string[] $expected The types the saved file should get.
 	 */
-	public function test_skips_c2patool_when_the_file_has_no_manifest() {
-		$this->fake_exiftool( '' );
+	#[DataProvider( 'data_no_c2patool' )]
+	public function test_skips_c2patool( $type, $has_c2pa, $expected ) {
+		$this->fake_exiftool( $type, 0, $has_c2pa );
 		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
 
 		wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
 
+		$this->assertSame( $expected, $this->written_types() );
 		$this->assertSame( array(), $this->calls( 'c2patool' ) );
-		$this->assertSame( array(), $this->written_types() );
 	}
 
 	/**
@@ -348,16 +373,6 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $saved );
 		$this->assertSame( array(), $this->calls( 'exiftool' ) );
 		$this->assertSame( array( 'remote-source', 'download-failed' ), $this->stats );
-	}
-
-	public function test_saves_the_edit_without_exiftool() {
-		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
-
-		$saved = wp_get_image_editor( $this->jpeg() )->save( $this->temp_path( 'jpeg' ) );
-
-		$this->assertIsArray( $saved );
-		$this->assertSame( array(), $this->calls( 'c2patool' ) );
-		$this->assertSame( array(), $this->stats );
 	}
 
 	public function test_saves_the_edit_when_exiftool_cannot_write() {
