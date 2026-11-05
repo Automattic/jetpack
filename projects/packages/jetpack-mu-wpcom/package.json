@@ -156,6 +156,7 @@
 		"pages": [
 			"site-setup",
 			"wpcom-backup",
+			"wpcom-my-jetpack",
 			"wpcom-scan"
 		]
 	}

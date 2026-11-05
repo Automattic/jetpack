@@ -34,7 +34,7 @@ wp-build also generates an ungated full-page route at `?page=jetpack-premium-ana
 `Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
 filters.
 
-On connected sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
+On Jetpack sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
 absent; both ask `Enablement::is_enabled()`. `Classic_Stats` owns the flag that retires the classic
 Stats page.
 
