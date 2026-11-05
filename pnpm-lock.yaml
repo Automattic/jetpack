@@ -7107,18 +7107,6 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
-  projects/plugins/wpcomsh:
-    devDependencies:
-      '@babel/core':
-        specifier: ^7.5.5
-        version: 7.29.7
-      jest:
-        specifier: 30.5.2
-        version: 30.5.2
-      lodash:
-        specifier: ^4.18.1
-        version: 4.18.1
-
   tools/cli:
     dependencies:
       '@octokit/auth-token':
