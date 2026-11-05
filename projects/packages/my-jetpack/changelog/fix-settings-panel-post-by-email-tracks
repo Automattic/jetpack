@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
+Comment: Wire the Post by Email panel's switch to the panel's Tracks events.
 
-Settings panel: Record the Tracks event for the Post by Email switch, behind the settings consolidation flag.
+
