@@ -277,11 +277,11 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->fake_share_rest( array() );
 
 		foreach ( array( array(), array( 'message' => '   ' ) ) as $extra ) {
-			$this->requests = array();
-			$result         = Social_Abilities::share_post( array( 'post_id' => $post_id ) + $extra );
+			$seen   = count( $this->requests );
+			$result = Social_Abilities::share_post( array( 'post_id' => $post_id ) + $extra );
 
 			$this->assertSame( true, $result['queued'] );
-			$body = json_decode( $this->requests[1]->get_body(), true );
+			$body = (array) json_decode( $this->requests[ $seen + 1 ]->get_body(), true );
 			$this->assertSame( '', $body['message'], 'The route needs the key present; an empty string is accepted.' );
 		}
 	}
