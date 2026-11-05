@@ -139,28 +139,43 @@ class Social_Abilities_Test extends BaseTestCase {
 		$this->assertTrue( Social_Abilities::can_view_connections() );
 	}
 
-	public function test_share_permission_needs_the_post_id_and_edit_rights_on_it(): void {
-		$author_id = $this->login( 'author' );
-		$own       = wp_insert_post(
-			array(
-				'post_title'  => 'Mine',
-				'post_status' => 'publish',
-				'post_author' => $author_id,
-			)
-		);
-		$other     = wp_insert_post(
+	public function test_share_post_for_a_missing_post_is_a_404_and_for_someone_elses_post_a_403(): void {
+		$this->login( 'author' );
+		$theirs = wp_insert_post(
 			array(
 				'post_title'  => 'Theirs',
 				'post_status' => 'publish',
 				'post_author' => 1,
 			)
 		);
+		$this->fake_share_rest( array() );
 
-		$this->assertTrue( Social_Abilities::can_share_post( array( 'post_id' => $own ) ) );
-		$this->assertFalse( Social_Abilities::can_share_post( array( 'post_id' => $other ) ) );
-		$this->assertFalse( Social_Abilities::can_share_post( array() ) );
-		$this->assertFalse( Social_Abilities::can_share_post( array( 'post_id' => '0' ) ) );
-		$this->assertTrue( Social_Abilities::can_share_post( array( 'post_id' => (string) $own ) ), 'Numeric strings pass schema validation.' );
+		$missing   = Social_Abilities::share_post(
+			array(
+				'post_id' => 999999,
+				'message' => 'Hi',
+			)
+		);
+		$forbidden = Social_Abilities::share_post(
+			array(
+				'post_id' => $theirs,
+				'message' => 'Hi',
+			)
+		);
+
+		$this->assertSame( 'jetpack_social_post_not_found', $missing->get_error_code() );
+		$this->assertSame( array( 'status' => 404 ), $missing->get_error_data() );
+		$this->assertSame( 'jetpack_social_cannot_share_post', $forbidden->get_error_code() );
+		$this->assertSame( array( 'status' => 403 ), $forbidden->get_error_data() );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	public function test_share_post_permission_is_the_general_capability_so_a_missing_post_reaches_execute(): void {
+		$this->login( 'subscriber' );
+		$this->assertFalse( call_user_func( Social_Abilities::get_abilities()['jetpack-social/share-post']['permission_callback'], array( 'post_id' => 999999 ) ) );
+
+		$this->login( 'author' );
+		$this->assertTrue( call_user_func( Social_Abilities::get_abilities()['jetpack-social/share-post']['permission_callback'], array( 'post_id' => 999999 ) ) );
 	}
 
 	public function test_get_connections_filters_by_service_and_trims_fields(): void {
@@ -205,6 +220,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_sends_message_and_skips_to_the_route(): void {
+		$this->login( 'administrator' );
 		$post_id = $this->make_post();
 		$this->fake_share_rest(
 			array(
@@ -253,6 +269,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_fails_when_the_route_reports_only_errors(): void {
+		$this->login( 'administrator' );
 		$post_id = $this->make_post();
 		$this->fake_share_rest(
 			array(
@@ -273,6 +290,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_without_a_message_sends_an_empty_one_like_the_social_ui(): void {
+		$this->login( 'administrator' );
 		$post_id = $this->make_post();
 		$this->fake_share_rest( array() );
 
@@ -294,6 +312,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_route_errors_come_back_as_prefixed_wp_errors(): void {
+		$this->login( 'administrator' );
 		$post_id = $this->make_post();
 		$this->fake_share_rest( new WP_Error( 'not_published', 'Only published posts can be shared.', array( 'status' => 400 ) ) );
 
@@ -311,6 +330,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_with_no_reachable_connection_is_an_error_not_a_queued_share(): void {
+		$this->login( 'administrator' );
 		$post_id     = $this->make_post();
 		$connections = array(
 			array(
@@ -356,6 +376,7 @@ class Social_Abilities_Test extends BaseTestCase {
 	}
 
 	public function test_share_post_on_a_draft_says_not_published_before_looking_at_connections(): void {
+		$this->login( 'administrator' );
 		$post_id = $this->make_post( 'draft' );
 		$this->fake_share_rest( array() );
 

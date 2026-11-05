@@ -199,7 +199,7 @@ class Social_Abilities extends Registrar {
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'share_post' ),
-				'permission_callback' => array( __CLASS__, 'can_share_post' ),
+				'permission_callback' => array( __CLASS__, 'can_view_connections' ),
 				'meta'                => array(
 					'annotations'  => array(
 						'readonly'      => false,
@@ -278,18 +278,6 @@ class Social_Abilities extends Registrar {
 	}
 
 	/**
-	 * Can the current user share this post?
-	 *
-	 * @param mixed $input Ability input.
-	 * @return bool
-	 */
-	public static function can_share_post( $input = null ): bool {
-		$post_id = is_array( $input ) ? (int) ( $input['post_id'] ?? 0 ) : 0;
-
-		return $post_id > 0 && self::can_view_connections() && current_user_can( 'publish_post', $post_id ) && current_user_can( 'edit_post', $post_id );
-	}
-
-	/**
 	 * Execute jetpack-social/get-connections.
 	 *
 	 * @param mixed $input Ability input.
@@ -343,6 +331,10 @@ class Social_Abilities extends Registrar {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return new WP_Error( 'jetpack_social_post_not_found', __( 'No post with that id.', 'jetpack-publicize-pkg' ), array( 'status' => 404 ) );
+		}
+
+		if ( ! current_user_can( 'publish_post', $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error( 'jetpack_social_cannot_share_post', __( 'You can only share posts you are allowed to edit.', 'jetpack-publicize-pkg' ), array( 'status' => 403 ) );
 		}
 		if ( 'publish' !== $post->post_status ) {
 			return new WP_Error( 'jetpack_social_not_published', __( 'Only published posts can be shared.', 'jetpack-publicize-pkg' ), array( 'status' => 400 ) );
