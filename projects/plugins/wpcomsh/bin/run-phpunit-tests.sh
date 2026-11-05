@@ -45,7 +45,7 @@ function run_tests() {
 	# Caching causes issues, so move it.
 	[[ -f "$WP_CONTENT_DIR/object-cache.php" ]] && mv -v "$WP_CONTENT_DIR"/object-cache{,_disabled}.php
 
-	"$HOME/.composer/vendor/bin/phpunit --testsuite wpcloud"
+	"$HOME/.composer/vendor/bin/phpunit" --testsuite wpcloud
 
 	# Move it back into place
 	[[ -f "$WP_CONTENT_DIR/object-cache_disabled.php" ]] && mv -v "$WP_CONTENT_DIR"/object-cache{_disabled,}.php
