@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1091
 set -euo pipefail
 
 function ensure_composer() {
@@ -14,9 +13,6 @@ function ensure_composer() {
 			echo "Failed to download composer"
 			exit 1
 		fi
-
-		echo "export PATH=$HOME/.composer/vendor/bin:$PATH" >> "$HOME/.bashrc"
-		source "$HOME/.bashrc"
 
 		php /tmp/composer-setup.php --install-dir="$HOME" --filename=composer
 
@@ -37,8 +33,6 @@ function setup_tests() {
 
 function run_tests() {
 	cd "$HOME/htdocs/wp-content/mu-plugins/wpcomsh"
-
-	source "$HOME/.bashrc"
 
 	# Caching causes issues, so move it.
 	[[ -f "$WP_CONTENT_DIR/object-cache.php" ]] && mv -v "$WP_CONTENT_DIR"/object-cache{,_disabled}.php
