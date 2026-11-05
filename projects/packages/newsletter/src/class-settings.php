@@ -572,7 +572,7 @@ class Settings {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			),
-			'7.0',
+			null,
 			array(
 				array(
 					'prefix' => 'jetpack_newsletter',

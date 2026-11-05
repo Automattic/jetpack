@@ -60,7 +60,7 @@ class Dashboard {
 				WP_Build_Polyfills::SCRIPT_HANDLES,
 				WP_Build_Polyfills::MODULE_IDS
 			),
-			'7.0',
+			null,
 			array(
 				array(
 					'prefix' => 'jetpack_forms',

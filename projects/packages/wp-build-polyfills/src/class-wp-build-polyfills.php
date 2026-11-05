@@ -128,15 +128,15 @@ class WP_Build_Polyfills {
 	 * single-page layout in step with the wp-admin frame on every wp-build page.
 	 * Each call adds the site-data preload filter for its supplied wp-build pages.
 	 *
-	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
-	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
-	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
-	 * @param string   $wp_version_threshold  The WordPress version below which force-replacements
-	 *                                        are applied. Defaults to '7.0'.
-	 * @param array[]  $pages                 wp-build pages, each with a 'slug' and an optional 'prefix'
-	 *                                        matching wpPlugin.name (defaults to 'gutenberg').
+	 * @param string      $consumer             A unique identifier for the consumer (e.g. plugin slug).
+	 * @param string[]    $polyfills            List of polyfill handles/module IDs to register.
+	 *                                          Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
+	 * @param string|null $wp_version_threshold The WordPress version below which force-replacements
+	 *                                          are applied. Null leaves the shared threshold unchanged.
+	 * @param array[]     $pages                wp-build pages, each with a 'slug' and an optional 'prefix'
+	 *                                          matching wpPlugin.name (defaults to 'gutenberg').
 	 */
-	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0', $pages = array() ) {
+	public static function register( $consumer, $polyfills, $wp_version_threshold = null, $pages = array() ) {
 		WP_Build_Admin_Frame::register();
 
 		foreach ( $pages as $page ) {
@@ -165,7 +165,7 @@ class WP_Build_Polyfills {
 			}
 		}
 
-		$raised = version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
+		$raised = null !== $wp_version_threshold && version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
 		if ( $raised ) {
 			self::$wp_version_threshold = $wp_version_threshold;
 		}

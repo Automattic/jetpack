@@ -37,11 +37,11 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$expected   = $paths;
 		$expected[] = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
 
-		WP_Build_Polyfills::register( 'first-consumer', array(), '7.0', $pages );
+		WP_Build_Polyfills::register( 'first-consumer', array(), null, $pages );
 		WP_Build_Polyfills::register(
 			'second-consumer',
 			array(),
-			'7.0',
+			null,
 			array(
 				array(
 					'prefix' => 'other_plugin',
@@ -49,7 +49,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 				),
 			)
 		);
-		WP_Build_Polyfills::register( 'first-consumer', array(), '7.0', $pages );
+		WP_Build_Polyfills::register( 'first-consumer', array(), null, $pages );
 
 		foreach ( array( 'example_plugin_first_dashboard', 'gutenberg_default_dashboard', 'gutenberg_empty_prefix_dashboard', 'other_plugin_later_dashboard' ) as $page ) {
 			$filter = $page . '_wp_admin_preload_paths';
@@ -65,7 +65,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	public function test_register_without_pages_adds_no_preload_hook() {
 		$before = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
-		WP_Build_Polyfills::register( 'other-plugin', array(), '7.0' );
+		WP_Build_Polyfills::register( 'other-plugin', array() );
 		$after = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
 		$this->assertSame( $before, $after );
 	}
@@ -79,7 +79,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[DataProvider( 'malformed_pages' )]
 	public function test_register_skips_malformed_pages( $page ) {
 		$before = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
-		WP_Build_Polyfills::register( 'example-plugin', array(), '7.0', array( $page ) );
+		WP_Build_Polyfills::register( 'example-plugin', array(), null, array( $page ) );
 		$after = preg_grep( '/_wp_admin_preload_paths$/', array_keys( $GLOBALS['wp_filter'] ) );
 		$this->assertSame( $before, $after );
 	}

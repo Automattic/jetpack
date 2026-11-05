@@ -74,7 +74,7 @@ class Jetpack_WP_Build_Page {
 			WP_Build_Polyfills::register(
 				'jetpack',
 				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
-				'7.0',
+				JETPACK__MINIMUM_WP_VERSION,
 				array(
 					array(
 						'prefix' => 'jetpack_plugin',

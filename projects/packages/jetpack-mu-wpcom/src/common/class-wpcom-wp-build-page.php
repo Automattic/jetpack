@@ -303,7 +303,7 @@ abstract class WPCOM_WP_Build_Page {
 				WP_Build_Polyfills::SCRIPT_HANDLES,
 				WP_Build_Polyfills::MODULE_IDS
 			),
-			'7.0',
+			null,
 			array(
 				array(
 					'prefix' => 'jetpack_mu_wpcom',
