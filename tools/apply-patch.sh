@@ -16,7 +16,7 @@ function usage {
 		<pr-or-commit> is one of:
 		  - A PR URL, https://github.com/<owner>/<repo>/pull/<n> (asks before applying if not approved).
 		  - A commit URL, https://github.com/<owner>/<repo>/commit/<sha>.
-		  - A commit SHA. Fetched from origin if not local, which needs the full SHA.
+		  - A commit SHA. Fetched from origin first, noting that a short SHA only finds commits on origin branches.
 	EOH
 	exit 1
 }
@@ -37,7 +37,12 @@ if [[ $pr_or_commit =~ ^https://github\.com/[^/]+/[^/]+/pull/[0-9]+$ ]]; then
 elif [[ $pr_or_commit =~ ^https://github\.com/([^/]+/[^/]+)/commit/([0-9a-f]+)$ ]]; then
 	diff=$(gh api "repos/${BASH_REMATCH[1]}/commits/${BASH_REMATCH[2]}" -H 'Accept: application/vnd.github.diff')
 elif [[ $pr_or_commit =~ ^[0-9a-f]+$ ]]; then
-	git fetch -q origin || true
+	# Only a full SHA can be fetched directly.
+	if [[ ${#pr_or_commit} == 40 ]]; then
+		git fetch -q origin "$pr_or_commit" || true
+	else
+		git fetch -q origin || true
+	fi
 	if ! diff=$(git show --format= --binary "$pr_or_commit^{commit}" 2>/dev/null); then
 		error "Commit $pr_or_commit not found."
 		exit 1
