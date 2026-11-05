@@ -6,6 +6,7 @@
  * First Introduced: 16.4-a.4
  * Requires Connection: Yes
  * Auto Activate: Yes
+ * Module Tags: Recommended
  * Feature: Security
  * Additional Search Queries: protect dashboard, security, scan, firewall
  *
