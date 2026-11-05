@@ -132,14 +132,21 @@ function render_block( $attr, $content ) {
 
 	// Drop intervals whose plan no longer resolves so we can compute the active tab
 	// against the actually-rendered set, not the configured set.
-	$valid_donations = array();
+	$valid_donations   = array();
+	$fallback_plan_ids = null;
 	foreach ( $donations as $interval => $donation ) {
 		// get_post( 0 ) falls back to the current post, so a missing plan ID must not reach it.
 		$plan_id = (int) $donation['planId'];
 		$plan    = $plan_id > 0 ? get_post( $plan_id ) : null;
-		if ( $plan instanceof WP_Post && \Jetpack_Memberships::$post_type_plan === $plan->post_type ) {
-			$valid_donations[ $interval ] = $donation;
+		if ( ! $plan instanceof WP_Post || \Jetpack_Memberships::$post_type_plan !== $plan->post_type ) {
+			// Blocks saved without plan IDs (older Tips blocks, blocks created outside the editor) get the plan the editor would have saved.
+			$fallback_plan_ids ??= get_donation_plan_ids( $currency );
+			if ( empty( $fallback_plan_ids[ $interval ] ) ) {
+				continue;
+			}
+			$donation['planId'] = $fallback_plan_ids[ $interval ];
 		}
+		$valid_donations[ $interval ] = $donation;
 	}
 
 	// With no valid plan, there is nothing a visitor could donate to.
@@ -362,6 +369,58 @@ function render_block( $attr, $content ) {
 		$custom_styles ? '<style>' . $custom_styles . '</style>' : '',
 		esc_attr( $tab_content_class )
 	);
+}
+
+/**
+ * Get the site's donation plan for each interval in a currency, picked like the editor picks them:
+ * the cheapest plan that is neither deleted nor editable, then the oldest.
+ *
+ * @param string $currency Currency code, e.g. USD.
+ *
+ * @return array<string,int> Plan IDs keyed by interval ('one-time', '1 month', '1 year').
+ */
+function get_donation_plan_ids( $currency ) {
+	if ( ! is_string( $currency ) || '' === $currency ) {
+		return array();
+	}
+
+	// WP_Query caches the result, and a change to any post or post meta clears that cache.
+	$plans = get_posts(
+		array(
+			'post_type'      => \Jetpack_Memberships::$post_type_plan,
+			'posts_per_page' => -1,
+			'orderby'        => array(
+				'date' => 'ASC',
+				'ID'   => 'ASC',
+			),
+			'meta_query'     => array(
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => 'donation',
+				),
+			),
+		)
+	);
+
+	$plan_ids = array();
+	$prices   = array();
+	foreach ( $plans as $plan ) {
+		$interval = get_post_meta( $plan->ID, 'jetpack_memberships_interval', true );
+		$price    = (float) get_post_meta( $plan->ID, 'jetpack_memberships_price', true );
+		if (
+			! is_string( $interval )
+			|| get_post_meta( $plan->ID, 'jetpack_memberships_currency', true ) !== $currency
+			|| get_post_meta( $plan->ID, 'jetpack_memberships_is_deleted', true )
+			|| 1 === (int) get_post_meta( $plan->ID, 'jetpack_memberships_is_editable', true )
+			|| ( isset( $prices[ $interval ] ) && $prices[ $interval ] <= $price )
+		) {
+			continue;
+		}
+		$plan_ids[ $interval ] = $plan->ID;
+		$prices[ $interval ]   = $price;
+	}
+
+	return $plan_ids;
 }
 
 /**
