@@ -158,8 +158,8 @@ class CanonicalUrlsTest extends TestCase {
 			'Atomic below Premium'       => array( 'atomic', false, false, true ),
 			'Atomic eligible'            => array( 'atomic', true, true, true ),
 			'self-hosted free'           => array( 'self-hosted', false, true, true ),
-			'Simple before availability' => array( 'simple', false, true, false ),
-			'Atomic before availability' => array( 'atomic', false, true, false ),
+			'Simple before availability' => array( 'simple', false, false, false ),
+			'Atomic before availability' => array( 'atomic', false, false, false ),
 		);
 	}
 }

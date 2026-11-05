@@ -664,18 +664,11 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The site's plan does not get a vote where the plugin helper is loaded.
-	 *
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` plan-gates only behind `IS_WPCOM`, so
-	 * an Atomic site below the SEO plan still has SEO enabled and its front end still
-	 * prefers the modern description. A gate of our own that also covered Atomic would
-	 * send that site's edits to the legacy option, report success, and never change the
-	 * public description.
+	 * Use the loaded helper's answer so settings and front-end description storage agree.
 	 */
 	public function test_a_plan_gate_does_not_override_the_plugin_helper() {
 		self::set_plan( 'free_plan' );
-		// Plan-gated, but the helper — which is what the front end reads by — says SEO
-		// is on, exactly as it does on Atomic.
+		// The controllable helper keeps SEO enabled for this storage-contract test.
 		\Jetpack_SEO_Utils::$enabled = true;
 		update_option( Dashboard_Data::LEGACY_FRONT_PAGE_META_OPTION, 'Old description.' );
 		$this->reset_rest_server();
@@ -688,12 +681,7 @@ class DashboardSettingsTest extends TestCase {
 	}
 
 	/**
-	 * The rule used where `Jetpack_SEO_Utils` isn't loaded — the WordPress.com Simple
-	 * path this PR exists to fix, and what decides which option a save targets there.
-	 *
-	 * It has to match `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` exactly, and that
-	 * helper plan-gates only behind `IS_WPCOM`. Reached directly because the package's
-	 * own test suite always loads a stand-in for the helper.
+	 * The helper-free path applies the same conflict and plan gates on every host.
 	 */
 	public function test_seo_enabled_without_the_plugin_helper() {
 		$enabled = function () {
@@ -726,21 +714,18 @@ class DashboardSettingsTest extends TestCase {
 		self::reset_active_plan_cache();
 		$this->assertTrue( $enabled() );
 
-		// And Atomic — WordPress.com, but not Simple — is not gated by it even without
-		// the entitlement. That's the case a wider copy of this rule got wrong.
-		//
-		// The site has to actually be Atomic for this to prove anything: merely clearing
-		// `IS_WPCOM` makes `is_wpcom_platform()` false too, so the assertion passes under
-		// the very bug it names. Verified by mutation — with `is_wpcom_simple()` widened
-		// to `is_wpcom_platform()`, this block fails and the one above still passes.
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh/wpcomsh.php' );
 		\Automattic\Jetpack\Status\Cache::clear();
-		$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform(), 'The site must read as Atomic for this assertion to mean anything.' );
+		$this->assertTrue( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() );
 
 		\Wpcom_Test_Features::$entitled = array();
+		self::reset_active_plan_cache();
+		$this->assertFalse( $enabled() );
+
+		\Wpcom_Test_Features::$entitled = array( 'advanced-seo' );
 		self::reset_active_plan_cache();
 		$this->assertTrue( $enabled() );
 

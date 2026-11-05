@@ -7,10 +7,6 @@ const planHelp = __(
 	'Editing is disabled on your current plan. Upgrade to WordPress.com Premium or higher to edit the locked settings. Your saved settings are kept.',
 	'jetpack-seo'
 );
-const activeOutputHelp = __(
-	'Your saved title formats, structured data and home page description still apply.',
-	'jetpack-seo'
-);
 const pausedOutputHelp = __(
 	"Jetpack's title formats, structured data and home page description are paused on this plan.",
 	'jetpack-seo'
@@ -50,9 +46,7 @@ const SettingsPlanBanner: FC< {
 				: disabledOutputHelp
 		);
 	} else {
-		if ( settings.title_formats_editable ) {
-			explanation.push( activeOutputHelp );
-		} else if ( settings.has_legacy_front_page_meta ) {
+		if ( settings.has_legacy_front_page_meta ) {
 			explanation.push( pausedTitlesAndSchemaHelp, legacyDescriptionHelp );
 		} else {
 			explanation.push( pausedOutputHelp );

@@ -130,9 +130,7 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByText( /Archive canonical URLs are paused on this plan/ ) ).toBeVisible();
 		expect( screen.getByText( /AI crawler rules and llms.txt are paused/ ) ).toBeInTheDocument();
 		expect(
-			screen.getByText(
-				/saved title formats, structured data and home page description still apply/
-			)
+			screen.getByText( /title formats, structured data and home page description are paused/ )
 		).toBeInTheDocument();
 	} );
 
@@ -175,6 +173,12 @@ describe( 'SettingsScreen plan restrictions', () => {
 				outputDisabled ? 'toBeDisabled' : 'toBeEnabled'
 			]();
 			expect( screen.getByLabelText( 'Saved title structure' ) ).toBeDisabled();
+			expect(
+				screen.queryAllByText( /title formats and structured data are paused/ )
+			).toHaveLength( outputDisabled ? 0 : 1 );
+			expect(
+				screen.queryAllByText( /existing home page description still applies and can be edited/ )
+			).toHaveLength( outputDisabled ? 0 : 1 );
 			expect(
 				screen.queryAllByText(
 					'Locked while Jetpack SEO is disabled. Your saved description is retained.'

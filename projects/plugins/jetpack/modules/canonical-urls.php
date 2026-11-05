@@ -48,9 +48,7 @@ function jetpack_canonical_urls_output_tag() {
 	}
 
 	if ( method_exists( \Automattic\Jetpack\SEO\Initializer::class, 'is_gated' )
-		&& method_exists( \Automattic\Jetpack\SEO\Initializer::class, 'is_available' )
 		&& \Automattic\Jetpack\SEO\Initializer::is_gated()
-		&& \Automattic\Jetpack\SEO\Initializer::is_available()
 	) {
 		return;
 	}

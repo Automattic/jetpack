@@ -39,6 +39,10 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
+		if ( method_exists( \Automattic\Jetpack\SEO\Initializer::class, 'is_gated' ) ) {
+			return ! \Automattic\Jetpack\SEO\Initializer::is_gated();
+		}
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return wpcom_site_has_feature( 'advanced-seo', get_current_blog_id() );
 		}

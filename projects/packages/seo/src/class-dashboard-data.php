@@ -552,18 +552,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * `Jetpack_SEO_Utils::is_enabled_jetpack_seo()` reproduced for sites that don't load
-	 * it — which includes WordPress.com Simple, where this decides which option a save
-	 * targets.
-	 *
-	 * Exactly, not approximately: the conflicting-plugin filter, then the plan gate on
-	 * WordPress.com **Simple only**. The helper plan-gates behind `IS_WPCOM`, so an
-	 * Atomic site is never gated by it even without `advanced-seo`, and a wider copy
-	 * would send that site's edits to the legacy option while its front end kept reading
-	 * the modern one.
-	 *
-	 * Split out from {@see self::is_jetpack_seo_enabled()} so this branch is reachable
-	 * from a test even where the helper class is loaded.
+	 * Match the plugin helper's conflict and plan checks when it is not loaded.
 	 *
 	 * @return bool
 	 */
@@ -572,9 +561,7 @@ class Dashboard_Data {
 			return false;
 		}
 
-		// `Initializer::is_gated()` on Simple reduces to the helper's own
-		// `wpcom_site_has_feature( 'advanced-seo' )` check.
-		return ( new Host() )->is_wpcom_simple() ? ! Initializer::is_gated() : true;
+		return ! Initializer::is_gated();
 	}
 
 	/**
