@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: fixed
 
-Connection error notice: Add a built-in "Connect your account" action for errors that ask the viewer to connect their own account.
+Connect prompt: Stop promising to make the viewer the connection owner while ownership is locked.

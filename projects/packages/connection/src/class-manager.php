@@ -3568,25 +3568,26 @@ class Manager {
 	 * @return bool
 	 */
 	private function can_take_broken_owner_slot( $user_id ) {
+		// The WordPress.com health check below is a blocking request, so only a user with no token of
+		// their own (the one `connect_user` offers) reaches it.
 		if ( ! current_user_can( 'jetpack_connect' )
 			|| $this->get_connection_owner_id() === $user_id
+			|| $this->is_user_connected( $user_id )
 			|| ! $this->is_ownership_transferable() ) {
 			return false;
 		}
 
+		// WordPress.com's answer beats the error record, which can be stale or already cleared.
+		$health       = $this->get_tokens()->validate( $this->get_connection_owner_id() );
+		$owner_health = is_array( $health ) ? ( $health['user_token']['is_healthy'] ?? null ) : null;
+
+		if ( is_bool( $owner_health ) ) {
+			return ! $owner_health;
+		}
+
 		// A partial update can load this class alongside an Error_Handler that predates the method.
-		if ( ! method_exists( Error_Handler::class, 'has_owner_connection_error' ) ) {
-			return false;
-		}
-
-		if ( Error_Handler::get_instance()->has_owner_connection_error() ) {
-			return true;
-		}
-
-		// A site data fetch clears the record on blog token evidence alone, so ask WordPress.com.
-		$health = $this->get_tokens()->validate( $this->get_connection_owner_id() );
-
-		return is_array( $health ) && false === ( $health['user_token']['is_healthy'] ?? null );
+		return method_exists( Error_Handler::class, 'has_owner_connection_error' )
+			&& Error_Handler::get_instance()->has_owner_connection_error();
 	}
 
 	/**
