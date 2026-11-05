@@ -220,6 +220,31 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
+	 * A home template that includes its header through a pattern uses that header.
+	 *
+	 * @return void
+	 */
+	public function test_home_template_header_inside_pattern() {
+		list( $a, $b ) = $this->pages( 2 );
+		register_block_pattern(
+			self::PATTERN,
+			array(
+				'title'   => 'Home',
+				'content' => '<!-- wp:template-part {"slug":"header-large-title"} /-->',
+			)
+		);
+		$this->use_template_parts(
+			array(
+				array( 'header', 'header', $this->navigation_markup( $a ) ),
+				array( 'header-large-title', 'header', $this->navigation_markup( $b ) ),
+			),
+			array( 'index' => '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->' )
+		);
+
+		$this->assertSame( array( $b ), Nav_Menu_Pages::get()['main'] );
+	}
+
+	/**
 	 * A header Navigation block finds its links through each way core lets it hold them.
 	 *
 	 * @dataProvider provide_navigation_blocks
@@ -358,7 +383,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * Serve template parts in place of the theme's, with block template parts supported.
 	 *
 	 * @param array[] $parts Each `array( slug, area, content )`.
-	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes.
+	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes, or its markup.
 	 * @return void
 	 */
 	private function use_template_parts( array $parts, array $home = array() ) {
@@ -373,12 +398,12 @@ class NavMenuPagesTest extends SeoTestCase {
 		}
 
 		$page_templates = array();
-		foreach ( $home as $template_slug => $part_slugs ) {
+		foreach ( $home as $template_slug => $includes ) {
 			$template          = new WP_Block_Template();
 			$template->type    = 'wp_template';
 			$template->slug    = $template_slug;
-			$template->content = '';
-			foreach ( $part_slugs as $slug ) {
+			$template->content = is_string( $includes ) ? $includes : '';
+			foreach ( is_array( $includes ) ? $includes : array() as $slug ) {
 				$template->content .= sprintf( '<!-- wp:group --><!-- wp:template-part {"slug":"%s"} /--><!-- /wp:group -->', $slug );
 			}
 			$page_templates[] = $template;

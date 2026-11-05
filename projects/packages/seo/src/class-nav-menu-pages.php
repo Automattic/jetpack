@@ -178,19 +178,35 @@ class Nav_Menu_Pages {
 	}
 
 	/**
-	 * Slugs of the template part blocks in a block tree.
+	 * Slugs of the template part blocks in a block tree, including those inside patterns
+	 * and synced patterns.
 	 *
 	 * @param array $blocks Parsed blocks.
+	 * @param int   $depth  Pattern references followed so far.
 	 * @return string[]
 	 */
-	private static function template_part_slugs( array $blocks ) {
+	private static function template_part_slugs( array $blocks, $depth = 0 ) {
 		$slugs = array();
 		foreach ( $blocks as $block ) {
-			if ( 'core/template-part' === ( $block['blockName'] ?? '' ) && ! empty( $block['attrs']['slug'] ) ) {
-				$slugs[] = $block['attrs']['slug'];
+			$name     = $block['blockName'] ?? '';
+			$attrs    = $block['attrs'] ?? array();
+			$inner    = $block['innerBlocks'] ?? array();
+			$followed = false;
+
+			if ( 'core/template-part' === $name ) {
+				if ( ! empty( $attrs['slug'] ) ) {
+					$slugs[] = $attrs['slug'];
+				}
+			} elseif ( $depth < self::MAX_DEPTH ) {
+				$content = self::referenced_content( $name, $attrs );
+				if ( null !== $content ) {
+					$inner    = parse_blocks( $content );
+					$followed = true;
+				}
 			}
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$slugs = array_merge( $slugs, self::template_part_slugs( $block['innerBlocks'] ) );
+
+			if ( ! empty( $inner ) ) {
+				$slugs = array_merge( $slugs, self::template_part_slugs( $inner, $followed ? $depth + 1 : $depth ) );
 			}
 		}
 		return $slugs;
