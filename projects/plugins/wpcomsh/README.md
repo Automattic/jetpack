@@ -73,7 +73,8 @@ Translations are now downloaded automatically from translate.wordpress.com. No s
 
 ## Troubleshooting
 
-When something doesn't work as it should, the first thing to do is [enable error logging in WP](https://codex.wordpress.org/Debugging_in_WordPress) or look into the global PHP error log. It's advisable to install and connect Jetpack when working on wpcomsh. Use [MGS](https://mc.a8c.com/mgs/) to search through Slack channels as that's where most of the development work/chats take place. You can also use PCYsg-5mr-p2 (for example, with PhPStorm). If you still can't figure out the problem, drop a message in the Automated Transfer Slack channel and/or ping [wpcomsh devs](https://github.com/Automattic/wpcomsh/graphs/contributors) directly.
+- [Enable debug logging in WordPress](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/), or check the PHP error log.
+- Still stuck? Ask in the Jetpack Developers Slack channel, or open an issue with the [[Plugin] Wpcomsh](https://github.com/Automattic/jetpack/labels/%5BPlugin%5D%20Wpcomsh) label.
 
 ## Features
 
