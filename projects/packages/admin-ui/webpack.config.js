@@ -21,6 +21,7 @@ module.exports = {
 		// Token-only stylesheet (`:root{--wpds-*}`) shipped from @wordpress/theme so every
 		// Jetpack admin page has a runtime source for WPDS design tokens. See class-admin-menu.php.
 		'design-tokens': [ './src/design-tokens.css' ],
+		'instant-nav': [ './src/instant-nav.js' ],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
