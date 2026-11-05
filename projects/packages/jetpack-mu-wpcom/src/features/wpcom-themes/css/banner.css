@@ -24,6 +24,12 @@
 	width: 490px;
 }
 
+.wpcom-themes-banner__content img {
+	display: block;
+	height: 21px;
+	width: auto;
+}
+
 .wpcom-themes-banner h3,
 .wpcom-themes-banner p {
 	font-weight: 400;
