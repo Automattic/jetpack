@@ -43,6 +43,14 @@ $config->ensure(
 );
 ```
 
+## Library interaction metrics
+
+`jetpack_videopress_library_interaction` describes committed library view changes. Its `interaction` is `view`, `sort`, `filter`, or `search`. View events include `view_type: grid | table`; sort events include `field: title | filename | uploadDate` and `direction: asc | desc`. Filter events include `field: type | privacy | uploadDate` and `action: applied | cleared`. Search events include only `action: applied | cleared`, after the trimmed search has stayed unchanged for 500 ms. No search text, query hashes, filter values/dates, content, filenames or identifiers are added to the event.
+
+Initial/restored preferences, equivalent rerenders, pagination, page size, column visibility and density changes do not emit events. Filter reordering and duplicates do not inflate counts. Each changed filter field emits once, so clearing several filters is several events, not one gesture. Search edits abandoned or reverted before the quiet period, including navigation away, are omitted. React effects run after the view commits and do not put analytics in a state updater.
+
+These events measure use of library controls, not successful result retrieval, unique users, completed video actions or persistent preference writes. View events count switches, not total grid/table usage. They use the existing analytics transport and controls; runtime host eligibility, consent/opt-out, delivery and warehouse coverage still need validation before reporting.
+
 ## Development
 
 Build all bundles
@@ -104,6 +112,14 @@ The package decides nothing about who gets the widgets. `Initializer` calls `Ana
 The event records before the subsequent local metadata update, so a failure there does not erase the already confirmed remote outcome. It does not measure unique videos, visual differences between images, downstream delivery, or viewer exposure. The poll endpoint has no request-specific completion identity; concurrent edits can affect attribution, and an unchanged URL is conservatively omitted. Other editor/legacy paths and automatic thumbnails are outside coverage.
 
 No GUIDs, attachment IDs, URLs, frame times, filenames or content are added. Existing analytics transport and controls are reused; runtime host eligibility, consent/opt-out, delivery and warehouse coverage still need validation before adoption reporting.
+
+## Playlist publication analytics
+
+The existing `jetpack_videopress_playlist_block_published` and `jetpack_videopress_latest_videos_playlist_block_published` events record an observed manual publication save only after the editor finishes saving, reports success, and exposes a saved `publish` status for the same post. Failed attempts, autosaves, previews, ordinary updates to published posts, and saves already underway when the tracking hook mounts are excluded. Missing required editor selectors or an unknown first block also suppress reporting.
+
+The first block of each type supplies the existing `post_type`, `layout`, `video_count`, and `playlist_count` properties, captured when saving starts. A captured save can finish after that block unmounts or changes; its listener is released on completion or a post-context switch. No post or video identifier is sent. These remain client events subject to the existing Tracks configuration and delivery limitations, not a complete server publication ledger.
+
+The two block types report separately: adding their totals does not count distinct posts. Counts and layout describe the editor snapshot, not server-filtered content; latest-videos membership can also change after publication. Republish operations can count again. Keep pre-fix attempt counts separate from post-rollout acknowledged counts when comparing trends.
 
 ## Caption save metrics
 
