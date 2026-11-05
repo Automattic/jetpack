@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Disable the Account protection toggle in Offline Mode, where the feature cannot run.

@@ -83,19 +83,21 @@ function MockScopeProbe() {
 }
 
 const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
-const mockGetReportDefinition = jest.fn(
-	() => ( { load: mockLoad } ) as Record< string, unknown >
-);
+const mockGetReportDefinition = jest.fn( () => ( { id: 'mock' } ) as Record< string, unknown > );
 
 jest.mock( './registry', () => ( {
 	getReportDefinition: () => mockGetReportDefinition(),
+} ) );
+
+jest.mock( './report-page-loaders', () => ( {
+	getReportPageLoader: () => mockLoad,
 } ) );
 
 describe( 'Report stage report scope', () => {
 	afterEach( () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
-		mockGetReportDefinition.mockReturnValue( { load: mockLoad } );
+		mockGetReportDefinition.mockReturnValue( { id: 'mock' } );
 		mockLoad.mockClear();
 		delete window.JetpackScriptData;
 	} );
@@ -103,7 +105,7 @@ describe( 'Report stage report scope', () => {
 	it( 'shows the locked page instead of loading a report the plan lacks', async () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( true );
 		mockGetReportDefinition.mockReturnValue( {
-			load: mockLoad,
+			id: 'mock',
 			feature: 'utm',
 			getLabel: () => 'UTM',
 		} );
@@ -129,7 +131,7 @@ describe( 'Report stage report scope', () => {
 		window.JetpackScriptData = {
 			premium_analytics: { plan_date_limited_sections: [ 'traffic' ] },
 		} as typeof window.JetpackScriptData;
-		mockGetReportDefinition.mockReturnValue( { load: mockLoad, dashboardSection: section } );
+		mockGetReportDefinition.mockReturnValue( { id: 'mock', dashboardSection: section } );
 		jest.mocked( useStatsDateLimits ).mockImplementation( limited =>
 			limited
 				? {

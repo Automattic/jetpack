@@ -577,9 +577,10 @@ class PayPal_OAuth {
 				array(
 					'timeout' => 15,
 					'headers' => array(
-						'Authorization' => 'Bearer ' . $token,
-						'Content-Type'  => 'application/json',
-						'Accept'        => 'application/json',
+						'Authorization'                 => 'Bearer ' . $token,
+						'Content-Type'                  => 'application/json',
+						'Accept'                        => 'application/json',
+						'PayPal-Partner-Attribution-Id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
 					),
 				)
 			);

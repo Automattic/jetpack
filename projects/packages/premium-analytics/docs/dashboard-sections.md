@@ -44,8 +44,6 @@ On a connected site's REST request, `Dashboard_Support_Routes::boot_routes()` re
 
 On WordPress.com Simple, the public-api process calls `Dashboard_Support_Routes::register()` directly, and the same `boot_routes()` runs.
 
-Each include is guarded by a symbol the file declares, because two copies of the package can be loaded in one request on Simple.
-
 That is why the registration moment is not `init`: a registrant hooked on `init` reaches the navigation in wp-admin and misses the REST response the navigation is built from. The registry hydrates on its first read, whichever path reads it, and fires one action then.
 
 A read before `init` is a `_doing_it_wrong()`: it answers only what was registered directly, and does not latch, so the registrants hooked later still run on the first read after `init`.

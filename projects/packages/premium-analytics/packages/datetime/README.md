@@ -227,7 +227,7 @@ either its `id` or one of its `aliases`.
 **Returns:** `ComparisonOption | undefined` - `undefined` when no option in
 `options` has that id or alias
 
-### Range Measurement
+### Range Measurement and Stepping
 
 #### `getDateRangeSpan( range? )`
 
@@ -244,6 +244,42 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
+
+#### `planDateStep( range, direction, context )`
+
+Decides a step in full, for the arrows that offer it and the filters that
+apply it to share one answer: whether the window can move that way, where it
+lands, what the landing is called, and the `step` it is to carry. `context`
+carries the applied `presetId`, the `step` search param the window was reached
+by, the site `timeZone`, `now` and the plan's `earliestDate`. Returns
+`undefined` when the window cannot move.
+
+A window steps by one unit, decided once and carried in the URL as `step`: a
+preset's own (`last-7-days` moves 7 days, `month-to-date` a month,
+`last-12-months` 12 months, `year-to-date` a year, `last-24-hours` 24 elapsed
+hours), or the shape a hand-picked window has on its first step, written as an
+ISO 8601 duration (`P30D`, `P1M`, `P1Y`, `PT6H`: whole calendar months step by
+months, whole years by years, any other run of whole days by its days, anything
+else by its hours). The applied preset wins over a `step` the URL carries; a
+`step` the URL cannot name, or longer than a century, is ignored. Every later step moves the same way
+whatever shape it lands on, so the reverse step always undoes it: a 30-day
+window stepped back onto a whole June returns to its 30 days. "All time" does
+not step.
+
+A step moves the start by the unit and rebuilds both ends on the calendar, so a
+window cut at today steps away whole. Backward, the step has to start on or
+after `earliestDate`. Forward, the next window has to have begun; its end is
+cut at the end of today (of the running hour, by hours), so "Last month" steps
+into the month in progress and "Oct 1 – 30" into Oct 31 – today. The landing
+reads as a preset only when it is the window of the preset the reader set out
+from; anywhere else it is `custom`.
+
+```typescript
+planDateStep( range, 'previous', { presetId: 'last-7-days', timeZone, now: new Date() } );
+// { range: the 7 days before, presetId: 'custom', step: 'last-7-days' }
+planDateStep( range, 'next', { step: 'last-7-days', timeZone, now: new Date() } );
+// { range: the last 7 days, presetId: 'last-7-days', step: 'last-7-days' }
+```
 
 ## Types
 

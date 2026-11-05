@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Block editor: Load polyfills for missing JavaScript features on older browsers to prevent editor crashes.

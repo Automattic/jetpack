@@ -626,6 +626,7 @@ class PayPal_OAuth_Test extends TestCase {
 		$this->assertCount( 1, $requests );
 		$this->assertSame( 'https://api-m.sandbox.paypal.com/v1/checkout/payment-resources?page_size=1', $requests[0]['url'] );
 		$this->assertSame( 'Bearer cached_token', $requests[0]['args']['headers']['Authorization'] );
+		$this->assertSame( PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $requests[0]['args']['headers']['PayPal-Partner-Attribution-Id'] );
 	}
 
 	/**
