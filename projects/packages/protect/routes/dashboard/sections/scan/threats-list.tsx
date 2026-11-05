@@ -111,7 +111,11 @@ function getBusyLabel( busy: NonNullable< ThreatActionState[ 'busy' ] > ): strin
 			return __( 'Unignoring…', 'jetpack-protect-pkg' );
 		case 'deleting':
 			return __( 'Deleting…', 'jetpack-protect-pkg' );
+		case 'restoring':
+			return __( 'Restoring…', 'jetpack-protect-pkg' );
 	}
+	// A new busy state fails the type check here until it has a label.
+	return busy satisfies never;
 }
 
 /**

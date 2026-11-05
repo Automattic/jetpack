@@ -346,6 +346,15 @@ export function useCanIgnore(): boolean {
 }
 
 /**
+ * Whether the user may view, delete or restore the file a threat was found in.
+ *
+ * @return True when the site lets the user edit its code.
+ */
+export function useCanViewFiles(): boolean {
+	return useScan()?.canViewFiles === true;
+}
+
+/**
  * A search param's value, such as the threat open in the inspector, and a way to set or clear it.
  *
  * @param param - The search param.
