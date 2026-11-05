@@ -7,6 +7,13 @@ export const BACKUP_MODULES = [ 'backup', 'vaultpress' ];
 // Modules with no Settings card at all once the Protect page replaces the Security tab.
 export const HIDDEN_WITH_PROTECT_PAGE = [ 'protect-dashboard' ];
 
+// The Jetpack Protect plugin, whose own page replaces the Protect page while it is active.
+export const PROTECT_PLUGIN_FILES = [
+	'protect/jetpack-protect.php',
+	'jetpack-protect/jetpack-protect.php',
+	'jetpack-protect-dev/jetpack-protect.php',
+];
+
 /**
  * Build the URL of the Protect page's Settings tab.
  *

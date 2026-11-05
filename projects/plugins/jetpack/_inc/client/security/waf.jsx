@@ -35,12 +35,7 @@ import {
 	isFetchingWafSettings,
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
-
-const PROTECT_PLUGIN_FILES = [
-	'protect/jetpack-protect.php',
-	'jetpack-protect/jetpack-protect.php',
-	'jetpack-protect-dev/jetpack-protect.php',
-];
+import { PROTECT_PLUGIN_FILES } from './protect-page';
 
 export const Waf = class extends Component {
 	/**

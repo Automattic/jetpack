@@ -11,6 +11,9 @@ jest.mock( 'components/settings-group', () => ( {
 	default: ( { children } ) => children,
 } ) );
 
+jest.mock( 'components/data/query-site', () => () => null );
+jest.mock( '../monitor', () => ( { Monitor: () => null } ) );
+
 const ADMIN = 'https://example.com/wp-admin/';
 const finds = slugs => slug => slugs.includes( slug );
 const findsNothing = () => false;
@@ -70,5 +73,24 @@ describe( 'Security with the Protect page', () => {
 		const { container } = renderSecurity( props );
 
 		expect( container ).toBeEmptyDOMElement();
+	} );
+} );
+
+describe( 'Security without the Protect page', () => {
+	it.each( [
+		[ 'links to', true, [ `${ ADMIN }admin.php?page=jetpack-protect` ] ],
+		[ 'leaves out', false, [] ],
+	] )( '%s the Jetpack Protect plugin page', ( _name, isProtectPluginActive, hrefs ) => {
+		renderSecurity( {
+			hasProtectPage: false,
+			isProtectPluginActive,
+			isModuleFound: finds( [ 'monitor' ] ),
+		} );
+
+		expect(
+			screen
+				.queryAllByRole( 'link', { name: 'Open Protect' } )
+				.map( link => link.getAttribute( 'href' ) )
+		).toEqual( hrefs );
 	} );
 } );
