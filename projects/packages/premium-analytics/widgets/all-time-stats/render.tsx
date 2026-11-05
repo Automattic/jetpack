@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import {
 	HEADLINE_COUNT_FORMAT,
 	MetricTileGrid,
@@ -30,8 +30,6 @@ export const ALL_TIME_STATS_METRICS = [
 	{ id: 'posts', label: __( 'Posts', 'jetpack-premium-analytics-pkg' ) },
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
 ] as const satisfies readonly { id: string; label: string }[];
-
-const STAT_FIELDS = ALL_TIME_STATS_METRICS.map( ( { id } ) => id ).join( ',' );
 
 export type AllTimeStatsMetricId = ( typeof ALL_TIME_STATS_METRICS )[ number ][ 'id' ];
 
@@ -70,7 +68,7 @@ type AllTimeStatsTile = {
 
 function AllTimeStatsReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite( {
-		stat_fields: STAT_FIELDS,
+		stat_fields: STATS_SITE_SUMMARY_FIELDS,
 	} );
 
 	const summary = ( data as { stats?: StatsSummary } | undefined )?.stats;

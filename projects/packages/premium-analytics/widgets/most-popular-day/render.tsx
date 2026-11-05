@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
@@ -75,8 +75,6 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 	);
 };
 
-const STAT_FIELDS = 'views,views_best_day,views_best_day_total';
-
 function readBestDay( summary: Record< string, unknown > | undefined ) {
 	return parseSiteDateTime( summary?.views_best_day );
 }
@@ -88,7 +86,7 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  */
 function MostPopularDayReport() {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite( {
-		stat_fields: STAT_FIELDS,
+		stat_fields: STATS_SITE_SUMMARY_FIELDS,
 	} );
 
 	const summary = data?.stats;

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import { summaryCount, type WidgetStateEmpty } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type ListStatus = {
@@ -28,7 +28,7 @@ export function useNoViewsEmptyState(
 	empty: WidgetStateEmpty | undefined;
 } {
 	const enabled = ! isLoading && ! isError && isEmpty;
-	const site = useStatsSite( { stat_fields: 'views' }, { enabled } );
+	const site = useStatsSite( { stat_fields: STATS_SITE_SUMMARY_FIELDS }, { enabled } );
 	const hasNoViews = enabled && ! site.isError && summaryCount( site.data?.stats, 'views' ) === 0;
 
 	return {

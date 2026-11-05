@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Premium Analytics: Load the All-time stats and Most popular day widgets faster by requesting only the totals they show.
+Premium Analytics: Load the All-time stats and Most popular day widgets faster by skipping the share counts they never show.

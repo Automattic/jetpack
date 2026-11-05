@@ -10,10 +10,9 @@ import type { UseStatsOptions } from './use-stats-report';
 import type { StatsQueryParams } from '../utils/stats-params';
 
 /**
- * The all-time site summary. Pass `stat_fields` with the `stats` keys you read: without it WPCOM
- * also computes the share counts, which take minutes on sites with many shares.
+ * The all-time site summary. Pass `stat_fields: STATS_SITE_SUMMARY_FIELDS` unless you need the share counts.
  *
- * @param params  - Query params, e.g. `{ stat_fields: 'views,visitors' }`.
+ * @param params  - Query params.
  * @param options - Query options.
  * @return The summary query.
  */

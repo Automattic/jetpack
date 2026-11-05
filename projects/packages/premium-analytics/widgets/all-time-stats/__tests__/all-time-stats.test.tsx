@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import MostPopularDayWidget from '../../most-popular-day/render';
 import AllTimeStatsWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -33,12 +34,12 @@ describe( 'AllTimeStatsWidget', () => {
 		mockApiFetch.mockResolvedValue( SITE_PAYLOAD );
 	} );
 
-	it( 'shows every lifetime total, requesting only those fields', async () => {
+	it( 'shows every lifetime total, requesting the shared summary fields', async () => {
 		const { container } = renderWidget();
 
 		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
 		expect( String( mockApiFetch.mock.calls[ 0 ][ 0 ].path ) ).toMatch(
-			/proxy\/v1\.1\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments$/
+			/proxy\/v1\.1\/stats\?stat_fields=views%2Cvisitors%2Cposts%2Ccomments%2Cviews_best_day%2Cviews_best_day_total$/
 		);
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
 		// A single-figure widget: the exact figure, with no compact one beside it.
@@ -60,5 +61,17 @@ describe( 'AllTimeStatsWidget', () => {
 
 		await expect( screen.findByText( 'Views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
+	} );
+
+	it( 'shares one summary request with Most popular day', async () => {
+		render(
+			<>
+				<AllTimeStatsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+				<MostPopularDayWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+			</>
+		);
+
+		await expect( screen.findByText( 'Visitors' ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
