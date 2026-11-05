@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Stats: Deprecate Jetpack_Stats_Dashboard_Widget::render_widget(), Jetpack_Stats_Dashboard_Widget::render_footer(), and stats_jetpack_dashboard_widget(), which the dashboard widget no longer uses.
