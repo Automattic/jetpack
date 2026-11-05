@@ -1028,7 +1028,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "fe079177624682fcef339d70aeb01c54e04feee8"
+                "reference": "9694ed3bc8b0cde13866cf0f55ea77652759ed34"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1037,6 +1037,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
@@ -2606,7 +2607,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9a4a7b0a6b4dfa8c4ae8320219e81999c02b143b"
+                "reference": "d82df78e6ce280bc095b35b65183828b6bf3c818"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2648,7 +2649,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.15.x-dev"
+                    "dev-trunk": "6.16.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -4146,12 +4147,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "f117ff4d25339780312adb1b0521f184097cc3c4"
+                "reference": "8677aa7ef5f73f7424337beede231a240a77a2c0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-stats": "@dev",
@@ -4193,11 +4195,18 @@
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
+                "test-js": [
+                    "pnpm run test"
+                ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

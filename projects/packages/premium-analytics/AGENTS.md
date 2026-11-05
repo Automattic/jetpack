@@ -34,7 +34,7 @@ wp-build also generates an ungated full-page route at `?page=jetpack-premium-ana
 `Analytics::remove_full_page_interceptor()` disables it. Use only the `-wp-admin` page hooks and
 filters.
 
-On connected sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
+On Jetpack sites the Jetpack plugin boots the package, or the Jetpack Stats plugin when Jetpack is
 absent; both ask `Enablement::is_enabled()`. `Classic_Stats` owns the flag that retires the classic
 Stats page.
 
@@ -183,7 +183,8 @@ under `packages/data/src/api/`.
 ## WordPress.com Simple
 
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
-and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
+and reaches `public-api.wordpress.com` directly. The `wpcom` repo's
+`wp-content/mu-plugins/jetpack/wpcom-premium-analytics.php` boots the package via
 `Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
@@ -220,13 +221,15 @@ connected-site-only (e.g. the local data proxy, notices) can stay under
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
 (widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
-repo — it `require_once`s this exact file and calls `::register()` by name.
+repo — it calls `::register()` by class name, never by path.
 
 **Renaming, moving, or changing this method's signature requires a matching WPCOM-side update.**
 See Automattic/jetpack#50266 for the PR that established this contract.
 
 ## Pitfalls
 
+- Jetpack and Jetpack Stats both bundle this package, so load its function files only with
+  `require_once __DIR__` from a file in the package, never by path from outside it.
 - The `woocommerce_analytics` sync module lives in the jetpack-sync package, and the
   woocommerce-stats package opts in to it (`Sync_Configuration`) and backfills its lookup data
   (`Lookup_Data_Backfill`); `src/Sync/` here holds only the milestone tracker both read.

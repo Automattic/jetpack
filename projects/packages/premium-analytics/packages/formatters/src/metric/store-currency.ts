@@ -53,3 +53,12 @@ export function storeCurrencyFormatters() {
 		getCurrencyObject: formatters.getCurrencyObject,
 	};
 }
+
+/**
+ * The store's Number of decimals setting.
+ *
+ * @return The decimals, or `undefined` without a store or setting.
+ */
+export function getStoreDecimals(): number | undefined {
+	return readStoreCurrency()?.precision;
+}

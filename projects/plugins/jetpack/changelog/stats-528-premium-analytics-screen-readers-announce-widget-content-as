@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Stop screen readers from announcing widget content as dimmed outside edit mode.
