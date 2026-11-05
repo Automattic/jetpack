@@ -9,14 +9,19 @@ import {
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import {
+	PRESET_ALL_TIME,
 	computePrimaryRange,
 	isSelectablePreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
 	reportingTimeZone,
+	toComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { deriveComparisonRange } from '../../search/comparison';
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
 import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
@@ -109,7 +114,8 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * widgets read it that way (`normalizeReportParams` recomputes it and ignores the dates), so the
  * controls do too. Otherwise a bookmark's week-old dates would name last week in the trigger's
  * tooltip, seed the comparison and the calendar with it, and step from it, while the numbers show
- * this week. A hand-picked range is its dates.
+ * this week. All time keeps the URL's start, which the surface that wrote it resolved for the
+ * site, and reads its end as today. A hand-picked range is its dates.
  *
  * @param presetId - The preset the URL carries, if any.
  * @param from     - The `from` search param.
@@ -118,15 +124,23 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * @return The window.
  */
 function resolveRange(
-	presetId: unknown,
+	presetId: string | undefined,
 	from: string | undefined,
 	to: string | undefined,
 	timeZone: string
 ): DateRange {
-	return (
-		( isSelectablePreset( presetId ) && computePrimaryRange( presetId, timeZone ) ) ||
-		toPickerRange( from, to, timeZone )
-	);
+	if ( isSelectablePreset( presetId ) || isYearPresetId( presetId ) ) {
+		return computePrimaryRange( presetId, timeZone ) ?? toPickerRange( from, to, timeZone );
+	}
+
+	const allTime =
+		presetId === PRESET_ALL_TIME && from && to
+			? computePrimaryRange( PRESET_ALL_TIME, timeZone )
+			: undefined;
+
+	return allTime
+		? { from: decodeDateSearchParam( from, timeZone ), to: allTime.to }
+		: toPickerRange( from, to, timeZone );
 }
 
 /**
@@ -210,17 +224,26 @@ export function useReportDateFilters< TFrom extends string >(
 			return { appliedComparisonPresetId: undefined, appliedComparisonRange: undefined };
 		}
 
+		// Read as the widgets query it (`normalizeReportParams`): a preset's comparison preset is
+		// measured again from the window the preset names today; a hand-picked window's is its dates.
+		const isPresetWindow =
+			isSelectablePreset( committed.preset ) || isYearSurfacePresetId( committed.preset );
+		const appliedFrom = encodeDateToSearchParam( appliedRange.from );
+		const appliedTo = encodeDateToSearchParam( appliedRange.to );
+		const measured =
+			isPresetWindow && toComparisonPresetId( committed.compare_preset ) && appliedFrom && appliedTo
+				? deriveComparisonRange( { ...committed, from: appliedFrom, to: appliedTo } )
+				: undefined;
+
 		return {
-			appliedComparisonPresetId: committed.compare_preset ?? undefined,
-			// Read the params the widgets queried with so the header cannot name
-			// a different window than the numbers came from.
+			appliedComparisonPresetId: measured?.compare_preset ?? committed.compare_preset ?? undefined,
 			appliedComparisonRange: toPickerRange(
-				committed.compare_from,
-				committed.compare_to,
+				measured?.compare_from ?? committed.compare_from,
+				measured?.compare_to ?? committed.compare_to,
 				timeZone
 			),
 		};
-	}, [ committed, timeZone ] );
+	}, [ committed, appliedRange, timeZone ] );
 
 	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 

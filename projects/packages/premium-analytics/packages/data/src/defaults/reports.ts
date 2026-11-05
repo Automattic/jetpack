@@ -42,18 +42,24 @@ export function getDefaultReportParams(): { preset: PresetType } {
 }
 
 /**
- * Add a comparison preset's window to the params.
+ * Add a comparison preset's window to the params: the preset's where the range offers
+ * it, else the previous period, which every range offers.
  *
  * @param params   - Report params for the primary range.
  * @param presetId - The comparison preset.
  * @return The params with the comparison, or unchanged when none resolves.
  */
-function withComparisonPreset( params: ReportParams, presetId: ComparisonPresetId ): ReportParams {
-	const comparison = getComparisonRangeFromPreset(
-		{ from: localTZDate( params.from ), to: localTZDate( params.to ) },
-		presetId,
-		{ primaryPresetId: params.preset }
-	);
+export function withComparisonPreset(
+	params: ReportParams,
+	presetId: ComparisonPresetId
+): ReportParams {
+	const reference = { from: localTZDate( params.from ), to: localTZDate( params.to ) };
+	const options = { primaryPresetId: params.preset };
+
+	// A preset the range does not offer, say the previous week of a year, falls back.
+	const isOffered = !! findComparisonOption( getComparisonOptions( reference, options ), presetId );
+	const comparisonPresetId = isOffered ? presetId : 'previous-period';
+	const comparison = getComparisonRangeFromPreset( reference, comparisonPresetId, options );
 
 	if ( ! comparison?.from || ! comparison.to ) {
 		return params;
@@ -63,7 +69,7 @@ function withComparisonPreset( params: ReportParams, presetId: ComparisonPresetI
 		...params,
 		compare_from: dateToISOStringWithLocalTZ( comparison.from ),
 		compare_to: dateToISOStringWithLocalTZ( comparison.to ),
-		compare_preset: presetId,
+		compare_preset: comparisonPresetId,
 		comp: '1',
 	};
 }
@@ -81,18 +87,7 @@ export function withDefaultComparison( params: ReportParams ): ReportParams {
 		return params;
 	}
 
-	// A remembered preset the range does not offer, say the previous week of a year, falls back.
-	const isOffered =
-		remembered !== undefined &&
-		!! findComparisonOption(
-			getComparisonOptions(
-				{ from: localTZDate( params.from ), to: localTZDate( params.to ) },
-				{ primaryPresetId: params.preset }
-			),
-			remembered
-		);
-
-	return withComparisonPreset( params, isOffered ? remembered : 'previous-period' );
+	return withComparisonPreset( params, remembered ?? 'previous-period' );
 }
 
 /**

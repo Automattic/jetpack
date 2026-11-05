@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Stats: Read a preset as the window it names today in the date controls, as the widgets do, so a bookmark with older dates no longer names last week in the date tooltip, the comparison and the calendar.
+Stats: Read a preset as the window it names today in the date controls and the comparison, as the widgets do, so a bookmark with older dates no longer names last week in the date tooltip and the calendar, or compares this week against the wrong one.

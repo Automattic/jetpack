@@ -6,6 +6,7 @@ import {
 	isSelectablePreset,
 	isYearPresetId,
 	readSiteTimestamp,
+	toComparisonPresetId,
 	type SelectablePresetId,
 	type ComparisonPresetId,
 	type ComputablePresetId,
@@ -14,7 +15,7 @@ import {
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../defaults';
+import { getDefaultQueryParams, withComparisonPreset } from '../defaults';
 import {
 	NO_LOCKED_INTERVALS,
 	resolveIntervalForRange,
@@ -157,6 +158,14 @@ export function normalizeReportParams(
 	// Comparison only ever comes from the URL; a fresh load gets its default
 	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
+		// The URL's comparison dates were measured from the dates it keeps. A preset's window is
+		// re-read as today's above, so its comparison preset is measured again from that window;
+		// a hand-picked window is its dates, and so is its comparison.
+		const comparisonPresetId = presetRange && toComparisonPresetId( search.compare_preset );
+		if ( comparisonPresetId ) {
+			return withComparisonPreset( normalized, comparisonPresetId );
+		}
+
 		normalized.compare_from = canonicalTimestamp( search.compare_from );
 		normalized.compare_to = canonicalTimestamp( search.compare_to );
 		normalized.compare_preset = search.compare_preset;
