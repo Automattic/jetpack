@@ -7962,17 +7962,49 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// One fill, so the panels show in source order.
-			it( 'puts the style controls under the link details', async () => {
+			it.each( [ 'BUTTON', 'STACKED', 'LINK', 'QR' ] )(
+				'shows the details rows below the style controls in %s',
+				async format => {
+					render(
+						<Edit attributes={ { ...qrAttributes, format } } setAttributes={ setAttributes } />
+					);
+
+					const embedAs = await screen.findByLabelText( 'Embed as' );
+					expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
+					const fill = screen.getByTestId( 'inspector-controls' );
+					const sidebar = within( fill );
+					expect( embedAs ).toAppearBefore( sidebar.getByText( 'Used on' ) );
+					/* eslint-disable testing-library/no-node-access -- The rows' panel has to
+					   be the fill's last child, so only core's Advanced follows it. */
+					expect( fill.lastElementChild ).toBe(
+						sidebar.getByText( 'Used on' ).closest( '[data-testid="panel-body"]' )
+					);
+					/* eslint-enable testing-library/no-node-access */
+					// The name and price show above Embed as.
+					expect( sidebar.getByRole( 'heading', { name: 'Test Widget' } ) ).toAppearBefore(
+						embedAs
+					);
+					expect( sidebar.getByText( '$29.99' ) ).toAppearBefore( embedAs );
+				}
+			);
+
+			it( 'shows Max quantity after Used on, below the style controls', async () => {
 				render(
 					<Edit
-						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						attributes={ { ...qrAttributes, adjustableQuantity: true, maxQuantity: 5 } }
 						setAttributes={ setAttributes }
 					/>
 				);
 
-				const embedAs = await screen.findByLabelText( 'Embed as' );
-				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-				expect( screen.getByText( 'Used on' ) ).toAppearBefore( embedAs );
+				const maxQuantity = await screen.findByText( 'Max quantity' );
+				const fill = screen.getByTestId( 'inspector-controls' );
+				const sidebar = within( fill );
+				expect( sidebar.getByText( 'Used on' ) ).toAppearBefore( maxQuantity );
+				expect( sidebar.getByLabelText( 'Embed as' ) ).toAppearBefore( maxQuantity );
+				/* eslint-disable testing-library/no-node-access -- The rows' panel has to be the
+				   fill's last child. */
+				expect( fill.lastElementChild ).toBe( maxQuantity.closest( '[data-testid="panel-body"]' ) );
+				/* eslint-enable testing-library/no-node-access */
 			} );
 
 			it( 'offers the four formats in order', async () => {
@@ -8066,7 +8098,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				).toBeInTheDocument();
 			} );
 
-			// The form edits the link itself, so the style controls stay with the details.
+			// The form edits the link itself, so the style controls show in the details view only.
 			it( 'hides the style controls while editing the link and shows them again on return', async () => {
 				const user = userEvent.setup();
 				render(
