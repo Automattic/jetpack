@@ -781,7 +781,7 @@ class Scan implements Dashboard_Section {
 		// Threats the site resolved itself win over Scan's entry for them until its next scan.
 		// Fetched when the cache is empty, as it is right after an ignore, so snapshots older than the last scan don't count.
 		$status   = class_exists( Status::class ) ? ( Status::get_cached_status() ?? Status::get_status() ) : null;
-		$resolved = Dashboard_Threats::get_resolved( $status ? $status->last_checked : null );
+		$resolved = Dashboard_Threats::get_resolved( Dashboard_Threats::get_scanned_at( $status ) );
 		$threats  = array_filter(
 			$threats,
 			function ( $threat ) use ( $resolved ) {
@@ -1220,7 +1220,7 @@ class Scan implements Dashboard_Section {
 			'progress'       => isset( $status->current_progress ) ? (int) $status->current_progress : null,
 			'pluginsChecked' => count( get_plugins() ),
 			'themesChecked'  => count( wp_get_themes() ),
-			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, $status->last_checked ?? null ) ),
+			'threats'        => Dashboard_Threats::format_all( Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) ) ),
 		);
 	}
 }
