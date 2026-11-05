@@ -584,9 +584,57 @@ function wpcomsh_footer_rum_js() {
 		$data_site_tz, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$data_site_v // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
+
+	$script_url = 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' );
+
+	// The banner that collects consent only runs on the front end.
+	if ( 'atomic' === $service && function_exists( 'wp_has_consent' ) ) {
+		wp_print_inline_script_tag( wpcomsh_rum_consent_gate_js( $script_url ) );
+		return;
+	}
+
+	// Print the script tag straight away if no consent service is present
+	// (e.g. in admin).
 	printf(
 		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
+		esc_url( $script_url )
+	);
+}
+
+/**
+ * Build an inline script that loads bilmur once the visitor allows statistics.
+ *
+ * The check runs in the browser because cached HTML is shared across visitors.
+ *
+ * @param string $script_url The bilmur script URL.
+ * @return string
+ */
+function wpcomsh_rum_consent_gate_js( $script_url ) {
+	return sprintf(
+		'( function () {
+	var loadDone = false;
+	function load() {
+		if ( loadDone ) { return; }
+		loadDone = true;
+		var script = document.createElement( "script" );
+		script.src = %s;
+		document.head.appendChild( script );
+	}
+	function check() {
+		if ( typeof window.wp_has_consent === "function" && window.wp_has_consent( "statistics" ) ) { load(); }
+	}
+	document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
+		if ( event.detail && event.detail[ "statistics" ] === "allow" ) { load(); }
+	} );
+	document.addEventListener( "wp_consent_type_defined", check );
+	window.addEventListener( "wp_consent_type_defined", check );
+	if ( document.readyState === "loading" ) {
+		document.addEventListener( "DOMContentLoaded", check );
+	} else {
+		check();
+	}
+} )();',
+		wp_json_encode( esc_url_raw( $script_url ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 	);
 }
 
