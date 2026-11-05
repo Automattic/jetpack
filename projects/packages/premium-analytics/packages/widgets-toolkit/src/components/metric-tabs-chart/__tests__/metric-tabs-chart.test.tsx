@@ -515,6 +515,24 @@ describe( 'MetricTabsChart', () => {
 		}
 	} );
 
+	it( 'draws each card without block elements, which a button cannot hold', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			// eslint-disable-next-line testing-library/no-node-access -- A block element has no role to query by.
+			expect( tab.querySelector( 'div' ) ).toBeNull();
+		}
+	} );
+
 	it( 'emits a single series when the metric has no previous period', () => {
 		const withoutPrevious = { ...METRIC, previous: undefined };
 
