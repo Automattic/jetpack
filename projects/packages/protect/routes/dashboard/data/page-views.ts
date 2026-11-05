@@ -1,9 +1,9 @@
-import { getScan } from '../sections/scan/store';
+import { getScan, isNotScannedYet } from '../sections/scan/store';
 import { recordEvent } from './tracks';
 import type { ScanState } from '../sections/scan/types';
 
 /**
- * The scan status the Protect plugin's page view reported.
+ * The scan status for the page view: the Protect plugin's values, plus `not_scanned` before the first scan.
  *
  * @param scan - The latest report.
  * @return The status.
@@ -11,6 +11,9 @@ import type { ScanState } from '../sections/scan/types';
 function getCheckStatus( scan: ScanState ): string {
 	if ( scan.error ) {
 		return 'error';
+	}
+	if ( ! scan.scanning && isNotScannedYet( scan ) ) {
+		return 'not_scanned';
 	}
 	return scan.lastChecked ? 'active' : 'in_progress';
 }

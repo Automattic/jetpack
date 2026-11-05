@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Record a site that hasn't been scanned yet as not scanned, rather than scan in progress, in page view analytics.

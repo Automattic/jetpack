@@ -22,8 +22,14 @@ describe( 'recordPageView', () => {
 		[
 			'overview',
 			undefined,
-			{},
+			{ scanning: true },
 			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'in_progress' } ],
+		],
+		[
+			'overview',
+			undefined,
+			{},
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'not_scanned' } ],
 		],
 		[
 			'overview',
