@@ -2,12 +2,12 @@ import AdminPage from '@automattic/jetpack-components/admin-page';
 import { __, isRTL } from '@wordpress/i18n';
 import {
 	audio,
-	backup,
 	chevronLeft,
 	chevronRight,
 	currencyDollar,
 	globe,
 	info,
+	listView,
 	trendingUp,
 } from '@wordpress/icons';
 import { EmptyState, Icon, Link, Stack, Text } from '@wordpress/ui';
@@ -30,7 +30,7 @@ import type { InitialState, Tool } from './types.ts';
 import type { ReactElement } from 'react';
 
 const ICONS: Record< string, ReactElement > = {
-	'activity-log': backup,
+	'activity-log': listView,
 	'akismet-key-config': akismet,
 	backup: cloud,
 	advertising: blaze,
