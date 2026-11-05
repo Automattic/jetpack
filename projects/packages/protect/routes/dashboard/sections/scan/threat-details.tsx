@@ -21,6 +21,7 @@ import {
 	offersDeleteFix,
 	unignoreThreat,
 	useThreatAction,
+	type ThreatActionState,
 	type ThreatRow,
 } from './threat-actions';
 import { ThreatFileLink, getThreatFileName } from './threat-file';
@@ -338,6 +339,21 @@ function DatabaseRow( {
 type ConfirmationProps = { isBusy: boolean; onCancel: () => void; onConfirm: () => void };
 
 /**
+ * The Auto-fix it button's label and state, given the action running on the threat.
+ *
+ * @param busy - The action running on the threat.
+ * @return Props for the button.
+ */
+const getFixButtonProps = ( busy: ThreatActionState[ 'busy' ] ) => ( {
+	loading: busy === 'fixing',
+	disabled: !! busy,
+	children:
+		busy === 'fixing'
+			? __( 'Fixing…', 'jetpack-protect-pkg' )
+			: __( 'Auto-fix it', 'jetpack-protect-pkg' ),
+} );
+
+/**
  * Auto-fix it for a fix that deletes or updates the software, behind a confirmation.
  *
  * @param props              - Component props.
@@ -368,11 +384,7 @@ function ConfirmFixButton( {
 
 	return (
 		<Dialog.Root open={ open } onOpenChange={ setOpen }>
-			<Dialog.Trigger render={ <Button loading={ busy === 'fixing' } disabled={ !! busy } /> }>
-				{ busy === 'fixing'
-					? __( 'Fixing…', 'jetpack-protect-pkg' )
-					: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-			</Dialog.Trigger>
+			<Dialog.Trigger render={ <Button { ...getFixButtonProps( busy ) } /> } />
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ title }</Dialog.Title>
@@ -452,11 +464,7 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 						</Button>
 					) }
 					{ threat.fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
-						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
-							{ busy === 'fixing'
-								? __( 'Fixing…', 'jetpack-protect-pkg' )
-								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-						</Button>
+						<Button onClick={ onFix } { ...getFixButtonProps( busy ) } />
 					) }
 					{ isDeleteFix( threat ) && (
 						<ConfirmFixButton

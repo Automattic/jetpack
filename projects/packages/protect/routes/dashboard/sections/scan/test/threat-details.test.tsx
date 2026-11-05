@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { ignoreThreat } from '../threat-actions';
@@ -47,6 +47,21 @@ describe( 'ThreatDetails', () => {
 			screen.queryByRole( 'button', { name } )
 		);
 		expect( shown ).toEqual( confirm );
+	} );
+
+	it( 'starts a delete fix and closes the confirmation once the slug is typed', async () => {
+		render( <ThreatDetails threat={ threatIn( 6, 'delete' ) } canAct /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
+		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Confirm deletion' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/threats/6/fix' ) } )
+		);
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByRole( 'button', { name: 'Fixing…' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
