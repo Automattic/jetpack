@@ -553,6 +553,17 @@
 	}
 }
 
+// The form's own save, under its last panel. Padded like a panel, so it does
+// not read as the footer of the one above it.
+.jetpack-paypal-payment-buttons__form-footer {
+	padding: 16px;
+
+	.components-button {
+		inline-size: 100%;
+		justify-content: center;
+	}
+}
+
 // ---------------------------------------------------------------
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
