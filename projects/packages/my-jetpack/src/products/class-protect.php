@@ -335,7 +335,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Firewall', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => false,
@@ -348,7 +348,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Login protection', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
