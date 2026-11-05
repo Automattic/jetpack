@@ -13,7 +13,7 @@ export interface SeoPostMeta {
 	jetpack_seo_html_title: string;
 	jetpack_seo_noindex: boolean;
 	jetpack_seo_schema_type: SchemaType;
-	// Registered for pages only, in `Llms_Txt::register_meta()`.
+	// Registered for pages only, in `Llms_Txt::register_always_include()`.
 	jetpack_seo_llms_txt_always_include?: boolean;
 }
 

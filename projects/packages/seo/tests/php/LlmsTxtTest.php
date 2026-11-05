@@ -463,6 +463,31 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Hiding a page from search engines, from any editor, switches "Always include" off.
+	 *
+	 * @return void
+	 */
+	public function test_hiding_a_page_switches_always_include_off() {
+		$page = $this->insert_page( 'Hidden Later' );
+		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Llms_Txt::register_always_include();
+			update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+
+		$this->assertFalse( metadata_exists( 'post', $page->ID, Llms_Txt::META_ALWAYS_INCLUDE ) );
+	}
+
+	/**
 	 * Main-menu pages are listed past the per-type limit, up to their own.
 	 *
 	 * @return void

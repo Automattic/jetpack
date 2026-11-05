@@ -62,11 +62,11 @@ class Llms_Txt {
 
 	/**
 	 * Register the always-include page meta, so the Content tab can read and save it
-	 * through core REST like the page's other SEO fields.
+	 * through core REST like the page's other SEO fields, and keep it off on hidden pages.
 	 *
 	 * @return void
 	 */
-	public static function register_meta() {
+	public static function register_always_include() {
 		register_post_meta(
 			'page',
 			self::META_ALWAYS_INCLUDE,
@@ -79,6 +79,25 @@ class Llms_Txt {
 				'show_in_rest' => true,
 			)
 		);
+		foreach ( array( 'added_post_meta', 'updated_post_meta' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_always_include_on_hide' ), 10, 4 );
+		}
+	}
+
+	/**
+	 * Switch "Always include" off when a page is hidden from search engines, from any editor,
+	 * so un-hiding the page doesn't bring it back.
+	 *
+	 * @param int    $meta_id    Meta ID.
+	 * @param int    $post_id    Post ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @return void
+	 */
+	public static function clear_always_include_on_hide( $meta_id, $post_id, $meta_key, $meta_value ) {
+		if ( Content_Coverage::META_NOINDEX === $meta_key && $meta_value && 'page' === get_post_type( $post_id ) ) {
+			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
+		}
 	}
 
 	/**

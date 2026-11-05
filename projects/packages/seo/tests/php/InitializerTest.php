@@ -175,6 +175,16 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
+	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
+	 * register the "Always include" page field.
+	 */
+	public function test_write_hooks_register_always_include_without_init() {
+		unregister_meta_key( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' );
+		Initializer::register_write_hooks();
+		$this->assertTrue( registered_meta_key_exists( 'post', Llms_Txt::META_ALWAYS_INCLUDE, 'page' ) );
+	}
+
+	/**
 	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
 	 *
 	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
