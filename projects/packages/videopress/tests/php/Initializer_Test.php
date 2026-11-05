@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Admin_UI as VideoPress_Admin_UI;
+use Automattic\Jetpack\VideoPress\Api_Proxy_Controller as VideoPress_Api_Proxy_Controller;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -372,6 +373,15 @@ class Initializer_Test extends BaseTestCase {
 			'/videopress/v1/features',
 			$routes_after,
 			'Active-module VideoPress route should register on rest_api_init via the active_initialization deferral block.'
+		);
+		$this->assertNotEmpty(
+			preg_grep( '#^/jetpack/v4/videopress/proxy/v#', array_keys( $routes_after ) ),
+			'WordPress.com proxy route should register on rest_api_init via the active_initialization deferral block.'
+		);
+		$this->assertSame(
+			10,
+			has_filter( 'jetpack_stats_transient_cleanup_prefixes', array( VideoPress_Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) ),
+			'The proxy cache prefix should join the transient cleanup outside REST requests.'
 		);
 	}
 
