@@ -14,7 +14,6 @@ import PlanLockedNote from '../../components/plan-locked-note';
 import StatusIndicator from '../../components/status-indicator';
 import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
-import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
 import SettingsPlanBanner from './plan-banner';
 import SchemaCard from './schema-card';
@@ -512,13 +511,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					titleSeparator={ local.title_separator }
 				/>
 			) }
-
-			{ /* Higher-risk settings last, after everything routine. Hidden on
-			   WordPress.com Simple, where `Modules::is_active()` reports every module
-			   active regardless of stored state, so turning SEO tools off would appear
-			   to do nothing. Outside the `gated` branch: a gated site still has the
-			   module and can still switch it off. */ }
-			{ ! isSimpleSite() && <AdvancedCard /> }
 		</Stack>
 	);
 };

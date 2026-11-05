@@ -575,22 +575,17 @@ class Sharing_Service {
 		if ( ! $_blog_id ) {
 			$_blog_id = $blog_id;
 		}
+		if ( ! ( $post_id > 0 ) ) {
+			$totals = $this->get_site_totals_by_service( $_blog_id );
+			return false === $service_name ? array_sum( $totals ) : ( $totals[ $service_name ] ?? 0 );
+		}
 		if ( $service_name === false ) {
-			if ( $post_id > 0 ) {
-				// total number of shares for this post
-				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id );
-				$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}";
-			} else {
-				// total number of shares for this blog
-				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d', $_blog_id );
-				$cache_key = "sharing_service_get_total_b{$_blog_id}";
-			}
-		} elseif ( $post_id > 0 ) {
+			// total number of shares for this post
+			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id );
+			$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}";
+		} else {
 			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s', $_blog_id, $post_id, $service_name );
 			$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}_s{$service_name}";
-		} else {
-			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s', $_blog_id, $service_name );
-			$cache_key = "sharing_service_get_total_b{$_blog_id}_s{$service_name}";
 		}
 
 		$ret = wp_cache_get( $cache_key, 'sharing' );
@@ -600,6 +595,30 @@ class Sharing_Service {
 			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 		return $ret;
+	}
+
+	/**
+	 * Share counts for the whole site, per service.
+	 *
+	 * A site-wide read of sharing_stats scans all of the site's rows, so all services are read in one query and cached for an hour.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return int[] Service ID => shares.
+	 */
+	private function get_site_totals_by_service( $blog_id ) {
+		global $wpdb;
+
+		$cache_key = "sharing_service_get_site_totals_by_service_b{$blog_id}";
+		$totals    = wp_cache_get( $cache_key, 'sharing' );
+		if ( false === $totals ) {
+			$totals = array();
+			$rows   = $wpdb->get_results( $wpdb->prepare( 'SELECT share_service, SUM( count ) AS total FROM sharing_stats WHERE blog_id = %d GROUP BY share_service', $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Cached in the sharing group.
+			foreach ( (array) $rows as $row ) {
+				$totals[ $row->share_service ] = (int) $row->total;
+			}
+			wp_cache_set( $cache_key, $totals, 'sharing', HOUR_IN_SECONDS );
+		}
+		return $totals;
 	}
 
 	/**

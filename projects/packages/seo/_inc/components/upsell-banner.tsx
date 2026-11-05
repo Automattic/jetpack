@@ -19,6 +19,8 @@ interface Props {
  * @return The upsell banner.
  */
 const UpsellBanner: FC< Props > = ( { title, description } ) => {
+	const upsellUrl = getUpsellUrl();
+
 	useEffect( () => {
 		const onFocus = () => {
 			if ( consumePendingUpgrade() ) {
@@ -30,6 +32,10 @@ const UpsellBanner: FC< Props > = ( { title, description } ) => {
 		return () => window.removeEventListener( 'focus', onFocus );
 	}, [] );
 
+	if ( ! upsellUrl ) {
+		return null;
+	}
+
 	return (
 		<BaseUpsellBanner
 			title={ title ?? __( 'Boost your search engine ranking', 'jetpack-seo' ) }
@@ -38,9 +44,9 @@ const UpsellBanner: FC< Props > = ( { title, description } ) => {
 				__( 'Get tools to optimize your site for improved search engine results.', 'jetpack-seo' )
 			}
 			primaryCtaLabel={ __( 'Upgrade', 'jetpack-seo' ) }
-			primaryCtaURL={ getUpsellUrl() }
+			primaryCtaURL={ upsellUrl }
 			primaryCtaOnClick={ markUpgradePending }
-			primaryCtaIsExternalLink
+			primaryCtaIsExternalLink={ false }
 		/>
 	);
 };

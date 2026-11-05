@@ -6,8 +6,10 @@ import { useChartFormatting } from '../../../providers';
 import { getBucketResolution } from '../../../utils/bucket-info';
 import { createDateFormatter } from '../../../utils/date-formatting';
 import { getBandTickValues, getFormatter } from '../../private/time-axis';
+import { getStackedValueDomain } from './stack-layout';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import { getBarValue, getValueScaleDomain } from './value-domain';
+import type { StackLayout } from './stack-layout';
 import type {
 	DataPointDate,
 	BaseChartProps,
@@ -152,18 +154,21 @@ const getGroupPadding = ( scale: Record< string, unknown > ): number => {
  * @param horizontal       - Whether the chart is horizontal or vertical.
  * @param options          - The options for the chart.
  * @param isSeriesRendered - Whether visx mounts a series, i.e. the legend shows it.
+ * @param stack            - The precomputed stack, when series share one bar.
  * @return The merged options for the chart.
  */
 export function useBarChartOptions(
 	data: SeriesData[],
 	horizontal: boolean,
 	options: BaseChartProps[ 'options' ] = {},
-	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED
+	isSeriesRendered: ( series: SeriesData ) => boolean = ALL_RENDERED,
+	stack?: StackLayout
 ) {
 	// Callers reasonably pass an object literal, which is a fresh reference every
 	// render and would defeat every memo below.
 	const stableOptions = useDeepMemo( options );
 	const formatting = useChartFormatting();
+	const isStacked = !! stack;
 
 	// `labelOverflow`, `tickResolution` and `tickDecimals` are consumed by this hook rather than
 	// forwarded — visx has an axis prop for none of them — and `tickFormat` is merged
@@ -188,7 +193,9 @@ export function useBarChartOptions(
 		const [ valueAxisOptions, valueTickDecimals ] = horizontal
 			? [ xAxisOptions, xTickDecimals ]
 			: [ yAxisOptions, yTickDecimals ];
-		const valueScaleType = ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
+		const valueScaleType = isStacked
+			? 'linear'
+			: ( horizontal ? stableOptions.xScale : stableOptions.yScale )?.type;
 
 		return {
 			xLabelOverflow,
@@ -204,7 +211,7 @@ export function useBarChartOptions(
 			valueTickDecimals:
 				valueAxisOptions.tickValues || valueScaleType === 'log' ? undefined : valueTickDecimals,
 		};
-	}, [ stableOptions, horizontal ] );
+	}, [ stableOptions, horizontal, isStacked ] );
 	const { tickResolution } = axisConfig;
 
 	const defaultOptions = useMemo( () => {
@@ -279,20 +286,27 @@ export function useBarChartOptions(
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
 		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
 		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
-		const domain = valueScaleOptions?.domain
-			? null
-			: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
-		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
+		let domain: [ number, number ] | null = null;
+		if ( ! valueScaleOptions?.domain ) {
+			domain = stack
+				? getStackedValueDomain( stack, axisConfig.valueTickDecimals )
+				: getValueScaleDomain( data, includeZero, isSeriesRendered, axisConfig.valueTickDecimals );
+		}
+		// Every stack starts at zero, which a log scale cannot place.
+		const valueScaleOverride: { domain?: [ number, number ]; type?: 'linear' } = {
+			...( domain && { domain } ),
+			...( stack && { type: 'linear' as const } ),
+		};
 
 		const xScale = {
 			...baseXScale,
 			...( stableOptions.xScale || {} ),
-			...( horizontal ? valueScaleDomainOverride : {} ),
+			...( horizontal ? valueScaleOverride : {} ),
 		};
 		const yScale = {
 			...baseYScale,
 			...( stableOptions.yScale || {} ),
-			...( ! horizontal ? valueScaleDomainOverride : {} ),
+			...( ! horizontal ? valueScaleOverride : {} ),
 		};
 		const { xLabelOverflow, yLabelOverflow, xTickFormat, yTickFormat, xAxisOptions, yAxisOptions } =
 			axisConfig;
@@ -350,5 +364,5 @@ export function useBarChartOptions(
 			},
 			valueTickDecimals: axisConfig.valueTickDecimals,
 		};
-	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered, stack ] );
 }

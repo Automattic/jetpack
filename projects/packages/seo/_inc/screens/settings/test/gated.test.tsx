@@ -192,12 +192,4 @@ describe( 'SettingsScreen plan restrictions', () => {
 		expect( screen.getByLabelText( 'Saved title structure' ) ).toBeEnabled();
 		expect( screen.getByLabelText( 'Organization name' ) ).toBeEnabled();
 	} );
-
-	it( 'keeps the Advanced module on a gated site', () => {
-		isGated.mockReturnValue( true );
-
-		render( <SettingsScreen form={ buildForm( false ) } /> );
-
-		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
-	} );
 } );
