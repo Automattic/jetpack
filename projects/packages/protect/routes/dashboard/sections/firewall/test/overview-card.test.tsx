@@ -7,7 +7,10 @@ import { store as noticesStore } from '@wordpress/notices';
 import { recordViewOnce } from '../../../data/tracks';
 import useProtectSettings from '../../../data/use-protect-settings';
 import { runFirewallTest } from '../firewall-test';
-import FirewallOverviewCard, { resetFirewallBlocks } from '../overview-card';
+import FirewallOverviewCard, {
+	BLOCKS_REFRESH_INTERVAL,
+	resetFirewallBlocks,
+} from '../overview-card';
 import type { FirewallContext } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -289,6 +292,96 @@ describe( 'FirewallOverviewCard', () => {
 		expect( document.body ).toHaveTextContent(
 			'Last 30 days blocked requests56All-time blocked requests90'
 		);
+	} );
+
+	describe( 'without a reload', () => {
+		const setHidden = ( hidden: boolean ) => {
+			Object.defineProperty( document, 'hidden', { configurable: true, value: hidden } );
+			act( () => document.dispatchEvent( new Event( 'visibilitychange' ) ) );
+		};
+		const tick = () => act( async () => jest.advanceTimersByTime( BLOCKS_REFRESH_INTERVAL ) );
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			( apiFetch as unknown as jest.Mock ).mockReset().mockResolvedValue( refreshed( 56 ) );
+		} );
+		afterEach( () => {
+			jest.useRealTimers();
+			Object.defineProperty( document, 'hidden', { configurable: true, value: false } );
+		} );
+
+		it( 'refreshes the counts while the page stays open, pausing in a background tab', async () => {
+			render( <FirewallOverviewCard { ...props } /> );
+			setHidden( true );
+			await tick();
+			expect( apiFetch ).not.toHaveBeenCalled();
+
+			setHidden( false );
+			await waitFor( () =>
+				expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests56' )
+			);
+
+			( apiFetch as unknown as jest.Mock ).mockResolvedValue( refreshed( 57 ) );
+			await tick();
+			expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests57' );
+		} );
+
+		it.each( [
+			[ 'off', { active: false } ],
+			[ 'unavailable', { available: false } ],
+			[ 'provided by the host', { providedByHost: true } ],
+		] )( 'leaves the counts alone while the firewall is %s', async ( _, state ) => {
+			render( <FirewallOverviewCard { ...props } state={ { ...props.state!, ...state } } /> );
+
+			await tick();
+
+			expect( apiFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'keeps the newest counts when an older read lands last', async () => {
+			const answers: Array< ( value: unknown ) => void > = [];
+			( apiFetch as unknown as jest.Mock ).mockImplementation(
+				() => new Promise( resolve => answers.push( resolve ) )
+			);
+			render( <FirewallOverviewCard { ...props } /> );
+			await tick();
+			await tick();
+
+			await act( async () => answers[ 1 ]( refreshed( 57 ) ) );
+			await act( async () => answers[ 0 ]( refreshed( 56 ) ) );
+
+			expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests57' );
+		} );
+
+		it( 'keeps the counts when a background read fails', async () => {
+			( apiFetch as unknown as jest.Mock ).mockRejectedValue( { code: 'fetch_error' } );
+			render( <FirewallOverviewCard { ...props } /> );
+
+			await tick();
+
+			expect( apiFetch ).toHaveBeenCalled();
+			expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests1' );
+		} );
+
+		it( 'refreshes the counts when the firewall is turned on', async () => {
+			const off = { ...props.state!, active: false };
+			const { rerender } = render( <FirewallOverviewCard { ...props } state={ off } /> );
+
+			rerender(
+				<FirewallOverviewCard
+					{ ...props }
+					state={ off }
+					settings={ { ...props.settings, settings: { waf: true } } }
+				/>
+			);
+
+			await waitFor( () =>
+				expect( document.body ).toHaveTextContent( 'Last 30 days blocked requests56' )
+			);
+			expect( apiFetch ).toHaveBeenCalledWith( {
+				path: '/jetpack/v4/protect-dashboard/firewall/blocks',
+			} );
+		} );
 	} );
 
 	it.each( [ 'after', 'before' ] )(
