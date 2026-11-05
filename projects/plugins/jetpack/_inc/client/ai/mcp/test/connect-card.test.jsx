@@ -192,6 +192,16 @@ describe( 'McpConnectCard', () => {
 		expect( screen.getByRole( 'link', { name: 'ChatGPT' } ) ).toHaveFocus();
 	} );
 
+	test( 'leaves focus on the page when the toggle turns MCP access on', () => {
+		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
+		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );
+
+		// The toggle disables while saving, which drops focus to the body.
+		rerender( <McpConnectCard mcpEnabled { ...props } /> );
+
+		expect( document.body ).toHaveFocus();
+	} );
+
 	test( 'keeps focus where it is when MCP access turns on from elsewhere', () => {
 		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
 		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );

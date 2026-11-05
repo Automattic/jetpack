@@ -305,19 +305,28 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 	const wasEnabled = useRef( mcpEnabled );
 	const gridRef = useRef();
+	const turnedOnFromNotice = useRef( false );
+	const handleTurnOn = useCallback( () => {
+		turnedOnFromNotice.current = true;
+		onTurnOn();
+	}, [ onTurnOn ] );
 
 	// Turning access on removes the notice and its button, so say that it worked.
 	// If the button had focus, focus falls to the body, so move it to the first tile.
+	// The toggle also disables while saving, so only do this after the notice button.
 	useEffect( () => {
 		if ( ! wasEnabled.current && mcpEnabled ) {
 			speak( __( 'MCP access is on', 'jetpack' ) );
 			const { activeElement, body } = gridRef.current.ownerDocument;
-			if ( ! activeElement || activeElement === body ) {
+			if ( turnedOnFromNotice.current && ( ! activeElement || activeElement === body ) ) {
 				gridRef.current.querySelector( 'a, button' )?.focus();
 			}
 		}
 		wasEnabled.current = mcpEnabled;
-	}, [ mcpEnabled ] );
+		if ( mcpEnabled || ! isTurningOn ) {
+			turnedOnFromNotice.current = false;
+		}
+	}, [ mcpEnabled, isTurningOn ] );
 
 	return (
 		<Card.Root>
@@ -334,7 +343,9 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 							'jetpack'
 						) }
 					</Text>
-					{ ! mcpEnabled && <AccessOffNotice onTurnOn={ onTurnOn } isTurningOn={ isTurningOn } /> }
+					{ ! mcpEnabled && (
+						<AccessOffNotice onTurnOn={ handleTurnOn } isTurningOn={ isTurningOn } />
+					) }
 					<ul ref={ gridRef } className="jetpack-ai-mcp__connect-grid">
 						{ getConnectAgents().map( agent => (
 							<li key={ agent.key }>
