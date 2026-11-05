@@ -1192,7 +1192,7 @@ class User_Admin extends Base_Admin {
 					admin_url( 'admin-post.php' )
 				),
 				esc_html__( 'Send invite', 'jetpack-connection' ),
-				esc_attr__( 'This user doesn&#8217;t have a Jetpack SSO connection to WordPress.com. Invite them to the site to increase security and improve their experience.', 'jetpack-connection' ),
+				esc_attr__( 'This user isn&#8217;t connected to WordPress.com, so they can&#8217;t use WordPress.com login. Invite them to the site to increase security and improve their experience.', 'jetpack-connection' ),
 				esc_attr__( 'Tooltip', 'jetpack-connection' )
 			);
 		}
