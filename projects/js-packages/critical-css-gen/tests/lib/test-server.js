@@ -13,13 +13,11 @@ const index = `
  * Test server , used to test client-side / iframe version of Critical CSS generation.
  */
 class TestServer {
-	constructor( staticPaths, delays ) {
+	constructor( staticPaths ) {
 		this.port = null;
 		this.app = null;
 		this.server = null;
 		this.staticPaths = staticPaths || [];
-		// Milliseconds to hold each virtual path's page before serving it.
-		this.delays = delays || {};
 	}
 
 	async start() {
@@ -28,13 +26,6 @@ class TestServer {
 		this.app.use( '/bundle.js', express.static( require.resolve( '../build/bundle.js' ) ) );
 
 		for ( const [ virtualPath, realDirectory ] of Object.entries( this.staticPaths ) ) {
-			const delay = this.delays[ virtualPath ];
-			if ( delay ) {
-				// Hold the page itself, not its stylesheets, so the delay is the page's load time.
-				this.app.use( '/' + virtualPath, ( req, res, next ) =>
-					req.path === '/' || req.path.endsWith( '.html' ) ? setTimeout( next, delay ) : next()
-				);
-			}
 			this.app.use( '/' + virtualPath, express.static( realDirectory ) );
 		}
 

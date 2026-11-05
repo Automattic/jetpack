@@ -10,11 +10,7 @@ const mockRegenerate = jest.fn();
 let mockRegenerationReason: string | null = 'switched_theme';
 jest.mock( '../lib/stores/critical-css-state', () => ( {
 	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
-	useCriticalCssState: () => [
-		{ status: 'not_generated', providers: [] },
-		jest.fn(),
-		{ isFetching: false },
-	],
+	useCriticalCssState: () => [ { status: 'not_generated', providers: [] } ],
 	useRegenerateRefusal: () => null,
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );

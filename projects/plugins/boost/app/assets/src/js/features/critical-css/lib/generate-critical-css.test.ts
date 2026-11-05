@@ -77,6 +77,14 @@ function makeCallbacks() {
 	};
 }
 
+function waitForGeneratorCall() {
+	return new Promise< void >( resolve => {
+		const check = () =>
+			mockGenerateCriticalCSS.mock.calls.length ? resolve() : setTimeout( check, 1 );
+		check();
+	} );
+}
+
 describe( 'runLocalGenerator - per-provider error resilience', () => {
 	beforeEach( () => {
 		mockGenerateCriticalCSS.mockReset();
@@ -236,11 +244,7 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 			callbacks
 		);
 		// Cancel once the first provider's page load is under way, as leaving the page would.
-		await new Promise< void >( resolve => {
-			const check = () =>
-				mockGenerateCriticalCSS.mock.calls.length ? resolve() : setTimeout( check, 1 );
-			check();
-		} );
+		await waitForGeneratorCall();
 		abort.abort();
 		await callbacks.finished;
 
@@ -262,11 +266,7 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 
 		const callbacks = makeCallbacks();
 		const abort = runLocalGenerator( [ makeProvider( 'provider_a' ) ], 'nonce', callbacks );
-		await new Promise< void >( resolve => {
-			const check = () =>
-				mockGenerateCriticalCSS.mock.calls.length ? resolve() : setTimeout( check, 1 );
-			check();
-		} );
+		await waitForGeneratorCall();
 		abort.abort();
 		await callbacks.finished;
 

@@ -10,17 +10,9 @@ let browser;
 describe( 'Iframe interface', () => {
 	// Start test server to serve wrapped content.
 	beforeAll( async () => {
-		// slow-a is page-a held for 2.6 s, near-a for 3.7 s and slower-a for 5 s; request them with the
-		// trailing slash, or the directory redirect pays the delay twice.
-		testServer = new TestServer(
-			{
-				'page-a': path.join( dataDirectory, 'page-a' ),
-				'slow-a': path.join( dataDirectory, 'page-a' ),
-				'near-a': path.join( dataDirectory, 'page-a' ),
-				'slower-a': path.join( dataDirectory, 'page-a' ),
-			},
-			{ 'slow-a': 2600, 'near-a': 3700, 'slower-a': 5000 }
-		);
+		testServer = new TestServer( {
+			'page-a': path.join( dataDirectory, 'page-a' ),
+		} );
 		await testServer.start();
 
 		browser = await chromium.launch();
@@ -216,141 +208,145 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	// Limits are scaled down from the defaults of 60 s for the load and 30 s for the checks.
-	const limits = { loadTimeout: 4000, checkTimeout: 3000 };
+	// The defaults: 60 s for the page load, then 30 s for the status checks after it.
+	const limits = { loadTimeout: 60000, checkTimeout: 30000 };
 
 	/**
-	 * Load a page with a status check that answers after a delay, or never.
+	 * Hold the page-a document until the returned function is called.
 	 *
-	 * @param {object}      page       - Playwright page hosting the generator bundle.
-	 * @param {string}      url        - Page to load.
-	 * @param {number|null} checkDelay - Milliseconds before the status check answers; null never answers.
-	 * @return {Promise<{outcome: string, elapsed: number}>} How the load ended and how long it took.
+	 * @param {object} page - Playwright page hosting the generator bundle.
+	 * @return {Promise<Function>} Releases the held document.
 	 */
-	const loadWithSlowCheck = ( page, url, checkDelay ) =>
-		page.evaluate(
-			async ( { pageUrl, delay, options } ) => {
+	async function holdPageA( page ) {
+		let release;
+		const held = new Promise( resolve => ( release = resolve ) );
+		await page.route( '**/page-a/', async route => {
+			await held;
+			await route.continue();
+		} );
+		return release;
+	}
+
+	/**
+	 * Start a load on a paused clock, with its document and status check released by hand.
+	 *
+	 * @param {object} page - Playwright page hosting the generator bundle.
+	 * @return {Promise<Function>} Releases the held page document.
+	 */
+	async function startHeldLoad( page ) {
+		const releaseDocument = await holdPageA( page );
+		await page.clock.install();
+		await page.goto( testServer.getUrl() );
+		// The installed clock still ticks with real time until it is paused.
+		await page.clock.pauseAt( Date.now() + 1000 );
+		await page.evaluate(
+			( { url, options } ) => {
 				const realFetch = window.fetch;
+				window.answerCheck = null;
 				window.fetch = ( fetchUrl, init ) =>
 					new Promise( ( resolve, reject ) => {
-						init?.signal?.addEventListener( 'abort', () =>
-							reject( new DOMException( 'aborted', 'AbortError' ) )
-						);
-						// The check's own time is the delay, so answer it from the page's undelayed copy.
-						const quickUrl = String( fetchUrl ).replace( /\/(slow|near|slower)-a/, '/page-a' );
-						if ( delay !== null ) {
-							setTimeout( () => realFetch( quickUrl, init ).then( resolve, reject ), delay );
-						}
+						window.answerCheck = () => realFetch( fetchUrl, init ).then( resolve, reject );
 					} );
-				const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+				window.outcome = 'still waiting';
+				new CriticalCSSGenerator.BrowserInterfaceIframe( {
 					...options,
-					verifyPage: ( _url, innerWindow, innerDocument ) =>
+					verifyPage: ( _url, _w, innerDocument ) =>
 						!! innerDocument.querySelector( 'meta[name="testing-page"]' ),
-				} );
-				const started = Date.now();
-				const outcome = await Promise.race( [
-					iframeInterface.loadPage( pageUrl ).then(
-						() => 'resolved',
-						error => error.message
-					),
-					new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 9000 ) ),
-				] );
-				return { outcome, elapsed: Date.now() - started };
+				} )
+					.loadPage( url )
+					.then(
+						() => ( window.outcome = 'resolved' ),
+						error => ( window.outcome = error.message )
+					);
 			},
-			{ pageUrl: url, delay: checkDelay, options: limits }
+			{ url: testServer.getUrl() + '/page-a/', options: limits }
 		);
+		return releaseDocument;
+	}
 
-	it( 'resolves when the load and its check each finish within their own limits', async () => {
+	const readOutcome = page => page.evaluate( () => window.outcome );
+	const checkStarted = page =>
+		page.waitForFunction( () => window.answerCheck, null, { polling: 50 } );
+
+	it( 'gives the status check its own limit after a load that used most of the load limit', async () => {
 		const page = await browser.newPage();
-		await page.goto( testServer.getUrl() );
+		const releaseDocument = await startHeldLoad( page );
 
-		// Load 2.6 s of 4 s, then a check of 2 s of 3 s: more than the load limit together.
-		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/slow-a/', 2000 );
+		await page.clock.runFor( limits.loadTimeout - 1 );
+		releaseDocument();
+		await checkStarted( page );
+		await page.clock.runFor( limits.checkTimeout - 1 );
+		await expect( readOutcome( page ) ).resolves.toBe( 'still waiting' );
 
-		expect( result.outcome ).toBe( 'resolved' );
+		await page.evaluate( () => window.answerCheck() );
+		await page.waitForFunction( () => window.outcome !== 'still waiting', null, { polling: 50 } );
+		await expect( readOutcome( page ) ).resolves.toBe( 'resolved' );
 		await page.close();
 	} );
 
-	it( 'resolves a load close to its limit followed by a quick check', async () => {
+	it( 'ends a page whose status check never answers at the check limit', async () => {
 		const page = await browser.newPage();
-		await page.goto( testServer.getUrl() );
+		const releaseDocument = await startHeldLoad( page );
+		releaseDocument();
+		await checkStarted( page );
 
-		// Load 3.7 s of 4 s, then a check of 0.5 s: more than the load limit together.
-		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/near-a/', 500 );
-
-		expect( result.outcome ).toBe( 'resolved' );
-		await page.close();
-	} );
-
-	it( 'ends a page whose status check never answers by the sum of both limits', async () => {
-		const page = await browser.newPage();
-		await page.goto( testServer.getUrl() );
-
-		const result = await loadWithSlowCheck(
-			page,
-			path.join( testServer.getUrl(), 'page-a' ),
-			null
-		);
-
-		expect( result.outcome ).toMatch( /^Timeout while reading/ );
-		expect( result.elapsed ).toBeGreaterThanOrEqual( limits.checkTimeout );
-		expect( result.elapsed ).toBeLessThan( limits.loadTimeout + limits.checkTimeout );
+		await page.clock.runFor( limits.checkTimeout - 1 );
+		await expect( readOutcome( page ) ).resolves.toBe( 'still waiting' );
+		await page.clock.runFor( 1 );
+		await expect( readOutcome( page ) ).resolves.toMatch( /^Timeout while reading/ );
 		await page.close();
 	} );
 
 	it( 'fails a load that exceeds its limit', async () => {
 		const page = await browser.newPage();
-		await page.goto( testServer.getUrl() );
+		await startHeldLoad( page );
 
-		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/slower-a/', 0 );
-
-		expect( result.outcome ).toMatch( /^Timeout while reading/ );
-		expect( result.elapsed ).toBeGreaterThanOrEqual( limits.loadTimeout );
-		expect( result.elapsed ).toBeLessThan( limits.loadTimeout + 1000 );
+		await page.clock.runFor( limits.loadTimeout - 1 );
+		await expect( readOutcome( page ) ).resolves.toBe( 'still waiting' );
+		await page.clock.runFor( 1 );
+		await expect( readOutcome( page ) ).resolves.toMatch( /^Timeout while reading/ );
 		await page.close();
 	} );
 
 	it.each( [
-		[ 'while the page is loading', 'slower-a', false ],
-		[ 'while its status check is waiting', 'page-a', true ],
-	] )(
-		'ends a page load when the caller cancels generation %s',
-		async ( _stage, pagePath, hangCheck ) => {
-			const page = await browser.newPage();
-			await page.goto( testServer.getUrl() );
-
-			const innerUrl = path.join( testServer.getUrl(), pagePath );
-
-			const result = await page.evaluate(
-				async ( { url, hang } ) => {
-					if ( hang ) {
-						window.fetch = () => new Promise( () => {} );
-					}
-					const controller = new AbortController();
-					const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
-						verifyPage: () => true,
-						signal: controller.signal,
-					} );
-					setTimeout( () => controller.abort(), 500 );
-					const started = Date.now();
-					const outcome = await Promise.race( [
-						iframeInterface.loadPage( url ).then(
-							() => 'resolved',
-							error => error.message
-						),
-						new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
-					] );
-					return { outcome, elapsed: Date.now() - started };
-				},
-				{ url: innerUrl, hang: hangCheck }
-			);
-
-			expect( result.outcome ).toMatch( /Generation was cancelled/ );
-			expect( result.elapsed ).toBeLessThan( 4000 );
-
-			await page.close();
+		[ 'while the page is loading', true ],
+		[ 'while its status check is waiting', false ],
+	] )( 'ends a page load when the caller cancels generation %s', async ( _stage, holdDocument ) => {
+		const page = await browser.newPage();
+		if ( holdDocument ) {
+			await holdPageA( page );
 		}
-	);
+		await page.goto( testServer.getUrl() );
+
+		const result = await page.evaluate(
+			async ( { url, hang } ) => {
+				if ( hang ) {
+					window.fetch = () => new Promise( () => {} );
+				}
+				const controller = new AbortController();
+				const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+					verifyPage: () => true,
+					signal: controller.signal,
+				} );
+				setTimeout( () => controller.abort(), 50 );
+				const started = Date.now();
+				const outcome = await Promise.race( [
+					iframeInterface.loadPage( url ).then(
+						() => 'resolved',
+						error => error.message
+					),
+					new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
+				] );
+				return { outcome, elapsed: Date.now() - started };
+			},
+			{ url: testServer.getUrl() + '/page-a/', hang: ! holdDocument }
+		);
+
+		expect( result.outcome ).toMatch( /Generation was cancelled/ );
+		expect( result.elapsed ).toBeLessThan( 4000 );
+
+		await page.close();
+	} );
 
 	it( 'does not reuse a page it loaded before the caller cancelled generation', async () => {
 		const page = await browser.newPage();
