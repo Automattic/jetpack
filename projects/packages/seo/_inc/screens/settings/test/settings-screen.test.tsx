@@ -105,7 +105,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 	} as unknown as SettingsForm;
 };
 
-const STATUS_LABELS = [ 'Not started', 'In progress', 'Incomplete', 'Complete' ];
+const STATUS_LABELS = [ 'Not started', 'Incomplete', 'Complete' ];
 
 /**
  * The status shown in a given module's header. `Card.Title` is itself an
@@ -277,7 +277,7 @@ describe( 'Settings module completion status', () => {
 
 		it( 'reports in progress when indexing is on but the sitemap is not', () => {
 			render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
-			expect( statusFor( 'Site visibility' ) ).toBe( 'In progress' );
+			expect( statusFor( 'Site visibility' ) ).toBe( 'Incomplete' );
 		} );
 
 		it( 'reports complete when both are on', () => {
@@ -364,9 +364,9 @@ describe( 'Settings module completion status', () => {
 
 		// Deliberate: verifying with a single search engine is the realistic end
 		// state, so this module goes straight to complete and never sits at
-		// in-progress (JETPACK-2051). Bing rather than Google, to show no single
+		// incomplete (JETPACK-2051). Bing rather than Google, to show no single
 		// service is privileged.
-		it( 'reports complete — not in progress — with a single service verified', () => {
+		it( 'reports complete — not incomplete — with a single service verified', () => {
 			render(
 				<SettingsScreen
 					form={ buildForm( {
