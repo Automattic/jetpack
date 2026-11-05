@@ -170,12 +170,12 @@ export default defineConfig(
 								'Import these from @jetpack-premium-analytics/externals instead: it compiles them once into a shared script module rather than into every module that imports them. Missing an export? Add it to packages/externals/src/index.ts.',
 						},
 						{
-							// Base UI is what `@wordpress/ui` builds on. It is
-							// compiled into `packages/ui` for `CardTabs` and nowhere
-							// else, so a second copy is never bundled by accident.
+							// Base UI is what `@wordpress/ui` builds on, so `externals`
+							// already compiles it in: importing it anywhere else
+							// compiles a second copy.
 							regex: '^@base-ui/react(/.*)?$',
 							message:
-								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. Base UI itself is compiled into packages/ui only.',
+								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. A primitive that needs Base UI itself takes it from externals, which already compiles it in behind @wordpress/ui.',
 						},
 					],
 				},
@@ -221,7 +221,7 @@ export default defineConfig(
 							// Same as the packages rule above.
 							regex: '^@base-ui/react(/.*)?$',
 							message:
-								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. Base UI itself is compiled into packages/ui only.',
+								'Build on @wordpress/ui from @jetpack-premium-analytics/externals, or on CardTabs from @jetpack-premium-analytics/ui. A primitive that needs Base UI itself takes it from externals, which already compiles it in behind @wordpress/ui.',
 						},
 					],
 				},

@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-// eslint-disable-next-line no-restricted-imports -- The one module that compiles Base UI in; see the ESLint rule.
-import { DirectionProvider } from '@base-ui/react/direction-provider';
-// eslint-disable-next-line no-restricted-imports -- The one module that compiles Base UI in; see the ESLint rule.
-import { Tabs } from '@base-ui/react/tabs';
+import { BaseDirectionProvider, BaseTabs } from '@jetpack-premium-analytics/externals';
 import { isRTL } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
@@ -26,9 +23,9 @@ import type {
 export const Root = forwardRef< HTMLDivElement, CardTabsRootProps >(
 	function CardTabsRoot( props, forwardedRef ) {
 		return (
-			<DirectionProvider direction={ isRTL() ? 'rtl' : 'ltr' }>
-				<Tabs.Root ref={ forwardedRef } { ...props } />
-			</DirectionProvider>
+			<BaseDirectionProvider direction={ isRTL() ? 'rtl' : 'ltr' }>
+				<BaseTabs.Root ref={ forwardedRef } { ...props } />
+			</BaseDirectionProvider>
 		);
 	}
 );
@@ -39,7 +36,7 @@ export const List = forwardRef< HTMLDivElement, CardTabsListProps >( function Ca
 	forwardedRef
 ) {
 	return (
-		<Tabs.List
+		<BaseTabs.List
 			ref={ forwardedRef }
 			className={ clsx( styles.list, className ) }
 			{ ...otherProps }
@@ -53,7 +50,11 @@ export const Tab = forwardRef< HTMLButtonElement, CardTabsTabProps >( function C
 	forwardedRef
 ) {
 	return (
-		<Tabs.Tab ref={ forwardedRef } className={ clsx( styles.tab, className ) } { ...otherProps } />
+		<BaseTabs.Tab
+			ref={ forwardedRef }
+			className={ clsx( styles.tab, className ) }
+			{ ...otherProps }
+		/>
 	);
 } );
 
@@ -63,7 +64,7 @@ export const Panel = forwardRef< HTMLDivElement, CardTabsPanelProps >( function 
 	forwardedRef
 ) {
 	return (
-		<Tabs.Panel
+		<BaseTabs.Panel
 			ref={ forwardedRef }
 			className={ clsx( styles.panel, className ) }
 			{ ...otherProps }
