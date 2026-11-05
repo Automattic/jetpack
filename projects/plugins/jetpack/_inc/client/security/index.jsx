@@ -21,7 +21,12 @@ import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
 import { MovedSettings } from './moved-settings';
 import { Protect } from './protect';
-import { BACKUP_MODULES, PROTECT_PAGE_MODULES, PROTECT_PLUGIN_FILES } from './protect-page';
+import {
+	BACKUP_MODULES,
+	PROTECT_PAGE_MODULES,
+	getProtectPluginUrl,
+	isProtectPluginActive,
+} from './protect-page';
 import { SSO } from './sso';
 import Waf from './waf';
 
@@ -138,7 +143,7 @@ export class Security extends Component {
 							'jetpack'
 						) }
 					>
-						<NoticeAction href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-protect` }>
+						<NoticeAction href={ getProtectPluginUrl( this.props.siteAdminUrl ) }>
 							{ __( 'Open Protect', 'jetpack' ) }
 						</NoticeAction>
 					</SimpleNotice>
@@ -173,7 +178,7 @@ export default connect( state => {
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
-		isProtectPluginActive: PROTECT_PLUGIN_FILES.some( file => isPluginActive( state, file ) ),
+		isProtectPluginActive: isProtectPluginActive( state ),
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),

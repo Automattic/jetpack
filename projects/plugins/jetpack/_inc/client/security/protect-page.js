@@ -1,3 +1,5 @@
+import { isPluginActive } from 'state/site/plugins';
+
 // Modules whose Security tab settings live on the Protect page, when it is on.
 export const PROTECT_PAGE_MODULES = [ 'waf', 'protect', 'account-protection', 'monitor', 'sso' ];
 
@@ -8,11 +10,31 @@ export const BACKUP_MODULES = [ 'backup', 'vaultpress' ];
 export const HIDDEN_WITH_PROTECT_PAGE = [ 'protect-dashboard' ];
 
 // The Jetpack Protect plugin, whose own page replaces the Protect page while it is active.
-export const PROTECT_PLUGIN_FILES = [
+const PROTECT_PLUGIN_FILES = [
 	'protect/jetpack-protect.php',
 	'jetpack-protect/jetpack-protect.php',
 	'jetpack-protect-dev/jetpack-protect.php',
 ];
+
+/**
+ * Whether the Jetpack Protect plugin is active.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if any known Jetpack Protect plugin file is active.
+ */
+export function isProtectPluginActive( state ) {
+	return PROTECT_PLUGIN_FILES.some( file => isPluginActive( state, file ) );
+}
+
+/**
+ * Build the URL of the Jetpack Protect plugin's page.
+ *
+ * @param {string} siteAdminUrl - The site's wp-admin URL, with a trailing slash.
+ * @return {string} The URL.
+ */
+export function getProtectPluginUrl( siteAdminUrl ) {
+	return `${ siteAdminUrl }admin.php?page=jetpack-protect`;
+}
 
 /**
  * Build the URL of the Protect page's Settings tab.
