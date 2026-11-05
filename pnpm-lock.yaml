@@ -7104,8 +7104,6 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
-  projects/plugins/wpcomsh: {}
-
   tools/cli:
     dependencies:
       '@octokit/auth-token':
