@@ -218,6 +218,18 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 
 	return (
 		<>
+			{ VerbumComments.retirementNoticeUrl && (
+				<div className="verbum-message is-warning">
+					<p>
+						{ translate(
+							'This comment form is being retired. Update Jetpack to keep comments working on your site.'
+						) }{ ' ' }
+						<a href={ VerbumComments.retirementNoticeUrl } target="_top">
+							{ translate( 'Update Jetpack' ) }
+						</a>
+					</p>
+				</div>
+			) }
 			<CommentInputField ref={ commentTextarea } handleOnKeyUp={ showTrayIfNewUser } />
 			<div
 				className={ clsx( 'comment-form__subscription-options', {

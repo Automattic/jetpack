@@ -1,3 +1,5 @@
+import { CarouselSettings } from './carousel';
+import { PostByEmailSettings } from './post-by-email';
 import { RelatedPostsSettings } from './related-posts';
 import { SeoSettings } from './seo';
 import type { MyJetpackModule } from '../../types';
@@ -17,6 +19,8 @@ export type ModuleSettingsProps = {
  * unless the Configure link already reaches the panel in JS, as it does for the SEO modules.
  */
 export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps > > = {
+	carousel: CarouselSettings,
+	'post-by-email': PostByEmailSettings,
 	'related-posts': RelatedPostsSettings,
 	'seo-tools': SeoSettings,
 	'verification-tools': SeoSettings,

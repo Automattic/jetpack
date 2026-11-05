@@ -160,22 +160,26 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 }
 
 /**
- * Shown while a transfer to our hosting platform is already running or queued.
+ * Shown while a transfer to our hosting platform is already running or queued, or once it is
+ * done and the dashboard waits for the connection.
  *
  * Deliberately offers no call to action: starting a second transfer on top of a
  * running one is the failure this state exists to prevent.
  *
+ * @param props       - Component props.
+ * @param props.state - Resolved initial state.
  * @return The rendered prompt.
  */
-export function InProgressScreen() {
+export function InProgressScreen( { state }: { state: InitialState } ) {
 	const { icon, illustration, inProgress } = useFeature();
 	const { tracksFeatureId } = useTracks();
+	const awaiting = state.awaitingConnection ? inProgress.awaitingConnection : undefined;
 
 	return (
 		<>
 			<ViewTracker
 				eventName="calypso_dashboard_hosting_transfer_in_progress_impression"
-				properties={ { feature_id: tracksFeatureId } }
+				properties={ { feature_id: tracksFeatureId, awaiting_connection: !! awaiting } }
 			/>
 			<Callout
 				icon={ icon }
@@ -183,12 +187,14 @@ export function InProgressScreen() {
 				image={ illustration }
 				description={
 					<>
-						<Text>{ inProgress.description }</Text>
+						<Text>{ awaiting ? awaiting.description : inProgress.description }</Text>
 						<Text>
-							{ __(
-								'This usually takes a few minutes. You can keep using your site while it happens, and we will email you when it is done.',
-								'jetpack-mu-wpcom'
-							) }
+							{ awaiting
+								? awaiting.note
+								: __(
+										'This usually takes a few minutes. You can keep using your site while it happens, and we will email you when it is done.',
+										'jetpack-mu-wpcom'
+									) }
 						</Text>
 					</>
 				}
