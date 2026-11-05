@@ -16,11 +16,7 @@ export const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-clau
 export const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
 export const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
 export const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
-
-export const VSCODE_INSTALL_URL = `https://vscode.dev/redirect/mcp/install?${ new URLSearchParams( {
-	name: MCP_SERVER_NAME,
-	config: JSON.stringify( { type: 'http', url: MCP_SERVER_URL } ),
-} ) }`;
+export const VSCODE_INSTALL_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-vscode';
 
 // English only: users paste it straight into an agent, so a translation could add instructions.
 export const HELPER_PROMPT = `Connect yourself to my WordPress site over MCP. The server is ${ MCP_SERVER_URL }. Tell me what to click or run for this app, wait while I sign in with my WordPress.com account and approve the connection, then list my sites to confirm it works.`;
@@ -76,7 +72,7 @@ export function getConnectAgents() {
 			description: __( 'Opens VS Code to approve the server', 'jetpack' ),
 			logo: 'vscode.svg',
 			actionLabel: __( 'Add server', 'jetpack' ),
-			href: VSCODE_INSTALL_URL,
+			href: getRedirectUrl( VSCODE_INSTALL_REDIRECT_SOURCE ),
 		},
 		{
 			key: 'codex',

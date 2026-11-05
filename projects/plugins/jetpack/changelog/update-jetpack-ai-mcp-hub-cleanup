@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
+Comment: Updates the MCP connect card, which has not shipped yet. The add-jetpack-ai-mcp-connect-card entry covers it.
 
-Jetpack AI: Simplify the MCP connect card. Remove the "How it works" card, build the agent tiles from standard components, and open VS Code with a link instead of a terminal command.

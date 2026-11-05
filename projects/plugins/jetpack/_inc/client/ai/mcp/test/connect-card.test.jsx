@@ -1,16 +1,17 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import analytics from 'lib/analytics';
 import {
 	CLAUDE_CODE_COMMAND,
 	getConnectAgents,
 	HELPER_PROMPT,
-	MCP_SERVER_NAME,
 	MCP_SERVER_URL,
 } from '../connect-agents';
 import McpConnectCard from '../connect-card';
 
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 const renderCard = ( props = {} ) => {
 	const onNavigate = jest.fn();
@@ -35,7 +36,10 @@ const setupClipboard = ( writeText = jest.fn().mockResolvedValue() ) => {
 };
 
 describe( 'McpConnectCard', () => {
-	beforeEach( () => analytics.tracks.recordEvent.mockClear() );
+	beforeEach( () => {
+		analytics.tracks.recordEvent.mockClear();
+		speak.mockClear();
+	} );
 	afterEach( () => {
 		delete window.jetpackAiSettings;
 		jest.restoreAllMocks();
@@ -56,12 +60,17 @@ describe( 'McpConnectCard', () => {
 		);
 	} );
 
-	test( 'Cursor links to the WordPress.com plugin through the redirect source', () => {
+	test.each( [
+		[ 'Cursor', 'jetpack-ai-hub-mcp-setup-cursor' ],
+		[ 'VS Code', 'jetpack-ai-hub-mcp-setup-vscode' ],
+	] )( '%s links to the %s redirect', ( name, source ) => {
 		renderCard();
 
-		expect( screen.getByRole( 'link', { name: 'Cursor' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute(
 			'href',
-			expect.stringMatching( /source=jetpack-ai-hub-mcp-setup-cursor(&|$)/ )
+			expect.stringMatching(
+				new RegExp( `^https://jetpack\\.com/redirect/\\?source=${ source }(&|$)` )
+			)
 		);
 	} );
 
@@ -72,22 +81,19 @@ describe( 'McpConnectCard', () => {
 			'Run in your terminal, then use /mcp to sign in Copy command'
 		);
 		expect( screen.getByRole( 'link', { name: 'VS Code' } ) ).toHaveAccessibleDescription(
-			'Opens VS Code to approve the server Add server'
+			'Opens VS Code to approve the server Add server (opens in a new tab)'
 		);
 	} );
 
-	test( 'the VS Code link opens the install page with the server config', () => {
+	test( 'a link tile records the open', async () => {
 		renderCard();
 
-		const link = screen.getByRole( 'link', { name: 'VS Code' } );
-		const url = new URL( link.getAttribute( 'href' ) );
+		await userEvent.click( screen.getByRole( 'link', { name: 'Cursor' } ) );
 
-		expect( url.origin + url.pathname ).toBe( 'https://vscode.dev/redirect/mcp/install' );
-		expect( url.searchParams.get( 'name' ) ).toBe( MCP_SERVER_NAME );
-		expect( JSON.parse( url.searchParams.get( 'config' ) ) ).toEqual( {
-			type: 'http',
-			url: MCP_SERVER_URL,
-		} );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_mcp_connect_click',
+			expect.objectContaining( { agent: 'cursor', action: 'open' } )
+		);
 	} );
 
 	test( 'only the Claude Code, Codex, Antigravity and MCP tiles copy', () => {
@@ -149,6 +155,16 @@ describe( 'McpConnectCard', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
 
 		expect( onTurnOn ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	test( 'says MCP access is on once turning it on saves', () => {
+		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
+		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );
+
+		expect( speak ).not.toHaveBeenCalled();
+		rerender( <McpConnectCard mcpEnabled { ...props } /> );
+
+		expect( speak ).toHaveBeenCalledWith( 'MCP access is on' );
 	} );
 
 	test( 'the off notice is hidden when MCP is on', () => {

@@ -4,6 +4,7 @@
  */
 
 import { speak } from '@wordpress/a11y';
+import { VisuallyHidden } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -87,6 +88,14 @@ function TileContent( { id, agent, isCopied = false } ) {
 			>
 				{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
 				<Icon icon={ agent.href ? arrowUpRight : copy } size={ 12 } />
+				{ agent.href && (
+					<VisuallyHidden>
+						{
+							/* translators: accessibility text */
+							__( '(opens in a new tab)', 'jetpack' )
+						}
+					</VisuallyHidden>
+				) }
 			</Text>
 		</Card.Content>
 	);
@@ -203,6 +212,15 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 		recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' )
 	);
 	const handleManualSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
+	const wasEnabled = useRef( mcpEnabled );
+
+	// Turning access on removes the notice and its button, so say that it worked.
+	useEffect( () => {
+		if ( ! wasEnabled.current && mcpEnabled ) {
+			speak( __( 'MCP access is on', 'jetpack' ) );
+		}
+		wasEnabled.current = mcpEnabled;
+	}, [ mcpEnabled ] );
 
 	return (
 		<Card.Root>

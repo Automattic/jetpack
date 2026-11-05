@@ -42,8 +42,8 @@ import AiOverview from './overview';
 import { EVENTS, recordAiHubEvent } from './tracks';
 
 // Split into its own chunk: only this tab uses DataViews and the AI client.
-const ScheduledTasks = lazy(
-	() => import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
+const ScheduledTasks = lazy( () =>
+	import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
 );
 
 // Matches the `ref` value convention used by the MCP upsell events.
@@ -101,7 +101,7 @@ const VIEW_TITLES = {
 const SUB_VIEW_DESCRIPTIONS = {
 	'mcp/read': __( 'View your site’s content.', 'jetpack' ),
 	'mcp/write': __( 'Create, update, and manage content on your site.', 'jetpack' ),
-	'mcp/setup': __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
+	'mcp/setup': __( 'Get instructions for connecting your external AI agent.', 'jetpack' ),
 };
 
 /**
