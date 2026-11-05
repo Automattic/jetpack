@@ -94,7 +94,7 @@ class Donations_Test extends \WP_UnitTestCase {
 			)
 		);
 
-		$this->assertStringContainsString( 'plan=' . $plan_id . '&', html_entity_decode( $html ) );
+		$this->assertStringContainsString( 'plan=' . $plan_id . '&', html_entity_decode( $html, ENT_QUOTES | ENT_HTML5 ) );
 		$this->assertStringNotContainsString( 'donations__monthly-item', $html );
 	}
 
