@@ -2374,9 +2374,6 @@ importers:
       '@preact/signals':
         specifier: 1.2.2
         version: 1.2.2(preact@10.28.2)
-      '@wordpress/api-fetch':
-        specifier: 8.1.0
-        version: 8.1.0
       '@wordpress/block-editor':
         specifier: 20.0.0
         version: 20.0.0(patch_hash=0a0f97ea42e0d158da2834725034abecbe1aea92c81d3fda94a71c44e7355ed2)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2392,9 +2389,6 @@ importers:
       '@wordpress/data':
         specifier: 11.1.0
         version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/dataviews':
-        specifier: 22.0.0
-        version: 22.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/element':
         specifier: 10.1.0
         version: 10.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2404,18 +2398,9 @@ importers:
       '@wordpress/i18n':
         specifier: 7.1.0
         version: 7.1.0
-      '@wordpress/icons':
-        specifier: 20.0.0
-        version: 20.0.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/notices':
-        specifier: 6.1.0
-        version: 6.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/rich-text':
         specifier: 8.1.0
         version: 8.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@wordpress/ui':
-        specifier: 0.26.0
-        version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
