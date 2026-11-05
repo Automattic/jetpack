@@ -11,6 +11,7 @@ import {
 	ignoreThreats,
 	isDeleteFix,
 	isUpdateFix,
+	offersDeleteFix,
 	refocusRow,
 	unignoreThreat,
 	useGetThreatBusy,
@@ -216,7 +217,7 @@ function getThreatRowActions(
 			id: 'delete',
 			label: softwareLabel( 'delete' ),
 			modalHeader: ( [ item ] ) => ( item ? getDeleteTitle( item ) : '' ),
-			isEligible: item => !! item.extension?.actions?.delete,
+			isEligible: item => !! item.extension?.actions?.delete && ! offersDeleteFix( item, canAct ),
 			RenderModal: DeleteSoftwareModal,
 		},
 		{

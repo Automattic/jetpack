@@ -145,6 +145,39 @@ describe( 'ThreatDetails', () => {
 	);
 
 	it.each( [
+		[ 'only Auto-fix for a delete fix', 'delete', true, [ 'Auto-fix it' ] ],
+		[ 'Delete plugin where the plan can’t fix', 'delete', false, [ 'Delete plugin' ] ],
+		[ 'both for a fix that doesn’t delete', 'replace', true, [ 'Delete plugin', 'Auto-fix it' ] ],
+		[ 'Delete plugin for an ignored delete fix', 'delete', true, [ 'Delete plugin' ], 'ignored' ],
+	] as const )( 'offers %s', ( _name, fixer, canAct, expected, status = 'current' ) => {
+		const threat: ScanThreat = {
+			...threatIn( 6, fixer ),
+			status: status as ScanThreat[ 'status' ],
+		};
+		render(
+			<ThreatDetails
+				threat={ {
+					...threat,
+					extension: {
+						...threat.extension!,
+						actions: {
+							delete: true,
+							// Any other link skips SoftwareActions' early return.
+							details: 'https://wordpress.org/plugins/akismet/',
+						},
+					},
+				} }
+				canAct={ canAct }
+			/>
+		);
+
+		const shown = [ 'Delete plugin', 'Auto-fix it' ].filter( name =>
+			screen.queryByRole( 'button', { name } )
+		);
+		expect( shown ).toEqual( expected );
+	} );
+
+	it.each( [
 		[ undefined, null ],
 		[ null, null ],
 		[ 5, 'Critical severity' ],

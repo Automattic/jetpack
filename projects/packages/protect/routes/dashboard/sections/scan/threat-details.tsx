@@ -18,6 +18,7 @@ import {
 	ignoreThreat,
 	isDeleteFix,
 	isUpdateFix,
+	offersDeleteFix,
 	unignoreThreat,
 	useThreatAction,
 	type ThreatRow,
@@ -480,15 +481,17 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 }
 
 /**
- * Links that act on the affected software: update it, deactivate it, or look it up.
+ * Links that act on the affected software: update it, deactivate it, delete it, or look it up.
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
+ * @param props.canAct - Whether the site's plan can fix threats.
  * @return The links, or null when there are none.
  */
-function SoftwareActions( { threat }: { threat: ScanThreat } ) {
+function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const actions = threat.extension?.actions ?? {};
-	if ( ! actions.update && ! actions.deactivate && ! actions.delete && ! actions.details ) {
+	const canDelete = !! actions.delete && ! offersDeleteFix( threat, canAct );
+	if ( ! actions.update && ! actions.deactivate && ! canDelete && ! actions.details ) {
 		return null;
 	}
 
@@ -506,7 +509,7 @@ function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 					{ labels.deactivate }
 				</ButtonLink>
 			) }
-			<DeleteSoftwareButton threat={ threat } />
+			{ canDelete && <DeleteSoftwareButton threat={ threat } /> }
 			{ actions.details && (
 				<ButtonLink
 					href={ actions.details }
@@ -662,7 +665,7 @@ export default function ThreatDetails( {
 				<Text variant="body-md" className="jp-protect-card__muted">
 					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
-				<SoftwareActions threat={ threat } />
+				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
 			{ canAct && <ThreatFooter threat={ threat } /> }
 		</div>
