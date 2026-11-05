@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Brute Force Protection: Honor CIDR ranges on the trusted IP addresses list.

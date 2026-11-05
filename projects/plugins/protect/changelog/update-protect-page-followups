@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Offer a first scan when none has run, show when the last scan didn't complete or hasn't run yet on the My Jetpack Protect card, and stop counting a vulnerability once its plugin or theme is updated to the fixed version.

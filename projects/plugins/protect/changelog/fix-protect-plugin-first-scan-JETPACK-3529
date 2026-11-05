@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scan: Offer a first scan when none has run, instead of showing a scan in progress indefinitely.

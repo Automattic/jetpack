@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall: Honor CIDR ranges on the trusted IP addresses list, and make `wp jetpack-waf teardown` and `wp jetpack-waf setup` turn the Firewall off and on.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Protect: Refresh the Firewall block counts on the Protect page while it is open and after the firewall is turned on, without a reload.

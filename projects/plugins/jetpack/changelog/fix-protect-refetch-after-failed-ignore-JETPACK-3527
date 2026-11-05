@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Protect: Reload the threat lists after an ignore or unignore fails, so the page shows what WordPress.com applied.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Brute Force Protection: Honor CIDR ranges on the IP allow list, and accept them in "wp jetpack protect allow" and the settings.
