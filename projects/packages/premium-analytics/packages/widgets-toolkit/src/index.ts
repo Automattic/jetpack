@@ -292,8 +292,6 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	flagUrl,
 	formatLegendLabels,
-	formatChartName,
-	formatMapName,
 	formatDisplayLabel,
 	buildCsv,
 	buildCsvDateRangeFilename,
@@ -351,6 +349,8 @@ export {
 	useElementSize,
 	type ElementSize,
 	useHostLinkSearch,
+	useChartName,
+	useMapName,
 	useWidgetNavigationSearch,
 	useReportActions,
 	type ReportActionsOptions,
