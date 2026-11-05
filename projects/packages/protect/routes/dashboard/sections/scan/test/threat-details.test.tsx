@@ -50,6 +50,8 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it( 'starts a delete fix and closes the confirmation once the slug is typed', async () => {
+		let endFix: ( status: { status: string } ) => void = () => {};
+		mockApiFetch.mockReturnValue( new Promise( resolve => ( endFix = resolve ) ) );
 		render( <ThreatDetails threat={ threatIn( 6, 'delete' ) } canAct /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
 		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
@@ -62,6 +64,12 @@ describe( 'ThreatDetails', () => {
 			expect( screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).not.toBeInTheDocument()
 		);
 		expect( screen.getByRole( 'button', { name: 'Fixing…' } ) ).toBeInTheDocument();
+
+		// End the fix so threat 6 isn't left busy for later tests.
+		act( () => endFix( { status: 'not_fixed' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Auto-fix it' } )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it.each( [
