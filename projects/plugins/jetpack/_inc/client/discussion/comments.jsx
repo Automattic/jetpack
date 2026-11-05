@@ -60,7 +60,11 @@ class CommentsComponent extends Component {
 			gravatar = this.props.getModule( 'gravatar-hovercards' ),
 			markdown = this.props.getModule( 'markdown' ),
 			commentLikesUnavailable = isUnavailableInOfflineMode( 'comment-likes' ),
-			commentLikesActive = getOptionValue( 'comment-likes' );
+			commentLikesActive = getOptionValue( 'comment-likes' ),
+			markdownReplacedByEditor =
+				this.props.hasBlockEditor &&
+				isCommentsActive &&
+				!! this.props.getOptionValue( 'enable_blocks_comments', 'comments' );
 
 		return (
 			<SettingsCard
@@ -166,12 +170,14 @@ class CommentsComponent extends Component {
 								<FormFieldset>
 									<ToggleControl
 										checked={
+											! markdownReplacedByEditor &&
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
 												'markdown'
 											)
 										}
 										disabled={
+											markdownReplacedByEditor ||
 											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
 											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
@@ -180,6 +186,14 @@ class CommentsComponent extends Component {
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 											</span>
+										}
+										help={
+											markdownReplacedByEditor
+												? __(
+														'Markdown is off while blocks in comments are on, since the editor has its own formatting toolbar.',
+														'jetpack'
+													)
+												: null
 										}
 										__nextHasNoMarginBottom={ true }
 									/>

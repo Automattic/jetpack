@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Discussion: Grey out the comment Markdown setting while blocks in comments are on.

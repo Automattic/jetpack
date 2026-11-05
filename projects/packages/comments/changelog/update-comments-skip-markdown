@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Turn off Markdown in comments while the block editor is on.
