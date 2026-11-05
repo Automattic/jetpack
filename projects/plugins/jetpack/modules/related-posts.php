@@ -63,6 +63,9 @@ class Jetpack_RelatedPosts_Module {
 		require_once __DIR__ . '/related-posts/jetpack-related-posts.php';
 		Jetpack_RelatedPosts::init();
 
+		require_once __DIR__ . '/related-posts/class-jetpack-related-posts-hooked-block.php';
+		Jetpack_RelatedPosts_Hooked_Block::init();
+
 		if ( is_admin() ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 		}
