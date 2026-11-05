@@ -17,6 +17,16 @@ export const getThreatType = ( threat: Threat ) => {
 	return null;
 };
 
+/**
+ * A threat's severity as a sort key.
+ *
+ * @param threat          - The threat.
+ * @param threat.severity - Its severity, missing on the free vulnerability check.
+ * @return The severity, or 2.5 when missing, so an unrated threat sorts just above Low (below 3).
+ */
+export const getThreatSeveritySortValue = ( { severity }: { severity?: number | null } ) =>
+	typeof severity === 'number' ? severity : 2.5;
+
 export const fixerTimestampIsStale = ( lastUpdatedTimestamp: string ) => {
 	const now = new Date();
 	const lastUpdated = new Date( lastUpdatedTimestamp );

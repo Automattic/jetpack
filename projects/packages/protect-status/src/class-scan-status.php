@@ -365,9 +365,12 @@ class Scan_Status extends Status {
 					return 'active' === $a->status ? -1 : 1;
 				}
 
-				// ...then by severity...
-				if ( $a->severity !== $b->severity ) {
-					return $a->severity > $b->severity ? -1 : 1;
+				// ...then by severity, with an unrated threat just above Low (below 3)...
+				$a_severity  = is_numeric( $a->severity ) ? $a->severity : 2.5;
+				$b_severity  = is_numeric( $b->severity ) ? $b->severity : 2.5;
+				$by_severity = $b_severity <=> $a_severity;
+				if ( 0 !== $by_severity ) {
+					return $by_severity;
 				}
 
 				// ...then date added.

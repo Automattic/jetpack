@@ -1,4 +1,9 @@
-import { getThreatType, ThreatSeverityBadge, type Threat } from '@automattic/jetpack-scan';
+import {
+	getThreatSeveritySortValue,
+	getThreatType,
+	ThreatSeverityBadge,
+	type Threat,
+} from '@automattic/jetpack-scan';
 import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
@@ -196,7 +201,7 @@ export function getThreatFields(
 			enableHiding: false,
 			// Sorting only: a list's filter offers severity levels instead of raw numbers.
 			filterBy: false,
-			getValue: ( { item } ) => item.severity ?? 0,
+			getValue: ( { item } ) => getThreatSeveritySortValue( item ),
 			render: ( { item } ) => (
 				<KnownSeverityBadge severity={ item.severity } fallback={ NOT_AVAILABLE } />
 			),
