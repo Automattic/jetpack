@@ -1,7 +1,8 @@
 export interface Tool {
 	title: string;
 	description: string;
-	icon: string;
+	key: string;
+	section: string;
 	url: string;
 }
 

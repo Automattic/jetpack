@@ -136,7 +136,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_scan' ) );
 		}
 
-		// Simple has no My Jetpack without the sticker, so it gets a lightweight page of its own.
+		// A lightweight My Jetpack page for Simple, which steps aside wherever the real My Jetpack registers.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_my_jetpack' ) );
 		}

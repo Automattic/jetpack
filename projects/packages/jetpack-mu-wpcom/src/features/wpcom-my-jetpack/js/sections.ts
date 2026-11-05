@@ -2,27 +2,6 @@ import { __ } from '@wordpress/i18n';
 import type { Tool } from './types.ts';
 
 /**
- * Which section each known tool sits in, by icon key. Anything else goes under "More".
- */
-const SECTION_OF: Record< string, string > = {
-	'activity-log': 'security',
-	'akismet-key-config': 'security',
-	backup: 'security',
-	scan: 'security',
-	advertising: 'growth',
-	earn: 'growth',
-	newsletter: 'growth',
-	social: 'growth',
-	'marketing/traffic': 'growth',
-	seo: 'growth',
-	'forms-admin': 'content',
-	'forms-responses-wp-admin': 'content',
-	podcast: 'content',
-	search: 'content',
-	videopress: 'content',
-};
-
-/**
  * The sections, in page order.
  *
  * @return Each section's key, title and blurb.
@@ -59,10 +38,14 @@ export function getSections() {
  * @return The sections that have tools, each with its tools.
  */
 export function groupTools( tools: Tool[] ) {
-	return getSections()
+	const sections = getSections();
+	const keys = sections.map( section => section.key );
+	const sectionOf = ( tool: Tool ) => ( keys.includes( tool.section ) ? tool.section : 'more' );
+
+	return sections
 		.map( section => ( {
 			...section,
-			tools: tools.filter( tool => ( SECTION_OF[ tool.icon ] ?? 'more' ) === section.key ),
+			tools: tools.filter( tool => sectionOf( tool ) === section.key ),
 		} ) )
 		.filter( section => section.tools.length );
 }

@@ -847,7 +847,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
 			'Atomic Settings'                    => array( false, 'own', $atomic ),
-			'Simple'                             => array( true, null, $simple ),
+			'Simple with the My Jetpack page'    => array( true, null, $simple ),
 			'Simple without the My Jetpack page' => array( true, null, array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' ), true, false ),
 			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
