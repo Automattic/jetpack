@@ -364,7 +364,7 @@ describe( 'Settings module completion status', () => {
 
 		// Deliberate: verifying with a single search engine is the realistic end
 		// state, so this module goes straight to complete and never sits at
-		// incomplete (JETPACK-2051). Bing rather than Google, to show no single
+		// incomplete. Bing rather than Google, to show no single
 		// service is privileged.
 		it( 'reports complete — not incomplete — with a single service verified', () => {
 			render(
