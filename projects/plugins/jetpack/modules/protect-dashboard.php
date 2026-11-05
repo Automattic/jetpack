@@ -1,13 +1,13 @@
 <?php
 /**
- * Module Name: Protect Dashboard
+ * Module Name: Protect
  * Module Description: Security tools that keep your site safe and sound, from posts to plugins.
  * Sort Order: 4
  * First Introduced: 16.4-a.4
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Security
  * Feature: Security
+ * Additional Search Queries: protect dashboard, security, scan, firewall
  *
  * @package automattic/jetpack
  */

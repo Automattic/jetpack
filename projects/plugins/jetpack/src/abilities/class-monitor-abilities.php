@@ -68,8 +68,8 @@ class Monitor_Abilities extends Registrar {
 	public static function get_abilities(): array {
 		return array(
 			'jetpack-monitor/get-monitor-status' => array(
-				'label'               => __( 'Get Jetpack Monitor status', 'jetpack' ),
-				'description'         => __( 'Return the current Downtime Monitor state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote Monitor service cannot be reached. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
+				'label'               => __( 'Get downtime monitoring status', 'jetpack' ),
+				'description'         => __( 'Return the current downtime monitoring state as { module_active, user_connected, notifications_enabled, last_status_change }. notifications_enabled is a boolean (does the current user receive downtime alerts). last_status_change is the timestamp of the most recent up/down status transition recorded by the Monitor service, as a "YYYY-MM-DD HH:mm:ss" UTC string, or null when no transition has been recorded — this reflects the legacy last_status_change projection, not necessarily the last time downtime began. Fails with jetpack_monitor_not_connected when the current user is not connected to Jetpack (connect first via the My Jetpack admin page), or jetpack_monitor_service_unreachable when the remote Monitor service cannot be reached. These abilities are only registered while the Monitor module is active; if they are absent from wp_get_abilities(), activate the Monitor module first.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -100,7 +100,7 @@ class Monitor_Abilities extends Registrar {
 			),
 
 			'jetpack-monitor/set-notifications'  => array(
-				'label'               => __( 'Set Jetpack Monitor notifications', 'jetpack' ),
+				'label'               => __( 'Set downtime monitoring notifications', 'jetpack' ),
 				'description'         => __( 'Enable or disable downtime email notifications for the current user. Idempotent — setting the state to the current value returns changed=false. Returns { enabled, changed }. Preconditions: the Monitor module must be active and the current user must be connected to Jetpack; call jetpack-monitor/get-monitor-status first to verify the connection. Fails with jetpack_monitor_module_inactive (activate the Monitor module first — these abilities are only registered while the module is active, so this error indicates a race) or jetpack_monitor_not_connected when preconditions are not met.', 'jetpack' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
