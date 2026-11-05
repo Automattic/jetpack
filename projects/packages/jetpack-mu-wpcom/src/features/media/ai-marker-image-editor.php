@@ -36,14 +36,14 @@ function jetpack_wpcom_ai_marker_tool_path( $tool ) {
 }
 
 /**
- * Swaps core's GD editor for the WordPress.com one.
+ * Swaps core's GD editor for the WordPress.com one, when the host has exiftool.
  *
  * @param string[] $editors Image editor class names.
  * @return string[]
  */
 function jetpack_wpcom_ai_marker_image_editors( $editors ) {
 	$index = array_search( 'WP_Image_Editor_GD', $editors, true );
-	if ( false === $index ) {
+	if ( false === $index || '' === jetpack_wpcom_ai_marker_tool_path( 'exiftool' ) ) {
 		return $editors;
 	}
 
