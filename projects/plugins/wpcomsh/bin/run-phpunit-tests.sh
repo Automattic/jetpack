@@ -3,9 +3,7 @@
 set -euo pipefail
 
 function ensure_composer() {
-	if [ ! -d "$HOME/.composer" ]; then
-		mkdir "$HOME/.composer"
-	fi
+	mkdir -p "$HOME/.composer"
 
 	if [ -f "$HOME/composer" ]; then
 		echo "OK: $HOME/composer"
