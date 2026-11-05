@@ -69,7 +69,7 @@ VERBOSE=
 ADDPRNUM=
 ALPHABETA=
 RELEASEBRANCH=
-while getopts ":vpabhHRr:" opt; do
+while getopts ":vpabhRr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -90,8 +90,7 @@ while getopts ":vpabhHRr:" opt; do
 		r)
 			ALPHABETA=$OPTARG
 			;;
-		H|R)
-			# -H is an old name, kept for back compat.
+		R)
 			RELEASEBRANCH=-R
 			;;
 		h)
