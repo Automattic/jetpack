@@ -29,7 +29,7 @@ import {
 } from './icons.tsx';
 import { groupTools } from './sections.ts';
 import type { InitialState, Tool } from './types.ts';
-import type { MouseEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 const ICONS: Record< string, ReactElement > = {
 	'activity-log': listView,
@@ -126,8 +126,8 @@ export function App() {
 										className="jp-highlight-banner__cta"
 										variant="primary"
 										href={ plan.url }
-										onClick={ ( event: MouseEvent< HTMLAnchorElement > ) =>
-											recordLinkClick( event, 'wpcom_my_jetpack_compare_plans_clicked', {
+										onClick={ () =>
+											wpcomTrackEvent( 'wpcom_my_jetpack_compare_plans_clicked', {
 												plan: plan.name,
 											} )
 										}

@@ -265,7 +265,7 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 
 		$state = WPCOM_My_Jetpack::get_initial_state();
 		$this->assertNull( $state['plan'] );
-		$this->assertCount( 3, $state['tools'] );
+		$this->assertCount( 4, $state['tools'] );
 	}
 
 	/**
