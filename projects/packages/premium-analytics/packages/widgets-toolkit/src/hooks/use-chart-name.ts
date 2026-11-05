@@ -4,6 +4,16 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useWidgetIdentity } from '@wordpress/widget-primitives';
 
+function useAccessibleName(
+	formatName: ( title: string ) => string,
+	chartTitle?: string
+): string | undefined {
+	const { title: widgetTitle } = useWidgetIdentity();
+	const title = chartTitle || widgetTitle;
+
+	return title ? formatName( title ) : undefined;
+}
+
 /**
  * Name a chart after what it shows: its own title, or else the title of the widget it sits in.
  *
@@ -11,16 +21,15 @@ import { useWidgetIdentity } from '@wordpress/widget-primitives';
  * @return The chart's accessible name, or undefined outside a widget when no title is given.
  */
 export function useChartName( chartTitle?: string ): string | undefined {
-	const { title: widgetTitle } = useWidgetIdentity();
-	const title = chartTitle || widgetTitle;
-
-	return title
-		? sprintf(
+	return useAccessibleName(
+		title =>
+			sprintf(
 				/* translators: %s is what a chart shows, e.g. "Sales by device". */
 				__( 'Chart: %s', 'jetpack-premium-analytics-pkg' ),
 				title
-			)
-		: undefined;
+			),
+		chartTitle
+	);
 }
 
 /**
@@ -30,14 +39,13 @@ export function useChartName( chartTitle?: string ): string | undefined {
  * @return The map's accessible name, or undefined outside a widget when no title is given.
  */
 export function useMapName( chartTitle?: string ): string | undefined {
-	const { title: widgetTitle } = useWidgetIdentity();
-	const title = chartTitle || widgetTitle;
-
-	return title
-		? sprintf(
+	return useAccessibleName(
+		title =>
+			sprintf(
 				/* translators: %s is what a map shows, e.g. "Top locations". */
 				__( 'Map: %s', 'jetpack-premium-analytics-pkg' ),
 				title
-			)
-		: undefined;
+			),
+		chartTitle
+	);
 }
