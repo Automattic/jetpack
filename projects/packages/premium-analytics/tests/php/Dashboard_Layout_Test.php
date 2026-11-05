@@ -420,7 +420,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		// Widths fill the three-column grid; every tile is two rows tall.
 		$this->assert_layout_instances(
 			array(
-				'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 3, 2, 0 ),
+				'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 'full', 2, 0 ),
 				'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 1, 2, 1 ),
 				'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2, 2 ),
 				'default-devices-widget-instance'         => array( 'jpa/devices', 1, 2, 3 ),
@@ -455,14 +455,14 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		// In the design's three-column rows.
 		$this->assert_layout_instances(
 			array(
-				'default-annual-highlights-widget-instance' => array( 'jpa/annual-highlights', 3, 1, 0 ),
+				'default-annual-highlights-widget-instance' => array( 'jpa/annual-highlights', 'full', 1, 0 ),
 				'default-all-time-stats-widget-instance'   => array( 'jpa/all-time-stats', 1, 2, 1 ),
 				'default-most-popular-time-widget-instance' => array( 'jpa/most-popular-time', 1, 2, 2 ),
 				'default-most-popular-day-widget-instance' => array( 'jpa/most-popular-day', 1, 2, 3 ),
 				'default-popular-post-widget-instance'     => array( 'jpa/popular-post', 2, 2, 4 ),
 				'default-latest-post-widget-instance'      => array( 'jpa/latest-post', 1, 2, 5 ),
-				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 2, 6 ),
-				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 3, 2, 7 ),
+				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 'full', 2, 6 ),
+				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 'full', 2, 7 ),
 				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
 				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 9 ),
 				'default-shares-widget-instance'           => array( 'jpa/shares', 1, 2, 10 ),
@@ -506,8 +506,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		// Each row fills the three-column grid.
 		$this->assert_layout_instances(
 			array(
-				'default-subscribers-chart-widget-instance' => array( 'jpa/subscribers-chart', 3, 2, 0 ),
-				'default-subscriber-highlights-widget-instance' => array( 'jpa/subscriber-highlights', 3, 1, 1 ),
+				'default-subscribers-chart-widget-instance' => array( 'jpa/subscribers-chart', 'full', 2, 0 ),
+				'default-subscriber-highlights-widget-instance' => array( 'jpa/subscriber-highlights', 'full', 1, 1 ),
 				'default-subscribers-list-widget-instance' => array( 'jpa/subscribers-list', 1, 2, 2 ),
 				'default-subscribers-emails-widget-instance' => array( 'jpa/stats-emails', 2, 2, 3 ),
 			),

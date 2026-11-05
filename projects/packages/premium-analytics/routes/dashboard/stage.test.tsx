@@ -368,7 +368,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		</div>
 	);
 
-	return { WidgetDashboard };
+	return { WidgetDashboard, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
 
 jest.mock( './components', () => ( {
@@ -449,7 +449,6 @@ jest.mock( './config', () => {
 
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
-	useDashboardGridSettings: () => [ {} ],
 	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: jest.fn( () => [ [], jest.fn(), mockResetLayout ] ),
 	useDashboardSections: jest.fn(),
