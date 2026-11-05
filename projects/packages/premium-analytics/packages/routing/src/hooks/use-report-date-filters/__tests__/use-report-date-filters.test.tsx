@@ -182,9 +182,10 @@ describe( 'useReportDateFilters', () => {
 		[
 			'a hand-picked window’s comparison',
 			{ preset: 'custom', compare_preset: 'previous-period' },
+			'previous-period',
 		],
-		[ 'comparison dates with no preset behind them', { preset: 'last-7-days' } ],
-	] )( 'reads %s as the URL carries them', ( _name, extra ) => {
+		[ 'comparison dates with no preset behind them', { preset: 'last-7-days' }, undefined ],
+	] )( 'reads %s as the URL carries them', ( _name, extra, comparePreset ) => {
 		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
 			from: '2026-08-07T00:00:00.000+00:00',
@@ -195,7 +196,7 @@ describe( 'useReportDateFilters', () => {
 			...extra,
 		} );
 
-		expect( result.current.appliedComparisonPresetId ).toBe( extra.compare_preset );
+		expect( result.current.appliedComparisonPresetId ).toBe( comparePreset );
 		expect( result.current.appliedComparisonRange?.from?.getTime() ).toBe(
 			Date.parse( '2026-07-31T00:00:00.000Z' )
 		);

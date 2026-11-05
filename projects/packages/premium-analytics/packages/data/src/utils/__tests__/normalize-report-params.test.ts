@@ -159,9 +159,10 @@ describe( 'normalizeReportParams', () => {
 		[
 			'a hand-picked window’s comparison',
 			{ preset: 'custom', compare_preset: 'previous-period' },
+			'previous-period',
 		],
-		[ 'comparison dates that no preset names', { preset: 'last-30-days' } ],
-	] as const )( 'keeps %s as given', ( _name, extra ) => {
+		[ 'comparison dates that no preset names', { preset: 'last-30-days' }, undefined ],
+	] as const )( 'keeps %s as given', ( _name, extra, comparePreset ) => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
 
@@ -178,7 +179,7 @@ describe( 'normalizeReportParams', () => {
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
-		expect( result.compare_preset ).toBe( extra.compare_preset );
+		expect( result.compare_preset ).toBe( comparePreset );
 	} );
 
 	// The router JSON-parses search values, so an unquoted URL (hand-edited or
