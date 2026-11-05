@@ -14,25 +14,29 @@ const ACCOUNT_PROTECTION = 'Protect accounts with weak or leaked passwords';
 const available = { available: true, active: true };
 
 type CardOptions = {
-	state?: Partial< LoginProtectionState >;
+	state?: Partial< LoginProtectionState > | null;
 	settings?: ProtectSettings;
 	save?: jest.Mock;
 };
 
 const card = ( { state = {}, settings = {}, save = jest.fn() }: CardOptions = {} ) => (
 	<LoginProtectionSettingsCard
-		state={ {
-			bruteForce: available,
-			accountProtection: available,
-			sso: available,
-			blockedCount: '0',
-			ssoUsable: true,
-			isOffline: false,
-			ssoLocks: { matchByEmail: false, twoStep: false },
-			ssoEffective: { matchByEmail: false, twoStep: false },
-			currentIp: '203.0.113.7',
-			...state,
-		} }
+		state={
+			state === null
+				? undefined
+				: {
+						bruteForce: available,
+						accountProtection: available,
+						sso: available,
+						blockedCount: '0',
+						ssoUsable: true,
+						isOffline: false,
+						ssoLocks: { matchByEmail: false, twoStep: false },
+						ssoEffective: { matchByEmail: false, twoStep: false },
+						currentIp: '203.0.113.7',
+						...state,
+					}
+		}
 		settings={
 			{
 				settings: { sso: true, ...settings },
@@ -120,6 +124,23 @@ describe( 'LoginProtectionSettingsCard', () => {
 			'aria-disabled',
 			'true'
 		);
+	} );
+
+	const USUAL_HELP =
+		'Asks users with a compromised password to verify their identity and choose a new one.';
+
+	it.each( [
+		[
+			'it is unavailable',
+			{ accountProtection: { available: false, active: false } },
+			'Account protection isn’t available on this site.',
+		],
+		[ 'it is available', {}, USUAL_HELP ],
+		[ 'the section state has not loaded', null, USUAL_HELP ],
+	] )( 'describes account protection when %s', ( _name, state, help ) => {
+		renderCard( { state } );
+
+		expect( screen.getByText( help ) ).toBeInTheDocument();
 	} );
 
 	it( 'locks a forced option to the value WordPress.com login applies', () => {
