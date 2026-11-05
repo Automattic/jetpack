@@ -55,7 +55,7 @@ class Llms_Txt {
 	const HTTP_MAX_AGE = 15 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Options whose changes alter llms.txt.
+	 * Options whose changes alter llms.txt, besides its own on/off setting.
 	 */
 	const CACHE_OPTIONS = array( 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure', 'home', 'siteurl', 'WPLANG' );
 
@@ -116,7 +116,10 @@ class Llms_Txt {
 	 */
 	public static function clear_cache_for_option( $option ) {
 		if ( self::OPTION === $option ) {
-			self::reset_cache();
+			// Turning llms.txt off or on is the owner's reset, so purge even when nothing is stored:
+			// the edge copy can outlive an expired stored one.
+			delete_transient( self::CACHE_KEY );
+			self::purge_edge_cache();
 		} elseif (
 			in_array( $option, self::CACHE_OPTIONS, true )
 			|| ( 0 === strpos( $option, 'theme_mods_' ) && 'theme_mods_' . get_stylesheet() === $option )
@@ -135,17 +138,6 @@ class Llms_Txt {
 		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
 			self::purge_edge_cache();
 		}
-	}
-
-	/**
-	 * Drop the stored llms.txt and always purge the edge copy, which can outlive an expired
-	 * stored one. Runs when llms.txt is turned off or on, the owner's way to reset it.
-	 *
-	 * @return void
-	 */
-	public static function reset_cache() {
-		delete_transient( self::CACHE_KEY );
-		self::purge_edge_cache();
 	}
 
 	/**
