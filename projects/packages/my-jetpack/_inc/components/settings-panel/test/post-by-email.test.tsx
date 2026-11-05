@@ -9,6 +9,7 @@ const mockFetchModules = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCopyRef = jest.fn();
+const mockRecordEvent = jest.fn();
 const mockUseCopyToClipboard = jest.fn< typeof mockCopyRef, [ string, () => void ] >(
 	() => mockCopyRef
 );
@@ -31,9 +32,26 @@ jest.mock( '@wordpress/compose', () => ( {
 jest.mock( '../../my-jetpack-tab-panel/features/feature-state', () => ( {
 	useAccountConnected: () => mockAccountConnected,
 } ) );
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
 jest.mock( '../../module-toggle', () => ( {
-	ModuleToggle: ( { labelledby, disabled }: { labelledby?: string; disabled?: boolean } ) => (
-		<input type="checkbox" aria-labelledby={ labelledby } disabled={ disabled } />
+	ModuleToggle: ( {
+		labelledby,
+		disabled,
+		onSwitch,
+	}: {
+		labelledby?: string;
+		disabled?: boolean;
+		onSwitch?: ( active: boolean ) => void;
+	} ) => (
+		<input
+			type="checkbox"
+			aria-labelledby={ labelledby }
+			disabled={ disabled }
+			onChange={ onSwitch?.bind( null, true ) }
+		/>
 	),
 } ) );
 
@@ -151,6 +169,17 @@ describe( 'PostByEmailSettings', () => {
 				name: 'Publish blog posts simply by sending an email to a custom address.',
 			} )
 		).toBeDisabled();
+	} );
+
+	it( 'records the module switch', async () => {
+		render( <PostByEmailSettings module={ build() } disabled={ false } /> );
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_wpa_module_toggle', {
+			module: 'post-by-email',
+			toggled: 'on',
+			origin: 'my-jetpack-settings-panel',
+		} );
 	} );
 
 	it( 'says why the address is locked when the current user has no account connected', () => {
