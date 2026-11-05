@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/common/site-launch-publish-copy.php';
@@ -156,6 +157,39 @@ class Site_Launch_Publish_Copy_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( wpcom_site_launch_resolve_publish_copy( true ) );
 		$this->assertFalse( get_transient( $this->get_cache_key() ) );
+	}
+
+	/**
+	 * On Atomic, the assignment comes from the calypso platform's endpoint, where the experiment is registered.
+	 */
+	public function test_atomic_assignment_asks_the_calypso_platform() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launch-status', 'unlaunched' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->admin_id => "token.secret.{$this->admin_id}" ) );
+		Connection_Utils::init_default_constants();
+
+		$requested_url = null;
+		$answer        = static function ( $preempt, $args, $url ) use ( &$requested_url ) {
+			$requested_url = $url;
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'variations' => array( WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT => 'treatment' ) ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+		add_filter( 'pre_http_request', $answer, 10, 3 );
+
+		try {
+			$this->assertTrue( wpcom_site_launch_resolve_publish_copy( true ) );
+			$this->assertStringContainsString( '/experiments/0.1.0/assignments/calypso', (string) $requested_url );
+			$this->assertSame( 1, (int) get_transient( $this->get_cache_key() ) );
+		} finally {
+			remove_filter( 'pre_http_request', $answer, 10 );
+			\Jetpack_Options::delete_option( 'id' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+		}
 	}
 
 	/**

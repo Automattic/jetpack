@@ -127,11 +127,12 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 			}
 			$answered = null !== $variation;
 		} elseif ( $assign && ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
-			// The assignments endpoint always assigns, so a peek on Atomic relies on the cache alone.
+			// The assignments endpoint always assigns, so a peek on Atomic relies on the cache alone. It only
+			// returns experiments registered on the platform in its path, which is calypso for this one.
 			$response = Client::wpcom_json_api_request_as_user(
 				add_query_arg(
 					array( 'experiment_names' => WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT ),
-					'/experiments/0.1.0/assignments/wpcom'
+					'/experiments/0.1.0/assignments/calypso'
 				),
 				'2'
 			);
