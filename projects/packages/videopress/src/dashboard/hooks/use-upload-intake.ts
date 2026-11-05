@@ -2,7 +2,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice';
+import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice/constants';
 import {
 	INVALID_FILE_NOTICE_ID,
 	NOT_A_VIDEO_MESSAGE,
@@ -24,7 +24,7 @@ export function useUploadIntake(
 	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
 	const { startUpload } = useUpload();
 	const { createErrorNotice } = useDispatch( noticesStore );
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( 'upload_limit' );
 
 	return useCallback(
 		( files: File[] ): number => {

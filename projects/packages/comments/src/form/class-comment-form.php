@@ -163,7 +163,7 @@ class Comment_Form {
 	/**
 	 * Set the form arguments the app reads back out.
 	 *
-	 * @param array $args Comment form arguments.
+	 * @param array|mixed $args Comment form arguments. Null when an earlier filter drops them.
 	 * @return array
 	 */
 	public function comment_form_defaults( $args ) {
@@ -183,7 +183,7 @@ class Comment_Form {
 			$defaults['title_reply'] = $greeting;
 		}
 
-		$this->defaults = array_merge( $args, $defaults );
+		$this->defaults = array_merge( (array) $args, $defaults );
 
 		return $this->defaults;
 	}

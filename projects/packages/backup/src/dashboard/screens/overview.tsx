@@ -8,6 +8,7 @@ import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, {
+	BackupCompleteBanner,
 	BackupFailedRunBanner,
 	BackupTroubleBanner,
 	BackupWarningsBanner,
@@ -31,6 +32,7 @@ import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { useRevealDetail } from '../hooks/use-reveal-detail';
 import { isBackupItem } from '../types/activity';
+import { isValidRewindId } from '../types/rewind-id';
 import { overviewState } from './overview-state';
 import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
@@ -52,12 +54,9 @@ export const INITIAL_VIEW: View = {
 	titleField: 'title',
 	mediaField: 'icon',
 	descriptionField: 'description',
-	// In DataViews' list layout, the `titleField`, `mediaField` and
-	// `descriptionField` fields are rendered implicitly — anything else
-	// in `fields` would render a second time as a generic row. Leave
-	// `fields` empty so the title + media + description are the only
-	// things shown per row.
-	fields: [],
+	// The title, media and description fields render implicitly; only fields listed here
+	// describe the row's button to screen readers, so the known-threats badge goes here.
+	fields: [ 'knownThreats' ],
 };
 
 /**
@@ -184,12 +183,14 @@ function OverviewBody() {
 	// through its own `useBackups`, so this screen has two observers of
 	// the state below — but the refresh must fire once per finished
 	// backup, not once per observer. See the hook's docblock.
-	const { finishedRuns, failedRun } = useRefreshActivityOnBackupComplete(
-		backupsState,
-		isBackupRequested,
-		backups.find( isUsableBackup )?.id ?? null,
-		backups[ 0 ] ?? null
-	);
+	const { finishedRuns, failedRun, completedRun, isAwaitingRow, dismissCompletedRun } =
+		useRefreshActivityOnBackupComplete(
+			backupsState,
+			isBackupRequested,
+			backups.find( isUsableBackup )?.id ?? null,
+			backups[ 0 ] ?? null,
+			defaultSelectedId
+		);
 	// A second opinion on whether anything is restorable, from the
 	// paginated activity log rather than the short `/backups` window.
 	// While it is still unknown, assume there *are* restore points:
@@ -323,6 +324,13 @@ function OverviewBody() {
 				/>
 			) }
 			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
+			{ backupsState === 'complete' && completedRun && ! hasWarnings && ! failedRun && (
+				<BackupCompleteBanner
+					onDismiss={ dismissCompletedRun }
+					isListing={ isAwaitingRow }
+					returnFocusTo={ overviewRef }
+				/>
+			) }
 			{ backupsState === 'complete' && failedRun && (
 				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
 			) }
@@ -383,6 +391,34 @@ function OverviewBody() {
 }
 
 /**
+ * Why the pane has no item for a selection every lookup has answered for.
+ *
+ * @param selectedId - The selection id from the URL.
+ * @return The message to show beside the way out.
+ */
+function notFoundMessage( selectedId: string ): string {
+	if ( isRestoreRowId( selectedId ) ) {
+		// The collection is the last ten restores and has no pages, so there is nowhere else to send the reader.
+		return __(
+			"That restore isn't among this site's most recent ones any more.",
+			'jetpack-backup-pkg'
+		);
+	}
+	if ( isValidRewindId( selectedId ) ) {
+		// `useActivityById` searched the log around the backup itself, not just loaded pages.
+		return __(
+			"That backup couldn't be found. It may no longer be available.",
+			'jetpack-backup-pkg'
+		);
+	}
+	// Only loaded pages were searched, so "gone" is not ours to claim.
+	return __(
+		"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+		'jetpack-backup-pkg'
+	);
+}
+
+/**
  * Right-pane router for the Overview screen.
  *
  * Resolves the URL-driven `selectedId` to an activity item and renders the
@@ -413,7 +449,7 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, hasAnswered, error, isFetching } = useActivityById(
+	const { item, hasAnswered, error, isFetching, retryLookup } = useActivityById(
 		selectedId,
 		page,
 		pageSize,
@@ -446,13 +482,14 @@ function RightPane( {
 	if ( ! item && error ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				{ /*
-				 * Neither the upstream reason nor a retry: the list beside this pane
-				 * reports the activity feed's failure with both, and a second copy of
-				 * each is two error notices and two buttons for one thing to fix.
-				 * Silent too: spoken beside the list's notice, it would only repeat the failure.
-				 */ }
-				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
+				{ /* Only the independent lookup needs its own report; the list reports page failures. */ }
+				<QueryError
+					title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) }
+					error={ retryLookup ? error : undefined }
+					onRetry={ retryLookup }
+					isRetrying={ isFetching }
+					silent={ ! retryLookup }
+				/>
 			</div>
 		);
 	}
@@ -460,20 +497,7 @@ function RightPane( {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Stack direction="column" gap="sm" align="center">
-					<Text>
-						{ isRestoreRowId( selectedId )
-							? // The collection is the last ten restores and has no pages,
-								// so there is nowhere else to send the reader.
-								__(
-									"That restore isn't among this site's most recent ones any more.",
-									'jetpack-backup-pkg'
-								)
-							: // Only loaded pages were searched, so "gone" is not ours to claim.
-								__(
-									"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
-									'jetpack-backup-pkg'
-								) }
-					</Text>
+					<Text>{ notFoundMessage( selectedId ) }</Text>
 					<Button variant="outline" onClick={ onClearSelected }>
 						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }
 					</Button>

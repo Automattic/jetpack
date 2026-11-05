@@ -169,7 +169,7 @@ This writes a unique `COMPOSE_PROJECT_NAME` (derived from git's worktree id — 
 - **idempotent** — it only fills in the keys that are missing (so it also backfills ports for a name-only `.env` left by `up --name`) and is a no-op once fully configured, so it's safe to run before every `up`;
 - **a no-op in the primary checkout** — that always stays `jetpack_dev` on the default ports.
 
-It reserves ports already recorded in other worktrees' `.env` files and the primary defaults, but does not probe for live-bound host ports, and does not lock against another worktree seeding at the same instant — so two worktrees seeded in parallel can, in principle, pick the same port. Either way a genuine clash surfaces when `jetpack docker up` reports `address already in use`; edit the port in `.env` and retry.
+When it picks a new port, it skips ports already recorded in other worktrees' `.env` files, the primary defaults, and any port that already has a listener on localhost (`127.0.0.1` or `::1`). A port already in this worktree's `.env` is kept as is. It does not lock against another worktree seeding at the same instant, so two worktrees seeded in parallel can, in principle, pick the same port. A genuine clash surfaces when `jetpack docker up` reports `address already in use`; edit the port in `.env` and retry.
 
 To undo it, delete the seeded lines from `tools/docker/.env` (the file is git-ignored and removed with the worktree). To set the name/ports yourself instead, edit `.env` by hand or use the manual flags below.
 

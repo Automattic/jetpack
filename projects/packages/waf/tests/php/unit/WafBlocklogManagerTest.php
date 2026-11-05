@@ -77,6 +77,22 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testThirtyDayCountSkipsOlderDaysStillStored() {
+		add_test_option(
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY,
+			array(
+				gmdate( 'Y-m-d', strtotime( '-40 days' ) ) => 5,
+				gmdate( 'Y-m-d', strtotime( '-2 days' ) )  => 2,
+			)
+		);
+
+		$this->assertSame( 2, Waf_Blocklog_Manager::get_thirty_days_block_counts() );
+	}
+
+	/**
 	 * The firewall writes the counts around the object cache, and with the base prefix, so reads must match both.
 	 *
 	 * @runInSeparateProcess

@@ -113,6 +113,28 @@ class LlmsTxtTest extends TestCase {
 		$this->assertTrue( Llms_Txt::can_serve() );
 	}
 
+	public function test_competing_plugin_prevents_llms_txt_serving() {
+		$original_uri           = $_SERVER['REQUEST_URI'] ?? null;
+		$original_public        = get_option( 'blog_public' );
+		$_SERVER['REQUEST_URI'] = '/llms.txt';
+		update_option( Llms_Txt::OPTION, true );
+		update_option( 'blog_public', 1 );
+		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		try {
+			$this->assertFalse( Llms_Txt::can_serve() );
+			$this->expectOutputString( '' );
+			Llms_Txt::maybe_serve();
+		} finally {
+			remove_filter( 'jetpack_disable_seo_tools', '__return_true' );
+			update_option( 'blog_public', $original_public );
+			if ( null === $original_uri ) {
+				unset( $_SERVER['REQUEST_URI'] );
+			} else {
+				$_SERVER['REQUEST_URI'] = $original_uri;
+			}
+		}
+	}
+
 	/**
 	 * A host (or the static-file auto-detection) can force the honest
 	 * "can't take effect" state via the filter.

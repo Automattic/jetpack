@@ -4,14 +4,25 @@ import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getProtectPageUrl } from '../../../utils/protect-page';
-import { getActivationStatusLabel } from '../utils';
+import { isSettingsConsolidationEnabled } from '../../../utils/settings-consolidation';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getModuleUnavailableNote } from './feature-state';
-import { getFeatureUnavailableReason, getModuleStatus } from './module-availability';
+import {
+	getForcedReason,
+	getModuleUnavailableNote,
+	needsAccountWithoutConnect,
+	offersConnect,
+} from './feature-state';
+import { isAccountConnectEnabled } from './mappings';
+import {
+	getFeatureStatusLabel,
+	getFeatureUnavailableReason,
+	getModuleStatus,
+} from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -38,9 +49,53 @@ export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undef
 
 	const url = $module.configure_url;
 	// Jetpack's fallback: a settings search, which for a module without options finds only its toggle.
-	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );
+	const isSettingsSearch = url?.includes( SETTINGS_SEARCH );
 
 	return isSettingsSearch && ! Object.keys( $module.options ?? {} ).length ? undefined : url;
+}
+
+const SETTINGS_SEARCH = 'page=jetpack-settings#/settings?term=';
+
+/**
+ * Whether a module's settings open in the panel: its URL is Jetpack's settings-search default or the panel's own.
+ *
+ * Any other URL, such as the SEO page an opted-in site is sent to, is the module's real home and stays a link.
+ *
+ * @param url - The module's `configure_url`.
+ * @return True when the panel replaces the link.
+ */
+export function opensInSettingsPanel( url: string ): boolean {
+	return (
+		url.includes( SETTINGS_SEARCH ) ||
+		( url.includes( 'page=my-jetpack' ) && /configure(=|%3D)/.test( url ) )
+	);
+}
+
+/**
+ * Configure for a module, opening the settings panel over the page instead of leaving it.
+ *
+ * @param props      - Component props.
+ * @param props.slug - The module slug.
+ * @param props.name - The feature name.
+ * @return The link.
+ */
+function PanelConfigureLink( { slug, name }: { slug: string; name: string } ) {
+	const [ searchParams ] = useSearchParams();
+	const next = new URLSearchParams( searchParams );
+	next.set( 'configure', slug );
+
+	return (
+		<Link
+			render={ <RouterLink to={ { search: `?${ next }` } } replace /> }
+			aria-label={ sprintf(
+				/* translators: %s is the feature name. */
+				__( 'Configure %s', 'jetpack-my-jetpack' ),
+				name
+			) }
+		>
+			{ __( 'Configure', 'jetpack-my-jetpack' ) }
+		</Link>
+	);
 }
 
 type FeatureItemProps = {
@@ -81,19 +136,37 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	const reason = unavailable || getModuleUnavailableNote( state );
+	// Connect or Install already says an account is needed.
+	const reason =
+		( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
+		getModuleUnavailableNote( state );
+	// With no Active or Inactive badge, this says why there is no switch, a host's choice or what
+	// the site can't run, unless the line above already does.
+	const forcedReason = isAccountConnectEnabled() ? getForcedReason( state ) : null;
+	const forcedNote = forcedReason !== reason ? forcedReason : null;
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
 	const isSettling = Boolean( state.pending );
-	// On a block theme these modules offer the Site Editor instead of a switch, so the card
+	// On a block theme these modules link to Settings › Sharing instead of a switch, so the card
 	// says what to do there and drops a status badge that would only confuse next to it.
 	const migration =
 		state.control.kind === 'module' ? getBlockThemeMigration( state.control.module ) : null;
+	// Manage in Protect stands in for the switch but cannot say whether the module is on.
+	const linksToProtect =
+		state.control.kind === 'module' &&
+		! getForcedReason( state ) &&
+		Boolean( getProtectPageUrl( state.control.module.module ) );
+	const statusLabel = migration ? null : getFeatureStatusLabel( state, linksToProtect );
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
-		! onOpen && ! migration && isActive && ! state.isSwitching && state.control.kind === 'module'
+		! onOpen &&
+		! migration &&
+		isActive &&
+		! state.accountNeeded &&
+		! state.isSwitching &&
+		state.control.kind === 'module'
 			? getModuleSettingsUrl( state.control.module )
 			: undefined;
 
@@ -101,6 +174,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }
 		>
@@ -141,9 +215,10 @@ export function FeatureItem( {
 						{ feature.name }
 					</Text>
 
-					{ isSettling && (
+					{ isSettling && ! isAccountConnectEnabled() && (
 						// The box a rendered Badge takes, measured: the heading row is laid out
-						// around it, so a shorter placeholder resizes every card on load.
+						// around it, so a shorter placeholder resizes every card on load. With the
+						// flag on, most cards settle with no badge, so none is held for them.
 						<LoadingPlaceholder
 							width={ 51 }
 							height={ 24 }
@@ -151,11 +226,9 @@ export function FeatureItem( {
 						/>
 					) }
 
-					{ ! isSettling && ! migration && (
+					{ ! isSettling && statusLabel && (
 						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
-							{ unavailable
-								? __( 'Unavailable', 'jetpack-my-jetpack' )
-								: getActivationStatusLabel( isActive ) }
+							{ statusLabel }
 						</Badge>
 					) }
 
@@ -174,26 +247,35 @@ export function FeatureItem( {
 					</Text>
 				) }
 
+				{ forcedNote && (
+					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+						{ forcedNote }
+					</Text>
+				) }
+
 				<FeatureInstallNotice state={ state } />
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
-				{ settingsUrl && (
-					<Link
-						href={ settingsUrl }
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. */
-							__( 'Configure %s', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
-					>
-						{ __( 'Configure', 'jetpack-my-jetpack' ) }
-					</Link>
-				) }
+				{ settingsUrl &&
+					( isSettingsConsolidationEnabled() && opensInSettingsPanel( settingsUrl ) ? (
+						<PanelConfigureLink slug={ feature.slug } name={ feature.name } />
+					) : (
+						<Link
+							href={ settingsUrl }
+							aria-label={ sprintf(
+								/* translators: %s is the feature name. */
+								__( 'Configure %s', 'jetpack-my-jetpack' ),
+								feature.name
+							) }
+						>
+							{ __( 'Configure', 'jetpack-my-jetpack' ) }
+						</Link>
+					) ) }
 				<FeatureAction
 					state={ state }
 					origin={ origin }
-					describedby={ migration ? undefined : statusId }
+					describedby={ statusLabel ? statusId : undefined }
 				/>
 			</span>
 

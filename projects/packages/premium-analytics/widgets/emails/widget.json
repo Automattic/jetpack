@@ -7,5 +7,31 @@
 		"content": "Your most recently sent emails, with their opens and open rate, or clicks and click rate."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "metric",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "opens",
+					"label": "Opened"
+				},
+				{
+					"value": "clicks",
+					"label": "Clicked"
+				}
+			]
+		}
+	],
+	"actions": [
+		{
+			"id": "view-all",
+			"label": "View all",
+			"relevance": "high",
+			"href": "admin.php?page=jetpack-premium-analytics-wp-admin&p=%2Freports%2Femails"
+		}
+	]
 }

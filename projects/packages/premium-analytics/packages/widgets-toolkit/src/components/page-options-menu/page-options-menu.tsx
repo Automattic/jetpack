@@ -11,6 +11,7 @@ import { useCallback, useState } from 'react';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { canSendFeedback } from './can-send-feedback';
+import { getClassicStatsUrl } from './classic-stats-url';
 import { FeedbackModal } from './feedback-modal';
 import { SwitchOffDialog } from './switch-off-dialog';
 
@@ -36,8 +37,9 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const [ isFeedbackOpen, setIsFeedbackOpen ] = useState( false );
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
 
-	// The opt-in is a site setting, so switching it off takes the same capability.
-	const canSwitchOff = currentUserCan( 'manage_options' );
+	// The opt-in is a site setting, so switching it off takes the same capability; and it
+	// sends the reader to classic Stats, so there has to be one.
+	const canSwitchOff = currentUserCan( 'manage_options' ) && null !== getClassicStatsUrl();
 	const canGiveFeedback = canSendFeedback();
 
 	const openFeedback = useCallback( () => {

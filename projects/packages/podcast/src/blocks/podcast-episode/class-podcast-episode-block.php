@@ -77,21 +77,20 @@ class Podcast_Episode_Block {
 	}
 
 	/**
-	 * Mark the block plan-gated so the editor shows the upgrade prompt (no-op if
-	 * the site has access). Standard paid-block behavior: nudge on Atomic/Simple,
-	 * hidden on self-hosted Jetpack where nudges are off — upsell in the dashboard.
+	 * Gate unpaid sites while keeping existing episodes editable when no upgrade is available.
 	 */
 	public static function flag_plan_gated() {
 		if ( Podcast_Gate::has_product_access() ) {
 			return;
 		}
 
+		$required_plan = Podcast_Gate::get_required_plan_slug();
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			'podcast-episode',
-			'missing_plan',
+			$required_plan ? 'missing_plan' : 'missing_plan__no_offer',
 			array(
 				'required_feature' => 'podcast-episode',
-				'required_plan'    => Podcast_Gate::get_required_plan_slug(),
+				'required_plan'    => $required_plan,
 			)
 		);
 	}

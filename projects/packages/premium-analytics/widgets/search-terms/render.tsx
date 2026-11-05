@@ -2,16 +2,15 @@
  * External dependencies
  */
 import {
-	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	Leaderboard,
-	ReportLink,
 	WidgetRoot,
 	describeError,
 	searchTermsCsvExporter,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -55,6 +54,14 @@ function SearchTermsInner() {
 		__( 'You don’t have search terms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
+	useReportActions( {
+		csv: {
+			exporter: searchTermsCsvExporter,
+			status: { isLoading, isFetching, isError: isPrimaryError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
 		<Leaderboard
 			chartTitle={ __( 'Top searched terms', 'jetpack-premium-analytics-pkg' ) }
@@ -75,16 +82,6 @@ function SearchTermsInner() {
 				onRetry: refetch,
 			} ) }
 			empty={ emptyState.empty }
-			footer={
-				<>
-					<ReportLink report="search-terms" />
-					<ExporterCsvDownloadButton
-						exporter={ searchTermsCsvExporter }
-						status={ { isLoading, isFetching, isError: isPrimaryError } }
-						rowCount={ rows.length }
-					/>
-				</>
-			}
 		/>
 	);
 }

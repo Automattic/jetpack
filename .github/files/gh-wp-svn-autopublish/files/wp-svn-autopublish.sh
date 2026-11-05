@@ -98,14 +98,24 @@ if [[ -n "$CHECK" ]]; then
 	fi
 fi
 
+COMMIT_MSG="Update to version $TAG from GitHub"
 if [[ -n "$CI" ]]; then
 	echo "::group::Committing to SVN"
-	svn commit -m "Update to version $TAG from GitHub" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+	if ! svn commit -m "$COMMIT_MSG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"; then
+		# WP.org SVN can "fail" on large commits that did land, so check trunk's log to see if it really was successful.
+		# But first let's give it some time to wrap up server-side.
+		sleep 60
+		if ! svn log -l 1 "https://plugins.svn.wordpress.org/$WPSLUG/trunk" | grep -qxF "$COMMIT_MSG"; then
+			echo "::error::SVN commit failed."
+			exit 1
+		fi
+		echo "::warning::SVN reported a commit error, but the commit landed."
+	fi
 	echo '::endgroup::'
 else
 	echo "----"
 	echo "Not running in CI, skipping commit"
-	echo "  svn commit -m \"Update to version $TAG from GitHub\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
+	echo "  svn commit -m \"$COMMIT_MSG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 	echo "----"
 fi
 
@@ -128,14 +138,14 @@ if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 		echo '::endgroup::'
 		sed -i -e "s/^Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
 		echo "::group::Committing to SVN"
-		svn commit -m "Updating stable tag in version $TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+		svn commit "tags/$TAG/readme.txt" -m "Updating stable tag in version $TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
 		echo '::endgroup::'
 	else
 		echo "----"
 		echo "Not running in CI, skipping tag \"Stable tag\" update"
 		echo "  svn up --parents \"tags/$TAG/readme.txt\""
 		echo "  sed -i -e \"s/^Stable tag: .*/Stable tag: $TAG/\" \"tags/$TAG/readme.txt\""
-		echo "  svn commit -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
+		echo "  svn commit \"tags/$TAG/readme.txt\" -m \"Updating stable tag in version $TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
 		echo "----"
 	fi
 else

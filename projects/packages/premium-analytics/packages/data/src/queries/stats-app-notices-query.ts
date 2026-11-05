@@ -9,6 +9,7 @@ export type StatsAppNoticeId =
 	| 'client_paid_plan_purchase_success'
 	| 'commercial_site_upgrade'
 	| 'do_you_love_jetpack_stats'
+	| 'free_site_upgrade'
 	| 'gdpr_cookie_consent'
 	| 'new_stats_feedback'
 	| 'opt_in_new_stats'
@@ -16,7 +17,8 @@ export type StatsAppNoticeId =
 	| 'show_floating_user_feedback_panel'
 	| 'tier_upgrade'
 	| 'traffic_page_highlights_module_settings'
-	| 'traffic_page_settings';
+	| 'traffic_page_settings'
+	| 'visitor_consent_setup';
 
 export type StatsAppNotices = Partial< Record< StatsAppNoticeId, boolean > >;
 

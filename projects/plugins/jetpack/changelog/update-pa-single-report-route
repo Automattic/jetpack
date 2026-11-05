@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Premium Analytics: Serve the video page from /report/video/<id>; the old /video/<id> address redirects.

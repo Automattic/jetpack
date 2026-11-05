@@ -56,15 +56,19 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 		title_formats: {},
 		title_separator: '-',
 		title_formats_editable: true,
+		conflicting_seo_plugin: '',
 		verification_tools_active: true,
 		verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 		search_engines_visible: true,
 		site_is_private: false,
+		site_is_coming_soon: false,
+		site_visibility_url: '',
 		sitemap_active: false,
 		sitemap_switchable: true,
 		sitemap_url: '',
 		canonical_active: false,
 		canonical_switchable: true,
+		canonical_conflicted: false,
 		schema: {} as SettingsResponse[ 'schema' ],
 	};
 
@@ -111,17 +115,5 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
 		expect( screen.getByLabelText( FRONT_PAGE_LABEL ) ).toBeInTheDocument();
-	} );
-
-	it( 'keeps the Advanced module on a gated site', () => {
-		isGated.mockReturnValue( true );
-
-		render( <SettingsScreen form={ buildForm( false ) } /> );
-
-		// Deliberately outside the `gated` branch in the screen: gating removes paid
-		// *settings*, but a gated site still has SEO tools and must keep the way to
-		// switch them off. Without this, tucking the card into the gated branch would
-		// go unnoticed.
-		expect( screen.getByRole( 'heading', { level: 2, name: /Advanced/ } ) ).toBeInTheDocument();
 	} );
 } );

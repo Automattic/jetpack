@@ -7,6 +7,7 @@ import {
 	useStatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
 import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -41,11 +42,6 @@ type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartAttributes
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
 };
 
 /**
@@ -156,8 +152,9 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					groupLabel={ groupLabel }
 					baseline="padded"
 					chartTitle={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }

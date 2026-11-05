@@ -218,7 +218,7 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 * Get the active installed copy, falling back to the first installed filename.
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
@@ -226,17 +226,24 @@ abstract class Product {
 	 */
 	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
+		$filename    = self::JETPACK_PLUGIN_SLUG === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
+		$first_installed = null;
 		// Products without a standalone plugin don't declare a filename, so drop the empty values.
 		foreach ( array_filter( $filename ) as $name ) {
-			$installed = array_key_exists( $name, $all_plugins );
-			if ( $installed ) {
+			if ( ! isset( $all_plugins[ $name ] ) ) {
+				continue;
+			}
+			if ( $all_plugins[ $name ]['active'] ) {
 				return $name;
 			}
+			if ( null === $first_installed ) {
+				$first_installed = $name;
+			}
 		}
+		return $first_installed;
 	}
 
 	/**
@@ -332,6 +339,9 @@ abstract class Product {
 
 		if ( static::$slug === 'jetpack-ai' ) {
 			$product_data['ai-assistant-feature'] = static::get_ai_assistant_feature();
+		}
+		if ( in_array( static::$slug, array( 'security', 'growth' ), true ) ) {
+			$product_data['purchase_replacement'] = Products::get_bundle_offer( static::$slug );
 		}
 
 		return $product_data;
@@ -486,9 +496,9 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
-	 * Prepare supported billing terms, gating only Pro on catalog availability.
+	 * Prepare supported billing terms, requiring confirmed availability for Pro.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 * @param string[] $product_slugs Store product slugs, preferred term first.
 	 * @return array Pricing details and term choices.
 	 */
@@ -505,7 +515,7 @@ abstract class Product {
 				$valid_product ? Wpcom_Products::get_product_pricing( $slug ) : array()
 			);
 			$expected_term     = str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' );
-			$on_sale           = ! str_starts_with( $slug, 'jetpack_pro_' ) || true === ( $product->available ?? false );
+			$on_sale           = str_starts_with( $slug, 'jetpack_pro_' ) ? true === ( $product->available ?? false ) : false !== ( $product->available ?? null );
 			$term['available'] = $valid_product && $on_sale && ( $term['product_term'] ?? '' ) === $expected_term;
 			$terms[]           = $term;
 		}
@@ -1033,7 +1043,7 @@ abstract class Product {
 	/**
 	 * Get the Jetpack module that switches the product on, if any.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return ?string
 	 */
@@ -1083,7 +1093,7 @@ abstract class Product {
 	/**
 	 * Whether activating the product installs and activates its standalone plugin, rather than relying on the Jetpack plugin.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return bool
 	 */

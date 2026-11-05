@@ -2,6 +2,55 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [6.2.0] - 2026-11-04
+### Added
+- Add a SidebarFooter component for actions pinned to the bottom of a sidebar. [#54229]
+
+### Changed
+- Gravatar Hovercards: Update @gravatar-com/hovercards to 0.17.0, which adds defensive escaping of Gravatar profile data. [#54379]
+- StatCard: Use the design system tooltip. [#54512]
+- Update package dependencies. [#54512]
+
+### Fixed
+- JetpackFooter: Keep the footer styles in production builds. [#54512]
+
+## [6.1.1] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869]
+
+## [6.1.0] - 2026-10-28
+### Added
+- Add a PeriodSelector component: a dropdown of period presets with optional previous and next buttons. [#54149]
+- Add a RadioCard component. [#54212]
+- AdminPage: Add a `jp-admin-page__content` class to the content container. [#54105]
+- PeriodSelector: Add a disabled prop. [#54202]
+- Period Selector: Add a label that screen readers announce with the selected period. [#54209]
+
+### Changed
+- AutomatticIconLogo: Use the black Automattic symbol by default, without blue. [#54208]
+- Update package dependencies. [#54118]
+
+## [6.0.0] - 2026-10-26
+### Added
+- AdminPage: Add an ariaLabel prop that names the page region when the header shows breadcrumbs instead of a title. [#54055]
+- AdminPage: Add a page action button that shows only its icon on screens 480px wide or narrower. [#53921]
+- JetpackFooter: Add an entry without the stylesheet, and export the stylesheet on its own, so script-module builds can bundle the footer. [#53971]
+- Support React 19. [#53882]
+
+### Changed
+- TermsOfService: Render with Text from @wordpress/ui. The `variant` prop now takes a @wordpress/ui Text variant, and the legacy Text spacing and `component` props are removed. [#53892]
+- Update package dependencies. [#53951]
+
+### Removed
+- Remove the `NumberControl` component. Use `InputControl` from `@wordpress/ui` instead. [#54046]
+
+### Fixed
+- AdminPage: Stop clearing the shared REST API nonce and root when a page doesn't pass them. [#53397]
+
+## [5.0.1] - 2026-10-20
+### Changed
+- Internal updates.
+
 ## [5.0.0] - 2026-10-19
 ### Added
 - Add a CheckboxCard component. [#53733]
@@ -226,8 +275,7 @@
 ## [1.11.3] - 2026-05-21
 ### Changed
 - Mark ContextualUpgradeTrigger as @deprecated. Use Notice from @wordpress/ui instead. The implementation is unchanged. [#48909]
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.11.2] - 2026-05-19
 ### Changed
@@ -2015,6 +2063,11 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[6.2.0]: https://github.com/Automattic/jetpack-components/compare/6.1.1...6.2.0
+[6.1.1]: https://github.com/Automattic/jetpack-components/compare/6.1.0...6.1.1
+[6.1.0]: https://github.com/Automattic/jetpack-components/compare/6.0.0...6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-components/compare/5.0.1...6.0.0
+[5.0.1]: https://github.com/Automattic/jetpack-components/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-components/compare/4.0.4...5.0.0
 [4.0.4]: https://github.com/Automattic/jetpack-components/compare/4.0.3...4.0.4
 [4.0.3]: https://github.com/Automattic/jetpack-components/compare/4.0.2...4.0.3

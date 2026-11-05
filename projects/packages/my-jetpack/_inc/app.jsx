@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect } from 'react';
-import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
+import { Navigate, Routes, Route, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,9 @@ import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from './data/utils/offline-features';
+import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
 import Providers from './providers';
+import { RouterBridge } from './router-bridge';
 import './style.module.scss';
 
 /**
@@ -68,6 +70,16 @@ function OfflineFeaturesRoute() {
 }
 
 /**
+ * Bring the sidebar up to date with a plan bought before this page drew it, on any route.
+ *
+ * @return {null} Renders nothing.
+ */
+function PaidMenuSync() {
+	usePaidMenuSync();
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
@@ -76,10 +88,10 @@ export default function App() {
 	if ( isOfflineFeatures() ) {
 		return (
 			<Providers>
-				<HashRouter>
+				<RouterBridge>
 					<ScrollToTop />
 					<OfflineFeaturesRoute />
-				</HashRouter>
+				</RouterBridge>
 			</Providers>
 		);
 	}
@@ -88,8 +100,9 @@ export default function App() {
 
 	return (
 		<Providers>
-			<HashRouter>
+			<RouterBridge>
 				<ScrollToTop />
+				<PaidMenuSync />
 				<PartnerCouponGate>
 					<Routes>
 						<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
@@ -125,7 +138,7 @@ export default function App() {
 						<Route path="*" element={ <MyJetpackScreen /> } />
 					</Routes>
 				</PartnerCouponGate>
-			</HashRouter>
+			</RouterBridge>
 		</Providers>
 	);
 }

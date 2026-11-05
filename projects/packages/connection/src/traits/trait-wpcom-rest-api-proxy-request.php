@@ -50,8 +50,19 @@ trait WPCOM_REST_API_Proxy_Request {
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
 	public function proxy_request_to_wpcom( $request, $path = '', $context = 'user', $allow_fallback_to_blog = false, $request_options = array() ) {
+		$site_path = ltrim( $this->rest_base, '/' ) . ( $path ? '/' . ltrim( (string) $path, '/' ) : '' );
+
+		// Route captures arrive already decoded, so any of these would change which resource the outgoing URL names.
+		if ( preg_match( '#[?\#%\s]|(^|/)\.\.?(/|$)#', $site_path ) ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				__( 'Invalid request path.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
 		$blog_id      = \Jetpack_Options::get_option( 'id' );
-		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( ltrim( $this->rest_base, '/' ) ) . ( $path ? '/' . rawurldecode( ltrim( $path, '/' ) ) : '' );
+		$path         = '/sites/' . rawurldecode( $blog_id ) . '/' . $site_path;
 		$query_params = $request->get_query_params();
 		$manager      = new Manager();
 
@@ -64,7 +75,9 @@ trait WPCOM_REST_API_Proxy_Request {
 		if ( isset( $query_params['rest_route'] ) ) {
 			unset( $query_params['rest_route'] );
 		}
-		$api_url = add_query_arg( $query_params, $path );
+		unset( $query_params['_method'] );
+		$query_params = self::drop_unsafe_query_keys( $query_params );
+		$api_url      = $query_params ? $path . '?' . http_build_query( $query_params, '', '&' ) : $path;
 
 		$request_options = array_replace_recursive(
 			array(
@@ -79,6 +92,17 @@ trait WPCOM_REST_API_Proxy_Request {
 
 		// If no body is present, passing it as $request->get_body() will cause an error.
 		$body = $request->get_body() ? $request->get_body() : null;
+
+		// The body goes out as JSON, so WordPress.com must read it the way this site did.
+		// A request built in code has no route, and older callers build one with an unlabelled JSON body.
+		$is_unlabelled_internal = '' === $request->get_route() && null === $request->get_content_type();
+		if ( null !== $body && ! $request->is_json_content_type() && ! $is_unlabelled_internal ) {
+			return new WP_Error(
+				'rest_invalid_content_type',
+				__( 'This endpoint only accepts a JSON request body.', 'jetpack-connection' ),
+				array( 'status' => 415 )
+			);
+		}
 
 		$response = new WP_Error(
 			'rest_unauthorized',
@@ -147,5 +171,27 @@ trait WPCOM_REST_API_Proxy_Request {
 	 */
 	public function proxy_request_to_wpcom_as_blog( $request, $path = '', $request_options = array() ) {
 		return $this->proxy_request_to_wpcom( $request, $path, 'blog', false, $request_options );
+	}
+
+	/**
+	 * Drop, at every depth, the params whose key is not made of letters, digits, `_` and `-`.
+	 *
+	 * Any other key can turn into a different key if code on the way to WordPress.com decodes the query again, as `add_query_arg()` does.
+	 *
+	 * @param array $params Query params.
+	 * @return array
+	 */
+	private static function drop_unsafe_query_keys( array $params ): array {
+		$safe = array();
+
+		foreach ( $params as $key => $value ) {
+			if ( ! preg_match( '/^[A-Za-z0-9_-]+$/', (string) $key ) ) {
+				continue;
+			}
+
+			$safe[ $key ] = is_array( $value ) ? self::drop_unsafe_query_keys( $value ) : $value;
+		}
+
+		return $safe;
 	}
 }

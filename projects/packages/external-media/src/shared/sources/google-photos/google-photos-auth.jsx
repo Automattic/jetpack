@@ -1,8 +1,8 @@
 import requestExternalAccess from '@automattic/request-external-access';
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Stack } from '@wordpress/ui';
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import { getExternalMediaApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';
@@ -43,13 +43,19 @@ function GooglePhotosAuth( props ) {
 	}, [ setAuthenticated ] );
 
 	return (
-		<div className="jetpack-external-media-auth">
+		<Stack
+			direction="column"
+			align="center"
+			justify="center"
+			gap="lg"
+			className="jetpack-external-media-auth"
+		>
 			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
-			<Button variant="primary" disabled={ isAuthing } onClick={ onAuthorize }>
+			<Button loading={ isAuthing } onClick={ onAuthorize }>
 				{ __( 'Connect to Google Photos', 'jetpack-external-media' ) }
 			</Button>
-		</div>
+		</Stack>
 	);
 }
 

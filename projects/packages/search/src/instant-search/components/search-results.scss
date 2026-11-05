@@ -80,8 +80,23 @@ $colophon-height: 40px;
 }
 
 .jetpack-instant-search__search-results-content {
-	display: flex;
+	display: grid;
+	grid-template-areas: "top side" "bottom side";
+	grid-template-columns: minmax(0, 1fr) helper.$sidebar-width;
+	grid-template-rows: max-content 1fr;
 	position: relative;
+
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas: "top" "side" "bottom";
+		grid-template-rows: auto 0 auto;
+	}
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: max-content 1fr;
+		grid-template-areas: "top" "bottom";
+	}
 }
 
 .jetpack-instant-search__search-results-filter-button {
@@ -132,15 +147,35 @@ $colophon-height: 40px;
 
 .jetpack-instant-search__search-results-primary {
 	margin: 0;
-	max-width: calc(100% - #{helper.$sidebar-width});
-	width: 100%;
+	min-inline-size: 0;
+
+	&--top {
+		grid-area: top;
+	}
+
+	&--bottom {
+		grid-area: bottom;
+
+		> .jetpack-instant-search__search-results-list:first-child,
+		> .jetpack-instant-search__notice:first-child {
+			margin-block-start: 0;
+		}
+	}
+}
+
+.jetpack-instant-search__search-results-secondary-wrapper {
+	grid-area: side;
+	display: grid;
+	min-inline-size: 0;
 
 	.jetpack-instant-search__overlay--no-sidebar & {
-		max-width: 100%;
+		display: none;
 	}
 
 	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
-		max-width: 100%;
+		display: block;
+		block-size: 0;
+		position: relative;
 	}
 }
 
@@ -169,7 +204,8 @@ $colophon-height: 40px;
 
 		@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 			position: absolute;
-			top: 0;
+			inset-block-start: 0;
+			inset-block-end: auto;
 			right: 1em;
 			left: 1em;
 

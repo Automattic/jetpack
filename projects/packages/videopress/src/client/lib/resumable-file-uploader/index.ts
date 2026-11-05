@@ -46,6 +46,7 @@ type UploadVideoArguments = {
 	onSuccess: ( media: VideoMediaProps, file: File ) => void;
 	onError: ( error ) => void;
 	tokenData: MediaTokenProps;
+	signal?: AbortSignal;
 };
 
 const getJwtKey = ( url: string ) => {
@@ -61,6 +62,7 @@ const resumableFileUploader = ( {
 	onProgress,
 	onSuccess,
 	onError,
+	signal,
 }: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
 		onError,
@@ -170,7 +172,13 @@ const resumableFileUploader = ( {
 		},
 	} );
 
+	signal?.addEventListener( 'abort', () => void upload.abort(), { once: true } );
+
 	upload.findPreviousUploads().then( function ( previousUploads ) {
+		// `start()` clears tus's abort flag, so an abort that landed first must skip it.
+		if ( signal?.aborted ) {
+			return;
+		}
 		if ( previousUploads.length ) {
 			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
 		}

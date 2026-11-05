@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +34,14 @@ class Protect_Product_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
 		\Jetpack_Options::delete_option( 'active_modules' );
 		delete_option( 'active_plugins' );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
+		delete_option( 'jetpack_active_plan' );
+		delete_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 	}
 
 	/**
@@ -191,5 +200,83 @@ class Protect_Product_Test extends TestCase {
 		$info = Protect::get_info();
 		$this->assertSame( $loaded, $info['has_protect_page'] );
 		$this->assertSame( $loaded, admin_url( 'admin.php?page=jetpack-protect' ) === $info['scan_results_url'] );
+	}
+
+	/**
+	 * The card asks Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
+	 *
+	 * @dataProvider provide_scan_plans
+	 *
+	 * @param string[] $plan_features The plan's active features.
+	 * @param bool     $expected      Whether the site counts as paying for Scan.
+	 */
+	#[DataProvider( 'provide_scan_plans' )]
+	public function test_paid_plan_follows_protect_status( $plan_features, $expected ) {
+		set_transient( Protect::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'scan' ) ) );
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $plan_features ),
+				),
+			)
+		);
+
+		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
+	}
+
+	/**
+	 * Data provider for test_paid_plan_follows_protect_status.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_scan_plans() {
+		return array(
+			'plan with Scan'    => array( array( 'scan' ), true ),
+			'plan without Scan' => array( array(), false ),
+		);
+	}
+
+	/**
+	 * A host's upgrade URL replaces the card's only for a site without Scan, and only as a web address.
+	 *
+	 * @dataProvider provide_host_purchase_urls
+	 *
+	 * @param string[]    $plan_features The plan's active features.
+	 * @param string      $url           The URL the host sends.
+	 * @param string|null $expected      The card's purchase URL, or null for the interstitial.
+	 */
+	#[DataProvider( 'provide_host_purchase_urls' )]
+	public function test_host_purchase_url( $plan_features, $url, $expected ) {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $plan_features ),
+				),
+			)
+		);
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$purchase_url = Protect::get_purchase_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected, $purchase_url );
+	}
+
+	/**
+	 * Data provider for test_host_purchase_url.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_purchase_urls() {
+		return array(
+			'no Scan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
+			'has Scan'        => array( array( 'scan' ), 'https://example.com/plans', null ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', null ),
+		);
 	}
 }

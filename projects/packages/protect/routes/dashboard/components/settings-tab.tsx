@@ -27,7 +27,7 @@ export default function SettingsTab( {
 	const state = window.jetpackProtectDashboard ?? {};
 	const cards = sections.filter( item => item.SettingsCard );
 	// Once per arrival, so a later save doesn't pull the page back to the card.
-	const scrolledTo = useRef< string >();
+	const scrolledTo = useRef< string >( undefined );
 
 	useEffect( () => {
 		if ( ! isLoaded || ! section || scrolledTo.current === section ) {

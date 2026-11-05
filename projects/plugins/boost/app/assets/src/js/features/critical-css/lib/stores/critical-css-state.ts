@@ -58,16 +58,13 @@ export function criticalCssErrorState( message: string ): CriticalCssState {
  * common logic for handling the result of these actions.
  *
  * @param {string}           action          - The name of the action.
- * @param {z.ZodSchema}      schema          - The schema for the action request.
+ * @param {z.ZodType}        schema          - The schema for the action request.
  * @param {CriticalCssState} optimisticState - The state to use for optimistic updates.
  * @param {Function}         onSuccess       - Optional callback for handling the new state.
  */
-function useCriticalCssAction<
-	ActionSchema extends z.ZodSchema,
-	ActionRequestData extends z.infer< ActionSchema >,
->(
+function useCriticalCssAction< ActionSchema extends z.ZodType >(
 	action: string,
-	schema: ActionRequestData,
+	schema: ActionSchema,
 	optimisticState?: CriticalCssState,
 	onSuccess?: ( state: CriticalCssState ) => void
 ) {

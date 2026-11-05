@@ -11,7 +11,6 @@ describe( 'Reader', () => {
 	const defaultProps = {
 		active: true,
 		searchTerm: '',
-		blogID: 12345,
 	};
 
 	const initialState = {
@@ -127,10 +126,7 @@ describe( 'Reader', () => {
 		it( 'renders the "Visit the Reader" link with correct href and target', () => {
 			render( <Reader { ...defaultProps } />, { initialState } );
 			const link = screen.getByRole( 'link', { name: /Visit the Reader/i } );
-			expect( link ).toHaveAttribute(
-				'href',
-				'https://wordpress.com/reader/?origin_site_id=12345'
-			);
+			expect( link ).toHaveAttribute( 'href', 'https://wordpress.com/reader/' );
 			expect( link ).toHaveAttribute( 'target', '_blank' );
 		} );
 	} );

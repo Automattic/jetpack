@@ -13,8 +13,8 @@ use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Sections\Firewall as Protect_Firewall;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
@@ -122,7 +122,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_scan_state',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'permission_callback' => __CLASS__ . '::view_scan_state_permission_check',
 			)
 		);
 
@@ -1085,6 +1085,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Verify that user can view the Scan state, the same users who see the Protect menu and the admin bar notice.
+	 *
+	 * @since 16.4
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'manage_options'.
+	 */
+	public static function view_scan_state_permission_check() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_view_scan_state',
+			REST_Connector::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
@@ -1281,9 +1300,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$scan_state = self::scan_state();
 
 		if ( ! is_wp_error( $scan_state ) ) {
-			if ( ( new Host() )->is_woa_site() && ! empty( $scan_state->threats ) ) {
-				$scan_state->threats = array();
-			}
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
@@ -1799,7 +1815,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_string',
+				'validate_callback' => __CLASS__ . '::validate_waf_ip_block_list',
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'waf',
 			),
@@ -2557,18 +2573,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 			),
 
-			// GEO tab (Jetpack > SEO). Sparse per-crawler override map the SEO
-			// package reads to emit robots.txt directives for blocked AI crawlers.
-			// Stored as `slug => bool` (true = blocked); catalog validation and
-			// default-pruning happen in `Ai_Crawlers::get_overrides()`.
-			'jetpack_seo_ai_crawler_overrides'          => array(
-				'description'       => esc_html__( 'AI crawler allow/block overrides.', 'jetpack' ),
-				'type'              => 'object',
-				'default'           => array(),
-				'jp_group'          => 'seo-tools',
-				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_overrides',
-			),
-
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
@@ -3173,6 +3177,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Validates the firewall's IP block list, refusing one that would block the user saving it.
+	 *
+	 * @since 16.4
+	 *
+	 * @param string          $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_waf_ip_block_list( $value, $request, $param ) {
+		$is_string = self::validate_string( $value, $request, $param );
+		// Another plugin can load an older Protect package without the check.
+		if ( true !== $is_string || ! method_exists( Protect_Firewall::class, 'validate_ip_block_list' ) ) {
+			return $is_string;
+		}
+
+		// Check the list as the sanitize_callback will store it, since the firewall reads the stored copy.
+		return Protect_Firewall::validate_ip_block_list( esc_textarea( $value ) );
+	}
+
+	/**
 	 * Validates that the parameter is a string.
 	 *
 	 * @since 4.3.0
@@ -3291,29 +3317,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Sanitize the AI crawler override map.
-	 *
-	 * Keeps the value package-agnostic: each key is normalized with sanitize_key()
-	 * and each value cast to bool. Catalog validation and default-pruning happen in
-	 * `Automattic\Jetpack\SEO\Ai_Crawlers::get_overrides()`.
-	 *
-	 * @param mixed $value The submitted override map.
-	 *
-	 * @return array<string, bool> Sanitized `slug => bool` map.
-	 */
-	public static function sanitize_ai_crawler_overrides( $value ) {
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$sanitized = array();
-		foreach ( $value as $k => $v ) {
-			$sanitized[ sanitize_key( $k ) ] = (bool) $v;
-		}
-		return $sanitized;
-	}
-
-	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.3.0
@@ -3379,9 +3382,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Remove options the current user cannot read.
 	 *
-	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
-	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
-	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 * Covers every `jetpack_waf_*` option, `jetpack_protect_global_whitelist` (populated from
+	 * `jetpack_waf_ip_allow_list`), the `jetpack_protect_key` shared secret, and
+	 * `wordpress_api_key`, the site's Akismet API key.
 	 *
 	 * @since 16.2
 	 *
@@ -3396,6 +3399,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$restricted = array(
 			'jetpack_protect_key',
 			'jetpack_protect_global_whitelist',
+			'wordpress_api_key',
 		);
 
 		return array_filter(
@@ -3616,7 +3620,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				if ( is_wp_error( $value ) ) {
 					return false;
 				}
-				// update_option() won't create an option whose value is `false`.
+				// An integer, as in Monitor::save_notifications_copy().
 				$value = (int) (bool) $value;
 				break;
 

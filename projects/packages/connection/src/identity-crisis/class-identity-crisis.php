@@ -232,7 +232,15 @@ class Identity_Crisis {
 			$query_args['multisite'] = true;
 		}
 
-		return add_query_arg( $query_args, $url );
+		// Appended rather than merged with add_query_arg(), which decodes the existing query once and so changes what the caller's encoded keys mean.
+		$fragment = '';
+		$position = strpos( $url, '#' );
+		if ( false !== $position ) {
+			$fragment = substr( $url, $position );
+			$url      = substr( $url, 0, $position );
+		}
+
+		return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . http_build_query( $query_args, '', '&' ) . $fragment;
 	}
 
 	/**

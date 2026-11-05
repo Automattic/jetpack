@@ -81,6 +81,22 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'derives the delta of entries that pass only values', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{ id: 'up', label: 'Up', currentValue: 100, previousValue: 80 },
+					{ id: 'down', label: 'Down', currentValue: 50, previousValue: 100 },
+				] }
+				withComparison={ true }
+				deltaFormatter={ testDeltaFormatter }
+			/>
+		);
+
+		expect( screen.getByText( '25delta' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-50delta' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows a placeholder when a row has no previous value', () => {
 		render(
 			<LeaderboardChart
@@ -150,6 +166,49 @@ describe( 'LeaderboardChart', () => {
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
+	} );
+
+	it.each( [
+		[ 'a current share is negative', { currentShare: -40 }, true, 2 ],
+		[ 'a comparison share is negative', { previousShare: -40 }, true, 2 ],
+		[ 'only a hidden comparison share is negative', { previousShare: -40 }, false, 0 ],
+		[
+			'only a share without a comparison value is negative',
+			{ previousShare: -40, previousValue: undefined },
+			true,
+			0,
+		],
+		[ 'every share is positive', {}, true, 0 ],
+	] )( 'diverges the bars from zero when %s', ( _, override, withComparison, expected ) => {
+		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
+		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+	} );
+
+	it( 'keeps every bar on one side when negative bars clamp', () => {
+		const data = [
+			{ ...mockData[ 0 ], currentShare: undefined, currentValue: -40 },
+			mockData[ 1 ],
+		];
+		render( <LeaderboardChart data={ data } withComparison negativeBars="clamp" /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( 0 );
+	} );
+
+	it.each( [
+		[ 'comparison bars draw', false, /^calc\(50%/ ],
+		[ 'the overlay label hides comparison bars', true, /^calc\(100%/ ],
+	] )( 'sizes the current bar against the max when %s', ( _, withOverlayLabel, expected ) => {
+		const data = [
+			{ id: 'a', label: 'A', currentValue: 50, previousValue: 100 },
+			{ id: 'b', label: 'B', currentValue: 25, previousValue: 10 },
+		] as LeaderboardEntry[];
+		render(
+			<LeaderboardChart data={ data } withComparison withOverlayLabel={ withOverlayLabel } />
+		);
+
+		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch( expected );
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -748,6 +807,35 @@ describe( 'LeaderboardChart', () => {
 	describe( 'grid gaps', () => {
 		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
 		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
+		const templateColumns = () =>
+			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
+
+		it( 'lays the rows out without a delta track when not comparing', () => {
+			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
+
+			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+		} );
+
+		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
+			'adds a delta track when comparing and drops it while "%s" is hidden',
+			async legendItem => {
+				const user = userEvent.setup();
+				render(
+					<LeaderboardChart
+						data={ mockData }
+						withComparison={ true }
+						showLegend={ true }
+						legend={ { interactive: true } }
+					/>
+				);
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+
+				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
+
+				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			}
+		);
 
 		it( 'hands the catalog role to the grid', () => {
 			render( <LeaderboardChart data={ mockData } /> );

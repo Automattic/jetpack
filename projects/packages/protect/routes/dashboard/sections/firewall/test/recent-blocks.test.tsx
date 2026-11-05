@@ -12,7 +12,7 @@ const block = {
 
 const openDialog = async ( blocks: BlockedRequest[] ) => {
 	render( <RecentBlocks blocks={ blocks } /> );
-	await userEvent.click( screen.getByRole( 'button', { name: 'View blocked requests' } ) );
+	await userEvent.click( screen.getByRole( 'button', { name: 'View log' } ) );
 	return screen.findByRole( 'dialog', { name: 'Recently blocked requests' } );
 };
 
@@ -46,9 +46,8 @@ describe( 'RecentBlocks', () => {
 	} );
 
 	it( 'has nothing to open before anything is blocked', () => {
-		render( <RecentBlocks blocks={ [] } /> );
+		const { container } = render( <RecentBlocks blocks={ [] } /> );
 
-		expect( screen.getByText( 'None yet' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
 	} );
 } );

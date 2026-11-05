@@ -4,13 +4,13 @@
 import {
 	buildMetricTab,
 	ChartEmptyState,
+	describeError,
 	MetricTabsChart,
 	WidgetState,
 	type ChartDisplayChartType,
 	type DataFormat,
 	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -62,7 +62,7 @@ export function ReportMetricChart( {
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
-	const { hasComparison, timezone } = report;
+	const { hasComparison, timezone, periodStarts } = report;
 
 	const metrics = useMemo(
 		() => [
@@ -75,9 +75,20 @@ export function ReportMetricChart( {
 				countLabel,
 				noDataLabel,
 				zone: timezone,
+				periodStarts,
 			} ),
 		],
-		[ primary, comparison, hasComparison, field, label, countLabel, noDataLabel, timezone ]
+		[
+			primary,
+			comparison,
+			hasComparison,
+			field,
+			label,
+			countLabel,
+			noDataLabel,
+			timezone,
+			periodStarts,
+		]
 	);
 
 	return (
@@ -88,12 +99,10 @@ export function ReportMetricChart( {
 				// The queries keep the previous range's rows on screen, so an error only shows without them.
 				isError={ report.isError && ! report.hasData }
 				isEmpty={ ! primary?.data?.length }
-				error={ {
-					description: errorText,
-					actions: [
-						{ label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: report.refetch },
-					],
-				} }
+				error={ describeError( report.error, {
+					retryDescription: errorText,
+					onRetry: report.refetch,
+				} ) }
 			>
 				<MetricTabsChart
 					metrics={ metrics }

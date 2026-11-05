@@ -78,6 +78,7 @@ const useConnectionErrorsNotice = (
 		actionHandlers,
 		trackingCallback,
 		trackingContext: 'my-jetpack',
+		trackingPlacement: 'page_notice',
 		navigate: assignLocation,
 	} );
 

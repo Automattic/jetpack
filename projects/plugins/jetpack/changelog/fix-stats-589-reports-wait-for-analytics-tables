@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Keep WooCommerce report widgets loading while a new store's analytics data is prepared, instead of showing an error.
