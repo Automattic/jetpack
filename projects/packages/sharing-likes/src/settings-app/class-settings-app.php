@@ -9,14 +9,11 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings_App;
 
-use Automattic\Jetpack\Sharing_Likes\REST\Settings_Controller;
-use Automattic\Jetpack\Sharing_Likes\REST\Status_Controller;
 use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
-use WP_REST_Request;
 
 /**
  * Swaps the PHP screen for the wp-build app, unless a site opts out.
@@ -134,6 +131,7 @@ final class Settings_App {
 		);
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'preload_routes' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 
 		self::$loaded = true;
@@ -182,7 +180,30 @@ final class Settings_App {
 	}
 
 	/**
-	 * Hand the first render what the routes would answer, plus what only PHP knows.
+	 * Answer the screen's first route reads in the page, so it renders without waiting on a request.
+	 */
+	public static function preload_routes(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$preload = array_reduce(
+			array( '/wpcom/v2/sharing-likes/status', '/wpcom/v2/sharing-likes/settings' ),
+			'rest_preload_api_request',
+			array()
+		);
+
+		wp_add_inline_script(
+			'wp-api-fetch',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			)
+		);
+	}
+
+	/**
+	 * Hand the screen what only PHP knows; status and settings come preloaded from the routes.
 	 *
 	 * @param array $data Script data.
 	 * @return array
@@ -195,9 +216,6 @@ final class Settings_App {
 		}
 
 		$data['sharing_likes'] = array(
-			'status'                     => ( new Status_Controller() )->get_status()->get_data(),
-			// An empty list would encode as `[]`.
-			'settings'                   => (object) ( new Settings_Controller() )->get_item( new WP_REST_Request() )->get_data(),
 			'placement_choices'          => array_map(
 				static function ( string $choice ): array {
 					return array(
