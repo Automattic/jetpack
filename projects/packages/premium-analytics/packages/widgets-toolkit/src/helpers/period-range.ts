@@ -80,14 +80,16 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
  * The chart bucket holding `date`, cut to the window the chart draws. `null` for
  * an hourly bucket, the finest reading there is, or one outside the window.
  *
- * @param date     - A date inside the bucket.
- * @param interval - The bucket size the chart drew.
- * @param window   - The range the chart draws.
- * @param bounds   - The site zone the bucket is cut in, and the clock capping it.
+ * @param clicked         - The clicked bucket.
+ * @param clicked.date    - A date inside the bucket, its first day when `endDate` is set.
+ * @param clicked.endDate - The bucket's last instant as the report states it; the calendar bucket otherwise.
+ * @param interval        - The bucket size the chart drew.
+ * @param window          - The range the chart draws.
+ * @param bounds          - The site zone the bucket is cut in, and the clock capping it.
  * @return The range to apply, or `null`.
  */
 export function bucketRange(
-	date: Date,
+	{ date, endDate }: { date: Date; endDate?: Date },
 	interval: IntervalType,
 	window: DateRange,
 	bounds: Omit< PeriodBounds, 'lifeStartsAt' >
@@ -97,7 +99,8 @@ export function bucketRange(
 	const bucket = drillDateRange(
 		toLocalTZ( date, timeZone ),
 		interval,
-		toLocalTZ( now, timeZone )
+		toLocalTZ( now, timeZone ),
+		endDate && toLocalTZ( endDate, timeZone )
 	);
 
 	if ( ! bucket?.from || ! bucket.to ) {

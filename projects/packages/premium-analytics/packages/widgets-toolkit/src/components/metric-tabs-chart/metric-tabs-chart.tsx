@@ -214,9 +214,10 @@ export interface MetricTabsChartProps {
 	tickResolution?: BucketResolution;
 	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
-	 * date of that bucket. Omit to leave the chart non-interactive.
+	 * date of that bucket and its `endDate` when the current point has one. Omit
+	 * to leave the chart non-interactive.
 	 */
-	onDatumClick?: ( date: Date ) => void;
+	onDatumClick?: ( date: Date, endDate?: Date ) => void;
 	/**
 	 * Which metrics the tooltip reads out at the hovered date: the drawn one
 	 * (`active`, the default), or every metric in the list (`all`), the way the
@@ -324,7 +325,7 @@ function MetricChart( {
 	chartId: string;
 	chartTitle?: string;
 	tickResolution?: BucketResolution;
-	onDatumClick?: ( date: Date ) => void;
+	onDatumClick?: ( date: Date, endDate?: Date ) => void;
 	comparisonLabel?: string;
 	empty?: ReactNode;
 	previousPeriodShown?: boolean;
@@ -423,10 +424,15 @@ function MetricChart( {
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {
-				onDatumClick?.( date );
+				// A comparison point keeps its own period's end, so the end comes from the current point.
+				const endDate = metric.current.find(
+					point => point.date.getTime() === date.getTime()
+				)?.endDate;
+
+				onDatumClick?.( date, endDate );
 			}
 		},
-		[ onDatumClick ]
+		[ onDatumClick, metric ]
 	);
 
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {

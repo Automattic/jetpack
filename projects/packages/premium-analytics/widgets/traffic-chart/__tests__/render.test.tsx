@@ -415,6 +415,16 @@ describe( 'TrafficChart drill-down', () => {
 		} );
 	} );
 
+	it( 'leaves hourly bars inert, as an hour has nothing smaller to open', () => {
+		render(
+			<ReportScopeProvider openPeriod={ jest.fn() }>
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'hour' ) } } />
+			</ReportScopeProvider>
+		);
+
+		expect( chartClickHandler() ).toBeUndefined();
+	} );
+
 	it( 'leaves the bars inert on a surface with no period to set', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'year' ) } } /> );
 

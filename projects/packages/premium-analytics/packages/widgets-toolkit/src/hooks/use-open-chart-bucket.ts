@@ -3,6 +3,7 @@
  */
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
+	isDrillableInterval,
 	parseSiteDateTime,
 	reportingTimeZone,
 	type IntervalType,
@@ -15,17 +16,17 @@ import { useWidgetRootContext } from '../components/widget-root/context';
 import { bucketRange } from '../helpers/period-range';
 
 /**
- * Opens the chart bucket holding a date as the surface's period, cut to the widget's report window.
+ * Opens the clicked chart bucket as the surface's period, cut to the widget's report window.
  *
  * @param interval - The bucket size the chart draws, which may differ from the saved one.
- * @return The `MetricTabsChart` `onDatumClick` handler, or undefined where the host sets no period.
+ * @return The `MetricTabsChart` `onDatumClick` handler; undefined where the host sets no period or the bucket has nothing smaller to open.
  */
 export function useOpenChartBucket( interval: IntervalType ) {
 	const { reportParams } = useWidgetRootContext();
 	const { openPeriod } = useReportScope();
 
 	return useMemo( () => {
-		if ( ! openPeriod ) {
+		if ( ! openPeriod || ! isDrillableInterval( interval ) ) {
 			return undefined;
 		}
 
@@ -34,8 +35,10 @@ export function useOpenChartBucket( interval: IntervalType ) {
 			to: parseSiteDateTime( reportParams.to ),
 		};
 
-		return ( date: Date ) => {
-			const range = bucketRange( date, interval, window, { timeZone: reportingTimeZone() } );
+		return ( date: Date, endDate?: Date ) => {
+			const range = bucketRange( { date, endDate }, interval, window, {
+				timeZone: reportingTimeZone(),
+			} );
 
 			if ( range ) {
 				openPeriod( range );
