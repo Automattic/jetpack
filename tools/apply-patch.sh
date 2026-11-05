@@ -29,8 +29,12 @@ pr_or_commit=$1
 if [[ $pr_or_commit =~ ^https://github\.com/[^/]+/[^/]+/pull/[0-9]+$ ]]; then
 	# Using `reviews`, since `reviewDecision` is empty when reviews are not required, and `latestReviews` returns COMMENTED if that's the last review action.
 	pr_info=$(gh pr view "$pr_or_commit" --json state,reviews)
-	# If it's not merged and not approved, ask before applying.
-	if ! jq -e '.state == "MERGED" or ([.reviews[] | select(.state != "COMMENTED")] | last.state == "APPROVED")' <<<"$pr_info" >/dev/null; then
+	# Approved if, going by each reviewer's latest decision, someone approved and nobody requested changes.
+	if ! jq -e '.state == "MERGED" or (
+		[.reviews[] | select(.state != "COMMENTED")]
+		| reverse | unique_by(.author.login)
+		| any(.[]; .state == "APPROVED") and all(.[]; .state != "CHANGES_REQUESTED")
+	)' <<<"$pr_info" >/dev/null; then
 		proceed_p "PR not yet approved." "Apply anyway?" || exit 1
 	fi
 	diff=$(gh pr diff "$pr_or_commit")
