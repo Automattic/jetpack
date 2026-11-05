@@ -239,6 +239,36 @@ describe( 'Regenerate reply', () => {
 		view.unmount();
 	} );
 
+	it( 'accepts the new pending request when a poll delivered a later write of it before the reply', async () => {
+		setWindowState( finishedEarlier );
+		const view = mount();
+		const started = state( 'pending', 300, 300 );
+		const firstSave = state( 'pending', 300, 301, 'success' );
+		let release: () => void = () => {};
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state/action/request-regenerate' ] = {
+			body: { success: true, state: started },
+			gate: new Promise< void >( resolve => {
+				release = resolve;
+			} ),
+		};
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: started };
+
+		await act( async () => regenerate() );
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+		responses[ '/wp-json/jetpack-boost-ds/critical-css-state' ] = { body: firstSave };
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+		await settle();
+		expect( latest ).toEqual( firstSave );
+
+		release();
+		await settle();
+		expect( latest ).toEqual( firstSave );
+		await act( () => queryClient.refetchQueries( { queryKey: [ 'critical_css_state' ] } ) );
+		await settle();
+		expect( latest ).toEqual( firstSave );
+		view.unmount();
+	} );
+
 	it( 'accepts the new pending request', async () => {
 		const view = mount();
 		const started = state( 'pending', 300, 300 );

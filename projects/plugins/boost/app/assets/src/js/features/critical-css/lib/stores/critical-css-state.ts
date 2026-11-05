@@ -117,13 +117,17 @@ function placedAfter( state: CriticalCssState, replaced?: CriticalCssState ): Cr
 
 /**
  * Whether a Regenerate reply carries a new pending request. A poll can bring that request in before
- * the reply lands, so the reply is refused only when it was written before the state the dashboard holds.
+ * the reply lands, even with a later write of it, so a reply for the request the dashboard already
+ * holds counts as started; any other reply is refused only when it was written before the held state.
  *
  * @param {CriticalCssState} reply - The state the action returned.
  * @param {CriticalCssState} held  - The state in the query cache when the reply arrived.
  */
 function startsNewRequest( reply: CriticalCssState, held: CriticalCssState | undefined ): boolean {
-	return reply.status === 'pending' && ( ! held || ! isWrittenBefore( reply, held ) );
+	return (
+		reply.status === 'pending' &&
+		( ! held || reply.created === held.created || ! isWrittenBefore( reply, held ) )
+	);
 }
 
 /**
