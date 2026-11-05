@@ -11,7 +11,7 @@ function usage {
 	cat <<-EOH
 		usage: $0 <pr-or-commit>
 
-		Apply a PR or commit to the working tree, without staging or committing.
+		Apply a PR or commit to the working tree and commit it.
 
 		<pr-or-commit> is one of:
 		  - A PR URL, https://github.com/<owner>/<repo>/pull/<n> (asks before applying if not approved).
@@ -57,8 +57,12 @@ if [[ -z $diff ]]; then
 	exit 1
 fi
 # git apply is atomic: on any conflict, nothing is applied.
-if ! git apply <<<"$diff"; then
+if ! git apply --index <<<"$diff"; then
 	error "Not applying due to merge conflict: $pr_or_commit"
+	exit 1
+fi
+if ! git commit; then
+	error 'Commit aborted; changes left staged.'
 	exit 1
 fi
 echo "Applied $pr_or_commit"

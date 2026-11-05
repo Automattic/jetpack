@@ -20,12 +20,9 @@ function apply_patches {
 		[[ $pr_or_commit == "done" ]] && break
 		[[ -n $pr_or_commit ]] || continue
 
-		if "$BASE/tools/apply-patch.sh" "$pr_or_commit"; then
-			git add -A
-			if ! git commit; then
-				error 'Commit aborted; changes left staged.'
-				exit 1
-			fi
+		# Abort if a failure left changes behind (e.g. an aborted commit).
+		if ! "$BASE/tools/apply-patch.sh" "$pr_or_commit" && [[ -n $(git status --porcelain) ]]; then
+			exit 1
 		fi
 	done
 }
