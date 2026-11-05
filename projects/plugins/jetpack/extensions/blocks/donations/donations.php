@@ -130,8 +130,8 @@ function render_block( $attr, $content ) {
 	$custom_amount_text = $attr['customAmountText'] ?? $default_texts['customAmountText'];
 	$currency           = $attr['currency'];
 
-	// Drop intervals whose plan no longer resolves so we can compute the active tab
-	// against the actually-rendered set, not the configured set.
+	// Drop intervals left without a plan, so the active tab is computed against
+	// the actually-rendered set, not the configured set.
 	$valid_donations   = array();
 	$fallback_plan_ids = null;
 	foreach ( $donations as $interval => $donation ) {
