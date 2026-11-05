@@ -12,8 +12,14 @@ function getCheckStatus( scan: ScanState ): string {
 	if ( scan.error ) {
 		return 'error';
 	}
-	if ( ! scan.scanning && isNotScannedYet( scan ) ) {
-		return 'not_scanned';
+	if ( ! scan.scanning ) {
+		// The card's failed-scan and first-scan prompts, in its order.
+		if ( scan.lastScanFailed && ! scan.threats?.length ) {
+			return 'error';
+		}
+		if ( isNotScannedYet( scan ) ) {
+			return 'not_scanned';
+		}
 	}
 	return scan.lastChecked ? 'active' : 'in_progress';
 }

@@ -37,6 +37,12 @@ describe( 'recordPageView', () => {
 			{ error: true },
 			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'error' } ],
 		],
+		[
+			'overview',
+			undefined,
+			{ lastScanFailed: true },
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'error' } ],
+		],
 		[ 'history', undefined, {}, [ 'jetpack_protect_scan_history_page_view' ] ],
 		[
 			'settings',
