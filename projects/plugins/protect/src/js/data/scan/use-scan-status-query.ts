@@ -42,7 +42,10 @@ export const isRequestedScanNotStarted = ( status: ScanStatus ) => {
  * @return Whether the site has never been scanned.
  */
 export const isFirstScanNeeded = ( status: ScanStatus ) =>
-	status?.dataSource === 'scan_api' && ! status?.lastChecked && status?.status === SCAN_STATUS_IDLE;
+	status?.dataSource === 'scan_api' &&
+	! status?.lastChecked &&
+	! status?.error &&
+	status?.status === SCAN_STATUS_IDLE;
 
 export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
