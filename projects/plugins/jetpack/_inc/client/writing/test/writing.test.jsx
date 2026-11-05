@@ -7,7 +7,10 @@ jest.mock( 'state/feature-check', () => ( {
 } ) );
 jest.mock( '../composing', () => () => null );
 jest.mock( '../custom-content-types', () => () => null );
-jest.mock( '../post-by-email', () => () => null );
+jest.mock( '../post-by-email', () => () => 'Post by Email card' );
+jest.mock( '../post-by-email-moved', () => ( {
+	PostByEmailMoved: () => 'Post by Email pointer',
+} ) );
 jest.mock( '../theme-enhancements', () => () => null );
 jest.mock( '../widgets', () => () => null );
 jest.mock( '../writing-media', () => () => 'Carousel card' );
@@ -34,9 +37,13 @@ const buildState = ( searchTerm, modules, isBlockTheme ) => ( {
 } );
 
 // Module scope keeps the prop references stable (react/jsx-no-bind).
-const findsOnlyCarousel = module => module === 'carousel';
+const findsOnly = {
+	carousel: module => module === 'carousel',
+	'post-by-email': module => module === 'post-by-email',
+};
 // Never settles, so the custom content types lookup changes no state after the test.
 const noFeatureDetails = () => new Promise( () => undefined );
+const isActive = () => true;
 
 describe( 'Writing settings', () => {
 	afterEach( () => {
@@ -69,26 +76,53 @@ describe( 'Writing settings', () => {
 		}
 	);
 
-	it.each( [
-		[ 'off, in the tab', false, '', [ 'Carousel card' ] ],
-		[ 'off, in a search', false, 'carousel', [ 'Carousel card' ] ],
-		[ 'on, in the tab', true, '', [] ],
-		[ 'on, in a search', true, 'carousel', [ 'Carousel pointer' ] ],
-	] )( 'with the settings flag %s', ( _name, flag, searchTerm, expected ) => {
-		window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
-		render(
-			<UnconnectedWriting
-				active
-				userCanManageModules
-				searchTerm={ searchTerm }
-				isModuleFound={ findsOnlyCarousel }
-				getActiveFeatureDetails={ noFeatureDetails }
-			/>
-		);
+	describe.each( [
+		[ 'Carousel', 'carousel' ],
+		[ 'Post by Email', 'post-by-email' ],
+	] )( '%s', ( name, slug ) => {
+		it.each( [
+			[ 'off, in the tab', false, '', [ `${ name } card` ] ],
+			[ 'off, in a search', false, slug, [ `${ name } card` ] ],
+			[ 'on, in the tab', true, '', [] ],
+			[ 'on, in a search', true, slug, [ `${ name } pointer` ] ],
+		] )( 'with the settings flag %s', ( _name, flag, searchTerm, expected ) => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: flag } };
+			render(
+				<UnconnectedWriting
+					active
+					userCanManageModules
+					searchTerm={ searchTerm }
+					isModuleFound={ findsOnly[ slug ] }
+					getActiveFeatureDetails={ noFeatureDetails }
+				/>
+			);
 
-		const shown = [ 'Carousel card', 'Carousel pointer' ].filter( text =>
-			screen.queryByText( text )
-		);
-		expect( shown ).toEqual( expected );
+			const shown = [ `${ name } card`, `${ name } pointer` ].filter( text =>
+				screen.queryByText( text )
+			);
+			expect( shown ).toEqual( expected );
+		} );
 	} );
+
+	it.each( [
+		[ 'in the tab', '' ],
+		[ 'in a search', 'post-by-email' ],
+	] )(
+		'keeps the Post by Email card, %s, for a user who cannot manage modules',
+		( _name, searchTerm ) => {
+			window.JetpackScriptData = { myJetpack: { settingsConsolidation: true } };
+			render(
+				<UnconnectedWriting
+					active
+					userCanEditPosts
+					searchTerm={ searchTerm }
+					isModuleFound={ findsOnly[ 'post-by-email' ] }
+					isModuleActivated={ isActive }
+					getActiveFeatureDetails={ noFeatureDetails }
+				/>
+			);
+
+			expect( screen.getByText( 'Post by Email card' ) ).toBeInTheDocument();
+		}
+	);
 } );

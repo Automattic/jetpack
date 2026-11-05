@@ -129,6 +129,24 @@ describe( 'normalizeReportParams', () => {
 		expect( result.preset ).toBeUndefined();
 	} );
 
+	it.each( [
+		[ 'with a hand-picked window', { preset: 'custom', step: 'P1M' }, 'P1M' ],
+		[
+			'with a preset, which steps by its own unit',
+			{ preset: 'last-7-days', step: 'P1M' },
+			undefined,
+		],
+		[ 'it cannot read', { preset: 'custom', step: 'P1W' }, undefined ],
+	] as const )( 'carries the step the arrows set %s', ( _name, extra, step ) => {
+		const result = normalizeReportParams( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: '2026-01-31T23:59:59.999-05:00',
+			...extra,
+		} );
+
+		expect( result.step ).toBe( step );
+	} );
+
 	// The URL's comparison dates were measured from the dates it kept; the preset is measured
 	// again from the recomputed primary, as is one the primary no longer offers.
 	it.each( [

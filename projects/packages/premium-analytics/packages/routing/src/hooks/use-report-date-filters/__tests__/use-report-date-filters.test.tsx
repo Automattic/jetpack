@@ -50,9 +50,12 @@ function scopeWithLocks( { children }: { children: ReactNode } ) {
 	);
 }
 
-function renderDateFilters( search: Record< string, unknown > = {} ) {
+function renderDateFilters(
+	search: Record< string, unknown > = {},
+	wrapper?: typeof scopeWithLocks
+) {
 	mockSearch = search;
-	return renderHook( () => useReportDateFilters( '/' ) );
+	return renderHook( () => useReportDateFilters( '/' ), { wrapper } );
 }
 
 describe( 'useReportDateFilters', () => {
@@ -519,6 +522,240 @@ describe( 'useReportDateFilters', () => {
 		} );
 	} );
 
+	/*
+	 * The step commits the exact stepped window: rounding its `to` up to the
+	 * end of the day would stretch a rolling window on every step. The step
+	 * rides in the URL with it, so the next step moves the same way.
+	 */
+	it( 'steps the applied window by the preset and commits it as custom, with the step', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-10T14:30:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-09T15:00:00.000+00:00',
+			to: '2026-07-10T14:59:59.999+00:00',
+			preset: 'last-24-hours',
+			interval: 'hour',
+		} );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.stepping.onStep( 'previous' );
+		} );
+		rerender();
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-07-08T15:00:00.000+00:00',
+			to: '2026-07-09T14:59:59.999+00:00',
+			preset: 'custom',
+			step: 'last-24-hours',
+			interval: 'hour',
+		} );
+		expect( result.current.appliedPresetId ).toBe( 'custom' );
+		// What was committed, for the caller to track as applied.
+		expect( stepped ).toEqual( {
+			range: result.current.appliedRange,
+			presetId: 'custom',
+			interval: 'hour',
+			step: 'last-24-hours',
+		} );
+	} );
+
+	// Jun 1–30 is a whole month, which measured afresh would step as one. The
+	// step is URL state, so a reload or a comparison commit in between keeps it.
+	it.each( [ [ 'in place' ], [ 'after a reload' ], [ 'after turning Compare on' ] ] )(
+		'undoes a step with the opposite one whatever shape it landed on, %s',
+		between => {
+			jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+			const july = { from: '2026-07-01T00:00:00.000+00:00', to: '2026-07-30T23:59:59.999+00:00' };
+			let { result, rerender } = renderDateFilters( { ...july, preset: 'custom' } );
+
+			act( () => result.current.stepping.onStep( 'previous' ) );
+			rerender();
+			expect( mockSearch ).toMatchObject( {
+				from: '2026-06-01T00:00:00.000+00:00',
+				to: '2026-06-30T23:59:59.999+00:00',
+				step: 'P30D',
+			} );
+
+			if ( between === 'after a reload' ) {
+				( { result, rerender } = renderDateFilters( mockSearch ) );
+			}
+			if ( between === 'after turning Compare on' ) {
+				act( () =>
+					result.current.onComparisonChange(
+						{
+							from: new TZDate( '2026-05-02T00:00:00.000+00:00', 'UTC' ),
+							to: new TZDate( '2026-05-31T23:59:59.999+00:00', 'UTC' ),
+						},
+						'previous-period'
+					)
+				);
+				rerender();
+			}
+			act( () => result.current.stepping.onStep( 'next' ) );
+			rerender();
+			expect( mockSearch ).toMatchObject( july );
+			expect( mockSearch.comp ).toBe( between === 'after turning Compare on' ? '1' : undefined );
+		}
+	);
+
+	it.each( [
+		[
+			'a new pick',
+			( filters: ReturnType< typeof useReportDateFilters > ) => {
+				filters.onChange(
+					{
+						from: new TZDate( '2026-06-10T00:00:00.000+00:00', 'UTC' ),
+						to: new TZDate( '2026-06-20T00:00:00.000+00:00', 'UTC' ),
+					},
+					'custom'
+				);
+				filters.onApply();
+			},
+		],
+		[
+			'a reconciled range',
+			( filters: ReturnType< typeof useReportDateFilters > ) => {
+				filters.replaceRange(
+					{
+						from: new TZDate( '2026-06-10T00:00:00.000+00:00', 'UTC' ),
+						to: new TZDate( '2026-06-20T23:59:59.999+00:00', 'UTC' ),
+					},
+					'custom'
+				);
+			},
+		],
+	] )( 'forgets the step on %s', ( _name, change ) => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-06-01T00:00:00.000+00:00',
+			to: '2026-06-30T23:59:59.999+00:00',
+			preset: 'custom',
+			step: 'P30D',
+		} );
+
+		act( () => change( result.current ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { from: '2026-06-10T00:00:00.000+00:00' } );
+		expect( mockSearch ).not.toHaveProperty( 'step' );
+	} );
+
+	it( 'reads as the preset again when a step lands back on its window', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-08-14T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+
+		act( () => result.current.stepping.onStep( 'previous' ) );
+		rerender();
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			preset: 'custom',
+			step: 'last-7-days',
+		} );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.stepping.onStep( 'next' );
+		} );
+		rerender();
+
+		// Back on the preset the URL needs no step: the preset says how it moves.
+		expect( mockSearch ).toMatchObject( { preset: 'last-7-days' } );
+		expect( mockSearch ).not.toHaveProperty( 'step' );
+		expect( stepped ).toMatchObject( { presetId: 'last-7-days' } );
+	} );
+
+	it( 'ignores a step without a measurable window', () => {
+		const { result } = renderDateFilters();
+
+		expect( result.current.stepping.canStepBackward ).toBe( false );
+		expect( result.current.stepping.canStepForward ).toBe( false );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.stepping.onStep( 'previous' );
+		} );
+
+		expect( stepped ).toBeUndefined();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	// Turning the page keeps the reader's bucket; only a new pick resets it.
+	it( 'keeps the interval across a step that lands back on a preset, and reports it', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-22T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () => result.current.stepping.onStep( 'previous' ) );
+		rerender();
+		let stepped;
+		act( () => {
+			stepped = result.current.stepping.onStep( 'next' );
+		} );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
+		expect( stepped ).toMatchObject( { presetId: 'last-30-days', interval: 'week' } );
+	} );
+
+	// The route redirects a window before the plan's earliest date to the
+	// fallback preset with a notice, so the step refuses it first. The dashboard
+	// renders above its scope and hands the limits in; report pages read them.
+	it.each( [
+		[
+			'passed in',
+			{
+				dateLimits: {
+					lockedPresetIds: [],
+					lockedIntervals: [],
+					earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+				},
+			},
+			undefined,
+		],
+		[
+			'declared by the report scope',
+			undefined,
+			( { children }: { children: ReactNode } ) => (
+				<ReportScopeProvider
+					dateLimits={ {
+						lockedPresetIds: [],
+						lockedIntervals: [],
+						earliestDate: new Date( '2026-08-07T00:00:00.000Z' ),
+					} }
+				>
+					{ children }
+				</ReportScopeProvider>
+			),
+		],
+	] )( 'refuses a step before the earliest date, with limits %s', ( _name, options, wrapper ) => {
+		mockSearch = {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'custom',
+		};
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
+
+		expect( result.current.stepping.canStepBackward ).toBe( false );
+		expect( result.current.stepping.canStepForward ).toBe( true );
+
+		let stepped;
+		act( () => {
+			stepped = result.current.stepping.onStep( 'previous' );
+		} );
+
+		expect( stepped ).toBeUndefined();
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
 	it( 'replaces the current entry when the page reconciles the range', () => {
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
@@ -656,6 +893,99 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.control ).toEqual( expect.any( Number ) );
 	} );
 
+	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
+		// `last-12-months` as read on 20 August 2026. Stepped by its day count
+		// the window would start on 12 September and its comparison on the 24th.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2025-09-01T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-12-months',
+			interval: 'month',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.stepping.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2024-09-01T00:00:00.000+00:00',
+			to: '2025-08-31T23:59:59.999+00:00',
+			preset: 'custom',
+			step: 'last-12-months',
+			interval: 'month',
+			compare_from: '2023-09-01T00:00:00.000+00:00',
+			compare_to: '2024-08-31T23:59:59.999+00:00',
+		} );
+	} );
+
+	it( 'steps the month to date back to the whole month before, comparison included', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-10-29T12:00:00.000Z' ) );
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-10-01T00:00:00.000+00:00',
+			to: '2026-10-29T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			interval: 'day',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.stepping.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2026-09-01T00:00:00.000+00:00',
+			to: '2026-09-30T23:59:59.999+00:00',
+			preset: 'custom',
+			step: 'month-to-date',
+			compare_from: '2026-08-01T00:00:00.000+00:00',
+			compare_to: '2026-08-31T23:59:59.999+00:00',
+		} );
+	} );
+
+	it( 'lands back on the to-date window when a step forward closes the running month', () => {
+		// The window a step back out of `last-12-months` leaves. Stepping
+		// forward again closes August, eleven days past the day it is read on:
+		// days the report has no data for, so the landing is cut at today and
+		// reads as the preset the reader set out from.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+
+		const { result, rerender } = renderDateFilters( {
+			from: '2024-09-01T00:00:00.000+00:00',
+			to: '2025-08-31T23:59:59.999+00:00',
+			preset: 'custom',
+			step: 'last-12-months',
+			interval: 'month',
+		} );
+
+		act( () => result.current.stepping.onStep( 'next' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-09-01T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'last-12-months',
+		} );
+	} );
+
+	it( 'offers the next window once the clock has moved on, without a new range', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T23:30:00.000Z' ) );
+		mockSearch = {
+			from: '2026-08-20T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			preset: 'custom',
+		};
+		const { result, rerender } = renderHook( () => useReportDateFilters( '/' ) );
+
+		expect( result.current.stepping.canStepForward ).toBe( false );
+
+		jest.setSystemTime( Date.parse( '2026-08-21T01:00:00.000Z' ) );
+		rerender();
+
+		expect( result.current.stepping.canStepForward ).toBe( true );
+	} );
+
 	it( 'binds to the route it is given', () => {
 		renderDateFilters();
 
@@ -663,7 +993,11 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it.each( [
-		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
+		[
+			'passed in with the date limits',
+			{ dateLimits: { lockedPresetIds: [], lockedIntervals: LOCKED_INTERVALS } },
+			undefined,
+		],
 		[ 'declared by the report scope', undefined, scopeWithLocks ],
 	] )(
 		'offers and stages only the buckets the plan leaves open, listing the rest locked, with locks %s',

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Serve the bundled widget-primitives module below Gutenberg 24.2.0, the first release whose copy exports useWidgetActions.

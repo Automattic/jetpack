@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Link, SelectControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { PanelModuleToggle } from './panel-module-toggle';
 import styles from './styles.module.scss';
 import { useModuleOption, useModuleSetting } from './use-module-option';
 import type { ModuleSettingsProps } from './registry';
@@ -70,7 +70,7 @@ export function CarouselSettings( { module: $module, disabled }: ModuleSettingsP
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Display images in a full-screen carousel gallery', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
+				<PanelModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			<SwitchControl
