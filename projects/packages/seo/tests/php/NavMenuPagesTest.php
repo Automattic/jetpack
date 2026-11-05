@@ -224,7 +224,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 *
 	 * @dataProvider provide_navigation_blocks
 	 *
-	 * @param string $markup   Header markup; `{older}`, `{synced}` and `{a}` become IDs, `{b_url}` a URL.
+	 * @param string $markup   Header markup; `{older}`, `{trashed}`, `{synced}` and `{a}` become IDs, `{b_url}` a URL.
 	 * @param string $expected Which pages it links: `older`, `newer`, `own` or `none`.
 	 * @return void
 	 */
@@ -233,6 +233,8 @@ class NavMenuPagesTest extends SeoTestCase {
 		list( $old_page, $new_page, $a, $b ) = $this->pages( 4 );
 		$older                               = $this->navigation_post( array( $old_page ), '2026-01-01 00:00:00' );
 		$this->navigation_post( array( $new_page ), '2026-02-01 00:00:00' );
+		$trashed = $this->navigation_post( array( $a ), '2026-03-01 00:00:00' );
+		wp_trash_post( $trashed );
 		register_block_pattern(
 			self::PATTERN,
 			array(
@@ -254,10 +256,11 @@ class NavMenuPagesTest extends SeoTestCase {
 		$markup = strtr(
 			$markup,
 			array(
-				'{older}'  => $older,
-				'{synced}' => $synced,
-				'{a}'      => $a,
-				'{b_url}'  => get_permalink( $b ),
+				'{older}'   => $older,
+				'{trashed}' => $trashed,
+				'{synced}'  => $synced,
+				'{a}'       => $a,
+				'{b_url}'   => get_permalink( $b ),
 			)
 		);
 		$this->use_template_parts(
@@ -285,6 +288,8 @@ class NavMenuPagesTest extends SeoTestCase {
 		return array(
 			'menu reference'             => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
 			'no reference, newest'       => array( '<!-- wp:navigation /-->', 'newer' ),
+			'trashed reference, newest'  => array( '<!-- wp:navigation {"ref":{trashed}} /-->', 'newer' ),
+			'deleted reference, none'    => array( '<!-- wp:navigation {"ref":999999} /-->', 'none' ),
 			'own links, local URLs only' => array(
 				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"url":"{b_url}","kind":"custom"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
 				'own',

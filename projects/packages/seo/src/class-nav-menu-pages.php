@@ -212,8 +212,12 @@ class Nav_Menu_Pages {
 			$followed = false;
 
 			if ( 'core/navigation' === $name && empty( $inner ) && $depth < self::MAX_DEPTH ) {
-				// Without its own links, the block shows the menu it references, or core's fallback.
-				$menu = ! empty( $attrs['ref'] ) ? get_post( (int) $attrs['ref'] ) : self::fallback_navigation();
+				// Without its own links, the block shows the menu it references. Like core, fall back when
+				// there's no reference or that menu isn't published; a deleted menu shows nothing.
+				$menu = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+				if ( empty( $attrs['ref'] ) || ( $menu instanceof \WP_Post && 'publish' !== $menu->post_status ) ) {
+					$menu = self::fallback_navigation();
+				}
 				if ( $menu instanceof \WP_Post && 'wp_navigation' === $menu->post_type && 'publish' === $menu->post_status ) {
 					$inner    = parse_blocks( $menu->post_content );
 					$followed = true;
@@ -279,7 +283,7 @@ class Nav_Menu_Pages {
 	}
 
 	/**
-	 * The menu a Navigation block without a reference falls back to: the newest published
+	 * The menu a Navigation block without a published menu falls back to: the newest published
 	 * `wp_navigation` post, as in core's `WP_Navigation_Fallback`, without creating one.
 	 *
 	 * @return \WP_Post|null
