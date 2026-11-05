@@ -18,7 +18,7 @@ The Pay with PayPal block lets you accept payments directly on your WordPress si
 1. Connect your PayPal account using API credentials
 2. Add the Pay with PayPal block to any post or page
 3. Enter product details (name, price, currency)
-4. Click "Create New" — the plugin creates a payment button via PayPal's API
+4. Click **Create payment button** — the plugin creates it via PayPal's API, before the post is saved
 5. Publish — visitors see a styled PayPal button that links to checkout
 
 Each button also generates a shareable payment link URL you can use in emails, social media, or text links.
@@ -58,7 +58,7 @@ To create a new payment button:
 2. Enter a **Price** (positive number, up to 2 decimal places)
 3. Select a **Currency** from the dropdown (26 supported)
 4. Optionally add a **Description** (max 2048 characters)
-5. Click **Create New**
+5. Click **Create payment button**
 
 A live preview appears showing exactly how your button will look on the published page.
 
@@ -73,7 +73,7 @@ A live preview appears showing exactly how your button will look on the publishe
 
 Once a block has a saved payment button, selecting it shows the button in the block settings sidebar: its name and price at the top, then **Embed as** and the style settings for that format, then when it was created, its Hosted ID, how many published posts use it, and the maximum quantity when buyers can pick one.
 
-- **Edit:** Open the menu beside the button's name and choose **Edit** to get the product form. Update the details, then update or publish the post. **Edit Button** at the top of the form goes back; a button with something to fix opens on the form instead
+- **Edit:** Open the menu beside the button's name and choose **Edit** to get the product form. Update the details, then click **Save payment button**; update or publish the post so the page shows the new details too. **Edit Button** at the top of the form goes back; a button with something to fix opens on the form instead
 - **Manage all links and buttons:** Open the menu beside "PayPal Payment Button" at the top of the block settings sidebar and choose **Manage all links and buttons**. It opens the PayPal Payment Buttons admin page in a new tab, so the post you are editing stays where it is
 - **Delete:** Click "Delete payment button" in the block toolbar, choose **Delete** in the menu beside the button's name, or use the Delete action on the PayPal Payment Buttons admin page
 
