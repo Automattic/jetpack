@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize LCP Images: Stop a cornerstone page save from starting an LCP analysis when no analysis results are stored.
