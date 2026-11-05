@@ -11,11 +11,15 @@ const mockTracks = { recordEvent: jest.fn() };
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: mockTracks } ),
 } ) );
-jest.mock( '@wordpress/block-editor', () => ( {
-	store: { name: 'core/block-editor' },
-	useBlockProps: props => props,
-	RichText: ( { value } ) => value ?? null,
-} ) );
+jest.mock( '@wordpress/block-editor', () => {
+	const { createElement, forwardRef } = require( '@wordpress/element' );
+	return {
+		store: { name: 'core/block-editor' },
+		useBlockProps: props => props,
+		// Amount passes RichText a ref, which React 18 only accepts on a forwardRef component.
+		RichText: forwardRef( ( { value }, ref ) => createElement( 'span', { ref }, value ) ),
+	};
+} );
 jest.mock( '../../../shared/use-is-user-connected', () => () => true );
 jest.mock( '../../../store/membership-products', () => ( {
 	store: { name: 'jetpack/membership-products' },
