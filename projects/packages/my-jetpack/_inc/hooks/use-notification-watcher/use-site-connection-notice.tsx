@@ -1,5 +1,5 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
@@ -7,6 +7,8 @@ import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
+import { getConnectUrl } from '../../utils/connect-url';
+import { leavePageFor } from '../../utils/reload-page';
 import useAnalytics from '../use-analytics';
 import useConnectSite from '../use-connect-site';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
@@ -23,11 +25,14 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 	const { data: products, isLoading: isAllProductsLoading, isError } = useAllProducts();
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts?.[ redBubbleSlug ];
+	// `?.`: an older shared jetpack-connection script may predate CONNECTION_FROM.
+	const siteFrom = CONNECTION_FROM?.myJetpackNoticeSite;
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: 'jetpack_my_jetpack_site_connection_notice_cta',
-			properties: {},
+			properties: { from: siteFrom },
 		},
+		from: siteFrom,
 	} );
 
 	const { refetch: refetchOwnershipData } = useProductsByOwnership();
@@ -48,8 +53,9 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 
 		const onActionButtonClick = ( e: MouseEvent< HTMLButtonElement > ) => {
 			if ( requiresUserConnection ) {
-				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
-				window.location.href = getUserConnectionUrl();
+				const from = CONNECTION_FROM?.myJetpackNoticeUser;
+				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click', { from } );
+				leavePageFor( getConnectUrl( from ) );
 			} else {
 				connectSite( e );
 			}

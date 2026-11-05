@@ -29,6 +29,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	);
 
 	return {
+		CONNECTION_FROM: jest.requireActual(
+			'../../../../../../js-packages/connection/helpers/connection-from'
+		).CONNECTION_FROM,
 		useConnectionErrorNotice: jest.fn(),
 		getReconnectErrorMessage: jest.fn(
 			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
@@ -42,6 +45,9 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getMyJetpackUrl: () => 'https://example.com/wp-admin/admin.php?page=my-jetpack',
+} ) );
 jest.mock( '../../use-analytics' );
 jest.mock( '../assignLocation' );
 
@@ -179,7 +185,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockSetNotice ).not.toHaveBeenCalled();
 	} );
 
-	it( 'passes My Jetpack tracking/navigation wiring to the owner hook', () => {
+	it( 'passes My Jetpack tracking, navigation and reconnect wiring to the owner hook', () => {
 		renderWithNoticeContext();
 
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
@@ -188,6 +194,8 @@ describe( 'useConnectionErrorsNotice', () => {
 				trackingContext: 'my-jetpack',
 				trackingPlacement: 'page_notice',
 				trackingCallback: expect.any( Function ),
+				reconnectFrom: 'my_jetpack_notice_reconnect',
+				reconnectRedirectUrl: 'https://example.com/wp-admin/admin.php?page=my-jetpack',
 			} )
 		);
 	} );
