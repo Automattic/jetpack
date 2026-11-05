@@ -65,6 +65,14 @@ describe( 'InfiniteScrollSettings', () => {
 		expect( screen.getByRole( 'radio', { name: checked } ) ).toBeChecked();
 	} );
 
+	it( 'offers the modes when an older Jetpack plugin prints no theme support', () => {
+		delete window.JetpackScriptData;
+		render( <InfiniteScrollSettings module={ build() } disabled={ false } /> );
+
+		expect( screen.getAllByRole( 'radio' ) ).toHaveLength( 2 );
+		expect( screen.queryByText( 'Theme support required' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'saves the scroll mode as the infinite_scroll option', async () => {
 		render( <InfiniteScrollSettings module={ build() } disabled={ false } /> );
 		await userEvent.click( screen.getByRole( 'radio', { name: /as the reader scrolls/ } ) );

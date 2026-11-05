@@ -9,6 +9,7 @@ import { useModuleSetting } from './use-module-option';
 import type { ModuleSettingsProps } from './registry';
 
 // Printed by the Jetpack plugin, which knows the themes it ships Infinite Scroll support for.
+// Older plugins leave it out, so only `false` means unsupported.
 type JetpackPluginScriptData = { jetpack?: { themeSupports?: { infiniteScroll?: boolean } } };
 
 // The option defaults to on, so a missing value means scroll.
@@ -27,7 +28,7 @@ export function InfiniteScrollSettings( { module: $module, disabled }: ModuleSet
 	const labelId = useId();
 	const themeSupported =
 		( getScriptData() as JetpackPluginScriptData | undefined )?.jetpack?.themeSupports
-			?.infiniteScroll === true;
+			?.infiniteScroll !== false;
 
 	const { setValue: setScroll } = scroll;
 	const onModeChange = useCallback(
