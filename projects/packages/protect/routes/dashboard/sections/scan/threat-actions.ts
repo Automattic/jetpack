@@ -178,15 +178,25 @@ function fail( threat: ScanThreat, e: unknown, template: Template ) {
 const otherThan = ( threat: ScanThreat ) => ( item: ScanThreat ) =>
 	String( item.id ) !== String( threat.id );
 
+let ignoredReadsStarted = 0;
+let ignoredReadApplied = 0;
+
 /**
  * Fetch the threats the site ignored, for the Ignored view.
  *
  * @return Resolves once the list is in the store; failures leave it unloaded.
  */
 export function loadIgnored(): Promise< void > {
+	const read = ++ignoredReadsStarted;
 	const apply = startRead();
 	return apiFetch< ScanThreat[] >( { path: `${ SCAN_PATH }/ignored` } )
-		.then( ignored => apply( { ignored } ) )
+		.then( ignored => {
+			// Resyncs can overlap, so an older answer landing late must not replace a newer list.
+			if ( read > ignoredReadApplied ) {
+				ignoredReadApplied = read;
+				apply( { ignored } );
+			}
+		} )
 		.catch( () => {} );
 }
 
@@ -198,7 +208,11 @@ function resyncAfterFailure() {
 	const apply = startReportRead();
 	apiFetch< ScanState >( { path: SCAN_PATH } )
 		// The report answers an unreachable WordPress.com with `error: true`, not a rejection.
-		.then( next => ! next?.error && apply( next ) )
+		.then( next => {
+			if ( ! next?.error ) {
+				apply( next );
+			}
+		} )
 		.catch( () => {} );
 	loadIgnored();
 	loadHistory( true );

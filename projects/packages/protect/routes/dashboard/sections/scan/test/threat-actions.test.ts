@@ -11,6 +11,7 @@ import {
 	fixThreats,
 	ignoreThreat,
 	ignoreThreats,
+	loadIgnored,
 	unignoreThreat,
 } from '../threat-actions';
 
@@ -95,6 +96,24 @@ describe( 'a failed ignore or unignore', () => {
 			expect( result.current?.error ).toBe( false );
 		}
 	);
+
+	it( 'keeps the newer ignored list when an older read lands last', async () => {
+		let answerOlder: ( value: unknown ) => void = () => {};
+		mockApiFetch
+			.mockReset()
+			.mockImplementationOnce( () => new Promise( resolve => ( answerOlder = resolve ) ) )
+			.mockImplementationOnce( () => Promise.resolve( [ ignored( other ) ] ) );
+		const { result } = renderHook( () => useScan() );
+
+		const older = loadIgnored();
+		await act( () => loadIgnored() );
+		await act( async () => {
+			answerOlder( [ ignored( threat ) ] );
+			await older;
+		} );
+
+		expect( result.current?.ignored ).toEqual( [ ignored( other ) ] );
+	} );
 
 	it.each( [
 		[ 'fails', () => Promise.reject( { message: 'Request timed out.' } ) ],
