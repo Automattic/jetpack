@@ -128,6 +128,7 @@ class Block_Editor {
 	 */
 	public static function skip_markdown( $content ) {
 		if ( class_exists( 'WPCom_Markdown', false ) && self::is_enabled() ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- The Jetpack plugin's Markdown module defines it, checked above.
 			remove_filter( 'pre_comment_content', array( \WPCom_Markdown::get_instance(), 'pre_comment_content' ), 9 );
 		}
 
