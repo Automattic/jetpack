@@ -61,7 +61,7 @@ class CommentsComponent extends Component {
 			markdown = this.props.getModule( 'markdown' ),
 			commentLikesUnavailable = isUnavailableInOfflineMode( 'comment-likes' ),
 			commentLikesActive = getOptionValue( 'comment-likes' ),
-			markdownReplacedByEditor =
+			hasCommentEditor =
 				this.props.hasBlockEditor &&
 				isCommentsActive &&
 				!! this.props.getOptionValue( 'enable_blocks_comments', 'comments' );
@@ -170,14 +170,12 @@ class CommentsComponent extends Component {
 								<FormFieldset>
 									<ToggleControl
 										checked={
-											! markdownReplacedByEditor &&
 											!! this.props.getOptionValue(
 												'wpcom_publish_comments_with_markdown',
 												'markdown'
 											)
 										}
 										disabled={
-											markdownReplacedByEditor ||
 											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
 											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
@@ -188,9 +186,9 @@ class CommentsComponent extends Component {
 											</span>
 										}
 										help={
-											markdownReplacedByEditor
+											hasCommentEditor
 												? __(
-														'Markdown is off while blocks in comments are on, since the editor has its own formatting toolbar.',
+														'Comments written in the block editor use its toolbar for formatting instead.',
 														'jetpack'
 													)
 												: null

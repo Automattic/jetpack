@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Discussion: Grey out the comment Markdown setting while blocks in comments are on.
+Discussion: Explain that comment Markdown doesn't apply to comments written in the block editor.

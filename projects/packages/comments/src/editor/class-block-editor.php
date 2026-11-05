@@ -49,7 +49,6 @@ class Block_Editor {
 		// Either side of kses at 10, which lets the markup of these blocks through.
 		add_filter( 'pre_comment_content', array( $this, 'keep_allowed_blocks' ), 9 );
 		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
-		add_filter( 'pre_comment_content', array( __CLASS__, 'skip_markdown' ), 8 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
@@ -118,21 +117,6 @@ class Block_Editor {
 		 *                      "blocks in comments" Discussion setting is off.
 		 */
 		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
-	}
-
-	/**
-	 * Unhook Jetpack Markdown for comments while the editor is on, since it would rewrite the editor's markup.
-	 *
-	 * @param string $content Slashed comment content.
-	 * @return string
-	 */
-	public static function skip_markdown( $content ) {
-		if ( class_exists( 'WPCom_Markdown', false ) && self::is_enabled() ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- The Jetpack plugin's Markdown module defines it, checked above.
-			remove_filter( 'pre_comment_content', array( \WPCom_Markdown::get_instance(), 'pre_comment_content' ), 9 );
-		}
-
-		return $content;
 	}
 
 	/**
