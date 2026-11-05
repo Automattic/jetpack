@@ -22,10 +22,14 @@ jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
 	getMyJetpackWindowInitialState: () => ( { plugins: {}, themes: {} } ),
 } ) );
 
-const scanData = ( lastScanFailed?: boolean, numThreats = 0 ) =>
+const scanData = (
+	lastScanFailed?: boolean,
+	numThreats = 0,
+	lastChecked: string | null = new Date().toISOString()
+) =>
 	( {
 		scanData: {
-			last_checked: new Date().toISOString(),
+			last_checked: lastChecked,
 			last_scan_failed: lastScanFailed,
 			num_threats: numThreats,
 			num_plugins_threats: 0,
@@ -54,4 +58,15 @@ describe( 'Protect card scan status', () => {
 			expect( renderHook( () => useLastScanText( data ) ).result.current ).toMatch( lastScanText );
 		}
 	);
+} );
+
+describe( 'Protect card scan status with a paid plan and no threats', () => {
+	it.each( [
+		[ '2026-11-04 12:00:00', 'Secure' ],
+		[ null, 'Not scanned yet' ],
+	] )( 'with last_checked %p shows %s', ( lastChecked, status ) => {
+		render( <ScanAndThreatStatus data={ scanData( false, 0, lastChecked ) } /> );
+
+		expect( screen.getByText( status ) ).toBeInTheDocument();
+	} );
 } );
