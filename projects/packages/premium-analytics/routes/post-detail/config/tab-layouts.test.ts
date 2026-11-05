@@ -1,4 +1,4 @@
-import { PA_COLUMN_COUNT } from '../../grid';
+import { DETAIL_COLUMN_COUNT } from '../../grid';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
@@ -7,13 +7,13 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-detail-highlights',
 				type: 'jpa/post-detail-highlights',
-				placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'post-views',
 				type: 'jpa/post-views',
 				attributes: { chartType: 'bar' },
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'post-likes',
@@ -34,7 +34,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-all-time-traffic',
 				type: 'jpa/post-all-time-traffic',
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 			},
 		] );
 	} );
@@ -45,13 +45,13 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-opens-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'opens' },
-				placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-opens-trend',
 				type: 'jpa/email-time-series--total-opens',
 				attributes: { metric: 'opens' },
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-opens-countries',
@@ -80,13 +80,13 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-clicks-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'clicks' },
-				placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-clicks-trend',
 				type: 'jpa/email-time-series--total-clicks',
 				attributes: { metric: 'clicks' },
-				placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-clicks-countries',
@@ -124,8 +124,8 @@ describe( 'post detail tab layouts', () => {
 				expect( typeof width ).toBe( 'number' );
 				const span = width as number;
 				// A tile that does not fit wraps and strands the columns before it.
-				expect( used + span ).toBeLessThanOrEqual( PA_COLUMN_COUNT );
-				used = ( used + span ) % PA_COLUMN_COUNT;
+				expect( used + span ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
+				used = ( used + span ) % DETAIL_COLUMN_COUNT;
 			}
 		}
 	} );

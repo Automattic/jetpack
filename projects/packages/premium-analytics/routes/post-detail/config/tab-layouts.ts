@@ -1,4 +1,4 @@
-import { PA_COLUMN_COUNT } from '../../grid';
+import { DETAIL_COLUMN_COUNT } from '../../grid';
 import type { PostDetailTabId } from './tabs';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
@@ -13,13 +13,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'post-detail-highlights',
 			// Full-width row, matching the email highlights layout.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
 			attributes: { chartType: 'bar' },
-			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'post-likes',
@@ -45,7 +45,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'post-all-time-traffic',
 			// Full width: the table lays twelve months out across its columns.
 			type: 'jpa/post-all-time-traffic',
-			placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
 	'email-opens': [
@@ -53,13 +53,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-opens-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'opens' },
-			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-opens-trend',
 			type: 'jpa/email-time-series--total-opens',
 			attributes: { metric: 'opens' },
-			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-opens-countries',
@@ -85,13 +85,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'clicks' },
-			placement: { width: PA_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-clicks-trend',
 			type: 'jpa/email-time-series--total-clicks',
 			attributes: { metric: 'clicks' },
-			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-clicks-countries',
