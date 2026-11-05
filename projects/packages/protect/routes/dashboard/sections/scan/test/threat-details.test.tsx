@@ -50,6 +50,80 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
+		[
+			'an active plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'active',
+			'current',
+			'Deactivate and delete',
+		],
+		[
+			'an inactive plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'inactive',
+			'current',
+			'Delete it until',
+		],
+		[
+			'the active theme',
+			'themes',
+			'Extension',
+			undefined,
+			'active',
+			'current',
+			'Switch to another',
+		],
+		[ 'a parent theme', 'themes', 'Extension', undefined, 'parent', 'current', 'built on it' ],
+		[
+			'an unused theme',
+			'themes',
+			'Extension',
+			undefined,
+			'inactive',
+			'current',
+			'Delete it until',
+		],
+		[ 'WordPress', undefined, 'Core', undefined, undefined, 'current', 'Update as soon as' ],
+		[
+			'a fixed plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'active',
+			'fixed',
+			'Review the affected',
+		],
+		[
+			'a file in a plugin',
+			'plugins',
+			'Extension',
+			'wp-content/plugins/akismet/x.php',
+			'active',
+			'current',
+			'Review the affected',
+		],
+	] as const )(
+		'advises on unfixable %s',
+		( _name, type, signature, filename, state, status, advice ) => {
+			const threat: ScanThreat = {
+				id: 4,
+				signature: `Vulnerable.WP.${ signature }`,
+				title: 'Vulnerable software',
+				status,
+				filename,
+				extension: type && { type, slug: 'akismet', name: 'Akismet', version: '1.0', state },
+			};
+			render( <ThreatDetails threat={ threat } canAct={ false } /> );
+
+			expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
+		}
+	);
+
+	it.each( [
 		[ 'Confirm deletion', 3, 'delete' ],
 		[ 'Update', 5, 'update' ],
 	] as const )(
