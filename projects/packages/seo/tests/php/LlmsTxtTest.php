@@ -63,9 +63,9 @@ class LlmsTxtTest extends TestCase {
 		foreach ( wp_get_nav_menus() as $menu ) {
 			wp_delete_nav_menu( $menu->term_id );
 		}
-		$tag = get_term_by( 'name', 'Unlisted Tag', 'post_tag' );
-		if ( $tag ) {
-			wp_delete_term( $tag->term_id, 'post_tag' );
+		$category = get_term_by( 'name', 'Listed Category', 'category' );
+		if ( $category ) {
+			wp_delete_term( $category->term_id, 'category' );
 		}
 		update_option( 'blogname', $this->blogname );
 		Llms_Txt::clear_cache();
@@ -469,7 +469,22 @@ class LlmsTxtTest extends TestCase {
 		);
 		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
 
-		// Keep the clearing hooks out of the rest of the suite.
+		$this->with_invalidation(
+			static function () use ( $change, $page ) {
+				$change( $page->ID );
+			}
+		);
+
+		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
+	 * Run a change with the clearing hooks registered, keeping them out of the rest of the suite.
+	 *
+	 * @param callable $change Makes the change.
+	 * @return void
+	 */
+	private function with_invalidation( callable $change ) {
 		$hooks = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -478,12 +493,10 @@ class LlmsTxtTest extends TestCase {
 		);
 		try {
 			Llms_Txt::register_invalidation();
-			$change( $page->ID );
+			$change();
 		} finally {
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
-
-		$this->assertSame( $clears ? false : 'stored', get_transient( Llms_Txt::CACHE_KEY ) );
 	}
 
 	/**
@@ -546,11 +559,12 @@ class LlmsTxtTest extends TestCase {
 				},
 				false,
 			),
-			'tag created'              => array(
+			'category renamed'         => array(
 				static function () {
-					wp_insert_term( 'Unlisted Tag', 'post_tag' );
+					$term = wp_insert_term( 'Listed Category', 'category' );
+					wp_update_term( $term['term_id'], 'category', array( 'slug' => 'renamed-category' ) );
 				},
-				false,
+				true,
 			),
 			'editor lock refreshed'    => array(
 				static function ( $page_id ) {
@@ -582,5 +596,20 @@ class LlmsTxtTest extends TestCase {
 			),
 			\Wpcom_Test_Async_Jobs::$queued
 		);
+	}
+
+	/**
+	 * Turning llms.txt on purges the edge copy even when nothing is stored here.
+	 *
+	 * @return void
+	 */
+	public function test_turning_llms_txt_on_purges_the_edge_copy_with_nothing_stored() {
+		\Wpcom_Test_Async_Jobs::$queued = array();
+		$this->with_invalidation(
+			static function () {
+				update_option( Llms_Txt::OPTION, true );
+			}
+		);
+		$this->assertCount( 1, \Wpcom_Test_Async_Jobs::$queued );
 	}
 }

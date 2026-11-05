@@ -57,7 +57,7 @@ class Llms_Txt {
 	/**
 	 * Options whose changes alter llms.txt.
 	 */
-	const CACHE_OPTIONS = array( self::OPTION, 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure', 'home', 'siteurl', 'WPLANG' );
+	const CACHE_OPTIONS = array( 'blogname', 'blogdescription', 'blog_public', 'show_on_front', 'page_on_front', 'permalink_structure', 'home', 'siteurl', 'WPLANG' );
 
 	/**
 	 * Post meta that changes whether or how a post appears in llms.txt, including the
@@ -97,14 +97,16 @@ class Llms_Txt {
 			add_action( $hook, array( __CLASS__, 'clear_cache' ) );
 		}
 		add_action( 'clean_post_cache', array( __CLASS__, 'clear_cache_for_post' ), 10, 2 );
-		add_action( 'clean_term_cache', array( __CLASS__, 'clear_cache_for_terms' ), 10, 2 );
+		// Any taxonomy: besides menus, a category's slug or parent can be part of post URLs.
+		add_action( 'clean_term_cache', array( __CLASS__, 'clear_cache' ) );
 		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
 		}
-		foreach ( array_merge( self::CACHE_OPTIONS, array( 'theme_mods_' . get_stylesheet() ) ) as $option ) {
-			foreach ( array( 'add_option_', 'update_option_', 'delete_option_' ) as $prefix ) {
+		foreach ( array( 'add_option_', 'update_option_', 'delete_option_' ) as $prefix ) {
+			foreach ( array_merge( self::CACHE_OPTIONS, array( 'theme_mods_' . get_stylesheet() ) ) as $option ) {
 				add_action( $prefix . $option, array( __CLASS__, 'clear_cache' ) );
 			}
+			add_action( $prefix . self::OPTION, array( __CLASS__, 'reset_cache' ) );
 		}
 	}
 
@@ -118,6 +120,17 @@ class Llms_Txt {
 		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
 			self::purge_edge_cache();
 		}
+	}
+
+	/**
+	 * Drop the stored llms.txt and always purge the edge copy, which can outlive an expired
+	 * stored one. Runs when llms.txt is turned off or on, the owner's way to reset it.
+	 *
+	 * @return void
+	 */
+	public static function reset_cache() {
+		delete_transient( self::CACHE_KEY );
+		self::purge_edge_cache();
 	}
 
 	/**
@@ -161,19 +174,6 @@ class Llms_Txt {
 	 */
 	public static function clear_cache_for_meta( $meta_id, $post_id, $meta_key ) {
 		if ( in_array( $meta_key, self::CACHE_META, true ) ) {
-			self::clear_cache();
-		}
-	}
-
-	/**
-	 * Drop the stored llms.txt after a classic menu's terms change.
-	 *
-	 * @param int[]  $ids      Term IDs.
-	 * @param string $taxonomy Taxonomy slug.
-	 * @return void
-	 */
-	public static function clear_cache_for_terms( $ids, $taxonomy ) {
-		if ( 'nav_menu' === $taxonomy ) {
 			self::clear_cache();
 		}
 	}

@@ -175,6 +175,29 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
+	 * WordPress.com's API requests call register_write_hooks() without init(), so it alone must
+	 * hook the coverage and llms.txt clearing.
+	 */
+	public function test_write_hooks_register_without_init() {
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		unset( $GLOBALS['wp_filter']['transition_post_status'], $GLOBALS['wp_filter']['clean_post_cache'] );
+		try {
+			Initializer::register_write_hooks();
+			$this->assertNotFalse(
+				has_action( 'transition_post_status', array( Content_Coverage::class, 'invalidate_on_status_change' ) )
+			);
+			$this->assertNotFalse( has_action( 'clean_post_cache', array( Llms_Txt::class, 'clear_cache_for_post' ) ) );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
 	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
 	 *
 	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
