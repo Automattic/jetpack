@@ -580,14 +580,14 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		// Find the Hosting menu item.
 		$hosting_menu = null;
 		foreach ( $menu as $item ) {
-			if ( strpos( $item[2], 'https://wordpress.com/overview/' ) !== false ) {
+			if ( strpos( $item[2], 'https://my.wordpress.com/sites/' ) !== false ) {
 				$hosting_menu = $item;
 				break;
 			}
 		}
 
 		$this->assertNotNull( $hosting_menu, 'Hosting menu item should exist.' );
-		$this->assertSame( 'https://wordpress.com/overview/' . self::$domain, $hosting_menu[2] );
+		$this->assertSame( 'https://my.wordpress.com/sites/' . self::$domain, $hosting_menu[2] );
 		$this->assertStringContainsString( 'inline-icon', $hosting_menu[0] );
 		$this->assertStringContainsString( 'dashicons-external', $hosting_menu[0] );
 	}
