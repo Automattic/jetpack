@@ -105,7 +105,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 	} as unknown as SettingsForm;
 };
 
-const STATUS_LABELS = [ 'Not started', 'In progress', 'Complete' ];
+const STATUS_LABELS = [ 'Not started', 'In progress', 'Incomplete', 'Complete' ];
 
 /**
  * The status shown in a given module's header. `Card.Title` is itself an

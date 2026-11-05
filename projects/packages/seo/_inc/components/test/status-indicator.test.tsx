@@ -9,6 +9,7 @@ describe( 'StatusIndicator', () => {
 	it.each( [
 		[ 'not-started', 'Not started', 'draft' ],
 		[ 'in-progress', 'In progress', 'medium' ],
+		[ 'incomplete', 'Incomplete', 'medium' ],
 		[ 'complete', 'Complete', 'stable' ],
 	] as const )( 'renders the %s state as a "%s" badge', ( status, label, intent ) => {
 		render( <StatusIndicator status={ status } /> );
