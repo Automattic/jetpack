@@ -28,7 +28,6 @@ module.exports = {
 	// latter for the lifted Gravatar component's hovercard styles) to be imported, and
 	// @wordpress/theme's untranspiled ESM to be transformed (mirroring the base config —
 	// this override otherwise shadows the base pattern's exception).
-	transformIgnorePatterns: [ transformIgnorePattern( [ '@automattic/' ] ) ],
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/3rd-party/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
