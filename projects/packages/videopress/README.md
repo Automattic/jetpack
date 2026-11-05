@@ -105,6 +105,14 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Thumbnail change metrics
+
+`jetpack_videopress_poster_changed` records a confirmed remote thumbnail outcome from the dashboard thumbnail card, with `method: attachment | frame`. Attachment means choosing an image through the media library; it is not necessarily a new upload. Frame selection requires the accepted generation response followed by an explicit `generating: false` result containing a nonempty poster URL different from the one returned when generation was queued. Clearing the generating flag alone is insufficient because failed jobs also clear it. Missing acknowledgments, unchanged frame URLs, and exhausted polling do not count.
+
+The event records before the subsequent local metadata update, so a failure there does not erase the already confirmed remote outcome. It does not measure unique videos, visual differences between images, downstream delivery, or viewer exposure. The poll endpoint has no request-specific completion identity; concurrent edits can affect attribution, and an unchanged URL is conservatively omitted. Other editor/legacy paths and automatic thumbnails are outside coverage.
+
+No GUIDs, attachment IDs, URLs, frame times, filenames or content are added. Existing analytics transport and controls are reused; runtime host eligibility, consent/opt-out, delivery and warehouse coverage still need validation before adoption reporting.
+
 ## Playlist publication analytics
 
 The existing `jetpack_videopress_playlist_block_published` and `jetpack_videopress_latest_videos_playlist_block_published` events record an observed manual publication save only after the editor finishes saving, reports success, and exposes a saved `publish` status for the same post. Failed attempts, autosaves, previews, ordinary updates to published posts, and saves already underway when the tracking hook mounts are excluded. Missing required editor selectors or an unknown first block also suppress reporting.
