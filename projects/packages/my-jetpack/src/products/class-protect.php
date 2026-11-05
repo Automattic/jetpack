@@ -460,11 +460,7 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		return Scan::get_paid_plan_product_slugs();
 	}
 
 	/**
