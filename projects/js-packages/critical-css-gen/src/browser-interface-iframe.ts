@@ -13,12 +13,15 @@ import {
 import { Viewport, NullableViewport } from './types.ts';
 
 const defaultLoadTimeout = 60 * 1000;
+const defaultCheckTimeout = 30 * 1000;
 
 type VerifyMethod = ( rawUrl: string, contentWindow: Window, contentDocument: Document ) => boolean;
 
 type BrowserInterfaceIframeOptions = {
 	requestGetParameters?: { [ key: string ]: string };
 	loadTimeout?: number;
+	// Limit for the status checks made once a page has loaded.
+	checkTimeout?: number;
 	verifyPage: VerifyMethod;
 	allowScripts?: boolean;
 	// Ends page loads and their follow-up requests when the caller stops generating.
@@ -28,6 +31,7 @@ type BrowserInterfaceIframeOptions = {
 export class BrowserInterfaceIframe extends BrowserInterface {
 	private requestGetParameters: { [ key: string ]: string };
 	private loadTimeout: number;
+	private checkTimeout: number;
 	private verifyPage: VerifyMethod;
 	private signal: AbortSignal | undefined;
 
@@ -40,6 +44,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 	constructor( {
 		requestGetParameters,
 		loadTimeout,
+		checkTimeout,
 		verifyPage,
 		allowScripts,
 		signal,
@@ -48,6 +53,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 		this.requestGetParameters = requestGetParameters || {};
 		this.loadTimeout = loadTimeout || defaultLoadTimeout;
+		this.checkTimeout = checkTimeout || defaultCheckTimeout;
 		this.verifyPage = verifyPage;
 		this.signal = signal;
 
@@ -183,10 +189,11 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 				return;
 			}
 
-			// One deadline covers the iframe load and the checks that follow it, so a check that never
-			// answers cannot stall the run.
+			// The load has its own limit, and the checks that follow it have theirs, so a check that
+			// never answers cannot stall the run.
 			const checks = new AbortController();
 			let settled = false;
+			let timeoutId: ReturnType< typeof setTimeout > | undefined;
 			const finish = ( settle: () => void ) => {
 				if ( settled ) {
 					return;
@@ -205,10 +212,11 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 					reject( new UnknownError( { url: fullUrl, message: 'Generation was cancelled' } ) )
 				);
 			};
-			const timeoutId = setTimeout( () => {
+			const timeOut = () => {
 				checks.abort();
 				finish( () => reject( new LoadTimeoutError( { url: fullUrl } ) ) );
-			}, this.loadTimeout );
+			};
+			timeoutId = setTimeout( timeOut, this.loadTimeout );
 
 			if ( this.signal?.aborted ) {
 				onAbort();
@@ -218,6 +226,10 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 			// Catch load event.
 			this.iframe.onload = async () => {
+				this.iframe.onload = null;
+				clearTimeout( timeoutId );
+				timeoutId = setTimeout( timeOut, this.checkTimeout );
+
 				try {
 					// Check HTTP status code first.
 					const is404 = await this.is404Page( fullUrl, checks.signal );

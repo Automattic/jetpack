@@ -10,9 +10,17 @@ let browser;
 describe( 'Iframe interface', () => {
 	// Start test server to serve wrapped content.
 	beforeAll( async () => {
-		testServer = new TestServer( {
-			'page-a': path.join( dataDirectory, 'page-a' ),
-		} );
+		// slow-a is page-a held for 2.6 s, near-a for 3.7 s and slower-a for 5 s; request them with the
+		// trailing slash, or the directory redirect pays the delay twice.
+		testServer = new TestServer(
+			{
+				'page-a': path.join( dataDirectory, 'page-a' ),
+				'slow-a': path.join( dataDirectory, 'page-a' ),
+				'near-a': path.join( dataDirectory, 'page-a' ),
+				'slower-a': path.join( dataDirectory, 'page-a' ),
+			},
+			{ 'slow-a': 2600, 'near-a': 3700, 'slower-a': 5000 }
+		);
 		await testServer.start();
 
 		browser = await chromium.launch();
@@ -208,71 +216,141 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
-	it( 'times out a page whose status check never answers', async () => {
+	// Limits are scaled down from the defaults of 60 s for the load and 30 s for the checks.
+	const limits = { loadTimeout: 4000, checkTimeout: 3000 };
+
+	/**
+	 * Load a page with a status check that answers after a delay, or never.
+	 *
+	 * @param {object}      page       - Playwright page hosting the generator bundle.
+	 * @param {string}      url        - Page to load.
+	 * @param {number|null} checkDelay - Milliseconds before the status check answers; null never answers.
+	 * @return {Promise<{outcome: string, elapsed: number}>} How the load ended and how long it took.
+	 */
+	const loadWithSlowCheck = ( page, url, checkDelay ) =>
+		page.evaluate(
+			async ( { pageUrl, delay, options } ) => {
+				const realFetch = window.fetch;
+				window.fetch = ( fetchUrl, init ) =>
+					new Promise( ( resolve, reject ) => {
+						init?.signal?.addEventListener( 'abort', () =>
+							reject( new DOMException( 'aborted', 'AbortError' ) )
+						);
+						// The check's own time is the delay, so answer it from the page's undelayed copy.
+						const quickUrl = String( fetchUrl ).replace( /\/(slow|near|slower)-a/, '/page-a' );
+						if ( delay !== null ) {
+							setTimeout( () => realFetch( quickUrl, init ).then( resolve, reject ), delay );
+						}
+					} );
+				const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+					...options,
+					verifyPage: ( _url, innerWindow, innerDocument ) =>
+						!! innerDocument.querySelector( 'meta[name="testing-page"]' ),
+				} );
+				const started = Date.now();
+				const outcome = await Promise.race( [
+					iframeInterface.loadPage( pageUrl ).then(
+						() => 'resolved',
+						error => error.message
+					),
+					new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 9000 ) ),
+				] );
+				return { outcome, elapsed: Date.now() - started };
+			},
+			{ pageUrl: url, delay: checkDelay, options: limits }
+		);
+
+	it( 'resolves when the load and its check each finish within their own limits', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		// Load 2.6 s of 4 s, then a check of 2 s of 3 s: more than the load limit together.
+		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/slow-a/', 2000 );
 
-		const result = await page.evaluate( async url => {
-			window.fetch = ( _url, options ) =>
-				new Promise( ( _resolve, reject ) =>
-					options?.signal?.addEventListener( 'abort', () =>
-						reject( new DOMException( 'aborted', 'AbortError' ) )
-					)
-				);
-			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
-				loadTimeout: 1000,
-				verifyPage: ( _url, innerWindow, innerDocument ) =>
-					!! innerDocument.querySelector( 'meta[name="testing-page"]' ),
-			} );
-			const started = Date.now();
-			const outcome = await Promise.race( [
-				iframeInterface.loadPage( url ).then(
-					() => 'resolved',
-					error => error.message
-				),
-				new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
-			] );
-			return { outcome, elapsed: Date.now() - started };
-		}, innerUrl );
+		expect( result.outcome ).toBe( 'resolved' );
+		await page.close();
+	} );
+
+	it( 'resolves a load close to its limit followed by a quick check', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		// Load 3.7 s of 4 s, then a check of 0.5 s: more than the load limit together.
+		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/near-a/', 500 );
+
+		expect( result.outcome ).toBe( 'resolved' );
+		await page.close();
+	} );
+
+	it( 'ends a page whose status check never answers by the sum of both limits', async () => {
+		const page = await browser.newPage();
+		await page.goto( testServer.getUrl() );
+
+		const result = await loadWithSlowCheck(
+			page,
+			path.join( testServer.getUrl(), 'page-a' ),
+			null
+		);
 
 		expect( result.outcome ).toMatch( /^Timeout while reading/ );
-		expect( result.elapsed ).toBeLessThan( 4000 );
-
+		expect( result.elapsed ).toBeGreaterThanOrEqual( limits.checkTimeout );
+		expect( result.elapsed ).toBeLessThan( limits.loadTimeout + limits.checkTimeout );
 		await page.close();
 	} );
 
-	it( 'ends a page load when the caller cancels generation', async () => {
+	it( 'fails a load that exceeds its limit', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
 
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
+		const result = await loadWithSlowCheck( page, testServer.getUrl() + '/slower-a/', 0 );
 
-		const result = await page.evaluate( async url => {
-			window.fetch = () => new Promise( () => {} );
-			const controller = new AbortController();
-			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
-				verifyPage: () => true,
-				signal: controller.signal,
-			} );
-			setTimeout( () => controller.abort(), 500 );
-			const started = Date.now();
-			const outcome = await Promise.race( [
-				iframeInterface.loadPage( url ).then(
-					() => 'resolved',
-					error => error.message
-				),
-				new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
-			] );
-			return { outcome, elapsed: Date.now() - started };
-		}, innerUrl );
-
-		expect( result.outcome ).toMatch( /Generation was cancelled/ );
-		expect( result.elapsed ).toBeLessThan( 4000 );
-
+		expect( result.outcome ).toMatch( /^Timeout while reading/ );
+		expect( result.elapsed ).toBeGreaterThanOrEqual( limits.loadTimeout );
+		expect( result.elapsed ).toBeLessThan( limits.loadTimeout + 1000 );
 		await page.close();
 	} );
+
+	it.each( [
+		[ 'while the page is loading', 'slower-a', false ],
+		[ 'while its status check is waiting', 'page-a', true ],
+	] )(
+		'ends a page load when the caller cancels generation %s',
+		async ( _stage, pagePath, hangCheck ) => {
+			const page = await browser.newPage();
+			await page.goto( testServer.getUrl() );
+
+			const innerUrl = path.join( testServer.getUrl(), pagePath );
+
+			const result = await page.evaluate(
+				async ( { url, hang } ) => {
+					if ( hang ) {
+						window.fetch = () => new Promise( () => {} );
+					}
+					const controller = new AbortController();
+					const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
+						verifyPage: () => true,
+						signal: controller.signal,
+					} );
+					setTimeout( () => controller.abort(), 500 );
+					const started = Date.now();
+					const outcome = await Promise.race( [
+						iframeInterface.loadPage( url ).then(
+							() => 'resolved',
+							error => error.message
+						),
+						new Promise( resolve => setTimeout( () => resolve( 'still waiting' ), 4000 ) ),
+					] );
+					return { outcome, elapsed: Date.now() - started };
+				},
+				{ url: innerUrl, hang: hangCheck }
+			);
+
+			expect( result.outcome ).toMatch( /Generation was cancelled/ );
+			expect( result.elapsed ).toBeLessThan( 4000 );
+
+			await page.close();
+		}
+	);
 
 	it( 'does not reuse a page it loaded before the caller cancelled generation', async () => {
 		const page = await browser.newPage();
