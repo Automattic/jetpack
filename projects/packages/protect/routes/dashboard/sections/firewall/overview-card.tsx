@@ -18,7 +18,7 @@ import { getIpList, splitIps } from '../../components/settings/ip-list';
 import TabLink from '../../components/tab-link';
 import useRerenderEvery from '../../components/use-rerender-every';
 import isModuleActive from '../../data/is-module-active';
-import { createStore } from '../scan/store';
+import { createStore, useIsDocumentHidden } from '../scan/store';
 import BlocksSummary from './blocks-summary';
 import { FirewallFooter, NoBlockListState, NoBlocksState, UPSELL_EVENT } from './empty-state';
 import {
@@ -63,10 +63,69 @@ const FIREWALL_KEYS = [ 'waf' ];
 // The card unmounts on a tab switch, so a test's refreshed counts live here.
 const blocksStore = createStore< FirewallBlocks | undefined >( () => undefined );
 
+// How often an open page re-reads the counts.
+export const BLOCKS_REFRESH_INTERVAL = 60 * 1000;
+
+// Reads land in start order, so an older answer can't replace a newer one.
+let readsStarted = 0;
+let readApplied = 0;
+let lastReadAt = Date.now();
+// Outlives the card, so coming back to this tab doesn't count as turning the firewall on.
+let lastSeenActive: boolean | null = null;
+
 /** Forget refreshed counts, so tests start from the page state. */
 export const resetFirewallBlocks = (): void => {
 	blocksStore.reset();
+	readsStarted = 0;
+	readApplied = 0;
+	lastReadAt = Date.now();
+	lastSeenActive = null;
 };
+
+/**
+ * Read the blocks and counts into the store, unless a later read already landed.
+ *
+ * @return The fresh blocks.
+ */
+async function refreshBlocks(): Promise< FirewallBlocks > {
+	const read = ++readsStarted;
+	const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
+	if ( read > readApplied ) {
+		readApplied = read;
+		lastReadAt = Date.now();
+		blocksStore.set( () => fresh );
+	}
+	return fresh;
+}
+
+/** Refresh in the background; a failed read keeps the counts as they were. */
+const refreshQuietly = () => {
+	refreshBlocks().catch( () => {} );
+};
+
+/**
+ * Keep the counts current while the firewall is on: on an interval, when they're older than that, and when it's turned on.
+ *
+ * @param active       - Whether the firewall is on now.
+ * @param activeAtLoad - Whether it was on at page load, so turning it on from the Settings tab counts too.
+ */
+function useBlocksRefresh( active: boolean, activeAtLoad: boolean ): void {
+	const isHidden = useIsDocumentHidden();
+
+	useEffect( () => {
+		const turnedOn = active && ! ( lastSeenActive ?? activeAtLoad );
+		lastSeenActive = active;
+		if ( ! active || isHidden ) {
+			return;
+		}
+		// Covers a return to the browser tab or to this dashboard tab, which remounts the card.
+		if ( turnedOn || Date.now() - lastReadAt >= BLOCKS_REFRESH_INTERVAL ) {
+			refreshQuietly();
+		}
+		const timer = setInterval( refreshQuietly, BLOCKS_REFRESH_INTERVAL );
+		return () => clearInterval( timer );
+	}, [ active, isHidden, activeAtLoad ] );
+}
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
@@ -258,6 +317,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
+	useBlocksRefresh( active && firewall.available && ! firewall.providedByHost, firewall.active );
 	// Turning the automatic rules off on the Settings tab hides their date; the date itself is from page load.
 	const rulesUpdatedAt =
 		settings.settings?.[ AUTOMATIC_RULES ] === false ? null : firewall.rulesUpdatedAt;
@@ -295,8 +355,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		// The test has run by now, so a failed refresh mustn't replace its result with an error.
 		let isRecorded: boolean | null = null;
 		try {
-			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
-			blocksStore.set( () => fresh );
+			const fresh = await refreshBlocks();
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
@@ -316,6 +375,29 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const hasBlocks = Boolean( blocks.hasBlocked );
 	const { lastTestAt } = blocks;
 	const isEmpty = active && ! hasBlocks;
+
+	// A read that swaps the empty state for the counts takes focus from it to the header's Run test, unless focus moved on.
+	const emptyState = useRef< HTMLDivElement >( null );
+	const headerTest = useRef< HTMLButtonElement >( null );
+	const focusHeaderTest = useRef( false );
+	const wasEmpty = useRef( isEmpty );
+	if ( wasEmpty.current !== isEmpty ) {
+		// Read focus now, before the commit removes the empty state.
+		const empty = emptyState.current;
+		focusHeaderTest.current = ! isEmpty && !! empty?.contains( empty.ownerDocument.activeElement );
+		wasEmpty.current = isEmpty;
+	}
+	useEffect( () => {
+		const button = headerTest.current;
+		if ( ! focusHeaderTest.current || ! button ) {
+			return;
+		}
+		focusHeaderTest.current = false;
+		const { activeElement, body } = button.ownerDocument;
+		if ( ! activeElement || activeElement === body ) {
+			button.focus();
+		}
+	}, [ isEmpty ] );
 	const hasBlockListIps = splitIps( getIpList( ipData.settings, IP_BLOCK_LIST ) ).length > 0;
 	const isBlockListOff = hasBlockListIps && ! ipData.settings?.[ enabledKey( IP_BLOCK_LIST ) ];
 	const needsBlockList = ! firewall.hasScan && ( ! hasBlockListIps || isBlockListOff );
@@ -363,7 +445,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			}
 			actions={
 				hasBlocks && (
-					<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
+					<Button
+						ref={ headerTest }
+						variant="outline"
+						size="compact"
+						onClick={ runTest }
+						loading={ isTesting }
+					>
 						{ __( 'Run test', 'jetpack-protect-pkg' ) }
 					</Button>
 				)
@@ -385,13 +473,19 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ isFreeEmptyState && (
 				<NoBlockListState
+					rootRef={ emptyState }
 					upgradeUrl={ firewall.upgradeUrl }
 					onAddIps={ addToBlockList }
 					isListOff={ isBlockListOff }
 				/>
 			) }
 			{ isEmpty && ! isFreeEmptyState && (
-				<NoBlocksState lastTestAt={ lastTestAt } isTesting={ isTesting } onTest={ runTest } />
+				<NoBlocksState
+					rootRef={ emptyState }
+					lastTestAt={ lastTestAt }
+					isTesting={ isTesting }
+					onTest={ runTest }
+				/>
 			) }
 			{ hasNothingToBlock && (
 				<NothingToBlockNotice
