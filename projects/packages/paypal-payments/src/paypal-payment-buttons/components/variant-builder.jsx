@@ -14,8 +14,10 @@ import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import GridiconTrash from 'gridicons/dist/trash';
 import { getPriceStep } from '../utils/currency-symbols';
+import { getImageGroupIndex } from '../utils/images';
 import { turnGateOff } from '../utils/resource-sync';
 import { REQUIRED_FIELD_ERROR, validatePrice } from '../utils/validation';
+import { OptionImage } from './product-images';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const helpVariants = __(
@@ -23,7 +25,7 @@ const helpVariants = __(
 	'jetpack-paypal-payments'
 );
 const helpPricingFirstGroup = __(
-	'You can only set the price for your first variant.',
+	'You can only set the image and price for your first variant.',
 	'jetpack-paypal-payments'
 );
 
@@ -292,6 +294,8 @@ export function validateCustomerNotes( customerNotes ) {
  * @param {Function} props.onChange     - Callback when group changes.
  * @param {Function} props.onRemove     - Callback to remove this group.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
+ * @param {boolean}  props.withImages   - Whether this is the group whose options carry images.
+ * @param {boolean}  props.hasPayment   - Whether the block points at a saved payment.
  * @return {Element} Group editor.
  */
 function GroupEditor( {
@@ -305,6 +309,8 @@ function GroupEditor( {
 	onChange,
 	onRemove,
 	disabled,
+	withImages,
+	hasPayment,
 } ) {
 	const lastOptionRef = useRef( null );
 	const [ focusNewOption, setFocusNewOption ] = useState( false );
@@ -457,6 +463,22 @@ function GroupEditor( {
 								}
 							/>
 						) }
+						{ withImages && (
+							<OptionImage
+								image={ option.images?.[ 0 ] || null }
+								onChange={ image => updateOption( optIndex, { images: image ? [ image ] : [] } ) }
+								disabled={ disabled }
+								hasPayment={ hasPayment }
+								optionLabel={
+									option.label ||
+									sprintf(
+										/* translators: %d: option number */
+										__( 'Option %d', 'jetpack-paypal-payments' ),
+										optIndex + 1
+									)
+								}
+							/>
+						) }
 						{ group.options.length > 1 && (
 							<Button
 								isSmall
@@ -518,6 +540,7 @@ function GroupEditor( {
  * @param {object}   props.touched      - The form's touched fields, keyed by field key.
  * @param {boolean}  props.showAll      - Show every error, whether or not its field was left.
  * @param {Function} props.onTouch      - Callback with a field key once it is left.
+ * @param {boolean}  props.hasPayment   - Whether the block points at a saved payment.
  * @return {Element} Variants builder.
  */
 export default function VariantBuilder( {
@@ -530,10 +553,13 @@ export default function VariantBuilder( {
 	touched = {},
 	showAll,
 	onTouch,
+	hasPayment,
 } ) {
 	const dimensions = variants?.dimensions || [];
 	const primaryIndex = getPrimaryIndex( dimensions );
 	const pricingOn = primaryIndex !== -1;
+	// PayPal takes option images on the group it prices, which is the first when none is.
+	const imageGroupIndex = getImageGroupIndex( variants );
 	const lastGroupRef = useRef( null );
 	const [ focusNewGroup, setFocusNewGroup ] = useState( false );
 
@@ -603,7 +629,7 @@ export default function VariantBuilder( {
 		primaryIndex > 0
 			? sprintf(
 					/* translators: %d: variant number */
-					__( 'Prices are set on variant %d.', 'jetpack-paypal-payments' ),
+					__( 'Images and prices are set on variant %d.', 'jetpack-paypal-payments' ),
 					primaryIndex + 1
 				)
 			: helpPricingFirstGroup;
@@ -667,6 +693,8 @@ export default function VariantBuilder( {
 								onChange={ newDim => updateDimension( dimIndex, newDim ) }
 								onRemove={ () => removeDimension( dimIndex ) }
 								disabled={ disabled }
+								withImages={ dimIndex === imageGroupIndex }
+								hasPayment={ hasPayment }
 							/>
 						</div>
 					) ) }
