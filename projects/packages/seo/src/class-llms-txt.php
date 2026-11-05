@@ -102,11 +102,26 @@ class Llms_Txt {
 		foreach ( array( 'added_post_meta', 'updated_post_meta', 'deleted_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_cache_for_meta' ), 10, 3 );
 		}
-		foreach ( array( 'add_option_', 'update_option_', 'delete_option_' ) as $prefix ) {
-			foreach ( array_merge( self::CACHE_OPTIONS, array( 'theme_mods_' . get_stylesheet() ) ) as $option ) {
-				add_action( $prefix . $option, array( __CLASS__, 'clear_cache' ) );
-			}
-			add_action( $prefix . self::OPTION, array( __CLASS__, 'reset_cache' ) );
+		foreach ( array( 'added_option', 'updated_option', 'deleted_option' ) as $hook ) {
+			add_action( $hook, array( __CLASS__, 'clear_cache_for_option' ) );
+		}
+	}
+
+	/**
+	 * Drop the stored llms.txt after a write to an option it reads. Matched when the option is
+	 * saved, since WordPress.com API requests register these hooks before switching to the site.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public static function clear_cache_for_option( $option ) {
+		if ( self::OPTION === $option ) {
+			self::reset_cache();
+		} elseif (
+			in_array( $option, self::CACHE_OPTIONS, true )
+			|| ( 0 === strpos( $option, 'theme_mods_' ) && 'theme_mods_' . get_stylesheet() === $option )
+		) {
+			self::clear_cache();
 		}
 	}
 

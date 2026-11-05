@@ -599,6 +599,32 @@ class LlmsTxtTest extends TestCase {
 	}
 
 	/**
+	 * Theme changes clear the stored copy for the theme active when they're saved, not when the
+	 * hooks were registered: WordPress.com API requests register them before switching sites.
+	 *
+	 * @return void
+	 */
+	public function test_theme_mods_clear_the_stored_copy_for_the_theme_active_when_saved() {
+		set_transient( Llms_Txt::CACHE_KEY, 'stored', HOUR_IN_SECONDS );
+		$api_host_theme = static function () {
+			return 'api-host-theme';
+		};
+		add_filter( 'stylesheet', $api_host_theme );
+		try {
+			$this->with_invalidation(
+				static function () use ( $api_host_theme ) {
+					remove_filter( 'stylesheet', $api_host_theme );
+					set_theme_mod( 'llms_txt_test', 'changed' );
+				}
+			);
+		} finally {
+			remove_filter( 'stylesheet', $api_host_theme );
+			remove_theme_mod( 'llms_txt_test' );
+		}
+		$this->assertFalse( get_transient( Llms_Txt::CACHE_KEY ) );
+	}
+
+	/**
 	 * Turning llms.txt on purges the edge copy even when nothing is stored here.
 	 *
 	 * @return void
