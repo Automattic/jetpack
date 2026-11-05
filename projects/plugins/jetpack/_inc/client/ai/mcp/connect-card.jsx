@@ -4,12 +4,11 @@
  */
 
 import { speak } from '@wordpress/a11y';
-import { VisuallyHidden } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowUpRight, copy } from '@wordpress/icons';
-import { Button, Card, Icon, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Icon, Notice, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import assetUrl from '../asset-url';
 import { getConnectAgents, HELPER_PROMPT } from './connect-agents';
 import { recordMcpTracksEvent } from './tracks';
