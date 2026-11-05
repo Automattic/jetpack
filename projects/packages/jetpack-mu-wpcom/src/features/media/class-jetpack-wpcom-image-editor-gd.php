@@ -62,12 +62,13 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	 * @return string The type, or '' when the file has none.
 	 */
 	private static function read_local_digital_source_type( $file ) {
-		$tags = self::read_tags( $file );
-		if ( '' !== $tags['type'] || ! $tags['has_c2pa'] ) {
-			return $tags['type'];
+		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
+		$output   = (string) self::run_tool( array( $exiftool, '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
+		if ( preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match ) ) {
+			return trim( $match[1] );
 		}
 
-		return self::read_c2pa_digital_source_type( $file );
+		return str_contains( $output, 'JUMDLabel: ' ) ? self::read_c2pa_digital_source_type( $file ) : '';
 	}
 
 	/**
@@ -94,27 +95,6 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	}
 
 	/**
-	 * Reads the XMP DigitalSourceType, and whether the file has a C2PA (JUMBF) box.
-	 *
-	 * @param string $file Path of the image.
-	 * @return array{type: string, has_c2pa: bool} '' and false when exiftool is missing or fails.
-	 */
-	private static function read_tags( $file ) {
-		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
-		$output   = '';
-		if ( $exiftool ) {
-			$output = (string) self::run_tool( array( $exiftool, '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $file ) );
-		}
-
-		$has_type = preg_match( '/^DigitalSourceType: (.*)$/m', $output, $match );
-
-		return array(
-			'type'     => $has_type ? trim( $match[1] ) : '',
-			'has_c2pa' => str_contains( $output, 'JUMDLabel: ' ),
-		);
-	}
-
-	/**
 	 * Reads the active manifest first: c2patool lists manifests in no fixed order.
 	 *
 	 * @param string $file Path of the source image.
@@ -122,12 +102,11 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	 */
 	private static function read_c2pa_digital_source_type( $file ) {
 		$c2patool = jetpack_wpcom_ai_marker_tool_path( 'c2patool' );
-		$settings = __DIR__ . '/c2pa-settings.json';
-		if ( ! $c2patool || ! is_readable( $settings ) ) {
+		if ( ! $c2patool ) {
 			return '';
 		}
 
-		$store     = json_decode( (string) self::run_tool( array( $c2patool, '--settings', $settings, $file ) ), true );
+		$store     = json_decode( (string) self::run_tool( array( $c2patool, '--settings', __DIR__ . '/c2pa-settings.json', $file ) ), true );
 		$manifests = (array) ( $store['manifests'] ?? array() );
 		$active    = $store['active_manifest'] ?? '';
 		if ( isset( $manifests[ $active ] ) ) {
@@ -154,20 +133,12 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	 *
 	 * @param string $filename            Path of the saved image.
 	 * @param string $digital_source_type The type to write.
-	 * @return bool Whether it worked.
 	 */
 	private static function write_digital_source_type( $filename, $digital_source_type ) {
 		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
-		if ( ! $exiftool || '' === $digital_source_type ) {
-			return false;
-		}
+		$output   = self::run_tool( array( $exiftool, '-m', '-q', '-overwrite_original', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
 
-		$output  = self::run_tool( array( $exiftool, '-m', '-q', '-overwrite_original', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
-		$written = null !== $output;
-
-		do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', $written ? 'written' : 'write-failed' );
-
-		return $written;
+		do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', null !== $output ? 'written' : 'write-failed' );
 	}
 
 	/**
