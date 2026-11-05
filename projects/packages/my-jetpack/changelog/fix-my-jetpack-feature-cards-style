@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Feature cards with long buttons overlap text content. Rule flex-wrap and min-width for improved layout.
+Features: Move a wide card button under the text instead of squeezing the text.

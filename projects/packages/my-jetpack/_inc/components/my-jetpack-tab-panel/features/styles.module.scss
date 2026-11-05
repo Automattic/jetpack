@@ -138,7 +138,7 @@ $band-ground: #f8f8f8;
 // padding, so its switch lines up with the cards that have one.
 .feature-item--static {
 	padding-inline-end: calc(var(--wpds-dimension-padding-xl) + 36px);
-	flex-wrap: balance;
+	flex-wrap: wrap;
 
 	&:hover {
 		background: var(--wpds-color-background-surface-neutral-strong);
@@ -190,8 +190,7 @@ $band-ground: #f8f8f8;
 	flex: 1;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xs);
-	min-inline-size: 0;
-	min-width: 50%;
+	min-inline-size: 50%;
 }
 
 .feature-item__heading {
