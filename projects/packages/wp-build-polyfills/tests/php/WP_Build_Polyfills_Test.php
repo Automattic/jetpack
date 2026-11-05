@@ -969,7 +969,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
-		define( 'GUTENBERG_VERSION', '24.1.0' );
+		define( 'GUTENBERG_VERSION', '24.2.0' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
@@ -1042,7 +1042,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_register_modules_newer_copy_leaves_supported_gutenberg_copy() {
-		define( 'GUTENBERG_VERSION', '24.1.0' );
+		define( 'GUTENBERG_VERSION', '24.2.0' );
 
 		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );

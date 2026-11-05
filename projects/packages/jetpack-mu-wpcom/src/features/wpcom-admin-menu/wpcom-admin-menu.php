@@ -352,6 +352,16 @@ add_filter(
 );
 
 /**
+ * Whether the Jetpack menu has a My Jetpack entry, whichever page registered it.
+ *
+ * @return bool
+ */
+function wpcom_jetpack_menu_has_my_jetpack() {
+	global $submenu;
+	return in_array( 'my-jetpack', array_column( $submenu['jetpack'] ?? array(), 2 ), true );
+}
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -411,7 +421,7 @@ function wpcom_add_jetpack_submenu() {
 	}
 	// @codeCoverageIgnoreEnd
 
-	// Jetpack > Scan.
+	// Jetpack > Scan, beside Protect until Protect replaces it.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
@@ -423,11 +433,6 @@ function wpcom_add_jetpack_submenu() {
 		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
-
-	// Jetpack > Protect, hidden with a class so Calypso's sidebar drops it too; the standalone plugin keeps its entry.
-	if ( ! class_exists( 'Jetpack_Protect' ) ) {
-		wpcom_hide_submenu_page( 'jetpack', 'jetpack-protect' );
-	}
 
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
@@ -540,8 +545,8 @@ function wpcom_add_jetpack_submenu() {
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
 /**
- * Sorts the Jetpack submenu A to Z by title, with My Jetpack (Activity Log on Simple) first;
- * Beta Tester, Settings and the upgrade link go at the bottom, as on self-hosted.
+ * Sorts the Jetpack submenu A to Z by title, with My Jetpack first; Beta Tester, Settings and the
+ * upgrade link go at the bottom, as on self-hosted.
  *
  * WordPress points the top-level Jetpack link at the first item, so a `hide-if-js` item sorts after the visible
  * ones in its tier. Items admin-ui hides only leave on admin_head, so they sort as visible here.
@@ -562,8 +567,8 @@ function wpcom_sort_jetpack_submenu() {
 		admin_url( 'admin.php?page=jetpack#/settings' ) => 998,
 	);
 
-	// Simple has no My Jetpack, so pin Activity Log rather than let the translated A to Z order pick the top link.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	// Without a My Jetpack page, pin Activity Log rather than let the translated A to Z order pick the top link.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! wpcom_jetpack_menu_has_my_jetpack() ) {
 		$named_tiers['jetpack-activity-log'] = -5;
 		$named_tiers[ 'https://wordpress.com/activity-log/' . wp_parse_url( home_url(), PHP_URL_HOST ) ] = -5;
 	}

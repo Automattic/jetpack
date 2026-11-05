@@ -89,18 +89,23 @@ describe( 'SettingsNavTabs', () => {
 	} );
 
 	it.each( [
-		[ 'shows', 'while the settings flag is off', false, 1 ],
-		[ 'hides', 'once the flag is on', true, 0 ],
-	] )( '%s a Sharing tab only Social would fill %s', ( _verb, _when, flag, tabs ) => {
-		window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
+		[ 'shows', 'Sharing', 'Social', 'publicize', false, 1 ],
+		[ 'hides', 'Sharing', 'Social', 'publicize', true, 0 ],
+		[ 'shows', 'Writing', 'Copy Post', 'copy-post', false, 1 ],
+		[ 'hides', 'Writing', 'Copy Post', 'copy-post', true, 0 ],
+	] )(
+		'%s a %s tab only %s would fill with the settings flag %s',
+		( _verb, tab, _name, module, flag, tabs ) => {
+			window.JetpackScriptData = { site: {}, myJetpack: { settingsConsolidation: flag } };
 
-		render(
-			<MemoryRouter initialEntries={ [ '/traffic' ] }>
-				<SettingsNavTabs />
-			</MemoryRouter>,
-			{ initialState: buildInitialState( true, { publicize: { activated: true } } ) }
-		);
+			render(
+				<MemoryRouter initialEntries={ [ '/traffic' ] }>
+					<SettingsNavTabs />
+				</MemoryRouter>,
+				{ initialState: buildInitialState( true, { [ module ]: { activated: true } } ) }
+			);
 
-		expect( screen.queryAllByRole( 'tab', { name: 'Sharing' } ) ).toHaveLength( tabs );
-	} );
+			expect( screen.queryAllByRole( 'tab', { name: tab } ) ).toHaveLength( tabs );
+		}
+	);
 } );

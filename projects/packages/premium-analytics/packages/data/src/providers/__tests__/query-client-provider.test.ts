@@ -95,3 +95,34 @@ describe( 'Stats automatic refresh', () => {
 		unsubscribe();
 	} );
 } );
+
+describe( 'report retries while a store waits for its analytics tables', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		queryClient.clear();
+	} );
+
+	it( 'keeps the query pending and asks again every 3 seconds instead of backing off', async () => {
+		const queryFn = jest.fn().mockRejectedValue( {
+			code: 'woocommerce_analytics_tables_not_ready',
+			data: { status: 503 },
+			status: 503,
+		} );
+		const observer = new QueryObserver( queryClient, {
+			queryKey: [ 'tables-not-ready' ],
+			queryFn,
+		} );
+		const unsubscribe = observer.subscribe( () => undefined );
+
+		await jest.advanceTimersByTimeAsync( 12 * 1000 );
+
+		expect( queryFn ).toHaveBeenCalledTimes( 5 );
+		expect( observer.getCurrentResult().status ).toBe( 'pending' );
+
+		unsubscribe();
+	} );
+} );

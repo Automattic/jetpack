@@ -4,13 +4,13 @@
 import {
 	buildMetricTab,
 	ChartEmptyState,
+	describeError,
 	MetricTabsChart,
 	WidgetState,
 	type ChartDisplayChartType,
 	type DataFormat,
 	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -99,12 +99,10 @@ export function ReportMetricChart( {
 				// The queries keep the previous range's rows on screen, so an error only shows without them.
 				isError={ report.isError && ! report.hasData }
 				isEmpty={ ! primary?.data?.length }
-				error={ {
-					description: errorText,
-					actions: [
-						{ label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: report.refetch },
-					],
-				} }
+				error={ describeError( report.error, {
+					retryDescription: errorText,
+					onRetry: report.refetch,
+				} ) }
 			>
 				<MetricTabsChart
 					metrics={ metrics }

@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useEffect, useId, useState } from 'react';
-import { ModuleToggle } from '../module-toggle';
+import { PanelModuleToggle } from './panel-module-toggle';
 import { RelatedPostsPreview } from './related-posts-preview';
 import styles from './styles.module.scss';
 import { useModuleOption } from './use-module-option';
@@ -72,7 +72,7 @@ function CustomizerLink() {
 }
 
 /**
- * The Related Posts options, moved here from the Settings screen's Traffic tab.
+ * The Related Posts options.
  *
  * @param props          - Component props.
  * @param props.module   - The module.
@@ -106,7 +106,7 @@ export function RelatedPostsSettings( { module: $module, disabled }: ModuleSetti
 				<Text variant="body-md" id={ labelId }>
 					{ __( 'Show related content after posts', 'jetpack-my-jetpack' ) }
 				</Text>
-				<ModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
+				<PanelModuleToggle module={ $module } labelledby={ labelId } disabled={ disabled } />
 			</Stack>
 
 			<SwitchControl

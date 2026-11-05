@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
@@ -33,8 +34,9 @@ function buildBody( vars: UpdatePosterVars ) {
 
 type PosterApiResponse = {
 	data?: {
+		status?: string;
 		generating?: boolean;
-		poster?: string;
+		poster?: string | null;
 	};
 };
 
@@ -46,6 +48,7 @@ type PosterApiResponse = {
  * @return An object containing the final poster URL, or undefined if generation did not complete.
  */
 async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string } > {
+	const method = vars.source;
 	const postResp = ( await apiFetch( {
 		path: `/wpcom/v2/videopress/${ vars.guid }/poster`,
 		method: 'POST',
@@ -53,7 +56,7 @@ async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string 
 	} ) ) as PosterApiResponse;
 
 	let generating = postResp?.data?.generating;
-	let poster = postResp?.data?.poster;
+	let poster = postResp?.data?.poster ?? undefined;
 
 	if ( generating ) {
 		for ( let attempt = 0; attempt < POSTER_POLL_MAX_ATTEMPTS; attempt++ ) {
@@ -63,11 +66,28 @@ async function mutationFn( vars: UpdatePosterVars ): Promise< { poster?: string 
 				method: 'GET',
 			} ) ) as PosterApiResponse;
 			generating = pollResp?.data?.generating;
-			poster = pollResp?.data?.poster;
+			poster = pollResp?.data?.poster ?? undefined;
 			if ( ! generating ) {
 				break;
 			}
 		}
+	}
+
+	// Failed frame generation also clears the flag, so require a different poster from the queued response.
+	const confirmedSource =
+		( method === 'attachment' && postResp?.data?.generating === false ) ||
+		( method === 'frame' &&
+			postResp?.data?.generating === true &&
+			( postResp.data.poster === null || typeof postResp.data.poster === 'string' ) &&
+			poster !== postResp.data.poster );
+	if (
+		postResp?.data?.status === 'complete' &&
+		generating === false &&
+		typeof poster === 'string' &&
+		poster.trim().length > 0 &&
+		confirmedSource
+	) {
+		analytics.tracks.recordEvent( 'jetpack_videopress_poster_changed', { method } );
 	}
 
 	if ( poster ) {

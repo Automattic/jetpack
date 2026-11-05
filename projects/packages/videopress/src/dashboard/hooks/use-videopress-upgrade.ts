@@ -9,7 +9,16 @@ import { VIDEOPRESS_ADMIN_PAGE } from '../utils/constants';
 const UPGRADE_CLICK_EVENT = 'jetpack_videopress_upgrade_trigger_link_click';
 
 export type UpgradeLocation =
-	'overview' | 'library_at_limit' | 'settings_at_limit' | 'upload_limit';
+	'overview' | 'library_at_limit' | 'settings_at_limit' | 'upload_limit' | 'pricing_upsell';
+
+/**
+ * Record an upgrade action without changing its checkout workflow.
+ *
+ * @param location - Surface whose upgrade action was selected.
+ */
+export function recordVideoPressUpgradeClick( location: UpgradeLocation ): void {
+	analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT, { location } );
+}
 
 /**
  * Read the inlined initial state, guarding for environments (tests, the legacy
@@ -41,7 +50,7 @@ export function useVideoPressUpgrade( location: UpgradeLocation ): () => void {
 		// Record the click, then defer the checkout redirect by a microtask so
 		// the Tracks pixel is dispatched before navigation can cancel it.
 		// Mirrors the legacy dashboard's `recordEvent( … ).then( run )`.
-		analytics.tracks.recordEvent( UPGRADE_CLICK_EVENT, { location } );
+		recordVideoPressUpgradeClick( location );
 		void Promise.resolve().then( () => run() );
 	}, [ run, location ] );
 }
