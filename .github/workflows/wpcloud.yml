@@ -3,7 +3,7 @@ name: WP Cloud Unit Testing for WPCOMSH
 on:
   pull_request:
   push:
-    branches: ['trunk', '*/branch-*', 'remove/wpcomsh/old_ci_stuff']
+    branches: ['trunk', '*/branch-*']
 concurrency:
   group: wpcloud-wpcomsh
   cancel-in-progress: false
