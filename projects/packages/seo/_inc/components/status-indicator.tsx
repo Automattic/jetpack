@@ -6,7 +6,7 @@ import type { ComponentProps, FC } from 'react';
 /**
  * The three completion states a Settings module can be in.
  */
-export type SettingStatus = 'not-started' | 'in-progress' | 'complete';
+export type SettingStatus = 'not-started' | 'incomplete' | 'complete';
 
 // Label and badge intent per state, resolved at module load so the production
 // minifier can't fold the labels into one `__()` call.
@@ -15,7 +15,7 @@ const STATES: Record<
 	{ label: string; intent: ComponentProps< typeof Badge >[ 'intent' ] }
 > = {
 	'not-started': { label: __( 'Not started', 'jetpack-seo' ), intent: 'draft' },
-	'in-progress': { label: __( 'In progress', 'jetpack-seo' ), intent: 'medium' },
+	incomplete: { label: __( 'Incomplete', 'jetpack-seo' ), intent: 'medium' },
 	complete: { label: __( 'Complete', 'jetpack-seo' ), intent: 'stable' },
 };
 

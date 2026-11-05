@@ -48,7 +48,7 @@ function AuthorProfileCard( { disabled = false, disabledReason }: Props ) {
 	if ( setCount === fieldsSet.length ) {
 		profileStatus = 'complete';
 	} else if ( setCount > 0 ) {
-		profileStatus = 'in-progress';
+		profileStatus = 'incomplete';
 	}
 
 	return (

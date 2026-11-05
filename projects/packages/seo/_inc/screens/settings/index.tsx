@@ -188,7 +188,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
 	} else if ( visibilityEnabledCount > 0 ) {
-		visibilityStatus = 'in-progress';
+		visibilityStatus = 'incomplete';
 	}
 
 	// Count code points, not UTF-16 units, so an emoji or an astral character
