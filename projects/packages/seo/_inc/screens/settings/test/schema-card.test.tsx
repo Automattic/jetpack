@@ -14,26 +14,36 @@ import type { SchemaSettingsForm } from '../../../data/use-schema-settings';
 // keeps the card test off the network while exercising the real section + card UI.
 const setOrganizationField = jest.fn();
 const commitBreadcrumbList = jest.fn();
+const commitSiteRepresents = jest.fn();
 const setLocalBusinessField = jest.fn();
+const setPersonField = jest.fn();
 const saveOrganizationEntity = jest.fn();
+const savePerson = jest.fn();
 
 // Resettable per test so each can vary the configured state the card reflects.
 let mockForm: SchemaSettingsForm;
 
 const makeForm = ( overrides: Partial< SchemaSettingsForm > = {} ): SchemaSettingsForm => ( {
 	// No stored override; the Site Title / Tagline come through as placeholder defaults.
+	siteRepresents: 'organization',
 	breadcrumbList: { enabled: true },
 	organization: { name: '', description: '', sameAs: [], email: '' },
 	defaults: { name: 'Acme Co', description: 'We make things' },
 	localBusiness: EMPTY_LOCAL_BUSINESS,
 	localBusinessDefaults: EMPTY_LOCAL_BUSINESS_DEFAULTS,
+	person: { name: '', description: '', sameAs: [] },
+	personDefaults: { name: 'Acme Co', description: 'We make things' },
 	isSaving: false,
 	isOrganizationDirty: false,
 	isLocalBusinessDirty: false,
+	isPersonDirty: false,
 	commitBreadcrumbList,
+	commitSiteRepresents,
 	setOrganizationField,
 	setLocalBusinessField,
+	setPersonField,
 	saveOrganizationEntity,
+	savePerson,
 	...overrides,
 } );
 
@@ -88,52 +98,81 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
-	it( 'keeps saved schema values visible and disables every editing action during a conflict', () => {
-		mockForm = makeForm( {
-			organization: {
-				name: 'Saved studio',
-				description: 'Saved description',
-				email: 'hello@example.test',
-				sameAs: [ 'https://example.test/studio' ],
-			},
-			localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
-			isOrganizationDirty: true,
-		} );
-		render(
-			<SchemaCard
-				initialSettings={ bootstrap }
-				disabled
-				disabledReason="Yoast SEO manages structured data. Saved settings are retained."
-			/>
-		);
-		expandCard();
-		expect( screen.getByDisplayValue( 'Saved studio' ) ).toBeDisabled();
-		expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'group', { name: 'Schema settings' } ) ).toHaveAccessibleDescription(
-			'Yoast SEO manages structured data. Saved settings are retained.'
-		);
-		for ( const control of [
-			...screen.getAllByRole( 'textbox' ),
-			...screen.getAllByRole( 'checkbox' ),
-		] ) {
-			expect( control ).toBeDisabled();
+	it.each( [
+		[ 'organization', false ],
+		[ 'person', false ],
+		[ 'organization', true ],
+		[ 'person', true ],
+	] as const )(
+		'keeps saved %s values visible and disables editing when planLocked is %s',
+		( siteRepresents, planLocked ) => {
+			mockForm = makeForm( {
+				siteRepresents,
+				person: {
+					name: 'Saved person',
+					description: 'Saved bio',
+					sameAs: [ 'https://example.test/person' ],
+				},
+				isPersonDirty: true,
+				organization: {
+					name: 'Saved studio',
+					description: 'Saved description',
+					email: 'hello@example.test',
+					sameAs: [ 'https://example.test/studio' ],
+				},
+				localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
+				isOrganizationDirty: true,
+			} );
+			render(
+				<SchemaCard
+					initialSettings={ bootstrap }
+					disabled={ ! planLocked }
+					planLocked={ planLocked }
+					disabledReason="Yoast SEO manages structured data. Saved settings are retained."
+				/>
+			);
+			expandCard();
+			expect(
+				screen.getByDisplayValue( siteRepresents === 'person' ? 'Saved person' : 'Saved studio' )
+			).toBeDisabled();
+			expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'group', { name: 'Schema settings' } )
+			).toHaveAccessibleDescription(
+				'Yoast SEO manages structured data. Saved settings are retained.'
+			);
+			for ( const control of [
+				...screen.getAllByRole( 'textbox' ),
+				...screen.getAllByRole( 'checkbox' ),
+				...screen.getAllByRole( 'radio' ),
+			] ) {
+				expect( control ).toBeDisabled();
+			}
+			const saveLabel = siteRepresents === 'person' ? 'Save person' : 'Save schema settings';
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+			expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'button', { name: saveLabel } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+			expect( commitSiteRepresents ).not.toHaveBeenCalled();
+			expect( savePerson ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: saveLabel } ) ).toHaveAccessibleDescription(
+				'Yoast SEO manages structured data. Saved settings are retained.'
+			);
+			expect( saveOrganizationEntity ).not.toHaveBeenCalled();
+			expect( commitBreadcrumbList ).not.toHaveBeenCalled();
 		}
-		expect( screen.getByRole( 'button', { name: 'Save schema settings' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: 'Save schema settings' } ) );
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
-		expect( saveOrganizationEntity ).not.toHaveBeenCalled();
-		expect( commitBreadcrumbList ).not.toHaveBeenCalled();
-	} );
+	);
 
 	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
@@ -263,6 +302,90 @@ describe( 'SchemaCard', () => {
 		renderCard();
 
 		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Not started' );
+	} );
+
+	it( 'computes the status from the Person entity when the site represents a person', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ 'https://linkedin.com/in/jane' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Complete' );
+	} );
+
+	it( 'does not count an empty Person profile row toward completion', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			person: { name: '', description: '', sameAs: [ '' ] },
+		} );
+		renderCard();
+
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+	} );
+
+	it( 'offers an Organization/Person choice with Organization selected by default', () => {
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'radio', { name: /An organization/ } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: /A person/ } ) ).not.toBeChecked();
+	} );
+
+	it( 'switches the site entity through the hook', () => {
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'radio', { name: /A person/ } ) );
+		expect( commitSiteRepresents ).toHaveBeenCalledWith( 'person' );
+	} );
+
+	it( 'shows the Person fields (and no Organization branch) when Person is selected', () => {
+		mockForm = makeForm( { siteRepresents: 'person' } );
+		renderCard();
+		expandCard();
+
+		expect( screen.getByRole( 'textbox', { name: 'Short bio' } ) ).toBeInTheDocument();
+		// No local-business affordance, and no Organization fieldset, on this branch.
+		expect( screen.queryByRole( 'checkbox', { name: /local business/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'group', { name: 'Organization details' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'edits and saves Person fields through the hook', () => {
+		mockForm = makeForm( { siteRepresents: 'person', isPersonDirty: true } );
+		renderCard();
+		expandCard();
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single controlled change; see note above.
+		fireEvent.change( screen.getByRole( 'textbox', { name: 'Name' } ), {
+			target: { value: 'Jane Rivera' },
+		} );
+		expect( setPersonField ).toHaveBeenCalledWith( { name: 'Jane Rivera' } );
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- single click; see note above.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save person' } ) );
+		expect( savePerson ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'disables saving a Person with an invalid social profile URL', () => {
+		mockForm = makeForm( {
+			siteRepresents: 'person',
+			isPersonDirty: true,
+			person: { name: '', description: '', sameAs: [ 'not a url' ] },
+		} );
+		renderCard();
+		expandCard();
+
+		expect(
+			screen.getByText( 'Enter a valid URL that starts with http:// or https://.' )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Save person' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'renders the Breadcrumbs toggle on and turns it off through the hook', () => {
