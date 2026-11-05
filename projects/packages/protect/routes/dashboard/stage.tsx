@@ -6,10 +6,11 @@ import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
 import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
+import WelcomeModal from './components/welcome-modal';
 import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
-import { CLOSED_INSPECTOR } from './sections/inspector-params';
+import { CLOSED_INSPECTOR, INSPECTOR_PARAMS } from './sections/inspector-params';
 import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
 import ScanStartNotice from './sections/scan/scan-start-notice';
@@ -64,6 +65,9 @@ const Stage = () => {
 	const { load } = settings;
 	const reportIds = parseThreatIds( search[ REPORT_PARAM ] );
 	const showReport = reportIds.length > 0 && Boolean( state.scan );
+	// A deep link scrolls to and focuses its target, which the guide would cover.
+	const isDeepLink =
+		Boolean( requestedSection ) || INSPECTOR_PARAMS.some( param => search[ param ] );
 
 	useEffect( () => {
 		if ( activeTab === 'settings' && ! showReport ) {
@@ -138,6 +142,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<WelcomeModal deferred={ isDeepLink } />
 		</AdminPage>
 	);
 };

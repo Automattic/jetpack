@@ -1,0 +1,133 @@
+$green: #069e08;
+$edge: rgba(6, 158, 8, 0.35);
+$trail: rgba(6, 158, 8, 0);
+
+// Runs once when the page opens: the sweep turns, each target gets a check.
+.jp-protect-scan-art {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 200px;
+	block-size: 200px;
+	color: var(--wpds-color-foreground-content-neutral);
+
+	&__ring {
+		position: absolute;
+		inset: 0;
+		border: 1px solid rgba(6, 158, 8, 0.3);
+		border-radius: 50%;
+
+		&.is-inner {
+			inset: 45px;
+		}
+	}
+
+	// The bright edge leads at 12 o'clock and the trail fades behind it.
+	&__sweep {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		background: conic-gradient(from -90deg, $trail 0deg, $edge 90deg, transparent 90deg);
+		mask: radial-gradient(circle, transparent 36px, #000 37px);
+		opacity: 0;
+		animation: jp-protect-scan-sweep var(--jp-protect-sweep) linear 0.3s 1 both;
+	}
+
+	&__blip {
+		position: absolute;
+		inset-block-start: 50%;
+		inset-inline-start: 50%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 36px;
+		block-size: 36px;
+		margin: -18px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 4px 12px rgba(0, 48, 16, 0.12);
+		transform:
+			rotate(var(--jp-protect-angle)) translate(80px)
+			rotate(calc(-1 * var(--jp-protect-angle)));
+		animation: jp-protect-scan-ping 0.8s ease-out calc(0.3s + var(--jp-protect-delay)) 1;
+	}
+
+	&__check {
+		position: absolute;
+		inset-block-start: -4px;
+		inset-inline-end: -4px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 18px;
+		block-size: 18px;
+		border-radius: 50%;
+		background: $green;
+		box-shadow: 0 0 0 2px #fff;
+
+		// The icon draws in currentColor, so this is what makes the tick white.
+		color: #fff;
+		animation:
+			jp-protect-scan-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)
+			calc(0.45s + var(--jp-protect-delay)) 1 both;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+
+		&__sweep {
+			display: none;
+		}
+
+		&__blip,
+		&__check {
+			animation: none;
+		}
+	}
+}
+
+@keyframes jp-protect-scan-sweep {
+
+	0% {
+		opacity: 1;
+		transform: rotate(0);
+	}
+
+	90% {
+		opacity: 1;
+		transform: rotate(0.9turn);
+	}
+
+	100% {
+		opacity: 0;
+		transform: rotate(1turn);
+	}
+}
+
+@keyframes jp-protect-scan-ping {
+
+	0% {
+		box-shadow: 0 0 0 0 rgba(6, 158, 8, 0.5);
+		color: $green;
+	}
+
+	60% {
+		box-shadow: 0 0 0 14px rgba(6, 158, 8, 0);
+		color: $green;
+	}
+
+	100% {
+		box-shadow: 0 4px 12px rgba(0, 48, 16, 0.12);
+	}
+}
+
+@keyframes jp-protect-scan-pop {
+
+	from {
+		transform: scale(0);
+	}
+
+	to {
+		transform: scale(1);
+	}
+}
