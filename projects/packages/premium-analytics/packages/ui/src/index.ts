@@ -1,3 +1,4 @@
+export { CardTabs } from './card-tabs';
 export {
 	DataViewsDrilldownNative,
 	type DataViewsDrilldownNativeProps,
