@@ -38,19 +38,31 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
-	 * Classic menus split into main and other by location; unassigned menus don't count.
+	 * Classic menus split into main and other by location, with custom links to local pages
+	 * counted; unassigned menus don't count.
 	 *
 	 * @return void
 	 */
 	public function test_classic_menus_split_by_location() {
-		list( $a, $b, $c, $d ) = $this->pages( 4 );
-		$this->add_nav_menu( array( $a, $b ), 'primary' );
+		list( $a, $b, $c, $d, $e ) = $this->pages( 5 );
+		$primary                   = $this->add_nav_menu( array( $a, $b ), 'primary' );
 		$this->add_nav_menu( array( $b, $c ), 'footer' );
 		$this->add_nav_menu( array( $d ) );
+		foreach ( array( get_permalink( $e ), 'https://example.com/' ) as $url ) {
+			wp_update_nav_menu_item(
+				$primary,
+				0,
+				array(
+					'menu-item-type'   => 'custom',
+					'menu-item-url'    => $url,
+					'menu-item-status' => 'publish',
+				)
+			);
+		}
 
 		$this->assertSame(
 			array(
-				'main'  => array( $a, $b ),
+				'main'  => array( $a, $b, $e ),
 				'other' => array( $c ),
 			),
 			Nav_Menu_Pages::get()
@@ -212,7 +224,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 *
 	 * @dataProvider provide_navigation_blocks
 	 *
-	 * @param string $markup   Header markup; `{older}`, `{synced}`, `{a}` and `{b}` are replaced with IDs.
+	 * @param string $markup   Header markup; `{older}`, `{synced}` and `{a}` become IDs, `{b_url}` a URL.
 	 * @param string $expected Which pages it links: `older`, `newer`, `own` or `none`.
 	 * @return void
 	 */
@@ -245,7 +257,7 @@ class NavMenuPagesTest extends SeoTestCase {
 				'{older}'  => $older,
 				'{synced}' => $synced,
 				'{a}'      => $a,
-				'{b}'      => $b,
+				'{b_url}'  => get_permalink( $b ),
 			)
 		);
 		$this->use_template_parts(
@@ -271,16 +283,16 @@ class NavMenuPagesTest extends SeoTestCase {
 	 */
 	public static function provide_navigation_blocks() {
 		return array(
-			'menu reference'            => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
-			'no reference, newest'      => array( '<!-- wp:navigation /-->', 'newer' ),
-			'own links, custom skipped' => array(
-				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"id":{b},"kind":"post-type","type":"page"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
+			'menu reference'             => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
+			'no reference, newest'       => array( '<!-- wp:navigation /-->', 'newer' ),
+			'own links, local URLs only' => array(
+				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"url":"{b_url}","kind":"custom"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
 				'own',
 			),
-			'inside a pattern'          => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
-			'inside a synced pattern'   => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
-			'inside a nested part'      => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
-			'page list ranks none'      => array( '<!-- wp:navigation --><!-- wp:page-list /--><!-- /wp:navigation -->', 'none' ),
+			'inside a pattern'           => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
+			'inside a synced pattern'    => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
+			'inside a nested part'       => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
+			'page list ranks none'       => array( '<!-- wp:navigation --><!-- wp:page-list /--><!-- /wp:navigation -->', 'none' ),
 		);
 	}
 
