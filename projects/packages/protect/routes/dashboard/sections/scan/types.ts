@@ -28,6 +28,8 @@ export type ScanState = {
 	hasPlan: boolean;
 	/** False when the host doesn't let the site ignore threats. */
 	canIgnore?: boolean;
+	/** Whether the user may see the site's code; false under DISALLOW_FILE_EDIT or DISALLOW_FILE_MODS. */
+	canViewFiles?: boolean;
 	/** Where to set Scan's server credentials with a plan, or to buy Scan without one; empty when credentials aren't needed. */
 	url: string;
 	/** False where the host lets Scan auto-fix threats without server credentials. Only with a plan. */

@@ -9,7 +9,8 @@ import { DeleteSoftwareButton } from './delete-software';
 import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
 import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
-import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
+import SeverityBadge from './severity-badge';
+import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useSearchParam } from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
@@ -21,31 +22,9 @@ import {
 	useThreatAction,
 	type ThreatRow,
 } from './threat-actions';
+import { ThreatFileLink, getThreatFileName } from './threat-file';
 import type { ScanThreat } from './types';
-import type { ComponentProps, ReactNode } from 'react';
-
-/**
- * The severity as a badge: "Critical severity", "High severity" or "Low severity".
- *
- * @param props          - Component props.
- * @param props.severity - The severity, 0 to 10.
- * @return The badge, or null when the threat has no severity.
- */
-function SeverityBadge( { severity }: { severity?: number | null } ) {
-	if ( typeof severity !== 'number' ) {
-		return null;
-	}
-	let intent: ComponentProps< typeof Badge >[ 'intent' ] = 'draft';
-	let label: string = __( 'Low severity', 'jetpack-protect-pkg' );
-	if ( severity >= 5 ) {
-		intent = 'high';
-		label = __( 'Critical severity', 'jetpack-protect-pkg' );
-	} else if ( severity >= 3 ) {
-		intent = 'medium';
-		label = __( 'High severity', 'jetpack-protect-pkg' );
-	}
-	return <Badge intent={ intent }>{ label }</Badge>;
-}
+import type { ReactNode } from 'react';
 
 /**
  * Whether the plugin or theme the threat is in is in use, as a badge.
@@ -81,7 +60,7 @@ function StateBadge( { threat }: { threat: ScanThreat } ) {
  * @return "File: index.php" or "Table: wp_options", or empty when it's neither.
  */
 function getLocation( threat: ScanThreat ): string {
-	const file = threat.filename?.split( '/' ).pop();
+	const file = getThreatFileName( threat );
 	if ( file ) {
 		/* translators: %s is a file name, such as "index.php". */
 		return sprintf( __( 'File: %s', 'jetpack-protect-pkg' ), file );
@@ -510,6 +489,7 @@ export default function ThreatDetails( {
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
+	const canViewFile = useCanViewFiles();
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -588,9 +568,12 @@ export default function ThreatDetails( {
 					) }
 					{ threat.filename && (
 						<>
-							<Text variant="body-md" className="jp-protect-card__muted">
-								{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
-							</Text>
+							<Stack direction="row" gap="sm" justify="space-between" align="baseline">
+								<Text variant="body-md" className="jp-protect-card__muted">
+									{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
+								</Text>
+								{ canAct && canViewFile && <ThreatFileLink threat={ threat } /> }
+							</Stack>
 							<pre className="jp-protect-threat-details__code">{ threat.filename }</pre>
 							{ context.length > 0 && (
 								<pre className="jp-protect-threat-details__code">

@@ -4,7 +4,7 @@ import { DeleteSoftwareModal, getDeleteTitle } from './delete-software';
 import { FixDeleteModal, getDeleteFixTitle } from './fix-delete-confirmation';
 import { getUpdated, getUpdateFixTitle, makeFixUpdateModal } from './fix-update-confirmation';
 import { getSoftwareActionLabels } from './labels';
-import { useCanIgnore } from './store';
+import { useCanIgnore, useCanViewFiles } from './store';
 import {
 	fixThreats,
 	ignoreThreats,
@@ -14,6 +14,7 @@ import {
 	unignoreThreat,
 	useGetThreatBusy,
 } from './threat-actions';
+import { openThreatFile } from './threat-file';
 import type { ScanThreat } from './types';
 import type { Action } from '@wordpress/dataviews';
 
@@ -31,6 +32,7 @@ const NO_THREATS: ScanThreat[] = [];
  * @param open      - Opens a threat in the inspector.
  * @param canAct    - Whether the site's plan can fix and ignore threats.
  * @param canIgnore - Whether the host lets the site ignore threats.
+ * @param canView   - Whether the user may view threat files.
  * @param getBusy   - Gets the action running on a threat.
  * @param FixUpdate - The confirmation for fixes that update software.
  * @param selected  - The selected threats, which the bulk Auto-fix actions are labeled for.
@@ -41,6 +43,7 @@ function getThreatRowActions(
 	open: OpenThreat,
 	canAct: boolean,
 	canIgnore: boolean,
+	canView: boolean,
 	getBusy: ReturnType< typeof useGetThreatBusy >,
 	FixUpdate: FixUpdateModal,
 	selected: ScanThreat[],
@@ -99,6 +102,12 @@ function getThreatRowActions(
 			label: __( 'View', 'jetpack-protect-pkg' ),
 			isPrimary: true,
 			callback: ( [ item ] ) => item && open( item ),
+		},
+		{
+			id: 'view-file',
+			label: __( 'View file', 'jetpack-protect-pkg' ),
+			isEligible: item => canAct && canView && !! item.filename,
+			callback: ( [ item ] ) => item && openThreatFile( item ),
 		},
 		// The Auto-fix actions are mutually exclusive: delete and update fixes confirm first.
 		{
@@ -216,11 +225,13 @@ export function useThreatRowActions(
 	selected: ScanThreat[] = NO_THREATS
 ): Action< ScanThreat >[] {
 	const canIgnore = useCanIgnore();
+	const canView = useCanViewFiles();
 	const getBusy = useGetThreatBusy();
 	// Kept apart from the actions, which change with every fix, so an open confirmation isn't remounted.
 	const FixUpdate = useMemo( () => makeFixUpdateModal( onBulk ), [ onBulk ] );
 	return useMemo(
-		() => getThreatRowActions( open, canAct, canIgnore, getBusy, FixUpdate, selected, onBulk ),
-		[ open, canAct, canIgnore, getBusy, FixUpdate, selected, onBulk ]
+		() =>
+			getThreatRowActions( open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ),
+		[ open, canAct, canIgnore, canView, getBusy, FixUpdate, selected, onBulk ]
 	);
 }

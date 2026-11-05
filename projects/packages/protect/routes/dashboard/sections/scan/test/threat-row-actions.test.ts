@@ -175,3 +175,24 @@ describe( 'useThreatRowActions where the host decides about ignoring', () => {
 		}
 	);
 } );
+
+describe( 'useThreatRowActions where the user may not see the site’s code', () => {
+	afterEach( () => {
+		delete window.jetpackProtectDashboard;
+		resetScan();
+	} );
+
+	it( 'offers View file only to a user who may view threat files', () => {
+		const threat = { ...threatIn( 30 ), filename: '/htdocs/wp-content/uploads/x.php' };
+		const isEligible = ( canViewFiles: boolean ) => {
+			window.jetpackProtectDashboard = { scan: { hasPlan: true, url: '', canViewFiles } };
+			resetScan();
+			return renderHook( () => useThreatRowActions( open, true ) )
+				.result.current.find( action => action.id === 'view-file' )
+				?.isEligible?.( threat );
+		};
+
+		expect( isEligible( true ) ).toBe( true );
+		expect( isEligible( false ) ).toBe( false );
+	} );
+} );

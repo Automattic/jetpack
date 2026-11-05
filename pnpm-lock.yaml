@@ -4431,6 +4431,9 @@ importers:
       '@wordpress/components':
         specifier: 44.0.0
         version: 44.0.0(patch_hash=dd89cc780626599c6721f4e05e7091dd7b0aed577d8a66774ee88de983b57100)(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/compose':
+        specifier: 9.1.0
+        version: 9.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/data':
         specifier: 11.1.0
         version: 11.1.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
