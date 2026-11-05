@@ -40,7 +40,8 @@ class Protect_Helper {
 		}
 
 		$settings = self::get_stored_settings();
-		if ( $settings['overwrite_status'] ) {
+		// The Protect_Status classes come from another plugin, so skip the overwrite without one.
+		if ( $settings['overwrite_status'] && class_exists( 'Automattic\\Jetpack\\Protect_Status\\Scan_Status' ) ) {
 			// Display a notice when this module overwrites Protect Status.
 			add_action( 'admin_notices', array( $this, 'display_protect_overwritten_notice' ) );
 
@@ -476,7 +477,8 @@ class Protect_Helper {
 	 * @return mixed WP_Error if it's a request to Protect status API
 	 */
 	public function filter_status_fetch( $preempt, $parsed_args, $url ) {
-		if ( strpos( $url, Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url() ) !== false ) {
+		$api_url = Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url();
+		if ( ! is_wp_error( $api_url ) && strpos( $url, $api_url ) !== false ) {
 			return new WP_Error( 'error' );
 		}
 		return $preempt;
