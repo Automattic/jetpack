@@ -19,11 +19,13 @@ require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-membershi
  * @covers ::Automattic\Jetpack\Extensions\Donations\sanitize_css_value
  * @covers ::Automattic\Jetpack\Extensions\Donations\build_security_data_attrs
  * @covers ::Automattic\Jetpack\Extensions\Donations\render_block
+ * @covers ::Automattic\Jetpack\Extensions\Donations\get_donation_plan_ids
  */
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\sanitize_css_value' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_custom_styles' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\build_security_data_attrs' )]
 #[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\render_block' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Donations\\get_donation_plan_ids' )]
 class Donations_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -45,7 +47,10 @@ class Donations_Test extends \WP_UnitTestCase {
 	 */
 	private function render_on_page( $attr ) {
 		update_option( 'jetpack-memberships-has-connected-account', true );
-		$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_type' => 'page' ) );
+		// Reuse the page: creating one would invalidate the post query cache between two renders.
+		if ( ! isset( $GLOBALS['post'] ) ) {
+			$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_type' => 'page' ) );
+		}
 		// WordPress sets this while rendering blocks; older versions warn from get_block_wrapper_attributes() without it.
 		WP_Block_Supports::$block_to_render = array(
 			'blockName' => 'jetpack/donations',
@@ -68,7 +73,65 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * An interval whose plan ID doesn't point at a payment plan is left out, instead of linking to a broken checkout.
+	 * Create a donation plan the way WordPress.com stores one on the site.
+	 *
+	 * @param array  $meta      Meta overriding a USD monthly plan, keyed without the `jetpack_memberships_` prefix.
+	 * @param string $post_date Creation date of the plan.
+	 * @return int Plan ID.
+	 */
+	private function create_donation_plan( $meta = array(), $post_date = '2020-06-01 00:00:00' ) {
+		$meta = array_merge(
+			array(
+				'type'        => 'donation',
+				'currency'    => 'USD',
+				'interval'    => '1 month',
+				'price'       => '1',
+				'is_editable' => '0',
+			),
+			$meta
+		);
+
+		return self::factory()->post->create(
+			array(
+				'post_type'  => Jetpack_Memberships::$post_type_plan,
+				'post_date'  => $post_date,
+				'meta_input' => array_combine(
+					array_map(
+						function ( $key ) {
+							return 'jetpack_memberships_' . $key;
+						},
+						array_keys( $meta )
+					),
+					$meta
+				),
+			)
+		);
+	}
+
+	/**
+	 * Render a block whose only shown interval is monthly, with the given plan ID.
+	 *
+	 * @param int|null $plan_id Saved plan ID.
+	 * @return string Rendered HTML, entity-decoded.
+	 */
+	private function render_monthly_with_plan_id( $plan_id ) {
+		return html_entity_decode(
+			$this->render_on_page(
+				array(
+					'monthlyDonation' => array(
+						'show'    => true,
+						'planId'  => $plan_id,
+						'amounts' => array( 5 ),
+					),
+				)
+			),
+			ENT_QUOTES | ENT_HTML5
+		);
+	}
+
+	/**
+	 * An interval whose plan ID doesn't point at a payment plan is left out when the site has no
+	 * donation plan to fall back to, instead of linking to a broken checkout.
 	 *
 	 * @dataProvider invalid_plan_id_provider
 	 *
@@ -99,7 +162,7 @@ class Donations_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Invalid plan IDs for test_render_block_leaves_out_intervals_without_a_plan.
+	 * Invalid plan IDs for the tests of intervals saved without a usable plan.
 	 *
 	 * @return array
 	 */
@@ -131,6 +194,82 @@ class Donations_Test extends \WP_UnitTestCase {
 		);
 
 		$this->assertSame( '', $html );
+	}
+
+	/**
+	 * An interval saved without a usable plan ID checks out with the site's donation plan for its
+	 * currency and interval, so blocks saved before the editor wrote plan IDs keep working.
+	 *
+	 * @dataProvider invalid_plan_id_provider
+	 *
+	 * @param string $invalid_plan Which kind of invalid plan ID the monthly interval gets.
+	 */
+	#[DataProvider( 'invalid_plan_id_provider' )]
+	public function test_render_block_falls_back_to_the_site_donation_plan( $invalid_plan ) {
+		$plan_id = $this->create_donation_plan();
+
+		$html = $this->render_monthly_with_plan_id( 'regular post' === $invalid_plan ? self::factory()->post->create() : null );
+
+		$this->assertStringContainsString( 'plan=' . $plan_id . '&', $html );
+	}
+
+	/**
+	 * The fallback picks the plan the editor would save: same type, currency and interval, neither
+	 * deleted nor editable, then the cheapest, then the oldest.
+	 *
+	 * @dataProvider fallback_rejected_plan_provider
+	 *
+	 * @param array  $meta      Meta of an older, cheaper plan that must lose to a plain USD monthly donation plan.
+	 * @param string $post_date Creation date of that plan.
+	 */
+	#[DataProvider( 'fallback_rejected_plan_provider' )]
+	public function test_render_block_fallback_picks_the_plan_the_editor_would( $meta, $post_date = '2020-01-01 00:00:00' ) {
+		$rejected_id = $this->create_donation_plan( array_merge( array( 'price' => '0.5' ), $meta ), $post_date );
+		$plan_id     = $this->create_donation_plan();
+
+		$html = $this->render_monthly_with_plan_id( null );
+
+		$this->assertStringContainsString( 'plan=' . $plan_id . '&', $html );
+		$this->assertStringNotContainsString( 'plan=' . $rejected_id . '&', $html );
+	}
+
+	/**
+	 * Plans that would win the fallback if one of its rules were missing.
+	 *
+	 * @return array
+	 */
+	public static function fallback_rejected_plan_provider() {
+		return array(
+			'other currency'          => array( array( 'currency' => 'EUR' ) ),
+			'other interval'          => array( array( 'interval' => '1 year' ) ),
+			'newsletter tier'         => array( array( 'type' => 'tier' ) ),
+			'deleted'                 => array( array( 'is_deleted' => '1' ) ),
+			'editable'                => array( array( 'is_editable' => '1' ) ),
+			'pricier'                 => array( array( 'price' => '5' ) ),
+			'newer at the same price' => array( array( 'price' => '1' ), '2020-12-01 00:00:00' ),
+		);
+	}
+
+	/**
+	 * A saved plan ID that resolves wins over the fallback.
+	 */
+	public function test_render_block_keeps_a_valid_saved_plan() {
+		$this->create_donation_plan( array( 'price' => '0.5' ) );
+		$saved_id = $this->create_donation_plan();
+
+		$this->assertStringContainsString( 'plan=' . $saved_id . '&', $this->render_monthly_with_plan_id( $saved_id ) );
+	}
+
+	/**
+	 * A plan deleted after a render is no longer picked, even though the lookup is cached.
+	 */
+	public function test_render_block_fallback_drops_a_plan_deleted_after_a_render() {
+		$plan_id = $this->create_donation_plan();
+		$this->assertStringContainsString( 'plan=' . $plan_id . '&', $this->render_monthly_with_plan_id( null ) );
+
+		update_post_meta( $plan_id, 'jetpack_memberships_is_deleted', '1' );
+
+		$this->assertStringNotContainsString( 'plan=' . $plan_id . '&', $this->render_monthly_with_plan_id( null ) );
 	}
 
 	/**
