@@ -3213,7 +3213,7 @@ importers:
         version: 0.25.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/router':
         specifier: ^2.0.0
-        version: 2.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/sync':
         specifier: 3.1.0
         version: 3.1.0
@@ -12009,8 +12009,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@wordpress/router@2.0.0':
-    resolution: {integrity: sha512-sxloAgLqWQo2d6NNhN4Zji2w50fSRNZMbuwW1tsIiZrflXcTQxJIXpkyfHJhgSywAo1pvbNRrxzAuheI/DGEWg==}
+  '@wordpress/router@2.1.0':
+    resolution: {integrity: sha512-1VxyufbTWu5CYwi/0dA0C158sUHTmLnFOJ0hD9oiSQAdgtxl+BJCb1DR3lxxy8L6V//pH4LmCXz3JWoDgaS/6Q==}
     engines: {node: '>=22.13.0'}
     peerDependencies:
       '@types/react': ^18 || ^19
@@ -25903,7 +25903,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@wordpress/router@2.0.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@wordpress/router@2.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@wordpress/compose': 9.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@wordpress/element': 10.1.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
