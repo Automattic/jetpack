@@ -15,6 +15,8 @@ export type EditorProps = {
 	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
+	/** The blocks are drawn, before paint, so the caller can swap the editor in without an empty frame. */
+	onReady?: () => void;
 	/** The editor broke; the caller brings its textarea back. */
 	onError: ( error: unknown ) => void;
 };

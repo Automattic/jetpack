@@ -22,6 +22,7 @@ import {
 	createRoot,
 	useCallback,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useReducer,
 	useRef,
@@ -112,6 +113,19 @@ const FocusOnMount = ( { offset }: { offset: () => number } ) => {
 	return null;
 };
 
+// Before paint, once the provider has handed its blocks to the store and they are drawn.
+const ReadyWhenDrawn = ( { onReady }: { onReady: () => void } ) => {
+	const drawn = useSelect( select => select( blockEditorStore ).getBlockCount() > 0, [] );
+
+	useLayoutEffect( () => {
+		if ( drawn ) {
+			onReady();
+		}
+	}, [ drawn, onReady ] );
+
+	return null;
+};
+
 // The undo and redo shortcuts, which live in the post editor, not the block editor.
 const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
 	const onKeyDown = useCallback(
@@ -136,6 +150,7 @@ const Editor = ( {
 	labels,
 	focus,
 	onChange,
+	onReady,
 }: Omit< EditorProps, 'onError' | 'placeholder' > ) => {
 	const [ { present }, dispatch ] = useReducer( history, null, () => {
 		const blocks = toBlocks( initialContent );
@@ -210,6 +225,7 @@ const Editor = ( {
 				settings={ editorSettings }
 				useSubRegistry
 			>
+				{ onReady && <ReadyWhenDrawn onReady={ onReady } /> }
 				{ focus && <FocusOnMount offset={ offset } /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">

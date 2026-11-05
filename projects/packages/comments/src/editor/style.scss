@@ -506,10 +506,6 @@
 	grid-template-rows: 0fr;
 	visibility: hidden;
 	border-block-end: 1px solid transparent;
-	transition:
-		grid-template-rows 0.25s ease-in-out,
-		border-color 0.25s ease-in-out,
-		visibility 0s linear 0.25s;
 
 	> * {
 		min-block-size: 0;
@@ -523,38 +519,34 @@
 	}
 }
 
-// Open once a selected block has tools to show, sliding down a beat after;
-// `backwards` holds it shut through the delay.
+// Open once a selected block has tools to show, at full height at once: growing
+// it would push the text down under the caret. Only its tools fade in.
 .jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
 	grid-template-rows: 1fr;
 	visibility: visible;
 	border-block-end-color: currentColor;
-	transition: visibility 0s;
-	animation: jetpack-comments-toolbar-in 0.25s ease-in-out 0.4s backwards;
+
+	@media not (prefers-reduced-motion) {
+
+		.jetpack-comments__block-tools {
+			animation: jetpack-comments-toolbar-in 0.15s ease-out;
+		}
+	}
 }
 
 @keyframes jetpack-comments-toolbar-in {
 
 	from {
-		grid-template-rows: 0fr;
-		border-block-end-color: transparent;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.jetpack-comments__toolbar,
-	.jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
-		transition: none;
-		animation: none;
+		opacity: 0;
 	}
 }
 
 // The textarea's box and type, so the words stay put as the editor takes over.
 .jetpack-comments__editor .editor-styles-wrapper {
 	box-sizing: border-box;
-	min-block-size: 5lh;
-	padding: var(--jetpack-comments-pad);
+	min-block-size: var(--jetpack-comments-min-height, 5lh);
+	padding-block: var(--jetpack-comments-padding-block, var(--jetpack-comments-pad));
+	padding-inline: var(--jetpack-comments-padding-inline, var(--jetpack-comments-pad));
 	font-family: var(--jetpack-comments-font-family, inherit);
 	font-size: var(--jetpack-comments-font-size, inherit);
 	line-height: var(--jetpack-comments-line-height, inherit);

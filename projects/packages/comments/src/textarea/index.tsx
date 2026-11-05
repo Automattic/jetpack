@@ -47,8 +47,6 @@ export const Textarea = () => {
 			loadEditor( JetpackComments.editorLocale )
 				.then(
 					( { mountEditor } ) => {
-						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.
-						setEditor( 'ready' );
 						mountEditor( editorRef.current!, {
 							initialContent: commentValue.peek(),
 							labels,
@@ -56,6 +54,13 @@ export const Textarea = () => {
 							focus: focus ? () => ( clicked.current ? textarea.selectionStart : -1 ) : undefined,
 							placeholder,
 							onChange: content => ( commentValue.value = content ),
+							// Swapped here, not on the next render: the editor can only take focus once shown,
+							// and an empty one shown early collapses the box for a frame.
+							onReady: () => {
+								editorRef.current!.hidden = false;
+								textarea.hidden = true;
+								setEditor( 'ready' );
+							},
 							onError: error => fail( 'render', error ),
 						} );
 					},
