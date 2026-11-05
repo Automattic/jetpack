@@ -357,6 +357,45 @@ describe( 'FirewallOverviewCard', () => {
 			}
 		);
 
+		it( 'leaves focus on the page when a background read finds blocks and focus wasn’t in the empty state', async () => {
+			const empty = { blockedCount: 0, blockedLast30Days: 0, hasBlocked: false };
+			render( <FirewallOverviewCard { ...props } state={ { ...props.state!, ...empty } } /> );
+
+			await tick();
+
+			expect( screen.getByRole( 'button', { name: 'Run test' } ) ).not.toHaveFocus();
+			expect( document.body ).toHaveFocus();
+		} );
+
+		it.each( [
+			[ 'leaves', 'under a minute', BLOCKS_REFRESH_INTERVAL - 1000, 0, 1 ],
+			[ 'refreshes', 'a minute', BLOCKS_REFRESH_INTERVAL, 1, 56 ],
+		] )(
+			'%s the counts on a return to the tab when they are %s old',
+			async ( _, __, away, reads, count ) => {
+				render( <FirewallOverviewCard { ...props } /> ).unmount();
+				act( () => jest.advanceTimersByTime( away ) );
+
+				render( <FirewallOverviewCard { ...props } /> );
+
+				await waitFor( () =>
+					expect( document.body ).toHaveTextContent( `Last 30 days blocked requests${ count }` )
+				);
+				expect( apiFetch ).toHaveBeenCalledTimes( reads );
+			}
+		);
+
+		it( 'doesn’t count a return to the tab as turning the firewall on', async () => {
+			const turnedOn = { ...props.settings, settings: { waf: true } };
+			const off = { ...props.state!, active: false };
+			render( <FirewallOverviewCard { ...props } state={ off } settings={ turnedOn } /> ).unmount();
+			await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+
+			render( <FirewallOverviewCard { ...props } state={ off } settings={ turnedOn } /> );
+
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+
 		it( 'keeps the newest counts when an older read lands last', async () => {
 			const answers: Array< ( value: unknown ) => void > = [];
 			( apiFetch as unknown as jest.Mock ).mockImplementation(
