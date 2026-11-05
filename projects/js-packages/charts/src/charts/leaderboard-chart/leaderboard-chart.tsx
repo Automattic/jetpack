@@ -488,7 +488,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						<div
 							role="list"
 							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
-							data-testid="leaderboard-chart-grid"
 							data-leaderboard-grid
 							className={ clsx( styles.grid, {
 								[ styles[ 'grid--comparison' ] ]: hasDeltaColumn,

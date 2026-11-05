@@ -815,7 +815,7 @@ describe( 'LeaderboardChart', () => {
 	} );
 
 	describe( 'grid columns', () => {
-		const grid = () => screen.getByTestId( 'leaderboard-chart-grid' );
+		const grid = () => screen.getByRole( 'list', { name: 'Leaderboard chart' } );
 
 		it( 'lays the rows out without a delta track when not comparing', () => {
 			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
