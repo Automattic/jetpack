@@ -1,4 +1,4 @@
 Significance: patch
 Type: removed
 
-Remove a bundled copy of the WordPress components package; the leaderboard lays out its rows with CSS grid.
+Leaderboard: Lay out rows with CSS grid, so the package no longer ships its own copy of the WordPress components Grid and the Emotion runtime.
