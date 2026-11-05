@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Say "Jetpack can fix this threat" rather than "Jetpack Scan can fix this threat", and call the Protect page a page in its error messages.
+Say "Jetpack can fix this threat" in threat details, and refer to the Protect page rather than the Protect dashboard in loading errors.

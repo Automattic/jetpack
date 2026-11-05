@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Protect: Use consistent names for security features across the plugin.
+Protect: Rename security features to match the Protect page: Login protection, Downtime monitoring, WordPress.com login, Account protection and Firewall.
