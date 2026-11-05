@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Brute force protection: Call the feature "Login protection" in notices and error messages.

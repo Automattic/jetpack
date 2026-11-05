@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use "Login protection" and "Firewall" as feature names, and say "Jetpack" rather than "Jetpack Scan" for what fixing a threat does.
