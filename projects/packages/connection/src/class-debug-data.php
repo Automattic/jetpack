@@ -165,9 +165,11 @@ class Debug_Data {
 			'value'   => is_array( $connected_plugins ) ? implode( ', ', array_keys( $connected_plugins ) ) : 'Unknown',
 			'private' => false,
 		);
+		$package_versions            = get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, array() );
+		$package_versions            = is_array( $package_versions ) ? array_filter( $package_versions, 'is_string' ) : array();
 		$fields['package_versions']  = array(
 			'label'   => 'Package Versions',
-			'value'   => wp_json_encode( get_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION, array() ), JSON_UNESCAPED_SLASHES ),
+			'value'   => $package_versions ? $package_versions : 'None',
 			'private' => false,
 		);
 
@@ -231,7 +233,7 @@ class Debug_Data {
 
 		$fields['idc_urls']         = array(
 			'label'   => 'IDC URLs',
-			'value'   => wp_json_encode( $idc_urls, JSON_UNESCAPED_SLASHES ),
+			'value'   => $idc_urls,
 			'private' => false,
 		);
 		$fields['idc_error_option'] = array(
@@ -245,10 +247,26 @@ class Debug_Data {
 			'private' => false,
 		);
 
-		$cxn_tests           = new Connection_Health_Tests();
+		$cxn_tests = new Connection_Health_Tests();
+		$cxn_value = 'All Pass.';
+		if ( ! $cxn_tests->pass() ) {
+			$cxn_value = array();
+			foreach ( $cxn_tests->list_fails() as $fail ) {
+				// Third-party tests can return anything, and Core casts each value to a string.
+				if ( ! isset( $fail['name'] ) || ! is_scalar( $fail['name'] ) || ! is_scalar( $fail['short_description'] ) ) {
+					continue;
+				}
+				$name = (string) $fail['name'];
+				for ( $i = 2; isset( $cxn_value[ $name ] ); $i++ ) {
+					$name = sprintf( '%s (%d)', $fail['name'], $i );
+				}
+				$cxn_value[ $name ] = (string) $fail['short_description'];
+			}
+		}
+
 		$fields['cxn_tests'] = array(
 			'label'   => 'Connection Tests',
-			'value'   => $cxn_tests->pass() ? 'All Pass.' : wp_json_encode( $cxn_tests->list_fails(), JSON_UNESCAPED_SLASHES ),
+			'value'   => $cxn_value,
 			'private' => false,
 		);
 

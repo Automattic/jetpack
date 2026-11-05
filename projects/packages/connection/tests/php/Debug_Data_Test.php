@@ -45,6 +45,7 @@ class Debug_Data_Test extends TestCase {
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'debug_information' );
 		remove_all_filters( 'jetpack_connection_debug_data' );
+		remove_all_actions( 'jetpack_connection_tests_loaded' );
 		Error_Handler::get_instance()->delete_all_errors();
 		WorDBless_Options::init()->clear_options();
 		( new Manager() )->reset_connection_status();
@@ -73,6 +74,34 @@ class Debug_Data_Test extends TestCase {
 
 		$this->assertSame( 'blogkey', $fields['blog_token']['value'] );
 		$this->assertStringNotContainsString( 'blogsecret', wp_json_encode( $fields, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Tests that failing tests sharing a name are all listed, and one with a non-scalar name is skipped.
+	 */
+	public function test_get_fields_lists_each_failing_test() {
+		add_action(
+			'jetpack_connection_tests_loaded',
+			static function ( $tests ) {
+				$tests->add_test( static fn() => Connection_Health_Test_Base::failing_test( array( 'short_description' => 'First.' ) ), 'test__first' );
+				$tests->add_test( static fn() => Connection_Health_Test_Base::failing_test( array( 'short_description' => 'Second.' ) ), 'test__second' );
+				$tests->add_test(
+					static fn() => Connection_Health_Test_Base::failing_test(
+						array(
+							'name'              => array( 'bad' ),
+							'short_description' => 'Bad.',
+						)
+					),
+					'test__bad'
+				);
+			}
+		);
+
+		$value = Debug_Data::get_fields()['cxn_tests']['value'];
+
+		$this->assertSame( 'First.', $value['unnamed_test'] );
+		$this->assertSame( 'Second.', $value['unnamed_test (2)'] );
+		$this->assertNotContains( 'Bad.', $value );
 	}
 
 	/**
