@@ -647,7 +647,7 @@ class User_Admin extends Base_Admin {
 	public function render_invitation_email_message() {
 		$message = wp_kses(
 			__(
-				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
+				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">WordPress.com login</a> to ensure maximum security and efficiency.',
 				'jetpack-connection'
 			),
 			array(
