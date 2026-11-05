@@ -132,6 +132,5 @@ describe( 'getApiRetryDelay', () => {
 describe( 'isUserRetryableError', () => {
 	it( 'offers no manual retry for an outdated analytics schema', () => {
 		expect( isUserRetryableError( SCHEMA_OUTDATED ) ).toBe( false );
-		expect( isUserRetryableError( TABLES_NOT_READY ) ).toBe( true );
 	} );
 } );

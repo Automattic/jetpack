@@ -5,6 +5,7 @@ import {
 	buildMetricTab,
 	ChartEmptyState,
 	type ChartDisplayChartType,
+	describeError,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	useWidgetRootContext,
@@ -44,6 +45,7 @@ type MetricReportState = {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	hasData: boolean;
 	refetch: () => Promise< unknown >;
 };
@@ -72,6 +74,7 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 		isLoading,
 		isFetching,
 		isError,
+		error,
 		hasData,
 		refetch,
 	} = report;
@@ -88,6 +91,7 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			isLoading,
 			isFetching,
 			isError,
+			error,
 			hasData,
 			refetch,
 		} ),
@@ -100,6 +104,7 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 			isLoading,
 			isFetching,
 			isError,
+			error,
 			hasData,
 			refetch,
 		]
@@ -192,7 +197,7 @@ function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps
 	);
 
 	// A failed report shows its error beside the others' charts only once it has nothing to show.
-	const isError = reportList.some( report => report.isError && ! report.hasData );
+	const failedReport = reportList.find( report => report.isError && ! report.hasData );
 	// Retry re-runs every report, not only the failed one.
 	const refetch = useCallback(
 		() => Promise.all( reportList.map( report => report.refetch() ) ),
@@ -225,14 +230,14 @@ function StorePerformance( { hiddenMetricIds, chartType }: StorePerformanceProps
 					reportList.length < metrics.length || reportList.some( report => report.isLoading )
 				}
 				isFetching={ reportList.some( report => report.isFetching ) }
-				isError={ isError }
-				error={ {
-					description: __(
+				isError={ failedReport !== undefined }
+				error={ describeError( failedReport?.error, {
+					retryDescription: __(
 						"We couldn't load store performance data. Please try again in a moment.",
 						'jetpack-woocommerce-stats-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: refetch } ],
-				} }
+					onRetry: refetch,
+				} ) }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
