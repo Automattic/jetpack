@@ -33,6 +33,7 @@ class Donations_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		unset( $GLOBALS['post'] );
 		delete_option( 'jetpack-memberships-has-connected-account' );
+		WP_Block_Supports::$block_to_render = null;
 		parent::tear_down();
 	}
 
@@ -45,6 +46,11 @@ class Donations_Test extends \WP_UnitTestCase {
 	private function render_on_page( $attr ) {
 		update_option( 'jetpack-memberships-has-connected-account', true );
 		$GLOBALS['post'] = self::factory()->post->create_and_get( array( 'post_type' => 'page' ) );
+		// WordPress sets this while rendering blocks; older versions warn from get_block_wrapper_attributes() without it.
+		WP_Block_Supports::$block_to_render = array(
+			'blockName' => 'jetpack/donations',
+			'attrs'     => $attr,
+		);
 
 		return Donations\render_block(
 			array_merge(
