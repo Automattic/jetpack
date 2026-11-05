@@ -12,6 +12,11 @@
 		}
 	}
 
+	// Visual only: clicks must land on the row's button.
+	.switch {
+		pointer-events: none;
+	}
+
 	.connection-info {
 		display: grid;
 		grid-template-columns: auto 1fr;

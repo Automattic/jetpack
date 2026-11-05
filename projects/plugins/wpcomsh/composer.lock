@@ -593,7 +593,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "913cb8f83fddef0217a59573a1ee2fbbd05af489"
+                "reference": "c73d9d9d155f73031097d7dd6a058bc1064d7639"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -602,6 +602,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
