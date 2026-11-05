@@ -70,6 +70,11 @@ const EMPTY: ThreatActionState = {};
 const NO_ACTIONS: Record< string, ThreatActionState > = {};
 const actionStore = createStore( () => NO_ACTIONS );
 
+/** Forget which threats are busy, so tests start with none. */
+export const resetThreatActions = (): void => {
+	actionStore.reset();
+};
+
 // Every action checks this first, so a second click can't send a duplicate request.
 const isBusy = ( id: string | number ) => !! actionStore.get()[ String( id ) ]?.busy;
 
