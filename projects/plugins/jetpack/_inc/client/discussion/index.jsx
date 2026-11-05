@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
@@ -30,8 +31,10 @@ export class Discussion extends Component {
 				{ this.props.searchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Discussion', 'jetpack' ) }</h2>
 				) }
-				{ foundComments && <CommentForm /> }
-				<CommentFeatures />
+				<Stack direction="column" gap="lg">
+					{ foundComments && <CommentForm /> }
+					<CommentFeatures />
+				</Stack>
 			</div>
 		);
 	}
