@@ -7,12 +7,13 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isEmailSection } from './config';
+import { TRAFFIC_SECTION_SLUG, isEmailSection } from './config';
 import { useEmailTabScope } from './use-email-tab-scope';
 import type { PostSummary } from './use-post-summary';
 import type { SingleReportPageSection } from '../../registry';
@@ -58,6 +59,9 @@ function notSentEmptyState(): PageEmptyStateProps {
 
 /**
  * The post page's sections. Kept in full because the email gating is not obvious from the code.
+ *
+ * The traffic section is named for the post type ("Page traffic"), with a placeholder until the
+ * type loads.
  *
  * Only a standard post can be sent as a newsletter, so the email sections hide once the post
  * type is known to be anything else. Until the type is known they show only when the URL already
@@ -106,6 +110,14 @@ export function usePostSections(
 	return useMemo(
 		() =>
 			sections.map( section => {
+				if ( section.slug === TRAFFIC_SECTION_SLUG ) {
+					// The label names the post type, so it waits for the type to load.
+					return {
+						section,
+						label: getPostTypeCopy( postType ).traffic,
+						...( summary.isLoading && { isPending: true } ),
+					};
+				}
 				if ( ! isEmailSection( section.slug ) ) {
 					return { section };
 				}
@@ -121,6 +133,15 @@ export function usePostSections(
 
 				return state;
 			} ),
-		[ sections, showEmail, isEmailNotSent, isEmailSendPending, emailScope, emailScopeBlocked ]
+		[
+			sections,
+			postType,
+			summary.isLoading,
+			showEmail,
+			isEmailNotSent,
+			isEmailSendPending,
+			emailScope,
+			emailScopeBlocked,
+		]
 	);
 }

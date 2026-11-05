@@ -95,6 +95,21 @@ describe( 'usePostSections', () => {
 		}
 	);
 
+	it.each( [
+		[ 'page', 'Page traffic' ],
+		[ 'product', 'Product traffic' ],
+	] )( 'names the traffic section for a %s', ( type, label ) => {
+		expect( sectionsFor( { ...SUMMARY, type } )[ 0 ] ).toEqual( { section: SECTIONS[ 0 ], label } );
+	} );
+
+	it( 'stands in a placeholder for the traffic label until the type loads', () => {
+		expect( sectionsFor( { ...SUMMARY, type: undefined, isLoading: true } )[ 0 ] ).toMatchObject( {
+			label: 'Post traffic',
+			isPending: true,
+		} );
+		expect( sectionsFor()[ 0 ] ).toEqual( { section: SECTIONS[ 0 ], label: 'Post traffic' } );
+	} );
+
 	it( 'keeps a deep-linked email section while the type is unknown, and hides it otherwise', () => {
 		expect( sectionsFor( { ...SUMMARY, type: undefined }, 'email-opens' )[ 1 ].hidden ).toBe(
 			false

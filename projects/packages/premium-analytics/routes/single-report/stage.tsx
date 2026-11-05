@@ -69,6 +69,7 @@ import {
 } from './registry';
 import styles from './stage.module.scss';
 import type { PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import type { WidgetType } from '@wordpress/widget-primitives';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -104,6 +105,16 @@ function useRecordSections(
 	sections: SingleReportPageSection[]
 ): SectionState[] {
 	return useMemo( () => sections.map( section => ( { section } ) ), [ sections ] );
+}
+
+/**
+ * The widget types as registered, for an adapter without a say.
+ *
+ * @param widgetTypes - The registered types.
+ * @return The same types.
+ */
+function useRegisteredWidgetTypes( widgetTypes: WidgetType[] ): WidgetType[] {
+	return widgetTypes;
 }
 
 type SingleReportBodyProps = {
@@ -199,6 +210,9 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
 		visibleNames,
 	} );
+	// The adapter's view of the registered types, such as a card title naming the entity's kind.
+	const useWidgetTypes = adapter.useWidgetTypes ?? useRegisteredWidgetTypes;
+	const pageWidgetTypes = useWidgetTypes( widgetTypes, summary );
 
 	const surface = `${ page.path }_detail` as const;
 
@@ -351,7 +365,8 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		<SectionTabs
 			tabs={ visibleStates.map( state => ( {
 				id: state.section.slug,
-				label: state.section.label,
+				label: state.label ?? state.section.label,
+				isPending: state.isPending,
 			} ) ) }
 			value={ activeSlug ?? '' }
 			onChange={ setActiveSection }
@@ -373,7 +388,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
-							widgetTypes={ widgetTypes }
+							widgetTypes={ pageWidgetTypes }
 							isResolvingWidgetTypes={ isResolvingWidgetTypes }
 							resolveWidgetModule={ resolveWidgetModule }
 							layout={ layout }

@@ -1,4 +1,9 @@
 /**
+ * The section whose label names the post type: "Post traffic", "Page traffic".
+ */
+export const TRAFFIC_SECTION_SLUG = 'post-traffic';
+
+/**
  * The sections that describe the post's newsletter send rather than the post itself: email
  * identity in the header, no date controls, widgets pinned to the send window.
  */

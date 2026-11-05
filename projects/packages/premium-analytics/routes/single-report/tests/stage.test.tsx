@@ -20,6 +20,7 @@ let mockDashboardProps: {
 	onEditChange?: ( next: boolean ) => void;
 	onLayoutChange?: ( next: unknown ) => void;
 	onLayoutReset?: () => void;
+	widgetTypes?: Array< { name: string; title: string } >;
 } = {};
 const mockNavigate = jest.fn();
 const mockChangeDateRange = jest.fn();
@@ -229,6 +230,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		onEditChange,
 		onLayoutChange,
 		onLayoutReset,
+		widgetTypes,
 	}: {
 		children: ReactNode;
 		layout?: unknown;
@@ -236,9 +238,10 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		onEditChange?: ( next: boolean ) => void;
 		onLayoutChange?: ( next: unknown ) => void;
 		onLayoutReset?: () => void;
+		widgetTypes?: Array< { name: string; title: string } >;
 	} ) => {
 		mockDashboardLayouts.push( layout );
-		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset };
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset, widgetTypes };
 		return <>{ children }</>;
 	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
@@ -770,6 +773,7 @@ describe( 'single-report stage', () => {
 					headerSlots: jest.requireActual( '../pages/post/post-header-slots' ).postHeaderSlots,
 					headerActions: jest.requireActual( '../pages/post/header-actions' ).postHeaderActions,
 					useSections: jest.requireActual( '../pages/post/use-post-sections' ).usePostSections,
+					useWidgetTypes: jest.requireActual( '../pages/post/post-type-titles' ).usePostWidgetTypes,
 				},
 			};
 			mockSends( 3 );
@@ -802,17 +806,34 @@ describe( 'single-report stage', () => {
 			);
 		} );
 
-		it( 'hides the email sections for a page, which is never sent as a newsletter', () => {
+		it( 'names the tab and the cards for a page, and hides the email sections it is never sent as', () => {
+			jest
+				.mocked( useWidgetTypesWithI18n )
+				.mockReturnValue( [
+					[ { name: 'jpa/post-detail-highlights', title: 'Post highlights' } ] as never,
+					false,
+				] );
 			mockSummary( { title: 'About', type: 'page', url: 'https://example.com/about/' } );
 
 			render( stage() );
 
 			expect( screen.getAllByRole( 'tab' ).map( tab => tab.textContent ) ).toEqual( [
-				'Post traffic',
+				'Page traffic',
+			] );
+			expect( mockDashboardProps.widgetTypes ).toEqual( [
+				{ name: 'jpa/post-detail-highlights', title: 'Page highlights' },
 			] );
 			expect(
 				screen.getByRole( 'link', { name: 'View page(opens in a new tab)' } )
 			).toBeInTheDocument();
+		} );
+
+		it( 'holds the traffic tab name while the type loads', () => {
+			mockSummary( { isLoading: true } );
+
+			render( stage() );
+
+			expect( screen.getByRole( 'tab', { name: 'Loading…' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'pins an email section to the send window, with the email identity and no date filter', () => {

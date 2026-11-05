@@ -4,6 +4,7 @@
 import type { SingleReportPageSection } from '../registry';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import type { PageEmptyStateProps } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { WidgetType } from '@wordpress/widget-primitives';
 import type { ReactNode } from 'react';
 
 /**
@@ -70,6 +71,16 @@ export type SectionState = {
 	 * The tab is absent: the section does not apply to this entity.
 	 */
 	hidden?: boolean;
+
+	/*
+	 * The tab's name when the adapter names it, such as "Page traffic"; absent, the record's.
+	 */
+	label?: string;
+
+	/*
+	 * The label waits on data that has not loaded: the tab shows a placeholder.
+	 */
+	isPending?: boolean;
 
 	/*
 	 * A pinned window; the section then renders no date controls.
@@ -155,4 +166,9 @@ export type SingleReportAdapter< Summary extends EntitySummary = EntitySummary >
 		sections: SingleReportPageSection[],
 		context: SectionsContext
 	): SectionState[];
+
+	/*
+	 * The widget types as this page presents them, such as a card title naming the entity's kind; absent, as registered.
+	 */
+	useWidgetTypes?( widgetTypes: WidgetType[], summary: Summary ): WidgetType[];
 };
