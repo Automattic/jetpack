@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Make the list view checkboxes match the screen's colors, and stop showing extra focus rings after a click or around whole cards.
