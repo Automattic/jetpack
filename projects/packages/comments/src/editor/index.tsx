@@ -78,18 +78,24 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 }
 
 // A draft from the editor is block markup; anything else is plain text for one paragraph.
-const toBlocks = ( content: string ) =>
-	content.includes( '<!-- wp:' )
-		? parse( content )
-		: [
-				createBlock( 'core/paragraph', {
-					content: content
-						.trim()
-						.replace( /&/g, '&amp;' )
-						.replace( /</g, '&lt;' )
-						.replace( /\n/g, '<br>' ),
-				} ),
-			];
+// Markup can parse to nothing, as when its only block is no longer registered, and that gets
+// an empty paragraph: the editor reports itself ready only once it has a block to draw.
+const toBlocks = ( content: string ) => {
+	const parsed = content.includes( '<!-- wp:' ) ? parse( content ) : null;
+	if ( parsed ) {
+		return parsed.length ? parsed : [ createBlock( 'core/paragraph' ) ];
+	}
+
+	return [
+		createBlock( 'core/paragraph', {
+			content: content
+				.trim()
+				.replace( /&/g, '&amp;' )
+				.replace( /</g, '&lt;' )
+				.replace( /\n/g, '<br>' ),
+		} ),
+	];
+};
 
 // The reader reached into the textarea to get here, so the caret goes where they put it.
 const FocusOnMount = ( { offset }: { offset: () => number } ) => {

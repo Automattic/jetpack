@@ -110,9 +110,12 @@ class Comment_Form {
 			),
 		);
 
+		// The respond id alone, as core's link carries it, tells the app which form moved; core's own
+		// click handler needs all four of its data attributes, so it still leaves this link to the onclick.
 		$link = sprintf(
-			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			'<a class="comment-reply-link" href="%s" data-respondelement="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
 			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
+			$respond_id,
 			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
