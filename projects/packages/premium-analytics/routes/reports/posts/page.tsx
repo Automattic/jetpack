@@ -223,7 +223,7 @@ function PostsReport(): JSX.Element {
 
 /**
  * Registry entry point; React Query and error handling come from the
- * `/reports/$report` stage that renders this lazily.
+ * `/reports/$report` stage that renders this.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */

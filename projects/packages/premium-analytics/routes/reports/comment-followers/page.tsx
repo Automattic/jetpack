@@ -136,7 +136,7 @@ function CommentFollowersReport(): JSX.Element {
 
 /**
  * Registry entry point; React Query and error handling come from the shared
- * report stage that renders this lazily.
+ * report stage that renders this.
  *
  * @return The Comments Subscribers report page.
  */

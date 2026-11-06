@@ -15,16 +15,12 @@ import { useDateWindowNotice } from '../date-window-notice';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { stage as ReportStage } from './stage';
 import { useReportParams } from './use-report-params';
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	isStatsFeatureLocked: jest.fn( () => false ),
-} ) );
-
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -45,10 +41,6 @@ jest.mock( '../date-window-notice', () => ( {
 
 jest.mock( './locked-report-page', () => ( {
 	LockedReportPage: ( { feature }: { feature: string } ) => <span>{ `locked: ${ feature }` }</span>,
-} ) );
-
-jest.mock( '@wordpress/components', () => ( {
-	Spinner: () => null,
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -82,17 +74,15 @@ function MockScopeProbe() {
 	);
 }
 
-const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
-const mockGetLoadedReportPage = jest.fn< ComponentType | undefined, [ string ] >();
+const mockGetReportPage = jest.fn< typeof MockScopeProbe, [ string ] >( () => MockScopeProbe );
 const mockGetReportDefinition = jest.fn( () => ( { id: 'mock' } ) as Record< string, unknown > );
 
 jest.mock( './registry', () => ( {
 	getReportDefinition: () => mockGetReportDefinition(),
 } ) );
 
-jest.mock( './report-page-loaders', () => ( {
-	getLoadedReportPage: ( id: string ) => mockGetLoadedReportPage( id ),
-	getReportPageLoader: () => mockLoad,
+jest.mock( './report-pages', () => ( {
+	getReportPage: ( id: string ) => mockGetReportPage( id ),
 } ) );
 
 describe( 'Report stage report scope', () => {
@@ -100,13 +90,11 @@ describe( 'Report stage report scope', () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockGetReportDefinition.mockReturnValue( { id: 'mock' } );
-		mockGetLoadedReportPage.mockReturnValue( undefined );
-		mockGetLoadedReportPage.mockClear();
-		mockLoad.mockClear();
+		mockGetReportPage.mockClear();
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'shows the locked page instead of loading a report the plan lacks', async () => {
+	it( 'shows the locked page instead of rendering a report the plan lacks', async () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( true );
 		mockGetReportDefinition.mockReturnValue( {
 			id: 'mock',
@@ -117,7 +105,7 @@ describe( 'Report stage report scope', () => {
 		render( <ReportStage /> );
 
 		await expect( screen.findByText( 'locked: utm' ) ).resolves.toBeInTheDocument();
-		expect( mockLoad ).not.toHaveBeenCalled();
+		expect( mockGetReportPage ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders the report inside the charts provider, with no comparison', async () => {
@@ -128,14 +116,11 @@ describe( 'Report stage report scope', () => {
 		expect( provider ).toContainElement( await screen.findByText( 'no comparison' ) );
 	} );
 
-	it( 'renders a preloaded report without invoking its asynchronous loader', () => {
-		mockGetLoadedReportPage.mockReturnValue( MockScopeProbe );
-
+	it( 'selects the registered page by the report definition id', () => {
 		render( <ReportStage /> );
 
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
-		expect( mockGetLoadedReportPage ).toHaveBeenCalledWith( 'mock' );
-		expect( mockLoad ).not.toHaveBeenCalled();
+		expect( mockGetReportPage ).toHaveBeenCalledWith( 'mock' );
 	} );
 
 	it.each( [
