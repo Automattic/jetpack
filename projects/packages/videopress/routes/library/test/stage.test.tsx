@@ -1,6 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
@@ -13,6 +14,8 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 const recordEvent = analytics.tracks.recordEvent as jest.Mock;
+const getRefusalEvents = () =>
+	recordEvent.mock.calls.filter( ( [ event ] ) => event === 'jetpack_videopress_upload_refused' );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -30,12 +33,25 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
 	...jest.requireActual( '@wordpress/dataviews' ),
-	DataViews: ( { data, isLoading }: { data: LibraryItem[]; isLoading: boolean } ) => (
-		<ul data-testid="dataviews" aria-busy={ isLoading }>
-			{ data.map( item => (
-				<li key={ item.id }>{ item.id }</li>
-			) ) }
-		</ul>
+	DataViews: ( {
+		data,
+		isLoading,
+		view,
+		onChangeView,
+	}: {
+		data: LibraryItem[];
+		isLoading: boolean;
+		view: View;
+		onChangeView: ( next: View ) => void;
+	} ) => (
+		<>
+			<button onClick={ () => onChangeView( { ...view, type: 'table' } ) }>Table view</button>
+			<ul data-testid="dataviews" aria-busy={ isLoading }>
+				{ data.map( item => (
+					<li key={ item.id }>{ item.id }</li>
+				) ) }
+			</ul>
+		</>
 	),
 } ) );
 
@@ -162,6 +178,23 @@ describe( 'library stage empty state', () => {
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
 	} );
 
+	it( 'records an actual view change once without tracking initial render or repeated selection', async () => {
+		const user = userEvent.setup();
+		render(
+			<StrictMode>
+				<Stage />
+			</StrictMode>
+		);
+		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Table view' } ) );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_library_interaction',
+			{ interaction: 'view', view_type: 'table' }
+		);
+	} );
+
 	it.each( [
 		[ 'both requests are pending', true, true ],
 		[ 'the count finishes first', true, false ],
@@ -278,12 +311,16 @@ describe( 'library stage empty state', () => {
 		mockFreeTier = { isAtLimit: true, isFree: true, isUnlimited: false, videoCount: 1, limit: 1 };
 		render( <Stage /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
-		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upload_refused', {
-			location: 'library_dropzone',
-			reason: 'plan_limit',
-			files_known: false,
-		} );
+		expect( getRefusalEvents() ).toEqual( [
+			[
+				'jetpack_videopress_upload_refused',
+				{
+					location: 'library_dropzone',
+					reason: 'plan_limit',
+					files_known: false,
+				},
+			],
+		] );
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 	} );
 
@@ -294,14 +331,20 @@ describe( 'library stage empty state', () => {
 		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
 			dataTransfer: { files: [ makeVideoFile( 'a.mp4' ) ] },
 		} );
-		await waitFor( () => expect( recordEvent ).toHaveBeenCalledTimes( 1 ) );
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_upload_refused', {
-			location: 'library_dropzone',
-			reason: 'plan_limit',
-			files_known: true,
-			attempted_files: 1,
-			skipped_files: 1,
-		} );
+		await waitFor( () =>
+			expect( getRefusalEvents() ).toEqual( [
+				[
+					'jetpack_videopress_upload_refused',
+					{
+						location: 'library_dropzone',
+						reason: 'plan_limit',
+						files_known: true,
+						attempted_files: 1,
+						skipped_files: 1,
+					},
+				],
+			] )
+		);
 		expect( mockStartUpload ).not.toHaveBeenCalled();
 	} );
 } );

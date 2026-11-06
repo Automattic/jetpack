@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop long row names in cards such as Top UTM from running under the views count on hover, and give drill-down rows with an action their full width when not hovered.

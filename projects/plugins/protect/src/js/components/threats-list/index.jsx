@@ -2,7 +2,10 @@ import { Container, Col, Title, Button, Text } from '@automattic/jetpack-compone
 import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, {
+	isFirstScanNeeded,
+	isScanInProgress,
+} from '../../data/scan/use-scan-status-query';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import usePlan from '../../hooks/use-plan';
@@ -96,6 +99,11 @@ const ThreatsList = () => {
 				);
 		}
 	}, [ selected, list, item ] );
+
+	// Without a scan, the navigation's checkmarks would read as an all clear.
+	if ( isFirstScanNeeded( status ) ) {
+		return <EmptyList />;
+	}
 
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>

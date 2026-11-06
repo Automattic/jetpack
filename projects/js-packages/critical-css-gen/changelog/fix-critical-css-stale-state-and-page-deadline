@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `signal` option to `BrowserInterfaceIframe` that ends page loads when the caller cancels generation, and give the status checks that follow a page load their own 30-second limit so a check that never answers ends the page.

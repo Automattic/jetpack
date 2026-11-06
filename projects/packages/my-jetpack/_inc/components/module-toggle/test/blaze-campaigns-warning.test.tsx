@@ -19,12 +19,6 @@ jest.mock( '@wordpress/data', () => ( {
 	} ),
 	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
 } ) );
-jest.mock( '@wordpress/components', () => {
-	const react = jest.requireActual( 'react' );
-	return {
-		FormToggle: props => react.createElement( 'input', { type: 'checkbox', ...props } ),
-	};
-} );
 
 const blaze = ( activated: boolean ) =>
 	( { module: 'blaze', name: 'Blaze', available: true, activated } ) as MyJetpackModule;
@@ -86,7 +80,7 @@ describe( 'ModuleToggle for Blaze', () => {
 			);
 
 		render( <ModuleToggle module={ blaze( activated ) } reloadAfterToggle={ false } /> );
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		await waitFor( () =>
 			expect( Boolean( findWarning() ) || mockToggleModule.mock.calls.length > 0 ).toBe( true )
@@ -118,7 +112,7 @@ describe( 'ModuleToggle for Blaze', () => {
 					onManageClick={ onManageClick }
 				/>
 			);
-			await userEvent.click( screen.getByRole( 'checkbox' ) );
+			await userEvent.click( screen.getByRole( 'switch' ) );
 
 			const action = await screen.findByRole( role, { name: new RegExp( `^${ name }` ) } );
 			// jsdom cannot navigate.
@@ -151,7 +145,7 @@ describe( 'ModuleToggle for Blaze', () => {
 		render(
 			<ModuleToggle module={ blaze( true ) } reloadAfterToggle={ false } manageUrl={ manageUrl } />
 		);
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		const link = await screen.findByRole( 'link', { name: /Manage campaigns/ } );
 		expect( link ).toHaveAttribute( 'href', href );
@@ -163,7 +157,7 @@ describe( 'ModuleToggle for Blaze', () => {
 		jest.mocked( apiFetch ).mockResolvedValue( { status: 'active' } );
 
 		render( <ModuleToggle module={ blaze( true ) } reloadAfterToggle={ false } /> );
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 		await waitFor( () => expect( findWarning() ).toBeInTheDocument() );
 
 		expect( screen.queryByRole( 'link', { name: /Manage campaigns/ } ) ).not.toBeInTheDocument();
@@ -183,7 +177,7 @@ describe( 'ModuleToggle for Blaze', () => {
 		async ( _label, leave, status ) => {
 			const answer = holdCampaignsCheck();
 			const view = render( <ModuleToggle module={ blaze( true ) } reloadAfterToggle={ false } /> );
-			await userEvent.click( screen.getByRole( 'checkbox' ) );
+			await userEvent.click( screen.getByRole( 'switch' ) );
 
 			leave( view );
 			await answer( status );
@@ -193,7 +187,10 @@ describe( 'ModuleToggle for Blaze', () => {
 
 			// The hold went with it, so Blaze can be switched off again.
 			render( <ModuleToggle module={ blaze( true ) } reloadAfterToggle={ false } /> );
-			expect( screen.getByRole( 'checkbox', { name: 'Toggle Blaze module' } ) ).toBeEnabled();
+			expect( screen.getByRole( 'switch', { name: 'Toggle Blaze module' } ) ).not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 		}
 	);
 
@@ -205,11 +202,11 @@ describe( 'ModuleToggle for Blaze', () => {
 				<ModuleToggle module={ blaze( true ) } reloadAfterToggle={ false } />
 			</>
 		);
-		const [ card, modal ] = screen.getAllByRole( 'checkbox' );
+		const [ card, modal ] = screen.getAllByRole( 'switch' );
 
 		await userEvent.click( card );
 
-		expect( modal ).toBeDisabled();
+		expect( modal ).toHaveAttribute( 'aria-disabled', 'true' );
 
 		await answer( 'active' );
 

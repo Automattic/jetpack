@@ -81,7 +81,6 @@ function DevicesInner() {
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
 			withTotal={ false }
-			chartTitle={ __( 'Devices', 'jetpack-premium-analytics-pkg' ) }
 		/>
 	);
 }

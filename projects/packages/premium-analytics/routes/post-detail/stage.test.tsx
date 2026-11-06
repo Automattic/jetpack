@@ -721,7 +721,9 @@ describe( 'post detail stage', () => {
 			render( stage() );
 
 			expect( screen.getByText( `locked: ${ isLimited ? 'week' : 'none' }` ) ).toBeInTheDocument();
-			expect( mockDateFilterOptions ).toEqual( { lockedIntervals } );
+			expect( mockDateFilterOptions ).toEqual( {
+				dateLimits: isLimited ? { lockedPresetIds: [], lockedIntervals } : undefined,
+			} );
 			expect( mockPeriodHostLockedIntervals ).toEqual( lockedIntervals );
 			expect( useDateWindowNotice ).toHaveBeenCalled();
 		}

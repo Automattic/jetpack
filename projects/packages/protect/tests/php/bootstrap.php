@@ -10,5 +10,5 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-// Initialize WordPress test environment
-\Automattic\Jetpack\Test_Environment::init();
+// Its own uploads folder, since WorDBless empties the shared one after every test in parallel CI runs.
+\Automattic\Jetpack\Test_Environment::init( 'packages-protect' );
