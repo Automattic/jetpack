@@ -83,7 +83,7 @@ function get_traffic_section_default_layout() {
 			'jpa/devices',
 			3,
 			1,
-			DASHBOARD_TILE_CARD
+			DASHBOARD_TILE_LIST
 		),
 		// Row 3: locations map + top platforms.
 		get_dashboard_default_widget_instance(
@@ -98,7 +98,7 @@ function get_traffic_section_default_layout() {
 			'jpa/top-platforms',
 			5,
 			1,
-			DASHBOARD_TILE_CARD
+			DASHBOARD_TILE_LIST
 		),
 		// Row 4: UTM insights + clicks; the VideoPress package seeds Top videos at order 8.
 		get_dashboard_default_widget_instance(
