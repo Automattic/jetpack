@@ -145,12 +145,13 @@ const watchedToggle = async ( config: Config ) => {
 	const button = document.createElement( 'button' );
 	button.type = 'button';
 	button.className = 'videopress-history-toggle';
+	// Separate statements so minification can't merge the two strings' calls.
+	const unmarkLabel = __( 'Watched · Mark as unwatched', 'jetpack-videopress-pkg' );
+	const markLabel = __( 'Mark as watched', 'jetpack-videopress-pkg' );
 	const render = () => {
 		const watched = item.status === 'watched';
 		button.setAttribute( 'aria-pressed', watched ? 'true' : 'false' );
-		button.textContent = watched
-			? __( 'Watched · Mark as unwatched', 'jetpack-videopress-pkg' )
-			: __( 'Mark as watched', 'jetpack-videopress-pkg' );
+		button.textContent = watched ? unmarkLabel : markLabel;
 	};
 	button.addEventListener( 'click', async () => {
 		button.disabled = true;
