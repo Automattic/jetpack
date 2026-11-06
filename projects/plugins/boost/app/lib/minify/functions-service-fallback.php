@@ -77,7 +77,7 @@ function jetpack_boost_page_optimize_cache_max_bytes() {
 	 *
 	 * The _jb_static route runs while plugins are loading, so hook this from a must-use plugin.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.2
 	 *
 	 * @param int $max_bytes The size limit in bytes.
 	 */
