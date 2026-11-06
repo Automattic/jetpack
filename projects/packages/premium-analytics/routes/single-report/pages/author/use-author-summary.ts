@@ -8,25 +8,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useAuthorAllTimeStart } from './use-author-all-time-start';
 import { toGmtInstant, useAuthorStats } from './use-author-stats';
+import type { EntitySummary } from '../adapter';
 import type { AuthorPostsRecord } from '@jetpack-premium-analytics/data';
 
-export type AuthorSummary = {
+export type AuthorSummary = EntitySummary & {
 	name?: string;
 	/** The author's avatar, when the stats endpoint returns a safe http(s) one. */
 	avatarUrl?: string;
 	postCount?: number;
 	/** When the author first published content of any type, for "writing since". */
 	firstPublishedDate?: string;
-	isLoading: boolean;
-	/** Whether the identity request failed; the page must not present a fallback name as real data. */
-	isError: boolean;
-	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
-	error: unknown;
-	/** Whether the site knows no author by this id. */
-	isNotFound: boolean;
-	/** Re-runs the failed identity request, for the error state's Retry action. */
-	refetch: () => void;
 	/** Whether the post count is still on its way. */
 	isPostsLoading: boolean;
 	/** Whether the posts request failed; the identity above still stands. */
@@ -54,15 +47,17 @@ function sizeAvatarUrl( url: string ): string {
 
 /**
  * Resolve the header for one author: name, avatar and first published content
- * from the `stats/author` request the page already makes for its All time
- * start, plus the published post count from the posts endpoint. The two fail
- * independently, so a posts failure leaves the name and the cards in place.
+ * from the `stats/author` request that also anchors All time, plus the published
+ * post count from the posts endpoint. The two fail independently, so a posts
+ * failure leaves the name and the cards in place.
  *
- * @param authorId - The user ID from the route.
+ * @param id - The user ID, as the URL carries it.
  * @return The resolved author summary.
  */
-export function useAuthorSummary( authorId: number ): AuthorSummary {
+export function useAuthorSummary( id: string ): AuthorSummary {
+	const authorId = Number( id );
 	const source = useAuthorStats( authorId );
+	const anchor = useAuthorAllTimeStart( authorId );
 	const { isLoading, error, refetch } = source;
 	const posts = useStatsQuery< AuthorPostsRecord >( authorPostsQuery( authorId ) );
 	// Another author's identity, held as placeholder data, must not name this page.
@@ -82,6 +77,8 @@ export function useAuthorSummary( authorId: number ): AuthorSummary {
 	}, [ refetch ] );
 
 	return {
+		title: author?.name,
+		allTimeStart: anchor.allTimeStart,
 		name: author?.name,
 		avatarUrl: avatarUrl ? sizeAvatarUrl( avatarUrl ) : undefined,
 		postCount: posts.data?.postCount,

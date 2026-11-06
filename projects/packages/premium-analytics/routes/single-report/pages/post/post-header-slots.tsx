@@ -2,14 +2,18 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { DETAIL_HEADER_GLYPH_SIZE, getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
+import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence } from '../../../detail-header';
-import placeholders from '../../../detail-header.module.scss';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	formatPublishedDate,
+	performanceSentence,
+} from '../../detail-header';
+import placeholders from '../../detail-header.module.scss';
 import { isEmailSection } from './config';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from './use-post-summary';
