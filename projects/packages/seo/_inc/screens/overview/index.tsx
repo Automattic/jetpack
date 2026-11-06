@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
-import EnableSeoCard from '../../components/enable-seo-card';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import UpsellBanner from '../../components/upsell-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
@@ -86,11 +86,15 @@ const OverviewScreen: FC = () => {
 	// two always-valid cards (site visibility + verification, both backed by core
 	// WordPress options) topped with the upsell banner. The AI-crawler and
 	// content-coverage cards and the disable control are paid surfaces, hidden here.
+	// The paused banner stays, because a gated site's own SEO output pauses too. It
+	// needs SEO tools on: this layout also shows while they're off, and then the pause
+	// isn't what stops the output.
 	if ( isGated() ) {
 		return (
 			// Column Stack (matching the Settings tab) so the upsell banner — which sits
 			// below the cards and isn't dismissible — has space above it.
 			<Stack direction="column" gap="lg" className={ styles.root }>
+				{ data.site_visibility.seo_tools_active && <SeoPausedBanner /> }
 				<div className={ styles.grid }>
 					<SiteVisibilityCard
 						data={ siteVisibilityData }
@@ -107,30 +111,9 @@ const OverviewScreen: FC = () => {
 		);
 	}
 
-	// When the `seo-tools` module is off, the Overview shows only the enable
-	// affordance — the cards have nothing to act on until SEO tools are turned on,
-	// and the Settings surface isn't registered server-side yet. See
-	// `useSeoToolsToggle` and `Initializer::init()`.
-	if ( ! data.site_visibility.seo_tools_active ) {
-		return (
-			<div className={ styles.root }>
-				<EnableSeoCard screen="overview" />
-			</div>
-		);
-	}
-
 	return (
 		<div className={ styles.root }>
-			{ ! data.plan.seo_enabled_for_site && (
-				<Notice.Root intent="warning">
-					<Notice.Description>
-						{ __(
-							'SEO tools are not enabled on this site. Some cards reflect the underlying WordPress options only.',
-							'jetpack-seo'
-						) }
-					</Notice.Description>
-				</Notice.Root>
-			) }
+			<SeoPausedBanner className={ styles.notice } />
 			<div className={ styles.grid }>
 				<SiteVisibilityCard
 					data={ siteVisibilityData }

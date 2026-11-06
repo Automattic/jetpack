@@ -12,6 +12,7 @@ import {
 	applyStatsDatePolicy,
 	deriveStatsDatePolicy,
 	getPolicyDefaultPreset,
+	getSectionDatePolicy,
 	getStatsDatePolicy,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
@@ -93,7 +94,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'long-date-presets', 'intervals' ),
 			'last-30-days',
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[
@@ -101,7 +102,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'intervals' ),
 			undefined,
 			true,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			undefined,
 		],
 		[ 'nothing', lockOnly(), undefined, true, [], undefined ],
@@ -110,7 +111,7 @@ describe( 'deriveStatsDatePolicy', () => {
 			lockOnly( 'recent-7-days', 'intervals' ),
 			'last-7-days',
 			false,
-			[ 'week', 'month', 'year' ],
+			[ 'week', 'month', 'quarter', 'year' ],
 			new Date( '2026-10-09T00:00:00Z' ),
 		],
 	] )(
@@ -158,6 +159,30 @@ describe( 'getStatsDatePolicy', () => {
 		( getScriptData as jest.Mock ).mockReturnValue( { premium_analytics: premiumAnalytics } );
 
 		expect( getStatsDatePolicy().feature ).toBe( feature );
+	} );
+} );
+
+describe( 'getSectionDatePolicy', () => {
+	it.each( [
+		[ 'traffic', [ 'traffic' ], 'recent-7-days' ],
+		[ 'insights', [ 'traffic' ], undefined ],
+		[ undefined, [ 'traffic' ], undefined ],
+		[ 'store', [ 'traffic', 'store' ], 'recent-7-days' ],
+		[ 'traffic', undefined, undefined ],
+	] )( 'gives %p, when the server limits %p, the plan limit %p', ( section, limited, feature ) => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: {
+				plan_date_limited_sections: limited,
+				plan_gates: {
+					locked_features: {
+						'recent-7-days': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} );
+
+		expect( getSectionDatePolicy( section ).feature ).toBe( feature );
 	} );
 } );
 

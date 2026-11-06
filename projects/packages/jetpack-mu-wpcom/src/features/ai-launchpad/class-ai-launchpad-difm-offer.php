@@ -41,7 +41,7 @@ class AI_Launchpad_Difm_Offer {
 	/**
 	 * The oldest site, in days, that still gets the offer.
 	 */
-	const MAX_SITE_AGE_DAYS = 7;
+	const MAX_SITE_AGE_DAYS = 14;
 
 	/**
 	 * Free, Personal and Premium, every term, and the Personal trial. Same list as Calypso's ELIGIBLE_PLAN_SLUGS.

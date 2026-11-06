@@ -5,14 +5,18 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { ConversionFunnel } from '../../src/components/conversion-funnel';
 import { BOOKINGS_FILTER } from '../../src/reports';
-import type { StoreConversionRateBookingsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type StoreConversionRateBookingsAttributes = Record< never, never >;
 
 type StoreConversionRateBookingsRenderAttributes = StoreConversionRateBookingsAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -30,10 +34,7 @@ export default function StoreConversionRateBookingsRender( {
 }: WidgetRenderProps< StoreConversionRateBookingsRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<ConversionFunnel
-				filters={ FILTERS }
-				chartTitle={ __( 'Store conversion rate - Bookings', 'jetpack-woocommerce-stats-pkg' ) }
-			/>
+			<ConversionFunnel filters={ FILTERS } />
 		</WidgetRoot>
 	);
 }

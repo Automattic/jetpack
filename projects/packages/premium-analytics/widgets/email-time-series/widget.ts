@@ -1,16 +1,7 @@
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
  * Internal dependencies
  */
-import {
-	CHART_TYPE_ELEMENTS,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Which timeline the chart draws for the selected email.
@@ -18,8 +9,8 @@ import {
 export type EmailTimeSeriesMetric = 'opens' | 'clicks';
 
 /**
- * How the timeline is drawn. The shared chart-display list keeps every chart
- * widget's dropdown identical and ties it to the toolkit's own union.
+ * How the timeline is drawn. The alias ties the attribute to the toolkit's
+ * own union, which the chart reads.
  */
 export type EmailTimeSeriesChartType = ChartDisplayChartType;
 
@@ -42,15 +33,6 @@ export type EmailTimeSeriesAttributes = {
  * page, the first 30 days after the send, in daily buckets.
  */
 export default {
-	attributes: [
-		{
-			id: 'chartType',
-			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/toggle-group',
-			elements: CHART_TYPE_ELEMENTS,
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< EmailTimeSeriesAttributes >[],
 	example: {
 		attributes: {
 			metric: 'opens',

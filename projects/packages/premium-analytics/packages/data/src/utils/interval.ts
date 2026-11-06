@@ -23,8 +23,15 @@ import { differenceInCalendarDays, differenceInHours } from 'date-fns';
 
 export type { IntervalType };
 
-/** A bucket a plan can lock; days stay open so a range always has one. */
-export type LockableInterval = Extract< IntervalType, 'week' | 'month' | 'year' >;
+/** The buckets a plan can lock; days stay open so a range always has one. */
+export const LOCKABLE_INTERVALS = [
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly IntervalType[];
+
+export type LockableInterval = ( typeof LOCKABLE_INTERVALS )[ number ];
 
 /** The locks of a surface whose plan sets no interval limits. */
 export const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
@@ -63,14 +70,13 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		return [ 'day' ];
 	}
 
-	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
-		return [ 'month', 'year' ];
+		return [ 'month', 'quarter', 'year' ];
 	} else if ( daysDiff > 366 ) {
-		return [ 'month' ];
+		return [ 'month', 'quarter' ];
 	} else if ( daysDiff >= 365 ) {
 		// Months by default; weeks stay on offer for a single year, leap or not.
-		return [ 'month', 'week' ];
+		return [ 'month', 'week', 'quarter' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -88,6 +94,10 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	return [ 'hour' ];
 }
 
+function isLockedInterval( interval: IntervalType, locked: readonly LockableInterval[] ): boolean {
+	return locked.some( bucket => bucket === interval );
+}
+
 /**
  * Drop the buckets the plan locks, landing on days when none is left.
  *
@@ -99,7 +109,7 @@ function withoutLockedIntervals(
 	intervals: IntervalType[],
 	locked: readonly LockableInterval[]
 ): IntervalType[] {
-	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
+	const open = intervals.filter( interval => ! isLockedInterval( interval, locked ) );
 	return open.length ? open : [ 'day' ];
 }
 
@@ -117,6 +127,26 @@ export function getAllowedIntervalsForPreset(
 	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType[] {
 	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
+}
+
+/**
+ * The buckets the range could draw but the plan locks, for the control to show as locked.
+ *
+ * @param preset - The preset being edited.
+ * @param from   - The range start.
+ * @param to     - The range end.
+ * @param locked - The buckets the plan locks.
+ * @return The locked buckets, in the range's order.
+ */
+export function getLockedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly LockableInterval[]
+): LockableInterval[] {
+	return allowedIntervalsForPreset( preset, from, to ).filter(
+		( interval ): interval is LockableInterval => isLockedInterval( interval, locked )
+	);
 }
 
 function allowedIntervalsForPreset(
@@ -144,7 +174,7 @@ function allowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month', 'week' ];
+			return [ 'month', 'week', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}

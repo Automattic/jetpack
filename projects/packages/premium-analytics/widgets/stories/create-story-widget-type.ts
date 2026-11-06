@@ -17,6 +17,7 @@ export interface StoryWidgetManifest {
 	description?: string;
 	help?: WidgetType[ 'help' ];
 	actions?: StoryWidgetManifestAction[];
+	attributes?: StoryWidgetManifestAttribute[];
 	category?: string;
 	presentation?: string;
 	keywords?: string[];
@@ -29,6 +30,17 @@ export interface StoryWidgetManifest {
 type StoryWidgetManifestAction = Omit< WidgetActionRecord, 'relevance' > & {
 	relevance?: string;
 };
+
+/**
+ * An attribute as authored in `widget.json`: the wire shape, its literals
+ * widened by the JSON import.
+ */
+type StoryWidgetManifestAttribute = { id: string } & Record< string, unknown >;
+
+type StoryAttribute = { id: string; isValid?: Record< string, unknown > } & Record<
+	string,
+	unknown
+>;
 
 /**
  * Runtime-only fields a widget declares in `widget.ts` (its default export):
@@ -51,6 +63,37 @@ export type StoryWidgetType = {
 } & Partial< Omit< WidgetType, 'apiVersion' | 'name' | 'renderModule' | 'title' > >;
 
 /**
+ * The manifest's attributes lead the module's, merged by `id` with `isValid`
+ * merged rule by rule, as `useWidgetTypes` merges a record over its module.
+ */
+function mergeStoryAttributes(
+	manifestAttributes: StoryWidgetManifestAttribute[] | undefined,
+	moduleAttributes: StoryAttribute[] | undefined
+): StoryAttribute[] | undefined {
+	if ( ! manifestAttributes ) {
+		return moduleAttributes;
+	}
+	if ( ! moduleAttributes ) {
+		return manifestAttributes;
+	}
+
+	const moduleById = new Map( moduleAttributes.map( attribute => [ attribute.id, attribute ] ) );
+	const manifestIds = new Set( manifestAttributes.map( attribute => attribute.id ) );
+
+	return [
+		...manifestAttributes.map( attribute => {
+			const moduleAttribute = moduleById.get( attribute.id );
+			const merged = { ...moduleAttribute, ...attribute } as StoryAttribute;
+			if ( moduleAttribute?.isValid && attribute.isValid ) {
+				merged.isValid = { ...moduleAttribute.isValid, ...( attribute.isValid as object ) };
+			}
+			return merged;
+		} ),
+		...moduleAttributes.filter( attribute => ! manifestIds.has( attribute.id ) ),
+	];
+}
+
+/**
  * Combine a widget's `widget.json` manifest (identity + declarative metadata)
  * with its `widget.ts` module export (attributes, example) into the widget
  * type a Storybook story hands to the dashboard helper.
@@ -58,15 +101,21 @@ export type StoryWidgetType = {
  * This mirrors what the dashboard does at runtime — merge the REST manifest
  * over the lazily-imported module — which Storybook has no REST layer to
  * perform. `name`/`title`/`help` and the other declarative fields come from the
- * manifest, icon references resolved the way the host resolves them;
- * `attributes` and `example` come from the module. The attribute list is typed
- * against the widget's own `Item`, so it is widened here once instead of at
- * every call site.
+ * manifest, icon references resolved the way the host resolves them; the
+ * manifest's `attributes` lead the module's, and `example` comes from the
+ * module. The attribute list is typed against the widget's own `Item`, so it
+ * is widened here once instead of at every call site. A widget with nothing
+ * live has no module and passes none.
  */
 export function createStoryWidgetType(
 	manifest: StoryWidgetManifest,
-	moduleDefinition: StoryWidgetModule
+	moduleDefinition: StoryWidgetModule = {}
 ): StoryWidgetType {
+	const attributes = mergeStoryAttributes(
+		manifest.attributes,
+		moduleDefinition.attributes as StoryAttribute[] | undefined
+	);
+
 	return {
 		name: manifest.name,
 		title: manifest.title,
@@ -74,10 +123,8 @@ export function createStoryWidgetType(
 			( manifest.icon ? lookupWidgetIcon( manifest.icon ) : null ) ??
 			( moduleDefinition.icon as WidgetType[ 'icon' ] ),
 		// Mirrors useWidgetTypes: a `type` naming a registered field type resolves here.
-		attributes: moduleDefinition.attributes
-			? resolveFieldTypes(
-					moduleDefinition.attributes as NonNullable< WidgetType[ 'attributes' ] >
-				)
+		attributes: attributes
+			? resolveFieldTypes( attributes as NonNullable< WidgetType[ 'attributes' ] > )
 			: undefined,
 		example: moduleDefinition.example as WidgetType[ 'example' ],
 		...( manifest.description ? { description: manifest.description } : {} ),

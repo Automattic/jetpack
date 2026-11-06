@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 
@@ -178,6 +179,15 @@ class Scan extends Module_Product {
 	}
 
 	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
+	}
+
+	/**
 	 * Return product bundles list
 	 * that supports the product.
 	 *
@@ -203,8 +213,13 @@ class Scan extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		// The Protect page lists Scan's threats.
-		if ( Protect::has_protect_page() ) {
+		// An older plugin's copy of Protect, loaded earlier in the same request, may not have this method.
+		if ( method_exists( Protect::class, 'has_protect_page' ) && Protect::has_protect_page() ) {
 			return admin_url( 'admin.php?page=jetpack-protect' );
+		}
+
+		if ( method_exists( Protect::class, 'get_scan_dashboard_url' ) ) {
+			return Protect::get_scan_dashboard_url();
 		}
 
 		return Redirect::get_url( 'my-jetpack-manage-scan' );

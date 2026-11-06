@@ -56,7 +56,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-blaze",
 		"changelogger": {
 			"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"

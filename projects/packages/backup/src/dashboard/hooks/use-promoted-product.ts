@@ -78,8 +78,8 @@ function intervalMonths( unit?: string, count?: number ): number | null {
  *
  * Deliberately not gated on `useCanQueryWpcom()`, unlike every other
  * hook here. The route it reads is an unauthenticated `wp_remote_get`
- * against the public product catalogue — it needs `manage_options` and
- * nothing else, so gating it on the site's WordPress.com connection
+ * against the public product catalogue — it checks `manage_options` and
+ * offline mode only, so gating it on the site's WordPress.com connection
  * would copy a constraint that does not apply to it.
  *
  * Its one caller is the no-plan screen, which mounts only for a site

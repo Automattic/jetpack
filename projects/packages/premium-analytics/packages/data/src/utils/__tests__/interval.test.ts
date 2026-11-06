@@ -5,6 +5,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
+	getLockedIntervalsForPreset,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from '../interval';
@@ -114,45 +115,50 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'day' ] );
 	} );
 
-	it( 'never offers quarters on the year-length ranges', () => {
+	it( 'offers quarters after months on the year-length ranges, keeping months the default', () => {
 		expect(
 			getAllowedIntervalsForPreset(
 				'last-12-months',
 				'2025-07-01T00:00:00.000Z',
 				'2026-06-30T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [
 			'month',
 			'week',
+			'quarter',
 		] );
-		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [
+			'month',
+			'week',
+			'quarter',
+		] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'all-time',
 				'2020-01-01T00:00:00.000Z',
 				'2026-06-30T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'year' ] );
+		).toEqual( [ 'month', 'quarter', 'year' ] );
 	} );
 
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
-	it( 'offers months and weeks on a year-length range with no matching preset', () => {
+	it( 'offers months, weeks and quarters on a year-length range with no matching preset', () => {
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2025',
 				'2025-01-01T00:00:00.000Z',
 				'2025-12-31T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2024',
 				'2024-01-01T00:00:00.000Z',
 				'2024-12-31T23:59:59.999Z'
 			)
-		).toEqual( [ 'month', 'week' ] );
+		).toEqual( [ 'month', 'week', 'quarter' ] );
 		expect(
 			resolveIntervalForRange(
 				'year-2025',
@@ -160,7 +166,7 @@ describe( 'resolveIntervalForRange', () => {
 				'2025-12-31T23:59:59.999Z',
 				'quarter'
 			)
-		).toBe( 'month' );
+		).toBe( 'quarter' );
 	} );
 
 	it( 'flips the default from weeks to months where a range reaches a year', () => {
@@ -173,6 +179,7 @@ describe( 'resolveIntervalForRange', () => {
 		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-31T23:59:59.999Z' ) ).toEqual( [
 			'month',
 			'week',
+			'quarter',
 		] );
 	} );
 
@@ -180,14 +187,15 @@ describe( 'resolveIntervalForRange', () => {
 		const from = '2025-01-01T00:00:00.000Z';
 		const to = '2026-01-02T23:59:59.999Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month' ] );
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month', 'quarter' ] );
 		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
 	} );
 
-	it( 'coerces a stored quarter onto the range default', () => {
+	it( 'keeps a stored quarter only where the range offers it', () => {
 		expect(
 			resolveIntervalForRange( 'last-12-months', '2025-07-01', '2026-06-30', 'quarter' )
-		).toBe( 'month' );
+		).toBe( 'quarter' );
+		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b', 'quarter' ) ).toBe( 'day' );
 	} );
 
 	it( 'defaults when no current interval is provided', () => {
@@ -324,5 +332,19 @@ describe( 'getAllowedIntervalsForPreset with locked intervals', () => {
 		[ 'last-24-hours', '2026-10-14', '2026-10-15', [ 'hour' ] ],
 	] )( 'offers %p from %s to %s as %p', ( preset, from, to, expected ) => {
 		expect( getAllowedIntervalsForPreset( preset as never, from, to, LOCKED ) ).toEqual( expected );
+	} );
+} );
+
+describe( 'getLockedIntervalsForPreset', () => {
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'last-7-days', '2026-10-09', '2026-10-15', LOCKED, [] ],
+		[ 'last-30-days', '2026-09-16', '2026-10-15', LOCKED, [ 'week' ] ],
+		[ undefined, '2026-01-01', '2026-06-30', LOCKED, [ 'week', 'month' ] ],
+		[ undefined, '2023-01-01', '2026-06-30', LOCKED, [ 'month', 'year' ] ],
+		[ 'last-30-days', '2026-09-16', '2026-10-15', [], [] ],
+	] )( 'locks %p from %s to %s under %p as %p', ( preset, from, to, locked, expected ) => {
+		expect( getLockedIntervalsForPreset( preset as never, from, to, locked ) ).toEqual( expected );
 	} );
 } );

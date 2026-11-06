@@ -1,6 +1,7 @@
 // Reversed so the submit precedes the identity line in the DOM, and Tab
-// reaches it straight from the textarea. Wraps only for the too-long notice.
-.jetpack-comments__actions {
+// reaches it straight from the textarea. Wraps for the too-long notice, or
+// when a wide theme button leaves the identity line no room.
+.jetpack-comments .jetpack-comments__actions {
 	display: flex;
 	flex-flow: row-reverse wrap-reverse;
 	align-items: center;
@@ -17,7 +18,7 @@
 // A flex item, so the button sits on no text baseline and centres with
 // the avatar. Pinned against a theme's spacing around its own submit.
 .jetpack-comments .jetpack-comments__submit {
-	display: flex;
+	display: flex !important;
 	margin: 0 !important;
 	padding: 0 !important;
 
@@ -27,6 +28,7 @@
 		// Pinned: Twenty Eleven nudges its submit 30px right with a relative offset.
 		position: static !important;
 		box-sizing: border-box;
+		inline-size: auto !important;
 		block-size: var(--jetpack-comments-avatar-size) !important;
 		min-block-size: 0 !important;
 		padding: 0 1.25em !important;
@@ -72,14 +74,14 @@
 	}
 }
 
-// Always shares the row with the submit: a zero basis never forces a wrap, and
-// it takes whatever room is left, its link dropping under the name when short.
+// Shares the row with the submit, taking whatever room is left, its link
+// dropping under the name when short. Wraps rather than shrink past its floor.
 .jetpack-comments__identity {
-	display: flex;
+	display: flex !important;
 	align-items: center;
 	gap: 0.75em;
 	flex: 1 1 0;
-	min-inline-size: 0;
+	min-inline-size: min(100%, 8em);
 	font-size: 0.8125em;
 	// Pinned, so a theme's tall line height cannot stretch the row.
 	line-height: 1.4;
@@ -130,6 +132,9 @@
 
 // Past a theme's own `.avatar` sizing, so the submit beside it can match.
 .jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
-	inline-size: var(--jetpack-comments-avatar-size);
-	block-size: var(--jetpack-comments-avatar-size);
+	inline-size: var(--jetpack-comments-avatar-size) !important;
+	block-size: var(--jetpack-comments-avatar-size) !important;
+	max-inline-size: none !important;
+	position: static !important;
+	margin: 0 !important;
 }

@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { isDashboardSectionAvailable, POST_DETAIL_SECTION } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isDashboardSectionAvailable, isVideoPressAvailable } from '../site-readiness';
+import { isVideoPressAvailable } from '../site-readiness';
 // Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
 // and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
@@ -14,9 +15,7 @@ import { resolveSection as resolveEarningsSection } from './earnings/config/tabs
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
-import type { DashboardSectionSlug } from '../site-readiness';
-import type { StatsFeatureKey } from '@jetpack-premium-analytics/data';
-import type { ComponentType } from 'react';
+import type { DashboardSectionSlug, StatsFeatureKey } from '@jetpack-premium-analytics/data';
 
 /**
  * A single report's registration in the report registry.
@@ -62,20 +61,14 @@ export type ReportDefinition = {
 	 * reports every plan includes.
 	 */
 	feature?: StatsFeatureKey;
-
-	/**
-	 * Dynamic import of the report's page component (default export). Kept as a
-	 * thunk so React/UI is only pulled in when the report actually renders, and
-	 * so this module stays importable from `route.ts` guards.
-	 */
-	load: () => Promise< { default: ComponentType } >;
 };
 
 /**
  * The report registry: one entry per report, keyed by its `id`.
  *
  * To add a report, drop a `<id>/` folder under `routes/reports/` that
- * default-exports its page component and add an entry here; no new route needed.
+ * default-exports its page component, add an entry here and its loader to
+ * `report-page-loaders.ts`; no new route needed.
  */
 export const REPORTS: Record< string, ReportDefinition > = {
 	'annual-insights': {
@@ -83,27 +76,23 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		feature: 'insights',
 		dashboardSection: 'insights',
 		getLabel: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './annual-insights/page' ),
 	},
 	authors: {
 		id: 'authors',
 		feature: 'authors',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
 		dashboardSection: 'subscribers',
 		getLabel: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './comment-followers/page' ),
 	},
 	clicks: {
 		id: 'clicks',
 		feature: 'clicks',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './clicks/page' ),
 	},
 	comments: {
 		id: 'comments',
@@ -111,7 +100,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		dashboardSection: 'insights',
 		getLabel: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveCommentsTabId,
-		load: () => import( './comments/page' ),
 	},
 	downloads: {
 		id: 'downloads',
@@ -121,20 +109,17 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		// Download tracking is WPCOM-only, so Calypso shows the module on Simple
 		// sites only; mirrors the gate in `src/widget-type-support.php`.
 		isAvailable: isSimpleSite,
-		load: () => import( './downloads/page' ),
 	},
 	earnings: {
 		id: 'earnings',
 		dashboardSection: 'ads',
 		getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveEarningsSection,
-		load: () => import( './earnings/page' ),
 	},
 	emails: {
 		id: 'emails',
 		dashboardSection: 'subscribers',
 		getLabel: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './emails/page' ),
 	},
 	locations: {
 		id: 'locations',
@@ -142,29 +127,25 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
-		load: () => import( './locations/page' ),
 	},
 	posts: {
 		id: 'posts',
 		feature: 'top-posts',
-		dashboardSection: 'traffic',
+		dashboardSection: POST_DETAIL_SECTION,
 		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
-		load: () => import( './posts/page' ),
 	},
 	'search-terms': {
 		id: 'search-terms',
 		feature: 'search-terms',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './search-terms/page' ),
 	},
 	tags: {
 		id: 'tags',
 		feature: 'tags',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',
@@ -174,7 +155,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		// Play counts only exist for VideoPress-hosted videos; mirrors the gate in
 		// `src/widget-type-support.php`.
 		isAvailable: isVideoPressAvailable,
-		load: () => import( './videos/page' ),
 	},
 	utm: {
 		id: 'utm',
@@ -182,14 +162,12 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'All UTM values', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
-		load: () => import( './utm/page' ),
 	},
 	referrers: {
 		id: 'referrers',
 		feature: 'referrers',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
-		load: () => import( './referrers/page' ),
 	},
 };
 

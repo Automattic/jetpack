@@ -55,7 +55,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-starter-plugin",
 		"release-branch-prefix": "starter-plugin",

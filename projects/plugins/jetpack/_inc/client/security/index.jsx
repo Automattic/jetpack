@@ -5,8 +5,8 @@ import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
-import { getSiteId, isMultisite } from 'state/initial-state';
-import { getModule, hasProtectPage, isModuleActivated } from 'state/modules';
+import { getSiteId, hasBackupPage } from 'state/initial-state';
+import { getModule, hasProtectPage } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
@@ -124,15 +124,9 @@ export class Security extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ isSearchTerm
-						? __( 'Security', 'jetpack' )
-						: __(
-								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-								'jetpack',
-								/* dummy arg to avoid bad minification */ 0
-							) }
-				</h2>
+				{ isSearchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
+				) }
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
@@ -167,11 +161,6 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
 		hasProtectPage: hasProtectPage( state ),
-		// Mirrors Jetpack::configure_backup_package(), or the standalone plugin's own page.
-		hasBackupPage:
-			( isModuleActivated( state, 'backup' ) &&
-				hasConnectedOwner( state ) &&
-				! isMultisite( state ) ) ||
-			isPluginActive( state, 'jetpack-backup/jetpack-backup.php' ),
+		hasBackupPage: hasBackupPage( state ),
 	};
 } )( Security );

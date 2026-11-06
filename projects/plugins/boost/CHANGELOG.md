@@ -383,7 +383,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page Cache: Improve compatibility with sites using Endurance Page Cache. [#43416]
 - My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
 - UI: Updated currency formatting. [#42796]
-- Update package dependencies. [#43326] [#43354] [#43355] [#43398] [#43400] [#43425] [#43085]
+- Update package dependencies. [#43085] [#43326] [#43354] [#43355] [#43398] [#43400] [#43425]
 
 ### Removed
 - General: Update minimum WordPress version to 6.7. [#43192]
@@ -452,7 +452,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concatenate JS/CSS: Ensure delivery method tester is only tested once per network on Multisite. [#41918]
 - UI: Change style of pills. [#42460]
 - UI: Upgrade CTAs on the Jetpack Boost admin now opens a modal instead of navigating to the upgrade page. [#42309] [#42416]
-- Update package dependencies. [#42511] [#42509]
+- Update package dependencies. [#42509] [#42511]
 
 ### Fixed
 - Critical CSS: Prevent the process from failing when a single provider fails storing its CSS. [#42110]
@@ -543,7 +543,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Critical CSS: Improved logic that generates URLs for critical CSS generation. [#39862]
-- General: Improved compatibility with WordPress 6.7. [#39877] [#39786]
+- General: Improved compatibility with WordPress 6.7. [#39786] [#39877]
 - General: Updated badges used to show state of features. [#40031]
 - Page Speed: Updated speed scores to be based on first cornerstone page. [#39863]
 
@@ -817,9 +817,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 - Minify CSS: Moved the default URL base of minified CSS files to /\_jb_static, and added a constant to override it. [#31631]
-- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
-- General: Updated checklist spacing and button font size and line height. [#31098]
-- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 
 ### Fixed
 - Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either. [#31506]
@@ -829,7 +826,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [30863]
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [#30863]
-- Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 
 ## [1.9.1] - 2023-05-11
 ### Added

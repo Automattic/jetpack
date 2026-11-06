@@ -386,7 +386,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service_args = array_filter(
 			$params,
 			function ( $key ) {
-				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'filter', 'session_id' ), true );
+				return in_array( $key, array( 'search', 'number', 'path', 'page_handle', 'session_id' ), true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);

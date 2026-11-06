@@ -38,6 +38,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import ErrorBoundary from '../src/dashboard/components/error-boundary';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { resetAnalyticsForTesting, useAnalytics } from '../src/dashboard/hooks/use-analytics';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
@@ -162,6 +163,27 @@ describe( 'useAnalytics', () => {
 	} );
 } );
 
+describe( 'Crash event', () => {
+	it( 'identifies the reader before recording, though the hook never ran', () => {
+		/** Throws on render. */
+		function Exploding(): never {
+			throw new RangeError( 'Invalid time value' );
+		}
+
+		render(
+			<ErrorBoundary screen="download">
+				<Exploding />
+			</ErrorBoundary>
+		);
+
+		expect( mockInitialize ).toHaveBeenCalledWith( 99999, 'bobsacramento' );
+		expect( mockInitialize.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockRecordEvent.mock.invocationCallOrder[ 0 ]
+		);
+		expect( console ).toHaveErrored();
+	} );
+} );
+
 describe( 'Overview page view', () => {
 	/**
 	 * Render the Overview screen inside the dashboard's query client.
@@ -180,8 +202,7 @@ describe( 'Overview page view', () => {
 		);
 	}
 
-	beforeEach( async () => {
-		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+	beforeEach( () => {
 		// Declared, not incidental: these tests are what pin the page view firing on a
 		// plan-less visit, which is why the event sits above `<Gates>`. The bare
 		// `mockResolvedValue( null )` produced the same verdict, but silently.

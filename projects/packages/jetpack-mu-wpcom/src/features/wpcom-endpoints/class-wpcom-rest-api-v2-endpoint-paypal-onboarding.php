@@ -74,6 +74,15 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	const PAYPAL_PAYMENT_RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * The partner attribution (BN) code the calling site resolved, sent on every PayPal call it caused.
+	 *
+	 * The site resolves it, since only it knows whether a sandbox override applies.
+	 *
+	 * @var string
+	 */
+	private $partner_attribution_id = '';
+
+	/**
 	 * Products to request during onboarding.
 	 *
 	 * @var array
@@ -202,6 +211,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			'description'       => 'The seller\'s PayPal merchant ID.',
 		);
 
+		$partner_attribution_arg = array(
+			'type'              => 'string',
+			'sanitize_callback' => array( $this, 'sanitize_partner_attribution_id' ),
+			'description'       => 'The partner attribution (BN) code the site resolved for its environment.',
+		);
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/signup-link',
@@ -219,11 +234,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 							'sanitize_callback' => 'esc_url_raw',
 							'description'       => 'The site page PayPal sends the seller back to.',
 						),
-						'partner_attribution_id' => array(
-							'type'              => 'string',
-							'sanitize_callback' => array( $this, 'sanitize_partner_attribution_id' ),
-							'description'       => 'The partner attribution (BN) code the site resolved for its environment.',
-						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -238,13 +249,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_merchant_integration_status' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'environment' => $environment_arg,
-						'merchant_id' => $merchant_id_arg,
-						'tracking_id' => array(
+						'environment'            => $environment_arg,
+						'merchant_id'            => $merchant_id_arg,
+						'tracking_id'            => array(
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'The tracking ID the referral was created with: to find a seller who just finished onboarding, or with a merchant ID, as proof the blog referred them.',
 						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -259,37 +271,38 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'callback'            => array( $this, 'forward_request' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'environment' => $environment_arg,
-						'merchant_id' => array_merge( $merchant_id_arg, array( 'required' => true ) ),
-						'tracking_id' => array(
+						'environment'            => $environment_arg,
+						'merchant_id'            => array_merge( $merchant_id_arg, array( 'required' => true ) ),
+						'tracking_id'            => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'The tracking ID the blog onboarded the seller with, as proof it referred them.',
 						),
-						'method'      => array(
+						'method'                 => array(
 							'required'    => true,
 							'type'        => 'string',
 							'enum'        => array( 'GET', 'POST', 'PUT', 'DELETE' ),
 							'description' => 'HTTP method of the PayPal call.',
 						),
-						'path'        => array(
+						'path'                   => array(
 							'required'          => true,
 							'type'              => 'string',
 							'validate_callback' => array( $this, 'validate_path' ),
 							'description'       => 'PayPal API path, with any query string. Payment Links & Buttons only.',
 						),
-						'body'        => array(
+						'body'                   => array(
 							'type'        => array( 'object', 'null' ),
 							'default'     => null,
 							'description' => 'JSON body for POST and PUT.',
 						),
-						'request_id'  => array(
+						'request_id'             => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => 'PayPal-Request-Id idempotency key.',
 						),
+						'partner_attribution_id' => $partner_attribution_arg,
 					),
 				),
 			)
@@ -414,20 +427,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		// The tracking ID is what later ties the seller back to this blog.
 		$tracking_id = self::TRACKING_ID_PREFIX . $this->site_id() . '-' . time();
 
-		// The site resolves the BN code, since only it knows whether a sandbox override applies.
-		$headers                = array();
-		$partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
-		if ( '' !== $partner_attribution_id ) {
-			$headers['PayPal-Partner-Attribution-Id'] = $partner_attribution_id;
-		}
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
 
 		$response = $this->paypal_request(
 			$environment,
 			$credentials,
 			'POST',
 			self::PAYPAL_REFERRALS_ENDPOINT,
-			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) ),
-			$headers
+			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -543,6 +550,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$tracking_id = (string) $request->get_param( 'tracking_id' );
 		$site_id     = $this->site_id();
 
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
+
 		$credentials = $this->get_platform_credentials( $environment );
 		if ( is_wp_error( $credentials ) ) {
 			return $credentials;
@@ -602,6 +611,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$environment = $request->get_param( 'environment' );
 		$merchant_id = (string) $request->get_param( 'merchant_id' );
 		$site_id     = $this->site_id();
+
+		$this->partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
 
 		$credentials = $this->get_platform_credentials( $environment );
 		if ( is_wp_error( $credentials ) ) {
@@ -933,17 +944,19 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			return $token;
 		}
 
+		$headers = array(
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+		);
+		if ( '' !== $this->partner_attribution_id ) {
+			$headers['PayPal-Partner-Attribution-Id'] = $this->partner_attribution_id;
+		}
+
 		$args = array(
 			'method'  => $method,
 			'timeout' => 30,
-			'headers' => array_merge(
-				array(
-					'Authorization' => 'Bearer ' . $token,
-					'Content-Type'  => 'application/json',
-					'Accept'        => 'application/json',
-				),
-				$extra_headers
-			),
+			'headers' => array_merge( $headers, $extra_headers ),
 		);
 
 		if ( null !== $body && in_array( $method, array( 'POST', 'PUT' ), true ) ) {

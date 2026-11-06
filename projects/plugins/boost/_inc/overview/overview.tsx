@@ -1,8 +1,10 @@
+import { PageActionButton } from '@automattic/jetpack-components/admin-page';
 import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
-import { Button, Notice } from '@wordpress/ui';
+import { dashboard } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ScoreAlert from './score-alert';
@@ -212,19 +214,19 @@ function OverviewContent( {
 		}
 		let action: HTMLButtonElement | null = null;
 		onHeaderActionChange(
-			<Button
+			<PageActionButton
 				ref={ node => {
 					action = node;
 				} }
+				label={ __( 'Run speed test', 'jetpack-boost' ) }
+				icon={ dashboard }
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
 				loading={ scoreState.isRunning }
 				loadingAnnouncement=""
 				onClick={ () => onRefresh( 'header' ) }
-			>
-				{ __( 'Run speed test', 'jetpack-boost' ) }
-			</Button>
+			/>
 		);
 		return () => {
 			// Runs on every dependency change; focusFallback is a no-op unless the fallback is mounted,

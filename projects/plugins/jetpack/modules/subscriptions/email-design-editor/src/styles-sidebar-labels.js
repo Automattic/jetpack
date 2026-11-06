@@ -51,12 +51,14 @@ let sidebarLabels = null;
  */
 function stylesSidebarLabels() {
 	if ( ! sidebarLabels ) {
+		// Each element screen says a block keeping its own style keeps it: the design cannot
+		// override a block's own size or font, so the control looks broken. See NL-1070.
 		sidebarLabels = new Map( [
 			[ 'Text', _x( 'Default text', 'email design styles', 'jetpack' ) ],
 			[
 				'Manage the fonts and typography used on text.',
 				_x(
-					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font.',
+					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font. Text that has its own size or font in the post won’t change here. Edit it in the post instead.',
 					'email design styles',
 					'jetpack'
 				),
@@ -73,7 +75,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on headings.',
 				_x(
-					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font only, not its size. All headings applies wherever you haven’t styled a level individually.',
+					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font only, not its size. Headings that have their own size or font in the post won’t change here. Edit them in the post instead.',
 					'email design styles',
 					'jetpack'
 				),

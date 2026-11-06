@@ -16,9 +16,10 @@ import { useMemo } from 'react';
  */
 import styles from './style.module.css';
 import { usePopularHours } from './use-popular-hours';
-import type { PopularHoursAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+export type PopularHoursAttributes = Record< never, never >;
 
 type PopularHoursRenderAttributes = PopularHoursAttributes & Partial< ReportParamsFieldAttributes >;
 

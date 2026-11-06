@@ -1,8 +1,19 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
-import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
+import {
+	buildAutoInput,
+	decideInitialView,
+	isAllTasksMode,
+	type View,
+} from './lib/orchestration.ts';
+import { tailor } from './lib/tailor.ts';
+import {
+	contextFromInferred,
+	contextFromTaskIds,
+	setTracksContext,
+	trackWizardBypassed,
+} from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
 import type { GoalSlug, TailorResult } from './lib/types.ts';
@@ -10,7 +21,7 @@ import type { LaunchpadData } from './tailored-list/model.ts';
 
 /**
  * Orchestrates the AI Launchpad flow: new users see the wizard, returning users
- * land straight on the tailored list.
+ * land straight on the tailored list, and AI-built sites skip the wizard.
  *
  * @return The orchestrated AI Launchpad element.
  */
@@ -18,6 +29,7 @@ export function App() {
 	// null while the initial read is in flight.
 	const [ view, setView ] = useState< View | null >( null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
+	const [ fromWizard, setFromWizard ] = useState( false );
 	// The goal picked in the wizard, forwarded to the list for its heading.
 	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
@@ -43,8 +55,6 @@ export function App() {
 				};
 			}
 			setInitialData( data );
-			setView( allTasks ? 'list' : decideInitialView( data ) );
-
 			// Seed the shared Tracks context from the persisted state (all-null for
 			// brand-new sites) before the mounted view records its viewed event.
 			const inferred = data.ai_output?.payload?.inferred;
@@ -54,6 +64,21 @@ export function App() {
 			}
 			if ( data.tasks?.length ) {
 				setTracksContext( contextFromTaskIds( data.tasks.map( task => task.id ) ) );
+			}
+
+			const nextView = allTasks ? 'list' : decideInitialView( data );
+			const siteCopy = data.site?.copy;
+			const input = nextView === 'auto' ? buildAutoInput( data ) : null;
+			if ( input && siteCopy ) {
+				setTracksContext( { goal: input.goal } );
+				trackWizardBypassed( { reason: 'ai_builder' } );
+				setGoal( input.goal );
+				// Start it here, not in the updater, which React may call twice.
+				const tailoring = tailor( input, siteCopy, true );
+				setPendingTailor( () => tailoring );
+				setView( 'list' );
+			} else {
+				setView( nextView );
 			}
 		} );
 		return () => {
@@ -77,7 +102,9 @@ export function App() {
 				locale={ initialData?.site?.language }
 				uiLocale={ initialData?.user_language }
 				copy={ copy }
+				aiBuilt={ !! initialData?.ai_built }
 				onComplete={ ( input, tailoring ) => {
+					setFromWizard( true );
 					setPendingTailor( () => tailoring );
 					setGoal( input.goal );
 					// The wizard wrote the entered Name to blogname; keep the preview
@@ -104,6 +131,7 @@ export function App() {
 			site={ initialData?.site }
 			goal={ goal }
 			copy={ copy }
+			fromWizard={ fromWizard }
 		/>
 	);
 }

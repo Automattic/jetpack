@@ -1,8 +1,13 @@
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { useVideoPressUpgrade } from '../../hooks/use-videopress-upgrade';
+import { useUpsellImpression } from '../../hooks/use-upsell-impression';
+import { useVideoPressUpgrade, type UpgradeLocation } from '../../hooks/use-videopress-upgrade';
 import type { ReactElement } from 'react';
+
+// Re-exported so the at-limit copy keeps one import path; the React-free
+// `./constants` module exists for surfaces that must not pull this component in.
+export { FREE_TIER_AT_LIMIT_MESSAGE, FREE_TIER_AT_LIMIT_NOTICE_ID } from './constants';
 
 // Hoisted to module scope as separate statements so each variant stays its
 // own `__()` call with a string-literal argument — an inline ternary would be
@@ -12,20 +17,6 @@ const FREE_PLAN_MESSAGE = __(
 	'You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.',
 	'jetpack-videopress-pkg'
 );
-
-// The at-limit copy is shared with the Library's disabled-upload tooltip and
-// its at-limit drop notice, so every surface describes the cap identically.
-export const FREE_TIER_AT_LIMIT_MESSAGE = __(
-	'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
-	'jetpack-videopress-pkg'
-);
-
-// Stable id for the at-limit toast, so a user who keeps dropping files at the
-// limit refreshes one notice instead of stacking a column of identical black
-// bars: the notices store drops an existing notice with the same id on create.
-// Shared across surfaces on purpose — the plan is one fact, and only one of
-// these surfaces is on screen at a time.
-export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
 
 /**
  * Permanent (non-dismissible) free-plan upgrade Notice. The Overview tab
@@ -43,16 +34,23 @@ export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
  * cancelled before the workflow runs — keeping anchor semantics (focus,
  * hover) while delegating navigation to the workflow.
  *
- * @param props         - Component props.
- * @param props.message - Notice body copy. Defaults to the free-plan copy.
+ * @param props            - Component props.
+ * @param props.message    - Notice body copy. Defaults to the free-plan copy.
+ * @param props.location   - Surface displaying the notice.
+ * @param props.videoCount - Current known UI video count, if available.
  * @return The Notice element.
  */
 export default function FreeTierNotice( {
 	message = FREE_PLAN_MESSAGE,
+	location,
+	videoCount,
 }: {
 	message?: string;
+	location: Exclude< UpgradeLocation, 'upload_limit' | 'pricing_upsell' >;
+	videoCount?: number;
 } ): ReactElement {
-	const runUpgrade = useVideoPressUpgrade();
+	const runUpgrade = useVideoPressUpgrade( location );
+	const impressionRef = useUpsellImpression( location, videoCount );
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {
@@ -65,7 +63,7 @@ export default function FreeTierNotice( {
 	);
 
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent="info" ref={ impressionRef }>
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>

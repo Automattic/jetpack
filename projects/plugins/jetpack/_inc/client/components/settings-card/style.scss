@@ -2,13 +2,14 @@
 @use "../../scss/functions/rem";
 
 .jp-form-settings-card {
-	margin-bottom: rem.convert(24px);
+	margin-bottom: rem.convert(16px);
 	font-size: rem.convert(14px);
 
 	.jp-form-settings-card__header {
-		font-size: rem.convert(20px);
-		font-weight: 500;
-		min-height: unset;
+		display: flex;
+		align-items: center;
+		gap: rem.convert(16px);
+		padding-block-end: rem.convert(8px);
 	}
 
 	.jp-form-settings-card__header-label {

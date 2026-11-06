@@ -181,6 +181,15 @@ function wpcom_marketplace_is_installed( array $plugin ) {
 }
 
 /**
+ * Whether buying a product here also means buying a plan, as on a free Simple site.
+ *
+ * @return bool
+ */
+function wpcom_marketplace_needs_plan() {
+	return function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' );
+}
+
+/**
  * The billing term the tab sells at.
  *
  * Yearly only. Every product has both variations, but a switcher for the whole
@@ -266,7 +275,18 @@ function wpcom_marketplace_price_rows( array $card ) {
 	}
 
 	$note = '';
-	if ( $has_yearly && '' !== $monthly ) {
+	if ( wpcom_marketplace_needs_plan() ) {
+		/**
+		 * Filters the line under a card's price on a site that buys a plan along with the product.
+		 *
+		 * It replaces the monthly price, since the plan is the other thing the buyer pays for.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $note Plain text.
+		 */
+		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( (string) apply_filters( 'wpcom_marketplace_plan_note', __( 'Needs a paid plan', 'jetpack-mu-wpcom' ) ) ) . '</span>';
+	} elseif ( $has_yearly && '' !== $monthly ) {
 		// Worded as a condition, not "or": the button buys the year, so this is only what it is measured against.
 		/* translators: %s: Price per month, for example $9.90. */
 		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) ) . '</span>';
@@ -353,7 +373,7 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	}
 
 	// A site whose plan does not include it buys one in the same checkout, through the filter above.
-	if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' ) ) {
+	if ( wpcom_marketplace_needs_plan() ) {
 		return sprintf(
 			'<a class="button button-compact wpcom-marketplace-card__upgrade" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
 			esc_url( $checkout ),

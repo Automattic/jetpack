@@ -55,8 +55,9 @@
 			return;
 		}
 
+		// Hidden rather than removed, as an unignored threat on the Protect page can bring the count back.
+		element.classList.toggle( 'is-hidden', ! numberOfThreats );
 		if ( ! numberOfThreats ) {
-			element.parentNode.removeChild( element );
 			return;
 		}
 

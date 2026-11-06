@@ -75,6 +75,30 @@ const AnchorBlock: BlockRenderer = ( { content, children, onClick, meta } ) => {
 	);
 };
 
+interface InitialStateWithBackupUrl {
+	jetpackStatus?: { backupUrlTemplate?: string };
+}
+
+declare const JPACTIVITYLOG_INITIAL_STATE: InitialStateWithBackupUrl | undefined;
+
+// The Backup dashboard's view of one backup, with `{rewindId}` to fill in; empty when it can't show one.
+const backupUrlTemplate: string =
+	( typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined'
+		? JPACTIVITYLOG_INITIAL_STATE?.jetpackStatus?.backupUrlTemplate
+		: undefined ) ?? '';
+
+const REWIND_ID = /^\d+(\.\d+)?$/;
+
+// A backup token opens that backup in the Backup dashboard, when there is one to open it in.
+const BackupLink: BlockRenderer = ( { content, children } ) => {
+	if ( ! backupUrlTemplate || ! REWIND_ID.test( content.rewindId ?? '' ) ) {
+		return <Fragment>{ children }</Fragment>;
+	}
+	// Encoded twice: the template puts the id inside the already-encoded `p` query arg.
+	const rewindId = encodeURIComponent( encodeURIComponent( content.rewindId as string ) );
+	return <a href={ backupUrlTemplate.replace( '{rewindId}', rewindId ) }>{ children }</a>;
+};
+
 // Resolve a token's wp-admin destination (if any). Entities without a
 // target (site, backup, or a malformed payload missing an id/slug) fall
 // through to plain text.
@@ -100,10 +124,9 @@ const blockTypeMapping: Record< string, BlockRenderer > = {
 	person: EntityLink,
 	plugin: EntityLink,
 	theme: EntityLink,
-	// site (we're already on it) and backup (needs the Backup plugin's own
-	// route) have no generic wp-admin target — render as plain text.
+	// site has no wp-admin target (we're already on it) — render as plain text.
 	site: ( { children } ) => <Fragment>{ children }</Fragment>,
-	backup: ( { children } ) => <Fragment>{ children }</Fragment>,
+	backup: BackupLink,
 };
 
 export const createFormattedBlock = ( mapping: Record< string, BlockRenderer > ) => {

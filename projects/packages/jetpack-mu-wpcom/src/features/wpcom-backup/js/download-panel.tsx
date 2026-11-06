@@ -13,8 +13,8 @@ import {
 	Text,
 } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTracks } from '../../wpcom-hosting-feature-page/js/tracks.ts';
 import { ALL_ITEMS, hasSelectedItems } from './download.ts';
-import { recordTracksEvent } from './tracks.ts';
 import { useLastBackupDownload } from './use-last-backup-download.ts';
 import type { DownloadItems } from './download.ts';
 import type { DownloadPhase } from './use-last-backup-download.ts';
@@ -72,6 +72,7 @@ function announcementFor( phase: DownloadPhase ): string {
  */
 export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 	const { backup, phase, submit, reset } = useLastBackupDownload();
+	const { recordTracksEvent } = useTracks();
 	const [ items, setItems ] = useState< DownloadItems >( ALL_ITEMS );
 	const heading = useRef< HTMLHeadingElement >( null );
 	const hasActed = useRef( false );
@@ -189,7 +190,7 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 					{ phase.name === 'progress' && (
 						// No reading yet is not 0%; a bar pinned there would look stalled.
 						<Progress.Root
-							className="wpcom-backup__download-progress"
+							className="wpcom-hosting-feature__download-progress"
 							value={ phase.percent > 0 ? phase.percent : null }
 						>
 							<Stack justify="space-between" gap="sm">
@@ -205,7 +206,7 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 					) }
 
 					{ phase.name === 'error' && (
-						<Notice.Root intent="error" className="wpcom-backup__download-error">
+						<Notice.Root intent="error" className="wpcom-hosting-feature__download-error">
 							<Notice.Description>{ phase.message }</Notice.Description>
 							<Notice.Actions>
 								<Notice.ActionButton

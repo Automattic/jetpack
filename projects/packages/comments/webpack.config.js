@@ -25,7 +25,21 @@ const babelOpts = {
 		],
 	],
 	targets: jetpackTargets,
-	presets: [ [ '@automattic/jetpack-webpack-config/babel/preset' ] ],
+	presets: [
+		[
+			'@automattic/jetpack-webpack-config/babel/preset',
+			{
+				autoWpPolyfill: {
+					// The only thing this polyfill does is add a `stack` to errors built with
+					// `new DOMException()`, and nothing in this package makes use of that.
+					// Babel lists it under `btoa` for core-js's own `btoa` polyfill (which we don't need),
+					// but checks each listed polyfill separately, so skipping that one doesn't
+					// automatically skip this one.
+					exclude: [ 'web.dom-exception.stack' ],
+				},
+			},
+		],
+	],
 };
 
 export default {
@@ -34,6 +48,8 @@ export default {
 	entry: {
 		comments: path.join( __dirname, 'src/form/index.tsx' ),
 		admin: path.join( __dirname, 'src/editor/admin.ts' ),
+		// Not 'auto', whose runtime throws before any module runs when it finds no script URL.
+		'editor-loader': { import: path.join( __dirname, 'src/editor/loader.ts' ), publicPath: '' },
 	},
 	output: {
 		...jetpackWebpackConfig.output,

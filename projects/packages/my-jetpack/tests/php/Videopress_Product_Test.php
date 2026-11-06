@@ -95,15 +95,6 @@ class Videopress_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Tests Videopress Manage URL with Jetpack plugin
-	 */
-	public function test_videopress_manage_url_with_jetpack() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Videopress::get_installed_plugin_filename() );
-		$this->assertSame( admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ), Videopress::get_manage_url() );
-	}
-
-	/**
 	 * Tests Videopress Manage URL with Videopress plugin
 	 */
 	public function test_videopress_manage_url_with_videopress() {

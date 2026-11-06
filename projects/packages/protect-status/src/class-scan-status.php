@@ -192,6 +192,7 @@ class Scan_Status extends Status {
 				'num_plugins_threats' => 0,
 				'has_unchecked_items' => false,
 				'current_progress'    => $scan_data->current->progress ?? null,
+				'last_scan_failed'    => ! empty( $scan_data->most_recent->error ),
 			)
 		);
 
@@ -281,6 +282,12 @@ class Scan_Status extends Status {
 					// If the extension is no longer installed, skip this threat.
 					// todo: use version_compare()
 					if ( ! $installed_extension ) {
+						continue;
+					}
+
+					// Updated to the fixed version, the vulnerability is gone, though Scan's report shows it until the next scan.
+					if ( 'Vulnerable.WP.Extension' === $threat->signature && ! empty( $threat->fixed_in ) && version_compare( (string) $installed_extension->version, (string) $threat->fixed_in, '>=' ) ) {
+						$installed_extension->checked = false;
 						continue;
 					}
 

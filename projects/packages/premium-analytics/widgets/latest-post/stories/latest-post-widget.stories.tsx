@@ -29,7 +29,6 @@ import { withStoryRouter } from '../../stories/with-story-router';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import LatestPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -218,7 +217,7 @@ function LatestPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetContr
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ LATEST_POST_RENDER_MODULE }
 			renderComponent={ LatestPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

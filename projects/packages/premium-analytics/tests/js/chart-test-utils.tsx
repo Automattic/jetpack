@@ -16,19 +16,22 @@ export const mockBarChartLegendSpy = jest.fn();
 export const mockLineChartSpy = jest.fn();
 export const mockLineChartLegendSpy = jest.fn();
 
-// Mirrors the real theme: a comparison series shares its primary's colour and is
-// set apart only by opacity.
+// Mirrors the real theme: a comparison series shares its primary's color.
 const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles => ( {
 	color: '#3858E9',
-	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
+	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5 } : {},
 } );
 
-/** The sparkline margin the charts context's theme hands out. */
-export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
+/**
+ * The fill the charts context reports for the bar at an index in an overlap layout.
+ *
+ * @param index - The series' index.
+ * @return A color unique to that index.
+ */
+export const mockOverlapBarColor = ( index: number ) => `#bar${ index }`;
 
 let elementStyles = defaultElementStyles;
 let hiddenSeries = new Set< string >();
-let chartHeight: number | undefined;
 let chartWidth: number | undefined;
 
 /**
@@ -52,16 +55,7 @@ export function setMockHiddenSeries( labels: string[] = [] ): void {
 }
 
 /**
- * Set the height a resize observer reports on mount. Unset, it never reports, as in jsdom.
- *
- * @param height - Measured height in px.
- */
-export function setMockChartHeight( height?: number ): void {
-	chartHeight = height;
-}
-
-/**
- * Set the width a resize observer reports on mount, alongside the height. Unset, it reports none.
+ * Set the width a resize observer reports on mount. Unset, it never reports, as in jsdom.
  *
  * @param width - Measured width in px.
  */
@@ -69,20 +63,19 @@ export function setMockChartWidth( width?: number ): void {
 	chartWidth = width;
 }
 
-/** Clear the chart spies and restore the default theme, visibility and size. */
+/** Clear the chart spies and restore the default theme, visibility and width. */
 export function resetMockCharts(): void {
 	[ mockBarChartSpy, mockBarChartLegendSpy, mockLineChartSpy, mockLineChartLegendSpy ].forEach(
 		spy => spy.mockClear()
 	);
 	setMockElementStyles();
 	setMockHiddenSeries();
-	setMockChartHeight();
 	setMockChartWidth();
 }
 
 const BarChart = ( props: { children?: ReactNode } ) => {
 	mockBarChartSpy( props );
-	// Children render so the legend, which the wrappers mount conditionally, is observable.
+	// Children render so the legend is observable.
 	return <div data-testid="bar-chart">{ props.children }</div>;
 };
 BarChart.Legend = ( props: Record< string, unknown > ) => {
@@ -118,26 +111,39 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[] ) =>
-		data
-			.filter( series => series.options?.type !== 'comparison' )
-			.map( series => ( { label: series.label, color: '#3858E9' } ) ),
+	useBarLegendItems: ( data: ChartSeries[], options?: { layout?: string } ) =>
+		data.flatMap( ( series, index ) =>
+			series.options?.type === 'comparison'
+				? []
+				: [
+						{
+							label: series.label,
+							color: options?.layout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
+						},
+					]
+		),
+	useBarColors: () => ( series: ChartSeries[], options?: { layout?: string } ) =>
+		series.map( ( data, index ) =>
+			options?.layout === 'overlap'
+				? mockOverlapBarColor( index )
+				: elementStyles( { data, index } ).color
+		),
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
-		theme: { sparkline: { margin: mockSparklineMargin } },
+		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 	} ),
 } );
 
-/** Shared Jest replacement for `@wordpress/compose`, reporting the size the `setMockChart*` helpers set. */
+/** Shared Jest replacement for `@wordpress/compose`, reporting the width `setMockChartWidth` sets. */
 export const mockWordPressCompose = {
 	// `@wordpress/data` needs the rest of the real module.
 	...jest.requireActual( '@wordpress/compose' ),
 	useResizeObserver:
-		( onResize: ( entries: { contentRect: { height?: number; width?: number } }[] ) => void ) =>
+		( onResize: ( entries: { contentRect: { width?: number } }[] ) => void ) =>
 		( element: HTMLElement | null ) => {
-			if ( element && ( chartHeight !== undefined || chartWidth !== undefined ) ) {
-				onResize( [ { contentRect: { height: chartHeight, width: chartWidth } } ] );
+			if ( element && chartWidth !== undefined ) {
+				onResize( [ { contentRect: { width: chartWidth } } ] );
 			}
 		},
 };
