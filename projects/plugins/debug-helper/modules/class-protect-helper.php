@@ -469,17 +469,22 @@ class Protect_Helper {
 	}
 
 	/**
-	 * Forces the request for the Protect Status API ro return an error
+	 * Forces requests to the Protect Status and Scan APIs to return an error
 	 *
 	 * @param false|array|WP_Error $preempt The original response.
 	 * @param array                $parsed_args The request args.
 	 * @param string               $url The request URL.
-	 * @return mixed WP_Error if it's a request to Protect status API
+	 * @return mixed WP_Error if it's a request to the Protect Status or Scan API
 	 */
 	public function filter_status_fetch( $preempt, $parsed_args, $url ) {
-		$api_url = Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url();
-		if ( ! is_wp_error( $api_url ) && strpos( $url, $api_url ) !== false ) {
-			return new WP_Error( 'error' );
+		$api_urls = array(
+			Automattic\Jetpack\Protect_Status\Protect_Status::get_api_url(),
+			Automattic\Jetpack\Protect_Status\Scan_Status::get_api_url(),
+		);
+		foreach ( $api_urls as $api_url ) {
+			if ( ! is_wp_error( $api_url ) && strpos( $url, $api_url ) !== false ) {
+				return new WP_Error( 'error' );
+			}
 		}
 		return $preempt;
 	}
