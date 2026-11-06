@@ -125,10 +125,9 @@ $band-ground: #f8f8f8;
 		border-color: var(--wpds-color-stroke-surface-neutral);
 	}
 
-	// wp-admin draws focus as a box-shadow outside the element, which this card's
-	// radius clips. Draw it on the card instead, from whichever control inside has
-	// focus, so a keyboard user can see where they are.
-	&:focus-within {
+	// The title button stretches over the card, so the card draws its ring.
+	// Other controls keep their own ring, so focus shows only once.
+	&:has(.feature-item__open:focus-visible) {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(var(--wpds-border-width-focus) * -1);
 	}
@@ -505,6 +504,17 @@ $band-ground: #f8f8f8;
 	gap: var(--wpds-dimension-gap-md);
 	margin-block-start: var(--wpds-dimension-gap-md);
 	padding-block-start: var(--wpds-dimension-padding-md);
+}
+
+// Selection checkboxes show "selected" in the selected pill's neutral, and
+// like the pills they ring only for keyboard focus, not after a click.
+.bulk-bar,
+.feature-leading-slot {
+	--wp-components-color-accent: var(--wpds-color-background-interactive-neutral-strong);
+
+	:global(.components-checkbox-control__input[type="checkbox"]):focus:not(:focus-visible) {
+		box-shadow: none;
+	}
 }
 
 .bulk-bar__count {
