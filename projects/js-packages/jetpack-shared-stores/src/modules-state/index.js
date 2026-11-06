@@ -14,23 +14,21 @@ export const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 	selectors,
 } );
 
-/*
- * Another bundled copy of this package may have registered and seeded the store already, from
- * the same page globals; its state may have changed since, so a later copy must leave it alone.
- */
+// Another bundled copy of this package may have registered the store already.
 if ( ! select( JETPACK_MODULES_STORE_ID ) ) {
 	register( store );
+}
 
-	const initialData =
-		window?.Initial_State?.getModules || // Jetpack Dashboard
-		window?.Jetpack_Editor_Initial_State?.modules || // Gutenberg
-		null;
+const initialData =
+	window?.Initial_State?.getModules || // Jetpack Dashboard
+	window?.Jetpack_Editor_Initial_State?.modules || // Gutenberg
+	null;
 
-	// This is a temporary fix to have store filled properly.
-	// TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
-	if ( initialData !== null ) {
-		dispatch( store ).setJetpackModules( {
-			data: { ...initialData },
-		} );
-	}
+// TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
+/*
+ * Seed rather than set: a copy evaluated after the store was filled must not roll it back.
+ * Optional call, because an older copy that registered the store has no seed action.
+ */
+if ( initialData !== null ) {
+	dispatch( store ).seedJetpackModules?.( { ...initialData } );
 }

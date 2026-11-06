@@ -50,6 +50,16 @@ describe( 'several copies of the package on one page', () => {
 		}
 	);
 
+	it( 'a later copy seeds a store registered before the page globals existed', () => {
+		delete window.Initial_State;
+		loadCopy();
+		window.Initial_State = { getModules: { stats: { activated: true } } };
+
+		loadCopy();
+
+		expect( registry.select( 'jetpack-modules' ).isModuleActive( 'stats' ) ).toBe( true );
+	} );
+
 	it( 'a later copy keeps module state that changed after the page loaded', () => {
 		loadCopy();
 		registry
