@@ -108,7 +108,7 @@ class Dashboard {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
-		// mu-wpcom owns Jetpack › Monetize on the wpcom platform, still a Calypso link; a Simple host would call add_wp_admin_submenu() instead.
+		// A wpcom host adds the item itself: see README.
 		if ( ! ( new Host() )->is_wpcom_platform() ) {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
