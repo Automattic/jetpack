@@ -22,18 +22,51 @@ function apply_patches {
 	echo "${commits:-  (none)}"
 }
 
-# Output the changed projects
-function detect_changed_projects {
-	mapfile -t PROJECTS < <(
-		git -c core.quotepath=off diff --no-renames --name-only "$START_COMMIT..HEAD" -- projects/ \
-			| sed -n 's|^projects/\([^/]*/[^/]*\)/.*|\1|p' | sort -u
-	)
+# Determine which packages need release: those changed or with change files, and those depending on such a JS package.
+function detect_packages_to_release {
+	local slug changes_dir plugin_deps patched=() with_change_files=() changed_js_packages=()
+	local -A changed_projects=()
 
-	if [[ ${#PROJECTS[@]} -eq 0 ]]; then
-		die 'No projects changed.'
+	# Patches may (though shouldn't) lack a change file, so first check those.
+	mapfile -t patched < <(git -c core.quotepath=off diff --no-renames --name-only "$START_COMMIT..HEAD" -- projects/ | sed -n 's|^projects/\([^/]*/[^/]*\)/.*|\1|p' | sort -u)
+	for slug in "${patched[@]}"; do
+		changed_projects[$slug]=1
+	done
+	echo 'Projects changed by patches:'
+	printf '  %s\n' "${patched[@]:-(none)}"
+
+	# Then check for the plugin's dependencies for projects with change files.
+	plugin_deps=$(pnpm jetpack dependencies list --add-dependencies "$PLUGIN")
+	for slug in $plugin_deps; do
+		changes_dir="$BASE/projects/$slug/$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' "$BASE/projects/$slug/composer.json")"
+		if [[ -d $changes_dir && -n $(ls -- "$changes_dir") ]]; then
+			with_change_files+=( "$slug" )
+			changed_projects[$slug]=1
+		fi
+		# Track any changed JS packages as well.
+		if [[ $slug == js-packages/* && -v changed_projects[$slug] ]]; then
+			changed_js_packages+=( "$slug" )
+		fi
+	done
+	echo "$PLUGIN dependencies with change files:"
+	printf '  %s\n' "${with_change_files[@]:-(none)}"
+
+	# JS packages are never released from a release branch, but the PHP packages depending on them are.
+	if [[ ${#changed_js_packages[@]} -gt 0 ]]; then
+		for slug in $(pnpm jetpack dependencies list --add-dependents "${changed_js_packages[@]}"); do
+			changed_projects[$slug]=1
+		done
 	fi
-	echo 'Changed projects:'
-	printf '  %s\n' "${PROJECTS[@]}"
+
+	# Finally, filter out the noise to only include the packages that this plugin relies on.
+	PACKAGES_TO_RELEASE=()
+	for slug in $plugin_deps; do
+		if [[ $slug == packages/* && -v changed_projects[$slug] ]]; then
+			PACKAGES_TO_RELEASE+=( "$slug" )
+		fi
+	done
+	echo 'Packages to release:'
+	printf '  %s\n' "${PACKAGES_TO_RELEASE[@]:-(none)}"
 }
 
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
@@ -96,4 +129,4 @@ info "$PLUGIN: $CUR_VERSION -> $VERSION"
 START_COMMIT=$(git rev-parse HEAD)
 
 apply_patches
-detect_changed_projects
+detect_packages_to_release
