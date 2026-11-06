@@ -214,6 +214,7 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		// VideoPress stand-alone plugin
 		global $videopress;
+		// @phan-suppress-next-line PhanUndeclaredClassInstanceof -- Old obsolete plugin, not Jetpack VideoPress, AFAICT.
 		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && $videopress instanceof \VideoPress && method_exists( $videopress, 'enqueue_scripts' ) ) {
 			$videopress->enqueue_scripts();
 		}

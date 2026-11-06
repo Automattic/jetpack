@@ -117,6 +117,7 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 		$registered = false;
 		foreach ( $GLOBALS['wp_filter']['admin_menu']->callbacks[998] ?? array() as $callback ) {
 			$function = $callback['function'] ?? null;
+			// @phan-suppress-next-line PhanUndeclaredClassInstanceof -- Existence checked above.
 			if ( is_array( $function ) && $function[0] instanceof \Jetpack_AI_Page && 'add_actions' === $function[1] ) {
 				$registered = true;
 				break;

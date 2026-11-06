@@ -1540,7 +1540,7 @@ class Colors_Manager_Common {
 					}
 
 					// we have a bg color to contrast
-					if ( isset( $bg_color ) && $bg_color instanceof \Jetpack_Color ) {
+					if ( isset( $bg_color ) ) {
 						// default contrast of 5, can be overridden with 4th arg.
 						$contrast = $rule[3] ?? 5;
 						$color    = $working_color->getReadableContrastingColor( $bg_color, $contrast )->toString();

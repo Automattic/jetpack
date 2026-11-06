@@ -1430,11 +1430,6 @@ final class Image_CDN {
 	 * @param \WP_REST_Request $request    Request object.
 	 */
 	public function should_rest_photon_image_downsize_insert_attachment( \WP_Post $attachment, \WP_REST_Request $request ) {
-		if ( ! $request instanceof \WP_REST_Request ) {
-			// Something odd is happening.
-			return;
-		}
-
 		$this->should_rest_photon_image_downsize_override( $request );
 	}
 
