@@ -5,6 +5,12 @@ const CONTROLS = [
 	{ id: 'reportParams', label: 'Date range', Edit: () => <div>Date filters</div> },
 ] as unknown as NonNullable< SinglePageLayoutProps[ 'controls' ] >;
 
+const HEADER = {
+	visual: <svg data-testid="glyph" />,
+	title: 'Launch recap',
+	subTitle: 'Video uploaded on Jan 10, 2026.',
+};
+
 const noop = () => {};
 
 /**
@@ -16,9 +22,7 @@ const noop = () => {};
 function renderLayout( props: Partial< SinglePageLayoutProps > = {} ) {
 	return render(
 		<SinglePageLayout
-			visual={ <svg data-testid="glyph" /> }
-			title="Launch recap"
-			subTitle="Video uploaded on Jan 10, 2026."
+			header={ HEADER }
 			controls={ CONTROLS }
 			data={ {} }
 			onChange={ noop }
@@ -30,9 +34,10 @@ function renderLayout( props: Partial< SinglePageLayoutProps > = {} ) {
 }
 
 describe( 'SinglePageLayout', () => {
-	it( 'renders the visual, the title with its hover text, the subtitle, the controls and the body', () => {
-		renderLayout();
+	it( 'renders the tabs, the header with its hover text, the controls and the body', () => {
+		renderLayout( { tabs: <nav>Tabs</nav> } );
 
+		expect( screen.getByText( 'Tabs' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'glyph' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Launch recap' } ) ).toHaveAttribute(
 			'title',
@@ -47,6 +52,13 @@ describe( 'SinglePageLayout', () => {
 		renderLayout( { controls: [] } );
 
 		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Body' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves the header out for a page-level state', () => {
+		renderLayout( { header: undefined } );
+
+		expect( screen.queryByRole( 'heading', { level: 2 } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Body' ) ).toBeInTheDocument();
 	} );
 } );

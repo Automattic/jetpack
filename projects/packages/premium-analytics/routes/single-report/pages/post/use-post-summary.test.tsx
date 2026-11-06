@@ -108,18 +108,20 @@ describe( 'usePostSummary', () => {
 		} );
 		mockUsePostThumbnail.mockReturnValue( 'https://example.com/thumb.jpg' );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current ).toEqual( {
 			title: 'Hello world',
 			type: 'post',
 			// The GMT date wins over the local one when both are present.
 			publishedDate: '2026-06-22 10:00:00',
+			allTimeStart: '2026-06-22 10:00:00',
 			imageUrl: 'https://example.com/thumb.jpg',
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
 			error: null,
+			isNotFound: false,
 			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
@@ -132,7 +134,7 @@ describe( 'usePostSummary', () => {
 		mockStatsPost( { post_title: 'Hello world', post_type: 'post' } );
 		mockEntities( { 'post:41': {} } );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -143,7 +145,7 @@ describe( 'usePostSummary', () => {
 		mockEntities( {} );
 		mockUseSearch.mockReturnValue( { post_url: 'https://example.com/hidden-post/' } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBe( 'https://example.com/hidden-post/' );
 	} );
@@ -156,7 +158,7 @@ describe( 'usePostSummary', () => {
 		mockEntities( {} );
 		mockUseSearch.mockReturnValue( { post_url: postUrl } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 	} );
@@ -168,7 +170,7 @@ describe( 'usePostSummary', () => {
 		} );
 		mockUseSearch.mockReturnValue( { post_url: 'https://example.com/carried-fallback/' } as never );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBe( 'https://example.com/canonical/' );
 	} );
@@ -177,7 +179,7 @@ describe( 'usePostSummary', () => {
 		mockStatsPost( undefined, true );
 		mockEntities( { 'post:41': { link: 'https://example.com/hello-world/' } } );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -194,7 +196,7 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.isLoading ).toBe( true );
 	} );
@@ -210,7 +212,7 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current ).toMatchObject( { title: 'Hello', isError: false, error: null } );
 	} );
@@ -227,7 +229,7 @@ describe( 'usePostSummary', () => {
 		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.error ).toBe( error );
@@ -237,7 +239,7 @@ describe( 'usePostSummary', () => {
 		mockStatsPost( { post_title: 'Homepage', post_type: 'post' } );
 		mockEntities( { 'post:0': { link: 'https://example.com/' } } );
 
-		const { result } = renderHook( () => usePostSummary( 0 ) );
+		const { result } = renderHook( () => usePostSummary( '0' ) );
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
@@ -249,7 +251,7 @@ describe( 'usePostSummary', () => {
 			'page:41': { link: 'https://example.com/a-page/' },
 		} );
 
-		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
 
 		// Only the local date is present, so it stands in for the GMT one.
 		expect( result.current.publishedDate ).toBe( '2026-06-01 09:00:00' );

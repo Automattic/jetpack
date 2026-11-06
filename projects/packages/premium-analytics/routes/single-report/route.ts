@@ -2,9 +2,8 @@
  * External dependencies
  */
 import {
-	ensureCoreSettingsReady,
+	getSectionDatePolicy,
 	isStatsFeatureLocked,
-	needsReportDateParamsSeed,
 	type StatsFeatureKey,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -16,6 +15,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { dateWindowRedirect } from '../date-window-redirect';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { getSingleReportPage, isValidEntityId, resolveSingleReportSection } from './registry';
@@ -38,8 +38,8 @@ type SingleReportSearch = Record< string, string | undefined >;
  * `/report/$kind/$id`: one route for every registered single-report page.
  *
  * The guard resolves `$kind` against the pages the server published, applies the
- * page's plan lock and id rule, then seeds the report window and the entity scope
- * the way the former per-entity routes did.
+ * page's plan lock and id rule, then seeds the report window and the entity scope and
+ * holds the window to the plan, by the policy of the page's dashboard section.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -74,38 +74,43 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as SingleReportSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsScopeSeed = currentSearch[ page.scope_param ] !== id;
 
 		// A page with inner sections keeps a section the URL names only when it exists.
 		const section = resolveSingleReportSection( page, currentSearch.section );
 		const needsSectionSeed = !! currentSearch.section && section?.slug !== currentSearch.section;
 
-		if ( needsDateSeed || needsScopeSeed || needsSectionSeed ) {
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// The seed falls back to the browser zone; the page still opens.
+		const limited = await dateWindowRedirect(
+			currentSearch,
+			getSectionDatePolicy( page.dashboard_section ?? undefined ),
+			{
+				seed: () => {
+					const reportParams = seedDetailDateParams( currentSearch, id, page.scope_param );
+					delete reportParams.post_id;
+					delete reportParams.author_id;
+
+					return {
+						...reportParams,
+						...pickReportOriginParams( currentSearch ),
+						...pickDashboardOriginParams( currentSearch ),
+						...( section ? { section: section.slug } : {} ),
+						[ page.scope_param ]: id,
+					};
+				},
+				needsSeed: needsScopeSeed || needsSectionSeed,
+				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				requested: needsScopeSeed ? undefined : currentSearch,
 			}
-
-			const reportParams = seedDetailDateParams( currentSearch, id, page.scope_param );
-			delete reportParams.post_id;
-			delete reportParams.author_id;
-
-			const seeded: Record< string, unknown > = {
-				...reportParams,
-				...pickReportOriginParams( currentSearch ),
-				...pickDashboardOriginParams( currentSearch ),
-				...( section ? { section: section.slug } : {} ),
-				[ page.scope_param ]: id,
-			};
-
+		);
+		if ( limited ) {
 			throw redirect( {
 				to: '/report/$kind/$id',
 				// The router is built dynamically, so the route has no statically typed params or search.
 				params: { kind: page.path, id } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				search: limited.search as unknown as never,
+				state: limited.state,
 			} );
 		}
 	},
