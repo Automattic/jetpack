@@ -141,12 +141,15 @@ function TileContent( { id, agent, isCopied = false } ) {
 				{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
 				<Icon icon={ agent.href ? arrowUpRight : copy } size={ 12 } />
 				{ agent.href && (
-					<VisuallyHidden render={ <span /> }>
-						{
-							/* translators: accessibility text */
-							__( '(opens in a new tab)', 'jetpack' )
-						}
-					</VisuallyHidden>
+					<>
+						{ ' ' }
+						<VisuallyHidden render={ <span /> }>
+							{
+								/* translators: accessibility text */
+								__( '(opens in a new tab)', 'jetpack' )
+							}
+						</VisuallyHidden>
+					</>
 				) }
 			</Text>
 		</Card.Content>
