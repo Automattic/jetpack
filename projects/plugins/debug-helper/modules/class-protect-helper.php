@@ -61,6 +61,13 @@ class Protect_Helper {
 				add_filter( 'pre_http_request', array( $this, 'filter_status_fetch' ), 10, 3 );
 			}
 		}
+
+		// Scan_History ships only in the Protect plugin.
+		if ( $settings['fail_history'] && class_exists( 'Automattic\\Jetpack\\Protect\\Scan_History' ) ) {
+			$history_option_time_name = Automattic\Jetpack\Protect\Scan_History::OPTION_TIMESTAMP_NAME;
+			add_filter( "option_$history_option_time_name", array( $this, 'filter_history_time' ) );
+			add_filter( 'pre_http_request', array( $this, 'filter_history_fetch' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -113,6 +120,12 @@ class Protect_Helper {
 					</td>
 				</tr>
 				<tr>
+					<th scope="row">Scan History</th>
+					<td>
+						<label><input type="checkbox" name="fail_history" <?php echo ( $settings['fail_history'] ? 'checked="checked"' : '' ); ?>> Fail the Scan History fetch (Protect plugin, Scan only; works without the overwrite)</label>
+					</td>
+				</tr>
+				<tr>
 					<th scope="row">Vulnerabilities</th>
 					<td>
 						<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Core</label><br>
@@ -150,6 +163,7 @@ class Protect_Helper {
 				'vuls_for_themes'   => false,
 				'vuls_for_files'    => false,
 				'vuls_for_database' => false,
+				'fail_history'      => false,
 			)
 		);
 	}
@@ -170,6 +184,7 @@ class Protect_Helper {
 				'vuls_for_themes'   => isset( $_POST['vuls_for_themes'] ),
 				'vuls_for_files'    => isset( $_POST['vuls_for_files'] ),
 				'vuls_for_database' => isset( $_POST['vuls_for_database'] ),
+				'fail_history'      => isset( $_POST['fail_history'] ),
 			)
 		);
 
@@ -486,6 +501,31 @@ class Protect_Helper {
 			if ( ! is_wp_error( $api_url ) && preg_match( '#' . preg_quote( $api_url, '#' ) . '(\?|$)#', $url ) ) {
 				return new WP_Error( 'error' );
 			}
+		}
+		return $preempt;
+	}
+
+	/**
+	 * Marks the cached Scan History as expired, so the page fetches it again.
+	 *
+	 * @return int
+	 */
+	public function filter_history_time() {
+		return time() - 100;
+	}
+
+	/**
+	 * Forces requests to the Scan History API to return an error.
+	 *
+	 * @param false|array|WP_Error $preempt The original response.
+	 * @param array                $parsed_args The request args.
+	 * @param string               $url The request URL.
+	 * @return mixed WP_Error if it's a request to the Scan History API
+	 */
+	public function filter_history_fetch( $preempt, $parsed_args, $url ) {
+		$api_url = Automattic\Jetpack\Protect\Scan_History::get_api_url();
+		if ( ! is_wp_error( $api_url ) && preg_match( '#' . preg_quote( $api_url, '#' ) . '(\?|$)#', $url ) ) {
+			return new WP_Error( 'error' );
 		}
 		return $preempt;
 	}
