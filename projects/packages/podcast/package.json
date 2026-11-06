@@ -92,6 +92,7 @@
 		"packageNamespace": "jetpack-podcast",
 		"handlePrefix": "jetpack-podcast",
 		"pages": [
+			"jetpack-spa",
 			{
 				"id": "jetpack-podcast-dashboard",
 				"init": [

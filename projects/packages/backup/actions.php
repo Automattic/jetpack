@@ -49,3 +49,6 @@ $add_action(
 	},
 	20
 );
+
+// Contribute Backup's routes to the Jetpack plugin's top-level SPA page, when that page exists.
+$add_action( 'jetpack_wp_admin_spa_load', array( 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup', 'load_wp_build_for_spa' ) );

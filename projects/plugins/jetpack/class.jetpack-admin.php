@@ -70,6 +70,8 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 		$jetpack_ai = new Jetpack_AI_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-admin-spa.php';
+
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );

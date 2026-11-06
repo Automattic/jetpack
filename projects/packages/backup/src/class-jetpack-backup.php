@@ -186,6 +186,7 @@ class Jetpack_Backup {
 		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
 		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
+		add_filter( 'jetpack_wp_admin_spa_menu_routes', array( __CLASS__, 'add_spa_menu_route' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
 
@@ -1202,6 +1203,54 @@ class Jetpack_Backup {
 		}
 
 		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Load Backup's wp-build output for the Jetpack plugin's top-level SPA page.
+	 *
+	 * @see Jetpack_WP_Admin_SPA::maybe_load_wp_build()
+	 * @return void
+	 */
+	public static function load_wp_build_for_spa() {
+		if ( ! self::is_modernized() ) {
+			return;
+		}
+
+		// The host has already aliased the screen ID and registered the polyfills.
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+		require_once $build_index;
+
+		// Backup declares the host page only so wp-build emits its routes; the host does the booting.
+		remove_action( 'admin_enqueue_scripts', 'jetpack_backup_jetpack_spa_wp_admin_enqueue_scripts' );
+		add_filter(
+			'jetpack_wp_admin_spa_route_getters',
+			function ( $getters ) {
+				$getters[] = 'jetpack_backup_get_jetpack_spa_wp_admin_routes';
+				return $getters;
+			}
+		);
+
+		if ( function_exists( 'jetpack_backup_register_script_modules' ) ) {
+			jetpack_backup_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		add_action( 'admin_print_scripts', array( __CLASS__, 'render_connection_initial_state' ), 1 );
+	}
+
+	/**
+	 * Point the Backup sidebar entry at the SPA route, when the build can serve it.
+	 *
+	 * @param array $routes Menu slug => SPA route path.
+	 * @return array
+	 */
+	public static function add_spa_menu_route( $routes ) {
+		if ( self::is_modernized() && file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+			$routes[ self::JETPACK_BACKUP_SLUG ] = '/backup';
+		}
+		return $routes;
 	}
 
 	/**

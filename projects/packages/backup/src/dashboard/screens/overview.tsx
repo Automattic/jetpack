@@ -114,10 +114,7 @@ export default function OverviewScreen() {
  * @return The rendered body.
  */
 function OverviewBody() {
-	const search = useSearch( {
-		from: '/' as unknown as never,
-		strict: false,
-	} ) as OverviewSearch;
+	const search = useSearch( { strict: false } ) as OverviewSearch;
 	const navigate = useNavigate();
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
