@@ -390,9 +390,7 @@ class Analytics {
 		require_once __DIR__ . '/assets-url.php';
 		configure_assets_url();
 
-		// Temporary: carry default layout changes into layouts readers customized before them.
-		// The rescale goes first: the move places a default instance, already in the new rows.
-		Stored_Layout_Rescale::register();
+		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
 	}
 

@@ -8,7 +8,6 @@ import {
 	resolveLayoutTypes,
 } from '../../config';
 import { DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY } from '../constants';
-import { settleTileHeights } from './settle-tile-heights';
 import type {
 	DashboardSection,
 	DashboardSectionId,
@@ -94,10 +93,10 @@ export function useDashboardSectionLayout(
 		( nextLayout: DashboardWidget[] ) => {
 			void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_SECTION_LAYOUTS_KEY, {
 				...sectionLayouts,
-				[ activeSectionId ]: settleTileHeights( nextLayout, layout, sectionDefault ),
+				[ activeSectionId ]: nextLayout,
 			} );
 		},
-		[ activeSectionId, layout, sectionDefault, sectionLayouts, set ]
+		[ activeSectionId, sectionLayouts, set ]
 	);
 
 	const resetLayout = useCallback(

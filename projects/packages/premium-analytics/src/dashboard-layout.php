@@ -42,26 +42,25 @@ const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_def
 const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dashboard_insertable_widget_types';
 
 /**
- * Tile heights for default layouts, in dashboard rows. The client lays the dashboard out on
- * 40px rows 16px apart (routes/dashboard/config/grid.ts), so a tile of N rows stands 56N - 16px.
+ * Tile heights for default layouts, in dashboard rows: a one-line strip of highlights.
  *
  * @since $$next-version$$
  */
-const DASHBOARD_TILE_STRIP = 4;
+const DASHBOARD_TILE_STRIP = 1;
 
 /**
- * A chart, a figure or a short list: the height every tile had before the rows got finer.
+ * A chart, a figure or a short list: the height every tile had before lists got taller.
  *
  * @since $$next-version$$
  */
-const DASHBOARD_TILE_CARD = 8;
+const DASHBOARD_TILE_CARD = 2;
 
 /**
  * A leaderboard tall enough for the ten rows the stats endpoints return by default.
  *
  * @since $$next-version$$
  */
-const DASHBOARD_TILE_LIST = 11;
+const DASHBOARD_TILE_LIST = 3;
 
 /**
  * Builds a widget instance for a section's default layout.
