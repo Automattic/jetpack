@@ -47,7 +47,7 @@ const Stage = () => {
 					<div id="jp-admin-notices" />
 					{ TABS.map( tab => (
 						<Tabs.Panel key={ tab.value } value={ tab.value }>
-							{ activeTab === tab.value && <Placeholder /> }
+							<Placeholder />
 						</Tabs.Panel>
 					) ) }
 				</div>
