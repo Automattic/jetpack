@@ -34,6 +34,16 @@ class Wpcom_Forward_Handler implements Report_Handler {
 
 	/**
 	 * {@inheritDoc}
+	 */
+	public function get_capability() {
+		return array(
+			'fields' => '*',
+			'params' => '*',
+		);
+	}
+
+	/**
+	 * {@inheritDoc}
 	 *
 	 * @param Report_Request $request The request.
 	 */
