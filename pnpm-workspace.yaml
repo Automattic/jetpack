@@ -95,6 +95,10 @@ patchedDependencies:
   # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
   # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
   # even if upstream fixes init-module handling first.
+  # It also adds shared script modules: `wp-build-shared` bundles the libraries
+  # in admin-ui's `wpSharedModules` once, pruned to its committed export list,
+  # and `wpPlugin.sharedModules` makes a consumer import them instead of
+  # bundling a copy, failing its build when it imports a name the list lacks.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
 
   # The CommonJS build of 44.0.0 resolves `BaseControl` for `useBaseControlProps`
