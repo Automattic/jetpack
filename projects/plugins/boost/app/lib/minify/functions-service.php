@@ -204,6 +204,8 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
+	jetpack_boost_page_optimize_check_files_size( $file_paths );
+
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
@@ -217,6 +219,8 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 	$last_modified = 0;
 	$pre_output    = '';
 	$output        = '';
+	$total_bytes   = 0;
+	$limits        = jetpack_boost_page_optimize_limits();
 
 	$mime_type = '';
 
@@ -249,6 +253,11 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 
 		if ( $stat['mtime'] > $last_modified ) {
 			$last_modified = $stat['mtime'];
+		}
+
+		$total_bytes += $stat['size'];
+		if ( $total_bytes > $limits['files_read'] ) {
+			jetpack_boost_page_optimize_status_exit( 400 );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -307,6 +316,8 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 				);
 			}
 
+			jetpack_boost_page_optimize_check_output_size( strlen( $pre_output ) + strlen( $output ) + strlen( $buf ) );
+
 			// If filename indicates it's already minified, don't minify it again.
 			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify CSS.
@@ -322,6 +333,8 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 
 			$output .= "$buf;\n";
 		}
+
+		jetpack_boost_page_optimize_check_output_size( strlen( $pre_output ) + strlen( $output ) );
 	}
 
 	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
