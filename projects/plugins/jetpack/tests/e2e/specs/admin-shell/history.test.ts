@@ -10,9 +10,22 @@ import {
 	switchTo,
 	waitForShown,
 	where,
+	withinDocument,
 } from '../../helpers/admin-shell-helper';
 
 const historyLength = ( page: Page ) => page.evaluate( () => history.length );
+
+const back = ( page: Page, slug: string ) =>
+	withinDocument( page, `Back to ${ slug }`, async () => {
+		await page.goBack();
+		await waitForShown( page, slug );
+	} );
+
+const forward = ( page: Page, slug: string ) =>
+	withinDocument( page, `Forward to ${ slug }`, async () => {
+		await page.goForward();
+		await waitForShown( page, slug );
+	} );
 
 test.describe( 'Admin shell: history', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -26,16 +39,12 @@ test.describe( 'Admin shell: history', () => {
 		await switchTo( page, 'jetpack-newsletter' );
 		expect( await historyLength( page ), 'one entry per click' ).toBe( start + 2 );
 
-		await page.goBack();
-		await waitForShown( page, 'jetpack-activity-log' );
+		await back( page, 'jetpack-activity-log' );
 		await expectShown( page, 'jetpack-activity-log' );
-		await page.goBack();
-		await waitForShown( page, 'my-jetpack' );
+		await back( page, 'my-jetpack' );
 		expect( await where( page ) ).toMatch( /^\?page=my-jetpack/ );
-		await page.goForward();
-		await waitForShown( page, 'jetpack-activity-log' );
-		await page.goForward();
-		await waitForShown( page, 'jetpack-newsletter' );
+		await forward( page, 'jetpack-activity-log' );
+		await forward( page, 'jetpack-newsletter' );
 		await expectShown( page, 'jetpack-newsletter' );
 	} );
 
@@ -87,11 +96,12 @@ test.describe( 'Admin shell: history', () => {
 					await expect.poll( () => where( page ), `${ tab } is in the URL` ).toMatch( urls[ i ] );
 				}
 				await switchTo( page, via );
-				await page.goBack();
-				await waitForShown( page, slug );
+				await back( page, slug );
 				expect( await where( page ) ).toMatch( urls[ 1 ] );
-				await page.goBack();
-				await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
+				await withinDocument( page, `Back to ${ tabs[ 0 ] }`, async () => {
+					await page.goBack();
+					await expect.poll( () => where( page ) ).toMatch( urls[ 0 ] );
+				} );
 				await expect(
 					page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
 				).toHaveAttribute( 'aria-selected', 'true' );

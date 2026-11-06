@@ -33,8 +33,12 @@ const INTERMITTENT: { a: string; b: string; reason: string }[] = [
 	{ a: 'my-jetpack', b: 'jetpack-settings', reason: SETTINGS_BLANK },
 ];
 
-/* Its return-trip sidebar highlight is a known bug, checked once in its own test below. */
-const HIGHLIGHT_BUG = 'my-jetpack';
+/* Matrix rows skip this check; the test at the bottom expects it to fail. Delete both together. */
+const HIGHLIGHT_BUG = {
+	slug: 'my-jetpack',
+	reason:
+		'Spike bug: back on My Jetpack, no sidebar item is highlighted (it matches the top-level link).',
+};
 
 test.describe( 'Admin shell: navigation matrix', () => {
 	test.beforeEach( async ( { page } ) => {
@@ -61,22 +65,21 @@ test.describe( 'Admin shell: navigation matrix', () => {
 				);
 
 				await switchTo( page, a.slug );
-				await expectShown( page, a.slug, { sidebar: a.slug !== HIGHLIGHT_BUG } );
+				await expectShown( page, a.slug, { sidebar: a.slug !== HIGHLIGHT_BUG.slug } );
 				expect( await where( page ), `${ a.slug } comes back where it was left` ).toBe( leftAt );
 			} );
 		} );
 	}
 
-	// Via a member with no other known bug, so the fix shows up as an unexpected pass.
 	// eslint-disable-next-line playwright/expect-expect -- expectShown() asserts.
 	test( 'back on My Jetpack, its sidebar item is highlighted', async ( { page } ) => {
-		test.fail(
-			true,
-			'Spike bug: back on My Jetpack, no sidebar item is highlighted (it matches the top-level link).'
-		);
-		await openMember( page, HIGHLIGHT_BUG );
+		const { slug, reason } = HIGHLIGHT_BUG;
+		await openMember( page, slug );
 		await switchTo( page, 'jetpack-newsletter' );
-		await switchTo( page, HIGHLIGHT_BUG );
-		await expectShown( page, HIGHLIGHT_BUG );
+		await switchTo( page, slug );
+		await expectShown( page, slug, { sidebar: false } );
+		// Called here, so only the highlight check below is expected to fail.
+		test.fail( true, reason );
+		await expectShown( page, slug );
 	} );
 } );

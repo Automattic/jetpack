@@ -39,13 +39,14 @@ async function fullLoadViews( page: Page, slug: string ): Promise< string[] > {
 }
 
 /**
- * Switch to `slug` and return the view events recorded on arrival.
+ * Let earlier Tracks calls land, switch to `slug`, and return the view events recorded on arrival.
  *
  * @param page - Page under test.
  * @param slug - Member page slug.
  * @return New view event names.
  */
 async function viewsOnSwitch( page: Page, slug: string ): Promise< string[] > {
+	await settle( page, SETTLE );
 	const seen = ( await tracksEvents( page ) ).length;
 	await switchTo( page, slug );
 	await settle( page, SETTLE );
@@ -70,11 +71,13 @@ test.describe( 'Admin shell: Tracks page views', () => {
 
 		test( `a return switch to ${ m.slug } records the page view again`, async ( { page } ) => {
 			const expected = await fullLoadViews( page, m.slug );
-			test.fail( true, 'Spike bug: a kept-alive app records no page view when shown again.' );
 			await openMember( page, other );
 			await switchTo( page, m.slug );
 			await switchTo( page, other );
-			expect( await viewsOnSwitch( page, m.slug ) ).toEqual( expect.arrayContaining( expected ) );
+			const views = await viewsOnSwitch( page, m.slug );
+			// Called here, so a failed switch above is still a real failure.
+			test.fail( true, 'Spike bug: a kept-alive app records no page view when shown again.' );
+			expect( views ).toEqual( expect.arrayContaining( expected ) );
 		} );
 	}
 

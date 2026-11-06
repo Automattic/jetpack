@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from '@playwright/test';
+import { test, expect, type Page, type Locator, type Request } from '@playwright/test';
 
 export const STATE_ON = 'output/admin-shell/state-on.json';
 export const STATE_OFF = 'output/admin-shell/state-off.json';
@@ -9,7 +9,7 @@ export interface ShellSnapshot {
 	/** Slug of the app on screen, or null while none is (switching, or the placeholder is up). */
 	visible: string | null;
 	apps: Record< string, ShellAppState >;
-	/** `hooks` is the contract; `page` is a document without the shell; `spike` reads the spike's DOM. */
+	/** `hooks`: the contract. `page`: a document without the shell. `spike`: the spike's DOM. */
 	source: 'hooks' | 'page' | 'spike';
 }
 
@@ -353,18 +353,46 @@ export function menuLink( page: Page, slug: string ): Locator {
 }
 
 /**
+ * Run `action` and assert it neither replaced the document nor started a main-frame load.
+ *
+ * @param page   - Page under test.
+ * @param label  - What the action does, for the assertion messages.
+ * @param action - Navigation to run, including its wait for the result.
+ */
+export async function withinDocument(
+	page: Page,
+	label: string,
+	action: () => Promise< void >
+): Promise< void > {
+	// A load still pending when the app shows in place leaves the old document's marker readable.
+	const loads: string[] = [];
+	const onRequest = ( request: Request ) => {
+		if ( request.isNavigationRequest() && request.frame() === page.mainFrame() ) {
+			loads.push( request.url() );
+		}
+	};
+	await markDocument( page );
+	page.on( 'request', onRequest );
+	try {
+		await action();
+	} finally {
+		page.off( 'request', onRequest );
+	}
+	expect( loads, `${ label } loaded no new page` ).toEqual( [] );
+	expect( await sameDocument( page ), `${ label } stayed in the same document` ).toBe( true );
+}
+
+/**
  * Click a sidebar item and wait for its app, which must arrive without a full page load.
  *
  * @param page - Page under test.
  * @param slug - Member page slug.
  */
 export async function switchTo( page: Page, slug: string ): Promise< void > {
-	await markDocument( page );
-	await menuLink( page, slug ).click();
-	await waitForShown( page, slug );
-	expect( await sameDocument( page ), `switching to ${ slug } stayed in the same document` ).toBe(
-		true
-	);
+	await withinDocument( page, `switching to ${ slug }`, async () => {
+		await menuLink( page, slug ).click();
+		await waitForShown( page, slug );
+	} );
 }
 
 /**
@@ -419,7 +447,7 @@ export function where( page: Page ): Promise< string > {
  * @param page            - Page under test.
  * @param slug            - Member page slug.
  * @param options         - Checks to leave out.
- * @param options.sidebar - False to skip the sidebar highlight, for a test that covers it separately.
+ * @param options.sidebar - False to skip the sidebar highlight, when a test covers it separately.
  */
 export async function expectShown(
 	page: Page,

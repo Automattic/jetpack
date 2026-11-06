@@ -11,6 +11,7 @@ import {
 	stopFrames,
 	switchTo,
 	waitForShown,
+	withinDocument,
 	type Frame,
 } from '../../helpers/admin-shell-helper';
 
@@ -45,8 +46,10 @@ const INTERMITTENT: Record< string, string > = {
  */
 async function recordSwitch( page: Page, to: string ): Promise< Frame[] > {
 	await startFrames( page );
-	await menuLink( page, to ).click();
-	await waitForShown( page, to );
+	await withinDocument( page, `switching to ${ to }`, async () => {
+		await menuLink( page, to ).click();
+		await waitForShown( page, to );
+	} );
 	await settle( page, 1000 );
 	return stopFrames( page );
 }
