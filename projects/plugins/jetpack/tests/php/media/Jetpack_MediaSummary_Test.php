@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
@@ -24,6 +25,60 @@ class Jetpack_MediaSummary_Test extends WP_UnitTestCase {
 		$get_obj = Jetpack_Media_Summary::get( $post_id );
 
 		$this->assertIsArray( $get_obj );
+	}
+
+	/**
+	 * @dataProvider provide_video_blocks
+	 *
+	 * @param string $content  Post content.
+	 * @param array  $expected Expected subset of the summary.
+	 */
+	#[DataProvider( 'provide_video_blocks' )]
+	public function test_mediasummary_get_video_blocks( $content, $expected ) {
+		set_transient(
+			'jetpack_videopress_OcobLTqC',
+			(object) array(
+				'poster' => 'https://videos.files.wordpress.com/OcobLTqC/poster.jpg',
+				'files'  => (object) array( 'std' => (object) array( 'mp4' => 'video.mp4' ) ),
+			)
+		);
+		$post_id = self::factory()->post->create( array( 'post_content' => $content ) );
+
+		$summary = Jetpack_Media_Summary::get( $post_id );
+
+		$this->assertEquals( $expected, array_intersect_key( $summary, $expected ) );
+	}
+
+	/**
+	 * Data provider for test_mediasummary_get_video_blocks.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_video_blocks() {
+		$videopress        = array(
+			'type'  => 'video',
+			'video' => 'https://videos.files.wordpress.com/OcobLTqC/video.mp4',
+			'image' => 'https://videos.files.wordpress.com/OcobLTqC/poster.jpg',
+		);
+		$self_hosted_video = '<figure class="wp-block-video"><video controls poster="https://example.com/poster.jpg" src="https://example.com/clip.mp4"></video></figure>';
+
+		return array(
+			'VideoPress block'                 => array( '<!-- wp:videopress/video {"guid":"OcobLTqC","id":5} /-->', $videopress ),
+			'core Video block with VideoPress' => array( '<!-- wp:video {"guid":"OcobLTqC","id":5} --><figure class="wp-block-video"></figure><!-- /wp:video -->', $videopress ),
+			'nested self-hosted Video block'   => array(
+				'<!-- wp:group --><div class="wp-block-group"><!-- wp:video {"id":6} -->' . $self_hosted_video . '<!-- /wp:video --></div><!-- /wp:group -->',
+				array(
+					'type'       => 'video',
+					'video'      => 'https://example.com/clip.mp4',
+					'image'      => 'https://example.com/poster.jpg',
+					'video_type' => 'video/mp4',
+				),
+			),
+			'self-hosted Video without poster' => array(
+				'<!-- wp:video {"id":6} --><figure class="wp-block-video"><video controls src="https://example.com/clip.mp4"></video></figure><!-- /wp:video -->',
+				array( 'type' => 'standard' ),
+			),
+		);
 	}
 
 	/**
