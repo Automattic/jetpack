@@ -395,11 +395,42 @@ class Channel_Blocks {
 				$markup .= sprintf( '<div class="videopress-video-details__chips">%s</div>', $chips );
 			}
 		}
+		if ( self::flag( $attributes, 'showClassification', false ) ) {
+			$markup .= self::render_classification_chips( $post->ID );
+		}
 		if ( '' === $markup ) {
 			return '';
 		}
 
 		return sprintf( '<div %1$s>%2$s</div>', get_block_wrapper_attributes( array( 'class' => 'videopress-video-details' ) ), $markup );
+	}
+
+	/**
+	 * A video's series, type, topics and people as chips linking to the filtered Videos page.
+	 *
+	 * @param int $attachment_id The video's attachment.
+	 *
+	 * @return string Markup; empty when the video is not classified.
+	 */
+	private static function render_classification_chips( $attachment_id ) {
+		$taxonomies = Classification::taxonomies();
+		$chips      = '';
+		foreach ( Classification::assignments( $attachment_id ) as $taxonomy => $terms ) {
+			foreach ( $terms as $term ) {
+				$object = get_term( $term['id'], $taxonomy );
+				if ( ! $object instanceof \WP_Term ) {
+					continue;
+				}
+				$chips .= sprintf(
+					'<a class="videopress-video-details__chip videopress-video-details__chip--%1$s" href="%2$s"><span class="videopress-video-details__chip-label">%3$s:</span> %4$s</a>',
+					esc_attr( str_replace( 'videopress_', '', $taxonomy ) ),
+					esc_url( Channel_Data::videos_page_url( $object ) ),
+					esc_html( $taxonomies[ $taxonomy ]['singular'] ),
+					esc_html( $term['name'] )
+				);
+			}
+		}
+		return '' === $chips ? '' : sprintf( '<div class="videopress-video-details__chips videopress-video-details__classification">%s</div>', $chips );
 	}
 
 	/**

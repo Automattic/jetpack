@@ -64,6 +64,10 @@
 		"showPlaylists": {
 			"type": "boolean",
 			"default": true
+		},
+		"showClassification": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js"
