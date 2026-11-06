@@ -270,7 +270,10 @@ describe( 'Wizard start screen', () => {
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
+		// No mapped summary, so the title carries the retry cue.
+		expect(
+			screen.getByText( 'We could not connect this site. Please try again.' )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Site is inaccessible (Status 403)' ) ).toBeInTheDocument();
 
 		// The message interpolates the server's prose; only the code is reported.
@@ -303,6 +306,8 @@ describe( 'Wizard start screen', () => {
 		expect(
 			screen.getByText( 'The connection request got an unexpected response.' )
 		).toBeInTheDocument();
+		// A mapped summary already says what to do, so the title does not repeat it.
+		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
 		await user.click( getStarted() );

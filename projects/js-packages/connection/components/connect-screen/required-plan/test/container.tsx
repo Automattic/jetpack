@@ -1,8 +1,9 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import type { ConnectError } from '../../../use-connection/types';
 
 const checkoutState: { checkoutError: string | null } = { checkoutError: null };
-const connectionState: { connectError: { name: string } | false } = { connectError: false };
+const connectionState: { connectError: ConnectError | false } = { connectError: false };
 jest.unstable_mockModule( '../../../use-connection', () => ( {
 	__esModule: true,
 	default: () => ( {
