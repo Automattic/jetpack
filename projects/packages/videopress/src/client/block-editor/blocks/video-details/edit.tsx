@@ -24,6 +24,7 @@ export type VideoDetailsAttributes = {
 	showMeta: boolean;
 	showDescription: boolean;
 	showPlaylists: boolean;
+	showClassification: boolean;
 	// What the newest-upload source shows while the channel has no videos.
 	emptyState?: EmptyStateMode;
 };
@@ -52,6 +53,7 @@ export default function VideoDetailsEdit( {
 		[ 'showMeta', __( 'Views and upload date', 'jetpack-videopress-pkg' ) ],
 		[ 'showDescription', __( 'Description', 'jetpack-videopress-pkg' ) ],
 		[ 'showPlaylists', __( 'Playlists', 'jetpack-videopress-pkg' ) ],
+		[ 'showClassification', __( 'Series, types, topics and people', 'jetpack-videopress-pkg' ) ],
 	];
 
 	return (
