@@ -1,4 +1,6 @@
 import { getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
+import type { PostSummary } from './use-post-summary';
 import type { WidgetType } from '@wordpress/widget-primitives';
 
 /**
@@ -27,4 +29,21 @@ export function withPostTypeTitles( widgetTypes: WidgetType[], postType?: string
 					: widgetType
 			)
 		: widgetTypes;
+}
+
+/**
+ * The page's widget types: the highlights and views cards titled for the post type.
+ *
+ * @param widgetTypes - The registered types.
+ * @param summary     - The post summary.
+ * @return The types, retitled once the type is known.
+ */
+export function usePostWidgetTypes(
+	widgetTypes: WidgetType[],
+	summary: PostSummary
+): WidgetType[] {
+	return useMemo(
+		() => withPostTypeTitles( widgetTypes, summary.type ),
+		[ widgetTypes, summary.type ]
+	);
 }

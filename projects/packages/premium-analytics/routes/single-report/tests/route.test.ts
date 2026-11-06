@@ -33,6 +33,11 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
 
+jest.mock( '../../stats-date-window', () => ( {
+	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
+} ) );
+
 const VIDEO_PAGE = {
 	id: 'analytics/video',
 	path: 'video',

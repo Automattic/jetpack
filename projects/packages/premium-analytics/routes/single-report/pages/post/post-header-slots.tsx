@@ -5,7 +5,6 @@ import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/exter
 import {
 	DETAIL_HEADER_GLYPH_SIZE,
 	getPostTypeCopy,
-	type DetailPageHeaderSlots,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon } from '@wordpress/icons';
@@ -14,38 +13,32 @@ import { envelope as envelopeIcon } from '@wordpress/icons';
  */
 import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
+import { isEmailSection } from './config';
 import styles from './post-header-slots.module.scss';
-import type { PostSummary } from '../../hooks';
-import type { DateRange } from '@jetpack-premium-analytics/datetime';
-
-type PostHeaderSlotsArgs = {
-	summary: PostSummary;
-	/**
-	 * Header identity: 'email' frames the header as the newsletter send
-	 * (envelope tile, "Email sent on…") instead of the post identity.
-	 */
-	variant?: 'post' | 'email';
-	/** The committed report date range, stated as the performance window. */
-	performanceRange?: DateRange;
-};
+import type { PostSummary } from './use-post-summary';
+import type { HeaderContext, SingleReportHeaderSlots } from '../adapter';
 
 /**
  * The post/page identity for the page header: featured-image thumbnail (or a
  * type-icon placeholder), title, and one line stating the publish date and the
- * applied performance window.
+ * applied performance window. An email section frames it as the newsletter send
+ * instead: envelope tile, "Email sent on…".
  *
- * @param args                  - The slot inputs.
- * @param args.summary          - The resolved post summary.
- * @param args.variant          - The header identity: post (default) or email.
- * @param args.performanceRange - The committed report date range.
- * @return The `SectionHeader` slots for this post.
+ * @param summary                  - The post summary, in any state.
+ * @param context                  - The active section and the window the page reports over.
+ * @param context.section          - The active section, if the page has sections.
+ * @param context.performanceRange - The committed report date range.
+ * @return The header slots for this post.
  */
-export function postHeaderSlots( {
-	summary,
-	variant = 'post',
-	performanceRange,
-}: PostHeaderSlotsArgs ): DetailPageHeaderSlots {
-	const { title, type, publishedDate, imageUrl, isLoading } = summary;
+export function postHeaderSlots(
+	summary: PostSummary,
+	{ section, performanceRange }: HeaderContext
+): SingleReportHeaderSlots {
+	const { title, type, publishedDate, imageUrl } = summary;
+	const variant = section && isEmailSection( section.section.slug ) ? 'email' : 'post';
+	// Until the send check answers, the email header stays a skeleton, so it never
+	// names a send that the not-sent state then replaces.
+	const isLoading = summary.isLoading || ( variant === 'email' && section?.scope === 'pending' );
 	const copy = getPostTypeCopy( type );
 
 	const formattedDate = formatPublishedDate( publishedDate );
@@ -104,9 +97,14 @@ export function postHeaderSlots( {
 		};
 	}
 
-	// Matches the video header: a failed summary has no title or window to state.
-	if ( summary.isError ) {
-		return { visual, title: copy.unavailable };
+	// Matches the video header: a failed or missing post has no title or window to state.
+	if ( summary.isError || summary.isNotFound ) {
+		return {
+			visual,
+			title: summary.isNotFound
+				? __( 'Post not found', 'jetpack-premium-analytics-pkg' )
+				: copy.unavailable,
+		};
 	}
 
 	// A post saved without a title still owes the reader an `h1`.

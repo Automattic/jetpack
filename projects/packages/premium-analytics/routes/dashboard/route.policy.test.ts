@@ -11,8 +11,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
 import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
-import { route as postRoute } from '../post-detail/route';
 import { route as reportRoute } from '../reports/route';
+import { route as singleReportRoute } from '../single-report/route';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
 import { dateWindowForSectionSwitch } from './section-date-window';
@@ -43,7 +43,6 @@ jest.mock( '../reports/registry', () => ( {
 			referrers: { dashboardSection: 'traffic', feature: 'referrers' },
 		} )[ id ?? '' ] ?? {},
 } ) );
-jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
 } ) );
@@ -84,14 +83,33 @@ async function settle(
 }
 
 const loadPost = ( next: Search ) =>
-	postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never );
+	singleReportRoute.beforeLoad( { params: { kind: 'post', id: '42' }, search: next } as never );
 const loadPostsReport = ( next: Search ) =>
 	reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never );
 
-const setLocks = ( ...features: string[] ) =>
-	( getScriptData as jest.Mock ).mockReturnValue(
-		planGatesScriptData( features, [ 'traffic', 'store' ] )
-	);
+// The post page as the server publishes it, in the Traffic section whose policy it follows.
+const POST_PAGE = {
+	id: 'analytics/post',
+	path: 'post',
+	label: 'Post',
+	dashboard_section: 'traffic',
+	feature: null,
+	scope_param: 'post_id',
+	id_pattern: '^[1-9]\\d*$',
+	icon: null,
+	controls: null,
+	reports_page: 'posts',
+	preferences_scope: 'jetpack-premium-analytics/post-detail',
+	default_layout: [],
+	sections: [],
+};
+
+const setLocks = ( ...features: string[] ) => {
+	const { premium_analytics: data } = planGatesScriptData( features, [ 'traffic', 'store' ] );
+	( getScriptData as jest.Mock ).mockReturnValue( {
+		premium_analytics: { ...data, single_report_pages: [ POST_PAGE ] },
+	} );
+};
 
 beforeEach( () => {
 	jest.useFakeTimers().setSystemTime( new Date( '2026-10-15T12:00:00Z' ) );
@@ -181,9 +199,13 @@ describe( 'the date-limit notice on a free site', () => {
 	} );
 
 	it( 'leaves a post open when its report’s tab does not follow the plan', async () => {
-		const { premium_analytics: data } = planGatesScriptData( FREE_LOCKS );
+		const { premium_analytics: data } = planGatesScriptData( FREE_LOCKS, [ 'traffic' ] );
 		( getScriptData as jest.Mock ).mockReturnValue( {
-			premium_analytics: { ...data, plan_date_limited_sections: [] },
+			premium_analytics: {
+				...data,
+				plan_date_limited_sections: [],
+				single_report_pages: [ POST_PAGE ],
+			},
 		} );
 		const link = { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' };
 
