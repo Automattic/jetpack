@@ -82,20 +82,17 @@ function wpcomsh_coblocks_font_preset_variable( $block_content, $block ) {
 		return $block_content;
 	}
 
-	// The fallback keeps CoBlocks 2.x real font names (e.g. Raleway) rendering when no preset matches.
-	$value = 'var(--wp--preset--font-family--' . _wp_to_kebab_case( $slug ) . ', ' . $slug . ')';
-	$fixed = preg_replace_callback(
-		'/(^|;)\s*font-family:\s*' . preg_quote( $slug, '/' ) . '\s*(?=;|$)/',
-		static function ( $m ) use ( $value ) {
-			return $m[1] . 'font-family:' . $value;
-		},
-		$style,
-		1
-	);
-	if ( ! is_string( $fixed ) || $fixed === $style ) {
-		return $block_content;
+	$declarations = explode( ';', $style );
+	foreach ( $declarations as $i => $declaration ) {
+		$parts = explode( ':', $declaration, 2 );
+		if ( 2 !== count( $parts ) || 'font-family' !== trim( $parts[0] ) || trim( $parts[1] ) !== $slug ) {
+			continue;
+		}
+		// The fallback keeps CoBlocks 2.x real font names (e.g. Raleway) rendering when no preset matches.
+		$declarations[ $i ] = 'font-family:var(--wp--preset--font-family--' . _wp_to_kebab_case( $slug ) . ', ' . $slug . ')';
+		$tags->set_attribute( 'style', implode( ';', $declarations ) );
+		return $tags->get_updated_html();
 	}
 
-	$tags->set_attribute( 'style', $fixed );
-	return $tags->get_updated_html();
+	return $block_content;
 }
