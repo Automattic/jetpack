@@ -174,8 +174,20 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 					'reverse'        => false,
 				),
 			),
+			'Trusted header is empty'               => array(
+				'192.0.2.55',
+				array(
+					'REMOTE_ADDR'          => '192.0.2.55',
+					'HTTP_X_FORWARDED_FOR' => '',
+				),
+				(object) array(
+					'trusted_header' => 'HTTP_X_FORWARDED_FOR',
+					'segments'       => 1,
+					'reverse'        => true,
+				),
+			),
 			'Trusted header has invalid IP'         => array(
-				false,
+				'192.0.2.55',
 				array(
 					'REMOTE_ADDR'          => '192.0.2.55',
 					'HTTP_X_FORWARDED_FOR' => '192.0.2.1, 192.0.2.2, 2001:DB8::12345, 192.0.2.4',

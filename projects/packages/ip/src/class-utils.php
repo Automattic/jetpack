@@ -20,35 +20,52 @@ class Utils {
 	 * @return string|false IP address.
 	 */
 	public static function get_ip() {
+		$remote_addr         = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
 		$trusted_header_data = get_site_option( 'trusted_ip_header' );
 		if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
-			$ip            = wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it below.
-			$segments      = $trusted_header_data->segments;
-			$reverse_order = $trusted_header_data->reverse;
-		} else {
-			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it below.
+			$ip = self::pick_ip(
+				wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+				isset( $trusted_header_data->segments ) ? $trusted_header_data->segments : 1,
+				! empty( $trusted_header_data->reverse ),
+				$remote_addr
+			);
+			// The stored header setting can go stale, leaving the header empty or without a valid address.
+			if ( false !== $ip ) {
+				return $ip;
+			}
 		}
 
-		if ( ! $ip ) {
+		return self::pick_ip( $remote_addr, 1, false, $remote_addr );
+	}
+
+	/**
+	 * Pick one address out of a comma-separated list.
+	 *
+	 * @param string|null $value         Raw list of addresses.
+	 * @param int         $segments      Which entry to use, counted from the end of the list.
+	 * @param bool        $reverse_order Whether to reverse the list first.
+	 * @param string|null $remote_addr   Address to use when the list has fewer entries than `$segments`.
+	 * @return string|false IP address.
+	 */
+	private static function pick_ip( $value, $segments, $reverse_order, $remote_addr ) {
+		if ( ! $value ) {
 			return false;
 		}
 
-		$ips = explode( ',', $ip );
-		if ( ! isset( $segments ) || ! $segments ) {
+		$ips = explode( ',', $value );
+		if ( ! $segments ) {
 			$segments = 1;
 		}
-		if ( isset( $reverse_order ) && $reverse_order ) {
+		if ( $reverse_order ) {
 			$ips = array_reverse( $ips );
 		}
 		$ip_count = count( $ips );
 		if ( 1 === $ip_count ) {
 			return self::clean_ip( $ips[0] );
 		} elseif ( $ip_count >= $segments ) {
-			$the_one = $ip_count - $segments;
-			return self::clean_ip( $ips[ $the_one ] );
-		} else {
-			return self::clean_ip( isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+			return self::clean_ip( $ips[ $ip_count - $segments ] );
 		}
+		return $remote_addr ? self::clean_ip( $remote_addr ) : false;
 	}
 
 	/**
