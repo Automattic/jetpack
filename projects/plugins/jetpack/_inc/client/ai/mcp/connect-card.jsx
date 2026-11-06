@@ -374,9 +374,11 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 							<Button.Icon icon={ copy } />
 							{ isHelperCopied ? __( 'Copied', 'jetpack' ) : __( 'Copy prompt', 'jetpack' ) }
 						</Button>
-						<Button variant="minimal" size="small" onClick={ handleManualSetup }>
-							{ __( 'Manual setup', 'jetpack' ) }
-						</Button>
+						{ mcpEnabled && (
+							<Button variant="minimal" size="small" onClick={ handleManualSetup }>
+								{ __( 'Manual setup', 'jetpack' ) }
+							</Button>
+						) }
 					</Stack>
 				</Card.FullBleed>
 			</Card.Content>

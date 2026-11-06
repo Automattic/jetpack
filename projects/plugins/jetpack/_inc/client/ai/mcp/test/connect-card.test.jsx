@@ -232,11 +232,17 @@ describe( 'McpConnectCard', () => {
 		const props = { onTurnOn: jest.fn(), isTurningOn: false, onNavigate: jest.fn() };
 		const { rerender } = render( <McpConnectCard mcpEnabled={ false } { ...props } /> );
 
-		const manualSetup = screen.getByRole( 'button', { name: 'Manual setup' } );
-		manualSetup.focus();
+		const copyPrompt = screen.getByRole( 'button', { name: 'Copy prompt' } );
+		copyPrompt.focus();
 		rerender( <McpConnectCard mcpEnabled { ...props } /> );
 
-		expect( manualSetup ).toHaveFocus();
+		expect( copyPrompt ).toHaveFocus();
+	} );
+
+	test( 'hides Manual setup while MCP access is off', () => {
+		renderCard( { mcpEnabled: false } );
+
+		expect( screen.queryByRole( 'button', { name: 'Manual setup' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'the off notice is hidden when MCP is on', () => {
