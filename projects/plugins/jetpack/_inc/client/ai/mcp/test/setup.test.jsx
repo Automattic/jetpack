@@ -51,9 +51,9 @@ describe( 'McpSetup: ChatGPT and Claude quick setup', () => {
 	} );
 
 	test.each( [
-		[ 'chatgpt', true, 'Jetpack plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
-		[ 'chatgpt', false, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
-		[ 'chatgpt', undefined, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'chatgpt', true, 'WordPress plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'chatgpt', false, 'WordPress plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'chatgpt', undefined, 'WordPress plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
 		[ 'claude', true, 'Claude connector', 'jetpack-ai-hub-mcp-setup-claude-self-hosted' ],
 		[ 'claude', false, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],
 		[ 'claude', undefined, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],

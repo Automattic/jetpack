@@ -239,9 +239,7 @@ export default function McpSetup() {
 															) }
 															openInNewTab
 														>
-															{ isSelfHosted
-																? __( 'Jetpack plugin', 'jetpack' )
-																: __( 'WordPress.com plugin', 'jetpack' ) }
+															{ __( 'WordPress plugin', 'jetpack' ) }
 														</Link>
 													),
 												}
