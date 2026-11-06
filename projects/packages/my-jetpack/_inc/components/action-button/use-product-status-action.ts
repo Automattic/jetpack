@@ -1,7 +1,7 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
-import { PRODUCT_STATUSES, MyJetpackRoutes } from '../../constants';
+import { PRODUCT_STATUSES } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
@@ -10,6 +10,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { connectionScreenRoute, getConnectUrl } from '../../utils/connect-url';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
 import type { MouseEvent } from 'react';
@@ -18,13 +19,14 @@ export type ProductStatusActionOptions = {
 	primaryActionOverride?: Record< string, AdditionalAction >;
 	fixSiteConnectionHandler?: ( e: MouseEvent< HTMLButtonElement > ) => void;
 	tracksIdentifier?: `${ string }_${ string }`;
+	from?: string;
 };
 
 /**
  * The action a product's card offers for its status.
  *
  * @param {JetpackModule}              slug      - The product slug.
- * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler and the Tracks prefix.
+ * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler, the Tracks prefix and the connect links' `from`, `my_jetpack_products_<slug>` by default.
  * @return {{action: Partial<SecondaryButtonProps>, isBusy: boolean, forcedOffReason: string | null}} The action, whether it is busy, and why the host keeps the product off.
  */
 const useProductStatusAction = (
@@ -33,6 +35,7 @@ const useProductStatusAction = (
 		primaryActionOverride,
 		fixSiteConnectionHandler,
 		tracksIdentifier,
+		from,
 	}: ProductStatusActionOptions = {}
 ) => {
 	const {
@@ -51,7 +54,9 @@ const useProductStatusAction = (
 	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const { recordEvent } = useAnalytics();
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
+	// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
+	const connectFrom = from ?? CONNECTION_FROM?.myJetpackProducts( slug ) ?? 'my-jetpack';
+	const navigateToConnectionPage = useMyJetpackNavigate( connectionScreenRoute( connectFrom ) );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
 
@@ -200,7 +205,7 @@ const useProductStatusAction = (
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: getUserConnectionUrl(),
+					href: getConnectUrl( connectFrom ),
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,
@@ -280,6 +285,7 @@ const useProductStatusAction = (
 	}, [
 		status,
 		slug,
+		connectFrom,
 		purchaseUrl,
 		isManageDisabled,
 		manageUrl,
