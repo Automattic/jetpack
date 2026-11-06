@@ -58,6 +58,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 
 	const isConnecting = siteIsRegistering || userIsConnecting;
 
+	// A mapped summary says what to do; the raw fallback does not, so the title adds the retry cue.
+	const errorSummary = connectError
+		? getRegistrationErrorSummary( connectError, isOfflineMode )
+		: null;
+
 	// Named once: the terms sentence has to say the same words as the button it is about.
 	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );
 
@@ -132,11 +137,12 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 				{ connectError && (
 					<Notice.Root intent="error" className={ styles[ 'start-error' ] }>
 						<Notice.Title>
-							{ __( 'We could not connect this site.', 'jetpack-my-jetpack' ) }
+							{ errorSummary
+								? __( 'We could not connect this site.', 'jetpack-my-jetpack' )
+								: __( 'We could not connect this site. Please try again.', 'jetpack-my-jetpack' ) }
 						</Notice.Title>
 						<Notice.Description className={ styles[ 'start-error__detail' ] }>
-							{ getRegistrationErrorSummary( connectError, isOfflineMode ) ||
-								connectionErrorDetail( connectError ) }
+							{ errorSummary || connectionErrorDetail( connectError ) }
 						</Notice.Description>
 					</Notice.Root>
 				) }

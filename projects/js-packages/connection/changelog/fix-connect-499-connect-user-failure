@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix the connect button staying busy, and retries doing nothing, after the authorization URL fails to load, and show the error on the shared connect screens.
+Fix the connect button getting stuck when the authorization URL fails to load, and show the error on the shared connect screens.

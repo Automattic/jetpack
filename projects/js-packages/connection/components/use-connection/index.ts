@@ -76,8 +76,10 @@ export default function useConnection( {
 			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
 			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
 			// Optional-call too: an older bundled copy of this store can be the one registered.
-			userConnectionError: ( select( STORE_ID ).getUserConnectionError?.() || false ) as
-				ConnectError | false,
+			// `as const` keeps the fallback `false` from widening to `boolean` in the object literal.
+			userConnectionError:
+				( select( STORE_ID ).getUserConnectionError?.() as ConnectError | undefined ) ||
+				( false as const ),
 			// The assertion sits on the selector call — the one untyped step — so the
 			// fallback stays a real `UserConnectionData` rather than an empty object
 			// asserted into one.
