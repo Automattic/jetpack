@@ -136,7 +136,8 @@ class Jetpack_WPCOM_Image_Editor_GD extends WP_Image_Editor_GD {
 	 */
 	private static function write_digital_source_type( $filename, $digital_source_type ) {
 		$exiftool = jetpack_wpcom_ai_marker_tool_path( 'exiftool' );
-		$output   = self::run_tool( array( $exiftool, '-m', '-q', '-overwrite_original', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
+		// The empty XMPToolkit stops exiftool from recording its version in the file.
+		$output = self::run_tool( array( $exiftool, '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', '-XMP-iptcExt:DigitalSourceType=' . $digital_source_type, $filename ) );
 
 		do_action( 'jetpack_bump_stats_extras', 'image_editor_ai_marker', null !== $output ? 'written' : 'write-failed' );
 	}
