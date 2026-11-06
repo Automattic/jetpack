@@ -218,7 +218,7 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 * Get the active installed copy, falling back to the first installed filename.
 	 *
 	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
@@ -226,17 +226,24 @@ abstract class Product {
 	 */
 	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
+		$filename    = self::JETPACK_PLUGIN_SLUG === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
+		$first_installed = null;
 		// Products without a standalone plugin don't declare a filename, so drop the empty values.
 		foreach ( array_filter( $filename ) as $name ) {
-			$installed = array_key_exists( $name, $all_plugins );
-			if ( $installed ) {
+			if ( ! isset( $all_plugins[ $name ] ) ) {
+				continue;
+			}
+			if ( $all_plugins[ $name ]['active'] ) {
 				return $name;
 			}
+			if ( null === $first_installed ) {
+				$first_installed = $name;
+			}
 		}
+		return $first_installed;
 	}
 
 	/**

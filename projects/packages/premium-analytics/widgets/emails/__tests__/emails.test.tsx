@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import Emails, { EmailsList, type EmailRow } from '../render';
 import type { EmailMetric } from '../widget';
 
@@ -99,6 +100,33 @@ describe( 'EmailsList', () => {
 			).toBeInTheDocument();
 		}
 	);
+
+	it( 'offers the live email in a new tab beside the title', () => {
+		renderEmailsList( 'opens' );
+
+		expect(
+			screen.getByRole( 'link', { name: 'View "Monthly newsletter" in a new tab' } )
+		).toHaveAttribute( 'href', 'https://example.com/newsletter/' );
+	} );
+
+	it.each( [
+		[ 'no post ID', { link: 'https://example.com/digest/' }, 1 ],
+		[ 'no public URL', { postId: 7 }, 1 ],
+	] )( 'offers no "View" action for an email with %s', ( _case, overrides, links ) => {
+		render(
+			<WidgetRoot attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-30' } } }>
+				<EmailsList rows={ [ row( { id: 7, label: 'Digest', ...overrides } ) ] } metric="opens" />
+			</WidgetRoot>
+		);
+
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( links );
+		expect( screen.queryByRole( 'link', { name: /^View / } ) ).not.toBeInTheDocument();
+		// An empty action slot beside the label would still space it; the label holds the title alone.
+		// eslint-disable-next-line testing-library/no-node-access -- An empty slot has no accessible query target.
+		const label = screen.getByText( 'Digest' ).closest( 'li' )?.firstElementChild;
+		// eslint-disable-next-line testing-library/no-node-access -- Its child count is the check.
+		expect( label?.childElementCount ).toBe( 1 );
+	} );
 
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
@@ -205,7 +233,7 @@ describe( 'EmailsList', () => {
 			date: '2026-06-30',
 			posts: [ { id: 71, title: 'API newsletter', opens: 30, total_sends: 100 } ],
 		} );
-		render(
+		const { declaredAction } = renderWithActionsHost(
 			<Emails attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } } />
 		);
 		await expect(
@@ -218,6 +246,6 @@ describe( 'EmailsList', () => {
 		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
 
 		expect( screen.getByRole( 'link', { name: 'API newsletter' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
 	} );
 } );

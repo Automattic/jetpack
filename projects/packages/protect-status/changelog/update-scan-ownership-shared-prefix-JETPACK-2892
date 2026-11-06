@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Expose the Scan product slug prefix so other packages can share it.

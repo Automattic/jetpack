@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Protect_Models\Status_Model;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -16,6 +17,14 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Dashboard_Threats::class )]
 class Dashboard_Threats_Test extends BaseTestCase {
+
+	/**
+	 * Forget the fixes each test records.
+	 */
+	public function tear_down() {
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		parent::tear_down();
+	}
 
 	/**
 	 * Threats, and the part of the formatted threat each one decides.
@@ -45,6 +54,33 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				array(),
 				array( 'extension' ),
 				null,
+			),
+			'no table is no database row'    => array(
+				array(),
+				array( 'database' ),
+				null,
+			),
+			'nested database row key'        => array(
+				array(
+					'table'   => 'wp_options',
+					'details' => (object) array(
+						'table'     => 'wp_options',
+						'pk_column' => 'option_id',
+						'pk_value'  => '472',
+					),
+				),
+				array( 'database', 'pkValue' ),
+				'472',
+			),
+			'flat database row key'          => array(
+				array(
+					'table'     => 'wp_options',
+					'pk_column' => 'option_id',
+					'value'     => '472',
+					'details'   => (object) array( 'option_name' => '_wpc_uinfo' ),
+				),
+				array( 'database', 'pkValue' ),
+				'472',
 			),
 			'empty fixable is false'         => array(
 				array( 'fixable' => array() ),
@@ -266,6 +302,40 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Scan's fixer extras, and the JSON the dashboard gets for them.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_format_fixable_extras() {
+		return array(
+			'keys are camelCased'        => array( (object) array( 'is_dotorg' => false ), '{"isDotorg":false}' ),
+			'every word is camelCased'   => array( (object) array( 'is_bulk_fixable' => false ), '{"isBulkFixable":false}' ),
+			'empty extras are an object' => array( array(), '{}' ),
+		);
+	}
+
+	/**
+	 * Test that format() camelCases the fixer's extras and keeps them a JSON object.
+	 *
+	 * @dataProvider provider_format_fixable_extras
+	 * @param mixed  $extras   Scan's extras.
+	 * @param string $expected The extras as JSON.
+	 */
+	#[DataProvider( 'provider_format_fixable_extras' )]
+	public function test_format_fixable_extras( $extras, $expected ) {
+		$threat = Dashboard_Threats::format(
+			(object) array(
+				'fixable' => (object) array(
+					'fixer'  => 'delete',
+					'extras' => $extras,
+				),
+			)
+		);
+
+		$this->assertSame( $expected, wp_json_encode( $threat['fixable']['extras'], JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
 	 * Inputs for format_all(), and the ids of the threats it should return.
 	 *
 	 * @return array[]
@@ -290,5 +360,54 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	#[DataProvider( 'provider_format_all' )]
 	public function test_format_all( $threats, $expected ) {
 		$this->assertSame( $expected, array_column( Dashboard_Threats::format_all( $threats ), 'id' ) );
+	}
+
+	/**
+	 * When Scan last scanned, relative to the delete, and which threats stay open and which records are kept.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_without_resolved() {
+		return array(
+			'hidden until Scan scans again'          => array( -HOUR_IN_SECONDS, array( '2' ), array( '1' ) ),
+			'shown again when a later scan finds it' => array( HOUR_IN_SECONDS, array( '1', '2' ), array() ),
+		);
+	}
+
+	/**
+	 * Test that a resolved threat is hidden only until Scan's next scan.
+	 *
+	 * @dataProvider provider_without_resolved
+	 * @param int      $scanned       Seconds from the delete to Scan's last scan.
+	 * @param string[] $expected_open Ids left open.
+	 * @param string[] $expected_kept Ids still recorded.
+	 */
+	#[DataProvider( 'provider_without_resolved' )]
+	public function test_without_resolved( $scanned, $expected_open, $expected_kept ) {
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$threats = array( (object) array( 'id' => '1' ), (object) array( 'id' => '2' ) );
+
+		$open = Dashboard_Threats::without_resolved( $threats, gmdate( 'c', time() + $scanned ) );
+
+		$this->assertSame( $expected_open, array_column( $open, 'id' ) );
+		$this->assertSame( $expected_kept, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
+	}
+
+	/**
+	 * Test that a scan that failed after the delete keeps the threat hidden.
+	 */
+	public function test_without_resolved_ignores_a_failed_scan() {
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$status = new Status_Model(
+			array(
+				'last_checked'     => gmdate( 'Y-m-d H:i:s', time() + HOUR_IN_SECONDS ),
+				'last_scan_failed' => true,
+			)
+		);
+
+		$open = Dashboard_Threats::without_resolved( array( (object) array( 'id' => '1' ) ), Dashboard_Threats::get_scanned_at( $status ) );
+
+		$this->assertSame( array(), $open );
+		$this->assertSame( array( '1' ), array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

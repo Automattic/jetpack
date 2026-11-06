@@ -7,7 +7,7 @@ export { useReportCustomers } from './hooks/use-report-customers';
 export { useReportOrderAttribution } from './hooks/use-report-order-attribution';
 export { useReportOrders } from './hooks/use-report-orders';
 export { useReportProducts } from './hooks/use-report-products';
-export { useProductImages } from './hooks/use-product-images';
+export { useProductDetails } from './hooks/use-product-details';
 export { useReportSessionsByDevice } from './hooks/use-report-sessions-by-device';
 export { useReportVisitorsByLocation } from './hooks/use-report-visitors-by-location';
 export { useReportVisitors } from './hooks/use-report-visitors';

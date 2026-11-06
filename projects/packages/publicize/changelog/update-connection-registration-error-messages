@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social: Explain why connecting the site failed instead of always showing a generic error.

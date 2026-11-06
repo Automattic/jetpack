@@ -85,18 +85,32 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 }
 
 /**
- * The status badge text on the feature card and in its details dialog: Needs user account, Unavailable, Active or Inactive.
+ * The status badge text on the feature card and in its details dialog: Unavailable, Active or Inactive.
  *
- * @param state - The feature's live state.
- * @return The status label.
+ * With the account-connect flag on, Active and Inactive show only once loaded and only where no switch
+ * shows the state: a control of kind `none`, such as Jetpack AI while its switch is gated, or a card whose
+ * control is only a link, such as Manage in Protect. Nothing shows while an account is needed.
+ *
+ * @param state         - The feature's live state.
+ * @param controlIsLink - Whether the card's control is only a link, which cannot say whether the feature is on.
+ * @return The status label, or null when the feature's own control already says it.
  */
-export function getFeatureStatusLabel( state: FeatureState ): string {
+export function getFeatureStatusLabel( state: FeatureState, controlIsLink = false ): string | null {
+	// Only set with the account-connect flag on. Connect or Install says what is missing;
+	// see `needsAccountWithoutConnect()` for a feature with neither.
 	if ( state.accountNeeded ) {
-		return __( 'Needs user account', 'jetpack-my-jetpack' );
+		return null;
 	}
-	return getFeatureUnavailableReason( state )
-		? __( 'Unavailable', 'jetpack-my-jetpack' )
-		: getActivationStatusLabel( state.status === 'active' );
+	if ( getFeatureUnavailableReason( state ) ) {
+		return __( 'Unavailable', 'jetpack-my-jetpack' );
+	}
+	if (
+		isAccountConnectEnabled() &&
+		( state.pending || ( state.control.kind !== 'none' && ! controlIsLink ) )
+	) {
+		return null;
+	}
+	return getActivationStatusLabel( state.status === 'active' );
 }
 
 /**

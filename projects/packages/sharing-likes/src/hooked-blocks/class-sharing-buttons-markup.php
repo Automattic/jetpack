@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 
 /**
  * A `jetpack/sharing-buttons` block with its buttons, carried over from the
@@ -34,7 +35,12 @@ final class Sharing_Buttons_Markup {
 	/**
 	 * Buttons when the site has no legacy service the block offers.
 	 */
-	private const DEFAULT_SERVICES = array( 'facebook', 'x', 'mastodon' );
+	private const DEFAULT_SERVICES = array( 'x', 'facebook', 'mastodon' );
+
+	/**
+	 * Buttons on WordPress.com Simple when the site has no legacy service the block offers.
+	 */
+	private const SIMPLE_DEFAULT_SERVICES = array( 'wordpress', 'x', 'facebook' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- A service ID.
 
 	/**
 	 * Legacy service IDs the block knows under another name.
@@ -42,6 +48,7 @@ final class Sharing_Buttons_Markup {
 	private const LEGACY_ALIASES = array(
 		'email'            => 'mail',
 		'jetpack-whatsapp' => 'whatsapp',
+		'press-this'       => 'wordpress', // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- A service ID.
 		'twitter'          => 'x',
 	);
 
@@ -110,7 +117,7 @@ final class Sharing_Buttons_Markup {
 			}
 		}
 
-		return self::DEFAULT_SERVICES;
+		return Environment::is_simple_site() ? self::SIMPLE_DEFAULT_SERVICES : self::DEFAULT_SERVICES;
 	}
 
 	/**
@@ -193,6 +200,7 @@ final class Sharing_Buttons_Markup {
 			'threads'   => 'Threads',
 			'tumblr'    => 'Tumblr',
 			'whatsapp'  => 'WhatsApp',
+			'wordpress' => 'WordPress', // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- A service ID.
 			'x'         => 'X',
 			'nextdoor'  => 'Nextdoor',
 		);

@@ -138,9 +138,10 @@ class Protect_Waf_Config_Test extends TestCase {
 			array_merge(
 				Waf_Runner::get_config(),
 				array(
-					'waf_supported'  => true,
-					'waf_enabled'    => true,
-					'blocked_logins' => 0,
+					'waf_supported'        => true,
+					'waf_enabled'          => true,
+					'waf_provided_by_host' => false,
+					'blocked_logins'       => 0,
 				)
 			),
 			$waf_config
@@ -201,6 +202,7 @@ class Protect_Waf_Config_Test extends TestCase {
 				'brute_force_protection'      => true,
 				'waf_supported'               => true,
 				'waf_enabled'                 => true,
+				'waf_provided_by_host'        => false,
 				'blocked_logins'              => 0,
 			),
 			$waf_config

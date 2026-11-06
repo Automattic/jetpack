@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
+import { getMovedOutModules } from 'lib/settings-consolidation';
 import Subscriptions from 'newsletter';
 import Performance from 'performance';
 import Privacy from 'privacy';
@@ -32,7 +33,6 @@ class Settings extends Component {
 			searchTerm,
 			siteAdminUrl,
 			siteRawUrl,
-			blogID,
 			userCanManageModules,
 			hasAnyMatchingModule,
 		} = this.props;
@@ -77,7 +77,7 @@ class Settings extends Component {
 						active={ '/discussion' === pathname }
 						{ ...commonProps }
 					/>
-					<Reader active={ '/reader' === pathname } blogID={ blogID } { ...commonProps } />
+					<Reader active={ '/reader' === pathname } { ...commonProps } />
 					<Earn
 						siteRawUrl={ siteRawUrl }
 						active={ '/earn' === pathname }
@@ -124,9 +124,9 @@ class Settings extends Component {
 export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
-		hasAnyMatchingModule: hasAnyMatchingModuleSelector(
-			state,
-			hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : []
-		),
+		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state, [
+			...( hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : [] ),
+			...getMovedOutModules( state ),
+		] ),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );

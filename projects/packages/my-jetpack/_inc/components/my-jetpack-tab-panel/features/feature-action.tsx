@@ -1,13 +1,18 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, ButtonLink } from '@wordpress/ui';
+import { Button, ButtonLink, Switch } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
+import {
+	CONNECT_INTENT_PARAM,
+	isSetupResumeEnabled,
+	rememberConnectIntent,
+	reloadToTurnOn,
+} from './connect-resume';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -28,7 +33,15 @@ export function useAccountConnection() {
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			tracking?.trackConnectionStart( state, origin, action );
-			leavePageFor( getUserConnectionUrl( { redirect_url: getFeatureConnectReturnUrl() } ) );
+			// Installing or activating Jetpack from a module's card is the first step of turning that
+			// module on, so the return finishes it. Another plugin's Install has already turned it on.
+			const remembers = action === 'connect' || state.control.kind === 'install-jetpack';
+			const intent = remembers ? rememberConnectIntent( state.feature.slug ) : null;
+			const returnUrl = getFeatureConnectReturnUrl(
+				undefined,
+				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
+			);
+			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
 		},
 		[ tracking ]
 	);
@@ -68,10 +81,10 @@ function PluginToggle( { state, origin, plugin, isOn, name, describedby }: Plugi
 	}, [ isOn, origin, run, state, tracking ] );
 
 	return (
-		<FormToggle
+		<Switch
 			checked={ isOn }
 			disabled={ isBusy }
-			onChange={ onChange }
+			onCheckedChange={ onChange }
 			aria-label={ getSwitchLabel( isOn, name ) }
 			aria-describedby={ describedby }
 		/>
@@ -113,9 +126,14 @@ export function InstallButton( {
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( { state, action, origin } );
 		const connectAfter = Boolean( state?.accountNeeded );
-		run( action, { leavesPage: connectAfter } ).then( done => {
+		// When no account connection follows, Jetpack's reload is the end of the module's setup.
+		const reloadsToTurnOn =
+			! connectAfter && state?.control.kind === 'install-jetpack' && isSetupResumeEnabled();
+		run( action, { leavesPage: connectAfter || reloadsToTurnOn } ).then( done => {
 			if ( done && connectAfter ) {
 				connectAccount( state, origin, 'install' );
+			} else if ( done && reloadsToTurnOn ) {
+				reloadToTurnOn( state.feature.slug );
 			}
 		} );
 	}, [ action, connectAccount, origin, run, state, tracking ] );
@@ -171,16 +189,20 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			} ),
 		[ origin, state, tracking ]
 	);
+	const onManageClick = useCallback(
+		() => tracking?.trackManageClick( state, 'campaigns_warning' ),
+		[ state, tracking ]
+	);
 
 	if ( state.pending ) {
 		return (
-			// The size of the FormToggle it stands in for, so the row does not resize.
+			// The size of the switch it stands in for, so the row does not resize.
 			<LoadingPlaceholder width={ 32 } height={ 16 } className={ styles[ 'skeleton-switch' ] } />
 		);
 	}
 
 	if ( offersConnect( state ) ) {
-		return <ConnectButton state={ state } origin={ origin } describedby={ describedby } />;
+		return <ConnectButton state={ state } origin={ origin } />;
 	}
 
 	switch ( control.kind ) {
@@ -239,6 +261,8 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 					reloadAfterToggle={ false }
 					describedby={ describedby }
 					onSwitch={ onModuleSwitch }
+					onManageClick={ onManageClick }
+					manageUrl={ manageUrl }
 				/>
 			);
 		}
@@ -300,21 +324,19 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 type ConnectButtonProps = {
 	state: FeatureState;
 	origin: FeatureActionOrigin;
-	describedby?: string;
 	buttonRef?: Ref< HTMLButtonElement >;
 };
 
 /**
- * Start connecting the WordPress.com account a feature is waiting for, changing nothing else.
+ * Start connecting the WordPress.com account a feature is waiting for.
  *
- * @param {ConnectButtonProps} props             - The component props.
- * @param {FeatureState}       props.state       - Live state for the feature.
- * @param {string}             props.origin      - Which control this is.
- * @param {string}             props.describedby - Id of the element stating why it is needed.
- * @param {Ref}                props.buttonRef   - Ref to the button, for a caller that moves focus to it.
+ * @param {ConnectButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature.
+ * @param {string}             props.origin    - Which control this is.
+ * @param {Ref}                props.buttonRef - Ref to the button, for a caller that moves focus to it.
  * @return The rendered component.
  */
-export function ConnectButton( { state, origin, describedby, buttonRef }: ConnectButtonProps ) {
+export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps ) {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback(
 		() => connectAccount( state, origin, 'connect' ),
@@ -327,7 +349,6 @@ export function ConnectButton( { state, origin, describedby, buttonRef }: Connec
 			variant="outline"
 			size="compact"
 			onClick={ onClick }
-			aria-describedby={ describedby }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
 				__( 'Connect account for %s', 'jetpack-my-jetpack' ),

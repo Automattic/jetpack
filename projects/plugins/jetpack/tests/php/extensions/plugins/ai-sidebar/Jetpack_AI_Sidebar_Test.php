@@ -265,12 +265,15 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate the Big_Sky class existing, as it does when the Big Sky plugin is present.
+	 * Simulate the Big_Sky class existing, as it does when the Big Sky plugin is present,
+	 * on a site whose plan grants Big Sky. A test for a site without the plan calls
+	 * remove_big_sky_plan() afterwards.
 	 */
 	private function simulate_big_sky_class() {
 		if ( ! class_exists( 'Big_Sky' ) ) {
 			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
 		}
+		$this->simulate_big_sky_eligible_plan();
 	}
 
 	/**
@@ -286,6 +289,14 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Take the Big Sky plan away again: drop the stored plan and the cached copy.
+	 */
+	private function remove_big_sky_plan() {
+		delete_option( 'jetpack_active_plan' );
+		$this->reset_plan_cache();
 	}
 
 	/**
@@ -587,6 +598,22 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A site downgraded to Free keeps the Big Sky plugin and option but has no plan,
+	 * so the preview gate stays closed and the Agent is no longer offered.
+	 */
+	public function test_preview_disabled_and_no_agent_notice_without_a_big_sky_plan() {
+		$this->skip_when_wpcomsh_is_active();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		$this->remove_big_sky_plan();
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertFalse( $this->gate_open() );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
 	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
 	 */
 	public function test_preview_disabled_on_self_hosted() {
@@ -602,6 +629,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	 * The preview gate is open on WordPress.com Simple with Big Sky present (defaults on).
 	 */
 	public function test_preview_enabled_on_wpcom_simple_with_big_sky() {
+		$this->skip_when_wpcomsh_is_active();
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		$this->simulate_wpcom_simple();
 		$this->simulate_big_sky_class();
@@ -1280,17 +1308,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An installed plugin proves eligibility, even with the option off and no plan data.
+	 * An installed plugin no longer proves eligibility: without a plan the notice stays off.
 	 */
-	public function test_agent_notice_enabled_when_plugin_present_but_off_and_plan_unknown() {
+	public function test_agent_notice_disabled_when_plugin_present_but_off_and_no_plan() {
 		$this->skip_when_wpcomsh_is_active();
 		$this->set_block_editor_screen();
 		$this->simulate_wpcom_platform();
 		$this->simulate_big_sky_class();
+		$this->remove_big_sky_plan();
 		update_option( 'big_sky_enable', '0' );
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 
-		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}
 
 	/**

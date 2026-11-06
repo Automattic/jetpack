@@ -13,7 +13,8 @@ const renderInto = ( container: HTMLElement ) => {
 	createRoot( container ).render(
 		<NoticeContextProvider>
 			<QueryClientProvider client={ new QueryClient() }>
-				<HeaderControls />
+				{ /* The host page names itself through `getHeaderControlsSlot()`; an older host sends none. */ }
+				<HeaderControls trackingContext={ container.dataset.trackingContext } />
 			</QueryClientProvider>
 		</NoticeContextProvider>
 	);

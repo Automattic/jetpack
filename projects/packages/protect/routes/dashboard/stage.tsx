@@ -4,12 +4,18 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import Overview from './components/overview';
+import PageBreadcrumbs from './components/page-breadcrumbs';
 import SettingsTab from './components/settings-tab';
+import { recordPageView } from './data/page-views';
 import useProtectSettings from './data/use-protect-settings';
 import sections from './sections';
 import { CLOSED_INSPECTOR } from './sections/inspector-params';
 import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
-import ThreatReport, { ThreatReportBreadcrumbs } from './sections/scan/threat-report';
+import HeaderScanButton from './sections/scan/header-scan-button';
+import ScanStartNotice from './sections/scan/scan-start-notice';
+import { useScanPolling } from './sections/scan/store';
+import { ThreatFileViewer } from './sections/scan/threat-file';
+import ThreatReport from './sections/scan/threat-report';
 import './route.scss';
 
 /**
@@ -44,6 +50,8 @@ const Stage = () => {
 	);
 	const goTo = useCallback( ( next: string ) => openTab( next ), [ openTab ] );
 	const settings = useProtectSettings();
+	// Above the report's early return, so every view follows a running scan.
+	useScanPolling();
 	const context = useMemo( () => ( { settings, openTab } ), [ settings, openTab ] );
 
 	const state = window.jetpackProtectDashboard ?? {};
@@ -64,9 +72,25 @@ const Stage = () => {
 		}
 	}, [ activeTab, load, showReport ] );
 
+	// Only a real Settings card goes to Tracks; `?section=` is free text from the URL.
+	const pageViewSection =
+		activeTab === 'settings' && sections.some( section => section.key === requestedSection )
+			? requestedSection
+			: undefined;
+	useEffect( () => {
+		if ( ! showReport ) {
+			recordPageView( activeTab, pageViewSection );
+		}
+	}, [ activeTab, pageViewSection, showReport ] );
+
 	if ( showReport ) {
+		const reportTitle = __( 'Threats from your alert', 'jetpack-protect-pkg' );
 		return (
-			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
+			<AdminPage
+				className="jp-protect-dashboard"
+				breadcrumbs={ <PageBreadcrumbs current={ reportTitle } /> }
+				ariaLabel={ reportTitle }
+			>
 				<div className="jp-protect-dashboard__body">
 					<ThreatReport
 						ids={ reportIds }
@@ -74,6 +98,7 @@ const Stage = () => {
 						openTab={ openTab }
 					/>
 				</div>
+				<ThreatFileViewer />
 			</AdminPage>
 		);
 	}
@@ -83,10 +108,8 @@ const Stage = () => {
 			className="jp-protect-dashboard"
 			// "Protect" is a product name and is not translated.
 			title="Protect"
-			subTitle={ __(
-				'Security tools that keep your site safe and sound, from posts to plugins.',
-				'jetpack-protect-pkg'
-			) }
+			ariaLabel="Protect"
+			actions={ state.scan ? <HeaderScanButton /> : undefined }
 		>
 			<Tabs.Root value={ activeTab } onValueChange={ goTo }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
@@ -101,6 +124,7 @@ const Stage = () => {
 					</Tabs.List>
 				</div>
 				<div className="jp-protect-dashboard__body">
+					<ScanStartNotice />
 					<Tabs.Panel value="overview">
 						{ activeTab === 'overview' && <Overview { ...context } /> }
 					</Tabs.Panel>
@@ -116,6 +140,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<ThreatFileViewer />
 		</AdminPage>
 	);
 };

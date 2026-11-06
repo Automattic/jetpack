@@ -29,6 +29,7 @@ export const REPORT_DATE_PARAM_KEYS = [
 	'to',
 	'interval',
 	'preset',
+	'step',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
@@ -86,6 +87,7 @@ export function toReportOriginWindowParams(
 					from: linked.from,
 					to: linked.to,
 					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
+					...( linked.step !== undefined ? { step: linked.step } : {} ),
 				};
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
@@ -274,7 +276,7 @@ export function omitReportDateParams< T extends Record< string, unknown > >(
  * @param value - The search value to serialize.
  * @return The querystring-ready value.
  */
-function stringifySearchValue( value: unknown ): string {
+export function stringifySearchValue( value: unknown ): string {
 	if ( typeof value === 'string' ) {
 		try {
 			JSON.parse( value );

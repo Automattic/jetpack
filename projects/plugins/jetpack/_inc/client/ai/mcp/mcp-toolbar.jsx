@@ -17,21 +17,23 @@ import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
  */
 export default function McpToolbar( { allEnabled, isDisabled, onEnableAll, children } ) {
 	return (
-		<Card.Root>
-			<Card.Content className="jetpack-ai-mcp__card-content">
-				<Stack direction="column" gap="md">
-					<Text render={ <p /> } className="jetpack-ai-mcp__muted">
-						{ __( 'Turn individual tools on or off. Changes save automatically.', 'jetpack' ) }
-					</Text>
-					<SwitchControl
-						checked={ allEnabled }
-						disabled={ isDisabled }
-						label={ __( 'Enable all', 'jetpack' ) }
-						onCheckedChange={ onEnableAll }
-					/>
-					{ children }
-				</Stack>
-			</Card.Content>
-		</Card.Root>
+		<div className="jetpack-ai-mcp__toolbar">
+			<Card.Root>
+				<Card.Content className="jetpack-ai-mcp__card-content">
+					<Stack direction="column" gap="md">
+						<Text render={ <p /> } className="jetpack-ai-mcp__muted">
+							{ __( 'Turn individual tools on or off. Changes save automatically.', 'jetpack' ) }
+						</Text>
+						<SwitchControl
+							checked={ allEnabled }
+							disabled={ isDisabled }
+							label={ __( 'Enable all', 'jetpack' ) }
+							onCheckedChange={ onEnableAll }
+						/>
+						{ children }
+					</Stack>
+				</Card.Content>
+			</Card.Root>
+		</div>
 	);
 }

@@ -6,8 +6,8 @@ import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
 
 /**
  * How precisely a label must name a point for its bucket size. A date alone
- * names 24 hourly buckets (so identifies none) but a daily one exactly;
- * anything coarser stays date-named since the axis/legend already cover the range.
+ * names 24 hourly buckets (so identifies none) but a daily one exactly; a
+ * month stays date-named, and a year reads as the year, as in classic Stats.
  */
 // Exhaustive on purpose: a new resolution in the library fails to compile here
 // rather than falling through to a date silently.
@@ -15,7 +15,7 @@ const DATE_FORMAT_FOR_RESOLUTION: Record< BucketInfo[ 'displayResolution' ], Dat
 	hour: 'dateTime',
 	day: 'medium',
 	month: 'medium',
-	year: 'medium',
+	year: 'year',
 };
 
 /**

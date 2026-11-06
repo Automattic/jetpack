@@ -14,6 +14,5 @@ export default defineConfig( makeBaseConfig( import.meta.url ), {
 		'jsdoc/require-returns': 'off',
 		'jsdoc/check-indentation': 'off',
 		'jsdoc/escape-inline-tags': 'off',
-		'import/no-extraneous-dependencies': 'off',
 	},
 } );

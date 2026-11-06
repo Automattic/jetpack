@@ -3,7 +3,7 @@
 
 // Metrics are separated by a hairline rather than boxed: each tile draws the
 // rule on the edge it shares with the tile before it, and the outer edges stay
-// open. Same weak stroke as WidgetFooter's rule in the same card.
+// open. Same weak stroke as the card footer's rule.
 $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	var(--wpds-color-stroke-surface-neutral-weak);
 
@@ -69,14 +69,37 @@ $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	white-space: nowrap;
 }
 
+/* In a list row the figure gives way before the label: the header keeps at
+ * least this much and the value box shrinks instead, clipping a figure that is
+ * too long, which a `preferExact` format then shows compact. */
+$metric-tile-list-header-min: 7rem;
+
+.grid[data-layout="compact"] .header,
+.grid[data-layout="stacked"] .header {
+	min-inline-size: min(100%, #{$metric-tile-list-header-min});
+}
+
+.grid[data-layout="compact"] .tile .value,
+.grid[data-layout="stacked"] .tile .value,
+.grid[data-layout="compact"] .tile .placeholder,
+.grid[data-layout="stacked"] .tile .placeholder,
+.grid[data-layout="compact"] .comparison,
+.grid[data-layout="stacked"] .comparison {
+	flex-shrink: 1;
+	min-inline-size: 0;
+}
+
 /* Comparison tiles render value + delta through MetricWithComparison, which
- * manages its own value font size, so this cell only handles placement. */
+ * manages its own value font size, so this cell only handles placement. It
+ * hides its overflow so a `preferExact` figure clips here, not at the grid
+ * edge, and falls back to compact; the delta wraps under the figure first. */
 .comparison {
 	display: flex;
 	flex: 0 0 auto;
 	justify-content: center;
 	min-inline-size: 0;
 	max-inline-size: 100%;
+	overflow: hidden;
 }
 
 /* MetricValue emits the font-size token without a fallback, and the dashboard
@@ -125,8 +148,8 @@ $metric-tile-grid-divider: var(--wpds-border-width-xs) solid
 	border-inline-start: $metric-tile-grid-divider;
 }
 
-/* A height-1 body that also carries a footer is a few pixels shorter than a
- * row tile, so shed the tile's block padding at the shared short threshold. */
+/* A height-1 body under the card footer is a few pixels shorter than a row
+ * tile, so shed the tile's block padding at the shared short threshold. */
 @container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.grid[data-layout="row"] .tile {

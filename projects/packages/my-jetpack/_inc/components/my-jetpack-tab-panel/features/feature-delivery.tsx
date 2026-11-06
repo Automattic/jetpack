@@ -2,7 +2,14 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Icon, Stack, Text } from '@wordpress/ui';
-import { getForcedReason, getInstallBlockReason, getModuleUnavailableNote } from './feature-state';
+import {
+	getForcedReason,
+	getInstallBlockReason,
+	getModuleUnavailableNote,
+	needsAccountWithoutConnect,
+	offersConnect,
+} from './feature-state';
+import { getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -57,12 +64,13 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				pluginName
 			);
 			const connectNote = sprintf(
-				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				/* translators: %1$s is a plugin name; keep the <plugin> tags around it. %2$s is a feature name, such as "Social". */
 				__(
-					'The <plugin>%s</plugin> plugin is already installed. Connect your WordPress.com account, then turn it on here.',
+					'The <plugin>%1$s</plugin> plugin is already installed. After you connect your WordPress.com account, %2$s turns on when you’re back here.',
 					'jetpack-my-jetpack'
 				),
-				pluginName
+				pluginName,
+				feature.name
 			);
 			return state.accountNeeded ? connectNote : activateNote;
 		}
@@ -72,9 +80,13 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
-			const connectFirstNote = __(
-				'Built into Jetpack, so there is nothing to install. Connect your WordPress.com account, then turn it on here if it’s still off.',
-				'jetpack-my-jetpack'
+			const connectFirstNote = sprintf(
+				/* translators: %s is a feature name, such as "Activity Log". */
+				__(
+					'Built into Jetpack, so there is nothing to install. After you connect your WordPress.com account, %s turns on when you’re back here.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
 			);
 			return state.accountNeeded ? connectFirstNote : moduleNote;
 		}
@@ -105,7 +117,8 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * The module limitation and the action's setup note in the feature details.
+ * The module limitation, a missing account nothing else explains, and the action's setup note in
+ * the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -125,8 +138,17 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const note = isSettled ? '' : getNote( state, pluginName );
 	// A blocked install never reaches the next step, so naming it would only mislead.
 	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
+	// Here rather than beside the buttons, where a long reason pushes Upgrade out of a phone-sized
+	// window. A host-forced feature already lists it beside its forced reason. An active feature
+	// gets it too, or its Connect would sit beside Deactivate with nothing saying why.
+	const accountNote =
+		( needsAccountWithoutConnect( state ) ||
+			( offersConnect( state ) && state.status === 'active' ) ) &&
+		! getForcedReason( state )
+			? getFeatureUnavailableReason( state )
+			: '';
 
-	if ( ! note && ! setupNote ) {
+	if ( ! accountNote && ! note && ! setupNote ) {
 		return null;
 	}
 
@@ -136,6 +158,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
 			<Stack direction="column" gap="xs">
 				{ moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null }
+				{ accountNote ? <Text variant="body-sm">{ accountNote }</Text> : null }
 				{ note ? (
 					<Text variant="body-sm">
 						{ createInterpolateElement( note, {

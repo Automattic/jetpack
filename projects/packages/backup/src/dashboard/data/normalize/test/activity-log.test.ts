@@ -63,6 +63,19 @@ const unknownEntry: WpcomActivityEntry = {
 };
 
 describe( 'normalizeEntry', () => {
+	test( 'maps a backup with warnings to a backup ActivityItem', () => {
+		expect( normalizeEntry( { ...backupEntry, gridicon: 'notice' } ) ).toMatchObject( {
+			kind: 'backup',
+			rewindId: '1777035492',
+		} );
+	} );
+
+	test( 'keeps a backup-named entry that cannot be restored as other', () => {
+		expect(
+			normalizeEntry( { ...backupEntry, gridicon: 'notice', is_rewindable: false } )
+		).toMatchObject( { kind: 'other' } );
+	} );
+
 	test( 'maps a backup entry to a backup ActivityItem', () => {
 		const item = normalizeEntry( backupEntry );
 		expect( item ).toMatchObject( {

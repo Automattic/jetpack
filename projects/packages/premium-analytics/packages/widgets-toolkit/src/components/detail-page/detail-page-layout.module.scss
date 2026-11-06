@@ -16,6 +16,11 @@
 	}
 }
 
+// Keeps the footer at the bottom of a short page.
+.footer {
+	margin-block-start: auto;
+}
+
 .section {
 	// Caps every layer the widget grid raises (chart controls, the edit
 	// overlay, resizing tiles) under the pinned header, which then only has to
@@ -49,5 +54,12 @@
 	// Overlay WidgetHeader re-declares padding to 2xl; match the Card tweak.
 	[class*="__widget-header"][class*="__overlay"] {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+
+	// The same pin as routes/dashboard/stage.module.scss, which explains it.
+	// TODO: remove once WordPress/gutenberg#85231 lands.
+	[class*="__widget-footer"] {
+		block-size: 44px;
+		padding-block: 0;
 	}
 }

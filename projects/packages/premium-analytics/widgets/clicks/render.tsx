@@ -10,24 +10,19 @@ import {
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
-	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
-	ExporterCsvDownloadButton,
 	clicksCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -111,16 +106,9 @@ export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
-	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxClicks = getCombinedPeriodMax(
-		rows.map( row => row.value ),
-		withComparison ? rows.map( row => row.previousValue ) : []
-	);
-
 	return rows.map( ( row, index ) => {
-		const previousValue = row.previousValue;
 		const hasChildren = !! row.children?.length;
 
 		return {
@@ -144,16 +132,7 @@ function buildLeaderboardData(
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxClicks ),
-			previousValue,
-			previousShare:
-				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxClicks )
-					: undefined,
-			delta:
-				withComparison && previousValue !== undefined
-					? calculateDelta( row.value, previousValue )
-					: undefined,
+			previousValue: row.previousValue,
 		};
 	} );
 }
@@ -183,8 +162,7 @@ export function ClicksLeaderboard( {
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
-			chartTitle={ __( 'Top links clicked', 'jetpack-premium-analytics-pkg' ) }
-			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
+			data={ buildLeaderboardData( rows, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
@@ -253,45 +231,41 @@ function ClicksInner() {
 		/>
 	) : null;
 
+	useReportActions( {
+		csv: {
+			exporter: clicksCsvExporter,
+			status: { isLoading, isFetching, isError: primary.isError },
+			rowCount: rows.length,
+		},
+	} );
+
 	return (
-		<>
-			<div className={ styles.content }>
-				{ backLink }
-				<WidgetState
-					isLoading={ emptyState.isLoading }
-					isFetching={ isFetching }
-					// `placeholderData` keeps the prior period's rows on screen while `isError`
-					// flips true, so a transient refetch failure should not replace them.
-					isError={ rows.length === 0 && isError }
-					isEmpty={ activeRows.length === 0 }
-					error={ {
-						description: __(
-							"We couldn't load clicks. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						actions: [
-							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-						],
-					} }
-					empty={ emptyState.empty }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<ClicksLeaderboard
-						rows={ activeRows }
-						withComparison={ withComparison }
-						onDrillDown={ isDrillDown ? undefined : handleDrillDown }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="clicks" />
-				<ExporterCsvDownloadButton
-					exporter={ clicksCsvExporter }
-					status={ { isLoading, isFetching, isError: primary.isError } }
-					rowCount={ rows.length }
+		<div className={ styles.content }>
+			{ backLink }
+			<WidgetState
+				isLoading={ emptyState.isLoading }
+				isFetching={ isFetching }
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
+				isError={ rows.length === 0 && isError }
+				isEmpty={ activeRows.length === 0 }
+				error={ {
+					description: __(
+						"We couldn't load clicks. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				} }
+				empty={ emptyState.empty }
+				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+			>
+				<ClicksLeaderboard
+					rows={ activeRows }
+					withComparison={ withComparison }
+					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
 				/>
-			</WidgetFooter>
-		</>
+			</WidgetState>
+		</div>
 	);
 }
 

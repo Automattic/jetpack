@@ -22,6 +22,14 @@ function taskSubtitles(): Record< string, string > {
 		connect_social_media: __( 'Connect your social accounts.', 'jetpack-mu-wpcom' ),
 		site_launched: __( 'Launch your site for the world to see.', 'jetpack-mu-wpcom' ),
 		blog_launched: __( 'Launch your blog for the world to see.', 'jetpack-mu-wpcom' ),
+		add_site_icon: __( 'Add your logo or site icon.', 'jetpack-mu-wpcom' ),
+		domain_upsell: __( 'Give your site its own domain.', 'jetpack-mu-wpcom' ),
+		add_subscribe_block: __( 'Let visitors subscribe to your site.', 'jetpack-mu-wpcom' ),
+		customize_welcome_message: __(
+			'Write the welcome message new subscribers get.',
+			'jetpack-mu-wpcom'
+		),
+		install_sensei_lms: __( 'Install Sensei to build your courses.', 'jetpack-mu-wpcom' ),
 	};
 }
 
@@ -80,15 +88,70 @@ const GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
 };
 
 /**
+ * Per-goal task ID lists for an AI-built site, which never gets the tasks the builder already did.
+ */
+const AI_BUILT_GOAL_TASK_IDS: Record< GoalSlug, string[] > = {
+	write: [
+		'connect_social_media',
+		'add_subscribe_block',
+		'add_site_icon',
+		'domain_upsell',
+		'complete_profile',
+		'site_launched',
+	],
+	build: [
+		'add_site_icon',
+		'domain_upsell',
+		'connect_social_media',
+		'complete_profile',
+		'verify_email',
+		'site_launched',
+	],
+	sell: [
+		'woo_products',
+		'set_up_payments',
+		'add_site_icon',
+		'domain_upsell',
+		'connect_social_media',
+		'site_launched',
+	],
+	newsletter: [
+		'add_10_email_subscribers',
+		'customize_welcome_message',
+		'add_subscribe_block',
+		'connect_social_media',
+		'add_site_icon',
+		'site_launched',
+	],
+	educate: [
+		'install_sensei_lms',
+		'add_site_icon',
+		'domain_upsell',
+		'connect_social_media',
+		'complete_profile',
+		'site_launched',
+	],
+	portfolio: [
+		'add_site_icon',
+		'domain_upsell',
+		'connect_social_media',
+		'complete_profile',
+		'verify_email',
+		'site_launched',
+	],
+};
+
+/**
  * Map a goal's task IDs to TailoredTask objects with deterministic subtitles.
  *
- * @param goal - The wizard goal.
+ * @param goal    - The wizard goal.
+ * @param aiBuilt - Whether the site was built with AI.
  * @return The six tasks for the goal.
  */
-function buildTasks( goal: GoalSlug ): TailoredTask[] {
+function buildTasks( goal: GoalSlug, aiBuilt: boolean ): TailoredTask[] {
 	const subtitles = taskSubtitles();
 	const generic = __( 'Get this set up.', 'jetpack-mu-wpcom' );
-	return GOAL_TASK_IDS[ goal ].map( id => ( {
+	return ( aiBuilt ? AI_BUILT_GOAL_TASK_IDS : GOAL_TASK_IDS )[ goal ].map( id => ( {
 		id,
 		subtitle: subtitles[ id ] ?? generic,
 	} ) );
@@ -125,15 +188,20 @@ function withSiteName( template: string, siteName: string ): string {
 /**
  * Deterministic fallback when the AI call fails or returns invalid output.
  *
- * @param input - The collected wizard input.
- * @param copy  - The site-language copy for the post and page drafts.
+ * @param input   - The collected wizard input.
+ * @param copy    - The site-language copy for the post and page drafts.
+ * @param aiBuilt - Whether the site was built with AI.
  * @return A schema-valid tailored output.
  */
-export function selectFallback( input: WizardInput, copy: SiteCopy ): TailoredOutput {
+export function selectFallback(
+	input: WizardInput,
+	copy: SiteCopy,
+	aiBuilt = false
+): TailoredOutput {
 	const siteName = input.site_name.trim() || copy.fallback_site_name;
 
 	return {
-		tasks: buildTasks( input.goal ),
+		tasks: buildTasks( input.goal, aiBuilt ),
 		inferred: {
 			goal: input.goal,
 			brand_name: clamp( input.site_name, 80 ),

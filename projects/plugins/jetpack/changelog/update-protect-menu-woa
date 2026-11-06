@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Scan: Skip the Atomic Scan history link while a Protect page is registered. jetpack-mu-wpcom already hides that link on Atomic, so nothing visible changes.
+
+

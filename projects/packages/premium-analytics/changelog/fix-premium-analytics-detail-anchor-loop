@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix post, video and author stats pages that could crash with "Something went wrong" right after opening.

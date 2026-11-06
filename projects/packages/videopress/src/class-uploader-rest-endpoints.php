@@ -60,6 +60,10 @@ class Uploader_Rest_Endpoints {
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 					'args'                => array(
 						'attachment_id' => $id_arg,
+						'source'        => array(
+							'type' => 'string',
+							'enum' => array( 'dashboard_promote', 'block_editor' ),
+						),
 					),
 				),
 			)
@@ -129,7 +133,7 @@ class Uploader_Rest_Endpoints {
 	public static function do_upload( $request ) {
 		$attachment_id = $request->get_param( 'attachment_id' );
 		try {
-			$uploader = new Uploader( $attachment_id );
+			$uploader = new Uploader( $attachment_id, $request->get_param( 'source' ) );
 			$status   = $uploader->upload();
 			return rest_ensure_response( $status );
 		} catch ( Upload_Exception $e ) {

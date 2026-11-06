@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+SEO: Add more AI crawlers to the GEO tab, block every robots.txt name each one uses, and show those names under each toggle.
