@@ -10,22 +10,16 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Top tags & categories moved from the Insights default layout to Traffic, which never reaches a
  * layout the reader customized: core keeps those in the `persisted_preferences` user meta. This
- * rewrites that meta once per reader, on the read that precedes the dashboard: the tile leaves a
+ * rewrites that meta once per reader, as Stored_Layout_Rewrite runs it: the tile leaves a
  * customized Insights and, when the reader customized Traffic too, joins its end as the default
- * places it. The move is recorded in the same preferences, so a reader who removes the tile from
- * Traffic afterwards is left alone.
+ * places it.
  *
  * Temporary, to be removed once the move has reached the readers who customized a tab before it
- * (WOOA7S-2291). The next layout change is a separate discussion, not a second entry here.
+ * (WOOA7S-2291).
  *
  * @since 0.13.0
  */
-class Stored_Layout_Move {
-
-	const LAYOUTS_KEY = 'dashboardSectionLayouts';
-
-	/** The applied moves, by id, so a tile removed after its move stays removed. */
-	const MOVES_KEY = 'dashboardLayoutMoves';
+class Stored_Layout_Move extends Stored_Layout_Rewrite {
 
 	const MOVE_ID = 'tags-to-traffic';
 
@@ -36,51 +30,12 @@ class Stored_Layout_Move {
 	const TO = 'traffic';
 
 	/**
-	 * Hook the preferences read. Priority 99 runs after core's own readers, as Gutenberg's default
-	 * layout injection does.
-	 *
-	 * @return void
-	 */
-	public static function register() {
-		add_filter( 'get_user_metadata', array( __CLASS__, 'filter_user_meta' ), 99, 3 );
-	}
-
-	/**
-	 * Rewrite the stored section layouts on read, and persist the rewrite.
-	 *
-	 * @param mixed  $value    The pre-fetched value, or null to let the meta API resolve normally.
-	 * @param int    $user_id  User ID.
-	 * @param string $meta_key Meta key being read.
-	 * @return mixed The original value, or a single-element array holding the moved preferences.
-	 */
-	public static function filter_user_meta( $value, $user_id, $meta_key ) {
-		global $wpdb;
-
-		if ( $meta_key !== $wpdb->get_blog_prefix() . 'persisted_preferences' ) {
-			return $value;
-		}
-
-		// The meta API runs this filter on our own read, and on the read inside the update.
-		remove_filter( 'get_user_metadata', array( __CLASS__, 'filter_user_meta' ), 99 );
-		$preferences = get_user_meta( $user_id, $meta_key, true );
-		$moved       = is_array( $preferences ) ? self::move( $preferences ) : $preferences;
-		if ( $moved !== $preferences ) {
-			$moved['_modified'] = self::modified_after( $preferences['_modified'] ?? null );
-			// The meta API unslashes what it is handed; this came from the database, already unslashed.
-			update_user_meta( $user_id, $meta_key, wp_slash( $moved ) );
-		}
-		add_filter( 'get_user_metadata', array( __CLASS__, 'filter_user_meta' ), 99, 3 );
-
-		return $moved === $preferences ? $value : array( $moved );
-	}
-
-	/**
 	 * Apply the move to a reader who has stored layouts and has not had it yet.
 	 *
 	 * @param array $preferences The reader's persisted preferences.
 	 * @return array The preferences, the same array when nothing moved.
 	 */
-	private static function move( array $preferences ) {
+	protected static function rewrite( array $preferences ) {
 		$scope   = $preferences[ Enablement_Setting::PREFERENCES_SCOPE ] ?? array();
 		$layouts = $scope[ self::LAYOUTS_KEY ] ?? null;
 		$applied = is_array( $scope[ self::MOVES_KEY ] ?? null ) ? $scope[ self::MOVES_KEY ] : array();
@@ -117,23 +72,6 @@ class Stored_Layout_Move {
 		$preferences[ Enablement_Setting::PREFERENCES_SCOPE ][ self::MOVES_KEY ]   = $applied;
 
 		return $preferences;
-	}
-
-	/**
-	 * A `_modified` stamp the client's persistence layer takes over its localStorage copy: it
-	 * keeps whichever is newer, and a browser clock ahead of the server would otherwise win.
-	 *
-	 * @param mixed $previous The stamp the preferences carried, if any.
-	 * @return string
-	 */
-	private static function modified_after( $previous ) {
-		$now      = time();
-		$previous = is_string( $previous ) ? strtotime( $previous ) : false;
-		if ( $previous !== false && $previous >= $now ) {
-			$now = $previous + 1;
-		}
-
-		return gmdate( 'Y-m-d\TH:i:s\Z', $now );
 	}
 
 	/**

@@ -61,7 +61,7 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 	}
 
 	public function tear_down() {
-		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		Stored_Layout_Rewrite::unregister();
 		$this->reset_widget_registry();
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -87,12 +87,12 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			Enablement_Setting::PREFERENCES_SCOPE => $scope,
 			'_modified'                           => '2026-01-01T00:00:00Z',
 		);
-		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		remove_filter( 'get_user_metadata', array( Stored_Layout_Rewrite::class, 'filter_user_meta' ), 99 );
 		// WorDBless unslashes an inserted row a second time, so the row exists before the real
 		// seed goes in as an update, slashed as the meta API expects.
 		update_user_meta( $this->user_id, $this->meta_key, array() );
 		update_user_meta( $this->user_id, $this->meta_key, wp_slash( $preferences ) );
-		add_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99, 3 );
+		add_filter( 'get_user_metadata', array( Stored_Layout_Rewrite::class, 'filter_user_meta' ), 99, 3 );
 
 		return $preferences;
 	}
@@ -176,12 +176,12 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'width'  => 2,
-				'height' => 2,
+				'height' => DASHBOARD_TILE_LIST,
 			),
 			$appended['placement']
 		);
 
-		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		remove_filter( 'get_user_metadata', array( Stored_Layout_Rewrite::class, 'filter_user_meta' ), 99 );
 		$persisted = get_user_meta( $this->user_id, $this->meta_key, true );
 		$scope     = $persisted[ Enablement_Setting::PREFERENCES_SCOPE ];
 		$this->assertSame( $layouts, $scope[ Stored_Layout_Move::LAYOUTS_KEY ] );
@@ -189,6 +189,24 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		$this->assertSame( '2026-01-01', $scope['onboardingCompletedAt'] );
 		$this->assertSame( 'ACME\\Blue', $scope['rememberedPreset'] );
 		$this->assertNotSame( '2026-01-01T00:00:00Z', $persisted['_modified'] );
+	}
+
+	public function test_places_the_default_instance_in_the_rows_a_registered_rescale_already_applied() {
+		Stored_Layout_Rewrite::unregister();
+		Stored_Layout_Rescale::register();
+		Stored_Layout_Move::register();
+		$this->store_layouts(
+			array(
+				'insights' => array( self::stored( 'jpa/tags' ) ),
+				'traffic'  => array( self::stored( 'jpa/referrers' ) ),
+			)
+		);
+
+		$scope   = $this->read_scope();
+		$layouts = $scope[ Stored_Layout_Move::LAYOUTS_KEY ];
+
+		$this->assertSame( array( Stored_Layout_Rescale::MOVE_ID, Stored_Layout_Move::MOVE_ID ), $scope[ Stored_Layout_Move::MOVES_KEY ] );
+		$this->assertSame( array( 8, DASHBOARD_TILE_LIST ), array_column( array_column( $layouts['traffic'], 'placement' ), 'height' ) );
 	}
 
 	public function test_leaves_an_uncustomized_traffic_to_the_default() {
@@ -281,11 +299,11 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 	public function test_stamps_the_move_after_a_modified_from_the_future() {
 		$future = gmdate( 'Y-m-d\TH:i:s\Z', time() + 600 );
 		$this->store_layouts( array( 'insights' => array( self::stored( 'jpa/tags' ) ) ) );
-		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		remove_filter( 'get_user_metadata', array( Stored_Layout_Rewrite::class, 'filter_user_meta' ), 99 );
 		$preferences              = get_user_meta( $this->user_id, $this->meta_key, true );
 		$preferences['_modified'] = $future;
 		update_user_meta( $this->user_id, $this->meta_key, wp_slash( $preferences ) );
-		add_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99, 3 );
+		add_filter( 'get_user_metadata', array( Stored_Layout_Rewrite::class, 'filter_user_meta' ), 99, 3 );
 
 		$moved = get_user_meta( $this->user_id, $this->meta_key, true );
 

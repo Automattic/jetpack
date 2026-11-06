@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Status\Host;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
 
 /**
  * Registers the package's widget types on the Premium Analytics dashboard and seeds Top videos
@@ -135,7 +136,7 @@ class Analytics_Dashboard {
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( self::TOP_VIDEOS_INSTANCE_UUID, self::TOP_VIDEOS_TYPE, 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( self::TOP_VIDEOS_INSTANCE_UUID, self::TOP_VIDEOS_TYPE, 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Ads dashboard tab: declare the default tile heights in the dashboard's row units.

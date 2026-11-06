@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: lay the widgets out on 40px rows, with leaderboards tall enough for their ten entries by default; layouts saved on the old rows keep their height.

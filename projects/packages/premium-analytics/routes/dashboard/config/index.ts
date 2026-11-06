@@ -29,4 +29,4 @@ export {
 	type WidgetTypeRenameRecord,
 } from './widget-type-renames';
 
-export { DASHBOARD_GRID } from './grid';
+export { DASHBOARD_GRID, TILE_ROWS } from './grid';
