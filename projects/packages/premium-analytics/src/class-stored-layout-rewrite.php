@@ -22,9 +22,9 @@ abstract class Stored_Layout_Rewrite {
 	const MOVES_KEY = 'dashboardLayoutMoves';
 
 	/**
-	 * The registered rewrites, in the order they apply.
+	 * The registered rewrites, by class, in the order they apply.
 	 *
-	 * @var class-string<Stored_Layout_Rewrite>[]
+	 * @var array<string, callable(array): array>
 	 */
 	private static $rewrites = array();
 
@@ -35,8 +35,10 @@ abstract class Stored_Layout_Rewrite {
 	 * @return void
 	 */
 	public static function register() {
-		if ( ! in_array( static::class, self::$rewrites, true ) ) {
-			self::$rewrites[] = static::class;
+		if ( ! isset( self::$rewrites[ static::class ] ) ) {
+			self::$rewrites[ static::class ] = static function ( array $preferences ) {
+				return static::rewrite( $preferences );
+			};
 		}
 		add_filter( 'get_user_metadata', array( self::class, 'filter_user_meta' ), 99, 3 );
 	}
@@ -72,7 +74,7 @@ abstract class Stored_Layout_Rewrite {
 		$rewritten   = $preferences;
 		if ( is_array( $preferences ) ) {
 			foreach ( self::$rewrites as $rewrite ) {
-				$rewritten = $rewrite::rewrite( $rewritten );
+				$rewritten = $rewrite( $rewritten );
 			}
 		}
 		if ( $rewritten !== $preferences ) {
@@ -86,12 +88,15 @@ abstract class Stored_Layout_Rewrite {
 	}
 
 	/**
-	 * Apply the change to a reader who has stored layouts and has not had it yet.
+	 * Apply the change to a reader who has stored layouts and has not had it yet. A subclass
+	 * overrides this; the base changes nothing.
 	 *
 	 * @param array $preferences The reader's persisted preferences.
 	 * @return array The preferences, the same array when nothing changed.
 	 */
-	abstract protected static function rewrite( array $preferences );
+	protected static function rewrite( array $preferences ) {
+		return $preferences;
+	}
 
 	/**
 	 * A `_modified` stamp the client's persistence layer takes over its localStorage copy: it
