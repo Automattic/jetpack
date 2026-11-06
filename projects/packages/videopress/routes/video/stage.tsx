@@ -411,7 +411,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 		// Promise chain rather than mutate-level callbacks: those are
 		// dropped when the component unmounts mid-flight, which would
 		// orphan the explicitDismiss notice above forever.
-		deleteVideo( Number( video.id ) )
+		deleteVideo( [ { id: video.id, type: video.type } ] )
 			.then( () => {
 				createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
 					id: deletingNoticeId( video.id ),

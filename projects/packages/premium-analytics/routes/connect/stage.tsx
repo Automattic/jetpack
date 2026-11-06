@@ -5,8 +5,9 @@ import {
 	AnalyticsQueryClientProvider,
 	useStatsYearlyProduct,
 } from '@jetpack-premium-analytics/data';
-import { Button, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { Button, Icon, JetpackFooter, Notice } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useCallback, useEffect } from '@wordpress/element';
@@ -73,7 +74,7 @@ function PlanChoice() {
 
 	return (
 		<Page
-			visual={ <StatsPageIcon /> }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 			actions={
 				isOfflineMode ? null : (

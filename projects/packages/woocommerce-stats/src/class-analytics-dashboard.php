@@ -151,6 +151,7 @@ class Analytics_Dashboard {
 		add_action( self::DASHBOARD_PAGE_INIT_ACTION, array( __CLASS__, 'enqueue_store_performance_bookings' ) );
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		add_action( Report_Execution\Report_Registry::REGISTER_ACTION, array( Report_Execution\Default_Reports::class, 'register' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		add_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
 

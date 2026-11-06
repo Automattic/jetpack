@@ -19,7 +19,11 @@ import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
-import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import {
+	DeleteVideosError,
+	useDeleteVideo,
+	type VideoDeletionItem,
+} from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
@@ -29,6 +33,10 @@ import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import {
+	recordUploadRefusal,
+	type UploadRefusal,
+} from '../../src/dashboard/utils/upload-refusal-analytics';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
@@ -181,7 +189,10 @@ const StageInner = () => {
 		},
 		[ openVideoDetails ]
 	);
-	const handleFilesSelected = useUploadIntake( onUploadsStarted );
+	const handleFilesSelected = useUploadIntake( 'library_intake', onUploadsStarted );
+	const onUploadRefused = useCallback( ( refusal: UploadRefusal ) => {
+		recordUploadRefusal( 'library_dropzone', refusal );
+	}, [] );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -219,7 +230,8 @@ const StageInner = () => {
 				manageCaptions: ( item: LibraryItem ) => {
 					setCaptionVideo( item );
 				},
-				deleteItems: async ( ids: string[] ) => {
+				deleteItems: async ( deletionItems: VideoDeletionItem[] ) => {
+					const ids = deletionItems.map( item => item.id );
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -249,7 +261,7 @@ const StageInner = () => {
 					// from the listing.
 					let failedIds = new Set< string >();
 					try {
-						await deleteVideo( ids );
+						await deleteVideo( deletionItems );
 						createSuccessNotice(
 							sprintf(
 								/* translators: %d: number of deleted videos. */
@@ -471,6 +483,7 @@ const StageInner = () => {
 						<Card.Content>
 							<UploadDropzone
 								onFiles={ handleFilesSelected }
+								onRefused={ onUploadRefused }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
 								onUpgrade={ runUpgrade }

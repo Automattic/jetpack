@@ -8,7 +8,6 @@ export { ReportChartSection, type ReportChartSectionProps } from './report-chart
 export { ReportLocationsMap, type ReportLocationsMapProps } from './report-locations-map';
 export { ExporterCsvAction } from './exporter-csv-action';
 export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
-export { ReportPageShell, type ReportPageShellProps } from './report-page-shell';
 export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-drilldown-table';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
 export { ReportThumbnail } from './report-thumbnail';

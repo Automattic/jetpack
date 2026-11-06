@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import {
 	isInaccessible,
 	act,
@@ -20,6 +21,12 @@ import {
 import { stage as Stage } from '../stage';
 import type { QueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { initialize: jest.fn(), tracks: { recordEvent: jest.fn() } },
+} ) );
+const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 // Declared here (and not only inside test-utils/mock-api-fetch) because this
 // file imports hook modules BEFORE the test-utils helper: jest.mock calls
@@ -942,7 +949,7 @@ describe( 'video stage', () => {
 		mockApiFetch( ( { path = '', method } ) => {
 			if ( path.startsWith( '/wp/v2/media/' ) && method === 'DELETE' ) {
 				deleteRequested = true;
-				return {};
+				return { deleted: true };
 			}
 			return makeRawMedia();
 		} );
@@ -957,6 +964,10 @@ describe( 'video stage', () => {
 		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		expect( deleteRequested ).toBe( false );
+		expect( recordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_videopress_video_deleted',
+			expect.anything()
+		);
 
 		await user.click( screen.getByRole( 'button', { name: 'More actions' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Delete video' } ) );
@@ -965,5 +976,14 @@ describe( 'video stage', () => {
 		);
 
 		await waitFor( () => expect( deleteRequested ).toBe( true ) );
+		await waitFor( () =>
+			expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_videopress_video_deleted', {
+				count: 1,
+				is_bulk: false,
+			} )
+		);
+		expect(
+			recordEvent.mock.calls.filter( ( [ event ] ) => event === 'jetpack_videopress_video_deleted' )
+		).toHaveLength( 1 );
 	} );
 } );
