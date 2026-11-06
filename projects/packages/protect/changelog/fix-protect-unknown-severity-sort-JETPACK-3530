@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Sort a threat with no severity just above Low instead of below it.
