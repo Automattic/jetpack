@@ -251,6 +251,74 @@ class Playlist_Manager {
 	}
 
 	/**
+	 * Register the add-matching route: a one-time snapshot of a query appended to a playlist.
+	 *
+	 * @return void
+	 */
+	public static function register_add_matching_route() {
+		register_rest_route(
+			Rest_Controller::REST_NAMESPACE,
+			self::ROUTE . '/(?P<key>' . self::KEY_PATTERN . ')/add-matching',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'rest_add_matching' ),
+				'permission_callback' => array( __CLASS__, 'edit_permissions_callback' ),
+				'args'                => array_merge(
+					Video_Query::args(),
+					array(
+						'limit' => array(
+							'type'    => 'integer',
+							'minimum' => 1,
+							'maximum' => Video_Query::MAX_SNAPSHOT,
+							'default' => Video_Query::DEFAULT_LIMIT,
+						),
+					)
+				),
+			)
+		);
+	}
+
+	/**
+	 * Append the videos matching a search and filters that the playlist does not have yet.
+	 * The playlist stores the GUIDs, so later uploads or reclassification never change it.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function rest_add_matching( WP_REST_Request $request ) {
+		$record = self::find_record( (string) $request['key'] );
+		if ( ! $record ) {
+			return self::not_found();
+		}
+		$current = array_map(
+			function ( $entry ) {
+				return array(
+					'guid'       => $entry['guid'],
+					'durationMs' => $entry['durationMs'],
+					'height'     => $entry['height'],
+				);
+			},
+			$record['videos']
+		);
+		$matches = Video_Query::matches( Video_Query::state( $request ), array_column( $current, 'guid' ), (int) $request['limit'] );
+		if ( ! $matches['entries'] ) {
+			return Video_Query::nothing_to_add();
+		}
+
+		$saved = self::update( $record['key'], array( 'videos' => array_merge( $current, $matches['entries'] ) ) );
+		if ( is_wp_error( $saved ) ) {
+			return $saved;
+		}
+		return rest_ensure_response(
+			array(
+				'playlist'  => self::prepare_item( $saved ),
+				'added'     => count( $matches['entries'] ),
+				'remaining' => max( 0, $matches['total'] - count( $matches['entries'] ) ),
+			)
+		);
+	}
+
+	/**
 	 * Arguments shared by the create and update routes.
 	 *
 	 * @return array

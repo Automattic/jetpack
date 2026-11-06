@@ -204,6 +204,49 @@ class Playlist_Manager_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Add-matching appends only new matches after the existing entries, in channel order.
+	 */
+	public function test_add_matching_appends_a_snapshot_of_new_matches() {
+		$this->publish(
+			$this->playlist_block(
+				array(
+					'playlistId' => 'meetup',
+					'videos'     => array( array( 'guid' => 'match002' ) ),
+				)
+			)
+		);
+		$searches = array();
+		add_filter(
+			'videopress_channel_videos',
+			function ( $videos, $search ) use ( &$searches ) {
+				$searches[] = $search;
+				return array_map(
+					function ( $n ) {
+						return array(
+							'id'          => $n,
+							'guid'        => 'match00' . $n,
+							'durationMs'  => $n * 1000,
+							'height'      => 720,
+							'publishedAt' => 100 - $n,
+						);
+					},
+					array( 1, 2, 3 )
+				);
+			},
+			10,
+			2
+		);
+
+		$response = $this->request( 'POST', '/meetup/add-matching', array( 'search' => 'roundup' ) );
+		remove_all_filters( 'videopress_channel_videos' );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 2, $response->get_data()['added'] );
+		$this->assertSame( array( 'match002', 'match001', 'match003' ), array_column( $response->get_data()['playlist']['videos'], 'guid' ) );
+		$this->assertContains( 'roundup', $searches );
+	}
+
+	/**
 	 * Saving rewrites only the playlist block and the index follows.
 	 */
 	public function test_update_rewrites_the_block_in_its_post() {

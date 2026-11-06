@@ -21,6 +21,7 @@ import {
 	guidFromInput,
 } from '../../src/client/block-editor/blocks/playlist/entries';
 import { fetchVideoItem } from '../../src/client/lib/fetch-video-item';
+import AddMatchingDialog from '../../src/dashboard/components/playlists/add-matching-dialog';
 import AddVideosDialog from '../../src/dashboard/components/playlists/add-videos-dialog';
 import DeletePlaylistDialog from '../../src/dashboard/components/playlists/delete-playlist-dialog';
 import {
@@ -120,6 +121,7 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 	const valuesRef = useRef( values );
 	valuesRef.current = values;
 	const [ isPickerOpen, setPickerOpen ] = useState( false );
+	const [ isMatchingOpen, setMatchingOpen ] = useState( false );
 	const [ urlInput, setUrlInput ] = useState( '' );
 	const [ isAdding, setIsAdding ] = useState( false );
 	const [ addError, setAddError ] = useState< string | null >( null );
@@ -355,14 +357,24 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 												.join( ' · ' ) }
 										</Text>
 									</Stack>
-									<Button
-										size="compact"
-										variant="outline"
-										disabled={ readOnly || isAdding }
-										onClick={ () => setPickerOpen( true ) }
-									>
-										{ __( 'Add videos', 'jetpack-videopress-pkg' ) }
-									</Button>
+									<Stack direction="row" gap="sm">
+										<Button
+											size="compact"
+											variant="outline"
+											disabled={ readOnly || isAdding }
+											onClick={ () => setMatchingOpen( true ) }
+										>
+											{ __( 'Add matching videos', 'jetpack-videopress-pkg' ) }
+										</Button>
+										<Button
+											size="compact"
+											variant="outline"
+											disabled={ readOnly || isAdding }
+											onClick={ () => setPickerOpen( true ) }
+										>
+											{ __( 'Add videos', 'jetpack-videopress-pkg' ) }
+										</Button>
+									</Stack>
 								</Stack>
 							</Card.Header>
 							<Card.Content>
@@ -505,6 +517,15 @@ const Editor = ( { playlist }: { playlist: PlaylistItem } ) => {
 			</div>
 			{ isPickerOpen && (
 				<AddVideosDialog onAdd={ addFromLibrary } onClose={ () => setPickerOpen( false ) } />
+			) }
+			{ isMatchingOpen && (
+				<AddMatchingDialog
+					onAdd={ entries => {
+						setMatchingOpen( false );
+						appendEntries( entries );
+					} }
+					onClose={ () => setMatchingOpen( false ) }
+				/>
 			) }
 			{ isDeleteOpen && (
 				<DeletePlaylistDialog
