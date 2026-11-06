@@ -1,7 +1,4 @@
-// Submission readiness for podcast directories. Pure helper for the Settings
-// draft; hook variant adds cover-media + episode-presence checks for the
-// Distribution Submit gate.
-
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useEntityRecord, useEntityRecords } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings } from './use-podcast-settings';
@@ -52,21 +49,31 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 };
 
 /**
- * `getValidationIssues` plus cover MIME/dimension/square + episode-presence.
+ * `getValidationIssues` plus site visibility, cover media and episode presence.
  *
  * @param settings            - Saved settings, or undefined for "not loaded".
  * @param cover               - Cover image media record, or undefined.
  * @param hasPublishedEpisode - True/false when the probe resolves; undefined while in flight.
+ * @param isSitePublic        - Whether the site is public and allows search engines.
  * @return                      Issue strings in stable order.
  */
 const getDistributionIssues = (
 	settings: PodcastSettings | undefined,
 	cover: CoverImageRecord | undefined,
-	hasPublishedEpisode: boolean | undefined
+	hasPublishedEpisode: boolean | undefined,
+	isSitePublic: boolean | undefined
 ): string[] => {
 	const issues = getValidationIssues( settings );
 	if ( ! settings ) {
 		return issues;
+	}
+	if ( isSitePublic === false ) {
+		issues.push(
+			__(
+				'Make your site public and allow search engines to access it before submitting to YouTube.',
+				'jetpack-podcast'
+			)
+		);
 	}
 	if ( settings.podcasting_category_id > 0 && hasPublishedEpisode === false ) {
 		issues.push( __( 'Publish at least one episode.', 'jetpack-podcast' ) );
@@ -91,13 +98,13 @@ const getDistributionIssues = (
 };
 
 /**
- * Distribution Submit gate. Reads cover media + an episode probe alongside
- * saved settings; both subqueries are `enabled`-gated.
+ * Distribution Submit gate. Reads site visibility, cover media and episode presence.
  *
  * @return `{ issues, isLoading }` — issues suppressed during load.
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
+	const isSitePublic = getScriptData()?.podcast?.is_site_public;
 
 	const coverImageId = settings?.podcasting_image_id ?? 0;
 	const { record: cover, hasResolved: coverResolved } = useEntityRecord< CoverImageRecord >(
@@ -129,7 +136,7 @@ export function useValidationIssues() {
 
 	const issues = isLoading
 		? []
-		: getDistributionIssues( settings, cover ?? undefined, hasPublishedEpisode );
+		: getDistributionIssues( settings, cover ?? undefined, hasPublishedEpisode, isSitePublic );
 
 	return {
 		issues,
