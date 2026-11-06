@@ -4,7 +4,7 @@ set -eo pipefail
 
 # Prompt for PRs or commits to apply, committing each.
 function apply_patches {
-	local pr_or_commit
+	local pr_or_commit commits
 
 	while true; do
 		read -rep "PR or commit to cherry-pick, or 'done' if finished: " pr_or_commit
@@ -16,6 +16,10 @@ function apply_patches {
 			exit 1
 		fi
 	done
+
+	commits=$(git log --reverse --format='  %h %s' "$START_COMMIT..HEAD")
+	echo 'Commits added:'
+	echo "${commits:-  (none)}"
 }
 
 # Output the changed projects
