@@ -5,6 +5,22 @@ set -eo pipefail
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 
+# Print help and exit.
+function usage {
+	cat <<-EOH
+		usage: $0 [<plugin> [<version>]]
+
+		Release a plugin from its release branch, prompting for anything not given.
+		  <plugin>   Plugin to release, e.g. jetpack.
+		  <version>  Version to release, e.g. 16.4.1.
+	EOH
+	exit
+}
+
+if [[ $# -gt 2 || $1 == -h || $1 == --help ]]; then
+	usage
+fi
+
 if [[ -n $(git status --porcelain) ]]; then
 	die 'Working tree not clean; commit or stash changes first.'
 fi
