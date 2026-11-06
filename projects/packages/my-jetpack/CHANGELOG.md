@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.0] - 2026-11-06
+### Added
+- Settings panel: Add the Infinite Scroll settings, behind the settings consolidation flag.
+- Settings panel: Add the Post by Email settings, behind the settings consolidation flag.
+- Settings panel: Record Tracks events when a module or option is switched, behind the settings consolidation flag.
+
+### Changed
+- Scan: Decide whether the site owns Scan with the same check as the Protect card and page.
+
+### Fixed
+- Protect card: Show that a site with Scan hasn't been scanned yet instead of calling it secure.
+- Protect card: Show when the last scan didn't complete instead of calling the site secure.
+- Settings panel: Record the Tracks event for the Post by Email switch, behind the settings consolidation flag.
+
 ## [6.16.0] - 2026-11-04
 ### Added
 - Add a settings panel that Configure on a More Features row opens, behind a feature flag that is off by default. [#54431]
@@ -3215,6 +3229,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.16.0...6.17.0
 [6.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.15.0...6.16.0
 [6.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.14.0...6.15.0
 [6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0

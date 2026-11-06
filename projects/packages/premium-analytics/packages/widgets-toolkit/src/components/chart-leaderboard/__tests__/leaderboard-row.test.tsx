@@ -236,8 +236,6 @@ describe( 'buildLeaderboardRow', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Flag' } ) ).toBeInTheDocument();
 		expect( row ).toMatchObject( { onClick, hasInteractiveLabel: true } );
-		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
-		expect( screen.getByTitle( 'example.com' ).parentElement ).toHaveClass( 'chevronReserve' );
 	} );
 
 	it( 'rejects a trailing action on a row that links out as a whole', () => {

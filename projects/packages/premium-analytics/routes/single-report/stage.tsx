@@ -17,12 +17,7 @@ import {
 	usePeriodHost,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import {
-	PeriodChangeStatus,
-	SectionTabs,
-	StatsBreadcrumbs,
-	StatsPageIcon,
-} from '@jetpack-premium-analytics/ui';
+import { PeriodChangeStatus, SectionTabs, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
 	PageEmptyState,
@@ -400,7 +395,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 						>
 							<Page
 								className={ styles.page }
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 								badges={
 									isCustomizing ? (

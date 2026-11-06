@@ -1,4 +1,5 @@
 import { CarouselSettings } from './carousel';
+import { InfiniteScrollSettings } from './infinite-scroll';
 import { PostByEmailSettings } from './post-by-email';
 import { RelatedPostsSettings } from './related-posts';
 import { SeoSettings } from './seo';
@@ -20,6 +21,7 @@ export type ModuleSettingsProps = {
  */
 export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps > > = {
 	carousel: CarouselSettings,
+	'infinite-scroll': InfiniteScrollSettings,
 	'post-by-email': PostByEmailSettings,
 	'related-posts': RelatedPostsSettings,
 	'seo-tools': SeoSettings,

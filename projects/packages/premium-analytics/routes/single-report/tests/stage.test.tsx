@@ -146,7 +146,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	PeriodChangeStatus: jest.requireActual(
 		'../../../packages/ui/src/period-change-status/period-change-status'
 	).PeriodChangeStatus,
-	StatsPageIcon: () => <svg data-testid="stats-icon" />,
 	safeHttpUrl: jest.requireActual( '../../../packages/ui/src/utils/safe-http-url' ).safeHttpUrl,
 } ) );
 
