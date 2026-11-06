@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Say when the last scan didn't complete while listing threats from an earlier scan.

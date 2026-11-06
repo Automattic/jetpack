@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cache cleanup: Prevent memory exhaustion when removing expired optimization data.

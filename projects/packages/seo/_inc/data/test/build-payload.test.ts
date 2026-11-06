@@ -11,7 +11,6 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	title_formats: { posts: [ { type: 'token', value: 'site_name' } ] },
 	title_separator: '-',
 	title_formats_editable: true,
-	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	site_is_private: false,

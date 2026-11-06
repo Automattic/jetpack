@@ -7,7 +7,10 @@ import { useLocation, useNavigate } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
-import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
+import {
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures as _isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
@@ -52,6 +55,7 @@ const SettingsNavTabs = props => {
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
+		isSwitchedInFeatures,
 		searchTerm,
 		searchForTerm,
 	} = props;
@@ -112,8 +116,13 @@ const SettingsNavTabs = props => {
 		) {
 			visibleTabs.push( '/performance' );
 		}
+		// A module Features switches no longer fills this tab.
 		if (
-			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+			hasModules(
+				[ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ].filter(
+					module => ! isSwitchedInFeatures( module )
+				)
+			) ||
 			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
 		) {
 			visibleTabs.push( '/writing' );
@@ -225,6 +234,7 @@ export default connect(
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
+		isSwitchedInFeatures: module => _isSwitchedInFeatures( state, module ),
 		searchTerm: getSearchTerm( state ),
 	} ),
 	dispatch => ( {

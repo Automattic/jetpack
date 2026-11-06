@@ -423,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -666,6 +667,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;

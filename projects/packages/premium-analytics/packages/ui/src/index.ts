@@ -1,3 +1,4 @@
+export { CardTabs } from './card-tabs';
 export {
 	DataViewsDrilldownNative,
 	type DataViewsDrilldownNativeProps,
@@ -6,7 +7,11 @@ export {
 	processHierarchyLevels,
 	withHierarchyContext,
 } from './dataviews-drilldown-native';
-export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';
+export {
+	DateFiltersPanel,
+	type DateFiltersPanelProps,
+	type DateStepping,
+} from './date-filters-panel';
 export { DateIntervalDropdown, getIntervalLabel } from './date-interval-dropdown';
 export { DatePeriodDropdown } from './date-period-dropdown';
 export type { DateControlTriggerProps } from './utils/date-control-trigger';

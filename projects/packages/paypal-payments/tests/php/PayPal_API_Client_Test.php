@@ -834,6 +834,7 @@ class PayPal_API_Client_Test extends TestCase {
 		$this->assertStringContainsString( 'Bearer ', $captured_args['headers']['Authorization'] );
 		$this->assertEquals( 'application/json', $captured_args['headers']['Content-Type'] );
 		$this->assertArrayHasKey( 'PayPal-Request-Id', $captured_args['headers'] );
+		$this->assertEquals( PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $captured_args['headers']['PayPal-Partner-Attribution-Id'] );
 		$this->assertEquals( 30, $captured_args['timeout'] );
 	}
 

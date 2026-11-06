@@ -1,7 +1,8 @@
 const isNumber = value => typeof value === 'number' && ! isNaN( value );
 
 const useJetpackFieldStyles = attributes => {
-	const blockStyle = {
+	// Cast rather than annotate: CSSProperties declares no custom properties.
+	const blockStyle = /** @type {import('react').CSSProperties} */ ( {
 		'--jetpack--contact-form--border-color': attributes.borderColor,
 		'--jetpack--contact-form--border-radius': isNumber( attributes.borderRadius )
 			? `${ attributes.borderRadius }px`
@@ -23,7 +24,7 @@ const useJetpackFieldStyles = attributes => {
 		'--jetpack--contact-form--button-outline--border-size': isNumber( attributes.buttonBorderWidth )
 			? `${ attributes.buttonBorderWidth }px`
 			: null,
-	};
+	} );
 
 	const labelStyle = {
 		color: attributes.labelColor,

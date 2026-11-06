@@ -152,15 +152,15 @@ async function settled() {
 /**
  * The rendered meter's fill percentage.
  *
- * `ProgressBar` carries the value on a visually-hidden `<progress>`,
- * whose implicit role is `progressbar` — so this is also a check that the
- * bar is exposed to assistive technology at all.
+ * `Progress.Root` is the `role="progressbar"` element and carries the value
+ * in `aria-valuenow` — so this is also a check that the bar is exposed to
+ * assistive technology at all.
  *
  * @return The value as a number, or null when no bar rendered.
  */
 function meterValue(): number | null {
 	const bar = screen.queryByRole( 'progressbar' );
-	return bar ? Number( bar.getAttribute( 'value' ) ) : null;
+	return bar ? Number( bar.getAttribute( 'aria-valuenow' ) ) : null;
 }
 
 beforeEach( () => {
@@ -341,16 +341,9 @@ describe( 'the meter itself', () => {
 		expect( meterValue() ).toBe( 100 );
 	} );
 
-	// Caveat worth knowing: the dashboard route externalizes
-	// `@wordpress/components` to the `wp-components` handle, so the
-	// `<ProgressBar>` that runs in wp-admin is WordPress core's, not the
-	// version pinned here and resolved by jest. This asserts the override
-	// against the pinned copy. It holds because the implementation spreads
-	// caller props *after* its own hardcoded `aria-label="Loading …"` —
-	// prop-spread ordering, which is not a documented contract. If core
-	// ever reverses it the meter silently goes back to announcing itself as
-	// a loading indicator and this test will not notice.
-	it( 'labels itself as storage rather than inheriting ProgressBar’s "Loading" label', async () => {
+	// `Progress.Root` has no default label, so a dropped `aria-label` leaves
+	// a bar a screen reader cannot place rather than a wrongly named one.
+	it( 'labels itself as the storage in use', async () => {
 		mockEndpoints( { size: { size: 42 * GB } } );
 		renderWithClient( <StorageSpace /> );
 		await expect(
