@@ -28,6 +28,9 @@ export default function ContinueWatchingEdit( {
 	setAttributes,
 }: BlockEditProps< ContinueWatchingAttributes > ) {
 	const isRecent = attributes.show === 'recent';
+	// Separate statements so minification can't merge the two strings' calls.
+	const recentLabel = __( 'Recently watched', 'jetpack-videopress-pkg' );
+	const continueLabel = __( 'Continue watching', 'jetpack-videopress-pkg' );
 	return (
 		<div { ...useBlockProps() }>
 			<InspectorControls>
@@ -56,11 +59,7 @@ export default function ContinueWatchingEdit( {
 			</InspectorControls>
 			<Placeholder
 				icon={ VideoPressIcon }
-				label={
-					isRecent
-						? __( 'Recently watched', 'jetpack-videopress-pkg' )
-						: __( 'Continue watching', 'jetpack-videopress-pkg' )
-				}
+				label={ isRecent ? recentLabel : continueLabel }
 				instructions={ __(
 					'Shows the signed-in viewer’s own videos. Signed-out visitors see nothing here.',
 					'jetpack-videopress-pkg'
