@@ -67,7 +67,7 @@ class Report_Executor {
 		if ( null === $handler ) {
 			return new WP_Error(
 				'unsupported_provider',
-				/* translators: %s: provider name, such as local or remote. */
+				/* translators: %s: provider name, such as wpcom or local. */
 				sprintf( __( 'This report cannot be served by the %s provider.', 'jetpack-woocommerce-stats-pkg' ), $name ),
 				array( 'status' => 422 )
 			);

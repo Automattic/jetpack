@@ -11,9 +11,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Report_Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -24,8 +27,22 @@ use WP_REST_Server;
  * The route reads WooCommerce reports from WordPress.com for a connected site.
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Report_Provider
  */
 #[CoversClass( Api_Proxy_Controller::class )]
+#[CoversClass( Default_Reports::class )]
+#[CoversClass( Report_Definition::class )]
+#[CoversClass( Report_Executor::class )]
+#[CoversClass( Report_Registry::class )]
+#[CoversClass( Report_Request::class )]
+#[CoversClass( Wpcom_Forward_Handler::class )]
+#[CoversClass( Wpcom_Report_Provider::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
 
 	/**

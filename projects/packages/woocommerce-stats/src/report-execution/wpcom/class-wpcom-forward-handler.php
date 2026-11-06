@@ -1,6 +1,6 @@
 <?php
 /**
- * Remote handler: forwards a report to WordPress.com.
+ * The `wpcom` handler: forwards a report to WordPress.com.
  *
  * @package automattic/jetpack-woocommerce-stats
  */
