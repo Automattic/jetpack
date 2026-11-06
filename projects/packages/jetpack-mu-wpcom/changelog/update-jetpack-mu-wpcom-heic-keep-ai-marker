@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Media: keep the AI marker (the IPTC DigitalSourceType) when converting HEIC uploads to JPEG on WordPress.com.
