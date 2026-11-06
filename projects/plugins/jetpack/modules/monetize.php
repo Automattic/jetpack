@@ -19,4 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( class_exists( \Automattic\Jetpack\Monetize\Dashboard::class ) ) {
 	\Automattic\Jetpack\Monetize\Dashboard::init( array( 'module' => Jetpack_Monetize_Feature_Flags::MODULE ) );
+
+	// Without it, the Features row gets Jetpack's settings search, which it drops for a module with no options.
+	add_filter(
+		'jetpack_module_configuration_url_' . Jetpack_Monetize_Feature_Flags::MODULE,
+		static function () {
+			return admin_url( 'admin.php?page=' . \Automattic\Jetpack\Monetize\Dashboard::MENU_SLUG );
+		}
+	);
 }
