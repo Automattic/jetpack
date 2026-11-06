@@ -63,3 +63,17 @@ export function trackSettingToggle( setting: string, active: boolean ) {
 export function trackClick( target: 'view-earnings' | 'place_ad_widget' ) {
 	record( 'jetpack_wpa_click', { target, origin: ORIGIN } );
 }
+
+/**
+ * Record a click on the upgrade or connect prompt, as the Settings card's banner does.
+ *
+ * @param type - Which prompt.
+ */
+export function trackBannerClick( type: 'upgrade' | 'connect' ) {
+	record( 'jetpack_wpa_click', {
+		target: `${ type }-banner`,
+		feature: 'wordads-jetpack',
+		type,
+		origin: ORIGIN,
+	} );
+}

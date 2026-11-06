@@ -38,6 +38,7 @@ export const CONNECTION_FROM = {
 	myJetpackOverview: ( slug: string ) => `my_jetpack_overview_${ toNamePart( slug ) }`,
 	jetpackPremiumAnalyticsOnboarding: 'jetpack_premium_analytics_onboarding',
 	jetpackPremiumAnalyticsUpsell: 'jetpack_premium_analytics_upsell',
+	jetpackMonetizeSettings: 'jetpack_monetize_settings',
 	// Sent by this package's PHP notice to a user about to delete the connection owner.
 	deleteConnectionOwnerNotice: 'delete_connection_owner_notice',
 } as const;

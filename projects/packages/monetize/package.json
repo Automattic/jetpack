@@ -49,6 +49,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-monetize/init": "link:packages/init",
 		"@wordpress/api-fetch": "8.1.0",

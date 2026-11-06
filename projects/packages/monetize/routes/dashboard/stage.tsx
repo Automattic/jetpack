@@ -3,6 +3,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { AdsSettings } from './components/ads-settings';
 import Placeholder from './components/placeholder';
 import { getAdsSettingsData } from './data/ads-settings-data';
 import { getTab, getTabSearch, getTabs } from './data/tabs';
@@ -49,7 +50,7 @@ const Stage = () => {
 					<div id="jp-admin-notices" />
 					{ tabs.map( tab => (
 						<Tabs.Panel key={ tab.value } value={ tab.value }>
-							<Placeholder />
+							{ tab.value === 'settings' ? <AdsSettings /> : <Placeholder /> }
 						</Tabs.Panel>
 					) ) }
 				</div>
