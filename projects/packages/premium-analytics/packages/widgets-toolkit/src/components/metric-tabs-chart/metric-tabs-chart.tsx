@@ -3,13 +3,13 @@
  */
 import {
 	SelectControl,
-	Tabs,
 	Text,
 	VisuallyHidden,
 	mixHexColors,
 	useBarColors,
 	useGlobalChartsContext,
 } from '@jetpack-premium-analytics/externals';
+import { CardTabs } from '@jetpack-premium-analytics/ui';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -43,7 +43,7 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
  */
 const MIN_TAB_WIDTH = 120;
 
-/** Narrowest card (px) before the cards wrap; keep in step with `.tabs` in the stylesheet. */
+/** Narrowest card (px) before the cards wrap, handed to the list as `--jpa-card-tabs-min-inline-size`. */
 const MIN_CARD_WIDTH = 160;
 
 /** The gap (px) between cards, `--wpds-dimension-gap-sm`. */
@@ -205,7 +205,7 @@ export interface MetricTabsChartProps {
 	groupLabel?: string;
 	/** Visually hide the label in the static single-metric headline. */
 	hideSingleMetricLabel?: boolean;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
@@ -578,7 +578,7 @@ function MetricTabContent( {
 	return (
 		<span className={ styles.tabContent }>
 			{ hideLabelFromVision ? (
-				<VisuallyHidden>{ metric.label }</VisuallyHidden>
+				<VisuallyHidden render={ <span /> }>{ metric.label }</VisuallyHidden>
 			) : (
 				<Text className={ styles.tabLabel }>{ metric.label }</Text>
 			) }
@@ -600,6 +600,7 @@ function MetricTabContent( {
 				</span>
 			) : (
 				<MetricWithComparison
+					render={ <span /> }
 					className={ styles.metricComparison }
 					value={ metric.value }
 					previousValue={ metric.previousValue }
@@ -609,7 +610,7 @@ function MetricTabContent( {
 					align="flex-end"
 				/>
 			) }
-			{ note && <VisuallyHidden>{ note }</VisuallyHidden> }
+			{ note && <VisuallyHidden render={ <span /> }>{ note }</VisuallyHidden> }
 		</span>
 	);
 }
@@ -836,38 +837,39 @@ export function MetricTabsChart( {
 	}
 
 	return (
-		<Tabs.Root
+		<CardTabs.Root
 			ref={ measureRef }
 			value={ activeMetric?.key }
 			onValueChange={ handleValueChange }
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List
-					variant="minimal"
+				<CardTabs.List
 					className={ styles.tabs }
 					style={
-						columns ? ( { '--jpa-metric-tabs-columns': columns } as CSSProperties ) : undefined
+						{
+							'--jpa-card-tabs-min-inline-size': `${ MIN_CARD_WIDTH }px`,
+							...( columns ? { '--jpa-card-tabs-columns': columns } : {} ),
+						} as CSSProperties
 					}
 					aria-label={ groupLabel }
 				>
 					{ metrics.map( metric => (
-						<Tabs.Tab
+						<CardTabs.Tab
 							key={ metric.key }
 							value={ metric.key }
 							className={ styles.tab }
 							title={ metric.unavailable ?? metric.description }
 						>
 							<MetricTabContent metric={ metric } dataFormat={ dataFormat } fontSize="2xl" />
-						</Tabs.Tab>
+						</CardTabs.Tab>
 					) ) }
-				</Tabs.List>
+				</CardTabs.List>
 				{ controls }
 			</div>
-			{ /* One panel per tab (WAI-ARIA + @wordpress/ui parity). Only the active
-			     metric's panel renders its chart; the rest stay empty. */ }
+			{ /* One panel per tab, as WAI-ARIA asks; Base UI mounts only the selected one. */ }
 			{ metrics.map( metric => (
-				<Tabs.Panel
+				<CardTabs.Panel
 					key={ metric.key }
 					value={ metric.key }
 					className={ clsx( styles.chart, onDatumClick && styles.drillable ) }
@@ -889,8 +891,8 @@ export function MetricTabsChart( {
 						previousPeriodShown={ previousPeriodShown }
 						onPreviousPeriodShownChange={ onPreviousPeriodShownChange }
 					/>
-				</Tabs.Panel>
+				</CardTabs.Panel>
 			) ) }
-		</Tabs.Root>
+		</CardTabs.Root>
 	);
 }

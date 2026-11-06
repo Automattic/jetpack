@@ -6,8 +6,9 @@ import { TextControl } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { title as titleIcon } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
 import StatusIndicator from '../../components/status-indicator';
 import getSite from '../../data/get-site';
 import {
@@ -238,8 +239,8 @@ const TitleStructureField: FC< Props > = ( {
 	// unfinished work, and this module is always complete. Deliberate: reporting
 	// "Not started" here read as a criticism of a site that simply has no reason to
 	// customize its titles (JETPACK-2051). Each row previews that default, so the
-	// status is backed by something visible.
-	const titleStatus: SettingStatus = 'complete';
+	// status is backed by something visible. Paused while Jetpack's SEO output is.
+	const titleStatus: SettingStatus = editable ? 'complete' : 'paused';
 
 	// Fill the site-wide placeholders in each row's preview with the site's real
 	// name and tagline (bootstrapped in `seo.site`) — including when one of them is
@@ -268,19 +269,10 @@ const TitleStructureField: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="lg">
+					{ ! editable && <PausedNote /> }
 					<Text variant="body-md" render={ <p /> }>
 						{ moduleDescription }
 					</Text>
-					{ ! editable && (
-						<Notice.Root intent="warning">
-							<Notice.Description>
-								{ __(
-									'Another SEO plugin is controlling title output. Your saved title structures are shown here but cannot be edited while it is active.',
-									'jetpack-seo'
-								) }
-							</Notice.Description>
-						</Notice.Root>
-					) }
 					{ PAGE_TYPES.map( pt => (
 						<TitleStructureRow
 							key={ pt.id }

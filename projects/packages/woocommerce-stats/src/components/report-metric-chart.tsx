@@ -38,8 +38,6 @@ type ReportMetricChartProps = {
 	dataFormat: DataFormat;
 	/** How the series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: ChartDisplayChartType;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
-	chartTitle: string;
 	errorText: string;
 	/** Shown in place of the value when the summary has no reading, e.g. an average over no orders. */
 	noDataLabel?: string;
@@ -58,7 +56,6 @@ export function ReportMetricChart( {
 	countLabel,
 	dataFormat,
 	chartType,
-	chartTitle,
 	errorText,
 	noDataLabel,
 }: ReportMetricChartProps ) {
@@ -114,7 +111,6 @@ export function ReportMetricChart( {
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
-					chartTitle={ chartTitle }
 					onDatumClick={ openBucket }
 				/>
 			</WidgetState>

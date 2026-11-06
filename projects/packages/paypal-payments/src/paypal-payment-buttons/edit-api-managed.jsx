@@ -27,8 +27,6 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import {
 	createInterpolateElement,
 	useState,
@@ -68,7 +66,11 @@ import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { markExistingLinksDirty, removeExistingLink } from './utils/existing-links';
 import { withPartnerAttribution } from './utils/partner-attribution';
-import { getPostSaveCount, subscribeToPostSaves } from './utils/register-save-sync';
+import {
+	getPostSaveCount,
+	savePaymentButton,
+	subscribeToPostSaves,
+} from './utils/register-save-sync';
 import {
 	isSameValue,
 	PAYMENT_ATTRIBUTES,
@@ -115,6 +117,8 @@ const helpQuantity = __( 'Fixed at 1 unit per purchase', 'jetpack-paypal-payment
 // i18n-check-webpack-plugin then rejects the build, so each branch gets its own const.
 const placeholderTaxRate = __( 'Enter tax rate', 'jetpack-paypal-payments' );
 const placeholderTaxValue = __( 'Enter tax value', 'jetpack-paypal-payments' );
+const labelCreateButton = __( 'Create payment button', 'jetpack-paypal-payments' );
+const labelSaveButton = __( 'Save payment button', 'jetpack-paypal-payments' );
 
 // FLAT and PERCENTAGE are PayPal's own values, so the select writes them straight to
 // the attribute. CustomSelectControl renders each option's hint as a second line.
@@ -621,11 +625,7 @@ export default function ApiManagedEdit( {
 			setIsEditing( false );
 		}
 	}, [ postSaves ] );
-	const [ isSavingFromModal, setIsSavingFromModal ] = useState( false );
-	// savePost() returns at once while another save runs, so the dialog's buttons stay
-	// disabled until it ends.
-	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
-	const { savePost } = useDispatch( editorStore );
+	const [ isSavingButton, setIsSavingButton ] = useState( false );
 
 	/**
 	 * Back from the form to the details, asking first when there is something to lose.
@@ -653,17 +653,15 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Save the post, which writes the payment to PayPal on the way, and leave once
-	 * it is saved. The editor reports the save and anything that went wrong in it.
+	 * Send the form to PayPal, and leave it for the details once PayPal has it. The
+	 * post is not saved: the block holds the payment id until it is.
 	 */
 	const saveChanges = async () => {
-		const saves = getPostSaveCount();
-		setIsSavingFromModal( true );
-		await savePost();
-		setIsSavingFromModal( false );
-		setShowUnsavedConfirm( false );
-		// savePost() resolves on a failed save too, so leave only if the save count went up.
-		if ( getPostSaveCount() > saves ) {
+		setIsSavingButton( true );
+		const saved = await savePaymentButton( { clientId: blockClientId, attributes }, environment );
+		setIsSavingButton( false );
+		if ( saved ) {
+			setShowUnsavedConfirm( false );
 			setIsEditing( false );
 		}
 	};
@@ -1626,6 +1624,17 @@ export default function ApiManagedEdit( {
 					/>
 				</div>
 			</PanelBody>
+			<div className="jetpack-paypal-payment-buttons__form-footer">
+				<Button
+					__next40pxDefaultSize
+					variant="primary"
+					onClick={ saveChanges }
+					disabled={ ! isFormValid || isBusy || isSavingButton }
+					isBusy={ isSavingButton }
+				>
+					{ hasButton ? labelSaveButton : labelCreateButton }
+				</Button>
+			</div>
 		</>
 	);
 
@@ -1708,7 +1717,7 @@ export default function ApiManagedEdit( {
 			{ showUnsavedConfirm && (
 				<UnsavedChangesDialog
 					canSave={ isFormValid }
-					isSaving={ isSavingFromModal || isSavingPost }
+					isSaving={ isSavingButton }
 					onSave={ saveChanges }
 					onDiscard={ discardChanges }
 					onCancel={ () => setShowUnsavedConfirm( false ) }

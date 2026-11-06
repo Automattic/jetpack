@@ -265,10 +265,7 @@
 		{
 			"source": "infinite-scroll",
 			"rules": [
-				{
-					"pending": [ "JETPACK-3451" ],
-					"destination": "admin.php?page=my-jetpack#/features?configure=infinite-scroll"
-				}
+				{ "destination": "admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dinfinite-scroll" }
 			]
 		},
 		{

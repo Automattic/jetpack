@@ -53,7 +53,6 @@ it( 'hides the redundant label in its single-metric chart', () => {
 			report={ report }
 			field="orders_value_net"
 			label="Net sales"
-			chartTitle="Net sales over time"
 			dataFormat={ { type: 'currency' } }
 			errorText="Could not load net sales."
 		/>
@@ -84,7 +83,6 @@ it( 'pairs the comparison with the current period by the dates each one starts',
 			report={ report }
 			field="orders_value_net"
 			label="Net sales"
-			chartTitle="Net sales over time"
 			dataFormat={ { type: 'currency' } }
 			errorText="Could not load net sales."
 		/>
@@ -112,7 +110,6 @@ it( "shows the failed report's error as describeError words it, not a fixed retr
 			report={ report }
 			field="orders_value_net"
 			label="Net sales"
-			chartTitle="Net sales over time"
 			dataFormat={ { type: 'currency' } }
 			errorText="Could not load net sales."
 		/>

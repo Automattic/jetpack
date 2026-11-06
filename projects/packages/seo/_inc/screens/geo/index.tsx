@@ -14,8 +14,11 @@ import {
 	Tooltip,
 } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
+import getOutput from '../../data/get-output';
 import './style.scss';
 import type { AiCrawler } from '../../data/geo-types';
 import type { GeoForm } from '../../data/use-geo';
@@ -496,22 +499,12 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 		);
 	};
 
-	const llmsTxtEffectivelyOn = Boolean(
-		searchEnginesVisible && llmsTxt?.enabled && ! llmsTxt.disabled
-	);
-	const llmsTxtConflictNotice = llmsTxt?.conflictingPlugin
-		? sprintf(
-				/* translators: %1$s: name of the active SEO plugin. */
-				__(
-					'Jetpack is not generating llms.txt while %1$s is active. Your saved setting is retained. Deactivate %1$s to let Jetpack generate the file.',
-					'jetpack-seo'
-				),
-				llmsTxt.conflictingPlugin
-			)
-		: __(
-				'Jetpack is not generating llms.txt because SEO tools are disabled on this site. Your saved setting is retained.',
-				'jetpack-seo'
-			);
+	// While Jetpack's SEO output is paused, llms.txt is locked but keeps showing its saved
+	// value; the banner above explains why. The Enhancer stays editable: the editor's
+	// auto-generation doesn't check the pause, so locking it here would leave no way to
+	// turn it off.
+	const { paused } = getOutput();
+	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
 
 	let enhancerHelp: string | undefined;
 	if ( ! enhancer.aiSeoEnabled ) {
@@ -528,6 +521,7 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 
 	return (
 		<div className="jetpack-seo-geo">
+			<SeoPausedBanner />
 			{ /* Spells out the acronym the tab is named after. */ }
 			<Text variant="body-md" render={ <p /> } className="jetpack-seo-geo__intro">
 				{ __(
@@ -551,12 +545,8 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="md">
-							{ llmsTxt.disabled && (
-								<Notice.Root intent="warning">
-									<Notice.Description>{ llmsTxtConflictNotice }</Notice.Description>
-								</Notice.Root>
-							) }
-							{ searchEnginesVisible && ! llmsTxt.canServe && ! llmsTxt.disabled && (
+							{ paused && <PausedNote /> }
+							{ searchEnginesVisible && ! llmsTxt.canServe && ! paused && (
 								<Notice.Root intent="warning">
 									<Notice.Description>
 										{ __(
@@ -573,11 +563,11 @@ const GeoScreen: FC< Props > = ( { form, searchEnginesVisible } ) => {
 									checked={ llmsTxtEffectivelyOn }
 									// eslint-disable-next-line react/jsx-no-bind
 									onCheckedChange={ next => {
-										if ( ! llmsTxt.disabled ) {
+										if ( ! paused ) {
 											setLlmsTxtEnabled( next );
 										}
 									} }
-									disabled={ isSaving || ! searchEnginesVisible || llmsTxt.disabled }
+									disabled={ isSaving || ! searchEnginesVisible || paused }
 								/>
 								{ ! searchEnginesVisible && (
 									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
