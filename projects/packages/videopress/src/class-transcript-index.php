@@ -619,7 +619,8 @@ class Transcript_Index {
 		if ( ! $private && 2 === (int) $privacy ) {
 			$private = (bool) get_option( 'videopress_private_enabled_for_site', false );
 		}
-		return ! $private && '0' !== (string) get_option( 'blog_public', '1' ) && '-1' !== (string) get_option( 'blog_public', '1' );
+		// blog_public 0 only discourages search engines; -1 is a private site.
+		return ! $private && '-1' !== (string) get_option( 'blog_public', '1' );
 	}
 
 	/**
