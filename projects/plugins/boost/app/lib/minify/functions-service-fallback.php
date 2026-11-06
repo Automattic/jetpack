@@ -14,6 +14,59 @@ function jetpack_boost_page_optimize_types() {
 }
 
 /**
+ * Size limits in bytes for one concatenation request. A request over any of them is refused.
+ *
+ * @return array{encoded_list: int, decoded_list: int, files_read: int, output: int}
+ */
+function jetpack_boost_page_optimize_limits() {
+	return array(
+		'encoded_list' => 64 * 1024,
+		'decoded_list' => 256 * 1024,
+		'files_read'   => 16 * 1024 * 1024,
+		'output'       => 16 * 1024 * 1024,
+	);
+}
+
+/**
+ * Refuse the request if the listed files total more than the read limit, before any of them is read.
+ *
+ * @param string[] $uris The listed file paths.
+ *
+ * @return void
+ */
+function jetpack_boost_page_optimize_check_files_size( $uris ) {
+	$total_bytes = 0;
+
+	foreach ( $uris as $uri ) {
+		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
+
+		if ( ! in_array( jetpack_boost_page_optimize_get_mime_type( $fullpath ), jetpack_boost_page_optimize_types(), true ) ) {
+			jetpack_boost_page_optimize_status_exit( 400 );
+		}
+
+		// get_path() has refused a missing file already, so this only guards a file removed since that call.
+		$total_bytes += file_exists( $fullpath ) ? (int) filesize( $fullpath ) : 0;
+	}
+
+	if ( $total_bytes > jetpack_boost_page_optimize_limits()['files_read'] ) {
+		jetpack_boost_page_optimize_status_exit( 400 );
+	}
+}
+
+/**
+ * Refuse the request if the output built so far is over its size limit.
+ *
+ * @param int $size Size of the output in bytes.
+ *
+ * @return void
+ */
+function jetpack_boost_page_optimize_check_output_size( $size ) {
+	if ( $size > jetpack_boost_page_optimize_limits()['output'] ) {
+		jetpack_boost_page_optimize_status_exit( 400 );
+	}
+}
+
+/**
  * Handle serving a minified / concatenated file from the virtual _jb_static dir.
  *
  * @return never
@@ -105,11 +158,12 @@ function jetpack_boost_page_optimize_service_request() {
 }
 
 /**
- * Strip matching parent paths off a string. Returns $path without $parent_path.
+ * Collapse repeated slashes and `/./` segments in $path, then strip $parent_path from its start.
  */
 function jetpack_boost_strip_parent_path( $parent_path, $path ) {
 	$trimmed_parent = ltrim( $parent_path, '/' );
-	$trimmed_path   = ltrim( $path, '/' );
+	// realpath() accepts `/./` when PAGE_OPTIMIZE_CONCAT_BASE_DIR is defined, and this path is copied into every rewritten url().
+	$trimmed_path = ltrim( rtrim( preg_replace( '#/(?:\./|/)+#', '/', $path . '/' ), '/' ), '/' );
 
 	if ( substr( $trimmed_path, 0, strlen( $trimmed_parent ) ) === $trimmed_parent ) {
 		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
@@ -159,6 +213,8 @@ function jetpack_boost_page_optimize_build_output() {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
+	jetpack_boost_page_optimize_check_files_size( $args );
+
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
@@ -172,6 +228,8 @@ function jetpack_boost_page_optimize_build_output() {
 	$last_modified = 0;
 	$pre_output    = '';
 	$output        = '';
+	$total_bytes   = 0;
+	$limits        = jetpack_boost_page_optimize_limits();
 
 	foreach ( $args as $uri ) {
 		$fullpath = jetpack_boost_page_optimize_get_path( $uri );
@@ -202,6 +260,11 @@ function jetpack_boost_page_optimize_build_output() {
 
 		if ( $stat['mtime'] > $last_modified ) {
 			$last_modified = $stat['mtime'];
+		}
+
+		$total_bytes += $stat['size'];
+		if ( $total_bytes > $limits['files_read'] ) {
+			jetpack_boost_page_optimize_status_exit( 400 );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -260,6 +323,9 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
+			// Rewriting URLs can grow a stylesheet past its file size, so check the output limit before minifying.
+			jetpack_boost_page_optimize_check_output_size( strlen( $pre_output ) + strlen( $output ) + strlen( $buf ) );
+
 			// If filename indicates it's already minified, don't minify it again.
 			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify CSS.
@@ -275,6 +341,8 @@ function jetpack_boost_page_optimize_build_output() {
 
 			$output .= "$buf;\n";
 		}
+
+		jetpack_boost_page_optimize_check_output_size( strlen( $pre_output ) + strlen( $output ) );
 	}
 
 	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
@@ -293,6 +361,11 @@ function jetpack_boost_page_optimize_build_output() {
 }
 
 function jetpack_boost_page_optimize_get_file_paths( $args ) {
+	$limits = jetpack_boost_page_optimize_limits();
+	if ( strlen( $args ) > $limits['encoded_list'] ) {
+		jetpack_boost_page_optimize_status_exit( 400 );
+	}
+
 	$paths = File_Paths::get( $args );
 	if ( $paths ) {
 		$args = $paths->get_paths();
@@ -304,7 +377,11 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 		if ( '-' === $args[0] ) {
 
 			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
+			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ), $limits['decoded_list'] );
+			// gzuncompress() can return more than the length it is given, so check the result too.
+			if ( false === $args || strlen( $args ) > $limits['decoded_list'] ) {
+				jetpack_boost_page_optimize_status_exit( 400 );
+			}
 		}
 
 		// It's an unencoded comma-separated list of file paths.
@@ -314,7 +391,8 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 			$args = substr( $args, 0, $version_string_pos );
 		}
 		// /foo/bar.css,/foo1/bar/baz.css
-		$args = explode( ',', $args );
+		// One past the file limit is enough for the callers' count check to refuse the list.
+		$args = explode( ',', $args, min( jetpack_boost_minify_concat_max_files(), PHP_INT_MAX - 1 ) + 1 );
 	}
 
 	if ( ! is_array( $args ) ) {
