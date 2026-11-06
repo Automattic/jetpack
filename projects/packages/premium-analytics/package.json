@@ -47,6 +47,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
+		"@base-ui/react": "1.9.0",
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/data": "link:packages/data",
 		"@jetpack-premium-analytics/datetime": "link:packages/datetime",

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
+use Automattic\Jetpack\My_Jetpack\Products\Scan;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -203,7 +204,7 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * The card asks Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
+	 * The Protect and Scan cards ask Protect Status, as the Protect page does, not the site features My Jetpack fetches itself.
 	 *
 	 * @dataProvider provide_scan_plans
 	 *
@@ -223,6 +224,7 @@ class Protect_Product_Test extends TestCase {
 		);
 
 		$this->assertSame( $expected, Protect::has_paid_plan_for_product() );
+		$this->assertSame( $expected, Scan::has_paid_plan_for_product() );
 	}
 
 	/**

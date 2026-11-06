@@ -177,12 +177,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Brute Force Protection sits with Security, Shortlinks with Engagement, and Infinite Scroll in Other.
+	 * Login protection sits with Protect, Shortlinks with Engagement, and Infinite Scroll in Other.
 	 */
 	public function test_module_groups_place_the_regrouped_modules() {
 		$groups = array_column( Main_Features::get_module_groups(), 'modules', 'label' );
 
-		$this->assertContains( 'protect', $groups['Security'] );
+		$this->assertContains( 'protect', $groups['Protect'] );
 		$this->assertContains( 'shortlinks', $groups['Engagement'] );
 		$this->assertNotContains( 'infinite-scroll', array_merge( ...array_values( $groups ) ) );
 	}

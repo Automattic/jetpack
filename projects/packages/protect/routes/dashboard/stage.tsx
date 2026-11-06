@@ -14,6 +14,7 @@ import { REPORT_PARAM, parseThreatIds } from './sections/scan/group-threats';
 import HeaderScanButton from './sections/scan/header-scan-button';
 import ScanStartNotice from './sections/scan/scan-start-notice';
 import { useScanPolling } from './sections/scan/store';
+import { ThreatFileViewer } from './sections/scan/threat-file';
 import ThreatReport from './sections/scan/threat-report';
 import './route.scss';
 
@@ -97,6 +98,7 @@ const Stage = () => {
 						openTab={ openTab }
 					/>
 				</div>
+				<ThreatFileViewer />
 			</AdminPage>
 		);
 	}
@@ -138,6 +140,7 @@ const Stage = () => {
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>
+			<ThreatFileViewer />
 		</AdminPage>
 	);
 };

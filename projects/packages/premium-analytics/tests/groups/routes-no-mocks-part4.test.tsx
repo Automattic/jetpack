@@ -3,4 +3,3 @@
 import '../../routes/dashboard/components/refresh-failure-notice/refresh-failure-notice.test';
 import '../../routes/dashboard/components/section-notice/section-notice.test';
 import '../../routes/post-detail/hooks/use-email-tab-scope.test';
-import '../../routes/widget-type-aliases.test';

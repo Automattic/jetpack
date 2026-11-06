@@ -75,6 +75,30 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * Every tab reads whether SEO output is paused from the same script data.
+	 */
+	public function test_script_data_reports_the_output_state() {
+		$plugin = static function () {
+			return 'Yoast SEO';
+		};
+		add_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+		} finally {
+			remove_filter( 'jetpack_seo_conflicting_plugin', $plugin );
+		}
+
+		$this->assertSame(
+			array(
+				'paused'             => true,
+				'conflicting_plugin' => 'Yoast SEO',
+			),
+			$data[ Initializer::SCRIPT_DATA_KEY ]['output']
+		);
+	}
+
+	/**
 	 * Put the site on WordPress.com, entitled to `advanced-seo` or not.
 	 *
 	 * `advanced-seo` sits in the FREE plan's supports list and plan classes are
@@ -278,20 +302,17 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The menu must be visible even when seo-tools is off, so the user can turn it back on.
-	 * Verified by checking that no module gate is declared on the registered item.
+	 * The menu item hides while seo-tools is off, like other Jetpack modules.
 	 */
-	public function test_menu_item_is_registered_without_a_module_gate() {
+	public function test_menu_item_is_gated_on_seo_tools() {
 		Admin_Page::add_menu_item();
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
 		if ( \PHP_VERSION_ID < 80100 ) {
 			$menu_items->setAccessible( true );
 		}
-		$items = $menu_items->getValue( null );
-
 		$seo_item = null;
-		foreach ( $items as $item ) {
+		foreach ( $menu_items->getValue( null ) as $item ) {
 			if ( Admin_Page::MENU_SLUG === $item['menu_slug'] ) {
 				$seo_item = $item;
 				break;
@@ -299,7 +320,7 @@ class AdminPageTest extends TestCase {
 		}
 
 		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
-		$this->assertArrayNotHasKey( 'module', $seo_item['args'] ?? array() );
+		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
 		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
 	}
 

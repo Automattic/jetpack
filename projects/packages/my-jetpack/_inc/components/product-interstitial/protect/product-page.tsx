@@ -161,7 +161,7 @@ export default function ProtectProductPage() {
 									<Icon icon={ login } className={ styles[ 'stats-card-icon-check' ] } />
 									<div>
 										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-											{ __( 'Logins blocked', 'jetpack-my-jetpack' ) }
+											{ __( 'Blocked login attempts', 'jetpack-my-jetpack' ) }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
 											{ formatNumberCompact( blockedLogins ) }
@@ -203,7 +203,7 @@ export default function ProtectProductPage() {
 							<div className={ styles[ 'product-interstitial__feature-item' ] }>
 								<Icon icon={ check } className={ styles[ 'feature-icon' ] } />
 								<div>
-									<strong>{ __( 'Brute force protection', 'jetpack-my-jetpack' ) }</strong>
+									<strong>{ __( 'Login protection', 'jetpack-my-jetpack' ) }</strong>
 									<p>
 										{ __(
 											'Automatic blocking of malicious login attempts to keep hackers out of your site.',
@@ -225,7 +225,7 @@ export default function ProtectProductPage() {
 							<div className={ styles[ 'product-interstitial__feature-item' ] }>
 								<Icon icon={ check } className={ styles[ 'feature-icon' ] } />
 								<div>
-									<strong>{ __( 'Web Application Firewall', 'jetpack-my-jetpack' ) }</strong>
+									<strong>{ __( 'Firewall', 'jetpack-my-jetpack' ) }</strong>
 									<p>
 										{ __(
 											'Basic firewall protection with manual rules to filter malicious traffic.',

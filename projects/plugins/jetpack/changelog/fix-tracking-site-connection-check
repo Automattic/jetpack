@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tracking: Avoid premature authentication on connected sites.
