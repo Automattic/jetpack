@@ -61,7 +61,6 @@ add_action( 'enqueue_block_editor_assets', 'wpcomsh_coblocks_there_can_be_only_o
 
 /**
  * CoBlocks 3.x saves a font preset's slug as the wrapper's inline font-family; point it at the preset's variable.
- * The editor-side fix (wp-calypso fix-coblocks-fonts.js) can't reach 3.x; drop this once godaddy-wordpress/coblocks#2475 is fixed.
  *
  * @param string $block_content Rendered block HTML.
  * @param array  $block         Parsed block.
