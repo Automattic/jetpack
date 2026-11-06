@@ -60,7 +60,7 @@ async function copyText( text, ownerDocument ) {
  *
  * @param {string}   text          - Text to copy.
  * @param {Function} onCopied      - Called after a successful copy.
- * @param {Function} setFailedText - Gets the text after a failed copy, and null after a success.
+ * @param {Function} setFailedText - Gets `{ text }` after a failed copy, and null after a success.
  * @return {Array} The click handler, and whether "Copied" should show.
  */
 function useCopyWithFeedback( text, onCopied, setFailedText ) {
@@ -73,7 +73,8 @@ function useCopyWithFeedback( text, onCopied, setFailedText ) {
 		async event => {
 			const trigger = event.currentTarget;
 			if ( ! ( await copyText( text, trigger.ownerDocument ) ) ) {
-				setFailedText( text );
+				// A new object each time, so a repeat failure selects the text again.
+				setFailedText( { text } );
 				return;
 			}
 			// The execCommand fallback moves focus to its field.
@@ -221,18 +222,19 @@ function CopyTile( { agent, setFailedText } ) {
 /**
  * Shows the text to copy by hand when the browser blocks copying.
  *
- * @param {object} props      - Component props.
- * @param {string} props.text - Text that failed to copy.
+ * @param {object} props         - Component props.
+ * @param {object} props.failure - The failed copy, with the `text` that failed.
  * @return {object} Component markup.
  */
-function CopyFallback( { text } ) {
+function CopyFallback( { failure } ) {
+	const { text } = failure;
 	const fieldRef = useRef();
 
 	// Select the text so people only need to press the copy shortcut.
 	useEffect( () => {
 		fieldRef.current?.focus();
 		fieldRef.current?.select();
-	}, [ text ] );
+	}, [ failure ] );
 
 	return (
 		<Notice.Root intent="warning">
@@ -296,7 +298,7 @@ function AccessOffNotice( { onTurnOn, isTurningOn } ) {
  * @return {object} Component markup.
  */
 export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onNavigate } ) {
-	const [ failedText, setFailedText ] = useState( null );
+	const [ failedCopy, setFailedText ] = useState( null );
 	const [ handleHelperClick, isHelperCopied ] = useCopyWithFeedback(
 		HELPER_PROMPT,
 		() => recordMcpTracksEvent( 'jetpack_mcp_connect_helper_copy' ),
@@ -357,7 +359,7 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 							</li>
 						) ) }
 					</ul>
-					{ failedText !== null && <CopyFallback text={ failedText } /> }
+					{ failedCopy && <CopyFallback failure={ failedCopy } /> }
 				</Stack>
 				<Card.FullBleed className="jetpack-ai-mcp__connect-footer">
 					<Text variant="body-sm">

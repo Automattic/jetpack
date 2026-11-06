@@ -148,6 +148,20 @@ describe( 'McpConnectCard', () => {
 		);
 	} );
 
+	test( 'a second failed copy of the same text selects the text again', async () => {
+		const { user } = setupClipboard( jest.fn().mockRejectedValue( new Error( 'denied' ) ) );
+		renderCard();
+
+		const button = screen.getByRole( 'button', { name: 'Codex' } );
+		await user.click( button );
+		const field = await screen.findByRole( 'textbox', { name: 'Your browser blocked copying' } );
+		await user.click( button );
+
+		await waitFor( () => expect( field ).toHaveFocus() );
+		expect( field.selectionStart ).toBe( 0 );
+		expect( field.selectionEnd ).toBe( field.value.length );
+	} );
+
 	test( 'Copy prompt copies the helper prompt and records it', async () => {
 		const { user, writeText } = setupClipboard();
 		renderCard();
