@@ -498,8 +498,8 @@ $band-ground: #f8f8f8;
 }
 
 // List rows have more inner padding than the toolbar card, so the select-all
-// box moves in by the difference to line up with the row checkboxes. The
-// matching negative end margin keeps the count's width, so it wraps no sooner.
+// checkbox moves in by the difference to line up with the row checkboxes. The
+// negative end margin takes that space back, so only the checkbox moves.
 .bulk-bar > :global(.components-checkbox-control) {
 	margin-inline: calc(var(--wpds-dimension-padding-xl) - var(--wpds-dimension-padding-md)) calc(var(--wpds-dimension-padding-md) - var(--wpds-dimension-padding-xl));
 }
