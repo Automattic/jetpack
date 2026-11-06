@@ -113,11 +113,26 @@ fi
 VERSION=$2
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 if [[ -z $VERSION ]]; then
-	read -rep 'Version to release (e.g. 16.4.1): ' VERSION || exit 1
+	read -rep 'Version to release (e.g. 16.4.1): ' VERSION
 fi
 if [[ ! "$VERSION" =~ $VERSION_REGEX ]]; then
 	die "Invalid version: $VERSION"
 fi
+
+# Eventually we could try guessing the source branch based on the version provided above.
+ORIGINAL_BRANCH=$(git branch --show-current)
+read -rep 'Release version to start from (e.g. 16.4): ' FROM_VERSION
+if [[ ! "$FROM_VERSION" =~ $VERSION_REGEX ]]; then
+	die "Invalid version: $FROM_VERSION"
+fi
+# Note that some plugins have more than one prefix. Go with the first.
+# @todo: Check if we need those other prefixes anymore.
+PREFIX=$(jq -r '.extra["release-branch-prefix"] | if type == "array" then first else . end' "$BASE/projects/$PLUGIN/composer.json")
+RELEASE_BRANCH="$PREFIX/branch-$FROM_VERSION"
+if ! git rev-parse -q --verify "refs/heads/$RELEASE_BRANCH" >/dev/null && ! git rev-parse -q --verify "refs/remotes/origin/$RELEASE_BRANCH" >/dev/null; then
+	die "No such branch: $RELEASE_BRANCH"
+fi
+git switch -q "$RELEASE_BRANCH"
 
 CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 # shellcheck disable=SC2310
@@ -130,3 +145,5 @@ START_COMMIT=$(git rev-parse HEAD)
 
 apply_patches
 detect_packages_to_release
+
+git switch -q "$ORIGINAL_BRANCH"
