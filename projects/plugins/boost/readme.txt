@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.8.1
+Stable tag: 4.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,6 +218,8 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Accessibility: Announce the score history chart and a disabled Cornerstone Pages Save button correctly to screen readers, and show the selected history day's focus ring on any bar color.
 - Activity Log: Show an empty date picker on the free plan, instead of a date range it does not apply.
 - Cache cleanup: Prevent memory exhaustion when removing expired optimization data.
+- Concatenate: Improve loading of combined scripts and styles.
+- Concatenate: Improve minification reliability.
 - Concatenate JS: Fix scripts printed on their own failing to load on sites served from a custom port.
 - Connection: Fix reconnecting an account disconnecting other users, an empty Safe Mode window, owner names with characters like &, untranslated Connectors card text, and spurious Site Health connection failures.
 - Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
