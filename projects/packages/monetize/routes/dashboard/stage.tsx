@@ -4,6 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Placeholder from './components/placeholder';
 import { getAdsSettingsData } from './data/ads-settings-data';
@@ -53,10 +54,14 @@ const Stage = () => {
 						<div id="jp-admin-notices" />
 						{ tabs.map( tab => (
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
-								{ /* Every tab so far needs WordPress.com. */ }
-								<ConnectionGate>
-									<Placeholder />
-								</ConnectionGate>
+								{ /* Settings saves through Jetpack's own endpoints; every other tab so far needs WordPress.com. */ }
+								{ tab.value === 'settings' ? (
+									<AdsSettings />
+								) : (
+									<ConnectionGate>
+										<Placeholder />
+									</ConnectionGate>
+								) }
 							</Tabs.Panel>
 						) ) }
 					</div>
