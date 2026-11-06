@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Send batched server-side stats without waiting for a response, and add an optional parameter to send a single stat the same way.
