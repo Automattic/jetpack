@@ -90,8 +90,8 @@ describe( 'matchesFilter', () => {
 		] );
 	} );
 
-	it( 'matches a plan filter on plan membership', () => {
-		const state = buildState( { plans: [ security ] } );
+	it( 'matches a plan filter on the feature group, even with that bundle off sale', () => {
+		const state = buildState( { groups: [ 'security' ] } );
 
 		expect( matchesFilter( state, 'security' ) ).toBe( true );
 		expect( matchesFilter( state, 'growth' ) ).toBe( false );
