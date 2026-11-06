@@ -3481,6 +3481,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
 		}
+
+		// When code forces matching by email, report the forced value and lock the setting.
+		if ( 'sso' === $module && isset( $options['jetpack_sso_match_by_email'] ) && SSO\Helpers::is_match_by_email_checkbox_disabled() ) {
+			$options['jetpack_sso_match_by_email']['current_value'] = SSO\Helpers::match_by_email();
+			$options['jetpack_sso_match_by_email']['locked']        = true;
+		}
+
 		// At this point some options have current_value not set because they're options
 		// that only get written on update, so we set current_value to the default one.
 		foreach ( $options as $key => $value ) {
