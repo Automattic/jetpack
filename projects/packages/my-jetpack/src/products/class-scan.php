@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 
@@ -170,11 +171,17 @@ class Scan extends Module_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		// Consumers match by substring, so the prefix covers every Scan product. An older Protect Status may lack it.
+		return array( defined( Plan::class . '::SCAN_PRODUCT_PREFIX' ) ? Plan::SCAN_PRODUCT_PREFIX : 'jetpack_scan' );
+	}
+
+	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
 	}
 
 	/**

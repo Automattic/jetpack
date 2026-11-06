@@ -222,7 +222,7 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
 
 		expect(
-			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-card-tabs-columns' )
 		).toBe( columns );
 	} );
 
@@ -512,6 +512,24 @@ describe( 'MetricTabsChart', () => {
 		expect( tabs ).toHaveLength( 2 );
 		for ( const tab of tabs ) {
 			expect( tab ).toBeEnabled();
+		}
+	} );
+
+	it( 'draws each card without block elements, which a button cannot hold', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			// eslint-disable-next-line testing-library/no-node-access -- A block element has no role to query by.
+			expect( tab.querySelector( 'div' ) ).toBeNull();
 		}
 	} );
 

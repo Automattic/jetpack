@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Document that a chart without chartTitle is named after its widget's title.

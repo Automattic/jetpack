@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsSite } from '@jetpack-premium-analytics/data';
+import { STATS_SITE_SUMMARY_FIELDS, useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
@@ -85,7 +85,9 @@ function readBestDay( summary: Record< string, unknown > | undefined ) {
  * summary is site-wide, so it does not read the dashboard date range.
  */
 function MostPopularDayReport() {
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite();
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSite( {
+		stat_fields: STATS_SITE_SUMMARY_FIELDS,
+	} );
 
 	const summary = data?.stats;
 	const date = readBestDay( summary );

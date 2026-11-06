@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add lastScanFailed to the ScanStatus type.

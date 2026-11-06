@@ -22,6 +22,7 @@ import { getSettings } from 'state/settings';
 import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
+import { InfiniteScrollMoved } from './infinite-scroll-moved';
 import PostByEmail from './post-by-email';
 import { PostByEmailMoved } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
@@ -143,7 +144,14 @@ export class Writing extends Component {
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
 				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
-				<ThemeEnhancements { ...commonProps } />
+				{ isSettingsConsolidationEnabled() ? (
+					this.props.searchTerm &&
+					this.props.isModuleFound( 'infinite-scroll' ) && (
+						<InfiniteScrollMoved getModule={ this.props.module } />
+					)
+				) : (
+					<ThemeEnhancements { ...commonProps } />
+				) }
 				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) &&
 					showPostByEmail &&

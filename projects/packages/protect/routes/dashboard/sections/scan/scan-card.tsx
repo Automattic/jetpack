@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { caution, shield } from '@wordpress/icons';
-import { Button, EmptyState, Stack, Text } from '@wordpress/ui';
+import { Button, EmptyState, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import { HISTORY_STATUS_PARAM } from '../history/store';
@@ -10,7 +10,15 @@ import SafeState from './safe-state';
 import ScanButton from './scan-button';
 import ScanUpsell from './scan-upsell';
 import ScanningState from './scanning-state';
-import { checkScanAgain, startScan, useIsScanning, useScan, useScanRequest } from './store';
+import {
+	checkScanAgain,
+	isNotScannedYet,
+	isScanFailedWithoutResults,
+	startScan,
+	useIsScanning,
+	useScan,
+	useScanRequest,
+} from './store';
 import { loadIgnored } from './threat-actions';
 import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
@@ -137,7 +145,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ! hasThreats && ( scan.lastScanFailed || ! scan.lastChecked ) ) {
+	} else if ( isScanFailedWithoutResults( scan ) || isNotScannedYet( scan ) ) {
 		const copy = getNoResultCopy( scan );
 		body = (
 			<CardRow className="jp-protect-scan__state">
@@ -162,6 +170,18 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	} else {
 		body = (
 			<>
+				{ scan.lastScanFailed && (
+					<CardRow>
+						<Notice.Root intent="warning">
+							<Notice.Description>
+								{ __(
+									'Your last scan didn’t complete, so these results are from an earlier scan.',
+									'jetpack-protect-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
+					</CardRow>
+				) }
 				<CardRow className="jp-protect-card__cells jp-protect-card__stats">
 					<Stat
 						label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
