@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Show "Anonymous" when a response has no name, email, or IP address.
