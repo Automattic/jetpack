@@ -122,9 +122,10 @@ function AgentLogo( { agent } ) {
  */
 function TileContent( { id, agent, isCopied = false } ) {
 	return (
-		<Card.Content className="jetpack-ai-mcp__connect-tile-content">
+		// Spans, not the default divs: the tile can be a button, which only holds inline content.
+		<Card.Content className="jetpack-ai-mcp__connect-tile-content" render={ <span /> }>
 			<AgentLogo agent={ agent } />
-			<Stack direction="column">
+			<Stack direction="column" render={ <span /> }>
 				<Text id={ `${ id }-name` } variant="heading-md">
 					{ agent.name }
 				</Text>
@@ -140,7 +141,7 @@ function TileContent( { id, agent, isCopied = false } ) {
 				{ isCopied ? __( 'Copied', 'jetpack' ) : agent.actionLabel }
 				<Icon icon={ agent.href ? arrowUpRight : copy } size={ 12 } />
 				{ agent.href && (
-					<VisuallyHidden>
+					<VisuallyHidden render={ <span /> }>
 						{
 							/* translators: accessibility text */
 							__( '(opens in a new tab)', 'jetpack' )

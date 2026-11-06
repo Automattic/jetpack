@@ -85,6 +85,18 @@ describe( 'McpConnectCard', () => {
 		);
 	} );
 
+	test( 'tiles hold only inline content, which a button allows', () => {
+		renderCard();
+
+		// eslint-disable-next-line testing-library/no-node-access -- checks the markup itself.
+		const blocks = document.querySelectorAll(
+			[ 'div', 'p', 'ul', 'li', 'h2', 'h3' ]
+				.map( tag => `.jetpack-ai-mcp__connect-tile ${ tag }` )
+				.join( ', ' )
+		);
+		expect( blocks ).toHaveLength( 0 );
+	} );
+
 	test( 'a link tile records the open', async () => {
 		renderCard();
 

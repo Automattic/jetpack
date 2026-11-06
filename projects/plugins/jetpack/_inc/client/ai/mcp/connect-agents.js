@@ -18,7 +18,6 @@ export const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cha
 export const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
 export const VSCODE_INSTALL_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-vscode';
 
-// English only: users paste it straight into an agent, so a translation could add instructions.
 export const HELPER_PROMPT = `Connect yourself to my WordPress site over MCP. The server is ${ MCP_SERVER_URL }. Tell me what to click or run for this app, wait while I sign in with my WordPress.com account and approve the connection, then list my sites to confirm it works.`;
 
 /**
