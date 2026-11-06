@@ -19,6 +19,7 @@ import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
 import * as testCommand from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
+import { completionHook } from './helpers/completion.js';
 
 /**
  * The main CLI router function.
@@ -40,8 +41,9 @@ export async function cli() {
 	argv = changelogDefine( argv );
 	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
+	// The hook completes positionals by name; a builder registers its own the same way.
+	argv.completion( 'completion', 'Generate a shell completion script', completionHook( argv ) ); // Placed here to keep things alphabetical.
 	argv.command( composerCommand );
-	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = docsDefine( argv );
@@ -73,6 +75,12 @@ export async function cli() {
 				global: true,
 			},
 		} );
+
+	// A builder with `unknown-options-as-args` (composer, pnpm) never sees the completion request,
+	// so stop the half-typed command before its handler runs.
+	if ( process.argv.includes( '--get-yargs-completions' ) ) {
+		argv.middleware( () => process.exit( 0 ), true );
+	}
 
 	// Parse the args!
 	argv.parse();

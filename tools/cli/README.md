@@ -26,13 +26,26 @@ You run a command by using `jetpack [command] [arguments]`. Every command suppor
 
 The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run `jetpack cli unlink`, then change into the directory you want and run `pnpm jetpack cli link` again.
 
+## Shell completion
+
+`jetpack completion` prints a completion script for the shell named by `$SHELL`, zsh or bash 4+. Save it once and source it from your shell's startup file:
+
+```sh
+jetpack completion > ~/.jetpack-completion.sh
+echo 'source ~/.jetpack-completion.sh' >> ~/.zshrc   # or ~/.bashrc
+```
+
+zsh users can instead save it as `_jetpack` in a directory on their `fpath`.
+
+Then `jetpack bu<TAB>` completes the command, `jetpack build <TAB>` offers the project types, and `jetpack build pack<TAB>` the packages. The script holds no data: every TAB asks the CLI of the checkout you are in, so new projects show up as soon as they exist, and in a git worktree you get that worktree's projects.
+
 ## Available Commands
 
 * `build` - Build a project in the monorepo.
 * `changelog` - Manage changelog files for a project.
 * `clean` - Clean unwanted files in the monorepo.
 * `cli` - Manage global symlink for the CLI.
-* `completion` - Generate bash/zsh completions.
+* `completion` - Generate a shell completion script.
 * `dependencies` - Analyze and display project dependencies.
 * `docker` - Manage docker containers.
 * `docs` - Parse PHPDoc documentation from a project and output it into a JSON file.

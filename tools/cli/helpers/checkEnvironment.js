@@ -2,7 +2,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import chalk from 'chalk';
+import { chalkStderr } from 'chalk';
 import * as envfile from 'envfile';
 import { execaNode } from 'execa';
 import semver from 'semver';
@@ -44,8 +44,8 @@ export async function compareNodeVersion() {
 		currentNodeVersion &&
 		! semver.satisfies( currentNodeVersion, '^' + monorepoNodeVersion )
 	) {
-		console.log(
-			chalk.yellow(
+		console.error(
+			chalkStderr.yellow(
 				`Node version ${ currentNodeVersion } does not satisfy the monorepo's required version of ^${ monorepoNodeVersion }! This may cause issues when working with monorepo tooling.`
 			)
 		);
@@ -84,8 +84,8 @@ export async function comparePnpmVersion() {
 		currentPnpmVersion &&
 		! semver.satisfies( currentPnpmVersion, '^' + monorepoPnpmVersion )
 	) {
-		console.log(
-			chalk.yellow(
+		console.error(
+			chalkStderr.yellow(
 				`Pnpm version ${ currentPnpmVersion } does not satisfy the monorepo's required version of ^${ monorepoPnpmVersion }! This may cause issues when working with monorepo tooling.`
 			)
 		);
@@ -125,8 +125,8 @@ export async function comparePhpVersion() {
 		currentPhpVersion &&
 		! semver.satisfies( currentPhpVersion, '^' + monorepoPhpVersion )
 	) {
-		console.log(
-			chalk.yellow(
+		console.error(
+			chalkStderr.yellow(
 				`PHP version ${ currentPhpVersion } does not satisfy the monorepo's required version of ^${ monorepoPhpVersion }! This may cause issues when working with monorepo tooling.`
 			)
 		);
@@ -170,13 +170,15 @@ export async function compareComposerVersion() {
 		// Tilde rather than caret because API version bumps in minor updates sometimes cause issues.
 		! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion )
 	) {
-		console.log(
-			chalk.yellow(
+		console.error(
+			chalkStderr.yellow(
 				`Composer version ${ currentComposerVersion } does not satisfy the monorepo's required version of ~${ monorepoComposerVersion }! This may cause issues when working with monorepo tooling.`
 			)
 		);
-		console.log(
-			chalk.yellow( `To fix, you can run 'composer self-update ${ monorepoComposerVersion }'` )
+		console.error(
+			chalkStderr.yellow(
+				`To fix, you can run 'composer self-update ${ monorepoComposerVersion }'`
+			)
 		);
 		return false;
 	}
@@ -202,8 +204,11 @@ export async function compareToolVersions() {
  * Check for whether the CLI is being run from within a different monorepo checkout.
  *
  * If so, this will shell out to the correct CLI, then return.
+ *
+ * @param {object}  [options]       - Options.
+ * @param {boolean} [options.quiet] - Don't announce the switch, e.g. for shell completion.
  */
-export async function checkCliLocation() {
+export async function checkCliLocation( { quiet = false } = {} ) {
 	// Did our caller already do this? Don't check again.
 	if ( process.env.JETPACK_CLI_DID_REEXEC ) {
 		return;
@@ -226,11 +231,13 @@ export async function checkCliLocation() {
 			return;
 		}
 
-		console.log(
-			chalk.yellow(
-				`Jetpack CLI was linked to ${ thisRoot }, but a Jetpack Monorepo checkout was found at ${ dir }. Executing the CLI from ${ dir }.`
-			)
-		);
+		if ( ! quiet ) {
+			console.error(
+				chalkStderr.yellow(
+					`Jetpack CLI was linked to ${ thisRoot }, but a Jetpack Monorepo checkout was found at ${ dir }. Executing the CLI from ${ dir }.`
+				)
+			);
+		}
 
 		// Alas node doesn't expose `execve()` or the like, so this seems the best we can do without messing with native function call stuff.
 		const res = await execaNode( exe, process.argv.slice( 2 ), {

@@ -9,6 +9,7 @@ import { glob } from 'glob';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
+import { COMPLETION_COMMAND, completeProject, completionHook } from '../helpers/completion.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
 import { readComposerJson, readPackageJson } from '../helpers/json.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
@@ -18,7 +19,6 @@ import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'test [test] [project...]';
 export const describe = 'Run tests on a monorepo project';
-
 /**
  * Options definition for the test subcommand.
  *
@@ -27,6 +27,17 @@ export const describe = 'Run tests on a monorepo project';
  */
 export async function builder( yargs ) {
 	return yargs
+		.completion(
+			COMPLETION_COMMAND,
+			false,
+			completionHook( yargs, {
+				test: () =>
+					[
+						...new Set( allProjects().flatMap( project => availableTests( project, false ) ) ),
+					].sort(),
+				project: current => [ ...completeProject( current ), 'monorepo' ],
+			} )
+		)
 		.positional( 'test', {
 			describe:
 				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project.',
@@ -541,16 +552,16 @@ export async function runTests( argv, opts ) {
 }
 
 /**
- * Prompts for the test we want to run.
+ * List the tests a project defines: its `test-*` composer scripts, plus `typecheck` when package.json has it.
  *
- * @param {argv} argv - the arguments passed.
- * @return {object} argv
+ * @param {string}  project - The project.
+ * @param {boolean} output  - Whether to mention missing manifest files.
+ * @return {string[]} Test names.
  */
-export async function promptForTest( argv ) {
-	const project = argv.project[ 0 ];
-	const composerJson = await readComposerJson( project );
-	const packageJson = await readPackageJson( project );
-	const tests = Object.keys( composerJson.scripts ?? {} )
+export function availableTests( project, output = true ) {
+	const composerJson = readComposerJson( project, output );
+	const packageJson = readPackageJson( project, output );
+	const tests = Object.keys( composerJson?.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
 		.map( test => test.substring( 5 ) )
 		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
@@ -558,6 +569,18 @@ export async function promptForTest( argv ) {
 	if ( packageJson?.scripts?.typecheck ) {
 		tests.push( 'typecheck' );
 	}
+	return tests;
+}
+
+/**
+ * Prompts for the test we want to run.
+ *
+ * @param {argv} argv - the arguments passed.
+ * @return {object} argv
+ */
+export async function promptForTest( argv ) {
+	const project = argv.project[ 0 ];
+	const tests = availableTests( project );
 	if ( tests.length === 0 ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
 		process.exit( 1 );

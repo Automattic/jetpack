@@ -15,6 +15,7 @@ import { execa } from 'execa';
 import pDebounce from 'p-debounce';
 import tmp from 'tmp';
 import { tracks } from '../helpers/analytics.js';
+import { COMPLETION_COMMAND, completionHook } from '../helpers/completion.js';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
@@ -864,6 +865,11 @@ export function rsyncDefine( yargs ) {
 		'Will rsync a plugin from projects/plugins/ to a remote destination. Useful for developing against a live site.',
 		yarg => {
 			yarg
+				.completion(
+					COMPLETION_COMMAND,
+					false,
+					completionHook( yarg, { dest: () => Object.keys( rsyncConfigStore.all ) } )
+				)
 				.positional( 'plugin', {
 					describe: 'Name of the plugin',
 					type: 'string',

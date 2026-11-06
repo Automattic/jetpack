@@ -999,7 +999,7 @@ export const buildExecCmd = argv => {
 		process.exit( 1 );
 	} else if ( cmd === 'phpunit-integration' ) {
 		// Only run tests for wpcomsh and jetpack, but always set JP_MONO_INTEGRATION_PLUGINS to the full list
-		const plugins = argv.plugins || argv._.slice( 2 );
+		const plugins = argv.plugin || argv._.slice( 2 );
 		const integrationPluginsEnv = plugins.join( ',' );
 		const allCmds = [];
 		// Only run for these plugins
@@ -1046,11 +1046,11 @@ export const buildExecCmd = argv => {
 		opts.push(
 			'ln',
 			'-s',
-			`/usr/local/src/jetpack-monorepo/projects/plugins/${ argv.plugin_slug }`,
-			`/var/www/html/wp-content/plugins/${ argv.plugin_slug }`
+			`/usr/local/src/jetpack-monorepo/projects/plugins/${ argv.plugin }`,
+			`/var/www/html/wp-content/plugins/${ argv.plugin }`
 		);
 	} else if ( cmd === 'unlink-plugin' ) {
-		opts.push( 'rm', `/var/www/html/wp-content/plugins/${ argv.plugin_slug }` );
+		opts.push( 'rm', `/var/www/html/wp-content/plugins/${ argv.plugin }` );
 	}
 
 	return buildComposeFiles().concat( opts );
@@ -1285,7 +1285,7 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'phpunit <target>',
 					description:
-						'Run PHPUnit tests inside container for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.',
+						'Run PHPUnit tests inside container for plugins that require a WordPress install.',
 					builder: yargCmd =>
 						defaultOpts( yargCmd )
 							.option( 'php', {
@@ -1296,7 +1296,11 @@ export function dockerDefine( yargs ) {
 								describe:
 									'Which PHPUnit tests to run:\n- jetpack: Jetpack plugin tests\n- jp-multisite: Jetpack plugin multisite tests.\n- jp-wpcomsh: Jetpack plugin tests with wpcomsh installed.\n- wpcomsh: Wpcomsh plugin tests.',
 								type: 'string',
-							} ),
+								choices: [ 'jetpack', 'jp-multisite', 'jp-wpcomsh', 'wpcomsh' ],
+							} )
+							.usage(
+								'$0 docker phpunit <target>\n\nRun PHPUnit tests inside container for plugins that require a WordPress install.\n\nMost projects do not need a WordPress install, and can be tested on the host by using the `jetpack test` command. If you really want to run them inside the container anyway, see docs in docs/development-environment.md.'
+							),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
@@ -1356,11 +1360,11 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'link-plugin <plugin_slug>',
+					command: 'link-plugin <plugin>',
 					description:
 						'Links a monorepo plugin folder with the plugin folder of your Docker env. Plugin will be considered installed.',
 					builder: yargCmd => {
-						yargCmd.positional( 'plugin_slug', {
+						yargCmd.positional( 'plugin', {
 							describe: 'The plugin slug',
 							type: 'string',
 						} );
@@ -1368,11 +1372,11 @@ export function dockerDefine( yargs ) {
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
-					command: 'unlink-plugin <plugin_slug>',
+					command: 'unlink-plugin <plugin>',
 					description:
 						'Uninks a monorepo plugin folder from the plugin folder of your Docker env. Plugin will be considered not installed.',
 					builder: yargCmd => {
-						yargCmd.positional( 'plugin_slug', {
+						yargCmd.positional( 'plugin', {
 							describe: 'The plugin slug',
 							type: 'string',
 						} );
@@ -1404,11 +1408,11 @@ export function dockerDefine( yargs ) {
 					},
 				} )
 				.command( {
-					command: 'phpunit-integration <plugins...>',
+					command: 'phpunit-integration <plugin...>',
 					description:
 						'Run PHPUnit for each specified plugin with all specified plugins activated (integration mode)',
 					builder: yargCmd =>
-						defaultOpts( yargCmd ).positional( 'plugins', {
+						defaultOpts( yargCmd ).positional( 'plugin', {
 							describe: 'Plugin slugs to activate and test',
 							type: 'string',
 							array: true,

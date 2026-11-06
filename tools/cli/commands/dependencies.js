@@ -62,7 +62,7 @@ extraFileSets.e2e = {
 	'^projects/plugins/jetpack/tests/e2e/specs/sync/': [ 'packages/sync' ],
 };
 
-export const command = 'dependencies <subcommand> [projects...]';
+export const command = 'dependencies <subcommand> [project...]';
 export const describe = 'Report monorepo project dependencies';
 
 /**
@@ -79,7 +79,7 @@ export function builder( yargs ) {
 			type: 'string',
 			choices: [ 'json', 'list', 'build-order', 'depths' ],
 		} )
-		.positional( 'projects', {
+		.positional( 'project', {
 			describe: 'Only include dependencies relevant to these projects.',
 			type: 'string',
 		} )
@@ -165,7 +165,7 @@ export async function handler( argv ) {
 		const extraFiles = Object.entries( extraFileSets[ argv.extra ] || extraFileSets.base ).map(
 			( [ k, v ] ) => [ new RegExp( k ), v ]
 		);
-		const projset = new Set( argv.projects );
+		const projset = new Set( argv.project );
 		const ig = ignore().add( ignoreFiles );
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
@@ -218,7 +218,7 @@ export async function handler( argv ) {
 			}
 		}
 
-		argv.projects = [ ...projset ];
+		argv.project = [ ...projset ];
 
 		// If the diff touched nothing, we output nothing.
 		if ( projset.size === 0 ) {
@@ -226,8 +226,8 @@ export async function handler( argv ) {
 		}
 	}
 
-	if ( argv.projects.length ) {
-		deps = filterDeps( deps, argv.projects, {
+	if ( argv.project.length ) {
+		deps = filterDeps( deps, argv.project, {
 			dependencies: argv.addDependencies,
 			dependents: argv.addDependents,
 		} );
