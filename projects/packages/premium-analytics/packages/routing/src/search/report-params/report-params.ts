@@ -121,17 +121,17 @@ export function toReportOriginWindowParams(
  * @return The report-window params to carry.
  */
 function expandOriginWindow( origin: Record< string, unknown > ): Record< string, unknown > {
-	const hasNamedPreset =
-		isSelectablePreset( origin.preset ) ||
-		isYearPresetId( origin.preset ) ||
-		( origin.preset === PRESET_ALL_TIME && !! origin.from && !! origin.to );
+	const hasNamedPreset = isSelectablePreset( origin.preset ) || isYearPresetId( origin.preset );
 	const hasCustomRange = !! origin.from && !! origin.to;
 
 	if ( ! hasNamedPreset && ! hasCustomRange ) {
 		return origin;
 	}
 
-	const expanded = pickReportDateParams( normalizeReportParams( origin as NormalizeInput ) );
+	const expanded = {
+		...pickReportDateParams( normalizeReportParams( origin as NormalizeInput ) ),
+		...( origin.interval !== undefined ? { interval: origin.interval } : {} ),
+	};
 
 	if ( origin.compare_from !== undefined ) {
 		return {

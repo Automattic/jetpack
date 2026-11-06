@@ -182,6 +182,26 @@ describe( 'origin window params', () => {
 		).toEqual( { ref_preset: 'all-time', ref_from: '2020-03-04', ref_to: '2026-01-31' } );
 	} );
 
+	it( 'returns the interval selected under plan limits', () => {
+		const linked = {
+			from: '2026-06-01',
+			to: '2026-09-30',
+			interval: 'day',
+		};
+		const stored = toReportOriginWindowParams( linked );
+		const link = buildReportLink( 'posts', { post_id: '42', ...stored } );
+		const search = parseSearch( new URL( link, 'https://example.com' ) );
+
+		expect.assertions( 4 );
+		expect( stored ).toEqual( {
+			ref_from: linked.from,
+			ref_to: linked.to,
+			ref_interval: linked.interval,
+		} );
+		expectLink( link, '/reports/posts', linked );
+		expect( needsReportDateParamsSeed( search, [ 'week', 'month' ] ) ).toBe( false );
+	} );
+
 	it( 'returns a complete linking window so the destination needs no redirect', () => {
 		const window = normalizeReportParams( { preset: 'last-30-days' } );
 		const linked = {
