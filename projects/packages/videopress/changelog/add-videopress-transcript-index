@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Keep a searchable transcript of each channel video from its edited or VideoPress caption track, rebuilt when tracks change, and add a transcript REST route.
