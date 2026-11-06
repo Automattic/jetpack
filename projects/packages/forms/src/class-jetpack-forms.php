@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Forms\ContactForm\Feedback_Source;
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
@@ -24,9 +25,36 @@ class Jetpack_Forms {
 	const CONDITIONAL_LOGIC_FEATURE = 'form-conditional-logic';
 
 	/**
+	 * Name of the feature flag gating the Slack integration.
+	 */
+	const SLACK_FLAG = 'forms-slack';
+
+	/**
+	 * Register the package's feature flags.
+	 *
+	 * Registration is unconditional and happens as the package loads, so the full set stays
+	 * discoverable through `Feature_Flags::all()` and nothing can call `is_enabled()` on an
+	 * unregistered flag.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::SLACK_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Post new form responses to a Slack channel.',
+				'owner'       => 'jetpack-forms',
+			)
+		);
+	}
+
+	/**
 	 * Load the contact form module.
 	 */
 	public static function load_contact_form() {
+		self::register_feature_flags();
+
 		Util::init();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
@@ -48,6 +76,17 @@ class Jetpack_Forms {
 
 		// Enforces the availability of block support controls in the UI for classic themes.
 		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
+
+		// Register the bundled integrations. Deferred to `init` because their titles are
+		// translated and this runs before WordPress can translate; nothing reads the
+		// registry earlier. Third-party integrations may register at any time.
+		add_action( 'init', array( '\Automattic\Jetpack\Forms\Integrations\Built_In_Integrations', 'register' ) );
+
+		// Hand new responses to the integrations that asked for them.
+		\Automattic\Jetpack\Forms\Integrations\Integration_Dispatcher::init();
+
+		// Load the scripts integrations supply their settings UI from.
+		\Automattic\Jetpack\Forms\Integrations\Integration_Assets::init();
 
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
@@ -164,6 +203,20 @@ class Jetpack_Forms {
 		 * @param bool $supported Whether the site's plan includes conditional logic.
 		 */
 		return (bool) apply_filters( 'jetpack_forms_conditional_logic_enabled', $supported );
+	}
+
+	/**
+	 * Returns true if the Slack integration is enabled.
+	 *
+	 * One switch for the whole feature. With the flag off the integration is not registered as
+	 * available, so it is absent from the REST responses and the integrations modal rather
+	 * than shown in a disabled state, and no response is ever sent to Slack — including from a
+	 * form that was configured while the flag was on.
+	 *
+	 * @return boolean
+	 */
+	public static function is_slack_enabled() {
+		return Feature_Flags::is_enabled( self::SLACK_FLAG );
 	}
 
 	/**

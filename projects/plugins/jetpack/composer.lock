@@ -1842,7 +1842,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "394c83958c7e4db4df33cd9c7bb0a220405da184"
+                "reference": "ed953fbbd864faaef9804bfcdd2ee753f5428d3d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1851,6 +1851,7 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-external-connections": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
@@ -1888,6 +1889,9 @@
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/integrations/functions.php"
                 ]
             },
             "scripts": {
