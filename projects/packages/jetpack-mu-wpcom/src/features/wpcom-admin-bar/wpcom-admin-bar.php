@@ -108,6 +108,8 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'wp-logo',
+			// WordPress 7.2+ renders the icon slot from `icon`; older versions ignore it and use the empty `.ab-icon` in the title.
+			'icon'  => 'core-admin/wordpress',
 			'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						'WordPress.com' .
