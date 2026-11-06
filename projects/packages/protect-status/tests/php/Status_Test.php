@@ -36,6 +36,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		$this->teardown_mock_data();
+		delete_option( Protect_Status::CHECKS_OPTION_NAME );
 	}
 
 	/**
@@ -452,6 +453,29 @@ class Status_Test extends BaseTestCase {
 
 		$this->assertEquals( $this->get_sample_status(), $status );
 		$this->assertTrue( Status::is_cached_status_expired() );
+		$this->assertSame( 0, $requests );
+	}
+
+	public function test_turned_off_checks_skip_wpcom_and_hide_the_stored_report() {
+		$this->mock_connection();
+		update_option( Protect_Status::OPTION_NAME, static::get_sample_api_response() );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+		update_option( Protect_Status::CHECKS_OPTION_NAME, 0 );
+		$requests = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $response ) use ( &$requests ) {
+				++$requests;
+				return $response;
+			},
+			0
+		);
+
+		$status = Status::get_status();
+		$this->assertSame( Protect_Status::STATUS_DISABLED, $status->status );
+		$this->assertSame( array(), $status->threats );
+		$this->assertEquals( $status, Status::get_cached_status() );
+		$this->assertFalse( Status::should_notify_threats() );
 		$this->assertSame( 0, $requests );
 	}
 

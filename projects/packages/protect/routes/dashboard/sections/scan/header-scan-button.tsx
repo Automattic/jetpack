@@ -21,6 +21,10 @@ export default function HeaderScanButton() {
 		checkScanAgain().finally( () => setIsChecking( false ) );
 	}, [] );
 
+	if ( scan.checksEnabled === false ) {
+		return null;
+	}
+
 	if ( isScanning && hasStoppedPolling ) {
 		return (
 			<Button variant="minimal" size="compact" onClick={ checkAgain } loading={ isChecking }>

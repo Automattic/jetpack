@@ -51,12 +51,35 @@ class Protect_Status extends Status {
 	const OPTION_TIMESTAMP_NAME = 'jetpack_protect_status_time';
 
 	/**
+	 * Name of the option where the site owner turns the daily vulnerability check on or off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const CHECKS_OPTION_NAME = 'jetpack_protect_vulnerability_checks';
+
+	/**
+	 * The report status while the site owner has the daily vulnerability check off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const STATUS_DISABLED = 'disabled';
+
+	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
 	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
 	 * @return Status_Model
 	 */
 	public static function get_status( $refresh_from_wpcom = false ) {
+		if ( ! self::are_checks_enabled() ) {
+			self::$status = new Status_Model( array( 'status' => self::STATUS_DISABLED ) );
+			return self::$status;
+		}
+
 		if ( self::$status !== null ) {
 			return self::$status;
 		}
@@ -91,8 +114,22 @@ class Protect_Status extends Status {
 	 * @return Status_Model|null Null when no report has been stored yet.
 	 */
 	public static function get_cached_status() {
+		if ( ! self::are_checks_enabled() ) {
+			return self::get_status();
+		}
 		$report_data = self::get_from_options();
 		return is_object( $report_data ) ? self::normalize_protect_report_data( $report_data ) : null;
+	}
+
+	/**
+	 * Whether the site owner lets Jetpack check the site every day for known vulnerabilities.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function are_checks_enabled() {
+		return (bool) get_option( self::CHECKS_OPTION_NAME, true );
 	}
 
 	/**
