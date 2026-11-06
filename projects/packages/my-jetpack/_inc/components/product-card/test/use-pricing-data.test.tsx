@@ -165,7 +165,8 @@ describe( 'usePricingData connect link', () => {
 		);
 
 		const { result } = renderHook( () => usePricingData( 'stats' ) );
-		const params = new URL( result.current.primaryAction.href ).searchParams;
+		const { href } = result.current.primaryAction as { href: string };
+		const params = new URL( href ).searchParams;
 
 		expect( params.get( 'from' ) ).toBe( 'my_jetpack_recommendations_stats' );
 		expect( params.get( 'redirect_after_auth' ) ).toBe( window.location.href );
