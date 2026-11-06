@@ -8,13 +8,13 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 const queryOf = ( url: string ) => Object.fromEntries( new URL( url ).searchParams );
 
 describe( 'getConnectUrl', () => {
-	it( 'sends the name, returns to the current page and skips no pricing', () => {
+	it( 'sends the name and returns to the current page without the plans page', () => {
 		expect( queryOf( getConnectUrl( 'my_jetpack_header' ) ) ).toEqual( {
 			page: 'jetpack',
 			connect_url_redirect: '1',
 			from: 'my_jetpack_header',
 			redirect_after_auth: window.location.href,
-			skip_pricing: 'false',
+			skip_pricing: 'true',
 		} );
 	} );
 

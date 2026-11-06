@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Leaderboard: Lay out rows with CSS grid, so the package no longer ships its own copy of the WordPress components Grid and the Emotion runtime.

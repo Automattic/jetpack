@@ -24,7 +24,7 @@ export function useUploadIntake(
 	location: Exclude< UploadRefusalLocation, 'library_dropzone' >,
 	onStarted?: ( ids: string[] ) => void
 ): ( files: File[] ) => number {
-	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
+	const { isFree, isUnlimited, limit, videoCount, knownVideoCount } = useFreeTier();
 	const { startUpload } = useUpload();
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const runUpgrade = useVideoPressUpgrade( 'upload_limit' );
@@ -65,7 +65,12 @@ export function useUploadIntake(
 				return 0;
 			}
 
-			const ids = decision.toUpload.map( file => startUpload( file ) );
+			const ids = decision.toUpload.map( ( file, index ) =>
+				startUpload( file, {
+					isFree,
+					videoCountBefore: knownVideoCount === undefined ? undefined : knownVideoCount + index,
+				} )
+			);
 			onStarted?.( ids );
 
 			if ( decision.skipped > 0 ) {
@@ -96,6 +101,7 @@ export function useUploadIntake(
 			isUnlimited,
 			limit,
 			videoCount,
+			knownVideoCount,
 			startUpload,
 			createErrorNotice,
 			runUpgrade,
