@@ -486,6 +486,12 @@ describe( 'PieSemiCircleChart segment labels', () => {
 		expect( screen.getByRole( 'img', { name: 'Desktop: 86.7%' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'names a segment by its label alone when the legend states no figure', () => {
+		renderPieChart( { data: mockData, legendValueDisplay: 'none' } );
+
+		expect( screen.getByRole( 'img', { name: 'Category A' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'names a segment with the figure its legend entry shows', () => {
 		renderPieChart( {
 			data: [

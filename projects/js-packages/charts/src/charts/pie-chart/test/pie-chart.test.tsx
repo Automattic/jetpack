@@ -793,6 +793,14 @@ describe( 'PieChart', () => {
 			expect( screen.getByRole( 'img', { name: 'Linux: 42.31%' } ) ).toBeInTheDocument();
 		} );
 
+		test( 'hides the drawn labels, which would repeat the names the segments carry', () => {
+			render( <PieChart data={ data } showLabels /> );
+
+			screen
+				.getAllByTestId( 'pie-label-group' )
+				.forEach( group => expect( group ).toHaveAttribute( 'aria-hidden', 'true' ) );
+		} );
+
 		test( 'arrow keys move the focused tooltip and highlight across segments', async () => {
 			const user = userEvent.setup();
 			render( <PieChart data={ data } withTooltips /> );
