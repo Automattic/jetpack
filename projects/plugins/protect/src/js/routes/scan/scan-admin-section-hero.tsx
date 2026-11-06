@@ -108,7 +108,9 @@ const ScanAdminSectionHero: FC = () => {
 					)
 				: __(
 						'We can’t confirm your site is free of threats until a scan finishes.',
-						'jetpack-protect'
+						'jetpack-protect',
+						// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+						/* dummy arg to avoid bad minification */ 0
 					);
 	} else if ( lastCheckedLocalTimestamp ) {
 		subheading = (
