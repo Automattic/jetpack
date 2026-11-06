@@ -33,6 +33,10 @@ import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import {
+	recordUploadRefusal,
+	type UploadRefusal,
+} from '../../src/dashboard/utils/upload-refusal-analytics';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
@@ -184,7 +188,10 @@ const StageInner = () => {
 		},
 		[ openVideoDetails ]
 	);
-	const handleFilesSelected = useUploadIntake( onUploadsStarted );
+	const handleFilesSelected = useUploadIntake( 'library_intake', onUploadsStarted );
+	const onUploadRefused = useCallback( ( refusal: UploadRefusal ) => {
+		recordUploadRefusal( 'library_dropzone', refusal );
+	}, [] );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -475,6 +482,7 @@ const StageInner = () => {
 						<Card.Content>
 							<UploadDropzone
 								onFiles={ handleFilesSelected }
+								onRefused={ onUploadRefused }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
 								onUpgrade={ runUpgrade }

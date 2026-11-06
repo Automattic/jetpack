@@ -99,6 +99,10 @@ Impressions include `video_count_known`. When true, `video_count` is the current
 
 All events reuse the existing analytics transport and identity context without adding identifiers or changing host tracking controls. Consumers must verify the deployed version, controls, delivery, and property availability before comparing surfaces or building a funnel; older events lack the new properties. Pre-connection identity and purchase attribution require separate validation. Impression and click totals are repeatable interactions, so their ratio alone is not a user conversion rate.
 
+`jetpack_videopress_upload_refused` records client-side refusals in `library_dropzone`, `library_intake`, or `onboarding_intake`. `reason` is `file_validation` or `plan_limit`. `files_known` distinguishes file selections from a blocked attempt to open the picker. When files are present, `attempted_files` counts the files received by that handler and `skipped_files` counts only those refused for that reason. A mixed selection can produce one event per reason; do not sum attempted-file counts across those events as unique attempts. Partially accepted selections still upload their accepted files.
+
+The dropzone reports its own validation/limit refusals and passes only accepted files to intake. Files already rejected there do not reach the intake event. A blocked picker click has unknown file counts, never a fabricated zero. Deliberate repeat attempts emit again; rendering a disabled control does not. This measures local decisions, not server failures, completed uploads, unique customers, or every upload surface. Disabled controls that do not dispatch an action, media-library promotion, editor uploads, and the Top videos widget are not covered. The shared dropzone's refusal callback is enabled only for the dashboard Library. No filenames, MIME strings, file contents, or new identifiers are recorded. Runtime delivery and host controls must be verified before reporting these counts.
+
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
@@ -116,6 +120,14 @@ The package decides nothing about who gets the widgets. `Initializer` calls `Ana
 `is_bulk` means the operation requested more than one distinct attachment, including local items or items that subsequently fail. Repeated identities in a selection are requested once. Tracking runs inside the mutation after responses arrive, so rerenders do not repeat it and unmounting does not discard an in-flight result. The event confirms attachment deletion, not remote media erasure or recovered storage. Other WordPress/editor deletion paths are not covered.
 
 No identifiers, titles, filenames, content, or error messages are added. The event reuses the existing analytics transport and host tracking controls. Verify deployed-host delivery and warehouse coverage before reporting adoption or deletion rates; this implementation alone does not establish a reliable reporting start date.
+
+## Media Library upload source
+
+Promoting a local attachment through `/videopress/v1/upload/{id}` sends `source=dashboard_promote` from the VideoPress dashboard and `source=block_editor` from the video block's Media Library picker. Both upload loops retain the optional, bounded value through subsequent chunks, and the PHP uploader forwards it into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply a supported source.
+
+WordPress.com Simple sends the same source labels through its separate `/wpcom/v2/videopress/promote/{id}` route. After verifying a new registration, the endpoint fires `jetpack_videopress_attachment_promoted` with the canonical video, site ID and optional source for server-side consumers. Failed promotions and requests for already-promoted videos do not fire this action.
+
+This identifies the initiating surface, not a new attachment, successful processing or first playability. Simple promotion does not transfer the file again. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. Server-side persistence and query availability must be verified before using this source in reporting.
 
 ## Browser upload lifecycle analytics
 
