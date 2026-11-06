@@ -199,6 +199,29 @@ function traceInitializer( t, scopePath, init, i18nModule, state ) {
 }
 
 /**
+ * The value an object literal assigns to `property`.
+ *
+ * @param {object} t        - Babel types.
+ * @param {object} node     - `ObjectExpression` node.
+ * @param {string} property - Property name.
+ * @return {object|undefined} The value node, or `undefined` when a spread or computed key could supply it.
+ */
+function objectLiteralProperty( t, node, property ) {
+	let value;
+	for ( const prop of node.properties ) {
+		if ( t.isSpreadElement( prop ) || prop.computed ) {
+			value = undefined;
+			continue;
+		}
+		const name = t.isIdentifier( prop.key ) ? prop.key.name : prop.key.value;
+		if ( name === property ) {
+			value = t.isObjectMethod( prop ) ? prop : prop.value;
+		}
+	}
+	return value;
+}
+
+/**
  * Whether an expression provably resolves to something other than the i18n
  * module.
  *
@@ -206,20 +229,32 @@ function traceInitializer( t, scopePath, init, i18nModule, state ) {
  * @param {object} path       - Path providing the scope for `node`.
  * @param {object} node       - Expression to classify (a callee, or a callee's object).
  * @param {string} i18nModule - Module name to trace to.
+ * @param {string} [property] - Member name being called on `node`, when `node` is a callee's object.
  * @return {boolean} Whether the expression is proven foreign.
  */
-function isForeignSource( t, path, node, i18nModule ) {
+function isForeignSource( t, path, node, i18nModule, property ) {
 	const state = { depth: 0, seen: new Set() };
 	if ( isI18nPropertyAccess( t, node ) ) {
 		return false;
 	}
-	// A value written out inline is never the i18n module: rolldown inlines a
-	// single-use `const cache = { __: … }` into `{ __: … }.__( key )`.
+	// A member of an object literal is whatever the literal assigns to it, so
+	// the verdict is that value's; a spread or computed key makes it unknown.
+	if ( t.isObjectExpression( node ) && property !== undefined ) {
+		const value = objectLiteralProperty( t, node, property );
+		if ( value === undefined ) {
+			return false;
+		}
+		const isMember =
+			( t.isMemberExpression( value ) || t.isOptionalMemberExpression( value ) ) &&
+			! value.computed;
+		return isForeignSource( t, path, isMember ? value.object : value, i18nModule );
+	}
+	// A function, class, array or literal written out inline is no import of
+	// the i18n module, the same verdict as a local declaration.
 	if (
-		t.isObjectExpression( node ) ||
-		t.isArrayExpression( node ) ||
 		t.isFunction( node ) ||
 		t.isClass( node ) ||
+		t.isArrayExpression( node ) ||
 		t.isLiteral( node )
 	) {
 		return true;
@@ -262,7 +297,7 @@ function resolveGettextCallee( t, path, { functions, i18nModule, requireI18nSour
 		if ( ! Object.hasOwn( functions, calleeName ) ) {
 			return null;
 		}
-		if ( requireI18nSource && isForeignSource( t, path, callee.object, i18nModule ) ) {
+		if ( requireI18nSource && isForeignSource( t, path, callee.object, i18nModule, calleeName ) ) {
 			return null;
 		}
 		return calleeName;

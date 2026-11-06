@@ -595,3 +595,25 @@ exports[`@automattic/babel-plugin-replace-textdomain 29. requireI18nSource: stam
 `;
 
 exports[`@automattic/babel-plugin-replace-textdomain 37. requireI18nSource: ignores a member call on an inline object: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 38. requireI18nSource: ignores a member call on an inline object holding a non-i18n member: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 39. requireI18nSource: stamps a member call on an inline object with a spread: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+> 1 | x = { ...other }.__( 'key' );
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 40. requireI18nSource: stamps a member call on an inline object wrapping i18n: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+> 1 | x = { __: wp.i18n.__ }.__( 'key' );
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;
