@@ -59,6 +59,7 @@ class Rest_Controller {
 
 		Playlist_Manager::register_rest_routes();
 		Classification::register_rest_routes();
+		Transcript_Index::register_rest_routes();
 	}
 
 	/**
