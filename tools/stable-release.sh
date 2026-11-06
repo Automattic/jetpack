@@ -21,6 +21,18 @@ if [[ $# -gt 2 || $1 == -h || $1 == --help ]]; then
 	usage
 fi
 
+PLUGIN=$1
+if [[ -z "$PLUGIN" ]]; then
+	read -rep 'Plugin to release (e.g. jetpack): ' PLUGIN
+fi
+# Accept with or without prefix.
+PLUGIN=plugins/${PLUGIN#plugins/}
+if [[ ! -f $BASE/projects/$PLUGIN/composer.json ]]; then
+	die "No such plugin: $PLUGIN"
+elif ! jq -e '.extra["release-branch-prefix"]' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
+	die "$PLUGIN has no release branch prefix."
+fi
+
 if [[ -n $(git status --porcelain) ]]; then
 	die 'Working tree not clean; commit or stash changes first.'
 fi
