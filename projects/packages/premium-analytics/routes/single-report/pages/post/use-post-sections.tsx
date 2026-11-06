@@ -105,7 +105,9 @@ export function usePostSections(
 		[ summary.allTimeStart ]
 	);
 	const emailScope = useEmailTabScope( postId, allTimeStart, timeZone );
-	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
+	// A failed or missing post never brings a publish day, so the section stops waiting for it.
+	const hasNoPost = summary.isError || summary.isNotFound;
+	const emailScopeBlocked = ! emailScope && ! summary.isLoading && hasNoPost;
 
 	return useMemo(
 		() =>

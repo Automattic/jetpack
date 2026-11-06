@@ -146,8 +146,11 @@ describe( 'usePostSections', () => {
 		).toBe( 'pending' );
 	} );
 
-	it( 'mounts the fixed email layout when the summary failed and the window never comes', () => {
-		expect( sectionsFor( { ...SUMMARY, allTimeStart: undefined, isError: true } )[ 1 ].scope ).toBe(
+	it.each( [
+		[ 'failed to load', { isError: true } ],
+		[ 'was not found', { isNotFound: true } ],
+	] )( 'stops holding an email section for a post that %s', ( _case, state ) => {
+		expect( sectionsFor( { ...SUMMARY, allTimeStart: undefined, ...state } )[ 1 ].scope ).toBe(
 			'blocked'
 		);
 	} );
