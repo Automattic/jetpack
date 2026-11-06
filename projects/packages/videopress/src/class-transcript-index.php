@@ -76,6 +76,7 @@ class Transcript_Index {
 		add_action( 'added_post_meta', array( __CLASS__, 'attachment_meta_changed' ), 10, 3 );
 		add_action( 'updated_post_meta', array( __CLASS__, 'attachment_meta_changed' ), 10, 3 );
 		add_action( 'init', array( __CLASS__, 'schedule_reconciliation' ), 20 );
+		add_filter( 'posts_search', array( __CLASS__, 'search_sql' ), 10, 2 );
 	}
 
 	/**
@@ -573,6 +574,90 @@ class Transcript_Index {
 			$text = function_exists( 'mb_strcut' ) ? mb_strcut( $text, 0, self::MAX_TEXT_BYTES, 'UTF-8' ) : substr( $text, 0, self::MAX_TEXT_BYTES );
 		}
 		return $text;
+	}
+
+	/**
+	 * Whether channel searches should also match transcripts.
+	 *
+	 * @return bool
+	 */
+	public static function is_search_enabled() {
+		/**
+		 * Filters whether channel searches match words spoken in the videos.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Defaults to whether the transcript index is enabled.
+		 */
+		return (bool) apply_filters( 'videopress_transcript_search_enabled', self::is_enabled() );
+	}
+
+	/**
+	 * Portable transcript search: every search term must appear in the title, description or
+	 * transcript, matched in SQL with the query's other constraints, before LIMIT and totals.
+	 * Terms are literal ( LIKE wildcards escaped ); quoted phrases stay whole, as core parses them.
+	 *
+	 * @param string    $search The query's search SQL.
+	 * @param \WP_Query $query  The query.
+	 * @return string
+	 */
+	public static function search_sql( $search, $query ) {
+		if ( ! $query instanceof \WP_Query || ! $query->get( 'videopress_transcript_search' ) || '' === $search ) {
+			return $search;
+		}
+		$terms = array_filter( (array) $query->get( 'search_terms' ), 'is_string' );
+		if ( ! $terms ) {
+			return $search;
+		}
+		global $wpdb;
+		$clauses = array();
+		foreach ( $terms as $term ) {
+			$like      = '%' . $wpdb->esc_like( $term ) . '%';
+			$clauses[] = $wpdb->prepare(
+				"({$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.post_excerpt LIKE %s OR {$wpdb->posts}.post_content LIKE %s OR EXISTS ( SELECT 1 FROM {$wpdb->postmeta} vpt WHERE vpt.post_id = {$wpdb->posts}.ID AND vpt.meta_key = %s AND vpt.meta_value LIKE %s ))",
+				$like,
+				$like,
+				$like,
+				self::META_TEXT,
+				$like
+			);
+		}
+		return ' AND (' . implode( ' AND ', $clauses ) . ') ';
+	}
+
+	/**
+	 * The first cue where a search matches the transcript: the whole search when it is
+	 * spoken as a phrase, else the first cue holding its longest word.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $search        Search text.
+	 * @return array{start: int, text: string, needle: string}|null
+	 */
+	public static function match( $attachment_id, $search ) {
+		$search = trim( preg_replace( '/\s+/u', ' ', str_replace( '"', ' ', (string) $search ) ) );
+		if ( '' === $search ) {
+			return null;
+		}
+		$cues  = self::cues( $attachment_id );
+		$words = preg_split( '/\s+/u', $search );
+		usort(
+			$words,
+			function ( $a, $b ) {
+				return strlen( $b ) - strlen( $a );
+			}
+		);
+		foreach ( array_unique( array( $search, $words[0] ) ) as $needle ) {
+			foreach ( $cues as $cue ) {
+				if ( false !== mb_stripos( (string) $cue['text'], $needle ) ) {
+					return array(
+						'start'  => (int) $cue['start'],
+						'text'   => (string) $cue['text'],
+						'needle' => $needle,
+					);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
