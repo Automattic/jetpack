@@ -21,7 +21,7 @@ export function getProtectConfig(): ProductConfig {
 				name: __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
 				free: {
 					included: true,
-					label: __( 'Line by line malware scanning', 'jetpack-my-jetpack' ),
+					label: __( 'Check items against database', 'jetpack-my-jetpack' ),
 				},
 				paid: {
 					included: true,
@@ -43,7 +43,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
-				free: { included: false, label: __( 'Manual rules only', 'jetpack-my-jetpack' ) },
+				free: { included: true, label: __( 'Manual rules only', 'jetpack-my-jetpack' ) },
 				paid: {
 					included: true,
 					label: __( 'Automatic protection and rule updates', 'jetpack-my-jetpack' ),
@@ -55,7 +55,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Brute force protection', 'jetpack-my-jetpack' ),
-				free: { included: false, label: NOT_INCLUDED },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: {
 					included: true,
@@ -66,16 +66,13 @@ export function getProtectConfig(): ProductConfig {
 				name: __( 'Account protection', 'jetpack-my-jetpack' ),
 				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
-				bundle: {
-					included: true,
-					label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ),
-				},
+				bundle: { included: true, label: __( 'Spam protection', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
-				free: { included: true, label: INCLUDED },
+				free: { included: false, label: NOT_INCLUDED },
 				paid: { included: true, label: INCLUDED },
-				bundle: { included: true, label: 'Spam protection' },
+				bundle: { included: true, label: '' },
 			},
 			{
 				name: __( 'One-click auto fixes', 'jetpack-my-jetpack' ),
@@ -91,7 +88,7 @@ export function getProtectConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Severity labels', 'jetpack-my-jetpack' ),
-				free: { included: false, label: NOT_INCLUDED },
+				free: { included: true, label: INCLUDED },
 				paid: { included: true, label: INCLUDED },
 				bundle: { included: true, label: '' },
 			},
