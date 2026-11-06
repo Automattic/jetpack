@@ -90,9 +90,7 @@ CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 if version_compare "$CUR_VERSION" "$VERSION"; then
 	die "Version $VERSION is not higher than $CUR_VERSION."
 fi
-echo "$PLUGIN: $CUR_VERSION -> $VERSION"
-
-info "Release: $PLUGIN $VERSION."
+info "$PLUGIN: $CUR_VERSION -> $VERSION"
 
 START_COMMIT=$(git rev-parse HEAD)
 
