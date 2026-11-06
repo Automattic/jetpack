@@ -83,7 +83,7 @@ function MockScopeProbe() {
 }
 
 const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
-const mockGetLoadedReportPage = jest.fn( (): ComponentType | undefined => undefined );
+const mockGetLoadedReportPage = jest.fn< ComponentType | undefined, [ string ] >();
 const mockGetReportDefinition = jest.fn( () => ( { id: 'mock' } ) as Record< string, unknown > );
 
 jest.mock( './registry', () => ( {
@@ -91,7 +91,7 @@ jest.mock( './registry', () => ( {
 } ) );
 
 jest.mock( './report-page-loaders', () => ( {
-	getLoadedReportPage: () => mockGetLoadedReportPage(),
+	getLoadedReportPage: ( id: string ) => mockGetLoadedReportPage( id ),
 	getReportPageLoader: () => mockLoad,
 } ) );
 
@@ -101,6 +101,7 @@ describe( 'Report stage report scope', () => {
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockGetReportDefinition.mockReturnValue( { id: 'mock' } );
 		mockGetLoadedReportPage.mockReturnValue( undefined );
+		mockGetLoadedReportPage.mockClear();
 		mockLoad.mockClear();
 		delete window.JetpackScriptData;
 	} );
@@ -133,6 +134,7 @@ describe( 'Report stage report scope', () => {
 		render( <ReportStage /> );
 
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( mockGetLoadedReportPage ).toHaveBeenCalledWith( 'mock' );
 		expect( mockLoad ).not.toHaveBeenCalled();
 	} );
 
