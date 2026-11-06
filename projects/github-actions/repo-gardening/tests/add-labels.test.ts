@@ -168,6 +168,28 @@ describe( 'addLabels', () => {
 		] );
 	} );
 
+	test( 'synchronize: keeps a bot label whose repo spelling differs only in case', async () => {
+		const payload = makePayload( 'owner/repo', 'owner/repo', 'synchronize' );
+		mockGetFiles.mockResolvedValue( [ 'projects/packages/waf/file.php' ] );
+		mockGetLabels.mockResolvedValue( [ '[Package] WAF' ] );
+		mockPaginate.mockResolvedValue( [ labeled( '[Package] WAF', 'github-actions[bot]' ) ] );
+
+		await addLabels( payload, mockOctokit );
+
+		expect( mockRemoveLabel ).not.toHaveBeenCalled();
+		expect( mockAddLabels ).not.toHaveBeenCalled();
+	} );
+
+	test( 'fork PR: adds a label whose repo spelling differs only in case', async () => {
+		const payload = makePayload( 'contributor/repo', 'owner/repo' );
+		mockGetFiles.mockResolvedValue( [ 'projects/packages/waf/file.php' ] );
+		mockGetAvailableLabels.mockResolvedValue( [ { name: '[Package] WAF' } ] );
+
+		await addLabels( payload, mockOctokit );
+
+		expect( mockAddLabels.mock.calls[ 0 ][ 0 ] ).toMatchObject( { labels: [ '[Package] Waf' ] } );
+	} );
+
 	test( 'opened: never removes labels', async () => {
 		const payload = makePayload( 'owner/repo', 'owner/repo', 'opened' );
 		mockGetFiles.mockResolvedValue( [ 'projects/plugins/kept/file.php' ] );

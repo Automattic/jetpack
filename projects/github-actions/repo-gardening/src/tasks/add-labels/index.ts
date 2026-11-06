@@ -287,8 +287,9 @@ async function removeStaleProjectLabels(
 	currentLabels: string[],
 	fileDerivedLabels: string[]
 ): Promise< string[] > {
+	const derived = new Set( fileDerivedLabels.map( label => label.toLowerCase() ) );
 	const candidates = currentLabels.filter(
-		label => PROJECT_LABEL_REGEX.test( label ) && ! fileDerivedLabels.includes( label )
+		label => PROJECT_LABEL_REGEX.test( label ) && ! derived.has( label.toLowerCase() )
 	);
 	if ( candidates.length === 0 ) {
 		return [];
@@ -304,13 +305,15 @@ async function removeStaleProjectLabels(
 	const appliedBy = new Map< string, string | undefined >();
 	for ( const event of events ) {
 		if ( event.event === 'labeled' && 'label' in event && event.label?.name ) {
-			appliedBy.set( event.label.name, event.actor?.login );
+			appliedBy.set( event.label.name.toLowerCase(), event.actor?.login );
 		}
 	}
 
 	const removedLabels: string[] = [];
-	for ( const label of candidates.filter( l => appliedBy.get( l ) === BOT_LOGIN ) ) {
-		debug( `add-labels: Removing ${ label } from PR #${ number }, as it no longer touches it.` );
+	for ( const label of candidates.filter( l => appliedBy.get( l.toLowerCase() ) === BOT_LOGIN ) ) {
+		debug(
+			`add-labels: Removing ${ label } from PR #${ number }, as the PR no longer touches it.`
+		);
 		try {
 			await octokit.rest.issues.removeLabel( {
 				owner,
@@ -379,7 +382,9 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 	}
 
 	// This is an array of labels that GitHub doesn't already have.
-	let labelsToAdd = fileDerivedLabels.filter( label => ! currentLabels.includes( label ) );
+	// GitHub matches label names case-insensitively, so `[Package] Waf` lands as the repo's `[Package] WAF`.
+	const current = new Set( currentLabels.map( label => label.toLowerCase() ) );
+	let labelsToAdd = fileDerivedLabels.filter( label => ! current.has( label.toLowerCase() ) );
 
 	// Nothing new was added, so abort.
 	if ( labelsToAdd.length === 0 ) {
@@ -393,8 +398,8 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 	if ( isFork ) {
 		debug( 'add-labels: PR is from a fork. Filtering to only existing repo labels.' );
 		const availableLabels = await getAvailableLabels( octokit, owner.login, name );
-		const availableLabelNames = new Set( availableLabels.map( label => label.name ) );
-		labelsToAdd = labelsToAdd.filter( label => availableLabelNames.has( label ) );
+		const availableLabelNames = new Set( availableLabels.map( label => label.name.toLowerCase() ) );
+		labelsToAdd = labelsToAdd.filter( label => availableLabelNames.has( label.toLowerCase() ) );
 	}
 
 	// Determine how many labels can safely be added.
