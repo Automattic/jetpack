@@ -6,6 +6,11 @@ import getAvailableLabels from '../../utils/labels/get-available-labels.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
+const PROJECT_LABEL_REGEX = /^(\[Action\]|\[Package\]|\[Plugin\]|\[JS Package\])/;
+
+// The account behind the default GITHUB_TOKEN, which applies this task's labels.
+const BOT_LOGIN = 'github-actions[bot]';
+
 /**
  * Build a list of labels to add to the pull request, based off our file list.
  *
@@ -262,6 +267,68 @@ async function getFileDerivedLabels(
 }
 
 /**
+ * Remove project labels the bot added earlier that no longer match the PR's files.
+ *
+ * Labels applied by anyone else are kept, even when no file matches them.
+ *
+ * @param octokit           - Initialized Octokit REST client.
+ * @param owner             - Repository owner.
+ * @param repo              - Repository name.
+ * @param number            - PR number.
+ * @param currentLabels     - Labels currently on the PR.
+ * @param fileDerivedLabels - Labels matching the PR's current files.
+ * @return Promise resolving to the labels that were removed.
+ */
+async function removeStaleProjectLabels(
+	octokit: OctokitClient,
+	owner: string,
+	repo: string,
+	number: number,
+	currentLabels: string[],
+	fileDerivedLabels: string[]
+): Promise< string[] > {
+	const candidates = currentLabels.filter(
+		label => PROJECT_LABEL_REGEX.test( label ) && ! fileDerivedLabels.includes( label )
+	);
+	if ( candidates.length === 0 ) {
+		return [];
+	}
+
+	// Events are oldest first, so the last labeled event for a label says who applied it now.
+	const events = await octokit.paginate( octokit.rest.issues.listEvents, {
+		owner,
+		repo,
+		issue_number: number,
+		per_page: 100,
+	} );
+	const appliedBy = new Map< string, string | undefined >();
+	for ( const event of events ) {
+		if ( event.event === 'labeled' && 'label' in event && event.label?.name ) {
+			appliedBy.set( event.label.name, event.actor?.login );
+		}
+	}
+
+	const removedLabels: string[] = [];
+	for ( const label of candidates.filter( l => appliedBy.get( l ) === BOT_LOGIN ) ) {
+		debug( `add-labels: Removing ${ label } from PR #${ number }, as it no longer touches it.` );
+		try {
+			await octokit.rest.issues.removeLabel( {
+				owner,
+				repo,
+				issue_number: number,
+				name: label,
+			} );
+			removedLabels.push( label );
+		} catch ( error ) {
+			// Someone may have removed it while this task ran.
+			debug( `add-labels: Could not remove ${ label }: ${ error }` );
+		}
+	}
+
+	return removedLabels;
+}
+
+/**
  * Adds appropriate labels to the specified PR.
  *
  * @param payload - Pull request event payload.
@@ -294,7 +361,22 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 
 	// Grab current labels on the PR.
 	// We can't rely on payload, as it could be outdated by the time this runs.
-	const currentLabels = await getLabels( octokit, owner.login, name, number );
+	let currentLabels = await getLabels( octokit, owner.login, name, number );
+
+	// Only new commits or a new base branch can drop a project from the diff.
+	const filesMayHaveChanged =
+		payload.action === 'synchronize' || ( payload.action === 'edited' && !! payload.changes?.base );
+	if ( filesMayHaveChanged ) {
+		const removedLabels = await removeStaleProjectLabels(
+			octokit,
+			owner.login,
+			name,
+			number,
+			currentLabels,
+			fileDerivedLabels
+		);
+		currentLabels = currentLabels.filter( label => ! removedLabels.includes( label ) );
+	}
 
 	// This is an array of labels that GitHub doesn't already have.
 	let labelsToAdd = fileDerivedLabels.filter( label => ! currentLabels.includes( label ) );
@@ -331,8 +413,7 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 		// Filter out project-type labels in deference to bigProjectLabel.
 		// In theory we could also remove any existing project-type labels here, but for now
 		// let's not as that would prevent manually adding specific project labels.
-		const projectLabelRegex = /^(\[Action\]|\[Package\]|\[Plugin\]|\[JS Package\])/;
-		labelsToAdd = labelsToAdd.filter( label => ! projectLabelRegex.test( label ) );
+		labelsToAdd = labelsToAdd.filter( label => ! PROJECT_LABEL_REGEX.test( label ) );
 
 		if ( ! hasBigProjectLabel ) {
 			// Add to the beginning of the labels array in case the array gets truncated later on.
