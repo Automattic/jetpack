@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docker: Create the MySQL data directory on `up` for the instance named in `tools/docker/.env`, instead of always creating the primary `jetpack_dev` one.
