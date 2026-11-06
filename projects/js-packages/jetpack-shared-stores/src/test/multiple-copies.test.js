@@ -60,6 +60,14 @@ describe( 'several copies of the package on one page', () => {
 		expect( registry.select( 'jetpack-modules' ).isModuleActive( 'stats' ) ).toBe( true );
 	} );
 
+	it( 'loads alongside an older copy whose registered store has no seed action', () => {
+		registry.register(
+			wpData.createReduxStore( 'jetpack-modules', { reducer: ( state = {} ) => state } )
+		);
+
+		expect( loadCopy ).not.toThrow();
+	} );
+
 	it( 'a later copy keeps module state that changed after the page loaded', () => {
 		loadCopy();
 		registry
