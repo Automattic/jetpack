@@ -9,7 +9,6 @@ not a bespoke page per module.
 const label = __( 'All pages' );
 
 <ReportPageShell
-	visual={ <StatsPageIcon /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={ downloadButton }
 >
@@ -92,8 +91,7 @@ Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 dashboard through `useDashboardLink()`, carrying the shared date range and
 comparison so Back returns to the same view. The trailing item carries no `to`
 and renders as the page's `h1`, so the shell takes no separate title prop.
-Pair it with `StatsPageIcon` in the shell's `visual` slot so every Stats page
-uses the same header treatment.
+The shell supplies the shared Jetpack visual by default.
 
 `StatsBreadcrumbs` renders router links, so it needs a mounted router. That is
 why the shell receives it as a plain `ReactNode` (as on Core's own `Page`) and

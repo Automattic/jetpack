@@ -6,7 +6,7 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
@@ -197,7 +197,6 @@ function PostsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={ csvAction }
 		>

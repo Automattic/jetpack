@@ -3,7 +3,7 @@
  */
 import { Button } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportPageLayout,
@@ -92,7 +92,6 @@ function UtmReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>

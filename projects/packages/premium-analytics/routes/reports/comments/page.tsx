@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
@@ -69,7 +69,6 @@ function CommentsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction

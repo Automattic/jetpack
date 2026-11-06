@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	LockedPage,
 	ReportPageLayout,
@@ -27,10 +27,7 @@ type LockedReportPageProps = {
  */
 export function LockedReportPage( { label, feature }: LockedReportPageProps ): JSX.Element {
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
-			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-		>
+		<ReportPageShell breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }>
 			<ReportPageLayout title={ label }>
 				<LockedPage feature={ feature } />
 			</ReportPageLayout>

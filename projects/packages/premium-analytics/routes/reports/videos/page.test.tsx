@@ -36,7 +36,6 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {

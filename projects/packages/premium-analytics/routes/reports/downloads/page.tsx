@@ -3,7 +3,7 @@
  */
 import { type StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
@@ -63,7 +63,6 @@ function DownloadsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction

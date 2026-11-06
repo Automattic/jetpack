@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
@@ -76,7 +76,6 @@ function EmailsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction

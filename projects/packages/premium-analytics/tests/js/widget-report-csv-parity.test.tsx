@@ -59,7 +59,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),

@@ -3,7 +3,7 @@
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
 import { Text } from '@jetpack-premium-analytics/externals';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
 	ReportPageLayout,
@@ -90,7 +90,6 @@ function CommentFollowersReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (

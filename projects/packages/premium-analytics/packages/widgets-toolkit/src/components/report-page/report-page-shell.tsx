@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { Page } from '@wordpress/admin-ui';
 import clsx from 'clsx';
 /**
@@ -18,9 +20,14 @@ export type ReportPageShellProps = ComponentProps< typeof Page >;
  * @param {ReportPageShellProps} props - The component props.
  * @return The report page shell.
  */
-export function ReportPageShell( { className, children, ...pageProps }: ReportPageShellProps ) {
+export function ReportPageShell( {
+	className,
+	children,
+	visual = <Icon icon={ jetpack } />,
+	...pageProps
+}: ReportPageShellProps ) {
 	return (
-		<Page { ...pageProps } className={ clsx( styles.page, className ) }>
+		<Page { ...pageProps } className={ clsx( styles.page, className ) } visual={ visual }>
 			{ children }
 		</Page>
 	);
