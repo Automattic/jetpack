@@ -82,7 +82,7 @@ const useConnectionErrorsNotice = (
 		trackingContext: 'my-jetpack',
 		trackingPlacement: 'page_notice',
 		navigate: assignLocation,
-		// `?.` for the same older shared copy that makes `NoticeLink`'s `onClick` optional.
+		// `?.` for the older shared copy `NoticeLink` guards against; its reconnect then sends `my-jetpack`.
 		reconnectFrom: CONNECTION_FROM?.myJetpackNoticeReconnect,
 		reconnectRedirectUrl: getMyJetpackUrl(),
 	} );

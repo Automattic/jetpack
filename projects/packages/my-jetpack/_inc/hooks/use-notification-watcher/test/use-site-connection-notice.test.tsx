@@ -7,10 +7,17 @@ import useSiteConnectionNotice from '../use-site-connection-notice';
 import type { NoticeContextType, NoticeOptions } from '../../../context/notices/types';
 import type { MouseEvent, ReactNode } from 'react';
 
+const NAMES = {
+	myJetpackNoticeUser: 'my_jetpack_notice_user',
+	myJetpackNoticeSite: 'my_jetpack_notice_site',
+};
+const mockRecordEvent = jest.fn();
+let mockConnectionFrom: typeof NAMES | undefined;
+
 jest.mock( '@automattic/jetpack-connection', () => ( {
-	CONNECTION_FROM: jest.requireActual(
-		'../../../../../../js-packages/connection/helpers/connection-from'
-	).CONNECTION_FROM,
+	get CONNECTION_FROM() {
+		return mockConnectionFrom;
+	},
 } ) );
 jest.mock( '../../../utils/connect-url', () => ( {
 	getConnectUrl: jest.fn( () => 'https://wordpress.com/connect' ),
@@ -28,7 +35,7 @@ jest.mock( '../../../data/products/use-products-by-ownership', () => () => ( {
 	refetch: jest.fn(),
 } ) );
 jest.mock( '../../../data/utils/get-product-slugs-that-require-user-connection', () => () => [] );
-jest.mock( '../../use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
+jest.mock( '../../use-analytics', () => () => ( { recordEvent: mockRecordEvent } ) );
 jest.mock( '../../use-connect-site', () => jest.fn( () => ( { connectSite: jest.fn() } ) ) );
 jest.mock( '../../use-my-jetpack-connection', () => () => ( {
 	siteIsRegistering: false,
@@ -36,6 +43,11 @@ jest.mock( '../../use-my-jetpack-connection', () => () => ( {
 } ) );
 
 describe( 'useSiteConnectionNotice', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockConnectionFrom = NAMES;
+	} );
+
 	const renderWithAlert = ( type: 'user' | 'site', isError: boolean ) => {
 		const setNotice: jest.MockedFunction< NoticeContextType[ 'setNotice' ] > = jest.fn();
 		const contextValue: NoticeContextType = {
@@ -79,20 +91,33 @@ describe( 'useSiteConnectionNotice', () => {
 		expect( renderWithAlert( 'site', false ) ).toHaveBeenCalledWith( withLevel( 'info' ) );
 	} );
 
-	it( 'connects the user as my_jetpack_notice_user, returning to the current page', () => {
+	it.each( [
+		[ 'their own names', NAMES, 'my_jetpack_notice_user', 'my_jetpack_notice_site' ],
+		[
+			'my-jetpack when the shared script predates CONNECTION_FROM',
+			undefined,
+			'my-jetpack',
+			'my-jetpack',
+		],
+	] )( 'sends %s', ( _label, connectionFrom, userFrom, siteFrom ) => {
+		mockConnectionFrom = connectionFrom;
 		const [ action ] = renderWithAlert( 'user', true ).mock.calls[ 0 ][ 0 ].options.actions ?? [];
 
 		action.onClick( {} as MouseEvent< HTMLButtonElement > );
 
-		expect( getConnectUrl ).toHaveBeenCalledWith( 'my_jetpack_notice_user' );
+		// No return URL is passed, so the user comes back to the current page.
+		expect( getConnectUrl ).toHaveBeenCalledWith( userFrom );
 		expect( leavePageFor ).toHaveBeenCalledWith( 'https://wordpress.com/connect' );
-	} );
-
-	it( 'registers the site as my_jetpack_notice_site', () => {
-		renderWithAlert( 'site', false );
-
-		expect( useConnectSite ).toHaveBeenCalledWith(
-			expect.objectContaining( { from: 'my_jetpack_notice_site' } )
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_my_jetpack_user_connection_notice_cta_click',
+			{ from: userFrom }
 		);
+		expect( useConnectSite ).toHaveBeenCalledWith( {
+			tracksInfo: {
+				event: 'jetpack_my_jetpack_site_connection_notice_cta',
+				properties: { from: siteFrom },
+			},
+			from: siteFrom,
+		} );
 	} );
 } );

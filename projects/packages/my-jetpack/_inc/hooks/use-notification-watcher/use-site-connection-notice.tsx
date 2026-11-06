@@ -25,8 +25,9 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 	const { data: products, isLoading: isAllProductsLoading, isError } = useAllProducts();
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts?.[ redBubbleSlug ];
-	// `?.`: an older shared jetpack-connection script may predate CONNECTION_FROM.
-	const siteFrom = CONNECTION_FROM?.myJetpackNoticeSite;
+	// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
+	const userFrom = CONNECTION_FROM?.myJetpackNoticeUser ?? 'my-jetpack';
+	const siteFrom = CONNECTION_FROM?.myJetpackNoticeSite ?? 'my-jetpack';
 	const { connectSite } = useConnectSite( {
 		tracksInfo: {
 			event: 'jetpack_my_jetpack_site_connection_notice_cta',
@@ -53,9 +54,8 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 
 		const onActionButtonClick = ( e: MouseEvent< HTMLButtonElement > ) => {
 			if ( requiresUserConnection ) {
-				const from = CONNECTION_FROM?.myJetpackNoticeUser;
-				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click', { from } );
-				leavePageFor( getConnectUrl( from ) );
+				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click', { from: userFrom } );
+				leavePageFor( getConnectUrl( userFrom ) );
 			} else {
 				connectSite( e );
 			}
@@ -149,6 +149,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		refetchOwnershipData,
 		productSlugsThatRequireUserConnection,
 		isLoading,
+		userFrom,
 	] );
 };
 

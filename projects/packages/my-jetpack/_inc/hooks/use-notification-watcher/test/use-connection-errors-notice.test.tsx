@@ -29,9 +29,7 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	);
 
 	return {
-		CONNECTION_FROM: jest.requireActual(
-			'../../../../../../js-packages/connection/helpers/connection-from'
-		).CONNECTION_FROM,
+		CONNECTION_FROM: { myJetpackNoticeReconnect: 'my_jetpack_notice_reconnect' },
 		useConnectionErrorNotice: jest.fn(),
 		getReconnectErrorMessage: jest.fn(
 			( error: string ) => `There was an error reconnecting Jetpack. Error: ${ error }`
