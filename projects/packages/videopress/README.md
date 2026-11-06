@@ -109,6 +109,14 @@ The package owns two widgets of the Premium Analytics dashboard, built here with
 
 The package decides nothing about who gets the widgets. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
 
+## Media Library upload source
+
+Promoting a local attachment through `/videopress/v1/upload/{id}` sends `source=dashboard_promote` from the VideoPress dashboard and `source=block_editor` from the video block's Media Library picker. Both upload loops retain the optional, bounded value through subsequent chunks, and the PHP uploader forwards it into TUS creation metadata. Other PHP and REST callers remain unlabeled unless they explicitly supply a supported source.
+
+WordPress.com Simple sends the same source labels through its separate `/wpcom/v2/videopress/promote/{id}` route. After verifying a new registration, the endpoint fires `jetpack_videopress_attachment_promoted` with the canonical video, site ID and optional source for server-side consumers. Failed promotions and requests for already-promoted videos do not fire this action.
+
+This identifies the initiating surface, not a new attachment, successful processing or first playability. Simple promotion does not transfer the file again. Already-promoted attachments do not start another transfer, and resumed TUS resources keep their original creation metadata. Server-side persistence and query availability must be verified before using this source in reporting.
+
 ## Browser upload lifecycle analytics
 
 The modern dashboard, video block file uploader, Jetpack's core Video block resumable uploader and Premium Analytics upload widget record the existing specification's `jetpack_videopress_upload_started`, `_succeeded`, `_failed`, `_canceled` and `_retried` names through shared Tracks controls. Their bounded sources are `dashboard`, `block_editor` and `analytics_widget`. The recorder is shared through the `videopress-upload-analytics` subpath of shared-extension-utils. PHP promotion/import, multipart routes and client-observed playability remain outside this browser batch.

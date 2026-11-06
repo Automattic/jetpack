@@ -182,7 +182,7 @@ const VideoPressUploader = ( {
 	};
 
 	const startUploadFromLibrary = attachmentId => {
-		uploadFromLibrary( attachmentId )
+		uploadFromLibrary( attachmentId, 'block_editor' )
 			.then( result => {
 				setUploadedVideoData( result );
 			} )
@@ -257,7 +257,7 @@ const VideoPressUploader = ( {
 			if ( isSimpleSite() ) {
 				setUploadingProgress( 1, 1 );
 				setIsUploadingInProgress( true );
-				promoteOnSimple( media.id )
+				promoteOnSimple( media.id, 'block_editor' )
 					.then( ( { guid, mediaId } ) => {
 						setUploadedVideoData( { guid, id: mediaId, src: media.url } );
 					} )
