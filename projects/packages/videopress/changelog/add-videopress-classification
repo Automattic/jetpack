@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add site-local video types, series, topics and people to VideoPress videos, with REST routes to manage and assign them and channel queries that filter by them.

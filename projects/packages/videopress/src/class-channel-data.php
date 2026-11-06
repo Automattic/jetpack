@@ -85,15 +85,18 @@ class Channel_Data {
 	/**
 	 * The site's VideoPress videos, newest first.
 	 *
-	 * @param string $search Optional search term, matched against the attachments.
+	 * @param string                  $search Optional search term, matched against the attachments.
+	 * @param array<string, string[]> $terms  Optional classification term slugs keyed by taxonomy.
 	 *
 	 * @return array[] Records with id, guid, durationMs, height and publishedAt ( unix time ).
 	 */
-	public static function videos( $search = '' ) {
+	public static function videos( $search = '', $terms = array() ) {
 		$search  = is_string( $search ) ? trim( $search ) : '';
+		$terms   = Classification::normalize_selection( $terms );
+		$list    = self::list_key( $search, $terms );
 		$blog_id = get_current_blog_id();
-		if ( isset( self::$videos[ $blog_id ][ $search ] ) ) {
-			return self::$videos[ $blog_id ][ $search ];
+		if ( isset( self::$videos[ $blog_id ][ $list ] ) ) {
+			return self::$videos[ $blog_id ][ $list ];
 		}
 
 		/**
@@ -103,19 +106,32 @@ class Channel_Data {
 		 *
 		 * @param array[]|null $videos Records with id, guid, durationMs, height and publishedAt, newest first; null to query.
 		 * @param string       $search The search term, if any.
+		 * @param array        $terms  Classification term slugs keyed by taxonomy, if any.
 		 */
-		$videos = apply_filters( 'videopress_channel_videos', null, $search );
+		$videos = apply_filters( 'videopress_channel_videos', null, $search, $terms );
 		if ( ! is_array( $videos ) ) {
-			$key    = self::cache_key( 'videos', $search );
+			$key    = self::cache_key( 'videos', $list );
 			$videos = wp_cache_get( $key, self::CACHE_GROUP );
 			if ( ! is_array( $videos ) ) {
-				$videos = self::query_videos( $search );
+				$videos = self::query_videos( $search, $terms );
 				wp_cache_set( $key, $videos, self::CACHE_GROUP, self::CACHE_TTL );
 			}
 		}
 
-		self::$videos[ $blog_id ][ $search ] = $videos;
+		self::$videos[ $blog_id ][ $list ] = $videos;
 		return $videos;
+	}
+
+	/**
+	 * The per-request and object-cache key part of one filtered list.
+	 *
+	 * @param string $search Search term.
+	 * @param array  $terms  Normalized classification selection.
+	 *
+	 * @return string The search alone when no terms are selected, so unfiltered keys stay unchanged.
+	 */
+	private static function list_key( $search, array $terms ) {
+		return $terms ? $search . "\0" . wp_json_encode( $terms, JSON_UNESCAPED_SLASHES ) : $search;
 	}
 
 	/**
@@ -127,7 +143,8 @@ class Channel_Data {
 	 * @return string
 	 */
 	public static function cache_key( $what, $search = '' ) {
-		return implode( ':', array( self::CACHE_VERSION, $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), md5( (string) $search ) ) );
+		// Term assignments do not touch the posts stamp, so the terms stamp is part of the key too.
+		return implode( ':', array( self::CACHE_VERSION, $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), wp_cache_get_last_changed( 'terms' ), md5( (string) $search ) ) );
 	}
 
 	/**
@@ -135,13 +152,15 @@ class Channel_Data {
 	 * object cache ), or is replaced by a filter, so reading it costs no query.
 	 *
 	 * @param string $search Search term.
+	 * @param array  $terms  Normalized classification selection.
 	 *
 	 * @return bool
 	 */
-	private static function has_full_list( $search ) {
-		return isset( self::$videos[ get_current_blog_id() ][ $search ] )
+	private static function has_full_list( $search, array $terms = array() ) {
+		$list = self::list_key( $search, $terms );
+		return isset( self::$videos[ get_current_blog_id() ][ $list ] )
 			|| has_filter( 'videopress_channel_videos' )
-			|| is_array( wp_cache_get( self::cache_key( 'videos', $search ), self::CACHE_GROUP ) );
+			|| is_array( wp_cache_get( self::cache_key( 'videos', $list ), self::CACHE_GROUP ) );
 	}
 
 	/**
@@ -149,10 +168,11 @@ class Channel_Data {
 	 *
 	 * @param string $search Search term.
 	 * @param string $order  DESC ( newest first ) or ASC.
+	 * @param array  $terms  Normalized classification selection.
 	 *
 	 * @return array
 	 */
-	private static function query_args( $search, $order = 'DESC' ) {
+	private static function query_args( $search, $order = 'DESC', array $terms = array() ) {
 		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$args     = array(
 			'post_type'        => 'attachment',
@@ -168,6 +188,10 @@ class Channel_Data {
 		if ( '' !== $search ) {
 			$args['s'] = $search;
 		}
+		$tax_query = Classification::tax_query( $terms );
+		if ( $tax_query ) {
+			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Filters must apply before LIMIT so pages and totals stay exact.
+		}
 		return $args;
 	}
 
@@ -178,14 +202,15 @@ class Channel_Data {
 	 * @param string $order    DESC or ASC.
 	 * @param int    $per_page Page size.
 	 * @param int    $page     1-based page.
+	 * @param array  $terms    Normalized classification selection.
 	 *
 	 * @return array{records: array[], total: int}|null Null when an attachment on the page is
 	 *                                                   not a VideoPress video, so the SQL total cannot be trusted.
 	 */
-	private static function query_page( $search, $order, $per_page, $page ) {
+	private static function query_page( $search, $order, $per_page, $page, array $terms = array() ) {
 		$query = new \WP_Query(
 			array_merge(
-				self::query_args( $search, $order ),
+				self::query_args( $search, $order, $terms ),
 				array(
 					'posts_per_page'      => $per_page,
 					'paged'               => $page,
@@ -226,11 +251,12 @@ class Channel_Data {
 	 * every video with a GUID in the platform's videos table on it.
 	 *
 	 * @param string $search Search term.
+	 * @param array  $terms  Normalized classification selection.
 	 *
 	 * @return array[]
 	 */
-	private static function query_videos( $search ) {
-		$args                   = self::query_args( $search );
+	private static function query_videos( $search, array $terms = array() ) {
+		$args                   = self::query_args( $search, 'DESC', $terms );
 		$args['posts_per_page'] = self::MAX_VIDEOS;
 		$args['paged']          = 1;
 
@@ -484,7 +510,7 @@ class Channel_Data {
 		if ( null !== $fast ) {
 			return $fast;
 		}
-		$videos = self::videos( $state['search'] ?? '' );
+		$videos = self::videos( $state['search'] ?? '', $state['terms'] ?? array() );
 
 		if ( $exclude ) {
 			$videos = array_values(
@@ -556,17 +582,18 @@ class Channel_Data {
 	 */
 	private static function browse_page( array $state, $per_page, array $exclude, $with_views ) {
 		$search = trim( (string) ( $state['search'] ?? '' ) );
+		$terms  = Classification::normalize_selection( $state['terms'] ?? array() );
 		$sort   = $state['sort'] ?? 'newest';
 		$page   = max( 1, (int) ( $state['page'] ?? 1 ) );
 		if ( ! in_array( $sort, array( 'newest', 'oldest' ), true )
 			|| 'any' !== ( $state['length'] ?? 'any' )
 			|| ( $exclude && 1 !== $page )
-			|| self::has_full_list( $search )
+			|| self::has_full_list( $search, $terms )
 		) {
 			return null;
 		}
 
-		$result = self::query_page( $search, 'oldest' === $sort ? 'ASC' : 'DESC', $per_page + count( $exclude ), $page );
+		$result = self::query_page( $search, 'oldest' === $sort ? 'ASC' : 'DESC', $per_page + count( $exclude ), $page, $terms );
 		if ( null === $result ) {
 			return null;
 		}

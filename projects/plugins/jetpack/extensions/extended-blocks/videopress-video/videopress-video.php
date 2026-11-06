@@ -83,6 +83,11 @@ if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
 	VideoPress_Pkg_Channel::init();
 }
 
+// Video classification ( types, series, topics, people ) for the same reason.
+if ( method_exists( 'Automattic\Jetpack\VideoPress\Classification', 'init' ) ) {
+	\Automattic\Jetpack\VideoPress\Classification::init();
+}
+
 // Register the `v6-video-frame-poster` extension.
 add_action(
 	'jetpack_register_gutenberg_extensions',
