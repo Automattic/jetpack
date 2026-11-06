@@ -80,9 +80,18 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		return false;
 	}
 
+	// photon-opencv drops a HEIC's metadata, so exiftool copies the AI marker across.
+	require_once __DIR__ . '/class-jetpack-wpcom-ai-marker.php';
+	$ai_marker           = new Jetpack_WPCOM_AI_Marker( 'heif2jpg_ai_marker' );
+	$digital_source_type = jetpack_wpcom_ai_marker_tool_path( 'exiftool' ) ? $ai_marker->read( $filename ) : '';
+
 	$img->setimageformat( 'jpg' );
 	// This should never fail
 	$img->writeimage( $filename );
+
+	if ( '' !== $digital_source_type ) {
+		$ai_marker->write( $filename, $digital_source_type );
+	}
 
 	return true;
 }
