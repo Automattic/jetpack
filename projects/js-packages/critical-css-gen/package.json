@@ -51,7 +51,7 @@
 		"express": "5.2.1",
 		"jest": "30.5.2",
 		"path-browserify": "1.0.1",
-		"playwright": "1.60.0",
+		"playwright": "1.64.1",
 		"playwright-core": "^1.45.1",
 		"process": "0.11.10",
 		"source-map": "0.7.4",

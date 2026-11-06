@@ -55,7 +55,7 @@ export async function createSyncedForm(
 		content: blockMarkup,
 		status: 'publish',
 		meta,
-	} ) ) as JetpackFormPost;
+	} ) ) as unknown as JetpackFormPost;
 
 	return response.id;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace the widget-primitives module of an active Gutenberg older than 24.4.0, the first release that exports useWidgetIdentity.

@@ -81,7 +81,6 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					chartTitle={ __( 'Video performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
