@@ -46,7 +46,7 @@ jest.mock( '../../../module-toggle', () => ( {
 	// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
 	ModuleToggle: ( { manageUrl }: { manageUrl?: string } ) => {
 		mockManageUrl = manageUrl;
-		return <input type="checkbox" aria-label="Module toggle" readOnly />;
+		return <input type="checkbox" role="switch" aria-label="Module toggle" readOnly />;
 	},
 	// Mirrors the hook: `isActive` is the value the switch shows, asked-for or stored.
 	useModuleActivation: ( $module: { activated: boolean }, options?: { manageUrl?: string } ) => {
@@ -102,7 +102,7 @@ beforeEach( () => {
 } );
 
 const countControls = () =>
-	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
+	screen.queryAllByRole( 'switch' ).length + screen.queryAllByRole( 'button' ).length;
 
 it.each( [
 	[ 'details window', FeatureModalActions ],
@@ -175,7 +175,7 @@ describe( 'FeatureAction', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'checkbox', { name: 'Deactivate Jetpack Boost' } ) ).toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Deactivate Jetpack Boost' } ) ).toBeChecked();
 		expect( countControls() ).toBe( 1 );
 	} );
 
@@ -220,14 +220,14 @@ describe( 'FeatureAction', () => {
 			/>
 		);
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'deactivate' } ) );
 
 		unmount();
 		mockRun.mockClear();
 		render( <FeatureAction state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost' } ) } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'activate' } ) );
 	} );
 
@@ -242,7 +242,7 @@ describe( 'FeatureAction', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers no Install to a user who cannot install plugins', () => {
@@ -330,7 +330,7 @@ describe( 'FeatureAction', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Upgrade to Jetpack VaultPress Backup' } )
 		).toBeVisible();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 
 		rerender( <FeatureAction state={ buildState( control, { feature, status: 'active' } ) } /> );
 
@@ -357,7 +357,7 @@ describe( 'FeatureAction', () => {
 			);
 
 			expect( screen.getByRole( included ? 'button' : 'link', { name } ) ).toBeVisible();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 		}
 	);
 
@@ -571,7 +571,7 @@ describe( 'FeatureItem', () => {
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
 			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 			rerender( <FeatureModalActions state={ state } /> );
 			const moduleReason = screen.getByText( unavailable_reason );
 			const hostReason = screen.getByText( `${ hostLabel } by your host or site administrator` );
@@ -627,7 +627,7 @@ describe( 'FeatureItem', () => {
 			'admin.php?page=jetpack-protect&p=firewall'
 		);
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 		// The link cannot say whether the module is on, so the badge does.
 		expect( screen.getByText( status === 'active' ? 'Active' : 'Inactive' ) ).toBeInTheDocument();
 	} );
@@ -662,7 +662,7 @@ describe( 'FeatureItem', () => {
 			const shown = ( text: RegExp ) => screen.queryByText( text )?.textContent ?? null;
 			expect( shown( /^(Active|Inactive)$/ ) ).toBe( badge );
 			expect( shown( /by your host or site administrator/ ) ).toBe( note );
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 		}
 	);
 } );
@@ -812,7 +812,7 @@ describe( 'features waiting for an account', () => {
 			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 			expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription( '' );
 			expect( screen.queryByText( 'Needs user account' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 			expect(
 				screen.queryByText( /Requires a connected WordPress.com account/ )
 			).not.toBeInTheDocument();

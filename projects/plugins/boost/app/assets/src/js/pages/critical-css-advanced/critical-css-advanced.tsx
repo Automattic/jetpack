@@ -8,6 +8,7 @@ import {
 import { ErrorSet } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import Collapse from '$features/ui/collapse/collapse';
+import RefusedRegenerateNotice from '$features/critical-css/critical-css-meta/refused-regenerate-notice';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
@@ -41,6 +42,8 @@ export default function AdvancedCriticalCss() {
 			<BackButton />
 
 			<h3>{ __( 'Critical CSS advanced recommendations', 'jetpack-boost' ) }</h3>
+
+			<RefusedRegenerateNotice />
 
 			<section>
 				<Heading heading={ heading } />

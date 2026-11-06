@@ -1,12 +1,12 @@
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { DropZone, Tooltip } from '@wordpress/components';
+import { DropZone } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card } from '@wordpress/ui';
+import { Button, Card, Tooltip } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import RecordVideoButton from '../../src/client/components/video-recording';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
@@ -26,6 +26,7 @@ import {
 } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
+import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
 import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
@@ -93,6 +94,7 @@ const TOTAL_COUNT_VIEW: View = {
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
+	useLibraryInteractions( view );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress,
@@ -131,7 +133,7 @@ const StageInner = () => {
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
@@ -510,22 +512,25 @@ const StageInner = () => {
 							style={ { display: 'none' } }
 							onChange={ onFilePicked }
 						/>
-						<Tooltip
-							text={
-								isAtLimit
-									? FREE_TIER_AT_LIMIT_MESSAGE
-									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-							}
-						>
-							<Button
-								className="vp-library__upload-button"
-								size="compact"
-								onClick={ onClickHeaderUpload }
-								aria-disabled={ isAtLimit }
+						<Tooltip.Root>
+							<Tooltip.Trigger
+								render={
+									<Button
+										className="vp-library__upload-button"
+										size="compact"
+										onClick={ onClickHeaderUpload }
+										aria-disabled={ isAtLimit }
+									/>
+								}
 							>
 								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</Tooltip>
+							</Tooltip.Trigger>
+							<Tooltip.Popup>
+								{ isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' ) }
+							</Tooltip.Popup>
+						</Tooltip.Root>
 						<RecordVideoButton
 							onRecorded={ file => handleFilesSelected( [ file ] ) }
 							disabled={ isAtLimit }
@@ -536,7 +541,11 @@ const StageInner = () => {
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice
+						location="library_at_limit"
+						message={ FREE_TIER_AT_LIMIT_MESSAGE }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>

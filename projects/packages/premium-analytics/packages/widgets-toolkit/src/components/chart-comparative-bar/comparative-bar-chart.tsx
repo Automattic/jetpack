@@ -22,7 +22,6 @@ import { useCallback, useId, useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
-	formatChartName,
 	getFixedYAxis,
 	getYTickDecimals,
 	formatBucketTooltipDate,
@@ -30,6 +29,7 @@ import {
 	type BucketResolution,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
+import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
@@ -56,7 +56,7 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	/** Format for chart values: y-axis ticks and tooltips. */
@@ -167,6 +167,7 @@ export function ComparativeBarChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeBarChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const libraryTickResolution = toTickResolution( tickResolution );
 	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
@@ -455,7 +456,7 @@ export function ComparativeBarChart( {
 		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
 				data={ drawnSeries }
 				layout={ layout }

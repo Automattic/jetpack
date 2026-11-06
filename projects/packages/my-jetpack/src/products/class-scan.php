@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 
@@ -175,6 +176,15 @@ class Scan extends Module_Product {
 			'jetpack_scan_monthly',
 			'jetpack_scan_bi_yearly',
 		);
+	}
+
+	/**
+	 * Whether the site pays for Scan, by the same check as the Protect page.
+	 *
+	 * @return bool
+	 */
+	public static function has_paid_plan_for_product() {
+		return Plan::has_required_plan();
 	}
 
 	/**

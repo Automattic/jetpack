@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Keep a generation run going when the site answers a status check with an older copy, stop waiting on a page whose status check never answers, report a Regenerate that did not start, and show the site's reply when a Regenerate request or a save is refused.

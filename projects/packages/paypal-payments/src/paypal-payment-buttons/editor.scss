@@ -553,6 +553,17 @@
 	}
 }
 
+// The form's own save, under its last panel. Padded like a panel, so it does
+// not read as the footer of the one above it.
+.jetpack-paypal-payment-buttons__form-footer {
+	padding: 16px;
+
+	.components-button {
+		inline-size: 100%;
+		justify-content: center;
+	}
+}
+
 // ---------------------------------------------------------------
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
@@ -857,8 +868,8 @@
 	}
 }
 
-// The link details view, a plain section. It ends at the list's bottom rule.
-// The format section below has its own top padding.
+// The link's name and price, a plain section. The format section below has its
+// own top padding.
 .jetpack-paypal-payment-buttons__details {
 	padding: variables.$grid-unit-10 variables.$grid-unit-15 0;
 }
@@ -889,19 +900,15 @@
 	line-height: variables.$font-line-height-x-small;
 }
 
-// The rows step one unit further in than the title. The rules above and below
-// them are this list's own borders, since core styles every `hr` inside
-// `.interface-complementary-area` and that outranks a single class.
+// The rows are in a title-less panel, which adds the padding and the divider
+// above.
 .jetpack-paypal-payment-buttons__details-list {
 	display: grid;
 	// A fixed label column, so the values line up down the panel.
 	grid-template-columns: (variables.$grid-unit * 12) 1fr;
 	column-gap: variables.$grid-unit-10;
 	row-gap: 0;
-	margin-block: variables.$grid-unit-20 0;
-	margin-inline: variables.$grid-unit-15;
-	border-block: variables.$border-width solid colors.$gray-200;
-	padding-block: variables.$grid-unit-20;
+	margin: 0;
 	font-size: variables.$font-size-medium;
 	line-height: variables.$font-line-height-small;
 
