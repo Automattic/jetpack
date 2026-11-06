@@ -127,6 +127,7 @@ class Channel_Data_Test extends BaseTestCase {
 				'length' => 'any',
 				'page'   => 1,
 				'terms'  => array(),
+				'hide'   => '',
 			),
 			Channel_Data::browse_request( false, false, 'popular' )
 		);
@@ -140,6 +141,7 @@ class Channel_Data_Test extends BaseTestCase {
 					'videopress_series' => array( 'meetup-2026' ),
 					'videopress_topic'  => array( 'a11y', 'search' ),
 				),
+				'hide'   => '',
 			),
 			Channel_Data::browse_request( true, true, 'popular' )
 		);

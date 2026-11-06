@@ -89,11 +89,14 @@ module.exports = [
 				'./src/client/block-editor/blocks/playlist-details/index.tsx',
 			'block-editor/blocks/episode-navigation/index':
 				'./src/client/block-editor/blocks/episode-navigation/index.tsx',
+			'block-editor/blocks/continue-watching/index':
+				'./src/client/block-editor/blocks/continue-watching/index.tsx',
 
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 			'lib/inline-player': './src/client/lib/inline-player/index.ts',
 			'lib/viewer-history': './src/client/lib/viewer-history/index.ts',
+			'lib/viewer-discovery': './src/client/lib/viewer-discovery/index.ts',
 
 			// Page-level shell stylesheet for the modernized dashboard. CSS-only
 			// entry: emits build/dashboard-shell/index.css enqueued by

@@ -27,6 +27,7 @@ class Channel_Blocks {
 		'videopress/video-details'      => 'render_video_details',
 		'videopress/playlist-details'   => 'render_playlist_details',
 		'videopress/episode-navigation' => 'render_episode_navigation',
+		'videopress/continue-watching'  => 'render_continue_watching',
 	);
 
 	/**
@@ -431,6 +432,31 @@ class Channel_Blocks {
 			}
 		}
 		return '' === $chips ? '' : sprintf( '<div class="videopress-video-details__chips videopress-video-details__classification">%s</div>', $chips );
+	}
+
+	/**
+	 * Continue watching ( started, not finished ) or Recently watched, for the signed-in viewer.
+	 * Rendered empty and hidden so the page stays shared; the discovery script fills it in.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string
+	 */
+	public static function render_continue_watching( $attributes ) {
+		if ( ! Viewer_History::is_enabled() ) {
+			return '';
+		}
+		$attributes = is_array( $attributes ) ? $attributes : array();
+		$show       = isset( $attributes['show'] ) && 'recent' === $attributes['show'] ? 'recent' : 'continue';
+		$count      = isset( $attributes['count'] ) && is_numeric( $attributes['count'] ) ? max( 1, min( 24, (int) $attributes['count'] ) ) : 8;
+		$heading    = 'recent' === $show ? __( 'Recently watched', 'jetpack-videopress-pkg' ) : __( 'Continue watching', 'jetpack-videopress-pkg' );
+		return sprintf(
+			'<section %1$s data-show="%2$s" data-count="%3$d" hidden><h2 class="videopress-continue-watching__heading">%4$s</h2><ol class="videopress-continue-watching__list"></ol></section>',
+			get_block_wrapper_attributes( array( 'class' => 'videopress-continue-watching' ) ),
+			esc_attr( $show ),
+			$count,
+			esc_html( $heading )
+		);
 	}
 
 	/**

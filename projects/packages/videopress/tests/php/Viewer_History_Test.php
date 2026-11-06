@@ -90,7 +90,14 @@ class Viewer_History_Test extends BaseTestCase {
 					 * @param array|null $after   Cursor.
 					 */
 					public function list_recent( $user_id, $limit, $after = null ) {
-						return array();
+						return array_values(
+							array_filter(
+								$this->test->rows,
+								function ( $row ) use ( $user_id ) {
+									return $row['user_id'] === $user_id && ! $row['deleted'];
+								}
+							)
+						);
 					}
 
 					/**
@@ -228,5 +235,52 @@ class Viewer_History_Test extends BaseTestCase {
 		$legacy['manual']      = '';
 		$legacy['legacy_seen'] = true;
 		$this->assertSame( 'legacy_seen', Viewer_History::status( $legacy ) );
+	}
+
+	public function test_hide_watched_drops_watched_videos_before_paging() {
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'viewer-h',
+				'user_pass'  => 'pass',
+			)
+		);
+		wp_set_current_user( $user );
+		Viewer_History::apply( $user, 'video001', $this->progress( array( array( 0, 95000 ) ) ) );
+		Viewer_History::apply( $user, 'video002', $this->progress( array( array( 0, 5000 ) ) ) );
+		add_filter(
+			'videopress_channel_videos',
+			function () {
+				return array_map(
+					function ( $n ) {
+						return array(
+							'id'          => $n,
+							'guid'        => 'video00' . $n,
+							'durationMs'  => 100000,
+							'height'      => 720,
+							'publishedAt' => 10 - $n,
+						);
+					},
+					array( 1, 2, 3 )
+				);
+			}
+		);
+
+		$this->assertSame( array( 'video001' ), Viewer_History::watched_guids( $user ) );
+		$result = \Automattic\Jetpack\VideoPress\Channel_Data::browse(
+			array(
+				'search' => '',
+				'sort'   => 'newest',
+				'length' => 'any',
+				'page'   => 1,
+				'terms'  => array(),
+				'hide'   => 'watched',
+			),
+			1
+		);
+		remove_all_filters( 'videopress_channel_videos' );
+		wp_set_current_user( 0 );
+
+		$this->assertSame( 2, $result['total'] );
+		$this->assertSame( array( 'video002' ), array_column( $result['entries'], 'guid' ) );
 	}
 }
