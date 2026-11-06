@@ -13,6 +13,8 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -49,6 +51,7 @@ class Jetpack_Ads_Settings_Home {
 	public static function init() {
 		add_filter( 'jetpack_module_configuration_url_wordads', array( __CLASS__, 'filter_configure_url' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 	}
 
 	/**
@@ -61,7 +64,8 @@ class Jetpack_Ads_Settings_Home {
 			&& class_exists( Dashboard::class )
 			&& Dashboard::is_enabled()
 			&& Jetpack::is_module_active( 'monetize' )
-			// The module needs a connection, so it stays listed as active but never loads offline.
+			// The module needs a connection: it stays listed as active, but never loads offline or disconnected.
+			&& Jetpack::is_connection_ready()
 			&& ! ( new Status() )->is_offline_mode()
 			&& ! ( new Host() )->is_wpcom_platform();
 	}
@@ -111,10 +115,69 @@ class Jetpack_Ads_Settings_Home {
 
 		$data['monetize']['adsSettingsUrl'] = $url;
 
-		// Do not reorder: is_on_monetize_page() checks that Dashboard exists.
-		if ( self::is_on_monetize_page() && Dashboard::is_dashboard_request() ) {
+		if ( self::is_tab_request() ) {
 			$data['monetize']['adsSettings'] = self::get_dashboard_data();
+			$data                            = self::add_tracks_identity( $data );
 		}
+
+		return $data;
+	}
+
+	/**
+	 * Load the Tracks script on the tab, as Jetpack › Settings does; other packages load it only for some plans.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( self::is_tab_request() && self::can_use_analytics() ) {
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		}
+	}
+
+	/**
+	 * Whether this request opens the Monetize page that holds the Ads settings.
+	 *
+	 * @return bool
+	 */
+	private static function is_tab_request() {
+		// Do not reorder: is_on_monetize_page() checks that Dashboard exists.
+		return self::is_on_monetize_page() && Dashboard::is_dashboard_request();
+	}
+
+	/**
+	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
+	 *
+	 * @return bool
+	 */
+	private static function can_use_analytics() {
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Add the connected WordPress.com user for Tracks, unless another package already did.
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	private static function add_tracks_identity( $data ) {
+		if ( ! empty( $data['user']['current_user']['wpcom']['ID'] ) ) {
+			return $data;
+		}
+
+		$connected = ( new Connection_Manager() )->get_connected_user_data();
+		if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+			return $data;
+		}
+
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			)
+		);
 
 		return $data;
 	}
@@ -147,6 +210,8 @@ class Jetpack_Ads_Settings_Home {
 			'upgradeUrl'         => self::get_upgrade_url( $site, $connection ),
 			'earningsUrl'        => Redirect::get_url( 'calypso-stats-ads-day', array( 'site' => $site ) ),
 			'isSubdirectorySite' => str_contains( $suffix, '::' ),
+			'moduleOverride'     => Jetpack_Modules_Overrides::instance()->get_module_override( 'wordads' ),
+			'tracks'             => self::can_use_analytics(),
 		);
 	}
 

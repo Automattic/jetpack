@@ -106,9 +106,18 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 							) }
 							details={ <LearnMore href={ getRedirectUrl( 'jetpack-support-ads' ) } /> }
 							checked={ isActive }
-							disabled={ saving.has( 'wordads' ) }
+							disabled={ saving.has( 'wordads' ) || Boolean( data.moduleOverride ) }
 							onCheckedChange={ setModuleActive }
 						/>
+						{ data.moduleOverride && (
+							<Notice.Root intent="info">
+								<Notice.Description>
+									{ data.moduleOverride === 'active'
+										? __( 'Enabled by your host or site administrator', 'jetpack-monetize' )
+										: __( 'Disabled by your host or site administrator', 'jetpack-monetize' ) }
+								</Notice.Description>
+							</Notice.Root>
+						) }
 						<Fieldset.Root>
 							<Fieldset.Legend>
 								{ __( 'Display ads below posts on', 'jetpack-monetize' ) }

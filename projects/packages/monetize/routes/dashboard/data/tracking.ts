@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { getAdsSettingsData } from './ads-settings-data';
 
 // Jetpack › Settings' event names, as in my-jetpack's settings-panel/use-settings-panel-tracking.ts.
 const ORIGIN = 'monetize-settings-tab';
@@ -12,19 +13,31 @@ const toggled = ( active: boolean ) => ( active ? 'on' : 'off' );
 /**
  * Record a Tracks event, identifying the connected user first.
  *
+ * Skipped when PHP disallows Tracks: another plugin's w.js would still send the queued event.
+ *
  * @param event      - Event name.
  * @param properties - Event properties.
  */
 function record( event: string, properties: Record< string, unknown > ) {
+	if ( ! getAdsSettingsData()?.tracks ) {
+		return;
+	}
+
+	const scriptData = getScriptData();
 	if ( ! initialized ) {
-		const wpcom = getScriptData()?.user?.current_user?.wpcom;
+		const wpcom = scriptData?.user?.current_user?.wpcom;
 		if ( wpcom?.ID && wpcom.login ) {
 			jetpackAnalytics.initialize( wpcom.ID, wpcom.login );
 		}
 		initialized = true;
 	}
 
-	jetpackAnalytics.tracks.recordEvent( event, properties );
+	// The analytics client only takes the blog ID from `jpTracksContext`, which this page doesn't print.
+	const blogId = scriptData?.site?.wpcom?.blog_id;
+	jetpackAnalytics.tracks.recordEvent(
+		event,
+		blogId ? { blog_id: blogId, ...properties } : properties
+	);
 }
 
 /**
