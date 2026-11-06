@@ -208,6 +208,7 @@ class Initializer {
 		Channel::init();
 		Classification::init();
 		Transcript_Index::init();
+		Viewer_History::init();
 		Playlist_Index::init();
 		Analytics_Dashboard::init();
 

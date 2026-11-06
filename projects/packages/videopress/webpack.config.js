@@ -93,6 +93,7 @@ module.exports = [
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 			'lib/inline-player': './src/client/lib/inline-player/index.ts',
+			'lib/viewer-history': './src/client/lib/viewer-history/index.ts',
 
 			// Page-level shell stylesheet for the modernized dashboard. CSS-only
 			// entry: emits build/dashboard-shell/index.css enqueued by

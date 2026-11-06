@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Record signed-in viewers' channel video history (started, resume position, completed after 90% watched, marked watched or unwatched) with routes to read, update and clear it, retention and personal data export and erasure.
