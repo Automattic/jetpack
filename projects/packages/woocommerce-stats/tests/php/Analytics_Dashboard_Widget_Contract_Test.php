@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
- * The widgets are built for the 2.x contract, so they register on that major from 2.3.0 on.
+ * The widgets are built for the 2.x contract, so they register on that major from 2.4.0 on.
  *
  * Each case runs in its own process: the contract version is a constant.
  *
@@ -73,7 +73,7 @@ class Analytics_Dashboard_Widget_Contract_Test extends BaseTestCase {
 			'the contract before Columns'               => array( '1.9.0' ),
 			'the contract before Locations'             => array( '1.10.0' ),
 			'the previous major'                        => array( '1.16.0' ),
-			'the contract before useOpenChartBucket'    => array( '2.2.0' ),
+			'the contract before useOpenChartBucket'    => array( '2.3.0' ),
 			'the next major'                            => array( '3.0.0' ),
 		);
 	}
