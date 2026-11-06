@@ -482,7 +482,8 @@ class Protect_Helper {
 			Automattic\Jetpack\Protect_Status\Scan_Status::get_api_url(),
 		);
 		foreach ( $api_urls as $api_url ) {
-			if ( ! is_wp_error( $api_url ) && strpos( $url, $api_url ) !== false ) {
+			// Match the whole path, so other Scan endpoints such as /scan/history keep working.
+			if ( ! is_wp_error( $api_url ) && preg_match( '#' . preg_quote( $api_url, '#' ) . '(\?|$)#', $url ) ) {
 				return new WP_Error( 'error' );
 			}
 		}
