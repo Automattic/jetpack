@@ -13,8 +13,8 @@ import { Badge, Link, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui
 import CopyClipboardButton from '../../../components/copy-clipboard-button/index.tsx';
 import { getPath } from '../../../inbox/utils.js';
 import TextWithFlag from '../../text-with-flag/index.tsx';
-import type { FormResponse } from '../../../../types/index.ts';
 import { getDisplayName } from '../utils.ts';
+import type { FormResponse } from '../../../../types/index.ts';
 import './style.scss';
 
 /**
