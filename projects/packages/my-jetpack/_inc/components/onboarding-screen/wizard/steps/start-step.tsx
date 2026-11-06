@@ -1,10 +1,10 @@
 import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
-import { CONNECTION_FROM, useConnection } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, useConnection, getRegistrationErrorSummary } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import useAnalytics from '../../../../hooks/use-analytics';
 import {
 	CONNECTION_RETURN_URL,
@@ -44,7 +44,7 @@ type StartStepProps = {
  * @return The rendered step.
  */
 export function StartStep( { titleId, title, description }: StartStepProps ) {
-	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
+	const { handleRegisterSite, siteIsRegistering, userIsConnecting, connectError, isOfflineMode } =
 		useConnection( {
 			from: CONNECTION_FROM.myJetpackOnboarding,
 			redirectUri: CONNECTION_RETURN_URL,
@@ -52,14 +52,7 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		} );
 	const { recordEvent } = useAnalytics();
 
-	// Only registration failures reach the store. Fetching the authorization URL can
-	// fail too, and that rejection is ours to hold or the screen says nothing.
-	const [ handoffError, setHandoffError ] = useState< unknown >( null );
-
-	// A hand-off rejection leaves `userIsConnecting` set in the store (CONNECT-499),
-	// so on a real site the button stays busy and the retry below is unreachable.
 	const isConnecting = siteIsRegistering || userIsConnecting;
-	const error = registrationError || handoffError;
 
 	// Named once: the terms sentence has to say the same words as the button it is about.
 	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );
@@ -81,7 +74,6 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 			return;
 		}
 		inFlight.current = true;
-		setHandoffError( null );
 
 		// The name the single-screen flow already reports, so the two are one funnel.
 		recordEvent( 'jetpack_my_jetpack_onboarding_click', { flow: 'wizard' } );
@@ -90,7 +82,6 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		// which is not the same thing as anyone having connected.
 		handleRegisterSite().catch( ( caught: unknown ) => {
 			inFlight.current = false;
-			setHandoffError( caught );
 			// The code only: the message interpolates the server's prose, which
 			// can carry the site's own URL.
 			recordEvent( 'jetpack_my_jetpack_onboarding_connect_error', {
@@ -133,18 +124,15 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 			</ul>
 
 			<div className={ clsx( styles.wave, styles[ 'start-actions' ] ) }>
-				{ /*
-				 * Above the control it is about, so it is read before the retry.
-				 * A sentence a person can act on, and the server's own words under
-				 * it: mapping the causes to better copy is its own piece of work.
-				 */ }
-				{ error && (
+				{ /* Above the control it is about, so it is read before the retry. */ }
+				{ connectError && (
 					<Notice.Root intent="error" className={ styles[ 'start-error' ] }>
 						<Notice.Title>
-							{ __( 'We could not connect this site. Please try again.', 'jetpack-my-jetpack' ) }
+							{ __( 'We could not connect this site.', 'jetpack-my-jetpack' ) }
 						</Notice.Title>
 						<Notice.Description className={ styles[ 'start-error__detail' ] }>
-							{ connectionErrorDetail( error ) }
+							{ getRegistrationErrorSummary( connectError, isOfflineMode ) ||
+								connectionErrorDetail( connectError ) }
 						</Notice.Description>
 					</Notice.Root>
 				) }
