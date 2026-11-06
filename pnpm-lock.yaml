@@ -1986,9 +1986,6 @@ importers:
       '@wordpress/ui':
         specifier: 0.26.0
         version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
       react:
         specifier: 19.3.0
         version: 19.3.0

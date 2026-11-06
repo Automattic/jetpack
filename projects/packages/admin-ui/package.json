@@ -46,7 +46,6 @@
 		"@wordpress/dataviews": "22.0.0",
 		"@wordpress/theme": "4.0.0",
 		"@wordpress/ui": "0.26.0",
-		"clsx": "2.1.1",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
 		"sass-embedded": "1.97.3",
@@ -68,8 +67,7 @@
 			"@automattic/jetpack-api": "api",
 			"@automattic/jetpack-analytics": "analytics",
 			"@automattic/number-formatters": "number-formatters",
-			"@automattic/charts": "charts",
-			"clsx": "clsx"
+			"@automattic/charts": "charts"
 		},
 		"styles": {
 			"dataviews": [

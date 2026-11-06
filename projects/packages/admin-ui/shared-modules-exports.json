@@ -3,7 +3,6 @@
 	"analytics": [ "default" ],
 	"api": [ "default" ],
 	"charts": [ "BarChart", "GeoChart", "LineChart", "formatPercentage", "parseAsLocalDate" ],
-	"clsx": [ "clsx", "default" ],
 	"components": [
 		"ActionButton",
 		"AdminPage",
