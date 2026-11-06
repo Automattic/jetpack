@@ -27,3 +27,57 @@
 		}
 	}
 }
+
+.vp-playlist-matching {
+
+	&__query {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+		gap: 16px;
+		align-items: end;
+	}
+
+	&__vocabularies {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 16px;
+	}
+
+	&__vocabulary {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin: 0;
+		padding: 12px;
+		border: 1px solid #dcdcde;
+		border-radius: 4px;
+
+		legend {
+			padding-inline: 4px;
+			font-weight: 600;
+		}
+	}
+
+	&__preview ol {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		margin: 8px 0 0;
+		padding-inline-start: 20px;
+	}
+
+	&__title {
+		font-weight: 500;
+	}
+
+	&__meta {
+		margin-inline-start: 8px;
+		color: #757575;
+	}
+
+	&__snippet {
+		display: block;
+		color: #757575;
+		font-size: 12px;
+	}
+}
