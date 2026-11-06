@@ -1,4 +1,4 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM, getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { MyJetpackRoutes } from '../constants';
 
 export type ConnectionScreenRoute = `${ typeof MyJetpackRoutes.Connection }?from=${ string }`;
@@ -13,6 +13,17 @@ export type ConnectionScreenRoute = `${ typeof MyJetpackRoutes.Connection }?from
 export function getConnectUrl( from: string, returnTo: string = window.location.href ): string {
 	// Calypso ignores `skip_pricing` for a standard name; it keeps a legacy fallback off the plans page.
 	return getUserConnectionUrl( { from, redirect_url: returnTo, skip_pricing: true } );
+}
+
+/**
+ * The name a product's own connect links send, such as `my_jetpack_products_backup`.
+ *
+ * @param slug - My Jetpack's product slug.
+ * @return The name.
+ */
+export function productsFrom( slug: string ): string {
+	// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
+	return CONNECTION_FROM?.myJetpackProducts( slug ) ?? 'my-jetpack';
 }
 
 /**

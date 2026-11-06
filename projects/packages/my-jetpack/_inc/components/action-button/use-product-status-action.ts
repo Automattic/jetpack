@@ -1,4 +1,3 @@
-import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -10,7 +9,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import { connectionScreenRoute, getConnectUrl } from '../../utils/connect-url';
+import { connectionScreenRoute, getConnectUrl, productsFrom } from '../../utils/connect-url';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
 import type { MouseEvent } from 'react';
@@ -54,8 +53,7 @@ const useProductStatusAction = (
 	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const { recordEvent } = useAnalytics();
-	// An older shared jetpack-connection script may lack CONNECTION_FROM: use the `my-jetpack` its links send.
-	const connectFrom = from ?? CONNECTION_FROM?.myJetpackProducts( slug ) ?? 'my-jetpack';
+	const connectFrom = from ?? productsFrom( slug );
 	const navigateToConnectionPage = useMyJetpackNavigate( connectionScreenRoute( connectFrom ) );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
