@@ -5042,7 +5042,7 @@ endif;
 				)
 			) {
 				$jp_user = get_user_by( 'email', $jpo_user );
-				if ( is_a( $jp_user, 'WP_User' ) ) {
+				if ( $jp_user instanceof \WP_User ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
 						? current_user_can_for_site( get_current_blog_id(), 'manage_options' )
