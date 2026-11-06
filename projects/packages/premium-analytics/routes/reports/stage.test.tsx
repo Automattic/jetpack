@@ -15,7 +15,7 @@ import { useDateWindowNotice } from '../date-window-notice';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { stage as ReportStage } from './stage';
 import { useReportParams } from './use-report-params';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -83,6 +83,7 @@ function MockScopeProbe() {
 }
 
 const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
+const mockGetLoadedReportPage = jest.fn( (): ComponentType | undefined => undefined );
 const mockGetReportDefinition = jest.fn( () => ( { id: 'mock' } ) as Record< string, unknown > );
 
 jest.mock( './registry', () => ( {
@@ -90,6 +91,7 @@ jest.mock( './registry', () => ( {
 } ) );
 
 jest.mock( './report-page-loaders', () => ( {
+	getLoadedReportPage: () => mockGetLoadedReportPage(),
 	getReportPageLoader: () => mockLoad,
 } ) );
 
@@ -98,6 +100,7 @@ describe( 'Report stage report scope', () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockGetReportDefinition.mockReturnValue( { id: 'mock' } );
+		mockGetLoadedReportPage.mockReturnValue( undefined );
 		mockLoad.mockClear();
 		delete window.JetpackScriptData;
 	} );
@@ -122,6 +125,15 @@ describe( 'Report stage report scope', () => {
 		const provider = await screen.findByTestId( 'charts-provider' );
 
 		expect( provider ).toContainElement( await screen.findByText( 'no comparison' ) );
+	} );
+
+	it( 'renders a preloaded report without invoking its asynchronous loader', () => {
+		mockGetLoadedReportPage.mockReturnValue( MockScopeProbe );
+
+		render( <ReportStage /> );
+
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( mockLoad ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [

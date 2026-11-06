@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
+import { useEffect } from '@wordpress/element';
 import { useSearch } from '@wordpress/route';
 import { buildReportLink, readReportOriginSearch } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
 import { getReportDefinition, resolveReportOrigin } from './reports/registry';
+import { preloadReportPage } from './reports/report-page-loaders';
 
 type BreadcrumbItem = { label: string; to?: string };
 
@@ -31,6 +33,13 @@ export function useDetailBreadcrumbs(
 
 	const crumb =
 		definition ?? ( fallbackReportId ? getReportDefinition( fallbackReportId ) : undefined );
+
+	useEffect( () => {
+		if ( crumb ) {
+			void preloadReportPage( crumb.id );
+		}
+	}, [ crumb ] );
+
 	if ( crumb ) {
 		items.push( {
 			label: crumb.getLabel(),

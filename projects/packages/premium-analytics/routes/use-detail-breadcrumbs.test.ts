@@ -4,13 +4,18 @@ import {
 	createReportOriginSearch,
 	toReportOriginWindowParams,
 } from '@jetpack-premium-analytics/routing';
+import { preloadReportPage } from './reports/report-page-loaders';
 import { useDetailBreadcrumbs } from './use-detail-breadcrumbs';
 
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: jest.fn(),
 } ) );
+jest.mock( './reports/report-page-loaders', () => ( {
+	preloadReportPage: jest.fn( () => Promise.resolve() ),
+} ) );
 
 const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
+const mockPreloadReportPage = preloadReportPage as jest.MockedFunction< typeof preloadReportPage >;
 
 const REPORT_WINDOW = { from: '2026-06-01', to: '2026-06-16' };
 
@@ -75,6 +80,7 @@ function setVideoPress( hasVideoPress: boolean ) {
 
 describe( 'useDetailBreadcrumbs', () => {
 	beforeEach( () => {
+		jest.clearAllMocks();
 		setVideoPress( true );
 	} );
 
@@ -92,6 +98,7 @@ describe( 'useDetailBreadcrumbs', () => {
 			expect( result.current.map( item => item.label ) ).toEqual( [ label, 'Detail title' ] );
 			expectReportLink( result.current[ 0 ].to, report, section );
 			expect( result.current[ 1 ].to ).toBeUndefined();
+			expect( mockPreloadReportPage ).toHaveBeenCalledWith( report );
 		}
 	);
 
@@ -113,6 +120,7 @@ describe( 'useDetailBreadcrumbs', () => {
 		const { result } = renderHook( () => useDetailBreadcrumbs( 'Detail title' ) );
 
 		expect( result.current ).toEqual( [ { label: 'Detail title' } ] );
+		expect( mockPreloadReportPage ).not.toHaveBeenCalled();
 	} );
 
 	// `?origin=videos` can outlive VideoPress being turned off, so an unavailable
