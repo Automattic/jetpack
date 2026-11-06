@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack AI: Add a card for connecting external AI agents to the MCP and Connectors tab, and fix the Continue config in the manual setup view.

@@ -25,6 +25,7 @@ jest.mock( '@wordpress/ui', () => ( {
 	),
 	Card: {
 		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		FullBleed: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 		Header: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 		Title: ( { children }: { children: React.ReactNode } ) => <h2>{ children }</h2>,
 		Content: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
@@ -32,6 +33,31 @@ jest.mock( '@wordpress/ui', () => ( {
 	Fieldset: {
 		Root: ( { children }: { children: React.ReactNode } ) => <fieldset>{ children }</fieldset>,
 	},
+	Field: {
+		Root: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
+		Label: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
+	},
+	Checkbox: ( {
+		id,
+		checked,
+		onCheckedChange,
+		'aria-labelledby': labelledBy,
+	}: {
+		id?: string;
+		checked?: boolean;
+		onCheckedChange?: ( next: boolean ) => void;
+		'aria-labelledby'?: string;
+	} ) => (
+		<input
+			type="checkbox"
+			id={ id }
+			checked={ checked }
+			aria-labelledby={ labelledBy }
+			// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
+			// eslint-disable-next-line react/jsx-no-bind
+			onChange={ e => onCheckedChange?.( e.target.checked ) }
+		/>
+	),
 	Link: ( {
 		children,
 		href,

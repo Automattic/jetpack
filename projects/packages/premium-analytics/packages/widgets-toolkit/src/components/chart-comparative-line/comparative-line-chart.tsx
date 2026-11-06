@@ -17,7 +17,6 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	isEmptyChartData,
-	formatChartName,
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,
@@ -26,6 +25,7 @@ import {
 	formatBucketTooltipDate,
 	toTickResolution,
 } from '../../helpers';
+import { useChartName } from '../../hooks/use-chart-name';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
@@ -97,7 +97,7 @@ export type ComparativeLineChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	dataFormat: DataFormat;
@@ -179,6 +179,7 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
+	const chartName = useChartName( chartTitle );
 	const libraryTickResolution = toTickResolution( tickResolution );
 	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
 	const fallbackChartId = useId();
@@ -302,7 +303,7 @@ export function ComparativeLineChart( {
 		<Stack direction="column" className={ clsx( styles.chart, className ) }>
 			<LineChart
 				chartId={ resolvedChartId }
-				ariaLabel={ formatChartName( chartTitle ) }
+				ariaLabel={ chartName }
 				className={ styles.chartContent }
 				data={ styledSeries }
 				options={ chartOptions }

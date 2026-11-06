@@ -50,6 +50,7 @@ describe( 'useUploadIntake', () => {
 			isAtomic: false,
 			isUnlimited: false,
 			videoCount: 0,
+			videoCountKnown: true,
 			limit: 1,
 			isAtLimit: false,
 		};

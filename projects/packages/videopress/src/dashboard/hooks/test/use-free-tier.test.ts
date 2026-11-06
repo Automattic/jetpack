@@ -1,6 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { onlineManager } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { getApiFetchMock, mockApiFetch } from '../../test-utils/mock-api-fetch';
-import { createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
 import { useFreeTier } from '../use-free-tier';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -42,9 +43,68 @@ describe( 'useFreeTier', () => {
 		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
 		expect( result.current.knownVideoCount ).toBeUndefined();
 		await waitFor( () => expect( result.current.knownVideoCount ).toBe( 1 ) );
+		await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
 		// 0 completed (server total) + 1 in-flight = 1; free tier limit = 1 → at limit
 		expect( result.current.videoCount ).toBe( 1 );
 		expect( result.current.isAtLimit ).toBe( true );
+	} );
+
+	it( 'keeps the count unknown until the library response arrives', async () => {
+		let resolveResponse: ( value: unknown ) => void;
+		mockApiFetch(
+			() =>
+				new Promise( resolve => {
+					resolveResponse = resolve;
+				} )
+		);
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+		expect( result.current.videoCountKnown ).toBe( false );
+		await act( async () =>
+			resolveResponse( {
+				headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? '3' : '1' ) },
+				json: async () => [],
+			} )
+		);
+		await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
+		expect( result.current.videoCount ).toBe( 4 );
+	} );
+
+	it( 'does not report a fallback count as known after a failed library request', async () => {
+		const api = mockApiFetch( async () => {
+			throw new Error( 'Library unavailable' );
+		} );
+		const client = createTestQueryClient();
+		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper( client ) } );
+		await waitFor( () => {
+			expect( api ).toHaveBeenCalled();
+			expect( client.isFetching() ).toBe( 0 );
+		} );
+		expect( result.current.videoCountKnown ).toBe( false );
+	} );
+
+	it( 'keeps an initially offline count unknown until the paused request succeeds', async () => {
+		const wasOnline = onlineManager.isOnline();
+		const api = mockApiFetch( async () => ( {
+			headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? '3' : '1' ) },
+			json: async () => [],
+		} ) );
+		const client = createTestQueryClient();
+		onlineManager.setOnline( false );
+		const { result, unmount } = renderHook( () => useFreeTier(), {
+			wrapper: createTestWrapper( client ),
+		} );
+		try {
+			expect( client.getQueryCache().getAll()[ 0 ].state.fetchStatus ).toBe( 'paused' );
+			expect( api ).not.toHaveBeenCalled();
+			expect( result.current.videoCountKnown ).toBe( false );
+			await act( async () => onlineManager.setOnline( true ) );
+			await waitFor( () => expect( result.current.videoCountKnown ).toBe( true ) );
+			expect( result.current.videoCount ).toBe( 4 );
+		} finally {
+			unmount();
+			client.clear();
+			onlineManager.setOnline( wasOnline );
+		}
 	} );
 
 	it.each( [ null, undefined ] )(

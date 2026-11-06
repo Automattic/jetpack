@@ -59,49 +59,6 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 Please try to add unit tests whenever you are adding new features, or modifying existing ones.
 
-#### Private Site Module
-
-There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.
-
-If you have `docker` installed on your system, the tests can be run like so:
-
-- `make test-public-access`
-- `make test-private-access`
-
-Each of the above:
-
-- Cleans your build directory, etc.
-- Builds the plugin from source (as would happen for the regular deployment process )
-- Spins up containers for:
-  - mysql database
-  - WordPress (php-fpm)
-  - nginx web server
-  - WP-CLI
-  - node / jest (for the actual testing)
-- Coordinates communication and set up for the above
-- Sets a site to be public or private according to the script invocation
-- Kicks off test specs to validate that appropriate resources are accessible and, in the case of a site being set to private, inappropriate resources are not
-
-#### Development Mode
-
-You can enter "development mode" by declaring you are doing so via the `WPCOMSH_DEVMODE` environment variable.
-
-For example:
-
-`WPCOMSH_DEVMODE=1 make test-private-access`
-
-This will:
-
-- Instruct `make` to bypass the `check` directive (allowing for rules like `build` to run without a clean working directory)
-- Set jest to "watch" for changes to the spec files inside the running container.
-- Watch for changes to specific files on your local machine and copy them to the container on changes.
-- Leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing (see below)
-
-In order for WordPress to load the test site correctly, you'll need to access the site with the appropriate site name:
-
-- Add the following to your hosts file: `127.0.0.1 nginx`
-- Browse to http://nginx:8989 in your favorite web client / browser
-
 ## Deployment
 - After a PR is merged:
   - The CI will automatically create a rolling release. You can find it under [Releases](https://github.com/Automattic/wpcom-site-helper/releases).
@@ -116,7 +73,8 @@ Translations are now downloaded automatically from translate.wordpress.com. No s
 
 ## Troubleshooting
 
-When something doesn't work as it should, the first thing to do is [enable error logging in WP](https://codex.wordpress.org/Debugging_in_WordPress) or look into the global PHP error log. It's advisable to install and connect Jetpack when working on wpcomsh. Use [MGS](https://mc.a8c.com/mgs/) to search through Slack channels as that's where most of the development work/chats take place. You can also use PCYsg-5mr-p2 (for example, with PhPStorm). If you still can't figure out the problem, drop a message in the Automated Transfer Slack channel and/or ping [wpcomsh devs](https://github.com/Automattic/wpcomsh/graphs/contributors) directly.
+- [Enable debug logging in WordPress](https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/), or check the PHP error log.
+- Still stuck? Ask in the Jetpack Developers Slack channel, or open an issue with the [[Plugin] Wpcomsh](https://github.com/Automattic/jetpack/labels/%5BPlugin%5D%20Wpcomsh) label.
 
 ## Features
 

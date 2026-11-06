@@ -23,6 +23,10 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: ( path: string ) => `https://example.com/wp-admin/${ path }`,
 	getScriptData: () => ( { myJetpack: { siteEditor: { isBlockTheme: mockIsBlockTheme } } } ),
 } ) );
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( { labelledby, disabled }: { labelledby?: string; disabled?: boolean } ) => (
 		<input type="checkbox" aria-labelledby={ labelledby } disabled={ disabled } />

@@ -63,6 +63,9 @@ export type MetricWithComparisonProps = {
 
 	className?: string;
 
+	/** The element the metric and its delta render as, for a spot that allows phrasing content only, such as a button. */
+	render?: ComponentProps< typeof Stack >[ 'render' ];
+
 	/**
 	 * What to display for delta when calculation is not possible
 	 */
@@ -86,6 +89,7 @@ export function MetricWithComparison( {
 	invertDeltaColors = false,
 	hideDeltaOnZero = false,
 	className,
+	render,
 	deltaFallback,
 	showAbsoluteDelta = false,
 }: MetricWithComparisonProps ) {
@@ -94,11 +98,19 @@ export function MetricWithComparison( {
 	const absoluteFormat = dataFormat.type === 'currency' ? 'currency' : 'number';
 
 	return (
-		<Stack className={ className } direction={ direction } align={ align } wrap={ wrap } gap="xs">
+		<Stack
+			render={ render }
+			className={ className }
+			direction={ direction }
+			align={ align }
+			wrap={ wrap }
+			gap="xs"
+		>
 			<MetricValue value={ value } dataFormat={ dataFormat } fontSize={ fontSize } />
 
 			{ showDelta && (
 				<MetricDelta
+					render={ render }
 					current={ value }
 					previous={ previousValue }
 					invertColors={ invertDeltaColors }
