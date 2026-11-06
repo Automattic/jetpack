@@ -17,7 +17,7 @@ jest.mock( './reports/report-page-loaders', () => ( {
 const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
 const mockPreloadReportPage = preloadReportPage as jest.MockedFunction< typeof preloadReportPage >;
 
-const REPORT_WINDOW = { from: '2026-06-01', to: '2026-06-16' };
+const REPORT_WINDOW = { from: '2026-06-01', to: '2026-06-16', interval: 'day' };
 
 /**
  * Point the mocked router at a detail page on all time that was opened from

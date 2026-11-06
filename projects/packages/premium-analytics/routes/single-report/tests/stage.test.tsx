@@ -359,7 +359,7 @@ describe( 'single-report stage', () => {
 		expect( getNoticeAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
-			'/reports/videos?from=2026-05-01&to=2026-05-31'
+			'/reports/videos?from=2026-05-01&to=2026-05-31&interval=day'
 		);
 		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );
