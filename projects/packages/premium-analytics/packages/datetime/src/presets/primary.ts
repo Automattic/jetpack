@@ -76,6 +76,21 @@ type PresetDefinition = {
 };
 
 /**
+ * The first instant of the day `days` before a day's start. Not `subDays`
+ * alone: where the clocks moved forward at midnight, today starts at 01:00,
+ * and the wall time would carry to a day that does start at 00:00.
+ *
+ * @param startOfToday - The first instant of today.
+ * @param days         - How many days back.
+ * @return The first instant of that day.
+ */
+function startOfDayBefore( startOfToday: TZDate, days: number ): TZDate {
+	const day = subDays( startOfToday, days );
+
+	return startOfDay( day );
+}
+
+/**
  * Canonical preset definitions. Labels are defined once here and reused by all
  * consumers.
  */
@@ -92,7 +107,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_YESTERDAY,
 		getLabel: () => __( 'Yesterday', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 1 ),
+			from: startOfDayBefore( initOfToday, 1 ),
 			to: endOfYesterday,
 		} ),
 	},
@@ -114,7 +129,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_LAST_7_DAYS,
 		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
-			from: subDays( initOfToday, 6 ),
+			from: startOfDayBefore( initOfToday, 6 ),
 			to: endOfToday,
 		} ),
 	},
@@ -122,7 +137,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_LAST_30_DAYS,
 		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
-			from: subDays( initOfToday, 29 ),
+			from: startOfDayBefore( initOfToday, 29 ),
 			to: endOfToday,
 		} ),
 	},
@@ -130,7 +145,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_LAST_90_DAYS,
 		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
-			from: subDays( initOfToday, 89 ),
+			from: startOfDayBefore( initOfToday, 89 ),
 			to: endOfToday,
 		} ),
 	},
@@ -138,7 +153,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		id: PRESET_LAST_365_DAYS,
 		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { initOfToday, endOfToday } ) => ( {
-			from: subDays( initOfToday, 364 ),
+			from: startOfDayBefore( initOfToday, 364 ),
 			to: endOfToday,
 		} ),
 	},
@@ -228,9 +243,10 @@ export function getPresetLabel( id: PrimaryPresetId | null | undefined ): string
 /**
  * Build a DateContext for a given timezone.
  * @param timeZone
+ * @param now      - The instant to build it at; the clock by default.
  */
-function buildDateContext( timeZone: string ): DateContext {
-	const nowWithTZ = toLocalTZ( undefined, timeZone );
+function buildDateContext( timeZone: string, now?: Date ): DateContext {
+	const nowWithTZ = toLocalTZ( now, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
 	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
@@ -488,18 +504,19 @@ export function getMenuSurfacePresetGroups(
 /**
  * Compute the absolute date range for a preset ID in the given timezone.
  *
- * @param presetId - A valid computable preset identifier.
- * @param timeZone - IANA timezone string.
- * @param options  - All-time options; only read for the all-time preset,
- *                 whose start is a property of the surface, not of the ID.
+ * @param presetId    - A valid computable preset identifier.
+ * @param timeZone    - IANA timezone string.
+ * @param options     - All-time options; only read for the all-time preset,
+ *                    whose start is a property of the surface, not of the ID.
+ * @param options.now - The instant to read the preset at; the clock by default.
  * @return The computed range, or undefined if the preset is not recognized.
  */
 export function computePrimaryRange(
 	presetId: ComputablePresetId,
 	timeZone: string,
-	options: AllTimeRangeOptions = {}
+	options: AllTimeRangeOptions & { now?: Date } = {}
 ): Required< DateRange > | undefined {
-	const ctx = buildDateContext( timeZone );
+	const ctx = buildDateContext( timeZone, options.now );
 
 	if ( presetId === PRESET_ALL_TIME ) {
 		return computeAllTimeRange( resolveAllTimeStart( options, ctx ), ctx );

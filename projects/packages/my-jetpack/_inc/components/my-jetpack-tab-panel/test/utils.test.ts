@@ -10,6 +10,7 @@ import {
 } from '../constants';
 import {
 	getFeatureCheckoutReturnUrl,
+	getFeatureConnectReturnUrl,
 	getFeaturePricingHref,
 	getMyJetpackSections,
 	getModulesManagementUrl,
@@ -119,6 +120,25 @@ describe( 'checkout return', () => {
 		expect( getFeatureCheckoutReturnUrl( '#/add-social' ) ).toBe( '' );
 	} );
 } );
+
+it.each( [
+	[
+		'#/features?filter=inactive&feature=newsletter&view=list&search=mail&module_tag=Writing',
+		'admin.php?page=my-jetpack#/features?feature=newsletter&view=list&search=mail&module_tag=Writing',
+	],
+	[ '#/features?filter=available', 'admin.php?page=my-jetpack#/features' ],
+	[ '#/features?filter=active', 'admin.php?page=my-jetpack#/features' ],
+	[
+		'#/features?filter=essential&view=list',
+		'admin.php?page=my-jetpack#/features?view=list&filter=essential',
+	],
+	[ '#/features', 'admin.php?page=my-jetpack#/features' ],
+] )(
+	'returns from connecting an account to the same Features view, without a status filter: %s',
+	( hash, url ) => {
+		expect( getFeatureConnectReturnUrl( hash ) ).toBe( url );
+	}
+);
 
 it.each( [ undefined, {}, { myJetpack: {} } ] )(
 	'retains the classic destination with older package data %p',

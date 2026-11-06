@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: Offer to turn the Protect page back on when a site with Scan has turned it off, instead of showing an access error.

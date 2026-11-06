@@ -34,9 +34,10 @@ const EMPTY: Result = { slug: null, sizeText: null, monthlyPrice: null, currency
  * which sizes it for the choice rather than for today's usage. Legacy's popover never
  * fetches, so its link is built from a `null` default on every site.
  *
- * Deliberately not gated on `useCanQueryWpcom()`: the route only checks
- * `manage_options`. The `enabled` flag below is what keeps it from firing early, since
- * both byte figures come from routes that *are* gated.
+ * Deliberately not gated on `useCanQueryWpcom()`: the route checks `manage_options` and
+ * offline mode, not the connection.
+ * The `enabled` flag below is what keeps it from firing early, since both byte figures
+ * come from routes that *are* gated.
  *
  * @param storageUsed  - Bytes of backup storage in use, or null if unknown.
  * @param storageLimit - The plan's storage limit in bytes, or null if unknown.

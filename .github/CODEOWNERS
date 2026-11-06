@@ -59,6 +59,8 @@
 /projects/github-actions/repo-gardening/ @jeherve
 
 # Packages
+/projects/packages/comments @Automattic/jetpack-comments
+/projects/packages/podcast @Automattic/jetpack-podcast
 /projects/packages/premium-analytics @Automattic/jetpack-stats 
 /projects/packages/stats @Automattic/jetpack-stats
 /projects/packages/stats-admin @Automattic/jetpack-stats

@@ -1,11 +1,14 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
 export type FeatureActionType = 'install' | 'activate' | 'deactivate';
+/** What sent the visitor to connect an account: an install that finished, or Connect itself. */
+export type ConnectionStartAction = 'install' | 'connect';
 export type BulkActionType = 'activate' | 'deactivate';
 
 /** What emptied the grid, in the order the empty states are checked. */
@@ -23,6 +26,9 @@ export type FeatureActionOrigin = 'card' | 'modal' | 'more_features';
 
 /** How a feature's details came to be open: from the grid, a link, or stepping from another's. */
 export type ModalTrigger = 'card' | 'link' | 'step';
+
+/** A link to the feature's own screen other than Open, such as Blaze's in its campaigns warning. */
+export type ManageClickSource = 'campaigns_warning';
 
 // This tab replaces the Products tab, whose events answer the same questions under
 // different prop names. Stamping the schema lets a query tell the two apart, and bumping
@@ -50,7 +56,12 @@ type FeaturesTrackingContextType = {
 	trackViewChange: ( next: FeaturesView ) => void;
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
-	trackManageClick: ( state: FeatureState ) => void;
+	trackManageClick: ( state: FeatureState, source?: ManageClickSource ) => void;
+	trackConnectionStart: (
+		state: FeatureState,
+		origin: FeatureActionOrigin,
+		action: ConnectionStartAction
+	) => void;
 	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
 	trackBulkAction: ( params: BulkActionParams ) => void;
@@ -79,6 +90,7 @@ function featureProps( state: FeatureState ) {
 		feature_status: state.status,
 		control_kind: state.control.kind,
 		is_essential: Boolean( feature.essential ),
+		...( isAccountConnectEnabled() && { account_needed: Boolean( state.accountNeeded ) } ),
 		...when( 'plugin', feature.plugin || '' ),
 		...when( 'plugin_status', feature.plugin_status || '' ),
 	};
@@ -189,8 +201,24 @@ export function FeaturesTrackingProvider( {
 	);
 
 	const trackManageClick = useCallback(
-		( state: FeatureState ) => {
+		( state: FeatureState, source?: ManageClickSource ) => {
 			recordEvent( 'jetpack_myjetpack_feature_manage_click', {
+				...when( 'source', source ?? '' ),
+				...featureProps( state ),
+				...context,
+			} );
+		},
+		[ context, recordEvent ]
+	);
+
+	// Recorded as the page leaves to connect an account: it says a connection started, not that
+	// the feature is now on.
+	const trackConnectionStart = useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
+			recordEvent( 'jetpack_myjetpack_feature_connection_start', {
+				action,
+				origin,
+				...when( 'product', state.feature.product || '' ),
 				...featureProps( state ),
 				...context,
 			} );
@@ -210,8 +238,8 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
-	// Recorded from the click, so an abandoned or failed switch still says what was asked
-	// for. The status it carries is the one the click was made against.
+	// Recorded as the switch's request starts, after any confirmation, so a failed switch still
+	// says what was asked for and a declined one records nothing.
 	const trackFeatureAction = useCallback(
 		( { state, action, origin }: FeatureActionParams ) => {
 			recordEvent( 'jetpack_myjetpack_feature_action', {
@@ -273,6 +301,7 @@ export function FeaturesTrackingProvider( {
 			trackModalView,
 			trackModalClose,
 			trackManageClick,
+			trackConnectionStart,
 			trackPlanClick,
 			trackFeatureAction,
 			trackBulkAction,
@@ -280,6 +309,7 @@ export function FeaturesTrackingProvider( {
 			trackEmptyStateClick,
 		} ),
 		[
+			trackConnectionStart,
 			trackBulkAction,
 			trackEmptyStateClick,
 			trackEmptyStateView,

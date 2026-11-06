@@ -5,13 +5,17 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { UtmLeaderboard } from '../../src/components/utm-leaderboard';
-import type { SalesByUtmSourceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * No configurable attributes; the empty record allows host-provided fields, such as the report
+ * params.
+ */
+export type SalesByUtmSourceAttributes = Record< never, never >;
 
 type SalesByUtmSourceRenderAttributes = SalesByUtmSourceAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -27,10 +31,7 @@ export default function SalesByUtmSourceRender( {
 }: WidgetRenderProps< SalesByUtmSourceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<UtmLeaderboard
-				view="source"
-				chartTitle={ __( 'Sales by UTM source', 'jetpack-woocommerce-stats-pkg' ) }
-			/>
+			<UtmLeaderboard view="source" />
 		</WidgetRoot>
 	);
 }

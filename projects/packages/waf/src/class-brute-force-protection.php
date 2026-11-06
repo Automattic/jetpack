@@ -728,8 +728,9 @@ class Brute_Force_Protection {
 					return true;
 				}
 
-				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+				// A CIDR entry carries no range_high.
+				if ( $item->range && isset( $item->range_low ) ) {
+					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ?? null ) ) {
 						return true;
 					}
 				}

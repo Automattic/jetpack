@@ -13,7 +13,8 @@ export {
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
 	offersDateComparison,
-	resolvePresetForSurface,
+	resolveSurfaceRange,
+	toDateFilterSurface,
 	type DateFilterOptions,
 	type DateFilterSurface,
 } from './date-filter';
@@ -27,3 +28,5 @@ export {
 	type WidgetTypeName,
 	type WidgetTypeRenameRecord,
 } from './widget-type-renames';
+
+export { DASHBOARD_GRID } from './grid';

@@ -7,7 +7,7 @@ import { ReactNode } from 'react';
  * Internal dependencies
  */
 // Not the `../utils` barrel, which loads `@wordpress/core-data`.
-import { shouldRetryApiError, StatsResponseShapeError } from '../utils/api-error';
+import { getApiRetryDelay, shouldRetryApiError, StatsResponseShapeError } from '../utils/api-error';
 
 // Everything below reads the HTTP status, which apiFetch drops on its way to
 // throwing the parsed body. `fetchPreservingStatus()` restores it at its own
@@ -49,6 +49,8 @@ export const queryClient = new QueryClient( {
 			 * specific auth/plan-gated error UI.
 			 */
 			retry: shouldRetryApiError,
+
+			retryDelay: getApiRetryDelay,
 		},
 	},
 } );

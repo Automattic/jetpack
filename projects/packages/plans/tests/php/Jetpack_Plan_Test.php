@@ -19,6 +19,30 @@ use WP_Error;
 class Jetpack_Plan_Test extends TestCase {
 
 	/**
+	 * Pro must retain paid capabilities while keeping its own plan classification.
+	 *
+	 * @dataProvider pro_plans
+	 * @param string $slug Store product slug.
+	 */
+	#[DataProvider( 'pro_plans' )]
+	public function test_pro_classification_and_capabilities( $slug ) {
+		Jetpack_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
+		$plan = Jetpack_Plan::get();
+		$this->assertSame( 'pro', $plan['class'] );
+		$this->assertContains( 'field-file', $plan['supports'] );
+		$this->assertContains( 'social-image-generator', $plan['supports'] );
+	}
+
+	/**
+	 * All subscription terms, regardless of purchase availability.
+	 *
+	 * @return array
+	 */
+	public static function pro_plans() {
+		return array( array( 'jetpack_pro_yearly' ), array( 'jetpack_pro_bi_yearly' ), array( 'jetpack_pro_monthly' ) );
+	}
+
+	/**
 	 * Blog ID the connection state and the cached site record are keyed on.
 	 */
 	const TEST_BLOG_ID = 1234;

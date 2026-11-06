@@ -88,6 +88,55 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
+	it( 'keeps saved schema values visible and disables every editing action during a conflict', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+		};
+		mockForm = makeForm( {
+			organization: {
+				name: 'Saved studio',
+				description: 'Saved description',
+				email: 'hello@example.test',
+				sameAs: [ 'https://example.test/studio' ],
+			},
+			localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
+			isOrganizationDirty: true,
+		} );
+		render( <SchemaCard initialSettings={ bootstrap } disabled /> );
+		expandCard();
+		expect( screen.getByDisplayValue( 'Saved studio' ) ).toBeDisabled();
+		expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
+		// One short line; the tab's banner explains the cause.
+		expect( screen.getByRole( 'group', { name: 'Schema settings' } ) ).toHaveAccessibleDescription(
+			'Paused while Yoast SEO is active.'
+		);
+		for ( const control of [
+			...screen.getAllByRole( 'textbox' ),
+			...screen.getAllByRole( 'checkbox' ),
+		] ) {
+			expect( control ).toBeDisabled();
+		}
+		expect( screen.getByRole( 'button', { name: 'Save schema settings' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Add profile' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Remove profile' } ) ).toBeDisabled();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save schema settings' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'checkbox', { name: 'Breadcrumbs' } ) );
+		expect( saveOrganizationEntity ).not.toHaveBeenCalled();
+		expect( commitBreadcrumbList ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders one collapsed module, not a card per schema type', () => {
 		renderCard();
 
@@ -100,12 +149,12 @@ describe( 'SchemaCard', () => {
 		// so it must be the trigger's *description*, never part of its name. A loose
 		// /Schema/ would still pass if "Not started" leaked back into the name.
 		expect( headers[ 0 ] ).toHaveAccessibleName( 'Schema' );
-		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'In progress' );
+		expect( headers[ 0 ] ).toHaveAccessibleDescription( 'Incomplete' );
 		// The module header is a real heading, matching the other Settings modules.
 		expect( screen.getByRole( 'heading', { level: 2, name: /Schema/ } ) ).toBeInTheDocument();
 	} );
 
-	it( 'counts the smart defaults as configured — the default state is In progress', () => {
+	it( 'counts the smart defaults as configured — the default state is Incomplete', () => {
 		renderCard();
 
 		const header = screen.getByRole( 'button', { name: /Schema/ } );
@@ -113,7 +162,7 @@ describe( 'SchemaCard', () => {
 		// Name + description are covered by their Site Title / Tagline defaults (the
 		// preferred state), so a site that hasn't added social links reads as In
 		// progress — not Not started.
-		expect( header ).toHaveTextContent( 'In progress' );
+		expect( header ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'shows Not started only when even the smart defaults are empty', () => {
@@ -145,7 +194,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'does not count an invalid or duplicate profile link toward completion', () => {
@@ -156,7 +205,7 @@ describe( 'SchemaCard', () => {
 			organization: { name: '', description: '', sameAs: [ 'not a url' ], email: '' },
 		} );
 		const view = renderCard();
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 		view.unmount();
 
 		// A duplicate collapses to one link, so it still counts — once.
@@ -190,7 +239,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'counts an explicit value, not just its default', () => {
@@ -203,7 +252,7 @@ describe( 'SchemaCard', () => {
 		} );
 		renderCard();
 
-		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'In progress' );
+		expect( screen.getByRole( 'button', { name: /Schema/ } ) ).toHaveTextContent( 'Incomplete' );
 	} );
 
 	it( 'ignores the contact email in the completion status', () => {

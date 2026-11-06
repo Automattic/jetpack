@@ -3,6 +3,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import actions from './actions';
 import controls from './controls';
+import decodeInitialState from './decode-initial-state';
 import reducer from './reducers';
 import resolvers from './resolvers';
 import selectors from './selectors';
@@ -24,7 +25,7 @@ storeHolder.mayBeInit( STORE_ID, {
 	selectors,
 	resolvers,
 	controls,
-	initialState: initialState || {},
+	initialState: decodeInitialState( initialState || {} ),
 } );
 
 export { STORE_ID };

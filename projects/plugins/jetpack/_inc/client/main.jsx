@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import AdminNotices from 'components/admin-notices';
 import Footer from 'components/footer';
 import JetpackNotices from 'components/jetpack-notices';
@@ -36,7 +36,6 @@ import {
 import {
 	setInitialState,
 	getSiteRawUrl,
-	getSiteId,
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
@@ -258,7 +257,6 @@ export class Main extends Component {
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
-						blogID={ this.props.blogID }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
 						userCanManageModules={ this.props.userCanManageModules }
@@ -266,7 +264,7 @@ export class Main extends Component {
 				);
 				break;
 			default:
-				this.props.navigate( '/settings', { replace: true } );
+				pageComponent = <Navigate to="/settings" replace />;
 				break;
 		}
 
@@ -399,7 +397,6 @@ export default connect(
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			blogID: getSiteId( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),

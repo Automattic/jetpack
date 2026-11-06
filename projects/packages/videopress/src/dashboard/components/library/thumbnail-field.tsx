@@ -1,6 +1,5 @@
-import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Progress, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatDuration } from '../../utils/format';
@@ -68,10 +67,15 @@ export default function ThumbnailField( { item }: Props ) {
 								)
 							: __( 'Processing', 'jetpack-videopress-pkg' ) }
 					</Text>
-					<ProgressBar
+					<Progress.Root
 						className="vp-library__progress-bar"
-						value={ processingProgress ?? undefined }
-					/>
+						aria-label={ __( 'Processing', 'jetpack-videopress-pkg' ) }
+						value={ processingProgress }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 
@@ -136,7 +140,15 @@ export default function ThumbnailField( { item }: Props ) {
 					className="vp-library__progress"
 				>
 					<Text className="vp-library__progress-percent">{ Math.round( upload.progress ) }%</Text>
-					<ProgressBar className="vp-library__progress-bar" value={ upload.progress } />
+					<Progress.Root
+						className="vp-library__progress-bar"
+						aria-label={ __( 'Uploading…', 'jetpack-videopress-pkg' ) }
+						value={ upload.progress }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 
@@ -149,7 +161,15 @@ export default function ThumbnailField( { item }: Props ) {
 					className="vp-library__progress"
 				>
 					<Text>{ __( 'Deleting…', 'jetpack-videopress-pkg' ) }</Text>
-					<ProgressBar className="vp-library__progress-bar" />
+					<Progress.Root
+						className="vp-library__progress-bar"
+						aria-label={ __( 'Deleting…', 'jetpack-videopress-pkg' ) }
+						value={ null }
+					>
+						<Progress.Track>
+							<Progress.Indicator />
+						</Progress.Track>
+					</Progress.Root>
 				</Stack>
 			) : null }
 

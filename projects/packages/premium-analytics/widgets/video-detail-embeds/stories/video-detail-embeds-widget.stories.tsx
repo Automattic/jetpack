@@ -18,7 +18,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import VideoDetailEmbedsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -146,7 +145,7 @@ function VideoDetailEmbedsDashboardStory( dashboardArgs: WidgetDashboardWithWidg
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ VIDEO_DETAIL_EMBEDS_RENDER_MODULE }
 			renderComponent={ VideoDetailEmbedsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: reportParamsForVideo( undefined, true ) } }

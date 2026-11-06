@@ -196,7 +196,8 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		 */
 		do_action( 'jetpack_before_send_email_preview', $post, $subscriber, $subscription );
 
-		$mailer->send_post( $post, $subscription );
+		// `is_preview` lets test emails go out even when the post isn't set to be emailed.
+		$mailer->send_post( $post, $subscription, '', false, array( 'is_preview' => true ) );
 
 		// Return a response
 		return new WP_REST_Response( 'Email preview sent successfully.', 200 );

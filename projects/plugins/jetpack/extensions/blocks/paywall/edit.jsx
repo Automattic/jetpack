@@ -7,16 +7,18 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon, people, check } from '@wordpress/icons';
+import { arrowDown, Icon, people, check, external } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import ConnectBanner from '../../shared/components/connect-banner';
-import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
+import { getPaidAccessState, getPaidPlanLink } from '../../shared/memberships/utils';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 
 function PaywallEdit( { clientId } ) {
@@ -39,16 +41,24 @@ function PaywallEdit( { clientId } ) {
 		};
 	}, [ clientId, getBlock ] );
 
-	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
-		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+	const { stripeConnectUrl, hasTierPlans, isLoading } = useSelect( select => {
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
 		return {
+			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
 			hasTierPlans: getNewsletterTierProducts()?.length !== 0,
 		};
 	} );
 
-	const [ showDialog, setShowDialog ] = useState( false );
-	const closeDialog = () => setShowDialog( false );
+	const paidSetupId = useInstanceId( PaywallEdit, 'jetpack-paywall-paid-setup' );
+	const { showPaidAsDisabled, showSetupPrompt } = getPaidAccessState( {
+		stripeConnectUrl,
+		hasTierPlans,
+		accessLevel,
+		isLoading,
+	} );
 
 	useEffect( () => {
 		// Change the access level from "everybody" to "subscribers" if the user adds a paywall block to a post.
@@ -56,14 +66,6 @@ function PaywallEdit( { clientId } ) {
 			setAccess( accessOptions.subscribers.key );
 		}
 	}, [ accessLevel, setAccess ] );
-
-	function selectAccess( value ) {
-		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
-			setShowDialog( true );
-			return;
-		}
-		setAccess( value );
-	}
 
 	if ( ! isUserConnected ) {
 		return (
@@ -125,7 +127,7 @@ function PaywallEdit( { clientId } ) {
 							<MenuGroup>
 								<MenuItem
 									onClick={ () => {
-										selectAccess( accessOptions.subscribers.key );
+										setAccess( accessOptions.subscribers.key );
 										closeDropdown();
 									} }
 									isSelected={ accessLevel === accessOptions.subscribers.key }
@@ -136,9 +138,11 @@ function PaywallEdit( { clientId } ) {
 								</MenuItem>
 								<MenuItem
 									onClick={ () => {
-										selectAccess( accessOptions.paid_subscribers.key );
+										setAccess( accessOptions.paid_subscribers.key );
 										closeDropdown();
 									} }
+									disabled={ showPaidAsDisabled }
+									aria-describedby={ showSetupPrompt ? paidSetupId : undefined }
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
 									iconPosition="right"
@@ -146,11 +150,31 @@ function PaywallEdit( { clientId } ) {
 									{ getLabel( accessOptions.paid_subscribers.key ) }
 								</MenuItem>
 							</MenuGroup>
+							{ showSetupPrompt && (
+								<MenuGroup>
+									<MenuItem
+										id={ paidSetupId }
+										href={ getPaidPlanLink( hasTierPlans ) }
+										target="_blank"
+										rel="noopener noreferrer"
+										icon={ external }
+										iconPosition="right"
+										onClick={ closeDropdown }
+									>
+										{ __( 'Turn on paid subscribers', 'jetpack' ) }
+										<VisuallyHidden render={ <span /> }>
+											{
+												/* translators: accessibility text */
+												__( '(opens in a new tab)', 'jetpack' )
+											}
+										</VisuallyHidden>
+									</MenuItem>
+								</MenuGroup>
+							) }
 						</>
 					) }
 				</ToolbarDropdownMenu>
 			</BlockControls>
-			<PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"

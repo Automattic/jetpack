@@ -490,6 +490,121 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A failed most recent scan is flagged, and the threats from earlier scans are kept.
+	 */
+	public function test_get_status_flags_failed_scan() {
+		$this->mock_connection();
+		$response                     = $this->get_sample_response();
+		$response->most_recent->error = true;
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		$failed_response = function () use ( $response ) {
+			return array(
+				'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+				'response' => array( 'code' => 200 ),
+			);
+		};
+		add_filter( 'pre_http_request', $failed_response );
+
+		$status = Scan_Status::get_status();
+		remove_filter( 'pre_http_request', $failed_response );
+
+		$this->assertTrue( $status->last_scan_failed );
+		$this->assertCount( 4, $status->threats );
+		$this->assertTrue( Scan_Status::get_cached_status()->last_scan_failed );
+	}
+
+	/**
+	 * A vulnerability is left out once its plugin or theme is updated to the fixed version, before Scan scans again.
+	 *
+	 * @param string $plugin_version The installed WooCommerce version.
+	 * @param string $theme_version  The installed theme version.
+	 * @param array  $listed         The extension threats still listed.
+	 * @dataProvider updated_extension_data
+	 */
+	#[DataProvider( 'updated_extension_data' )]
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed ) {
+		$this->mock_connection();
+		$update   = function ( $target ) {
+			return (object) array(
+				'fixer'  => 'update',
+				'target' => $target,
+			);
+		};
+		$response = $this->get_sample_response();
+
+		$response->threats[1]->fixer = $update( '3.0.2' );
+		$response->threats[]         = (object) array(
+			'id'        => 'malware',
+			'signature' => 'PHP.Generic.Malware',
+			'status'    => 'current',
+			'fixer'     => $update( '3.0.2' ),
+			'extension' => (object) array(
+				'type'    => 'plugin',
+				'slug'    => 'woocommerce',
+				'version' => '3.0.0',
+			),
+		);
+		$response->threats[]         = (object) array(
+			'id'        => 'theme',
+			'signature' => 'Vulnerable.WP.Extension',
+			'status'    => 'current',
+			'fixer'     => $update( '1.0.3' ),
+			'extension' => (object) array(
+				'type'    => 'theme',
+				'slug'    => 'theme-1',
+				'version' => '1.0.2',
+			),
+		);
+		$filters                     = array(
+			'pre_http_request'                 => function () use ( $response ) {
+				return array(
+					'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			'all_plugins'                      => function () use ( $plugin_version ) {
+				return array(
+					'woocommerce' => array(
+						'Name'    => 'Woocommerce',
+						'Version' => $plugin_version,
+					),
+				);
+			},
+			'jetpack_sync_get_themes_callable' => function () use ( $theme_version ) {
+				return array(
+					'theme-1' => array(
+						'Name'    => 'Sample Theme',
+						'Version' => $theme_version,
+					),
+				);
+			},
+		);
+		foreach ( $filters as $hook => $filter ) {
+			add_filter( $hook, $filter, 11 );
+		}
+
+		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		foreach ( $filters as $hook => $filter ) {
+			remove_filter( $hook, $filter, 11 );
+		}
+
+		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( $ids, array( '71625245', 'malware', 'theme' ) ) ) );
+	}
+
+	/**
+	 * Data provider for test_get_status_after_extension_update
+	 */
+	public static function updated_extension_data() {
+		return array(
+			'still below the fix' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'a rollback'          => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
+			'plugin at the fix'   => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ) ),
+			'plugin past the fix' => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
+			'theme at the fix'    => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
+		);
+	}
+
+	/**
 	 * Test get total threats
 	 */
 	public function test_get_total_threats() {

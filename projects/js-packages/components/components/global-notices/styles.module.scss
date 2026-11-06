@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .global-notices {
 
@@ -10,14 +10,14 @@
 		// Modals have 100000, so this needs to be above them
 		z-index: 100001;
 
-		@include gb.break-small {
+		@include mixins.break-small {
 			width: auto;
 			inset-inline: unset; // left and right
 			inset-block-start: 4rem;
 			inset-inline-end: 1rem;
 		}
 
-		@include gb.break-medium {
+		@include mixins.break-medium {
 			inset-block-start: 3rem;
 		}
 	}

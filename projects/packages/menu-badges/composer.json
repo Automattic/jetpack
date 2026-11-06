@@ -39,7 +39,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-menu-badges",
 		"textdomain": "jetpack-menu-badges",
 		"changelogger": {

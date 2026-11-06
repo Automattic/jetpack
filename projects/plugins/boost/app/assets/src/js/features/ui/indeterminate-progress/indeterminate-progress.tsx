@@ -1,5 +1,4 @@
-import { ProgressBar } from '@wordpress/components';
-import { Text } from '@wordpress/ui';
+import { Progress, Text } from '@wordpress/ui';
 import styles from './indeterminate-progress.module.scss';
 import type { ReactNode } from 'react';
 
@@ -19,7 +18,13 @@ export default function IndeterminateProgress( {
 			<Text variant="body-md" role={ live ? 'status' : undefined }>
 				{ children }
 			</Text>
-			{ isGenerating && <ProgressBar className={ styles.progress } aria-label={ label } /> }
+			{ isGenerating && (
+				<Progress.Root className={ styles.progress } value={ null } aria-label={ label }>
+					<Progress.Track className={ styles.track }>
+						<Progress.Indicator className={ styles.indicator } />
+					</Progress.Track>
+				</Progress.Root>
+			) }
 		</div>
 	);
 }

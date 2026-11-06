@@ -38,6 +38,17 @@ type EntityRecordsSelector = {
 	hasFinishedResolution: ( selectorName: string, args: unknown[] ) => boolean;
 };
 
+// WP REST rejects a larger `per_page` with a 400, so longer id lists are requested in batches.
+const MAX_IDS_PER_REQUEST = 100;
+
+function toBatches( ids: number[] ): number[][] {
+	const batches: number[][] = [];
+	for ( let start = 0; start < ids.length; start += MAX_IDS_PER_REQUEST ) {
+		batches.push( ids.slice( start, start + MAX_IDS_PER_REQUEST ) );
+	}
+	return batches;
+}
+
 function getThumbnailUrl( media?: MediaEntity ): string | undefined {
 	return media?.media_details?.sizes?.thumbnail?.source_url ?? media?.source_url;
 }
@@ -89,9 +100,9 @@ export function usePostThumbnail(
 }
 
 /**
- * Resolve featured-image thumbnails for a visible page of post rows.
+ * Resolve featured-image thumbnails for the post rows a table shows.
  *
- * @param rows - Post rows after filtering, sorting, and pagination.
+ * @param rows - Post rows after filtering and sorting.
  * @return Thumbnail URLs keyed by post ID.
  */
 export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
@@ -114,15 +125,17 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			grouped.set( row.type, ids );
 		}
 
-		return Array.from( grouped, ( [ type, ids ] ) => ( {
-			type,
-			query: {
-				include: Array.from( ids ).sort( ( a, b ) => a - b ),
-				per_page: ids.size,
-				context: 'view',
-				_fields: 'id,featured_media',
-			},
-		} ) );
+		return Array.from( grouped ).flatMap( ( [ type, ids ] ) =>
+			toBatches( Array.from( ids ).sort( ( a, b ) => a - b ) ).map( include => ( {
+				type,
+				query: {
+					include,
+					per_page: include.length,
+					context: 'view',
+					_fields: 'id,featured_media',
+				},
+			} ) )
+		);
 	}, [ rows ] );
 
 	const postRecordGroups = useSelect(
@@ -152,36 +165,40 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 		[ postRecordGroups ]
 	);
 
-	const mediaIds = useMemo(
+	const mediaIdBatches = useMemo(
 		() =>
 			havePostQueriesResolved
-				? Array.from(
-						new Set(
-							postRecords
-								.map( post => post.featured_media )
-								.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
-						)
-					).sort( ( a, b ) => a - b )
+				? toBatches(
+						Array.from(
+							new Set(
+								postRecords
+									.map( post => post.featured_media )
+									.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
+							)
+						).sort( ( a, b ) => a - b )
+					)
 				: [],
 		[ havePostQueriesResolved, postRecords ]
 	);
 
-	const media = useSelect(
+	const mediaGroups = useSelect(
 		select => {
-			if ( ! mediaIds.length ) {
-				return [];
-			}
-
 			const core = select( coreStore ) as unknown as EntityRecordsSelector;
-			return ( core.getEntityRecords( 'postType', 'attachment', {
-				include: mediaIds,
-				per_page: mediaIds.length,
-				context: 'view',
-				_fields: 'id,source_url,media_details',
-			} ) ?? [] ) as MediaEntity[];
+
+			return mediaIdBatches.map(
+				include =>
+					core.getEntityRecords( 'postType', 'attachment', {
+						include,
+						per_page: include.length,
+						context: 'view',
+						_fields: 'id,source_url,media_details',
+					} ) as MediaEntity[] | null
+			);
 		},
-		[ mediaIds ]
+		[ mediaIdBatches ]
 	);
+
+	const media = useMemo( () => mediaGroups.flatMap( records => records ?? [] ), [ mediaGroups ] );
 
 	return useMemo( () => {
 		const mediaById = new Map( media.map( item => [ item.id, item ] ) );

@@ -26,7 +26,7 @@ const Gridicon = gridiconsModule.default ?? gridiconsModule;
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
 
-const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
+export const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	if ( ! lastRewindableEventTime ) {
 		return '';
 	}

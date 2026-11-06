@@ -3,31 +3,26 @@
  */
 import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
-	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LOCATIONS_GEO_MODES,
 	LocationsGeoChart,
 	LockedWidget,
-	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
-	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	calculateDelta,
 	flagUrl,
-	getCombinedPeriodMax,
 	getLocationsReportSection,
 	getLocationsSectionLabel,
 	locationsCsvExporter,
-	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type LocationsGeoRow,
 	type LocationsScope,
 	type ReportParamsFieldAttributes,
+	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Disabled } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -180,14 +175,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			return { kind: 'static' as const };
 		};
 
-		const maxValue = getCombinedPeriodMax(
-			data.map( location => location.value ),
-			hasComparison ? data.map( location => location.previousValue ) : []
-		);
-
 		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
-			const previousValue = location.previousValue;
 
 			return {
 				id: location.key,
@@ -201,19 +190,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					action: getDrillDownAction( location ),
 				} ),
 				currentValue: location.value,
-				previousValue,
-				currentShare: sharePercentage( location.value, maxValue ),
-				previousShare:
-					hasComparison && previousValue !== undefined
-						? sharePercentage( previousValue, maxValue )
-						: undefined,
-				delta:
-					hasComparison && previousValue !== undefined
-						? calculateDelta( location.value, previousValue )
-						: undefined,
+				previousValue: location.previousValue,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, isHeld, regionsLocked, setDrillDownPath ] );
+	}, [ data, geoMode, isHeld, regionsLocked, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -252,71 +232,67 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		</Stack>
 	) : null;
 
-	const chartTitle = __( 'Top locations', 'jetpack-premium-analytics-pkg' );
+	// View all opens the whole tab; only the download follows the drill-down.
+	useReportActions( {
+		report: 'locations',
+		section: getLocationsReportSection( geoGranularity ),
+		csv: {
+			exporter: csvExporter,
+			status: { isLoading, isFetching, isError },
+			rowCount: data.length,
+		},
+	} );
 
 	// The back link stays a sibling of <WidgetState> so users can drill back up
 	// from an empty or failed drilled view.
 	return (
-		<>
-			<div className={ styles.content }>
-				{ bodyHeader }
-				<div className={ styles.stateArea }>
-					<WidgetState
-						isLoading={ emptyState.isLoading }
-						isFetching={ isFetching }
-						isError={ isError }
-						isEmpty={ data.length === 0 }
-						error={ {
-							description: __(
-								"We couldn't load location data. Please try again in a moment.",
-								'jetpack-premium-analytics-pkg'
-							),
-							actions: [
-								{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
-							],
-						} }
-						empty={ emptyState.empty }
-					>
-						<div className={ styles.chartArea }>
-							<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
-								<LeaderboardChart
-									data={ leaderboardData }
-									loading={ isHeld }
-									withOverlayLabel
-									withComparison={ hasComparison }
-									showLegend={ false }
-									columns={ { label: rowsLabel, metric: 'views' } }
-									dataFormat={ {
-										type: 'number',
-										options: { useMultipliers: true, decimals: 0 },
-									} }
-									className={ styles.leaderboard }
-									chartTitle={ chartTitle }
-								/>
-							</Disabled>
-							<div className={ styles.geoChart }>
-								<LocationsGeoChart
-									chartTitle={ chartTitle }
-									rows={ geoRows }
-									mode={ geoMode }
-									focusCountry={ focusCountry }
-									resizeDebounceTime={ 100 }
-								/>
-							</div>
+		<div className={ styles.content }>
+			{ bodyHeader }
+			<div className={ styles.stateArea }>
+				<WidgetState
+					isLoading={ emptyState.isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load location data. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ emptyState.empty }
+				>
+					<div className={ styles.chartArea }>
+						<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
+							<LeaderboardChart
+								data={ leaderboardData }
+								loading={ isHeld }
+								withOverlayLabel
+								withComparison={ hasComparison }
+								showLegend={ false }
+								columns={ { label: rowsLabel, metric: 'views' } }
+								dataFormat={ {
+									type: 'number',
+									options: { useMultipliers: true, decimals: 0 },
+								} }
+								className={ styles.leaderboard }
+							/>
+						</Disabled>
+						<div className={ styles.geoChart }>
+							<LocationsGeoChart
+								rows={ geoRows }
+								mode={ geoMode }
+								focusCountry={ focusCountry }
+								resizeDebounceTime={ 100 }
+							/>
 						</div>
-					</WidgetState>
-				</div>
+					</div>
+				</WidgetState>
 			</div>
-			<WidgetFooter>
-				{ /* View all opens the whole tab; only the download follows the drill-down. */ }
-				<ReportLink report="locations" section={ getLocationsReportSection( geoGranularity ) } />
-				<ExporterCsvDownloadButton
-					exporter={ csvExporter }
-					status={ { isLoading, isFetching, isError } }
-					rowCount={ data.length }
-				/>
-			</WidgetFooter>
-		</>
+		</div>
 	);
 }
 

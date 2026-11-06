@@ -1,11 +1,10 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { Card, CardHeader, CardBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { Button, Card } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Button from 'components/button';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import analytics from 'lib/analytics';
@@ -578,20 +577,20 @@ export const SettingsCard = inprops => {
 
 	return (
 		getGoogleAnalyticsOverridenBanner() || (
-			<Card className="jp-form-settings-card">
+			<Card.Root className="jp-form-settings-card">
 				<form
 					{ ...( moduleId ? { id: moduleId } : null ) }
 					onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
 				>
-					<CardHeader className="jp-form-settings-card__header">
-						<span className="jp-form-settings-card__header-label">{ header }</span>
+					<Card.Header className="jp-form-settings-card__header">
+						<Card.Title render={ <h2 /> } className="jp-form-settings-card__header-label">
+							{ header }
+						</Card.Title>
 						<div className="jp-form-settings-card__header-actions">
 							{ ! props.hideButton && (
 								<Button
-									primary
-									rna
-									compact
 									type="submit"
+									size="compact"
 									disabled={ isDisabled || isSaving || ! props.isDirty() }
 								>
 									{ isSaving
@@ -612,13 +611,11 @@ export const SettingsCard = inprops => {
 								/>
 							) }
 						</div>
-					</CardHeader>
-					<CardBody size="none">
-						{ children }
-						{ banner }
-					</CardBody>
+					</Card.Header>
+					{ children }
+					{ banner }
 				</form>
-			</Card>
+			</Card.Root>
 		)
 	);
 };

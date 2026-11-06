@@ -8,6 +8,10 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import Search from 'components/search';
 import analytics from 'lib/analytics';
 import {
+	isSettingsConsolidationEnabled,
+	isSwitchedInFeatures as _isSwitchedInFeatures,
+} from 'lib/settings-consolidation';
+import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
@@ -51,6 +55,7 @@ const SettingsNavTabs = props => {
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
+		isSwitchedInFeatures,
 		searchTerm,
 		searchForTerm,
 	} = props;
@@ -103,16 +108,33 @@ const SettingsNavTabs = props => {
 		if ( hasSecurityFeature && ! hasProtectPage ) {
 			visibleTabs.push( '/security' );
 		}
-		if ( hasPerformanceFeature ) {
+		// Once settings move out, only the image CDN fills this tab outside a search.
+		if (
+			isSettingsConsolidationEnabled()
+				? hasModules( [ 'photon', 'photon-cdn' ] )
+				: hasPerformanceFeature
+		) {
 			visibleTabs.push( '/performance' );
 		}
+		// A module Features switches no longer fills this tab.
 		if (
-			hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
+			hasModules(
+				[ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ].filter(
+					module => ! isSwitchedInFeatures( module )
+				)
+			) ||
 			window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active
 		) {
 			visibleTabs.push( '/writing' );
 		}
-		if ( hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) ) {
+		// Once settings move out, admins find Social in Features, so it no longer fills this tab.
+		if (
+			hasModules(
+				isSettingsConsolidationEnabled()
+					? [ 'sharedaddy', 'likes' ]
+					: [ 'publicize', 'sharedaddy', 'likes' ]
+			)
+		) {
 			visibleTabs.push( '/sharing' );
 		}
 		if ( hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) ) {
@@ -174,6 +196,7 @@ const SettingsNavTabs = props => {
 				className="jp-settings-nav__tabs-root"
 			>
 				<Tabs.List
+					variant="minimal"
 					className="jp-settings-nav__tabs"
 					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
 				>
@@ -211,6 +234,7 @@ export default connect(
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
+		isSwitchedInFeatures: module => _isSwitchedInFeatures( state, module ),
 		searchTerm: getSearchTerm( state ),
 	} ),
 	dispatch => ( {

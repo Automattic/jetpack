@@ -24,7 +24,7 @@ function wpcom_plugins_should_load_agents_manager( $should_load ) {
 		return false;
 	}
 
-	return (bool) get_option( 'big_sky_enable', false );
+	return wpcom_is_wordpress_agent_enabled();
 }
 add_filter( 'agents_manager_should_load', 'wpcom_plugins_should_load_agents_manager' );
 

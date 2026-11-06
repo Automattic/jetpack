@@ -36,6 +36,25 @@ export type LockedFeature = {
 };
 
 /**
+ * A dashboard section the plan replaces with one upgrade prompt, worded as classic Stats' upsell.
+ */
+export type LockedSectionGate = {
+	title: string;
+	description: string;
+	/** `description` quoting the price, with `%s` for the formatted monthly price inside `<strong>`. */
+	description_with_price: `${ string }%s${ string }`;
+	features: string[];
+	upgrade_label: string;
+	expand_label: string;
+	support_url: string;
+	upgrade_url: string;
+	/** The widget types the section still shows; every other one is hidden. */
+	open_widget_types: string[];
+	/** The plan's yearly price in the currency's smallest unit, or null when WordPress.com has none. */
+	plan_price: { yearly: number; currency: string } | null;
+};
+
+/**
  * Look a key up in a server map without reaching inherited names like `constructor`.
  *
  * @param map - The map.
@@ -67,6 +86,16 @@ export function isStatsFeatureLocked( feature: StatsFeatureKey ): boolean {
  */
 export function getLockedFeature( feature: StatsFeatureKey ): LockedFeature | undefined {
 	return readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_features, feature );
+}
+
+/**
+ * What a locked section's upgrade prompt says and where to buy the plan.
+ *
+ * @param section - The section slug.
+ * @return The locked section, or undefined when it is open.
+ */
+export function getLockedSection( section: string ): LockedSectionGate | undefined {
+	return readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_sections, section );
 }
 
 /**

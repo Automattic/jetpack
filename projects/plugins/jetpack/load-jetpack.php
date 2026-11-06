@@ -70,6 +70,11 @@ if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_fe
 	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
 }
 
+// An older Premium Analytics package, loaded by another plugin, predates the classic Stats retirement flag.
+if ( class_exists( \Automattic\Jetpack\PremiumAnalytics\Classic_Stats::class ) ) {
+	\Automattic\Jetpack\PremiumAnalytics\Classic_Stats::register_feature_flag();
+}
+
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';

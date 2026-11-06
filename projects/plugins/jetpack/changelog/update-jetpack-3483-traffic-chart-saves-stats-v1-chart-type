@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Save the chart type the Traffic summary switches to where Stats v1 saved it, so the Stats widget on the wp-admin dashboard draws bars or lines as that chart does.

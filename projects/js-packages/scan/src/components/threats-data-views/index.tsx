@@ -301,7 +301,10 @@ export default function ThreatsDataViews( {
 				render( { item }: { item: Threat } ) {
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ THREAT_ICONS[ getThreatType( item ) ] } size={ 20 } />
+							<Icon
+								icon={ THREAT_ICONS[ getThreatType( item ) ] ?? THREAT_ICONS.default }
+								size={ 20 }
+							/>
 						</div>
 					);
 				},

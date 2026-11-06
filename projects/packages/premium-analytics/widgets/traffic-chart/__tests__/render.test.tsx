@@ -1,17 +1,26 @@
 /**
  * External dependencies
  */
-import { queryClient, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import {
+	DASHBOARD_PREFERENCES_SCOPE,
+	queryClient,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
 import TrafficChartRender from '../render';
 import useTrafficChart from '../use-traffic-chart';
-import widget from '../widget';
+import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
+import widget, { type TrafficChartAttributes } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
+import type { ComponentProps, ComponentType } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
@@ -26,13 +35,21 @@ setSettings( {
 // The chart itself is not this file's subject: `useTrafficChart` resolves the
 // bucket. The stand-in records props so the click handler can be driven.
 const mockMetricTabsChart = jest.fn();
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	MetricTabsChart: ( props: unknown ) => {
-		mockMetricTabsChart( props );
-		return null;
-	},
-} ) );
+let mockDrawRealChart = false;
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+	return {
+		...actual,
+		MetricTabsChart: ( props: ComponentProps< typeof actual.MetricTabsChart > ) => {
+			mockMetricTabsChart( props );
+			return mockDrawRealChart ? (
+				<actual.GlobalChartsProvider>
+					<actual.MetricTabsChart { ...props } />
+				</actual.GlobalChartsProvider>
+			) : null;
+		},
+	};
+} );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
 const mockApiFetch = jest.mocked( apiFetch );
@@ -195,18 +212,91 @@ describe( 'Traffic chart type switch', () => {
 
 		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
 	} );
+
+	function switchChartType( value: 'line' | 'bar' ) {
+		const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
+		return (
+			field as unknown as { setValue: ( args: { item: object; value: string } ) => unknown }
+		 ).setValue( { item: {}, value } );
+	}
+
+	it( 'saves a choice where Stats v1 keeps it, as well as on the widget', () => {
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'line' );
+
+		expect( switchChartType( 'bar' ) ).toEqual( { chartType: 'bar' } );
+		expect( window.localStorage.getItem( V1_KEY ) ).toBe( 'bar' );
+	} );
+
+	it( 'saves a choice on the widget alone when the site id is unknown', () => {
+		window.JetpackScriptData = undefined as unknown as typeof window.JetpackScriptData;
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		expect( window.localStorage ).toHaveLength( 0 );
+	} );
+
+	it( 'saves a choice on the widget alone when browser storage cannot be written', () => {
+		jest.spyOn( Storage.prototype, 'setItem' ).mockImplementation( () => {
+			throw new Error( 'blocked' );
+		} );
+
+		expect( switchChartType( 'line' ) ).toEqual( { chartType: 'line' } );
+		jest.restoreAllMocks();
+	} );
+} );
+
+describe( 'Traffic chart interval menu', () => {
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	it( 'follows the chart type over a saved day on a year', () => {
+		setMockRouteSearch( { preset: 'last-12-months' } );
+		const field = widget.attributes.find( attribute => attribute.id === 'chartInterval' );
+		const Menu = field?.Edit as unknown as ComponentType< {
+			data: TrafficChartAttributes;
+			field: typeof field;
+			onChange: () => void;
+		} >;
+		const props = { field, onChange: jest.fn() };
+
+		const { rerender } = render(
+			<Menu { ...props } data={ { chartInterval: 'day', chartType: 'line' } } />
+		);
+		expect( screen.getByRole( 'button', { name: 'By days' } ) ).toBeInTheDocument();
+
+		rerender( <Menu { ...props } data={ { chartInterval: 'day', chartType: 'bar' } } /> );
+		expect( screen.getByRole( 'button', { name: 'By months' } ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'TrafficChart bucket size', () => {
 	it.each( [
 		[ 'week', 'day' ],
 		[ 'month', 'week' ],
+		[ 'quarter', 'month' ],
+		[ 'year', 'year' ],
 	] as const )( 'draws the saved bucket: %s', ( chartInterval, range ) => {
 		render(
 			<TrafficChartRender attributes={ { reportParams: reportParams( range ), chartInterval } } />
 		);
 
 		expect( requestedBucket() ).toBe( chartInterval );
+	} );
+
+	it.each( [
+		[ 'line', 'day' ],
+		[ 'bar', 'month' ],
+	] as const )( 'draws a saved day on a year as a %s chart: %s', ( chartType, expected ) => {
+		const year = {
+			from: '2025-07-01T00:00:00',
+			to: '2026-06-30T23:59:59',
+			interval: 'month',
+		} as ReportParams;
+
+		render(
+			<TrafficChartRender attributes={ { reportParams: year, chartInterval: 'day', chartType } } />
+		);
+
+		expect( requestedBucket() ).toBe( expected );
 	} );
 
 	it( "draws the range's default bucket, not the page's, when none is saved", () => {
@@ -229,6 +319,18 @@ describe( 'TrafficChart bucket size', () => {
 		);
 
 		expect( requestedBucket() ).toBe( 'hour' );
+	} );
+
+	it( 'draws days for a saved bucket the plan locks', () => {
+		render(
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'day' ), chartInterval: 'week' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
 	} );
 
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
@@ -265,6 +367,27 @@ describe( 'TrafficChart drill-down', () => {
 		} );
 	} );
 
+	it( 'opens the quarter a quarter bar drew, declared to the chart as quarters', () => {
+		const openPeriod = jest.fn();
+		render(
+			<ReportScopeProvider openPeriod={ openPeriod }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'month' ), chartInterval: 'quarter' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		const calls = mockMetricTabsChart.mock.calls;
+		expect( calls[ calls.length - 1 ][ 0 ].tickResolution ).toBe( 'quarter' );
+
+		chartClickHandler()( new Date( '2026-02-14T00:00:00.000Z' ) );
+
+		expect( openPeriod ).toHaveBeenCalledWith( {
+			from: new Date( '2026-01-01T00:00:00.000Z' ),
+			to: new Date( '2026-03-31T23:59:59.999Z' ),
+		} );
+	} );
+
 	it( 'cuts an edge bar to the window it drew', () => {
 		const openPeriod = jest.fn();
 		render(
@@ -291,6 +414,70 @@ describe( 'TrafficChart drill-down', () => {
 
 		expect( chartClickHandler() ).toBeUndefined();
 	} );
+} );
+
+describe( 'TrafficChart previous period', () => {
+	afterEach( () => {
+		mockDrawRealChart = false;
+		dispatch( preferencesStore ).set(
+			DASHBOARD_PREFERENCES_SCOPE,
+			'trafficChartPreviousPeriod',
+			undefined
+		);
+	} );
+
+	it.each( [ false, true ] )(
+		'starts from the saved previous period (%s) and saves a toggle',
+		async saved => {
+			dispatch( preferencesStore ).set(
+				DASHBOARD_PREFERENCES_SCOPE,
+				'trafficChartPreviousPeriod',
+				saved
+			);
+			mockDrawRealChart = true;
+			const points = ( values: number[] ) =>
+				values.map( ( value, index ) => ( {
+					date: new Date( Date.UTC( 2026, 5, index + 1 ) ),
+					value,
+				} ) );
+			mockUseTrafficChart.mockReturnValue( {
+				metrics: [
+					{
+						key: 'views',
+						label: 'Views',
+						value: 300,
+						current: points( [ 100, 200 ] ),
+						previous: points( [ 80, 120 ] ),
+					},
+				],
+				isLoading: false,
+				isFetching: false,
+				isError: false,
+				refetch: jest.fn(),
+			} );
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			render(
+				<TrafficChartRender
+					attributes={ {
+						chartType: 'bar',
+						reportParams: {
+							...reportParams( 'day' ),
+							compare_from: '2026-05-01',
+							compare_to: '2026-05-30',
+						} as ReportParams,
+					} }
+				/>
+			);
+			const legendItem = screen.getByLabelText( /^Previous period/ );
+
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', String( saved ) );
+			await user.click( legendItem );
+
+			expect(
+				select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'trafficChartPreviousPeriod' )
+			).toBe( ! saved );
+		}
+	);
 } );
 
 describe( 'TrafficChart with an idle window', () => {

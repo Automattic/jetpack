@@ -7,11 +7,12 @@ import {
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import { DEFAULT_YEAR_SURFACE_COUNT, type YearPresetId } from '@jetpack-premium-analytics/datetime';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import AnnualHighlightsWidget from '../render';
 import { getYearElements, resolveSelectedYear } from '../years';
 
@@ -66,7 +67,7 @@ const renderWidget = (
 	year?: YearPresetId,
 	reportParams: Partial< ReportParams > = getDefaultQueryParams( false, 'last-7-days' )
 ) =>
-	render(
+	renderWithActionsHost(
 		<AnnualHighlightsWidget
 			attributes={ {
 				...( year ? { year } : {} ),
@@ -144,34 +145,22 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
 	} );
 
-	it( 'links to the Annual insights report', async () => {
-		renderWidget();
-
-		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '/reports/annual-insights' )
-		);
-	} );
-
-	it( 'keeps focus on the download after a failed download of stale highlights', async () => {
+	it( 'keeps the download declared after a failed download of stale highlights', async () => {
 		jest.useFakeTimers();
 		try {
-			renderWidget();
+			const { declaredAction, findDeclaredAction, runDeclaredAction } = renderWidget();
 			await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
 
 			act( () => {
 				jest.advanceTimersByTime( 6 * 60 * 1000 );
 			} );
 			mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
-			const button = screen.getByRole( 'button', { name: /Download CSV/ } );
-			act( () => button.focus() );
-			// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-			fireEvent.click( button );
+			await findDeclaredAction( 'download-csv' );
+			await runDeclaredAction( 'download-csv' );
 			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 
-			await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
-			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toHaveFocus();
+			// The chrome keeps its button, and the focus on it, only while the action stays declared.
+			expect( declaredAction( 'download-csv' ) ).toBeDefined();
 			expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		} finally {
 			jest.useRealTimers();
