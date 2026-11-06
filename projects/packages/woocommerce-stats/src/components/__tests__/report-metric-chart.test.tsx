@@ -139,7 +139,6 @@ it( 'opens the clicked bucket at the interval the report was requested in', () =
 			report={ report }
 			field="orders_no"
 			label="Orders"
-			chartTitle="Orders over time"
 			dataFormat={ { type: 'number' } }
 			errorText="Could not load orders."
 		/>

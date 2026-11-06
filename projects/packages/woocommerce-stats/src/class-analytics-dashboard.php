@@ -85,9 +85,9 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: 2.3.0, the first to export `useOpenChartBucket`.
+	 * Lowest widget contract the build works against: 2.4.0, the first to export `useOpenChartBucket`.
 	 */
-	const MIN_WIDGET_API_VERSION = '2.3.0';
+	const MIN_WIDGET_API_VERSION = '2.4.0';
 
 	/**
 	 * Widget categories the package builds but holds back from the tab for now: the bookings
