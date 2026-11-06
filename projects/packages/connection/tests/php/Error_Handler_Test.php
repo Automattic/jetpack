@@ -3144,6 +3144,38 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Creates the connection owner and a second administrator, and makes the administrator the viewer.
+	 *
+	 * @return int[] The owner's and the administrator's user IDs.
+	 */
+	private function create_owner_and_admin_viewer() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'secondary_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'secondary_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		wp_set_current_user( $admin_id );
+
+		return array( $owner_id, $admin_id );
+	}
+
+	/**
 	 * Stores a single verified error under a given error code and user ID.
 	 *
 	 * @param string $error_code The (displayable) error code.
@@ -3541,96 +3573,208 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that a secondary admin sees an informational (no-CTA) notice for an owner-token
-	 * error when connection ownership is locked (non-transferable).
+	 * Test the message and action a secondary admin gets for the connection owner's token error.
+	 *
+	 * @param bool        $viewer_connected Whether the viewer has a user token of their own.
+	 * @param bool        $locked           Whether connection ownership is locked.
+	 * @param string|null $expected_action  The expected `error_data.action`, or null for none emitted.
+	 * @param string      $expected_message A fragment the message must contain.
+	 * @param string|null $site_error       A site-level error code also on record, if any.
+	 * @dataProvider provide_secondary_admin_owner_error
 	 */
-	public function test_get_displayable_errors_locked_owner_shows_informational_notice() {
-		$owner_id = 999;
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
+	#[DataProvider( 'provide_secondary_admin_owner_error' )]
+	public function test_get_displayable_errors_secondary_admin_owner_error( $viewer_connected, $locked, $expected_action, $expected_message, $site_error = null ) {
+		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
 
-		// Act as a secondary admin (a different user than the owner).
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'secondary_admin',
-				'user_pass'  => 'password',
-				'user_email' => 'secondary_admin@example.org',
-				'role'       => 'administrator',
-			)
-		);
-		$this->assertIsInt( $admin_id );
-		$this->assertNotSame( $owner_id, $admin_id );
-		wp_set_current_user( $admin_id );
+		if ( $viewer_connected ) {
+			\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
+		}
 
-		// Lock ownership.
-		Protected_Owner::set( 12345, $owner_id );
+		if ( $locked ) {
+			Protected_Owner::set( 12345, $owner_id );
+		}
 
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
 
-		$result = $this->error_handler->get_displayable_errors();
+		if ( $site_error ) {
+			$verified                = get_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			$verified[ $site_error ] = array( '0' => $verified['no_valid_user_token'][ (string) $owner_id ] );
+			update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, $verified );
+		}
 
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
+		$displayed = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $owner_id ];
+
 		$this->assertSame( 'owner', $displayed['audience'] );
-		$this->assertSame( 'none', $displayed['error_data']['action'], 'Locked ownership must suppress the reconnect CTA for a secondary admin.' );
-		$this->assertStringContainsString( 'reconnect their WordPress.com account', $displayed['error_message'] );
+		$this->assertSame( $expected_action, $displayed['error_data']['action'] ?? null );
+		$this->assertStringContainsString( 'The connection owner (Owner Person) needs to reconnect', $displayed['error_message'] );
+		$this->assertStringContainsString( $expected_message, $displayed['error_message'] );
 	}
 
 	/**
-	 * Test that a secondary admin still gets the reconnect CTA for an owner-token error
-	 * when ownership is transferable (the default model), and is warned that using it
-	 * disconnects every other user.
+	 * Test that `connect_user` carries a link back to the admin page it was built on.
+	 *
+	 * @param bool   $in_admin        Whether the errors are built in a wp-admin page render.
+	 * @param string $request_uri     The current request URI.
+	 * @param string $expected_return The admin path the link should return to.
+	 * @param string $expected_from   The `from` the link should send.
+	 * @dataProvider provide_connect_user_return_pages
 	 */
-	public function test_get_displayable_errors_transferable_owner_keeps_reconnect() {
-		$owner_id = 999;
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
+	#[DataProvider( 'provide_connect_user_return_pages' )]
+	public function test_connect_user_link_returns_to_the_current_admin_page( $in_admin, $request_uri, $expected_return, $expected_from ) {
+		list( $owner_id ) = $this->create_owner_and_admin_viewer();
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
 
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'secondary_admin',
-				'user_pass'  => 'password',
-				'user_email' => 'secondary_admin@example.org',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $admin_id );
+		$original_uri              = $_SERVER['REQUEST_URI'] ?? '';
+		$_SERVER['REQUEST_URI']    = $request_uri;
+		$GLOBALS['current_screen'] = new class( $in_admin ) {
+			/**
+			 * Whether this screen is in wp-admin.
+			 *
+			 * @var bool
+			 */
+			private $in_admin;
 
-		// The `jetpack_connect` cap is mapped by Manager::configure(), which doesn't run
-		// here, so grant it directly: this viewer is one who would be offered the CTA.
-		add_filter(
-			'user_has_cap',
-			function ( $caps ) {
-				$caps['jetpack_connect'] = true;
-				return $caps;
+			/**
+			 * Constructor.
+			 *
+			 * @param bool $in_admin Whether this screen is in wp-admin.
+			 */
+			public function __construct( $in_admin ) {
+				$this->in_admin = $in_admin;
 			}
+
+			/**
+			 * Mirrors WP_Screen::in_admin().
+			 *
+			 * @return bool
+			 */
+			public function in_admin() {
+				return $this->in_admin;
+			}
+		};
+
+		$data = $this->error_handler->get_displayable_errors()['no_valid_user_token'][ (string) $owner_id ]['error_data'];
+
+		unset( $GLOBALS['current_screen'] );
+		$_SERVER['REQUEST_URI'] = $original_uri;
+
+		$this->assertSame( 'Connect your account', $data['action_label'] );
+		$this->assertSame( 'jetpack_connection_error_notice_reconnect_cta_click', $data['tracking_event'] );
+		wp_parse_str( (string) wp_parse_url( $data['action_url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( 'jetpack-connection-webhooks', $query['handler'] );
+		$this->assertSame( admin_url( $expected_return ), $query['redirect_after_auth'] );
+		$this->assertSame( $expected_from, $query['from'] );
+	}
+
+	/**
+	 * Data provider for test_connect_user_link_returns_to_the_current_admin_page.
+	 *
+	 * @return array
+	 */
+	public static function provide_connect_user_return_pages() {
+		return array(
+			'core Connectors screen'     => array( true, '/wp-admin/options-connectors.php', 'options-connectors.php', 'jetpack-connector' ),
+			'Gutenberg Connectors page'  => array( true, '/wp-admin/options-general.php?page=options-connectors-wp-admin', 'options-general.php?page=options-connectors-wp-admin', 'jetpack-connector' ),
+			'Jetpack dashboard'          => array( true, '/wp-admin/admin.php?page=jetpack', 'admin.php?page=jetpack', 'jetpack-dashboard' ),
+			'other plugin page'          => array( true, '/wp-admin/admin.php?page=jetpack-backup&a=b/c', 'admin.php?page=jetpack-backup&a=b/c', 'my-jetpack' ),
+			'request with no admin page' => array( false, '/wp-json/jetpack/v4/connection', 'admin.php?page=my-jetpack', 'my-jetpack' ),
 		);
+	}
 
-		// Ownership transferable is the default (no filter added).
-
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
+	/**
+	 * Data provider for test_get_displayable_errors_secondary_admin_owner_error.
+	 *
+	 * @return array
+	 */
+	public static function provide_secondary_admin_owner_error() {
+		return array(
+			'not connected, transferable'              => array( false, false, 'connect_user', 'If you connect your account instead, you will become the new connection owner.' ),
+			'not connected, locked'                    => array( false, true, 'connect_user', 'You can still connect your own WordPress.com account.' ),
+			'connected, transferable'                  => array( true, false, null, 'If you reconnect instead, you will become the new connection owner.' ),
+			'connected, locked'                        => array( true, true, 'none', 'to restore the connection.' ),
+			'not connected, transferable, broken site' => array( false, false, null, 'If you reconnect instead, you will become the new connection owner.', 'no_valid_blog_token' ),
+			'not connected, locked, broken site'       => array( false, true, 'none', 'to restore the connection.', 'no_valid_blog_token' ),
+			'not connected, site request blocked'      => array( false, false, 'connect_user', 'If you connect your account instead', 'xmlrpc_request_blocked' ),
 		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+	}
 
-		$result = $this->error_handler->get_displayable_errors();
+	/**
+	 * Test that an inbound-failure error recorded for the owner keeps its own message and offers no takeover.
+	 *
+	 * Connecting or reconnecting an account cannot fix a blocked request or a bad certificate, so
+	 * neither the `connect_user` action nor the "you will become the new connection owner" copy
+	 * may follow from them, whether or not the viewing admin is connected.
+	 *
+	 * @param string $error_code       The inbound-failure error code.
+	 * @param bool   $viewer_connected Whether the viewing admin has a user token.
+	 * @dataProvider provide_inbound_failure_codes
+	 */
+	#[DataProvider( 'provide_inbound_failure_codes' )]
+	public function test_inbound_failure_recorded_for_owner_does_not_offer_takeover( $error_code, $viewer_connected ) {
+		list( $owner_id, $admin_id ) = $this->create_owner_and_admin_viewer();
+		// A healthy owner token, so no `invalid_connection_owner` error is recorded on the way.
+		$tokens = array( $owner_id => "token.secret.$owner_id" );
+		if ( $viewer_connected ) {
+			$tokens[ $admin_id ] = "token.secret.$admin_id";
+		}
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
-		$this->assertSame( 'owner', $displayed['audience'] );
-		$this->assertArrayNotHasKey( 'action', $displayed['error_data'], 'No explicit action is emitted for the default behavior: readers fall back to the reconnect CTA.' );
-		$this->assertStringContainsString( 'every other user will be disconnected', $displayed['error_message'], 'A non-owner must be told that reconnecting deletes every other user token.' );
+		$this->store_single_verified_error( $error_code, (string) $owner_id );
+
+		$displayed = $this->error_handler->get_displayable_errors();
+		$error     = $displayed[ $error_code ][ (string) $owner_id ];
+
+		$this->assertNotSame( 'connect_user', $error['error_data']['action'] ?? null );
+		$this->assertStringNotContainsString( 'new connection owner', $error['error_message'] );
+		$this->assertFalse( $this->error_handler->has_owner_connection_error() );
+	}
+
+	/**
+	 * Data provider for test_inbound_failure_recorded_for_owner_does_not_offer_takeover.
+	 *
+	 * @return array
+	 */
+	public static function provide_inbound_failure_codes() {
+		return array(
+			'blocked request, viewer unconnected'  => array( 'xmlrpc_request_blocked', false ),
+			'blocked request, viewer connected'    => array( 'xmlrpc_request_blocked', true ),
+			'SSL verification, viewer unconnected' => array( 'wpcom_ssl_verification_failed', false ),
+			'SSL verification, viewer connected'   => array( 'wpcom_ssl_verification_failed', true ),
+		);
+	}
+
+	/**
+	 * Test which stored errors count as the current owner's own broken connection.
+	 *
+	 * @param int    $master_user The recorded owner's user ID (0 for none).
+	 * @param string $error_code  The stored error code.
+	 * @param string $error_key   The user key the error is stored under.
+	 * @param bool   $expected    Whether the owner's connection counts as broken.
+	 * @dataProvider provide_owner_connection_error_cases
+	 */
+	#[DataProvider( 'provide_owner_connection_error_cases' )]
+	public function test_has_owner_connection_error( $master_user, $error_code, $error_key, $expected ) {
+		\Jetpack_Options::update_option( 'master_user', $master_user );
+		$this->store_single_verified_error( $error_code, $error_key );
+
+		$this->assertSame( $expected, $this->error_handler->has_owner_connection_error() );
+	}
+
+	/**
+	 * Data provider for test_has_owner_connection_error.
+	 *
+	 * @return array
+	 */
+	public static function provide_owner_connection_error_cases() {
+		return array(
+			'owner token error'            => array( 11, 'no_valid_user_token', '11', true ),
+			'current owner missing token'  => array( 11, 'invalid_connection_owner', '11', true ),
+			'previous owner missing token' => array( 11, 'invalid_connection_owner', '99', false ),
+			'another user token error'     => array( 11, 'no_valid_user_token', '99', false ),
+			'site-level error'             => array( 11, 'no_valid_blog_token', '0', false ),
+			'unattributable error'         => array( 11, 'no_valid_user_token', 'invalid', false ),
+			'no recorded owner'            => array( 0, 'no_valid_user_token', '11', false ),
+		);
 	}
 
 	/**
@@ -3877,6 +4021,9 @@ class Error_Handler_Test extends BaseTestCase {
 		);
 		get_user_by( 'id', $admin_id )->add_cap( 'jetpack_connect' );
 		wp_set_current_user( $admin_id );
+
+		// Connected, so they are not offered `connect_user` instead.
+		\Jetpack_Options::update_option( 'user_tokens', array( $admin_id => "token.secret.$admin_id" ) );
 
 		// Lock ownership.
 		Protected_Owner::set( 12345, $owner_id );

@@ -184,6 +184,25 @@ describe( 'resolveConnectionErrorActions', () => {
 		expect( navigate ).toHaveBeenCalledWith( 'https://example.com/fix' );
 	} );
 
+	it( 'renders a link for an action with no handler, as the server sends connect_user', () => {
+		const navigate = jest.fn();
+		const actions = resolveConnectionErrorActions(
+			{
+				error_message: 'Owner broken',
+				error_data: {
+					action: 'connect_user',
+					action_url: 'https://example.com/connect',
+					action_label: 'Connect your account',
+				},
+			},
+			{ ...baseOptions, navigate }
+		);
+
+		expect( actions[ 0 ].label ).toBe( 'Connect your account' );
+		actions[ 0 ].onClick();
+		expect( navigate ).toHaveBeenCalledWith( 'https://example.com/connect' );
+	} );
+
 	it( 'adds a secondary handler action', () => {
 		const handler = jest.fn();
 		const secondary = jest.fn();

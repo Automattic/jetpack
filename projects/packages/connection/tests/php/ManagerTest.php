@@ -601,16 +601,18 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
+	 * Test who takes an owner slot with no connected owner in `authorize`.
 	 *
 	 * @param string $role            The authorizing user's role.
 	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.
 	 * @param string $expected_result The expected `authorize` result.
 	 * @param array  $disconnect_cap  Value for the `jetpack_disconnect_cap` filter, which `jetpack_connect` resolves through.
+	 * @param string $recorded_owner  Who `master_user` names: `none`, `other`, `self`, or `deleted`. Their token is missing either way.
+	 * @param bool   $locked          Whether connection ownership is locked.
 	 * @dataProvider provide_authorize_vacant_owner_slot
 	 */
 	#[DataProvider( 'provide_authorize_vacant_owner_slot' )]
-	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ) ) {
+	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ), $recorded_owner = 'none', $locked = false ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => "test_authorize_vacant_owner_slot_$role",
@@ -619,6 +621,20 @@ class ManagerTest extends TestCase {
 			)
 		);
 		wp_set_current_user( $user_id );
+
+		$recorded_owner_ids = array(
+			'none'    => 0,
+			'self'    => $user_id,
+			'deleted' => 4242,
+		);
+		$recorded_owner_id  = $recorded_owner_ids[ $recorded_owner ] ?? wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_recorded_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
+		\Jetpack_Options::update_option( 'master_user', $recorded_owner_id );
 
 		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
 			->onlyMethods( array( 'get', 'update_user_token' ) )
@@ -630,10 +646,11 @@ class ManagerTest extends TestCase {
 			->willReturn( true );
 
 		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable' ) )
 			->getMock();
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
 		$manager->method( 'get_connection_owner_id' )->willReturn( false );
+		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
 
 		// Resolve `jetpack_connect` through the real meta-cap map, which this bootstrap doesn't wire.
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
@@ -652,6 +669,7 @@ class ManagerTest extends TestCase {
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
 		$this->assertSame( $expected_result, $result );
@@ -664,9 +682,127 @@ class ManagerTest extends TestCase {
 	 */
 	public static function provide_authorize_vacant_owner_slot() {
 		return array(
-			'administrator takes the slot' => array( 'administrator', true, 'authorized' ),
-			'editor links as secondary'    => array( 'editor', false, 'linked' ),
+			'administrator takes the slot'             => array( 'administrator', true, 'authorized' ),
+			'editor links as secondary'                => array( 'editor', false, 'linked' ),
 			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
+			'locked empty slot is taken'               => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'none', true ),
+			'locked tokenless owner stays'             => array( 'administrator', false, 'linked', array( 'manage_options' ), 'other', true ),
+			'transferable tokenless owner is replaced' => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'other' ),
+			'locked tokenless owner reconnects'        => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'self', true ),
+			'locked deleted owner is replaced'         => array( 'administrator', true, 'authorized', array( 'manage_options' ), 'deleted', true ),
+		);
+	}
+
+	/**
+	 * Test that an admin connecting while the connection owner's token is broken takes over the owner slot.
+	 *
+	 * @param string        $role            The authorizing user's role.
+	 * @param bool          $locked          Whether connection ownership is locked.
+	 * @param bool          $owner_error     Whether an owner-scoped error is on record.
+	 * @param bool          $expect_switch   Whether update_connection_owner() should be asked to switch the owner.
+	 * @param true|WP_Error $owner_update    What update_connection_owner() returns.
+	 * @param string        $expected_result The expected `authorize` result.
+	 * @param string        $auth_type       The request's `auth_type`; `calypso` is the default flow.
+	 * @param bool          $user_is_owner   Whether the authorizing user is the broken owner themselves.
+	 * @param array|false   $owner_health    What Tokens::validate() returns; false is an inconclusive check.
+	 * @param bool          $user_connected  Whether the authorizing user already has a token of their own.
+	 * @dataProvider provide_authorize_broken_owner_slot
+	 */
+	#[DataProvider( 'provide_authorize_broken_owner_slot' )]
+	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $expect_switch, $owner_update, $expected_result, $auth_type = 'calypso', $user_is_owner = false, $owner_health = false, $user_connected = false ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_broken_owner_slot',
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$owner_id = $user_is_owner ? $user_id : 4242;
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+
+		if ( $owner_error ) {
+			update_option(
+				Error_Handler::STORED_VERIFIED_ERRORS_OPTION,
+				array(
+					'no_valid_user_token' => array(
+						(string) $owner_id => array(
+							'error_code'    => 'no_valid_user_token',
+							'user_id'       => (string) $owner_id,
+							'error_message' => 'Test message',
+							'error_data'    => array(),
+							'timestamp'     => time(),
+							'nonce'         => 'test_nonce',
+							'error_type'    => 'xmlrpc',
+						),
+					),
+				)
+			);
+		}
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token', 'validate' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->method( 'validate' )->with( $owner_id )->willReturn( $owner_health );
+		// The real write clears stored errors, so the owner check must already have run.
+		$tokens->method( 'update_user_token' )->willReturnCallback(
+			static function () {
+				delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+				return true;
+			}
+		);
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'update_connection_owner', 'is_user_connected' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
+		$manager->method( 'is_user_connected' )->willReturn( $user_connected );
+		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
+		$manager->expects( $expect_switch ? $this->once() : $this->never() )
+			->method( 'update_connection_owner' )
+			->with( $user_id )
+			->willReturn( $owner_update );
+
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		try {
+			$result = $manager->authorize(
+				array(
+					'state'     => (string) $user_id,
+					'code'      => 'authorization_code',
+					'auth_type' => $auth_type,
+				)
+			);
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+		}
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for test_authorize_broken_owner_slot.
+	 *
+	 * @return array
+	 */
+	public static function provide_authorize_broken_owner_slot() {
+		return array(
+			'admin takes a transferable broken slot'     => array( 'administrator', false, true, true, true, 'authorized' ),
+			'locked ownership links'                     => array( 'administrator', true, true, false, true, 'linked' ),
+			'healthy owner links'                        => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
+			'stale error, healthy owner links'           => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
+			'user without jetpack_connect links'         => array( 'editor', false, true, false, true, 'linked' ),
+			'failed WordPress.com switch links'          => array( 'administrator', false, true, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
+			'browser client flow takes the slot'         => array( 'administrator', false, true, true, true, 'authorized', 'client' ),
+			'broken owner reconnecting is no switch'     => array( 'administrator', false, true, false, true, 'linked', 'calypso', true ),
+			'cleared error, unhealthy owner switches'    => array( 'administrator', false, false, true, true, 'authorized', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ) ),
+			'cleared error, inconclusive check links'    => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, false ),
+			'cleared error, no user token verdict links' => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'blog_token' => array( 'is_healthy' => true ) ) ),
+			'admin with a token of their own links'      => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ), true ),
 		);
 	}
 

@@ -148,6 +148,9 @@ const requiresProtectedOwner = ( state = null ) => state;
 
 const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
+// Server-decided too, so a pass-through for the same reason.
+const isOwnershipTransferable = ( state = null ) => state;
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -179,6 +182,7 @@ const reducers = combineReducers( {
 	hasProtectedOwner,
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
+	isOwnershipTransferable,
 	connectionErrors,
 	isOfflineMode,
 } );
