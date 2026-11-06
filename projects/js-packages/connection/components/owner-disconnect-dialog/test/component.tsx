@@ -33,7 +33,7 @@ describe( 'OwnerDisconnectDialog', () => {
 		onClose: jest.fn(),
 	};
 
-	const dialogName = 'Disconnect Owner Account';
+	const dialogName = 'Disconnect owner account';
 
 	beforeEach( () => {
 		jest.clearAllMocks();

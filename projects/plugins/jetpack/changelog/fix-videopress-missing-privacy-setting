@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix a warning and incorrect poster loading when a video has no saved privacy setting.

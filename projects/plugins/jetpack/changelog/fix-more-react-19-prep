@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: React 19 removed Legacy Context, which means a mock is getting passed undefined rather than an empty object, and `expect.anything()` doesn't match undefined. Adjust the expectation depending on the React version being tested against.
-
-

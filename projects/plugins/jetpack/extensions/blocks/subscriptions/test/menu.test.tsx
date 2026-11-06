@@ -81,14 +81,14 @@ describe( 'NewsletterMenu', () => {
 		expect( screen.queryByRole( 'button', { name: 'Send test email' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'warns and hides the email buttons when emails are turned off', () => {
+	it( 'warns but still shows the email buttons when emails are turned off', () => {
 		mockPost( { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } } );
 
 		render( <NewsletterMenu openPreviewModal={ jest.fn() } /> );
 
 		expect( screen.getByText( 'Newsletter emails are turned off' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Preview email' } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Send test email' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Preview email' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Send test email' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the affirmation instead of the toggle and categories once published', () => {

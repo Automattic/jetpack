@@ -26,7 +26,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.4';
+	const PACKAGE_VERSION = '0.1.7';
 
 	/**
 	 * Namespaced section identifier. Its slug, `ads`, keys the section's URL and stored layouts.
@@ -109,8 +109,8 @@ class Analytics_Dashboard {
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 3, 2 ),
-			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 3, 1 ),
+			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 'full', 2 ),
+			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 'full', 1 ),
 			get_dashboard_default_widget_instance( 'default-wordads-earnings-history-widget-instance', self::EARNINGS_HISTORY_TYPE, 2, 1, 2 ),
 		);
 	}

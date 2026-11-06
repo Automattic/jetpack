@@ -72,8 +72,8 @@ const useStatsVisits = ( blogID: string, isEnabled: boolean, options: StatsVisit
 			query: { path: endpoint() },
 			options: {
 				enabled: isEnabled,
-				gcTime: 5000,
-				refetchOnMount: 'always',
+				gcTime: 60_000,
+				staleTime: 60_000,
 			},
 		} );
 

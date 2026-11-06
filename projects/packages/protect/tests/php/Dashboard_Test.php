@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -44,6 +45,10 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_actions( 'add_option_' . Scan_Status::OPTION_NAME );
+		remove_all_actions( 'update_option_' . Scan_Status::OPTION_NAME );
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
 		\Jetpack_Options::delete_option( array( 'tos_agreed', 'blog_token', 'user_tokens' ) );
@@ -175,6 +180,42 @@ class Dashboard_Test extends BaseTestCase {
 			apply_filters( 'jetpack_module_configuration_url_' . $module, 'https://example.com/default' )
 		);
 		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
+	}
+
+	/**
+	 * The URL a host sends and the upgrade link that results (null for the default).
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'host plans'      => array( 'https://example.com/plans', 'https://example.com/plans' ),
+			'javascript: URL' => array( 'javascript:alert(1)', null ),
+			'not an array'    => array( null, null ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string|null $url      The URL the host sends, or null to return a non-array.
+	 * @param string|null $expected The resulting link, or null for the unfiltered one.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_can_send_scan_upgrade_elsewhere( $url, $expected ) {
+		$default      = Dashboard::get_scan_upgrade_url();
+		$send_to_host = static function ( $upgrade, $slug ) use ( $url ) {
+			if ( null === $url ) {
+				return '';
+			}
+			return 'protect-dashboard' === $slug ? array_merge( $upgrade, array( 'url' => $url ) ) : $upgrade;
+		};
+		add_filter( 'jetpack_feature_upgrade', $send_to_host, 10, 2 );
+
+		$link = Dashboard::get_scan_upgrade_url();
+		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
+
+		$this->assertSame( $expected ?? $default, $link );
 	}
 
 	public function test_init_announces_the_dashboard() {
@@ -415,7 +456,7 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Whether the site agreed to the terms, whether it is offline, and whether the Tracks script loads.
+	 * Whether the site agreed to the terms, whether it is offline, and whether Tracks is allowed.
 	 *
 	 * @return array[]
 	 */
@@ -432,16 +473,20 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param bool $agreed   Whether the site agreed to the terms of service.
 	 * @param bool $offline  Whether Jetpack is in offline mode.
-	 * @param bool $expected Whether the Tracks script loads.
+	 * @param bool $expected Whether the Tracks script loads and the page may record.
 	 */
 	#[DataProvider( 'provide_tracking_states' )]
-	public function test_tracks_script_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+	public function test_tracks_loads_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
 		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
 		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
 
 		Dashboard::enqueue_tracks_transport();
+		ob_start();
+		Dashboard::print_tracks_state();
+		$printed = ob_get_clean();
 
 		$this->assertSame( $expected, wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertSame( $expected, false !== strpos( $printed, 'window.jetpackProtectTracks = true;' ) );
 	}
 
 	/**
@@ -501,5 +546,46 @@ class Dashboard_Test extends BaseTestCase {
 		$data = Dashboard::add_tracks_identity( array( 'user' => array( 'current_user' => array( 'wpcom' => $wpcom ) ) ) );
 
 		$this->assertSame( $expected, $data['user']['current_user']['wpcom'] );
+	}
+
+	/**
+	 * Whether a scan stored after the fix failed, and which fixes stay recorded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_stored_scans() {
+		return array(
+			'a first completed scan clears the fix' => array( false, false, array() ),
+			'a first failed scan keeps it'          => array( true, false, array( '1' ) ),
+			'a later completed scan clears the fix' => array( false, true, array() ),
+			'a later failed scan keeps it'          => array( true, true, array( '1' ) ),
+		);
+	}
+
+	/**
+	 * Test that storing a completed scan clears the fixes it answers for, even before anything reads it.
+	 *
+	 * @dataProvider provide_stored_scans
+	 *
+	 * @param bool     $failed   Whether the stored scan failed.
+	 * @param bool     $replaces Whether an earlier scan is already stored, so update_option fires instead of add_option.
+	 * @param string[] $expected Ids still recorded.
+	 */
+	#[DataProvider( 'provide_stored_scans' )]
+	public function test_storing_a_scan_prunes_recorded_fixes( $failed, $replaces, $expected ) {
+		if ( $replaces ) {
+			update_option( Scan_Status::OPTION_NAME, maybe_serialize( (object) array( 'most_recent' => (object) array( 'timestamp' => gmdate( 'c', time() - DAY_IN_SECONDS ) ) ) ) );
+		}
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		$scan = (object) array(
+			'most_recent' => (object) array(
+				'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+				'error'     => $failed,
+			),
+		);
+
+		Scan_Status::update_status_option( $scan );
+
+		$this->assertSame( $expected, array_map( 'strval', array_keys( Dashboard_Threats::get_resolved() ) ) );
 	}
 }

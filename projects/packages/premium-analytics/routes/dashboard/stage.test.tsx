@@ -54,10 +54,12 @@ let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
+const mockStepDateRange = jest.fn();
 let mockDateFiltersPanelProps: {
 	onChange: ( ...args: unknown[] ) => void;
 	onComparisonChange: ( ...args: unknown[] ) => void;
 	onApply: () => void;
+	stepping: { onStep: ( direction: 'previous' | 'next' ) => unknown };
 };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 const mockUseTrackedDateRangeApply = jest.fn<
@@ -96,7 +98,10 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 		<div role={ role }>{ children }</div>
 	);
 
-	return { Stack, VisuallyHidden };
+	const JetpackFooter = () => <footer>Jetpack footer</footer>;
+	const Icon = () => null;
+
+	return { Icon, JetpackFooter, Stack, VisuallyHidden };
 } );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -110,6 +115,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		onComparisonChange: mockChangeComparison,
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
+		stepping: { canStepBackward: true, canStepForward: true, onStep: mockStepDateRange },
 	} ),
 } ) );
 
@@ -140,28 +146,17 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
-	// Forwards the ref and marks the notice slot, since the stage relies on
-	// both: the ref feeds the year surface's measurement, and the notice's
-	// place in the slot is asserted below.
+	// Forwards the ref, which feeds the year surface's measurement.
 	SectionHeader: jest
 		.requireActual< typeof import( 'react' ) >( 'react' )
-		.forwardRef(
-			(
-				{ children, notice }: { children: ReactNode; notice?: ReactNode },
-				ref: ForwardedRef< HTMLDivElement >
-			) => (
-				<div ref={ ref }>
-					<div>{ children }</div>
-					<div data-testid="section-header-notice">{ notice }</div>
-				</div>
-			)
-		),
+		.forwardRef( ( { children }: { children: ReactNode }, ref: ForwardedRef< HTMLDivElement > ) => (
+			<div ref={ ref }>{ children }</div>
+		) ),
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
 			<div>{ children }</div>
 		) : null,
 	StatsBreadcrumbs: () => null,
-	StatsPageIcon: () => null,
 } ) );
 
 const mockTrackCustomize = {
@@ -373,7 +368,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		</div>
 	);
 
-	return { WidgetDashboard };
+	return { WidgetDashboard, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
 
 jest.mock( './components', () => ( {
@@ -454,7 +449,6 @@ jest.mock( './config', () => {
 
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
-	useDashboardGridSettings: () => [ {} ],
 	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: jest.fn( () => [ [], jest.fn(), mockResetLayout ] ),
 	useDashboardSections: jest.fn(),
@@ -478,6 +472,11 @@ beforeEach( () => {
 	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
 	useDashboardPolicyMock.mockImplementation( () => () => true );
 	useDashboardSectionLayoutMock.mockImplementation( () => [ [], jest.fn(), mockResetLayout ] );
+	mockUseTrackedDateRangeApply.mockImplementation( () => ( {
+		trackedOnChange: () => {},
+		trackedOnApply: () => {},
+	} ) );
+	mockStepDateRange.mockReturnValue( undefined );
 	mockDashboardProps = {};
 } );
 
@@ -539,6 +538,18 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 
 beforeEach( () => {
 	jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+} );
+
+describe( 'Dashboard page', () => {
+	it( 'ends the page with the Jetpack footer', () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
+		mockActiveSectionSlug = 'insights';
+		mockSection();
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'Jetpack footer' ) ).toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard report scope', () => {
@@ -807,7 +818,7 @@ describe( 'Dashboard refresh-failure notice', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
-	it( 'pins one notice in the section header band, however many sections there are', () => {
+	it( 'renders one notice in the section body, however many sections there are', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
 				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
@@ -822,9 +833,11 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// Through the header's slot, so it pins with the band rather than
-		// scrolling away among the widgets.
-		expect( screen.getByTestId( 'section-header-notice' ) ).toContainElement( notices[ 0 ] );
+		// The page's notice, not the header's: it scrolls with the widgets.
+		// eslint-disable-next-line testing-library/no-node-access -- The section body has no accessible query target.
+		expect( screen.getByTestId( 'dashboard-notices' ).parentElement ).toContainElement(
+			notices[ 0 ]
+		);
 	} );
 } );
 
@@ -1171,6 +1184,53 @@ describe( 'Dashboard header date control', () => {
 		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
 			'last-30-days'
 		);
+	} );
+
+	it( 'tracks a step from the header as an applied range, leaving the remembered preset alone', () => {
+		const trackedOnChange = jest.fn();
+		const trackedOnApply = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply } );
+		mockStepDateRange.mockReturnValue( {
+			range: JULY_2026,
+			presetId: 'last-month',
+			interval: 'week',
+		} );
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.stepping.onStep( 'previous' );
+		} );
+
+		expect( mockStepDateRange ).toHaveBeenCalledWith( 'previous' );
+		// The interval the step kept, which the preset's own default would misreport.
+		expect( trackedOnChange ).toHaveBeenCalledWith( JULY_2026, 'last-month', {
+			exactRange: true,
+			interval: 'week',
+		} );
+		expect( trackedOnApply ).toHaveBeenCalledTimes( 1 );
+		// Last 12 months → Previous → Next lands on the year to date in December;
+		// remembering that would open January on a few days.
+		expect(
+			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' )
+		).toBeUndefined();
+	} );
+
+	it( 'neither tracks nor remembers a step the filters refused', () => {
+		const trackedOnChange = jest.fn();
+		mockUseTrackedDateRangeApply.mockReturnValue( { trackedOnChange, trackedOnApply: jest.fn() } );
+		mockStepDateRange.mockReturnValue( undefined );
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.stepping.onStep( 'previous' );
+		} );
+
+		expect( trackedOnChange ).not.toHaveBeenCalled();
+		expect(
+			select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' )
+		).toBeUndefined();
 	} );
 
 	it( 'applies and remembers No comparison picked from the header', () => {

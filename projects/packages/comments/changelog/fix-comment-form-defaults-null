@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix fatal errors when another plugin or theme returns an empty value from a comment form or comment content filter.

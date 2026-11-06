@@ -56,6 +56,13 @@ function getBackupConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 		},
+		checkoutPending: {
+			title: __( 'Setting up backups', 'jetpack-mu-wpcom' ),
+			description: __(
+				'Thanks for upgrading! Backups will be ready in a few moments.',
+				'jetpack-mu-wpcom'
+			),
+		},
 		UpgradeExtra: RevertedTransferDownload,
 		modal: {
 			blockedTitle: __( 'Backups cannot be activated', 'jetpack-mu-wpcom' ),

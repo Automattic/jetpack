@@ -66,7 +66,7 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 }
 
 /**
- * Symlinks a wpcom theme.
+ * Creates a theme's symlink. To install a theme, use wpcomsh_install_managed_theme(), which also handles its parent.
  *
  * @param string $theme_slug Theme slug.
  * @param string $theme_type Type of theme.
@@ -89,6 +89,9 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
 		$theme_read_path    = WPCOMSH_PREMIUM_THEMES_PATH . "/$theme_slug";
 		$theme_symlink_path = WPCOMSH_PREMIUM_THEMES_SYMLINK . "/$theme_slug";
+	} elseif ( WPCOMSH_MANAGED_THEME_TYPE === $theme_type ) {
+		$theme_read_path    = THEMES_PATH_BASE . "/$theme_slug/latest";
+		$theme_symlink_path = THEMES_SYMLINK_BASE . "/$theme_slug/latest";
 	}
 
 	if ( file_exists( $theme_read_path ) && symlink( $theme_symlink_path, $theme_link_to_path ) ) {
@@ -101,6 +104,55 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	error_log( 'WPComSH: ' . $debug_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
 	return new WP_Error( 'error_symlinking_theme', $error_message );
+}
+
+/**
+ * Installs a theme WP Cloud manages by symlinking it, and its parent if it is a child theme.
+ *
+ * @param string $theme_slug Theme slug.
+ * @param string $theme_type Type of theme.
+ *
+ * @return true|\WP_Error
+ */
+function wpcomsh_install_managed_theme( $theme_slug, $theme_type ) {
+	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
+		error_log( "WPComSH: WP.com theme with slug: {$theme_slug} is already installed/symlinked." ); //phpcs:ignore
+
+		return new WP_Error( 'wpcom_theme_already_installed', 'The WP.com theme is already installed/symlinked.' );
+	}
+
+	$was_theme_symlinked = wpcomsh_symlink_theme( $theme_slug, $theme_type );
+
+	if ( is_wp_error( $was_theme_symlinked ) ) {
+		return $was_theme_symlinked;
+	}
+
+	wpcomsh_delete_theme_cache( $theme_slug );
+
+	// If the installed WPCom theme is a child theme, we need to symlink its parent theme as well, unless a working copy is already there.
+	if (
+		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
+		wp_get_theme( wp_get_theme( $theme_slug )->get_template() )->errors()
+	) {
+		$was_parent_theme_symlinked = wpcomsh_symlink_parent_theme( $theme_slug );
+
+		if ( true !== $was_parent_theme_symlinked ) {
+			// Without its parent the child is broken, and leaving it would make a retry report it as already installed.
+			wpcomsh_delete_symlinked_theme( $theme_slug );
+			wpcomsh_delete_theme_cache( $theme_slug );
+
+			return new WP_Error( 'wpcom_theme_installation_failed', "Can't install specified WP.com theme. Check error log for more details." );
+		}
+	}
+
+	/**
+	 * Fires after a WP.com theme has been installed by symlink.
+	 *
+	 * @param string $theme_slug Theme slug.
+	 */
+	do_action( 'wpcomsh_wpcom_theme_installed', $theme_slug );
+
+	return true;
 }
 
 /**
@@ -164,10 +216,17 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
  * @return false|string Theme type or false if not a wpcom theme.
  */
 function wpcomsh_get_wpcom_theme_type( $theme_slug ) {
+	// The slug becomes a path, so one that leaves its folder would match a WP Cloud directory that isn't a theme.
+	if ( ! is_string( $theme_slug ) || '' === $theme_slug || '.' === $theme_slug[0] || false !== strpos( $theme_slug, '/' ) ) {
+		return false;
+	}
+
 	if ( wpcomsh_is_wpcom_premium_theme( $theme_slug ) ) {
 		return WPCOMSH_PREMIUM_THEME_TYPE;
 	} elseif ( wpcomsh_is_wpcom_pub_theme( $theme_slug ) ) {
 		return WPCOMSH_PUB_THEME_TYPE;
+	} elseif ( file_exists( THEMES_PATH_BASE . "/$theme_slug/latest" ) ) {
+		return WPCOMSH_MANAGED_THEME_TYPE;
 	}
 
 	return false;

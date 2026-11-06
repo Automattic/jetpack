@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a "What's new in Jetpack?" section with recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on.

@@ -1,7 +1,3 @@
-.item {
-	block-size: 100%;
-}
-
 .value {
 	display: flex;
 	align-items: center;
@@ -28,10 +24,19 @@
 
 .links {
 	margin-block-start: auto;
-	padding-block-start: var(--spacing-base);
 
 	> * + * {
 		padding-inline-start: var(--spacing-base);
 		border-inline-start: 1px solid var(--jp-gray-10);
 	}
+}
+
+.locked {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--spacing-base) / 2);
+	// Otherwise the icon sets the baseline and lifts the label off its row.
+	vertical-align: top;
+	// A link's underline does not reach into an inline-flex box.
+	text-decoration: inherit;
 }

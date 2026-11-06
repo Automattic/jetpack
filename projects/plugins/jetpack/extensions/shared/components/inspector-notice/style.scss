@@ -1,9 +1,9 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .jetpack-inspector-notice {
 	padding: 24px;
 	margin: 24px 16px;
-	background: gb.$gray-100;
+	background: colors.$gray-100;
 	border-radius: 4px;
 	display: flex;
 	align-items: center;

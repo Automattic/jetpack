@@ -361,7 +361,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
+	const { syncChapters } = useUpdateChapters( 'dashboard_details' );
 	const { mutateAsync: deleteVideo, isPending: isDeleting } = useDeleteVideo();
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
@@ -409,7 +409,7 @@ const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 		// Promise chain rather than mutate-level callbacks: those are
 		// dropped when the component unmounts mid-flight, which would
 		// orphan the explicitDismiss notice above forever.
-		deleteVideo( Number( video.id ) )
+		deleteVideo( [ { id: video.id, type: video.type } ] )
 			.then( () => {
 				createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
 					id: deletingNoticeId( video.id ),
@@ -556,7 +556,7 @@ const StageInner = () => {
 };
 
 const Stage = () => (
-	<QueryClientWrapper>
+	<QueryClientWrapper route="video">
 		<StageInner />
 	</QueryClientWrapper>
 );

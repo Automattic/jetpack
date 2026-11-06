@@ -160,7 +160,7 @@ const connectionErrors = ( state = {}, action ) => {
 const isOfflineMode = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_IS_OFFLINE_MODE:
-			return action.isConnecting;
+			return action.isOfflineMode;
 	}
 
 	return state;

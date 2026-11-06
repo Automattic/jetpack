@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Declare Node types for the node:test files instead of relying on a dependency to pull them in.
+
+

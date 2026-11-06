@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Count playlist publication analytics after an acknowledged save.

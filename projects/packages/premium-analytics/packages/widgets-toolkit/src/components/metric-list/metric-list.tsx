@@ -16,6 +16,8 @@ export type MetricListItem = {
 	id: string | number;
 	/** Row label, including optional links. */
 	label: ReactNode;
+	/** An action beside the label, shown when the row is hovered or holds focus. */
+	action?: ReactNode;
 	/** Formatted value, or one per value column. */
 	value: ReactNode | ReactNode[];
 };
@@ -106,7 +108,10 @@ export function MetricList( {
 						// Keep clipped links out of the focus order and accessibility tree.
 						hidden={ index >= visibleCount }
 					>
-						<span className={ styles.label }>{ item.label }</span>
+						<span className={ styles.label }>
+							<span className={ styles.labelText }>{ item.label }</span>
+							{ item.action && <span className={ styles.action }>{ item.action }</span> }
+						</span>
 						{ toCells( item.value ).map( ( cell, cellIndex ) => (
 							<span key={ cellIndex } className={ styles.value }>
 								{ cell }

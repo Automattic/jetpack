@@ -70,6 +70,11 @@ export type ReportActionsOptions< TItem, TRow > = {
 	 * The linked report's CSV download, offered once the widget's rows settle.
 	 */
 	csv?: ReportCsvActionOptions< TItem, TRow >;
+
+	/**
+	 * The widget's own actions, placed after the link and before the download.
+	 */
+	actions?: WidgetRuntimeAction[];
 };
 
 const SETTLED_EMPTY: ReportCsvExportStatus = {
@@ -91,6 +96,7 @@ const SETTLED_EMPTY: ReportCsvExportStatus = {
  * @param options.label     - Link label.
  * @param options.relevance - Where the host places the link.
  * @param options.csv       - The CSV download; none for no download.
+ * @param options.actions   - The widget's own actions.
  * @return Whether the host places the actions.
  */
 export function useReportActions< TItem, TRow >( {
@@ -100,6 +106,7 @@ export function useReportActions< TItem, TRow >( {
 	label,
 	relevance = 'high',
 	csv,
+	actions: widgetActions = [],
 }: ReportActionsOptions< TItem, TRow > ): boolean {
 	const search = useWidgetNavigationSearch( { section } );
 	const download = useExporterCsvAction( {
@@ -120,6 +127,8 @@ export function useReportActions< TItem, TRow >( {
 			href: buildDashboardHref( `/reports/${ report }`, search ),
 		} );
 	}
+
+	actions.push( ...widgetActions );
 
 	if ( download ) {
 		actions.push( { ...download, relevance: 'medium' } );
