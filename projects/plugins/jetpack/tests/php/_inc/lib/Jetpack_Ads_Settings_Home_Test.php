@@ -26,6 +26,13 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
 	);
 
+	const ALL_ON = array(
+		'consolidation' => true,
+		'monetize'      => true,
+		'active'        => true,
+		'connected'     => true,
+	);
+
 	/**
 	 * Active modules before the test.
 	 *
@@ -51,6 +58,9 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG );
 		remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+		wp_dequeue_script( 'jp-tracks' );
+		Jetpack_Options::delete_option( 'tos_agreed' );
 		Jetpack_Options::update_option( 'active_modules', $this->active_modules );
 		unset( $_GET['page'] );
 		Constants::clear_constants();
@@ -64,11 +74,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * @return array[]
 	 */
 	public static function provide_sites() {
-		$all_on = array(
-			'consolidation' => true,
-			'monetize'      => true,
-			'active'        => true,
-		);
+		$all_on = self::ALL_ON;
 
 		return array(
 			'self-hosted, all on'                    => array( $all_on, 'monetize' ),
@@ -77,6 +83,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 			'Monetize flag off, module still in the active list' => array( array( 'monetize' => false ) + $all_on, null ),
 			'monetize module inactive'               => array( array( 'active' => false ) + $all_on, null ),
 			'offline mode, all on'                   => array( $all_on + array( 'offline' => true ), null ),
+			'disconnected, all on'                   => array( array( 'connected' => false ) + $all_on, null ),
 			'Atomic, consolidation on, Monetize off' => array(
 				array(
 					'consolidation' => true,
@@ -113,13 +120,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * Every configure_url reader, My Jetpack › Features included, follows the move.
 	 */
 	public function test_configure_url_follows_the_ads_home() {
-		$this->arrange(
-			array(
-				'consolidation' => true,
-				'monetize'      => true,
-				'active'        => true,
-			)
-		);
+		$this->arrange( self::ALL_ON );
 		$this->assertSame( self::expected_url( 'monetize' ), Jetpack::module_configuration_url( 'wordads' ) );
 
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG );
@@ -130,13 +131,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * The tab's payload is printed on the Monetize page only; the home's URL everywhere.
 	 */
 	public function test_dashboard_payload_only_on_the_monetize_page() {
-		$this->arrange(
-			array(
-				'consolidation' => true,
-				'monetize'      => true,
-				'active'        => true,
-			)
-		);
+		$this->arrange( self::ALL_ON );
 
 		$data = Jetpack_Ads_Settings_Home::add_script_data( array() );
 		$this->assertSame( self::expected_url( 'monetize' ), $data['monetize']['adsSettingsUrl'] );
@@ -144,9 +139,26 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 
 		$_GET['page'] = 'jetpack-monetize';
 		$payload      = Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings'];
-		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'upgradeUrl', 'earningsUrl', 'isSubdirectorySite' ), array_keys( $payload ) );
+		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'upgradeUrl', 'earningsUrl', 'isSubdirectorySite', 'moduleOverride', 'tracks' ), array_keys( $payload ) );
 		$this->assertStringContainsString( 'source=calypso-stats-ads-day', $payload['earningsUrl'] );
 		$this->assertStringContainsString( 'source=jetpack-creator-cta', $payload['upgradeUrl'] );
+	}
+
+	/**
+	 * The tab's events reach Tracks only when the site and user allow it, as on Jetpack's other pages.
+	 */
+	public function test_tracks_load_on_the_tab_only_with_consent() {
+		$this->arrange( self::ALL_ON );
+		$_GET['page'] = 'jetpack-monetize';
+
+		Jetpack_Ads_Settings_Home::enqueue_tracks_transport();
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertFalse( Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings']['tracks'] );
+
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		Jetpack_Ads_Settings_Home::enqueue_tracks_transport();
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertTrue( Jetpack_Ads_Settings_Home::add_script_data( array() )['monetize']['adsSettings']['tracks'] );
 	}
 
 	/**
@@ -177,6 +189,9 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		}
 		if ( ! empty( $site['offline'] ) ) {
 			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+		if ( ! empty( $site['connected'] ) ) {
+			add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		}
 	}
 

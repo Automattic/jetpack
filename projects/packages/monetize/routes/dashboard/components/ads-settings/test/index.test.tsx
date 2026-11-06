@@ -21,6 +21,8 @@ const DATA: AdsSettingsData = {
 	upgradeUrl: 'https://jetpack.com/redirect/?source=jetpack-creator-cta&site=1',
 	earningsUrl: 'https://jetpack.com/redirect/?source=calypso-stats-ads-day&site=1',
 	isSubdirectorySite: false,
+	moduleOverride: false,
+	tracks: true,
 };
 
 const VALUES = {
@@ -82,6 +84,15 @@ describe( 'AdsSettings', () => {
 			'href',
 			DATA.upgradeUrl
 		);
+	} );
+
+	it( 'locks the Ads switch the host forces, and says why', () => {
+		renderTab( { moduleOverride: 'active' } );
+
+		expect(
+			screen.getByRole( 'switch', { name: 'Enable ads and display an ad below each post' } )
+		).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
 	} );
 
 	it( 'disables the placements while ads are off', () => {

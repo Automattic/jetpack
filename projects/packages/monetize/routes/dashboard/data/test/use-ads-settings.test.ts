@@ -9,7 +9,10 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	default: { initialize: jest.fn(), tracks: { recordEvent: jest.fn() } },
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( { user: { current_user: { wpcom: { ID: 7, login: 'owner' } } } } ),
+	getScriptData: () => ( {
+		user: { current_user: { wpcom: { ID: 7, login: 'owner' } } },
+		monetize: { adsSettings: { tracks: true } },
+	} ),
 } ) );
 
 const mockedApiFetch = apiFetch as unknown as jest.Mock;

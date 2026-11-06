@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Button, InputControl, Stack, TextareaControl } from '@wordpress/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { AdsOption } from '../../data/use-ads-settings';
 
 interface TextOptionProps {
@@ -45,8 +45,6 @@ export function TextOption( {
 	description,
 }: TextOptionProps ) {
 	const [ draft, setDraft ] = useState( value );
-
-	useEffect( () => setDraft( value ), [ value ] );
 
 	const save = useCallback( () => onSave( name, draft ), [ name, draft, onSave ] );
 

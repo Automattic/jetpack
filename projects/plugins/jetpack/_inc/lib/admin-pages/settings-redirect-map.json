@@ -5,7 +5,6 @@
 		"D2": "Whether Comments' settings (with Gravatar Hovercards and Markdown for comments) get one settings panel or become Features switches, and where the Markdown option goes.",
 		"D3": "Where Site Accelerator's settings go (a settings panel, or Boost's Image CDN), with Tiled Galleries, which follows it.",
 		"D4": "Where Sharing buttons and Likes live (under Jetpack Social, or the Sharing screen they use now).",
-		"D5": "Where the Ads settings live (a page, or they stay on Settings).",
 		"D6": "Where Reader Visibility goes (a Features switch, or Newsletter settings).",
 		"D7": "Where Google Analytics settings go on Atomic (the SEO page, or Stats settings).",
 		"D8": "Where Custom content types are managed (a settings panel, or core Settings > Writing).",
