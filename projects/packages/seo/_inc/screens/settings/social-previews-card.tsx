@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
 import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
 import getSite from '../../data/get-site';
 import { buildDefaultPreview, buildPreview } from '../../data/title-format-tokens';
 import styles from './social-previews-card.module.scss';
@@ -140,6 +141,8 @@ interface Props {
 	frontPageTitleFormat: TitleFormatToken[];
 	/** The site's document-title separator, for the default front-page title. */
 	titleSeparator: string;
+	/** Whether Jetpack's SEO output is paused, so these tags aren't the ones being output. */
+	paused?: boolean;
 }
 
 /**
@@ -161,12 +164,14 @@ interface Props {
  * @param props.description          - The current front-page description.
  * @param props.frontPageTitleFormat - The current Front page title format.
  * @param props.titleSeparator       - The site's document-title separator.
+ * @param props.paused               - Whether Jetpack's SEO output is paused.
  * @return The search/social previews card, or null.
  */
 const SocialPreviewsCard: FC< Props > = ( {
 	description,
 	frontPageTitleFormat,
 	titleSeparator,
+	paused = false,
 } ) => {
 	const site = getSite();
 
@@ -188,6 +193,7 @@ const SocialPreviewsCard: FC< Props > = ( {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="xl">
+					{ paused && <PausedNote /> }
 					<Text variant="body-md" render={ <p /> }>
 						{ __(
 							'How your home page looks in search results and social shares. Updates as you edit the front-page title structure and description above.',

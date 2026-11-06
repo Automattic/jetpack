@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+List the selected threats a bulk Auto-fix leaves out, since each needs its own confirmation.

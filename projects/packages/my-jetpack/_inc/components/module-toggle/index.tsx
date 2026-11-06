@@ -1,8 +1,8 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
-import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { Switch } from '@wordpress/ui';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
 	asksBeforeSwitchingOff,
@@ -23,7 +23,6 @@ import { setPendingSuccessNotice } from '../../utils/pending-notice';
 import { reloadPage } from '../../utils/reload-page';
 import SecondaryButton from '../action-button/secondary-button';
 import { BlazeCampaignsWarning } from './blaze-campaigns-warning';
-import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
@@ -268,10 +267,6 @@ export function ModuleToggle( {
 	} );
 	const blockThemeMigration = getBlockThemeMigration( $module );
 
-	const onChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
-		[ setModuleActive ]
-	);
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
 	if ( blockThemeMigration ) {
@@ -298,10 +293,10 @@ export function ModuleToggle( {
 
 	return (
 		<>
-			<FormToggle
+			<Switch
 				disabled={ disabled || isUpdating || !! $module.override }
 				checked={ isActive }
-				onChange={ onChange }
+				onCheckedChange={ setModuleActive }
 				aria-label={
 					labelledby
 						? undefined

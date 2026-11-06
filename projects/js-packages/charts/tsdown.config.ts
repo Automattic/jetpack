@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
-import lightningcssDsTokenFallbacks from '@wordpress/theme/lightningcss-plugins/lightningcss-ds-token-fallbacks';
+import lightningcssDsTokenFallbacks from '@wordpress/theme-build-tools/lightningcss-plugins/lightningcss-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
 import { assertChartsScopeEmitted } from './tools/assert-charts-scope-emitted.ts';
 import { assertNoDynamicRequire } from './tools/assert-no-dynamic-require.ts';

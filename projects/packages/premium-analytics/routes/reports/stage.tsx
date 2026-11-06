@@ -20,6 +20,7 @@ import { useStatsDateLimits } from '../use-stats-date-limits';
 import { LockedReportPage } from './locked-report-page';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
+import { getReportPageLoader } from './report-page-loaders';
 import styles from './stage.module.scss';
 import type { JSX, ReactNode } from 'react';
 
@@ -55,10 +56,10 @@ function ReportDispatcher(): JSX.Element {
 
 	// `React.lazy` memoizes by component identity, so a fresh `lazy()` per definition is what
 	// lets switching reports mount a different page; `key` below makes the remount explicit.
-	const LazyReport = useMemo(
-		() => ( definition && ! lockedFeature ? lazy( definition.load ) : null ),
-		[ definition, lockedFeature ]
-	);
+	const LazyReport = useMemo( () => {
+		const load = definition && ! lockedFeature ? getReportPageLoader( definition.id ) : undefined;
+		return load ? lazy( load ) : null;
+	}, [ definition, lockedFeature ] );
 
 	// The report's page is never loaded, so neither are its requests.
 	if ( definition && lockedFeature ) {
