@@ -186,14 +186,20 @@ class Viewer_History {
 				return $a[0] - $b[0];
 			}
 		);
-		$merged = array();
+		$merged  = array();
+		$current = null;
 		foreach ( $clean as $interval ) {
-			$last = count( $merged ) - 1;
-			if ( $last >= 0 && $interval[0] <= $merged[ $last ][1] ) {
-				$merged[ $last ][1] = max( $merged[ $last ][1], $interval[1] );
-			} else {
-				$merged[] = $interval;
+			if ( null !== $current && $interval[0] <= $current[1] ) {
+				$current[1] = max( $current[1], $interval[1] );
+				continue;
 			}
+			if ( null !== $current ) {
+				$merged[] = $current;
+			}
+			$current = $interval;
+		}
+		if ( null !== $current ) {
+			$merged[] = $current;
 		}
 		return array_slice( $merged, 0, self::MAX_INTERVALS );
 	}
