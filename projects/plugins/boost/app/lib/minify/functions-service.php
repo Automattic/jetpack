@@ -43,8 +43,9 @@ function jetpack_boost_handle_minify_request( $request_uri ) {
 			$cache_dir       = Config::get_static_cache_dir_path();
 			$cache_file_path = $cache_dir . '/' . $file_parts['file_name'] . '.min.' . $file_parts['file_extension'];
 
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			file_put_contents( $cache_file_path, $content );
+			if ( jetpack_boost_page_optimize_cache_has_room( $cache_dir . '/*.min.*', strlen( $content ) ) ) {
+				jetpack_boost_page_optimize_write_cache_file( $cache_file_path, $content );
+			}
 		}
 	}
 }
@@ -185,7 +186,6 @@ function jetpack_boost_minify_remove_stale_static_files() {
 }
 
 function jetpack_boost_build_minify_output( $request_uri ) {
-	$utils                             = new Utils();
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	// Config
@@ -193,11 +193,12 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 	$concat_unique    = true;
 
 	$file_parts = jetpack_boost_minify_get_file_parts( $request_uri );
-	if ( ! $file_parts ) {
+	// This route has only ever been given stored IDs, so it needs none of the older URL forms.
+	if ( ! $file_parts || ! File_Paths::is_id( $file_parts['file_name'] ) ) {
 		jetpack_boost_page_optimize_status_exit( 404 );
 	}
 
-	$file_paths = jetpack_boost_page_optimize_get_file_paths( $file_parts['file_name'] );
+	$file_paths = jetpack_boost_page_optimize_get_issued_list( $file_parts['file_name'] )->get_paths();
 
 	// file_paths contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
 	if ( count( $file_paths ) > $concat_max_files ) {
@@ -208,13 +209,7 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
-	$subdir_path_prefix = '';
-	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
-	$_static_index      = strpos( $request_path, jetpack_boost_get_static_prefix() );
-	if ( $_static_index > 0 ) {
-		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
-	}
-	unset( $request_path, $_static_index );
+	$subdir_path_prefix = jetpack_boost_page_optimize_get_subdir_prefix( $request_uri );
 
 	$last_modified = 0;
 	$pre_output    = '';
@@ -244,6 +239,11 @@ function jetpack_boost_build_minify_output( $request_uri ) {
 			if ( $last_mime_type !== $mime_type ) {
 				jetpack_boost_page_optimize_status_exit( 400 );
 			}
+		}
+
+		// The web server serves the stored file by its extension, so that must match the list.
+		if ( $jetpack_boost_page_optimize_types[ $file_parts['file_extension'] ] !== $mime_type ) {
+			jetpack_boost_page_optimize_status_exit( 404 );
 		}
 
 		$stat = stat( $fullpath );
@@ -379,10 +379,12 @@ function jetpack_boost_minify_get_file_parts( $request_uri ) {
 		return false;
 	}
 
-	// The base name (without the extension) might contain ".min".
-	// Example - 777873a36e.min
+	// Boost only links to <id>.min.<ext>, so any other name would rebuild on every request.
 	$file_name_parts = explode( '.', $file_info['basename'] );
 	$file_name       = $file_name_parts[0];
+	if ( $file_info['basename'] !== $file_name . '.min.' . $file_info['extension'] ) {
+		return false;
+	}
 
 	return array(
 		'file_name'      => $file_name,
