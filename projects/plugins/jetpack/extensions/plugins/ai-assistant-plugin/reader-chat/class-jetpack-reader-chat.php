@@ -125,7 +125,7 @@ class Jetpack_Reader_Chat {
 		 *
 		 * @param array $query_filter Elasticsearch filter clause. Default empty.
 		 */
-		$query_filter = apply_filters( 'jetpack_reader_chat_query_filter', array() );
+		$query_filter = apply_filters( 'jetpack_site_chat_query_filter', array() );
 
 		$encoded = is_array( $query_filter ) && $query_filter ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
 		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
