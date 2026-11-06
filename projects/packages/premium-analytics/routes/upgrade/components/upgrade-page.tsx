@@ -106,7 +106,6 @@ export function UpgradePage(): JSX.Element {
 		from: 'jetpack_premium_analytics_upsell',
 		redirectUri: upgradePath,
 	} );
-	// The connection store never clears its own "connecting" flag when the flow fails to start.
 	const [ connectState, setConnectState ] = useState< 'idle' | 'connecting' | 'failed' >( 'idle' );
 	const connectUser = useCallback( () => {
 		setConnectState( 'connecting' );

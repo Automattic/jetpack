@@ -18,22 +18,24 @@ const mockConnection: {
 	userIsConnecting: boolean;
 	isRegistered: boolean;
 	isUserConnected: boolean;
-	registrationError: Record< string, unknown > | false;
+	connectError: Record< string, unknown > | false;
 } = {
 	handleRegisterSite: jest.fn(),
 	siteIsRegistering: false,
 	userIsConnecting: false,
 	isRegistered: false,
 	isUserConnected: false,
-	registrationError: false,
+	connectError: false,
 };
 
 const mockUseConnection = jest.fn( () => mockConnection );
+const mockErrorSummary = jest.fn< string | undefined, [] >();
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
+	getRegistrationErrorSummary: () => mockErrorSummary(),
 } ) );
 
 const mockRecordEvent = jest.fn();
@@ -85,7 +87,8 @@ beforeEach( () => {
 	mockConnection.userIsConnecting = false;
 	mockConnection.isRegistered = false;
 	mockConnection.isUserConnected = false;
-	mockConnection.registrationError = false;
+	mockConnection.connectError = false;
+	mockErrorSummary.mockReset();
 } );
 
 /**
@@ -260,17 +263,14 @@ describe( 'Wizard start screen', () => {
 			)
 		);
 
-		mockConnection.registrationError = error;
+		mockConnection.connectError = error;
 		refresh();
 
 		// It does not advance, and the button comes back so they can retry.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		// A sentence first, the server's own words second.
-		expect(
-			screen.getByText( 'We could not connect this site. Please try again.' )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Site is inaccessible (Status 403)' ) ).toBeInTheDocument();
 
 		// The message interpolates the server's prose; only the code is reported.
@@ -280,22 +280,34 @@ describe( 'Wizard start screen', () => {
 		);
 	} );
 
-	it( 'reports a hand-off failure too, which never reaches the store', async () => {
+	it( 'reports a hand-off failure and lets the user retry', async () => {
 		// Fetching the authorization URL failed, so `registrationError` stays empty.
-		mockConnection.handleRegisterSite.mockRejectedValue( { message: '', name: 'JsonParseError' } );
+		const error = { message: '', name: 'JsonParseError' };
+		mockConnection.handleRegisterSite.mockRejectedValue( error );
 
-		const { user } = setupWizard();
+		const { user, refresh } = setupWizard();
 
 		await user.click( getStarted() );
 
-		await expect(
-			screen.findByText( 'We could not connect this site. Please try again.' )
-		).resolves.toBeInTheDocument();
-		// No message to show, so the code stands in for it.
-		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_connect_error', {
-			error_code: 'JsonParseError',
-		} );
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_my_jetpack_onboarding_connect_error',
+				{ error_code: 'JsonParseError' }
+			)
+		);
+
+		mockConnection.connectError = error;
+		mockErrorSummary.mockReturnValue( 'The connection request got an unexpected response.' );
+		refresh();
+
+		expect(
+			screen.getByText( 'The connection request got an unexpected response.' )
+		).toBeInTheDocument();
+		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( getStarted() );
+
+		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'names what Jetpack does, one free feature group per row', () => {

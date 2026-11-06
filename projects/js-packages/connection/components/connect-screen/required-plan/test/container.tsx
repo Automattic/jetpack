@@ -2,14 +2,15 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
 const checkoutState: { checkoutError: string | null } = { checkoutError: null };
+const connectionState: { connectError: { name: string } | false } = { connectError: false };
 jest.unstable_mockModule( '../../../use-connection', () => ( {
 	__esModule: true,
 	default: () => ( {
 		handleRegisterSite: jest.fn(),
 		siteIsRegistering: false,
 		userIsConnecting: false,
-		registrationError: null,
 		isOfflineMode: false,
+		...connectionState,
 	} ),
 } ) );
 jest.unstable_mockModule( '../../../../hooks/use-product-checkout-workflow', () => ( {
@@ -32,6 +33,17 @@ const props = {
 };
 
 describe( 'ConnectScreenRequiredPlan container', () => {
+	afterEach( () => {
+		connectionState.connectError = false;
+	} );
+
+	it( 'explains a failed hand-off to WordPress.com', () => {
+		connectionState.connectError = { name: 'Api404Error' };
+		render( <ConnectScreenRequiredPlan { ...props } /> );
+
+		expect( screen.getByText( /REST API couldn’t be reached/ ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows an error when the checkout workflow fails', () => {
 		checkoutState.checkoutError = 'Lookup failed';
 		render( <ConnectScreenRequiredPlan { ...props } /> );
