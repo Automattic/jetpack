@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Protect: Open the Protect page from My Jetpack on WordPress.com sites that have it, rather than WordPress.com's Scan. The `jetpack_feature_upgrade` filter no longer reads `manage_url`.

@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.10.1';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -144,7 +144,7 @@ class Status {
 	/**
 	 * Updated the cached status and its timestamp
 	 *
-	 * @param array $status The new status to be cached.
+	 * @param object $status The new status to be cached, as decoded from the API response.
 	 * @return void
 	 */
 	public static function update_status_option( $status ) {

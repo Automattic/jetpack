@@ -2,7 +2,10 @@ import { H3, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
-import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, {
+	isFirstScanNeeded,
+	isScanInProgress,
+} from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import OnboardingPopover from '../onboarding-popover';
@@ -97,6 +100,21 @@ const EmptyList = () => {
 	const timeSinceLastScan = useMemo( () => {
 		return lastChecked ? timeSince( Date.parse( lastChecked ) ) : null;
 	}, [ lastChecked ] );
+
+	if ( isFirstScanNeeded( status ) ) {
+		return (
+			<div className={ styles.empty }>
+				<H3 weight="bold">{ __( 'Run your first scan', 'jetpack-protect' ) }</H3>
+				<Text mb={ 4 }>
+					{ __(
+						'Until a scan finishes, we can’t tell whether your site has any threats.',
+						'jetpack-protect'
+					) }
+				</Text>
+				<ScanButton />
+			</div>
+		);
+	}
 
 	return (
 		<div className={ styles.empty }>

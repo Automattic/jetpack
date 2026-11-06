@@ -161,7 +161,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
-					chartTitle={ __( 'Email performance', 'jetpack-premium-analytics-pkg' ) }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel
 				/>

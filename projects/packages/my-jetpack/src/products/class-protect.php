@@ -51,14 +51,15 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Status_Model properties that may be exposed to users without `manage_options`.
 	 *
-	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
-	 * last scan time from these. The rest of the status report -- the scan state, the error
-	 * details, the list of fixable threat IDs -- is administrator-only.
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts, the
+	 * last scan time and whether that scan failed from these. The rest of the status report --
+	 * the scan state, the error details, the list of fixable threat IDs -- is administrator-only.
 	 *
 	 * @var string[]
 	 */
 	private const NON_ADMIN_SCAN_DATA_KEYS = array(
 		'last_checked',
+		'last_scan_failed',
 		'num_threats',
 		'num_plugins_threats',
 		'num_themes_threats',
@@ -459,11 +460,7 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		return Scan::get_paid_plan_product_slugs();
 	}
 
 	/**

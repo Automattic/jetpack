@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.18.0] - 2026-11-06
+### Added
+- Transfer connection ownership: Note that moving a Jetpack plan is an additional step, and link to the support doc on transferring a plan.
+
+## [2.17.0] - 2026-11-04
+### Added
+- Add CONNECTION_FROM entry-point names with isStandardEntryPoint() and isUnifiedConnectionFlow(), and warn in development when a connect link has no `from`, a legacy `from`, or no return URL. [#54498]
+
+### Changed
+- Update package dependencies. [#54512]
+
 ## [2.16.0] - 2026-11-02
 ### Changed
 - Tracking: Send a null context instead of `jetpack-dashboard` when the connection dialogs get none, and add a ConnectionPlacement placement option to the dialogs, the ownership transfer and the error notice. [#54214]
@@ -1593,6 +1604,8 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.18.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.17.0...v2.18.0
+[2.17.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.16.0...v2.17.0
 [2.16.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.13.2...v2.14.0

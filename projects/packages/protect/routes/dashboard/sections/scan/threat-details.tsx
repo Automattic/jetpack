@@ -1,5 +1,5 @@
 import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
-import { getFixerDescription, type Threat } from '@automattic/jetpack-scan';
+import { getFixerDescription, getThreatType, type Threat } from '@automattic/jetpack-scan';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -7,43 +7,26 @@ import { AlertDialog, Badge, Button, ButtonLink, Dialog, Link, Stack, Text } fro
 import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { FixDeleteConfirmation, getDeleteFixTitle } from './fix-delete-confirmation';
+import { FixUpdateConfirmation, getUpdateFixTitle } from './fix-update-confirmation';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
-import { THREAT_PARAM, useCanIgnore, useSearchParam } from './store';
+import SeverityBadge from './severity-badge';
+import { THREAT_PARAM, useCanIgnore, useCanViewFiles, useSearchParam } from './store';
 import {
 	deleteThreatRow,
 	fixThreat,
 	getThreatRow,
 	ignoreThreat,
 	isDeleteFix,
+	isUpdateFix,
+	offersDeleteFix,
 	unignoreThreat,
 	useThreatAction,
+	type ThreatActionState,
 	type ThreatRow,
 } from './threat-actions';
+import { ThreatFileLink, getThreatFileName } from './threat-file';
 import type { ScanThreat } from './types';
-import type { ComponentProps, ReactNode } from 'react';
-
-/**
- * The severity as a badge: "Critical severity", "High severity" or "Low severity".
- *
- * @param props          - Component props.
- * @param props.severity - The severity, 0 to 10.
- * @return The badge, or null when the threat has no severity.
- */
-function SeverityBadge( { severity }: { severity?: number | null } ) {
-	if ( typeof severity !== 'number' ) {
-		return null;
-	}
-	let intent: ComponentProps< typeof Badge >[ 'intent' ] = 'draft';
-	let label: string = __( 'Low severity', 'jetpack-protect-pkg' );
-	if ( severity >= 5 ) {
-		intent = 'high';
-		label = __( 'Critical severity', 'jetpack-protect-pkg' );
-	} else if ( severity >= 3 ) {
-		intent = 'medium';
-		label = __( 'High severity', 'jetpack-protect-pkg' );
-	}
-	return <Badge intent={ intent }>{ label }</Badge>;
-}
+import type { ReactNode } from 'react';
 
 /**
  * Whether the plugin or theme the threat is in is in use, as a badge.
@@ -79,7 +62,7 @@ function StateBadge( { threat }: { threat: ScanThreat } ) {
  * @return "File: index.php" or "Table: wp_options", or empty when it's neither.
  */
 function getLocation( threat: ScanThreat ): string {
-	const file = threat.filename?.split( '/' ).pop();
+	const file = getThreatFileName( threat );
 	if ( file ) {
 		/* translators: %s is a file name, such as "index.php". */
 		return sprintf( __( 'File: %s', 'jetpack-protect-pkg' ), file );
@@ -92,7 +75,53 @@ function getLocation( threat: ScanThreat ): string {
 }
 
 /**
- * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice.
+ * What to do about vulnerable software that no release fixes yet, given whether the site uses it.
+ *
+ * @param type  - The threat's type, from getThreatType().
+ * @param state - Whether the plugin or theme is active, inactive, or the active theme's parent.
+ * @return The advice, or null when the threat isn't vulnerable software.
+ */
+function getNoFixAdvice( type: string | null, state?: string | null ): string | null {
+	if ( type === 'core' ) {
+		return __(
+			'No version of WordPress fixes this vulnerability yet. Update as soon as a release fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'plugins' ) {
+		return state === 'active'
+			? __(
+					'No version of this plugin fixes this vulnerability yet. Deactivate and delete it, or replace it with another plugin, until an update fixes it.',
+					'jetpack-protect-pkg'
+				)
+			: __(
+					'No version of this plugin fixes this vulnerability yet. Delete it until an update fixes it.',
+					'jetpack-protect-pkg'
+				);
+	}
+	if ( type === 'themes' && state === 'active' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Switch to another theme and delete this one until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'themes' && state === 'parent' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Your active theme is built on it, so switch to a theme that isn’t, then delete this one until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( type === 'themes' ) {
+		return __(
+			'No version of this theme fixes this vulnerability yet. Delete it until an update fixes it.',
+			'jetpack-protect-pkg'
+		);
+	}
+	return null;
+}
+
+/**
+ * How to resolve a threat: its fixer's description, the version that fixes it, or manual advice for its kind.
  *
  * @param threat    - The threat.
  * @param canDelete - Whether the threat's option can be deleted from the details.
@@ -132,6 +161,12 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 			),
 			threat.database.table
 		);
+	}
+	if ( ! threat.filename && threat.status !== 'fixed' ) {
+		const advice = getNoFixAdvice( getThreatType( threat as Threat ), threat.extension?.state );
+		if ( advice ) {
+			return advice;
+		}
 	}
 	return __(
 		'Jetpack can’t fix this automatically. Review the affected code and remove it if you don’t recognize it, or contact Jetpack support for help.',
@@ -301,15 +336,44 @@ function DatabaseRow( {
 	);
 }
 
+type ConfirmationProps = { isBusy: boolean; onCancel: () => void; onConfirm: () => void };
+
 /**
- * Auto-fix it for a fix that deletes the software, behind a confirmation that asks for its slug.
+ * The Auto-fix it button's label and state, given the action running on the threat.
  *
- * @param props        - Component props.
- * @param props.threat - A threat whose fix deletes its software.
- * @param props.onFix  - Starts the fix.
+ * @param busy - The action running on the threat.
+ * @return Props for the button.
+ */
+const getFixButtonProps = ( busy: ThreatActionState[ 'busy' ] ) => ( {
+	loading: busy === 'fixing',
+	disabled: !! busy,
+	children:
+		busy === 'fixing'
+			? __( 'Fixing…', 'jetpack-protect-pkg' )
+			: __( 'Auto-fix it', 'jetpack-protect-pkg' ),
+} );
+
+/**
+ * Auto-fix it for a fix that deletes or updates the software, behind a confirmation.
+ *
+ * @param props              - Component props.
+ * @param props.threat       - A threat whose fix deletes or updates its software.
+ * @param props.onFix        - Starts the fix.
+ * @param props.title        - The confirmation's title.
+ * @param props.confirmation - Renders the confirmation's content.
  * @return The button and its confirmation.
  */
-function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => void } ) {
+function ConfirmFixButton( {
+	threat,
+	onFix,
+	title,
+	confirmation,
+}: {
+	threat: ScanThreat;
+	onFix: () => void;
+	title: string;
+	confirmation: ( props: ConfirmationProps ) => ReactNode;
+} ) {
 	const { busy } = useThreatAction( threat.id );
 	const [ open, setOpen ] = useState( false );
 	const onCancel = useCallback( () => setOpen( false ), [] );
@@ -320,24 +384,15 @@ function DeleteFixButton( { threat, onFix }: { threat: ScanThreat; onFix: () => 
 
 	return (
 		<Dialog.Root open={ open } onOpenChange={ setOpen }>
-			<Dialog.Trigger render={ <Button loading={ busy === 'fixing' } disabled={ !! busy } /> }>
-				{ busy === 'fixing'
-					? __( 'Fixing…', 'jetpack-protect-pkg' )
-					: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-			</Dialog.Trigger>
+			<Dialog.Trigger render={ <Button { ...getFixButtonProps( busy ) } /> } />
 			<Dialog.Popup>
 				<Dialog.Header>
-					<Dialog.Title>{ getDeleteFixTitle( threat ) }</Dialog.Title>
+					<Dialog.Title>{ title }</Dialog.Title>
 					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
-					{ /* Mounted only while open, so the slug field starts empty each time. */ }
-					<FixDeleteConfirmation
-						threat={ threat }
-						isBusy={ !! busy }
-						onCancel={ onCancel }
-						onConfirm={ onConfirm }
-					/>
+					{ /* Mounted only while open, so a confirmation's fields start empty each time. */ }
+					{ confirmation( { isBusy: !! busy, onCancel, onConfirm } ) }
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>
@@ -359,6 +414,14 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
 	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
 	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
+	const confirmDelete = useCallback(
+		( props: ConfirmationProps ) => <FixDeleteConfirmation threat={ threat } { ...props } />,
+		[ threat ]
+	);
+	const confirmUpdate = useCallback(
+		( props: ConfirmationProps ) => <FixUpdateConfirmation threats={ [ threat ] } { ...props } />,
+		[ threat ]
+	);
 
 	if ( ! canIgnore && ! isIgnored && ! threat.fixable ) {
 		return null;
@@ -400,14 +463,25 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 							{ __( 'Ignore it', 'jetpack-protect-pkg' ) }
 						</Button>
 					) }
-					{ threat.fixable && ! isDeleteFix( threat ) && (
-						<Button onClick={ onFix } loading={ busy === 'fixing' } disabled={ !! busy }>
-							{ busy === 'fixing'
-								? __( 'Fixing…', 'jetpack-protect-pkg' )
-								: __( 'Auto-fix it', 'jetpack-protect-pkg' ) }
-						</Button>
+					{ threat.fixable && ! isDeleteFix( threat ) && ! isUpdateFix( threat ) && (
+						<Button onClick={ onFix } { ...getFixButtonProps( busy ) } />
 					) }
-					{ isDeleteFix( threat ) && <DeleteFixButton threat={ threat } onFix={ onFix } /> }
+					{ isDeleteFix( threat ) && (
+						<ConfirmFixButton
+							threat={ threat }
+							onFix={ onFix }
+							title={ getDeleteFixTitle( threat ) }
+							confirmation={ confirmDelete }
+						/>
+					) }
+					{ isUpdateFix( threat ) && (
+						<ConfirmFixButton
+							threat={ threat }
+							onFix={ onFix }
+							title={ getUpdateFixTitle( [ threat ] ) }
+							confirmation={ confirmUpdate }
+						/>
+					) }
 				</>
 			) }
 		</SidebarFooter>
@@ -415,15 +489,17 @@ function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 }
 
 /**
- * Links that act on the affected software: update it, deactivate it, or look it up.
+ * Links that act on the affected software: update it, deactivate it, delete it, or look it up.
  *
  * @param props        - Component props.
  * @param props.threat - The threat.
+ * @param props.canAct - Whether the site's plan can fix threats.
  * @return The links, or null when there are none.
  */
-function SoftwareActions( { threat }: { threat: ScanThreat } ) {
+function SoftwareActions( { threat, canAct }: { threat: ScanThreat; canAct: boolean } ) {
 	const actions = threat.extension?.actions ?? {};
-	if ( ! actions.update && ! actions.deactivate && ! actions.delete && ! actions.details ) {
+	const canDelete = !! actions.delete && ! offersDeleteFix( threat, canAct );
+	if ( ! actions.update && ! actions.deactivate && ! canDelete && ! actions.details ) {
 		return null;
 	}
 
@@ -441,7 +517,7 @@ function SoftwareActions( { threat }: { threat: ScanThreat } ) {
 					{ labels.deactivate }
 				</ButtonLink>
 			) }
-			<DeleteSoftwareButton threat={ threat } />
+			{ canDelete && <DeleteSoftwareButton threat={ threat } /> }
 			{ actions.details && (
 				<ButtonLink
 					href={ actions.details }
@@ -476,6 +552,7 @@ export default function ThreatDetails( {
 	const vulnerabilities = threat.vulnerabilities ?? [];
 	const context = threat.context ?? [];
 	const { row, rowError } = useThreatRow( threat, canAct );
+	const canViewFile = useCanViewFiles();
 
 	return (
 		<div className="jp-protect-threat-details">
@@ -554,9 +631,12 @@ export default function ThreatDetails( {
 					) }
 					{ threat.filename && (
 						<>
-							<Text variant="body-md" className="jp-protect-card__muted">
-								{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
-							</Text>
+							<Stack direction="row" gap="sm" justify="space-between" align="baseline">
+								<Text variant="body-md" className="jp-protect-card__muted">
+									{ __( 'Threat found in file:', 'jetpack-protect-pkg' ) }
+								</Text>
+								{ canAct && canViewFile && <ThreatFileLink threat={ threat } /> }
+							</Stack>
 							<pre className="jp-protect-threat-details__code">{ threat.filename }</pre>
 							{ context.length > 0 && (
 								<pre className="jp-protect-threat-details__code">
@@ -593,7 +673,7 @@ export default function ThreatDetails( {
 				<Text variant="body-md" className="jp-protect-card__muted">
 					{ getResolution( threat, !! row?.canDelete ) }
 				</Text>
-				<SoftwareActions threat={ threat } />
+				<SoftwareActions threat={ threat } canAct={ canAct } />
 			</Section>
 			{ canAct && <ThreatFooter threat={ threat } /> }
 		</div>

@@ -2,6 +2,8 @@ export {
 	getApiErrorCode,
 	getApiErrorStatus,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	shouldRetryApiError,
 	StatsResponseShapeError,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Stop long row names in cards such as Top UTM from running under the views count on hover.

@@ -4,6 +4,8 @@
 import {
 	getApiErrorCode,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	StatsResponseShapeError,
 } from '@jetpack-premium-analytics/data';
 /**
@@ -57,8 +59,22 @@ export function describeError(
 		};
 	}
 
+	if ( isAnalyticsSchemaOutdated( error ) ) {
+		return {
+			description: __(
+				"This report will be available after your store's next order or product update.",
+				'jetpack-premium-analytics-pkg'
+			),
+		};
+	}
+
 	return {
-		description: retryDescription,
+		description: isAnalyticsTablesNotReady( error )
+			? __(
+					'Your store data is still being prepared. Please try again in a minute.',
+					'jetpack-premium-analytics-pkg'
+				)
+			: retryDescription,
 		actions: [
 			{
 				label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
