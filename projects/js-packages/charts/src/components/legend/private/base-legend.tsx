@@ -217,24 +217,27 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		// Create event handlers to avoid inline arrow functions
 		const createClickHandler = useCallback(
-			( seriesLabels: string[], itemInteractive: boolean ) => {
+			( seriesLabels: string[], itemInteractive: boolean, onToggle?: () => void ) => {
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
-				return () => handleLegendClick( seriesLabels );
+				return onToggle ? () => onToggle() : () => handleLegendClick( seriesLabels );
 			},
 			[ handleLegendClick ]
 		);
 
 		const createKeyDownHandler = useCallback(
-			( seriesLabels: string[], itemInteractive: boolean ) => {
+			( seriesLabels: string[], itemInteractive: boolean, onToggle?: () => void ) => {
 				if ( ! itemInteractive ) {
 					return undefined;
 				}
+				const toggle = onToggle ?? ( () => handleLegendClick( seriesLabels ) );
 				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
-						handleLegendClick( seriesLabels );
+						if ( ! event.repeat ) {
+							toggle();
+						}
 					}
 				};
 			},
@@ -257,13 +260,19 @@ export const BaseLegend: ForwardRefExoticComponent<
 					<Stack
 						ref={ ref }
 						direction={ orientation === 'vertical' ? 'column' : 'row' }
-						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						// Stack's gap is inline; horizontal gaps live in CSS so consumers can override them.
+						gap={ orientation === 'vertical' ? 'sm' : undefined }
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx( standaloneScopeClass, styles.legend, className ) }
+						className={ clsx(
+							standaloneScopeClass,
+							styles.legend,
+							orientation === 'horizontal' && styles[ 'legend--horizontal' ],
+							className
+						) }
 						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
@@ -272,11 +281,13 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const seriesLabels = matchedItem?.seriesLabels?.length
 								? matchedItem.seriesLabels
 								: [ label.text ];
-							const visible =
-								matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
 							const itemInteractive = interactive && matchedItem?.interactive !== false;
-							const handleClick = createClickHandler( seriesLabels, itemInteractive );
-							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive );
+							const onToggle = itemInteractive ? matchedItem?.onToggle : undefined;
+							const visible = matchedItem?.onToggle
+								? matchedItem.pressed
+								: matchedItem?.interactive === false || isSeriesVisible( seriesLabels[ 0 ] );
+							const handleClick = createClickHandler( seriesLabels, itemInteractive, onToggle );
+							const handleKeyDown = createKeyDownHandler( seriesLabels, itemInteractive, onToggle );
 
 							return (
 								<LegendItem

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
 import { FeatureItem, getModuleSettingsUrl } from '../feature-item';
 import { resolveFeatureState } from '../feature-state';
@@ -39,6 +40,14 @@ beforeEach( () => {
 } );
 
 const setSiteEditor = ( siteEditor: unknown ) => {
+	window.myJetpackInitialState = {
+		deprecatedModules: [
+			'google-fonts',
+			...( ( siteEditor as { isBlockTheme?: boolean } ).isBlockTheme
+				? [ 'widgets', 'widget-visibility' ]
+				: [] ),
+		],
+	} as Window[ 'myJetpackInitialState' ];
 	window.JetpackScriptData = {
 		site: { admin_url: 'https://example.com/wp-admin/' },
 		myJetpack: { siteEditor },
@@ -103,7 +112,7 @@ describe( 'MoreFeatures', () => {
 			const { rerender } = render( tree( 'all' ) );
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 			rerender( tree( 'available' ) );
@@ -113,10 +122,17 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it.each( [ 'waf', 'backup' ] as const )(
-		'explains the multisite-blocked %s and leaves it out of Available',
-		module => {
+	it.each( [
+		[ 'waf', false ],
+		[ 'backup', false ],
+		[ 'waf', true ],
+	] as const )(
+		'explains the multisite-blocked %s once and leaves it out of Available (account connect: %s)',
+		( module, accountConnect ) => {
 			setSiteEditor( { isBlockTheme: false } );
+			window.myJetpackInitialState.myJetpackFlags = {
+				accountConnect,
+			} as typeof window.myJetpackInitialState.myJetpackFlags;
 			window.JetpackScriptData.site.is_multisite = true;
 			try {
 				const blockedModule = { ...sharing, module, activated: true };
@@ -146,7 +162,7 @@ describe( 'MoreFeatures', () => {
 				);
 				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
 				expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-				expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 				expect( filterMoreFeatures( groups, 'available', '' ) ).toEqual( [] );
 			} finally {
@@ -197,7 +213,7 @@ describe( 'MoreFeatures', () => {
 			expect( screen.queryByText( 'Inactive' ) !== null ).toBe( ! override );
 			expect( screen.queryByText( 'Unavailable' ) !== null ).toBe( !! override );
 			expect( screen.queryByText( 'Unavailable in Offline mode' ) !== null ).toBe( !! override );
-			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
+			expect( screen.queryByRole( 'switch', { name: 'Activate VideoPress' } ) !== null ).toBe(
 				! override
 			);
 			expect( screen.queryByRole( 'checkbox', { name: 'Select VideoPress' } ) !== null ).toBe(
@@ -206,17 +222,16 @@ describe( 'MoreFeatures', () => {
 		}
 	);
 
-	it( 'says what to do in the Site Editor, and drops the status badge, where the block replaces the module', () => {
+	it( 'says what to do in Settings › Sharing, and drops the status badge, where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection();
 
 		expect(
-			screen.getByText( 'Add the Sharing Buttons block to your theme’s template.' )
+			screen.getByText( 'Choose where the Sharing Buttons block goes on your posts and pages.' )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Inactive' ) ).not.toBeInTheDocument();
 	} );
@@ -276,11 +291,69 @@ describe( 'MoreFeatures', () => {
 		expect( link() ).not.toBeInTheDocument();
 	} );
 
-	it( 'links to no settings where the Site Editor block replaces the module', () => {
+	it.each( [
+		[
+			'the settings-search default',
+			'https://example.com/wp-admin/admin.php?page=jetpack-settings#/settings?term=sharedaddy',
+			'/features?view=list&configure=sharedaddy',
+		],
+		[
+			'the panel URL',
+			'https://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dsharedaddy',
+			'/features?view=list&configure=sharedaddy',
+		],
+		[
+			'a page of its own, such as the SEO page',
+			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
+			'https://example.com/wp-admin/admin.php?page=jetpack-seo',
+		],
+	] )(
+		'with settings consolidation on, links Configure by %s',
+		( _name, configureUrl, expectedHref ) => {
+			setSiteEditor( { isBlockTheme: false } );
+			window.JetpackScriptData = {
+				...window.JetpackScriptData,
+				myJetpack: { settingsConsolidation: true },
+			} as Window[ 'JetpackScriptData' ];
+
+			render(
+				<MemoryRouter initialEntries={ [ '/features?view=list' ] }>
+					{ section( {
+						...sharing,
+						activated: true,
+						options: { show_headline: true },
+						configure_url: configureUrl,
+					} ) }
+				</MemoryRouter>
+			);
+
+			expect( screen.getByRole( 'link', { name: 'Configure Sharing Buttons' } ) ).toHaveAttribute(
+				'href',
+				expectedHref
+			);
+		}
+	);
+
+	it( 'links to no settings for a module still waiting for an account', () => {
+		setSiteEditor( { isBlockTheme: false } );
+		const waiting = {
+			...sharing,
+			activated: true,
+			available: false,
+			requires_user_connection: true,
+			configure_url: 'https://example.com/settings',
+		};
+
+		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
+
+		expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
+		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to no settings where the block replaces the module', () => {
 		setSiteEditor( {
 			isBlockTheme: true,
 			isSharingBlockAvailable: true,
-			activeThemeStylesheet: 'twentytwentyfour',
 		} );
 
 		renderSection( { ...sharing, activated: true, configure_url: 'https://example.com/settings' } );

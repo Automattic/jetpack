@@ -18,7 +18,6 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import TotalVisitorsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -28,7 +27,7 @@ registerReportMocks();
 
 const TOTAL_VISITORS_RENDER_MODULE = 'storybook/total-visitors';
 
-const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
+const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 /**
  * Renders the data-connected widget.

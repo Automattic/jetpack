@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.8 - 2026-10-20
+### Added
+- Add a Channel Details block to channel sites, with the channel's handle, subscribers, videos, playlists, views and start date. [#53506]
+- Add an Episode Navigation block. [#53509]
+- Add a page per playlist on channel sites, with All Playlists cards linking to it and a Video Playlist block option to show the playlist being viewed. [#53504]
+- Add a Playlist Details block. [#53508]
+- Add a Video Details block, and let the VideoPress Video block play the newest upload. [#53507]
+- Add trim and cut editing to the video block toolbar and clarify the editor tool icons. [#53100]
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account. [#53150]
+- Connection: Transfer connection ownership to another administrator without leaving your site. [#53359]
+- Connection: Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
+- Let channel blocks show authors a call to action while a channel has no videos or playlists. [#53510]
+- Let the Latest Videos Playlist block sort, search, filter by length and paginate, and show view counts. [#53505]
+- Let the Video Playlist block show a playlist published on the site, and let the All Playlists block sort by last update and show each playlist's last update and length. [#53657]
+- My Jetpack: Add an Available filter to the Features list. [#53308]
+- My Jetpack: Add catalog-controlled Pro offers and preserve existing plan management. [#53421]
+- My Jetpack: Recognize Jetpack Pro subscriptions and licenses. [#53424]
+
+### Changed
+- Connection: Link the connection owner's name on the Connectors card to their profile, and update the card without reloading the page when a non-owner disconnects their account. [#53785]
+- My Jetpack: Line up notices with the cards below them, and drop the grey background behind the Features grid and list buttons. [#53759]
+- My Jetpack: Refresh Pro availability while preserving existing offers. [#53425]
+- My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it. [#53409]
+- Open this site's video pages from a Video Playlist in the same tab, and mark the video being viewed. [#53502]
+- Settings: Match the card spacing and top margin of the other Jetpack settings screens. [#53607]
+- Update package dependencies. [#53004]
+
+### Fixed
+- Connection: Translate the Connectors card's text on sites that don't use English. [#53179]
+- Dashboard: Announce the views trend chart correctly to screen readers. [#53202]
+- My Jetpack: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first. [#52765]
+- My Jetpack: Make the connection screen's Connect button and footer links reachable on shorter screens. [#53402]
+- My Jetpack: Show the highest-priority notice first when several are set at once. [#53400]
+- My Jetpack: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Only open a channel video page for a video uploaded to this site. [#53501]
+- Prevent new uploads from reusing video attachment IDs after a site restore. [#53791]
+- Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads. [#53614]
+
 ## 3.7 - 2026-10-07
 ### Security
 - Playback: Strengthen authorization for private videos. [#53240]
@@ -95,9 +133,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
 - My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
 - Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
-- Update package dependencies. [#51701]
-- Update package dependencies. [#51802]
-- Update package dependencies. [#52187]
+- Update package dependencies. [#51701] [#51802] [#52187]
 - VideoPress: refine the welcome modal type scale, match the upload dropzone text to the design system's empty state, and drop the duplicate header Upload button while the empty-library dropzone is showing. [#52061]
 
 ### Fixed
@@ -178,7 +214,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove unneeded development and documentation files from the published plugin. [#49014]
 - Update composer.lock files. [#48743] [#49415]
 - Update minimum WordPress version to 6.9. [#49021]
-- Update package dependencies. [#48735] [#49793] [#48405] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183]
+- Update package dependencies. [#48405] [#48735] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49793] [#49831] [#50097] [#50183]
 
 ### Fixed
 - Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
@@ -348,7 +384,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 2.0 - 2024-09-05
 ### Changed
-- General: Dependency updates. [#38942] [#38822] [#39004] [#39111] [#39176]
+- General: Dependency updates. [#38822] [#38942] [#39004] [#39111] [#39176]
 
 ## 1.9 - 2024-08-15
 ### Changed
@@ -357,9 +393,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - General: update WordPress version requirements to WordPress 6.5.
-
-### Fixed
-- Updated package dependencies.
 
 ## 1.8 - 2024-05-22
 ### Added

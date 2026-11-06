@@ -480,7 +480,7 @@ class Channel_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Video URLs carry the playlist context.
+	 * Video URLs carry the playlist context, and playlist lookups find the playlists holding a video.
 	 */
 	public function test_playlist_urls_and_membership() {
 		$this->index_playlists();
@@ -489,6 +489,7 @@ class Channel_Test extends BaseTestCase {
 
 		$this->assertSame( $base . '?v=ghiJKL34&list=mc', Channel::video_url( $id, 'mc' ) );
 		$this->assertSame( $base . '?list=road', Channel::playlist_url( 'road' ) );
+		$this->assertSame( array( 'road', 'mc' ), array_column( Channel::playlists_with_video( 'ghiJKL34' ), 'key' ) );
 		$this->assertTrue( Channel::is_site_url( $base ) );
 		$this->assertFalse( Channel::is_site_url( 'https://videopress.com/v/ghiJKL34' ) );
 	}

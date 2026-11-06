@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -48,7 +49,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'], $_GET['p'], $_COOKIE[ Dashboard::LAST_TAB_COOKIE ] );
+		unset( $_GET['page'], $_GET['p'] );
 
 		// Tests that call set_current_screen() would otherwise leave it set for whatever
 		// runs next, which decides is_admin() and is_jetpack_forms_admin_page().
@@ -168,10 +169,19 @@ class Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Test load_wp_build registers polyfills when on the wp-build admin page.
+	 *
+	 * A bare page URL must render too: the client router resolves `/` to the default tab.
+	 *
+	 * @dataProvider provide_wpbuild_route_paths
+	 *
+	 * @param string|null $path Value of the `p` query arg, or null to omit it.
 	 */
-	public function test_load_wp_build_registers_polyfills_on_wpbuild_page() {
+	#[DataProvider( 'provide_wpbuild_route_paths' )]
+	public function test_load_wp_build_registers_polyfills_on_wpbuild_page( $path ) {
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
-		$_GET['p']    = '/responses/inbox';
+		if ( null !== $path ) {
+			$_GET['p'] = $path;
+		}
 
 		Dashboard::load_wp_build();
 
@@ -188,6 +198,18 @@ class Dashboard_Test extends BaseTestCase {
 			$this->assertArrayHasKey( $handle, $value, "Polyfill handle '$handle' should be registered." );
 			$this->assertContains( 'jetpack-forms', $value[ $handle ], "Consumer 'jetpack-forms' should be registered for '$handle'." );
 		}
+	}
+
+	/**
+	 * Route paths the standalone Forms page can be opened with.
+	 *
+	 * @return array<string, array{0: string|null}>
+	 */
+	public static function provide_wpbuild_route_paths() {
+		return array(
+			'route path' => array( '/responses/inbox' ),
+			'bare URL'   => array( null ),
+		);
 	}
 
 	/**
@@ -478,73 +500,5 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'notice-error', $output );
 		$this->assertStringContainsString( 'missing the files it needs', $output );
 		$this->assertStringNotContainsString( 'jp-forms-dashboard', $output );
-	}
-
-	/**
-	 * Sets the central form management feature flag for the current test.
-	 *
-	 * @param bool $enabled Whether the flag should be on.
-	 */
-	private function set_central_form_management( $enabled ) {
-		add_filter(
-			'jetpack_block_editor_feature_flags',
-			function ( $flags ) use ( $enabled ) {
-				$flags['central-form-management'] = $enabled;
-				return $flags;
-			}
-		);
-	}
-
-	/**
-	 * Test the dashboard opens on Forms when the browser remembers nothing.
-	 */
-	public function test_get_default_tab_without_a_cookie_opens_forms() {
-		$this->set_central_form_management( true );
-
-		$this->assertSame( 'forms', Dashboard::get_default_tab() );
-	}
-
-	/**
-	 * Test a remembered Responses tab reopens the responses inbox.
-	 */
-	public function test_get_default_tab_honours_a_remembered_responses_tab() {
-		$this->set_central_form_management( true );
-		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'responses';
-
-		$this->assertSame( 'responses', Dashboard::get_default_tab() );
-		$this->assertStringContainsString(
-			rawurlencode( '/responses/inbox' ),
-			Dashboard::get_forms_admin_url( Dashboard::get_default_tab() )
-		);
-	}
-
-	/**
-	 * Test a remembered Forms tab reopens the forms list.
-	 */
-	public function test_get_default_tab_honours_a_remembered_forms_tab() {
-		$this->set_central_form_management( true );
-		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'forms';
-
-		$this->assertSame( 'forms', Dashboard::get_default_tab() );
-	}
-
-	/**
-	 * Test an unrecognised cookie value falls back to the usual default.
-	 */
-	public function test_get_default_tab_ignores_an_unrecognised_cookie() {
-		$this->set_central_form_management( true );
-		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'not-a-tab';
-
-		$this->assertSame( 'forms', Dashboard::get_default_tab() );
-	}
-
-	/**
-	 * Test a stale Forms cookie cannot strand the user on a tab that is not rendered.
-	 */
-	public function test_get_default_tab_ignores_a_forms_cookie_without_central_form_management() {
-		$this->set_central_form_management( false );
-		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'forms';
-
-		$this->assertSame( 'inbox', Dashboard::get_default_tab() );
 	}
 }

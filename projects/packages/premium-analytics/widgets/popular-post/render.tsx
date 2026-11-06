@@ -21,8 +21,18 @@ import { __ } from '@wordpress/i18n';
  */
 import { usePopularPost } from './use-popular-post';
 import { useNoPublishedPosts } from '../use-no-published-posts';
-import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * Widget attributes shape.
+ *
+ * @property authorScoped - Rank one author's posts over the page range instead
+ *                        of the site's over the last 12 months. Set by the
+ *                        author detail composition; not a user-facing control.
+ */
+export type PopularPostAttributes = {
+	authorScoped?: boolean;
+};
 
 // The host's `reportParams` only matter to an author-scoped instance; the
 // dashboard card reports on its own pinned window.
@@ -158,6 +168,11 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	);
 }
 
+/**
+ * The Insights "Most popular post" module: the site's most-viewed post of the
+ * last 12 months. The window only picks the winner; the views, likes, and
+ * comments shown for it are all-time totals.
+ */
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

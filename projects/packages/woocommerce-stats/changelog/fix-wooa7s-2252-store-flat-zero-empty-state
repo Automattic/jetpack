@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Widgets: Show the empty state in the report charts when the period and its comparison are all zeros, instead of a flat line at zero.

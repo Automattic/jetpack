@@ -322,6 +322,7 @@ type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAl
 type PluginsNeedingInstallAlertData = {
 	needs_installed?: JetpackModule[];
 	needs_activated_only?: JetpackModule[];
+	is_silent?: true;
 };
 
 type PluginsNeedingInstallAlert = Record<
@@ -422,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -447,6 +449,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 
@@ -519,6 +522,8 @@ type MainFeature = {
 	icon: string;
 	manage_url: string;
 	essential: boolean;
+	// Its plan, not a switch, decides whether it runs, whichever plugin delivers it.
+	plan_driven?: boolean;
 	in_jetpack: boolean;
 	plugin: string;
 	plugin_name: string;
@@ -530,7 +535,8 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	upgrade: { path: string; name: string };
+	// A host may send it elsewhere instead, with an absolute `url`.
+	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;
 	// What to expect after turning it on, such as picking a plan.
@@ -542,6 +548,8 @@ type MainFeature = {
 	docs_url: string;
 	product: string;
 	module: string;
+	// Whether the feature needs a connected WordPress.com user account.
+	needs_account?: boolean;
 };
 
 interface Window {
@@ -556,6 +564,7 @@ interface Window {
 		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -578,13 +587,17 @@ interface Window {
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
 		hiddenFeatures?: Array< string >;
+		deprecatedModules?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			accountConnect?: boolean;
 			headerControls?: boolean;
 			overviewV1: boolean;
+			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
+			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
@@ -647,11 +660,29 @@ interface Window {
 					post_checkout_url?: string;
 					manage_paid_plan_purchase_url?: string;
 					renew_paid_plan_purchase_url?: string;
+					purchase_replacement?: {
+						slug: string;
+						title: string;
+						wpcom_product_slug: string;
+					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
+						catalog_available?: boolean;
+						requires_support?: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
+						terms?: Array< {
+							available: boolean;
+							wpcom_product_slug: string;
+							product_term?: string;
+							currency_code?: string;
+							full_price?: number;
+							discount_price?: number;
+							full_price_per_month?: number;
+							discount_price_per_month?: number;
+						} >;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -750,11 +781,14 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
+		userFirstName: string;
 		isWelcomeTourActive: boolean;
 		seoOptIn: {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
+		protectPageModuleUrls?: Record< string, string >;
 		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {

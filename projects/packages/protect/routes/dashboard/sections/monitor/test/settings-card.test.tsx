@@ -10,12 +10,13 @@ const card = ( {
 	available = true,
 	monitor = true,
 	userConnected = true,
+	alertEmail = null as string | null,
 	saving = false,
 	save = jest.fn(),
 	refresh = jest.fn(),
 } = {} ) => (
 	<MonitorSettingsCard
-		state={ { available, active: monitor, uptimeDays: 40, userConnected } }
+		state={ { available, active: monitor, uptimeDays: 40, userConnected, alertEmail } }
 		settings={
 			{
 				settings: { monitor, monitor_receive_notifications: true },
@@ -37,19 +38,50 @@ describe( 'MonitorSettingsCard', () => {
 		[ 'Monitor is unavailable', { available: false, monitor: false }, false, false ],
 		[ 'Monitor is unavailable but still set', { available: false }, false, false ],
 		[ 'the user has no WordPress.com connection', { userConnected: false }, true, false ],
+		[
+			'Monitor is off and the user has no WordPress.com connection',
+			{ userConnected: false, monitor: false },
+			false,
+			false,
+		],
 	] )( 'enables the right toggles when %s', ( _name, options, canToggle, canEmail ) => {
 		renderCard( options );
 
 		const enabled = ( label: string ) =>
-			! screen.getByLabelText( label ).hasAttribute( 'disabled' );
+			screen.getByRole( 'switch', { name: label } ).getAttribute( 'aria-disabled' ) !== 'true';
 		expect( enabled( MONITOR ) ).toBe( canToggle );
 		expect( enabled( EMAIL ) ).toBe( canEmail );
+	} );
+
+	it.each( [
+		[
+			'the account address when it is known',
+			{ alertEmail: 'owner@example.com' },
+			'Emails go to owner@example.com, your WordPress.com account’s address.',
+		],
+		[
+			'the account without an address when it is unknown',
+			{},
+			'Emails go to your WordPress.com account’s address.',
+		],
+		[
+			'how to manage the emails without a connection',
+			{ userConnected: false, alertEmail: 'owner@example.com' },
+			'Connect your WordPress.com account to manage these emails.',
+		],
+	] )( 'names %s', ( _name, options, help ) => {
+		renderCard( options );
+
+		expect( screen.getByText( help ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the email toggle locked while a Monitor save is in flight', () => {
 		renderCard( { saving: true } );
 
-		expect( screen.getByLabelText( EMAIL ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( 'keeps the email toggle locked until the re-read after turning Monitor on settles', async () => {
@@ -63,13 +95,19 @@ describe( 'MonitorSettingsCard', () => {
 		const save = jest.fn().mockResolvedValue( undefined );
 		const { rerender } = renderCard( { monitor: false, save, refresh } );
 
-		await userEvent.setup().click( screen.getByLabelText( MONITOR ) );
+		await userEvent.setup().click( screen.getByRole( 'switch', { name: MONITOR } ) );
 		// The Monitor save has settled and the setting now reads on; only the re-read is pending.
 		rerender( card( { save, refresh } ) );
-		expect( screen.getByLabelText( EMAIL ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 
 		await act( async () => finishRefresh() );
-		expect( screen.getByLabelText( EMAIL ) ).toBeEnabled();
+		expect( screen.getByRole( 'switch', { name: EMAIL } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it.each( [
@@ -82,7 +120,7 @@ describe( 'MonitorSettingsCard', () => {
 			const refresh = jest.fn().mockResolvedValue( undefined );
 			renderCard( { monitor, save, refresh } );
 
-			await userEvent.setup().click( screen.getByLabelText( MONITOR ) );
+			await userEvent.setup().click( screen.getByRole( 'switch', { name: MONITOR } ) );
 
 			expect( save ).toHaveBeenCalledWith( { monitor: ! monitor }, undefined );
 			expect( refresh.mock.calls ).toEqual( calls );

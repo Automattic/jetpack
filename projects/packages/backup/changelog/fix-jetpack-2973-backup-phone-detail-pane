@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, now brings the detail pane into view when a backup is tapped on a narrow screen, and drops a row summary with no room instead of showing a sliver.

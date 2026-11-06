@@ -52,6 +52,8 @@ function wpcom_remove_menus_for_p2_sites() {
 		remove_menu_page( 'index.php' );
 		remove_menu_page( "https://wordpress.com/home/$domain" );
 		remove_menu_page( 'stats' );
+		// Analytics::MENU_PAGE_SLUG, spelled out so this file does not depend on the Premium Analytics package.
+		remove_menu_page( 'jetpack-premium-analytics-wp-admin' );
 		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/domains/manage/$domain" );
 		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/email/$domain" );
 		remove_menu_page( 'edit.php' );

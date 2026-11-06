@@ -29,6 +29,7 @@ export const REPORT_DATE_PARAM_KEYS = [
 	'to',
 	'interval',
 	'preset',
+	'step',
 	'compare_from',
 	'compare_to',
 	'compare_preset',
@@ -86,6 +87,7 @@ export function toReportOriginWindowParams(
 					from: linked.from,
 					to: linked.to,
 					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
+					...( linked.step !== undefined ? { step: linked.step } : {} ),
 				};
 
 	const rebuilt = normalizeReportParams( origin as NormalizeInput );
@@ -247,6 +249,22 @@ export function omitComparisonReportParams(
 }
 
 /**
+ * Drop the shared report-window params from a search object, keeping everything else.
+ *
+ * @param search - The current route search params.
+ * @return A new object without the report-window params.
+ */
+export function omitReportDateParams< T extends Record< string, unknown > >(
+	search: T
+): Partial< T > {
+	const stripped: Partial< T > = { ...search };
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		delete stripped[ key ];
+	}
+	return stripped;
+}
+
+/**
  * Serialize one search value the way the router does.
  *
  * The router JSON-parses every search value on read, so a string that itself
@@ -258,7 +276,7 @@ export function omitComparisonReportParams(
  * @param value - The search value to serialize.
  * @return The querystring-ready value.
  */
-function stringifySearchValue( value: unknown ): string {
+export function stringifySearchValue( value: unknown ): string {
 	if ( typeof value === 'string' ) {
 		try {
 			JSON.parse( value );

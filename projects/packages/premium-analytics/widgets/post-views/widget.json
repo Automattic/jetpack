@@ -7,5 +7,25 @@
 		"content": "The view trend of the post or page being viewed over the selected period."
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "line",
+					"label": "Line chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	]
 }

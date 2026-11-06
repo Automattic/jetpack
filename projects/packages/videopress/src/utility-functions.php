@@ -275,11 +275,29 @@ function videopress_build_url( $guid ) {
  * callback from the VideoPress servers.
  *
  * @since 4.4
- * @param string $title The post_title.
- * @param string $guid The VideoPress guid.
+ * @since 0.58.0 Accepts a minimum attachment ID supplied by VideoPress.
+ * @param string      $title The post_title.
+ * @param string|null $guid Optional VideoPress guid.
+ * @param int         $minimum_attachment_id Optional lowest attachment ID allowed by VideoPress.
  * @return int|WP_Error
  */
-function videopress_create_new_media_item( $title, $guid = null ) {
+function videopress_create_new_media_item( $title, $guid = null, $minimum_attachment_id = 0 ) {
+	global $wpdb;
+
+	$minimum_attachment_id = filter_var(
+		$minimum_attachment_id,
+		FILTER_VALIDATE_INT,
+		array(
+			'options' => array(
+				'min_range' => 0,
+				'max_range' => PHP_INT_MAX - 1,
+			),
+		)
+	);
+	if ( false === $minimum_attachment_id ) {
+		return new WP_Error( 'videopress_invalid_minimum_attachment_id', __( 'Unable to allocate a video attachment ID.', 'jetpack-videopress-pkg' ) );
+	}
+
 	$post = array(
 		'post_type'      => 'attachment',
 		'post_mime_type' => 'video/videopress',
@@ -288,7 +306,28 @@ function videopress_create_new_media_item( $title, $guid = null ) {
 		'guid'           => videopress_build_url( $guid ),
 	);
 
-	$media_id = wp_insert_post( $post );
+	if ( $minimum_attachment_id > 1 ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Allocation needs the current highest ID across all post types and statuses.
+		$maximum = $wpdb->get_var( "SELECT COALESCE(MAX(ID), 0) FROM $wpdb->posts" );
+		if ( null === $maximum || $wpdb->last_error ) {
+			return new WP_Error( 'videopress_attachment_id_lookup_failed', __( 'Unable to allocate a video attachment ID.', 'jetpack-videopress-pkg' ) );
+		}
+		if ( (int) $maximum < $minimum_attachment_id ) {
+			$post['import_id'] = $minimum_attachment_id;
+		}
+	}
+
+	$media_id = wp_insert_post( $post, true );
+	if ( is_wp_error( $media_id ) ) {
+		return $media_id;
+	}
+	// import_id is only a suggestion; verify the ID WordPress actually allocated.
+	if ( ! $media_id || $media_id < $minimum_attachment_id ) {
+		if ( $media_id ) {
+			wp_delete_attachment( $media_id, true ); // This call's new placeholder has no VideoPress binding yet.
+		}
+		return new WP_Error( 'videopress_attachment_id_allocation_failed', __( 'Unable to allocate a video attachment ID.', 'jetpack-videopress-pkg' ) );
+	}
 
 	add_post_meta( $media_id, 'videopress_status', 'initiated' );
 

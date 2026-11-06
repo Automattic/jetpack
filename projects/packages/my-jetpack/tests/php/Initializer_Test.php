@@ -24,7 +24,337 @@ use WorDBless\BaseTestCase;
  * Tests for the Initializer class.
  */
 class Initializer_Test extends BaseTestCase {
-	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
+	/**
+	 * @var string|null Plugin directory created by this test.
+	 */
+	private $jetpack_mock_directory;
+
+	/**
+	 * @dataProvider modules_rest_results
+	 */
+	#[DataProvider( 'modules_rest_results' )]
+	public function test_modules_rest_gate_rejects_disabled_and_error_results( $enabled, $auth, $expected ) {
+		$enabled_filter = static function () use ( $enabled ) {
+			return $enabled;
+		};
+		$auth_filter    = static function () use ( $auth ) {
+			return $auth;
+		};
+		add_filter( 'rest_enabled', $enabled_filter );
+		add_filter( 'rest_authentication_errors', $auth_filter, PHP_INT_MAX );
+		try {
+			$this->assertSame( $expected, Initializer::is_modules_rest_api_enabled() );
+		} finally {
+			remove_filter( 'rest_enabled', $enabled_filter );
+			remove_filter( 'rest_authentication_errors', $auth_filter, PHP_INT_MAX );
+		}
+	}
+
+	public static function modules_rest_results() {
+		return array(
+			'normal'      => array( true, null, true ),
+			'disabled'    => array( false, null, false ),
+			'auth denied' => array( true, false, false ),
+			'auth error'  => array( true, new \WP_Error( 'denied' ), false ),
+		);
+	}
+
+	/**
+	 * @dataProvider modules_onboarding_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool $wizard_enabled Whether the wizard flag is enabled.
+	 * @param bool $has_owner Whether the site has a connected owner.
+	 * @param bool $skipped Whether this user has skipped setup.
+	 * @param bool $expect_features Whether the link should open Features.
+	 */
+	#[DataProvider( 'modules_onboarding_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_links_avoid_the_onboarding_redirect( $wizard_enabled, $has_owner, $skipped, $expect_features ) {
+		$this->load_jetpack_mock();
+		$user_id = $this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		if ( $wizard_enabled ) {
+			$this->enable_wizard_flag();
+		}
+		if ( $has_owner ) {
+			$this->connect_owner( $user_id );
+		} else {
+			$this->connect_site_only();
+		}
+		if ( $skipped ) {
+			update_user_option( $user_id, Initializer::ONBOARDING_DISMISSED_USER_OPTION, true );
+		}
+
+		$eligible = null;
+		$expected = $expect_features
+			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
+			: admin_url( 'admin.php?page=jetpack_modules' );
+		$this->assertSame( $expected, Initializer::get_modules_management_url( array(), $eligible ) );
+		$this->assertSame( $expect_features, $eligible );
+	}
+
+	public static function modules_onboarding_cases() {
+		return array(
+			'wizard needs an owner' => array( true, false, false, false ),
+			'wizard disabled'       => array( false, false, false, true ),
+			'owner connected'       => array( true, true, false, true ),
+			'setup skipped'         => array( true, false, true, true ),
+		);
+	}
+
+	/**
+	 * @dataProvider modules_plugin_load_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $loaded Whether the Jetpack class is loaded.
+	 * @param bool   $active Whether a recognized Jetpack plugin file is active.
+	 * @param string $disabled_filter Filter to force off for this case.
+	 */
+	#[DataProvider( 'modules_plugin_load_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_links_require_the_loaded_jetpack_plugin( $loaded, $active, $disabled_filter = '' ) {
+		if ( $loaded ) {
+			$this->load_jetpack_mock( 'jetpack-dev' );
+		}
+		if ( ! $active ) {
+			update_option( 'active_plugins', array() );
+		}
+		$this->assertSame( $loaded, class_exists( 'Jetpack' ) );
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		$this->connect_site_only();
+		if ( $disabled_filter ) {
+			add_filter( $disabled_filter, '__return_false' );
+		}
+
+		$expect_features = $active && ! $disabled_filter;
+		$eligible        = null;
+		$expected        = $expect_features
+			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
+			: admin_url( 'admin.php?page=jetpack_modules' );
+		$this->assertSame( $expected, Initializer::get_modules_management_url( array(), $eligible ) );
+		$this->assertSame( $expect_features, $eligible );
+	}
+
+	/**
+	 * @dataProvider jetpack_plugin_load_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool $loaded Whether the Jetpack class is loaded.
+	 * @param bool $active Whether a recognized Jetpack plugin file is active.
+	 */
+	#[DataProvider( 'jetpack_plugin_load_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_fallback_requires_the_loaded_jetpack_plugin( $loaded, $active ) {
+		if ( $loaded ) {
+			$this->load_jetpack_mock( 'jetpack-dev' );
+		}
+		if ( ! $active ) {
+			update_option( 'active_plugins', array() );
+		}
+		$this->assertSame( $loaded, class_exists( 'Jetpack' ) );
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		$_GET = array(
+			'page'             => 'my-jetpack',
+			'modules_fallback' => '1',
+		);
+		ob_start();
+		Initializer::print_modules_fallback();
+		$html = ob_get_clean();
+		if ( $active ) {
+			$this->assertStringStartsWith( '<noscript><meta', $html );
+			$this->assertSame( 1, substr_count( $html, '<meta ' ) );
+		} else {
+			$this->assertSame( '', $html );
+		}
+	}
+
+	/**
+	 * @dataProvider installed_jetpack_copies
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $active Whether Beta is active.
+	 * @param string $expected_file Expected installed copy.
+	 * @param string $expected_status Expected feature status.
+	 */
+	#[DataProvider( 'installed_jetpack_copies' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_links_and_features_use_the_active_jetpack_copy( $active, $expected_file, $expected_status ) {
+		$this->load_jetpack_mock( 'jetpack-dev' );
+		add_filter(
+			'all_plugins',
+			static function () {
+				return array(
+					'jetpack/jetpack.php'     => array( 'Name' => 'Jetpack' ),
+					'jetpack-dev/jetpack.php' => array( 'Name' => 'Jetpack Beta' ),
+				);
+			},
+			20
+		);
+		update_option( 'active_plugins', $active ? array( 'jetpack-dev/jetpack.php' ) : array() );
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		$this->connect_site_only();
+
+		$this->assertSame( $expected_file, Main_Features::get_plugin_file( Product::JETPACK_PLUGIN_SLUG ) );
+		$this->assertSame( $expected_status, Main_Features::get_state( true )['jetpack'] );
+		$expected_url = Main_Features::PLUGIN_ACTIVE === $expected_status
+			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
+			: admin_url( 'admin.php?page=jetpack_modules' );
+		$this->assertSame( $expected_url, Initializer::get_modules_management_url() );
+	}
+
+	public static function installed_jetpack_copies() {
+		return array(
+			'Beta active with stable installed' => array( true, 'jetpack-dev/jetpack.php', Main_Features::PLUGIN_ACTIVE ),
+			'neither copy active'               => array( false, 'jetpack/jetpack.php', Main_Features::PLUGIN_INACTIVE ),
+		);
+	}
+
+	public static function jetpack_plugin_load_cases() {
+		return array(
+			'Beta plugin loaded'     => array( true, true ),
+			'installed but inactive' => array( true, false ),
+			'plugin not loaded'      => array( false, false ),
+		);
+	}
+
+	public static function modules_plugin_load_cases() {
+		return array_merge(
+			self::jetpack_plugin_load_cases(),
+			array(
+				'My Jetpack disabled'       => array( true, true, 'jetpack_my_jetpack_should_initialize' ),
+				'host redirects My Jetpack' => array( true, true, 'jetpack_my_jetpack_modules_management_available' ),
+				'Modules flag off'          => array( true, true, 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' ),
+			)
+		);
+	}
+
+	public function test_rest_probe_preserves_the_admin_cookie_user_without_a_rest_nonce() {
+		global $wp_rest_auth_cookie;
+		$original_cookie = $wp_rest_auth_cookie;
+		$user            = wp_insert_user(
+			array(
+				'user_login' => 'rest-probe-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		$wp_rest_auth_cookie = true;
+		add_filter( 'rest_authentication_errors', 'rest_cookie_check_errors', 100 );
+		try {
+			$this->assertTrue( Initializer::is_modules_rest_api_enabled() );
+			$this->assertSame( $user, get_current_user_id() );
+			add_filter( 'rest_authentication_errors', '__return_null', 10 );
+			$this->assertTrue( Initializer::is_modules_rest_api_enabled() );
+			$this->assertSame( $user, get_current_user_id() );
+		} finally {
+			$wp_rest_auth_cookie = $original_cookie;
+			remove_filter( 'rest_authentication_errors', 'rest_cookie_check_errors', 100 );
+			remove_filter( 'rest_authentication_errors', '__return_null', 10 );
+		}
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_marked_links_have_a_scoped_classic_fallback_with_preserved_arguments() {
+		$this->load_jetpack_mock();
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'modules-fallback',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		$_GET = array(
+			'page'             => 'my-jetpack',
+			'modules_fallback' => '1',
+			's'                => 'stats & visits',
+			'module_tag'       => 'Jetpack Stats',
+			'redirect'         => 'https://example.test/unsafe',
+		);
+		ob_start();
+		Initializer::print_modules_fallback();
+		$html = ob_get_clean();
+		$this->assertStringStartsWith( '<noscript><meta', $html );
+		$this->assertSame( 1, substr_count( $html, '<meta ' ) );
+		$this->assertStringContainsString( 'page=jetpack_modules', $html );
+		$this->assertStringContainsString( 's=stats+%26+visits', $html );
+		$this->assertStringContainsString( 'module_tag=Jetpack+Stats', $html );
+		$this->assertStringNotContainsString( 'modules_fallback', $html );
+		$this->assertStringNotContainsString( 'unsafe', $html );
+		add_filter( 'rest_enabled', '__return_false' );
+		try {
+			ob_start();
+			Initializer::print_modules_fallback();
+			$this->assertSame( 2, substr_count( ob_get_clean(), '<meta ' ) );
+		} finally {
+			remove_filter( 'rest_enabled', '__return_false' );
+		}
+		unset( $_GET['modules_fallback'] );
+		ob_start();
+		Initializer::print_modules_fallback();
+		$this->assertSame( '', ob_get_clean() );
+		$_GET = array();
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_marked_links_print_no_fallback_when_the_flag_is_off() {
+		$this->load_jetpack_mock();
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		$_GET   = array(
+			'page'             => 'my-jetpack',
+			'modules_fallback' => '1',
+		);
+		$probes = 0;
+		$probe  = static function () use ( &$probes ) {
+			++$probes;
+			return false;
+		};
+		add_filter( 'rest_enabled', $probe );
+		Initializer::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+		try {
+			ob_start();
+			Initializer::print_modules_fallback();
+			$this->assertSame( '', ob_get_clean() );
+			$this->assertSame( 0, $probes );
+		} finally {
+			remove_filter( 'rest_enabled', $probe );
+			remove_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+			Feature_Flags::reset();
+			$_GET = array();
+		}
+	}
+
+	public function test_offline_feature_list_defaults_on_and_respects_rollback_and_host_hidden_modules() {
 		global $_registered_pages;
 		$original_pages    = $_registered_pages;
 		$_registered_pages = array_fill_keys( array( 'jetpack_page_jetpack-forms', 'toplevel_page_jetpack-boost', 'admin_page_theme-editor', 'appearance_page_theme-editor', 'admin_page_plugin-editor', 'plugins_page_plugin-editor', 'admin_page_edit?post_type=feedback' ), true );
@@ -50,8 +380,7 @@ class Initializer_Test extends BaseTestCase {
 		};
 		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
 		try {
-			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
-			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$this->assertArrayHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			$state = Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures']['mainFeatures'];
 			$slugs = array_column( $state['features'], 'slug' );
 			$this->assertSame( array( 'jetpack-forms', 'jetpack-boost', 'theme-editor', 'plugin-editor' ), $state['available_admin_pages'] );
@@ -61,8 +390,11 @@ class Initializer_Test extends BaseTestCase {
 			$this->assertContains( 'stats', $state['hidden_modules'] );
 			$this->assertContains( 'publicize', $state['hidden_modules'] );
 			$this->assertContains( 'monitor', $state['hidden_modules'] );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 		} finally {
 			$_registered_pages = $original_pages;
+			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_false' );
 			remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
 		}
 	}
@@ -92,7 +424,6 @@ class Initializer_Test extends BaseTestCase {
 			)
 		);
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$attempts = array();
 		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
 			$attempts[] = $url;
@@ -176,7 +507,6 @@ class Initializer_Test extends BaseTestCase {
 		wp_set_current_user( $user );
 		wp_get_current_user()->add_cap( 'manage_network', $network_admin );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$_GET['page'] = 'my-jetpack';
 		$this->assertSame( $network_admin, REST_Main_Features::permissions_callback() );
 		$this->assertSame( $network_admin, isset( Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures'] ) );
@@ -213,7 +543,6 @@ class Initializer_Test extends BaseTestCase {
 			)
 		);
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$this->assert_offline_page_permission( false );
 	}
 
@@ -276,7 +605,6 @@ class Initializer_Test extends BaseTestCase {
 		);
 		unset( $GLOBALS['current_user'], $GLOBALS['wp_actions']['set_current_user'] );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		Initializer::init();
 		$this->assertSame( 0, did_action( 'set_current_user' ) );
 		$this->assertSame( 1, did_action( 'my_jetpack_init' ) );
@@ -296,7 +624,6 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertGreaterThan( 0, did_action( 'set_current_user' ) );
 		Constants::set_constant( 'REST_REQUEST', true );
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		add_action( 'rest_api_init', array( Initializer::class, 'init' ), 0 );
 		$this->assertArrayHasKey( '/wpcom/v2/my-jetpack/site/features', rest_get_server()->get_routes() );
 	}
@@ -318,7 +645,6 @@ class Initializer_Test extends BaseTestCase {
 			)
 		);
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		Initializer::init();
 		$this->assertFalse( apply_filters( 'jetpack_my_jetpack_should_enable_add_license_screen', true ) );
 	}
@@ -334,7 +660,6 @@ class Initializer_Test extends BaseTestCase {
 			)
 		);
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 		$this->assertTrue( Initializer::should_initialize() );
 		wp_get_current_user()->add_cap( 'activate_plugins', false );
 		$this->assertFalse( Initializer::should_initialize() );
@@ -361,6 +686,11 @@ class Initializer_Test extends BaseTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		if ( $this->jetpack_mock_directory ) {
+			unlink( $this->jetpack_mock_directory . '/jetpack.php' );
+			rmdir( $this->jetpack_mock_directory );
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
 		$this->reset_state();
 	}
 
@@ -391,6 +721,7 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' );
 		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
@@ -1288,20 +1619,118 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
 	}
 
-	/**
-	 * The header's placeholder controls stay hidden unless the flag is turned on.
-	 */
-	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
+	public function test_modules_to_features_defaults_on() {
 		Initializer::register_feature_flags();
-		$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
-
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 		try {
-			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+			$this->assertTrue( Feature_Flags::is_enabled( Initializer::MODULES_TO_FEATURES_FLAG ) );
 		} finally {
-			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 			Feature_Flags::reset();
 		}
+	}
+
+	/**
+	 * Overview v1 shows only with its flag on.
+	 */
+	public function test_my_jetpack_flags_show_overview_v1_only_when_the_flag_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['overviewV1'] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()['overviewV1'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * The blog posts route exists only with Overview v1's flag on.
+	 */
+	public function test_blog_posts_route_registers_only_when_overview_v1_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertArrayNotHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+		try {
+			$this->assertArrayHasKey( '/my-jetpack/v1/blog-posts', $this->capture_rest_routes() );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * Header controls default on, allow rollback, and respect My Jetpack's exclusions.
+	 */
+	public function test_header_controls_default_on_with_false_override_and_exclusions() {
+		Initializer::register_feature_flags();
+
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
+
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'header-controls-admin',
+						'user_pass'  => 'password',
+						'role'       => 'administrator',
+					)
+				)
+			);
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+			$this->assertTrue( Initializer::should_initialize() );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+
+			add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+		} finally {
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_false' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * Page flags use their registered defaults and honor specific overrides.
+	 *
+	 * @dataProvider page_feature_flags
+	 * @param string $key     The page's name for the flag.
+	 * @param string $flag    The registered flag.
+	 * @param bool   $default The registered default.
+	 */
+	#[DataProvider( 'page_feature_flags' )]
+	public function test_my_jetpack_flags_use_defaults_and_honor_overrides( $key, $flag, $default ) {
+		Initializer::register_feature_flags();
+		$this->assertSame( $default, Initializer::get_my_jetpack_flags()[ $key ] );
+
+		$override = $default ? '__return_false' : '__return_true';
+		add_filter( 'jetpack_feature_flag_enabled_' . $flag, $override );
+		try {
+			$this->assertSame( ! $default, Initializer::get_my_jetpack_flags()[ $key ] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . $flag, $override );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * The flags the page reads, by the name it reads them under.
+	 *
+	 * @return array<string, array{string, string, bool}>
+	 */
+	public static function page_feature_flags() {
+		return array(
+			'overview v1'     => array( 'overviewV1', Initializer::OVERVIEW_V1_FLAG, false ),
+			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG, true ),
+		);
 	}
 
 	/**
@@ -1474,6 +1903,29 @@ class Initializer_Test extends BaseTestCase {
 		$_GET['showCouponRedemption'] = '1';
 
 		$this->assertNull( $this->capture_onboarding_redirect() );
+	}
+
+	/**
+	 * Load the Jetpack plugin mock from the requested installation directory.
+	 *
+	 * @param string $directory Plugin directory name.
+	 */
+	private function load_jetpack_mock( $directory = 'jetpack' ) {
+		$plugin_dir = WP_PLUGIN_DIR . '/' . $directory;
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0777, true );
+			$this->jetpack_mock_directory = $plugin_dir;
+		}
+		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', $plugin_dir . '/jetpack.php' );
+		require_once $plugin_dir . '/jetpack.php';
+		wp_cache_delete( 'plugins', 'plugins' );
+		add_filter(
+			'all_plugins',
+			static function ( $plugins ) use ( $directory ) {
+				return array_intersect_key( $plugins, array( $directory . '/jetpack.php' => true ) );
+			}
+		);
+		update_option( 'active_plugins', array( $directory . '/jetpack.php' ) );
 	}
 
 	/**

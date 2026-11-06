@@ -1,20 +1,15 @@
 /**
  * External dependencies
  */
-import {
-	ensureCoreSettingsReady,
-	hasComparisonEnabled,
-	needsReportDateParamsSeed,
-	withoutComparison,
-} from '@jetpack-premium-analytics/data';
+import { getSectionDatePolicy } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { seedSiteDateParams } from '../site-date-seed';
+import { dateWindowRedirect } from '../date-window-redirect';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-
-type DashboardSearch = Record< string, string | undefined >;
+import { dashboardSectionOf, withoutCarriedYearWindow } from '../stats-date-window';
+import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
@@ -27,39 +22,25 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const params = ( search ?? {} ) as DashboardSearch;
-		if ( needsReportDateParamsSeed( params ) ) {
-			/*
-			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection should
-			 * not error the page since the seed's own dates don't depend on it.
-			 */
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
+		const current: DashboardSearch = search ?? {};
+		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
+		const params = withoutCarriedYearWindow( current, policy );
 
-			const normalized = seedSiteDateParams( params );
-
-			/*
-			 * Overlay the seeded params onto `params`, not replace them, so
-			 * passthrough params like `section` survive the seed. Comparison keys
-			 * only survive when the seed returned a complete comparison: a
-			 * hand-edited bare `comp=1` must not outlive it.
-			 */
-			const merged = { ...params, ...normalized };
-			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )
-				? merged
-				: withoutComparison( merged );
-
+		const limited = await dateWindowRedirect( params, policy, {
+			seed: next => seedDashboardDateSearch( next, policy ),
+			requested: params,
+		} );
+		if ( limited ) {
 			throw redirect( {
 				to: '/',
 				replace: true,
+				viewTransition: false,
 				/*
 				 * The router is built dynamically, so '/' has no typed search schema
 				 * (TanStack widens it to `never`); cast as the routing package does.
 				 */
-				search: seeded as unknown as never,
+				search: limited.search as unknown as never,
+				state: limited.state,
 			} );
 		}
 	},

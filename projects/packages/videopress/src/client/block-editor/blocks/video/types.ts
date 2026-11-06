@@ -121,6 +121,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	isExample?: boolean;
 	// Render the video of the page being viewed ( channel video pages ).
 	useQueriedVideo?: boolean;
+	// Plays the site's newest VideoPress upload, e.g. a channel home's featured video.
+	useLatestVideo?: boolean;
 };
 
 export type VideoBlockEditProps = {

@@ -13,5 +13,23 @@
 		]
 	},
 	"category": "traffic",
-	"presentation": "framed"
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "platformDimension",
+			"type": "jpa/select",
+			"label": "View by",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "browser",
+					"label": "Browser"
+				},
+				{
+					"value": "platform",
+					"label": "OS"
+				}
+			]
+		}
+	]
 }

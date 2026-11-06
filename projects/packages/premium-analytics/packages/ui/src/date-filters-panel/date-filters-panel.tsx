@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -9,6 +9,7 @@ import {
 	type IntervalType,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
+	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
@@ -18,7 +19,9 @@ import { useMemo, useCallback, useState } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
+import { DatePeriodNavigation } from '../date-period-navigation';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
 
@@ -27,6 +30,17 @@ import './date-filters-panel.scss';
 type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 
 export type DateRange = DatePeriodDropdownProps[ 'range' ];
+
+/**
+ * The step the arrows offer, and whether each has somewhere to go, as the date
+ * filters decided it: the plan's earliest date behind, a window that has begun
+ * ahead. An arrow with nowhere to go is disabled, not hidden.
+ */
+export type DateStepping = {
+	onStep: ( direction: StepDirection ) => void;
+	canStepBackward: boolean;
+	canStepForward: boolean;
+};
 
 export type DateFiltersPanelProps = {
 	range: DateRange;
@@ -90,11 +104,21 @@ export type DateFiltersPanelProps = {
 	 */
 	intervalOptions?: readonly IntervalType[];
 
+	/** The buckets the range would allow but the plan locks, listed with a lock. */
+	lockedIntervalOptions?: readonly LockableInterval[];
+
 	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 
 	onIntervalChange?: ( interval: IntervalType ) => void;
+
+	/**
+	 * The arrows that step the applied window by its own length. Left out, they
+	 * are not rendered at all: a surface whose range is not a movable window has
+	 * nowhere to step.
+	 */
+	stepping?: DateStepping;
 
 	/**
 	 * Props for the date range popover.
@@ -148,9 +172,11 @@ export function DateFiltersPanel( {
 	withIntervalControl = false,
 	interval,
 	intervalOptions,
+	lockedIntervalOptions,
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
+	stepping,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -171,7 +197,7 @@ export function DateFiltersPanel( {
 	 * Read rather than a prop, so this and the widgets share one declaration —
 	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
-	const { offersComparison } = useReportScope();
+	const { offersComparison, dateLimits } = useReportScope();
 
 	// Unknown values (e.g. garbage from the URL) become undefined, which the
 	// dropdown reads as the custom preset.
@@ -248,23 +274,41 @@ export function DateFiltersPanel( {
 		]
 	);
 
+	const navigationControl = useMemo(
+		() => ( stepping ? <DatePeriodNavigation { ...stepping } disabled={ disabled } /> : null ),
+		[ disabled, stepping ]
+	);
+
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
 					options={ intervalOptions }
+					lockedOptions={ lockedIntervalOptions }
+					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
 					disabled={ disabled }
 					triggerProps={ triggerProps }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, disabled, triggerProps, onIntervalChange ]
+		[
+			withIntervalControl,
+			interval,
+			intervalOptions,
+			lockedIntervalOptions,
+			dateLimits?.intervalUpsell,
+			disabled,
+			triggerProps,
+			onIntervalChange,
+		]
 	);
 
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
+				{ navigationControl }
+
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }
@@ -292,6 +336,9 @@ export function DateFiltersPanel( {
 						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
+						lockedPresetIds={ dateLimits?.lockedPresetIds }
+						earliestDate={ dateLimits?.earliestDate }
+						lockNotice={ dateLimits?.upsell && <DateLimitUpsell upsell={ dateLimits.upsell } /> }
 					/>
 				</BaseControl>
 

@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -36,7 +37,10 @@ const BASE_SETTINGS = getSettings();
 
 describe( 'PostHighlightCard', () => {
 	beforeEach( () => setSettings( EN_US_SETTINGS ) );
-	afterEach( () => setSettings( BASE_SETTINGS ) );
+	afterEach( () => {
+		setSettings( BASE_SETTINGS );
+		jest.useRealTimers();
+	} );
 
 	it( 'links the title to the detail route and carries the report window', () => {
 		render(
@@ -124,13 +128,15 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( '0' ) ).toBeInTheDocument();
 	} );
 
-	// A lifetime metric shown next to a period-scoped one must say so, and the
-	// `title` tooltip alone is invisible to assistive technology.
-	it( 'exposes a metric note as both a tooltip and visually hidden text', () => {
+	it( 'shows a metric note in a tooltip on the metric label', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PostHighlightCard { ...props } /> );
 
-		expect( screen.getByTitle( 'All-time total.' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'All-time total.' ) ).toBeInTheDocument();
+		await user.hover( screen.getByText( 'Likes' ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( screen.getByTestId( 'metric-note-tooltip' ) ).toHaveTextContent( 'All-time total.' );
 	} );
 
 	it( 'renders the featured image only when one is present', () => {

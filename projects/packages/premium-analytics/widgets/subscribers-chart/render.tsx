@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
-	ChartEmptyState,
+	ReportScopeProvider,
+	chartInterval,
+	useStatsSubscribersCounts,
+} from '@jetpack-premium-analytics/data';
+import {
+	HEADLINE_COUNT_FORMAT,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -38,11 +42,6 @@ type SubscribersChartWidgetProps = WidgetRenderProps< SubscribersChartAttributes
 	 * Host callback to surface a widget error in the dashboard frame.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
-};
-
-const DATA_FORMAT = {
-	type: 'number' as const,
-	options: { useMultipliers: true, decimals: 0 },
 };
 
 /**
@@ -106,18 +105,25 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
+	// Paid subscribers are a subset, so no subscriber in the range empties every tab.
+	const isChartEmpty =
+		! state.isLoading && ! state.isError && state.current.every( point => ! point.subscribers );
+	const counts = useStatsSubscribersCounts( undefined, { enabled: isChartEmpty } );
+	// An unread total says nothing about the site, so only a known zero changes the copy.
+	const hasNoSubscribers = counts.data?.total_subscribers === 0;
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ state.isLoading }
+				isLoading={ state.isLoading || ( isChartEmpty && counts.isLoading ) }
 				isFetching={ state.isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
+				isEmpty={ isChartEmpty }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -127,16 +133,30 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 						{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: state.refetch },
 					],
 				} }
+				empty={
+					hasNoSubscribers
+						? {
+								description: __(
+									'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
+									'jetpack-premium-analytics-pkg'
+								),
+								action: {
+									label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+									href: 'https://jetpack.com/support/newsletter/',
+									openInNewTab: true,
+								},
+							}
+						: undefined
+				}
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
 					metrics={ metricTabs }
-					dataFormat={ DATA_FORMAT }
+					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					groupLabel={ groupLabel }
 					baseline="padded"
-					chartTitle={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }
-					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

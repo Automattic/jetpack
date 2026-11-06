@@ -17,7 +17,7 @@ type OrderAttributionByProductInterval = {
 
 type OrderAttributionByProductItem = {
 	item: string;
-	value: string;
+	value: string | null;
 	intervals: OrderAttributionByProductInterval[];
 };
 

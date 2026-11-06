@@ -1,3 +1,4 @@
+import { DataSyncError } from '@automattic/jetpack-react-data-sync-client';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { runLocalGenerator } from './generate-critical-css';
 import type { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
@@ -32,7 +33,12 @@ jest.mock(
 				this.urlErrors = urlErrors;
 			}
 		}
-		class BrowserInterfaceIframe {}
+		class BrowserInterfaceIframe {
+			options: Record< string, unknown >;
+			constructor( options: Record< string, unknown > ) {
+				this.options = options;
+			}
+		}
 		return {
 			generateCriticalCSS: ( ...args: unknown[] ) => mockGenerateCriticalCSS( ...args ),
 			BrowserInterfaceIframe,
@@ -69,6 +75,14 @@ function makeCallbacks() {
 		onFinished: jest.fn( ( succeeded: boolean ) => resolveFinished( succeeded ) ),
 		finished,
 	};
+}
+
+function waitForGeneratorCall() {
+	return new Promise< void >( resolve => {
+		const check = () =>
+			mockGenerateCriticalCSS.mock.calls.length ? resolve() : setTimeout( check, 1 );
+		check();
+	} );
 }
 
 describe( 'runLocalGenerator - per-provider error resilience', () => {
@@ -204,5 +218,82 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 		const byUrl = Object.fromEntries( errors.map( error => [ error.url, error ] ) );
 		expect( byUrl[ members ].meta ).toMatchObject( { code: 403, login_required: true } );
 		expect( byUrl[ home ].meta ).toEqual( { code: 500 } );
+	} );
+	it( 'records nothing for a run cancelled while a page is loading', async () => {
+		const { SuccessTargetError } = jest.requireMock( '@automattic/jetpack-critical-css-gen' );
+		type SignalledInterface = { options: { signal: AbortSignal } };
+
+		// The page loader rejects once cancelled, the way the real iframe interface does.
+		mockGenerateCriticalCSS.mockImplementationOnce(
+			( { browserInterface }: { browserInterface: SignalledInterface } ) =>
+				new Promise( ( _resolve, reject ) =>
+					browserInterface.options.signal.addEventListener( 'abort', () =>
+						reject(
+							new SuccessTargetError( {
+								'https://example.com/provider_a': { message: 'cancelled', type: 'UnknownError' },
+							} )
+						)
+					)
+				)
+		);
+
+		const callbacks = makeCallbacks();
+		const abort = runLocalGenerator(
+			[ makeProvider( 'provider_a' ), makeProvider( 'provider_b' ) ],
+			'nonce',
+			callbacks
+		);
+		// Cancel once the first provider's page load is under way, as leaving the page would.
+		await waitForGeneratorCall();
+		abort.abort();
+		await callbacks.finished;
+
+		expect( callbacks.setProviderErrors ).not.toHaveBeenCalled();
+		expect( callbacks.setProviderCss ).not.toHaveBeenCalled();
+		expect( mockGenerateCriticalCSS ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not save CSS a cancelled run finished building', async () => {
+		type SignalledInterface = { options: { signal: AbortSignal } };
+		mockGenerateCriticalCSS.mockImplementationOnce(
+			( { browserInterface }: { browserInterface: SignalledInterface } ) =>
+				new Promise( resolve =>
+					browserInterface.options.signal.addEventListener( 'abort', () =>
+						resolve( [ '.partial{color:red}' ] )
+					)
+				)
+		);
+
+		const callbacks = makeCallbacks();
+		const abort = runLocalGenerator( [ makeProvider( 'provider_a' ) ], 'nonce', callbacks );
+		await waitForGeneratorCall();
+		abort.abort();
+		await callbacks.finished;
+
+		expect( callbacks.setProviderCss ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records what the site answered when a provider save is refused', async () => {
+		mockGenerateCriticalCSS.mockResolvedValueOnce( [ '.top{color:red}' ] );
+		const callbacks = makeCallbacks();
+		const text = async () => '<html><body><h1>502 Bad Gateway</h1></body></html>';
+		callbacks.setProviderCss.mockRejectedValueOnce(
+			new DataSyncError( 'DS request failed: 502 - Bad Gateway', {
+				location: '/wp-json/jetpack-boost-ds/critical-css-state/action/set-provider-css',
+				status: 'response_not_ok',
+				namespace: 'jetpack_boost_ds',
+				key: 'critical_css_state',
+				data: { status: 502, statusText: 'Bad Gateway', clone: () => ( { text } ) },
+			} )
+		);
+
+		runLocalGenerator( [ makeProvider( 'provider_a' ) ], 'nonce', callbacks );
+		await callbacks.finished;
+
+		const [ , errors ] = callbacks.setProviderErrors.mock.calls[ 0 ];
+		expect( errors[ 0 ] ).toMatchObject( {
+			type: 'ProviderError',
+			message: 'The site answered with HTTP 502 Bad Gateway: 502 Bad Gateway',
+		} );
 	} );
 } );

@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- The mocked ComboboxControl is controlled by its value, so a single fireEvent.change is needed to replace the language instead of userEvent.type appending to it. */
+import analytics from '@automattic/jetpack-analytics';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import CaptionManagerModal from '..';
@@ -15,6 +16,11 @@ import {
 } from '../../../lib/video-tracks/caption-tracks';
 
 declare const global: typeof globalThis & { fetch: jest.MockedFunction< typeof fetch > };
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 let mockBlockEditorState: {
 	blocks: Array< { name: string; attributes: Record< string, string >; clientId: string } >;
@@ -173,14 +179,6 @@ jest.mock( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	__experimentalConfirmDialog: ( { children, isOpen, onCancel, onConfirm, confirmButtonText } ) =>
-		isOpen ? (
-			<div role="alertdialog">
-				<p>{ children }</p>
-				<button onClick={ onCancel }>Cancel</button>
-				<button onClick={ onConfirm }>{ confirmButtonText }</button>
-			</div>
-		) : null,
 	Notice: ( { children } ) => <div role="alert">{ children }</div>,
 	SnackbarList: ( { notices, onRemove } ) => (
 		<div data-testid="snackbar-list">
@@ -1435,6 +1433,11 @@ describe( 'CaptionManagerModal', () => {
 				srcLang: 'en',
 			} ),
 		] );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_videopress_captions_saved',
+			{ track_count: 1, is_auto: false, action: 'publish' }
+		);
 	} );
 
 	it( 'disables editing generated captions once their language has a manual track', async () => {

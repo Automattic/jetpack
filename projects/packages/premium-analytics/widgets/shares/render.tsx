@@ -8,7 +8,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
-	sharePercentage,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -20,8 +19,10 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  */
 import styles from './style.module.css';
 import useShareViews from './use-share-views';
-import { type SharesAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type SharesAttributes = Record< never, never >;
 
 type SharesRenderAttributes = Partial< ReportParamsFieldAttributes > & SharesAttributes;
 type SharesWidgetProps = WidgetRenderProps< SharesRenderAttributes >;
@@ -36,8 +37,6 @@ function SharesInner() {
 	} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( s => s.value ), 0 );
-
 		return data.map( ( service, index ) => ( {
 			id: `${ index }-${ service.service }`,
 			...buildLeaderboardRow( {
@@ -46,7 +45,6 @@ function SharesInner() {
 				action: { kind: 'static' },
 			} ),
 			currentValue: service.value,
-			currentShare: sharePercentage( service.value, maxValue ),
 		} ) );
 	}, [ data ] );
 
@@ -69,14 +67,18 @@ function SharesInner() {
 					} }
 					empty={ {
 						description: __(
-							'Learn where your content has been shared the most.',
+							'You don’t have shares recorded yet. Social can help you reach readers where they already are.',
 							'jetpack-premium-analytics-pkg'
 						),
+						action: {
+							label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+							href: 'https://jetpack.com/social/',
+							openInNewTab: true,
+						},
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
-						chartTitle={ __( 'All-time top social media shares', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }

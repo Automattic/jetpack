@@ -16,6 +16,7 @@ import { getArchivesFields, getPostsFields } from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	isPostDetailAvailable: () => true,
 	useSiteHomeUrl: jest.fn(),
 } ) );
 
@@ -251,6 +252,18 @@ describe( 'posts title field', () => {
 } );
 
 describe( 'archive rows', () => {
+	it( 'renders a group row at the same weight as its children', () => {
+		renderArchiveTitleField( {
+			id: 'tags-0',
+			label: 'Tags',
+			views: 42,
+			isGroup: true,
+		} );
+
+		expect( screen.getByText( 'Tags' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'strong' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders an archive with an unsafe URL as plain text', () => {
 		renderArchiveTitleField( {
 			id: 'search-0',

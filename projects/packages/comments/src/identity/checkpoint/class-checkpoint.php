@@ -68,7 +68,6 @@ class Checkpoint {
 	private function __construct() {
 		add_action( 'pre_comment_on_post', array( $this, 'admit' ), 20 );
 		add_filter( 'preprocess_comment', array( $this, 'attribute' ), 0 );
-		add_action( 'comment_post', array( $this, 'record' ) );
 		add_filter( 'akismet_request_args', array( $this, 'akismet_request_args' ), 10, 2 );
 
 		Checkpoint_Endpoint::init();
@@ -238,18 +237,22 @@ class Checkpoint {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards the code.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards both fields.
 		$code        = isset( $_POST[ self::CODE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CODE_FIELD ] ) ) : '';
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( '' !== $code ) {
-			// A form another site auto-submits can spend a code too, and the passport it
-			// earns lands in whichever browser sent it. Only this site's own pages may post one.
-			if ( ! self::is_same_site_request() ) {
-				self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
-			}
+		if ( '' === $code && ! $on_passport ) {
+			return;
+		}
 
+		// A form another site auto-submits can spend a code, landing the passport in whichever browser
+		// sent it, or arrive without the Lax passport cookie and have the refusal below revoke it.
+		if ( ! self::is_same_site_request() ) {
+			self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
+		}
+
+		if ( '' !== $code ) {
 			$identity = self::exchange( $code );
 
 			if ( is_wp_error( $identity ) ) {
@@ -257,7 +260,7 @@ class Checkpoint {
 			}
 
 			Passport::issue( $identity );
-		} elseif ( $on_passport ) {
+		} else {
 			$identity = Passport::read();
 
 			// The form showed a name the passport no longer backs, say after a
@@ -265,8 +268,6 @@ class Checkpoint {
 			if ( null === $identity ) {
 				self::refuse( new WP_Error( 'code_expired', '', array( 'status' => 403 ) ) );
 			}
-		} else {
-			return;
 		}
 
 		$this->identity = $identity;
@@ -294,7 +295,8 @@ class Checkpoint {
 		}
 
 		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
-			if ( empty( $_SERVER[ $header ] ) ) {
+			// A no-referrer policy posts Origin: null from this site's own pages too, so Sec-Fetch-Site decides.
+			if ( empty( $_SERVER[ $header ] ) || 'null' === $_SERVER[ $header ] ) {
 				continue;
 			}
 
@@ -398,6 +400,17 @@ class Checkpoint {
 		$commentdata['user_id'] = $user_id;
 		$commentdata['user_ID'] = $user_id;
 
+		// Core adds comment_meta before wp_insert_comment fires, so Sync queues it ahead of the comment.
+		$meta = array_filter(
+			array(
+				self::META_ID     => $this->identity['site_commenter_id'],
+				self::META_AVATAR => $this->identity['avatar'],
+			),
+			'strlen'
+		);
+
+		$commentdata['comment_meta'] = array_merge( is_array( $commentdata['comment_meta'] ?? null ) ? $commentdata['comment_meta'] : array(), $meta );
+
 		return $commentdata;
 	}
 
@@ -419,29 +432,10 @@ class Checkpoint {
 		$user_id = null === $this->identity ? 0 : absint( $this->identity['wpcom_user_id'] ?? 0 );
 
 		if ( $user_id ) {
-			// The values Verbum posted from Simple and from Jetpack sites.
-			$args['POST_hc_post_as'] = ( new Host() )->is_wpcom_simple() ? 'wordpress' : 'jetpack'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
+			$args['POST_hc_post_as'] = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
 			$args['POST_hc_userid']  = (string) $user_id;
 		}
 
 		return $args;
-	}
-
-	/**
-	 * Record who left the comment, from the identity admitted on this request rather than $_POST.
-	 *
-	 * @param int $comment_id The comment ID.
-	 * @return void
-	 */
-	public function record( $comment_id ) {
-		if ( null === $this->identity ) {
-			return;
-		}
-
-		add_comment_meta( $comment_id, self::META_ID, $this->identity['site_commenter_id'], true );
-
-		if ( '' !== $this->identity['avatar'] ) {
-			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );
-		}
 	}
 }

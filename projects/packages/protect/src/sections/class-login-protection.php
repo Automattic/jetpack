@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Brute force protection, account protection and WordPress.com login.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Login_Protection implements Dashboard_Section {
 

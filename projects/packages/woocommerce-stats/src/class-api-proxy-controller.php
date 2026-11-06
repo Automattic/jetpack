@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -16,8 +18,9 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Serves `/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>`: a read of the same
- * path under the connected site on WordPress.com, signed with the blog token and cached briefly.
+ * Serves `/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` through the report
+ * executor, whose only provider is a read of the same path under the connected site on WordPress.com,
+ * signed with the blog token and cached briefly.
  * Reports follow the store's WooCommerce Analytics date type unless the request names one.
  *
  * For now it carries its own forward. The route has the shape of the proxy controller the
@@ -33,6 +36,11 @@ class Api_Proxy_Controller {
 	const REST_NAMESPACE = 'jetpack/v4/woocommerce-stats';
 
 	/**
+	 * Path prefix of the report routes.
+	 */
+	private const REPORTS_PREFIX = 'analytics/reports/';
+
+	/**
 	 * Transient key prefix of the cached responses.
 	 */
 	const CACHE_PREFIX = 'jetpack_woocommerce_stats_proxy_';
@@ -41,6 +49,11 @@ class Api_Proxy_Controller {
 	 * How long a successful response stays cached.
 	 */
 	private const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Option holding the cache generation, part of every cache key.
+	 */
+	private const CACHE_GENERATION_OPTION = 'jetpack_woocommerce_stats_proxy_cache_generation';
 
 	/**
 	 * Timeout of the request to WordPress.com, in seconds.
@@ -76,6 +89,17 @@ class Api_Proxy_Controller {
 	}
 
 	/**
+	 * Drop every cached report, such as the empty ones WordPress.com answers with during the
+	 * store's initial sync. Bumps the generation instead of deleting, since an object cache can't
+	 * list transients by prefix.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		update_option( self::CACHE_GENERATION_OPTION, (int) get_option( self::CACHE_GENERATION_OPTION, 0 ) + 1, false );
+	}
+
+	/**
 	 * Register the route. It only reads, and only below `analytics/reports/`.
 	 *
 	 * @return void
@@ -93,6 +117,12 @@ class Api_Proxy_Controller {
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_endpoint' ),
+					),
+					'provider' => array(
+						'description'       => __( 'Provider to serve the report from. Defaults to WordPress.com.', 'jetpack-woocommerce-stats-pkg' ),
+						'type'              => 'string',
+						'enum'              => Report_Executor::PROVIDERS,
+						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
 			)
@@ -123,20 +153,44 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Answer a report from the cache, or from WordPress.com.
+	 * Answer a report from the handler the executor picks.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response|WP_Error The response of WordPress.com with its status, or an error:
-	 *                                   `no_connection` (403), the client's own with a 500, `api_error` (502).
+	 * @return WP_REST_Response|WP_Error The handler's response with its status, or the executor's or handler's error.
 	 */
 	public function handle_request( WP_REST_Request $request ) {
-		$path      = sprintf( '/sites/%d/%s', (int) Jetpack_Options::get_option( 'id' ), $request->get_param( 'endpoint' ) );
-		$params    = $this->get_forwarded_params( $request );
-		$cache_key = null === $request->get_param( 'force_refresh' ) ? $this->get_cache_key( $path, $params ) : null;
+		$route   = substr( (string) $request->get_param( 'endpoint' ), strlen( self::REPORTS_PREFIX ) );
+		$payload = ( new Report_Executor( Report_Registry::create() ) )->execute(
+			$route,
+			$this->get_forwarded_params( $request ),
+			$request->get_param( 'provider' ),
+			null !== $request->get_param( 'force_refresh' )
+		);
+
+		return is_wp_error( $payload ) ? $payload : $this->build_response( $payload );
+	}
+
+	/**
+	 * Read a report from the cache, or from WordPress.com. The transport of `Wpcom_Forward_Handler`.
+	 *
+	 * @param string $route         Route below `analytics/reports/`.
+	 * @param array  $params        The report's query params.
+	 * @param bool   $force_refresh Whether to skip the cache.
+	 * @return array|WP_Error `data`, `status` and `headers`, or an error:
+	 *                        `no_connection` (403), the client's own with a 500, `api_error` (502).
+	 */
+	public function fetch_remote( $route, array $params, $force_refresh = false ) {
+		// WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
+		if ( ! isset( $params['date_type'] ) ) {
+			$params['date_type'] = $this->get_store_date_type();
+		}
+
+		$path      = sprintf( '/sites/%d/%s%s', (int) Jetpack_Options::get_option( 'id' ), self::REPORTS_PREFIX, $route );
+		$cache_key = $force_refresh ? null : $this->get_cache_key( $path, $params );
 
 		$cached = null === $cache_key ? false : get_transient( $cache_key );
 		if ( false !== $cached ) {
-			return $this->build_response( $cached );
+			return $cached;
 		}
 
 		if ( ! ( new Manager() )->is_connected() ) {
@@ -148,7 +202,7 @@ class Api_Proxy_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			$params ? $path . '?' . http_build_query( $params ) : $path,
+			$path . '?' . http_build_query( $params ),
 			'2',
 			array(
 				'method'  => 'GET',
@@ -182,7 +236,7 @@ class Api_Proxy_Controller {
 			set_transient( $cache_key, $payload, self::CACHE_TTL );
 		}
 
-		return $this->build_response( $payload );
+		return $payload;
 	}
 
 	/**
@@ -199,21 +253,14 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * The query params to forward: all but WordPress routing and the proxy's own, with the store's
-	 * date type when the caller names none.
-	 *
-	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
+	 * The report's query params: all but WordPress routing and the proxy's own.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
 	 */
 	private function get_forwarded_params( WP_REST_Request $request ) {
 		$params = $request->get_query_params();
-		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'] );
-
-		if ( ! isset( $params['date_type'] ) ) {
-			$params['date_type'] = $this->get_store_date_type();
-		}
+		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'], $params['provider'] );
 
 		return $params;
 	}
@@ -256,7 +303,7 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Transient key of a path and its params, whatever their order.
+	 * Transient key of a path and its params, whatever their order, in the current cache generation.
 	 *
 	 * @param string $path   WordPress.com path, without the query string.
 	 * @param array  $params Forwarded query params.
@@ -265,6 +312,8 @@ class Api_Proxy_Controller {
 	private function get_cache_key( $path, array $params ) {
 		ksort( $params );
 
-		return self::CACHE_PREFIX . md5( $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = (int) get_option( self::CACHE_GENERATION_OPTION, 0 );
+
+		return self::CACHE_PREFIX . md5( $generation . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 	}
 }

@@ -41,6 +41,25 @@ export interface ChartLegendOptions {
 	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
 	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
 	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
+	/** Each series' swatch color, by index, in place of its series color. */
+	seriesColors?: string[];
+}
+
+/**
+ * Wraps `getElementStyles` so a swatch takes the color given for its series.
+ * @param getElementStyles - Function to get element styles
+ * @param seriesColors     - Each series' swatch color, by index
+ * @return Element styles with the given color
+ */
+function withSeriesColors(
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	seriesColors: string[]
+): ( params: GetElementStylesParams ) => ElementStyles {
+	return params => {
+		const styles = getElementStyles( params );
+
+		return { ...styles, color: seriesColors[ params.index ] ?? styles.color };
+	};
 }
 
 /**
@@ -386,9 +405,10 @@ export function useChartLegendItems<
 		collapseGroups = false,
 		comparisonItem = false,
 		comparisonSeriesItems,
+		seriesColors,
 		renderGlyph,
 	} = options;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles: getSeriesStyles } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -398,6 +418,9 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
+			const getElementStyles = seriesColors
+				? withSeriesColors( getSeriesStyles, seriesColors )
+				: getSeriesStyles;
 			const items = processSeriesData(
 				seriesData,
 				getElementStyles,
@@ -440,7 +463,7 @@ export function useChartLegendItems<
 		// Handle DataPointDate or DataPointPercentageCalculated (single data points)
 		return processPointData(
 			data as ( DataPointDate | DataPointPercentageCalculated )[],
-			getElementStyles,
+			getSeriesStyles,
 			showValues,
 			legendValueDisplay,
 			withGlyph,
@@ -450,7 +473,7 @@ export function useChartLegendItems<
 		);
 	}, [
 		data,
-		getElementStyles,
+		getSeriesStyles,
 		showValues,
 		legendValueDisplay,
 		withGlyph,
@@ -458,6 +481,7 @@ export function useChartLegendItems<
 		collapseGroups,
 		comparisonItem,
 		comparisonSeriesItems,
+		seriesColors,
 		renderGlyph,
 		legendShape,
 	] );

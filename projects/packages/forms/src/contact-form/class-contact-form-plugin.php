@@ -2259,10 +2259,10 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string The contact-form filtered widget text
 	 *
-	 * @deprecated $$next-version$$ Core processes shortcodes in text widgets since WordPress 4.9.
+	 * @deprecated 8.3.4 Core processes shortcodes in text widgets since WordPress 4.9.
 	 */
 	public function widget_shortcode_hack( $text ) {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-8.3.4' );
 
 		if ( ! preg_match( '/\[contact-form([^a-zA-Z_-])/', $text ) ) {
 			return $text;

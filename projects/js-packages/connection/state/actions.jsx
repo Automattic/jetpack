@@ -54,8 +54,18 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
-const disconnectUserSuccess = () => {
-	return { type: DISCONNECT_USER_SUCCESS };
+/**
+ * Record that the current user is no longer connected to WordPress.com.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.wasConnectionOwner] - Whether the unlinked user owned the connection.
+ *                                               Disconnecting the owner deletes the
+ *                                               `master_user` option, so the site is left with
+ *                                               no owner of record either.
+ * @return {object} The action.
+ */
+const disconnectUserSuccess = ( { wasConnectionOwner = false } = {} ) => {
+	return { type: DISCONNECT_USER_SUCCESS, wasConnectionOwner };
 };
 
 const setRegistrationError = registrationError => {
@@ -153,6 +163,47 @@ const refreshConnectedPlugins =
 		} );
 	};
 
+/**
+ * Read the site's connection status from the server again and record it in the store.
+ *
+ * The store is otherwise filled once, from the page's initial state, so it cannot see a connection made in another tab.
+ *
+ * @return {Function} Thunk that resolves with the fresh status.
+ */
+const refreshConnectionStatus =
+	() =>
+	async ( { dispatch } ) => {
+		const status = await restApi.fetchSiteConnectionStatus();
+		dispatch( setConnectionStatus( status ) );
+
+		return status;
+	};
+
+/**
+ * Unlink the current user from WordPress.com and record it in the store.
+ *
+ * The one place an unlink happens, so every surface reflects it the same way rather than
+ * patching its own copy of the connection state afterwards. Rejects with the API's error so
+ * the caller can word the failure for its own audience.
+ *
+ * @param {object}  [options]                    - Options.
+ * @param {boolean} [options.force]              - Force the disconnection. An administrator
+ *                                               unlinking themselves needs it.
+ * @param {boolean} [options.disconnectAllUsers] - Also unlink every other user, which
+ *                                               disconnecting the owner requires.
+ * @return {Function} Thunk.
+ */
+const unlinkUser =
+	( { force = false, disconnectAllUsers = false } = {} ) =>
+	async ( { dispatch, select } ) => {
+		// Read before the request: what the unlink means for the store follows from who the
+		// viewer is, not from what the caller asked the endpoint to do.
+		const wasConnectionOwner = Boolean( select.getUserConnectionData()?.currentUser?.isMaster );
+
+		await restApi.unlinkUser( force, { disconnectAllUsers } );
+		dispatch( disconnectUserSuccess( { wasConnectionOwner } ) );
+	};
+
 const actions = {
 	setConnectionOwner,
 	setConnectionStatus,
@@ -167,8 +218,10 @@ const actions = {
 	registerSite,
 	connectUser,
 	disconnectUserSuccess,
+	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	refreshConnectionStatus,
 	setConnectionErrors,
 	runConnectionHealthCheck,
 	setIsOfflineMode,

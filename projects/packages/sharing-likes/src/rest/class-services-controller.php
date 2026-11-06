@@ -294,6 +294,7 @@ final class Services_Controller extends Controller {
 			'name'       => wp_specialchars_decode( (string) $service->get_name(), ENT_QUOTES ),
 			'custom'     => $service instanceof \Sharing_Advanced_Source,
 			'deprecated' => $service->is_deprecated(),
+			'legacy'     => method_exists( $service, 'is_legacy' ) && $service->is_legacy(),
 		);
 
 		if ( $service instanceof \Sharing_Advanced_Source ) {

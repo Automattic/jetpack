@@ -1,26 +1,32 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference -- Same as header-data.ts: a package entry point.
-/// <reference path="../../../global.d.ts" />
-import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import ConnectionControl from './connection-control';
+import { isHeaderControlsEnabled } from './slot';
 import type { FC, ReactNode } from 'react';
 
+interface HeaderControlsProps {
+	/**
+	 * The host page, sent as `context` on the controls' Tracks events. Required so every host names
+	 * itself; undefined only when an older host's slot carries none, and is then sent as null.
+	 */
+	trackingContext: string | undefined;
+}
+
 /**
- * The shared header's global controls. A placeholder until the connection control (JETPACK-3052) replaces it.
+ * The shared header's global controls.
  *
+ * @param props                 - Component props.
+ * @param props.trackingContext - The host page, for Tracks.
  * @return The controls.
  */
-const HeaderControls: FC = () => (
-	<Button variant="outline" size="compact" disabled>
-		{ __( 'Connection', 'jetpack-my-jetpack' ) }
-	</Button>
+const HeaderControls: FC< HeaderControlsProps > = ( { trackingContext } ) => (
+	<ConnectionControl trackingContext={ trackingContext } />
 );
 
 /**
- * The value for `AdminPage`'s `globalControls`: null while the `my-jetpack-header-controls` flag is off.
+ * The value for `AdminPage`'s `globalControls` on My Jetpack's own page: null while the `my-jetpack-header-controls` flag is off.
  *
  * @return The controls, or null.
  */
 export const getHeaderControls = (): ReactNode =>
-	window.myJetpackInitialState?.myJetpackFlags?.headerControls ? <HeaderControls /> : null;
+	isHeaderControlsEnabled() ? <HeaderControls trackingContext="my-jetpack" /> : null;
 
 export default HeaderControls;

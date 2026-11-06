@@ -24,7 +24,6 @@ import {
 	type ReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import SubscriberHighlightsRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -120,7 +119,7 @@ function SubscriberHighlightsDashboardStory(
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ SUBSCRIBER_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={
 				SubscriberHighlightsRender as ComponentType< WidgetRenderProps< unknown > >

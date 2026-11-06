@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
@@ -14,8 +16,10 @@ require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
  * Tests for Jetpack::is_premium_analytics_enabled().
  *
  * @covers \Jetpack
+ * @covers ::stats_load
  */
 #[CoversClass( Jetpack::class )]
+#[CoversFunction( 'stats_load' )]
 class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -37,6 +41,8 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'active_modules' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG );
+		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		parent::tear_down();
 	}
 
@@ -118,15 +124,6 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An option value that is present but falsy is still off.
-	 */
-	public function test_disabled_by_a_falsy_option() {
-		update_option( 'jetpack_premium_analytics_enabled', 0 );
-
-		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
-	}
-
-	/**
 	 * Off while the Stats module is inactive, without even consulting the flag; back once it is active again.
 	 */
 	public function test_follows_the_stats_module() {
@@ -148,42 +145,6 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
 
 		$this->assertTrue( Jetpack::is_premium_analytics_enabled() );
-	}
-
-	/**
-	 * The filter wins over the option, in both directions.
-	 *
-	 * @param bool $option   Stored option value.
-	 * @param bool $filtered What the filter returns.
-	 * @param bool $expected Expected answer.
-	 * @dataProvider provide_filter_overrides
-	 */
-	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_filter_overrides' )]
-	public function test_filter_overrides_the_option( $option, $filtered, $expected ) {
-		update_option( 'jetpack_premium_analytics_enabled', $option ? 1 : 0 );
-
-		$filter = function () use ( $filtered ) {
-			return $filtered;
-		};
-		add_filter( 'jetpack_premium_analytics_enabled', $filter );
-
-		try {
-			$this->assertSame( $expected, Jetpack::is_premium_analytics_enabled() );
-		} finally {
-			remove_filter( 'jetpack_premium_analytics_enabled', $filter );
-		}
-	}
-
-	/**
-	 * Data for test_filter_overrides_the_option.
-	 *
-	 * @return array
-	 */
-	public static function provide_filter_overrides() {
-		return array(
-			'filter turns it on'  => array( false, true, true ),
-			'filter turns it off' => array( true, false, false ),
-		);
 	}
 
 	/**
@@ -262,20 +223,36 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The legacy Stats admin menu stays registered alongside Stats v2 instead of
-	 * being suppressed, on any site.
+	 * The classic Stats menu goes only once the page is retired and Stats v2 is there to replace it.
 	 *
-	 * Calling stats_load() also registers other hooks (pre_option_db_version,
-	 * the stats_array filter, the upgrade-nudges action) that this test
-	 * doesn't assert on and tear_down() doesn't remove — intentional, since
-	 * this test only cares about the admin menu.
+	 * Calling stats_load() also registers other hooks that tear_down() doesn't remove; only the menu matters here.
+	 *
+	 * @param bool $retired   Whether the classic page is retired.
+	 * @param bool $v2_on     What the `jetpack_premium_analytics_enabled` filter answers.
+	 * @param bool $kept      Whether the classic menu is registered.
+	 * @dataProvider provide_stats_admin_menu_cases
 	 */
-	public function test_stats_admin_menu_kept_when_enabled() {
-		update_option( 'jetpack_premium_analytics_enabled', 1 );
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_stats_admin_menu_cases' )]
+	public function test_stats_admin_menu( $retired, $v2_on, $kept ) {
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, $retired ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_premium_analytics_enabled', $v2_on ? '__return_true' : '__return_false' );
 
 		stats_load();
 
-		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+		$this->assertSame( $kept, false !== has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+	}
+
+	/**
+	 * Data for test_stats_admin_menu.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_admin_menu_cases() {
+		return array(
+			'kept alongside Stats v2'    => array( false, true, true ),
+			'retired'                    => array( true, true, false ),
+			'kept while Stats v2 is off' => array( true, false, true ),
+		);
 	}
 
 	/**

@@ -496,7 +496,6 @@ function generatePlugin( answers, pluginDir ) {
 
 	// Update composer.json
 	const composerJson = readComposerJson( answers.project );
-	composerJson.extra.autotagger ??= true;
 	composerJson.extra.autorelease ??= true;
 	if ( answers.pluginOnWporg ) {
 		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
@@ -870,16 +869,6 @@ async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
 			skip: exists, // When the repo does not exist, do we want to ask to make it.
 		}, */
-
-		{
-			type: 'confirm',
-			name: 'autotagger',
-			initial: true,
-			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
-			skip() {
-				return type === 'plugin' || this.state.answers.newName;
-			},
-		},
 	] );
 
 	/*
@@ -891,37 +880,34 @@ async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 					name
 			)
 		);
-		await addMirrorRepo( composerJson, name, org, answers.autotagger );
+		await addMirrorRepo( composerJson, name, org );
 	*/
 	if ( answers.useExisting ) {
-		await addMirrorRepo( composerJson, name, org, answers.autotagger );
+		await addMirrorRepo( composerJson, name, org );
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, type, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	} else {
-		await addMirrorRepo( composerJson, name, org, answers.autotagger );
+		await addMirrorRepo( composerJson, name, org );
 	}
 }
 
 /**
  * Add mirror repo to the composer.json
  *
- * @param {object}  composerJson - composer.json object.
- * @param {string}  name         - Repo name.
- * @param {string}  org          - Repo owner.
- * @param {boolean} autotagger   - if we want autotagger enabled.
+ * @param {object} composerJson - composer.json object.
+ * @param {string} name         - Repo name.
+ * @param {string} org          - Repo owner.
  */
-function addMirrorRepo( composerJson, name, org, autotagger ) {
+function addMirrorRepo( composerJson, name, org ) {
 	composerJson.extra = composerJson.extra || {};
 	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
 	composerJson.extra.changelogger = composerJson.extra.changelogger || {};
 	composerJson.extra.changelogger[ 'link-template' ] =
 		`https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
-	// Handle cases where we need more autotagger info for github action project types.
-	if ( autotagger && name.match( /^action-/ ) ) {
-		autotagger = { major: true };
+	// Default github action project types autotagger to `major: true`.
+	if ( name.match( /^action-/ ) ) {
+		composerJson.extra.autotagger = { major: true };
 	}
-	// Add autotagger option
-	composerJson.extra.autotagger = autotagger;
 }
 
 /**

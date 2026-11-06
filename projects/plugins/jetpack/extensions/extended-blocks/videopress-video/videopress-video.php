@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Extensions\VideoPress_Video;
 use Automattic\Jetpack\VideoPress\Channel as VideoPress_Pkg_Channel;
 use Automattic\Jetpack\VideoPress\Channel_Blocks as VideoPress_Pkg_Channel_Blocks;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
+use Automattic\Jetpack\VideoPress\Playlist_Index as VideoPress_Pkg_Playlist_Index;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -58,7 +59,16 @@ function register_videopress_blocks( $playlist_metadata_file = null, $latest_vid
 		VideoPress_Pkg_Initializer::register_videopress_all_playlists_block();
 	}
 
-	// The channel blocks' shared pieces ( the playlist block's `source`, the editor data its picker reads ) also need the playlist block.
+	// WordPress.com does not run the package initializer that keeps the playlist index current,
+	// so the index starts wherever the playlist block is; hooking it twice is a no-op.
+	if (
+		method_exists( 'Automattic\Jetpack\VideoPress\Playlist_Index', 'init' ) &&
+		\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' )
+	) {
+		VideoPress_Pkg_Playlist_Index::init();
+	}
+
+	// The channel theme's blocks ( channel, video and playlist details, episode navigation ) and the playlist block's `source` also need the playlist block.
 	if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel_Blocks', 'register' ) ) {
 		VideoPress_Pkg_Channel_Blocks::register();
 	}

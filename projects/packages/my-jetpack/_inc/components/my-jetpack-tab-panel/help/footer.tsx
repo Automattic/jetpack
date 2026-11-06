@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { getModulesManagementUrl } from '../utils';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -59,7 +60,9 @@ export function HelpFooter() {
 							<ul>
 								<li>
 									<Link
-										href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
+										href={ getModulesManagementUrl(
+											getAdminUrl( 'admin.php?page=jetpack_modules' )
+										) }
 										onClick={ handleAllModulesClick }
 									>
 										{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }

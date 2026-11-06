@@ -23,6 +23,21 @@ describe( 'buildSessionsByDeviceSegments', () => {
 		] );
 	} );
 
+	it( 'merges the rows with no recorded device into one Unknown segment in each period', () => {
+		const segments = buildSessionsByDeviceSegments(
+			report( [
+				[ '', 3 ],
+				[ '', 4 ],
+			] ),
+			report( [
+				[ '', 2 ],
+				[ '', 5 ],
+			] )
+		);
+
+		expect( segments ).toEqual( [ { label: 'Unknown', value: 7, previousValue: 7 } ] );
+	} );
+
 	it( 'reads a device missing from the comparison period as zero there', () => {
 		const segments = buildSessionsByDeviceSegments(
 			report( [

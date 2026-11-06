@@ -28,7 +28,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 1. Connect your PayPal account using API credentials from the PayPal Developer Dashboard
 2. Add the PayPal Payment Buttons block to any post or page
 3. Enter your product details (name, price, currency, and optional description)
-4. Click "Create New" — the plugin creates a payment link via PayPal's API
+4. Click "Create New" — the plugin creates a payment button via PayPal's API
 5. Publish your post — visitors see a theme-native "Buy Now" button that links to checkout. The payment link URL is also available to share directly or embed in text links.
 
 == Installation ==
@@ -82,9 +82,9 @@ Disconnecting removes your stored credentials and cached token. Existing publish
 
 This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled.
 
-= Can I pause or deactivate a payment link instead of deleting it? =
+= Can I pause or deactivate a payment button instead of deleting it? =
 
-No. PayPal only supports deleting a payment link, and deletion is permanent. The link stops working everywhere it was shared, including emails and printed QR codes, and buyers who open it see a PayPal "not found" page. The plugin asks you to acknowledge this before it deletes anything. If you might need the link again, leave it in place.
+No. PayPal only supports deleting a payment button, and deletion is permanent. Its link stops working everywhere it was shared, including emails and printed QR codes, and buyers who open it see a PayPal "not found" page. The plugin asks you to acknowledge this before it deletes anything. If you might need the button again, leave it in place.
 
 = Can I use this with WooCommerce? =
 

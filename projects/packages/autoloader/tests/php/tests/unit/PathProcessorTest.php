@@ -8,6 +8,7 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,6 +32,8 @@ class PathProcessorTest extends TestCase {
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@symlink( TEST_PLUGIN_DIR, WP_PLUGIN_DIR . '/current_symlink' );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@symlink( TEST_PLUGIN_DIR, WPMU_PLUGIN_DIR . '/mu_symlink' );
 	}
 
 	/**
@@ -40,6 +43,8 @@ class PathProcessorTest extends TestCase {
 		parent::tearDown();
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@unlink( WP_PLUGIN_DIR . '/current_symlink' );
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@unlink( WPMU_PLUGIN_DIR . '/mu_symlink' );
 	}
 
 	/**
@@ -78,62 +83,104 @@ class PathProcessorTest extends TestCase {
 	}
 
 	/**
-	 * Tests that find_directory_with_autoloader does not work on non-PHP files.
+	 * Tests find_directory_with_autoloader.
+	 *
+	 * @dataProvider provide_find_directory_with_autoloader
+	 * @param array{string,string[],2?:bool} $args Arguments to pass.
+	 * @param mixed                          $expect Expected return value.
 	 */
-	public function test_does_not_find_directory_for_non_php_files() {
-		$path = $this->processor->find_directory_with_autoloader(
-			'current/current.test',
-			array( WP_PLUGIN_DIR )
-		);
-
-		$this->assertFalse( $path );
+	#[DataProvider( 'provide_find_directory_with_autoloader' )]
+	public function test_find_directory_with_autoloader( $args, $expect ) {
+		$actual = $this->processor->find_directory_with_autoloader( ...$args );
+		$this->assertSame( $expect, $actual );
 	}
 
 	/**
-	 * Tests that find_directory_with_autoloader does not work for files that don't have the autoloader.
+	 * Data provider for `test_find_directory_with_autoloader`.
+	 *
+	 * @return array<string,array{array{string,string[],2?:bool},mixed}> $args Arguments to pass.
 	 */
-	public function test_does_not_find_directory_for_not_autoloaded_plugin() {
-		$path = $this->processor->find_directory_with_autoloader(
-			'src/autoload.php',
-			array( dirname( TEST_PLUGIN_DIR ) )
+	public static function provide_find_directory_with_autoloader() {
+		return array(
+			'does not work on non-PHP files'            => array(
+				array( 'current/current.test', array( WP_PLUGIN_DIR ) ),
+				false,
+			),
+
+			"does not work for files that don't have the autoloader" => array(
+				array( 'src/autoload.php', array( dirname( TEST_PLUGIN_DIR ) ) ),
+				false,
+			),
+
+			'finds directories for plugins that have the autoloader' => array(
+				array( 'current/current.php', array( WP_PLUGIN_DIR ) ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'finds directories using Windows paths'     => array(
+				array( 'current\\current.php', array( str_replace( '/', '\\', WP_PLUGIN_DIR ) ) ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'finds the realpath of directories that use symlinks' => array(
+				array( 'current_symlink\current.php', array( WP_PLUGIN_DIR ) ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'accepts absolute paths'                    => array(
+				array( TEST_PLUGIN_DIR . '/current.php', array() ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'finds directories in safe mode'            => array(
+				array( 'current/current.php', array( WP_PLUGIN_DIR ), true ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'accepts absolute path in safe mode'        => array(
+				array( TEST_PLUGIN_DIR . '/current.php', array( WP_PLUGIN_DIR ), true ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'accepts paths with traversal in non-safe mode' => array(
+				array( '../mu-plugins/mu_symlink/current.php', array( WP_PLUGIN_DIR ), false ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'accepts absolute paths with traversal in non-safe mode' => array(
+				array( TEST_PLUGIN_DIR . '/../current/current.php', array( WP_PLUGIN_DIR ), false ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'rejects paths with traversal in safe mode' => array(
+				array( '../mu-plugins/mu_symlink/current.php', array( WP_PLUGIN_DIR ), true ),
+				false,
+			),
+
+			'rejects absolute paths with traversal in safe mode' => array(
+				array( TEST_PLUGIN_DIR . '/../current/current.php', array( WP_PLUGIN_DIR ), true ),
+				false,
+			),
+
+			'ok with traversal in the checked part in safe mode' => array(
+				array( 'current/current.php', array( WP_PLUGIN_DIR . '/../plugins' ), true ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'ok with traversal in the checked part in safe mode (absolute)' => array(
+				array( WP_PLUGIN_DIR . '/../plugins/current/current.php', array( WP_PLUGIN_DIR . '/../plugins' ), true ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'accepts symlinked directories in safe mode, even if the target is outside the checked path' => array(
+				array( WPMU_PLUGIN_DIR . '/mu_symlink/current.php', array( WPMU_PLUGIN_DIR ), true ),
+				TEST_PLUGIN_DIR,
+			),
+
+			'rejects symlinked directories outside of checked paths in safe mode, even if the target is inside the checked path' => array(
+				array( WPMU_PLUGIN_DIR . '/mu_symlink/current.php', array( WP_PLUGIN_DIR ), true ),
+				false,
+			),
 		);
-
-		$this->assertFalse( $path );
-	}
-
-	/**
-	 * Tests that find_directory_with_autoloader finds directories for plugins that have the autoloader.
-	 */
-	public function test_finds_directory_for_autoloaded_plugin() {
-		$path = $this->processor->find_directory_with_autoloader(
-			'current/current.php',
-			array( WP_PLUGIN_DIR )
-		);
-
-		$this->assertEquals( TEST_PLUGIN_DIR, $path );
-	}
-
-	/**
-	 * Tests that find_directory_with_autoloader finds directories using Windows paths.
-	 */
-	public function test_finds_directory_for_autoloaded_plugin_with_windows_paths() {
-		$path = $this->processor->find_directory_with_autoloader(
-			'current\\current.php',
-			array( str_replace( '/', '\\', WP_PLUGIN_DIR ) )
-		);
-
-		$this->assertEquals( TEST_PLUGIN_DIR, $path );
-	}
-
-	/**
-	 * Tests that find_directory_with_autoloader finds the realpath of directories that use symlinks.
-	 */
-	public function test_finds_directory_realpath_for_symlinked_plugin() {
-		$path = $this->processor->find_directory_with_autoloader(
-			'current_symlink\current.php',
-			array( WP_PLUGIN_DIR )
-		);
-
-		$this->assertEquals( TEST_PLUGIN_DIR, $path );
 	}
 }

@@ -6,11 +6,11 @@
 
 import { AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import { speak } from '@wordpress/a11y';
-import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components';
+import { ExternalLink, VisuallyHidden } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, ButtonLink, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Notice, Progress, Skeleton, Stack, Text } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
@@ -26,13 +26,14 @@ import './style.scss';
 const QUICK_START = [
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
-		jetpackSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
 		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
 		icon: chatGptIcon,
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
 		title: __( 'Connect Claude', 'jetpack' ),
 		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
 		icon: claudeIcon,
@@ -184,11 +185,15 @@ function RequestsMeter( { usage } ) {
 				// The bar only restates the visible numbers, so it is
 				// decorative — screen readers get "8 of 20" from the text
 				// (VoiceOver reads a named bar's label and percent again).
-				<ProgressBar
+				<Progress.Root
 					aria-hidden="true"
 					className="jetpack-ai-overview__meter"
 					value={ meterValue }
-				/>
+				>
+					<Progress.Track className="jetpack-ai-overview__meter-track">
+						<Progress.Indicator color="var(--wpds-color-foreground-interactive-brand)" />
+					</Progress.Track>
+				</Progress.Root>
 			) }
 		</>
 	);
@@ -354,7 +359,7 @@ export default function AiOverview( {
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
-	const isJetpackConnector = window?.jetpackAiSettings?.chatgptConnector === 'jetpack';
+	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 	return (
 		<Stack direction="column" gap="3xl">
 			{ /* The banner and the usage card share a tighter rhythm than the
@@ -372,8 +377,8 @@ export default function AiOverview( {
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug: wpcomSlug, jetpackSlug, title, description, icon } ) => {
-						const slug = isJetpackConnector && jetpackSlug ? jetpackSlug : wpcomSlug;
+					{ QUICK_START.map( ( { slug: wpcomSlug, selfHostedSlug, title, description, icon } ) => {
+						const slug = isSelfHosted ? selfHostedSlug : wpcomSlug;
 						return (
 							<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
 								<NavRow

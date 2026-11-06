@@ -1,9 +1,9 @@
 <?php
 /**
  * Test-only subclass of Reprint_Exporter that overrides the protected seams
- * (HMAC verification, export streaming, termination) so the request handler can
- * be exercised without the reprint-server vendor classes or a real export, and
- * so tests can observe which of them were reached.
+ * (signature verification, export streaming, termination) so the request handler can
+ * be exercised without a real export; `real_verification` runs the vendor
+ * verification instead, and tests can observe which seams were reached.
  *
  * @package automattic/jetpack
  */
@@ -17,18 +17,39 @@ use Automattic\RedefineExit\ExitException;
 class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 
 	/**
-	 * Seeded HMAC result: null means "valid", a string is the auth error.
+	 * Seeded verification result: null means valid, else array( 'message', 'reason' ).
 	 *
-	 * @var string|null
+	 * @var array|null
 	 */
-	public $hmac_error = null;
+	public $signature_error = null;
 
 	/**
-	 * The secret passed to verify_hmac(), recorded for assertions.
+	 * Whether to run the real RequestAuthenticator instead of the seeded result.
+	 *
+	 * @var bool
+	 */
+	public $real_verification = false;
+
+	/**
+	 * The secret passed to verify_signature(), recorded for assertions.
 	 *
 	 * @var string|null
 	 */
 	public $verified_secret = null;
+
+	/**
+	 * The public keys passed to verify_signature(), or null if it was not reached.
+	 *
+	 * @var array|null
+	 */
+	public $verified_public_keys = null;
+
+	/**
+	 * The reason passed to error(), if any.
+	 *
+	 * @var string|null
+	 */
+	public $error_reason = null;
 
 	/**
 	 * Whether serve_export() was reached.
@@ -59,14 +80,16 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	public $error_code = null;
 
 	/**
-	 * Records the secret and returns the seeded HMAC result.
+	 * Records the credentials and returns the seeded result, or the real one.
 	 *
-	 * @param string $secret The per-site shared secret.
-	 * @return string|null
+	 * @param string|null          $secret      The valid shared secret, or null.
+	 * @param array<string,string> $public_keys Valid public keys by key id.
+	 * @return array|null
 	 */
-	protected function verify_hmac( $secret ) {
-		$this->verified_secret = $secret;
-		return $this->hmac_error;
+	protected function verify_signature( $secret, array $public_keys ) {
+		$this->verified_secret      = $secret;
+		$this->verified_public_keys = $public_keys;
+		return $this->real_verification ? parent::verify_signature( $secret, $public_keys ) : $this->signature_error;
 	}
 
 	/**
@@ -83,15 +106,16 @@ class Reprint_Exporter_Test_Stub extends Reprint_Exporter {
 	}
 
 	/**
-	 * Records the error code, then falls through to the real error() which
-	 * echoes the JSON body and calls terminate().
+	 * Records the error, then falls through to the real error().
 	 *
-	 * @param int    $code    HTTP status code.
-	 * @param string $message Error description.
+	 * @param int         $code    HTTP status code.
+	 * @param string      $message Error description.
+	 * @param string|null $reason  Reason code, or null.
 	 */
-	protected function error( $code, $message ) {
-		$this->error_code = $code;
-		parent::error( $code, $message );
+	protected function error( $code, $message, $reason = null ) {
+		$this->error_code   = $code;
+		$this->error_reason = $reason;
+		parent::error( $code, $message, $reason );
 	}
 
 	/**

@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
+import { closeSmall } from '@wordpress/icons';
 import { IconButton, ButtonLink } from '@wordpress/ui';
 import { createEngagementTracker, selectionLength } from './engagement.ts';
 import {
@@ -202,7 +202,7 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 				variant="minimal"
 				tone="neutral"
 				size="small"
-				icon={ close }
+				icon={ closeSmall }
 				label={ __( 'Dismiss', 'jetpack-mu-wpcom' ) }
 				onClick={ handleDismiss }
 			/>

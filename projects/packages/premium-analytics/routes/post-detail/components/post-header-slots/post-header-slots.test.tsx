@@ -71,8 +71,20 @@ describe( 'postHeaderSlots', () => {
 	} );
 
 	it.each( [
+		[ 'page', 'Page' ],
+		[ 'product', 'Product' ],
+	] )( 'names a %s in the publish wording', ( type, label ) => {
+		renderHeader( { summary: { ...SUMMARY, type } } );
+
+		expect(
+			screen.getByText( new RegExp( `^${ label } published on Jan 10, 2026\\.` ) )
+		).toBeInTheDocument();
+	} );
+
+	it.each( [
 		[ 'post', 'Untitled post' ],
 		[ 'page', 'Untitled page' ],
+		[ 'product', 'Untitled product' ],
 	] )( 'names an untitled %s so the page keeps its heading', ( type, heading ) => {
 		renderHeader( { summary: { ...SUMMARY, type, title: '' } } );
 
@@ -82,6 +94,7 @@ describe( 'postHeaderSlots', () => {
 	it.each( [
 		[ 'post', 'Post unavailable' ],
 		[ 'page', 'Page unavailable' ],
+		[ 'product', 'Product unavailable' ],
 	] )( 'states neither a title nor a window for a %s that failed to load', ( type, heading ) => {
 		renderHeader( {
 			summary: { ...SUMMARY, type, title: undefined, isError: true },

@@ -32,6 +32,7 @@ const mockUseConnection = jest.fn( () => mockConnection );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
+	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
 } ) );
 
@@ -181,7 +182,7 @@ describe( 'Wizard start screen', () => {
 		setupWizard();
 
 		expect( mockUseConnection ).toHaveBeenCalledWith( {
-			from: 'jetpack-onboarding-wizard',
+			from: 'my_jetpack_onboarding',
 			redirectUri: 'admin.php?page=my-jetpack&step=onboarding',
 			skipPricingPage: true,
 		} );

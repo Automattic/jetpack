@@ -23,7 +23,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
@@ -34,6 +33,7 @@ use WP_Error;
 use WP_REST_Server;
 use function add_action;
 use function add_filter;
+use function admin_url;
 use function did_action;
 use function do_action;
 use function esc_url_raw;
@@ -108,6 +108,9 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PRODUCT_IDS = array(
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
+		2024, // JETPACK_PRO_MONTHLY.
+		2025, // JETPACK_PRO_YEARLY.
+		2026, // JETPACK_PRO_BI_YEARLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
 		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
 		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
@@ -128,13 +131,12 @@ class Jetpack_Backup {
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
-	 * When this filter returns true, "Jetpack > Backup" renders the new
-	 * wp-build dashboard instead of the legacy React app.
+	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
-	 * Blog sticker that takes a site out of the internal preview.
+	 * Blog sticker that puts a site back on the legacy dashboard.
 	 *
 	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
 	 */
@@ -181,6 +183,8 @@ class Jetpack_Backup {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_filter( 'jetpack_activity_log_restore_url_template', array( __CLASS__, 'activity_log_restore_url_template' ) );
+		add_filter( 'jetpack_activity_log_backup_url_template', array( __CLASS__, 'activity_log_backup_url_template' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -542,15 +546,41 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * The backup calls should only occur from a signed in admin user
+	 * The backup calls should only occur from a signed in admin user, outside offline mode
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public static function backups_permissions_callback() {
-		return current_user_can( 'manage_options' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return self::get_offline_mode_error() ?? true;
+	}
+
+	/**
+	 * The error the dashboard's routes and abilities answer with while Jetpack is in offline mode.
+	 *
+	 * A local copy of a live site keeps its tokens, and offline mode drops the identity-crisis
+	 * check, so WordPress.com would act on the live site's backups.
+	 *
+	 * @since 5.2.0
+	 *
+	 * @return WP_Error|null Null outside offline mode.
+	 */
+	public static function get_offline_mode_error() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return null;
+		}
+
+		return new WP_Error(
+			'offline_mode',
+			__( 'Backup is unavailable in Offline Mode.', 'jetpack-backup-pkg' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**
@@ -1194,7 +1224,13 @@ class Jetpack_Backup {
 			. '</script>';
 
 		echo '<script id="jetpack-backup-dashboard-state">window.JPBACKUP_DASHBOARD_STATE='
-			. wp_json_encode( array( 'activityLogUrl' => self::get_activity_log_url() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
+			. wp_json_encode(
+				array(
+					'activityLogUrl'        => self::get_activity_log_url(),
+					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
 			. ';</script>';
 	}
 
@@ -1304,36 +1340,47 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the modernization filter's value, which defaults to the internal preview.
+	 * Sends the Activity Log's "Restore backup" to this dashboard's restore screen when it is on.
+	 *
+	 * @param string $template Restore URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_restore_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2Frestore%2F{rewindId}' );
+	}
+
+	/**
+	 * Sends the Activity Log's links to a backup to this dashboard's Overview, with that backup selected, when it is on.
+	 *
+	 * The router reads search values as JSON, so the rewind id is quoted to stay a string.
+	 *
+	 * @param string $template Backup URL template, with `{rewindId}` as the placeholder.
+	 * @return string
+	 */
+	public static function activity_log_backup_url_template( $template ) {
+		if ( ! self::is_modernized() ) {
+			return $template;
+		}
+
+		return admin_url( 'admin.php?page=' . self::JETPACK_BACKUP_SLUG . '&p=%2F%3Fselected%3D%2522{rewindId}%2522' );
+	}
+
+	/**
+	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
 	 *
 	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
+	 * @since 5.2.0 Defaults to true.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, self::is_internal_preview() );
-	}
+		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
 
-	/**
-	 * Whether an internal user on the A8C proxy previews the dashboard. Not an authorization check.
-	 *
-	 * The proxy is checked first, so other requests never make the connected-user lookup.
-	 *
-	 * @return bool
-	 */
-	private static function is_internal_preview() {
-		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
-			return false;
-		}
-
-		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER ) ) {
-			return false;
-		}
-
-		$user_data = ( new Connection_Manager() )->get_connected_user_data();
-		$email     = is_array( $user_data ) && ! empty( $user_data['email'] ) ? strtolower( (string) $user_data['email'] ) : '';
-
-		return str_ends_with( $email, '@automattic.com' ) || str_ends_with( $email, '@a8c.com' );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**

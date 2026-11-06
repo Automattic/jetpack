@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the columns widgets: revenue by customer type, sales by device, total returns and sales by coupon, with the bookings variants of the first two; the store ones are placed on the WooCommerce tab by default.

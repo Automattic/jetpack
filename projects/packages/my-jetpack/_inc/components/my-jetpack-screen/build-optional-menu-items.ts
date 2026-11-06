@@ -10,6 +10,7 @@ type FooterMenuItem = {
 
 type BuildOptionalMenuItemsArgs = {
 	adminUrl: string;
+	modulesManagementUrl?: string;
 	isDevVersion: boolean;
 	userIsAdmin: boolean;
 	isSiteConnected: boolean;
@@ -22,6 +23,7 @@ type BuildOptionalMenuItemsArgs = {
 
 const buildOptionalMenuItems = ( {
 	adminUrl,
+	modulesManagementUrl,
 	isDevVersion,
 	userIsAdmin,
 	isSiteConnected,
@@ -44,7 +46,7 @@ const buildOptionalMenuItems = ( {
 				'Access the full list of Jetpack modules available on your site.',
 				'jetpack-my-jetpack'
 			),
-			href: `${ adminUrl }admin.php?page=jetpack_modules`,
+			href: modulesManagementUrl || `${ adminUrl }admin.php?page=jetpack_modules`,
 			onClick: onModulesClick,
 		} );
 	}

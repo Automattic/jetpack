@@ -21,7 +21,6 @@ import { onlineManager } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
-import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const PROMPT = 'Select an item from the list to see details.';
 const LOADING = 'Loading item details…';
@@ -85,7 +84,6 @@ function mockEndpoints( activity: Activity ) {
 }
 
 beforeEach( () => {
-	resetListStateForTesting();
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();

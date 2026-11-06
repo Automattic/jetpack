@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.17.0] - 2026-11-06
+### Added
+- Connectors card: Note that moving a Jetpack plan is an additional step when transferring connection ownership, and link to the support doc on transferring a plan.
+- Site Health: Add the Jetpack Connection section to the Info tab for every plugin using the connection.
+
+## [9.16.2] - 2026-11-04
+### Changed
+- Update package dependencies. [#54512]
+
+## [9.16.1] - 2026-11-03
+### Changed
+- Update package dependencies. [#54391]
+
+### Fixed
+- Check the user's capability before requesting a user token, so a user without it can retry the connection instead of being left half-connected on WordPress.com. [#54401]
+
+## [9.16.0] - 2026-11-02
+### Added
+- Connectors: Open the Jetpack Connection card with its details expanded when a link to the Connectors screen asks for it. [#54276]
+
+### Changed
+- Update package dependencies. [#53869] [#54382]
+
+### Fixed
+- Keep the path and query parameters of requests proxied to WordPress.com unchanged when they are signed. [#54419]
+- Safe Mode: Fix the window in My Jetpack opening empty, with no choices. [#54030]
+- Tracking: Identify a connected user by their WordPress.com ID when it has not been saved yet, instead of falling back to an anonymous ID. [#53932]
+
+## [9.15.0] - 2026-10-28
+### Added
+- Connectors: Record Tracks events for the card's views, connect clicks, details, Safe Mode resolutions, ownership transfer and protected owner actions. [#54059]
+
+### Changed
+- Connectors: Show the Automattic symbol in black in the connector logos. [#54208]
+- Update package dependencies. [#54118]
+
+## [9.14.0] - 2026-10-26
+### Added
+- Connectors: Show connection errors on the Connectors card, and keep showing the connection owner when their account connection breaks. [#53596]
+
+### Changed
+- Ask for confirmation before disconnecting your user account, and offer to transfer ownership first when you own the connection. [#53865]
+- Connectors: Show the same connection consent notice as the rest of Jetpack before a first connection, and describe the ownership lock and connection failures in the shared wording. [#54034]
+- Connectors: Use the shared disconnect dialog for site disconnect on the card, and load the Tracks script so its events are recorded. [#53861]
+- Connectors card: Show a clear message when connecting the site fails, instead of WordPress.com's raw error text. [#54035]
+- Registration: Report a missing PHP XML extension with its own error code, so the connect screens can name the cause. [#53289]
+
+### Deprecated
+- Deprecate `Urls::maybe_add_origin_site_id()`; it now returns the URL unchanged. [#53920]
+
+## [9.13.0] - 2026-10-20
+### Added
+- Add `isInSafeMode` to the connection status and the local `displayName` and `email` to the current user's connection data. [#53785]
+
+### Changed
+- Connectors: Read the card's shared connection state from the Jetpack Connection store, and link the connection owner to their profile. [#53785]
+
+## [9.12.1] - 2026-10-19
+### Changed
+- Connectors: Load the card's dependencies from its asset file instead of reading them from globals. [#53713]
+
 ## [9.12.0] - 2026-10-15
 ### Added
 - Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
@@ -115,7 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.1.2] - 2026-09-09
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [9.1.1] - 2026-09-08
 ### Changed
@@ -197,7 +258,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.8.2] - 2026-08-03
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [8.8.1] - 2026-07-31
 ### Added
@@ -218,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.7.10] - 2026-07-22
 ### Changed
-- Update dependencies. [#50674]
+- Update dependencies.
 
 ## [8.7.9] - 2026-07-20
 ### Changed
@@ -286,7 +347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.5.6] - 2026-06-08
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [8.5.5] - 2026-06-08
 ### Changed
@@ -302,7 +363,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.5.2] - 2026-06-02
 ### Changed
-- Update dependencies. [#48834]
+- Update dependencies.
 
 ## [8.5.1] - 2026-06-01
 ### Changed
@@ -351,7 +412,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.3.4] - 2026-05-11
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [8.3.3] - 2026-05-04
 ### Added
@@ -389,7 +450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.2.2] - 2026-04-10
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [8.2.1] - 2026-04-09
 ### Changed
@@ -431,7 +492,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.2] - 2026-03-02
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [8.0.1] - 2026-02-26
 ### Changed
@@ -463,7 +524,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.1] - 2026-02-03
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [7.0.0] - 2026-02-02
 ### Changed
@@ -472,7 +533,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.20.5] - 2026-01-26
 ### Changed
-- Update dependencies. [#46383]
+- Update dependencies.
 
 ## [6.20.4] - 2026-01-23
 ### Added
@@ -540,11 +601,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.19.3] - 2025-11-03
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [6.19.2] - 2025-10-28
 ### Changed
-- Update dependencies. [#45493]
+- Update dependencies.
 
 ## [6.19.1] - 2025-10-27
 ### Changed
@@ -572,7 +633,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.18.10] - 2025-09-22
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## [6.18.9] - 2025-09-19
 ### Changed
@@ -596,7 +657,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.18.4] - 2025-08-25
 ### Changed
-- Update dependencies. [#44300]
+- Update dependencies.
 
 ## [6.18.3] - 2025-08-25
 ### Fixed
@@ -1214,8 +1275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add rate limiter to the package versions endpoint calls. [#35379]
 
 ### Changed
-- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004]
-- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35006]
+- Adjust 'get_site_id()' method to return null if there's no blog ID. [#35004] [#35006]
 - Jetpack Connection: Add jetpack_package_versions to Sync [#35409]
 - Updated package dependencies. [#35384]
 
@@ -2164,6 +2224,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.17.0]: https://github.com/Automattic/jetpack-connection/compare/v9.16.2...v9.17.0
+[9.16.2]: https://github.com/Automattic/jetpack-connection/compare/v9.16.1...v9.16.2
+[9.16.1]: https://github.com/Automattic/jetpack-connection/compare/v9.16.0...v9.16.1
+[9.16.0]: https://github.com/Automattic/jetpack-connection/compare/v9.15.0...v9.16.0
+[9.15.0]: https://github.com/Automattic/jetpack-connection/compare/v9.14.0...v9.15.0
+[9.14.0]: https://github.com/Automattic/jetpack-connection/compare/v9.13.0...v9.14.0
+[9.13.0]: https://github.com/Automattic/jetpack-connection/compare/v9.12.1...v9.13.0
+[9.12.1]: https://github.com/Automattic/jetpack-connection/compare/v9.12.0...v9.12.1
 [9.12.0]: https://github.com/Automattic/jetpack-connection/compare/v9.11.0...v9.12.0
 [9.11.0]: https://github.com/Automattic/jetpack-connection/compare/v9.10.0...v9.11.0
 [9.10.0]: https://github.com/Automattic/jetpack-connection/compare/v9.9.1...v9.10.0

@@ -27,6 +27,22 @@ class XMLRPC_Test extends BaseTestCase {
 		Posts::init();
 	}
 
+	/** Allocation errors must not be treated as attachment IDs by the callback. */
+	public function test_create_media_item_reports_allocation_error() {
+		$result = XMLRPC::init()->create_media_item(
+			array(
+				array(
+					'url'                   => 'https://example.org/video.mp4',
+					'minimum_attachment_id' => -1,
+				),
+			)
+		);
+
+		$this->assertArrayHasKey( 'errors', $result );
+		$this->assertArrayHasKey( 'videopress_invalid_minimum_attachment_id', $result['errors'] );
+		$this->assertArrayNotHasKey( 'media', $result );
+	}
+
 	/**
 	 * The media item title, description and caption supplied by the uploader are applied to the
 	 * created attachment.

@@ -37,6 +37,7 @@ describe( 'VerificationCard', () => {
 				active={ false }
 				onToggle={ jest.fn() }
 				onChange={ jest.fn() }
+				saveGoogleCode={ jest.fn< ( code: string ) => Promise< void > >() }
 				open
 				onOpenChange={ jest.fn() }
 			/>
@@ -61,6 +62,7 @@ describe( 'VerificationCard', () => {
 				value={ { ...EMPTY, bing: 'bing-code' } }
 				active
 				onChange={ jest.fn() }
+				saveGoogleCode={ jest.fn< ( code: string ) => Promise< void > >() }
 				open
 				onOpenChange={ jest.fn() }
 			/>

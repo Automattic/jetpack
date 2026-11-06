@@ -4,11 +4,13 @@
 import {
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
+	type LockableInterval,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	type DateRange,
+	type DateStepId,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -50,10 +52,19 @@ type BuildRangePatchArgs = {
 	resetIntervalOnPresetChange?: boolean;
 
 	/**
+	 * How the date arrows are to step `nextRange`, when a step produced it.
+	 * Any other range change clears the step the URL carries.
+	 */
+	step?: DateStepId;
+
+	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
 	effective: ReportQuerySearchParams;
+
+	/** The buckets the plan locks; the next range's interval avoids them. */
+	lockedIntervals?: readonly LockableInterval[];
 };
 
 /**
@@ -70,7 +81,9 @@ export function buildRangePatch( {
 	nextPresetId,
 	exactRange,
 	resetIntervalOnPresetChange,
+	step,
 	effective,
+	lockedIntervals,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
@@ -81,6 +94,7 @@ export function buildRangePatch( {
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
+		patch.step = step;
 
 		// Without the reset, the interval carries unless the new range disallows it.
 		patch.interval = resetIntervalOnPresetChange
@@ -89,9 +103,16 @@ export function buildRangePatch( {
 					nextPresetId,
 					rangeFrom,
 					rangeTo,
-					effective.interval
+					effective.interval,
+					lockedIntervals
 				)
-			: resolveIntervalForRange( nextPresetId, rangeFrom, rangeTo, effective.interval );
+			: resolveIntervalForRange(
+					nextPresetId,
+					rangeFrom,
+					rangeTo,
+					effective.interval,
+					lockedIntervals
+				);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
 		// preset being staged measures the new range, not the one it replaces.

@@ -297,7 +297,7 @@ class Initializer {
 		// Register All Playlists block.
 		self::register_videopress_all_playlists_block();
 
-		// Register the channel blocks' shared pieces: the playlist block's `source` and the editor data its picker reads.
+		// Register the playlist block's `source` and, where the channel feature is enabled, the channel blocks.
 		Channel_Blocks::register();
 	}
 
@@ -664,7 +664,8 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback' => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_callback'       => array( __CLASS__, 'render_videopress_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render' ),
 			)
 		);
 	}
@@ -708,9 +709,34 @@ class Initializer {
 		register_block_type(
 			$metadata_file,
 			array(
-				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
-				'skip_inner_blocks' => true,
+				'render_callback'       => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'render_email_callback' => array( Playlist_Block_Email_Renderer::class, 'render_latest_videos' ),
+				'skip_inner_blocks'     => true,
 			)
+		);
+	}
+
+	/**
+	 * The sort order, page size and pagination a Latest Videos Playlist block asks for, clamped to what it allows.
+	 *
+	 * @since 0.61.0
+	 *
+	 * @param array $block_attributes Block attributes.
+	 *
+	 * @return array{order: string, count: int, paginated: bool} Order is one of Channel_Data::BROWSE_SORTS.
+	 */
+	public static function latest_videos_playlist_query( $block_attributes ) {
+		$order     = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
+		$paginated = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
+		$max_count = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
+		$count     = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+
+		return array(
+			'order'     => $order,
+			'count'     => max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) ),
+			'paginated' => $paginated,
 		);
 	}
 
@@ -725,16 +751,13 @@ class Initializer {
 	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
 	 */
 	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
-		$order      = isset( $block_attributes['orderBy'] ) && in_array( $block_attributes['orderBy'], Channel_Data::BROWSE_SORTS, true ) ? $block_attributes['orderBy'] : 'newest';
+		$query      = self::latest_videos_playlist_query( $block_attributes );
+		$order      = $query['order'];
+		$count      = $query['count'];
+		$paginated  = $query['paginated'];
 		$controls   = ! empty( $block_attributes['showBrowseControls'] );
-		$paginated  = isset( $block_attributes['pagination'] ) && 'numbered' === $block_attributes['pagination'];
 		$exclude    = ! empty( $block_attributes['excludeCurrent'] ) ? array_filter( array( Channel::queried_guid() ) ) : array();
 		$show_meta  = ! empty( $block_attributes['showMeta'] );
-		$max_count  = $paginated ? self::LATEST_VIDEOS_PLAYLIST_MAX_PAGED : self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT;
-		$count      = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
-			? (int) $block_attributes['count']
-			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
-		$count      = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( $max_count, $count ) );
 		$is_browsed = 'newest' !== $order || $controls || $paginated || $exclude || $show_meta;
 
 		// Dynamic playlists have no title of their own, so no heading either.
@@ -742,7 +765,15 @@ class Initializer {
 
 		if ( ! $is_browsed ) {
 			$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+			if ( ! $block_attributes['videos'] ) {
+				return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
+			}
 			return self::render_videopress_playlist_block( $block_attributes, '', $block );
+		}
+
+		// A site without videos gets the empty state, not filters with nothing to filter.
+		if ( ! Channel_Data::videos() ) {
+			return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
 		}
 
 		$state   = Channel_Data::browse_request( $controls, $paginated, $order );
@@ -1049,7 +1080,10 @@ class Initializer {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
-			return '';
+			// A playlist picked from the index shows the empty state while the site has none.
+			return isset( $block_attributes['source'] ) && 'index' === $block_attributes['source'] && ! Channel::playlists()
+				? Channel_Blocks::render_empty_state( 'playlists', $block_attributes )
+				: '';
 		}
 
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist

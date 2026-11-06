@@ -78,7 +78,12 @@ Declaring a gate is a commitment that the page renders something sensible when t
 
 ### Host control
 
-`jetpack_admin_menu_visibility` filters a map of item key to state. Absent keys stay `default`.
+Hosts shape the sidebar with one of two filters:
+
+* **`jetpack_feature_policy`**, from the `status` package, covers the sidebar, the My Jetpack Features page, and module activation together. It matches a sidebar item by its key or by the product or module it declares. Most hosts want this one. It runs after the filter below and overrides it, provided its callback is added before the admin menu is built.
+* **`jetpack_admin_menu_visibility`** governs the sidebar alone. Use it when nothing but the sidebar should change.
+
+`jetpack_admin_menu_visibility` filters a map of item key to state, and passes the registered items for context. Absent keys stay `default`.
 
 | State | Meaning |
 | -- | -- |
@@ -88,21 +93,83 @@ Declaring a gate is a commitment that the page renders something sensible when t
 
 Every state governs the sidebar entry only. An item that is hidden, or whose gate is unsatisfied, still registers its page, so `admin.php?page=…` keeps working for My Jetpack's Manage buttons, bookmarks, and support links.
 
+The filter runs on `admin_menu` at priority 1000, and can run twice in one request (once for the Jetpack menu, once for top level pages), so add it earlier (from an mu-plugin or a plugin) and keep the callback free of side effects. In network admin it runs once, on `network_admin_menu`, for the Jetpack menu only, so top level keys have no effect there. `Admin_Menu::VISIBILITY_VISIBLE` and `Admin_Menu::VISIBILITY_HIDDEN` hold the same strings as the examples.
+
+#### Keep an entry point for a product the site hasn't turned on
+
+A host that sells Search can keep its page in the sidebar before a site turns Search on, so the page can offer to set it up:
+
 ```PHP
 add_filter(
 	'jetpack_admin_menu_visibility',
-	function ( $items ) {
-		// Keep an entry point for a product this platform sells but the site hasn't activated.
-		$items['jetpack-search'] = Admin_Menu::VISIBILITY_VISIBLE;
-		// Drop a product this platform doesn't offer.
-		$items['jetpack-videopress'] = Admin_Menu::VISIBILITY_HIDDEN;
-
-		return $items;
+	function ( $states ) {
+		$states['jetpack-search'] = 'visible';
+		return $states;
 	}
 );
 ```
 
-The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other. `visible` cannot expose a page to someone who lacks the capability for it: an item is only registered for users who have it.
+#### Hide a product the host doesn't offer
+
+A host that runs its own backups can drop Jetpack's Backup entry:
+
+```PHP
+add_filter(
+	'jetpack_admin_menu_visibility',
+	function ( $states ) {
+		$states['jetpack-backup'] = 'hidden';
+		return $states;
+	}
+);
+```
+
+That leaves Backup on the My Jetpack Features page. To hide it there too, set the policy instead, before `after_setup_theme`:
+
+```PHP
+add_filter(
+	'jetpack_feature_policy',
+	function ( $policy ) {
+		$policy['backup'] = array( 'visibility' => 'hidden' );
+		return $policy;
+	}
+);
+```
+
+The whole map is passed at once so two mu-plugins setting different keys merge rather than clobber each other.
+
+#### Item keys
+
+Keys are fixed strings, so they survive a page's slug changing.
+
+| Key | Item |
+| -- | -- |
+| `jetpack-ai` | Jetpack AI |
+| `jetpack-backup` | Backup |
+| `jetpack-blaze` | Blaze Ads |
+| `jetpack-boost` | Boost |
+| `jetpack-forms` | Forms |
+| `jetpack-manage` | Jetpack Manage ↗ |
+| `jetpack-newsletter` | Newsletter |
+| `jetpack-podcast` | Podcast, except on WordPress.com Simple and Atomic sites |
+| `jetpack-premium-analytics` | Premium Analytics (top level) |
+| `jetpack-protect` | Protect, from the Jetpack plugin or the Protect plugin |
+| `jetpack-scan` | Scan |
+| `jetpack-scan-cloud` | Scan ↗, the link to Jetpack Cloud |
+| `jetpack-search` | Search |
+| `jetpack-seo` | SEO |
+| `jetpack-settings` | Settings |
+| `jetpack-social` | Social |
+| `jetpack-stats` | Stats, in the Jetpack menu or at the top level |
+| `jetpack-subscribers` | Subscribers ↗ |
+| `jetpack-videopress` | VideoPress |
+
+Items that declare no key go by their menu slug instead, such as `my-jetpack` and `jetpack-activity-log`. Activity Log can't be filtered on WordPress.com Simple sites.
+
+#### What it isn't for
+
+* **Access control.** `visible` cannot expose a page to someone who lacks the capability for it, because an item is only registered for users who have it. `hidden` doesn't stop anyone opening the page by its URL.
+* **Turning a feature off.** A hidden entry leaves its feature running. Use the policy's `activation` to switch off a module, such as Podcast. It can't switch off Backup, which the site's plan decides, or a standalone plugin.
+* **Working around a wrong gate.** If an item is missing because Jetpack thinks its product is off when it's on, fix the product's activation check. Forcing the item visible hides the bug from every other place that reads that check.
 
 Only items registered through `Admin_Menu::add_menu()` or `Admin_Menu::add_top_level_menu()` are in the map. Anything added with a bare `add_submenu_page()` or `add_menu_page()` is out of this filter's reach.
 

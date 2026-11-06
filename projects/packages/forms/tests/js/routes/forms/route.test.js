@@ -6,20 +6,15 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 const mockGetConfig = jest.fn();
 const mockRedirect = target => ( { __redirect: target } );
 
-await jest.unstable_mockModule( '@wordpress/data', () => ( {
-	resolveSelect: () => ( { getConfig: mockGetConfig } ),
-} ) );
-
 await jest.unstable_mockModule( '@wordpress/route', () => ( { redirect: mockRedirect } ) );
 
 await jest.unstable_mockModule( '../../../../src/dashboard/wp-build/utils/preload', () => ( {
 	preloadGlobalTabCounts: () => Promise.resolve(),
 } ) );
 
-// Mocked rather than imported: the real module registers a Redux store at import time,
-// dragging in the whole data layer for a guard that only needs the store's name.
-await jest.unstable_mockModule( '../../../../src/store/config/index.ts', () => ( {
-	CONFIG_STORE: 'jetpack/forms/config',
+// Mocked rather than imported: the real module registers a Redux store at import time.
+await jest.unstable_mockModule( '../../../../src/store/config/wait-for-config.ts', () => ( {
+	waitForConfig: mockGetConfig,
 } ) );
 
 const { route: formsRoute } = await import( '../../../../routes/forms/route.tsx' );
@@ -55,14 +50,11 @@ describe( 'forms route guard', () => {
 		await expect( guard() ).resolves.toBe( '/responses/inbox' );
 	} );
 
-	it.each( [ null, undefined ] )(
-		'allows the route when no config has resolved yet (%p)',
-		async config => {
-			mockGetConfig.mockResolvedValue( config );
+	it( 'allows the route when the config fetch failed', async () => {
+		mockGetConfig.mockResolvedValue( null );
 
-			await expect( guard() ).resolves.toBeNull();
-		}
-	);
+		await expect( guard() ).resolves.toBeNull();
+	} );
 
 	it( 'redirects when a loaded config omits the flag', async () => {
 		mockGetConfig.mockResolvedValue( {} );

@@ -2,7 +2,7 @@
 
 ## Confidentiality
 
-CRITICAL: This is a **public repository**. Never include private WordPress.com URLs (e.g., `*.wordpress.com` internal sites) in PR descriptions, commit messages, code comments, or any public-facing text. Use the p2 shorthand syntax instead (e.g., `peKye1-1Z1-p2`).
+CRITICAL: This is a **public repository**. Never put an internal link or hostname in a PR description, review comment, commit message, code comment, or any other public-facing text: no private WordPress.com URLs (e.g., `*.wordpress.com` internal sites and P2s), no Slack, Linear, HackerOne, private GitHub repository, or GitHub Enterprise URLs, and no other internal tool URLs. Use the shortlinks the PR template asks for instead: `peKye1-1Z1-p2` for a P2 post, `p<message>-slack-<channel>` for a Slack message (`p<message>/<thread>-slack-<channel>` for a reply in a thread), and the bare issue key (`JETPACK-123`) for Linear.
 
 ## Project Structure
 
@@ -357,6 +357,7 @@ Before introducing new dependencies:
 - **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
+- **Connect links take their `from` from `CONNECTION_FROM`** in `@automattic/jetpack-connection` — read *Adding a connect button* in `projects/js-packages/connection/README.md` before adding or changing one.
 
 ## Referencing wpcom-only symbols from Jetpack (Phan stubs)
 

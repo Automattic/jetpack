@@ -10,7 +10,8 @@ import { __ } from '@wordpress/i18n';
 import styles from './chart-empty-state.module.scss';
 
 export type EmptyStateAction =
-	{ label: string; href: string; onClick?: never } | { label: string; onClick: () => void };
+	| { label: string; href: string; openInNewTab?: boolean; onClick?: never }
+	| { label: string; onClick: () => void };
 
 export type ChartEmptyStateProps = {
 	/**
@@ -44,7 +45,12 @@ export function ChartEmptyState( {
 				{ action && (
 					<EmptyState.Actions>
 						{ 'href' in action ? (
-							<ButtonLink variant="outline" size="compact" href={ action.href }>
+							<ButtonLink
+								variant="outline"
+								size="compact"
+								href={ action.href }
+								openInNewTab={ action.openInNewTab }
+							>
 								{ action.label }
 							</ButtonLink>
 						) : (

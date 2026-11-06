@@ -43,7 +43,7 @@ export type ColumnsProps = {
 	 * Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	 */
 	format?: DataFormat;
-	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	/** What the chart shows, when that is not the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 

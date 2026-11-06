@@ -7,7 +7,6 @@
  */
 
 use Automattic\Jetpack\Blaze;
-use Automattic\Jetpack\Comments\Block_Editor;
 use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
@@ -21,6 +20,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\Jetpack_Script_Data;
 use Automattic\Jetpack\Publicize\Keyring_Helper;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
@@ -111,14 +111,6 @@ class Jetpack_Redux_State_Helper {
 		// Get information about current theme.
 		$current_theme = wp_get_theme();
 
-		// Get all themes that Infinite Scroll provides support for natively.
-		$inf_scr_support_themes = array();
-		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes' ) as $path ) {
-			if ( is_readable( $path ) ) {
-				$inf_scr_support_themes[] = basename( $path, '.php' );
-			}
-		}
-
 		// Get last post, to build the link to Customizer in the Related Posts module.
 		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
 		$last_post = isset( $last_post[0] ) && $last_post[0] instanceof WP_Post
@@ -205,13 +197,14 @@ class Jetpack_Redux_State_Helper {
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
+				// Set when Jetpack or the standalone plugin registered the Backup page on this request.
+				'hasBackupPage'              => (bool) did_action( 'jetpack_backup_initialized' ),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
 				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
 					&& $block_availability['like']['available'],
-				// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
-				'isCommentBlocksAvailable'   => class_exists( Block_Editor::class ) && Comments::is_enabled(),
+				'isCommentBlocksAvailable'   => Comments::is_enabled(),
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),
@@ -219,7 +212,7 @@ class Jetpack_Redux_State_Helper {
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
 				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
 				'support'      => array(
-					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
+					'infinite-scroll' => Jetpack_Script_Data::theme_supports_infinite_scroll(),
 					'widgets'         => current_theme_supports( 'widgets' ),
 					'webfonts'        => wp_theme_has_theme_json()
 						&& ( function_exists( 'wp_register_webfont_provider' ) || function_exists( 'wp_register_webfonts' ) ),

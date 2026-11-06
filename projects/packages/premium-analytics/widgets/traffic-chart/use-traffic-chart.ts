@@ -16,7 +16,6 @@ import { endOfDay, isEqual, startOfDay } from 'date-fns';
  * Internal dependencies
  */
 import { buildTrafficTooltipExtras } from './tooltip-extras';
-import { comparesYearAgo, withoutLeadingComparisonWeeks } from './year-ago-weeks';
 import {
 	TRAFFIC_CHART_METRICS,
 	type TrafficChartGranularity,
@@ -113,29 +112,16 @@ export default function useTrafficChart(
 	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
-	const vvComparisonReport = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
+	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
 	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
-	const lcComparisonReport = likesComments.comparison.data as StatsVisitsResponse | undefined;
+	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
-	const alignsYearAgoWeeks = period === 'week' && comparesYearAgo( reportParams );
-	const vvComparison = useMemo(
-		() =>
-			alignsYearAgoWeeks
-				? withoutLeadingComparisonWeeks( vvPrimary, vvComparisonReport, vvZone )
-				: vvComparisonReport,
-		[ alignsYearAgoWeeks, vvPrimary, vvComparisonReport, vvZone ]
-	);
-	const lcComparison = useMemo(
-		() =>
-			alignsYearAgoWeeks
-				? withoutLeadingComparisonWeeks( lcPrimary, lcComparisonReport, lcZone )
-				: lcComparisonReport,
-		[ alignsYearAgoWeeks, lcPrimary, lcComparisonReport, lcZone ]
-	);
+	// Both requests cover the same periods.
+	const { periodStarts } = viewsVisitors;
 
 	// Gate the error per query so a failed one surfaces beside the other's populated
 	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
@@ -153,7 +139,8 @@ export default function useTrafficChart(
 				vvZone,
 				vvHasComparison
 					? { views: vvComparison, posts: lcHasComparison ? lcComparison : undefined }
-					: undefined
+					: undefined,
+				periodStarts
 			),
 		[
 			vvPrimary,
@@ -164,6 +151,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			isHourly,
+			periodStarts,
 		]
 	);
 
@@ -183,6 +171,7 @@ export default function useTrafficChart(
 						label: metric.label,
 						countLabel: metric.countLabel,
 						zone: isFirst ? vvZone : lcZone,
+						periodStarts,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
@@ -218,6 +207,7 @@ export default function useTrafficChart(
 			lcComparison,
 			lcHasComparison,
 			lcZone,
+			periodStarts,
 		]
 	);
 

@@ -47,6 +47,19 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
+	/**
+	 * Test seam for the themes-tab wrapper, reading the same global the
+	 * expiry-notices one above does. See it for why neither stubs
+	 * wpcom_get_site_purchases() itself.
+	 *
+	 * @return array
+	 */
+	function wpcom_themes_get_purchases() {
+		return $GLOBALS['wpcom_get_site_purchases_test_value'] ?? array();
+	}
+}
+
 if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
 	/**
 	 * Test source of revert data for the expiry-notices feature. See

@@ -9,6 +9,7 @@
  * External dependencies
  */
 import '@automattic/charts/style.css';
+import '@automattic/jetpack-components/jetpack-footer/style.scss';
 
 /**
  * Charts
@@ -33,10 +34,12 @@ export {
 	lightenHexColor,
 	mixHexColors,
 	normalizeColorToHex,
+	useBarColors,
+	useBarLegendItems,
 	useCalendarHeatmapData,
-	useChartLegendItems,
 	useGlobalChartsContext,
 	useMonthCalendarHeatmapData,
+	type BarChartLayout,
 	type BaseLegendItem,
 	type BucketInfo,
 	type ChartTheme,
@@ -82,8 +85,10 @@ export {
 	InputControl,
 	Link,
 	Menu,
+	Meter,
 	Notice,
 	Popover,
+	Progress,
 	RangeCalendar,
 	SearchableChipSelectControl,
 	SelectControl,
@@ -97,6 +102,15 @@ export {
 	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
+
+/**
+ * Base UI
+ *
+ * The unstyled parts `@wordpress/ui` is built on, so they are already compiled
+ * in here. Prefixed because `Tabs` above is the design system's styled one.
+ */
+export { DirectionProvider as BaseDirectionProvider } from '@base-ui/react/direction-provider';
+export { Tabs as BaseTabs } from '@base-ui/react/tabs';
 
 /**
  * DataViews
@@ -115,3 +129,8 @@ export {
 	type View,
 	type ViewBaseProps,
 } from '@wordpress/dataviews';
+
+/**
+ * Jetpack components
+ */
+export { default as JetpackFooter } from '@automattic/jetpack-components/jetpack-footer/unstyled';

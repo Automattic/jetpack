@@ -157,7 +157,7 @@ function getNoticeContent( state, pageData ) {
 
 		case PAGE_NOTICE_STATES.OFFLINE_MODE:
 			return {
-				title: __( 'Jetpack AI is not available in offline mode.', 'jetpack' ),
+				title: __( 'Jetpack AI is not available in Offline Mode.', 'jetpack' ),
 				action: {
 					href: getRedirectUrl( OFFLINE_SLUG ),
 					label: __( 'Learn more', 'jetpack' ),

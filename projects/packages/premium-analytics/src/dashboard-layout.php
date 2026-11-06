@@ -12,6 +12,10 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Availability policy for default layout instances: defaults are read outside
 // the widget registry bootstrap, so the policy must be loaded here explicitly.
 require_once __DIR__ . '/widget-type-support.php';
@@ -33,19 +37,19 @@ const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_def
  * Filter through which the widget types a section's inserter offers beyond its default layout
  * are resolved. Documented where it runs, in Dashboard_Section::get_insertable_widget_types().
  *
- * @since $$next-version$$
+ * @since 0.13.0
  */
 const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dashboard_insertable_widget_types';
 
 /**
  * Builds a widget instance for a section's default layout.
  *
- * @param string     $uuid       Widget instance UUID.
- * @param string     $type       Widget type.
- * @param int        $order      Widget placement order.
- * @param int|'full' $width      Column span, or 'full' to span the grid.
- * @param int        $height     Widget placement height.
- * @param array      $attributes Optional widget attributes.
+ * @param string            $uuid       Widget instance UUID.
+ * @param string            $type       Widget type.
+ * @param int               $order      Widget placement order.
+ * @param int|'full'|'fill' $width      Column span, 'full' to span the grid, or 'fill' for the rest of the row.
+ * @param int               $height     Widget placement height.
+ * @param array             $attributes Optional widget attributes.
  * @return array Widget instance.
  */
 function get_dashboard_default_widget_instance(
@@ -178,13 +182,3 @@ function remove_unregistered_default_layout_items( $layout ) {
 		)
 	);
 }
-
-/**
- * No-op kept for older copies of the package: they guard their include of this file on this
- * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
- *
- * @since 0.8.0 Registers nothing; the route it registered is gone.
- *
- * @return void
- */
-function register_dashboard_default_layout_route() {}

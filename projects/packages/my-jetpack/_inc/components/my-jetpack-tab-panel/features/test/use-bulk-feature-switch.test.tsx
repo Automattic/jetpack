@@ -21,6 +21,7 @@ jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store'
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
+	select: () => ( { hasFinishedResolution: () => false } ),
 	useDispatch: () => ( { fetchModules: mockFetchModules } ),
 } ) );
 
@@ -66,8 +67,19 @@ beforeEach( () => {
 } );
 
 describe( 'isBulkSwitchable', () => {
+	beforeAll( () => {
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect' },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+	} );
+
+	afterAll( () => {
+		delete window.myJetpackInitialState;
+	} );
+
 	it.each( [
 		[ 'a module with a plain switch', moduleState( 'stats', 'inactive' ), true ],
+		[ 'a module whose settings are on the Protect page', moduleState( 'waf', 'inactive' ), false ],
 		[ 'a plugin switch', pluginState( 'akismet', 'active' ), true ],
 		[ 'an unavailable module', moduleState( 'stats', 'inactive', { available: false } ), false ],
 		[ 'a forced module', moduleState( 'stats', 'active', { override: 'active' } ), false ],
@@ -87,6 +99,11 @@ describe( 'isBulkSwitchable', () => {
 		[
 			'a feature already switching',
 			{ ...pluginState( 'akismet', 'active' ), isSwitching: true } as FeatureState,
+			false,
+		],
+		[
+			'a plugin waiting for an account',
+			{ ...pluginState( 'jetpack-social', 'active' ), accountNeeded: true } as FeatureState,
 			false,
 		],
 		[

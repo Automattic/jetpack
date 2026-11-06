@@ -351,10 +351,7 @@ function do_final_instructions {
 	echo 'Backport the changes into trunk by reviewing and merging the above PR.'
 
 	AUTO=()
-	MANUALTAG=()
-	MANUALTAGONLY=()
 	MANUALPUB=()
-	MANUALBOTH=()
 	for PLUGIN in "${!PROJECTS[@]}"; do
 		F="$BASE/projects/$PLUGIN/composer.json"
 		if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
@@ -362,24 +359,13 @@ function do_final_instructions {
 		fi
 
 		if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
-			if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-				MANUALTAGONLY+=( "$PLUGIN" )
-			fi
 			continue
 		fi
 
-		if jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				AUTO+=( "$PLUGIN" )
-			else
-				MANUALPUB+=( "$PLUGIN" )
-			fi
+		if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+			AUTO+=( "$PLUGIN" )
 		else
-			if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-				MANUALTAG+=( "$PLUGIN" )
-			else
-				MANUALBOTH+=( "$PLUGIN" )
-			fi
+			MANUALPUB+=( "$PLUGIN" )
 		fi
 	done
 
@@ -394,27 +380,6 @@ function do_final_instructions {
 		EOM
 	fi
 
-	if [[ ${#MANUALTAGONLY[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAGONLY[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release.
-		EOM
-	fi
-
-	if [[ ${#MANUALTAG[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALTAG[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release.
-		  3. Wait for the changes to be automatically deployed to SVN.
-		  4. Smoke test.
-		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
-	fi
-
 	if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
 		cat <<-EOM
 
@@ -423,18 +388,6 @@ function do_final_instructions {
 		  2. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
 		  3. Smoke test.
 		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
-	fi
-
-	if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${MANUALBOTH[*]}
-		  1. Wait for the changes to appear in the mirror repo.
-		  2. Conduct a GitHub release. 
-		  3. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
-		  4. Smoke test.
-		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 }

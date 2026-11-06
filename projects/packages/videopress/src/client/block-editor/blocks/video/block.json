@@ -127,6 +127,10 @@
 		"useQueriedVideo": {
 			"type": "boolean",
 			"default": false
+		},
+		"useLatestVideo": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "jetpack-videopress-pkg",

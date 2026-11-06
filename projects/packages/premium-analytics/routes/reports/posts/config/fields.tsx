@@ -146,14 +146,13 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				const label = item.isGroup ? <strong>{ item.label }</strong> : <>{ item.label }</>;
 				const href = safeHttpUrl( item.link );
 
 				if ( ! href ) {
-					return label;
+					return <>{ item.label }</>;
 				}
 
-				return <ExternalLink href={ href }>{ label }</ExternalLink>;
+				return <ExternalLink href={ href }>{ item.label }</ExternalLink>;
 			},
 		},
 		{

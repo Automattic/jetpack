@@ -362,7 +362,7 @@ CSS;
 	}
 
 	/**
-	 * Adds settings fields to Settings > General > Secure Sign On that allows users to
+	 * Adds settings fields to Settings > General > WordPress.com login that allows users to
 	 * turn off the login form on wp-login.php
 	 *
 	 * @since jetpack-2.7
@@ -371,13 +371,13 @@ CSS;
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Secure Sign On', 'jetpack-connection' ),
+			__( 'WordPress.com login', 'jetpack-connection' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -395,7 +395,7 @@ CSS;
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 */
 		register_setting(
 			'jetpack-sso',

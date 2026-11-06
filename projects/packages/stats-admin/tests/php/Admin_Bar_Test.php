@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_Admin_Bar;
 
 require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
@@ -41,9 +42,15 @@ class Admin_Bar_Test extends Stats_TestCase {
 		wp_styles()->add_data( 'admin-bar', 'after', array() );
 		remove_all_actions( 'wp_before_admin_bar_render' );
 		remove_all_actions( 'admin_init' );
+		remove_all_actions( 'admin_post_jetpack_stats_admin_bar_chart' );
 		remove_filter( 'pre_option_db_version', array( Admin_Bar::class, 'ignore_db_version' ) );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'wp_die_handler' );
 		remove_all_filters( 'jetpack_stats_url' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG );
+		wp_deregister_script( Admin_Bar::SCRIPT_HANDLE );
+		wp_deregister_style( Admin_Bar::SCRIPT_HANDLE );
+		delete_option( 'timezone_string' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
@@ -125,13 +132,100 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$node = $this->render_chart_node();
 
 		$this->assertSame( 'https://example.org/new-stats', $node->href );
-		$this->assertStringContainsString( 'page=stats', $node->title, 'The chart image is still served by Stats.' );
+		$this->assertStringContainsString( 'action=jetpack_stats_admin_bar_chart', $node->title, 'The chart image does not follow the Stats link.' );
 	}
 
 	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
+	public function test_seven_day_chart_replaces_the_image_and_keeps_the_text_label() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+
+		$node = $this->render_chart_node();
+
+		$this->assertStringNotContainsString( '<img', $node->title );
+		$this->assertStringContainsString( 'id="jetpack-stats-admin-bar-panel"', $node->meta['html'] );
+		$this->assertSame( 'Stats', $node->meta['menu_title'] );
+	}
+
+	/**
+	 * @dataProvider site_timezone_provider
+	 *
+	 * @param string $timezone The site's timezone_string.
+	 */
+	#[DataProvider( 'site_timezone_provider' )]
+	public function test_seven_day_panel_links_to_the_last_seven_days_in_the_site_timezone( $timezone ) {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+		update_option( 'timezone_string', $timezone );
+		$traffic = null;
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) use ( &$traffic ) {
+				if ( ! isset( $args['range'] ) ) {
+					return $url;
+				}
+				$traffic = array( $url, $args );
+				return 'https://example.org/new-traffic';
+			},
+			10,
+			2
+		);
+
+		$site_today = static function () use ( $timezone ) {
+			return ( new \DateTimeImmutable( 'now', new \DateTimeZone( $timezone ) ) )->format( 'Y-m-d' );
+		};
+		$before     = $site_today();
+		$node       = $this->render_chart_node();
+		$after      = $site_today();
+
+		$this->assertNotNull( $traffic, 'The traffic link does not go through the jetpack_stats_url filter.' );
+		list( $url, $args ) = $traffic;
+		$from               = $args['range']['from'];
+		$to                 = $args['range']['to'];
+		$this->assertSame( array( 'dashboard', 'traffic' ), array( $args['view'], $args['section'] ) );
+		$this->assertContains( $to, array( $before, $after ) );
+		$this->assertSame( 6, ( new \DateTimeImmutable( $from ) )->diff( new \DateTimeImmutable( $to ) )->days );
+		$this->assertStringEndsWith( "#!/stats/day/999?chartStart=$from&chartEnd=$to", $url );
+		$this->assertStringContainsString( 'href="https://example.org/new-traffic"', $node->meta['html'] );
+	}
+
+	/**
+	 * Zones at UTC+14 and UTC-11: at any moment, one of them is on a different date from UTC.
+	 *
+	 * @return array
+	 */
+	public static function site_timezone_provider() {
+		return array(
+			'UTC+14' => array( 'Pacific/Kiritimati' ),
+			'UTC-11' => array( 'Pacific/Pago_Pago' ),
+		);
+	}
+
+	public function test_seven_day_chart_enqueues_its_script_with_the_visits_endpoint_instead_of_the_image_styles() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Bar::SEVEN_DAY_CHART_FLAG, '__return_true' );
+
+		$styles = $this->admin_bar_inline_styles();
+
+		$this->assertStringNotContainsString( '#wp-admin-bar-stats', $styles );
+		$this->assertTrue( wp_script_is( Admin_Bar::SCRIPT_HANDLE, 'enqueued' ) );
+		$inline = implode( '', (array) wp_scripts()->get_data( Admin_Bar::SCRIPT_HANDLE, 'before' ) );
+		$this->assertMatchesRegularExpression( '/^window\.jetpackStatsAdminBar = (\{.*\});$/', $inline );
+		$config = (array) json_decode( substr( $inline, strlen( 'window.jetpackStatsAdminBar = ' ), -1 ), true );
+		$this->assertSame( wp_create_nonce( 'wp_rest' ), $config['nonce'] );
+		$this->assertSame(
+			rest_url( 'jetpack/v4/stats-app/sites/999/stats/visits' ),
+			urldecode( remove_query_arg( array( 'unit', 'quantity', 'stat_fields' ), $config['restUrl'] ) )
+		);
+		wp_parse_str( (string) wp_parse_url( $config['restUrl'], PHP_URL_QUERY ), $query );
+		$this->assertSame( 'day', $query['unit'] );
+		$this->assertSame( '7', $query['quantity'] );
+		$this->assertSame( 'views,visitors', $query['stat_fields'] );
 	}
 
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {
@@ -249,6 +343,14 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertFalse( $this->serve_chart_and_report_fetch() );
 	}
 
+	public function test_chart_on_another_admin_page_is_not_fetched() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$_GET['page']  = 'jetpack';
+		$_GET['chart'] = 'admin-bar-hours-scale';
+
+		$this->assertFalse( $this->serve_chart_and_report_fetch() );
+	}
+
 	public function test_chart_not_fetched_for_user_who_cannot_view_stats() {
 		$_GET['page']  = 'stats';
 		$_GET['chart'] = 'admin-bar-hours-scale';
@@ -266,6 +368,57 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 		$_GET['chart'] = 'visits';
 		$this->assertSame( 1, Admin_Bar::ignore_db_version( 1 ) );
+	}
+
+	public function test_chart_src_points_at_the_admin_post_action() {
+		$src = Admin_Bar::get_chart_src( 'admin-bar-hours-scale' );
+
+		$this->assertStringEndsWith( '/wp-admin/admin-post.php', (string) wp_parse_url( $src, PHP_URL_PATH ) );
+		wp_parse_str( (string) wp_parse_url( $src, PHP_URL_QUERY ), $query );
+		$this->assertSame(
+			array(
+				'action' => 'jetpack_stats_admin_bar_chart',
+				'chart'  => 'admin-bar-hours-scale',
+			),
+			$query
+		);
+	}
+
+	/**
+	 * @dataProvider admin_post_chart_request_provider
+	 *
+	 * @param bool        $can_view  Whether the user can view Stats.
+	 * @param bool        $admin_bar The Stats `admin_bar` setting.
+	 * @param string|null $chart     The requested chart, or null for none.
+	 * @param string      $expected  `fetched`, or `die:<status>`.
+	 */
+	#[DataProvider( 'admin_post_chart_request_provider' )]
+	public function test_admin_post_chart_request( $can_view, $admin_bar, $chart, $expected ) {
+		if ( $can_view ) {
+			add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		}
+		Stats_Options::set_option( 'admin_bar', $admin_bar );
+		if ( null !== $chart ) {
+			$_GET['chart'] = $chart;
+		}
+
+		$this->assertSame( $expected, $this->serve_admin_post_chart_and_report() );
+	}
+
+	/**
+	 * Requests to the admin-post chart action, and how each one ends.
+	 *
+	 * @return array
+	 */
+	public static function admin_post_chart_request_provider() {
+		return array(
+			'1x chart'               => array( true, true, 'admin-bar-hours-scale', 'fetched' ),
+			'2x chart'               => array( true, true, 'admin-bar-hours-scale-2x', 'fetched' ),
+			'user cannot view Stats' => array( false, true, 'admin-bar-hours-scale', 'die:403' ),
+			'admin bar setting off'  => array( true, false, 'admin-bar-hours-scale', 'die:403' ),
+			'unknown chart'          => array( true, true, 'visits', 'die:400' ),
+			'no chart'               => array( true, true, null, 'die:400' ),
+		);
 	}
 
 	/**
@@ -291,6 +444,40 @@ class Admin_Bar_Test extends Stats_TestCase {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Fire the admin-post chart action and report how it ended: `fetched`, `die:<status>`, or `returned`.
+	 *
+	 * @return string
+	 */
+	private function serve_admin_post_chart_and_report() {
+		add_filter(
+			'pre_http_request',
+			/** @return never */
+			function () {
+				throw new \RuntimeException( 'fetched' );
+			}
+		);
+		add_filter(
+			'wp_die_handler',
+			function () {
+				/** @return never */
+				return function ( $message, $title, $args ) {
+					list( , , $parsed ) = _wp_die_process_input( $message, $title, $args );
+					throw new \RuntimeException( 'die:' . $parsed['response'] );
+				};
+			}
+		);
+
+		Admin_Bar::init();
+		try {
+			do_action( 'admin_post_jetpack_stats_admin_bar_chart' );
+		} catch ( \RuntimeException $e ) {
+			return $e->getMessage();
+		}
+
+		return 'returned';
 	}
 
 	/**

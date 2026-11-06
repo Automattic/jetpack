@@ -67,6 +67,7 @@ const restrictedPaths = [
 export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
 
+	const extraCfgs = [];
 	let m;
 	if (
 		basedir.startsWith( rootdir ) &&
@@ -106,6 +107,33 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				debug( `No auto-detected react for ${ configurl }: ${ e.message }` );
 			}
 		}
+
+		// Set `import/no-extraneous-dependencies` option `packageDir` for wp-build dirs with package.json files
+		extraCfgs.push(
+			...glob
+				.sync(
+					path.join(
+						rootdir,
+						'projects',
+						m.groups.slug,
+						'{packages,routes,widgets}/*/package.json'
+					)
+				)
+				.map( f => path.relative( basedir, path.dirname( f ) ) )
+				.filter( p => ! p.startsWith( '../' ) )
+				.map( p => ( {
+					files: javascriptFiles.map( v => [ p + '/**', v ] ),
+					rules: {
+						'import/no-extraneous-dependencies': [
+							'error',
+							{
+								packageDir: path.join( rootdir, 'projects', m.groups.slug ),
+								peerDependencies: true,
+							},
+						],
+					},
+				} ) )
+		);
 	}
 
 	let tsconfigPath = false;
@@ -266,6 +294,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			rules: {
+				'@wordpress/use-recommended-components': [ 'error', { allowUseWithCaution: true } ],
+
 				// Set domain from opts, with a bogus default in case it's omitted.
 				'@wordpress/i18n-text-domain': [
 					'error',
@@ -499,7 +529,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 		{
 			files: jestFiles,
 			extends: [ jestConfig ],
-		}
+		},
+
+		extraCfgs
 	);
 }
 

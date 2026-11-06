@@ -4,8 +4,13 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -47,6 +52,15 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	public function tearDown(): void {
 		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
 		remove_all_filters( 'jetpack_disconnect_cap' );
+		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
+		Protect_Status::$status = null;
+		// Storing a different plan clears Current_Plan's cached copy, which outlives the option.
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array( 'product_slug' => 'jetpack_free' ),
+				'products' => array(),
+			)
+		);
 		wp_set_current_user( 0 );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -132,6 +146,52 @@ class Red_Bubble_Notifications_Test extends TestCase {
 	}
 
 	/**
+	 * Whether the host lets threats be announced, and whether the Protect alert is added.
+	 *
+	 * @return array
+	 */
+	public static function provide_threat_notification_cases() {
+		return array(
+			'notifications on'  => array( true, true ),
+			'notifications off' => array( false, false ),
+		);
+	}
+
+	/**
+	 * A paid Protect plan with threats raises the alert only when the host allows it.
+	 *
+	 * @param bool $notify   Whether the host lets threats be announced.
+	 * @param bool $expected Whether the alert is added.
+	 *
+	 * @dataProvider provide_threat_notification_cases
+	 */
+	#[DataProvider( 'provide_threat_notification_cases' )]
+	public function test_protect_threats_alert_follows_the_host_filter( $notify, $expected ) {
+		Current_Plan::update_from_site_record(
+			array(
+				'plan'     => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => array( 'scan' ) ),
+				),
+				'products' => array(),
+			)
+		);
+		Protect_Status::$status = new Status_Model(
+			array(
+				'threats'            => array( new Threat_Model( array( 'severity' => 5 ) ) ),
+				'fixable_threat_ids' => array(),
+			)
+		);
+		if ( ! $notify ) {
+			add_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
+		}
+
+		$alerts = Red_Bubble_Notifications::alert_if_protect_has_threats( array() );
+
+		$this->assertSame( $expected, isset( $alerts['protect_has_threats'] ) );
+	}
+
+	/**
 	 * A recorded owner without a token is left to the connection error notice, even for an admin.
 	 */
 	public function test_skips_missing_user_connection_when_owner_is_recorded() {
@@ -153,5 +213,86 @@ class Red_Bubble_Notifications_Test extends TestCase {
 		$alerts = Red_Bubble_Notifications::alert_if_missing_connection( array() );
 
 		$this->assertArrayNotHasKey( 'missing-connection', $alerts );
+	}
+
+	/**
+	 * Data provider for test_plugins_needed_alert_counts_only_standalone_purchases.
+	 *
+	 * @return array
+	 */
+	public static function provide_plugins_needed_purchases() {
+		return array(
+			'standalone Boost'    => array( 'jetpack_boost_yearly', false ),
+			'prefixed standalone' => array( 'a4a_jetpack_boost_yearly', false ),
+			'Complete bundle'     => array( 'jetpack_complete', true ),
+		);
+	}
+
+	/**
+	 * A plan missing its plugin adds to the menu count only when the plan is that product alone.
+	 *
+	 * @param string $plan_slug The purchased plan.
+	 * @param bool   $silent    Whether the alert stays out of the menu count.
+	 *
+	 * @dataProvider provide_plugins_needed_purchases
+	 */
+	#[DataProvider( 'provide_plugins_needed_purchases' )]
+	public function test_plugins_needed_alert_counts_only_standalone_purchases( $plan_slug, $silent ) {
+		$this->log_in_as( 'administrator' );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => $plan_slug,
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'cloud-critical-css' => array( 'jetpack_complete' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_requires_plugin_install_or_activation( array() );
+
+		$this->assertArrayHasKey( "$plan_slug--plugins_needing_installed_activated", $alerts );
+		$this->assertSame( $silent, ! empty( $alerts[ "$plan_slug--plugins_needing_installed_activated" ]['is_silent'] ) );
+	}
+
+	/**
+	 * A bundle whose plugins are all active raises no plugins-needed alert.
+	 */
+	public function test_plugins_needed_alert_skips_bundle_with_active_plugins() {
+		$this->log_in_as( 'administrator' );
+		update_option( 'active_plugins', array( Products\Boost::get_installed_plugin_filename() ) );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => 'jetpack_complete',
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'cloud-critical-css' => array( 'jetpack_complete' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_requires_plugin_install_or_activation( array() );
+
+		$this->assertArrayNotHasKey( 'jetpack_complete--plugins_needing_installed_activated', $alerts );
 	}
 }

@@ -1,12 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import { privacyStringToInt, LIBRARY_QUERY_KEY } from './use-library';
-import type { LibraryItemPrivacy } from '../types/library';
+import { privacyStringToInt } from '../utils/library-item';
+import { recordVideoPressPrivacyChange } from '../utils/privacy-analytics';
+import { LIBRARY_QUERY_KEY } from './use-library';
+import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
 
 type Id = number | string;
 
+export type VideoPrivacyItem = Pick< LibraryItem, 'id' | 'type' | 'privacy' >;
+
 export type SetPrivacyVars = {
-	ids: Id[];
+	items: VideoPrivacyItem[];
 	privacy: LibraryItemPrivacy;
 };
 
@@ -18,23 +22,23 @@ export type SetPrivacyResult = {
 /**
  * Return a mutation that sets the privacy for one or more videos.
  *
- * Each id is POSTed individually to wpcom/v2/videopress/meta with the mapped
- * `privacy_setting` integer (mirroring the single-item meta update). Requests
- * run in parallel (matching useDeleteVideo) and a failure on one video doesn't
- * abort the rest; the result reports which ids succeeded and which failed,
- * letting the caller surface a partial-failure notice. The library cache is
- * invalidated once at the end so the grid reflects whatever did change.
+ * Individual requests preserve successful changes when another video fails.
  *
- * @return A TanStack Query mutation whose mutateAsync accepts `{ ids, privacy }`.
+ * @return A TanStack Query mutation whose mutateAsync accepts `{ items, privacy }`.
  */
 export function useSetPrivacy() {
 	const client = useQueryClient();
 	return useMutation< SetPrivacyResult, Error, SetPrivacyVars >( {
-		mutationFn: async ( { ids, privacy } ) => {
+		mutationFn: async ( { items, privacy } ) => {
+			const videos = Array.from(
+				new Map(
+					items.map( ( { id, type, privacy: from } ) => [ id, { id, type, from } ] )
+				).values()
+			);
 			const privacySetting = privacyStringToInt( privacy );
 			const results = await Promise.allSettled(
-				ids.map( id =>
-					apiFetch( {
+				videos.map( ( { id } ) =>
+					apiFetch< { code?: string } >( {
 						path: '/wpcom/v2/videopress/meta',
 						method: 'POST',
 						data: { id: Number( id ), privacy_setting: privacySetting },
@@ -45,9 +49,12 @@ export function useSetPrivacy() {
 			const succeeded: Id[] = [];
 			const failed: { id: Id; message: string }[] = [];
 			results.forEach( ( result, index ) => {
-				const id = ids[ index ];
+				const { id, type, from } = videos[ index ];
 				if ( result.status === 'fulfilled' ) {
 					succeeded.push( id );
+					if ( type === 'videopress' && result.value?.code === 'success' ) {
+						recordVideoPressPrivacyChange( from, privacy, videos.length > 1 );
+					}
 					return;
 				}
 				const { reason } = result;

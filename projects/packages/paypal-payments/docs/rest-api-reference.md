@@ -240,7 +240,7 @@ Delete a payment resource. Returns success even if already deleted on PayPal (40
 
 Deletion is permanent: PayPal has no pause, deactivate, or restore operation, and a buyer who opens the deleted link is sent to `https://www.paypal.com/ncp/notfound`. Callers must confirm with the merchant before sending this request.
 
-**Query parameters:** `unused_only` (boolean) keeps the link when another published post still embeds it; `post_id` names one post to leave out of that count.
+**Query parameters:** `unused_only` (boolean) keeps the payment button when another published post still embeds it; `post_id` names one post to leave out of that count.
 
 **Response (200):**
 
@@ -300,4 +300,4 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 6. On 401/403, token is refreshed and request retried once
 7. On 500/502/503, request retried up to 3 times with exponential backoff
 
-**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).
+**BN Code:** Every PayPal API call (Pay Links & Buttons, merchant integrations, partner referrals) carries the `PayPal-Partner-Attribution-Id: WooNCPS_Ecom_Wordpress` header, whether the site calls PayPal directly or WordPress.com calls on its behalf. The payment links themselves are attributed separately, via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time; that parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).

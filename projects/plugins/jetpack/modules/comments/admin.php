@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Comments\Block_Editor;
 use Automattic\Jetpack\Comments\Comments;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -106,8 +105,7 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
-		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
-		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
+		if ( ! Comments::is_enabled() ) {
 			return;
 		}
 

@@ -30,17 +30,23 @@ const labels = ( groups: ReturnType< typeof useMoreFeatures > ) => groups.map( g
 
 describe( 'useMoreFeatures', () => {
 	it( 'keeps a deprecated module switched off after load until the page reloads', () => {
-		const mocked = jest.mocked( useAllJetpackModules );
-		mocked.mockReturnValue( { modules: {}, isLoading: false } as never );
-		const { result, rerender } = renderHook( () => useMoreFeatures( state ) );
+		const original = window.myJetpackInitialState.deprecatedModules;
+		window.myJetpackInitialState.deprecatedModules = [ 'google-fonts' ];
+		try {
+			const mocked = jest.mocked( useAllJetpackModules );
+			mocked.mockReturnValue( { modules: {}, isLoading: false } as never );
+			const { result, rerender } = renderHook( () => useMoreFeatures( state ) );
 
-		mocked.mockReturnValue( { modules: googleFonts( true ), isLoading: false } as never );
-		rerender();
-		expect( labels( result.current ) ).toEqual( [ 'Design' ] );
+			mocked.mockReturnValue( { modules: googleFonts( true ), isLoading: false } as never );
+			rerender();
+			expect( labels( result.current ) ).toEqual( [ 'Design' ] );
 
-		mocked.mockReturnValue( { modules: googleFonts( false ), isLoading: false } as never );
-		rerender();
-		expect( labels( result.current ) ).toEqual( [ 'Design' ] );
+			mocked.mockReturnValue( { modules: googleFonts( false ), isLoading: false } as never );
+			rerender();
+			expect( labels( result.current ) ).toEqual( [ 'Design' ] );
+		} finally {
+			window.myJetpackInitialState.deprecatedModules = original;
+		}
 	} );
 	it( 'does not resurrect host-hidden main or generated modules', () => {
 		const modules = Object.fromEntries(

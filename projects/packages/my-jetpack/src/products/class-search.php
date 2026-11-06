@@ -193,12 +193,13 @@ class Search extends Hybrid_Product {
 			// dashboard degrades to the production default, not the legacy single-card view.
 			$pricing['pricing_version'] = self::SEARCH_NEW_PRICING_VERSION;
 
-			// If the generic product pricing was also unavailable, fall back to a USD
-			// starting price so the pricing grid renders a price instead of "$0".
+			// If the generic product pricing was also unavailable, fall back to a USD yearly
+			// starting price so the pricing grid shows a monthly amount instead of "$0".
 			if ( empty( $pricing['full_price'] ) ) {
 				$pricing['currency_code']  = 'USD';
 				$pricing['full_price']     = self::FALLBACK_STARTING_PRICE_USD;
 				$pricing['discount_price'] = self::FALLBACK_STARTING_PRICE_USD;
+				$pricing['product_term']   = 'year';
 			}
 
 			return $pricing;

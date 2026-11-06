@@ -1,9 +1,13 @@
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { PlanUsageCard } from './plan-usage-card';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/route', () => ( {
+	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -55,6 +59,10 @@ describe( 'PlanUsageCard', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'meter', { name: 'Billable views' } ) ).toHaveAttribute(
+			'aria-valuetext',
+			'6,200 of 10,000 views used'
+		);
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( '/proxy/v2/jetpack-stats/usage' );
 	} );
 
@@ -66,19 +74,44 @@ describe( 'PlanUsageCard', () => {
 
 		renderCard();
 
-		const meter = await screen.findByRole( 'progressbar' );
-		// eslint-disable-next-line jest-dom/prefer-to-have-value -- toHaveValue reads form controls only, not <progress>.
-		expect( meter ).toHaveAttribute( 'value', '100' );
+		const meter = await screen.findByRole( 'meter', { name: 'Billable views' } );
+		expect( meter ).toHaveValue( 10000 );
 	} );
 
-	it( 'links Upgrade to the Stats purchase screen for the connected site', async () => {
+	it( 'links Upgrade to the dashboard upgrade page', async () => {
 		renderCard();
 
 		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
 			'href',
-			expect.stringContaining(
-				'https://example.com/wp-admin/admin.php?page=stats#!/stats/purchase/123456789'
-			)
+			expect.stringContaining( '/upgrade?source=jetpack-premium-analytics' )
+		);
+	} );
+
+	it( 'names the tab it sits in on the upgrade link, so the upgrade page returns to Settings', async () => {
+		render(
+			<AnalyticsQueryClientProvider>
+				<DashboardSectionProvider section="settings">
+					<PlanUsageCard />
+				</DashboardSectionProvider>
+			</AnalyticsQueryClientProvider>
+		);
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'ds=settings' )
+		);
+	} );
+
+	it( 'keeps a WordPress.com site on the classic Stats purchase screen', async () => {
+		window.JetpackScriptData = {
+			site: { ...SITE, is_wpcom_platform: true },
+		} as typeof window.JetpackScriptData;
+
+		renderCard();
+
+		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
+			'href',
+			expect.stringContaining( 'admin.php?page=stats#!/stats/purchase/123456789' )
 		);
 	} );
 
@@ -127,15 +160,13 @@ describe( 'PlanUsageCard', () => {
 	it.each( [
 		[ 'no limit', null ],
 		[ 'a zero limit', 0 ],
-	] )( 'shows no meter when the plan reports %s', async ( _title, viewsLimit ) => {
+	] )( 'leaves the card out when the plan reports %s', async ( _title, viewsLimit ) => {
 		mockApiFetch.mockResolvedValue( { ...PLAN_USAGE_RESPONSE, views_limit: viewsLimit } );
 
 		renderCard();
 
-		await expect(
-			screen.findByText( "Plan usage isn't available for your current plan." )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		await waitForElementToBeRemoved( () => screen.queryByText( 'Loading your plan usage…' ) );
+		expect( screen.queryByText( 'Your current plan' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers Retry when the request fails', async () => {

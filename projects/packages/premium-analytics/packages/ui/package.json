@@ -9,30 +9,5 @@
 	"types": "src/index.ts",
 	"sideEffects": [
 		"*.scss"
-	],
-	"dependencies": {
-		"@jetpack-premium-analytics/data": "workspace:*",
-		"@jetpack-premium-analytics/datetime": "workspace:*",
-		"@jetpack-premium-analytics/externals": "workspace:*",
-		"@jetpack-premium-analytics/formatters": "workspace:*",
-		"@jetpack-premium-analytics/icons": "workspace:*",
-		"@jetpack-premium-analytics/routing": "workspace:*",
-		"@wordpress/a11y": "4.57.0",
-		"@wordpress/admin-ui": "2.12.0",
-		"@wordpress/components": "42.0.0",
-		"@wordpress/compose": "8.10.0",
-		"@wordpress/element": "9.0.0",
-		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/icons": "^18.0.0",
-		"clsx": "2.1.1",
-		"react": "18.3.1"
-	},
-	"devDependencies": {
-		"@date-fns/tz": "1.5.0",
-		"@storybook/react": "10.4.6",
-		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
-		"@wordpress/date": "5.57.0",
-		"date-fns": "4.4.0"
-	}
+	]
 }

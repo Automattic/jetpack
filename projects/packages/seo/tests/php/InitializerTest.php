@@ -228,7 +228,7 @@ class InitializerTest extends TestCase {
 		// The services self-hook on init(), so a stale registration from an earlier
 		// test would mask a missing one here.
 		remove_action( 'template_redirect', array( Llms_Txt::class, 'maybe_serve' ) );
-		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), 10 );
+		remove_filter( 'robots_txt', array( Ai_Crawlers::class, 'append_directives' ), Ai_Crawlers::ROBOTS_TXT_PRIORITY );
 		remove_action( 'after_setup_theme', array( Canonical_Urls::class, 'load_module' ) );
 
 		try {
@@ -436,5 +436,82 @@ class InitializerTest extends TestCase {
 			delete_option( Initializer::SUPPRESS_WP_SITEMAP_OPTION );
 			$initialized->setValue( null, false );
 		}
+	}
+
+	/**
+	 * Run init() with the surface visible or hidden, and return the "Configure" URL
+	 * each SEO module resolves to.
+	 *
+	 * @param bool $surface_visible Whether the SEO dashboard surface is visible.
+	 * @return array<string, string> Module slug => configuration URL.
+	 */
+	private function init_and_get_configuration_urls( $surface_visible ) {
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$initialized->setValue( null, false );
+
+		$modules = array( 'seo-tools', 'verification-tools', 'sitemaps' );
+		add_filter( 'rsm_jetpack_seo', '__return_true' );
+		if ( $surface_visible ) {
+			update_option( Initializer::VISIBILITY_OPTION, '1' );
+		} else {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		}
+		// Other tests run init() with the surface visible and leave these filters behind.
+		foreach ( $modules as $module ) {
+			remove_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+		}
+
+		try {
+			Initializer::init();
+
+			$urls = array();
+			foreach ( $modules as $module ) {
+				$urls[ $module ] = apply_filters( 'jetpack_module_configuration_url_' . $module, 'default' );
+			}
+			return $urls;
+		} finally {
+			foreach ( $modules as $module ) {
+				remove_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
+			}
+			remove_filter( 'rsm_jetpack_seo', '__return_true' );
+			$this->remove_sitemap_toggle_hooks();
+			delete_option( Initializer::VISIBILITY_OPTION );
+			$initialized->setValue( null, false );
+		}
+	}
+
+	/**
+	 * Once the surface is visible, "Configure" for each SEO module opens the SEO page
+	 * instead of the legacy Traffic settings, which only point to it.
+	 */
+	public function test_configuration_urls_point_to_seo_page_when_surface_visible() {
+		$seo_page = admin_url( 'admin.php?page=jetpack-seo' );
+
+		$this->assertSame(
+			array(
+				'seo-tools'          => $seo_page,
+				'verification-tools' => $seo_page,
+				'sitemaps'           => $seo_page,
+			),
+			$this->init_and_get_configuration_urls( true )
+		);
+	}
+
+	/**
+	 * While the surface is hidden (an existing self-hosted install that hasn't opted in),
+	 * the legacy Traffic settings are still where these modules are configured.
+	 */
+	public function test_configuration_urls_unchanged_when_surface_hidden() {
+		$this->assertSame(
+			array(
+				'seo-tools'          => 'default',
+				'verification-tools' => 'default',
+				'sitemaps'           => 'default',
+			),
+			$this->init_and_get_configuration_urls( false )
+		);
 	}
 }

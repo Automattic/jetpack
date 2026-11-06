@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: The modernized dashboard, behind a feature flag, now lets browser Back return to the newest backup after rows were picked.

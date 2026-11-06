@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Measure acknowledged privacy changes in the dashboard without counting failed saves or unchanged settings.

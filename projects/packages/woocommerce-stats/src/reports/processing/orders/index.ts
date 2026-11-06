@@ -11,8 +11,9 @@ type RawOrdersReportDataItem = ReportsOrdersByDateResponse[ 'data' ][ number ];
 type SanitizedOrdersByDateItem = Override<
 	RawOrdersReportDataItem,
 	{
-		average_order_value: number;
-		avg_items: number;
+		/** Null for a period with no orders, which has no average. */
+		average_order_value: number | null;
+		avg_items: number | null;
 		cogs_amount: number;
 		coupons: number;
 		orders_no: number;
@@ -29,17 +30,24 @@ type SanitizedOrdersByDateItem = Override<
 	}
 >;
 
+// WordPress.com answers an average over no orders with 0 on one endpoint and null on another.
+function averageOverOrders( value: unknown, ordersNo: number ): number | null {
+	return ordersNo > 0 && value !== null ? safeParseFloat( value ) : null;
+}
+
 function sanitizeOrderItem(
 	item: RawOrdersReportDataItem,
 	zone: string
 ): SanitizedOrdersByDateItem {
+	const ordersNo = safeParseInt( item.orders_no );
+
 	return {
 		...withBucketStamps( item, zone ),
-		average_order_value: safeParseFloat( item.average_order_value ),
-		avg_items: safeParseFloat( item.avg_items ),
+		average_order_value: averageOverOrders( item.average_order_value, ordersNo ),
+		avg_items: averageOverOrders( item.avg_items, ordersNo ),
 		cogs_amount: safeParseFloat( item.cogs_amount ),
 		coupons: safeParseInt( item.coupons ),
-		orders_no: safeParseInt( item.orders_no ),
+		orders_no: ordersNo,
 		orders_value_gross: safeParseFloat( item.orders_value_gross ),
 		orders_value_net: safeParseFloat( item.orders_value_net ),
 		paid_orders_count: safeParseInt( item.paid_orders_count ),
