@@ -1,24 +1,27 @@
 /**
  * External dependencies
  */
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	commentsAuthorsCsvExporter,
 	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
@@ -68,7 +71,9 @@ function CommentsReport(): JSX.Element {
 	const { getLabel } = REPORTS.comments;
 
 	return (
-		<ReportPageShell
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction
@@ -102,7 +107,7 @@ function CommentsReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

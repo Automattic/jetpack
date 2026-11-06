@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
@@ -8,16 +10,17 @@ import {
 	ExporterCsvAction,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	authorsCsvExporter,
 	type AuthorRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getAuthorsFields, useAuthorsReportRecords } from './config';
@@ -73,7 +76,9 @@ function AuthorsReport(): JSX.Element {
 	const { getLabel } = REPORTS.authors;
 
 	return (
-		<ReportPageShell
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<ExporterCsvAction
@@ -107,7 +112,7 @@ function AuthorsReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-		</ReportPageShell>
+		</Page>
 	);
 }
 

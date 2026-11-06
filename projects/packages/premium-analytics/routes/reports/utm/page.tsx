@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { Button } from '@jetpack-premium-analytics/externals';
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ExporterCsvAction,
 	utmCsvExporters,
@@ -16,12 +16,14 @@ import {
 	type UtmReportRow,
 	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
@@ -91,7 +93,9 @@ function UtmReport(): JSX.Element {
 	const actions = useMemo( () => [ buildUrlAction ], [ buildUrlAction ] );
 
 	return (
-		<ReportPageShell
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
@@ -140,7 +144,7 @@ function UtmReport(): JSX.Element {
 			{ builderValues && (
 				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
 			) }
-		</ReportPageShell>
+		</Page>
 	);
 }
 
