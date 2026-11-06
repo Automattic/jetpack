@@ -1286,7 +1286,7 @@ EXPECTED;
 
 		$translated = Jetpack::get_translated_modules( $modules );
 
-		$this->assertSame( 'Secure Sign On', $translated['sso']['name'] );
+		$this->assertSame( 'WordPress.com login', $translated['sso']['name'] );
 	}
 
 	/**

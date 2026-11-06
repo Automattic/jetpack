@@ -132,12 +132,12 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 	if ( fixer ) {
 		return sprintf(
 			/* translators: %s describes the fix, such as "Update Contact Form 7 to version 6.2.1". */
-			__( 'Jetpack Scan can fix this threat for you: %s.', 'jetpack-protect-pkg' ),
+			__( 'Jetpack can fix this threat for you: %s.', 'jetpack-protect-pkg' ),
 			fixer.replace( /\.$/, '' )
 		);
 	}
 	if ( threat.fixable ) {
-		return __( 'Jetpack Scan can fix this threat for you.', 'jetpack-protect-pkg' );
+		return __( 'Jetpack can fix this threat for you.', 'jetpack-protect-pkg' );
 	}
 	if ( threat.fixedIn ) {
 		return sprintf(
@@ -148,7 +148,7 @@ function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 	}
 	if ( threat.database && canDelete ) {
 		return __(
-			'Jetpack Scan can’t fix this itself, but you can delete the option above if you don’t recognize it. Deleting can’t be undone, so check first that no plugin you use needs it, or contact Jetpack support for help.',
+			'Jetpack can’t fix this itself, but you can delete the option above if you don’t recognize it. Deleting can’t be undone, so check first that no plugin you use needs it, or contact Jetpack support for help.',
 			'jetpack-protect-pkg'
 		);
 	}

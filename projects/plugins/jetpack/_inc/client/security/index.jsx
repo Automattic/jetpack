@@ -130,7 +130,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
+				<h1 className="screen-reader-text">{ __( 'Security settings', 'jetpack' ) }</h1>
 				{ isSearchTerm && (
 					<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
 				) }

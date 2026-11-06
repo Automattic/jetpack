@@ -377,7 +377,7 @@ class Main_Features {
 				'long_description' => __( 'Your WordPress version, plugins and themes are checked daily against a database of known vulnerabilities, with results in your dashboard. Login attacks are blocked automatically, and you can block specific IP addresses yourself.', 'jetpack-my-jetpack' ),
 				'icon'             => 'shield',
 				'product'          => 'protect',
-				// Not `protect`: that module is Brute Force Protection, which has its own row.
+				// Not `protect`: that module is Login protection, which has its own row.
 				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
@@ -927,7 +927,7 @@ class Main_Features {
 	public static function get_module_groups() {
 		return array(
 			array(
-				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
+				'label'   => __( 'Protect', 'jetpack-my-jetpack' ),
 				'modules' => array( 'account-protection', 'monitor', 'protect', 'sso', 'waf' ),
 			),
 			array(
