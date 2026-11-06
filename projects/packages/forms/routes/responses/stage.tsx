@@ -22,6 +22,7 @@ import * as React from 'react';
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
+import { getDisplayName } from '../../src/dashboard/components/inspector/utils.ts';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
 import useFormRecord from '../../src/dashboard/hooks/use-form-record.ts';
@@ -527,13 +528,7 @@ function StageInner() {
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const displayName = decodeEntities(
-						item.author_name ||
-							item.author_email ||
-							item.author_url ||
-							item.ip ||
-							__( 'Anonymous', 'jetpack-forms' )
-					);
+					const displayName = getDisplayName( item );
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
 					const gravatarName = item.author_name
@@ -584,12 +579,7 @@ function StageInner() {
 						</Stack>
 					);
 				},
-				getValue: ( { item } ) =>
-					item.author_name ||
-					item.author_email ||
-					item.author_url ||
-					item.ip ||
-					__( 'Anonymous', 'jetpack-forms' ),
+				getValue: ( { item } ) => getDisplayName( item ),
 				enableSorting: false,
 				enableHiding: false,
 			},
