@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
+import { resetThreatActions } from '../threat-actions';
 import { LEVELS, getLevel } from '../threats-list';
 import type { ScanState } from '../types';
 
@@ -42,6 +43,8 @@ const renderCard = ( scan: Partial< ScanState > ) => {
 beforeEach( () => {
 	mockApiFetch.mockReset().mockResolvedValue( [] );
 } );
+
+afterEach( resetThreatActions );
 
 describe( 'ScanCard without Scan', () => {
 	const twoHoursAgo = checkedAgo( 2 * HOUR_IN_MS );
