@@ -207,6 +207,7 @@ class Initializer {
 		Block_Editor_Content::init();
 		Channel::init();
 		Classification::init();
+		Transcript_Index::init();
 		Playlist_Index::init();
 		Analytics_Dashboard::init();
 
