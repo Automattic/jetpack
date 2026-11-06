@@ -4,6 +4,7 @@ set -eo pipefail
 
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/version-compare.sh"
 
 # Print help and exit.
 function usage {
@@ -21,6 +22,12 @@ if [[ $# -gt 2 || $1 == -h || $1 == --help ]]; then
 	usage
 fi
 
+if [[ -n $(git status --porcelain) ]]; then
+	die 'Working tree not clean; commit or stash changes first.'
+fi
+
+# @todo: We might want to either check we're on a release branch or even switch to a release branch at this point.
+
 PLUGIN=$1
 if [[ -z "$PLUGIN" ]]; then
 	read -rep 'Plugin to release (e.g. jetpack): ' PLUGIN
@@ -33,9 +40,26 @@ elif ! jq -e '.extra["release-branch-prefix"]' "$BASE/projects/$PLUGIN/composer.
 	die "$PLUGIN has no release branch prefix."
 fi
 
-if [[ -n $(git status --porcelain) ]]; then
-	die 'Working tree not clean; commit or stash changes first.'
+# For now, just take manual versions, but a future iteration could grab the latest tag and suggest the next point release.
+# We'd still need a way to manually specify a version, though, as we might just want a second beta.
+VERSION=$2
+VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
+if [[ -z $VERSION ]]; then
+	read -rep 'Version to release (e.g. 16.4.1): ' VERSION || exit 1
 fi
+if [[ ! "$VERSION" =~ $VERSION_REGEX ]]; then
+	die "Invalid version: $VERSION"
+fi
+
+CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
+# shellcheck disable=SC2310
+if version_compare "$CUR_VERSION" "$VERSION"; then
+	die "Version $VERSION is not higher than $CUR_VERSION."
+fi
+echo "$PLUGIN: $CUR_VERSION -> $VERSION"
+
+info "Release: $PLUGIN $VERSION."
+
 START_COMMIT=$(git rev-parse HEAD)
 
 # Prompt for PRs or commits to apply, committing each.
