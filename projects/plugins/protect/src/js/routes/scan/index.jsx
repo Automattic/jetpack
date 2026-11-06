@@ -49,7 +49,7 @@ const ScanPage = () => {
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<ScanAdminSectionHero />
-			{ ( ! status.error || numThreats ) && (
+			{ ( ! status.error || numThreats > 0 ) && (
 				<AdminSection>
 					<Container horizontalSpacing={ 7 } horizontalGap={ 4 }>
 						<Col>
