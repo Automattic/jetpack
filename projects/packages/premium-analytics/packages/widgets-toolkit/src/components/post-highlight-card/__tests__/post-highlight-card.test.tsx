@@ -54,7 +54,7 @@ describe( 'PostHighlightCard', () => {
 		const href = screen.getByRole( 'link', { name: /^Quarterly update/ } ).getAttribute( 'href' );
 		const url = new URL( href ?? '', 'http://localhost' );
 
-		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.pathname ).toBe( '/report/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
 		expect( url.searchParams.get( 'to' ) ).toBe( '2026-06-30' );
 	} );

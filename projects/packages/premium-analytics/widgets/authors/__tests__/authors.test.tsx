@@ -113,7 +113,7 @@ describe( 'AuthorsWidget', () => {
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 
-		expect( url.pathname ).toBe( '/post/123' );
+		expect( url.pathname ).toBe( '/report/post/123' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'authors' );
 	} );
