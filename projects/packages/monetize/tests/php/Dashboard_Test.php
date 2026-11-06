@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -41,30 +42,41 @@ class Dashboard_Test extends BaseTestCase {
 		unset( $GLOBALS['submenu']['jetpack'] );
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
+		Cache::clear();
 		parent::tear_down();
 	}
 
 	/**
-	 * Whether the host is WordPress.com Simple, and whether init() should queue the sidebar item.
+	 * The constants that identify each host, and whether init() should queue the sidebar item.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_hosts() {
 		return array(
-			'self-hosted' => array( false, true ),
-			'Simple'      => array( true, false ),
+			'self-hosted' => array( array(), true ),
+			'Simple'      => array( array( 'IS_WPCOM' => true ), false ),
+			'Atomic'      => array(
+				array(
+					'ATOMIC_SITE_ID'       => 1,
+					'ATOMIC_CLIENT_ID'     => 2,
+					'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
+				),
+				false,
+			),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_hosts
 	 *
-	 * @param bool $is_simple Whether the host is WordPress.com Simple.
-	 * @param bool $queued    Whether the sidebar item should be queued.
+	 * @param array $constants Host constants to set.
+	 * @param bool  $queued    Whether the sidebar item should be queued.
 	 */
 	#[DataProvider( 'provide_hosts' )]
-	public function test_init_queues_the_item_except_on_simple( $is_simple, $queued ) {
-		Constants::set_constant( 'IS_WPCOM', $is_simple );
+	public function test_init_queues_the_item_only_off_the_wpcom_platform( $constants, $queued ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
 
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
