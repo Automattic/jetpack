@@ -83,6 +83,12 @@ if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
 	VideoPress_Pkg_Channel::init();
 }
 
+
+// The searchable transcript index, for the same reason.
+if ( method_exists( 'Automattic\Jetpack\VideoPress\Transcript_Index', 'init' ) ) {
+	\Automattic\Jetpack\VideoPress\Transcript_Index::init();
+}
+
 // Register the `v6-video-frame-poster` extension.
 add_action(
 	'jetpack_register_gutenberg_extensions',
