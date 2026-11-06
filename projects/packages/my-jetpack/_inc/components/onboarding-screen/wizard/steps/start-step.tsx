@@ -1,5 +1,9 @@
 import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
-import { CONNECTION_FROM, useConnection, getRegistrationErrorSummary } from '@automattic/jetpack-connection';
+import {
+	CONNECTION_FROM,
+	useConnection,
+	getRegistrationErrorSummary,
+} from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, Notice, Text } from '@wordpress/ui';
