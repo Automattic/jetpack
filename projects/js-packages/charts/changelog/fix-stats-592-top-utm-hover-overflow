@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Leaderboard chart: Keep an interactive row's label clear of its value on hover and focus, without rewrapping it.
