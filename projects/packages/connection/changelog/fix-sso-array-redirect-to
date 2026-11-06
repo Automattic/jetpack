@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+SSO: Ignore a non-string `redirect_to` query parameter instead of failing with a fatal error.
