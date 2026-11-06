@@ -25,6 +25,19 @@ describe( 'several copies of the package on one page', () => {
 
 	afterEach( () => {
 		delete window.Initial_State;
+		delete window.Jetpack_Editor_Initial_State;
+	} );
+
+	it.each( [
+		[ 'Initial_State', { getModules: { stats: { activated: true } } } ],
+		[ 'Jetpack_Editor_Initial_State', { modules: { stats: { activated: true } } } ],
+	] )( 'the first copy seeds module state from window.%s', ( global, value ) => {
+		delete window.Initial_State;
+		window[ global ] = value;
+
+		loadCopy();
+
+		expect( registry.select( 'jetpack-modules' ).isModuleActive( 'stats' ) ).toBe( true );
 	} );
 
 	it.each( [ 'jetpack-modules', 'wordpress-com/plans' ] )(
