@@ -13,6 +13,7 @@ import ScanningState from './scanning-state';
 import {
 	checkScanAgain,
 	isNotScannedYet,
+	isScanFailedWithoutResults,
 	startScan,
 	useIsScanning,
 	useScan,
@@ -144,7 +145,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 				</Stack>
 			</CardRow>
 		);
-	} else if ( ( scan.lastScanFailed && ! hasThreats ) || isNotScannedYet( scan ) ) {
+	} else if ( isScanFailedWithoutResults( scan ) || isNotScannedYet( scan ) ) {
 		const copy = getNoResultCopy( scan );
 		body = (
 			<CardRow className="jp-protect-scan__state">

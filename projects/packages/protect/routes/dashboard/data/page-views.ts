@@ -1,4 +1,4 @@
-import { getScan, isNotScannedYet } from '../sections/scan/store';
+import { getScan, isNotScannedYet, isScanFailedWithoutResults } from '../sections/scan/store';
 import { recordEvent } from './tracks';
 import type { ScanState } from '../sections/scan/types';
 
@@ -14,7 +14,7 @@ function getCheckStatus( scan: ScanState ): string {
 	}
 	if ( ! scan.scanning ) {
 		// The card's failed-scan and first-scan prompts, in its order.
-		if ( scan.lastScanFailed && ! scan.threats?.length ) {
+		if ( isScanFailedWithoutResults( scan ) ) {
 			return 'scan_failed';
 		}
 		if ( isNotScannedYet( scan ) ) {

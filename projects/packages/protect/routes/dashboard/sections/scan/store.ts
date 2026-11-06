@@ -96,6 +96,16 @@ export function parseLastChecked( lastChecked?: string | null ): Date | null {
 }
 
 /**
+ * Whether the last scan failed and no earlier scan left threats to show, so the card offers a new scan.
+ *
+ * @param scan - The latest report.
+ * @return True when the failed scan left nothing to show.
+ */
+export function isScanFailedWithoutResults( scan: ScanState ): boolean {
+	return !! scan.lastScanFailed && ! scan.threats?.length;
+}
+
+/**
  * Whether WordPress.com has no scan on record, so the card offers a first scan once none is running.
  *
  * @param scan - The latest report.
