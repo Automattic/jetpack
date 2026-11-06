@@ -16,6 +16,13 @@ export const isSettingsConsolidationEnabled = () =>
 	Boolean( getScriptData()?.myJetpack?.settingsConsolidation );
 
 /**
+ * Where the Ads settings live now, from the Jetpack plugin's `Jetpack_Ads_Settings_Home`.
+ *
+ * @return {string|null} The URL, or null while the Ads card stays on this screen.
+ */
+export const getAdsSettingsUrl = () => getScriptData()?.monetize?.adsSettingsUrl || null;
+
+/**
  * Modules whose Settings card is gone once settings move out, with no pointer left, so a search for them finds nothing here.
  *
  * @param {object} [state] - Global state tree, which adds the modules gone for this site and user.
