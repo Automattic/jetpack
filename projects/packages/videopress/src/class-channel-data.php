@@ -187,7 +187,8 @@ class Channel_Data {
 			'suppress_filters' => false,
 		);
 		if ( '' !== $search ) {
-			$args['s'] = $search;
+			$args['s']                            = $search;
+			$args['videopress_transcript_search'] = Transcript_Index::is_search_enabled();
 		}
 		$tax_query = Classification::tax_query( $terms );
 		if ( $tax_query ) {
@@ -515,6 +516,33 @@ class Channel_Data {
 	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
 	 */
 	public static function browse( array $state, $per_page, array $exclude = array(), $with_views = false ) {
+		$result = self::browse_results( $state, $per_page, $exclude, $with_views );
+		$search = trim( (string) ( $state['search'] ?? '' ) );
+		if ( '' !== $search && Transcript_Index::is_search_enabled() ) {
+			foreach ( $result['entries'] as &$entry ) {
+				$match = Transcript_Index::match( (int) $entry['id'], $search );
+				if ( $match ) {
+					$entry['snippet']      = $match['text'];
+					$entry['snippetMatch'] = $match['needle'];
+					$entry['startMs']      = $match['start'];
+				}
+			}
+			unset( $entry );
+		}
+		return $result;
+	}
+
+	/**
+	 * One page of browse() before transcript snippets are added.
+	 *
+	 * @param array    $state      From browse_request().
+	 * @param int      $per_page   Page size.
+	 * @param string[] $exclude    GUIDs to leave out.
+	 * @param bool     $with_views Whether records need play counts.
+	 *
+	 * @return array{entries: array[], total: int, page: int, pages: int, start: int}
+	 */
+	private static function browse_results( array $state, $per_page, array $exclude, $with_views ) {
 		$per_page = max( 1, (int) $per_page );
 		$fast     = self::browse_page( $state, $per_page, $exclude, $with_views );
 		if ( null !== $fast ) {

@@ -257,4 +257,43 @@ class Transcript_Index_Test extends BaseTestCase {
 		$this->assertSame( 'http_request_failed', Transcript_Index::index_attachment( $id )['error'] );
 		$this->assertSame( 'only spoken here', get_post_meta( $id, Transcript_Index::META_TEXT, true ) );
 	}
+
+	public function test_search_sql_matches_each_term_literally_in_transcripts_too() {
+		$query = new \WP_Query();
+		$query->set( 'search_terms', array( '100%', 'a_b' ) );
+		$this->assertSame( ' AND (core) ', Transcript_Index::search_sql( ' AND (core) ', $query ), 'Other queries keep core search.' );
+
+		$query->set( 'videopress_transcript_search', true );
+		$sql = $GLOBALS['wpdb']->remove_placeholder_escape( Transcript_Index::search_sql( ' AND (core) ', $query ) );
+
+		$this->assertStringContainsString( Transcript_Index::META_TEXT, $sql );
+		$this->assertStringContainsString( '100\\%', $sql );
+		$this->assertStringContainsString( 'a\\_b', $sql );
+		$this->assertSame( 2, substr_count( $sql, 'EXISTS' ), 'Every term must match somewhere.' );
+		$this->assertStringContainsString( ') AND (', $sql );
+	}
+
+	public function test_match_prefers_the_spoken_phrase() {
+		$id = $this->video();
+		update_post_meta(
+			$id,
+			Transcript_Index::META_CUES,
+			array(
+				array(
+					'start' => 1000,
+					'end'   => 2000,
+					'text'  => 'Sharding notes.',
+				),
+				array(
+					'start' => 5000,
+					'end'   => 6000,
+					'text'  => 'We moved to database sharding.',
+				),
+			)
+		);
+
+		$this->assertSame( 5000, Transcript_Index::match( $id, '"Database Sharding"' )['start'] );
+		$this->assertSame( 1000, Transcript_Index::match( $id, 'sharding later' )['start'] );
+		$this->assertNull( Transcript_Index::match( $id, 'kubernetes' ) );
+	}
 }
