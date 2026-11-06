@@ -30,12 +30,21 @@ const BUCKET_BOUNDS: Partial<
 	Record< IntervalType, { start: ( date: TZDate ) => TZDate; end: ( date: TZDate ) => TZDate } >
 > = {
 	day: { start: startOfDay, end: endOfDay },
-	// ISO weeks, matching how the report's own week buckets are cut.
 	week: { start: startOfISOWeek, end: endOfISOWeek },
 	month: { start: startOfMonth, end: endOfMonth },
 	quarter: { start: startOfQuarter, end: endOfQuarter },
 	year: { start: startOfYear, end: endOfYear },
 };
+
+/**
+ * Whether a bucket of this interval has a smaller period below it for a click to open.
+ *
+ * @param interval - The interval the chart draws.
+ * @return False for an hour, the finest bucket the report draws.
+ */
+export function isDrillableInterval( interval: IntervalType ): boolean {
+	return Object.hasOwn( BUCKET_BOUNDS, interval );
+}
 
 /**
  * The window behind one chart bucket: the range a click on it should open.
@@ -46,12 +55,14 @@ const BUCKET_BOUNDS: Partial<
  * @param date     - Any instant inside the bucket, typically the datum's date.
  * @param interval - The interval the bucket was drawn in.
  * @param now      - The current instant, for the clamp.
+ * @param end      - The bucket's last day as the report states it, with `date` on its first day, for a report whose buckets are not calendar ones (store weeks start on the site's first day of the week); the calendar bounds otherwise.
  * @return The bucket's range, or null when the interval has nothing below it.
  */
 export function drillDateRange(
 	date: TZDate,
 	interval: IntervalType,
-	now: TZDate
+	now: TZDate,
+	end?: TZDate
 ): DateRange | null {
 	const bounds = BUCKET_BOUNDS[ interval ];
 
@@ -59,13 +70,13 @@ export function drillDateRange(
 		return null;
 	}
 
-	const from = bounds.start( date );
+	const from = end ? startOfDay( date ) : bounds.start( date );
 
 	if ( from.getTime() > now.getTime() ) {
 		return null;
 	}
 
-	const to = bounds.end( date );
+	const to = end ? endOfDay( end ) : bounds.end( date );
 
 	return { from, to: to.getTime() > now.getTime() ? now : to };
 }

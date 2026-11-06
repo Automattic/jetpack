@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `useOpenChartBucket`, which opens a clicked chart bucket as the dashboard period.

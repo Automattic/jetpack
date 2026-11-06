@@ -2,25 +2,19 @@
  * External dependencies
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import {
-	chartInterval,
-	useReportScope,
-	useScopeLockedIntervals,
-} from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
+import { chartInterval, useScopeLockedIntervals } from '@jetpack-premium-analytics/data';
 import {
 	HEADLINE_COUNT_FORMAT,
-	bucketRange,
 	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
+	useOpenChartBucket,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -60,8 +54,6 @@ type TrafficChartInnerProps = {
  */
 function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// A host without a period to set leaves the bars inert.
-	const { openPeriod } = useReportScope();
 	const lockedIntervals = useScopeLockedIntervals();
 	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown();
 	const period: TrafficChartGranularity = chartInterval(
@@ -71,26 +63,8 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 		trafficIntervalExtension( reportParams, chartType )
 	);
 
-	// Names the bucket size drawn, not the saved one: the range may clamp it,
-	// and the click must open the bar it hit.
-	const openBucket = useMemo( () => {
-		if ( ! openPeriod ) {
-			return undefined;
-		}
-
-		const window = {
-			from: parseSiteDateTime( reportParams.from ),
-			to: parseSiteDateTime( reportParams.to ),
-		};
-
-		return ( date: Date ) => {
-			const range = bucketRange( date, period, window, { timeZone: reportingTimeZone() } );
-
-			if ( range ) {
-				openPeriod( range );
-			}
-		};
-	}, [ openPeriod, period, reportParams.from, reportParams.to ] );
+	// The bucket size drawn, not the saved one: the range may clamp it, and the click must open the bar it hit.
+	const openBucket = useOpenChartBucket( period );
 
 	const {
 		metrics: metricTabs,
