@@ -14,10 +14,10 @@ const renderWithCursorSelected = async () => {
 };
 
 describe( 'McpSetup: Cursor quick setup', () => {
-	test( 'links to the WordPress.com plugin on the Cursor Marketplace through the redirect source', async () => {
+	test( 'links to the WordPress plugin on the Cursor Marketplace through the redirect source', async () => {
 		await renderWithCursorSelected();
 
-		expect( screen.getByRole( 'link', { name: /WordPress\.com plugin/ } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /WordPress plugin/ } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining( 'source=jetpack-ai-hub-mcp-setup-cursor' )
 		);

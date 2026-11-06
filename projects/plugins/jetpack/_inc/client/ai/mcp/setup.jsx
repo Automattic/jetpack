@@ -270,7 +270,7 @@ export default function McpSetup() {
 																href={ getRedirectUrl( CURSOR_PLUGIN_REDIRECT_SOURCE ) }
 																openInNewTab
 															>
-																{ __( 'WordPress.com plugin', 'jetpack' ) }
+																{ __( 'WordPress plugin', 'jetpack' ) }
 															</Link>
 														),
 													}
