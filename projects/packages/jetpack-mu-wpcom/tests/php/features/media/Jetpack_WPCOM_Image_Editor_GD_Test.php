@@ -143,7 +143,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			array(
 				array( '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $source ),
-				array( '-m', '-q', '-overwrite_original', self::WRITE_ARG . $type, $target ),
+				array( '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::WRITE_ARG . $type, $target ),
 			),
 			$this->calls( 'exiftool' )
 		);
@@ -351,6 +351,26 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( array( self::COMPOSITE ), $this->written_types() );
 		$this->assertFileEquals( self::C2PA_FIXTURE, $source );
+	}
+
+	/**
+	 * By default exiftool records its version in the XMP it writes. Skips without exiftool.
+	 */
+	public function test_the_saved_file_does_not_record_the_exiftool_version() {
+		exec( 'command -v exiftool 2>/dev/null', $output, $status );
+		if ( 0 !== $status ) {
+			$this->markTestSkipped( 'exiftool is not installed.' );
+		}
+		$exiftool = trim( implode( '', $output ) );
+		$this->use_tool( 'exiftool', $exiftool );
+		$source = $this->jpeg();
+		$saved  = $this->temp_path( 'jpeg' );
+		exec( implode( ' ', array_map( 'escapeshellarg', array( $exiftool, '-m', '-q', '-overwrite_original', self::WRITE_ARG . self::AI_MARKER, $source ) ) ) );
+
+		wp_get_image_editor( $source )->save( $saved );
+
+		exec( implode( ' ', array_map( 'escapeshellarg', array( $exiftool, '-m', '-S', '-XMPToolkit', '-DigitalSourceType', $saved ) ) ), $tags );
+		$this->assertSame( array( 'DigitalSourceType: ' . self::AI_MARKER ), $tags );
 	}
 
 	public function test_an_image_loaded_by_url_keeps_its_type() {
