@@ -4,7 +4,7 @@ import {
 	useConnection,
 	getRegistrationErrorSummary,
 } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -139,7 +139,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 						<Notice.Title>
 							{ errorSummary
 								? __( 'We could not connect this site.', 'jetpack-my-jetpack' )
-								: __( 'We could not connect this site. Please try again.', 'jetpack-my-jetpack' ) }
+								: _x(
+										'We could not connect this site. Please try again.',
+										'',
+										'jetpack-my-jetpack'
+									) }
 						</Notice.Title>
 						<Notice.Description className={ styles[ 'start-error__detail' ] }>
 							{ errorSummary || connectionErrorDetail( connectError ) }
