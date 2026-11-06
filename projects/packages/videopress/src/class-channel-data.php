@@ -20,7 +20,7 @@ use WP_Post;
 class Channel_Data {
 
 	/**
-	 * Most videos read for one listing; browsing, sorting and counting work on these.
+	 * Maximum attachments read in one batch of a full-library query.
 	 *
 	 * @var int
 	 */
@@ -30,8 +30,9 @@ class Channel_Data {
 	 * Object-cache group and lifetime of the full video list. Keys carry the blog
 	 * ID and the posts' last-changed stamp, so an upload or edit makes a new key.
 	 */
-	const CACHE_GROUP = 'videopress_channel';
-	const CACHE_TTL   = DAY_IN_SECONDS;
+	const CACHE_GROUP   = 'videopress_channel';
+	const CACHE_TTL     = DAY_IN_SECONDS;
+	const CACHE_VERSION = 2;
 
 	/**
 	 * Transient caching the play counts, and how long.
@@ -126,7 +127,7 @@ class Channel_Data {
 	 * @return string
 	 */
 	public static function cache_key( $what, $search = '' ) {
-		return implode( ':', array( $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), md5( (string) $search ) ) );
+		return implode( ':', array( self::CACHE_VERSION, $what, get_current_blog_id(), wp_cache_get_last_changed( 'posts' ), md5( (string) $search ) ) );
 	}
 
 	/**
@@ -231,14 +232,20 @@ class Channel_Data {
 	private static function query_videos( $search ) {
 		$args                   = self::query_args( $search );
 		$args['posts_per_page'] = self::MAX_VIDEOS;
+		$args['paged']          = 1;
 
 		$videos = array();
-		foreach ( get_posts( $args ) as $post ) {
-			$record = self::record( $post );
-			if ( $record ) {
-				$videos[] = $record;
+		do {
+			$posts = get_posts( $args );
+			foreach ( $posts as $post ) {
+				$record = self::record( $post );
+				if ( $record ) {
+					$videos[] = $record;
+				}
 			}
-		}
+			++$args['paged'];
+			$batch_size = count( $posts );
+		} while ( self::MAX_VIDEOS === $batch_size );
 		return $videos;
 	}
 
