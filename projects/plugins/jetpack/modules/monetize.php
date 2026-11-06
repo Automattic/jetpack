@@ -3,7 +3,7 @@
  * Module Name: Monetize
  * Module Description: Manage payments, paid subscribers, and ads from one Monetize page.
  * Sort Order: 1
- * First Introduced: 16.4-a.7
+ * First Introduced: 16.5-a.1
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Traffic
