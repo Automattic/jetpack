@@ -5,8 +5,8 @@
  * Registers the `/jetpack/v4/videopress/*` routes backing the
  * modernized wp-build dashboard: a proxy to the WPCOM
  * `sites/{id}/stats/video-plays` endpoint for the Overview screen's
- * KPI / trends / top-N cards, and the Playlists tab's routes
- * ( see Playlist_Manager ).
+ * KPI / trends / top-N cards, the Playlists tab's routes
+ * ( see Playlist_Manager ) and video classification ( see Classification ).
  *
  * @package automattic/jetpack-videopress
  */
@@ -58,6 +58,7 @@ class Rest_Controller {
 		);
 
 		Playlist_Manager::register_rest_routes();
+		Classification::register_rest_routes();
 	}
 
 	/**
