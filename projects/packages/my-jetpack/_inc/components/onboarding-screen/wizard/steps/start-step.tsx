@@ -2,6 +2,8 @@ import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
 import {
 	CONNECTION_FROM,
 	useConnection,
+	getConnectScreenErrorMessage,
+	getRegistrationErrorCode,
 	getRegistrationErrorSummary,
 } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
@@ -58,10 +60,14 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 
 	const isConnecting = siteIsRegistering || userIsConnecting;
 
-	// A mapped summary says what to do; the raw fallback does not, so the title adds the retry cue.
+	// The summary falls back to the server's raw text, so only a mapped message says what to do.
 	const errorSummary = connectError
 		? getRegistrationErrorSummary( connectError, isOfflineMode )
 		: null;
+	const hasMappedMessage = Boolean(
+		connectError &&
+		getConnectScreenErrorMessage( getRegistrationErrorCode( connectError ), isOfflineMode )
+	);
 
 	// Named once: the terms sentence has to say the same words as the button it is about.
 	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );
@@ -137,7 +143,7 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 				{ connectError && (
 					<Notice.Root intent="error" className={ styles[ 'start-error' ] }>
 						<Notice.Title>
-							{ errorSummary
+							{ hasMappedMessage
 								? __( 'We could not connect this site.', 'jetpack-my-jetpack' )
 								: _x(
 										'We could not connect this site. Please try again.',

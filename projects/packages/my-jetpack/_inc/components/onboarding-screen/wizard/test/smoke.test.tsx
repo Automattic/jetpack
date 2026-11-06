@@ -29,13 +29,18 @@ const mockConnection: {
 };
 
 const mockUseConnection = jest.fn( () => mockConnection );
-const mockErrorSummary = jest.fn< string | undefined, [] >();
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
-	getRegistrationErrorSummary: () => mockErrorSummary(),
+	// The real helpers: what counts as a mapped message is part of what is under test.
+	getRegistrationErrorSummary: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorSummary,
+	getRegistrationErrorCode: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorCode,
+	getConnectScreenErrorMessage: jest.requireActual( '@automattic/jetpack-connection' )
+		.getConnectScreenErrorMessage,
 } ) );
 
 const mockRecordEvent = jest.fn();
@@ -88,7 +93,6 @@ beforeEach( () => {
 	mockConnection.isRegistered = false;
 	mockConnection.isUserConnected = false;
 	mockConnection.connectError = false;
-	mockErrorSummary.mockReset();
 } );
 
 /**
@@ -270,11 +274,9 @@ describe( 'Wizard start screen', () => {
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		// No mapped summary, so the title carries the retry cue.
-		expect(
-			screen.getByText( 'We could not connect this site. Please try again.' )
-		).toBeInTheDocument();
-		expect( screen.getByText( 'Site is inaccessible (Status 403)' ) ).toBeInTheDocument();
+		// A mapped message says what to do, so the title does not repeat it.
+		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
+		expect( screen.getByText( /couldn’t reach your site to verify it/ ) ).toBeInTheDocument();
 
 		// The message interpolates the server's prose; only the code is reported.
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
@@ -300,11 +302,10 @@ describe( 'Wizard start screen', () => {
 		);
 
 		mockConnection.connectError = error;
-		mockErrorSummary.mockReturnValue( 'The connection request got an unexpected response.' );
 		refresh();
 
 		expect(
-			screen.getByText( 'The connection request got an unexpected response.' )
+			screen.getByText( /The connection request got an unexpected response/ )
 		).toBeInTheDocument();
 		// A mapped summary already says what to do, so the title does not repeat it.
 		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
@@ -313,6 +314,25 @@ describe( 'Wizard start screen', () => {
 		await user.click( getStarted() );
 
 		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'keeps the retry instruction when the server sends text for an unmapped code', async () => {
+		const error = {
+			name: 'ApiError',
+			response: { code: 'upstream_failed', message: 'Upstream request failed.' },
+		};
+		mockConnection.handleRegisterSite.mockRejectedValue( error );
+
+		const { user, refresh } = setupWizard();
+
+		await user.click( getStarted() );
+		mockConnection.connectError = error;
+		refresh();
+
+		expect( screen.getByText( 'Upstream request failed.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We could not connect this site. Please try again.' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'names what Jetpack does, one free feature group per row', () => {
