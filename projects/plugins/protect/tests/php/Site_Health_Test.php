@@ -50,7 +50,7 @@ class Site_Health_Test extends BaseTestCase {
 	 * @param string $expected The check's expected status.
 	 */
 	#[DataProvider( 'provide_status_cases' )]
-	public function test_check_status_follows_the_last_scan( $error, $failed, $threats, $expected ) {
+	public function test_check_status_follows_scan_and_fetch_failures( $error, $failed, $threats, $expected ) {
 		Status::$status = new Status_Model(
 			array(
 				'last_checked'     => '2026-11-01 00:00:00',
