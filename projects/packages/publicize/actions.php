@@ -17,3 +17,24 @@ if ( function_exists( 'add_action' ) ) {
 		'function'      => array( Automattic\Jetpack\Publicize\Publicize_Setup::class, 'pre_initialization' ),
 	);
 }
+
+// Register Jetpack Social abilities. The `jetpack_wp_abilities_enabled` filter
+// (default false) keeps this a no-op until a site opts in.
+$jetpack_publicize_register_abilities = static function () {
+	if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
+		return;
+	}
+	if ( ! class_exists( Automattic\Jetpack\Publicize\Abilities\Social_Abilities::class ) ) {
+		return;
+	}
+	Automattic\Jetpack\Publicize\Abilities\Social_Abilities::init();
+};
+if ( function_exists( 'add_action' ) ) {
+	add_action( 'plugins_loaded', $jetpack_publicize_register_abilities, 20 );
+} else {
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$wp_filter['plugins_loaded'][20][] = array(
+		'accepted_args' => 0,
+		'function'      => $jetpack_publicize_register_abilities,
+	);
+}
