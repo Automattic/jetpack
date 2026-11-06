@@ -82,7 +82,7 @@ export function yearRange( year: number, bounds: PeriodBounds ): Required< DateR
  *
  * @param clicked         - The clicked bucket.
  * @param clicked.date    - A date inside the bucket, its first day when `endDate` is set.
- * @param clicked.endDate - The bucket's last instant as the report states it; the calendar bucket otherwise.
+ * @param clicked.endDate - The bucket's last day as the report states it; the calendar bucket otherwise.
  * @param interval        - The bucket size the chart drew.
  * @param window          - The range the chart draws.
  * @param bounds          - The site zone the bucket is cut in, and the clock capping it.

@@ -30,7 +30,6 @@ const BUCKET_BOUNDS: Partial<
 	Record< IntervalType, { start: ( date: TZDate ) => TZDate; end: ( date: TZDate ) => TZDate } >
 > = {
 	day: { start: startOfDay, end: endOfDay },
-	// ISO weeks, as Stats cuts them. Store reports start a week on the site's first day of the week, so their bucket's own end is passed instead.
 	week: { start: startOfISOWeek, end: endOfISOWeek },
 	month: { start: startOfMonth, end: endOfMonth },
 	quarter: { start: startOfQuarter, end: endOfQuarter },
@@ -44,7 +43,7 @@ const BUCKET_BOUNDS: Partial<
  * @return False for an hour, the finest bucket the report draws.
  */
 export function isDrillableInterval( interval: IntervalType ): boolean {
-	return interval in BUCKET_BOUNDS;
+	return Object.hasOwn( BUCKET_BOUNDS, interval );
 }
 
 /**
@@ -56,7 +55,7 @@ export function isDrillableInterval( interval: IntervalType ): boolean {
  * @param date     - Any instant inside the bucket, typically the datum's date.
  * @param interval - The interval the bucket was drawn in.
  * @param now      - The current instant, for the clamp.
- * @param end      - The bucket's last day as the report states it, with `date` on its first day; the calendar bounds otherwise.
+ * @param end      - The bucket's last day as the report states it, with `date` on its first day, for a report whose buckets are not calendar ones (store weeks start on the site's first day of the week); the calendar bounds otherwise.
  * @return The bucket's range, or null when the interval has nothing below it.
  */
 export function drillDateRange(
