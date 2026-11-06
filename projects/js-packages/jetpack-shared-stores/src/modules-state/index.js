@@ -1,4 +1,4 @@
-import { createReduxStore, register, dispatch } from '@wordpress/data';
+import { createReduxStore, register, dispatch, select } from '@wordpress/data';
 import actions from './actions';
 import controls from './controls';
 import reducer from './reducer';
@@ -14,17 +14,23 @@ export const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 	selectors,
 } );
 
-register( store );
+/*
+ * Another bundled copy of this package may have registered and seeded the store already, from
+ * the same page globals; its state may have changed since, so a later copy must leave it alone.
+ */
+if ( ! select( JETPACK_MODULES_STORE_ID ) ) {
+	register( store );
 
-const initialData =
-	window?.Initial_State?.getModules || // Jetpack Dashboard
-	window?.Jetpack_Editor_Initial_State?.modules || // Gutenberg
-	null;
+	const initialData =
+		window?.Initial_State?.getModules || // Jetpack Dashboard
+		window?.Jetpack_Editor_Initial_State?.modules || // Gutenberg
+		null;
 
-// This is a temporary fix to have store filled properly.
-// TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
-if ( initialData !== null ) {
-	dispatch( store ).setJetpackModules( {
-		data: { ...initialData },
-	} );
+	// This is a temporary fix to have store filled properly.
+	// TODO: Create a proper solution after fixing initial issue (https://github.com/Automattic/jetpack/issues/34793).
+	if ( initialData !== null ) {
+		dispatch( store ).setJetpackModules( {
+			data: { ...initialData },
+		} );
+	}
 }
