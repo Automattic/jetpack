@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Site Chat: Add the jetpack_reader_chat_query_filter filter so site owners can limit which content Site Chat uses.
+Site Chat: Add the jetpack_site_chat_query_filter filter so site owners can limit which content Site Chat uses.

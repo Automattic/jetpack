@@ -64,7 +64,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reader_chat_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_enqueue_enabled' );
 		remove_all_filters( 'jetpack_reader_chat_has_ai_features' );
-		remove_all_filters( 'jetpack_reader_chat_query_filter' );
+		remove_all_filters( 'jetpack_site_chat_query_filter' );
 		delete_option( 'reader_chat_query_filter' );
 		remove_all_filters( 'jetpack_reader_chat_has_search_plan_access' );
 		remove_all_filters( 'jetpack_reader_chat_load_strategy' );
@@ -253,7 +253,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	public function test_sync_query_filter_option_stores_filter() {
 		$query_filter = array( 'bool' => array( 'must_not' => array( array( 'range' => array( 'date' => array( 'lt' => '2020-01-01' ) ) ) ) ) );
 		add_filter(
-			'jetpack_reader_chat_query_filter',
+			'jetpack_site_chat_query_filter',
 			function () use ( $query_filter ) {
 				return $query_filter;
 			}
@@ -274,7 +274,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	public function test_sync_query_filter_option_clears_stored_value( $value ) {
 		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
 		add_filter(
-			'jetpack_reader_chat_query_filter',
+			'jetpack_site_chat_query_filter',
 			function () use ( $value ) {
 				return $value;
 			}
