@@ -16,6 +16,7 @@ use WP_Error;
 use WP_Image_Editor;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-editor.php';
+require_once __DIR__ . '/trait-fake-ai-marker-tools.php';
 
 /**
  * Runs the editor against fake exiftool and c2patool scripts, so the tests need neither tool.
@@ -24,6 +25,7 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-edi
  */
 #[RequiresFunction( 'imagejpeg' )]
 class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
+	use Fake_AI_Marker_Tools;
 
 	const AI_MARKER = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
 
@@ -31,19 +33,10 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 	const COMPOSITE = 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia';
 
-	const WRITE_ARG = '-XMP-iptcExt:DigitalSourceType=';
-
 	/**
 	 * An image whose active manifest has an AI ingredient, signed with c2patool's test certificate.
 	 */
 	const C2PA_FIXTURE = __DIR__ . '/fixtures/c2pa-ai-composite.jpg';
-
-	/**
-	 * Log file for each fake tool, by tool name.
-	 *
-	 * @var string[]
-	 */
-	private $logs = array();
 
 	/**
 	 * Values the editor sent to jetpack_bump_stats_extras.
@@ -143,7 +136,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame(
 			array(
 				array( '-m', '-S', '-XMP-iptcExt:DigitalSourceType', '-JUMBF:JUMDLabel', $source ),
-				array( '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::WRITE_ARG . $type, $target ),
+				array( '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::$write_arg . $type, $target ),
 			),
 			$this->calls( 'exiftool' )
 		);
@@ -365,7 +358,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->use_tool( 'exiftool', $exiftool );
 		$source = $this->jpeg();
 		$saved  = $this->temp_path( 'jpeg' );
-		exec( implode( ' ', array_map( 'escapeshellarg', array( $exiftool, '-m', '-q', '-overwrite_original', self::WRITE_ARG . self::AI_MARKER, $source ) ) ) );
+		exec( implode( ' ', array_map( 'escapeshellarg', array( $exiftool, '-m', '-q', '-overwrite_original', self::$write_arg . self::AI_MARKER, $source ) ) ) );
 
 		wp_get_image_editor( $source )->save( $saved );
 
@@ -403,122 +396,6 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $saved );
 		$this->assertNotFalse( getimagesize( $saved['path'] ) );
 		$this->assertSame( array( 'write-failed' ), $this->stats );
-	}
-
-	/**
-	 * Fakes exiftool: a read reports $type and maybe a C2PA box, a write exits with $write_status.
-	 *
-	 * @param string $type         The XMP type a read reports, or '' for none.
-	 * @param int    $write_status Exit status of a write.
-	 * @param bool   $has_c2pa     Whether a read reports a C2PA box.
-	 */
-	private function fake_exiftool( $type, $write_status = 0, $has_c2pa = false ) {
-		$read = '' === $type ? '' : "printf 'DigitalSourceType: %s\\n' " . escapeshellarg( $type ) . '; ';
-		if ( $has_c2pa ) {
-			$read .= "echo 'JUMDLabel: c2pa'; ";
-		}
-
-		$this->fake_tool( 'exiftool', 'case " $* " in *" -S "*) ' . $read . "exit 0;; esac\nexit $write_status\n" );
-	}
-
-	/**
-	 * Points the editor at a fake c2patool that prints $store and exits with $status.
-	 *
-	 * @param array $store  The manifest store to print as JSON.
-	 * @param int   $status Exit status.
-	 */
-	private function fake_c2patool( $store, $status = 0 ) {
-		$output = $this->temp_path( 'json' );
-		file_put_contents( $output, wp_json_encode( $store, JSON_UNESCAPED_SLASHES ) );
-		$this->fake_tool( 'c2patool', 'cat ' . escapeshellarg( $output ) . "\nexit $status\n" );
-	}
-
-	/**
-	 * Makes $tool a shell script that logs its arguments, then runs $body.
-	 *
-	 * @param string $tool exiftool or c2patool.
-	 * @param string $body The script after the logging lines.
-	 */
-	private function fake_tool( $tool, $body ) {
-		$this->logs[ $tool ] = $this->temp_path( 'log' );
-		$log                 = escapeshellarg( $this->logs[ $tool ] );
-		$script              = $this->temp_path( 'sh' );
-		file_put_contents( $script, "#!/bin/sh\nprintf '%s\\037' \"\$@\" >> $log\nprintf '\\036' >> $log\n" . $body );
-		chmod( $script, 0755 );
-		$this->use_tool( $tool, $script );
-	}
-
-	/**
-	 * Points the editor at $path for $tool.
-	 *
-	 * @param string $tool exiftool or c2patool.
-	 * @param string $path Path of the program.
-	 */
-	private function use_tool( $tool, $path ) {
-		add_filter(
-			'jetpack_wpcom_ai_marker_tool_path',
-			function ( $current, $name ) use ( $tool, $path ) {
-				return $tool === $name ? $path : $current;
-			},
-			20,
-			2
-		);
-	}
-
-	/**
-	 * Returns the arguments of each call to the fake $tool, in order.
-	 *
-	 * @param string $tool exiftool or c2patool.
-	 * @return string[][]
-	 */
-	private function calls( $tool ) {
-		if ( ! file_exists( $this->logs[ $tool ] ) ) {
-			return array();
-		}
-		$calls = array_filter( explode( "\036", file_get_contents( $this->logs[ $tool ] ) ) );
-
-		return array_values(
-			array_map(
-				function ( $call ) {
-					return explode( "\037", rtrim( $call, "\037" ) );
-				},
-				$calls
-			)
-		);
-	}
-
-	/**
-	 * Returns the file each read asked exiftool about.
-	 *
-	 * @return string[]
-	 */
-	private function read_paths() {
-		$paths = array();
-		foreach ( $this->calls( 'exiftool' ) as $args ) {
-			if ( in_array( '-S', $args, true ) ) {
-				$paths[] = end( $args );
-			}
-		}
-
-		return $paths;
-	}
-
-	/**
-	 * Returns the type each write asked exiftool to set.
-	 *
-	 * @return string[]
-	 */
-	private function written_types() {
-		$types = array();
-		foreach ( $this->calls( 'exiftool' ) as $args ) {
-			foreach ( $args as $arg ) {
-				if ( str_starts_with( $arg, self::WRITE_ARG ) ) {
-					$types[] = substr( $arg, strlen( self::WRITE_ARG ) );
-				}
-			}
-		}
-
-		return $types;
 	}
 
 	/**
@@ -610,15 +487,5 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		imagejpeg( imagecreatetruecolor( 32, 48 ), $path );
 
 		return $path;
-	}
-
-	/**
-	 * Returns a fresh path in the uploads directory.
-	 *
-	 * @param string $extension File extension.
-	 * @return string
-	 */
-	private function temp_path( $extension ) {
-		return wp_upload_dir()['path'] . '/ai-marker-' . wp_generate_password( 12, false ) . '.' . $extension;
 	}
 }
