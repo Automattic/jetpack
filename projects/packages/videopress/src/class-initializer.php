@@ -779,7 +779,10 @@ class Initializer {
 			return Channel_Blocks::render_empty_state( 'videos', $block_attributes );
 		}
 
-		$state   = Channel_Data::browse_request( $controls, $paginated, $order );
+		$state = Channel_Data::browse_request( $controls, $paginated, $order );
+		if ( 'watched' === $state['hide'] ) {
+			nocache_headers();
+		}
 		$results = Channel_Data::browse( $state, $count, $exclude, $show_meta );
 
 		$block_attributes['videos'] = $show_meta
@@ -817,7 +820,7 @@ class Initializer {
 	 * @return string Markup.
 	 */
 	private static function render_video_browser_controls( array $state, array $results, $per_page ) {
-		$own_args = array_merge( array( Channel_Data::QUERY_ARG_SEARCH, Channel_Data::QUERY_ARG_SORT, Channel_Data::QUERY_ARG_LENGTH, Channel_Data::QUERY_ARG_PAGE ), self::classification_query_args() );
+		$own_args = array_merge( array( Channel_Data::QUERY_ARG_SEARCH, Channel_Data::QUERY_ARG_SORT, Channel_Data::QUERY_ARG_LENGTH, Channel_Data::QUERY_ARG_PAGE, Viewer_History::QUERY_ARG_HIDE ), self::classification_query_args() );
 		$action   = strtok( remove_query_arg( $own_args ), '?' );
 
 		// A GET form drops the action's query string, so the page's other arguments ride along as fields.
@@ -895,8 +898,29 @@ class Initializer {
 			esc_attr__( 'Video length', 'jetpack-videopress-pkg' ),
 			$options,
 			esc_html( $summary ),
-			self::render_video_browser_facets( $state['terms'] ?? array() ),
+			self::render_video_browser_facets( $state['terms'] ?? array() ) . self::render_video_browser_history_controls( $state ),
 			self::render_video_browser_active_filters( $state['terms'] ?? array() )
+		);
+	}
+
+	/**
+	 * For signed-in viewers: Hide watched, and a link to a random unwatched video.
+	 *
+	 * @param array $state Browsing state.
+	 *
+	 * @return string Markup; empty for signed-out visitors or without history.
+	 */
+	private static function render_video_browser_history_controls( array $state ) {
+		if ( ! is_user_logged_in() || ! Viewer_History::is_enabled() ) {
+			return '';
+		}
+		return sprintf(
+			'<div class="videopress-video-browser__history"><label class="videopress-video-browser__hide"><input type="checkbox" name="%1$s" value="watched"%2$s data-autosubmit /> %3$s</label><a class="videopress-video-browser__pick" href="%4$s">%5$s</a></div>',
+			esc_attr( Viewer_History::QUERY_ARG_HIDE ),
+			checked( 'watched', $state['hide'] ?? '', false ),
+			esc_html__( 'Hide watched', 'jetpack-videopress-pkg' ),
+			esc_url( add_query_arg( Viewer_History::QUERY_ARG_PICK, '1', home_url( '/' ) ) ),
+			esc_html__( 'Show an unwatched video', 'jetpack-videopress-pkg' )
 		);
 	}
 
