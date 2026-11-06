@@ -183,7 +183,7 @@ describe( 'TransferConnectionOwnership', () => {
 
 	describe( 'plan ownership note', () => {
 		const noteLink = () =>
-			screen.getByRole( 'link', { name: /relevant plans can be transferred/ } );
+			screen.getByRole( 'link', { name: /how Jetpack plans can be transferred/ } );
 
 		it( 'links to the plan transfer docs on both steps', async () => {
 			const user = userEvent.setup();
