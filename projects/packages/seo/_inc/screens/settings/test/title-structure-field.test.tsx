@@ -232,7 +232,7 @@ describe( 'TitleStructureField', () => {
 		expect( previews() ).toContainEqual( expect.stringMatching( /Hello World - Your site/ ) );
 	} );
 
-	it( 'shows all saved formats read-only while title output is conflicted', () => {
+	it( 'shows all saved formats read-only while title output is paused', () => {
 		const formats: Record< string, TitleFormatToken[] > = {
 			front_page: [ { type: 'string', value: 'Front value' } ],
 			posts: [ { type: 'string', value: 'Post value' } ],
@@ -253,9 +253,10 @@ describe( 'TitleStructureField', () => {
 		);
 		expand();
 
-		expect(
-			screen.getAllByText( /Another SEO plugin is controlling title output/ )
-		).not.toHaveLength( 0 );
+		// One short line; the tab's banner explains the cause.
+		expect( screen.getByText( 'Paused on this site.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Another SEO plugin/ ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'textbox', { name: 'Front page' } ) ).toHaveValue( 'Front value' );
 		expect( screen.getByRole( 'textbox', { name: 'Posts' } ) ).toHaveValue( 'Post value' );
 		expect( screen.getByRole( 'textbox', { name: 'Pages' } ) ).toHaveValue( 'Page value' );

@@ -88,7 +88,14 @@ describe( 'SchemaCard', () => {
 		mockForm = makeForm();
 	} );
 
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+	} );
+
 	it( 'keeps saved schema values visible and disables every editing action during a conflict', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+		};
 		mockForm = makeForm( {
 			organization: {
 				name: 'Saved studio',
@@ -99,18 +106,13 @@ describe( 'SchemaCard', () => {
 			localBusiness: { ...EMPTY_LOCAL_BUSINESS, enabled: true },
 			isOrganizationDirty: true,
 		} );
-		render(
-			<SchemaCard
-				initialSettings={ bootstrap }
-				disabled
-				disabledReason="Yoast SEO manages structured data. Saved settings are retained."
-			/>
-		);
+		render( <SchemaCard initialSettings={ bootstrap } disabled /> );
 		expandCard();
 		expect( screen.getByDisplayValue( 'Saved studio' ) ).toBeDisabled();
-		expect( screen.getByText( /Yoast SEO manages structured data/ ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Paused', { exact: true } ) ).toBeInTheDocument();
+		// One short line; the tab's banner explains the cause.
 		expect( screen.getByRole( 'group', { name: 'Schema settings' } ) ).toHaveAccessibleDescription(
-			'Yoast SEO manages structured data. Saved settings are retained.'
+			'Paused while Yoast SEO is active.'
 		);
 		for ( const control of [
 			...screen.getAllByRole( 'textbox' ),

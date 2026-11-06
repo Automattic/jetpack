@@ -19,44 +19,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Suppress SEO Tools output if any of the following plugins is active. Paid editions come
-// before the free plugins they run alongside, so the first match names the right one.
-$jetpack_seo_conflicting_plugins = array(
-	'wordpress-seo-premium/wp-seo-premium.php'        => 'Yoast SEO Premium',
-	'wordpress-seo/wp-seo.php'                        => 'Yoast SEO',
-	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php' => 'All in One SEO Pro',
-	'all-in-one-seo-pack/all_in_one_seo_pack.php'     => 'All in One SEO',
-	'seo-by-rank-math/rank-math.php'                  => 'Rank Math SEO',
-	'autodescription/autodescription.php'             => 'The SEO Framework',
-	'slim-seo/slim-seo.php'                           => 'Slim SEO',
-	'wp-seopress-pro/seopress-pro.php'                => 'SEOPress PRO',
-	'wp-seopress/seopress.php'                        => 'SEOPress',
-	'seo-key-pro/seo-key.php'                         => 'SEOKEY Pro',
-	'seo-key/seo-key.php'                             => 'SEOKEY',
-);
+require_once __DIR__ . '/seo-tools/seo-tools-conflicts.php';
 
-foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin => $seo_plugin_name ) {
-	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
-		// Also disable default meta tags.
-		add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
-
-		// Let the SEO dashboard name the plugin that now owns the output.
-		add_filter(
-			'jetpack_seo_conflicting_plugin',
-			static function () use ( $seo_plugin_name ) {
-				return $seo_plugin_name;
-			}
-		);
-		break;
-	}
+if ( jetpack_seo_has_conflicting_plugin() ) {
+	// Also disable default meta tags.
+	add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
 }
 
 // Preserve the general disable switch while deriving plugin conflicts from their own filter.
 add_filter(
 	'jetpack_disable_seo_tools',
 	static function ( $disabled ) {
-		/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
-		return $disabled || (bool) apply_filters( 'jetpack_seo_conflicting_plugin', null );
+		return $disabled || jetpack_seo_has_conflicting_plugin();
 	}
 );
 
