@@ -317,7 +317,7 @@ const PieChartInternal = ( {
 		chartRef,
 		svgRef,
 		selectedArc,
-		getSegmentHandlers,
+		getSegmentProps,
 		getKeyboardTooltipAnchor,
 		selectionOutputProps,
 		chartProps,
@@ -326,6 +326,7 @@ const PieChartInternal = ( {
 		withTooltips,
 		tooltipOffsetX,
 		tooltipOffsetY,
+		legendValueDisplay,
 	} );
 
 	if ( ! isValid ) {
@@ -486,10 +487,7 @@ const PieChartInternal = ( {
 										arcs.map( ( arcDatum, index ) => (
 											<g
 												key={ `arc-${ index }` }
-												{ ...getSegmentHandlers(
-													arcDatum.data,
-													navigationArcs.indexOf( arcDatum )
-												) }
+												{ ...getSegmentProps( arcDatum.data, navigationArcs.indexOf( arcDatum ) ) }
 											>
 												<path
 													d={ path( arcDatum ) || '' }
