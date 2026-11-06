@@ -19,7 +19,7 @@ const ConnectionScreen: FC = () => {
 	const from =
 		typeof search.from === 'string' && isStandardEntryPoint?.( search.from )
 			? search.from
-			: CONNECTION_FROM?.myJetpackConnectionScreen ?? 'my-jetpack';
+			: ( CONNECTION_FROM?.myJetpackConnectionScreen ?? 'my-jetpack' );
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	return (
