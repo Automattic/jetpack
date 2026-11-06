@@ -2,7 +2,10 @@
  * External dependencies
  */
 import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
-import { DETAIL_HEADER_GLYPH_SIZE, getPostTypeCopy } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	DETAIL_HEADER_GLYPH_SIZE,
+	getPostTypeCopy,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { envelope as envelopeIcon } from '@wordpress/icons';
 /**
