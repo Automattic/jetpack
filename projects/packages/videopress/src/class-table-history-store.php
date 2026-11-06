@@ -28,12 +28,21 @@ class Table_History_Store implements History_Store {
 	}
 
 	/**
+	 * Whether the table exists yet; it is created on the first write.
+	 *
+	 * @return bool
+	 */
+	public static function is_installed() {
+		return (int) get_option( self::VERSION_OPTION, 0 ) >= self::SCHEMA_VERSION;
+	}
+
+	/**
 	 * Create or upgrade the table when its schema version is behind.
 	 *
 	 * @return void
 	 */
 	public static function maybe_install() {
-		if ( (int) get_option( self::VERSION_OPTION, 0 ) >= self::SCHEMA_VERSION ) {
+		if ( self::is_installed() ) {
 			return;
 		}
 		global $wpdb;
@@ -103,6 +112,9 @@ class Table_History_Store implements History_Store {
 	 */
 	public function get( $user_id, $guid ) {
 		global $wpdb;
+		if ( ! self::is_installed() ) {
+			return null;
+		}
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is not user input; rows change on every playback.
 		return self::hydrate( $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE user_id = %d AND guid = %s", $user_id, $guid ), ARRAY_A ) );
@@ -118,7 +130,7 @@ class Table_History_Store implements History_Store {
 	public function get_many( $user_id, array $guids ) {
 		global $wpdb;
 		$guids = array_values( array_unique( array_filter( $guids, 'is_string' ) ) );
-		if ( ! $guids ) {
+		if ( ! $guids || ! self::is_installed() ) {
 			return array();
 		}
 		$table        = self::table();
@@ -127,8 +139,10 @@ class Table_History_Store implements History_Store {
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE user_id = %d AND deleted = 0 AND guid IN ({$placeholders})", array_merge( array( $user_id ), $guids ) ), ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $row ) {
-			$row                 = self::hydrate( $row );
-			$out[ $row['guid'] ] = $row;
+			$row = self::hydrate( $row );
+			if ( $row ) {
+				$out[ $row['guid'] ] = $row;
+			}
 		}
 		return $out;
 	}
@@ -176,6 +190,9 @@ class Table_History_Store implements History_Store {
 	 */
 	public function list_recent( $user_id, $limit, $after = null ) {
 		global $wpdb;
+		if ( ! self::is_installed() ) {
+			return array();
+		}
 		$table = self::table();
 		if ( is_array( $after ) && 2 === count( $after ) ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is not user input.
@@ -196,6 +213,9 @@ class Table_History_Store implements History_Store {
 	 */
 	public function delete_all( $user_id ) {
 		global $wpdb;
+		if ( ! self::is_installed() ) {
+			return 0;
+		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Erasure.
 		return (int) $wpdb->delete( self::table(), array( 'user_id' => (int) $user_id ), array( '%d' ) );
 	}
@@ -209,6 +229,9 @@ class Table_History_Store implements History_Store {
 	 */
 	public function purge( $before, $tombstone_before ) {
 		global $wpdb;
+		if ( ! self::is_installed() ) {
+			return 0;
+		}
 		$table = self::table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Retention purge.
 		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE updated < %d OR ( deleted = 1 AND updated < %d )", $before, $tombstone_before ) );
