@@ -279,7 +279,7 @@ class Classification {
 	public static function set_assignments( $attachment_id, $terms, $expected_version = null ) {
 		$attachment_id = (int) $attachment_id;
 		$validated     = self::validate_assignments( $attachment_id, $terms, $expected_version );
-		if ( is_wp_error( $validated ) ) {
+		if ( $validated instanceof WP_Error ) {
 			return $validated;
 		}
 
@@ -375,7 +375,7 @@ class Classification {
 	/**
 	 * A tax_query for selected terms: different taxonomies AND, values within one OR.
 	 *
-	 * @param array<string, string[]> $selected Term slugs keyed by taxonomy.
+	 * @param array $selected Term slugs keyed by taxonomy, as lists or comma-separated strings.
 	 * @return array Empty when nothing is selected.
 	 */
 	public static function tax_query( $selected ) {
