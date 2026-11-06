@@ -107,6 +107,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 		// Core only adds the command palette node when its assets are enqueued,
 		// which normally happens on admin_enqueue_scripts.
 		if ( function_exists( 'wp_enqueue_command_palette_assets' ) ) {
+			// Core expects $submenu to be an array whenever $menu is set, which isn't the case
+			// in a REST request after a plugin adds a menu page outside admin_menu.
+			global $submenu;
+			if ( ! is_array( $submenu ) ) {
+				$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			}
 			wp_enqueue_command_palette_assets();
 		}
 

@@ -11,6 +11,7 @@ import { people } from '@wordpress/icons';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useSetAccess } from '../../shared/memberships/settings';
+import { getPaidAccessState } from '../../shared/memberships/utils';
 import paywallMeta from '../paywall/block.json';
 
 function CommandPalette() {
@@ -42,8 +43,10 @@ function CommandPalette() {
 		};
 	} );
 
+	const { isPaidAvailable } = getPaidAccessState( { stripeConnectUrl, hasTierPlans } );
+
 	function selectAccess( value ) {
-		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
+		if ( accessOptions.paid_subscribers.key === value && ! isPaidAvailable ) {
 			setShowDialog( true );
 			return;
 		}

@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
 
 .jetpack-inspector-notice {
 
@@ -63,7 +63,7 @@
 
 	&__description {
 		margin: 0;
-		color: gb.$gray-700;
+		color: colors.$gray-700;
 		font-size: 12px;
 	}
 }
@@ -89,6 +89,6 @@
 }
 
 .jetpack-subscribe-affirmation-loading {
-	background: gb.$gray-400;
-	color: gb.$gray-400;
+	background: colors.$gray-400;
+	color: colors.$gray-400;
 }

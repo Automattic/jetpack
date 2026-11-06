@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Deprecate the jetpack_protect_global_whitelist settings REST API key in favor of jetpack_waf_ip_allow_list; saving an invalid IP address under it now returns an error. Deprecate the unused Jetpack_Stats_Dashboard_Widget::render_widget(), Jetpack_Stats_Dashboard_Widget::render_footer() and stats_jetpack_dashboard_widget().

@@ -1,7 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ProgressBar, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Progress } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
@@ -96,7 +97,14 @@ class Media extends Component {
 				</p>
 				{ shouldDisplayStorage && (
 					<div className="media__videopress-storage">
-						<ProgressBar value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) } />
+						<Progress.Root
+							aria-label={ __( 'VideoPress storage', 'jetpack' ) }
+							value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) }
+						>
+							<Progress.Track className="media__videopress-storage-track">
+								<Progress.Indicator />
+							</Progress.Track>
+						</Progress.Root>
 						<span>
 							{ createInterpolateElement(
 								sprintf(

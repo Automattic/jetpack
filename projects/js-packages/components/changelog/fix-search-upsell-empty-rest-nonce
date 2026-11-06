@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-AdminPage: Stop clearing the shared REST API nonce and root when a page doesn't pass them.

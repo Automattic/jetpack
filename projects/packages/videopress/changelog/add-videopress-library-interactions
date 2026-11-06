@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Measure bounded library view interactions without search text.

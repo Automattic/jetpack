@@ -62,14 +62,10 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 		expect( screen.getByText( '260' ) ).toBeInTheDocument();
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
-		// Sighted mouse users get the caveat as a hover title…
-		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
-		// …and assistive technology gets it as visually hidden text, since a
-		// `title` on a non-focusable element is unreachable by keyboard.
 		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the exact total behind the shortened count', async () => {
+	it( 'shows the exact total, not a shortened count', async () => {
 		mockApiFetch.mockResolvedValue( { ...SUMMARY_RESPONSE, views: 18400 } );
 
 		render(
@@ -78,8 +74,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '18,400' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '18,400' ) ).resolves.not.toHaveAttribute( 'aria-hidden' );
+		expect( screen.queryByText( '18.4K' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows zeros, not an empty state, when every visible metric is zero', async () => {

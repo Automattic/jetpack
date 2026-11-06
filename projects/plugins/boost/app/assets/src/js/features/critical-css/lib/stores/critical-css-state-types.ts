@@ -31,7 +31,7 @@ const CriticalCssErrorType = z.union( [
 export const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
-	meta: z.record( JSONSchema ).catch( {} ),
+	meta: z.record( z.string(), JSONSchema ).catch( {} ),
 	type: CriticalCssErrorType.catch( 'UnknownError' ),
 } );
 

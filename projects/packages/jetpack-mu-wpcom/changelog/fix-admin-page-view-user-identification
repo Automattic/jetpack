@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Correct WordPress.com user identification in internal admin and Customizer analytics.
+
+

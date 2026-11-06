@@ -48,17 +48,28 @@ function wpcom_nosara_track_admin_page_views() {
 		$blog_id    = _wpcom_get_current_blog_id();
 		$user_types = wpcom_atomic_get_user_types();
 	}
+
+	$wpcom_user_id   = $is_simple_site
+		? absint( $current_user->ID )
+		: (int) get_user_meta( absint( $current_user->ID ), 'wpcom_user_id', true );
+	$wpcom_user_data = $is_simple_site ? null : get_user_meta( absint( $current_user->ID ), 'wpcom_user_data', true );
+	$user_login      = (int) ( $wpcom_user_data->ID ?? 0 ) === $wpcom_user_id && ! empty( $wpcom_user_data->login )
+		? $wpcom_user_data->login
+		: $current_user->user_login;
 	?>
 	<script type="text/javascript">
 		var _admin_pv_props = {
-			from_page: '<?php echo esc_js( $current_screen->id ); ?>',
+			from_page: <?php echo wp_json_encode( $current_screen->id, JSON_HEX_TAG ); ?>,
 			is_block_editor: '<?php echo $current_screen->is_block_editor ? 'true' : 'false'; ?>',
 			source: 'wp-admin',
-			blog_id: '<?php echo esc_js( (string) $blog_id ); ?>',
-			user_type: '<?php echo esc_js( implode( ',', $user_types ) ); ?>'
+			blog_id: <?php echo wp_json_encode( (string) $blog_id, JSON_HEX_TAG ); ?>,
+			user_type: <?php echo wp_json_encode( implode( ',', $user_types ), JSON_HEX_TAG ); ?>,
+			is_local_only_user: <?php echo 0 === $wpcom_user_id ? 'true' : 'false'; ?>
 		};
 		_tkq = window._tkq || [];
-		_tkq.push( [ 'identifyUser', <?php echo (int) $current_user->ID; ?>, '<?php echo esc_js( $current_user->user_login ); ?>' ] );
+		<?php if ( $wpcom_user_id > 0 ) : ?>
+		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $user_login, JSON_HEX_TAG ); ?> ] );
+		<?php endif; ?>
 		_tkq.push( [ 'recordEvent', 'wpcom_admin_page_view', _admin_pv_props ] );
 	</script>
 	<?php
@@ -94,11 +105,25 @@ function wpcom_track_customizer_from_frontend() {
 	if ( do_not_track_a11ns() ) {
 		return;
 	}
+
+	$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$wpcom_user_id   = $is_simple_site
+		? absint( $current_user->ID )
+		: (int) get_user_meta( absint( $current_user->ID ), 'wpcom_user_id', true );
+	$wpcom_user_data = $is_simple_site ? null : get_user_meta( absint( $current_user->ID ), 'wpcom_user_data', true );
+	$user_login      = (int) ( $wpcom_user_data->ID ?? 0 ) === $wpcom_user_id && ! empty( $wpcom_user_data->login )
+		? $wpcom_user_data->login
+		: $current_user->user_login;
 	?>
 	<script type="text/javascript">
 		_tkq = window._tkq || [];
-		_tkq.push( [ 'identifyUser', <?php echo (int) $current_user->ID; ?>, '<?php echo esc_js( $current_user->user_login ); ?>' ] );
-		_tkq.push( [ 'recordEvent', 'wpcom_customize_loaded_from_frontend', { blog_id: '<?php echo (int) \get_wpcom_blog_id(); ?>' } ] );
+		<?php if ( $wpcom_user_id > 0 ) : ?>
+		_tkq.push( [ 'identifyUser', <?php echo (int) $wpcom_user_id; ?>, <?php echo wp_json_encode( $user_login, JSON_HEX_TAG ); ?> ] );
+		<?php endif; ?>
+		_tkq.push( [ 'recordEvent', 'wpcom_customize_loaded_from_frontend', {
+			blog_id: '<?php echo (int) \get_wpcom_blog_id(); ?>',
+			is_local_only_user: <?php echo 0 === $wpcom_user_id ? 'true' : 'false'; ?>
+		} ] );
 	</script>
 	<?php
 }

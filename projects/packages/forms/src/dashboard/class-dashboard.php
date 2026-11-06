@@ -566,12 +566,12 @@ class Dashboard {
 	/**
 	 * The tab the standalone Forms page opens on when the URL names no route.
 	 *
-	 * @deprecated $$next-version$$ The dashboard's root route picks the tab client-side now.
+	 * @deprecated 8.3.5 The dashboard's root route picks the tab client-side now.
 	 *
 	 * @return string Tab slug understood by get_forms_admin_url().
 	 */
 	public static function get_default_tab() {
-		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'package-8.3.5' );
 
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			// The Forms tab is not rendered at all here, so honouring a stored 'forms'

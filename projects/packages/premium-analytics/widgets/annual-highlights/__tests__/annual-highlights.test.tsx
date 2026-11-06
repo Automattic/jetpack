@@ -145,13 +145,6 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
 	} );
 
-	it( 'declares View all to the Annual insights report', async () => {
-		const { declaredLink } = renderWidget();
-
-		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
-		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fannual-insights' );
-	} );
-
 	it( 'keeps the download declared after a failed download of stale highlights', async () => {
 		jest.useFakeTimers();
 		try {

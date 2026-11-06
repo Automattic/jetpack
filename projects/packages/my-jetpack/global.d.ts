@@ -322,6 +322,7 @@ type ProtectHasThreatsAlert = Record< 'protect_has_threats', ProtectHasThreatsAl
 type PluginsNeedingInstallAlertData = {
 	needs_installed?: JetpackModule[];
 	needs_activated_only?: JetpackModule[];
+	is_silent?: true;
 };
 
 type PluginsNeedingInstallAlert = Record<
@@ -422,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -447,6 +449,7 @@ type ProtectData = {
 		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
+		waf_provided_by_host?: boolean;
 	};
 };
 
@@ -561,6 +564,7 @@ interface Window {
 		};
 		siteSuffix: string;
 		siteUrl: string;
+		homeUrl: string;
 		latestBoostSpeedScores: {
 			previousScores: {
 				desktop: number;
@@ -600,6 +604,7 @@ interface Window {
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];
@@ -663,6 +668,7 @@ interface Window {
 					} | null;
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
+						is_free?: boolean;
 						available: boolean;
 						catalog_available?: boolean;
 						requires_support?: boolean;
@@ -776,6 +782,7 @@ interface Window {
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
+		userFirstName: string;
 		isWelcomeTourActive: boolean;
 		seoOptIn: {
 			showCard: boolean;

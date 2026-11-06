@@ -18,6 +18,9 @@ jest.mock(
 	() => jest.requireActual( '../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock( '@wordpress/route', () => ( {
+	Link: jest.requireActual( '../../../../tests/js/route-test-utils' ).mockWordPressRoute.Link,
+} ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
@@ -113,9 +116,7 @@ describe( 'PlanLimitNotice', () => {
 		expect( container ).toHaveTextContent( 'You are nearing your monthly limit' );
 		expect( screen.getByRole( 'link', { name: 'Upgrade now' } ) ).toHaveAttribute(
 			'href',
-			expect.stringContaining(
-				'admin.php?page=stats#!/stats/purchase/123456789?from=jetpack-premium-analytics-plan-limit-notice'
-			)
+			expect.stringContaining( '/upgrade?source=jetpack-premium-analytics-plan-limit-notice' )
 		);
 	} );
 

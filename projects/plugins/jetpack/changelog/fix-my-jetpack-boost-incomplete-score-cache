@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-My Jetpack: Fetch a new speed score when the saved one is incomplete, instead of showing an empty score.

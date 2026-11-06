@@ -12,11 +12,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Modules;
 
-// Guarded on a symbol the file declares, so a second copy of the package can't
-// redeclare it. See the include block in Analytics::load_dashboard_components().
-if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
-	require_once __DIR__ . '/dashboard-sections.php';
-}
+require_once __DIR__ . '/dashboard-sections.php';
 
 /**
  * Filter through which Subscribers section availability is resolved.
@@ -58,13 +54,13 @@ function is_subscribers_dashboard_section_available() {
  */
 function get_traffic_section_default_layout() {
 	return array(
-		// Rows fill the three-column grid in the prototype's order.
+		// Rows follow the prototype's order; full-width rows span every column.
 		// Row 1: traffic chart.
 		get_dashboard_default_widget_instance(
 			'default-traffic-chart-widget-instance',
 			'jpa/traffic-chart',
 			0,
-			3,
+			'full',
 			2
 		),
 		// Row 2: most-viewed posts + referrers + devices.
@@ -168,7 +164,7 @@ function get_insights_section_default_layout() {
 			'default-annual-highlights-widget-instance',
 			'jpa/annual-highlights',
 			0,
-			3,
+			'full',
 			1
 		),
 		// Row 2: at-a-glance cards. Two rows tall: their display-sized figures overflow a 200px tile.
@@ -213,7 +209,7 @@ function get_insights_section_default_layout() {
 			'default-posting-activity-widget-instance',
 			'jpa/posting-activity',
 			6,
-			3,
+			'full',
 			2
 		),
 		// Row 5: the all-time views table, one row per year. Two rows tall so a
@@ -222,7 +218,7 @@ function get_insights_section_default_layout() {
 			'default-views-over-years-widget-instance',
 			'jpa/views-over-years',
 			7,
-			3,
+			'full',
 			2
 		),
 		// Row 6: most commented posts + most commented authors fill the row, so shares
@@ -263,7 +259,7 @@ function get_subscribers_section_default_layout() {
 			'default-subscribers-chart-widget-instance',
 			'jpa/subscribers-chart',
 			0,
-			3,
+			'full',
 			2
 		),
 		// Row 2: subscriber highlights.
@@ -271,7 +267,7 @@ function get_subscribers_section_default_layout() {
 			'default-subscriber-highlights-widget-instance',
 			'jpa/subscriber-highlights',
 			1,
-			3,
+			'full',
 			1
 		),
 		// Row 3: latest subscribers + the wider latest emails sent table.

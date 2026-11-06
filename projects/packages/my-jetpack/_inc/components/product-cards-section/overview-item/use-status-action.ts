@@ -10,11 +10,16 @@ import type { OverviewItemLink } from '.';
 /**
  * The product card's action for the product's status, with the item's own label for adding or activating it.
  *
- * @param {JetpackModuleWithCard} slug  - The product slug.
- * @param {string}                label - The label for adding or activating the product.
+ * @param {JetpackModuleWithCard} slug          - The product slug.
+ * @param {string}                label         - The label for activating the product.
+ * @param {string | null}         [absentLabel] - The label for adding it while its plugin is missing, or null for the card's own.
  * @return {{action: OverviewItemLink | undefined, forcedOffReason: string | null}} The link, and why the host keeps the product off.
  */
-const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
+const useStatusAction = (
+	slug: JetpackModuleWithCard,
+	label: string,
+	absentLabel: string | null = label
+) => {
 	const { detail, refetch } = useProduct( slug );
 	const { isRegistered } = useMyJetpackConnection();
 	const { connectSite } = useConnectSite( {
@@ -22,10 +27,10 @@ const useStatusAction = ( slug: JetpackModuleWithCard, label: string ) => {
 	} );
 	const primaryActionOverride = useMemo(
 		() => ( {
-			[ PRODUCT_STATUSES.ABSENT ]: { label },
+			...( absentLabel ? { [ PRODUCT_STATUSES.ABSENT ]: { label: absentLabel } } : {} ),
 			[ PRODUCT_STATUSES.INACTIVE ]: { label },
 		} ),
-		[ label ]
+		[ label, absentLabel ]
 	);
 	const { action, isBusy, forcedOffReason } = useProductStatusAction( slug, {
 		primaryActionOverride,

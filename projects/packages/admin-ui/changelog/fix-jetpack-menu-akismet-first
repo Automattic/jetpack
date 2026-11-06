@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the Akismet Anti-spam item in sorted order when the menu is set up after Akismet registers it.

@@ -104,6 +104,7 @@ export function limitStatsDateSearch(
 		limited.from = params.from;
 		limited.to = params.to;
 		limited.preset = params.preset;
+		delete limited.step;
 	}
 
 	return limited;
