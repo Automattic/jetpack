@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: Show "Anonymous" when a response has no name, email, or IP address.
+Forms: Show "Anonymous" for responses with no author details, and hide the IP address row when no IP was recorded.
