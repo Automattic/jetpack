@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Protect card: Show that a site with Scan hasn't been scanned yet instead of calling it secure.

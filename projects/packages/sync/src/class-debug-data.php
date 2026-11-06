@@ -10,14 +10,14 @@ namespace Automattic\Jetpack\Sync;
 /**
  * Adds the sync status to the section the connection package builds.
  *
- * @since $$next-version$$
+ * @since 5.5.0
  */
 class Debug_Data {
 
 	/**
 	 * Add the sync fields.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.5.0
 	 *
 	 * @param array $fields Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 	 *
