@@ -1053,7 +1053,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function parse_types( $text ) {
 		if ( ! preg_match( '#^\(([^)]+)\)#', ltrim( $text ), $matches ) ) {
-			return 'none';
+			return array( array( 'type' => 'none' ) );
 		}
 
 		$types  = explode( '|', strtolower( $matches[1] ) );
@@ -1309,11 +1309,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$types   = $this->parse_types( $description );
 					$type    = array();
 					$default = '';
-
-					if ( 'none' === $types ) {
-						$types           = array();
-						$types[]['type'] = 'none';
-					}
 
 					foreach ( $types as $type_array ) {
 						$type[] = $type_array['type'];
