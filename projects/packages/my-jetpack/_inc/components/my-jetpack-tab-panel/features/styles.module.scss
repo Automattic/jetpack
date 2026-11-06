@@ -205,7 +205,7 @@ $band-ground: #f8f8f8;
 }
 
 // The title is the row's control, so it takes a button's behaviour and none of
-// its chrome. The card draws its focus ring, which is not clipped.
+// its chrome, including its focus ring.
 .feature-item__open {
 	background: none;
 	border: 0;
@@ -511,10 +511,19 @@ $band-ground: #f8f8f8;
 // like the pills they ring only for keyboard focus, not after a click.
 .bulk-bar,
 .feature-leading-slot {
-	--wp-components-color-accent: var(--wpds-color-background-interactive-neutral-strong);
 
-	:global(.components-checkbox-control__input[type="checkbox"]):focus:not(:focus-visible) {
-		box-shadow: none;
+	:global(.components-checkbox-control__input[type="checkbox"]) {
+
+		&:not(:disabled):is(:checked, :indeterminate) {
+			background: var(--wpds-color-background-interactive-neutral-strong);
+			border-color: var(--wpds-color-background-interactive-neutral-strong);
+		}
+
+		// Older components CSS rings with a box-shadow, newer with an outline.
+		&:focus:not(:focus-visible) {
+			box-shadow: none;
+			outline-color: transparent;
+		}
 	}
 }
 
