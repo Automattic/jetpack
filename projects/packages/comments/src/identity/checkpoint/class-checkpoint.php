@@ -401,10 +401,13 @@ class Checkpoint {
 		$commentdata['user_ID'] = $user_id;
 
 		// Core adds comment_meta before wp_insert_comment fires, so Sync queues it ahead of the comment.
-		$meta = array( self::META_ID => $this->identity['site_commenter_id'] );
-		if ( '' !== $this->identity['avatar'] ) {
-			$meta[ self::META_AVATAR ] = $this->identity['avatar'];
-		}
+		$meta = array_filter(
+			array(
+				self::META_ID     => $this->identity['site_commenter_id'],
+				self::META_AVATAR => $this->identity['avatar'],
+			),
+			'strlen'
+		);
 
 		$commentdata['comment_meta'] = array_merge( is_array( $commentdata['comment_meta'] ?? null ) ? $commentdata['comment_meta'] : array(), $meta );
 
