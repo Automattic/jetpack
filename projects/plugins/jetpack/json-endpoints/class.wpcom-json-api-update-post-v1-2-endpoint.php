@@ -588,15 +588,15 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		// Any posts coming from Path (client ID 25952) should also not publicize.
 		$skip_publicize = false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] );
 
-		/**
-		 * Publishing flags the post for sharing before the skip meta below exists, so block that flag.
-		 *
-		 * @return false
+		/*
+		 * On Jetpack sites, Sync flags the post for sharing on publish, before the skip meta below exists.
+		 * WordPress.com unhooks sharing from save_post above instead.
 		 */
-		$block_publicize = static function () {
+		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$block_publicize      = static function () {
 			return false;
 		};
-		if ( $skip_publicize ) {
+		if ( $block_publicize_flag ) {
 			add_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
 		}
 
@@ -658,7 +658,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			}
 		}
 
-		if ( $skip_publicize ) {
+		if ( $block_publicize_flag ) {
 			remove_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
 		}
 
