@@ -95,7 +95,7 @@ export const route = {
 				 */
 				params: { postId } as unknown as never,
 				replace: true,
-				viewTransition: false,
+				viewTransition: needsPostSeed,
 				search: limited.search as unknown as never,
 				state: limited.state,
 			} );
