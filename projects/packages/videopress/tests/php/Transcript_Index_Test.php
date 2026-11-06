@@ -222,10 +222,13 @@ class Transcript_Index_Test extends BaseTestCase {
 				'en'      => "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nuploaded words",
 			)
 		);
-		$this->assertSame( 'subtitles:en', Transcript_Index::select_source( 'abcd1234' )['key'] );
+		$source = Transcript_Index::select_source( 'abcd1234' );
+		$this->assertIsArray( $source );
+		$this->assertSame( 'subtitles:en', $source['key'] );
 
 		$this->edited_track( 'en-US', 'corrected words' );
 		$source = Transcript_Index::select_source( 'abcd1234' );
+		$this->assertIsArray( $source );
 		$this->assertSame( 'edited', $source['source'] );
 		$this->assertSame( 62500, $source['cues'][0]['start'] );
 	}
@@ -250,12 +253,7 @@ class Transcript_Index_Test extends BaseTestCase {
 		$this->assertSame( 'only spoken here', get_post_meta( $id, Transcript_Index::META_TEXT, true ) );
 		$this->assertSame( 3000, Transcript_Index::cues( $id )[0]['start'] );
 
-		$this->served = array_map(
-			function () {
-				return new WP_Error( 'http_request_failed', 'timeout' );
-			},
-			$this->served
-		);
+		$this->served = array_fill_keys( array_keys( $this->served ), new WP_Error( 'http_request_failed', 'timeout' ) );
 		$this->assertSame( 'http_request_failed', Transcript_Index::index_attachment( $id )['error'] );
 		$this->assertSame( 'only spoken here', get_post_meta( $id, Transcript_Index::META_TEXT, true ) );
 	}
