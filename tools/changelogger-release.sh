@@ -23,7 +23,7 @@ function usage {
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
-		Pass \`-R\` if doing a package release on a plugin release branch.
+		Pass \`-R\` if doing a package release on a plugin release branch. JS packages are not released then.
 	EOH
 	exit 1
 }
@@ -69,7 +69,7 @@ VERBOSE=
 ADDPRNUM=
 ALPHABETA=
 RELEASEBRANCH=
-while getopts ":vpabhHRr:" opt; do
+while getopts ":vpabhRr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -90,8 +90,7 @@ while getopts ":vpabhHRr:" opt; do
 		r)
 			ALPHABETA=$OPTARG
 			;;
-		H|R)
-			# -H is an old name, kept for back compat.
+		R)
 			RELEASEBRANCH=-R
 			;;
 		h)
@@ -170,6 +169,11 @@ for SLUG in "${TO_RELEASE[@]}"; do
 	CHANGES_DIR=$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		debug "Project $SLUG has no changes, skipping."
+		continue
+	fi
+	# Plugins and packages bundle these, so there is no need to publish them from a release branch.
+	if [[ -n "$RELEASEBRANCH" && "$SLUG" == js-packages/* ]]; then
+		debug "Project $SLUG is a JS package on a release branch, skipping."
 		continue
 	fi
 

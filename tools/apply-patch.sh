@@ -48,25 +48,20 @@ elif [[ $pr_or_commit =~ ^[0-9a-f]+$ ]]; then
 		git fetch -q origin || true
 	fi
 	if ! diff=$(git show --format= --binary "$pr_or_commit^{commit}" 2>/dev/null); then
-		error "Commit $pr_or_commit not found."
-		exit 1
+		die "Commit $pr_or_commit not found."
 	fi
 else
-	error "Unrecognized PR or commit: $pr_or_commit"
-	exit 1
+	die "Unrecognized PR or commit: $pr_or_commit"
 fi
 
 if [[ -z $diff ]]; then
-	error "Empty diff: $pr_or_commit"
-	exit 1
+	die "Empty diff: $pr_or_commit"
 fi
 # git apply is atomic: on any conflict, nothing is applied.
 if ! git apply --index <<<"$diff"; then
-	error "Not applying due to merge conflict: $pr_or_commit"
-	exit 1
+	die "Not applying due to merge conflict: $pr_or_commit"
 fi
 if ! git commit; then
-	error 'Commit aborted; changes left staged.'
-	exit 1
+	die 'Commit aborted; changes left staged.'
 fi
 echo "Applied $pr_or_commit"
