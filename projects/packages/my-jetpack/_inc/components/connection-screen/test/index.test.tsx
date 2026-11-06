@@ -51,16 +51,15 @@ describe( 'ConnectionScreen', () => {
 		expect( renderedFrom() ).toBe( 'my_jetpack_products_backup' );
 	} );
 
-	it.each( [
-		'my-jetpack',
-		'jetpack-onboarding',
-		true,
-	] )( 'falls back to its own name for %p', from => {
-		mockSearch = { from };
-		render( <ConnectionScreen /> );
+	it.each( [ 'my-jetpack', 'jetpack-onboarding', true ] )(
+		'falls back to its own name for %p',
+		from => {
+			mockSearch = { from };
+			render( <ConnectionScreen /> );
 
-		expect( renderedFrom() ).toBe( 'my_jetpack_connection_screen' );
-	} );
+			expect( renderedFrom() ).toBe( 'my_jetpack_connection_screen' );
+		}
+	);
 
 	it( 'sends `my-jetpack` when the shared script lacks the connection names', () => {
 		mockOldScript = true;
