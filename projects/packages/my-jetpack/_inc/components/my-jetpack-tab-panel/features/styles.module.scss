@@ -125,8 +125,8 @@ $band-ground: #f8f8f8;
 		border-color: var(--wpds-color-stroke-surface-neutral);
 	}
 
-	// The title button stretches over the card, so the card draws its ring.
-	// Other controls keep their own ring, so focus shows only once.
+	// The title button stretches over the card, so the card draws the title's
+	// keyboard focus ring. Other controls draw their own, so only one ring shows.
 	&:has(.feature-item__open:focus-visible) {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: calc(var(--wpds-border-width-focus) * -1);
@@ -507,8 +507,8 @@ $band-ground: #f8f8f8;
 	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
-// Selection checkboxes show "selected" in the selected pill's neutral, and
-// like the pills they ring only for keyboard focus, not after a click.
+// Checked selection checkboxes take the selected pill's fill and, like the
+// pills, show a focus ring only for keyboard focus, not after a click.
 .bulk-bar,
 .feature-leading-slot {
 
@@ -519,7 +519,8 @@ $band-ground: #f8f8f8;
 			border-color: var(--wpds-color-background-interactive-neutral-strong);
 		}
 
-		// Older components CSS rings with a box-shadow, newer with an outline.
+		// Some versions of the WordPress components stylesheet draw this ring
+		// as a box-shadow and others as an outline, so clear both.
 		&:focus:not(:focus-visible) {
 			box-shadow: none;
 			outline-color: transparent;
