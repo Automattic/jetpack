@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-06
+### Added
+- Support React 19.
+
+### Changed
+- Add @wordpress/data dependency and React peer dependencies.
+- Update package dependencies.
+- Use React to render the Image Guide overlay. Change setupImageGuideUI to return an object with an unmount method, and use the host's React, ReactDOM and JSX runtime in the built file. Prevent bubble entrances and label fades from replaying when a hidden container is shown again.
+
+### Fixed
+- Fix popup links to open in separate new tabs.
+
 ## [1.0.21] - 2026-09-28
 ### Changed
 - Update package dependencies. [#52297]
@@ -264,6 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[2.0.0]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.21...v2.0.0
 [1.0.21]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.20...v1.0.21
 [1.0.20]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.19...v1.0.20
 [1.0.19]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.18...v1.0.19
