@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "videopress/continue-watching",
+	"version": "0.1.0",
+	"title": "Continue Watching",
+	"category": "media",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M12 4.5a7.5 7.5 0 1 0 7.5 7.5H18a6 6 0 1 1-1.76-4.24L14 10h6V4l-2.7 2.7A7.47 7.47 0 0 0 12 4.5Zm-1.5 4.75v5.5L15 12l-4.5-2.75Z'></path></svg>",
+	"description": "The signed-in viewer's videos in progress, or the ones they watched recently. Empty for signed-out visitors.",
+	"keywords": [ "history", "resume", "continue", "recent", "videopress" ],
+	"textdomain": "jetpack-videopress-pkg",
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"anchor": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"show": {
+			"type": "string",
+			"enum": [ "continue", "recent" ],
+			"default": "continue"
+		},
+		"count": {
+			"type": "number",
+			"default": 8
+		}
+	},
+	"editorScript": "file:./index.js"
+}

@@ -462,7 +462,7 @@ class Channel_Data {
 	 * @param bool   $read_page    Whether the page comes from the request ( numbered pagination ).
 	 * @param string $default_sort The block's own order.
 	 *
-	 * @return array{search: string, sort: string, length: string, page: int, terms: array<string, string[]>}
+	 * @return array{search: string, sort: string, length: string, page: int, terms: array<string, string[]>, hide: string}
 	 */
 	public static function browse_request( $read_filters, $read_page, $default_sort = 'newest' ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only listing arguments, like core's paged and s.
@@ -475,6 +475,7 @@ class Channel_Data {
 			'length' => 'any',
 			'page'   => self::DEFAULT_BROWSE_PAGE,
 			'terms'  => array(),
+			'hide'   => '',
 		);
 
 		if ( $read_filters ) {
@@ -496,6 +497,7 @@ class Channel_Data {
 				}
 			}
 			$state['terms'] = Classification::normalize_selection( $selected );
+			$state['hide']  = Viewer_History::hide_watched_requested() ? 'watched' : '';
 		}
 		if ( $read_page ) {
 			$state['page'] = max( 1, absint( $get( self::QUERY_ARG_PAGE ) ) );
@@ -544,7 +546,11 @@ class Channel_Data {
 	 */
 	private static function browse_results( array $state, $per_page, array $exclude, $with_views ) {
 		$per_page = max( 1, (int) $per_page );
-		$fast     = self::browse_page( $state, $per_page, $exclude, $with_views );
+		if ( 'watched' === ( $state['hide'] ?? '' ) ) {
+			// Personal, so applied before paging like any exclusion; such pages are not cached.
+			$exclude = array_merge( $exclude, Viewer_History::watched_guids( get_current_user_id() ) );
+		}
+		$fast = self::browse_page( $state, $per_page, $exclude, $with_views );
 		if ( null !== $fast ) {
 			return $fast;
 		}
