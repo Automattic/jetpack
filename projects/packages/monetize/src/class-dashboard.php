@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -148,10 +149,22 @@ class Dashboard {
 			return false;
 		}
 
-		// Do not reorder: the build's enqueue callback must run between the alias and the restore.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
-		require_once $build_index;
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
+		$load_wp_build = static function () use ( $build_index ) {
+			require_once $build_index;
+		};
+
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id' ),
+				array( __CLASS__, 'restore_screen_id' ),
+				$load_wp_build
+			);
+		} else {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
+			$load_wp_build();
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
+		}
 
 		// A stale or partial build can't render the page, so don't swap core's scripts for it.
 		if ( ! function_exists( self::RENDER_FUNCTION ) ) {

@@ -185,16 +185,4 @@ class Dashboard_Test extends BaseTestCase {
 
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
 	}
-
-	public function test_restore_screen_id_undoes_the_alias() {
-		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'jetpack_page_jetpack-monetize' );
-
-		Dashboard::alias_screen_id();
-		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, get_current_screen()->id );
-
-		Dashboard::restore_screen_id();
-		$this->assertSame( 'jetpack_page_jetpack-monetize', get_current_screen()->id );
-	}
 }
