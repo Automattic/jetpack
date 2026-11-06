@@ -16,7 +16,7 @@ class CoblocksModsTest extends WP_UnitTestCase {
 	/**
 	 * Data provider for the font preset rewrite.
 	 *
-	 * @return array<string, array{0: string, 1: string}>
+	 * @return array<string, array{0: string, 1: string, 2?: string}>
 	 */
 	public static function provide_font_markup() {
 		$inner = '><a class="wp-block-button__link has-heading-font-family wp-element-button">Go</a></div>';
@@ -38,6 +38,11 @@ class CoblocksModsTest extends WP_UnitTestCase {
 				'<p class="has-custom-font" style="font-family:Raleway">x</p>',
 				'<p class="has-custom-font" style="font-family:Raleway">x</p>',
 			),
+			'2.x font name'      => array(
+				'<p class="has-custom-font" style="font-family:Raleway">x</p>',
+				'<p class="has-custom-font" style="font-family:var(--wp--preset--font-family--raleway, Raleway)">x</p>',
+				'Raleway',
+			),
 		);
 	}
 
@@ -48,10 +53,11 @@ class CoblocksModsTest extends WP_UnitTestCase {
 	 *
 	 * @param string $html     Rendered block HTML.
 	 * @param string $expected Expected HTML after the filter.
+	 * @param string $font     The block's fontFamily attribute.
 	 */
 	#[DataProvider( 'provide_font_markup' )]
-	public function test_font_preset_variable( $html, $expected ) {
-		$block = array( 'attrs' => array( 'fontFamily' => 'heading' ) );
+	public function test_font_preset_variable( $html, $expected, $font = 'heading' ) {
+		$block = array( 'attrs' => array( 'fontFamily' => $font ) );
 
 		$this->assertSame( $expected, wpcomsh_coblocks_font_preset_variable( $html, $block ) );
 	}
