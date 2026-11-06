@@ -521,6 +521,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media        = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
+		// Any posts coming from Path (client ID 25952) should also not publicize.
+		$skip_publicize = false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] );
+
+		/**
+		 * Publishing flags the post for sharing before the skip meta below exists, so block that flag.
+		 *
+		 * @return false
+		 */
+		$block_publicize = static function () {
+			return false;
+		};
+		if ( $skip_publicize ) {
+			add_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
+		}
+
 		if ( $new ) {
 
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
@@ -563,6 +578,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			} else {
 				$post_id = wp_update_post( (object) $insert );
 			}
+		}
+
+		if ( $skip_publicize ) {
+			remove_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
 		}
 
 		if ( ! $post_id || is_wp_error( $post_id ) ) {
@@ -664,8 +683,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
-		// any posts coming from Path (client ID 25952) should also not publicize.
-		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] ) ) {
+		if ( $skip_publicize ) {
 			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
