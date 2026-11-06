@@ -3,14 +3,24 @@ import ConnectionScreen from '../index';
 
 const mockConnectScreen = jest.fn();
 let mockSearch: Record< string, unknown > = {};
+let mockOldScript = false;
 
-jest.mock( '@automattic/jetpack-connection', () => ( {
-	...jest.requireActual( '@automattic/jetpack-connection' ),
-	ConnectScreen: ( props: Record< string, unknown > ) => {
-		mockConnectScreen( props );
-		return null;
-	},
-} ) );
+jest.mock( '@automattic/jetpack-connection', () => {
+	const actual = jest.requireActual( '@automattic/jetpack-connection' );
+	return {
+		...actual,
+		get CONNECTION_FROM() {
+			return mockOldScript ? undefined : actual.CONNECTION_FROM;
+		},
+		get isStandardEntryPoint() {
+			return mockOldScript ? undefined : actual.isStandardEntryPoint;
+		},
+		ConnectScreen: ( props: Record< string, unknown > ) => {
+			mockConnectScreen( props );
+			return null;
+		},
+	};
+} );
 jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {} ) );
 jest.mock(
@@ -24,6 +34,7 @@ const renderedFrom = () => mockConnectScreen.mock.lastCall[ 0 ].from;
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockSearch = {};
+	mockOldScript = false;
 } );
 
 describe( 'ConnectionScreen', () => {
@@ -51,6 +62,14 @@ describe( 'ConnectionScreen', () => {
 		render( <ConnectionScreen /> );
 
 		expect( renderedFrom() ).toBe( 'my_jetpack_connection_screen' );
+	} );
+
+	it( 'sends `my-jetpack` when the shared script lacks the connection names', () => {
+		mockOldScript = true;
+		mockSearch = { from: 'my_jetpack_products_backup' };
+		render( <ConnectionScreen /> );
+
+		expect( renderedFrom() ).toBe( 'my-jetpack' );
 	} );
 
 	it( 'keeps skip_pricing from the link', () => {

@@ -15,10 +15,11 @@ const ConnectionScreen: FC = () => {
 	// The router hands back an unquoted `true` as a boolean and a quoted one as a string.
 	const shouldSkipPricing = String( search.skip_pricing ) === 'true';
 	// Forward the name of the link that opened this screen, so the connection is counted by it.
+	// An older shared jetpack-connection script may lack these exports: fall back to `my-jetpack`.
 	const from =
-		typeof search.from === 'string' && isStandardEntryPoint( search.from )
+		typeof search.from === 'string' && isStandardEntryPoint?.( search.from )
 			? search.from
-			: CONNECTION_FROM.myJetpackConnectionScreen;
+			: CONNECTION_FROM?.myJetpackConnectionScreen ?? 'my-jetpack';
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	return (
