@@ -148,7 +148,8 @@ function shellProbe( mountIds: Record< string, string > ) {
 		/* No shell on this document (shell off, or ?jetpack_admin_shell=0), so never any hooks:
 		 * the body class names the page and its mount is the app. Keep this after the rewrite. */
 		if ( ! w.jetpackAdminShell ) {
-			const slug = /(?:^|\s)jetpack_page_(\S+)/.exec( document.body.className )?.[ 1 ];
+			// A poll can land on the incoming document before <body> exists.
+			const slug = /(?:^|\s)jetpack_page_(\S+)/.exec( document.body?.className ?? '' )?.[ 1 ];
 			const state = slug && slug in mountIds ? mountState( slug ) : null;
 			const apps: Record< string, string > = state ? { [ slug! ]: state } : {};
 			return { visible: state === 'visible' ? slug! : null, apps, source: 'page' };
