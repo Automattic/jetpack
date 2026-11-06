@@ -100,6 +100,23 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertSame( $expected, $posts_per_page );
 	}
 
+	public function test_get_new_styles_returns_only_new_non_empty_styles_and_restores_concatenation() {
+		$wp_styles = new WP_Styles();
+		$wp_styles->add( 'is-inlined', false );
+		$wp_styles->add_inline_style( 'is-inlined', '.is-inlined-test{color:red}' );
+		$wp_styles->add( 'is-linked', 'https://example.org/is-linked.css', array(), '1.0' );
+		$wp_styles->add( 'is-empty', false );
+		$wp_styles->done      = array( 'is-inlined', 'is-linked', 'is-empty' );
+		$wp_styles->do_concat = true;
+
+		$styles = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'is-linked' ) );
+
+		$this->assertCount( 1, $styles );
+		$this->assertSame( 'is-inlined', $styles[0]['handle'] );
+		$this->assertStringContainsString( '.is-inlined-test{color:red}', $styles[0]['html'] );
+		$this->assertTrue( $wp_styles->do_concat );
+	}
+
 	/**
 	 * Gets the test data for test_max_posts_per_page_in_request().
 	 *

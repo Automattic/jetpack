@@ -1058,6 +1058,37 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * Get the markup for styles printed since the initial page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_Styles $wp_styles      Styles registry.
+	 * @param string[]  $initial_styles Handles already present on the page.
+	 * @return array[] List of arrays with `handle` and `html` keys.
+	 */
+	public static function get_new_styles( $wp_styles, array $initial_styles ) {
+		$styles    = array();
+		$do_concat = $wp_styles->do_concat;
+
+		$wp_styles->do_concat = false;
+		foreach ( array_diff( $wp_styles->done, $initial_styles ) as $handle ) {
+			ob_start();
+			$wp_styles->do_item( $handle );
+			$html = ob_get_clean();
+
+			if ( '' !== trim( $html ) ) {
+				$styles[] = array(
+					'handle' => $handle,
+					'html'   => $html,
+				);
+			}
+		}
+		$wp_styles->do_concat = $do_concat;
+
+		return $styles;
+	}
+
+	/**
 	 * Provide IS with a list of the scripts and stylesheets already present on the page.
 	 * Since posts may contain require additional assets that haven't been loaded, this data will be used to track the additional assets.
 	 *
@@ -1251,82 +1282,7 @@ class The_Neverending_Home_Page {
 		if ( is_array( $initial_styles ) ) {
 			global $wp_styles;
 
-			// Identify new styles needed by the latest set of IS posts
-			$new_styles = array_diff( $wp_styles->done, $initial_styles );
-
-			// If new styles are needed, extract relevant data from $wp_styles
-			if ( ! empty( $new_styles ) ) {
-				$results['styles'] = array();
-
-				foreach ( $new_styles as $handle ) {
-					// Abort if somehow the handle doesn't correspond to a registered stylesheet
-					if ( ! isset( $wp_styles->registered[ $handle ] ) ) {
-						continue;
-					}
-
-					// Provide basic style data
-					$style_data = array(
-						'handle' => $handle,
-						'media'  => 'all',
-					);
-
-					// Base source
-					$src = $wp_styles->registered[ $handle ]->src;
-
-					// Take base_url into account
-					if ( strpos( $src, 'http' ) !== 0 ) {
-						$src = $wp_styles->base_url . $src;
-					}
-
-					// Version and additional arguments
-					if ( null === $wp_styles->registered[ $handle ]->ver ) {
-						$ver = '';
-					} else {
-						$ver = $wp_styles->registered[ $handle ]->ver ? $wp_styles->registered[ $handle ]->ver : $wp_styles->default_version;
-					}
-
-					if ( isset( $wp_styles->args[ $handle ] ) ) {
-						$ver = $ver ? $ver . '&amp;' . $wp_styles->args[ $handle ] : $wp_styles->args[ $handle ];
-					}
-
-					// Full stylesheet source with version info
-					$style_data['src'] = add_query_arg( 'ver', $ver, $src );
-
-					// Parse stylesheet's conditional comments if present, converting to logic executable in JS
-					if ( isset( $wp_styles->registered[ $handle ]->extra['conditional'] ) && $wp_styles->registered[ $handle ]->extra['conditional'] ) {
-						// First, convert conditional comment operators to standard logical operators. %ver is replaced in JS with the IE version
-						$style_data['conditional'] = str_replace(
-							array(
-								'lte',
-								'lt',
-								'gte',
-								'gt',
-							),
-							array(
-								'%ver <=',
-								'%ver <',
-								'%ver >=',
-								'%ver >',
-							),
-							$wp_styles->registered[ $handle ]->extra['conditional']
-						);
-
-						// Next, replace any !IE checks. These shouldn't be present since WP's conditional stylesheet implementation doesn't support them, but someone could be _doing_it_wrong().
-						$style_data['conditional'] = preg_replace( '#!\s*IE(\s*\d+){0}#i', '1==2', $style_data['conditional'] );
-
-						// Lastly, remove the IE strings
-						$style_data['conditional'] = str_replace( 'IE', '', $style_data['conditional'] );
-					}
-
-					// Parse requested media context for stylesheet
-					if ( isset( $wp_styles->registered[ $handle ]->args ) ) {
-						$style_data['media'] = esc_attr( $wp_styles->registered[ $handle ]->args );
-					}
-
-					// Add stylesheet to data that will be returned to IS JS
-					array_push( $results['styles'], $style_data );
-				}
-			}
+			$results['styles'] = self::get_new_styles( $wp_styles, $initial_styles );
 		}
 
 		// Expose additional stylesheet data to filters, but only include in final `$results` array if needed.
@@ -1341,7 +1297,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @since 2.1.2
 		 *
-		 * @param array $results['styles'] Additional styles required by the latest set of IS posts.
+		 * @param array $results['styles'] Additional styles required by the latest set of IS posts. Each entry has `handle` plus either `html` (printed tags) or `src` (stylesheet URL, optional `media`).
 		 * @param array|bool $initial_styles Set of styles loaded on each page.
 		 * @param array $results Array of Infinite Scroll results.
 		 * @param array $query_args Array of Query arguments.
