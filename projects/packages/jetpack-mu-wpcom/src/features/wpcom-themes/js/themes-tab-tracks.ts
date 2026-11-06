@@ -1,4 +1,5 @@
 const PURCHASE_EVENT = 'wpcom_marketplace_tab_theme_purchase_click';
+const PRICING_EVENT = 'wpcom_marketplace_tab_theme_pricing_filter';
 
 type Track = ( name: string, props: Record< string, unknown > ) => void;
 
@@ -17,6 +18,7 @@ export function clickEvent( dataset: DOMStringMap ):
 				action: 'upgrade' | 'subscribe';
 				required_plan: string;
 				context: 'card' | 'preview';
+				source: 'tab' | 'search';
 			},
 	  ]
 	| null {
@@ -34,12 +36,13 @@ export function clickEvent( dataset: DOMStringMap ):
 			action,
 			required_plan: dataset.requiredPlan ?? '',
 			context: dataset.context === 'preview' ? 'preview' : 'card',
+			source: dataset.source === 'search' ? 'search' : 'tab',
 		},
 	];
 }
 
 /**
- * Records each click on a purchase link the Marketplace tab offers.
+ * Records each click on a purchase link the Marketplace tab offers, and each change of its pricing filter.
  *
  * @param doc   - The Add Themes page.
  * @param track - Records one Tracks event.
@@ -62,4 +65,16 @@ export function trackThemesTab( doc: Document, track: Track ) {
 	// On the document, as the links are created as cards render; capturing, so no handler can stop it.
 	doc.addEventListener( 'click', onClick, true );
 	doc.addEventListener( 'auxclick', onClick, true );
+
+	doc.addEventListener(
+		'change',
+		( event: Event ) => {
+			const select = event.target as HTMLSelectElement;
+
+			if ( select.dataset?.wpcomThemesPricing !== undefined ) {
+				track( PRICING_EVENT, { pricing: select.value } );
+			}
+		},
+		true
+	);
 }

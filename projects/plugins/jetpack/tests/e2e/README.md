@@ -1,5 +1,3 @@
-[![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
-
 # Jetpack End-to-End tests
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
@@ -16,7 +14,6 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 - [Running tests](#running-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
-- [Test reports](#test-reports)
 
 ## Pre-requisites
 
@@ -139,11 +136,24 @@ Common pages are already available through fixtures:
 - `editor` - Block editor interactions
 - `sidebar` - WordPress admin sidebar navigation
 
+## Admin shell regression suite
+
+`specs/admin-shell` is the acceptance suite for in-shell navigation (JETPACK-3406). It has its own config, `playwright.admin-shell.config.ts`, so it can run against any site with the shell on, without the Docker environment or the encrypted config. It runs in Chromium, Firefox and WebKit.
+
+```bash
+ADMIN_SHELL_URL=https://example.jurassic.ninja \
+ADMIN_SHELL_USER=demo ADMIN_SHELL_PASSWORD=... \
+ADMIN_SHELL_OFF_URL=https://other.jurassic.ninja \
+ADMIN_SHELL_OFF_USER=demo ADMIN_SHELL_OFF_PASSWORD=... \
+pnpm test:admin-shell
+```
+
+- `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on.
+- `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
+- Add `--project='shell on: chromium'` to run one browser.
+
+Tests read shell state only through `readShell()` in `helpers/admin-shell-helper.ts`, which uses the `data-shell-page` / `data-shell-state` hooks. Until the client ships them it falls back to the spike's DOM; that branch is marked `SPIKE_DOM_FALLBACK`. Known bugs are `test.fail()` with a reason, so a fix shows up as an unexpected pass: remove the marker in the same PR. Intermittent bugs can't use `test.fail()`. They carry an `intermittent spike bug` annotation instead, and the config's retries report them as flaky.
 ## CI Configuration
 
 Both local runs and CI are sharing the same Docker based configuration.
 See [workflows prefixed with e2e](../../../../../.github/workflows) for CI configuration.
-
-## Test reports
-
-Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)

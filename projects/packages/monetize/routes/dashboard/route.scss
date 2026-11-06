@@ -1,0 +1,15 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Shared Jetpack layout: fixed header and tab strip, scrolling middle.
+body.jetpack_page_jetpack-monetize {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.jp-monetize-dashboard__body {
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 1184px;
+	margin-inline: auto;
+	padding: 24px;
+}

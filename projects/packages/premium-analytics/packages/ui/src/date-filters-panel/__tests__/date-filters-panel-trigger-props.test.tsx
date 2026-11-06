@@ -22,11 +22,10 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	return {
 		...actual,
 		Button: recordLook( actual.Button ),
-		IconButton: recordLook( actual.IconButton ),
 	};
 } );
 
-const TRIGGER_NAMES = [ 'Last 30 days', 'Compare', 'Chart interval: By days' ];
+const TRIGGER_NAMES = [ 'Last 30 days', 'Compare', 'By days' ];
 
 function renderPanel( props: Partial< DateFiltersPanelProps > = {} ) {
 	return render(

@@ -1,21 +1,22 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { home, link, seen } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Card, CollapsibleCard, Link, Notice, Stack, Text, Tooltip } from '@wordpress/ui';
 import clsx from 'clsx';
 import CardTitleIcon from '../../components/card-title-icon';
+import PausedNote from '../../components/paused-note';
+import SeoPausedBanner from '../../components/seo-paused-banner';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
+import getOutput from '../../data/get-output';
 import { isGated } from '../../data/is-gated';
 import isVerificationSwitchable from '../../data/is-verification-switchable';
-import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
-import PlatformSitemapNotice from './platform-sitemap-notice';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -44,23 +45,28 @@ const indexingHelp = __(
 	'Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.',
 	'jetpack-seo'
 );
-// Shown when the site is unpublished: on WordPress.com a private or coming-soon
+// Shown when the site is unpublished: on WordPress.com a private or Coming Soon
 // site isn't hidden from search by a setting, so no SEO toggle can reveal it.
 const indexingPrivateHelp = __(
 	'Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.',
 	'jetpack-seo'
 );
+const indexingComingSoonHelp = __(
+	'Your site is in Coming Soon mode, so search engines cannot see it yet. Launch it in your site visibility settings to change this.',
+	'jetpack-seo'
+);
+const indexingLockedTooltip = __( 'Managed in your site visibility settings', 'jetpack-seo' );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
 const platformManagedHelp = __(
 	'This setting is managed by your hosting platform and cannot be changed here.',
 	'jetpack-seo'
 );
-const canonicalHelp = __(
-	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+const simpleSitemapHelp = __(
+	'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.',
 	'jetpack-seo'
 );
-const canonicalConflictHelp = __(
-	"Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.",
+const canonicalHelp = __(
+	"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
 	'jetpack-seo'
 );
 // Figures are what search *displays*, not a limit we enforce. Google measures a
@@ -76,16 +82,16 @@ const frontPageHelp = __(
 	'Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.',
 	'jetpack-seo'
 );
-const frontPageLockedHelp = __(
-	'Locked while another SEO plugin manages your SEO. Jetpack uses this again once it’s deactivated.',
-	'jetpack-seo'
-);
 // Keep in step with the 155 quoted in `frontPageHelp`.
 const descriptionSearchLength = 155;
 const descriptionMaxLength = 300;
 
 interface Props {
 	form: SettingsForm;
+}
+
+interface SeoHostingData {
+	seo?: { hosting_options_url?: string };
 }
 
 type SettingsSearch = Record< string, unknown > & { focus?: string };
@@ -156,7 +162,15 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// state (and the toggle below) is gated on `search_engines_visible`.
 	const simpleSite = isSimpleSite();
 	const sitemapEffectivelyOn = ! simpleSite && local.search_engines_visible && local.sitemap_active;
-	const sitemapIndexingHelp = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	let sitemapHelpText: string = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	if ( simpleSite ) {
+		sitemapHelpText = simpleSitemapHelp;
+	} else if ( ! local.sitemap_switchable ) {
+		sitemapHelpText = platformManagedHelp;
+	}
+	const hostingOptionsUrl = simpleSite
+		? ( getScriptData() as SeoHostingData )?.seo?.hosting_options_url
+		: undefined;
 	// Simple's module state cannot establish whether its platform sitemap is published.
 	const visibilityEnabledCount =
 		( local.search_engines_visible ? 1 : 0 ) +
@@ -169,7 +183,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
 	} else if ( visibilityEnabledCount > 0 ) {
-		visibilityStatus = 'in-progress';
+		visibilityStatus = 'incomplete';
 	}
 
 	// Count code points, not UTF-16 units, so an emoji or an astral character
@@ -184,16 +198,24 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	);
 
 	// Single toggles and single fields are binary — they have no partial state,
-	// so they move straight from not-started to complete.
-	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
-	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
-
-	let canonicalHelpText: string = canonicalHelp;
-	if ( ! local.canonical_switchable ) {
-		canonicalHelpText = platformManagedHelp;
-	} else if ( local.canonical_conflicted ) {
-		canonicalHelpText = canonicalConflictHelp;
+	// so they move straight from not-started to complete. Canonical URLs pause while
+	// another SEO plugin is active, so its saved "on" doesn't read as complete then.
+	let canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
+	if ( local.canonical_conflicted ) {
+		canonicalStatus = 'paused';
 	}
+	let frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
+
+	let indexingHelpText: string = indexingHelp;
+	if ( local.site_is_coming_soon ) {
+		indexingHelpText = indexingComingSoonHelp;
+	} else if ( local.site_is_private ) {
+		indexingHelpText = indexingPrivateHelp;
+	}
+
+	const canonicalHelpText: string = local.canonical_switchable
+		? canonicalHelp
+		: platformManagedHelp;
 
 	// On plan-gated sites (below-Premium WordPress.com) the Settings tab keeps only
 	// the two always-valid sections (site visibility + verification, both backed by
@@ -204,22 +226,12 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	// gated (the value stays live), so its card is shown below in that case too.
 	const gated = isGated();
 
-	// Another SEO plugin owns the output these fields feed, so they're locked. Gated sites
-	// report the output off too, but keep their grandfathered description editable.
-	const outputLocked = ! gated && ! local.title_formats_editable;
-	const lockedNotice = local.conflicting_seo_plugin
-		? sprintf(
-				/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
-				__(
-					'%s is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
-					'jetpack-seo'
-				),
-				local.conflicting_seo_plugin
-			)
-		: __(
-				'Another SEO plugin is managing your SEO titles and descriptions, so Jetpack’s settings for them are locked while it’s active.',
-				'jetpack-seo'
-			);
+	// Jetpack's SEO output is paused, so the fields that feed it are locked. That
+	// includes a gated site's grandfathered description: Jetpack stops printing it too.
+	const outputLocked = getOutput().paused;
+	if ( outputLocked ) {
+		frontPageStatus = 'paused';
+	}
 
 	const frontPageDescriptionCard = (
 		<CollapsibleCard.Root defaultOpen={ false }>
@@ -235,6 +247,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
 				<Stack direction="column" gap="md">
+					{ outputLocked && <PausedNote /> }
 					<TextareaControl
 						// Short label: the design system renders control labels as 11px
 						// all-caps, which a sentence-length label is unreadable in. The
@@ -244,7 +257,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						// also on this tab and leave two controls indistinguishable to a
 						// screen reader.
 						label={ __( 'Home page description', 'jetpack-seo' ) }
-						help={ outputLocked ? frontPageLockedHelp : frontPageHelp }
+						help={ frontPageHelp }
 						value={ local.front_page_description }
 						onChange={ next => setField( { front_page_description: next } ) }
 						maxLength={ descriptionMaxLength }
@@ -284,11 +297,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	return (
 		<Stack direction="column" gap="lg" className={ styles.root }>
-			{ outputLocked && (
-				<Notice.Root intent="warning">
-					<Notice.Description>{ lockedNotice }</Notice.Description>
-				</Notice.Root>
-			) }
+			<SeoPausedBanner />
 			<div id="visibility" className={ styles.section }>
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -305,24 +314,35 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
 						<Stack direction="column" gap="lg">
-							<ToggleControl
-								label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
-								help={ local.site_is_private ? indexingPrivateHelp : indexingHelp }
-								checked={ local.search_engines_visible }
-								onChange={ next => commit( { search_engines_visible: next } ) }
-								// A private site is unpublished, not de-indexed. Turning this on would
-								// have to publish it, which is not this surface's decision to make.
-								disabled={ isSaving || local.site_is_private }
-								__nextHasNoMarginBottom
-							/>
+							<Stack direction="column" gap="xs">
+								{ /* A div trigger: the default button can't wrap the toggle's input. */ }
+								<Tooltip.Root disabled={ ! local.site_is_private }>
+									<Tooltip.Trigger render={ <div /> }>
+										<ToggleControl
+											label={ __( 'Allow search engines to index this site', 'jetpack-seo' ) }
+											help={ indexingHelpText }
+											checked={ local.search_engines_visible }
+											onChange={ next => commit( { search_engines_visible: next } ) }
+											// A private site is unpublished, not de-indexed. Turning this on would
+											// have to publish it, which is not this surface's decision to make.
+											disabled={ isSaving || local.site_is_private }
+											__nextHasNoMarginBottom
+										/>
+									</Tooltip.Trigger>
+									<Tooltip.Popup positioner={ <Tooltip.Positioner align="start" /> }>
+										{ indexingLockedTooltip }
+									</Tooltip.Popup>
+								</Tooltip.Root>
+								{ local.site_is_private && (
+									<Link className={ styles.toggleLink } href={ local.site_visibility_url }>
+										{ __( 'Manage site visibility', 'jetpack-seo' ) }
+									</Link>
+								) }
+							</Stack>
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={
-										simpleSite || ! local.sitemap_switchable
-											? platformManagedHelp
-											: sitemapIndexingHelp
-									}
+									help={ sitemapHelpText }
 									// Simple's disabled switch is not a sitemap publication-status indicator.
 									// Other hosts display off while indexing is blocked, preserving the preference.
 									checked={ sitemapEffectivelyOn }
@@ -335,10 +355,19 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 									}
 									__nextHasNoMarginBottom
 								/>
-								{ simpleSite && <PlatformSitemapNotice /> }
+								{ hostingOptionsUrl && (
+									<Link
+										className={ styles.toggleLink }
+										href={ hostingOptionsUrl }
+										openInNewTab
+										rel="noopener noreferrer"
+									>
+										{ __( 'Explore hosting options', 'jetpack-seo' ) }
+									</Link>
+								) }
 								{ sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
-										className={ styles.sitemapLink }
+										className={ styles.toggleLink }
 										href={ local.sitemap_url }
 										openInNewTab
 										rel="noopener noreferrer"
@@ -378,13 +407,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ /* Container for the site-level schema controls delivered by later
 				   issues. Own `id` so it can be deep-linked like `#verification`. */ }
 					<div id="schema" className={ styles.section }>
-						<SchemaCard initialSettings={ local.schema } onSave={ setSchemaSettings } />
+						<SchemaCard
+							initialSettings={ local.schema }
+							onSave={ setSchemaSettings }
+							disabled={ outputLocked }
+						/>
 					</div>
 
 					{ /* The signed-in user's Person / ProfilePage schema source — per-user,
 				   unlike the site-level Schema card above. */ }
 					<div id="author-profile" className={ styles.section }>
-						<AuthorProfileCard />
+						<AuthorProfileCard disabled={ outputLocked } />
 					</div>
 
 					<CollapsibleCard.Root defaultOpen={ false }>
@@ -399,14 +432,19 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							</Stack>
 						</CollapsibleCard.Header>
 						<CollapsibleCard.Content>
-							<ToggleControl
-								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={ canonicalHelpText }
-								checked={ local.canonical_active }
-								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving || ! local.canonical_switchable || local.canonical_conflicted }
-								__nextHasNoMarginBottom
-							/>
+							<Stack direction="column" gap="md">
+								{ local.canonical_conflicted && <PausedNote /> }
+								<ToggleControl
+									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+									help={ canonicalHelpText }
+									checked={ local.canonical_active }
+									onChange={ next => commit( { canonical_active: next } ) }
+									disabled={
+										isSaving || ! local.canonical_switchable || local.canonical_conflicted
+									}
+									__nextHasNoMarginBottom
+								/>
+							</Stack>
 						</CollapsibleCard.Content>
 					</CollapsibleCard.Root>
 
@@ -418,14 +456,18 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						onSaveFormat={ pageType => commitTitleFormat( pageType ) }
 						isFormatDirty={ pageType => isTitleFormatDirty( pageType ) }
 						titleSeparator={ local.title_separator }
-						editable={ local.title_formats_editable }
+						editable={ ! outputLocked }
 						disabled={ isSaving }
 					/>
 
 					{ frontPageDescriptionCard }
 
-					{ /* It previews Jetpack's tags, which aren't the ones a conflicting plugin outputs. */ }
-					{ ! outputLocked && <SocialPreviewsCard description={ local.front_page_description } /> }
+					<SocialPreviewsCard
+						description={ local.front_page_description }
+						frontPageTitleFormat={ local.title_formats.front_page ?? [] }
+						titleSeparator={ local.title_separator }
+						paused={ outputLocked }
+					/>
 				</>
 			) }
 
@@ -437,12 +479,6 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 					{ frontPageDescriptionCard }
 				</div>
 			) }
-			{ /* Higher-risk settings last, after everything routine. Hidden on
-			   WordPress.com Simple, where `Modules::is_active()` reports every module
-			   active regardless of stored state, so turning SEO tools off would appear
-			   to do nothing. Outside the `gated` branch: a gated site still has the
-			   module and can still switch it off. */ }
-			{ ! isSimpleSite() && <AdvancedCard /> }
 
 			{ /* Not dismissible, so it sits below the settings rather than pushing them
 			   down; the Stack's lg gap keeps space between it and the last section. */ }

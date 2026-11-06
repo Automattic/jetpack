@@ -69,6 +69,23 @@ describe( 'useSidebarSync', () => {
 		] );
 	} );
 
+	it( 'names an unmatched item by its menu label, leaving out a hidden zero badge', async () => {
+		fetchMock.mockReturnValue(
+			respond(
+				page( 'my-jetpack' ).replace(
+					'</ul></li></ul>',
+					'<li><a href="admin.php?page=jetpack-protect">Protect <span class="menu-counter count-0" style="display:none"><span class="count">0</span></span></a></li></ul></li></ul>'
+				)
+			)
+		);
+
+		const { result } = renderHook( () => useSidebarSync( [ feature( 'stats' ) ] ) );
+
+		await writeSwitch();
+
+		expect( result.current.pointer?.label ).toBe( 'Protect is now in your menu' );
+	} );
+
 	it( 'points at every item a refresh added', async () => {
 		fetchMock.mockReturnValue( respond( page( 'my-jetpack', 'stats', 'blaze' ) ) );
 

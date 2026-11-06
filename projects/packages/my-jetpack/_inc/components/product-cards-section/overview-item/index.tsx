@@ -25,6 +25,9 @@ export type OverviewItemLink = {
 	ariaLabel?: string;
 	// Only an action without a link can be disabled, as the product card's button is while it's busy.
 	disabled?: boolean;
+	openInNewTab?: boolean;
+	// Shown to users who can't manage the product too.
+	forEveryone?: boolean;
 };
 
 export type OverviewItemProps = {
@@ -40,6 +43,7 @@ export type OverviewItemProps = {
 	loadingLabel?: string;
 	error?: { reason: string; onRetry: () => void };
 	forcedOffReason?: string | null;
+	statusLabel?: string;
 };
 
 const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
@@ -113,20 +117,24 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	loadingLabel,
 	error,
 	forcedOffReason,
+	statusLabel,
 } ) => {
 	const { badge: ownStatusBadge, isHealthy } = useStatusBadge( slug );
-	const statusBadge: OverviewItemBadge = forcedOffReason
-		? { label: forcedOffReason, intent: 'medium' }
-		: ownStatusBadge;
+	let statusBadge = ownStatusBadge;
+	if ( forcedOffReason ) {
+		statusBadge = { label: forcedOffReason, intent: 'medium' };
+	} else if ( statusLabel ) {
+		statusBadge = { ...ownStatusBadge, label: statusLabel };
+	}
 	const showsStatus = ! isHealthy || !! forcedOffReason;
 
 	const productLinks: ReactNode[] = [];
-	if ( admin && action && ! forcedOffReason ) {
+	if ( ( admin || action?.forEveryone ) && action && ! forcedOffReason ) {
 		const actionLink = (
 			<Link
 				key="action"
 				{ ...( action.href
-					? { href: action.href, onClick: action.onClick }
+					? { href: action.href, onClick: action.onClick, openInNewTab: action.openInNewTab }
 					: {
 							render: (
 								<Button
@@ -156,8 +164,10 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	if ( admin && upgrade ) {
 		productLinks.push(
 			<Link key="upgrade" href={ upgrade.href } onClick={ upgrade.onClick }>
-				<Icon icon={ lock } size={ 16 } />
-				{ upgrade.label }
+				<span className={ styles.locked }>
+					<Icon icon={ lock } size={ 16 } />
+					{ upgrade.label }
+				</span>
 			</Link>
 		);
 	}
@@ -191,13 +201,22 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	}
 
 	return (
-		<Stack direction="column" gap="sm" className={ styles.item }>
-			<Text variant="body-md">{ label }</Text>
-			<div className={ styles.value } aria-busy={ isLoading }>
-				{ content }
-			</div>
+		<Stack direction="column" gap="lg">
+			<Stack direction="column" gap="xs">
+				<Text variant="body-md">{ label }</Text>
+				<div className={ styles.value } aria-busy={ isLoading }>
+					{ content }
+				</div>
+			</Stack>
 			{ links.length > 0 && (
-				<Stack direction="row" align="center" gap="sm" wrap="wrap" className={ styles.links }>
+				<Stack
+					direction="row"
+					align="center"
+					gap="sm"
+					wrap="wrap"
+					className={ styles.links }
+					render={ <Text variant="heading-md" render={ <div /> } /> }
+				>
 					{ links }
 				</Stack>
 			) }

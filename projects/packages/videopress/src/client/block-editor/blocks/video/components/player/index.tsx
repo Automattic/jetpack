@@ -16,22 +16,7 @@ import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-vi
  * Types
  */
 import type { PlayerProps } from './types';
-import type { ComponentProps, ComponentType, ReactElement } from 'react';
-
-/*
- * `allowForms` adds `allow-forms` to the sandbox iframe, which the player needs
- * so the birth date form of the age gate can be submitted. It was added to
- * SandBox in WordPress/gutenberg#76471 and is not part of the
- * `@wordpress/components` version this package builds against yet, so the
- * component is widened locally to accept it. Versions without the prop ignore
- * it, leaving the age gate as blocked as it is today.
- *
- * Pass `allowForms` directly to `SandBox` and delete this once the bundled
- * `@wordpress/components` includes the prop.
- */
-const SandBoxWithForms = SandBox as ComponentType<
-	ComponentProps< typeof SandBox > & { allowForms?: boolean }
->;
+import type { ReactElement } from 'react';
 
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
@@ -328,7 +313,7 @@ export default function Player( {
 						) }
 
 						{ ! isInline && ! isRequestingEmbedPreview && (
-							<SandBoxWithForms
+							<SandBox
 								html={ html }
 								scripts={ sandboxScripts }
 								styles={ [ innerContainerStyle ] }

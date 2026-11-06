@@ -17,6 +17,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { getMyJetpackRouteUrl } from '../../utils/route-href';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -46,7 +47,7 @@ import styles from './style.module.scss';
  */
 export default function ProductInterstitial( {
 	bundle,
-	existingLicenseKeyUrl = 'admin.php?page=my-jetpack#/add-license',
+	existingLicenseKeyUrl = getMyJetpackRouteUrl( '/add-license' ),
 	installsPlugin = false,
 	slug,
 	supportingInfo,
@@ -88,7 +89,7 @@ export default function ProductInterstitial( {
 
 	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const { onClickGoBack, backTo } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
@@ -217,7 +218,7 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ MyJetpackRoutes.Features }
+					to={ backTo }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

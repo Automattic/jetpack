@@ -9,7 +9,6 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import AuthorsWidget, { AuthorsLeaderboard } from '../render';
 import type { AuthorLeaderboardRow } from '../build-top-authors-data';
 
@@ -32,7 +31,6 @@ const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardR
 	label: 'Jane Cooper',
 	avatarUrl: null,
 	currentValue: 20,
-	currentShare: 1,
 	posts,
 } );
 
@@ -61,12 +59,6 @@ describe( 'AuthorsWidget', () => {
 				} )
 			)
 		);
-	} );
-
-	it( 'declares View all to the Authors report', () => {
-		const { declaredLink } = renderWithActionsHost( <AuthorsWidget attributes={ {} } /> );
-
-		expect( declaredLink( 'view-all' )?.href ).toContain( '%2Freports%2Fauthors' );
 	} );
 
 	it( 'links the author’s name to their page and a drilled-down post to its detail page', async () => {
@@ -141,7 +133,6 @@ describe( 'AuthorsWidget', () => {
 			title: 'Quarterly update',
 			link: 'https://example.com/quarterly-update/',
 			currentValue: 20,
-			currentShare: 1,
 		};
 		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
 

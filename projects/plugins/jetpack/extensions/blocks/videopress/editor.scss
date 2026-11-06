@@ -1,4 +1,5 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 .no-videopress-media-placeholder {
 
@@ -45,7 +46,7 @@
 	display: flex;
 	place-content: space-between;
 	align-items: center;
-	padding: gb.$grid-unit-05 0 gb.$grid-unit-05 gb.$grid-unit-15;
+	padding: variables.$grid-unit-05 0 variables.$grid-unit-05 variables.$grid-unit-15;
 	min-height: 23px;
 }
 
@@ -56,14 +57,14 @@
 
 .videopress-block-tracks-editor__single-track-editor-label-language {
 	display: flex;
-	margin-top: gb.$grid-unit-15;
+	margin-top: variables.$grid-unit-15;
 
 	> .components-base-control {
 		width: 50%;
 	}
 
 	> .components-base-control:first-child {
-		margin-right: gb.$grid-unit-20;
+		margin-right: variables.$grid-unit-20;
 	}
 }
 
@@ -74,24 +75,24 @@
 .videopress-block-tracks-editor__single-track-editor-buttons-container {
 	display: flex;
 	place-content: space-between;
-	margin-top: gb.$grid-unit-40;
+	margin-top: variables.$grid-unit-40;
 	min-height: 36px;
 }
 
 .videopress-block-tracks-editor__single-track-editor-upload-file-help {
 	font-size: 12px;
-	color: gb.$gray-700;
-	margin-top: gb.$grid-unit-15;
+	color: colors.$gray-700;
+	margin-top: variables.$grid-unit-15;
 }
 
 .videopress-block-tracks-editor__single-track-editor-label {
-	color: gb.$gray-700;
+	color: colors.$gray-700;
 	text-transform: uppercase;
 	font-size: 11px;
 	font-weight: 500;
 	display: block;
-	margin-top: gb.$grid-unit-05;
-	margin-bottom: gb.$grid-unit-15;
+	margin-top: variables.$grid-unit-05;
+	margin-bottom: variables.$grid-unit-15;
 }
 
 .videopress-block-tracks-editor > .components-popover__content > div {
@@ -109,17 +110,17 @@
 .videopress-block-tracks-editor__single-track-editor,
 .videopress-block-tracks-editor__track-list,
 .videopress-block-tracks-editor__add-tracks-container {
-	padding: gb.$grid-unit-15;
+	padding: variables.$grid-unit-15;
 }
 
 .videopress-block-tracks-editor__single-track-editor .components-base-control {
 
 	.components-base-control__label {
-		margin-bottom: gb.$grid-unit-05;
+		margin-bottom: variables.$grid-unit-05;
 	}
 
 	.components-base-control__field {
-		margin-bottom: gb.$grid-unit-15;
+		margin-bottom: variables.$grid-unit-15;
 	}
 
 	.components-text-control__input {
@@ -127,7 +128,7 @@
 	}
 
 	.components-input-control__label {
-		margin-bottom: gb.$grid-unit-05;
+		margin-bottom: variables.$grid-unit-05;
 	}
 }
 
@@ -136,13 +137,13 @@
 
 	.components-form-file-upload,
 	.videopress-block-tracks-editor__single-track-editor-upload-file-label-name {
-		margin-inline-start: gb.$grid-unit;
+		margin-inline-start: variables.$grid-unit;
 	}
 }
 
 .videopress-block-tracks-editor__single-track-editor-error {
-	padding: gb.$grid-unit-15 0;
-	color: gb.$alert-red;
+	padding: variables.$grid-unit-15 0;
+	color: colors.$alert-red;
 }
 
 .uploader-block__logo {
@@ -151,7 +152,7 @@
 	align-items: center;
 	font-size: 24px;
 	line-height: 29px;
-	margin-bottom: gb.$grid-unit-15;
+	margin-bottom: variables.$grid-unit-15;
 	padding: 0 20px;
 }
 
@@ -165,7 +166,7 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 20px 20px 0;
-	border-top: 1px solid gb.$gray-200;
+	border-top: 1px solid colors.$gray-200;
 	box-sizing: border-box;
-	margin-top: gb.$grid-unit-30;
+	margin-top: variables.$grid-unit-30;
 }

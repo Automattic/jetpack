@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,9 +26,14 @@ class Threat_Count_Test extends BaseTestCase {
 	 * Leave no count, status, back-off, user or script behind.
 	 */
 	public function tear_down() {
+		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		Notification_Counts::reset();
 		Status::$status = null;
 		Protect_Status::delete_option();
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		delete_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		delete_transient( Threat_Count::BACKOFF_TRANSIENT );
 		wp_dequeue_script( Threat_Count::SCRIPT_HANDLE );
 		wp_deregister_script( Threat_Count::SCRIPT_HANDLE );
@@ -84,9 +90,10 @@ class Threat_Count_Test extends BaseTestCase {
 	 */
 	public static function provide_menu_badge_cases() {
 		return array(
-			'administrator, stored report' => array( 'administrator', true, 1 ),
-			'administrator, no report yet' => array( 'administrator', false, 0 ),
-			'editor'                       => array( 'editor', true, null ),
+			'administrator, stored report'  => array( 'administrator', true, 1 ),
+			'administrator, no report yet'  => array( 'administrator', false, 0 ),
+			'editor'                        => array( 'editor', true, null ),
+			'administrator, host turns off' => array( 'administrator', true, null, false ),
 		);
 	}
 
@@ -96,10 +103,14 @@ class Threat_Count_Test extends BaseTestCase {
 	 * @param string   $role     Role of the current user.
 	 * @param bool     $stored   Whether a report is stored.
 	 * @param int|null $expected The registered count, or null for no badge.
+	 * @param bool     $notify   Whether the host lets threats be announced.
 	 */
 	#[DataProvider( 'provide_menu_badge_cases' )]
-	public function test_menu_badge_shows_the_stored_count( $role, $stored, $expected ) {
+	public function test_menu_badge_shows_the_stored_count( $role, $stored, $expected, $notify = true ) {
 		$this->sign_in( $role );
+		if ( ! $notify ) {
+			add_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
+		}
 		if ( $stored ) {
 			// Expired, so a count that waited on a fresh fetch would not be the stored one.
 			$this->store_report( -1 );
@@ -159,8 +170,9 @@ class Threat_Count_Test extends BaseTestCase {
 	 */
 	public static function provide_enqueue_cases() {
 		return array(
-			'expired report' => array( -1, true ),
-			'fresh report'   => array( 60, false ),
+			'expired report'                 => array( -1, true ),
+			'fresh report'                   => array( 60, false ),
+			'expired report, host turns off' => array( -1, false, false ),
 		);
 	}
 
@@ -169,10 +181,14 @@ class Threat_Count_Test extends BaseTestCase {
 	 *
 	 * @param int  $expires_in Seconds until the stored report expires.
 	 * @param bool $expected   Whether the refresh script is enqueued.
+	 * @param bool $notify     Whether the host lets threats be announced.
 	 */
 	#[DataProvider( 'provide_enqueue_cases' )]
-	public function test_maybe_enqueue_refresh_loads_the_script_in_admin_only_when_stale( $expires_in, $expected ) {
+	public function test_maybe_enqueue_refresh_loads_the_script_in_admin_only_when_stale( $expires_in, $expected, $notify = true ) {
 		$this->sign_in( 'administrator' );
+		if ( ! $notify ) {
+			add_filter( 'jetpack_protect_threat_notifications_enabled', '__return_false' );
+		}
 		set_current_screen( 'dashboard' );
 		$this->store_report( $expires_in );
 
@@ -212,6 +228,55 @@ class Threat_Count_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'count' => 2 ), $response->get_data() );
 		$this->assertFalse( get_transient( Threat_Count::BACKOFF_TRANSIENT ) );
+	}
+
+	/**
+	 * Whether the scan after a fix failed, and the count expected.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_scans_after_a_fix() {
+		return array(
+			'a failed scan keeps the fix out of the count' => array( true, 0 ),
+			'a completed scan counts the threat again'     => array( false, 1 ),
+		);
+	}
+
+	/**
+	 * Test that a fix the site recorded stays out of both counts until a scan completes.
+	 *
+	 * @dataProvider provide_scans_after_a_fix
+	 *
+	 * @param bool $failed   Whether the scan after the fix failed.
+	 * @param int  $expected The count.
+	 */
+	#[DataProvider( 'provide_scans_after_a_fix' )]
+	public function test_a_recorded_fix_holds_until_a_scan_completes( $failed, $expected ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		update_option(
+			Scan_Status::OPTION_NAME,
+			maybe_serialize(
+				(object) array(
+					'most_recent' => (object) array(
+						'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+						'error'     => $failed,
+					),
+					'threats'     => array(
+						(object) array(
+							'id'        => 1,
+							'signature' => 'PHP.Generic',
+							'filename'  => ABSPATH . 'x.php',
+						),
+					),
+				)
+			)
+		);
+		Status::$status = Status::get_cached_status();
+
+		$this->assertSame( $expected, Threat_Count::get_cached() );
+		$this->assertSame( array( 'count' => $expected ), Threat_Count::get_fresh_count()->get_data() );
 	}
 
 	public function test_get_fresh_count_backs_off_after_a_failed_fetch() {

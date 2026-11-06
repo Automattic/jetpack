@@ -13,6 +13,27 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
+			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
+			single_report_pages?: Array< {
+				id: string;
+				path: string;
+				label: string;
+				dashboard_section: string | null;
+				feature: string | null;
+				scope_param: string;
+				id_pattern: string;
+				icon: string | null;
+				controls: Array< Record< string, unknown > > | null;
+				reports_page: string | null;
+				preferences_scope: string;
+				default_layout: Array< Record< string, unknown > >;
+				sections: Array< {
+					slug: string;
+					label: string;
+					default_layout: Array< Record< string, unknown > >;
+					controls: Array< Record< string, unknown > > | null;
+				} >;
+			} >;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
@@ -22,11 +43,26 @@ declare module '@automattic/jetpack-script-data' {
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.
-			store_currency?: { code: string; symbol: string };
-			// The roles the Stats settings list, and the screen that switches Stats on and off; absent for users who cannot manage options.
+			store_currency?: { code: string; symbol: string; precision?: number };
+			// The settings the site offers, the roles the Stats settings list, the screen that switches Stats on and off, and the visitor consent setup; absent for users who cannot manage options, or when the host offers no setting.
 			stats_settings?: {
+				// Absent from servers that predate the host's choice of fields.
+				fields?: string[];
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
+				features_screen: 'features' | 'modules' | null;
+				consent?: {
+					api_active: boolean;
+					api_installed: boolean;
+					consent_type_declared: boolean;
+					banner_plugin: string | null;
+					// The banner plugin holds the Stats script itself until visitors allow it, as Complianz's Jetpack integration does.
+					banner_blocks_stats: boolean;
+					recommended_banners: Array< { name: string; url: string } >;
+					can_install: boolean;
+					can_activate: boolean;
+					file_mods_allowed: boolean;
+				};
 			};
 			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
 			plan_gates?: {
@@ -42,17 +78,21 @@ declare module '@automattic/jetpack-script-data' {
 					{
 						title: string;
 						description: string;
+						description_with_price: `${ string }%s${ string }`;
 						features: string[];
 						upgrade_label: string;
 						expand_label: string;
 						support_url: string;
 						upgrade_url: string;
 						open_widget_types: string[];
+						plan_price: { yearly: number; currency: string } | null;
 					}
 				>;
 				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
 				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
 			};
+			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
+			assets_url?: string;
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
 		};

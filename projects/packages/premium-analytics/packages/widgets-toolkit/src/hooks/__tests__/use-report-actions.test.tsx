@@ -117,6 +117,32 @@ describe( 'useReportActions', () => {
 		] );
 	} );
 
+	it( "places the widget's own actions before the download", () => {
+		const { wrapper, declaredActions } = setUp();
+		const ownAction = {
+			id: 'build-url',
+			label: 'Build URL',
+			relevance: 'medium' as const,
+			callback: jest.fn(),
+		};
+
+		renderHook(
+			() =>
+				useReportActions( {
+					report: 'referrers',
+					csv: { exporter, status: SETTLED, rowCount: 3 },
+					actions: [ ownAction ],
+				} ),
+			{ wrapper }
+		);
+
+		expect( declaredActions().map( action => action.id ) ).toEqual( [
+			'view-all',
+			'build-url',
+			'download-csv',
+		] );
+	} );
+
 	it( 'declares nothing to a host that places no actions', () => {
 		const { result } = renderHook( () => useReportActions( { report: 'referrers' } ), {
 			wrapper: ( { children }: { children: ReactNode } ) => (

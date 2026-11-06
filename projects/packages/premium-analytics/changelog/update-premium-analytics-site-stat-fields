@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Load the All-time stats and Most popular day widgets faster by skipping the share counts they never show.

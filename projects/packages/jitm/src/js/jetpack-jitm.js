@@ -378,7 +378,16 @@ domReady( function() {
         });
     };
 
+    // My Jetpack keeps its route in the boot router's `?p=`; copies from before keep it in the hash.
+    const getMyJetpackRoute = function() {
+        const route = new URLSearchParams(location.search).get('p');
+        return route ? '#' + route : location.hash;
+    };
+    let myJetpackRoute = getMyJetpackRoute();
+
     const reFetch = function() {
+        myJetpackRoute = getMyJetpackRoute();
+
         document.querySelectorAll('.jetpack-jitm-message').forEach(function(el) {
             let message_path = el.dataset.messagePath;
             const query = el.dataset.query;
@@ -387,11 +396,11 @@ domReady( function() {
 
             hash = hash.replace(/#\//, '_');
 
-            // We always include the hash if this is My Jetpack page
+            // We always include the route if this is My Jetpack page
             if (message_path.includes('jetpack_page_my-jetpack')) {
                 message_path = message_path.replace(
                     'jetpack_page_my-jetpack',
-                    'jetpack_page_my-jetpack' + hash
+                    'jetpack_page_my-jetpack' + myJetpackRoute.replace(/#\//, '_')
                 );
             } else if (message_path.includes('jetpack_page_jetpack-settings:')) {
                 // wpcom's Settings rules still name the old page=jetpack screen.
@@ -428,8 +437,36 @@ domReady( function() {
 
     reFetch();
 
+    const refreshCard = function() {
+        const jitm_card = document.querySelector('.jitm-card');
+        if (jitm_card) {
+            jitm_card.remove();
+        }
+        reFetch();
+    };
+
+    // Back and forward on the boot router fire no hashchange; like the hash router's pushes, its pushes refresh nothing.
+    window.navigation?.addEventListener('currententrychange', function(e) {
+        const params = new URLSearchParams(location.search);
+        if (
+            e.navigationType === 'traverse' &&
+            params.get('page') === 'my-jetpack' &&
+            params.has('p') &&
+            getMyJetpackRoute() !== myJetpackRoute
+        ) {
+            refreshCard();
+        }
+    });
+
     window.addEventListener('hashchange', function(e) {
         const newURL = e.newURL;
+        const params = new URL(newURL).searchParams;
+
+        // On the boot router My Jetpack's hash holds no route.
+        if (params.get('page') === 'my-jetpack' && params.has('p')) {
+            return;
+        }
+
         const isJetpackPage = [
             'jetpack',
             'my-jetpack',
@@ -442,11 +479,7 @@ domReady( function() {
         ].some(str => newURL.includes(`admin.php?page=${str}`));
 
         if (isJetpackPage) {
-            const jitm_card = document.querySelector('.jitm-card');
-            if (jitm_card) {
-                jitm_card.remove();
-            }
-            reFetch();
+            refreshCard();
         }
     });
 });

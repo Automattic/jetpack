@@ -347,7 +347,7 @@ function grofiles_hovercards_data_html( $author ) {
 		}
 	} elseif ( is_email( $author ) ) {
 		$hash = md5( $author );
-	} elseif ( is_a( $author, 'WP_User' ) ) {
+	} elseif ( $author instanceof \WP_User ) {
 		$hash = md5( $author->user_email );
 	}
 

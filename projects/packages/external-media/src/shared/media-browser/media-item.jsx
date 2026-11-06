@@ -1,7 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
-import { CheckboxControl, Composite } from '@wordpress/components';
+import { Composite } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Checkbox, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 
 /**
@@ -96,22 +97,41 @@ function MediaItem( { item, imageOnly, isSelected, isCopying = false, shouldProx
 			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
 			aria-label={ selectionLabel }
-			render={ <li role="option" /> }
+			render={
+				type === 'folder' ? (
+					<Stack
+						wrap="wrap"
+						align="center"
+						justify="space-between"
+						render={ <li role="option" /> }
+					/>
+				) : (
+					<li role="option" />
+				)
+			}
 		>
 			{ imageUrl && <img src={ imageUrl } alt={ alt } /> }
 			{ type === 'folder' && (
-				<div className="jetpack-external-media-browser__media__info">
-					<div className="jetpack-external-media-browser__media__name">{ name }</div>
-					<div className="jetpack-external-media-browser__media__count">{ children }</div>
-				</div>
+				<Stack
+					direction="row"
+					justify="space-between"
+					align="start"
+					className="jetpack-external-media-browser__media__info"
+				>
+					<Text variant="body-sm" className="jetpack-external-media-browser__media__name">
+						{ name }
+					</Text>
+					<Text variant="body-sm" className="jetpack-external-media-browser__media__count">
+						{ children }
+					</Text>
+				</Stack>
 			) }
-			<CheckboxControl
+			<Checkbox
 				className="jetpack-external-media-browser__media__checkbox"
-				__nextHasNoMarginBottom
 				aria-label={ selectionLabel }
 				aria-disabled={ !! isCopying }
-				checked={ isSelected }
-				onChange={ () => handleClick() }
+				checked={ !! isSelected }
+				onCheckedChange={ () => handleClick() }
 			/>
 		</Composite.Item>
 	);
