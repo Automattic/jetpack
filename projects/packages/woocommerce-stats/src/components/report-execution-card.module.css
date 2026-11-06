@@ -1,0 +1,52 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.metrics {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 12px;
+	margin: 0;
+}
+
+.metric dt {
+	font-size: 12px;
+	color: #757575;
+}
+
+.metric dd {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.unsupported {
+	font-size: 13px;
+	font-weight: 400;
+	color: #b26200;
+}
+
+.provenance {
+	margin-block: auto 0;
+	padding-block-start: 12px;
+	font-size: 12px;
+	color: #757575;
+}
+
+.locked {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	block-size: 100%;
+	text-align: center;
+}
+
+.reason {
+	font-size: 11px;
+	color: #757575;
+}
