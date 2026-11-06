@@ -105,7 +105,12 @@ class Jetpack_Media_Summary {
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
 
-		if ( empty( $extract['has'] ) ) {
+		$block_videos = array();
+		if ( $post instanceof WP_Post && has_blocks( $post->post_content ) ) {
+			$block_videos = self::get_block_videos( parse_blocks( $post->post_content ) );
+		}
+
+		if ( empty( $extract['has'] ) && empty( $block_videos ) ) {
 			if ( $switched ) {
 				restore_current_blog();
 			}
@@ -125,32 +130,9 @@ class Jetpack_Media_Summary {
 								break;
 							}
 
-							$guid       = $data['id'][0];
-							$video_info = videopress_get_video_details( $guid );
-
-							// Only add the video tags if the guid returns a valid videopress object.
-							if ( $video_info instanceof stdClass ) {
-								// Continue early if we can't find a Video slug.
-								if ( empty( $video_info->files->std->mp4 ) ) {
-									break;
-								}
-
-								$url = sprintf(
-									'https://videos.files.wordpress.com/%1$s/%2$s',
-									$guid,
-									$video_info->files->std->mp4
-								);
-
-								$thumbnail = $video_info->poster;
-								if ( ! empty( $thumbnail ) ) {
-									$return['image']           = $thumbnail;
-									$return['secure']['image'] = $thumbnail;
-								}
-
-								$return['type']            = 'video';
-								$return['video']           = esc_url_raw( $url );
-								$return['video_type']      = 'video/mp4';
-								$return['secure']['video'] = $return['video'];
+							$video = self::get_videopress_video( $data['id'][0] );
+							if ( null !== $video ) {
+								$return = self::set_video( $return, $video );
 							}
 						}
 						++$return['count']['video'];
@@ -222,6 +204,20 @@ class Jetpack_Media_Summary {
 					++$return['count']['video'];
 				}
 			}
+		}
+
+		foreach ( $block_videos as $video ) {
+			if ( 0 === $return['count']['video'] ) {
+				// Only look up VideoPress details for the video that will be used.
+				if ( isset( $video['guid'] ) ) {
+					$video = self::get_videopress_video( $video['guid'] );
+					if ( null === $video ) {
+						continue;
+					}
+				}
+				$return = self::set_video( $return, $video );
+			}
+			++$return['count']['video'];
 		}
 
 		// Do we really want to make the video the primary focus of the post?
@@ -308,6 +304,109 @@ class Jetpack_Media_Summary {
 		self::$cache[ $cache_key ] = $return;
 
 		return $return;
+	}
+
+	/**
+	 * Set a video as the post's primary media.
+	 *
+	 * @param array $summary Media summary being built.
+	 * @param array $video   Video data with `video`, and optionally `video_type` and `image` keys.
+	 *
+	 * @return array Media summary.
+	 */
+	private static function set_video( $summary, $video ) {
+		$summary['type']            = 'video';
+		$summary['video']           = esc_url_raw( $video['video'] );
+		$summary['secure']['video'] = $summary['video'];
+		if ( ! empty( $video['video_type'] ) ) {
+			$summary['video_type'] = $video['video_type'];
+		}
+		if ( ! empty( $video['image'] ) ) {
+			$summary['image']           = $video['image'];
+			$summary['secure']['image'] = $video['image'];
+		}
+		return $summary;
+	}
+
+	/**
+	 * Get the MP4 file and poster of a VideoPress video.
+	 *
+	 * @param string $guid VideoPress video GUID.
+	 *
+	 * @return array|null Video data, or null if the video has no public MP4 file.
+	 */
+	private static function get_videopress_video( $guid ) {
+		if ( ! function_exists( 'videopress_get_video_details' ) ) {
+			return null;
+		}
+
+		$video_info = videopress_get_video_details( $guid );
+		if ( ! $video_info instanceof stdClass || empty( $video_info->files->std->mp4 ) ) {
+			return null;
+		}
+
+		return array(
+			'video'      => sprintf( 'https://videos.files.wordpress.com/%1$s/%2$s', $guid, $video_info->files->std->mp4 ),
+			'video_type' => 'video/mp4',
+			'image'      => empty( $video_info->poster ) ? '' : $video_info->poster,
+		);
+	}
+
+	/**
+	 * Find the videos in VideoPress and core Video blocks, including nested ones.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 *
+	 * @return array[] A `guid` for each VideoPress video, or video data for each self-hosted one.
+	 */
+	private static function get_block_videos( $blocks ) {
+		$videos = array();
+		foreach ( $blocks as $block ) {
+			if ( in_array( $block['blockName'], array( 'videopress/video', 'core/video' ), true ) ) {
+				$guid = $block['attrs']['guid'] ?? '';
+				if ( is_string( $guid ) && '' !== $guid ) {
+					$videos[] = array( 'guid' => $guid );
+				} elseif ( 'core/video' === $block['blockName'] ) {
+					$video = self::get_core_video( $block['innerHTML'] );
+					if ( null !== $video ) {
+						$videos[] = $video;
+					}
+				}
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$videos = array_merge( $videos, self::get_block_videos( $block['innerBlocks'] ) );
+			}
+		}
+		return $videos;
+	}
+
+	/**
+	 * Get the file and poster of a self-hosted video from a core Video block.
+	 *
+	 * @param string $html The block's saved markup.
+	 *
+	 * @return array|null Video data, or null without both a file and a poster, since share cards need an image.
+	 */
+	private static function get_core_video( $html ) {
+		$tags = new WP_HTML_Tag_Processor( $html );
+		if ( ! $tags->next_tag( 'video' ) ) {
+			return null;
+		}
+
+		$src    = $tags->get_attribute( 'src' );
+		$poster = $tags->get_attribute( 'poster' );
+		if ( ! is_string( $src ) || '' === $src || ! is_string( $poster ) || '' === $poster ) {
+			return null;
+		}
+
+		$filetype = wp_check_filetype( (string) wp_parse_url( $src, PHP_URL_PATH ) );
+
+		return array(
+			'video'      => $src,
+			'video_type' => $filetype['type'] ? $filetype['type'] : '',
+			'image'      => $poster,
+		);
 	}
 
 	/**
