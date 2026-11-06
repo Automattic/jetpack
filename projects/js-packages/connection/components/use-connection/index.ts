@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store.jsx';
 import { isConnectionOwner } from '../../types.ts';
 import type {
+	ConnectError,
 	RegistrationError,
 	UserConnectionData,
 	UseConnectionProps,
@@ -57,6 +58,7 @@ export default function useConnection( {
 	const {
 		siteIsRegistering,
 		userIsConnecting,
+		userConnectionError,
 		userConnectionData,
 		connectedPlugins,
 		connectionOwner,
@@ -73,6 +75,11 @@ export default function useConnection( {
 		return {
 			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
 			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
+			// Optional-call too: an older bundled copy of this store can be the one registered.
+			// `as const` keeps the fallback `false` from widening to `boolean` in the object literal.
+			userConnectionError:
+				( select( STORE_ID ).getUserConnectionError?.() as ConnectError | undefined ) ||
+				( false as const ),
 			// The assertion sits on the selector call — the one untyped step — so the
 			// fallback stays a real `UserConnectionData` rather than an empty object
 			// asserted into one.
@@ -89,6 +96,8 @@ export default function useConnection( {
 			hasConnectedOwner: ( connectionStatus.hasConnectedOwner ?? false ) as boolean,
 		};
 	}, [] );
+
+	const connectError = registrationError || userConnectionError;
 
 	/**
 	 * User register process handler.
@@ -156,6 +165,7 @@ export default function useConnection( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		connectError,
 		userConnectionData,
 		connectionOwner,
 		hasConnectedOwner,
