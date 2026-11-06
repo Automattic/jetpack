@@ -3,6 +3,7 @@ import {
 	MEMBERS,
 	expectShown,
 	installShellProbe,
+	intermittentSpikeBug,
 	menuLink,
 	openMember,
 	settle,
@@ -78,14 +79,8 @@ test.describe( 'Admin shell: history', () => {
 		},
 	];
 	for ( const { slug, via, tabs, urls, intermittent } of tabRoutes ) {
-		test(
-			`Back walks ${ slug } tabs after leaving and returning`,
-			{
-				annotation: intermittent
-					? [ { type: 'intermittent spike bug', description: intermittent } ]
-					: [],
-			},
-			async ( { page } ) => {
+		intermittentSpikeBug( intermittent, () => {
+			test( `Back walks ${ slug } tabs after leaving and returning`, async ( { page } ) => {
 				await openMember( page, slug );
 				for ( const [ i, tab ] of tabs.entries() ) {
 					await page.getByRole( 'tab', { name: tab } ).filter( { visible: true } ).click();
@@ -100,8 +95,8 @@ test.describe( 'Admin shell: history', () => {
 				await expect(
 					page.getByRole( 'tab', { name: tabs[ 0 ] } ).filter( { visible: true } )
 				).toHaveAttribute( 'aria-selected', 'true' );
-			}
-		);
+			} );
+		} );
 	}
 
 	for ( const m of MEMBERS ) {

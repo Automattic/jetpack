@@ -20,8 +20,8 @@ export default defineConfig( {
 	outputDir: `${ stateDir }/results`,
 	timeout: 180000,
 	expect: { timeout: 20000 },
-	// Intermittent spike bugs (such as Settings rendering blank) then report as flaky, not failed.
-	retries: 2,
+	// Only tests wrapped in intermittentSpikeBug() retry, so any other intermittent failure fails.
+	retries: 0,
 	workers: Number( process.env.PLAYWRIGHT_WORKERS ) || 2,
 	reporter: [ [ 'list' ], [ 'json', { outputFile: `${ stateDir }/summary.json` } ] ],
 	use: {
