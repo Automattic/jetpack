@@ -6,8 +6,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 
 if [[ -n $(git status --porcelain) ]]; then
-	error 'Working tree not clean; commit or stash changes first.'
-	exit 1
+	die 'Working tree not clean; commit or stash changes first.'
 fi
 START_COMMIT=$(git rev-parse HEAD)
 
@@ -35,8 +34,7 @@ function detect_changed_projects {
 	)
 
 	if [[ ${#PROJECTS[@]} -eq 0 ]]; then
-		error 'No projects changed.'
-		exit 1
+		die 'No projects changed.'
 	fi
 	echo 'Changed projects:'
 	printf '  %s\n' "${PROJECTS[@]}"
