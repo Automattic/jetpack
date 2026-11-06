@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Make the Features list checkboxes match the screen's colors, and stop showing extra focus rings after a click or around whole cards.
+My Jetpack: Fill checked checkboxes in the Features list with the selected filter's color, show their focus ring only for keyboard focus, and show one focus ring per control instead of two.
