@@ -3758,7 +3758,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scan",
-                "reference": "a10059429c0fcfd146780faa582c327a93b50f6f"
+                "reference": "9168a76678facf513cbd8f7cfaec151e68dae621"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3829,6 +3829,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Scan UI for the Jetpack plugin in wp-admin.",
+            "abandoned": true,
             "transport-options": {
                 "relative": true
             }
