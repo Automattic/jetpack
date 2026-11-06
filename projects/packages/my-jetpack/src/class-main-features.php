@@ -971,7 +971,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'wordads' ),
+				'modules' => array( 'monetize', 'wordads' ),
 			),
 			array(
 				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
