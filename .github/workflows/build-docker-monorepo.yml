@@ -14,9 +14,9 @@ on:
       - '.github/versions.sh'
       - '.github/workflows/build-docker-monorepo.yml'
   workflow_dispatch:
-  # Daily, so package updates such as PHP patch releases reach the images.
+  # Monthly, so package updates such as PHP patch releases reach the images.
   schedule:
-    - cron: '47 6 * * *'
+    - cron: '17 6 12 * *'
 concurrency:
   group: build-docker-monorepo-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
