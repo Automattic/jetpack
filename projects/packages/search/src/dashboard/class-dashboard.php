@@ -367,7 +367,9 @@ class Dashboard {
 		if (
 			property_exists( $current_screen, 'base' ) &&
 			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
-			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
+			( ! $this->plan->supports_search() || $this->plan->must_upgrade() ) &&
+			// A plan that couldn't be fetched is unknown, not unsupported.
+			! $this->plan->lookup_failed()
 		) {
 			$this->module_control->deactivate();
 		}
