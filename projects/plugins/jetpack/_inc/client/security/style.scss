@@ -1,5 +1,9 @@
 @use "../scss/functions/rem";
 
+.jp-security__protect-plugin-notice.dops-notice {
+	margin-block-end: 16px;
+}
+
 .brute-force__current-ip {
 	margin-bottom: 16px;
 }

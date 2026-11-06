@@ -136,6 +136,7 @@ export class Security extends Component {
 				) }
 				{ ! isSearchTerm && this.props.isProtectPluginActive && (
 					<SimpleNotice
+						className="jp-security__protect-plugin-notice"
 						status="is-info"
 						showDismiss={ false }
 						text={ __(
