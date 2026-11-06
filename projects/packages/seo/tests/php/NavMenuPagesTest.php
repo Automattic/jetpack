@@ -38,19 +38,31 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
-	 * Classic menus split into main and other by location; unassigned menus don't count.
+	 * Classic menus split into main and other by location, with custom links to local pages
+	 * counted; unassigned menus don't count.
 	 *
 	 * @return void
 	 */
 	public function test_classic_menus_split_by_location() {
-		list( $a, $b, $c, $d ) = $this->pages( 4 );
-		$this->add_nav_menu( array( $a, $b ), 'primary' );
+		list( $a, $b, $c, $d, $e ) = $this->pages( 5 );
+		$primary                   = $this->add_nav_menu( array( $a, $b ), 'primary' );
 		$this->add_nav_menu( array( $b, $c ), 'footer' );
 		$this->add_nav_menu( array( $d ) );
+		foreach ( array( get_permalink( $e ), 'https://example.com/' ) as $url ) {
+			wp_update_nav_menu_item(
+				$primary,
+				0,
+				array(
+					'menu-item-type'   => 'custom',
+					'menu-item-url'    => $url,
+					'menu-item-status' => 'publish',
+				)
+			);
+		}
 
 		$this->assertSame(
 			array(
-				'main'  => array( $a, $b ),
+				'main'  => array( $a, $b, $e ),
 				'other' => array( $c ),
 			),
 			Nav_Menu_Pages::get()
@@ -208,11 +220,36 @@ class NavMenuPagesTest extends SeoTestCase {
 	}
 
 	/**
+	 * A home template that includes its header through a pattern uses that header.
+	 *
+	 * @return void
+	 */
+	public function test_home_template_header_inside_pattern() {
+		list( $a, $b ) = $this->pages( 2 );
+		register_block_pattern(
+			self::PATTERN,
+			array(
+				'title'   => 'Home',
+				'content' => '<!-- wp:template-part {"slug":"header-large-title"} /-->',
+			)
+		);
+		$this->use_template_parts(
+			array(
+				array( 'header', 'header', $this->navigation_markup( $a ) ),
+				array( 'header-large-title', 'header', $this->navigation_markup( $b ) ),
+			),
+			array( 'index' => '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->' )
+		);
+
+		$this->assertSame( array( $b ), Nav_Menu_Pages::get()['main'] );
+	}
+
+	/**
 	 * A header Navigation block finds its links through each way core lets it hold them.
 	 *
 	 * @dataProvider provide_navigation_blocks
 	 *
-	 * @param string $markup   Header markup; `{older}`, `{synced}`, `{a}` and `{b}` are replaced with IDs.
+	 * @param string $markup   Header markup; `{older}`, `{trashed}`, `{synced}` and `{a}` become IDs, `{b_url}` a URL.
 	 * @param string $expected Which pages it links: `older`, `newer`, `own` or `none`.
 	 * @return void
 	 */
@@ -221,6 +258,8 @@ class NavMenuPagesTest extends SeoTestCase {
 		list( $old_page, $new_page, $a, $b ) = $this->pages( 4 );
 		$older                               = $this->navigation_post( array( $old_page ), '2026-01-01 00:00:00' );
 		$this->navigation_post( array( $new_page ), '2026-02-01 00:00:00' );
+		$trashed = $this->navigation_post( array( $a ), '2026-03-01 00:00:00' );
+		wp_trash_post( $trashed );
 		register_block_pattern(
 			self::PATTERN,
 			array(
@@ -242,10 +281,11 @@ class NavMenuPagesTest extends SeoTestCase {
 		$markup = strtr(
 			$markup,
 			array(
-				'{older}'  => $older,
-				'{synced}' => $synced,
-				'{a}'      => $a,
-				'{b}'      => $b,
+				'{older}'   => $older,
+				'{trashed}' => $trashed,
+				'{synced}'  => $synced,
+				'{a}'       => $a,
+				'{b_url}'   => get_permalink( $b ),
 			)
 		);
 		$this->use_template_parts(
@@ -271,16 +311,18 @@ class NavMenuPagesTest extends SeoTestCase {
 	 */
 	public static function provide_navigation_blocks() {
 		return array(
-			'menu reference'            => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
-			'no reference, newest'      => array( '<!-- wp:navigation /-->', 'newer' ),
-			'own links, custom skipped' => array(
-				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"id":{b},"kind":"post-type","type":"page"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
+			'menu reference'             => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
+			'no reference, newest'       => array( '<!-- wp:navigation /-->', 'newer' ),
+			'trashed reference, newest'  => array( '<!-- wp:navigation {"ref":{trashed}} /-->', 'newer' ),
+			'deleted reference, none'    => array( '<!-- wp:navigation {"ref":999999} /-->', 'none' ),
+			'own links, local URLs only' => array(
+				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"url":"{b_url}","kind":"custom"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',
 				'own',
 			),
-			'inside a pattern'          => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
-			'inside a synced pattern'   => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
-			'inside a nested part'      => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
-			'page list ranks none'      => array( '<!-- wp:navigation --><!-- wp:page-list /--><!-- /wp:navigation -->', 'none' ),
+			'inside a pattern'           => array( '<!-- wp:pattern {"slug":"' . self::PATTERN . '"} /-->', 'older' ),
+			'inside a synced pattern'    => array( '<!-- wp:block {"ref":{synced}} /-->', 'older' ),
+			'inside a nested part'       => array( '<!-- wp:template-part {"slug":"site-nav"} /-->', 'older' ),
+			'page list ranks none'       => array( '<!-- wp:navigation --><!-- wp:page-list /--><!-- /wp:navigation -->', 'none' ),
 		);
 	}
 
@@ -341,7 +383,7 @@ class NavMenuPagesTest extends SeoTestCase {
 	 * Serve template parts in place of the theme's, with block template parts supported.
 	 *
 	 * @param array[] $parts Each `array( slug, area, content )`.
-	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes.
+	 * @param array   $home  Page templates to serve, as template slug => part slugs it includes, or its markup.
 	 * @return void
 	 */
 	private function use_template_parts( array $parts, array $home = array() ) {
@@ -356,12 +398,12 @@ class NavMenuPagesTest extends SeoTestCase {
 		}
 
 		$page_templates = array();
-		foreach ( $home as $template_slug => $part_slugs ) {
+		foreach ( $home as $template_slug => $includes ) {
 			$template          = new WP_Block_Template();
 			$template->type    = 'wp_template';
 			$template->slug    = $template_slug;
-			$template->content = '';
-			foreach ( $part_slugs as $slug ) {
+			$template->content = is_string( $includes ) ? $includes : '';
+			foreach ( is_array( $includes ) ? $includes : array() as $slug ) {
 				$template->content .= sprintf( '<!-- wp:group --><!-- wp:template-part {"slug":"%s"} /--><!-- /wp:group -->', $slug );
 			}
 			$page_templates[] = $template;

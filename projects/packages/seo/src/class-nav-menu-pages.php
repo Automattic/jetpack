@@ -95,6 +95,11 @@ class Nav_Menu_Pages {
 			foreach ( is_array( $items ) ? $items : array() as $item ) {
 				if ( 'post_type' === $item->type && 'page' === $item->object ) {
 					$pages[ $group ][] = (int) $item->object_id;
+				} elseif ( 'custom' === $item->type ) {
+					$id = self::local_page_id( (string) $item->url );
+					if ( $id ) {
+						$pages[ $group ][] = $id;
+					}
 				}
 			}
 		}
@@ -173,19 +178,35 @@ class Nav_Menu_Pages {
 	}
 
 	/**
-	 * Slugs of the template part blocks in a block tree.
+	 * Slugs of the template part blocks in a block tree, including those inside patterns
+	 * and synced patterns.
 	 *
 	 * @param array $blocks Parsed blocks.
+	 * @param int   $depth  Pattern references followed so far.
 	 * @return string[]
 	 */
-	private static function template_part_slugs( array $blocks ) {
+	private static function template_part_slugs( array $blocks, $depth = 0 ) {
 		$slugs = array();
 		foreach ( $blocks as $block ) {
-			if ( 'core/template-part' === ( $block['blockName'] ?? '' ) && ! empty( $block['attrs']['slug'] ) ) {
-				$slugs[] = $block['attrs']['slug'];
+			$name     = $block['blockName'] ?? '';
+			$attrs    = $block['attrs'] ?? array();
+			$inner    = $block['innerBlocks'] ?? array();
+			$followed = false;
+
+			if ( 'core/template-part' === $name ) {
+				if ( ! empty( $attrs['slug'] ) ) {
+					$slugs[] = $attrs['slug'];
+				}
+			} elseif ( $depth < self::MAX_DEPTH ) {
+				$content = self::referenced_content( $name, $attrs );
+				if ( null !== $content ) {
+					$inner    = parse_blocks( $content );
+					$followed = true;
+				}
 			}
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$slugs = array_merge( $slugs, self::template_part_slugs( $block['innerBlocks'] ) );
+
+			if ( ! empty( $inner ) ) {
+				$slugs = array_merge( $slugs, self::template_part_slugs( $inner, $followed ? $depth + 1 : $depth ) );
 			}
 		}
 		return $slugs;
@@ -207,8 +228,12 @@ class Nav_Menu_Pages {
 			$followed = false;
 
 			if ( 'core/navigation' === $name && empty( $inner ) && $depth < self::MAX_DEPTH ) {
-				// Without its own links, the block shows the menu it references, or core's fallback.
-				$menu = ! empty( $attrs['ref'] ) ? get_post( (int) $attrs['ref'] ) : self::fallback_navigation();
+				// Without its own links, the block shows the menu it references. Like core, fall back when
+				// there's no reference or that menu isn't published; a deleted menu shows nothing.
+				$menu = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+				if ( empty( $attrs['ref'] ) || ( $menu instanceof \WP_Post && 'publish' !== $menu->post_status ) ) {
+					$menu = self::fallback_navigation();
+				}
 				if ( $menu instanceof \WP_Post && 'wp_navigation' === $menu->post_type && 'publish' === $menu->post_status ) {
 					$inner    = parse_blocks( $menu->post_content );
 					$followed = true;
@@ -217,6 +242,11 @@ class Nav_Menu_Pages {
 				// Only explicit links rank a page; a Page List block shows every page, so it ranks none.
 				if ( ! empty( $attrs['id'] ) && 'post-type' === ( $attrs['kind'] ?? '' ) && 'page' === ( $attrs['type'] ?? '' ) ) {
 					$ids[] = (int) $attrs['id'];
+				} elseif ( 'custom' === ( $attrs['kind'] ?? 'custom' ) && ! empty( $attrs['url'] ) ) {
+					$id = self::local_page_id( $attrs['url'] );
+					if ( $id ) {
+						$ids[] = $id;
+					}
 				}
 			} elseif ( $depth < self::MAX_DEPTH ) {
 				$content = self::referenced_content( $name, $attrs );
@@ -257,7 +287,19 @@ class Nav_Menu_Pages {
 	}
 
 	/**
-	 * The menu a Navigation block without a reference falls back to: the newest published
+	 * The page a custom menu link points to, so a page linked by URL ranks like one picked
+	 * from the page list.
+	 *
+	 * @param string $url Link URL.
+	 * @return int Page ID, or 0 for a link to anything else, including other sites.
+	 */
+	private static function local_page_id( $url ) {
+		$id = url_to_postid( $url );
+		return $id && 'page' === get_post_type( $id ) ? $id : 0;
+	}
+
+	/**
+	 * The menu a Navigation block without a published menu falls back to: the newest published
 	 * `wp_navigation` post, as in core's `WP_Navigation_Fallback`, without creating one.
 	 *
 	 * @return \WP_Post|null
