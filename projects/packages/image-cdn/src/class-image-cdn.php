@@ -1380,7 +1380,7 @@ final class Image_CDN {
 	 * @return null|\WP_Error The original response object without modification.
 	 */
 	public function should_rest_photon_image_downsize( $response, $endpoint_data, $request ) {
-		if ( ! is_a( $request, '\WP_REST_Request' ) ) {
+		if ( ! $request instanceof \WP_REST_Request ) {
 			return $response; // Something odd is happening. Do nothing and return the response.
 		}
 
@@ -1430,7 +1430,7 @@ final class Image_CDN {
 	 * @param \WP_REST_Request $request    Request object.
 	 */
 	public function should_rest_photon_image_downsize_insert_attachment( \WP_Post $attachment, \WP_REST_Request $request ) {
-		if ( ! is_a( $request, '\WP_REST_Request' ) ) {
+		if ( ! $request instanceof \WP_REST_Request ) {
 			// Something odd is happening.
 			return;
 		}
