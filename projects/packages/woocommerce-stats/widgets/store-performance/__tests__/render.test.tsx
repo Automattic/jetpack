@@ -25,7 +25,6 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		return <div />;
 	},
 	MetricTabsChartSkeleton: () => <div />,
-	// Names the bucket size it opens, so a test can tell which interval reached it.
 	useOpenChartBucket: ( interval: string ) => ( { opensBucketsOf: interval } ),
 	useWidgetRootContext: () => ( { reportParams: { interval: 'week' } } ),
 	WidgetRoot: ( { children }: { children: ReactNode } ) => <>{ children }</>,

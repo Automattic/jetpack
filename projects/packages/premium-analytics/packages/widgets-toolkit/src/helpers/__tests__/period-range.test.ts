@@ -110,7 +110,6 @@ describe( 'bucketRange', () => {
 		} );
 	} );
 
-	// Store reports start a week on the site's first day of the week; an ISO week here would open Monday to Sunday instead.
 	it( 'opens the bucket the report cut when it states the end', () => {
 		const sundayWeek = {
 			date: new Date( '2026-10-18T00:00:00Z' ),
