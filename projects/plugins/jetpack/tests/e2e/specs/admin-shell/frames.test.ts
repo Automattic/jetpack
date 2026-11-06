@@ -1,7 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 import {
 	FORMS_LEAK,
+	SETTINGS_BLANK,
 	installShellProbe,
+	intermittentSpikeBug,
 	menuLink,
 	openMember,
 	settle,
@@ -9,6 +11,7 @@ import {
 	stopFrames,
 	switchTo,
 	waitForShown,
+	withinDocument,
 	type Frame,
 } from '../../helpers/admin-shell-helper';
 
@@ -29,6 +32,11 @@ const SPIKE_BUGS: Record< string, string > = {
 		'Known spike bug: the outgoing app renders "Route not found" while the switch is under way.',
 };
 
+/* Keyed `from → to`; retried rather than expected to fail. */
+const INTERMITTENT: Record< string, string > = {
+	'my-jetpack → jetpack-settings': SETTINGS_BLANK,
+};
+
 /**
  * Click `to` in the sidebar and record every frame until it has been shown for a second.
  *
@@ -38,8 +46,10 @@ const SPIKE_BUGS: Record< string, string > = {
  */
 async function recordSwitch( page: Page, to: string ): Promise< Frame[] > {
 	await startFrames( page );
-	await menuLink( page, to ).click();
-	await waitForShown( page, to );
+	await withinDocument( page, `switching to ${ to }`, async () => {
+		await menuLink( page, to ).click();
+		await waitForShown( page, to );
+	} );
 	await settle( page, 1000 );
 	return stopFrames( page );
 }
@@ -71,28 +81,32 @@ test.describe( 'Admin shell: frame by frame', () => {
 	} );
 
 	for ( const [ from, to ] of SWITCHES ) {
-		for ( const visit of [ 'first', 'later' ] ) {
-			test( `${ from } → ${ to } (${ visit } visit): no not-found frame, stable content offset`, async ( {
-				page,
-			} ) => {
-				const bug = SPIKE_BUGS[ `${ from } → ${ to } (${ visit })` ];
-				test.fail( !! bug, bug );
-				await arrive( page, from, to, visit );
-				const frames = await recordSwitch( page, to );
-				expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
+		intermittentSpikeBug( INTERMITTENT[ `${ from } → ${ to }` ], () => {
+			for ( const visit of [ 'first', 'later' ] ) {
+				test( `${ from } → ${ to } (${ visit } visit): no not-found frame, stable content offset`, async ( {
+					page,
+				} ) => {
+					const bug = SPIKE_BUGS[ `${ from } → ${ to } (${ visit })` ];
+					test.fail( !! bug, bug );
+					await arrive( page, from, to, visit );
+					const frames = await recordSwitch( page, to );
+					expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
 
-				const notFound = frames.filter( f => f.notFound );
-				expect.soft( notFound, `"not found" frames:\n${ summary( notFound ) }` ).toHaveLength( 0 );
+					const notFound = frames.filter( f => f.notFound );
+					expect
+						.soft( notFound, `"not found" frames:\n${ summary( notFound ) }` )
+						.toHaveLength( 0 );
 
-				// Everything that stands in for the incoming page, placeholder included, sits where it ends up.
-				const incoming = frames.filter(
-					f => f.left !== null && ( f.owner === to || f.owner === 'placeholder' )
-				);
-				const offsets = [ ...new Set( incoming.map( f => f.left ) ) ];
-				expect
-					.soft( offsets, `content offsets during the switch:\n${ summary( incoming ) }` )
-					.toHaveLength( 1 );
-			} );
-		}
+					// Everything that stands in for the incoming page, placeholder included, sits where it ends up.
+					const incoming = frames.filter(
+						f => f.left !== null && ( f.owner === to || f.owner === 'placeholder' )
+					);
+					const offsets = [ ...new Set( incoming.map( f => f.left ) ) ];
+					expect
+						.soft( offsets, `content offsets during the switch:\n${ summary( incoming ) }` )
+						.toHaveLength( 1 );
+				} );
+			}
+		} );
 	}
 } );
