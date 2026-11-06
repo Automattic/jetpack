@@ -229,6 +229,10 @@ class Initializer {
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
+		// Not on admin_init: modules are usually toggled over REST, where admin_init never fires.
+		add_action( 'jetpack_activate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+		add_action( 'jetpack_deactivate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
 		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
@@ -998,12 +1002,13 @@ class Initializer {
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
 				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
-					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
-					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
-					'brokenModules'             => Red_Bubble_Notifications::check_for_broken_modules(),
-					'isSiteConnected'           => $connection->is_connected(),
-					'isUserConnected'           => $connection->is_user_connected(),
-					'modules'                   => self::get_active_modules(),
+					'jetpackPlugins'                      => self::get_installed_jetpack_plugins(),
+					'historicallyActiveModules'           => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'historicallyActiveModulesRefreshDue' => Historically_Active_Modules::is_refresh_due(),
+					'brokenModules'                       => Red_Bubble_Notifications::check_for_broken_modules(),
+					'isSiteConnected'                     => $connection->is_connected(),
+					'isUserConnected'                     => $connection->is_user_connected(),
+					'modules'                             => self::get_active_modules(),
 				),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
