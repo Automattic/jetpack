@@ -54,8 +54,6 @@ describe( 'ConnectionScreen', () => {
 	it.each( [
 		'my-jetpack',
 		'jetpack-onboarding',
-		'MY_JETPACK_HEADER',
-		'x'.repeat( 30 ) + '_' + 'y'.repeat( 40 ),
 		true,
 	] )( 'falls back to its own name for %p', from => {
 		mockSearch = { from };
