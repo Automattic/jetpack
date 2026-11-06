@@ -11,6 +11,8 @@ import { useSearch } from '@wordpress/route';
 import { usePostSummary } from './use-post-summary';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	getApiErrorCode: jest.requireActual( '../../../../packages/data/src/utils/api-error' )
+		.getApiErrorCode,
 	usePostThumbnail: jest.fn(),
 	useSiteHomeUrl: jest.fn(),
 	useStatsPost: jest.fn(),
@@ -217,8 +219,10 @@ describe( 'usePostSummary', () => {
 		expect( result.current ).toMatchObject( { title: 'Hello', isError: false, error: null } );
 	} );
 
-	it( 'reports a failed load with no post as an error, with the request error', () => {
-		const error = { code: 'rest_forbidden', status: 403 };
+	it.each( [
+		[ 'a refused request', { code: 'rest_forbidden', status: 403 } ],
+		[ 'a 404 that does not name the post', { code: 'rest_no_route', status: 404 } ],
+	] )( 'reports %s with no post as an error, with the request error', ( _case, error ) => {
 		mockUseStatsPost.mockReturnValue( {
 			data: undefined,
 			isLoading: false,
@@ -233,6 +237,22 @@ describe( 'usePostSummary', () => {
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.error ).toBe( error );
+	} );
+
+	it( 'reports a post WPCOM does not know as not found rather than as an error', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error: { error: 'unknown_post', message: 'Unknown post', status: 404 },
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
+
+		expect( result.current ).toMatchObject( { isNotFound: true, isError: false, error: null } );
 	} );
 
 	it( 'skips the entity lookups for an invalid post ID', () => {

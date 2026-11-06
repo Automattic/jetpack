@@ -97,9 +97,14 @@ export function postHeaderSlots(
 		};
 	}
 
-	// Matches the video header: a failed summary has no title or window to state.
-	if ( summary.isError ) {
-		return { visual, title: copy.unavailable };
+	// Matches the video header: a failed or missing post has no title or window to state.
+	if ( summary.isError || summary.isNotFound ) {
+		return {
+			visual,
+			title: summary.isNotFound
+				? __( 'Post not found', 'jetpack-premium-analytics-pkg' )
+				: copy.unavailable,
+		};
 	}
 
 	// A post saved without a title still owes the reader an `h1`.

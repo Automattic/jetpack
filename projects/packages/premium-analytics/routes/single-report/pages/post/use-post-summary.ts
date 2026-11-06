@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { usePostThumbnail, useStatsPost, useSiteHomeUrl } from '@jetpack-premium-analytics/data';
+import {
+	getApiErrorCode,
+	usePostThumbnail,
+	useStatsPost,
+	useSiteHomeUrl,
+} from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { POST_URL_SEARCH_PARAM } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
@@ -74,7 +79,10 @@ export function usePostSummary( id: string ): PostSummary {
 	} );
 	const post = data?.post;
 	// A failed background refetch keeps the loaded post, so only a missing one is an error.
-	const hasFailed = isError && ! post;
+	const hasNoPost = isError && ! post;
+	// WPCOM answers `unknown_post` for a deleted or unknown post; a retry gets the same answer.
+	const isNotFound = hasNoPost && getApiErrorCode( error ) === 'unknown_post';
+	const hasFailed = hasNoPost && ! isNotFound;
 	const type = post?.post_type;
 	const imageUrl = usePostThumbnail( postId, type );
 
@@ -126,8 +134,7 @@ export function usePostSummary( id: string ): PostSummary {
 		isLoading: isLoading || ( isPending && isPaused ),
 		isError: hasFailed,
 		error: hasFailed ? error : null,
-		// The Stats report answers for any id; a missing post reads as an error, as before.
-		isNotFound: false,
+		isNotFound,
 		refetch: retry,
 	};
 }

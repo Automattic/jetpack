@@ -120,6 +120,16 @@ describe( 'postHeaderSlots', () => {
 		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'says a missing post was not found, with no window', () => {
+		renderHeader(
+			{ ...SUMMARY, type: undefined, title: undefined, isNotFound: true },
+			{ performanceRange: PERFORMANCE_RANGE }
+		);
+
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Post not found' );
+		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'marks the text cell busy only while the summary resolves', () => {
 		const { rerender } = renderHeader( { ...SUMMARY, title: undefined, isLoading: true } );
 
