@@ -590,6 +590,24 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$media_id_string = implode( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
 		}
 
+		// Any posts coming from Path (client ID 25952) should also not publicize.
+		$skip_publicize = false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] );
+
+		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
+		/**
+		 * On Jetpack sites, Sync flags the post for sharing on publish, before the skip meta below exists.
+		 * WordPress.com unhooks sharing from save_post above instead.
+		 *
+		 * @return false
+		 */
+		$block_publicize = static function () {
+			return false;
+		};
+		if ( $block_publicize_flag ) {
+			add_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
+		}
+
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
@@ -636,6 +654,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			} else {
 				$post_id = wp_update_post( (object) $insert );
 			}
+		}
+
+		if ( $block_publicize_flag ) {
+			remove_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
 		}
 
 		if ( ! $post_id || is_wp_error( $post_id ) ) {
@@ -742,8 +764,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
-		// Any posts coming from Path (client ID 25952) should also not publicize.
-		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] ) ) {
+		if ( $skip_publicize ) {
 			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
