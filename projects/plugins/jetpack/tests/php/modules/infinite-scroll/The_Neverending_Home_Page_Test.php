@@ -153,7 +153,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 			return $styles;
 		};
 		add_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
-		$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), null );
+		$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
 		remove_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
 		unset( $_REQUEST['styles'] );
 		$wp_styles = $original_styles;
