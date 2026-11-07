@@ -160,7 +160,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 			{ getScriptData()?.podcast?.is_site_public === false && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
 					{ __(
-						'Launch your site, make it public, and allow search engines to access it before submitting to YouTube.',
+						'Your site is unlaunched, private, or hidden from search engines. Check your site visibility before submitting your feed to podcast directories.',
 						'jetpack-podcast'
 					) }{ ' ' }
 					<Button
