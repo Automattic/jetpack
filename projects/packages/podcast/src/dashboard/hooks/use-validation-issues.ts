@@ -54,20 +54,18 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
  * @param settings            - Saved settings, or undefined for "not loaded".
  * @param cover               - Cover image media record, or undefined.
  * @param hasPublishedEpisode - True/false when the probe resolves; undefined while in flight.
- * @param isSitePublic        - Whether the site is public and allows search engines.
  * @return                      Issue strings in stable order.
  */
 const getDistributionIssues = (
 	settings: PodcastSettings | undefined,
 	cover: CoverImageRecord | undefined,
-	hasPublishedEpisode: boolean | undefined,
-	isSitePublic: boolean | undefined
+	hasPublishedEpisode: boolean | undefined
 ): string[] => {
 	const issues = getValidationIssues( settings );
 	if ( ! settings ) {
 		return issues;
 	}
-	if ( isSitePublic === false ) {
+	if ( getScriptData()?.podcast?.is_site_public === false ) {
 		issues.push(
 			__(
 				'Make your site public and allow search engines to access it before submitting to YouTube.',
@@ -104,7 +102,6 @@ const getDistributionIssues = (
  */
 export function useValidationIssues() {
 	const { data: settings, isLoading: settingsLoading } = usePodcastSettings();
-	const isSitePublic = getScriptData()?.podcast?.is_site_public;
 
 	const coverImageId = settings?.podcasting_image_id ?? 0;
 	const { record: cover, hasResolved: coverResolved } = useEntityRecord< CoverImageRecord >(
@@ -136,7 +133,7 @@ export function useValidationIssues() {
 
 	const issues = isLoading
 		? []
-		: getDistributionIssues( settings, cover ?? undefined, hasPublishedEpisode, isSitePublic );
+		: getDistributionIssues( settings, cover ?? undefined, hasPublishedEpisode );
 
 	return {
 		issues,
