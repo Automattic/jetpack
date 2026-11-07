@@ -436,6 +436,58 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Pages the owner always includes come first, once, ahead of the main menu; hiding a
+	 * page from search engines still leaves it out.
+	 *
+	 * @return void
+	 */
+	public function test_included_pages_come_first_unless_hidden_from_search() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ) );
+		}
+		$scan            = $this->insert_page( 'Zz Scan' );
+		$in_menu         = $this->insert_page( 'Zx Included' );
+		$always_included = $this->insert_page( 'Zw Included' );
+		$hidden          = $this->insert_page( 'Zv Hidden' );
+		foreach ( array( $in_menu, $always_included, $hidden ) as $page ) {
+			update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+		}
+		update_post_meta( $hidden->ID, Content_Coverage::META_NOINDEX, '1' );
+		$this->add_nav_menu( array( $scan->ID, $in_menu->ID ), 'primary' );
+
+		$expected = array( 'Zw Included', 'Zx Included', 'Zz Scan' );
+		for ( $i = 1; $i <= 47; $i++ ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * Hiding a page from search engines, from any editor, switches "Always include" off.
+	 *
+	 * @return void
+	 */
+	public function test_hiding_a_page_switches_always_include_off() {
+		$page = $this->insert_page( 'Hidden Later' );
+		update_post_meta( $page->ID, Llms_Txt::META_ALWAYS_INCLUDE, '1' );
+
+		$hooks = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		try {
+			Llms_Txt::register_always_include();
+			update_post_meta( $page->ID, Content_Coverage::META_NOINDEX, '1' );
+		} finally {
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+
+		$this->assertFalse( metadata_exists( 'post', $page->ID, Llms_Txt::META_ALWAYS_INCLUDE ) );
+	}
+
+	/**
 	 * Main-menu pages are listed past the per-type limit, up to their own.
 	 *
 	 * @return void
