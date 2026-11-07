@@ -22,6 +22,15 @@
 	margin: 0 !important;
 	padding: 0 !important;
 
+	// The input takes no pointer events while it waits, so its cursor is here.
+	&.is-disabled {
+		cursor: not-allowed;
+	}
+
+	&.is-busy {
+		cursor: progress;
+	}
+
 	// Sized here, as tall as the avatar beside it; the theme keeps its look:
 	// font family, weight, colours, border and radius.
 	input {
