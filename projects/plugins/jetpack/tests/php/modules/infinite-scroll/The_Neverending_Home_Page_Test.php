@@ -120,19 +120,61 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertTrue( $wp_styles->do_concat );
 	}
 
-	public function test_get_new_styles_resends_per_request_block_styles_without_duplicate_ids() {
+	/**
+	 * @dataProvider get_per_request_style_handles
+	 *
+	 * @param string $handle A handle whose inline CSS core rebuilds for each request.
+	 */
+	#[DataProvider( 'get_per_request_style_handles' )]
+	public function test_get_new_styles_resends_per_request_block_styles_without_duplicate_ids( $handle ) {
 		$wp_styles = new WP_Styles();
-		$wp_styles->add( 'core-block-supports', false );
-		$wp_styles->add_inline_style( 'core-block-supports', '.wp-container-core-group-is-layout-abc{gap:6rem}' );
+		$wp_styles->add( $handle, false );
+		$wp_styles->add_inline_style( $handle, '.wp-container-core-group-is-layout-abc{gap:6rem}' );
 		$wp_styles->add( 'is-static', false );
 		$wp_styles->add_inline_style( 'is-static', '.is-static{color:red}' );
-		$wp_styles->done = array( 'core-block-supports', 'is-static' );
+		$wp_styles->done = array( $handle, 'is-static' );
 
-		$styles = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'core-block-supports', 'is-static' ) );
+		$styles = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( $handle, 'is-static' ) );
 
-		$this->assertSame( array( 'core-block-supports' ), array_column( $styles, 'handle' ) );
+		$this->assertSame( array( $handle ), array_column( $styles, 'handle' ) );
 		$this->assertStringContainsString( 'gap:6rem', $styles[0]['html'] );
 		$this->assertStringNotContainsString( 'id=', $styles[0]['html'] );
+	}
+
+	public static function get_per_request_style_handles() {
+		return array(
+			'block supports'          => array( 'core-block-supports' ),
+			'duotone'                 => array( 'core-block-supports-duotone' ),
+			'block style variations'  => array( 'block-style-variation-styles' ),
+			'additional style stores' => array( 'wp-style-engine-blocks' ),
+		);
+	}
+
+	public function test_get_new_styles_sends_theme_json_styles_for_blocks_new_to_the_page() {
+		$add_quote_style = function ( $theme_json ) {
+			return $theme_json->update_with(
+				array(
+					'version' => 3,
+					'styles'  => array( 'blocks' => array( 'core/quote' => array( 'color' => array( 'background' => '#ffe08a' ) ) ) ),
+				)
+			);
+		};
+		add_filter( 'wp_theme_json_data_theme', $add_quote_style );
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		try {
+			$wp_styles       = new WP_Styles();
+			$wp_styles->done = array( 'global-styles', 'wp-block-quote' );
+			$styles          = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'global-styles' ) );
+			$on_page         = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'global-styles', 'wp-block-quote' ) );
+		} finally {
+			remove_filter( 'wp_theme_json_data_theme', $add_quote_style );
+			WP_Theme_JSON_Resolver::clean_cached_data();
+		}
+
+		$this->assertSame( array( 'global-styles' ), array_column( $styles, 'handle' ) );
+		$this->assertStringContainsString( '#ffe08a', $styles[0]['html'] );
+		$this->assertSame( array(), $on_page );
 	}
 
 	public function test_filter_rewriting_src_makes_client_load_the_new_url() {
@@ -153,10 +195,14 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 			return $styles;
 		};
 		add_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
-		$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
-		remove_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
-		unset( $_REQUEST['styles'] );
-		$wp_styles = $original_styles;
+
+		try {
+			$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
+		} finally {
+			remove_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
+			unset( $_REQUEST['styles'] );
+			$wp_styles = $original_styles;
+		}
 
 		$this->assertArrayNotHasKey( 'html', $results['styles'][0] );
 		$this->assertSame( 'https://cdn.example.org/is-cdn.css', $results['styles'][0]['src'] );

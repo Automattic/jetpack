@@ -462,7 +462,10 @@
 						return;
 					}
 
-					window.infiniteScroll.settings.styles.push( item.handle );
+					// Per-request handles come back on every page, so record each handle once.
+					if ( -1 === window.infiniteScroll.settings.styles.indexOf( item.handle ) ) {
+						window.infiniteScroll.settings.styles.push( item.handle );
+					}
 				} );
 			}
 

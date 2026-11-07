@@ -1097,7 +1097,10 @@ class The_Neverending_Home_Page {
 
 			$registered = $wp_styles->registered[ $handle ];
 			if ( is_string( $registered->src ) && '' !== $registered->src ) {
-				$ver            = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
+				$ver = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
+				if ( isset( $wp_styles->args[ $handle ] ) ) {
+					$ver = $ver ? $ver . '&amp;' . $wp_styles->args[ $handle ] : $wp_styles->args[ $handle ];
+				}
 				$style['src']   = wp_specialchars_decode( $wp_styles->_css_href( $registered->src, $ver, $handle ), ENT_QUOTES );
 				$style['media'] = $registered->args ? $registered->args : 'all';
 			}
@@ -1106,7 +1109,52 @@ class The_Neverending_Home_Page {
 		}
 		$wp_styles->do_concat = $do_concat;
 
+		// `global-styles` is already on the page, so send the theme.json CSS of blocks it does not cover yet.
+		if ( in_array( 'global-styles', $initial_styles, true ) ) {
+			$block_css = self::get_theme_json_css_for_blocks( array_diff( $wp_styles->done, $initial_styles ) );
+			if ( '' !== $block_css ) {
+				$styles[] = array(
+					'handle' => 'global-styles',
+					'html'   => "<style>\n" . $block_css . "\n</style>\n",
+				);
+			}
+		}
+
 		return $styles;
+	}
+
+	/**
+	 * Get the theme.json styles of core blocks whose stylesheets are in the given handles.
+	 *
+	 * Core adds these to `global-styles` only for core blocks rendered in the same request.
+	 *
+	 * @see wp_add_global_styles_for_blocks()
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $handles Style handles new to the page.
+	 * @return string CSS.
+	 */
+	private static function get_theme_json_css_for_blocks( array $handles ) {
+		$tree = WP_Theme_JSON_Resolver::resolve_theme_file_uris( WP_Theme_JSON_Resolver::get_merged_data() );
+		$css  = '';
+
+		foreach ( $tree->get_styles_block_nodes() as $metadata ) {
+			if ( isset( $metadata['name'] ) ) {
+				$block_name = $metadata['name'];
+			} else {
+				$block_name = empty( $metadata['path'] ) ? '' : wp_get_block_name_from_theme_json_path( $metadata['path'] );
+			}
+
+			if (
+				is_string( $block_name )
+				&& str_starts_with( $block_name, 'core/' )
+				&& in_array( 'wp-block-' . substr( $block_name, 5 ), $handles, true )
+			) {
+				$css .= $tree->get_styles_for_block( $metadata );
+			}
+		}
+
+		return $css;
 	}
 
 	/**
@@ -1352,6 +1400,8 @@ class The_Neverending_Home_Page {
 			$results['styles'] = array();
 		}
 
+		$generated_styles = $results['styles'];
+
 		/**
 		 * Filter the additional styles required by the latest set of IS posts.
 		 *
@@ -1368,7 +1418,6 @@ class The_Neverending_Home_Page {
 		 * @param array $query_args Array of Query arguments.
 		 * @param WP_Query $wp_query WP Query.
 		 */
-		$generated_styles  = $results['styles'];
 		$results['styles'] = apply_filters(
 			'infinite_scroll_additional_stylesheets',
 			$results['styles'],
