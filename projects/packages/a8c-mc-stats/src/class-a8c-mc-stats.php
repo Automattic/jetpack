@@ -116,14 +116,14 @@ class A8c_Mc_Stats {
 	}
 
 	/**
-	 * Pings the stats server for the current stats and empty the stored stats from the object
+	 * Pings the stats server for the current stats, without waiting for the responses, and empty the stored stats from the object
 	 *
 	 * @return void
 	 */
 	public function do_server_side_stats() {
 		$urls = $this->get_stats_urls();
 		foreach ( $urls as $url ) {
-			$this->do_server_side_stat( $url );
+			$this->do_server_side_stat( $url, false );
 		}
 		$this->stats = array();
 	}
@@ -131,11 +131,25 @@ class A8c_Mc_Stats {
 	/**
 	 * Runs stats code for a one-off, server-side.
 	 *
-	 * @param string $url string The URL to be pinged. Should include `x_jetpack-{$group}={$stats}` or whatever we want to store.
+	 * @since $$next-version$$ Added the `$blocking` parameter.
+	 *
+	 * @param string $url      string The URL to be pinged. Should include `x_jetpack-{$group}={$stats}` or whatever we want to store.
+	 * @param bool   $blocking Whether to wait for the response. When false, the return value only says whether the request was sent.
 	 *
 	 * @return bool If it worked.
 	 */
-	public function do_server_side_stat( $url ) {
+	public function do_server_side_stat( $url, $blocking = true ) {
+		if ( ! $blocking ) {
+			$response = wp_remote_get(
+				esc_url_raw( $url ),
+				array(
+					'blocking' => false,
+					'timeout'  => 1,
+				)
+			);
+			return ! is_wp_error( $response );
+		}
+
 		$response = wp_remote_get( esc_url_raw( $url ) );
 		if ( is_wp_error( $response ) ) {
 			return false;

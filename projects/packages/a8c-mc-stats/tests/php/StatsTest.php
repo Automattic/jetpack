@@ -72,4 +72,31 @@ class StatsTest extends TestCase {
 		$this->assertArrayHasKey( 'x_jetpack-group', $check );
 		$this->assertEquals( 'test,test2', $check['x_jetpack-group'] );
 	}
+
+	/**
+	 * Test that do_server_side_stats sends every group without waiting, then clears the stats.
+	 */
+	public function test_do_server_side_stats_does_not_block() {
+		$stats = new class() extends A8c_Mc_Stats {
+			public $calls = array();
+
+			public function get_stats_urls() {
+				return array( 'https://example.com/a', 'https://example.com/b' );
+			}
+
+			public function do_server_side_stat( $url, $blocking = true ) {
+				$this->calls[] = array( $url, $blocking );
+				return true;
+			}
+		};
+		$stats->add( 'group', 'test' );
+
+		$stats->do_server_side_stats();
+
+		$this->assertSame(
+			array( array( 'https://example.com/a', false ), array( 'https://example.com/b', false ) ),
+			$stats->calls
+		);
+		$this->assertEmpty( $stats->get_current_stats() );
+	}
 }

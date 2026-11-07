@@ -21,7 +21,9 @@ Create an instance of the class and use the `add()` method to store stats that w
 
 `do_stats()` will output one `img` tag with the tracking gif for each group stored using `add()`.
 
-`do_server_side_stats()` will directly ping the server, with no output, for each group stored using `add()`.
+`do_server_side_stats()` will directly ping the server, with no output, for each group stored using `add()`. It does not wait for the responses.
+
+`do_server_side_stat( $url )` pings a single URL and waits for the response, returning whether the server answered with a 200. Pass `false` as the second argument to send it without waiting; the return value then only says whether the request was sent.
 
 ## Options
 

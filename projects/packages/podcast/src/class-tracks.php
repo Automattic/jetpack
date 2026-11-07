@@ -516,7 +516,7 @@ class Tracks {
 			}
 
 			$stats = new A8c_Mc_Stats();
-			$stats->do_server_side_stat( $stats->build_stats_url( array( "x_{$group}" => $bin ) ) );
+			$stats->do_server_side_stat( $stats->build_stats_url( array( "x_{$group}" => $bin ) ), false );
 		} catch ( Throwable $e ) {
 			unset( $e );
 		}
