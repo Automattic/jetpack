@@ -79,7 +79,7 @@ add_action(
 				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, DASHBOARD_TILE_LIST ),
 					);
 				},
 			)
@@ -127,7 +127,7 @@ The slug list exists because the report registry lives in the client today. Once
 
 ![A section declares its default layout; get_default_layout() runs it through the default-layout filter, where a plugin adds instances at priority 10 and the package removes unsupported widget types at priority 100, before it reaches the client as the fallback for the stored layout.](diagrams/sections-default-layout.svg)
 
-A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one.
+A section owns its default layout. The registration passes the instances, built with `get_dashboard_default_widget_instance( $uuid, $type, $order, $width, $height, $attributes )`, as an array or as a callable returning one. `$height` counts dashboard rows: pass `DASHBOARD_TILE_LIST` for a leaderboard, `DASHBOARD_TILE_CARD` for a chart or a figure, `DASHBOARD_TILE_STRIP` for a one-line strip.
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
@@ -147,7 +147,7 @@ add_filter(
 			}
 		}
 
-		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, DASHBOARD_TILE_LIST );
 
 		return $layout;
 	},
