@@ -1,4 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -156,6 +157,20 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 	return (
 		<>
+			{ getScriptData()?.podcast?.is_site_public === false && (
+				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
+					{ __(
+						'Your site is unlaunched, private, or hidden from search engines. Check your site visibility before submitting your feed to podcast directories.',
+						'jetpack-podcast'
+					) }{ ' ' }
+					<Button
+						variant="link"
+						href={ `${ getSiteData()?.admin_url ?? '/wp-admin/' }options-reading.php` }
+					>
+						{ __( 'Edit site visibility', 'jetpack-podcast' ) }
+					</Button>
+				</Notice>
+			) }
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
 					<strong>{ setupStepsLeftLabel }</strong>
