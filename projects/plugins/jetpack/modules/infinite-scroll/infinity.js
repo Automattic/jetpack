@@ -4,13 +4,6 @@
 	// Local vars.
 	var Scroller, stats, type, text, totop, loading_text;
 
-	// IE requires special handling
-	var isIE = -1 !== navigator.userAgent.search( 'MSIE' );
-	if ( isIE ) {
-		var IEVersion = navigator.userAgent.match( /MSIE\s?(\d+)\.?\d*;/ );
-		IEVersion = parseInt( IEVersion[ 1 ] );
-	}
-
 	// HTTP ajaxurl when site is HTTPS causes Access-Control-Allow-Origin failure in Desktop and iOS Safari
 	if ( 'https:' === document.location.protocol ) {
 		infiniteScroll.settings.ajaxurl = infiniteScroll.settings.ajaxurl.replace(
@@ -441,27 +434,26 @@
 			// If additional stylesheets are required by the incoming set of posts, parse them
 			if ( response.styles && Array.isArray( response.styles ) ) {
 				response.styles.forEach( function ( item ) {
-					// Add stylesheet handle to list of those already parsed
+					if ( 'string' !== typeof item.handle ) {
+						return;
+					}
+
+					if ( 'string' === typeof item.html ) {
+						document.head.insertAdjacentHTML( 'beforeend', item.html );
+					} else if ( 'string' === typeof item.src ) {
+						var link = document.createElement( 'link' );
+						link.rel = 'stylesheet';
+						link.href = item.src;
+						link.id = item.handle + '-css';
+						if ( 'string' === typeof item.media ) {
+							link.media = item.media;
+						}
+						document.head.appendChild( link );
+					} else {
+						return;
+					}
+
 					window.infiniteScroll.settings.styles.push( item.handle );
-
-					// Build link tag
-					var style = document.createElement( 'link' );
-					style.rel = 'stylesheet';
-					style.href = item.src;
-					style.id = item.handle + '-css';
-
-					// Destroy link tag if a conditional statement is present and either the browser isn't IE, or the conditional doesn't evaluate true
-					if (
-						item.conditional &&
-						( ! isIE || ! eval( item.conditional.replace( /%ver/g, IEVersion ) ) )
-					) {
-						style = false;
-					}
-
-					// Append link tag if necessary
-					if ( style ) {
-						document.getElementsByTagName( 'head' )[ 0 ].appendChild( style );
-					}
 				} );
 			}
 
