@@ -83,6 +83,7 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it( 'derives the applied state from the URL search params', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
 			to: '2026-07-30T23:59:59.999+00:00',
@@ -99,6 +100,158 @@ describe( 'useReportDateFilters', () => {
 		);
 		expect( result.current.intervalOptions ).toEqual( [ 'day', 'week' ] );
 		expect( result.current.canApply ).toBe( false );
+	} );
+
+	it( 'reads a preset as the window it names today, whatever dates the URL kept', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'last-7-days',
+		} );
+
+		const thisWeek = {
+			from: Date.parse( '2026-08-14T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-20T23:59:59.999Z' ),
+		};
+		expect( result.current.appliedRange.from?.getTime() ).toBe( thisWeek.from );
+		expect( result.current.appliedRange.to?.getTime() ).toBe( thisWeek.to );
+		expect( result.current.range.from?.getTime() ).toBe( thisWeek.from );
+		expect( result.current.range.to?.getTime() ).toBe( thisWeek.to );
+	} );
+
+	it.each( [
+		[ 'a year preset', 'year-2026', '2026-01-01T00:00:00.000Z' ],
+		[ 'all time, keeping the start the surface wrote', 'all-time', '2020-05-01T00:00:00.000Z' ],
+	] )( 'reads %s through the end of today', ( _name, preset, from ) => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2020-05-01T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset,
+		} );
+
+		expect( result.current.appliedRange.from?.getTime() ).toBe( Date.parse( from ) );
+		expect( result.current.appliedRange.to?.getTime() ).toBe(
+			Date.parse( '2026-08-20T23:59:59.999Z' )
+		);
+	} );
+
+	it( 'reads a hand-picked range as the dates the URL carries', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'custom',
+		} );
+
+		const picked = {
+			from: Date.parse( '2026-08-07T00:00:00.000Z' ),
+			to: Date.parse( '2026-08-13T23:59:59.999Z' ),
+		};
+		expect( result.current.appliedRange.from?.getTime() ).toBe( picked.from );
+		expect( result.current.appliedRange.to?.getTime() ).toBe( picked.to );
+		expect( result.current.range.from?.getTime() ).toBe( picked.from );
+		expect( result.current.range.to?.getTime() ).toBe( picked.to );
+	} );
+
+	it( 'measures a comparison preset from the window the primary names today', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			preset: 'last-7-days',
+			comp: '1',
+			compare_preset: 'previous-period',
+			compare_from: '2026-07-31T00:00:00.000+00:00',
+			compare_to: '2026-08-06T23:59:59.999+00:00',
+		} );
+
+		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonRange?.from?.getTime() ).toBe(
+			Date.parse( '2026-08-07T00:00:00.000Z' )
+		);
+		expect( result.current.appliedComparisonRange?.to?.getTime() ).toBe(
+			Date.parse( '2026-08-13T23:59:59.999Z' )
+		);
+	} );
+
+	it( 'names the comparison the window names today, not one the URL kept that it no longer offers', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-03-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-03-01T00:00:00.000+00:00',
+			to: '2026-03-07T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			comp: '1',
+			compare_preset: 'previous-week',
+			compare_from: '2026-02-22T00:00:00.000+00:00',
+			compare_to: '2026-02-28T23:59:59.999+00:00',
+		} );
+
+		expect( result.current.comparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
+		expect( result.current.appliedComparisonRange?.to?.getTime() ).toBe(
+			Date.parse( '2026-02-28T23:59:59.999Z' )
+		);
+	} );
+
+	it( 'shows a staged comparison edit before it is applied', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-03-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-03-01T00:00:00.000+00:00',
+			to: '2026-03-20T23:59:59.999+00:00',
+			preset: 'month-to-date',
+			interval: 'day',
+		} );
+
+		act( () => {
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-03-14T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-03-20T23:59:59.999Z', 'UTC' ),
+				},
+				'last-7-days'
+			);
+		} );
+		act( () => {
+			result.current.onComparisonChange(
+				{
+					from: new TZDate( '2026-03-07T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-03-13T23:59:59.999Z', 'UTC' ),
+				},
+				'previous-week'
+			);
+		} );
+
+		expect( result.current.comparisonPresetId ).toBe( 'previous-week' );
+		expect( result.current.appliedComparisonPresetId ).toBeUndefined();
+	} );
+
+	it.each( [
+		[
+			'a hand-picked window’s comparison',
+			{ preset: 'custom', compare_preset: 'previous-period' },
+			'previous-period',
+		],
+		[ 'comparison dates with no preset behind them', { preset: 'last-7-days' }, undefined ],
+	] )( 'reads %s as the URL carries them', ( _name, extra, comparePreset ) => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		const { result } = renderDateFilters( {
+			from: '2026-08-07T00:00:00.000+00:00',
+			to: '2026-08-13T23:59:59.999+00:00',
+			comp: '1',
+			compare_from: '2026-07-31T00:00:00.000+00:00',
+			compare_to: '2026-08-06T23:59:59.999+00:00',
+			...extra,
+		} );
+
+		expect( result.current.appliedComparisonPresetId ).toBe( comparePreset );
+		expect( result.current.appliedComparisonRange?.from?.getTime() ).toBe(
+			Date.parse( '2026-07-31T00:00:00.000Z' )
+		);
+		expect( result.current.appliedComparisonRange?.to?.getTime() ).toBe(
+			Date.parse( '2026-08-06T23:59:59.999Z' )
+		);
 	} );
 
 	it( 'drops an unparseable URL date instead of an invalid picker Date', () => {
@@ -183,6 +336,7 @@ describe( 'useReportDateFilters', () => {
 	} );
 
 	it( 'commits a comparison change on its own', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-07-30T12:00:00.000Z' ) );
 		const { result, rerender } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
 			to: '2026-07-30T23:59:59.999+00:00',
