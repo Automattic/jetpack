@@ -99,6 +99,22 @@ describe( 'Infinite Scroll response styles', () => {
 		] );
 	} );
 
+	test( 'inserts more CSS for a handle on the page right after that handle, ahead of theme styles', () => {
+		document.head.innerHTML =
+			'<style id="global-styles-inline-css">.a{}</style><link rel="stylesheet" id="theme-css" href="https://example.org/t.css">';
+
+		respond( [
+			{
+				handle: 'global-styles',
+				html: '<style>:root :where(.wp-block-quote){border-width:6px}</style>',
+			},
+		] );
+
+		expect(
+			[ ...document.head.children ].map( node => node.id || node.textContent.slice( 0, 7 ) )
+		).toEqual( [ 'global-styles-inline-css', ':root :', 'theme-css' ] );
+	} );
+
 	test( 'loads entries that only have a src, and skips IE-only and handle-less entries', () => {
 		respond( [
 			{ handle: 'is-filtered', src: 'https://example.org/f.css', media: 'print' },

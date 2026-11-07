@@ -433,13 +433,18 @@
 
 			// If additional stylesheets are required by the incoming set of posts, parse them
 			if ( response.styles && Array.isArray( response.styles ) ) {
-				// Core prints block styles before the Customizer's Additional CSS, so keep that order.
+				// Keep core's cascade order: CSS for a handle already on the page goes right after that handle's tag.
 				var customCss = document.getElementById( 'wp-custom-css' );
-				var insertStyle = function ( node ) {
-					document.head.insertBefore(
-						node,
-						customCss && customCss.parentNode === document.head ? customCss : null
-					);
+				var insertStyle = function ( node, handle ) {
+					var existing = document.getElementById( handle + '-inline-css' );
+					if ( existing && existing.parentNode ) {
+						existing.parentNode.insertBefore( node, existing.nextSibling );
+					} else {
+						document.head.insertBefore(
+							node,
+							customCss && customCss.parentNode === document.head ? customCss : null
+						);
+					}
 				};
 
 				response.styles.forEach( function ( item ) {
@@ -457,7 +462,7 @@
 								deferred.media = deferred.dataset.media;
 								delete deferred.dataset.media;
 							} );
-						insertStyle( template.content );
+						insertStyle( template.content, item.handle );
 					} else if ( 'string' === typeof item.src && ! item.conditional ) {
 						var link = document.createElement( 'link' );
 						link.rel = 'stylesheet';
@@ -466,7 +471,7 @@
 						if ( 'string' === typeof item.media ) {
 							link.media = item.media;
 						}
-						insertStyle( link );
+						insertStyle( link, item.handle );
 					} else {
 						return;
 					}
