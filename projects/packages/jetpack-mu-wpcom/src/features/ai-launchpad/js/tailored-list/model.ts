@@ -65,6 +65,8 @@ export interface LaunchpadData {
 	user_language?: string;
 	// The free DIFM offer banner under the task list, or null when it must not show.
 	difm_offer?: DifmOffer | null;
+	// Whether the launch task's CTA says "Publish" instead of "Launch".
+	use_publish_copy?: boolean;
 	// Whether the server has latched the list as done.
 	list_completed?: boolean;
 	// Whether the next tailoring is for an AI-built site.
