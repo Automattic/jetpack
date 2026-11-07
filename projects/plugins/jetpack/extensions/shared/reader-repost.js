@@ -1,8 +1,10 @@
 import { createBlock } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, resolveSelect, select } from '@wordpress/data';
 import { escapeAttribute, escapeHTML } from '@wordpress/escape-html';
+import { __ } from '@wordpress/i18n';
 import { getQueryArgs } from '@wordpress/url';
 import { waitForEditor } from './wait-for-editor';
+import '@wordpress/notices';
 
 const queryArgs = getQueryArgs( window.location.href );
 
@@ -265,8 +267,38 @@ if ( safeUrl ) {
 				);
 			}
 		}
-		blocks.push( createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } ) );
+		const embed = createBlock( 'core/embed', { url: safeUrl, type: 'wp-embed' } );
+		blocks.push( embed );
 
 		dispatch( 'core/editor' ).resetEditorBlocks( blocks );
+
+		const preview = await resolveSelect( 'core' ).getEmbedPreview( safeUrl );
+		if ( preview?.html && ! select( 'core' ).isPreviewEmbedFallback( safeUrl ) ) {
+			return;
+		}
+
+		const currentBlock = select( 'core/block-editor' ).getBlock( embed.clientId );
+		if (
+			! currentBlock ||
+			currentBlock.name !== 'core/embed' ||
+			currentBlock.attributes.url !== safeUrl
+		) {
+			return;
+		}
+
+		dispatch( 'core/block-editor' ).replaceBlocks(
+			embed.clientId,
+			createBlock( 'core/paragraph', {
+				content: `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( safeUrl ) }</a>`,
+			} )
+		);
+		dispatch( 'core/notices' ).createNotice(
+			'warning',
+			__(
+				'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
+				'jetpack'
+			),
+			{ isDismissible: true }
+		);
 	} )();
 }

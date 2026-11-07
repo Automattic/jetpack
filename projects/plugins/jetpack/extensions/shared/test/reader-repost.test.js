@@ -10,14 +10,41 @@
  * back out of the inner blocks for both jobs.
  */
 
-const mockResetEditorBlocks = jest.fn();
+let mockEditorBlocks;
+let mockClientId = 0;
+const mockResetEditorBlocks = jest.fn( blocks => {
+	mockEditorBlocks = blocks;
+} );
+const mockGetEmbedPreview = jest.fn();
+const mockCreateNotice = jest.fn();
 
 jest.mock( '@wordpress/data', () => ( {
-	dispatch: () => ( { resetEditorBlocks: mockResetEditorBlocks } ),
+	dispatch: store => {
+		switch ( store ) {
+			case 'core/editor':
+				return { resetEditorBlocks: mockResetEditorBlocks };
+			case 'core/block-editor':
+				return {
+					replaceBlocks: ( clientId, replacement ) => {
+						mockEditorBlocks = mockEditorBlocks.map( block =>
+							block.clientId === clientId ? replacement : block
+						);
+					},
+				};
+			case 'core/notices':
+				return { createNotice: mockCreateNotice };
+		}
+	},
+	resolveSelect: () => ( { getEmbedPreview: mockGetEmbedPreview } ),
+	select: store =>
+		store === 'core/block-editor'
+			? { getBlock: clientId => mockEditorBlocks.find( block => block.clientId === clientId ) }
+			: { isPreviewEmbedFallback: () => false },
 } ) );
 
 jest.mock( '@wordpress/blocks', () => ( {
 	createBlock: ( name, attributes = {}, innerBlocks = [] ) => ( {
+		clientId: `block-${ mockClientId++ }`,
 		name,
 		attributes,
 		innerBlocks,
@@ -28,6 +55,8 @@ jest.mock( '../wait-for-editor', () => ( {
 	waitForEditor: () => Promise.resolve(),
 } ) );
 
+jest.mock( '@wordpress/notices', () => ( {} ) );
+
 /**
  * Loads the module against a real editor URL and returns the blocks it produced.
  *
@@ -37,10 +66,11 @@ jest.mock( '../wait-for-editor', () => ( {
  * it in isolation per case and flushes the task queue before reading the result.
  *
  * @param {string} queryString - Raw query string, without the leading `?`.
- * @return {Promise<Array|null>} The blocks passed to resetEditorBlocks, or null if never called.
+ * @return {Promise<Array|null>} The resulting editor blocks, or null if never initialized.
  */
 async function loadWithQueryString( queryString ) {
 	mockResetEditorBlocks.mockClear();
+	mockEditorBlocks = null;
 	window.history.replaceState( {}, '', `/wp-admin/post-new.php?${ queryString }` );
 
 	await jest.isolateModulesAsync( async () => {
@@ -48,9 +78,7 @@ async function loadWithQueryString( queryString ) {
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 	} );
 
-	return mockResetEditorBlocks.mock.calls.length
-		? mockResetEditorBlocks.mock.calls[ 0 ][ 0 ]
-		: null;
+	return mockEditorBlocks;
 }
 
 /**
@@ -60,7 +88,7 @@ async function loadWithQueryString( queryString ) {
  * bracket syntax that produces array values.
  *
  * @param {object} queryArgs - Query args to encode into the editor URL.
- * @return {Promise<Array|null>} The blocks passed to resetEditorBlocks, or null if never called.
+ * @return {Promise<Array|null>} The resulting editor blocks, or null if never initialized.
  */
 function loadWithQueryArgs( queryArgs ) {
 	return loadWithQueryString( new URLSearchParams( queryArgs ).toString() );
@@ -120,6 +148,36 @@ function getRenderedTagNames( html ) {
 }
 
 describe( 'reader-repost', () => {
+	beforeEach( () => {
+		mockGetEmbedPreview.mockReset().mockResolvedValue( { html: '<iframe></iframe>' } );
+		mockCreateNotice.mockClear();
+	} );
+
+	it( 'replaces a failed repost embed with a source link and an explanation', async () => {
+		mockGetEmbedPreview.mockResolvedValue( false );
+		const url = 'https://example.com/post?a=1&b=2';
+		const blocks = await loadWithQueryArgs( {
+			url,
+			comment_content: '<p>A comment worth keeping.</p>',
+			comment_author: 'Comment author',
+		} );
+
+		expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+			'A comment worth keeping.',
+		] );
+		expect( getQuoteBlocks( blocks )[ 0 ].attributes.citation ).toBe( 'Comment author' );
+		expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', 'core/paragraph' ] );
+		const container = document.createElement( 'div' );
+		container.innerHTML = blocks[ 1 ].attributes.content;
+		expect( container.querySelector( 'a' ) ).toHaveAttribute( 'href', url );
+		expect( container.querySelector( 'a' ) ).toHaveTextContent( url );
+		expect( mockCreateNotice ).toHaveBeenCalledWith(
+			'warning',
+			'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
+			{ isDismissible: true }
+		);
+	} );
+
 	describe( 'end to end', () => {
 		it( 'produces no executable markup anywhere in the resulting blocks', async () => {
 			const blocks = await loadWithQueryArgs( {
