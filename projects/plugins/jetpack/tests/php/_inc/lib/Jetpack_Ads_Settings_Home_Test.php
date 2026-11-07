@@ -58,6 +58,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG );
 		remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 		wp_dequeue_script( 'jp-tracks' );
 		Jetpack_Options::delete_option( 'tos_agreed' );
@@ -187,9 +188,8 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		if ( ! empty( $site['rest'] ) ) {
 			Constants::set_constant( 'REST_REQUEST', true );
 		}
-		if ( ! empty( $site['offline'] ) ) {
-			add_filter( 'jetpack_offline_mode', '__return_true' );
-		}
+		// Pin it either way: an earlier test can leave a local site URL, which Status reads as offline.
+		add_filter( 'jetpack_offline_mode', empty( $site['offline'] ) ? '__return_false' : '__return_true' );
 		if ( ! empty( $site['connected'] ) ) {
 			add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		}
