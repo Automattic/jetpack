@@ -18,6 +18,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import { getAdsSettingsUrl } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -244,12 +245,18 @@ export class Main extends Component {
 					break;
 				}
 			// Falls through.
+			case '/earn':
+				// `/security` falls through here, so check the route.
+				if ( '/earn' === route && getAdsSettingsUrl() ) {
+					window.location.replace( getAdsSettingsUrl() );
+					break;
+				}
+			// Falls through.
 			case '/settings':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
-			case '/earn':
 			case '/reader':
 			case '/traffic':
 			case '/privacy':
