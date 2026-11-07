@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Let a host pass the comment editor a fetcher for embed previews, so it can sign the request in.
