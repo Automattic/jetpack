@@ -433,6 +433,15 @@
 
 			// If additional stylesheets are required by the incoming set of posts, parse them
 			if ( response.styles && Array.isArray( response.styles ) ) {
+				// Core prints block styles before the Customizer's Additional CSS, so keep that order.
+				var customCss = document.getElementById( 'wp-custom-css' );
+				var insertStyle = function ( node ) {
+					document.head.insertBefore(
+						node,
+						customCss && customCss.parentNode === document.head ? customCss : null
+					);
+				};
+
 				response.styles.forEach( function ( item ) {
 					if ( 'string' !== typeof item.handle ) {
 						return;
@@ -448,7 +457,7 @@
 								deferred.media = deferred.dataset.media;
 								delete deferred.dataset.media;
 							} );
-						document.head.appendChild( template.content );
+						insertStyle( template.content );
 					} else if ( 'string' === typeof item.src && ! item.conditional ) {
 						var link = document.createElement( 'link' );
 						link.rel = 'stylesheet';
@@ -457,7 +466,7 @@
 						if ( 'string' === typeof item.media ) {
 							link.media = item.media;
 						}
-						document.head.appendChild( link );
+						insertStyle( link );
 					} else {
 						return;
 					}

@@ -1169,7 +1169,7 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Drop the printed markup from entries whose `src` a filter rewrote, so the client loads the new URL.
+	 * Point the printed markup of entries whose `src` a filter rewrote at the new URL.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1188,7 +1188,13 @@ class The_Neverending_Home_Page {
 				&& isset( $generated_src[ $style['handle'] ] )
 				&& $style['src'] !== $generated_src[ $style['handle'] ]
 			) {
-				unset( $styles[ $i ]['html'] );
+				// Swap the URL in the printed tag so the handle's inline CSS still loads.
+				$html = str_replace( esc_url( $generated_src[ $style['handle'] ] ), esc_url( $style['src'] ), $style['html'], $count );
+				if ( $count ) {
+					$styles[ $i ]['html'] = $html;
+				} else {
+					unset( $styles[ $i ]['html'] );
+				}
 			}
 		}
 

@@ -188,6 +188,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$original_styles = $wp_styles;
 		$wp_styles       = new WP_Styles();
 		$wp_styles->add( 'is-cdn', 'https://example.org/is-cdn.css', array(), '1.0' );
+		$wp_styles->add_inline_style( 'is-cdn', '.is-cdn-inline{color:red}' );
 		$wp_styles->add( 'is-untouched', 'https://example.org/is-untouched.css', array(), '1.0' );
 		$wp_styles->done    = array( 'is-cdn', 'is-untouched' );
 		$_REQUEST['styles'] = array( 'is-theme' );
@@ -215,8 +216,10 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 			$wp_styles = $original_styles;
 		}
 
-		$this->assertArrayNotHasKey( 'html', $results['styles'][0] );
 		$this->assertSame( 'https://cdn.example.org/is-cdn.css', $results['styles'][0]['src'] );
+		$this->assertStringContainsString( "href='https://cdn.example.org/is-cdn.css'", $results['styles'][0]['html'] );
+		$this->assertStringNotContainsString( 'https://example.org/is-cdn.css', $results['styles'][0]['html'] );
+		$this->assertStringContainsString( '.is-cdn-inline{color:red}', $results['styles'][0]['html'] );
 		$this->assertArrayHasKey( 'html', $results['styles'][1] );
 		$this->assertSame(
 			array(

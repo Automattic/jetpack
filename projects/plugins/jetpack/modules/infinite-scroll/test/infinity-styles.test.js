@@ -84,6 +84,21 @@ describe( 'Infinite Scroll response styles', () => {
 		expect( document.getElementById( 'is-async-css' ).dataset.media ).toBe( 'print' );
 	} );
 
+	test( 'inserts styles before the Additional CSS, as core does', () => {
+		document.head.innerHTML = '<style id="wp-custom-css">.wp-block-quote{color:red}</style>';
+
+		respond( [
+			{ handle: 'is-ordered', html: '<style id="is-ordered">.wp-block-quote{color:blue}</style>' },
+			{ handle: 'is-ordered-link', src: 'https://example.org/o.css' },
+		] );
+
+		expect( [ ...document.head.children ].map( node => node.id ) ).toEqual( [
+			'is-ordered',
+			'is-ordered-link-css',
+			'wp-custom-css',
+		] );
+	} );
+
 	test( 'loads entries that only have a src, and skips IE-only and handle-less entries', () => {
 		respond( [
 			{ handle: 'is-filtered', src: 'https://example.org/f.css', media: 'print' },
