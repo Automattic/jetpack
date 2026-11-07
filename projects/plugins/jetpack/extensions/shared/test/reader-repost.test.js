@@ -12,9 +12,6 @@
 
 let mockEditorBlocks;
 let mockClientId = 0;
-const mockResetEditorBlocks = jest.fn( blocks => {
-	mockEditorBlocks = blocks;
-} );
 const mockGetEmbedPreview = jest.fn();
 const mockCreateNotice = jest.fn();
 
@@ -22,7 +19,11 @@ jest.mock( '@wordpress/data', () => ( {
 	dispatch: store => {
 		switch ( store ) {
 			case 'core/editor':
-				return { resetEditorBlocks: mockResetEditorBlocks };
+				return {
+					resetEditorBlocks: blocks => {
+						mockEditorBlocks = blocks;
+					},
+				};
 			case 'core/block-editor':
 				return {
 					replaceBlocks: ( clientId, replacement ) => {
@@ -69,7 +70,6 @@ jest.mock( '@wordpress/notices', () => ( {} ) );
  * @return {Promise<Array|null>} The resulting editor blocks, or null if never initialized.
  */
 async function loadWithQueryString( queryString ) {
-	mockResetEditorBlocks.mockClear();
 	mockEditorBlocks = null;
 	window.history.replaceState( {}, '', `/wp-admin/post-new.php?${ queryString }` );
 
@@ -149,7 +149,7 @@ function getRenderedTagNames( html ) {
 
 describe( 'reader-repost', () => {
 	beforeEach( () => {
-		mockGetEmbedPreview.mockReset().mockResolvedValue( { html: '<iframe></iframe>' } );
+		mockGetEmbedPreview.mockResolvedValue( { html: '<iframe></iframe>' } );
 		mockCreateNotice.mockClear();
 	} );
 
