@@ -177,12 +177,33 @@ class Admin_Page_Test extends BaseTestCase {
 	public static function provide_site_visibility_states(): array {
 		return array(
 			'public without launch status' => array( array( 'blog_public' => '1' ), null, true ),
-			'public and launched'          => array( array( 'blog_public' => '1', 'launch-status' => 'launched' ), null, true ),
+			'public and launched'          => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'launched',
+				),
+				null,
+				true,
+			),
 			'discouraged string'           => array( array( 'blog_public' => '0' ), null, false ),
 			'discouraged integer'          => array( array( 'blog_public' => 0 ), null, false ),
 			'private'                      => array( array( 'blog_public' => '-1' ), null, false ),
-			'unlaunched'                   => array( array( 'blog_public' => '1', 'launch-status' => 'unlaunched' ), null, false ),
-			'coming soon option'           => array( array( 'blog_public' => '1', 'wpcom_public_coming_soon' => 1 ), null, false ),
+			'unlaunched'                   => array(
+				array(
+					'blog_public'   => '1',
+					'launch-status' => 'unlaunched',
+				),
+				null,
+				false,
+			),
+			'coming soon option'           => array(
+				array(
+					'blog_public'              => '1',
+					'wpcom_public_coming_soon' => 1,
+				),
+				null,
+				false,
+			),
 			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
 			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
 		);

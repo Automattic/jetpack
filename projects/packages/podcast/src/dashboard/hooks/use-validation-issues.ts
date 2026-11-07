@@ -1,4 +1,7 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+// Submission readiness for podcast directories. Pure helper for the Settings
+// draft; hook variant adds cover-media + episode-presence checks for the
+// Distribution Submit gate.
+
 import { useEntityRecord, useEntityRecords } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { usePodcastSettings } from './use-podcast-settings';
@@ -49,7 +52,7 @@ export const getValidationIssues = ( settings: PodcastSettings | undefined ): st
 };
 
 /**
- * `getValidationIssues` plus site visibility, cover media and episode presence.
+ * `getValidationIssues` plus cover MIME/dimension/square + episode-presence.
  *
  * @param settings            - Saved settings, or undefined for "not loaded".
  * @param cover               - Cover image media record, or undefined.
@@ -64,14 +67,6 @@ const getDistributionIssues = (
 	const issues = getValidationIssues( settings );
 	if ( ! settings ) {
 		return issues;
-	}
-	if ( getScriptData()?.podcast?.is_site_public === false ) {
-		issues.push(
-			__(
-				'Make your site public and allow search engines to access it before submitting to YouTube.',
-				'jetpack-podcast'
-			)
-		);
 	}
 	if ( settings.podcasting_category_id > 0 && hasPublishedEpisode === false ) {
 		issues.push( __( 'Publish at least one episode.', 'jetpack-podcast' ) );
@@ -96,7 +91,8 @@ const getDistributionIssues = (
 };
 
 /**
- * Distribution Submit gate. Reads site visibility, cover media and episode presence.
+ * Distribution Submit gate. Reads cover media + an episode probe alongside
+ * saved settings; both subqueries are `enabled`-gated.
  *
  * @return `{ issues, isLoading }` — issues suppressed during load.
  */

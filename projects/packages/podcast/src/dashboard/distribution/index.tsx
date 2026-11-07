@@ -1,4 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getScriptData, getSiteData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -115,7 +116,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						'jetpack-podcast'
 					),
 					issues.length
-				)
+			  )
 			: '';
 
 	const setupStepsLeftLabel =
@@ -129,7 +130,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						'jetpack-podcast'
 					),
 					issues.length
-				)
+			  )
 			: '';
 
 	const automaticBlocked = blockedReason(
@@ -156,6 +157,20 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 
 	return (
 		<>
+			{ getScriptData()?.podcast?.is_site_public === false && (
+				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
+					{ __(
+						'Launch your site, make it public, and allow search engines to access it before submitting to YouTube.',
+						'jetpack-podcast'
+					) }{ ' ' }
+					<Button
+						variant="link"
+						href={ `${ getSiteData()?.admin_url ?? '/wp-admin/' }options-reading.php` }
+					>
+						{ __( 'Edit site visibility', 'jetpack-podcast' ) }
+					</Button>
+				</Notice>
+			) }
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false } className="podcast__distribution-notice">
 					<strong>{ setupStepsLeftLabel }</strong>
