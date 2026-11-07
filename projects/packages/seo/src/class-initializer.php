@@ -187,11 +187,7 @@ class Initializer {
 		// Overview).
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_reads' ) );
 
-		// Keep the Overview's cached content-coverage counts honest. Hooked here rather than
-		// alongside the admin surface above because posts are written from everywhere — the
-		// block editor (REST), the classic editor, wp-cli, cron, other plugins — and the
-		// cache has to be dropped wherever that happens, not just where it's read.
-		Content_Coverage::register_invalidation();
+		self::register_write_hooks();
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
@@ -240,6 +236,17 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_seo_init' );
+	}
+
+	/**
+	 * Hook what any request that saves content needs: clearing the Overview counts and the
+	 * stored llms.txt. WordPress.com calls this on its API requests, which skip init().
+	 *
+	 * @return void
+	 */
+	public static function register_write_hooks() {
+		Content_Coverage::register_invalidation();
+		Llms_Txt::register_invalidation();
 	}
 
 	/**
