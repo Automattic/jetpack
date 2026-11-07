@@ -1097,10 +1097,7 @@ class The_Neverending_Home_Page {
 
 			$registered = $wp_styles->registered[ $handle ];
 			if ( is_string( $registered->src ) && '' !== $registered->src ) {
-				$ver = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
-				if ( isset( $wp_styles->args[ $handle ] ) ) {
-					$ver = $ver ? $ver . '&amp;' . $wp_styles->args[ $handle ] : $wp_styles->args[ $handle ];
-				}
+				$ver            = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
 				$style['src']   = wp_specialchars_decode( $wp_styles->_css_href( $registered->src, $ver, $handle ), ENT_QUOTES );
 				$style['media'] = $registered->args ? $registered->args : 'all';
 			}

@@ -106,6 +106,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$wp_styles->add_inline_style( 'is-inlined', '.is-inlined-test{color:red}' );
 		$wp_styles->add( 'is-linked', 'https://example.org/is-linked.css', array(), '1.0' );
 		$wp_styles->add( 'is-new-linked', 'https://example.org/is-new-linked.css', array(), '2.0', 'print' );
+		$wp_styles->args['is-new-linked'] = 'family=Inter';
 		$wp_styles->add( 'is-empty', false );
 		$wp_styles->done      = array( 'is-inlined', 'is-linked', 'is-new-linked', 'is-empty', 'is-unregistered' );
 		$wp_styles->do_concat = true;
@@ -115,7 +116,10 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'is-inlined', 'is-new-linked' ), array_column( $styles, 'handle' ) );
 		$this->assertStringContainsString( '.is-inlined-test{color:red}', $styles[0]['html'] );
 		$this->assertArrayNotHasKey( 'src', $styles[0] );
-		$this->assertSame( 'https://example.org/is-new-linked.css?ver=2.0', $styles[1]['src'] );
+		$this->assertMatchesRegularExpression( "/href='([^']+)'/", $styles[1]['html'] );
+		preg_match( "/href='([^']+)'/", $styles[1]['html'], $printed );
+		$this->assertSame( wp_specialchars_decode( $printed[1], ENT_QUOTES ), $styles[1]['src'] );
+		$this->assertStringContainsString( 'family=Inter', $styles[1]['src'] );
 		$this->assertSame( 'print', $styles[1]['media'] );
 		$this->assertTrue( $wp_styles->do_concat );
 	}
@@ -167,6 +171,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 			$wp_styles->done = array( 'global-styles', 'wp-block-quote' );
 			$styles          = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'global-styles' ) );
 			$on_page         = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'global-styles', 'wp-block-quote' ) );
+			$no_global       = The_Neverending_Home_Page::get_new_styles( $wp_styles, array() );
 		} finally {
 			remove_filter( 'wp_theme_json_data_theme', $add_quote_style );
 			WP_Theme_JSON_Resolver::clean_cached_data();
@@ -175,6 +180,7 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'global-styles' ), array_column( $styles, 'handle' ) );
 		$this->assertStringContainsString( '#ffe08a', $styles[0]['html'] );
 		$this->assertSame( array(), $on_page );
+		$this->assertSame( array(), $no_global );
 	}
 
 	public function test_filter_rewriting_src_makes_client_load_the_new_url() {
@@ -192,6 +198,11 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 					$style['src'] = 'https://cdn.example.org/is-cdn.css';
 				}
 			}
+			$styles[] = array(
+				'handle' => 'is-added',
+				'src'    => 'https://example.org/is-added.css',
+				'media'  => 'all',
+			);
 			return $styles;
 		};
 		add_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
@@ -207,6 +218,28 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'html', $results['styles'][0] );
 		$this->assertSame( 'https://cdn.example.org/is-cdn.css', $results['styles'][0]['src'] );
 		$this->assertArrayHasKey( 'html', $results['styles'][1] );
+		$this->assertSame(
+			array(
+				'handle' => 'is-added',
+				'src'    => 'https://example.org/is-added.css',
+				'media'  => 'all',
+			),
+			$results['styles'][2]
+		);
+	}
+
+	public function test_styles_filter_returning_nothing_drops_the_styles_key() {
+		$_REQUEST['styles'] = array( 'is-theme' );
+		add_filter( 'infinite_scroll_additional_stylesheets', '__return_false' );
+
+		try {
+			$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
+		} finally {
+			remove_filter( 'infinite_scroll_additional_stylesheets', '__return_false' );
+			unset( $_REQUEST['styles'] );
+		}
+
+		$this->assertArrayNotHasKey( 'styles', $results );
 	}
 
 	/**
