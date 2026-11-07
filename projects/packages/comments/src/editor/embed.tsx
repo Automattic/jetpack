@@ -20,7 +20,13 @@ import {
 	useState,
 } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import type { EmbedAttributes, EmbedEditProps, EmbedLookup, EmbedPreview } from './types';
+import type {
+	EditorProps,
+	EmbedAttributes,
+	EmbedEditProps,
+	EmbedLookup,
+	EmbedPreview,
+} from './types';
 import type { EditorLabels } from '../shared/types';
 import type { ChangeEvent, FormEvent } from 'react';
 
@@ -29,6 +35,7 @@ const NAME = 'core/embed';
 let labels: EditorLabels;
 // Off on the edit-comment screen, where a provider's markup would share wp-admin's origin and the URL is enough.
 let previewEmbeds = true;
+let fetchEmbed: EditorProps[ 'fetchEmbed' ];
 
 // Module scope, where Terser cannot fold the two calls into one `_x( failed ? … : … )`.
 const embedLabel = _x( 'Embed', 'button label', 'default' );
@@ -75,9 +82,15 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Em
 		let stale = false;
 		setPreview( null );
 		setFailed( false );
-		const target = new URL( labels.embedUrl, window.location.href );
-		target.searchParams.set( 'url', url );
-		fetch( target.toString(), { credentials: 'omit' } )
+		const lookup = () => {
+			if ( fetchEmbed ) {
+				return fetchEmbed( url );
+			}
+			const target = new URL( labels.embedUrl, window.location.href );
+			target.searchParams.set( 'url', url );
+			return fetch( target.toString(), { credentials: 'omit' } );
+		};
+		lookup()
 			.then( ( response ): Promise< EmbedLookup > | EmbedLookup => {
 				if ( response.status >= 400 && response.status < 500 && response.status !== 429 ) {
 					return 'unsupported';
@@ -225,10 +238,16 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Em
  *
  * @param editorLabels - The editor's labels, with the route.
  * @param preview      - Whether to fetch and draw provider previews. Off, the block shows its URL.
+ * @param fetcher      - Asks for a preview in place of an unsigned fetch of the route.
  */
-export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true ) => {
+export const registerEmbedBlock = (
+	editorLabels: EditorLabels,
+	preview = true,
+	fetcher?: EditorProps[ 'fetchEmbed' ]
+) => {
 	labels = editorLabels;
 	previewEmbeds = preview;
+	fetchEmbed = fetcher;
 
 	if ( ! labels.embedUrl || getBlockType( NAME ) ) {
 		return;
