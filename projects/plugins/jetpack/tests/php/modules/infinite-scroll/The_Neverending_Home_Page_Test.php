@@ -166,6 +166,10 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		add_filter( 'wp_theme_json_data_theme', $add_quote_style );
 		WP_Theme_JSON_Resolver::clean_cached_data();
 
+		$styles    = array();
+		$on_page   = array();
+		$no_global = array();
+
 		try {
 			$wp_styles       = new WP_Styles();
 			$wp_styles->done = array( 'global-styles', 'wp-block-quote' );
@@ -208,6 +212,8 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		};
 		add_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
 
+		$results = array();
+
 		try {
 			$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
 		} finally {
@@ -234,6 +240,8 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	public function test_styles_filter_returning_nothing_drops_the_styles_key() {
 		$_REQUEST['styles'] = array( 'is-theme' );
 		add_filter( 'infinite_scroll_additional_stylesheets', '__return_false' );
+
+		$results = array();
 
 		try {
 			$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), array() );
