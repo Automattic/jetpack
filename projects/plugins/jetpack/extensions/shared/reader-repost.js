@@ -272,16 +272,20 @@ if ( safeUrl ) {
 
 		dispatch( 'core/editor' ).resetEditorBlocks( blocks );
 
-		const preview = await resolveSelect( 'core' ).getEmbedPreview( safeUrl );
-		if ( preview?.html && ! select( 'core' ).isPreviewEmbedFallback( safeUrl ) ) {
-			return;
+		// Core retries failed embeds without a trailing slash.
+		const previewUrls = safeUrl.endsWith( '/' ) ? [ safeUrl, safeUrl.slice( 0, -1 ) ] : [ safeUrl ];
+		for ( const previewUrl of previewUrls ) {
+			const preview = await resolveSelect( 'core' ).getEmbedPreview( previewUrl );
+			if ( preview?.html && ! select( 'core' ).isPreviewEmbedFallback( previewUrl ) ) {
+				return;
+			}
 		}
 
 		const currentBlock = select( 'core/block-editor' ).getBlock( embed.clientId );
 		if (
 			! currentBlock ||
 			currentBlock.name !== 'core/embed' ||
-			currentBlock.attributes.url !== safeUrl
+			! previewUrls.includes( currentBlock.attributes.url )
 		) {
 			return;
 		}

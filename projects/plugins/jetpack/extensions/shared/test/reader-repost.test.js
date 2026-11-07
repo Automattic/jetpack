@@ -149,13 +149,23 @@ function getRenderedTagNames( html ) {
 
 describe( 'reader-repost', () => {
 	beforeEach( () => {
+		mockGetEmbedPreview.mockReset();
 		mockGetEmbedPreview.mockResolvedValue( { html: '<iframe></iframe>' } );
 		mockCreateNotice.mockClear();
 	} );
 
-	it( 'replaces a failed repost embed with a source link and an explanation', async () => {
+	it.each( [
+		[ 'https://example.com/post?a=1&b=2', false ],
+		[ 'https://example.com/post/', false ],
+		[ 'https://example.com/post/', true ],
+	] )( 'replaces a failed embed of %s with a link (core retry: %s)', async ( url, coreRetries ) => {
 		mockGetEmbedPreview.mockResolvedValue( false );
-		const url = 'https://example.com/post?a=1&b=2';
+		mockGetEmbedPreview.mockImplementationOnce( async () => {
+			if ( coreRetries ) {
+				getEmbedBlock( mockEditorBlocks ).attributes.url = url.replace( /\/$/, '' );
+			}
+			return false;
+		} );
 		const blocks = await loadWithQueryArgs( {
 			url,
 			comment_content: '<p>A comment worth keeping.</p>',
@@ -176,6 +186,48 @@ describe( 'reader-repost', () => {
 			'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
 			{ isDismissible: true }
 		);
+	} );
+
+	it.each( [ false, true ] )(
+		'waits for a successful slashless preview (core retry: %s)',
+		async coreRetries => {
+			const url = 'https://example.com/post/';
+			let resolveRetry;
+			mockGetEmbedPreview.mockReturnValue(
+				new Promise( resolve => {
+					resolveRetry = resolve;
+				} )
+			);
+			mockGetEmbedPreview.mockImplementationOnce( async () => {
+				if ( coreRetries ) {
+					getEmbedBlock( mockEditorBlocks ).attributes.url = url.replace( /\/$/, '' );
+				}
+				return false;
+			} );
+
+			await loadWithQueryArgs( { url } );
+			expect( mockGetEmbedPreview.mock.calls ).toEqual( [ [ url ], [ url.replace( /\/$/, '' ) ] ] );
+			expect( getEmbedBlock( mockEditorBlocks ) ).toBeDefined();
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
+
+			resolveRetry( { html: '<iframe></iframe>' } );
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+			expect( getEmbedBlock( mockEditorBlocks ) ).toBeDefined();
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'preserves a different URL entered while the slashless preview is pending', async () => {
+		mockGetEmbedPreview.mockResolvedValue( false );
+		mockGetEmbedPreview.mockImplementationOnce( async () => false );
+		mockGetEmbedPreview.mockImplementationOnce( async () => {
+			getEmbedBlock( mockEditorBlocks ).attributes.url = 'https://example.com/edited';
+			return false;
+		} );
+
+		const blocks = await loadWithQueryArgs( { url: 'https://example.com/post/' } );
+		expect( getEmbedBlock( blocks ).attributes.url ).toBe( 'https://example.com/edited' );
+		expect( mockCreateNotice ).not.toHaveBeenCalled();
 	} );
 
 	describe( 'end to end', () => {
