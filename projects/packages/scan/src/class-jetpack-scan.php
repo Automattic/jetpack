@@ -108,7 +108,14 @@ class Jetpack_Scan {
 		if ( self::is_scan_admin_request() ) {
 			WP_Build_Polyfills::register(
 				'jetpack-scan',
-				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+				array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+				null,
+				array(
+					array(
+						'prefix' => 'jetpack_scan',
+						'slug'   => self::PAGE_SLUG,
+					),
+				)
 			);
 		}
 

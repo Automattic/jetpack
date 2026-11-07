@@ -92,9 +92,6 @@ patchedDependencies:
   # It also restores the `boot-layout-container` class on the mount element,
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
-  # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
-  # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
-  # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
 
   # The CommonJS build of 44.0.0 resolves `BaseControl` for `useBaseControlProps`

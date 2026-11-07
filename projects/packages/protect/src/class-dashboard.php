@@ -477,7 +477,14 @@ class Dashboard {
 
 		WP_Build_Polyfills::register(
 			'jetpack-protect',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_protect',
+					'slug'   => self::WP_BUILD_PAGE_ID,
+				),
+			)
 		);
 
 		return true;

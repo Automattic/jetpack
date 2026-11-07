@@ -128,15 +128,25 @@ class WP_Build_Polyfills {
 	 *
 	 * Every call also arms WP_Build_Admin_Frame for the request, which keeps the boot
 	 * single-page layout in step with the wp-admin frame on every wp-build page.
+	 * Each call adds the site-data preload filter for its supplied wp-build pages.
 	 *
-	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
-	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
-	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
-	 * @param string   $wp_version_threshold  The WordPress version below which force-replacements
-	 *                                        are applied. Defaults to '7.0'.
+	 * @param string      $consumer             A unique identifier for the consumer (e.g. plugin slug).
+	 * @param string[]    $polyfills            List of polyfill handles/module IDs to register.
+	 *                                          Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
+	 * @param string|null $wp_version_threshold The WordPress version below which force-replacements
+	 *                                          are applied. Null leaves the shared threshold unchanged.
+	 * @param array[]     $pages                wp-build pages, each with a 'slug' and an optional 'prefix'
+	 *                                          matching wpPlugin.name (defaults to 'gutenberg').
 	 */
-	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
+	public static function register( $consumer, $polyfills, $wp_version_threshold = null, $pages = array() ) {
 		WP_Build_Admin_Frame::register();
+
+		foreach ( $pages as $page ) {
+			if ( ! is_array( $page ) || ! isset( $page['slug'] ) || ! is_string( $page['slug'] ) || '' === $page['slug'] ) {
+				continue;
+			}
+			add_filter( self::page_filter( $page, 'wp_admin_preload_paths' ), array( __CLASS__, 'add_site_data_preload' ) );
+		}
 
 		$added = array();
 		foreach ( $polyfills as $handle ) {
@@ -157,7 +167,7 @@ class WP_Build_Polyfills {
 			}
 		}
 
-		$raised = version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
+		$raised = null !== $wp_version_threshold && version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' );
 		if ( $raised ) {
 			self::$wp_version_threshold = $wp_version_threshold;
 		}
@@ -193,6 +203,38 @@ class WP_Build_Polyfills {
 			},
 			20
 		);
+	}
+
+	/**
+	 * Construct a wp-build page's filter name.
+	 *
+	 * @param array  $page   Page slug and optional plugin prefix.
+	 * @param string $suffix Filter suffix.
+	 * @return string Filter name.
+	 */
+	private static function page_filter( $page, $suffix ) {
+		$prefix = $page['prefix'] ?? 'gutenberg';
+		if ( '' === $prefix ) {
+			$prefix = 'gutenberg';
+		}
+		return str_replace( '-', '_', $prefix . '_' . $page['slug'] ) . '_' . $suffix;
+	}
+
+	/**
+	 * Add the site-data request used by WordPress 7.1.
+	 *
+	 * @since $$next-version$$
+	 * @param array $paths REST API paths to preload.
+	 * @return array REST API paths to preload.
+	 */
+	public static function add_site_data_preload( $paths ) {
+		// Keep site data preloaded until no supported WordPress uses the 7.1 field list.
+		// https://github.com/WordPress/gutenberg/pull/86185 keeps routes available after failure but does not change the list.
+		$path = '/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front';
+		if ( ! in_array( $path, $paths, true ) ) {
+			$paths[] = $path;
+		}
+		return $paths;
 	}
 
 	/**
