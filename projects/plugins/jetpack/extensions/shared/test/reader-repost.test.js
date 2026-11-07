@@ -18,6 +18,28 @@ let mockReplacementRefused;
 let mockClientId = 0;
 const mockGetEmbedPreview = jest.fn();
 const mockCreateNotice = jest.fn();
+const embedFailureExplanation =
+	'The original post could not be embedded. This can happen when its site is private or discourages search engines.';
+const failedEmbedCases = [
+	{
+		replacement: 'allowed',
+		expectedName: 'core/paragraph',
+		expectedWarning: `${ embedFailureExplanation } A link to the original post has been added instead.`,
+		expectedReplacementCount: 1,
+	},
+	{
+		replacement: 'refused',
+		expectedName: 'core/embed',
+		expectedWarning: embedFailureExplanation,
+		expectedReplacementCount: 1,
+	},
+	{
+		replacement: 'locked',
+		expectedName: 'core/embed',
+		expectedWarning: embedFailureExplanation,
+		expectedReplacementCount: 0,
+	},
+];
 const mockReplaceBlocks = jest.fn( ( clientId, replacement ) => {
 	if ( ! mockReplacementRefused ) {
 		const replace = blocks =>
@@ -243,15 +265,16 @@ describe( 'reader-repost', () => {
 			[ 'https://example.com/post/', true ],
 		].flatMap( ( [ url, coreRetries ] ) =>
 			[ false, true ].flatMap( showTemplate =>
-				[ 'allowed', 'refused', 'locked' ].map( replacement => ( {
+				failedEmbedCases.map( expected => ( {
 					url,
 					coreRetries,
 					showTemplate,
-					replacement,
+					...expected,
 				} ) )
 			)
 		)
-	)( 'handles a failed embed: %j', async ( { url, coreRetries, showTemplate, replacement } ) => {
+	)( 'handles a failed embed: %j', async ( { url, coreRetries, showTemplate, ...expected } ) => {
+		const { replacement, expectedName, expectedWarning, expectedReplacementCount } = expected;
 		mockShowTemplate = showTemplate;
 		mockReplacementRefused = replacement === 'refused';
 		mockCanRemoveBlock = replacement !== 'locked';
@@ -274,36 +297,33 @@ describe( 'reader-repost', () => {
 			'A comment worth keeping.',
 		] );
 		expect( getQuoteBlocks( blocks )[ 0 ].attributes.citation ).toBe( 'Comment author' );
-		if ( showTemplate ) {
-			expect( storeEmbedId ).not.toBe( getEmbedBlock( mockEditorBlocks ).clientId );
-			expect( mockGetBlock( 'template-embed' ).name ).toBe( 'core/embed' );
-			expect( mockGetBlock( 'query-embed' ).name ).toBe( 'core/embed' );
-		}
-		if ( replacement !== 'allowed' ) {
-			expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', 'core/embed' ] );
-			expect( mockCreateNotice ).toHaveBeenCalledWith(
-				'warning',
-				'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
-				{ isDismissible: true }
-			);
-			if ( replacement === 'locked' ) {
-				expect( mockReplaceBlocks ).not.toHaveBeenCalled();
-			}
-			return;
-		}
-		expect( mockReplaceBlocks ).toHaveBeenCalledWith( storeEmbedId, blocks[ 1 ] );
-		expect( mockGetBlock( storeEmbedId ) ).toBeUndefined();
-		expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', 'core/paragraph' ] );
-		expect( blocks[ 1 ].attributes.content ).toContain( url.replace( /&/g, '&amp;' ) );
-		const container = document.createElement( 'div' );
-		container.innerHTML = blocks[ 1 ].attributes.content;
-		expect( container.querySelector( 'a' ) ).toHaveAttribute( 'href', url );
-		expect( container.querySelector( 'a' ) ).toHaveTextContent( url );
-		expect( mockCreateNotice ).toHaveBeenCalledWith(
-			'warning',
-			'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
-			{ isDismissible: true }
+		const entityEmbedId = getEmbedBlock( mockEditorBlocks ).clientId;
+		expect( storeEmbedId ).toBe( showTemplate ? `store-${ entityEmbedId }` : entityEmbedId );
+		expect( mockGetBlock( 'template-embed' )?.name ).toBe(
+			showTemplate ? 'core/embed' : undefined
 		);
+		expect( mockGetBlock( 'query-embed' )?.name ).toBe( showTemplate ? 'core/embed' : undefined );
+		const escapedUrl = url.replace( /&/g, '&amp;' );
+		const content = `<a href="${ escapedUrl }">${ escapedUrl }</a>`;
+		const paragraph = expect.objectContaining( {
+			name: 'core/paragraph',
+			attributes: { content },
+		} );
+		expect( mockReplaceBlocks.mock.calls ).toEqual(
+			expectedReplacementCount ? [ [ storeEmbedId, paragraph ] ] : []
+		);
+		expect( mockGetBlock( storeEmbedId ) ).toEqual(
+			expectedName === 'core/paragraph' ? undefined : blocks[ 1 ]
+		);
+		expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', expectedName ] );
+		expect( blocks[ 1 ].attributes ).toMatchObject(
+			expectedName === 'core/paragraph'
+				? { content }
+				: { url: coreRetries ? url.replace( /\/$/, '' ) : url }
+		);
+		expect( mockCreateNotice ).toHaveBeenCalledWith( 'warning', expectedWarning, {
+			isDismissible: true,
+		} );
 	} );
 
 	it.each(
@@ -848,16 +868,18 @@ describe( 'reader-repost with the block-editor provider', () => {
 	let React, createRoot, flushSync, data, createBlock, BlockEditorProvider, BlockList, waitFor;
 	beforeAll( () => {
 		jest.doMock( '@wordpress/data', () => {
-			const data = jest.requireActual( '@wordpress/data' );
+			const actualData = jest.requireActual( '@wordpress/data' );
 			const exports = {};
 			for ( const [ key, descriptor ] of Object.entries(
-				Object.getOwnPropertyDescriptors( data )
+				Object.getOwnPropertyDescriptors( actualData )
 			) ) {
 				Object.defineProperty( exports, key, { ...descriptor, configurable: true } );
 			}
 			Object.defineProperty( exports, 'resolveSelect', {
 				value: store =>
-					store === 'core' ? { getEmbedPreview: mockGetEmbedPreview } : data.resolveSelect( store ),
+					store === 'core'
+						? { getEmbedPreview: mockGetEmbedPreview }
+						: actualData.resolveSelect( store ),
 			} );
 			return exports;
 		} );
@@ -867,7 +889,7 @@ describe( 'reader-repost with the block-editor provider', () => {
 		React = require( 'react' );
 		( { createRoot } = require( 'react-dom/client' ) );
 		( { flushSync } = require( 'react-dom' ) );
-		( { waitFor } = require( '@testing-library/dom' ) );
+		( { waitFor } = require( '@testing-library/react/pure' ) );
 		data = require( '@wordpress/data' );
 		const { registerBlockType } = require( '@wordpress/blocks' );
 		( { createBlock } = require( '@wordpress/blocks' ) );
@@ -899,7 +921,7 @@ describe( 'reader-repost with the block-editor provider', () => {
 			apiVersion: 3,
 			title: 'Post Content',
 			category: 'theme',
-			edit() {
+			edit: function PostContent() {
 				const value = data.useSelect( select => select( 'core/editor' ).getEditorBlocks(), [] );
 				const props = useInnerBlocksProps( useBlockProps(), {
 					value,
@@ -913,9 +935,15 @@ describe( 'reader-repost with the block-editor provider', () => {
 	} );
 
 	it.each( [
-		{ delayed: false, replacement: 'allowed' },
-		...[ 'allowed', 'refused', 'locked' ].map( replacement => ( { delayed: true, replacement } ) ),
-	] )( 'handles cloned IDs and replacement permissions: %j', async ( { delayed, replacement } ) => {
+		{
+			delayed: false,
+			replacement: 'allowed',
+			expectedName: 'core/embed',
+			expectedWarning: undefined,
+		},
+		...failedEmbedCases.map( expected => ( { delayed: true, ...expected } ) ),
+	] )( 'handles cloned IDs and replacement permissions: %j', async ( { delayed, ...expected } ) => {
+		const { replacement, expectedName, expectedWarning } = expected;
 		data.dispatch( 'core/editor' ).resetEditorBlocks( [] );
 		data.dispatch( 'core/notices' ).removeNotices(
 			data
@@ -979,11 +1007,10 @@ describe( 'reader-repost with the block-editor provider', () => {
 			expect( storeEmbedId ).not.toBe( entityEmbedId );
 			if ( delayed ) {
 				finishPreview( false );
-				await waitFor( () =>
-					expect( data.select( 'core/notices' ).getNotices() ).toHaveLength( 1 )
-				);
 			}
-			const entityBlocks = data.select( 'core/editor' ).getEditorBlocks();
+			await waitFor( () =>
+				expect( data.select( 'core/notices' ).getNotices() ).toHaveLength( expectedWarning ? 1 : 0 )
+			);
 			const contentId = blockEditor.getBlocksByName( 'core/post-content' )[ 0 ];
 			const blocks = blockEditor.getBlocks( contentId );
 			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ).map( String ) ).toEqual( [
@@ -994,30 +1021,26 @@ describe( 'reader-repost with the block-editor provider', () => {
 			);
 			expect( blockEditor.getBlock( templateEmbed.clientId ).name ).toBe( 'core/embed' );
 			const notices = data.select( 'core/notices' ).getNotices();
-			if ( ! delayed ) {
-				// Cached failures can finish before controlled Post Content mounts its clones.
-				expect( notices ).toHaveLength( 0 );
-				expect( blocks[ 1 ].name ).toBe( 'core/embed' );
-				return;
-			}
-			expect( notices ).toHaveLength( 1 );
-			expect( notices[ 0 ] ).toMatchObject( { status: 'warning', isDismissible: true } );
-			if ( replacement === 'allowed' ) {
-				expect( blockEditor.getBlock( storeEmbedId ) ).toBeNull();
-				expect( blocks[ 1 ].name ).toBe( 'core/paragraph' );
-				const link = document.createElement( 'div' );
-				link.innerHTML = blocks[ 1 ].attributes.content;
-				expect( link.querySelector( 'a' ) ).toHaveAttribute( 'href', url );
-				expect( notices[ 0 ].content ).toContain(
-					'A link to the original post has been added instead.'
-				);
-			} else {
-				expect( blocks[ 1 ].name ).toBe( 'core/embed' );
-				expect( blocks[ 1 ].clientId ).not.toBe( entityBlocks[ 1 ].clientId );
-				expect( notices[ 0 ].content ).toBe(
-					'The original post could not be embedded. This can happen when its site is private or discourages search engines.'
-				);
-			}
+			expect(
+				notices.map( ( { status, isDismissible, content } ) => ( {
+					status,
+					isDismissible,
+					content,
+				} ) )
+			).toEqual(
+				expectedWarning
+					? [ { status: 'warning', isDismissible: true, content: expectedWarning } ]
+					: []
+			);
+			expect( blockEditor.getBlock( storeEmbedId ) ).toEqual(
+				expectedName === 'core/paragraph' ? null : blocks[ 1 ]
+			);
+			expect( blocks[ 1 ].clientId ).not.toBe( entityEmbedId );
+			const escapedUrl = url.replace( /&/g, '&amp;' );
+			expect( blocks[ 1 ].name ).toBe( expectedName );
+			expect( String( blocks[ 1 ].attributes.content ?? blocks[ 1 ].attributes.url ) ).toBe(
+				expectedName === 'core/paragraph' ? `<a href="${ escapedUrl }">${ escapedUrl }</a>` : url
+			);
 		} finally {
 			flushSync( () => root.unmount() );
 			container.remove();
