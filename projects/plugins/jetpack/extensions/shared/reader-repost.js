@@ -281,7 +281,37 @@ if ( safeUrl ) {
 			}
 		}
 
-		const currentBlock = select( 'core/block-editor' ).getBlock( embed.clientId );
+		const blockEditor = select( 'core/block-editor' );
+		let currentBlock = blockEditor.getBlock( embed.clientId );
+		if ( ! currentBlock ) {
+			const entityBlock = select( 'core/editor' )
+				.getEditorBlocks()
+				.find( block => block.clientId === embed.clientId );
+			if (
+				! entityBlock ||
+				entityBlock.name !== 'core/embed' ||
+				! previewUrls.includes( entityBlock.attributes.url )
+			) {
+				return;
+			}
+
+			// Controlled Post Content clones the entity blocks with different client IDs.
+			const candidates = blockEditor.getBlocksByName( 'core/embed' ).filter( clientId => {
+				const block = blockEditor.getBlock( clientId );
+				return (
+					block?.name === 'core/embed' &&
+					previewUrls.includes( block.attributes.url ) &&
+					blockEditor.getBlockName( blockEditor.getBlockRootClientId( clientId ) ) ===
+						'core/post-content' &&
+					blockEditor.getBlockParentsByBlockName( clientId, 'core/query' ).length === 0
+				);
+			} );
+			if ( candidates.length !== 1 ) {
+				return;
+			}
+			currentBlock = blockEditor.getBlock( candidates[ 0 ] );
+		}
+
 		if (
 			! currentBlock ||
 			currentBlock.name !== 'core/embed' ||
@@ -290,18 +320,27 @@ if ( safeUrl ) {
 			return;
 		}
 
-		dispatch( 'core/block-editor' ).replaceBlocks(
-			embed.clientId,
-			createBlock( 'core/paragraph', {
+		let linkAdded = false;
+		if ( blockEditor.canRemoveBlock( currentBlock.clientId ) ) {
+			const paragraph = createBlock( 'core/paragraph', {
 				content: `<a href="${ escapeAttribute( safeUrl ) }">${ escapeHTML( safeUrl ) }</a>`,
-			} )
-		);
+			} );
+			dispatch( 'core/block-editor' ).replaceBlocks( currentBlock.clientId, paragraph );
+			linkAdded =
+				! blockEditor.getBlock( currentBlock.clientId ) &&
+				blockEditor.getBlock( paragraph.clientId )?.name === 'core/paragraph';
+		}
 		dispatch( 'core/notices' ).createNotice(
 			'warning',
-			__(
-				'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
-				'jetpack'
-			),
+			linkAdded
+				? __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines. A link to the original post has been added instead.',
+						'jetpack'
+				  )
+				: __(
+						'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
+						'jetpack'
+				  ),
 			{ isDismissible: true }
 		);
 	} )();

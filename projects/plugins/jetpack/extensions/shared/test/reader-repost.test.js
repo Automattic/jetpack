@@ -11,9 +11,35 @@
  */
 
 let mockEditorBlocks;
+let mockStoreBlocks;
+let mockShowTemplate;
+let mockCanRemoveBlock;
+let mockReplacementRefused;
 let mockClientId = 0;
 const mockGetEmbedPreview = jest.fn();
 const mockCreateNotice = jest.fn();
+const mockReplaceBlocks = jest.fn( ( clientId, replacement ) => {
+	if ( ! mockReplacementRefused ) {
+		const replace = blocks =>
+			blocks.map( block =>
+				block.clientId === clientId
+					? replacement
+					: { ...block, innerBlocks: replace( block.innerBlocks ) }
+			);
+		mockStoreBlocks = replace( mockStoreBlocks );
+	}
+} );
+
+const mockFlattenBlocks = blocks =>
+	blocks.flatMap( block => [ block, ...mockFlattenBlocks( block.innerBlocks ) ] );
+const mockGetBlock = clientId =>
+	mockFlattenBlocks( mockStoreBlocks ).find( block => block.clientId === clientId );
+const mockGetParent = clientId =>
+	mockFlattenBlocks( mockStoreBlocks ).find( block =>
+		block.innerBlocks.some( child => child.clientId === clientId )
+	);
+const mockGetPostBlocks = () =>
+	mockShowTemplate ? mockGetBlock( 'post-content' ).innerBlocks : mockStoreBlocks;
 
 jest.mock( '@wordpress/data', () => ( {
 	dispatch: store => {
@@ -22,25 +48,77 @@ jest.mock( '@wordpress/data', () => ( {
 				return {
 					resetEditorBlocks: blocks => {
 						mockEditorBlocks = blocks;
+						const clone = block => ( {
+							...block,
+							clientId: mockShowTemplate ? `store-${ block.clientId }` : block.clientId,
+							attributes: { ...block.attributes },
+							innerBlocks: block.innerBlocks.map( clone ),
+						} );
+						mockStoreBlocks = blocks.map( clone );
+						if ( mockShowTemplate ) {
+							const templateEmbed = {
+								...clone( blocks[ blocks.length - 1 ] ),
+								clientId: 'template-embed',
+							};
+							mockStoreBlocks = [
+								templateEmbed,
+								{
+									clientId: 'query',
+									name: 'core/query',
+									innerBlocks: [
+										{
+											clientId: 'query-content',
+											name: 'core/post-content',
+											innerBlocks: [ { ...templateEmbed, clientId: 'query-embed' } ],
+										},
+									],
+								},
+								{
+									clientId: 'post-content',
+									name: 'core/post-content',
+									innerBlocks: mockStoreBlocks,
+								},
+							];
+						}
 					},
 				};
 			case 'core/block-editor':
-				return {
-					replaceBlocks: ( clientId, replacement ) => {
-						mockEditorBlocks = mockEditorBlocks.map( block =>
-							block.clientId === clientId ? replacement : block
-						);
-					},
-				};
+				return { replaceBlocks: mockReplaceBlocks };
 			case 'core/notices':
 				return { createNotice: mockCreateNotice };
 		}
 	},
 	resolveSelect: () => ( { getEmbedPreview: mockGetEmbedPreview } ),
-	select: store =>
-		store === 'core/block-editor'
-			? { getBlock: clientId => mockEditorBlocks.find( block => block.clientId === clientId ) }
-			: { isPreviewEmbedFallback: () => false },
+	select: store => {
+		switch ( store ) {
+			case 'core/editor':
+				return { getEditorBlocks: () => mockEditorBlocks };
+			case 'core/block-editor':
+				return {
+					getBlock: mockGetBlock,
+					getBlocksByName: name =>
+						mockFlattenBlocks( mockStoreBlocks )
+							.filter( block => block.name === name )
+							.map( block => block.clientId ),
+					getBlockRootClientId: clientId => mockGetParent( clientId )?.clientId,
+					getBlockName: clientId => mockGetBlock( clientId )?.name,
+					getBlockParentsByBlockName: ( clientId, name ) => {
+						const parents = [];
+						let parent = mockGetParent( clientId );
+						while ( parent ) {
+							if ( parent.name === name ) {
+								parents.push( parent.clientId );
+							}
+							parent = mockGetParent( parent.clientId );
+						}
+						return parents;
+					},
+					canRemoveBlock: () => mockCanRemoveBlock,
+				};
+			default:
+				return { isPreviewEmbedFallback: () => false };
+		}
+	},
 } ) );
 
 jest.mock( '@wordpress/blocks', () => ( {
@@ -71,6 +149,7 @@ jest.mock( '@wordpress/notices', () => ( {} ) );
  */
 async function loadWithQueryString( queryString ) {
 	mockEditorBlocks = null;
+	mockStoreBlocks = null;
 	window.history.replaceState( {}, '', `/wp-admin/post-new.php?${ queryString }` );
 
 	await jest.isolateModulesAsync( async () => {
@@ -78,7 +157,7 @@ async function loadWithQueryString( queryString ) {
 		await new Promise( resolve => setTimeout( resolve, 0 ) );
 	} );
 
-	return mockEditorBlocks;
+	return mockStoreBlocks && mockGetPostBlocks();
 }
 
 /**
@@ -103,8 +182,7 @@ const getEmbedBlock = blocks => blocks.find( block => block.name === 'core/embed
  * @param {Array} blocks - Blocks to flatten.
  * @return {Array} Every block in the tree, parents before children.
  */
-const flattenBlocks = blocks =>
-	blocks.flatMap( block => [ block, ...flattenBlocks( block.innerBlocks ) ] );
+const flattenBlocks = mockFlattenBlocks;
 
 /**
  * Reads the content of each paragraph making up a quote's body.
@@ -152,17 +230,37 @@ describe( 'reader-repost', () => {
 		mockGetEmbedPreview.mockReset();
 		mockGetEmbedPreview.mockResolvedValue( { html: '<iframe></iframe>' } );
 		mockCreateNotice.mockClear();
+		mockReplaceBlocks.mockClear();
+		mockShowTemplate = false;
+		mockCanRemoveBlock = true;
+		mockReplacementRefused = false;
 	} );
 
-	it.each( [
-		[ 'https://example.com/post?a=1&b=2', false ],
-		[ 'https://example.com/post/', false ],
-		[ 'https://example.com/post/', true ],
-	] )( 'replaces a failed embed of %s with a link (core retry: %s)', async ( url, coreRetries ) => {
+	it.each(
+		[
+			[ 'https://example.com/post?a=1&b=2', false ],
+			[ 'https://example.com/post/', false ],
+			[ 'https://example.com/post/', true ],
+		].flatMap( ( [ url, coreRetries ] ) =>
+			[ false, true ].flatMap( showTemplate =>
+				[ 'allowed', 'refused', 'locked' ].map( replacement => ( {
+					url,
+					coreRetries,
+					showTemplate,
+					replacement,
+				} ) )
+			)
+		)
+	)( 'handles a failed embed: %j', async ( { url, coreRetries, showTemplate, replacement } ) => {
+		mockShowTemplate = showTemplate;
+		mockReplacementRefused = replacement === 'refused';
+		mockCanRemoveBlock = replacement !== 'locked';
+		let storeEmbedId;
 		mockGetEmbedPreview.mockResolvedValue( false );
 		mockGetEmbedPreview.mockImplementationOnce( async () => {
+			storeEmbedId = getEmbedBlock( mockGetPostBlocks() ).clientId;
 			if ( coreRetries ) {
-				getEmbedBlock( mockEditorBlocks ).attributes.url = url.replace( /\/$/, '' );
+				getEmbedBlock( mockGetPostBlocks() ).attributes.url = url.replace( /\/$/, '' );
 			}
 			return false;
 		} );
@@ -176,7 +274,27 @@ describe( 'reader-repost', () => {
 			'A comment worth keeping.',
 		] );
 		expect( getQuoteBlocks( blocks )[ 0 ].attributes.citation ).toBe( 'Comment author' );
+		if ( showTemplate ) {
+			expect( storeEmbedId ).not.toBe( getEmbedBlock( mockEditorBlocks ).clientId );
+			expect( mockGetBlock( 'template-embed' ).name ).toBe( 'core/embed' );
+			expect( mockGetBlock( 'query-embed' ).name ).toBe( 'core/embed' );
+		}
+		if ( replacement !== 'allowed' ) {
+			expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', 'core/embed' ] );
+			expect( mockCreateNotice ).toHaveBeenCalledWith(
+				'warning',
+				'The original post could not be embedded. This can happen when its site is private or discourages search engines.',
+				{ isDismissible: true }
+			);
+			if ( replacement === 'locked' ) {
+				expect( mockReplaceBlocks ).not.toHaveBeenCalled();
+			}
+			return;
+		}
+		expect( mockReplaceBlocks ).toHaveBeenCalledWith( storeEmbedId, blocks[ 1 ] );
+		expect( mockGetBlock( storeEmbedId ) ).toBeUndefined();
 		expect( blocks.map( block => block.name ) ).toEqual( [ 'core/quote', 'core/paragraph' ] );
+		expect( blocks[ 1 ].attributes.content ).toContain( url.replace( /&/g, '&amp;' ) );
 		const container = document.createElement( 'div' );
 		container.innerHTML = blocks[ 1 ].attributes.content;
 		expect( container.querySelector( 'a' ) ).toHaveAttribute( 'href', url );
@@ -188,40 +306,42 @@ describe( 'reader-repost', () => {
 		);
 	} );
 
-	it.each( [ false, true ] )(
-		'waits for a successful slashless preview (core retry: %s)',
-		async coreRetries => {
-			const url = 'https://example.com/post/';
-			let resolveRetry;
-			mockGetEmbedPreview.mockReturnValue(
-				new Promise( resolve => {
-					resolveRetry = resolve;
-				} )
-			);
-			mockGetEmbedPreview.mockImplementationOnce( async () => {
-				if ( coreRetries ) {
-					getEmbedBlock( mockEditorBlocks ).attributes.url = url.replace( /\/$/, '' );
-				}
-				return false;
-			} );
+	it.each(
+		[ false, true ].flatMap( coreRetries =>
+			[ false, true ].map( showTemplate => ( { coreRetries, showTemplate } ) )
+		)
+	)( 'waits for a successful slashless preview: %j', async ( { coreRetries, showTemplate } ) => {
+		mockShowTemplate = showTemplate;
+		const url = 'https://example.com/post/';
+		let resolveRetry;
+		mockGetEmbedPreview.mockReturnValue(
+			new Promise( resolve => {
+				resolveRetry = resolve;
+			} )
+		);
+		mockGetEmbedPreview.mockImplementationOnce( async () => {
+			if ( coreRetries ) {
+				getEmbedBlock( mockGetPostBlocks() ).attributes.url = url.replace( /\/$/, '' );
+			}
+			return false;
+		} );
 
-			await loadWithQueryArgs( { url } );
-			expect( mockGetEmbedPreview.mock.calls ).toEqual( [ [ url ], [ url.replace( /\/$/, '' ) ] ] );
-			expect( getEmbedBlock( mockEditorBlocks ) ).toBeDefined();
-			expect( mockCreateNotice ).not.toHaveBeenCalled();
+		await loadWithQueryArgs( { url } );
+		expect( mockGetEmbedPreview.mock.calls ).toEqual( [ [ url ], [ url.replace( /\/$/, '' ) ] ] );
+		expect( getEmbedBlock( mockGetPostBlocks() ) ).toBeDefined();
+		expect( mockCreateNotice ).not.toHaveBeenCalled();
 
-			resolveRetry( { html: '<iframe></iframe>' } );
-			await new Promise( resolve => setTimeout( resolve, 0 ) );
-			expect( getEmbedBlock( mockEditorBlocks ) ).toBeDefined();
-			expect( mockCreateNotice ).not.toHaveBeenCalled();
-		}
-	);
+		resolveRetry( { html: '<iframe></iframe>' } );
+		await new Promise( resolve => setTimeout( resolve, 0 ) );
+		expect( getEmbedBlock( mockGetPostBlocks() ) ).toBeDefined();
+		expect( mockCreateNotice ).not.toHaveBeenCalled();
+	} );
 
 	it( 'preserves a different URL entered while the slashless preview is pending', async () => {
 		mockGetEmbedPreview.mockResolvedValue( false );
 		mockGetEmbedPreview.mockImplementationOnce( async () => false );
 		mockGetEmbedPreview.mockImplementationOnce( async () => {
-			getEmbedBlock( mockEditorBlocks ).attributes.url = 'https://example.com/edited';
+			getEmbedBlock( mockGetPostBlocks() ).attributes.url = 'https://example.com/edited';
 			return false;
 		} );
 
@@ -229,6 +349,45 @@ describe( 'reader-repost', () => {
 		expect( getEmbedBlock( blocks ).attributes.url ).toBe( 'https://example.com/edited' );
 		expect( mockCreateNotice ).not.toHaveBeenCalled();
 	} );
+
+	it.each( [ 'deleted', 'transformed', 'url changed', 'nested', 'ambiguous' ] )(
+		'leaves template embeds alone when the original is %s while previews wait',
+		async change => {
+			mockShowTemplate = true;
+			let finishPreview;
+			mockGetEmbedPreview.mockReturnValue(
+				new Promise( resolve => {
+					finishPreview = resolve;
+				} )
+			);
+			await loadWithQueryArgs( { url: 'https://example.com/post' } );
+			const entityEmbed = getEmbedBlock( mockEditorBlocks );
+			const storeEmbed = getEmbedBlock( mockGetPostBlocks() );
+			if ( change === 'deleted' ) {
+				mockEditorBlocks = [];
+				mockGetBlock( 'post-content' ).innerBlocks = [];
+			} else if ( change === 'transformed' ) {
+				entityEmbed.name = storeEmbed.name = 'core/paragraph';
+			} else if ( change === 'url changed' ) {
+				entityEmbed.attributes.url = storeEmbed.attributes.url = 'https://example.com/edited';
+			} else if ( change === 'nested' ) {
+				mockEditorBlocks = [
+					{ name: 'core/group', clientId: 'entity-group', innerBlocks: [ entityEmbed ] },
+				];
+				mockGetBlock( 'post-content' ).innerBlocks = [
+					{ name: 'core/group', clientId: 'store-group', innerBlocks: [ storeEmbed ] },
+				];
+			} else {
+				mockGetPostBlocks().push( { ...storeEmbed, clientId: 'duplicate' } );
+			}
+			const storeBefore = JSON.stringify( mockStoreBlocks );
+			finishPreview( false );
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+			expect( JSON.stringify( mockStoreBlocks ) ).toBe( storeBefore );
+			expect( mockReplaceBlocks ).not.toHaveBeenCalled();
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
+		}
+	);
 
 	describe( 'end to end', () => {
 		it( 'produces no executable markup anywhere in the resulting blocks', async () => {
@@ -682,5 +841,186 @@ describe( 'reader-repost', () => {
 
 			expect( getQuoteBlocks( blocks ) ).toHaveLength( 0 );
 		} );
+	} );
+} );
+
+describe( 'reader-repost with the block-editor provider', () => {
+	let React, createRoot, flushSync, data, createBlock, BlockEditorProvider, BlockList, waitFor;
+	beforeAll( () => {
+		jest.doMock( '@wordpress/data', () => {
+			const data = jest.requireActual( '@wordpress/data' );
+			const exports = {};
+			for ( const [ key, descriptor ] of Object.entries(
+				Object.getOwnPropertyDescriptors( data )
+			) ) {
+				Object.defineProperty( exports, key, { ...descriptor, configurable: true } );
+			}
+			Object.defineProperty( exports, 'resolveSelect', {
+				value: store =>
+					store === 'core' ? { getEmbedPreview: mockGetEmbedPreview } : data.resolveSelect( store ),
+			} );
+			return exports;
+		} );
+		jest.doMock( '@wordpress/blocks', () => jest.requireActual( '@wordpress/blocks' ) );
+		jest.doMock( '@wordpress/notices', () => jest.requireActual( '@wordpress/notices' ) );
+
+		React = require( 'react' );
+		( { createRoot } = require( 'react-dom/client' ) );
+		( { flushSync } = require( 'react-dom' ) );
+		( { waitFor } = require( '@testing-library/dom' ) );
+		data = require( '@wordpress/data' );
+		const { registerBlockType } = require( '@wordpress/blocks' );
+		( { createBlock } = require( '@wordpress/blocks' ) );
+		const { useBlockProps, useInnerBlocksProps } = require( '@wordpress/block-editor' );
+		( { BlockEditorProvider, BlockList } = require( '@wordpress/block-editor' ) );
+		const blockApi = require( '@wordpress/blocks' );
+		const notices = require( '@wordpress/notices' );
+		jest.doMock( '@wordpress/data', () => data );
+		jest.doMock( '@wordpress/blocks', () => blockApi );
+		jest.doMock( '@wordpress/notices', () => notices );
+		const library = require(
+			require.resolve( '@wordpress/block-library', {
+				paths: [ require.resolve( '@wordpress/edit-post' ) ],
+			} )
+		);
+		library.registerCoreBlocks(
+			library
+				.__experimentalGetCoreBlocks()
+				.filter( block => [ 'core/embed', 'core/paragraph', 'core/quote' ].includes( block.name ) )
+		);
+		data.register(
+			data.createReduxStore( 'core/editor', {
+				reducer: ( state = [], action ) => action.blocks ?? state,
+				actions: { resetEditorBlocks: blocks => ( { type: 'RESET', blocks } ) },
+				selectors: { getEditorBlocks: state => state },
+			} )
+		);
+		registerBlockType( 'core/post-content', {
+			apiVersion: 3,
+			title: 'Post Content',
+			category: 'theme',
+			edit() {
+				const value = data.useSelect( select => select( 'core/editor' ).getEditorBlocks(), [] );
+				const props = useInnerBlocksProps( useBlockProps(), {
+					value,
+					onChange: blocks => data.dispatch( 'core/editor' ).resetEditorBlocks( blocks ),
+					onInput: blocks => data.dispatch( 'core/editor' ).resetEditorBlocks( blocks ),
+				} );
+				return React.createElement( 'div', props );
+			},
+			save: () => null,
+		} );
+	} );
+
+	it.each( [
+		{ delayed: false, replacement: 'allowed' },
+		...[ 'allowed', 'refused', 'locked' ].map( replacement => ( { delayed: true, replacement } ) ),
+	] )( 'handles cloned IDs and replacement permissions: %j', async ( { delayed, replacement } ) => {
+		data.dispatch( 'core/editor' ).resetEditorBlocks( [] );
+		data.dispatch( 'core/notices' ).removeNotices(
+			data
+				.select( 'core/notices' )
+				.getNotices()
+				.map( notice => notice.id )
+		);
+		const url = 'https://example.com/post?a=1&b=2';
+		const templateEmbed = createBlock( 'core/embed', { url } );
+		const container = document.createElement( 'div' );
+		document.body.append( container );
+		const root = createRoot( container );
+		const settings = {
+			templateLock: replacement === 'locked' ? 'all' : false,
+			allowedBlockTypes: replacement === 'refused' ? [ 'core/embed', 'core/quote' ] : true,
+		};
+		let finishPreview;
+		mockGetEmbedPreview.mockReset();
+		mockGetEmbedPreview.mockReturnValue(
+			delayed
+				? new Promise( resolve => {
+						finishPreview = resolve;
+				  } )
+				: Promise.resolve( false )
+		);
+		const blockEditor = data.select( 'core/block-editor' );
+		try {
+			flushSync( () =>
+				root.render(
+					React.createElement(
+						BlockEditorProvider,
+						{
+							useSubRegistry: false,
+							value: [ templateEmbed, createBlock( 'core/post-content' ) ],
+							settings,
+							onChange() {},
+							onInput() {},
+						},
+						React.createElement( BlockList )
+					)
+				)
+			);
+			const query = new URLSearchParams( {
+				url,
+				comment_content: '<p>A comment worth keeping.</p>',
+				comment_author: 'Comment author',
+			} );
+			window.history.replaceState( {}, '', `/wp-admin/post-new.php?${ query }` );
+			await jest.isolateModulesAsync( async () => {
+				require( '../reader-repost' );
+				await waitFor( () =>
+					expect( blockEditor.getBlocksByName( 'core/embed' ) ).toHaveLength( 2 )
+				);
+			} );
+			const entityEmbedId = getEmbedBlock(
+				data.select( 'core/editor' ).getEditorBlocks()
+			).clientId;
+			const storeEmbedId = blockEditor
+				.getBlocksByName( 'core/embed' )
+				.find( clientId => clientId !== templateEmbed.clientId );
+			expect( storeEmbedId ).not.toBe( entityEmbedId );
+			if ( delayed ) {
+				finishPreview( false );
+				await waitFor( () =>
+					expect( data.select( 'core/notices' ).getNotices() ).toHaveLength( 1 )
+				);
+			}
+			const entityBlocks = data.select( 'core/editor' ).getEditorBlocks();
+			const contentId = blockEditor.getBlocksByName( 'core/post-content' )[ 0 ];
+			const blocks = blockEditor.getBlocks( contentId );
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ).map( String ) ).toEqual( [
+				'A comment worth keeping.',
+			] );
+			expect( String( getQuoteBlocks( blocks )[ 0 ].attributes.citation ) ).toBe(
+				'Comment author'
+			);
+			expect( blockEditor.getBlock( templateEmbed.clientId ).name ).toBe( 'core/embed' );
+			const notices = data.select( 'core/notices' ).getNotices();
+			if ( ! delayed ) {
+				// Cached failures can finish before controlled Post Content mounts its clones.
+				expect( notices ).toHaveLength( 0 );
+				expect( blocks[ 1 ].name ).toBe( 'core/embed' );
+				return;
+			}
+			expect( notices ).toHaveLength( 1 );
+			expect( notices[ 0 ] ).toMatchObject( { status: 'warning', isDismissible: true } );
+			if ( replacement === 'allowed' ) {
+				expect( blockEditor.getBlock( storeEmbedId ) ).toBeNull();
+				expect( blocks[ 1 ].name ).toBe( 'core/paragraph' );
+				const link = document.createElement( 'div' );
+				link.innerHTML = blocks[ 1 ].attributes.content;
+				expect( link.querySelector( 'a' ) ).toHaveAttribute( 'href', url );
+				expect( notices[ 0 ].content ).toContain(
+					'A link to the original post has been added instead.'
+				);
+			} else {
+				expect( blocks[ 1 ].name ).toBe( 'core/embed' );
+				expect( blocks[ 1 ].clientId ).not.toBe( entityBlocks[ 1 ].clientId );
+				expect( notices[ 0 ].content ).toBe(
+					'The original post could not be embedded. This can happen when its site is private or discourages search engines.'
+				);
+			}
+		} finally {
+			flushSync( () => root.unmount() );
+			container.remove();
+		}
 	} );
 } );
