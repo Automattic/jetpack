@@ -29,12 +29,17 @@ jest.mock( '../../../hooks/use-interstitials-state', () => ( {
 	useInterstitialsState: () => ( { update: mockUpdateInterstitialsState } ),
 } ) );
 
-jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
+const mockUseMyJetpackConnection = jest.fn( () => ( {
 	siteIsRegistering: false,
 	handleRegisterSite: () => Promise.resolve( null ),
 } ) );
+jest.mock(
+	'../../../hooks/use-my-jetpack-connection',
+	() => options => mockUseMyJetpackConnection( options )
+);
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useProductCheckoutWorkflow: jest.fn(),
 } ) );
 
@@ -157,6 +162,14 @@ describe( 'PricingInterstitial free tier for Search', () => {
 		// the post-activation destination the non-Search path passes to checkout directly.
 		expect( runSearchFreeActivation ).toHaveBeenCalledWith(
 			expect.objectContaining( { checkoutRedirect: POST_ACTIVATION_URL } )
+		);
+	} );
+
+	test( 'registers the site with the product name', () => {
+		render( <PricingInterstitial slug="search" /> );
+
+		expect( mockUseMyJetpackConnection ).toHaveBeenCalledWith(
+			expect.objectContaining( { from: 'my_jetpack_products_search' } )
 		);
 	} );
 

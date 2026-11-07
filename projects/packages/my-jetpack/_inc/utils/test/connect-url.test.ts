@@ -1,4 +1,4 @@
-import { connectionScreenRoute, getConnectUrl } from '../connect-url';
+import { connectionScreenRoute, getConnectUrl, productsFrom } from '../connect-url';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getJetpackAdminPageUrl: () => 'https://example.org/wp-admin/admin.php?page=jetpack',
@@ -24,6 +24,13 @@ describe( 'getConnectUrl', () => {
 		expect( queryOf( getConnectUrl( 'my_jetpack_plans', returnTo ) ).redirect_after_auth ).toBe(
 			returnTo
 		);
+	} );
+} );
+
+describe( 'productsFrom', () => {
+	it( "is the product's name, with My Jetpack's slug overrides", () => {
+		expect( productsFrom( 'backup' ) ).toBe( 'my_jetpack_products_backup' );
+		expect( productsFrom( 'jetpack-ai' ) ).toBe( 'my_jetpack_products_ai' );
 	} );
 } );
 
