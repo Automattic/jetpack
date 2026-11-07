@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: fix real-time resizing in the editor.
