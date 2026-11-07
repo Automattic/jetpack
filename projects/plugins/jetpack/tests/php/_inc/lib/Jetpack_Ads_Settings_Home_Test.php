@@ -59,7 +59,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
-		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		wp_dequeue_script( 'jp-tracks' );
 		Jetpack_Options::delete_option( 'tos_agreed' );
 		Jetpack_Options::update_option( 'active_modules', $this->active_modules );
@@ -191,7 +191,8 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		// Pin it either way: an earlier test can leave a local site URL, which Status reads as offline.
 		add_filter( 'jetpack_offline_mode', empty( $site['offline'] ) ? '__return_false' : '__return_true' );
 		if ( ! empty( $site['connected'] ) ) {
-			add_filter( 'jetpack_is_connection_ready', '__return_true' );
+			// Last, since wpcomsh's connection-owner check filters this at 1000.
+			add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 		}
 	}
 
