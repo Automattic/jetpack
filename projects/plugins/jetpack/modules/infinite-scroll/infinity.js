@@ -439,8 +439,17 @@
 					}
 
 					if ( 'string' === typeof item.html ) {
-						document.head.insertAdjacentHTML( 'beforeend', item.html );
-					} else if ( 'string' === typeof item.src ) {
+						var template = document.createElement( 'template' );
+						template.innerHTML = item.html;
+						// Stylesheets deferred to window load (Jetpack Boost) would never apply, since load has fired.
+						template.content
+							.querySelectorAll( 'link[media="not all"][data-media]:not([onload])' )
+							.forEach( function ( deferred ) {
+								deferred.media = deferred.dataset.media;
+								delete deferred.dataset.media;
+							} );
+						document.head.appendChild( template.content );
+					} else if ( 'string' === typeof item.src && ! item.conditional ) {
 						var link = document.createElement( 'link' );
 						link.rel = 'stylesheet';
 						link.href = item.src;

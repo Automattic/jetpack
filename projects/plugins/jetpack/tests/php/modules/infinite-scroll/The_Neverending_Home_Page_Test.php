@@ -105,16 +105,62 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 		$wp_styles->add( 'is-inlined', false );
 		$wp_styles->add_inline_style( 'is-inlined', '.is-inlined-test{color:red}' );
 		$wp_styles->add( 'is-linked', 'https://example.org/is-linked.css', array(), '1.0' );
+		$wp_styles->add( 'is-new-linked', 'https://example.org/is-new-linked.css', array(), '2.0', 'print' );
 		$wp_styles->add( 'is-empty', false );
-		$wp_styles->done      = array( 'is-inlined', 'is-linked', 'is-empty' );
+		$wp_styles->done      = array( 'is-inlined', 'is-linked', 'is-new-linked', 'is-empty', 'is-unregistered' );
 		$wp_styles->do_concat = true;
 
 		$styles = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'is-linked' ) );
 
-		$this->assertCount( 1, $styles );
-		$this->assertSame( 'is-inlined', $styles[0]['handle'] );
+		$this->assertSame( array( 'is-inlined', 'is-new-linked' ), array_column( $styles, 'handle' ) );
 		$this->assertStringContainsString( '.is-inlined-test{color:red}', $styles[0]['html'] );
+		$this->assertArrayNotHasKey( 'src', $styles[0] );
+		$this->assertSame( 'https://example.org/is-new-linked.css?ver=2.0', $styles[1]['src'] );
+		$this->assertSame( 'print', $styles[1]['media'] );
 		$this->assertTrue( $wp_styles->do_concat );
+	}
+
+	public function test_get_new_styles_resends_per_request_block_styles_without_duplicate_ids() {
+		$wp_styles = new WP_Styles();
+		$wp_styles->add( 'core-block-supports', false );
+		$wp_styles->add_inline_style( 'core-block-supports', '.wp-container-core-group-is-layout-abc{gap:6rem}' );
+		$wp_styles->add( 'is-static', false );
+		$wp_styles->add_inline_style( 'is-static', '.is-static{color:red}' );
+		$wp_styles->done = array( 'core-block-supports', 'is-static' );
+
+		$styles = The_Neverending_Home_Page::get_new_styles( $wp_styles, array( 'core-block-supports', 'is-static' ) );
+
+		$this->assertSame( array( 'core-block-supports' ), array_column( $styles, 'handle' ) );
+		$this->assertStringContainsString( 'gap:6rem', $styles[0]['html'] );
+		$this->assertStringNotContainsString( 'id=', $styles[0]['html'] );
+	}
+
+	public function test_filter_rewriting_src_makes_client_load_the_new_url() {
+		global $wp_styles;
+		$original_styles = $wp_styles;
+		$wp_styles       = new WP_Styles();
+		$wp_styles->add( 'is-cdn', 'https://example.org/is-cdn.css', array(), '1.0' );
+		$wp_styles->add( 'is-untouched', 'https://example.org/is-untouched.css', array(), '1.0' );
+		$wp_styles->done    = array( 'is-cdn', 'is-untouched' );
+		$_REQUEST['styles'] = array( 'is-theme' );
+
+		$rewrite = function ( $styles ) {
+			foreach ( $styles as &$style ) {
+				if ( 'is-cdn' === $style['handle'] ) {
+					$style['src'] = 'https://cdn.example.org/is-cdn.css';
+				}
+			}
+			return $styles;
+		};
+		add_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
+		$results = $this->infinite_scroll->filter_infinite_scroll_results( array( 'type' => 'success' ), array(), null );
+		remove_filter( 'infinite_scroll_additional_stylesheets', $rewrite );
+		unset( $_REQUEST['styles'] );
+		$wp_styles = $original_styles;
+
+		$this->assertArrayNotHasKey( 'html', $results['styles'][0] );
+		$this->assertSame( 'https://cdn.example.org/is-cdn.css', $results['styles'][0]['src'] );
+		$this->assertArrayHasKey( 'html', $results['styles'][1] );
 	}
 
 	/**

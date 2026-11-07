@@ -1064,26 +1064,88 @@ class The_Neverending_Home_Page {
 	 *
 	 * @param WP_Styles $wp_styles      Styles registry.
 	 * @param string[]  $initial_styles Handles already present on the page.
-	 * @return array[] List of arrays with `handle` and `html` keys.
+	 * @return array[] List of arrays with `handle` and `html` keys, plus `src` and `media` for stylesheet files.
 	 */
 	public static function get_new_styles( $wp_styles, array $initial_styles ) {
 		$styles    = array();
 		$do_concat = $wp_styles->do_concat;
 
 		$wp_styles->do_concat = false;
-		foreach ( array_diff( $wp_styles->done, $initial_styles ) as $handle ) {
+		foreach ( array_unique( $wp_styles->done ) as $handle ) {
+			$is_on_page = in_array( $handle, $initial_styles, true );
+			if ( $is_on_page && ! self::is_per_request_style( $handle ) ) {
+				continue;
+			}
+
 			ob_start();
 			$wp_styles->do_item( $handle );
 			$html = ob_get_clean();
 
-			if ( '' !== trim( $html ) ) {
-				$styles[] = array(
-					'handle' => $handle,
-					'html'   => $html,
-				);
+			if ( '' === trim( $html ) ) {
+				continue;
 			}
+
+			// The page already has a tag with this ID, so drop it to keep IDs unique.
+			if ( $is_on_page ) {
+				$html = preg_replace( '/(<style\b[^>]*?)\s+id=([\'"])[^\'"]*\2/i', '$1', $html );
+			}
+
+			$style = array(
+				'handle' => $handle,
+				'html'   => $html,
+			);
+
+			$registered = $wp_styles->registered[ $handle ];
+			if ( is_string( $registered->src ) && '' !== $registered->src ) {
+				$ver            = null === $registered->ver ? '' : ( $registered->ver ? $registered->ver : $wp_styles->default_version );
+				$style['src']   = wp_specialchars_decode( $wp_styles->_css_href( $registered->src, $ver, $handle ), ENT_QUOTES );
+				$style['media'] = $registered->args ? $registered->args : 'all';
+			}
+
+			$styles[] = $style;
 		}
 		$wp_styles->do_concat = $do_concat;
+
+		return $styles;
+	}
+
+	/**
+	 * Whether a style's handle stays the same while its inline CSS is rebuilt for each request's blocks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $handle Style handle.
+	 * @return bool
+	 */
+	private static function is_per_request_style( $handle ) {
+		return 'block-style-variation-styles' === $handle
+			|| str_starts_with( $handle, 'core-block-supports' )
+			|| str_starts_with( $handle, 'wp-style-engine-' );
+	}
+
+	/**
+	 * Drop the printed markup from entries whose `src` a filter rewrote, so the client loads the new URL.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $styles    Filtered style entries.
+	 * @param array $generated Entries as built by get_new_styles().
+	 * @return array
+	 */
+	private static function prefer_rewritten_src( $styles, array $generated ) {
+		$generated_src = array_column( $generated, 'src', 'handle' );
+
+		foreach ( $styles as $i => $style ) {
+			if (
+				isset( $style['handle'] )
+				&& isset( $style['html'] )
+				&& isset( $style['src'] )
+				&& isset( $generated_src[ $style['handle'] ] )
+				&& $style['src'] !== $generated_src[ $style['handle'] ]
+			) {
+				unset( $styles[ $i ]['html'] );
+			}
+		}
 
 		return $styles;
 	}
@@ -1297,12 +1359,16 @@ class The_Neverending_Home_Page {
 		 *
 		 * @since 2.1.2
 		 *
-		 * @param array $results['styles'] Additional styles required by the latest set of IS posts. Each entry has `handle` plus either `html` (printed tags) or `src` (stylesheet URL, optional `media`).
+		 * @param array $results['styles'] Additional styles required by the latest set of IS posts.
+		 *                                 Each entry has `handle`, plus `html` (printed tags) and/or `src` and `media`.
+		 *                                 The client inserts `html` when present; rewriting `src` makes it load that URL instead.
+		 *                                 Entries with the IE-only `conditional` key are skipped.
 		 * @param array|bool $initial_styles Set of styles loaded on each page.
 		 * @param array $results Array of Infinite Scroll results.
 		 * @param array $query_args Array of Query arguments.
 		 * @param WP_Query $wp_query WP Query.
 		 */
+		$generated_styles  = $results['styles'];
 		$results['styles'] = apply_filters(
 			'infinite_scroll_additional_stylesheets',
 			$results['styles'],
@@ -1311,6 +1377,10 @@ class The_Neverending_Home_Page {
 			$query_args,
 			$wp_query
 		);
+
+		if ( is_array( $results['styles'] ) ) {
+			$results['styles'] = self::prefer_rewritten_src( $results['styles'], $generated_styles );
+		}
 
 		if ( empty( $results['styles'] ) ) {
 			unset( $results['styles'] );
