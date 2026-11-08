@@ -5,7 +5,8 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { ButtonLink } from '@jetpack-premium-analytics/externals';
+import { ButtonLink, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -17,7 +18,6 @@ import {
 	safeHttpUrl,
 	SectionTabs,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -28,7 +28,9 @@ import {
 	DetailPageSection,
 	DetailPageShell,
 	describeError,
+	getPostTypeCopy,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -44,9 +46,8 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
-import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import { EMAIL_TAB_IDS, withPostTypeTitles } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 import type { JSX } from 'react';
@@ -82,7 +83,7 @@ function PostDetail(): JSX.Element {
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { dateLimits } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -131,7 +132,13 @@ function PostDetail(): JSX.Element {
 		layout: fixedLayout,
 		isEmailNotSent,
 		isEmailSendPending,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
+	} = usePostDetailTabs(
+		postId,
+		emailScope?.reportParams,
+		emailScopeBlocked,
+		summary.type,
+		summary.isLoading
+	);
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -174,8 +181,8 @@ function PostDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	const pageWidgetTypes = useMemo(
-		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
-		[ widgetTypes ]
+		() => withPostTypeTitles( widgetTypes, summary.type ),
+		[ widgetTypes, summary.type ]
 	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
@@ -228,7 +235,7 @@ function PostDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
 							widgetTypes={ pageWidgetTypes }
@@ -242,7 +249,7 @@ function PostDetail(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<DetailPageShell
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={
 									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 										<StatsBreadcrumbs items={ breadcrumbs } />
@@ -263,9 +270,7 @@ function PostDetail(): JSX.Element {
 												href={ publicUrl }
 												openInNewTab
 											>
-												{ summary.type === 'page'
-													? __( 'View page', 'jetpack-premium-analytics-pkg' )
-													: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+												{ getPostTypeCopy( summary.type ).view }
 											</ButtonLink>
 										) : null }
 									</DetailPageActions>

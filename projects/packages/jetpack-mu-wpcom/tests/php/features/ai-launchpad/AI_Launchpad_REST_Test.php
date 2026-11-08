@@ -1646,7 +1646,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_invalid_payloads() {
 		return array(
-			'a seventh task'                         => array(
+			'a seventh task'                        => array(
 				static function ( $payload ) {
 					$payload['tasks'][] = array(
 						'id'       => 'drive_traffic',
@@ -1656,65 +1656,56 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a missing required field'               => array(
+			'a missing required field'              => array(
 				static function ( $payload ) {
 					unset( $payload['first_post_draft'] );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'an inferred_goal outside its enum'      => array(
+			'an inferred_goal outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['inferred_goal'] = 'cook';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a theme_category outside its enum'      => array(
+			'a theme_category outside its enum'     => array(
 				static function ( $payload ) {
 					$payload['inferred']['theme_category'] = 'hiking';
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'a page intro for an unknown page task'  => array(
+			'a page intro for an unknown page task' => array(
 				static function ( $payload ) {
 					$payload['page_intros'] = array( 'add_faq_page' => 'Answers to what people ask most.' );
 					return $payload;
 				},
 				'ai_launchpad_invalid_payload',
 			),
-			'fewer than four catalog-valid task ids' => array(
-				static function ( $payload ) {
-					$payload['tasks'][1]['id'] = 'made_up_task_one';
-					$payload['tasks'][2]['id'] = 'made_up_task_two';
-					$payload['tasks'][3]['id'] = 'made_up_task_three';
-					return $payload;
-				},
-				'ai_launchpad_unknown_tasks',
-			),
-			'a last task that is not a launch task'  => array(
+			'a last task that is not a launch task' => array(
 				static function ( $payload ) {
 					$payload['tasks'][5]['id'] = 'drive_traffic';
 					return $payload;
 				},
 				'ai_launchpad_missing_launch_task',
 			),
-			'a subtitle that is only a script tag'   => array(
+			'a subtitle that is only a script tag'  => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = '<script>alert(1)</script>';
 					return $payload;
 				},
 				'ai_launchpad_invalid_subtitle',
 			),
-			'a subtitle containing a URL'            => array(
+			'a subtitle containing a URL'           => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Visit https://example.com for tips.';
 					return $payload;
 				},
 				'ai_launchpad_subtitle_contains_url',
 			),
-			'a subtitle containing template syntax'  => array(
+			'a subtitle containing template syntax' => array(
 				static function ( $payload ) {
 					$payload['tasks'][0]['subtitle'] = 'Write about {{brand_name}} today.';
 					return $payload;
@@ -1740,19 +1731,20 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that PUT /tailored drops unknown task IDs but persists when enough survive.
+	 * Test that PUT /tailored drops unknown task IDs and still persists when only the launch task survives.
 	 */
 	public function test_put_tailored_drops_unknown_task_ids() {
-		$payload                   = self::valid_payload();
-		$payload['tasks'][1]['id'] = 'made_up_task';
+		$payload = self::valid_payload();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$payload['tasks'][ $i ]['id'] = 'made_up_task_' . $i;
+		}
 
 		$result = $this->call_api( 'PUT', '/tailored', $payload );
 
 		$this->assertSame( 200, $result->get_status() );
 
 		$persisted_tasks = get_option( 'wpcom_ai_launchpad_ai_output' )['payload']['tasks'];
-		$this->assertCount( 5, $persisted_tasks );
-		$this->assertNotContains( 'made_up_task', array_column( $persisted_tasks, 'id' ) );
+		$this->assertSame( array( end( $payload['tasks'] )['id'] ), array_column( $persisted_tasks, 'id' ) );
 	}
 
 	/**

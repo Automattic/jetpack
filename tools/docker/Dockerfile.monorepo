@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 # Import version variables from .github/versions.sh
 ARG PHP_VERSION

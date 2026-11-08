@@ -15,6 +15,7 @@ export {
 	useSettlePeriodChange,
 } from './providers/period-change-signal';
 export * from './hooks';
+export { STATS_SITE_SUMMARY_FIELDS } from './queries/stats-site-query';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
@@ -74,6 +75,8 @@ export {
 	getApiErrorStatus,
 	findAuthorRow,
 	isAccessDenied,
+	isAnalyticsSchemaOutdated,
+	isAnalyticsTablesNotReady,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
@@ -85,6 +88,7 @@ export {
 } from './utils';
 export {
 	getAllowedIntervalsForPreset,
+	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
@@ -95,7 +99,15 @@ export {
 	defaultPeriodForInterval,
 	drawableIntervals,
 	intervalMenuOptions,
+	type IntervalExtension,
+	type IntervalRange,
 } from './utils/periods';
+export {
+	isDashboardSectionAvailable,
+	isPostDetailAvailable,
+	POST_DETAIL_SECTION,
+	type DashboardSectionSlug,
+} from './utils/dashboard-sections';
 export {
 	getLockedFeature,
 	getLockedSection,
@@ -104,6 +116,7 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,

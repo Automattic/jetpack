@@ -7,6 +7,8 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	buildReportLink,
 	DashboardWidgetHostProvider,
@@ -18,7 +20,6 @@ import {
 	DateFiltersPanel,
 	PeriodChangeStatus,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -29,6 +30,7 @@ import {
 	DetailPageShell,
 	describeError,
 	useDetailPageCustomize,
+	useHostLinkSearch,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
 	type PageNoticeProps,
@@ -44,9 +46,8 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
-import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
+import { AUTHOR_DETAIL_LAYOUT } from './config';
 import { authorDisplayName, useAuthorAllTimeStart, useAuthorSummary } from './hooks';
 import { route } from './package.json';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
@@ -95,15 +96,8 @@ function AuthorDetail(): JSX.Element {
 
 	// A fixed composition with no picker only ever needs its own types resolved.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
-		visibleNames: toWidgetTypeBaseNames(
-			layout.map( widget => widget.type ),
-			AUTHOR_DETAIL_WIDGET_TYPE_ALIASES
-		),
+		visibleNames: layout.map( widget => widget.type ),
 	} );
-	const pageWidgetTypes = useMemo(
-		() => withWidgetTypeAliases( widgetTypes, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES ),
-		[ widgetTypes ]
-	);
 
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -217,10 +211,10 @@ function AuthorDetail(): JSX.Element {
 				appliedRange={ dateFilters.appliedRange }
 			/>
 			<ReportScopeProvider openPeriod={ openPeriod }>
-				<DashboardWidgetHostProvider>
+				<DashboardWidgetHostProvider useLinkSearch={ useHostLinkSearch }>
 					<WidgetDashboard.Policy canPerform={ canPerform }>
 						<WidgetDashboard
-							widgetTypes={ pageWidgetTypes }
+							widgetTypes={ widgetTypes }
 							isResolvingWidgetTypes={ isResolvingWidgetTypes }
 							resolveWidgetModule={ resolveWidgetModule }
 							layout={ layout }
@@ -231,7 +225,7 @@ function AuthorDetail(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<DetailPageShell
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={
 									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 										<StatsBreadcrumbs items={ breadcrumbs } />

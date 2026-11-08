@@ -23,6 +23,7 @@ export default function OfflineFeaturesScreen() {
 			apiNonce={ apiNonce }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
+			showFooter={ false }
 		>
 			<h1 className="screen-reader-text">{ __( 'Features', 'jetpack-my-jetpack' ) }</h1>
 			<div className={ tabPanelStyles[ 'single-tab-content' ] }>

@@ -7,6 +7,7 @@ import { CardRow, ProtectCard, SettingsErrorRow, UnavailableCard } from '../../c
 import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
+import { recordEvent } from '../../data/tracks';
 import gauge from './icon';
 import MonitorToggle, { useMonitorToggleData } from './monitor-toggle';
 import type { MonitorContext, Uptime, UptimeDay } from './types';
@@ -16,6 +17,8 @@ import './style.scss';
 const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
 const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 const MINUTES_PER_DAY = 1440;
+const onConnect = () =>
+	recordEvent( 'jetpack_protect_monitor_connect_link_click', { use_beacon: true } );
 const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
 
 /** Opens the Settings tab at this section's card. */
@@ -165,6 +168,11 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 
 	const title = __( 'Downtime monitoring', 'jetpack-protect-pkg' );
 	const { data: toggleData } = useMonitorToggleData( settings );
+	const connectLink = (
+		<Link href={ CONNECT_URL } onClick={ onConnect }>
+			{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
+		</Link>
+	);
 
 	if ( ! available ) {
 		return <UnavailableCard icon={ gauge } title={ title } />;
@@ -182,7 +190,10 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 			<SettingsErrorRow settings={ settings } keys={ MONITOR_KEYS } />
 			{ ! active && (
 				<CardRow>
-					<MonitorToggle data={ toggleData } available />
+					<Stack direction="column" gap="md" align="start">
+						<MonitorToggle data={ toggleData } available userConnected={ connected } />
+						{ ! connected && connectLink }
+					</Stack>
 				</CardRow>
 			) }
 			{ active && (
@@ -198,34 +209,23 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 											days?.length ?? monitor?.uptimeDays ?? 0
 										) }
 									</Text>
-									{ uptimePercent !== null && (
-										<Text variant="heading-md">
-											{ formatNumber( uptimePercent / 100, PERCENT ) }
-										</Text>
-									) }
-									{ uptimePercent === 100 && (
-										<Badge intent="stable" className="jp-protect-uptime__perfect">
-											{ __( 'Perfect uptime', 'jetpack-protect-pkg' ) }
-										</Badge>
-									) }
 								</Stack>
 							) : (
 								<Text variant="body-md">
 									{ __(
-										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
+										'Downtime monitoring is on. Connect your WordPress.com account to get alerts and see uptime history.',
 										'jetpack-protect-pkg'
 									) }
 								</Text>
 							) }
-							{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
+							<Stack direction="row" gap="sm" align="center">
+								{ connected && uptimePercent !== null && (
+									<Text variant="heading-md">{ formatNumber( uptimePercent / 100, PERCENT ) }</Text>
+								) }
+								{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
+							</Stack>
 						</Stack>
-						{ ! connected && (
-							<div>
-								<Link href={ CONNECT_URL }>
-									{ __( 'Connect your account', 'jetpack-protect-pkg' ) }
-								</Link>
-							</div>
-						) }
+						{ ! connected && <div>{ connectLink }</div> }
 						{ failed && (
 							<Stack direction="row" gap="sm" align="center">
 								<Text variant="body-md">

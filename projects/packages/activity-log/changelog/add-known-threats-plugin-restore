@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Mark backups that are known to contain security threats on sites hosted on WordPress.com, and open the in-admin restore screen from "Restore backup" when the new Backup dashboard is on.

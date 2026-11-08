@@ -697,7 +697,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Jetpack AI is not available in offline mode.', IGNORE_A11Y )
+				screen.findByText( 'Jetpack AI is not available in Offline Mode.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect(
 				screen.queryByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )

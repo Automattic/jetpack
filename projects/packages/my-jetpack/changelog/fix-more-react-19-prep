@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Test already notes that React 18 warns about `fetchPriority`. Make the expectation of that error message conditional.
-
-

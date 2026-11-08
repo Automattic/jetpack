@@ -1,10 +1,12 @@
 export { useAttributesWithSearchFallback } from './use-attributes-with-search-fallback';
 export { useChartRoleColor } from './use-chart-role-color';
+export { useChartName, useMapName } from './use-chart-name';
 export { useChartTheme } from './use-chart-theme';
 export { useDelayedLoading } from './use-delayed-loading';
 export { DashboardSectionProvider, useDashboardOriginSearch } from './use-dashboard-origin-search';
 export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
+export { useHostLinkSearch } from './use-host-link-search';
 export { useNormalizedReportParams } from './use-normalized-report-params';
 export {
 	useReportActions,

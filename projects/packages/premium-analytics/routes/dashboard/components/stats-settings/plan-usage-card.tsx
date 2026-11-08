@@ -13,7 +13,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';
+import { getOverLimitMessage, usePlanUpgradeLinkProps } from './plan-usage';
 import styles from './stats-settings.module.scss';
 import { usePlanUsage } from './use-plan-usage';
 import type { JSX } from 'react';
@@ -90,13 +90,13 @@ function UsageMeter( {
 /**
  * The Settings tab's "Your current plan" card.
  *
- * @return The card.
+ * @return The card, or nothing when the plan has no limit to meter.
  */
-export function PlanUsageCard(): JSX.Element {
+export function PlanUsageCard(): JSX.Element | null {
 	const { data, isLoading, isError, refetch, limit, overLimitMonths } = usePlanUsage();
 	const overLimitMessage = getOverLimitMessage( overLimitMonths );
 	const trackEvent = useTrackEvent();
-	const upgradeUrl = getPlanUpgradeUrl();
+	const upgradeLink = usePlanUpgradeLinkProps();
 	const retry = useCallback( () => refetch(), [ refetch ] );
 	const trackUpgrade = useCallback(
 		() => trackEvent( 'jetpack_premium_analytics_plan_upgrade_click' ),
@@ -128,14 +128,8 @@ export function PlanUsageCard(): JSX.Element {
 			</Stack>
 		);
 	} else if ( limit === null ) {
-		content = (
-			<Text>
-				{ __(
-					"Plan usage isn't available for your current plan.",
-					'jetpack-premium-analytics-pkg'
-				) }
-			</Text>
-		);
+		// No view limit to meter, so there is no card.
+		return null;
 	} else {
 		content = (
 			<Stack direction="column" align="start" gap="lg">
@@ -156,8 +150,8 @@ export function PlanUsageCard(): JSX.Element {
 						{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
 					</Link>
 				</Text>
-				{ upgradeUrl && (
-					<ButtonLink href={ upgradeUrl } onClick={ trackUpgrade }>
+				{ upgradeLink && (
+					<ButtonLink { ...upgradeLink } onClick={ trackUpgrade }>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
 					</ButtonLink>
 				) }

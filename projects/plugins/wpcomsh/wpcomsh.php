@@ -469,22 +469,9 @@ add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
 
 /**
- * Hide scan threats from transients
- *
- * @param mixed $response The response.
- *
- * @return mixed
- */
-function wpcomsh_hide_scan_threats_from_transients( $response ) {
-	if ( ! empty( $response->threats ) ) {
-		$response->threats = array();
-	}
-	return $response;
-}
-add_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' );
-
-/**
  * Unhook Jetpack Scan Admin Notice
+ *
+ * Remove once Atomic only runs Jetpack builds that check `jetpack_protect_threat_notifications_enabled`.
  *
  * @return void
  */
@@ -493,38 +480,6 @@ function wpcomsh_remove_threats_from_toolbar() {
 	$wp_admin_bar->remove_node( 'jetpack-scan-notice' );
 }
 add_action( 'wp_before_admin_bar_render', 'wpcomsh_remove_threats_from_toolbar', 999999 );
-
-/**
- * Hide scan threats from api
- *
- * @param mixed $response The reponse.
- *
- * @return mixed
- */
-function wpcom_hide_scan_threats_from_api( $response ) {
-	if (
-		! ( $response instanceof WP_REST_Response )
-		|| $response->get_matched_route() !== '/jetpack/v4/scan'
-	) {
-		return $response;
-	}
-	$response_data = $response->get_data();
-	if ( empty( $response_data['data'] ) || ! is_string( $response_data['data'] ) ) {
-		return $response;
-	}
-
-	$json_body = json_decode( $response_data['data'], true );
-	if ( null === $json_body || empty( $json_body['threats'] ) ) {
-		return $response;
-	}
-
-	$json_body['threats']  = array();
-	$response_data['data'] = wp_json_encode( $json_body, JSON_UNESCAPED_SLASHES );
-	$response->set_data( $response_data );
-
-	return $response;
-}
-add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
 
 /**
  * Returns a standardized timezone string.

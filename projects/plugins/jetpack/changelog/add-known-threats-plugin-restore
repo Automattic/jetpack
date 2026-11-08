@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Backup: On sites hosted on WordPress.com, warn before restoring a backup with known security threats, and mark such backups in the backup list and the Activity Log. "Restore backup" in the Activity Log now opens the restore screen in wp-admin.

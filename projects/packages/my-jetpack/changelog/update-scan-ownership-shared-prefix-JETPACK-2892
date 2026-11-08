@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scan: Read the Scan product slug prefix from Protect Status instead of keeping a separate list.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: On WordPress.com, show Personal and Premium sites the vulnerability report and the Scan upgrade, since their plans don't include Scan.

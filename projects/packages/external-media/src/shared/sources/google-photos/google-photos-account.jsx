@@ -1,3 +1,4 @@
+import { Stack, Text } from '@wordpress/ui';
 import GooglePhotosDisconnect from './google-photos-disconnect';
 
 const GooglePhotosAccount = ( {
@@ -9,9 +10,9 @@ const GooglePhotosAccount = ( {
 	const { image, name } = account || {};
 
 	return (
-		<div className="jetpack-external-media-header__account">
+		<Stack direction="column" gap="sm" className="jetpack-external-media-header__account">
 			{ showAccountInfo && (
-				<div className="jetpack-external-media-header__account-info">
+				<Stack direction="row" gap="sm" align="center">
 					{ image && (
 						<img
 							className="jetpack-external-media-header__account-image"
@@ -21,15 +22,15 @@ const GooglePhotosAccount = ( {
 							width="18"
 						/>
 					) }
-					{ name && <div className="jetpack-external-media-header__account-name">{ name }</div> }
-				</div>
+					{ name && <Text className="jetpack-external-media-header__account-name">{ name }</Text> }
+				</Stack>
 			) }
 
 			<GooglePhotosDisconnect
 				setAuthenticated={ setAuthenticated }
 				buttonVariant={ disconnectBtnVariant }
 			/>
-		</div>
+		</Stack>
 	);
 };
 

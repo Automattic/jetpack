@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcodes: Remove the side margins around the recipe shortcode so it lines up with the rest of the post content.

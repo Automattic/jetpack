@@ -43,6 +43,7 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 	};
 	const composerJson = JSON.parse( await fs.readFile( path.join( cwd, dir, 'composer.json' ) ) );
 
+	// Set `@wordpress/i18n-text-domain` option `allowedTextDomain`
 	let textdomain;
 	if ( dir.startsWith( 'projects/plugins/' ) ) {
 		textdomain =
@@ -60,6 +61,28 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 		];
 	}
 
+	// Set `import/no-extraneous-dependencies` option `packageDir` for wp-build dirs with package.json files
+	for ( const subdir of (
+		await glob( '{packages,routes,widgets}/*/package.json', {
+			cwd: path.join( cwd, dir ),
+		} )
+	)
+		.map( f => path.join( dir, path.dirname( f ) ) )
+		.sort() ) {
+		const scfg = {
+			rules: {
+				'import/no-extraneous-dependencies': [
+					'error',
+					{ packageDir: path.join( cwd, dir ), peerDependencies: true },
+				],
+			},
+		};
+		debug( `Config for ${ subdir }: ${ util.inspect( scfg, { depth: Infinity } ) }` );
+		scfg.files = javascriptFiles.map( v => [ subdir + '/**', v ] );
+		autoProjects.push( scfg );
+	}
+
+	// Set `import/resolver` setting `typescript.project`
 	if ( await fileExists( path.join( cwd, dir, 'tsconfig.json' ) ) ) {
 		any = true;
 		cfg.settings = {
@@ -80,6 +103,7 @@ for ( const dir of ( await glob( 'projects/*/*/composer.json', { cwd } ) )
 		};
 	}
 
+	// Detect React-using projects (combined rule later).
 	if ( await fileExists( path.join( cwd, dir, 'package.json' ) ) ) {
 		const packageJson = JSON.parse( await fs.readFile( path.join( cwd, dir, 'package.json' ) ) );
 		if (

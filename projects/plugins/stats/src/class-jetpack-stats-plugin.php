@@ -13,10 +13,15 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
+use Automattic\Jetpack\PremiumAnalytics\Enablement;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\Stats_Admin\Admin_Bar as Stats_Admin_Bar;
 use Automattic\Jetpack\Stats_Admin\Admin_Post_List_Column;
 use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget;
+use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 
 /**
  * Class to bootstrap the Jetpack Stats plugin.
@@ -34,6 +39,10 @@ class Jetpack_Stats_Plugin {
 	 * Register hooks to initialize the plugin.
 	 */
 	public static function bootstrap() {
+		if ( class_exists( Classic_Stats::class ) ) {
+			Classic_Stats::register_feature_flag();
+		}
+
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
@@ -50,11 +59,10 @@ class Jetpack_Stats_Plugin {
 	}
 
 	/**
-	 * Configure packages controlled by the `Config` class.
+	 * Configure packages controlled by the `Config` class, and boot Stats v2.
 	 *
-	 * Note: the function only configures the packages, but doesn't initialize them.
-	 * The actual initialization is done on 'plugins_loaded' priority 2, which is the
-	 * reason the function is hooked on priority 1.
+	 * `Config` initializes its packages on 'plugins_loaded' priority 2, hence priority 1 here.
+	 * Stats v2 is the exception and boots right away; see `Analytics::init()` for why.
 	 */
 	public static function configure_packages() {
 		$config = new Config();
@@ -75,6 +83,12 @@ class Jetpack_Stats_Plugin {
 		$config->ensure( 'stats' );
 		// Stats Admin package: the REST proxy to the WPCOM stats API used by the dashboard.
 		$config->ensure( 'stats_admin' );
+
+		// Another plugin may have loaded an older premium-analytics, so guard only what is newer than `Enablement_Setting`.
+		if ( ! self::is_jetpack_plugin_active() && class_exists( Enablement::class ) && Enablement::is_enabled() ) {
+			Analytics::init();
+			Analytics_Dashboard::init();
+		}
 	}
 
 	/**
@@ -97,8 +111,14 @@ class Jetpack_Stats_Plugin {
 			return;
 		}
 
+		// Registered while Stats v2 is off too: it is the setting that turns it on.
+		add_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ), 0 );
+
 		if ( ( new Connection_Manager() )->is_connected() ) {
-			Stats_Dashboard::init();
+			// Once Stats v2 takes over, old `page=stats` links open it instead.
+			if ( ! method_exists( Analytics::class, 'is_initialized' ) || ! Analytics::is_initialized() || ! Classic_Stats::is_retired() ) {
+				Stats_Dashboard::init();
+			}
 			if ( ( new Modules() )->is_active( 'stats' ) ) {
 				Stats_Admin_Bar::init();
 				Admin_Post_List_Column::register();
@@ -123,7 +143,9 @@ class Jetpack_Stats_Plugin {
 	 * @return array
 	 */
 	public static function plugin_page_add_links( $links ) {
-		$stats_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) . '">' . esc_html__( 'Stats', 'jetpack-stats' ) . '</a>';
+		/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+		$stats_url  = apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ), array( 'view' => 'dashboard' ) );
+		$stats_link = '<a href="' . esc_url( $stats_url ) . '">' . esc_html__( 'Stats', 'jetpack-stats' ) . '</a>';
 		array_unshift( $links, $stats_link );
 
 		return $links;
@@ -145,8 +167,8 @@ class Jetpack_Stats_Plugin {
 		// connection this is a no-op.
 		self::activate_stats_module();
 
-		// The Stats page is registered in both connection states, so this redirect does not
-		// branch on one. Without a connection the dashboard offers a plan and drives the
+		// `page=stats` opens in both connection states, as the classic page or as Stats v2 once
+		// that retires it. Without a connection the dashboard offers a plan and drives the
 		// connection itself.
 		if ( ( new Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH ) ) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) ) );

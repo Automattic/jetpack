@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Ask for confirmation before Auto-fix updates a plugin or theme, naming the version it updates to.

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -96,6 +97,15 @@ class Red_Bubble_Notifications {
 			} elseif ( ! $product_class::is_plugin_active() ) {
 				// Plugin is installed, but not activated.
 				$plugin_requirements[ $purchase->product_slug ]['needs_activated_only'][] = $product_class::$slug;
+			}
+			// Within a bundle the missing plugin is a recommendation, so it leaves the menu count alone.
+			// Match by substring, as get_paid_plan_purchase_for_product() does, so prefixed slugs still count as standalone.
+			$is_standalone = array_filter(
+				$product_class::get_paid_plan_product_slugs(),
+				fn( $plan ) => false !== strpos( $purchase->product_slug, $plan )
+			);
+			if ( isset( $plugin_requirements[ $purchase->product_slug ] ) && ! $is_standalone ) {
+				$plugin_requirements[ $purchase->product_slug ]['is_silent'] = true;
 			}
 		}
 
@@ -232,6 +242,9 @@ class Red_Bubble_Notifications {
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
 		// Scan is not supported on multisite installations.
 		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
+		if ( method_exists( Protect_Status::class, 'should_notify_threats' ) && ! Protect_Status::should_notify_threats() ) {
 			return $red_bubble_slugs;
 		}
 		// Make sure the Notice hasn't been dismissed.

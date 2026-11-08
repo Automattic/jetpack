@@ -15,7 +15,7 @@ export function getSsoBlocker( login: LoginProtectionState | undefined ): string
 		return __( 'WordPress.com login isn’t available on this site.', 'jetpack-protect-pkg' );
 	}
 	if ( login?.isOffline ) {
-		return __( 'WordPress.com login isn’t available in offline mode.', 'jetpack-protect-pkg' );
+		return __( 'WordPress.com login isn’t available in Offline Mode.', 'jetpack-protect-pkg' );
 	}
 	if ( ! login?.ssoUsable ) {
 		return __(

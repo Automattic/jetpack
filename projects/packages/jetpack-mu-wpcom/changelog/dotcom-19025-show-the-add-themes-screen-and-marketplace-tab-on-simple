@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Themes: Show the Marketplace tab on the Add Themes screen of Simple sites, where a theme both directories list shows as the WordPress.com copy. Behind the wpcom-themes-marketplace-tab feature flag.

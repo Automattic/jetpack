@@ -1,21 +1,29 @@
 <?php
 /**
- * Tests for the Protect Plan class.
+ * Tests for the Plan class.
  *
  * @package automattic/jetpack-protect-status
- * @subpackage Tests
  */
 
 namespace Automattic\Jetpack\Protect_Status;
 
+use Automattic\Jetpack\Current_Plan;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
 /**
  * Tests for the Plan class.
+ *
+ * Each row runs in its own process: a stubbed WordPress.com feature function stays defined for the rest of the run.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Plan_Test extends BaseTestCase {
 
 	/**
@@ -33,7 +41,6 @@ class Plan_Test extends BaseTestCase {
 	protected function set_up() {
 		$this->user_id = wp_create_user( 'plan-test-user', 'password', 'plan-test@example.com' );
 		wp_set_current_user( $this->user_id );
-		$this->reset_has_scan_static();
 	}
 
 	/**
@@ -43,23 +50,11 @@ class Plan_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		remove_all_filters( 'pre_http_request' );
-		$this->reset_has_scan_static();
 	}
 
 	// -----------------------------------------------------------------------
 	// Helpers
 	// -----------------------------------------------------------------------
-
-	/**
-	 * Reset the static `$has_scan` memo inside Plan::has_required_plan().
-	 *
-	 * @return void
-	 */
-	private function reset_has_scan_static() {
-		delete_option( 'jetpack_active_plan' );
-		delete_option( 'jetpack_site_products' );
-		Plan::has_required_plan( true );
-	}
 
 	/**
 	 * Register a pre_http_request stub that returns a 200 products response.
@@ -121,15 +116,81 @@ class Plan_Test extends BaseTestCase {
 	}
 
 	// -----------------------------------------------------------------------
+	// has_required_plan()
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Sites by the features WordPress.com gates and grants (null off WordPress.com), the site's products, and whether the site has Scan.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sites() {
+		return array(
+			'self-hosted, plan with scan'           => array( null, array(), array(), true ),
+			'WordPress.com, scan only'              => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array(), false ),
+			'WordPress.com, scan-self-serve'        => array( array( 'scan', 'scan-self-serve' ), array( 'scan', 'scan-self-serve' ), array(), true ),
+			'WordPress.com, Scan product'           => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan' ), true ),
+			'WordPress.com, bi-yearly Scan'         => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan_bi_yearly' ), true ),
+			'WordPress.com, real-time Scan'         => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_scan_realtime_monthly' ), true ),
+			'WordPress.com, another product'        => array( array( 'scan', 'scan-self-serve' ), array( 'scan' ), array( 'jetpack_backup_t1_yearly' ), false ),
+			'WordPress.com, no scan-self-serve yet' => array( array( 'scan' ), array( 'scan' ), array(), true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_sites
+	 *
+	 * @param string[]|null $known    Features WordPress.com gates, or null off WordPress.com.
+	 * @param string[]      $entitled Features the WordPress.com site has.
+	 * @param string[]      $products The site's product slugs.
+	 * @param bool          $expected Whether the site has Scan.
+	 */
+	#[DataProvider( 'provide_sites' )]
+	public function test_has_required_plan( $known, $entitled, $products, $expected ) {
+		if ( null !== $known ) {
+			$GLOBALS['wpcom_test_features'] = array(
+				'known'    => $known,
+				'entitled' => $entitled,
+			);
+			require_once __DIR__ . '/stubs/wpcom-feature-functions.php';
+		}
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_free',
+				'features'     => array( 'active' => array( 'scan' ) ),
+			)
+		);
+		update_option( 'jetpack_site_products', array_map( fn( $slug ) => array( 'product_slug' => $slug ), $products ) );
+
+		$this->assertSame( $expected, Plan::has_required_plan() );
+	}
+
+	/**
+	 * A plan refreshed mid-request, as My Jetpack's page render does, is read at once.
+	 */
+	public function test_has_required_plan_follows_a_refreshed_plan() {
+		$this->assertFalse( Plan::has_required_plan() );
+
+		Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => array( 'scan' ) ),
+				),
+			)
+		);
+
+		$this->assertTrue( Plan::has_required_plan() );
+	}
+
+	// -----------------------------------------------------------------------
 	// get_product() — cache behaviour
 	// -----------------------------------------------------------------------
 
 	/**
-	 * @testdox get_product() returns the cached value when the cache is still valid (under 7 days old).
-	 *
-	 * @return void
+	 * Test get_product returns the cached value when the cache is still valid (under 7 days old).
 	 */
-	#[TestDox( 'get_product() returns the cached value when the cache is still valid (under 7 days old).' )]
 	public function test_get_product_returns_cached_value_when_cache_is_fresh() {
 		$expected_product = (object) array( 'product_slug' => 'jetpack_scan' );
 		$this->seed_valid_cache( $expected_product, DAY_IN_SECONDS );
@@ -140,11 +201,8 @@ class Plan_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox get_product() fetches from WPCOM when no cache entry exists for the current user.
-	 *
-	 * @return void
+	 * Test get_product fetches from WPCOM when no cache entry exists for the current user.
 	 */
-	#[TestDox( 'get_product() fetches from WPCOM when no cache entry exists for the current user.' )]
 	public function test_get_product_fetches_from_wpcom_when_cache_is_absent() {
 		$product_payload = (object) array(
 			'product_slug' => 'jetpack_scan',
@@ -158,73 +216,77 @@ class Plan_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox get_product() fetches from WPCOM when the cache entry is older than 7 days.
-	 *
-	 * @return void
+	 * Test get_product fetches from WPCOM when the cache entry is older than 7 days.
 	 */
-	#[TestDox( 'get_product() fetches from WPCOM when the cache entry is older than 7 days.' )]
 	public function test_get_product_fetches_from_wpcom_when_cache_is_expired() {
-		$stale_product = (object) array( 'product_slug' => 'stale' );
+		$stale_product = (object) array( 'product_slug' => 'jetpack_scan_stale' );
+		$this->seed_valid_cache( $stale_product, 8 * DAY_IN_SECONDS );
+
 		$fresh_product = (object) array(
 			'product_slug' => 'jetpack_scan',
-			'cost'         => 9.95,
+			'cost'         => 12.00,
 		);
-		$this->seed_valid_cache( $stale_product, 8 * DAY_IN_SECONDS );
 		$this->mock_wpcom_products_200( $fresh_product );
 
 		$result = Plan::get_product( 'jetpack_scan' );
 
-		$this->assertNotEquals( $stale_product, $result, 'An expired cache must not be returned' );
-		$this->assertEquals( $fresh_product, $result, 'The fresh WPCOM API response must be returned after cache expiry' );
+		$this->assertEquals( $fresh_product, $result, 'An expired cache must trigger a new WPCOM fetch' );
 	}
 
-	// -----------------------------------------------------------------------
-	// get_product() — caching side-effects on 200
-	// -----------------------------------------------------------------------
-
 	/**
-	 * @testdox get_product() stores the product and timestamp in user-meta after a successful 200 fetch.
-	 *
-	 * @return void
+	 * Test get_product populates user-meta cache upon receiving a successful response.
 	 */
-	#[TestDox( 'get_product() stores the product and timestamp in user-meta after a successful 200 fetch.' )]
-	public function test_get_product_stores_product_and_date_meta_on_200_response() {
-		$product_payload = (object) array( 'product_slug' => 'jetpack_scan' );
+	public function test_get_product_populates_cache_on_successful_fetch() {
+		$product_payload = (object) array(
+			'product_slug' => 'jetpack_scan',
+			'title'        => 'Jetpack Scan',
+		);
 		$this->mock_wpcom_products_200( $product_payload );
 
-		$before = time();
+		$before_call = time();
 		Plan::get_product( 'jetpack_scan' );
-		$after = time();
+		$after_call = time();
 
 		$cached_product = get_user_meta( $this->user_id, Plan::CACHE_META_NAME, true );
 		$cached_date    = (int) get_user_meta( $this->user_id, Plan::CACHE_DATE_META_NAME, true );
 
-		$this->assertEquals( $product_payload, $cached_product, 'Product must be written to user-meta after a 200 response' );
-		$this->assertGreaterThanOrEqual( $before, $cached_date, 'Cache date must be >= timestamp recorded before the call' );
-		$this->assertLessThanOrEqual( $after, $cached_date, 'Cache date must be <= timestamp recorded after the call' );
+		$this->assertEquals( $product_payload, $cached_product, 'The product payload must be persisted in user-meta' );
+		$this->assertGreaterThanOrEqual( $before_call, $cached_date, 'Cache timestamp must be on or after the call start time' );
+		$this->assertLessThanOrEqual( $after_call, $cached_date, 'Cache timestamp must be on or before the call end time' );
 	}
 
 	/**
-	 * @testdox get_product() does NOT write to user-meta on a non-200 response.
-	 *
-	 * @return void
+	 * Test get_product includes the current user locale in the outbound WPCOM URL.
 	 */
-	#[TestDox( 'get_product() does NOT write to user-meta on a non-200 response.' )]
-	public function test_get_product_does_not_store_meta_on_non_200_response() {
-		$this->mock_wpcom_products_error( 503 );
+	public function test_get_product_passes_user_locale_in_request_url() {
+		switch_to_locale( 'de_DE' );
 
-		Plan::get_product( 'jetpack_scan' );
+		$captured_url = null;
+		add_filter(
+			'pre_http_request',
+			static function ( $pre, $parsed_args, $url ) use ( &$captured_url ) {
+				$captured_url = $url;
+				return array(
+					'body'     => wp_json_encode( (object) array( 'jetpack_scan' => (object) array() ) ),
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+				);
+			},
+			10,
+			3
+		);
 
-		$cached_product = get_user_meta( $this->user_id, Plan::CACHE_META_NAME, true );
-		$cached_date    = get_user_meta( $this->user_id, Plan::CACHE_DATE_META_NAME, true );
+		try {
+			Plan::get_product( 'jetpack_scan' );
+		} finally {
+			restore_previous_locale();
+		}
 
-		$this->assertEmpty( $cached_product, 'Product must NOT be written to user-meta on a non-200 response' );
-		$this->assertEmpty( $cached_date, 'Cache date must NOT be written to user-meta on a non-200 response' );
+		$this->assertNotNull( $captured_url, 'An outbound request must be made' );
+		$this->assertStringContainsString( 'locale=de_DE', $captured_url, 'The user locale must be embedded as a query parameter' );
 	}
-
-	// -----------------------------------------------------------------------
-	// get_product() — WP_Error on non-200
-	// -----------------------------------------------------------------------
 
 	/**
 	 * Data provider: non-200 HTTP response codes.
@@ -235,6 +297,7 @@ class Plan_Test extends BaseTestCase {
 		return array(
 			'400 Bad Request'           => array( 400 ),
 			'401 Unauthorized'          => array( 401 ),
+			'403 Forbidden'             => array( 403 ),
 			'404 Not Found'             => array( 404 ),
 			'500 Internal Server Error' => array( 500 ),
 			'503 Service Unavailable'   => array( 503 ),
@@ -242,193 +305,90 @@ class Plan_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox get_product() returns a WP_Error with code 'failed_to_fetch_data' for each non-200 response.
+	 * Test get_product returns a WP_Error with code failed_to_fetch_data for each non-200 response.
 	 *
 	 * @param int $code HTTP response code.
 	 *
 	 * @dataProvider non_200_response_codes
-	 *
-	 * @return void
 	 */
 	#[DataProvider( 'non_200_response_codes' )]
-	#[TestDox( 'get_product() returns a WP_Error with code \'failed_to_fetch_data\' for each non-200 response.' )]
-	public function test_get_product_returns_wp_error_on_non_200( $code ) {
-		remove_all_filters( 'pre_http_request' );
+	public function test_get_product_returns_wp_error_on_non_200_http_response( $code ) {
 		$this->mock_wpcom_products_error( $code );
 
 		$result = Plan::get_product( 'jetpack_scan' );
 
-		$this->assertInstanceOf( WP_Error::class, $result, "get_product() must return a WP_Error for HTTP {$code}" );
-		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code(), "WP_Error code must be 'failed_to_fetch_data' for HTTP {$code}" );
-		$this->assertSame( $code, $result->get_error_data()['status'], "WP_Error data['status'] must equal {$code}" );
+		$this->assertInstanceOf( WP_Error::class, $result, "HTTP status {$code} must result in a WP_Error instance" );
+		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code(), 'Error code must match failed_to_fetch_data' );
+
+		$error_data = $result->get_error_data();
+		$this->assertIsArray( $error_data, 'Error data must be an array' );
+		$this->assertSame( $code, $error_data['status'], "Error data status must equal {$code}" );
 	}
 
-	// -----------------------------------------------------------------------
-	// has_required_plan() — plan feature support
-	// -----------------------------------------------------------------------
-
 	/**
-	 * @testdox has_required_plan() returns true when the active plan supports 'scan'.
-	 *
-	 * @return void
+	 * Test get_product propagates WP_Error when wp_remote_get itself returns a WP_Error.
 	 */
-	#[TestDox( 'has_required_plan() returns true when the active plan supports \'scan\'.' )]
-	public function test_has_required_plan_returns_true_when_plan_supports_scan() {
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan' => array(
-					'product_slug' => 'jetpack_security_daily',
-					'features'     => array(
-						'active'    => array( 'scan' ),
-						'available' => array(),
-					),
-				),
-			)
+	public function test_get_product_returns_wp_error_on_http_transport_failure() {
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return new WP_Error( 'http_request_failed', 'cURL error 28: Connection timed out' );
+			}
 		);
 
-		$this->assertTrue( Plan::has_required_plan( true ), 'A plan that supports scan must return true' );
+		$result = Plan::get_product( 'jetpack_scan' );
+
+		$this->assertInstanceOf( WP_Error::class, $result, 'A transport failure must result in a WP_Error instance' );
+		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code(), 'Top-level error code must be failed_to_fetch_data' );
+
+		$error_data = $result->get_error_data();
+		$this->assertIsArray( $error_data, 'Error data must be an array' );
+		$this->assertSame( '', $error_data['status'], 'Status code for a transport failure must be empty string' );
 	}
 
 	/**
-	 * @testdox has_required_plan() returns false when the free plan has no scan feature or product.
-	 *
-	 * @return void
+	 * Test get_product does not write to user-meta when the network fetch fails.
 	 */
-	#[TestDox( 'has_required_plan() returns false when the free plan has no scan feature or product.' )]
-	public function test_has_required_plan_returns_false_when_no_scan_plan() {
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan'     => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array(
-						'active'    => array(),
-						'available' => array(),
-					),
-				),
-				'products' => array(),
-			)
+	public function test_get_product_does_not_cache_error_response() {
+		$this->mock_wpcom_products_error( 500 );
+
+		Plan::get_product( 'jetpack_scan' );
+
+		$this->assertEmpty(
+			get_user_meta( $this->user_id, Plan::CACHE_META_NAME, true ),
+			'Failed network response must not write product cache'
 		);
-
-		$this->assertFalse( Plan::has_required_plan( true ), 'A free plan without a scan product must return false' );
-	}
-
-	// -----------------------------------------------------------------------
-	// has_required_plan() — product list
-	// -----------------------------------------------------------------------
-
-	/**
-	 * Data provider: product slugs that grant the Protect paid tier.
-	 *
-	 * @return array[]
-	 */
-	public static function scan_eligible_products() {
-		return array(
-			'jetpack_scan'         => array( 'jetpack_scan' ),
-			'jetpack_scan_monthly' => array( 'jetpack_scan_monthly' ),
+		$this->assertEmpty(
+			get_user_meta( $this->user_id, Plan::CACHE_DATE_META_NAME, true ),
+			'Failed network response must not write cache timestamp'
 		);
 	}
 
 	/**
-	 * @testdox has_required_plan() returns true when the site has a scan-eligible product slug.
-	 *
-	 * @param string $product_slug The product slug to attach to the site record.
-	 *
-	 * @dataProvider scan_eligible_products
-	 *
-	 * @return void
+	 * Test get_product extracts the requested product slug from the WPCOM products map.
 	 */
-	#[DataProvider( 'scan_eligible_products' )]
-	#[TestDox( 'has_required_plan() returns true when the site has a scan-eligible product slug.' )]
-	public function test_has_required_plan_returns_true_with_scan_product( $product_slug ) {
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan'     => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array(
-						'active'    => array(),
-						'available' => array(),
+	public function test_get_product_fetches_custom_product_slug() {
+		$custom_product = (object) array(
+			'product_slug' => 'jetpack_scan_tier2',
+			'cost'         => 19.99,
+		);
+		$body = wp_json_encode( (object) array( 'jetpack_scan_tier2' => $custom_product ), JSON_UNESCAPED_SLASHES );
+
+		add_filter(
+			'pre_http_request',
+			static function () use ( $body ) {
+				return array(
+					'body'     => $body,
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
 					),
-				),
-				'products' => array(
-					array( 'product_slug' => $product_slug ),
-				),
-			)
+				);
+			}
 		);
 
-		$this->assertTrue(
-			Plan::has_required_plan( true ),
-			"Product '{$product_slug}' must satisfy has_required_plan()"
-		);
-	}
+		$result = Plan::get_product( 'jetpack_scan_tier2' );
 
-	// -----------------------------------------------------------------------
-	// has_required_plan() — memoisation and force_refresh
-	// -----------------------------------------------------------------------
-
-	/**
-	 * @testdox has_required_plan() memoises its result so a second call without force_refresh is identical.
-	 *
-	 * @return void
-	 */
-	#[TestDox( 'has_required_plan() memoises its result so a second call without force_refresh is identical.' )]
-	public function test_has_required_plan_memoises_result() {
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan'     => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array(
-						'active'    => array(),
-						'available' => array(),
-					),
-				),
-				'products' => array(),
-			)
-		);
-
-		$first_call  = Plan::has_required_plan( true );
-		$second_call = Plan::has_required_plan();
-
-		$this->assertSame( $first_call, $second_call, 'Repeated calls without force_refresh must return the memoised result' );
-	}
-
-	/**
-	 * @testdox has_required_plan() with force_refresh detects a plan upgrade within the same request lifecycle.
-	 *
-	 * @return void
-	 */
-	#[TestDox( 'has_required_plan() with force_refresh detects a plan upgrade within the same request lifecycle.' )]
-	public function test_has_required_plan_force_refresh_detects_plan_upgrade() {
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan'     => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array(
-						'active'    => array(),
-						'available' => array(),
-					),
-				),
-				'products' => array(),
-			)
-		);
-		$before_upgrade = Plan::has_required_plan( true );
-
-		\Automattic\Jetpack\Current_Plan::update_from_site_record(
-			array(
-				'plan'     => array(
-					'product_slug' => 'jetpack_free',
-					'features'     => array(
-						'active'    => array(),
-						'available' => array(),
-					),
-				),
-				'products' => array(
-					array( 'product_slug' => 'jetpack_scan' ),
-				),
-			)
-		);
-		$after_upgrade = Plan::has_required_plan( true );
-
-		$this->assertFalse( $before_upgrade, 'Before the upgrade, has_required_plan() must be false' );
-		$this->assertTrue( $after_upgrade, 'After adding a scan product, force_refresh must detect the upgrade and return true' );
+		$this->assertEquals( $custom_product, $result, 'get_product() must look up the exact requested slug key' );
 	}
 }

@@ -284,7 +284,7 @@ test( 'shows the stock button loading treatment while a user speed test runs', a
 		'aria-disabled',
 		'true'
 	);
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 	await act( async () => finish( scores ) );
 	await waitFor( () =>
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
@@ -303,7 +303,9 @@ test( 'announces a user run through the card status without a second button anno
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
 	);
-	await waitFor( () => expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
+	await waitFor( () =>
+		expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed…' )
+	);
 	expect( mockSpeak ).not.toHaveBeenCalled();
 } );
 
@@ -324,7 +326,7 @@ test( 'shows a run already in progress when the Overview opens', async () => {
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
 	);
-	expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Checking site speed…' );
 } );
 
 test( 'clears the busy button after a rejected speed test request', async () => {
@@ -1045,13 +1047,13 @@ test( 'shows calculating after Run speed test and replaces it with new scores', 
 		)
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
 	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
 		'jetpack-boost-overview__score-row--hidden'
 	);
 	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 85 );
 } );
@@ -1084,7 +1086,7 @@ test( 'keeps scores visible and focused while re-enabling cached reads', async (
 	);
 	expect( screen.getByText( '91' ) ).toBeVisible();
 	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toBeVisible();
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Checking site speed…' ) ).not.toBeInTheDocument();
 	expect( trigger ).toHaveFocus();
 	// eslint-disable-next-line testing-library/no-node-access
 	const scoreRow = trigger.closest( '[aria-busy]' );
@@ -1121,7 +1123,7 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
 		'jetpack-boost-overview__score-row--hidden'
 	);
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();
@@ -1159,7 +1161,7 @@ test( 'does not present initial loading scores as measured scores', () => {
 	renderOverview();
 	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.getByText( 'Checking site speed…' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Testing site speed' } ) ).not.toHaveAttribute(

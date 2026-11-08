@@ -348,7 +348,13 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 /**
  * Number of days a unit step spans, used to lay out mock visits buckets.
  */
-const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
+const VISITS_STEP_DAYS: Record< string, number > = {
+	day: 1,
+	week: 7,
+	month: 30,
+	quarter: 91,
+	year: 365,
+};
 
 /**
  * Build an hour-of-day response over the requested date range.
@@ -472,6 +478,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 				2,
 				'0'
 			) }`;
+		} else if ( unit === 'quarter' ) {
+			// The stats/visits quarterly label is the quarter's first day.
+			bucket.setUTCDate( 1 );
+			bucket.setUTCMonth( Math.floor( bucket.getUTCMonth() / 3 ) * 3 - i * 3 );
+			period = bucket.toISOString().slice( 0, 10 );
 		} else if ( unit === 'week' ) {
 			bucket.setUTCDate( bucket.getUTCDate() - i * stepDays );
 			// The stats/visits weekly label is `YYYYWMMWDD` — the week's start date.
@@ -619,6 +630,27 @@ function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
 }
 
 /**
+ * The site summary narrowed to `stat_fields`, as WPCOM narrows it.
+ *
+ * @param statFields - Comma-separated `stats` keys, or none for every key.
+ * @return The summary response.
+ */
+function siteSummaryForFields( statFields: string | null | undefined ) {
+	const fields = statFields?.split( ',' ).filter( Boolean ) ?? [];
+	if ( ! fields.length ) {
+		return mockSiteSummary;
+	}
+	const stats: Record< string, unknown > = mockSiteSummary.stats;
+
+	return {
+		...mockSiteSummary,
+		stats: Object.fromEntries(
+			fields.filter( key => key in stats ).map( key => [ key, stats[ key ] ] )
+		),
+	};
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -677,7 +709,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
-			return mockSiteSummary;
+			return siteSummaryForFields( getQueryParam( requestPath, 'stat_fields' ) );
 		case '/summary':
 			// Period summary — alternates primary/comparison so the Site overview
 			// widget shows a period-over-period delta on each tile.

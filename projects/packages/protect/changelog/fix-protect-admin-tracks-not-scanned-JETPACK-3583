@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report a site that hasn't been scanned yet as not scanned, and a failed scan with no results as scan failed, in page view analytics, rather than as active or in progress.

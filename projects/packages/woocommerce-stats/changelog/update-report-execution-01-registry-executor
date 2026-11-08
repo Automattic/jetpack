@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Route report requests through a report registry and executor, without changing what they return.

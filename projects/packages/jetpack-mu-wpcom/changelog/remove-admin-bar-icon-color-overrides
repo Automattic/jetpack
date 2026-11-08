@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Admin bar: Remove the mobile icon color override that WordPress core now handles.
