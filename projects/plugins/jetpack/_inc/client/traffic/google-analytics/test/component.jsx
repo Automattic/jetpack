@@ -31,6 +31,7 @@ describe( 'Google Analytics', () => {
 	const initialState = {
 		jetpack: {
 			initialState: {
+				adminUrl: 'https://example.com/wp-admin/',
 				userData: {
 					currentUser: {
 						permissions: {
@@ -104,6 +105,15 @@ describe( 'Google Analytics', () => {
 		expect( enableCheckbox ).toBeChecked();
 		expect( measurementIdInput ).toHaveValue( 'G-123' );
 		expect( anonymizeIpCheckbox ).toBeChecked();
+	} );
+
+	it( 'links Jetpack Stats to the wp-admin Stats page on sites using the wp-admin interface', () => {
+		render( <GoogleAnalytics { ...defaultProps } siteUsesWpAdminInterface />, { initialState } );
+
+		expect( screen.getByRole( 'link', { name: 'Jetpack Stats' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=stats'
+		);
 	} );
 
 	describe( 'when the form is updated', () => {

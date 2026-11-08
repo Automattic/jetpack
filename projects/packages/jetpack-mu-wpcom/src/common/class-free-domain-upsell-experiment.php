@@ -26,7 +26,8 @@ class Free_Domain_Upsell_Experiment {
 			return null;
 		}
 
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+		if ( ! $host->is_wpcom_simple() || $host->is_p2_site() ) {
 			return null;
 		}
 
@@ -39,8 +40,8 @@ class Free_Domain_Upsell_Experiment {
 			return null;
 		}
 
-		$host = wp_parse_url( home_url(), PHP_URL_HOST );
-		if ( ! is_string( $host ) || ! str_ends_with( $host, '.wordpress.com' ) ) {
+		$home_host = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( ! is_string( $home_host ) || ! str_ends_with( $home_host, '.wordpress.com' ) ) {
 			return null;
 		}
 

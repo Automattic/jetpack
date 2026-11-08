@@ -27,17 +27,21 @@ function toErrorMessage( error: unknown ): string {
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
+ * @param {object} [options]             - Hook options.
+ * @param {string} [options.redirectUrl] - Where to return after reauthorizing the user. Defaults to My Jetpack (deprecated).
+ * @param {string} [options.from]        - The `from` reported to WordPress.com, from `CONNECTION_FROM`. Defaults to 'my-jetpack' (deprecated).
  * @return {object} - The hook data.
  */
-export default function useRestoreConnection() {
+export default function useRestoreConnection( {
+	redirectUrl,
+	from,
+}: { redirectUrl?: string; from?: string } = {} ) {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
 	const { disconnectUserSuccess, setConnectionErrors } = useDispatch(
 		STORE_ID
 	) as ConnectionStoreDispatch;
-
-	const USER_CONNECTION_URL = getUserConnectionUrl();
 
 	/**
 	 * Initiate connection restore.
@@ -61,7 +65,9 @@ export default function useRestoreConnection() {
 						disconnectUserSuccess();
 						setConnectionErrors( {} );
 						if ( autoReconnectUser ) {
-							window.location.href = USER_CONNECTION_URL;
+							// Built here, not on render: many dashboards run this through useConnectionErrorNotice()
+							// only to read the error state, and the URL's warning would fire on every one.
+							window.location.href = getUserConnectionUrl( { redirect_url: redirectUrl, from } );
 						}
 					} else {
 						window.location.reload();
@@ -76,7 +82,7 @@ export default function useRestoreConnection() {
 					throw error;
 				} );
 		},
-		[ disconnectUserSuccess, setConnectionErrors, USER_CONNECTION_URL ]
+		[ disconnectUserSuccess, setConnectionErrors, redirectUrl, from ]
 	);
 
 	useEffect( () => {

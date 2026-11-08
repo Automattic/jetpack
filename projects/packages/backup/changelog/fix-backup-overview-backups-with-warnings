@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Overview: Treat backups that finished with warnings as backups, so they can be opened and restored and their links work.

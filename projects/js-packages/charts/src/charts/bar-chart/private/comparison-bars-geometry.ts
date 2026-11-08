@@ -1,6 +1,6 @@
 export type SlotRect = { x: number; y: number; width: number; height: number };
 
-type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
+export type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
 
 /**
  * Mirrors visx's getScaleBaseline so bars drawn outside visx share the baseline of its bars, including out-of-domain zero values.
@@ -19,6 +19,18 @@ export function getValueScaleBaseline( scale: ValueScale ): number {
 			: maxOutput;
 	}
 	return Number.isFinite( maybeZero ) ? Math.max( maybeZero, minOutput ) : minOutput;
+}
+
+/**
+ * A value's position on a continuous scale, held inside its range so a domain that leaves the value out cannot push a bar off the plot.
+ *
+ * @param {ValueScale} scale - The continuous value scale.
+ * @param {number}     value - The value to place.
+ * @return {number} The position in pixels.
+ */
+export function getValueScalePosition( scale: ValueScale, value: number ): number {
+	const [ a, b ] = scale.range().map( r => Number( r ) || 0 );
+	return Math.min( Math.max( scale( value ), Math.min( a, b ) ), Math.max( a, b ) );
 }
 
 /**

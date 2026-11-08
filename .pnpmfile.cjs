@@ -165,6 +165,23 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'test-exclude' ] = '^8.0.0';
 	}
 
+	// Clear GHSA-3g3m-2fjr-6pw4 for various deps. Historically the process has taken a while.
+	// https://github.com/istanbuljs/test-exclude/issues/78
+	// https://github.com/jestjs/jest/issues/16529
+	// https://github.com/joshwooding/vite-plugin-react-docgen-typescript/issues/92
+	// (plus a few more upstreams with no report yet)
+	if ( pkg.dependencies?.glob?.startsWith( '^13' ) ) {
+		pkg.dependencies.glob += ' || ^14';
+	}
+
+	// Clear GHSA-g3hv-75wg-m249 for various deps. Historically the process has taken a while.
+	// https://github.com/eslint/eslint/issues/21463
+	// https://github.com/istanbuljs/test-exclude/issues/78
+	// https://github.com/typescript-eslint/typescript-eslint/issues/13125
+	if ( pkg.dependencies?.minimatch?.startsWith( '^10' ) ) {
+		pkg.dependencies.minimatch += ' || ^11';
+	}
+
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
 	// (if you bring this back, do it by reverting the pnpmfile changes in commit e90548654eacfa7493388331dd644a6f927d16c5, don't just delete this bit).
 	if ( pkg.name === '@wordpress/e2e-test-utils-playwright' ) {
@@ -195,8 +212,8 @@ function fixPeerDeps( pkg ) {
 			}
 
 			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19\.x)/ )
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18(?:\.\d+)?\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^19|19(?:\.\d+)?\.x)/ )
 			) {
 				pkg.peerDependencies[ p ] += ' || ^19';
 			}
@@ -232,6 +249,27 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
 			}
 		}
+	}
+
+	// Bump problematic ranges for now; should be safe:
+	// p1792520152276519-slack-C05Q5HSS013
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <3.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <=3.0.0';
+	}
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] === '^6.21.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] += ' || ^7.0.0';
+	}
+	if (
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0 || ^4.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/primitives' ] += ' || ^5.0.0';
 	}
 
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.

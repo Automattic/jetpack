@@ -9,7 +9,7 @@ import { onSwitchWritten } from '../../../data/switch-written';
 import {
 	fetchAdminMenu,
 	linksTo,
-	menuLinkOf,
+	menuLabelOf,
 	slideIn,
 	syncAdminMenu,
 } from '../../../utils/admin-menu-sync';
@@ -119,9 +119,7 @@ export function useSidebarSync( features: MainFeature[] ) {
 function pickPointer( added: HTMLElement[], features: MainFeature[] ): MenuPointerTarget {
 	const [ first ] = added;
 	const name =
-		features.find( feature => linksTo( first, feature.manage_url ) )?.name ??
-		menuLinkOf( first )?.textContent?.trim() ??
-		'';
+		features.find( feature => linksTo( first, feature.manage_url ) )?.name ?? menuLabelOf( first );
 
 	return {
 		elements: added,

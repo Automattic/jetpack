@@ -8,12 +8,12 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import {
+	HEADLINE_COUNT_FORMAT,
 	AnnualHighlightsSkeleton,
 	MetricTileGrid,
 	WidgetRoot,
 	WidgetState,
 	annualInsightsCsvExporter,
-	type DataFormat,
 	type ReportParamsFieldAttributes,
 	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -33,11 +33,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type AnnualHighlightsRenderAttributes = AnnualHighlightsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 type AnnualHighlightsWidgetProps = WidgetRenderProps< AnnualHighlightsRenderAttributes >;
-
-const COUNT_FORMAT: DataFormat = {
-	type: 'number',
-	options: { useMultipliers: true, decimals: 0 },
-};
 
 /**
  * A year the site did not publish in has no row; leaving it undefined draws
@@ -84,7 +79,6 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 	];
 
 	useReportActions( {
-		report: 'annual-insights',
 		csv: {
 			exporter: annualInsightsCsvExporter,
 			// Same gate as the error state: a failed refetch keeps the cached years.
@@ -111,7 +105,7 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 				renderLoading={ <AnnualHighlightsSkeleton /> }
 			>
 				<Stack className={ styles.root } direction="column">
-					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+					<MetricTileGrid tiles={ tiles } dataFormat={ HEADLINE_COUNT_FORMAT } />
 				</Stack>
 			</WidgetState>
 		</div>

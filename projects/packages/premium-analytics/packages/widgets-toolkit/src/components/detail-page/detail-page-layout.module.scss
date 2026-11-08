@@ -16,6 +16,11 @@
 	}
 }
 
+// Keeps the footer at the bottom of a short page.
+.footer {
+	margin-block-start: auto;
+}
+
 .section {
 	// Caps every layer the widget grid raises (chart controls, the edit
 	// overlay, resizing tiles) under the pinned header, which then only has to

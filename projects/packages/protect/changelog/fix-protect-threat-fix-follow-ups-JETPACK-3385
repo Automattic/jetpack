@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Accept a plugin or theme slug with surrounding spaces when confirming an auto-fix that deletes it, and disable Confirm deletion in the threat list while another action runs on the threat.

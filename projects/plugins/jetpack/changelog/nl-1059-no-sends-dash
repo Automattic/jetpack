@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Show a dash instead of 0% for a post's open and click rates until it has recorded sends.

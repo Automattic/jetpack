@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Features: Offer Connect on Jetpack AI behind the default-off `my-jetpack-account-connect` flag when a WordPress.com account is all it is missing.

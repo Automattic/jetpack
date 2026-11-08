@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Share bounded VideoPress upload lifecycle recording across browser clients.

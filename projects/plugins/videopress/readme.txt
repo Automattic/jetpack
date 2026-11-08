@@ -65,7 +65,7 @@ To get unlimited videos with a total storage of up to 1 TB, upgrade to the paid 
 
 
 ### Is Jetpack VideoPress included in a Jetpack plan?
-Jetpack’s video player for WordPress is included in the Jetpack Complete plan. It is not currently included in any other plan.
+Jetpack’s video player for WordPress is included in the Jetpack Pro and Jetpack Complete plans.
 
 ### Is there a storage limit?
 The free plan has a limit of 1 video and 1 GB.

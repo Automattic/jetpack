@@ -2,11 +2,6 @@
 /**
  * Loads the Agents Manager in the block editor on WordPress.com sites with the WordPress Agent enabled.
  *
- * The Agents Manager package is a neutral loader: it only mounts in the block
- * editor when a host answers the `agents_manager_enabled_in_block_editor`
- * filter. This is the WordPress.com answer, so it no longer depends on the
- * Big Sky plugin being loaded.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 

@@ -84,5 +84,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		}
-	}
+	},
+	"abandoned": true
 }

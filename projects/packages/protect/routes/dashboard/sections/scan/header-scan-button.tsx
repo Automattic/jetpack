@@ -23,7 +23,7 @@ export default function HeaderScanButton() {
 
 	if ( isScanning && hasStoppedPolling ) {
 		return (
-			<Button variant="outline" size="compact" onClick={ checkAgain } loading={ isChecking }>
+			<Button variant="minimal" size="compact" onClick={ checkAgain } loading={ isChecking }>
 				{ __( 'Check again', 'jetpack-protect-pkg' ) }
 			</Button>
 		);
@@ -37,10 +37,10 @@ export default function HeaderScanButton() {
 			label={
 				isScanning
 					? __( 'Scanning…', 'jetpack-protect-pkg' )
-					: __( 'Scan now', 'jetpack-protect-pkg' )
+					: __( 'Scan site', 'jetpack-protect-pkg' )
 			}
 			disabled={ isScanning }
-			variant="outline"
+			variant="minimal"
 			size="compact"
 		/>
 	);

@@ -33,6 +33,7 @@ use function is_multisite;
 use function sanitize_text_field;
 use function wp_add_inline_script;
 use function wp_enqueue_script;
+use function wp_json_encode;
 use function wp_register_script;
 use function wp_unslash;
 use function wp_verify_nonce;
@@ -478,6 +479,8 @@ class Jetpack_Activity_Log {
 		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), Package_Version::PACKAGE_VERSION, true );
 		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
 
+		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config (via AdminPage) reads this global.
+		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => self::PAGE_SLUG ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 		wp_add_inline_script( self::DATA_SCRIPT_HANDLE, ( new Activity_Log_Initial_State() )->render(), 'before' );
 
 		// Simple has no Jetpack connection to describe; the app treats a missing state as no connection errors.

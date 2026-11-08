@@ -138,7 +138,7 @@ jobs:
             curl -s --fail "$SITE_URL" > /dev/null || CODE=$?
             if [[ $CODE -ne 0 ]]; then
               echo '::error::Unable to load site! Something is wrong with the site.'
-              CODE=1
+              exit 1
             else
               echo 'No issues slurping site with `curl`.'
             fi

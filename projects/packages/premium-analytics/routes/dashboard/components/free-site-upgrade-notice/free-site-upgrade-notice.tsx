@@ -8,7 +8,10 @@ import {
 	type StatsAppNotices,
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsUpgradeLinkProps,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -114,7 +117,10 @@ export function FreeSiteUpgradeNotice(): JSX.Element {
 
 	const offer = getScriptData()?.premium_analytics?.plan_gates?.free_site_upgrade;
 	const hasStatsProduct = !! offer?.has_stats_product;
-	const upgradeHref = offer?.upgrade_url;
+	const upgradeLink = useStatsUpgradeLinkProps(
+		'jetpack-premium-analytics-free-site-upgrade-notice',
+		offer?.upgrade_url
+	);
 
 	return (
 		<Notice.Root intent="info" className={ styles.notice }>
@@ -131,8 +137,8 @@ export function FreeSiteUpgradeNotice(): JSX.Element {
 			</Notice.Description>
 
 			<Notice.Actions>
-				{ upgradeHref && (
-					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
+				{ upgradeLink && (
+					<Notice.ActionLink { ...upgradeLink } onClick={ recordUpgradeClick }>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionLink>
 				) }

@@ -164,6 +164,22 @@ const refreshConnectedPlugins =
 	};
 
 /**
+ * Read the site's connection status from the server again and record it in the store.
+ *
+ * The store is otherwise filled once, from the page's initial state, so it cannot see a connection made in another tab.
+ *
+ * @return {Function} Thunk that resolves with the fresh status.
+ */
+const refreshConnectionStatus =
+	() =>
+	async ( { dispatch } ) => {
+		const status = await restApi.fetchSiteConnectionStatus();
+		dispatch( setConnectionStatus( status ) );
+
+		return status;
+	};
+
+/**
  * Unlink the current user from WordPress.com and record it in the store.
  *
  * The one place an unlink happens, so every surface reflects it the same way rather than
@@ -205,6 +221,7 @@ const actions = {
 	unlinkUser,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	refreshConnectionStatus,
 	setConnectionErrors,
 	runConnectionHealthCheck,
 	setIsOfflineMode,

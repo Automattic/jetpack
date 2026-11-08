@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Report a WordPress.com failure on the Backup plan check as an error instead of as a missing plan.
