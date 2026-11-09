@@ -15,6 +15,17 @@ jest.mock( '@wordpress/route', () => {
 jest.mock( '../../../../../error-reporting/src/report-error' );
 
 let mockChartsProviderError: Error | null = null;
+let mockQueryClientProviderError: Error | null = null;
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => {
+		if ( mockQueryClientProviderError ) {
+			throw mockQueryClientProviderError;
+		}
+		return children;
+	},
+} ) );
 
 jest.mock( '../../charts-provider', () => ( {
 	ChartsProvider: ( { children }: { children: ReactNode } ) => {
@@ -52,6 +63,7 @@ describe( 'WidgetRoot error reporting', () => {
 	beforeEach( () => {
 		( reportError as jest.Mock ).mockClear();
 		mockChartsProviderError = null;
+		mockQueryClientProviderError = null;
 	} );
 
 	it( 'reports a crashing child once and lets it reach the surrounding boundary', () => {
@@ -73,11 +85,17 @@ describe( 'WidgetRoot error reporting', () => {
 		expect( console ).toHaveErrored();
 	} );
 
-	it( 'reports a crash in a provider it wraps', () => {
+	it.each( [
+		[
+			'AnalyticsQueryClientProvider',
+			( error: Error ) => ( mockQueryClientProviderError = error ),
+		],
+		[ 'ChartsProvider', ( error: Error ) => ( mockChartsProviderError = error ) ],
+	] )( 'reports a crash in %s', ( _name, breakProvider ) => {
 		const error = new Error( 'provider boom' );
 		const onCatch = jest.fn();
 		setMockRouteSearch();
-		mockChartsProviderError = error;
+		breakProvider( error );
 
 		render(
 			<TestBoundary onCatch={ onCatch }>
