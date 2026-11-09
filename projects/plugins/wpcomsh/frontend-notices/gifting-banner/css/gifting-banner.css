@@ -142,4 +142,8 @@
 		font-size: 12px;
 		padding: 6px 16px;
 	}
+
+	#wpcom-gifting-banner .wpcom-gifting-banner__more-info-button {
+		height: 15px;
+	}
 }
