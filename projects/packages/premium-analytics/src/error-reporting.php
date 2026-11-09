@@ -55,7 +55,8 @@ function add_error_reporting_script_data( array $data ): array {
 /**
  * Keeps the package's own origin first and drops what a filter must not be able to publish.
  *
- * A bare `/` would match every stack line, so every error would look like dashboard code.
+ * An origin with no host, `/` or `https://` among them, would match every stack line of that shape,
+ * so every error would look like dashboard code.
  *
  * @since $$next-version$$
  *
@@ -68,7 +69,12 @@ function sanitize_error_reporting_origins( $filtered, string $own ): array {
 
 	if ( is_array( $filtered ) ) {
 		foreach ( $filtered as $origin ) {
-			if ( ! is_string( $origin ) || $origin === '' || $origin === '/' ) {
+			if ( ! is_string( $origin ) || $origin === '' ) {
+				continue;
+			}
+
+			$origin_host = wp_parse_url( $origin, PHP_URL_HOST );
+			if ( ! is_string( $origin_host ) || $origin_host === '' ) {
 				continue;
 			}
 
