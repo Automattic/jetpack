@@ -19,8 +19,8 @@ const baseInputs = () => ( {
 		[ 'packages/c', new Set() ],
 	] ),
 	mode: 'development',
-	flags: 'pin:false lock:true',
-	toolVersion: 'tool-v1',
+	flags: 'lock:true node:v1',
+	sharedInputs: 'shared-v1',
 	committed: new Map( [
 		[ 'packages/a', [ 'sha-a1\tprojects/packages/a/src/x.php' ] ],
 		[ 'packages/b', [ 'sha-b1\tprojects/packages/b/src/y.php' ] ],
@@ -85,8 +85,8 @@ describe( 'build-cache fingerprintProjects', () => {
 
 	test.each( [
 		[ 'mode', 'production' ],
-		[ 'flags', 'pin:true lock:true' ],
-		[ 'toolVersion', 'tool-v2' ],
+		[ 'flags', 'lock:false node:v1' ],
+		[ 'sharedInputs', 'shared-v2' ],
 	] )( 'changing %s invalidates every project', ( key, value ) => {
 		const before = fingerprintProjects( baseInputs() );
 		const changed = baseInputs();
@@ -264,6 +264,16 @@ describe( 'canSkip / writeManifest', () => {
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
 		await mutate();
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	test( 'with production-include declared, only flagged files count as output', async () => {
+		await writeFile( projectPath( '.gitattributes' ), '/build/** production-include\n' );
+		await addOutput( 'build/out.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await addOutput( 'app/assets/dist/local-only.js' );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+		await fs.rm( projectPath( 'build/out.js' ) );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
