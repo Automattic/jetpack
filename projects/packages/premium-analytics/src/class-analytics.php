@@ -486,6 +486,8 @@ class Analytics {
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
 			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
+			require_once __DIR__ . '/error-reporting.php';
+			add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data', 20 );
 			add_action( 'admin_page_access_denied', array( static::class, 'redirect_denied_dashboard_request' ) );
 		}
 
