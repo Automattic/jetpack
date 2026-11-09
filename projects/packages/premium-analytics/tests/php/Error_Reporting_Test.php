@@ -13,12 +13,17 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/error-reporting.php';
+require_once __DIR__ . '/../../src/dashboard-layout.php';
+require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/../../src/widget-types.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data' )]
 class Error_Reporting_Test extends BaseTestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	/**
 	 * Reset the host and filters.
@@ -70,6 +75,46 @@ class Error_Reporting_Test extends BaseTestCase {
 
 		$this->assertContains( 'https://example.com/x/', $config['script_origins'] );
 		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_origins_added_while_the_widget_registry_hydrates_are_published() {
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		$GLOBALS['jpa_test_widget_manifest'] = array();
+		$this->reset_widget_registry();
+		add_action(
+			Widget_Type_Registry::REGISTER_ACTION,
+			static function () {
+				add_filter(
+					'jetpack_premium_analytics_error_reporting_script_origins',
+					static function ( $origins ) {
+						$origins[] = 'https://example.com/package/build/';
+						return $origins;
+					}
+				);
+			}
+		);
+
+		$config = $this->get_config();
+
+		remove_all_actions( Widget_Type_Registry::REGISTER_ACTION );
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		unset( $GLOBALS['jpa_test_widget_manifest'] );
+		$this->reset_widget_registry();
+
+		$this->assertContains( 'https://example.com/package/build/', $config['script_origins'] );
+	}
+
+	/**
+	 * Drop the hydrated widget type registry.
+	 *
+	 * @return void
+	 */
+	private function reset_widget_registry() {
+		$instance = new \ReflectionProperty( Widget_Type_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 	}
 
 	/**
