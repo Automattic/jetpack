@@ -1,68 +1,183 @@
-// The four arrangements `pickMetricTileLayout` writes to `data-layout`, shared
-// by the loaded grid and its skeleton so the two land in the same place. The
-// including file adds its own dressing: dividers, type, stand-in widths.
+@use "sass:math";
+
+// The arrangement a grid takes follows the size of its own box alone, read by
+// container queries on the size container around it. Shared by the loaded grid
+// and its skeleton so the two land in the same place.
+
+// Inline size from which the tiles sit side by side instead of in a list.
+$wide-min-inline-size: 560px;
+
+// The list stretches only when each row gets at least this much height.
+$stacked-min-row-block-size: 68px;
+
+// A grid tile at its shortest: padding-lg above and below, the label's
+// line-height-sm, gap-sm, and the value's font-size-2xl at line-height 1.
+$grid-min-row-block-size: 16px * 2 + 20px + 8px + 32px;
+
+// gap-md, between grid rows.
+$grid-row-gap: 12px;
+
+// Highest tile count the rules cover; keep in step with `MAX_TILE_COUNT`.
+$max-tile-count: 8;
+
+// Keeps a `max-` bound just under the `min-` bound on the other side of it.
+$bound-step: 0.02px;
+
+$list-query: "(max-inline-size: #{$wide-min-inline-size - $bound-step})";
+$wide-query: "(min-inline-size: #{$wide-min-inline-size})";
+
+@function grid-min-block-size($rows) {
+
+	@return $grid-min-row-block-size * $rows + $grid-row-gap * ($rows - 1);
+}
+
+// Narrower than the wide threshold: a list, compact or stacked.
+@mixin list {
+
+	@container #{$list-query} {
+
+		&[data-tile-count] {
+			@content;
+		}
+	}
+}
+
+// From the wide threshold up: tiles side by side, as a row or a grid.
+@mixin wide {
+
+	@container #{$wide-query} {
+
+		&[data-tile-count] {
+			@content;
+		}
+	}
+}
+
+// A list too short for every row to get its share of the height.
+@mixin compact {
+
+	@for $count from 1 through $max-tile-count {
+		$stacked-min-block-size: $stacked-min-row-block-size * $count;
+
+		@container #{$list-query} and (max-block-size: #{$stacked-min-block-size - $bound-step}) {
+
+			&[data-tile-count="#{$count}"] {
+				@content;
+			}
+		}
+	}
+}
+
+// A list tall enough for every row to get its share of the height.
+@mixin stacked {
+
+	@for $count from 1 through $max-tile-count {
+		$stacked-min-block-size: $stacked-min-row-block-size * $count;
+
+		@container #{$list-query} and (min-block-size: #{$stacked-min-block-size}) {
+
+			&[data-tile-count="#{$count}"] {
+				@content;
+			}
+		}
+	}
+}
+
+// Side by side, too short for two columns: both counts of a pair share rows.
+@mixin row {
+
+	@for $rows from 1 through math.ceil(math.div($max-tile-count, 2)) {
+
+		@container #{$wide-query} and (max-block-size: #{grid-min-block-size($rows) - $bound-step}) {
+
+			&[data-tile-count="#{$rows * 2 - 1}"],
+			&[data-tile-count="#{$rows * 2}"] {
+				@content;
+			}
+		}
+	}
+}
+
+// Side by side, tall enough for every row of a two-column grid.
+@mixin grid {
+
+	@for $rows from 1 through math.ceil(math.div($max-tile-count, 2)) {
+
+		@container #{$wide-query} and (min-block-size: #{grid-min-block-size($rows)}) {
+
+			&[data-tile-count="#{$rows * 2 - 1}"],
+			&[data-tile-count="#{$rows * 2}"] {
+				@content;
+			}
+		}
+	}
+}
+
+// The four arrangements. The including file adds its own dressing through the
+// mixins above: dividers, type, stand-in widths.
 @mixin layouts {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-sm);
 	min-block-size: 100%;
 
-	/* Compact: rows at their own height, the tail scrolling or clipped. */
-	&[data-layout="compact"] {
+	// Compact: rows at their own height, the tail scrolling or clipped.
+	@include compact {
 		gap: var(--wpds-dimension-gap-xs);
 		min-block-size: 0;
+
+		.tile {
+			flex: none;
+			padding-block: var(--wpds-dimension-padding-sm);
+			padding-inline: var(--wpds-dimension-padding-md);
+		}
 	}
 
-	&[data-layout="compact"] .tile {
-		flex: none;
-		padding-block: var(--wpds-dimension-padding-sm);
-		padding-inline: var(--wpds-dimension-padding-md);
+	// Stacked: the rows share the body height evenly.
+	@include stacked {
+
+		.tile {
+			flex: 1 1 0;
+			min-block-size: 0;
+			padding-inline: var(--wpds-dimension-padding-lg);
+		}
 	}
 
-	/* Stacked: the rows share the body height evenly. */
-	&[data-layout="stacked"] .tile {
-		flex: 1 1 0;
-		min-block-size: 0;
-		padding-inline: var(--wpds-dimension-padding-lg);
-	}
-
-	/* Row and grid: centered tiles with the label above the value. */
-	&[data-layout="row"],
-	&[data-layout="grid"] {
+	// Row and grid: centered tiles with the label above the value.
+	@include wide {
 		gap: var(--wpds-dimension-gap-md);
+
+		.tile {
+			flex-direction: column;
+			justify-content: center;
+			gap: var(--wpds-dimension-gap-sm);
+			text-align: center;
+		}
 	}
 
-	&[data-layout="row"] .tile,
-	&[data-layout="grid"] .tile {
-		flex-direction: column;
-		justify-content: center;
-		gap: var(--wpds-dimension-gap-sm);
-		text-align: center;
-	}
-
-	&[data-layout="row"] {
+	@include row {
 		flex-direction: row;
+
+		.tile {
+			flex: 1 1 0;
+			padding-block: var(--wpds-dimension-padding-md);
+			padding-inline: var(--wpds-dimension-padding-lg);
+		}
 	}
 
-	&[data-layout="row"] .tile {
-		flex: 1 1 0;
-		padding-block: var(--wpds-dimension-padding-md);
-		padding-inline: var(--wpds-dimension-padding-lg);
-	}
-
-	&[data-layout="grid"] {
+	@include grid {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		grid-auto-rows: minmax(0, 1fr);
-	}
 
-	&[data-layout="grid"] .tile {
-		padding: var(--wpds-dimension-padding-lg);
-	}
+		.tile {
+			padding: var(--wpds-dimension-padding-lg);
+		}
 
-	/* An odd count leaves the last row half empty, so the trailing tile takes
-	 * the whole row instead. */
-	&[data-layout="grid"] .tile:last-child:nth-child(odd) {
-		grid-column: 1 / -1;
+		// An odd count leaves the last row half empty, so the trailing tile takes
+		// the whole row instead.
+		.tile:last-child:nth-child(odd) {
+			grid-column: 1 / -1;
+		}
 	}
 }

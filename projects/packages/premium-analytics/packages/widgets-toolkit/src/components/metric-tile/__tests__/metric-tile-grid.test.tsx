@@ -34,11 +34,22 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 	} );
 
-	it( 'marks the list with the layout picked for its box', () => {
-		// jsdom lays nothing out, so the box measures 0x0: too short to stretch.
-		renderMetricGrid();
+	// Layout rules are written per count: a count they do not cover matches none.
+	it.each( [
+		[ 4, '4' ],
+		[ 9, '8' ],
+	] )( 'tells the layout rules that %i tiles are %s', ( tileCount, expected ) => {
+		render(
+			<MetricTileGrid
+				tiles={ Array.from( { length: tileCount }, ( _, index ) => ( {
+					key: `tile-${ index }`,
+					label: `Tile ${ index }`,
+					value: index,
+				} ) ) }
+			/>
+		);
 
-		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-layout', 'compact' );
+		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-tile-count', expected );
 	} );
 
 	it( 'renders the placeholder for null and non-finite values', () => {
