@@ -71,7 +71,6 @@
 #wpcom-gifting-banner .wpcom-gifting-banner__button,
 #wpcom-gifting-banner .wpcom-gifting-banner__more-info-button {
 	all: unset;
-	box-sizing: border-box;
 	cursor: pointer;
 }
 
