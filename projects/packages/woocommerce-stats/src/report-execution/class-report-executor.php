@@ -12,7 +12,7 @@ use WP_Error;
 /**
  * Resolves a route to its report and a provider's handler, then runs it, without falling back.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Report_Executor {
 
