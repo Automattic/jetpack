@@ -521,7 +521,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media        = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
-		$skip_publicize = false === $publicize;
+		// A JSON boolean false is cast to array( false ) by the (array|bool) input type.
+		$skip_publicize = false === $publicize || array( false ) === $publicize;
 
 		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 

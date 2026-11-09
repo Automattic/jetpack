@@ -76,12 +76,13 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Publishing with publicize=false must not flag the post for sharing, and must not affect later posts.
 	 *
-	 * @dataProvider provide_endpoint_classes
+	 * @dataProvider provide_endpoint_classes_and_encodings
 	 *
-	 * @param string $class_name Endpoint class.
+	 * @param string $class_name   Endpoint class.
+	 * @param string $content_type Request content type.
 	 */
-	#[DataProvider( 'provide_endpoint_classes' )]
-	public function test_publish_with_publicize_false_is_not_flagged_for_sharing( $class_name ) {
+	#[DataProvider( 'provide_endpoint_classes_and_encodings' )]
+	public function test_publish_with_publicize_false_is_not_flagged_for_sharing( $class_name, $content_type ) {
 		global $blog_id;
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
@@ -107,16 +108,14 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		};
 		add_action( 'transition_post_status', $record, 10, 3 );
 
-		// Form-encoded like Post by Email; a JSON false would be cast to array( false ) instead.
-		WPCOM_JSON_API::init()->post_body    = http_build_query(
-			array(
-				'title'     => 'skipped',
-				'content'   => 'Hi',
-				'status'    => 'publish',
-				'publicize' => false,
-			)
+		$body                                = array(
+			'title'     => 'skipped',
+			'content'   => 'Hi',
+			'status'    => 'publish',
+			'publicize' => false,
 		);
-		WPCOM_JSON_API::init()->content_type = 'application/x-www-form-urlencoded';
+		WPCOM_JSON_API::init()->post_body    = 'application/json' === $content_type ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : http_build_query( $body );
+		WPCOM_JSON_API::init()->content_type = $content_type;
 
 		$response = $this->get_endpoint( $class_name, '/sites/%s/posts/new' )->callback( "/sites/$blog_id/posts/new", $blog_id, 0 );
 		self::factory()->post->create(
@@ -140,16 +139,22 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Post endpoint classes that create posts.
+	 * Post endpoint classes that create posts, with form-encoded (Post by Email) and JSON bodies.
 	 *
 	 * @return array
 	 */
-	public static function provide_endpoint_classes() {
-		return array(
-			'v1'   => array( 'WPCOM_JSON_API_Update_Post_Endpoint' ),
-			'v1.1' => array( 'WPCOM_JSON_API_Update_Post_v1_1_Endpoint' ),
-			'v1.2' => array( 'WPCOM_JSON_API_Update_Post_v1_2_Endpoint' ),
+	public static function provide_endpoint_classes_and_encodings() {
+		$classes = array(
+			'v1'   => 'WPCOM_JSON_API_Update_Post_Endpoint',
+			'v1.1' => 'WPCOM_JSON_API_Update_Post_v1_1_Endpoint',
+			'v1.2' => 'WPCOM_JSON_API_Update_Post_v1_2_Endpoint',
 		);
+		$data    = array();
+		foreach ( $classes as $version => $class_name ) {
+			$data[ "$version form" ] = array( $class_name, 'application/x-www-form-urlencoded' );
+			$data[ "$version json" ] = array( $class_name, 'application/json' );
+		}
+		return $data;
 	}
 
 	/**
