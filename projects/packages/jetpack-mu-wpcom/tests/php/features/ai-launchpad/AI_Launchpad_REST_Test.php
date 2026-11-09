@@ -60,6 +60,9 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		\Brain\Monkey\setUp();
 		\Brain\Monkey\Functions\when( 'wpcom_ai_launchpad_is_eligible' )->justReturn( true );
 
+		// A new site starts coming soon. Without the option it reads as launched at creation.
+		update_option( 'launch-status', 'unlaunched' );
+
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_admin',
@@ -350,6 +353,35 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $last_task['completed'] );
 		$this->assertFalse( $last_task['in_progress'] );
 		$this->assertNull( $last_task['calypso_path'] );
+	}
+
+	/**
+	 * A site that was public from creation has no launch to do, so its launch task renders completed.
+	 *
+	 * @param string $launch_task_id The persisted launch task id.
+	 * @dataProvider provide_launch_task_ids
+	 */
+	#[DataProvider( 'provide_launch_task_ids' )]
+	public function test_launch_task_is_completed_on_a_site_launched_at_creation( $launch_task_id ) {
+		delete_option( 'launch-status' );
+		$this->seed_ai_output_with_tasks( array( 'first_post_published', $launch_task_id ) );
+
+		$completed = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'completed', 'id' );
+
+		$this->assertTrue( $completed[ $launch_task_id ] );
+		$this->assertFalse( $completed['first_post_published'] );
+	}
+
+	/**
+	 * Launch task ids the AI may persist.
+	 *
+	 * @return array
+	 */
+	public static function provide_launch_task_ids() {
+		return array(
+			'site_launched' => array( 'site_launched' ),
+			'blog_launched' => array( 'blog_launched' ),
+		);
 	}
 
 	/**
