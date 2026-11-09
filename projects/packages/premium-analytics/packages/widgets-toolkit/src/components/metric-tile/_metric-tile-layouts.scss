@@ -17,7 +17,7 @@ $grid-min-row-block-size: 16px * 2 + 20px + 8px + 32px;
 // gap-md, between grid rows.
 $grid-row-gap: 12px;
 
-// Highest tile count the rules cover; keep in step with `MAX_TILE_COUNT`.
+// Tile counts with rules of their own; a longer grid takes the last one's.
 $max-tile-count: 8;
 
 // Keeps a `max-` bound just under the `min-` bound on the other side of it.
@@ -31,14 +31,24 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 	@return $grid-min-row-block-size * $rows + $grid-row-gap * ($rows - 1);
 }
 
+// Selects a grid by the tiles it holds, so nothing outside the stylesheet has
+// to tell it. Counting children holds because a grid renders its tiles and
+// nothing else.
+@function holding($count) {
+
+	@if $count < $max-tile-count {
+
+		@return ":has(> :nth-child(#{$count}):last-child)";
+	}
+
+	@return ":has(> :nth-child(n + #{$max-tile-count}):last-child)";
+}
+
 // Narrower than the wide threshold: a list, compact or stacked.
 @mixin list {
 
 	@container #{$list-query} {
-
-		&[data-tile-count] {
-			@content;
-		}
+		@content;
 	}
 }
 
@@ -46,10 +56,7 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 @mixin wide {
 
 	@container #{$wide-query} {
-
-		&[data-tile-count] {
-			@content;
-		}
+		@content;
 	}
 }
 
@@ -61,7 +68,7 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 
 		@container #{$list-query} and (max-block-size: #{$stacked-min-block-size - $bound-step}) {
 
-			&[data-tile-count="#{$count}"] {
+			&#{holding($count)} {
 				@content;
 			}
 		}
@@ -76,7 +83,7 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 
 		@container #{$list-query} and (min-block-size: #{$stacked-min-block-size}) {
 
-			&[data-tile-count="#{$count}"] {
+			&#{holding($count)} {
 				@content;
 			}
 		}
@@ -90,8 +97,8 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 
 		@container #{$wide-query} and (max-block-size: #{grid-min-block-size($rows) - $bound-step}) {
 
-			&[data-tile-count="#{$rows * 2 - 1}"],
-			&[data-tile-count="#{$rows * 2}"] {
+			&#{holding($rows * 2 - 1)},
+			&#{holding($rows * 2)} {
 				@content;
 			}
 		}
@@ -105,8 +112,8 @@ $wide-query: "(min-inline-size: #{$wide-min-inline-size})";
 
 		@container #{$wide-query} and (min-block-size: #{grid-min-block-size($rows)}) {
 
-			&[data-tile-count="#{$rows * 2 - 1}"],
-			&[data-tile-count="#{$rows * 2}"] {
+			&#{holding($rows * 2 - 1)},
+			&#{holding($rows * 2)} {
 				@content;
 			}
 		}

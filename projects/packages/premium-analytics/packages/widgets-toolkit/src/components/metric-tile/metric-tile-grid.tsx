@@ -9,7 +9,6 @@ import clsx from 'clsx';
 import { MetricNoteTooltip } from '../metric-note-tooltip';
 import { MetricValue } from '../metric-value';
 import { MetricWithComparison } from '../metric-with-comparison';
-import { getLayoutTileCount } from './layout-tile-count';
 import styles from './metric-tile-grid.module.scss';
 import type { DataFormat } from '../../types';
 import type { ComponentProps } from 'react';
@@ -154,11 +153,7 @@ export function MetricTileGrid( {
 }: MetricTileGridProps ) {
 	return (
 		<div className={ clsx( styles.container, className ) }>
-			<div
-				className={ styles.grid }
-				data-tile-count={ getLayoutTileCount( tiles.length ) }
-				role="list"
-			>
+			<div className={ styles.grid } role="list">
 				{ tiles.map( tile => (
 					<div key={ tile.key } className={ clsx( styles.tile, tile.className ) } role="listitem">
 						<MetricNoteTooltip note={ tile.note } className={ styles.header }>

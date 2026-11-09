@@ -6,7 +6,6 @@ import { Skeleton } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import { SkeletonRoot } from '../widget-skeleton';
-import { getLayoutTileCount } from './layout-tile-count';
 import styles from './metric-tile-grid-skeleton.module.scss';
 
 const DEFAULT_TILE_COUNT = 4;
@@ -30,11 +29,7 @@ export function MetricTileGridSkeleton( {
 	return (
 		<SkeletonRoot>
 			<div className={ styles.container }>
-				<div
-					className={ styles.tiles }
-					data-tile-count={ getLayoutTileCount( tileCount ) }
-					data-testid="skeleton-tiles"
-				>
+				<div className={ styles.tiles }>
 					{ Array.from( { length: tileCount }, ( _, index ) => (
 						<div key={ index } className={ styles.tile } data-testid="skeleton-tile">
 							<Skeleton className={ styles.label } />

@@ -14,12 +14,6 @@ describe( 'MetricTileGridSkeleton', () => {
 		expect( screen.getAllByTestId( 'skeleton-tile' ) ).toHaveLength( 3 );
 	} );
 
-	it( 'gives the layout rules the tile count the loaded grid will have', () => {
-		render( <MetricTileGridSkeleton tiles={ 3 } /> );
-
-		expect( screen.getByTestId( 'skeleton-tiles' ) ).toHaveAttribute( 'data-tile-count', '3' );
-	} );
-
 	it( 'fills the grid when every metric is switched off', () => {
 		// The caller's known count is 0 when every metric is deselected; drawing
 		// that literally would leave an empty loading state.
