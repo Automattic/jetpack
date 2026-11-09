@@ -53,7 +53,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
-	StatsPageIcon: () => null,
 } ) );
 
 /**

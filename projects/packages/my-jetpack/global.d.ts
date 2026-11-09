@@ -423,6 +423,7 @@ type ProtectData = {
 		files: string[];
 		has_unchecked_items?: boolean;
 		last_checked: string;
+		last_scan_failed?: boolean;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
@@ -603,6 +604,7 @@ interface Window {
 		purchaseToken: string;
 		lifecycleStats: {
 			historicallyActiveModules: JetpackModule[];
+			historicallyActiveModulesRefreshDue?: boolean;
 			brokenModules: {
 				needs_site_connection: JetpackModule[];
 				needs_user_connection: JetpackModule[];

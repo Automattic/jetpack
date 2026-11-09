@@ -647,7 +647,7 @@ class User_Admin extends Base_Admin {
 	public function render_invitation_email_message() {
 		$message = wp_kses(
 			__(
-				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">Secure Sign On</a> to ensure maximum security and efficiency.',
+				'We highly recommend inviting users to join WordPress.com and log in securely using <a class="jetpack-sso-admin-create-user-invite-message-link-sso" rel="noopener noreferrer" target="_blank" href="https://jetpack.com/support/sso/">WordPress.com login</a> to ensure maximum security and efficiency.',
 				'jetpack-connection'
 			),
 			array(
@@ -1192,7 +1192,7 @@ class User_Admin extends Base_Admin {
 					admin_url( 'admin-post.php' )
 				),
 				esc_html__( 'Send invite', 'jetpack-connection' ),
-				esc_attr__( 'This user doesn&#8217;t have a Jetpack SSO connection to WordPress.com. Invite them to the site to increase security and improve their experience.', 'jetpack-connection' ),
+				esc_attr__( 'This user isn&#8217;t connected to WordPress.com, so they can&#8217;t use WordPress.com login. Invite them to the site to increase security and improve their experience.', 'jetpack-connection' ),
 				esc_attr__( 'Tooltip', 'jetpack-connection' )
 			);
 		}

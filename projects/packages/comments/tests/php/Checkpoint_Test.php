@@ -84,4 +84,33 @@ class Checkpoint_Test extends BaseTestCase {
 
 		$this->assertSame( 0, get_option( 'comment_registration', 1 ) );
 	}
+
+	public function test_attribute_carries_identity_as_comment_meta() {
+		$checkpoint = Checkpoint::init();
+		$property   = new \ReflectionProperty( Checkpoint::class, 'identity' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue(
+			$checkpoint,
+			array(
+				'site_commenter_id' => 'abc',
+				'name'              => 'Pat',
+				'email'             => 'pat@example.com',
+				'avatar'            => 'https://example.com/a.png',
+			)
+		);
+
+		$data = $checkpoint->attribute( array( 'comment_meta' => array( 'other' => 'kept' ) ) );
+		$property->setValue( $checkpoint, null );
+
+		$this->assertSame(
+			array(
+				'other'                 => 'kept',
+				Checkpoint::META_ID     => 'abc',
+				Checkpoint::META_AVATAR => 'https://example.com/a.png',
+			),
+			$data['comment_meta']
+		);
+	}
 }

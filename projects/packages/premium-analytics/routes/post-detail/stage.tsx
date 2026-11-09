@@ -5,7 +5,8 @@ import {
 	postSurface,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { ButtonLink } from '@jetpack-premium-analytics/externals';
+import { ButtonLink, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -17,7 +18,6 @@ import {
 	safeHttpUrl,
 	SectionTabs,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -249,7 +249,7 @@ function PostDetail(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<DetailPageShell
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={
 									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 										<StatsBreadcrumbs items={ breadcrumbs } />

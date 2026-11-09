@@ -11,7 +11,7 @@ import {
 	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
 	PageNotice,
@@ -253,7 +253,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 					>
 						<Page
 							className={ styles.page }
-							visual={ <StatsPageIcon /> }
+							visual={ <Icon icon={ jetpack } /> }
 							breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 							badges={
 								isCustomizing ? (

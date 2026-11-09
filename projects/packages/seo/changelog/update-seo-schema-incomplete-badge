@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SEO: Show an "Incomplete" badge instead of "In progress" when the Schema section is only partly filled in.

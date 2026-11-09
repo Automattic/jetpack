@@ -7,7 +7,7 @@ use Automattic\Jetpack\Boost_Core\Lib\Transient;
 /**
  * Deletes expired Boost options without caching every live payload in the request.
  *
- * @since $$next-version$$
+ * @since 4.8.2
  */
 class Cleanup_Transients {
 

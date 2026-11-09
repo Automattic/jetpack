@@ -10,6 +10,7 @@ export type FreeTierState = {
 	isAtomic: boolean;
 	isUnlimited: boolean;
 	videoCount: number;
+	knownVideoCount?: number;
 	videoCountKnown: boolean;
 	limit: number;
 	isAtLimit: boolean;
@@ -71,6 +72,11 @@ export function useFreeTier(): FreeTierState {
 		isAtomic,
 		isUnlimited,
 		videoCount,
+		...( isSuccess &&
+		Number.isSafeInteger( paginationInfo?.totalItems ) &&
+		paginationInfo.totalItems >= 0
+			? { knownVideoCount: videoCount }
+			: {} ),
 		videoCountKnown: isSuccess && Number.isSafeInteger( videoCount ) && videoCount >= 0,
 		limit: FREE_TIER_UPLOAD_LIMIT,
 		isAtLimit,

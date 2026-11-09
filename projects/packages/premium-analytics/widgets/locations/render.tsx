@@ -232,8 +232,6 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		</Stack>
 	) : null;
 
-	const chartTitle = __( 'Top locations', 'jetpack-premium-analytics-pkg' );
-
 	// View all opens the whole tab; only the download follows the drill-down.
 	useReportActions( {
 		report: 'locations',
@@ -281,12 +279,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 									options: { useMultipliers: true, decimals: 0 },
 								} }
 								className={ styles.leaderboard }
-								chartTitle={ chartTitle }
 							/>
 						</Disabled>
 						<div className={ styles.geoChart }>
 							<LocationsGeoChart
-								chartTitle={ chartTitle }
 								rows={ geoRows }
 								mode={ geoMode }
 								focusCountry={ focusCountry }
