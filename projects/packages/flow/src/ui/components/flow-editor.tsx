@@ -1,12 +1,14 @@
-import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Button, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import { Button, Spinner, Stack, Text } from '@wordpress/ui';
 import { fetchCatalog, fetchFlow, planFlow, saveFlow, suggestName } from '../api';
+import { Chat } from './chat';
 import { FlowCanvas } from './flow-canvas';
 import { FlowPage } from './flow-page';
 import { PromptBox } from './prompt-box';
 import { RequirementsNotice } from './requirements-notice';
+import type { ChatMessage } from './chat';
 import type { Catalog, Flow } from '../types';
 
 const blankFlow = (): Flow => ( {
@@ -17,6 +19,22 @@ const blankFlow = (): Flow => ( {
 	steps: [],
 } );
 
+/** One sentence naming what a flow does, for the chat reply. */
+function describeFlow( flow: Flow, catalog: Catalog ) {
+	const label = ( list: { id: string; label: string }[], id: string ) =>
+		list.find( item => item.id === id )?.label ?? id;
+	const when = flow.triggers.map( id => label( catalog.triggers, id ) ).join( ' or ' );
+	const then = flow.steps.map( step => label( catalog.actions, step.type ) ).join( ', then ' );
+	return sprintf(
+		/* translators: 1: trigger names, 2: action names. */ __(
+			'Done. When %1$s, then %2$s.',
+			'jetpack-flow-pkg'
+		),
+		when,
+		then
+	);
+}
+
 /** Builds or edits exactly one flow; saving returns to the Flows tab. */
 export function FlowEditor( { flowId }: { flowId?: number } ) {
 	const navigate = useNavigate();
@@ -26,8 +44,13 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 	const [ planning, setPlanning ] = useState( false );
 	const [ saving, setSaving ] = useState( false );
 	const [ error, setError ] = useState< string | null >( null );
-	const [ notice, setNotice ] = useState< string | null >( null );
+	const [ messages, setMessages ] = useState< ChatMessage[] >( [] );
+	const nextId = useRef( 0 );
+	const planner = useRef< AbortController | null >( null );
 	const [ nameTouched, setNameTouched ] = useState( false );
+
+	const say = ( role: ChatMessage[ 'role' ], text: string ) =>
+		setMessages( list => [ ...list, { id: nextId.current++, role, text } ] );
 
 	useEffect( () => {
 		Promise.all( [ fetchCatalog(), flowId ? fetchFlow( flowId ) : Promise.resolve( null ) ] )
@@ -63,14 +86,18 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 	}, [ triggerKey, stepKey, nameTouched ] );
 
 	const build = async () => {
+		const asked = prompt.trim();
+		const controller = new AbortController();
+		planner.current = controller;
+		say( 'user', asked );
+		setPrompt( '' );
 		setPlanning( true );
-		setError( null );
-		setNotice( null );
 		try {
-			const result = await planFlow( prompt );
+			const result = await planFlow( asked, controller.signal );
 			const planned = result.flows[ 0 ];
 			if ( ! planned ) {
-				setNotice(
+				say(
+					'assistant',
 					__(
 						'I could not match that to any connections. Pick triggers and actions yourself instead.',
 						'jetpack-flow-pkg'
@@ -79,16 +106,26 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 				return;
 			}
 			setFlow( { ...planned, id: null, enabled: true } );
-			setPrompt( '' );
 			setNameTouched( !! planned.name );
+			say( 'assistant', describeFlow( planned, catalog as Catalog ) );
 			if ( result.source === 'keywords' ) {
-				setNotice(
+				say(
+					'assistant',
 					__( 'AI is unavailable, so this is a best guess from your keywords.', 'jetpack-flow-pkg' )
 				);
 			}
 		} catch {
-			setError( __( 'Something went wrong while building your flow.', 'jetpack-flow-pkg' ) );
+			if ( controller.signal.aborted ) {
+				setPrompt( asked );
+				say( 'assistant', __( 'Stopped. Nothing was changed.', 'jetpack-flow-pkg' ) );
+			} else {
+				say(
+					'assistant',
+					__( 'Something went wrong while building your flow.', 'jetpack-flow-pkg' )
+				);
+			}
 		} finally {
+			planner.current = null;
 			setPlanning( false );
 		}
 	};
@@ -100,7 +137,7 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 			await saveFlow( flow );
 			navigate( { href: '/flows' } );
 		} catch {
-			setError( __( 'Could not save the flow.', 'jetpack-flow-pkg' ) );
+			say( 'assistant', __( 'Could not save the flow.', 'jetpack-flow-pkg' ) );
 			setSaving( false );
 		}
 	};
@@ -134,37 +171,46 @@ export function FlowEditor( { flowId }: { flowId?: number } ) {
 				</Stack>
 			}
 		>
-			<div className="jetpack-flow">
-				{ ! catalog ? (
-					<Stack align="center" justify="center" className="jetpack-flow-loading">
-						{ error ? <Text>{ error }</Text> : <Spinner /> }
-					</Stack>
-				) : (
-					<Stack direction="column" gap="xl">
-						{ error && (
-							<Notice.Root intent="error">
-								<Notice.Description>{ error }</Notice.Description>
-							</Notice.Root>
-						) }
-						{ notice && (
-							<Notice.Root intent="info">
-								<Notice.Description>{ notice }</Notice.Description>
-							</Notice.Root>
-						) }
-
+			<div className="jetpack-flow-editor">
+				<div className="jetpack-flow">
+					{ ! catalog ? (
+						<Stack align="center" justify="center" className="jetpack-flow-loading">
+							{ error ? <Text>{ error }</Text> : <Spinner /> }
+						</Stack>
+					) : (
+						<FlowCanvas flow={ flow } catalog={ catalog } busy={ planning } onChange={ setFlow } />
+					) }
+				</div>
+				{ catalog && (
+					<Chat
+						messages={ messages }
+						footer={
+							<PromptBox
+								value={ prompt }
+								busy={ planning }
+								onChange={ setPrompt }
+								onSubmit={ build }
+								onStop={ () => planner.current?.abort() }
+							/>
+						}
+					>
 						<RequirementsNotice
 							flow={ flow }
 							catalog={ catalog }
-							onInstalled={ () => fetchCatalog().then( setCatalog ) }
+							onInstalled={ name => {
+								fetchCatalog().then( setCatalog );
+								say(
+									'assistant',
+									/* translators: %s: plugin name. */ sprintf(
+										__( '%s is ready.', 'jetpack-flow-pkg' ),
+										name
+									)
+								);
+							} }
 						/>
-
-						<FlowCanvas flow={ flow } catalog={ catalog } busy={ planning } onChange={ setFlow } />
-					</Stack>
+					</Chat>
 				) }
 			</div>
-			{ catalog && (
-				<PromptBox value={ prompt } busy={ planning } onChange={ setPrompt } onSubmit={ build } />
-			) }
 		</FlowPage>
 	);
 }

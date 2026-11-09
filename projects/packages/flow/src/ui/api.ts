@@ -26,11 +26,12 @@ export const setFlowEnabled = ( id: number, enabled: boolean ) =>
 		data: { enabled },
 	} );
 
-export const planFlow = ( prompt: string ) =>
+export const planFlow = ( prompt: string, signal?: AbortSignal ) =>
 	apiFetch< { flows: Flow[]; source: 'ai' | 'keywords' } >( {
 		path: `${ BASE }/plan`,
 		method: 'POST',
 		data: { prompt },
+		signal,
 	} );
 
 /** Ask the server for a short name for a flow. */

@@ -16,21 +16,6 @@ body.jetpack-flow {
 	font-family: var(--wpds-typography-font-family-body);
 }
 
-// The page layout shrinks every child of the scroller. Keep the height of
-// the editor and prompt so the prompt can stick to the bottom.
-body.toplevel_page_jetpack-flow-wp-admin,
-body.jetpack_page_jetpack-flow-wp-admin,
-body.jetpack-flow {
-
-	.jp-admin-page__page .jetpack-flow:not(:first-child):not(.jetpack-footer) {
-		flex: 1 0 auto;
-	}
-
-	.jp-admin-page__page .jetpack-flow-prompt:not(:first-child):not(.jetpack-footer) {
-		flex: 0 0 auto;
-	}
-}
-
 .jetpack-flow-tabs {
 	flex: 0 0 auto;
 
@@ -45,6 +30,81 @@ body.jetpack-flow {
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
+}
+
+.jp-admin-page:has(.jetpack-flow-editor) {
+
+	.jetpack-flow-tabs {
+		flex: 1 1 auto;
+		min-block-size: 0;
+	}
+}
+
+// Flow on the left, chat sidebar on the right; each column scrolls on its own.
+.jetpack-flow-editor {
+	display: grid;
+	flex: 1 1 auto;
+	grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+	min-block-size: 0;
+
+	> .jetpack-flow {
+		min-block-size: 0;
+		overflow-y: auto;
+	}
+}
+
+.jetpack-flow-chat {
+	display: flex;
+	flex-direction: column;
+	min-block-size: 0;
+	border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral-strong);
+
+	&__messages {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-lg);
+		min-block-size: 0;
+		padding: var(--wpds-dimension-padding-lg);
+		overflow-y: auto;
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	&__message {
+		margin: 0;
+		overflow-wrap: anywhere;
+
+		&.is-user {
+			align-self: flex-end;
+			box-sizing: border-box;
+			max-inline-size: 85%;
+			padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-lg);
+			border-radius: var(--wpds-border-radius-lg);
+			background: var(--wpds-color-background-surface-neutral-weak);
+		}
+
+		&.is-assistant {
+			align-self: flex-start;
+		}
+	}
+
+	&__actions {
+		margin-block-start: var(--wpds-dimension-gap-md);
+	}
+}
+
+@media ( max-width: 782px ) {
+
+	.jetpack-flow-editor {
+		grid-template-columns: minmax(0, 1fr);
+		overflow-y: auto;
+
+		.jetpack-flow-chat {
+			border-inline-start: 0;
+			border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		}
+	}
 }
 
 .jp-admin-page:has(.dataviews-wrapper) {
@@ -237,27 +297,9 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 	}
 }
 
-// Pinned to the bottom of the scrolling page, just above the footer.
 .jetpack-flow-prompt {
-	position: sticky;
-	inset-block-end: 0;
-	z-index: 5;
 	flex: 0 0 auto;
-	box-sizing: border-box;
-	inline-size: 100%;
-	padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
-	background: var(--wpds-color-background-surface-neutral-strong);
-
-	// Content fades out as it scrolls under the bar.
-	&::before {
-		content: "";
-		position: absolute;
-		inset-inline: 0;
-		inset-block-end: 100%;
-		block-size: 25px;
-		background: linear-gradient(transparent, var(--wpds-color-background-surface-neutral-strong));
-		pointer-events: none;
-	}
+	padding: var(--wpds-dimension-padding-lg);
 }
 
 .jetpack-flow-prompt__box {
@@ -315,12 +357,6 @@ $jetpack-flow-glow: conic-gradient(from var(--jetpack-flow-angle), transparent 0
 	.is-listening {
 		color: var(--wpds-color-foreground-content-error);
 	}
-}
-
-.jetpack-flow-prompt__border {
-	inline-size: 66.667%;
-	min-inline-size: min(100%, 320px);
-	margin-inline: auto;
 }
 
 @keyframes jetpack-flow-spin {

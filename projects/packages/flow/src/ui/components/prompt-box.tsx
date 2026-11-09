@@ -9,6 +9,7 @@ type Props = {
 	busy: boolean;
 	onChange: ( value: string ) => void;
 	onSubmit: () => void;
+	onStop: () => void;
 };
 
 type Recognition = {
@@ -55,7 +56,7 @@ const stopIcon = (
 );
 
 /** The "What should happen?" bar, pinned above the footer. */
-export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
+export function PromptBox( { value, busy, onChange, onSubmit, onStop }: Props ) {
 	const id = useId();
 	const field = useRef< HTMLTextAreaElement >( null );
 	const recognition = useRef< Recognition | null >( null );
@@ -149,14 +150,20 @@ export function PromptBox( { value, busy, onChange, onSubmit }: Props ) {
 								onClick={ dictate }
 							/>
 						) }
-						{
+						{ busy ? (
+							<IconButton
+								label={ __( 'Stop', 'jetpack-flow-pkg' ) }
+								icon={ stopIcon }
+								onClick={ onStop }
+							/>
+						) : (
 							<IconButton
 								label={ __( 'Build my flow', 'jetpack-flow-pkg' ) }
 								icon={ arrowUp }
-								disabled={ busy || ! hasText }
+								disabled={ ! hasText }
 								onClick={ submit }
 							/>
-						}
+						) }
 					</div>
 				</div>
 			</div>
