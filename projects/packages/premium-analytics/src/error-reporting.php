@@ -25,6 +25,11 @@ function add_error_reporting_script_data( array $data ): array {
 
 	$origins = array( trailingslashit( Assets::normalize_path( plugins_url( '../build/', __FILE__ ) ) ) );
 
+	// Packages add their origin when the widget type registry hydrates.
+	if ( function_exists( __NAMESPACE__ . '\\get_answering_widget_type_registry' ) ) {
+		get_answering_widget_type_registry();
+	}
+
 	/**
 	 * Filters the URL prefixes that mark a stack frame as Premium Analytics code.
 	 *

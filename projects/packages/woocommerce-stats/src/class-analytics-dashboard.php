@@ -312,7 +312,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		self::publish_error_reporting_origin();
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
 
 		if ( ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
@@ -331,21 +331,6 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
-	}
-
-	/**
-	 * Let the dashboard's error reporter treat scripts under this package's build as dashboard code.
-	 *
-	 * Called from `register_widget_types()`, not `init()`, so a host that calls the registrant
-	 * directly gets it too.
-	 *
-	 * @return void
-	 */
-	private static function publish_error_reporting_origin() {
-		$callback = array( __CLASS__, 'add_error_reporting_origin' );
-		if ( ! has_filter( 'jetpack_premium_analytics_error_reporting_script_origins', $callback ) ) {
-			add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', $callback );
-		}
 	}
 
 	/**

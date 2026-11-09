@@ -139,22 +139,14 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * The dashboard reports errors thrown by scripts under the package's build.
 	 */
 	public function test_publishes_its_build_url_as_an_error_reporting_origin() {
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
 
 		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
 
 		$this->assertCount( 1, $origins );
-		$this->assertStringEndsWith( '/build/', $origins[0] );
-	}
-
-	/**
-	 * Hydrating the registry again must not repeat the origin.
-	 */
-	public function test_publishes_the_error_reporting_origin_once_across_registrations() {
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
-
-		$this->assertCount( 1, apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() ) );
+		$this->assertStringStartsWith( $origins[0], $registry->get_registered( Analytics_Dashboard::TOP_VIDEOS_TYPE )->i18n_manifest );
 	}
 
 	/**

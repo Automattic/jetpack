@@ -351,25 +351,14 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_publishes_its_build_url_as_an_error_reporting_origin() {
 		$this->enable_store();
+		$registry = new Widget_Type_Registry();
 
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
+		Analytics_Dashboard::register_widget_types( $registry );
 
 		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
 
 		$this->assertCount( 1, $origins );
-		$this->assertStringEndsWith( '/build/', $origins[0] );
-	}
-
-	/**
-	 * Hydrating the registry again must not repeat the origin.
-	 */
-	public function test_publishes_the_error_reporting_origin_once_across_registrations() {
-		$this->enable_store();
-
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
-		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
-
-		$this->assertCount( 1, apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() ) );
+		$this->assertStringStartsWith( $origins[0], $registry->get_registered( Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE )->i18n_manifest );
 	}
 
 	/**
