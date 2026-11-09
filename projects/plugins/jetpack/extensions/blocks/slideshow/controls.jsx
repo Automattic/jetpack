@@ -49,7 +49,7 @@ export function PanelControls( {
 							setAttributes( { delay: value } );
 						} }
 						min={ 1 }
-						max={ 5 }
+						max={ 20 }
 					/>
 				) }
 				{ autoplay && prefersReducedMotion && (
