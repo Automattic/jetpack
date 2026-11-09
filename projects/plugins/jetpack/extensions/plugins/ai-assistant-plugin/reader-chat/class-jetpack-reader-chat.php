@@ -141,11 +141,8 @@ class Jetpack_Reader_Chat {
 		$encoded = is_array( $query_filter ) ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
 		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
 			// Keep the last good filter: clearing it would expose the content the owner hid.
-			_doing_it_wrong(
-				'jetpack_site_chat_query_filter',
-				esc_html__( 'The Site Chat query filter must be an array under 20 KB. The previous filter stays in effect.', 'jetpack' ),
-				'$$next-version$$'
-			);
+			$message = __( 'The Site Chat query filter must be an array under 20 KB. The previous filter stays in effect.', 'jetpack' );
+			_doing_it_wrong( 'jetpack_site_chat_query_filter', esc_html( $message ), '$$next-version$$' );
 			return;
 		}
 
