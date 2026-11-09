@@ -35,6 +35,22 @@ describe( 'redactQuery', () => {
 		expect( redactQuery( search ) ).toEqual( {} );
 	} );
 
+	it( 'reports a hostile parameter name under a single key', () => {
+		expect( redactQuery( '?john@example.com&a%3Db=1' ) ).toEqual( {
+			'[unreportable]': '[redacted]',
+		} );
+	} );
+
+	it.each( [ 'toString', 'constructor', '__proto__' ] )(
+		'reports a parameter named like an Object member by name: %s',
+		name => {
+			const result = redactQuery( `?${ name }=x` );
+
+			expect( Object.keys( result ) ).toEqual( [ name ] );
+			expect( result[ name ] ).toBe( '[redacted]' );
+		}
+	);
+
 	it( 'keeps only the first value of a repeated parameter', () => {
 		expect( redactQuery( '?from=a&from=b' ) ).toEqual( { from: 'a' } );
 	} );

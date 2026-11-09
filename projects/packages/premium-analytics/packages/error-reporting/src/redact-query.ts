@@ -1,4 +1,6 @@
 const REDACTED = '[redacted]';
+const UNREPORTABLE = '[unreportable]';
+const SAFE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
 
 const ALLOWED_PARAMS = new Set( [
 	'page',
@@ -28,11 +30,12 @@ const ALLOWED_PARAMS = new Set( [
  * @return Parameter names mapped to their value or `[redacted]`.
  */
 export function redactQuery( search: string ): Record< string, string > {
-	const redacted: Record< string, string > = {};
+	const redacted: Record< string, string > = Object.create( null );
 
 	for ( const [ name, value ] of new URLSearchParams( search ) ) {
-		if ( ! Object.hasOwn( redacted, name ) ) {
-			redacted[ name ] = ALLOWED_PARAMS.has( name ) ? value : REDACTED;
+		const key = SAFE_NAME.test( name ) ? name : UNREPORTABLE;
+		if ( ! Object.hasOwn( redacted, key ) ) {
+			redacted[ key ] = ALLOWED_PARAMS.has( name ) ? value : REDACTED;
 		}
 	}
 
