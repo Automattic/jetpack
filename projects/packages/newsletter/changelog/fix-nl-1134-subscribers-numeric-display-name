@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Keep the list loading when a subscriber's display name is all digits.

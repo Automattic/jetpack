@@ -8,11 +8,25 @@ import type {
 	RemoveSubscriberResponse,
 	SendBounceConfirmationResponse,
 	SubscribedNewsletterCategories,
+	Subscriber,
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersQueryParams,
 	SubscribersResponse,
 } from './types';
+
+/**
+ * Coerce a subscriber's `display_name` to a string.
+ *
+ * WP.com's response formatter casts every digit-only string to an integer, so an all-digits name
+ * arrives as a number — and DataViews calls string methods on whatever the row title resolves to.
+ *
+ * @param subscriber - Raw subscriber row from WP.com.
+ * @return Row whose display name is a string.
+ */
+function normalizeSubscriber< T extends Subscriber >( subscriber: T ): T {
+	return { ...subscriber, display_name: String( subscriber.display_name ?? '' ) };
+}
 
 /**
  * Fetch the paginated subscribers list from the Jetpack REST proxy
@@ -44,7 +58,10 @@ export function fetchSubscribers( params: SubscribersQueryParams ): Promise< Sub
 	return apiFetch< SubscribersResponse >( {
 		path: `${ baseUrl }&${ filterQuery }`,
 		method: 'GET',
-	} );
+	} ).then( response => ( {
+		...response,
+		subscribers: ( response?.subscribers ?? [] ).map( normalizeSubscriber ),
+	} ) );
 }
 
 /**
@@ -173,7 +190,7 @@ export function fetchSubscriberDetails( params: IndividualParams ): Promise< Sub
 			user_id: params.user_id ?? 0,
 		} ),
 		method: 'GET',
-	} );
+	} ).then( normalizeSubscriber );
 }
 
 /**

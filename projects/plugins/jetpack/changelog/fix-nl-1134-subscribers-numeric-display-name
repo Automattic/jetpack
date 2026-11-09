@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Fix the Subscribers page failing to load when a subscriber's display name is all digits.
