@@ -1,5 +1,4 @@
 Significance: patch
 Type: other
-Comment: Move the Ads settings to Monetize › Settings, behind the settings consolidation flag.
 
-
+Settings: Move the Ads settings to a Settings tab on the Monetize page, behind the settings consolidation flag.

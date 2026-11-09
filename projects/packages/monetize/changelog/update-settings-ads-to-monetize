@@ -1,5 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
-Comment: Add a Settings tab for the Ads settings, behind the settings consolidation flag.
 
-
+Add a Settings tab with the Ads settings, behind the settings consolidation flag.
