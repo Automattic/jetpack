@@ -60,7 +60,9 @@ class WPCOM_Proxy {
 	 */
 	public static function register_route( $api, $path, $methods, array $args = array() ) {
 		if ( ! isset( self::APIS[ $api ] ) ) {
-			_doing_it_wrong( __METHOD__, esc_html( sprintf( 'Unknown WordPress.com API "%s".', $api ) ), '$$next-version$$' );
+			/* translators: %s is a WordPress.com API, such as wpcom/v2. */
+			$message = sprintf( __( 'Unknown WordPress.com API "%s".', 'jetpack-monetize' ), $api );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
 			return false;
 		}
 

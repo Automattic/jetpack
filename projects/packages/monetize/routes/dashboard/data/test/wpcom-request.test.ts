@@ -53,12 +53,13 @@ describe( 'toWpcomApiError', () => {
 			{ code: 'rest_forbidden', message: 'Sorry.', data: { status: 403 } },
 			'rest_forbidden',
 			'Sorry.',
+			403,
 		],
-		[ 'a thrown Error', new Error( 'Boom.' ), 'error', 'Boom.' ],
-	] )( 'wraps %s', ( _kind, rejection, code, message ) => {
+		[ 'a thrown Error', new Error( 'Boom.' ), 'error', 'Boom.', undefined ],
+	] )( 'wraps %s', ( _kind, rejection, code, message, status ) => {
 		const error = toWpcomApiError( rejection );
 
 		expect( error ).toBeInstanceOf( WpcomApiError );
-		expect( error ).toMatchObject( { code, message } );
+		expect( error ).toMatchObject( { code, message, status } );
 	} );
 } );

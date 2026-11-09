@@ -1,3 +1,4 @@
+import { getRegistrationErrorSummary } from '@automattic/jetpack-connection/connection-error-message';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import useWpcomConnection from '../data/use-wpcom-connection';
@@ -11,7 +12,8 @@ import type { ReactNode } from 'react';
  * @return The children, or the connect prompt.
  */
 export default function ConnectionGate( { children }: { children: ReactNode } ) {
-	const { canUseWpcom, connect, isConnecting } = useWpcomConnection();
+	const { canUseWpcom, connect, isConnecting, registrationError, isOfflineMode } =
+		useWpcomConnection();
 
 	if ( canUseWpcom ) {
 		return <>{ children }</>;
@@ -19,7 +21,9 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 
 	return (
 		<Stack direction="column" gap="md" className="jp-monetize-connection-gate">
-			<Text variant="heading-2xl">{ __( 'Connect to start earning', 'jetpack-monetize' ) }</Text>
+			<Text variant="heading-2xl" render={ <h2 /> }>
+				{ __( 'Connect to start earning', 'jetpack-monetize' ) }
+			</Text>
 			<Text>
 				{ __(
 					'Payments, paid subscribers and ads are managed on WordPress.com. Connect your WordPress.com account to use them here.',
@@ -33,6 +37,12 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 						: __( 'Connect', 'jetpack-monetize' ) }
 				</Button>
 			</div>
+			{ registrationError && (
+				<Text role="alert">
+					{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
+						__( 'An error occurred. Please try again.', 'jetpack-monetize' ) }
+				</Text>
+			) }
 		</Stack>
 	);
 }

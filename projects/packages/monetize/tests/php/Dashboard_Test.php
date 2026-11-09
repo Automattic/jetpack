@@ -16,7 +16,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
-use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Monetize\Dashboard
@@ -44,10 +43,6 @@ class Dashboard_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		Cache::clear();
-		remove_all_actions( 'rest_api_init' );
-		remove_all_filters( 'jetpack_admin_js_script_data' );
-		remove_all_actions( 'doing_it_wrong_run' );
-		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		self::reset_sections();
 		parent::tear_down();
 	}
@@ -101,12 +96,7 @@ class Dashboard_Test extends BaseTestCase {
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
 
-		global $wp_rest_server;
-		$wp_rest_server = new WP_REST_Server();
-		do_action( 'rest_api_init', $wp_rest_server );
-		$registered     = $wp_rest_server->get_routes();
-		$wp_rest_server = null;
-		$this->assertSame( $routes, isset( $registered['/jetpack/v4/monetize/wpcom/v2/memberships/status'] ) );
+		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );

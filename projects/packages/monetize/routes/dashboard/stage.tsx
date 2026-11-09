@@ -51,7 +51,7 @@ const Stage = () => {
 						<div id="jp-admin-notices" />
 						{ TABS.map( tab => (
 							<Tabs.Panel key={ tab.value } value={ tab.value }>
-								{ /* Every tab so far needs WordPress.com; the Settings tab will gate only its WordPress.com parts. */ }
+								{ /* Every tab so far needs WordPress.com. */ }
 								<ConnectionGate>
 									<Placeholder />
 								</ConnectionGate>

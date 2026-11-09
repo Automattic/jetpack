@@ -47,4 +47,22 @@ describe( 'ConnectionGate', () => {
 		expect( Boolean( screen.queryByText( 'Payments' ) ) ).toBe( showsContent );
 		expect( Boolean( screen.queryByRole( 'button', { name: 'Connect' } ) ) ).toBe( ! showsContent );
 	} );
+
+	it( 'shows why connecting failed, including offline mode', () => {
+		mockIsSimpleSite.mockReturnValue( false );
+		mockUseConnection.mockReturnValue( {
+			isRegistered: false,
+			handleRegisterSite: jest.fn(),
+			isOfflineMode: true,
+			registrationError: { response: { code: 'invalid_user_permission_jetpack_connect' } },
+		} );
+
+		render(
+			<ConnectionGate>
+				<p>Payments</p>
+			</ConnectionGate>
+		);
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Offline Mode/ );
+	} );
 } );

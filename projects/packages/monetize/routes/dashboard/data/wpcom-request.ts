@@ -42,11 +42,14 @@ export function toFetchOptions( request: WpcomRequest, isSimple: boolean ): Fetc
 
 export class WpcomApiError extends Error {
 	code: string;
+	/** The HTTP status, when the request failed with one. */
+	status?: number;
 
-	constructor( code: string, message: string ) {
+	constructor( code: string, message: string, status?: number ) {
 		super( message );
 		this.name = 'WpcomApiError';
 		this.code = code;
+		this.status = status;
 	}
 }
 
@@ -61,8 +64,12 @@ export function toWpcomApiError( error: unknown ): WpcomApiError {
 		return error;
 	}
 
-	const { code = 'error', message = '' } = ( error ?? {} ) as { code?: string; message?: string };
-	return new WpcomApiError( code, message );
+	const {
+		code = 'error',
+		message = '',
+		data,
+	} = ( error ?? {} ) as { code?: string; message?: string; data?: { status?: number } };
+	return new WpcomApiError( code, message, data?.status );
 }
 
 /**
