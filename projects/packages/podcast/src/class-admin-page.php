@@ -212,10 +212,9 @@ class Admin_Page {
 				);
 			}
 		}
-		$status          = new Status();
-		$blog_public     = (int) get_option( 'blog_public', 1 );
-		$is_private_site = $status->is_private_site();
-		$is_coming_soon  = $status->is_coming_soon() || get_option( 'wpcom_coming_soon' );
+		$status         = new Status();
+		$blog_public    = (int) get_option( 'blog_public', 1 );
+		$is_coming_soon = $status->is_coming_soon() || get_option( 'wpcom_coming_soon' );
 
 		// Launched Atomic sites can retain a stale blog_public value after becoming public.
 		if ( ( new Host() )->is_woa_site() && function_exists( '\\Private_Site\\site_is_private' )
@@ -225,6 +224,9 @@ class Admin_Page {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded helper provided by the optional wpcomsh plugin.
 			$is_private_site = \Private_Site\site_is_private();
 			$blog_public     = $is_private_site ? -1 : 1;
+			$is_private_site = apply_filters( 'jetpack_is_private_site', $is_private_site );
+		} else {
+			$is_private_site = $status->is_private_site();
 		}
 
 		$is_site_public = 1 === $blog_public

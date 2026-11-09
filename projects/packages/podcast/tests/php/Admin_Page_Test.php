@@ -215,6 +215,7 @@ class Admin_Page_Test extends BaseTestCase {
 	 * @param array $options Site visibility options overriding a launched public site.
 	 * @param bool  $is_private Whether Atomic's private-site helper reports private.
 	 * @param bool  $expected Expected public visibility.
+	 * @param bool  $force_private Whether the privacy filter forces private status.
 	 * @dataProvider provide_atomic_site_visibility_states
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -222,7 +223,7 @@ class Admin_Page_Test extends BaseTestCase {
 	#[DataProvider( 'provide_atomic_site_visibility_states' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_inject_script_data_uses_atomic_visibility( $options, $is_private, $expected ) {
+	public function test_inject_script_data_uses_atomic_visibility( $options, $is_private, $expected, $force_private = false ) {
 		$return_value = $is_private ? 'true' : 'false';
 		// phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval -- Define the optional host helper only in this isolated process.
 		eval( 'namespace Private_Site; function site_is_private() { return ' . $return_value . '; }' );
@@ -240,8 +241,13 @@ class Admin_Page_Test extends BaseTestCase {
 		foreach ( $options as $name => $value ) {
 			update_option( $name, $value );
 		}
+		if ( $force_private ) {
+			add_filter( 'jetpack_is_private_site', '__return_true' );
+		}
 
 		$data = Admin_Page::inject_podcast_script_data( array() );
+		remove_filter( 'jetpack_is_private_site', '__return_true' );
+		Status_Cache::clear();
 		$this->assertSame( $expected, $data['podcast']['is_site_public'] );
 	}
 
@@ -249,6 +255,7 @@ class Admin_Page_Test extends BaseTestCase {
 		return array(
 			'public with stale private option' => array( array( 'blog_public' => '-1' ), false, true ),
 			'private with public option'       => array( array(), true, false ),
+			'private status filter'            => array( array(), false, false, true ),
 			'discouraged string'               => array( array( 'blog_public' => '0' ), false, false ),
 			'discouraged integer'              => array( array( 'blog_public' => 0 ), false, false ),
 			'unlaunched'                       => array( array( 'launch-status' => 'unlaunched' ), false, false ),
