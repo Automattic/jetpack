@@ -507,8 +507,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-19T14:15:21+00:00",
-            "published-time": "2024-09-19T14:15:34+00:00"
+            "time": "2024-09-19T14:15:21+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -564,8 +563,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-16T11:41:01+00:00",
-            "published-time": "2026-02-16T12:37:29+00:00"
+            "time": "2026-02-16T11:41:01+00:00"
         }
     ],
     "packages-dev": [],
@@ -581,5 +579,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.11.0"
+    "plugin-api-version": "2.9.0"
 }
