@@ -52,7 +52,7 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 			setCopyFeedback( { result: 'copied' } );
 			speak( __( 'Copied to clipboard', 'jetpack-my-jetpack' ) );
 		},
-		// WordPress 7.2 beta 4 and older ship a `wp-compose` that never calls this.
+		// Core's `wp-compose` ignores this before @wordpress/compose 9.1.0.
 		() => {
 			setCopyFeedback( { result: 'error' } );
 			speak( __( 'Couldn’t copy to clipboard.', 'jetpack-my-jetpack' ) );
@@ -117,7 +117,7 @@ export function PostByEmailSettings( { module: $module, disabled }: ModuleSettin
 				disabled={ locked }
 				suffix={
 					<InputLayout.Slot padding="minimal" className={ styles[ 'post-by-email__copy-slot' ] }>
-						{ /* A disabled @wordpress/ui Button does not block the hook's DOM click listener, so attach the ref only while copying is allowed. */ }
+						{ /* A disabled @wordpress/ui Button does not block the hook's DOM click listener (WordPress/gutenberg#86445), so attach the ref only while copying is allowed. */ }
 						<Button
 							ref={ canCopy ? copyRef : undefined }
 							variant="minimal"
