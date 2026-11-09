@@ -44,6 +44,10 @@ The budget exists because the endpoint rate-limits by IP, and a block there reac
 
 The Premium Analytics package version travels in `properties.version`. The endpoint's top-level `jetpack_version` conventionally carries the Jetpack plugin version, so filling it with a package version would make a shared field disagree with every other reporter that sets it. `projects/packages/comments` reports its own version the same way.
 
-## Chunk-load failures
+## Errors that are not ours
 
-A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it even though it is not a bug of ours. Those reports carry the tag `chunk-load`, which lets a search exclude them, and the four messages matched differ per browser and bundler. Reloading the page would be the other answer, and no user-visible change is allowed here.
+Two kinds of crash reach us through the boundary without being a bug of ours. Both carry a tag so a search on this feature can exclude them.
+
+A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it. Those carry `chunk-load`, matched from the four wordings that differ per browser and bundler, one of which only names the error rather than wording the message. Reloading the page would be the other answer, and no user-visible change is allowed here.
+
+A translation tool or an extension that reparents React-managed text nodes crashes the commit phase with a `NotFoundError` from `insertBefore`. Those carry `dom-interference`, and `properties.dom_interference` names the agents found, as one field rather than one per agent. The probes run only while a report is being built, and each keys on an artefact only Chromium and extension translators leave behind: Safari and Firefox translate in place with no marker, so an absent value means undetectable rather than absent.
