@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
@@ -45,6 +46,8 @@ class LlmsTxtTest extends TestCase {
 			wp_delete_post( $post_id, true );
 		}
 		$this->post_ids = array();
+
+		\Jetpack_SEO_Posts::$custom_description = '';
 
 		if ( post_type_exists( 'seo_book' ) ) {
 			unregister_post_type( 'seo_book' );
@@ -411,5 +414,48 @@ class LlmsTxtTest extends TestCase {
 		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
 
 		$this->assertSame( 'Public summary.', $this->summary( $post ) );
+	}
+
+	/**
+	 * A custom SEO description is the summary whenever one is set.
+	 *
+	 * @dataProvider provide_seo_description_summaries
+	 *
+	 * @param string $description Stored SEO description.
+	 * @param array  $fields      Post fields.
+	 * @param string $expected    Expected summary.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_seo_description_summaries' )]
+	public function test_summary_prefers_seo_description( string $description, array $fields, string $expected ) {
+		\Jetpack_SEO_Posts::$custom_description = $description;
+
+		$this->assertSame( $expected, $this->summary( $this->insert_post( $fields ) ) );
+	}
+
+	/**
+	 * @return array<string, array{string, array<string, string>, string}>
+	 */
+	public static function provide_seo_description_summaries(): array {
+		return array(
+			'ahead of a manual excerpt' => array(
+				'SEO summary.',
+				array(
+					'post_content' => 'Body text.',
+					'post_excerpt' => 'Manual excerpt.',
+				),
+				'SEO summary.',
+			),
+			'kept on a gated post'      => array(
+				'SEO summary.',
+				array( 'post_content' => '<!-- wp:jetpack/paywall -->Paid body text.<!-- /wp:jetpack/paywall -->' ),
+				'SEO summary.',
+			),
+			'cleaned to a single line'  => array(
+				"<b>First line</b>\n\nsecond line.",
+				array( 'post_content' => 'Body text.' ),
+				'First line second line.',
+			),
+		);
 	}
 }

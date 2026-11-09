@@ -264,14 +264,20 @@ class Llms_Txt {
 	}
 
 	/**
-	 * A short, single-line summary for a post: its excerpt when set, otherwise a
-	 * trimmed slice of the content.
+	 * A short, single-line summary for a post: its SEO description when set, then
+	 * its excerpt, otherwise a trimmed slice of the content.
 	 *
 	 * @param \WP_Post $post Post to summarize.
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		if ( has_excerpt( $post ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists check on the same line.
+		$seo_description = class_exists( 'Jetpack_SEO_Posts' ) ? \Jetpack_SEO_Posts::get_post_custom_description( $post ) : '';
+
+		if ( '' !== $seo_description ) {
+			// The page's meta description already publishes this, so a body gate does not withhold it.
+			$raw = $seo_description;
+		} elseif ( has_excerpt( $post ) ) {
 			// A manual excerpt is a deliberate public summary; a body gate does not withhold it.
 			$raw = get_the_excerpt( $post );
 		} elseif ( Content_Gate::is_gated( $post ) ) {
