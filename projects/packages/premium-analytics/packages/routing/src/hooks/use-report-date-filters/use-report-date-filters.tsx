@@ -297,27 +297,31 @@ export function useReportDateFilters< TFrom extends string >(
 
 	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	// Listed and checked against the range being edited — see
-	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
+	// Listed and checked against the range being edited, read as the window it names today, the
+	// dates the widgets bucket by. See `getAllowedIntervalsForPreset` for why the draft, not the applied window.
+	const draftWindow = useMemo(
+		() => ( {
+			from: encodeDateToSearchParam( range.from ) ?? '',
+			to: encodeDateToSearchParam( range.to ) ?? '',
+		} ),
+		[ range ]
+	);
+
 	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
-		() =>
-			intervalMenuOptions(
-				{ preset: presetId, from: effective.from, to: effective.to },
-				lockedIntervals
-			),
-		[ presetId, effective.from, effective.to, lockedIntervals ]
+		() => intervalMenuOptions( { preset: presetId, ...draftWindow }, lockedIntervals ),
+		[ presetId, draftWindow, lockedIntervals ]
 	);
 
 	const interval = useMemo(
 		() =>
 			resolveIntervalForRange(
 				presetId,
-				effective.from ?? '',
-				effective.to ?? '',
+				draftWindow.from,
+				draftWindow.to,
 				effective.interval,
 				lockedIntervals
 			),
-		[ presetId, effective.from, effective.to, effective.interval, lockedIntervals ]
+		[ presetId, draftWindow, effective.interval, lockedIntervals ]
 	);
 
 	/**

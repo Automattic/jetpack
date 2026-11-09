@@ -528,6 +528,20 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.interval ).toBe( 'day' );
 	} );
 
+	it( 'lists and checks the buckets of the window a preset names today, not of the dates the URL kept', () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+		// Bookmarked three days into the year: by those dates only days and hours would fit.
+		const { result } = renderDateFilters( {
+			from: '2026-01-01T00:00:00.000+00:00',
+			to: '2026-01-03T23:59:59.999+00:00',
+			preset: 'year-to-date',
+			interval: 'week',
+		} );
+
+		expect( result.current.intervalOptions ).toEqual( [ 'week', 'month' ] );
+		expect( result.current.interval ).toBe( 'week' );
+	} );
+
 	it( 'holds a comparison change while a primary edit is staged', () => {
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000+00:00',
