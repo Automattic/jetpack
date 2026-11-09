@@ -174,7 +174,8 @@ class SSO_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_maybe_start_standalone_leaves_sso_to_the_jetpack_plugin() {
 		self::set_up_standalone_site( true, false, true );
-		class_alias( \stdClass::class, 'Jetpack' );
+		// Before PHP 8.3, class_alias() needs a user-defined class, so not stdClass.
+		class_alias( self::class, 'Jetpack' );
 
 		SSO::maybe_start_standalone();
 
