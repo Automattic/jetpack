@@ -137,7 +137,7 @@ function wpcom_write_get_post_publish_checklist_strings() {
 		// launch with an unverified email (see post-publish-checklist.js).
 		'verifyTitle'     => $publish ? __( 'Confirm your email to publish your site', 'jetpack-mu-wpcom' ) : __( 'Confirm your email to launch', 'jetpack-mu-wpcom' ),
 		'verifyDesc'      => __( 'Your site can go public once your email is confirmed. Check your inbox for the confirmation link.', 'jetpack-mu-wpcom' ),
-		'confirmCta'      => $publish ? __( "I've confirmed — publish", 'jetpack-mu-wpcom' ) : __( "I've confirmed — launch", 'jetpack-mu-wpcom' ),
+		'confirmCta'      => $publish ? __( 'I’ve confirmed — publish', 'jetpack-mu-wpcom' ) : __( "I've confirmed — launch", 'jetpack-mu-wpcom' ),
 		'resendCta'       => __( 'Resend verification email', 'jetpack-mu-wpcom' ),
 		'resendSent'      => __( 'Verification email sent. Check your inbox.', 'jetpack-mu-wpcom' ),
 		'resendError'     => __( 'Something went wrong. Please try again.', 'jetpack-mu-wpcom' ),

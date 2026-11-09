@@ -73,11 +73,11 @@ const LaunchSite = ( {
 	};
 	const publishDescriptions = {
 		comingSoon: __(
-			'Your site hasn\'t been published yet. It is hidden from visitors behind a "Coming Soon" notice until it is published.',
+			'Your site hasn’t been published yet. It is hidden from visitors behind a “Coming Soon” notice until it is published.',
 			'jetpack-mu-wpcom'
 		),
 		private: __(
-			"Your site hasn't been published yet. It's private; only you can see it until it is published.",
+			'Your site hasn’t been published yet. It’s private; only you can see it until it is published.',
 			'jetpack-mu-wpcom'
 		),
 	};
