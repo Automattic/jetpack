@@ -445,11 +445,11 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 * The pills filter on feature groups, so every feature has to carry the key they read.
 	 */
 	public function test_every_feature_carries_the_keys_the_grid_reads() {
 		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'groups', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
 				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
 			}
 
@@ -899,6 +899,8 @@ class Main_Features_Test extends TestCase {
 		$features = array_column( Main_Features::get_features(), null, 'slug' );
 		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
 		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( array( 'security' ), $features['backup']['groups'] );
+		$this->assertSame( array( 'growth' ), $features['podcast']['groups'] );
 		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
 		$this->own( array( 'jetpack_security_t1_yearly' ) );
 		$features = array_column( Main_Features::get_features(), null, 'slug' );

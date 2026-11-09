@@ -57,6 +57,11 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
+	 */
+	private const FILTER_GROUPS = array( 'security', 'growth' );
+
+	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
 	 * @since 6.10.0
@@ -1085,6 +1090,8 @@ class Main_Features {
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
+				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
+				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,
