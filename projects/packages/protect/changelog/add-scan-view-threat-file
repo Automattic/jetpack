@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Scan: View the whole file a threat was found in, with the flagged lines highlighted and what the file belongs to, and delete a stray file or restore a changed WordPress core file from there.
