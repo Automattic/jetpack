@@ -57,7 +57,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
 			'media'             => '(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />' .
 							"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 			'media_urls'        => '(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.',
-			'metadata'          => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+			'metadata'          => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). Unprotected meta keys can be changed by users who can edit the post. Protected meta keys (those starting with an underscore) can be changed only when the user can edit that key, which requires an <code>auth_callback</code> registered with <code>register_meta()</code> or an <code>auth_post_meta_{$meta_key}</code> filter. Keys allowed by the <code>rest_api_allowed_public_metadata</code> filter can also be added or updated.',
 			'comments_open'     => "(bool) Should the post be open to comments? Defaults to the blog's preference.",
 			'pings_open'        => "(bool) Should the post be open to comments? Defaults to the blog's preference.",
 			'likes_enabled'     => "(bool) Should the post be open to likes? Defaults to the blog's preference.",
@@ -130,7 +130,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint(
 			'media'             => '(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />' .
 							"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 			'media_urls'        => '(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.',
-			'metadata'          => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+			'metadata'          => '(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). Users who can edit the post get its unprotected meta keys. Protected meta keys (those starting with an underscore) are returned only when the user can edit that key, which requires an <code>auth_callback</code> registered with <code>register_meta()</code> or an <code>auth_post_meta_{$meta_key}</code> filter. Keys allowed by the <code>rest_api_allowed_public_metadata</code> filter, plus <code>_thumbnail_id</code> and keys starting with <code>geo_</code> or <code>_wpas_</code>, are returned to anyone who can read the post.',
 		),
 
 		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/881',
@@ -521,6 +521,24 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media        = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
+		// A JSON boolean false is cast to array( false ) by the (array|bool) input type.
+		$skip_publicize = false === $publicize || array( false ) === $publicize;
+
+		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
+		/**
+		 * On Jetpack sites, Sync flags the post for sharing on publish, before the skip meta below exists.
+		 * WordPress.com unhooks sharing from save_post above instead.
+		 *
+		 * @return false
+		 */
+		$block_publicize = static function () {
+			return false;
+		};
+		if ( $block_publicize_flag ) {
+			add_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
+		}
+
 		if ( $new ) {
 
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
@@ -563,6 +581,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			} else {
 				$post_id = wp_update_post( (object) $insert );
 			}
+		}
+
+		if ( $block_publicize_flag ) {
+			remove_filter( 'publicize_should_publicize_published_post', $block_publicize, PHP_INT_MAX );
 		}
 
 		if ( ! $post_id || is_wp_error( $post_id ) ) {
@@ -664,8 +686,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
-		// any posts coming from Path (client ID 25952) should also not publicize.
-		if ( false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] ) ) {
+		if ( $skip_publicize ) {
 			// No publicize at all, skip all by ID.
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name );
@@ -674,7 +695,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					continue;
 				}
 				foreach ( $service_connections as $service_connection ) {
-					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 				}
 			}
 		} elseif ( is_array( $publicize ) && ( $publicize !== array() ) ) {
@@ -708,7 +729,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				if ( ! in_array( $name, $publicize, true ) && ! array_key_exists( $name, $publicize ) ) {
 					// Skip the whole service by adding each connection ID.
 					foreach ( $service_connections as $service_connection ) {
-						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+						update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 					}
 				} elseif ( ! empty( $publicize[ $name ] ) ) {
 					// Seems we're being asked to only push to [a] specific connection[s].
@@ -716,16 +737,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
 					// Flag the connections we can't match with the requested list to be skipped.
 					foreach ( $service_connections as $service_connection ) {
-						if ( ! in_array( $service_connection->meta['connection_data']->id, $requested_connections, true ) ) {
-							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+						if ( ! in_array( (string) $GLOBALS['publicize_ui']->publicize->get_connection_id( $service_connection ), $requested_connections, true ) ) {
+							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ), 1 );
 						} else {
-							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
+							delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
 						}
 					}
 				} else {
 					// delete all SKIP values; it's okay to publish to all connected IDs for this service.
 					foreach ( $service_connections as $service_connection ) {
-						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id );
+						delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $GLOBALS['publicize_ui']->publicize->get_connection_unique_id( $service_connection ) );
 					}
 				}
 			}

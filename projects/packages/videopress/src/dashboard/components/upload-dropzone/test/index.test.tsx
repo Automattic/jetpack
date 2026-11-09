@@ -4,6 +4,10 @@ import { makeRenamedTextFile, makeVideoFile } from '../../../test-utils/video-fi
 import UploadDropzone from '../index';
 import { selectFilesForPlan } from '../select-files';
 
+jest.mock( '../../../../client/components/video-recording/recording-stage', () =>
+	jest.requireActual( '../../../../client/components/video-recording/fixtures/recording-stage' )
+);
+
 const mockCreateErrorNotice = jest.fn();
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
@@ -36,6 +40,72 @@ beforeEach( () => {
 } );
 
 describe( 'UploadDropzone', () => {
+	it( 'reports mixed rejection reasons without counting invalid files as plan-limit refusals', async () => {
+		const onRefused = jest.fn();
+		const onFiles = jest.fn();
+		render( <UploadDropzone onFiles={ onFiles } onRefused={ onRefused } disabled /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: {
+				files: [ makeFile( 'a.mp4' ), new File( [ 'x' ], 'doc.pdf', { type: 'application/pdf' } ) ],
+			},
+		} );
+		await waitFor( () => expect( onRefused ).toHaveBeenCalledTimes( 2 ) );
+		expect( onRefused.mock.calls ).toEqual( [
+			[ { reason: 'file_validation', counts: { attempted: 2, skipped: 1 } } ],
+			[ { reason: 'plan_limit', counts: { attempted: 2, skipped: 1 } } ],
+		] );
+		expect( onFiles ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports partial file rejection before passing accepted files to intake', async () => {
+		const onRefused = jest.fn();
+		const onFiles = jest.fn();
+		const clip = makeFile( 'a.mp4' );
+		render( <UploadDropzone onFiles={ onFiles } onRefused={ onRefused } /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: {
+				files: [ clip, new File( [ 'x' ], 'doc.pdf', { type: 'application/pdf' } ) ],
+			},
+		} );
+		await waitFor( () => expect( onFiles ).toHaveBeenCalledWith( [ clip ] ) );
+		expect( onRefused ).toHaveBeenCalledTimes( 1 );
+		expect( onRefused ).toHaveBeenCalledWith( {
+			reason: 'file_validation',
+			counts: { attempted: 2, skipped: 1 },
+		} );
+	} );
+
+	it( 'reports an at-limit picker click without inventing a file count', async () => {
+		const onRefused = jest.fn();
+		const { rerender } = render(
+			<UploadDropzone onFiles={ jest.fn() } onRefused={ onRefused } disabled />
+		);
+		rerender( <UploadDropzone onFiles={ jest.fn() } onRefused={ onRefused } disabled /> );
+		expect( onRefused ).not.toHaveBeenCalled();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Select a video to upload' } ) );
+		expect( onRefused ).toHaveBeenCalledTimes( 1 );
+		expect( onRefused ).toHaveBeenCalledWith( { reason: 'plan_limit' } );
+	} );
+
+	it( 'does not report an empty drop as a refusal', () => {
+		const onRefused = jest.fn();
+		render( <UploadDropzone onFiles={ jest.fn() } onRefused={ onRefused } disabled /> );
+		fireEvent.drop( screen.getByText( 'Drag and drop your video here' ), {
+			dataTransfer: { files: [] },
+		} );
+		expect( onRefused ).not.toHaveBeenCalled();
+	} );
+	it( 'does not open the file picker when interacting with the recording modal portal', async () => {
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The file input has no accessible label.
+		const input = container.querySelector( 'input[type="file"]' ) as HTMLInputElement;
+		const clickPicker = jest.spyOn( input, 'click' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Record a video' } ) );
+		await userEvent.click( await screen.findByLabelText( 'Camera preview' ) );
+		expect( clickPicker ).not.toHaveBeenCalled();
+		clickPicker.mockRestore();
+	} );
+
 	it( 'renders the single-file copy by default', () => {
 		render( <UploadDropzone onFiles={ jest.fn() } /> );
 
@@ -87,6 +157,7 @@ describe( 'UploadDropzone', () => {
 		await waitFor( () => expect( onFiles ).toHaveBeenCalledTimes( 1 ) );
 
 		rerender( <UploadDropzone onFiles={ onFiles } disabled /> );
+		expect( screen.getByRole( 'button', { name: 'Record a video' } ) ).toBeDisabled();
 		expect( dropzone ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByRole( 'button', { name: 'Select a video to upload' } ) ).toHaveAttribute(
 			'aria-disabled',

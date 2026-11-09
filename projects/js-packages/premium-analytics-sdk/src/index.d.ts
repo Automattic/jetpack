@@ -114,7 +114,7 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
-	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	// What the chart shows, when that is not the widget title; the chart is named "Chart: <title>".
 	chartTitle?: string;
 	// The total the report states, for segments that need not add up to it. Omit to sum them.
 	total?: number;
@@ -143,7 +143,7 @@ export type FunnelProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the step counts, in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
-	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	// What the chart shows, when that is not the widget title; the chart is named "Chart: <title>".
 	chartTitle?: string;
 };
 
@@ -168,7 +168,7 @@ export type ColumnsProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
-	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	// What the chart shows, when that is not the widget title; the chart is named "Chart: <title>".
 	chartTitle?: string;
 };
 
@@ -201,7 +201,7 @@ export type LocationsProps = {
 	country?: { code: string; name: string };
 	// Rows the list shows. Defaults to the widget row limit.
 	maxRows?: number;
-	// What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>".
+	// What the widget shows, when that is not its title; the list is named "Chart: <title>" and the map "Map: <title>".
 	chartTitle?: string;
 };
 
@@ -250,6 +250,9 @@ export type ReportResult< TData > = {
 	primary: ReportQueryResult< TData >;
 	comparison: ReportQueryResult< TData >;
 	hasComparison: boolean;
+	// Where each period starts while a comparison is on, for `buildMetricTab`'s `periodStarts`.
+	// Absent on dashboards older than it.
+	periodStarts?: { current: string; comparison: string };
 	// The zone both periods were built under.
 	timezone: string;
 	// True while nothing on screen answers the current params; see WidgetState.

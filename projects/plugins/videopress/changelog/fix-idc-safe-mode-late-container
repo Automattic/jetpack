@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Fix the Safe Mode window in My Jetpack opening empty, with no choices.

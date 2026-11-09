@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Take each chart's accessible name from the widget title instead of repeating it.

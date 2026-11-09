@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -88,6 +90,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
@@ -528,6 +531,54 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Protect shows beside Calypso's Scan, in the menu's A to Z order, whichever page serves it.
+	 *
+	 * @dataProvider provide_protect_entry_cases
+	 *
+	 * @param string   $served_by 'protect page', 'upgrade prompt', or 'nothing'.
+	 * @param string[] $expected  The visible entries, in menu order.
+	 */
+	#[DataProvider( 'provide_protect_entry_cases' )]
+	public function test_jetpack_submenu_shows_protect_beside_scan( $served_by, $expected ) {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
+		if ( 'protect page' === $served_by ) {
+			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
+		}
+		if ( 'upgrade prompt' === $served_by ) {
+			WPCOM_Scan::register_page();
+		}
+
+		wpcom_add_jetpack_submenu();
+
+		$calypso = 'https://wordpress.com/scan/' . self::$domain;
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], array( $calypso, 'jetpack-protect', 'jetpack-search' ), true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $calypso === $item[2] ? 'calypso' : $item[2];
+			}
+		}
+
+		$this->assertSame( $expected, $visible );
+	}
+
+	/**
+	 * What serves the Protect slug, and the entries that should show.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_protect_entry_cases() {
+		return array(
+			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			// As while the dashboard's feature flag is off on a plan that includes Scan.
+			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
+		);
+	}
+
+	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
@@ -674,38 +725,131 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * WoA can pair mu-wpcom with a Jetpack that serves Settings at either address.
+	 * Sort the Jetpack submenu A to Z between its pinned top and bottom items, on every platform.
 	 *
-	 * @dataProvider provide_settings_addresses
+	 * @dataProvider provide_jetpack_menu_environments
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 *
-	 * @param string $address Which Settings address the Jetpack plugin registers.
+	 * @param bool        $simple   Whether this is a Simple site.
+	 * @param string|null $address  Which Settings address the Jetpack plugin registers.
+	 * @param array       $expected Expected submenu titles, top to bottom; a hidden item ends in "(hidden)".
+	 * @param bool        $atomic   Whether to define the Atomic hosting constants.
+	 * @param bool        $page     Whether a My Jetpack page registered.
 	 */
-	#[DataProvider( 'provide_settings_addresses' )]
-	public function test_jetpack_submenu_orders_settings_at_either_address( $address ) {
+	#[DataProvider( 'provide_jetpack_menu_environments' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true, $page = true ) {
 		global $submenu;
+		if ( $simple ) {
+			define( 'IS_WPCOM', true );
+		} elseif ( $atomic ) {
+			define( 'ATOMIC_SITE_ID', 1 );
+			define( 'ATOMIC_CLIENT_ID', 2 );
+			define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+		}
+		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'id', 200 );
 		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu['jetpack'] = array(
-			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
-			array( 'Settings', 'manage_options', $settings_slug ),
+			array( 'Abonnés', 'manage_options', 'jetpack-abonnes' ),
+			array( 'Social', 'manage_options', 'jetpack-social' ),
+			array( 'Beta Tester', 'manage_options', 'jetpack-beta' ),
+			array( 'SEO', 'manage_options', 'jetpack-seo' ),
+			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
+			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
+			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
+		if ( $page ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		}
+		if ( ! $simple ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		}
 
 		wpcom_add_jetpack_submenu();
 
-		$slugs = array_column( $submenu['jetpack'], 2 );
-		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
+		$titles = array_map(
+			function ( $item ) {
+				$title = wp_strip_all_tags( $item[0] );
+				return str_contains( $item[4] ?? '', 'hide-if-js' ) ? "$title (hidden)" : $title;
+			},
+			$submenu['jetpack']
+		);
+		$this->assertSame( $expected, $titles );
 	}
 
 	/**
-	 * Settings addresses across Jetpack releases.
+	 * Atomic Personal and Premium hide My Jetpack and redirect it to Stats, so it keeps the
+	 * top link even though it is hidden, ahead of a visible Modules page; the upgrade link
+	 * sorts after Settings.
+	 */
+	public function test_jetpack_submenu_keeps_a_hidden_my_jetpack_first() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Upgrade Jetpack', 'manage_options', 'https://jetpack.com/redirect/?source=jetpack-wpadmin-sidebar-free-plan-upsell-menu-item&site=example.org' ),
+			array( 'Settings', 'manage_options', 'jetpack-settings', '', 'hide-if-js' ),
+			array( 'Scan', 'manage_options', 'https://wordpress.com/scan/example.org' ),
+			array( 'Akismet Anti-spam', 'manage_options', 'akismet-key-config' ),
+			array( 'Modules', 'manage_options', 'jetpack_modules' ),
+			array( 'My Jetpack', 'manage_options', 'my-jetpack', '', 'hide-if-js' ),
+		);
+
+		wpcom_sort_jetpack_submenu();
+
+		$this->assertSame(
+			array( 'My Jetpack', 'Modules', 'Akismet Anti-spam', 'Scan', 'Settings', 'Upgrade Jetpack' ),
+			array_column( $submenu['jetpack'], 0 )
+		);
+	}
+
+	/**
+	 * Tools and Settings still use the fixed-list reorder: listed slugs first, in list order and
+	 * each item once even when two slugs match it, then the rest as they were. A menu that isn't
+	 * registered is left alone.
+	 */
+	public function test_reorder_submenu_puts_listed_slugs_first() {
+		global $submenu;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['tools.php'] = array(
+			array( 'Theme File Editor', 'manage_options', 'theme-editor.php' ),
+			array( 'Export', 'manage_options', 'export.php' ),
+			array( 'Import', 'manage_options', 'https://wordpress.com/import/' . self::$domain ),
+			array( 'Export Media Library', 'manage_options', 'export-media-files' ),
+		);
+
+		wpcom_reorder_submenu( 'tools.php', array( 'import', 'export', 'export-media-files' ) );
+		wpcom_reorder_submenu( 'missing.php', array( 'import' ) );
+
+		$this->assertSame(
+			array( 'Import', 'Export', 'Export Media Library', 'Theme File Editor' ),
+			array_column( $submenu['tools.php'], 0 )
+		);
+		$this->assertArrayNotHasKey( 'missing.php', $submenu );
+	}
+
+	/**
+	 * Platforms and Settings addresses across Jetpack releases.
 	 *
 	 * @return array
 	 */
-	public static function provide_settings_addresses() {
+	public static function provide_jetpack_menu_environments() {
+		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
+		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
+
 		return array(
-			'hash on page=jetpack'  => array( 'legacy' ),
-			'page=jetpack-settings' => array( 'own' ),
+			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
+			'Atomic Settings'                    => array( false, 'own', $atomic ),
+			'Simple with the My Jetpack page'    => array( true, null, $simple ),
+			'Simple without the My Jetpack page' => array( true, null, array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' ), true, false ),
+			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
 	}
 }

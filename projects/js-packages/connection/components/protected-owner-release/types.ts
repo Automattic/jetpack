@@ -16,6 +16,8 @@ export interface ProtectedOwnerReleaseProps {
 	apiRoot?: string;
 	/** REST nonce. Falls back to the connection script data. */
 	apiNonce?: string;
+	/** Surface to report the click to Tracks as. Sent as null when omitted. */
+	trackingContext?: string;
 }
 
 export interface ProtectedOwnerReleaseCopy {

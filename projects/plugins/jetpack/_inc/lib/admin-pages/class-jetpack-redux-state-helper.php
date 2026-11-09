@@ -20,6 +20,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\Jetpack_Script_Data;
 use Automattic\Jetpack\Publicize\Keyring_Helper;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
@@ -109,14 +110,6 @@ class Jetpack_Redux_State_Helper {
 
 		// Get information about current theme.
 		$current_theme = wp_get_theme();
-
-		// Get all themes that Infinite Scroll provides support for natively.
-		$inf_scr_support_themes = array();
-		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes' ) as $path ) {
-			if ( is_readable( $path ) ) {
-				$inf_scr_support_themes[] = basename( $path, '.php' );
-			}
-		}
 
 		// Get last post, to build the link to Customizer in the Related Posts module.
 		$last_post = get_posts( array( 'posts_per_page' => 1 ) );
@@ -219,7 +212,7 @@ class Jetpack_Redux_State_Helper {
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
 				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
 				'support'      => array(
-					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
+					'infinite-scroll' => Jetpack_Script_Data::theme_supports_infinite_scroll(),
 					'widgets'         => current_theme_supports( 'widgets' ),
 					'webfonts'        => wp_theme_has_theme_json()
 						&& ( function_exists( 'wp_register_webfont_provider' ) || function_exists( 'wp_register_webfonts' ) ),

@@ -1,15 +1,20 @@
 /**
  * External dependencies
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import {
+	CONNECTION_EVENTS,
+	placementProps,
+	trackConnectionEvent,
+} from '../../helpers/connection-tracking.ts';
 import useUnlinkUser from '../../hooks/use-unlink-user';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import useConnection from '../use-connection';
 import './style.scss';
+import type { ConnectionPlacement } from '../../helpers/connection-tracking.ts';
 import type { MouseEvent } from 'react';
 
 interface OwnerDisconnectDialogProps {
@@ -27,10 +32,12 @@ interface OwnerDisconnectDialogProps {
 	onTransferOwnership?: () => void;
 	/**
 	 * The context in which this component is being used, recorded with the dialog's events.
-	 * Deliberately undefined by default: a named fallback would attribute a caller that forgot
-	 * it to the wrong surface, where an absent one is findable in the data.
+	 * Sent as null when omitted, so a caller that forgot it is findable in the data rather than
+	 * attributed to another surface.
 	 */
 	context?: string;
+	/** Where on the page the dialog was opened from, e.g. 'header'. Sent as `placement` when set. */
+	placement?: ConnectionPlacement;
 }
 
 /**
@@ -47,6 +54,7 @@ const OwnerDisconnectDialog = ( {
 	onUnlinked,
 	onTransferOwnership,
 	context,
+	placement,
 }: OwnerDisconnectDialogProps ) => {
 	const { isDisconnecting, error: disconnectError, unlink } = useUnlinkUser();
 
@@ -61,9 +69,13 @@ const OwnerDisconnectDialog = ( {
 	const handleTransferClick = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
 			e?.preventDefault();
+			trackConnectionEvent( CONNECTION_EVENTS.ownerTransferClick, context, {
+				...placementProps( placement ),
+				location: 'owner_disconnect_dialog',
+			} );
 			onTransferOwnership?.();
 		},
-		[ onTransferOwnership ]
+		[ context, placement, onTransferOwnership ]
 	);
 
 	const handleStayConnected = useCallback( () => {
@@ -71,9 +83,10 @@ const OwnerDisconnectDialog = ( {
 	}, [ onClose ] );
 
 	const handleDisconnectAnyway = useCallback( () => {
-		jetpackAnalytics.tracks.recordEvent(
+		trackConnectionEvent(
 			'jetpack_manage_connection_dialog_owner_disconnect_click',
-			{ context }
+			context,
+			placementProps( placement )
 		);
 
 		unlink( {
@@ -84,18 +97,19 @@ const OwnerDisconnectDialog = ( {
 				'jetpack-connection-js'
 			),
 		} ).then( succeeded => {
-			jetpackAnalytics.tracks.recordEvent(
+			trackConnectionEvent(
 				succeeded
 					? 'jetpack_manage_connection_dialog_owner_disconnect_success'
 					: 'jetpack_manage_connection_dialog_owner_disconnect_error',
-				{ context }
+				context,
+				placementProps( placement )
 			);
 
 			if ( succeeded ) {
 				onUnlinked && onUnlinked();
 			}
 		} );
-	}, [ context, onUnlinked, unlink ] );
+	}, [ context, placement, onUnlinked, unlink ] );
 
 	return (
 		isOpen && (

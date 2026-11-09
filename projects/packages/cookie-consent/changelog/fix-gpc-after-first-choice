@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Honor Global Privacy Control on every page load, so a visitor who turns GPC on after allowing optional categories is opted out, and tell a GPC visitor in the banner and preferences that switching a category on overrides GPC for the site.

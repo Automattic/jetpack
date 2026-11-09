@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Report upload initialization failures and prevent canceled editor uploads from starting later.

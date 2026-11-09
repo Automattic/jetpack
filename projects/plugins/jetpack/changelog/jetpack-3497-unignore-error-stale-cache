@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Stop showing an error after a slow ignore or unignore that went through, and update the ignored threats count straight away.

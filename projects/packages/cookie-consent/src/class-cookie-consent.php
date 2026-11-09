@@ -25,7 +25,7 @@ class Cookie_Consent {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.2.1';
 
 	/**
 	 * CCPA page ID option name.

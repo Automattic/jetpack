@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -51,6 +52,8 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function tear_down() {
+		Constants::clear_constants();
+		StatusCache::clear();
 		parent::tear_down();
 
 		global $wp_rest_server;
@@ -299,6 +302,56 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
+	}
+
+	/**
+	 * Only administrators can read the Scan state.
+	 *
+	 * @dataProvider provider_scan_state_roles
+	 *
+	 * @param string $role     Role of the current user.
+	 * @param int    $expected Expected response status.
+	 */
+	#[DataProvider( 'provider_scan_state_roles' )]
+	public function test_scan_state_requires_manage_options( $role, $expected ) {
+		set_transient( 'jetpack_scan_state', (object) array( 'state' => 'idle' ) );
+		wp_set_current_user( $this->create_and_get_user( $role )->ID );
+
+		$this->assertResponseStatus( $expected, $this->create_and_get_request( 'scan' ) );
+	}
+
+	/**
+	 * Roles and the status they get from the Scan state endpoint.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_scan_state_roles() {
+		return array(
+			'editor'        => array( 'editor', 403 ),
+			'administrator' => array( 'administrator', 200 ),
+		);
+	}
+
+	/**
+	 * WoA lists Scan threats like any other host; only the announcements are turned off there.
+	 */
+	public function test_scan_state_returns_threats_on_woa() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		StatusCache::clear();
+		set_transient(
+			'jetpack_scan_state',
+			(object) array(
+				'state'   => 'idle',
+				'threats' => array( (object) array( 'id' => 1 ) ),
+			)
+		);
+		wp_set_current_user( $this->create_and_get_user( 'administrator' )->ID );
+
+		$response = $this->create_and_get_request( 'scan' );
+
+		$this->assertCount( 1, json_decode( $response->get_data()['data'] )->threats );
 	}
 
 	/**

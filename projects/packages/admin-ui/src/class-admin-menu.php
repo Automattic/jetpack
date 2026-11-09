@@ -18,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.14.8';
+	const PACKAGE_VERSION = '0.14.13';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -423,15 +423,16 @@ class Admin_Menu {
 	 *
 	 * @since 0.13.0
 	 *
-	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
-	 *                                  is selected.
-	 * @param string        $menu_title The text to be used for the menu.
-	 * @param string        $capability The capability required for this menu to be displayed to the user.
-	 * @param string        $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
-	 * @param callable|null $function   The function to be called to output the content for this page.
-	 * @param string        $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
-	 * @param int|null      $position   The position in the menu order this item should appear.
-	 * @param array         $args       Optional. Visibility declaration for this item; see add_menu().
+	 * @param string         $page_title The text to be displayed in the title tags of the page when the menu
+	 *                                   is selected.
+	 * @param string         $menu_title The text to be used for the menu.
+	 * @param string         $capability The capability required for this menu to be displayed to the user.
+	 * @param string         $menu_slug  The slug name to refer to this menu by. Should be unique for this menu.
+	 * @param callable|null  $function   The function to be called to output the content for this page.
+	 * @param string         $icon_url   The URL to the icon to be used for this menu, or a dashicons class.
+	 * @param int|float|null $position   The position in the menu order this item should appear, as
+	 *                                   add_menu_page() takes it.
+	 * @param array          $args       Optional. Visibility declaration for this item; see add_menu().
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
@@ -637,11 +638,13 @@ class Admin_Menu {
 		 *
 		 * Governs the sidebar entry only — a hidden item's page stays reachable by URL, so this
 		 * is not an access control. States: 'default' follows the item's feature, 'visible' shows it, 'hidden' removes it.
+		 * `jetpack_feature_policy` runs after this. Item keys and examples:
+		 * https://github.com/Automattic/jetpack/blob/trunk/projects/packages/admin-ui/README.md#host-control
 		 *
 		 * @since 0.12.0
 		 *
 		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
-		 * @param array $menu_items The registered menu items, for context.
+		 * @param array $menu_items The registered menu items, each with its menu_slug, capability, and args.
 		 */
 		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, $items );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Fix the Jetpack Stats link in the Google Analytics card.

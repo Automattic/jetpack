@@ -14,7 +14,7 @@ export type ResolvedPlan = {
 /**
  * Format a subscriber's plans for display, mirroring Calypso's `useSubscriptionPlans` hook.
  *
- * - Drops legacy gift subscriptions (`is_gift && !is_comp`).
+ * - Drops expired plans and legacy gift subscriptions (`is_gift && !is_comp`).
  * - Maps `is_comp` → `is_complimentary` and computes `is_free` from `renewal_price`.
  * - Renders comp plans as "Comp: {title}", free as "Free", paid as "{interval} ({price})".
  *
@@ -25,7 +25,7 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 	const plans = subscriber.plans ?? [];
 
 	return plans.reduce< ResolvedPlan[] >( ( acc, plan: SubscriptionPlan ) => {
-		if ( plan.is_gift && ! plan.is_comp ) {
+		if ( plan.status === 'expired' || ( plan.is_gift && ! plan.is_comp ) ) {
 			return acc;
 		}
 
@@ -63,10 +63,8 @@ export function getResolvedPlans( subscriber: Subscriber ): ResolvedPlan[] {
 }
 
 /**
- * Resolve a subscriber's overall subscription type, applying the same priority
- * `SubscriptionTypeCell` renders: paid wins over comp, comp over free. Shared with
- * the DataViews "Subscription type" filter so filtering and the rendered badge
- * agree (a free-only subscriber must read as `free`, not `paid`).
+ * Resolve a subscriber's single subscription type for the DataViews "Subscription type" filter:
+ * paid over comp over free, so a subscriber with both a paid plan and a comp files under paid.
  *
  * @param subscriber - Subscriber.
  * @return The subscription type.

@@ -9,6 +9,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import LineChart, { LineChartUnresponsive, renderDefaultTooltip } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { RenderTooltipParams } from '../../../visx/types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
 import type { RenderLineGlyphProps } from '../types';
 
@@ -310,6 +311,92 @@ describe( 'LineChart', () => {
 				.getAllByText( /^-?[\d.,]+$/ )
 				.map( el => el.textContent );
 			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test.each( [
+			[ 'small amounts', 0, [ 0.4, 1.2, 2.1, 2.6 ], [ '0', '1', '2' ] ],
+			[ 'amounts under one step', 0, [ 0.31, 0.55, 0.73 ], [ '0', '1' ] ],
+			[ 'cents', 2, [ 0.4, 1.2, 1.6 ], [ '0.00', '0.50', '1.00', '1.50' ] ],
+		] )( 'holds ticks to tickDecimals for %s', ( _, tickDecimals, values, expected ) => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: values.map( ( value, i ) => ( { date: new Date( 2024, i + 2, 1 ), value } ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: {
+						y: { tickDecimals, tickFormat: ( value: number ) => value.toFixed( tickDecimals ) },
+					},
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( expected );
+		} );
+
+		test( "leaves a caller's tickValues axis unwidened by tickDecimals", () => {
+			const linePath = ( y: { tickValues: number[]; tickDecimals?: number } ) => {
+				const { unmount } = renderWithTheme( {
+					data: [
+						{
+							label: 'Series A',
+							data: [ 0.31, 0.55, 0.73 ].map( ( value, i ) => ( {
+								date: new Date( 2024, i + 2, 1 ),
+								value,
+							} ) ),
+						},
+					],
+					options: { axis: { y } },
+				} );
+				const chart = screen.getByRole( 'application', { name: /line chart/i } );
+				// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">.
+				const d = chart.querySelector( 'path.visx-line' )?.getAttribute( 'd' );
+				unmount();
+				return d;
+			};
+
+			expect( linePath( { tickValues: [ 0.4, 0.6 ], tickDecimals: 0 } ) ).toBe(
+				linePath( { tickValues: [ 0.4, 0.6 ] } )
+			);
+		} );
+
+		test( 'widens with the decimals it ticks at when a hidden series keeps its place in the domain', () => {
+			renderWithTheme( {
+				rescaleYOnVisibilityChange: false,
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.001, 0.003, 0.004 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { zero: true },
+					axis: { y: { tickDecimals: 2, tickFormat: ( value: number ) => value.toFixed( 2 ) } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'application', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0.00', '1.00' ] );
 		} );
 
 		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
@@ -1693,6 +1780,80 @@ describe( 'LineChart', () => {
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
+			} );
+		} );
+
+		describe( 'Keyboard stops by date', () => {
+			const point = ( day: number, value: number | null ) => ( {
+				date: new Date( `2024-01-0${ day }` ),
+				value,
+			} );
+			const rowsTooltip = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => (
+				<div data-testid="rows-tooltip">
+					{ Object.values( tooltipData?.datumByKey ?? {} )
+						.map( ( { key, datum } ) => `${ key }=${ datum.value }` )
+						.sort()
+						.join( ';' ) }
+				</div>
+			);
+			const renderRows = ( data: SeriesData[], props = {} ) => {
+				renderWithTheme( { data, withTooltips: true, renderTooltip: rowsTooltip, ...props } );
+				screen.getByRole( 'application', { name: /line chart/i } ).focus();
+			};
+
+			it( 'stops at every date any series has and reads each series there', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ), point( 3, 3 ) ] },
+					{ label: 'B', data: [ point( 2, 20 ), point( 4, 40 ) ] },
+				] );
+
+				const expected = [
+					{ text: 'A=1', stop: 0 },
+					{ text: 'A=2;B=20', stop: 1 },
+					{ text: 'A=3', stop: 2 },
+					{ text: 'B=40', stop: 3 },
+					{ text: 'B=40', stop: 3 },
+				];
+				for ( const { text, stop } of expected ) {
+					await user.keyboard( '{ArrowRight}' );
+					await waitFor( () => {
+						expect( screen.getByTestId( `chart-tooltip-${ stop }` ) ).toBeInTheDocument();
+						expect( screen.getByTestId( 'rows-tooltip' ) ).toHaveTextContent(
+							new RegExp( `^${ text }$` )
+						);
+					} );
+				}
+			} );
+
+			it( 'keeps a null point at the selected date', async () => {
+				const user = userEvent.setup();
+				renderRows( [
+					{ label: 'A', data: [ point( 1, 1 ), point( 2, 2 ) ] },
+					{ label: 'B', data: [ point( 1, null ), point( 2, 20 ) ] },
+				] );
+
+				await user.keyboard( '{ArrowRight}' );
+				await expect( screen.findByTestId( 'rows-tooltip' ) ).resolves.toHaveTextContent(
+					/^A=1;B=null$/
+				);
+			} );
+
+			it( 'activates the first visible series with a point at the selected date', async () => {
+				const user = userEvent.setup();
+				const onDatumActivate = jest.fn();
+				const seriesB = { label: 'Series B', data: [ point( 1, 10 ), point( 2, 20 ) ] };
+				renderRows( [ { label: 'Series A', data: [ point( 2, 2 ) ] }, seriesB ], {
+					onDatumActivate,
+				} );
+
+				await user.keyboard( '{ArrowRight}{Enter}' );
+
+				expect( onDatumActivate ).toHaveBeenCalledWith( {
+					key: 'Series B',
+					index: 0,
+					datum: seriesB.data[ 0 ],
+				} );
 			} );
 		} );
 

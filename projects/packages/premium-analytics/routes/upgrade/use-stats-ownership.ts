@@ -4,7 +4,12 @@
 import { useStatsAppPurchases, type StatsAppPurchase } from '@jetpack-premium-analytics/data';
 
 // Jetpack plans that include Stats views, matching `JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES` in PHP.
-const BUNDLED_PLAN_PREFIXES = [ 'jetpack_complete', 'jetpack_growth', 'jetpack_business' ];
+const BUNDLED_PLAN_PREFIXES = [
+	'jetpack_complete',
+	'jetpack_pro',
+	'jetpack_growth',
+	'jetpack_business',
+];
 
 const COMMERCIAL_PRODUCT = /^jetpack_stats_(?:monthly|yearly|bi_yearly)$/;
 

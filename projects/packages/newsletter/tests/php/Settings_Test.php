@@ -13,6 +13,7 @@ use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -459,6 +460,37 @@ class Settings_Test extends BaseTestCase {
 		$this->assertTrue(
 			wp_script_is( 'jetpack-newsletter', 'enqueued' ),
 			'Legacy newsletter bundle must be enqueued when modernization is off.'
+		);
+	}
+
+	/**
+	 * Tracks events need the Jetpack site ID in `jpTracksContext` before `w.js` loads, on both surfaces.
+	 *
+	 * @dataProvider provide_modernization_states
+	 *
+	 * @param bool $modernized Whether the modernized dashboard is enabled.
+	 */
+	#[DataProvider( 'provide_modernization_states' )]
+	public function test_load_admin_scripts_sets_tracks_blog_id_before_transport( $modernized ) {
+		\Jetpack_Options::update_option( 'id', 987654321 );
+		add_filter( Settings::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
+		wp_deregister_script( 'jp-tracks' );
+
+		( new Settings() )->load_admin_scripts();
+
+		$before = implode( "\n", (array) wp_scripts()->get_data( 'jp-tracks', 'before' ) );
+		$this->assertMatchesRegularExpression( '/window\.jpTracksContext\.blog_id\s*=\s*987654321\b/', $before );
+	}
+
+	/**
+	 * Data provider for the modernized and legacy dashboard surfaces.
+	 *
+	 * @return array
+	 */
+	public static function provide_modernization_states() {
+		return array(
+			'modernized' => array( true ),
+			'legacy'     => array( false ),
 		);
 	}
 

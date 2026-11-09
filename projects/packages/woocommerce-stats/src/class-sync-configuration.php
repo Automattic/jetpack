@@ -31,7 +31,7 @@ class Sync_Configuration {
 	 * name and every analytics event syncs twice. Moot once that plugin consumes the
 	 * shared module, since the class strings then match.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.3.0
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';

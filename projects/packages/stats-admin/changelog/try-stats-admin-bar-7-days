@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin bar: Add a 7-day views chart with views and visitors on hover, off by default behind a feature flag.

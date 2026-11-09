@@ -433,11 +433,12 @@ const PreviewAccessSelector = ( {
 
 /**
  * Link out to the email design screen, for the creator who looks at the preview and wants the
- * email to look different. A new tab, because this one holds an unsaved post.
+ * email to look different.
  *
- * No `return` arg, unlike the settings card: it would send the design editor's Back button to
- * `post.php` in the new tab, leaving the same post open in two editors with no lock warning
- * between them -- `wp_check_post_lock()` reports nothing when both are the same user.
+ * In this tab, with a `return` arg so the design screen's Back button comes back to the post:
+ * testers lost the post behind a new tab they had not noticed open. A post still holding unsaved
+ * edits keeps the new tab, because `__unstableSaveForPreview()` -- which the modal ran on open --
+ * only autosaves an already-published post, so leaving would strand those edits.
  *
  * The post travels as `post_id` so the design screen's canvas previews the post the reader was
  * just looking at rather than the sample one. The design being edited stays site-wide. NL-1051.
@@ -449,6 +450,8 @@ const PreviewAccessSelector = ( {
 const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	const { tracks } = useAnalytics();
 	const isBelowLarge = useViewportMatch( 'large', '<' );
+	// Subscribed rather than read once, so the link follows the modal's own save on open.
+	const isPostDirty = useSelect( selectFn => selectFn( editorStore ).isEditedPostDirty(), [] );
 	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
 
 	const handleClick = useCallback( () => {
@@ -462,13 +465,22 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	}
 
 	const label = __( 'Edit email design', 'jetpack' );
-	const href = postId > 0 ? addQueryArgs( emailDesignUrl, { post_id: postId } ) : emailDesignUrl;
+	// A new tab must not carry `return`: it would open the post in a second editor with no lock
+	// warning between them, as `wp_check_post_lock()` is silent when both are the same user.
+	const inNewTab = isPostDirty;
+	// `source` is sent unconditionally, unlike the other two: with an unsaved post that has no id
+	// this link is otherwise bare, and the screen could not tell it from the Appearance menu.
+	const href = addQueryArgs( emailDesignUrl, {
+		...( postId > 0 ? { post_id: postId } : {} ),
+		...( inNewTab ? {} : { return: window.location.href } ),
+		source: 'preview_modal',
+	} );
 
 	// The icon carries at every size so it becomes familiar; below `large` it carries alone,
 	// because a label there clips the modal title on a site that also shows the audience toggle.
 	return (
 		<Link
-			openInNewTab
+			openInNewTab={ inNewTab }
 			href={ href }
 			onClick={ handleClick }
 			className="jetpack-newsletter-preview-modal__design-link"
@@ -476,7 +488,7 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 		>
 			<Icon icon={ styles } size={ 24 } />
 			{ /* Hidden rather than an `aria-label`, which would override the contents and take
-			     `Link`'s own "(opens in a new tab)" notice out of the accessible name with it. */ }
+			     `Link`'s own new-tab notice, where it shows one, out of the accessible name with it. */ }
 			{ isBelowLarge ? (
 				<VisuallyHidden>{ label }</VisuallyHidden>
 			) : (

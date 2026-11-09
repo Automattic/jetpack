@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show a finished backup in the list without a page reload, even when WordPress.com is slow to list it, and add a "Backup complete" notice that stays until it is dismissed.

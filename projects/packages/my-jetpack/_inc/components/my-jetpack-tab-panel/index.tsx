@@ -1,9 +1,12 @@
-import { TabPanel } from '@wordpress/components';
+import { Tabs } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
+import { getHistoryEntryKey } from '../../hooks/use-go-back';
 import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
+import { isHeaderControlsEnabled } from '../header-controls/slot';
 import { FullWidthSeparator } from './full-width-separator';
 import styles from './styles.module.scss';
 import { TabContent } from './tab-content';
@@ -21,25 +24,26 @@ import type { ReactNode } from 'react';
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
 	const params = useParams();
 	const navigate = useNavigate();
-	const { search } = useLocation();
+	const location = useLocation();
+	const { search } = location;
 	const { recordEvent } = useAnalytics();
 	const isNewUser = useIsJetpackUserNew();
 	const tabStartTimeRef = useRef< number >( Date.now() );
-	const [ tabKey, setTabKey ] = useState( 0 );
 	const lastNavigationSourceRef = useRef< 'internal' | 'external' >( 'external' );
+	const tabListRef = useRef< HTMLDivElement >( null );
 
 	// If the tab is not valid, use the default one.
 	const currentTab = useMemo( () => resolveMyJetpackSection( params.section ), [ params.section ] );
+	// Arrow keys can select twice before the route re-renders, leaving `currentTab` a step behind.
+	const lastTabRef = useRef< string >( currentTab );
 	const onTabSelect = useCallback(
 		( tabName: string ) => {
-			// Compare against the resolved `currentTab`, not the raw URL param. On mount
-			// TabPanel calls onSelect with the tab it settled on, which is always
-			// `currentTab`; treating that as a click records a synthetic
-			// `jetpack_myjetpack_tab_click` and pushes a history entry. Gating on
-			// `currentTab` fires only on a genuine tab change and also covers
-			// invalid/stale hashes (e.g. `#/overview` on a Simple site that resolves to
-			// Features) without emitting a phantom event.
-			if ( tabName !== currentTab ) {
+			const previousTab = lastTabRef.current;
+			// Compare against the resolved tab, not the raw URL param, so a stale
+			// hash (e.g. `#/overview` on a Simple site) records no phantom click.
+			if ( tabName !== previousTab ) {
+				lastTabRef.current = tabName;
+
 				// Mark this as an internal navigation (user clicked a tab)
 				lastNavigationSourceRef.current = 'internal';
 
@@ -49,7 +53,7 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				// Record tab click event
 				recordEvent( 'jetpack_myjetpack_tab_click', {
 					tab_name: tabName,
-					previous_tab: currentTab,
+					previous_tab: previousTab,
 					session_duration: sessionDuration,
 					user_type: isNewUser ? 'new' : 'returning',
 				} );
@@ -60,34 +64,28 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 				navigate( `/${ tabName }` );
 			}
 		},
-		[ navigate, currentTab, recordEvent, isNewUser ]
+		[ navigate, recordEvent, isNewUser ]
 	);
 
-	const tabRenderer = useCallback(
-		( tab: { name: string } ) => {
-			return (
-				<>
-					<FullWidthSeparator />
-					<TabContent name={ tab.name as MyJetpackSection } beforeContent={ beforeContent } />
-				</>
-			);
-		},
-		[ beforeContent ]
-	);
+	const pinsTabs = isHeaderControlsEnabled();
 
-	// Handle external navigation (URL changes not from tab clicks)
 	useEffect( () => {
-		// If this was an external navigation (browser back/forward, direct URL access)
-		if ( lastNavigationSourceRef.current === 'external' ) {
-			// Force remount to sync with URL
-			setTabKey( prev => prev + 1 );
-		}
+		// Back/forward and hash edits change the tab without `onTabSelect`.
+		lastTabRef.current = currentTab;
+
 		// Reset navigation source for next change
 		lastNavigationSourceRef.current = 'external';
 
 		// Reset timer when tab changes
 		tabStartTimeRef.current = Date.now();
-	}, [ currentTab ] );
+
+		// Pinned tabs stay in view, so start the new tab at the top. The admin page scrolls the
+		// content between its header and footer, not the window, and that outlives a tab switch.
+		const scroller = pinsTabs && tabListRef.current?.closest( '.jp-admin-page__content' );
+		if ( scroller ) {
+			scroller.scrollTop = 0;
+		}
+	}, [ currentTab, pinsTabs ] );
 
 	// Canonicalize a stale or invalid section hash. `currentTab` already resolves
 	// such a hash to a real section for rendering, but `onTabSelect` only reacts to
@@ -113,13 +111,15 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] ); // track this only on page load
 
+	const [ , setLastTab ] = useValueStore( 'lastTab', null );
+	useEffect( () => {
+		setLastTab( { path: `/${ currentTab }${ search }`, key: getHistoryEntryKey() } );
+	}, [ currentTab, search, location, setLastTab ] );
+
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
-	// A single section has nothing to switch between, so render it directly instead
-	// of a TabPanel with its tab bar hidden. This skips TabPanel's selection
-	// lifecycle (mount `onSelect`, keyed remount, `initialTabName` matching) for a
-	// non-choice, and reproduces the surface `.components-tab-panel__tab-content`
-	// would provide (see `single-tab-content` in the stylesheet).
+	// A single section has nothing to switch between, so it renders without a tab bar,
+	// on the same surface as a tab's panel.
 	if ( tabs.length === 1 ) {
 		return (
 			<div className={ clsx( styles[ 'single-tab-content' ], 'jetpack-my-jetpack-tab-panel' ) }>
@@ -130,17 +130,38 @@ export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNod
 	}
 
 	return (
-		<TabPanel
-			key={ tabKey }
+		<Tabs.Root
+			value={ currentTab }
+			onValueChange={ onTabSelect }
 			className={ clsx(
 				styles[ 'tab-panel' ],
 				styles[ 'my-jetpack-tab-panel--full-width' ],
-				'jetpack-my-jetpack-tab-panel'
+				'jetpack-my-jetpack-tab-panel',
+				{ [ styles[ 'my-jetpack-tab-panel--pinned-tabs' ] ]: pinsTabs }
 			) }
-			initialTabName={ currentTab }
-			onSelect={ onTabSelect }
-			children={ tabRenderer }
-			tabs={ tabs }
-		/>
+		>
+			<div
+				ref={ tabListRef }
+				className={ clsx( {
+					'jp-admin-page-tabs': pinsTabs,
+					[ styles[ 'tab-list' ] ]: ! pinsTabs,
+				} ) }
+			>
+				<Tabs.List activateOnFocus>
+					{ tabs.map( tab => (
+						<Tabs.Tab key={ tab.name } value={ tab.name }>
+							{ tab.title }
+						</Tabs.Tab>
+					) ) }
+				</Tabs.List>
+			</div>
+			{ tabs.map( tab => (
+				<Tabs.Panel key={ tab.name } value={ tab.name } className={ styles[ 'tab-content' ] }>
+					{ /* The pinned strip draws the divider itself. */ }
+					{ ! pinsTabs && <FullWidthSeparator /> }
+					<TabContent name={ tab.name } beforeContent={ beforeContent } />
+				</Tabs.Panel>
+			) ) }
+		</Tabs.Root>
 	);
 }

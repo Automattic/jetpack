@@ -8,7 +8,7 @@ import type { ReactElement } from 'react';
 
 export type LeaderboardPostLabelProps = {
 	/**
-	 * Post or page ID. Rows carrying one link to the internal detail route.
+	 * Post or page ID, forwarded to the row's `postLink` action.
 	 */
 	id?: number | string;
 
@@ -18,7 +18,7 @@ export type LeaderboardPostLabelProps = {
 	label: string;
 
 	/**
-	 * Public URL of the content. Used when there is no post ID or no detail page to open.
+	 * Public URL of the content, forwarded to the row's `postLink` action.
 	 */
 	link?: string | null;
 
@@ -32,6 +32,11 @@ export type LeaderboardPostLabelProps = {
 	 * `origin.section`, which becomes `ref_section`.
 	 */
 	section?: string;
+
+	/**
+	 * A row action after the title, forwarded to the row.
+	 */
+	trailingAction?: ReactElement;
 };
 
 /**
@@ -43,6 +48,7 @@ export function LeaderboardPostLabel( {
 	link,
 	origin,
 	section,
+	trailingAction,
 }: LeaderboardPostLabelProps ): ReactElement {
 	const search = useWidgetNavigationSearch( { origin, section } );
 
@@ -51,6 +57,7 @@ export function LeaderboardPostLabel( {
 			label={ label }
 			media={ { kind: 'none' } }
 			action={ { kind: 'postLink', id, href: link, search } }
+			trailingAction={ trailingAction }
 		/>
 	);
 }

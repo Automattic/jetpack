@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Breadcrumb schema: Stop adding the current post, or the first post of an archive, as an ancestor when the site has a static front page and no Posts page.

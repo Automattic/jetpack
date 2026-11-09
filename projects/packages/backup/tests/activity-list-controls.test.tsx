@@ -121,9 +121,9 @@ describe( 'the filter affordance', () => {
 } );
 
 describe( 'the cog, before anyone touches it', () => {
-	// Two assertions: with only one sortable field left, a valueless <select>
-	// reports `description` anyway, so the rendered control cannot witness the
-	// seed and the two need pinning separately.
+	// Two assertions: with only one sortable field left, the control would show
+	// "When" whatever the seed, so the seed and the rendered control need
+	// pinning separately.
 	it( 'names the ordering the rows are actually in', async () => {
 		expect( INITIAL_VIEW.sort ).toEqual( {
 			field: 'description',
@@ -132,10 +132,8 @@ describe( 'the cog, before anyone touches it', () => {
 
 		await renderAndOpenViewOptions();
 
-		const sortBy = screen.getByLabelText( 'Sort by' ) as HTMLSelectElement;
 		// `description` is the "When" column. The bug was this reading "Title".
-		expect( sortBy.value ).toBe( 'description' );
-		expect( sortBy.selectedOptions[ 0 ] ).toHaveTextContent( 'When' );
+		expect( screen.getByRole( 'combobox', { name: 'Sort by' } ) ).toHaveTextContent( 'When' );
 	} );
 
 	it( 'does not offer a sort field the server cannot honour', async () => {
@@ -143,10 +141,9 @@ describe( 'the cog, before anyone touches it', () => {
 
 		// `/activity/rewindable` takes a direction and no field, so "When" is the
 		// only truthful option.
-		const options = Array.from(
-			( screen.getByLabelText( 'Sort by' ) as HTMLSelectElement ).options
-		).map( option => option.textContent );
-		expect( options ).toEqual( [ 'When' ] );
+		await userEvent.click( screen.getByRole( 'combobox', { name: 'Sort by' } ) );
+		const options = await screen.findAllByRole( 'option' );
+		expect( options.map( option => option.textContent ) ).toEqual( [ 'When' ] );
 	} );
 
 	it( 'lets a reader change the page size without touching Order first', async () => {

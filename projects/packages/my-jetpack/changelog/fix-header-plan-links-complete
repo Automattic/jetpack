@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Header: Stop offering to purchase a plan or activate a license to sites with Jetpack Complete, shown only while the header controls feature flag is on.

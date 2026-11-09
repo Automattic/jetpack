@@ -12,11 +12,11 @@ import {
 	WidgetRoot,
 	WidgetState,
 	fitWeekColumns,
-	formatChartName,
 	formatViewCount,
 	toDay,
 	useCalendarHeatmapData,
 	useElementSize,
+	useChartName,
 	useWidgetRootContext,
 	type HeatmapTooltipData,
 	type ReportParamsFieldAttributes,
@@ -97,6 +97,7 @@ function cellHeightForArea( height: number ): number {
  */
 function PostTrafficActivityInner() {
 	const { reportParams } = useWidgetRootContext();
+	const chartName = useChartName();
 	const postId = toPostId( reportParams.post_id );
 
 	// One page spans the whole week columns that fit the measured card width,
@@ -198,9 +199,7 @@ function PostTrafficActivityInner() {
 								<HeatmapChartUnresponsive
 									data={ heatmapData }
 									rowLabels={ rowLabels }
-									ariaLabel={ formatChartName(
-										__( 'Traffic activity', 'jetpack-premium-analytics-pkg' )
-									) }
+									ariaLabel={ chartName }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
 									// The page span is already sized to the card, so width tracks

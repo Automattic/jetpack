@@ -304,7 +304,7 @@ describe( 'ChapterManagerModal', () => {
 			// attributes-style duration is ms; the sync contract wants seconds.
 			{ guid: 'abc123', isPrivate: false, durationSeconds: 120 },
 			savedDescription,
-			{ onWarning: expect.any( Function ) }
+			{ onWarning: expect.any( Function ), source: 'block_editor' }
 		);
 		expect( defaultProps.onSaved ).toHaveBeenCalledWith( savedDescription );
 		// A valid set gets the plain success wording, not the warning one.
@@ -337,7 +337,7 @@ describe( 'ChapterManagerModal', () => {
 		expect( syncChapters ).toHaveBeenCalledWith(
 			{ guid: 'abc123', isPrivate: false, durationSeconds: 120 },
 			twoChapterDescription,
-			{ onWarning: expect.any( Function ) }
+			{ onWarning: expect.any( Function ), source: 'block_editor' }
 		);
 		expect( defaultProps.onSaved ).toHaveBeenCalledWith( twoChapterDescription );
 

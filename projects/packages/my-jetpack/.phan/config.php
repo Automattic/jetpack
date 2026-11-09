@@ -23,6 +23,8 @@ return make_phan_config(
 			'tests/php/stubs/wp-build-render-page\.php',
 			// Redeclares Admin_Menu without the resolver, which would shadow the real class everywhere.
 			'tests/php/stubs/older-admin-ui/',
+			// Redeclares Protect without has_protect_page(), which would shadow the real class everywhere.
+			'tests/php/stubs/older-protect/',
 			'tests/php/stubs/class-jetpack-gutenberg\.php',
 		),
 		'parse_file_list'    => array(

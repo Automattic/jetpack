@@ -112,7 +112,7 @@ describe( 'videos fields', () => {
 		// Only the shared report-window params travel; page-owned params
 		// (`chart_period`) stay behind.
 		const url = getMockRouteLinkUrl( link );
-		expect( url.pathname ).toBe( '/video/12' );
+		expect( url.pathname ).toBe( '/report/video/12' );
 		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
 			from: '2026-06-01',
 			to: '2026-06-16',

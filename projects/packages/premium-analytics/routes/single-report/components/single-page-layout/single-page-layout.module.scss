@@ -1,0 +1,54 @@
+// The scroll container under the page header: the body scrolls while the
+// header pins at its top; the scope lets the pin marker reach the header.
+.scroll {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-block-size: 0;
+	overflow-y: auto;
+	timeline-scope: --section-header-pin;
+
+	// A scroll container's flex items would otherwise shrink to fit it,
+	// collapsing the header's empty pin marker and the body under it.
+	> * {
+		flex-shrink: 0;
+	}
+}
+
+// The body under the pinned header, its grid lined up with the header's
+// padding.
+.content {
+	// Caps every layer the widget grid raises under the pinned header.
+	isolation: isolate;
+
+	// Room for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+
+	// Inherited by the @wordpress/grid surfaces, which otherwise fall back to
+	// the wider `--wpds-dimension-gap-xl`.
+	--wp-grid-gap: var(--wpds-dimension-gap-lg);
+
+	// The dashboard's tightened widget Card padding (#51101): the roomier
+	// default clips content-sized widgets. TODO: fix upstream in Card.
+	section:first-of-type {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
+
+		> div {
+			margin-block-start: 0;
+		}
+	}
+
+	// Overlay WidgetHeader re-declares padding to 2xl; match the Card tweak.
+	[class*="__widget-header"][class*="__overlay"] {
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	}
+
+	// TODO: remove once WordPress/gutenberg#85231 lands.
+	[class*="__widget-footer"] {
+		block-size: 44px;
+		padding-block: 0;
+	}
+}

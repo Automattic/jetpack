@@ -29,7 +29,7 @@ export default function BoostPage( { isSubpage, children, subpage, actions }: Pr
 			breadcrumbs={ isSubpage ? <></> : showBreadcrumbs ? <BoostBreadcrumbs /> : undefined }
 			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
 			actions={ actions }
-			globalControls={ getHeaderControlsSlot() }
+			globalControls={ getHeaderControlsSlot( 'boost' ) }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }

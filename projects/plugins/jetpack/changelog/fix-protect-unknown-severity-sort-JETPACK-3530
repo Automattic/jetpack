@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: List a vulnerability with no severity rating just above Low threats instead of below them.

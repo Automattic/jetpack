@@ -6,6 +6,7 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 /**
  * Internal dependencies
  */
+import { toDetailId } from '../../helpers/detail-id';
 import { ExternalLink } from '../external-link';
 import { InternalLink } from '../internal-link';
 import type { JSX, ReactNode } from 'react';
@@ -19,6 +20,16 @@ import type { JSX, ReactNode } from 'react';
  * site before offering it.
  */
 export const POST_URL_SEARCH_PARAM = 'post_url';
+
+/**
+ * The post detail route's ID for a row, so a row's links agree on whether its title opens that page.
+ *
+ * @param id - The row's post or page ID.
+ * @return The ID, or undefined when the row has no detail page or the reader cannot open post details.
+ */
+export function toPostDetailId( id?: number | string | null ): number | undefined {
+	return isPostDetailAvailable() ? toDetailId( id ) : undefined;
+}
 
 export type PostTitleLinkProps = {
 	/**
@@ -85,13 +96,13 @@ export function PostTitleLink( {
 	title,
 	children,
 }: PostTitleLinkProps ): JSX.Element {
-	const postId = Number( id );
+	const postId = toPostDetailId( id );
 	const content = children ?? <span className={ classNames?.text }>{ label }</span>;
 	// Callers pass `link` straight from report data, so the scheme is guarded
 	// here at the sink rather than in each consuming widget or route.
 	const href = safeHttpUrl( link );
 
-	if ( Number.isInteger( postId ) && postId > 0 && isPostDetailAvailable() ) {
+	if ( postId !== undefined ) {
 		return (
 			<InternalLink
 				className={ classNames?.internal }

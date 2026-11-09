@@ -1,8 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
 import { useNavigate } from '@wordpress/route';
-import { Icon, Popover, Tabs, VisuallyHidden } from '@wordpress/ui';
+import { Tabs } from '@wordpress/ui';
 import { isGated } from '../data/is-gated';
 import type { ReactNode } from 'react';
 
@@ -19,50 +18,6 @@ export const ROUTE_BY_TAB: Record< SeoTab, string > = {
 
 const isSeoTab = ( value: string | null ): value is SeoTab =>
 	value !== null && Object.hasOwn( ROUTE_BY_TAB, value );
-
-const geoInfotipLabel = __( 'What is GEO?', 'jetpack-seo' );
-
-/**
- * An "infotip" explaining the GEO acronym, sat beside the GEO tab.
- *
- * A `Popover` with `openOnHover` rather than a `Tooltip`, following the design
- * system's own guidance: tooltip popups aren't exposed to assistive technologies
- * (only the trigger's accessible name is) and are disabled outright on touch
- * devices, so a tooltip would show this to sighted mouse users only. A popover
- * opens on hover, click and tap, and its content is announced.
- *
- * It renders *after* `Tabs.List` rather than inside it. `Tabs.Tab` is a
- * `<button>`, so nesting the trigger in the GEO tab would put a button inside a
- * button — invalid, and it would break the list's arrow-key navigation. A
- * non-tab child of the `tablist` has the same problem. Sitting outside the list
- * still reads as belonging to the GEO tab because **GEO is the last tab**; a tab
- * added after it would need this moved (or promoted to a per-tab affordance).
- *
- * @return The GEO infotip.
- */
-const GeoInfotip = () => (
-	<Popover.Root>
-		<Popover.Trigger
-			openOnHover
-			delay={ 200 }
-			closeDelay={ 200 }
-			aria-label={ geoInfotipLabel }
-			className="jetpack-seo-tabs-strip__infotip"
-		>
-			<Icon icon={ info } size={ 20 } />
-		</Popover.Trigger>
-		<Popover.Popup className="jetpack-seo-tabs-strip__infotip-popup">
-			<Popover.Arrow />
-			<VisuallyHidden render={ <Popover.Title /> }>{ geoInfotipLabel }</VisuallyHidden>
-			<Popover.Description>
-				{ __(
-					'GEO stands for generative engine optimization. These settings control how AI sees and uses your site.',
-					'jetpack-seo'
-				) }
-			</Popover.Description>
-		</Popover.Popup>
-	</Popover.Root>
-);
 
 /**
  * The SEO dashboard's top navigation — a `@wordpress/ui` tab bar that drives
@@ -100,10 +55,9 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 
 	return (
 		<Tabs.Root className="jetpack-seo-tabs" value={ active } onValueChange={ onTabChange }>
-			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal jetpack-seo-tabs-strip">
+			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 					{ ! gated && <Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab> }
 					{ ! gated && (
 						<Tabs.Tab value="geo">
@@ -114,9 +68,8 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 							) }
 						</Tabs.Tab>
 					) }
+					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 				</Tabs.List>
-				{ /* Same gate as the tab it explains — no orphaned icon on gated sites. */ }
-				{ ! gated && <GeoInfotip /> }
 			</div>
 			{ children }
 		</Tabs.Root>

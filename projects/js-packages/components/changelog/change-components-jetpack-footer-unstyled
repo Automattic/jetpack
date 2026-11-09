@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-JetpackFooter: Add an entry without the stylesheet, and export the stylesheet on its own, so script-module builds can bundle the footer.

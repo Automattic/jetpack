@@ -242,7 +242,7 @@ export default function OnboardingModal(): ReactElement | null {
 	// Observer instance, like `useFreeTier`'s: the queue lives in a shared
 	// window-scoped store, so reading it here starts nothing and owns nothing.
 	const { uploadQueue } = useUpload();
-	const intakeFiles = useUploadIntake();
+	const intakeFiles = useUploadIntake( 'onboarding_intake' );
 	const { isFree, isUnlimited } = useFreeTier();
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
