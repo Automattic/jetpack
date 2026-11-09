@@ -11,6 +11,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Class to test the Main class.
@@ -435,6 +437,22 @@ class Main_Test extends StatsBaseTestCase {
 		$has_action = has_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ) );
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 		$this->assertSame( 101, $has_action );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_template_redirect_with_consent_api_skips_web_stories_and_sanitizes_amp() {
+		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		Stats::template_redirect();
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
+
+		$this->assertFalse( has_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ) ) );
+		$this->assertSame( 10, has_filter( 'amp_content_sanitizers', array( Tracking_Pixel::class, 'add_amp_consent_sanitizer' ) ) );
 	}
 
 	/**

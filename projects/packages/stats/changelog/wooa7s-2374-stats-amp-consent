@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking pixel: Honor the WP Consent API on AMP pages and Web Stories, so visitors who have not allowed statistics are not counted there.

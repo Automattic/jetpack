@@ -409,7 +409,39 @@ if ( document.readyState === "loading" ) {
 			return;
 		}
 
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
+	}
+
+	/**
+	 * Print the AMP pixel, held for the page's `amp-consent` when the WP Consent API is active.
+	 *
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return void
+	 */
+	private static function print_amp_pixel( $data ) {
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+			return;
+		}
+
+		// Only the AMP plugin runs AMP_Consent_Sanitizer, which drops the pixel when no `amp-consent` can hold it.
+		if ( ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
+			return;
+		}
+
+		printf( '<amp-pixel data-block-on-consent src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+	}
+
+	/**
+	 * Register the sanitizer that drops the Stats AMP pixel when the page has no `amp-consent`.
+	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
+	 *
+	 * @param array $sanitizers Sanitizer classes and their args.
+	 * @return array
+	 */
+	public static function add_amp_consent_sanitizer( $sanitizers ) {
+		$sanitizers[ AMP_Consent_Sanitizer::class ] = array();
+		return $sanitizers;
 	}
 
 	/**
@@ -456,7 +488,7 @@ if ( document.readyState === "loading" ) {
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
 	}
 
 	/**
