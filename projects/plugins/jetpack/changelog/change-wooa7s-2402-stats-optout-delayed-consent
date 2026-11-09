@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Stats: Count visitors who have not made a consent choice on sites without an opt-in banner when a performance plugin delays the WP Consent API script.
+Stats: Count visitors who have not made a consent choice on opt-out sites when a performance plugin delays the WP Consent API script.

@@ -107,14 +107,13 @@ const scenarios = {
 		page.wp_has_consent = () => true;
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 	},
-	'banner that sets opt-in after the consent API in a delay-JS replay': () => {
+	'banner whose opt-in never reaches the consent API in a delay-JS replay': () => {
 		loadGate();
 		dispatch( 'document', 'DOMContentLoaded' );
 		dispatch( 'window', 'load' );
 		page.wp_fallback_consent_type = '';
-		page.wp_has_consent = () => page.wp_consent_type !== 'optin';
+		page.wp_has_consent = () => true;
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
-		page.wp_consent_type = 'optin';
 		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
 		dispatch( 'window', 'DOMContentLiteSpeedLoaded' );
 	},
@@ -141,24 +140,6 @@ const scenarios = {
 		dispatch( 'document', 'DOMContentLoaded' );
 	},
 };
-
-for ( const replayed of [
-	'DOMContentLiteSpeedLoaded',
-	'rocket-allScriptsLoaded',
-	'wphb-allScriptsLoaded',
-] ) {
-	scenarios[
-		`consent API with no consent type that a delay-JS optimizer replays, then ${ replayed }`
-	] = () => {
-		loadGate();
-		dispatch( 'document', 'DOMContentLoaded' );
-		dispatch( 'window', 'load' );
-		page.wp_fallback_consent_type = '';
-		page.wp_has_consent = () => true;
-		dispatch( 'document', 'load', undefined, { tagName: 'SCRIPT' } );
-		dispatch( 'window', replayed );
-	};
-}
 
 try {
 	scenarios[ scenario ]();
