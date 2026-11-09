@@ -20,11 +20,6 @@ class Admin_Shell {
 	const FLAG = 'jetpack-admin-shell';
 
 	/**
-	 * Query argument that turns the shell off for one request when set to `0`.
-	 */
-	const DISABLE_QUERY_ARG = 'jetpack_admin_shell';
-
-	/**
 	 * Member keys that must be non-empty strings.
 	 */
 	const REQUIRED_STRING_KEYS = array( 'build_prefix', 'build_page', 'title' );
@@ -51,11 +46,6 @@ class Admin_Shell {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only opt-out; it can only turn the shell off.
-		if ( isset( $_GET[ self::DISABLE_QUERY_ARG ] ) && '0' === $_GET[ self::DISABLE_QUERY_ARG ] ) {
-			return false;
-		}
-
 		/**
 		 * Filters whether Jetpack dashboards share one wp-admin page.
 		 *

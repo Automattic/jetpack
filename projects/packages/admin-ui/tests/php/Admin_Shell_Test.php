@@ -32,7 +32,7 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * Clear the registry, filters and query string.
+	 * Clear the registry and filters.
 	 *
 	 * @return void
 	 */
@@ -42,7 +42,6 @@ class Admin_Shell_Test extends TestCase {
 		remove_all_filters( 'jetpack_admin_shell_enabled' );
 		remove_all_filters( 'jetpack_admin_shell_members' );
 		remove_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-		unset( $_GET[ Admin_Shell::DISABLE_QUERY_ARG ] );
 		parent::tearDown();
 	}
 
@@ -59,38 +58,31 @@ class Admin_Shell_Test extends TestCase {
 	/**
 	 * Data provider for test_is_enabled.
 	 *
-	 * @return array[] Flag state, `jetpack_admin_shell_enabled` result (null for none), query arg (null for none), expected.
+	 * @return array[] Flag state, `jetpack_admin_shell_enabled` result (null for none), expected.
 	 */
 	public static function provide_is_enabled_cases() {
 		return array(
-			'flag on'                        => array( true, null, null, true ),
-			'flag on, filter turns it off'   => array( true, false, null, false ),
-			'flag off, filter turns it on'   => array( false, true, null, true ),
-			'flag on, query arg 0'           => array( true, null, '0', false ),
-			'filter on, query arg 0'         => array( false, true, '0', false ),
-			'flag on, any other query value' => array( true, null, '1', true ),
+			'flag on'                      => array( true, null, true ),
+			'flag on, filter turns it off' => array( true, false, false ),
+			'flag off, filter turns it on' => array( false, true, true ),
 		);
 	}
 
 	/**
-	 * The filter overrides the flag, and `?jetpack_admin_shell=0` overrides both.
+	 * The `jetpack_admin_shell_enabled` filter overrides the flag.
 	 *
 	 * @dataProvider provide_is_enabled_cases
 	 *
-	 * @param bool        $flag      Feature flag state.
-	 * @param bool|null   $filter    What `jetpack_admin_shell_enabled` returns, or null to leave it unhooked.
-	 * @param string|null $query_arg Value of `?jetpack_admin_shell`, or null to leave it out.
-	 * @param bool        $expected  Expected result.
+	 * @param bool      $flag     Feature flag state.
+	 * @param bool|null $filter   What `jetpack_admin_shell_enabled` returns, or null to leave it unhooked.
+	 * @param bool      $expected Expected result.
 	 * @return void
 	 */
 	#[DataProvider( 'provide_is_enabled_cases' )]
-	public function test_is_enabled( $flag, $filter, $query_arg, $expected ) {
+	public function test_is_enabled( $flag, $filter, $expected ) {
 		add_filter( 'jetpack_feature_flag_enabled_' . Admin_Shell::FLAG, $flag ? '__return_true' : '__return_false' );
 		if ( null !== $filter ) {
 			add_filter( 'jetpack_admin_shell_enabled', $filter ? '__return_true' : '__return_false' );
-		}
-		if ( null !== $query_arg ) {
-			$_GET[ Admin_Shell::DISABLE_QUERY_ARG ] = $query_arg;
 		}
 
 		$this->assertSame( $expected, Admin_Shell::is_enabled() );
