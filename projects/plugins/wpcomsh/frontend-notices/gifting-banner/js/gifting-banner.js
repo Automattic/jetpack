@@ -84,7 +84,6 @@
 		const more_info_button = document.createElement( 'BUTTON' );
 		more_info_button.setAttribute( 'id', 'wpcom-gifting-banner-more-info-button' );
 		more_info_button.setAttribute( 'class', 'wpcom-gifting-banner__more-info-button' );
-		// Cached pages can pair this script with older data that lacks the label.
 		if ( gifting_banner.i18n.more_info ) {
 			more_info_button.setAttribute( 'aria-label', gifting_banner.i18n.more_info );
 		}
