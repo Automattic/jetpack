@@ -26,6 +26,7 @@ import {
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { ConsentCard } from './consent-card';
+import { GoogleAnalyticsCard } from './google-analytics-card';
 import { PlanUsageCard } from './plan-usage-card';
 import { getFields } from './stats-settings-fields';
 import styles from './stats-settings.module.scss';
@@ -259,6 +260,7 @@ function StatsSettingsContent(): JSX.Element {
 		<Stack direction="column" gap="xl" className={ styles.root }>
 			<PlanUsageCard />
 			{ form }
+			{ offered?.includes( 'google_analytics' ) && <GoogleAnalyticsCard /> }
 			<ConsentCard />
 			{ featuresUrl && (
 				<Card.Root>

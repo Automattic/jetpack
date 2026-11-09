@@ -156,6 +156,9 @@ final class Stats_Settings {
 				)
 			);
 		}
+		if ( in_array( Google_Analytics_Settings::REST_NAME, $fields, true ) ) {
+			Google_Analytics_Settings::register( self::GROUP );
+		}
 		if ( in_array( self::READER_VIEWS_OPTION, $fields, true ) ) {
 			register_setting(
 				self::GROUP,
@@ -175,19 +178,22 @@ final class Stats_Settings {
 	}
 
 	/**
-	 * What the site offers: the `stats_options` fields, the Reader setting and the consent card, less any the host leaves out.
+	 * What the site offers: the `stats_options` fields, the Reader setting, the consent card and Google Analytics where the site has it, less any the host leaves out.
 	 *
 	 * @return string[]
 	 */
 	private static function get_fields() {
 		$fields = array_merge( self::FIELDS, array( self::READER_VIEWS_OPTION, self::CONSENT ) );
+		if ( Google_Analytics_Settings::is_available() ) {
+			$fields[] = Google_Analytics_Settings::REST_NAME;
+		}
 
 		/**
 		 * Filters the Stats settings the dashboard's Settings tab and the settings route offer, and whether the tab shows the visitor consent card.
 		 *
 		 * @since 0.16.0
 		 *
-		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled` and `consent`.
+		 * @param string[] $fields `admin_bar`, `roles`, `count_roles`, `wpcom_reader_views_enabled`, `consent`, and `google_analytics` where the site has it.
 		 */
 		$kept = apply_filters( self::FIELDS_FILTER, $fields );
 
@@ -226,9 +232,12 @@ final class Stats_Settings {
 	 *
 	 * @param mixed  $value The value another filter supplied, or null.
 	 * @param string $name  The setting's name on the route.
-	 * @return mixed The editable fields for `stats_options`, otherwise `$value`.
+	 * @return mixed The editable fields for `stats_options` or Google Analytics, otherwise `$value`.
 	 */
 	public static function get_stats_options( $value, $name ) {
+		if ( Google_Analytics_Settings::REST_NAME === $name ) {
+			return Google_Analytics_Settings::get();
+		}
 		if ( Stats_Options::OPTION_NAME !== $name ) {
 			return $value;
 		}
@@ -255,6 +264,8 @@ final class Stats_Settings {
 			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
 		} elseif ( Stats_Options::OPTION_NAME === $name ) {
 			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );
+		} elseif ( Google_Analytics_Settings::REST_NAME === $name ) {
+			$result = Google_Analytics_Settings::update( $value );
 		} else {
 			return $updated;
 		}

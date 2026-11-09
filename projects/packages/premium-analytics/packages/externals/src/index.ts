@@ -95,6 +95,7 @@ export {
 	Skeleton,
 	Spinner,
 	Stack,
+	SwitchControl,
 	Tabs,
 	Text,
 	TextareaControl,

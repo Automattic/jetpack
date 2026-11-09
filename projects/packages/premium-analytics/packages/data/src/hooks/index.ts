@@ -71,6 +71,10 @@ export {
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export { useStatsSettings, type StatsSettings } from './use-stats-settings';
 export {
+	useGoogleAnalyticsSettings,
+	type GoogleAnalyticsSettings,
+} from './use-google-analytics-settings';
+export {
 	useStatsCommentFollowers,
 	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersParams,
