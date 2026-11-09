@@ -694,33 +694,38 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that an admin connecting while the connection owner's token is broken takes over the owner slot.
+	 * Test that `authorize` sends the site's view of the owner and follows WordPress.com's `connection_owner` answer.
 	 *
-	 * @param string        $role            The authorizing user's role.
-	 * @param bool          $locked          Whether connection ownership is locked.
-	 * @param bool          $owner_error     Whether an owner-scoped error is on record.
-	 * @param bool          $expect_switch   Whether update_connection_owner() should be asked to switch the owner.
-	 * @param true|WP_Error $owner_update    What update_connection_owner() returns.
-	 * @param string        $expected_result The expected `authorize` result.
-	 * @param string        $auth_type       The request's `auth_type`; `calypso` is the default flow.
-	 * @param bool          $user_is_owner   Whether the authorizing user is the broken owner themselves.
-	 * @param array|false   $owner_health    What Tokens::validate() returns; false is an inconclusive check.
-	 * @param bool          $user_connected  Whether the authorizing user already has a token of their own.
-	 * @dataProvider provide_authorize_broken_owner_slot
+	 * @param string    $role            The authorizing user's role.
+	 * @param bool      $locked          Whether connection ownership is locked.
+	 * @param bool      $owner_error     Whether an owner-scoped error is on record.
+	 * @param bool|null $wpcom_owner     The response's `connection_owner`; null leaves the field out.
+	 * @param array     $expected_claim  The owner fields expected in the token request body.
+	 * @param bool      $expected_master Whether the token should be stored as the connection owner's.
+	 * @param bool      $user_is_owner   Whether the authorizing user is the recorded owner themselves.
+	 * @dataProvider provide_authorize_occupied_owner_slot
 	 */
-	#[DataProvider( 'provide_authorize_broken_owner_slot' )]
-	public function test_authorize_broken_owner_slot( $role, $locked, $owner_error, $expect_switch, $owner_update, $expected_result, $auth_type = 'calypso', $user_is_owner = false, $owner_health = false, $user_connected = false ) {
+	#[DataProvider( 'provide_authorize_occupied_owner_slot' )]
+	public function test_authorize_occupied_owner_slot( $role, $locked, $owner_error, $wpcom_owner, $expected_claim, $expected_master, $user_is_owner = false ) {
 		$user_id = wp_insert_user(
 			array(
-				'user_login' => 'test_authorize_broken_owner_slot',
+				'user_login' => 'test_authorize_occupied_owner_slot',
 				'user_pass'  => '123',
 				'role'       => $role,
 			)
 		);
 		wp_set_current_user( $user_id );
 
-		$owner_id = $user_is_owner ? $user_id : 4242;
+		// A real user: a deleted owner's slot counts as vacant even while locked.
+		$owner_id = $user_is_owner ? $user_id : wp_insert_user(
+			array(
+				'user_login' => 'test_authorize_occupied_owner',
+				'user_pass'  => '123',
+				'role'       => 'administrator',
+			)
+		);
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'id', 1234 );
 
 		if ( $owner_error ) {
 			update_option(
@@ -741,68 +746,85 @@ class ManagerTest extends TestCase {
 			);
 		}
 
+		// The real Tokens::get() runs, so the request body and the response parsing are both covered.
 		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->onlyMethods( array( 'get', 'update_user_token', 'validate' ) )
+			->onlyMethods( array( 'get_access_token', 'update_user_token' ) )
 			->getMock();
-		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
-		$tokens->method( 'validate' )->with( $owner_id )->willReturn( $owner_health );
-		// The real write clears stored errors, so the owner check must already have run.
-		$tokens->method( 'update_user_token' )->willReturnCallback(
-			static function () {
-				delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
-				return true;
-			}
-		);
+		$tokens->method( 'get_access_token' )->willReturn( (object) array( 'secret' => 'blogsecret' ) );
+		$tokens->expects( $this->once() )
+			->method( 'update_user_token' )
+			->with( $user_id, "usertoken.secret.$user_id", $expected_master )
+			->willReturn( true );
 
 		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable', 'update_connection_owner', 'is_user_connected' ) )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id', 'is_ownership_transferable' ) )
 			->getMock();
 		$manager->method( 'get_tokens' )->willReturn( $tokens );
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
-		$manager->method( 'is_user_connected' )->willReturn( $user_connected );
 		$manager->method( 'is_ownership_transferable' )->willReturn( ! $locked );
-		$manager->expects( $expect_switch ? $this->once() : $this->never() )
-			->method( 'update_connection_owner' )
-			->with( $user_id )
-			->willReturn( $owner_update );
+
+		$sent_body = null;
+		$response  = array(
+			'access_token' => 'usertoken.secret',
+			'token_type'   => 'X_JETPACK',
+			'scope'        => $tokens->sign_role( 'administrator' === $role ? 'administrator' : 'editor', $user_id ),
+		);
+		if ( null !== $wpcom_owner ) {
+			$response['connection_owner'] = $wpcom_owner;
+		}
+		$intercept = static function ( $preempt, $args ) use ( &$sent_body, $response ) {
+			$sent_body = $args['body'];
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
+			);
+		};
 
 		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		add_filter( 'pre_http_request', $intercept, 10, 2 );
 
 		try {
 			$result = $manager->authorize(
 				array(
-					'state'     => (string) $user_id,
-					'code'      => 'authorization_code',
-					'auth_type' => $auth_type,
+					'state'        => (string) $user_id,
+					'code'         => 'authorization_code',
+					'auth_type'    => 'calypso',
+					'redirect_uri' => 'https://example.org/',
 				)
 			);
 		} finally {
 			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			remove_filter( 'pre_http_request', $intercept, 10 );
 			delete_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION );
+			\Jetpack_Options::delete_option( array( 'master_user', 'id' ) );
 		}
 
-		$this->assertSame( $expected_result, $result );
+		$this->assertSame( $expected_claim, array_intersect_key( $sent_body, $expected_claim ) );
+		$this->assertSame( $expected_master ? 'authorized' : 'linked', $result );
 	}
 
 	/**
-	 * Data provider for test_authorize_broken_owner_slot.
+	 * Data provider for test_authorize_occupied_owner_slot.
 	 *
 	 * @return array
 	 */
-	public static function provide_authorize_broken_owner_slot() {
+	public static function provide_authorize_occupied_owner_slot() {
+		$claim = static function ( $owner_claim, $unusable, $transferable ) {
+			return array(
+				'owner_claim'          => $owner_claim,
+				'local_owner_unusable' => $unusable,
+				'owner_transferable'   => $transferable,
+			);
+		};
+
 		return array(
-			'admin takes a transferable broken slot'     => array( 'administrator', false, true, true, true, 'authorized' ),
-			'locked ownership links'                     => array( 'administrator', true, true, false, true, 'linked' ),
-			'healthy owner links'                        => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
-			'stale error, healthy owner links'           => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => true ) ) ),
-			'user without jetpack_connect links'         => array( 'editor', false, true, false, true, 'linked' ),
-			'failed WordPress.com switch links'          => array( 'administrator', false, true, true, new WP_Error( 'error_setting_new_owner' ), 'linked' ),
-			'browser client flow takes the slot'         => array( 'administrator', false, true, true, true, 'authorized', 'client' ),
-			'broken owner reconnecting is no switch'     => array( 'administrator', false, true, false, true, 'linked', 'calypso', true ),
-			'cleared error, unhealthy owner switches'    => array( 'administrator', false, false, true, true, 'authorized', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ) ),
-			'cleared error, inconclusive check links'    => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, false ),
-			'cleared error, no user token verdict links' => array( 'administrator', false, false, false, true, 'linked', 'calypso', false, array( 'blog_token' => array( 'is_healthy' => true ) ) ),
-			'admin with a token of their own links'      => array( 'administrator', false, true, false, true, 'linked', 'calypso', false, array( 'user_token' => array( 'is_healthy' => false ) ), true ),
+			'wpcom makes the admin the owner'     => array( 'administrator', false, true, true, $claim( 1, 1, 1 ), true ),
+			'wpcom keeps the owner'               => array( 'administrator', false, true, false, $claim( 1, 1, 1 ), false ),
+			'wpcom without the field links'       => array( 'administrator', false, true, null, $claim( 1, 1, 1 ), false ),
+			'no error on record still asks wpcom' => array( 'administrator', false, false, true, $claim( 1, 0, 1 ), true ),
+			'locked ownership ignores wpcom'      => array( 'administrator', true, true, true, $claim( 0, 1, 0 ), false ),
+			'editor ignores wpcom'                => array( 'editor', false, true, true, $claim( 0, 1, 1 ), false ),
+			'owner reconnecting is not a switch'  => array( 'administrator', false, true, true, $claim( 1, 1, 1 ), false, true ),
 		);
 	}
 

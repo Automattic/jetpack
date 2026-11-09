@@ -3153,7 +3153,7 @@ class Manager {
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
 	 * Branches on the current user's tokens, not the owner's. A user with no token of their own is sent
-	 * to authorize(), where an admin takes over a broken owner's slot when ownership is transferable.
+	 * to authorize(), where WordPress.com may make an admin the owner in place of a broken one.
 	 *
 	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
@@ -3406,13 +3406,14 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
-	 * A user with `jetpack_connect` takes a vacant owner slot. They also take an occupied one whose
-	 * owner's connection is broken, when ownership is transferable; see can_take_broken_owner_slot().
-	 * A recorded owner with an unusable token still holds the slot; see can_fill_unconnected_owner_slot().
+	 * A user with `jetpack_connect` takes a vacant owner slot. A recorded owner with an unusable token
+	 * still holds the slot while ownership is locked; see can_fill_unconnected_owner_slot(). For an
+	 * occupied slot, the token request sends the site's view of the owner and WordPress.com decides,
+	 * switching the owner in that same request and reporting it as `connection_owner`.
 	 * Anyone else is linked as a secondary user.
 	 *
 	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
-	 * @since $$next-version$$ An admin connecting while the owner's connection is broken becomes the owner.
+	 * @since $$next-version$$ An admin becomes the owner when WordPress.com reports the owner's connection broken.
 	 * @since $$next-version$$ A locked owner with an unusable token is no longer replaced.
 	 *
 	 * @param array $data The request data.
@@ -3466,7 +3467,20 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
+		// Only a user who may manage the site connection can own it; others link as secondary users.
+		$can_claim_owner   = current_user_can( 'jetpack_connect' ) && $this->can_fill_unconnected_owner_slot( $current_user_id );
+		$is_vacant_locally = $can_claim_owner && ! $this->has_connected_owner();
+
+		// What only the site knows. WordPress.com adds the owner's token health and decides the owner in this request.
+		// Read before the token write, which clears the stored errors has_owner_connection_error() reads.
+		$owner_claim = array(
+			'owner_claim'          => $can_claim_owner ? 1 : 0,
+			'local_owner_unusable' => \Jetpack_Options::get_option( 'master_user' ) && ( ! $this->has_connected_owner() || $this->has_owner_connection_error() ) ? 1 : 0,
+			'owner_transferable'   => $this->is_ownership_transferable() ? 1 : 0,
+		);
+
+		$token_details = null;
+		$token         = $this->get_tokens()->get( $data, $this->api_url( 'token' ), $owner_claim, $token_details );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -3480,20 +3494,20 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
-		$is_connection_owner = ! $this->has_connected_owner()
-			&& current_user_can( 'jetpack_connect' )
-			&& $this->can_fill_unconnected_owner_slot( $current_user_id );
-
-		// Read before the token write, which clears the stored errors this depends on.
-		$take_broken_owner_slot = ! $is_connection_owner && $this->can_take_broken_owner_slot( $current_user_id );
+		// A WordPress.com without the `connection_owner` field leaves only the local vacancy rule.
+		// The site's own gate still applies, so a WordPress.com answer can't promote an editor or pass a lock.
+		$switched_by_wpcom   = ! $is_vacant_locally
+			&& $can_claim_owner
+			&& ! empty( $token_details['connection_owner'] )
+			&& $this->get_connection_owner_id() !== $current_user_id;
+		$is_connection_owner = $is_vacant_locally || $switched_by_wpcom;
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
-		// After the write: WordPress.com only accepts the switch signed with this user's new token.
-		// On failure the user stays linked as a secondary user.
-		if ( $take_broken_owner_slot && true === $this->update_connection_owner( $current_user_id ) ) {
-			$is_connection_owner = true;
+		if ( $switched_by_wpcom ) {
+			// The owner changed under the memoized ID.
+			$this->reset_connection_status();
+			( new Tracking() )->record_user_event( 'set_connection_owner_success', array( 'source' => 'authorize' ) );
 		}
 
 		// Delete cached connected user data, so a cached failure from the
@@ -3557,34 +3571,15 @@ class Manager {
 	}
 
 	/**
-	 * Whether the authorizing user should take over a connection owner slot whose owner is broken.
+	 * Whether an error on record says the connection owner's own connection is broken.
 	 *
-	 * Without this, a second admin who connects to fix a broken owner is only linked, and the
-	 * broken owner stays in place.
+	 * Covers what has_connected_owner() cannot see: a token that is present but rejected by WordPress.com.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int $user_id The authorizing user's ID.
 	 * @return bool
 	 */
-	private function can_take_broken_owner_slot( $user_id ) {
-		// The WordPress.com health check below is a blocking request, so only a user with no token of
-		// their own (the one `connect_user` offers) reaches it.
-		if ( ! current_user_can( 'jetpack_connect' )
-			|| $this->get_connection_owner_id() === $user_id
-			|| $this->is_user_connected( $user_id )
-			|| ! $this->is_ownership_transferable() ) {
-			return false;
-		}
-
-		// WordPress.com's answer beats the error record, which can be stale or already cleared.
-		$health       = $this->get_tokens()->validate( $this->get_connection_owner_id() );
-		$owner_health = is_array( $health ) ? ( $health['user_token']['is_healthy'] ?? null ) : null;
-
-		if ( is_bool( $owner_health ) ) {
-			return ! $owner_health;
-		}
-
+	private function has_owner_connection_error() {
 		// A partial update can load this class alongside an Error_Handler that predates the method.
 		return method_exists( Error_Handler::class, 'has_owner_connection_error' )
 			&& Error_Handler::get_instance()->has_owner_connection_error();
