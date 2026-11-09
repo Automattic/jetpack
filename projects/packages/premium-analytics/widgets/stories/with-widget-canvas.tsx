@@ -1,6 +1,22 @@
+import { useElementSize } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useLayoutEffect, useRef } from 'react';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
+
+// The card's own inset in pixels: a widget gets the card minus this on each side.
+const CANVAS_PADDING = 16;
+const CANVAS_BORDER = 1;
+const CANVAS_INSET = CANVAS_PADDING + CANVAS_BORDER;
+
+// Boxes a widget is handed in the size matrix, as [ inline, block ] pixels.
+const MATRIX_SIZES = [
+	[ 320, 160 ],
+	[ 520, 160 ],
+	[ 760, 160 ],
+	[ 320, 400 ],
+	[ 520, 400 ],
+	[ 760, 400 ],
+] as const;
 
 // Frames the widget root like the dashboard host cell: `safe center` vertically
 // centers short states without clipping a taller one. Applied to the widget's own
@@ -26,10 +42,16 @@ function frameWidgetRoot( host: HTMLElement | null ) {
 export function WidgetCanvas( {
 	children,
 	width = '380px',
+	height = '440px',
+	resizable = false,
 }: {
 	children: ReactNode;
 	/** Card width. Defaults to a one-column dashboard cell. */
 	width?: string;
+	/** Card height. */
+	height?: string;
+	/** Lets the reader resize the card by its corner. */
+	resizable?: boolean;
 } ) {
 	const hostRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {
@@ -40,14 +62,15 @@ export function WidgetCanvas( {
 			ref={ hostRef }
 			style={ {
 				width,
-				height: '440px',
+				height,
 				margin: '0 auto',
-				padding: '16px',
+				padding: `${ CANVAS_PADDING }px`,
 				boxSizing: 'border-box',
 				background: '#fff',
-				border: '1px solid #e0e0e0',
+				border: `${ CANVAS_BORDER }px solid #e0e0e0`,
 				borderRadius: '8px',
 				overflow: 'hidden',
+				...( resizable && { resize: 'both', minWidth: '160px', minHeight: '100px' } ),
 			} }
 		>
 			{ children }
@@ -55,9 +78,82 @@ export function WidgetCanvas( {
 	);
 }
 
-// Decorator form of WidgetCanvas for the close-up widget stories.
-export const withWidgetCanvas: Decorator = Story => (
-	<WidgetCanvas>
+// A WidgetCanvas captioned with the box the widget inside it gets, measured so
+// the caption follows the card while the reader resizes it.
+function SizedWidgetCanvas( {
+	children,
+	width,
+	height,
+	resizable,
+}: {
+	children: ReactNode;
+	width?: string;
+	height?: string;
+	resizable?: boolean;
+} ) {
+	const [ cardRef, card ] = useElementSize< HTMLDivElement >();
+	const inlineSize = Math.max( 0, card.width - CANVAS_INSET * 2 );
+	const blockSize = Math.max( 0, card.height - CANVAS_INSET * 2 );
+
+	return (
+		<figure style={ { margin: 0 } }>
+			<figcaption
+				style={ { marginBlockEnd: '8px', font: '12px/1.5 monospace', textAlign: 'center' } }
+			>
+				{ `${ inlineSize } × ${ blockSize } px` }
+			</figcaption>
+			<div ref={ cardRef } style={ { inlineSize: 'fit-content', marginInline: 'auto' } }>
+				<WidgetCanvas width={ width } height={ height } resizable={ resizable }>
+					{ children }
+				</WidgetCanvas>
+			</div>
+		</figure>
+	);
+}
+
+// Frames a story the way the toolbar's "Widget sizes" mode asks: once in the
+// usual card, once per box of the size matrix, or in a card the reader resizes.
+export function WidgetSizesCanvas( {
+	children,
+	mode,
+	width,
+}: {
+	children: ReactNode;
+	/** The `widgetSizes` global; any other value frames the story once. */
+	mode?: unknown;
+	/** Card width outside the size matrix. */
+	width?: string;
+} ) {
+	if ( mode === 'matrix' ) {
+		return (
+			<div style={ { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '24px' } }>
+				{ MATRIX_SIZES.map( ( [ inlineSize, blockSize ] ) => (
+					<SizedWidgetCanvas
+						key={ `${ inlineSize }x${ blockSize }` }
+						width={ `${ inlineSize + CANVAS_INSET * 2 }px` }
+						height={ `${ blockSize + CANVAS_INSET * 2 }px` }
+					>
+						{ children }
+					</SizedWidgetCanvas>
+				) ) }
+			</div>
+		);
+	}
+
+	if ( mode === 'resizable' ) {
+		return (
+			<SizedWidgetCanvas width={ width } resizable>
+				{ children }
+			</SizedWidgetCanvas>
+		);
+	}
+
+	return <WidgetCanvas width={ width }>{ children }</WidgetCanvas>;
+}
+
+// Decorator form of WidgetSizesCanvas for the close-up widget stories.
+export const withWidgetCanvas: Decorator = ( Story, { globals } ) => (
+	<WidgetSizesCanvas mode={ globals.widgetSizes }>
 		<Story />
-	</WidgetCanvas>
+	</WidgetSizesCanvas>
 );

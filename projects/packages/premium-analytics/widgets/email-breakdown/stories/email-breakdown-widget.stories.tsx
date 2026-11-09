@@ -27,7 +27,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { WidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
+import { WidgetSizesCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
 import EmailBreakdownRender, { MAP_MIN_WIDTH } from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -66,10 +66,16 @@ const MAP_CANVAS_WIDTH = `${ MAP_MIN_WIDTH + 2 * ( 16 + 1 ) + 48 }px`;
 
 // Widens the canvas under the same condition the widget mounts its map, so the
 // `showMap` control actually shows it instead of doing nothing in a one-column card.
-const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = ( Story, { args } ) => (
-	<WidgetCanvas width={ args.showMap && args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined }>
+const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = (
+	Story,
+	{ args, globals }
+) => (
+	<WidgetSizesCanvas
+		mode={ globals.widgetSizes }
+		width={ args.showMap && args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined }
+	>
 		<Story />
-	</WidgetCanvas>
+	</WidgetSizesCanvas>
 );
 
 function renderEmailBreakdown( { view, metric, showMap }: EmailBreakdownStoryControls ) {
