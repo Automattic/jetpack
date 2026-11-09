@@ -16,7 +16,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\SSO;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
@@ -79,11 +78,11 @@ class Jetpack_Protect {
 	const OPT_IN_MODULES = array( 'sso', 'monitor' );
 
 	/**
-	 * Set once the Jetpack plugin's leftover opt-in modules have been switched off.
+	 * The opt-in modules turned on while this plugin was active.
 	 *
 	 * @var string
 	 */
-	const JETPACK_MODULES_RELEASED_OPTION = JETPACK_PROTECT_SLUG . '_jetpack_modules_released';
+	const OPTED_IN_MODULES_OPTION = JETPACK_PROTECT_SLUG . '_opted_in_modules';
 
 	/**
 	 * Constructor.
@@ -166,48 +165,68 @@ class Jetpack_Protect {
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 
-		// Before SSO starts on `after_setup_theme`.
-		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_release_jetpack_modules' ) );
-		add_action( 'deactivated_plugin', array( __CLASS__, 'release_jetpack_modules_on_jetpack_deactivation' ) );
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_opt_in_modules' ) );
+		add_action( 'jetpack_pre_activate_module', array( __CLASS__, 'record_opt_in' ) );
+		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'forget_opt_in' ) );
 	}
 
 	/**
-	 * Once, without the Jetpack plugin, switch off the opt-in modules it left on, so they wait for the owner to turn them on here.
+	 * Without the Jetpack plugin, count an opt-in module as on only if it was turned on while this plugin was active.
 	 *
+	 * The saved list is left alone, so the Jetpack plugin gets its own state back if it returns.
+	 *
+	 * @param string[] $active Active module slugs.
+	 * @return string[]
+	 */
+	public static function filter_opt_in_modules( $active ) {
+		if ( class_exists( 'Jetpack', false ) ) {
+			return $active;
+		}
+		$stale = array_diff( self::OPT_IN_MODULES, self::get_opted_in_modules() );
+		return array_values( array_diff( (array) $active, $stale ) );
+	}
+
+	/**
+	 * Remember that an opt-in module was turned on while this plugin was active.
+	 *
+	 * @param string $module Module slug.
 	 * @return void
 	 */
-	public static function maybe_release_jetpack_modules() {
-		if ( class_exists( 'Jetpack', false ) || get_option( self::JETPACK_MODULES_RELEASED_OPTION ) ) {
+	public static function record_opt_in( $module ) {
+		if ( ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) ) {
 			return;
 		}
-		self::release_jetpack_modules();
-		update_option( self::JETPACK_MODULES_RELEASED_OPTION, 1 );
+		// Drop a leftover saved entry first, so activation runs its hooks, such as Monitor subscribing the user to alerts.
+		if ( ! class_exists( 'Jetpack', false ) ) {
+			$saved = Jetpack_Options::get_option( 'active_modules', array() );
+			if ( is_array( $saved ) && in_array( $module, $saved, true ) ) {
+				Jetpack_Options::update_option( 'active_modules', array_values( array_diff( $saved, array( $module ) ) ) );
+			}
+		}
+		update_option( self::OPTED_IN_MODULES_OPTION, array_merge( self::get_opted_in_modules(), array( $module ) ) );
 	}
 
 	/**
-	 * Switch off the opt-in modules when the Jetpack plugin is deactivated while this one stays.
+	 * Forget an opt-in module when it is turned off.
 	 *
-	 * @param string $plugin Basename of the deactivated plugin.
+	 * @param string $module Module slug.
 	 * @return void
 	 */
-	public static function release_jetpack_modules_on_jetpack_deactivation( $plugin ) {
-		$jetpack_file = Constants::get_constant( 'JETPACK__PLUGIN_FILE' );
-		if ( $jetpack_file && plugin_basename( $jetpack_file ) === $plugin ) {
-			self::release_jetpack_modules();
+	public static function forget_opt_in( $module ) {
+		$opted_in = self::get_opted_in_modules();
+		if ( in_array( $module, $opted_in, true ) ) {
+			update_option( self::OPTED_IN_MODULES_OPTION, array_values( array_diff( $opted_in, array( $module ) ) ) );
 		}
 	}
 
 	/**
-	 * Switch off the opt-in modules in the saved list; Modules::deactivate() would skip them while they are unavailable.
+	 * The opt-in modules turned on while this plugin was active.
 	 *
-	 * @return void
+	 * @return string[]
 	 */
-	private static function release_jetpack_modules() {
-		$saved = Jetpack_Options::get_option( 'active_modules', array() );
-		if ( ! is_array( $saved ) || ! array_intersect( self::OPT_IN_MODULES, $saved ) ) {
-			return;
-		}
-		Jetpack_Options::update_option( 'active_modules', array_values( array_diff( $saved, self::OPT_IN_MODULES ) ) );
+	private static function get_opted_in_modules() {
+		$opted_in = get_option( self::OPTED_IN_MODULES_OPTION, array() );
+		return is_array( $opted_in ) ? $opted_in : array();
 	}
 
 	/**
