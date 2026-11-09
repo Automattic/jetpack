@@ -4,12 +4,14 @@ import ConnectionGate from '../connection-gate';
 const mockUseConnection = jest.fn();
 const mockIsSimpleSite = jest.fn();
 
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	CONNECTION_FROM: { jetpackMonetizeConnectionGate: 'jetpack_monetize_connection_gate' },
+} ) );
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
 	default: () => mockUseConnection(),
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getSiteData: () => ( { admin_url: 'https://example.com/wp-admin/' } ),
 	isSimpleSite: () => mockIsSimpleSite(),
 } ) );
 
