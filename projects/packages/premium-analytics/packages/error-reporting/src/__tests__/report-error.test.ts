@@ -429,18 +429,18 @@ describe( 'reportError', () => {
 		expect( console ).toHaveWarned();
 	} );
 
-	it( 'keeps reporting after a 400, which means one bad payload rather than too many requests', async () => {
+	it( 'stops reporting for the rest of the hour after a 400, not only after a rate-limit status', async () => {
 		fetchMock.mockResolvedValue( { ok: false, status: 400 } );
 
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
 		reportError( dashboardError( 'second' ), 'error' );
 
-		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 		expect( console ).toHaveWarned();
 	} );
 
-	it( 'warns once for each refusal status, so a 400 cannot hide the 403 that stops the hour', async () => {
+	it( 'warns once for each refusal status, so a 400 cannot hide a later 403', async () => {
 		fetchMock
 			.mockResolvedValueOnce( { ok: false, status: 400 } )
 			.mockResolvedValueOnce( { ok: false, status: 400 } )
@@ -448,8 +448,10 @@ describe( 'reportError', () => {
 
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
+		jest.advanceTimersByTime( HOUR );
 		reportError( dashboardError( 'second' ), 'error' );
 		await flush();
+		jest.advanceTimersByTime( HOUR );
 		reportError( dashboardError( 'third' ), 'error' );
 		await flush();
 

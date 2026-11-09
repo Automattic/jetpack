@@ -24,10 +24,6 @@ const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
 // frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
 const EMAIL = /[^\s<>()[\]{}",;:@]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
-// The endpoint bans the IP behind too many requests and answers 403, and 429 asks for the same.
-// Every other refusal is one report's problem, and the hourly budget already bounds the retries.
-const STOP_STATUSES = [ 403, 429 ];
-
 interface ErrorProperties {
 	source: ReportSource;
 	version: string;
@@ -203,8 +199,8 @@ function stopForHour( hour: number ): void {
 /**
  * Names a refused report in the console, once per status per page load and never in production.
  *
- * Once per status rather than once per page: a harmless 400 would otherwise hide the 403 or 429 that
- * silences the browser for the hour.
+ * Once per status rather than once per page: the first refusal would otherwise hide a later one of
+ * another kind, and they call for different fixes.
  *
  * @param status - The HTTP status the endpoint answered.
  */
@@ -219,7 +215,9 @@ function warnRefused( status: number ): void {
 }
 
 /**
- * Handles the endpoint's answer: name any refusal, and stop the hour for the two that ask for it.
+ * Handles the endpoint's answer: name any refusal, and stop reporting for the rest of the hour.
+ *
+ * Any refusal stops the hour, because a request sent while a ban is active restarts that ban.
  *
  * @param response - The endpoint's response.
  * @param hour     - The current hour bucket.
@@ -230,10 +228,7 @@ function handleResponse( response: Response, hour: number ): void {
 	}
 
 	warnRefused( response.status );
-
-	if ( STOP_STATUSES.includes( response.status ) ) {
-		stopForHour( hour );
-	}
+	stopForHour( hour );
 }
 
 /**
