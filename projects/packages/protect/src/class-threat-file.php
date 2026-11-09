@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Works out whether a flagged file is part of WordPress, a plugin or a theme, and acts on it.
  *
- * @since $$next-version$$
+ * @since 0.6.0
  */
 class Threat_File {
 

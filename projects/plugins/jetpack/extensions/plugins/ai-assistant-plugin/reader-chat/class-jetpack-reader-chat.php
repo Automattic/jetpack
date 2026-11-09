@@ -12,6 +12,9 @@
  * Enable via filter:
  *   add_filter( 'jetpack_reader_chat_enabled', '__return_true' );
  *
+ * The bundle is deferred until the visitor interacts with the page; see
+ * the `jetpack_reader_chat_load_strategy` filter.
+ *
  * @package automattic/jetpack
  */
 
@@ -29,6 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 const READER_CHAT_JS_URL                  = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
+const READER_CHAT_CSS_URL                 = 'https://widgets.wp.com/agents-manager/reader-chat.css';
 const READER_CHAT_ASSET_TRANSIENT         = 'jetpack_reader_chat_asset';
 const READER_CHAT_ASSET_FAILURE_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
@@ -153,23 +157,25 @@ class Jetpack_Reader_Chat {
 			return;
 		}
 
-		$version = self::get_asset_version();
+		$version  = self::get_asset_version();
+		$strategy = self::get_load_strategy();
+		$eager    = 'eager' === $strategy;
 
-		// The reader-chat bundle is self-contained — no WP script dependencies.
-		wp_enqueue_script(
-			'jetpack-reader-chat',
-			READER_CHAT_JS_URL,
-			array(),
-			$version,
-			true
-		);
+		// The reader-chat bundle is self-contained — no WP script dependencies. A src-less
+		// handle prints only its inline scripts, so deferred modes leave the fetch to the loader.
+		wp_register_script( 'jetpack-reader-chat', $eager ? READER_CHAT_JS_URL : false, array(), $version, true );
+		wp_enqueue_script( 'jetpack-reader-chat' );
 
-		wp_enqueue_style(
-			'jetpack-reader-chat',
-			'https://widgets.wp.com/agents-manager/reader-chat.css',
-			array(),
-			$version
-		);
+		if ( $eager ) {
+			wp_enqueue_style( 'jetpack-reader-chat', READER_CHAT_CSS_URL, array(), $version );
+		} else {
+			wp_add_inline_script(
+				'jetpack-reader-chat',
+				self::get_deferred_loader_script( 'idle' === $strategy, $version ),
+				'after'
+			);
+			add_filter( 'wp_resource_hints', array( __CLASS__, 'add_resource_hints' ), 10, 2 );
+		}
 
 		// Inject config for the JS bundle (before the script tag).
 		wp_add_inline_script(
@@ -180,6 +186,115 @@ class Jetpack_Reader_Chat {
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Get when the frontend should download and run the reader chat bundle.
+	 *
+	 * @return string 'interaction', 'idle', or 'eager'.
+	 */
+	private static function get_load_strategy(): string {
+		/**
+		 * Filter when the Site Chat bundle loads on the frontend.
+		 *
+		 * - 'interaction' (default): on the visitor's first scroll, pointer, touch, key, or focus event.
+		 * - 'idle': once the page has finished loading, or on first interaction if that comes sooner.
+		 * - 'eager': with the page, as a regular script and stylesheet.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $strategy The load strategy.
+		 */
+		$strategy = apply_filters( 'jetpack_reader_chat_load_strategy', 'interaction' );
+
+		return in_array( $strategy, array( 'idle', 'eager' ), true ) ? $strategy : 'interaction';
+	}
+
+	/**
+	 * Restore the DNS prefetch WordPress adds for enqueued CDN assets, which a src-less handle loses.
+	 *
+	 * @param array  $urls          URLs to print for the relation type.
+	 * @param string $relation_type The relation type the URLs are printed for.
+	 * @return array Updated URLs.
+	 */
+	public static function add_resource_hints( $urls, $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type ) {
+			$urls[] = '//widgets.wp.com';
+		}
+		return $urls;
+	}
+
+	/**
+	 * Build the inline script that injects the reader chat stylesheet and bundle on demand.
+	 *
+	 * @param bool             $idle    Whether to also load once the page is idle.
+	 * @param string|null|bool $version Asset version, or null to omit the query param.
+	 * @return string Inline JavaScript.
+	 */
+	private static function get_deferred_loader_script( bool $idle, $version ): string {
+		$ver      = $version ? rawurlencode( $version ) : null;
+		$settings = array(
+			'js'   => add_query_arg( 'ver', $ver, READER_CHAT_JS_URL ),
+			'css'  => add_query_arg( 'ver', $ver, READER_CHAT_CSS_URL ),
+			'idle' => $idle,
+		);
+
+		$loader = <<<'JS'
+( function ( s ) {
+	var events = [ 'pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll', 'wheel', 'focusin' ];
+	var started = false;
+	function load() {
+		if ( started ) {
+			return;
+		}
+		started = true;
+		events.forEach( function ( e ) {
+			window.removeEventListener( e, load, true );
+		} );
+		// Fetch the bundle alongside the styles, then run it once the styles are in.
+		var preload = document.createElement( 'link' );
+		preload.rel = 'preload';
+		preload.as = 'script';
+		preload.href = s.js;
+		document.head.appendChild( preload );
+		var link = document.createElement( 'link' );
+		link.rel = 'stylesheet';
+		link.href = s.css;
+		link.onload = link.onerror = function () {
+			var script = document.createElement( 'script' );
+			script.src = s.js;
+			document.body.appendChild( script );
+		};
+		document.head.appendChild( link );
+	}
+	// The bundle sets this key while the chat is open, so keep an open chat open across page views.
+	try {
+		var agentId = ( window.JetpackReaderChatConfig || {} ).agentId;
+		if ( '1' === window.sessionStorage.getItem( 'jetpack-reader-chat-open-' + agentId ) ) {
+			return load();
+		}
+	} catch ( e ) {}
+	events.forEach( function ( e ) {
+		window.addEventListener( e, load, { capture: true, passive: true } );
+	} );
+	if ( s.idle ) {
+		var whenIdle = function () {
+			if ( window.requestIdleCallback ) {
+				window.requestIdleCallback( load, { timeout: 2000 } );
+			} else {
+				setTimeout( load, 1 );
+			}
+		};
+		if ( 'complete' === document.readyState ) {
+			whenIdle();
+		} else {
+			window.addEventListener( 'load', whenIdle );
+		}
+	}
+} )(
+JS;
+
+		return $loader . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
 	}
 
 	/**

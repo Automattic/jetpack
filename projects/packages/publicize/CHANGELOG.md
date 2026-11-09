@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.10] - 2026-11-09
+### Changed
+- Connections list: Use the design system switch for the connection toggles. [#54512]
+- Sharing activity: Use the design system tooltip for share times. [#54512]
+- Update package dependencies. [#54391] [#54512]
+
 ## [0.88.9] - 2026-11-02
 ### Changed
 - Overview: Replace the traffic chart's date range dropdown with a menu button. [#54203]
@@ -1737,6 +1743,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.9...v0.88.10
 [0.88.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.8...v0.88.9
 [0.88.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.7...v0.88.8
 [0.88.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.6...v0.88.7
