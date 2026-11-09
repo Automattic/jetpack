@@ -16,7 +16,7 @@ The last two are dropped unless the stack has a frame inside a known dashboard s
 
 ## The gate
 
-PHP decides whether reporting is on. The package only reads the boolean `premium_analytics.error_reporting.enabled` from the script data, and sends nothing when it is false or missing. Today only WordPress.com Simple and WoA sites report. Widening that to self-hosted sites is a change to that one PHP condition, with no change here.
+PHP decides whether reporting is on. The package only reads the boolean `premium_analytics.error_reporting.enabled` from the script data, and does nothing when it is false or missing, the chunk-load reload included. Today only WordPress.com Simple and WoA sites report. Widening that to self-hosted sites is a change to that one PHP condition, with no change here.
 
 ## Script origins
 
@@ -48,6 +48,8 @@ The Premium Analytics package version travels in `properties.version`. The endpo
 
 Two kinds of crash reach us through the boundary without being a bug of ours. Both carry a tag so a search on this feature can exclude them.
 
-A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it. Those carry `chunk-load`, matched from the four wordings that differ per browser and bundler, one of which only names the error rather than wording the message. Reloading the page would be the other answer, and no user-visible change is allowed here.
+A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it. Those carry `chunk-load`, matched from the four wordings that differ per browser and bundler, one of which only names the error rather than wording the message.
+
+The page then reloads, which is the fix for that case, because the reload is served the build that is deployed now. The report goes first and `keepalive` carries it through the navigation. One attempt per tab per minute is recorded in `sessionStorage`: a failure a reload cannot fix, such as a blocked CDN, reloads once and then stops rather than looping, and a tab whose store cannot be read or written does not reload at all, because nothing would be left to stop it. Calypso keeps the same flag in the URL, which does not port here: this dashboard's query string is its own state, rewritten on navigation and copied into any link a reader shares.
 
 A translation tool or an extension that reparents React-managed text nodes crashes the commit phase with a `NotFoundError` from `insertBefore`. Those carry `dom-interference`, and `properties.dom_interference` names the agents found, as one field rather than one per agent. The probes run only while a report is being built, and each keys on an artefact only Chromium and extension translators leave behind: Safari and Firefox translate in place with no marker, so an absent value means undetectable rather than absent.

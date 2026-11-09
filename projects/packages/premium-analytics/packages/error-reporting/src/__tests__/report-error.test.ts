@@ -1,10 +1,13 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { reloadPage } from '../reload-page';
 import { reportError, resetErrorReporterForTests } from '../report-error';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
 	() => jest.requireActual( '../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
+
+jest.mock( '../reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const ORIGIN = 'https://example.com/wp-content/plugins/jetpack/build/';
 const START = new Date( '2026-03-01T10:00:00Z' );
@@ -94,6 +97,8 @@ describe( 'reportError', () => {
 		jest.useFakeTimers();
 		jest.setSystemTime( START );
 		window.localStorage.clear();
+		window.sessionStorage.clear();
+		jest.mocked( reloadPage ).mockReset();
 		window.history.replaceState(
 			{},
 			'',
@@ -384,6 +389,30 @@ describe( 'reportError', () => {
 		reportError( error, 'boundary' );
 
 		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+	} );
+
+	it( 'reports a failed module load and then reloads to pick up the deployed build', () => {
+		reportError( dashboardError( 'Failed to fetch dynamically imported module' ), 'boundary' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		expect( reloadPage ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'reloads after a failed module load the budget stopped reporting', () => {
+		for ( let i = 0; i < 10; i++ ) {
+			reportError( dashboardError( `failure ${ i }` ), 'error' );
+		}
+
+		reportError( dashboardError( 'Failed to fetch dynamically imported module' ), 'boundary' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 10 );
+		expect( reloadPage ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not reload for an error a reload cannot fix', () => {
+		reportError( dashboardError(), 'boundary' );
+
+		expect( reloadPage ).not.toHaveBeenCalled();
 	} );
 
 	it( 'tags and names a page-mutating agent, whose React crash is not our bug', () => {

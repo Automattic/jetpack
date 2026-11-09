@@ -1,4 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { isChunkLoadError, recoverFromChunkLoad } from './chunk-recovery';
 import { findDashboardFrame } from './dashboard-frame';
 import { detectDomInterference } from './dom-interference';
 import { redactQuery } from './redact-query';
@@ -24,10 +25,6 @@ const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
 // Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
 // frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
 const EMAIL = /[^\s<>()[\]{}",;:@]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-
-// Each browser words a failed dynamic import differently, and webpack has a name of its own.
-const CHUNK_LOAD =
-	/failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|ChunkLoadError/i;
 
 interface ErrorProperties {
 	source: ReportSource;
@@ -259,7 +256,7 @@ function buildPayload(
 	const { name, stack } = details;
 	const data = getScriptData();
 	const { search } = window.location;
-	const chunkLoad = CHUNK_LOAD.test( details.message ) || CHUNK_LOAD.test( name ?? '' );
+	const chunkLoad = isChunkLoadError( details.message, name );
 	const domInterference = detectDomInterference();
 	// Both mark an error that is not our bug, so a search on this feature can exclude them.
 	const tags = [
@@ -295,7 +292,47 @@ function buildPayload(
 }
 
 /**
+ * Posts one report, unless it duplicates one already sent or the budget is spent.
+ *
+ * @param details              - The message, name and stack of the thrown value.
+ * @param source               - Where the error was caught.
+ * @param frame                - The first dashboard frame of the stack, if any.
+ * @param extra                - Extra context from the caller.
+ * @param extra.componentStack - The React component stack of a boundary catch.
+ */
+function send(
+	details: ThrownDetails,
+	source: ReportSource,
+	frame: DashboardFrame | null,
+	extra?: { componentStack?: string }
+): void {
+	// The raw message can embed the page query string, which changes on every date-range change.
+	const message = sanitizeText( details.message, MESSAGE_LIMIT );
+	const key = `${ message }\n${ frame?.url ?? '' }`;
+	const hour = Math.floor( Date.now() / HOUR_MS );
+	if ( seen.has( key ) || ! spendBudget( hour ) ) {
+		return;
+	}
+	seen.add( key );
+
+	window
+		.fetch( ENDPOINT, {
+			method: 'POST',
+			body: new URLSearchParams( {
+				error: JSON.stringify( buildPayload( details, message, source, frame, extra ) ),
+			} ),
+			keepalive: true,
+			credentials: 'omit',
+		} )
+		.then( response => handleResponse( response, hour ) )
+		.catch( () => {} );
+}
+
+/**
  * Sends one caught error to WordPress.com's JS error log, at most once per page and within a budget.
+ *
+ * A failed module load also reloads the page. The report goes first, and `keepalive` carries it
+ * through the navigation.
  *
  * @param error                - The thrown value.
  * @param source               - Where the error was caught.
@@ -319,26 +356,12 @@ export function reportError(
 			return;
 		}
 
-		// The raw message can embed the page query string, which changes on every date-range change.
-		const message = sanitizeText( details.message, MESSAGE_LIMIT );
-		const key = `${ message }\n${ frame?.url ?? '' }`;
-		const hour = Math.floor( Date.now() / HOUR_MS );
-		if ( seen.has( key ) || ! spendBudget( hour ) ) {
-			return;
-		}
-		seen.add( key );
+		send( details, source, frame, extra );
 
-		window
-			.fetch( ENDPOINT, {
-				method: 'POST',
-				body: new URLSearchParams( {
-					error: JSON.stringify( buildPayload( details, message, source, frame, extra ) ),
-				} ),
-				keepalive: true,
-				credentials: 'omit',
-			} )
-			.then( response => handleResponse( response, hour ) )
-			.catch( () => {} );
+		// Outside `send`, so a report the dedupe or the budget dropped still leaves a working page.
+		if ( isChunkLoadError( details.message, details.name ) ) {
+			recoverFromChunkLoad();
+		}
 	} catch {
 		// A reporter failure must never become a second error.
 	}
