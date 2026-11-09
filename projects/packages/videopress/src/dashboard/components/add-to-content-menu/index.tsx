@@ -100,6 +100,7 @@ export default function AddToContentMenu( { guid, label, size, className }: Prop
 	// Below 600px the labelled trigger alone is wider than the space the page
 	// header leaves beside the breadcrumb, so it collapses to its `plus` icon.
 	// The label stays on as the accessible name and tooltip.
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hook must run unconditionally (Rules of Hooks); its value is only read after the guard below.
 	const isIconOnly = useViewportMatch( 'small', '<' );
 
 	// Both halves of the hand-off have to be present, not just the GUID. The
