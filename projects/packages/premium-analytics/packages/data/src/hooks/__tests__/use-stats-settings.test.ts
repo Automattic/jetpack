@@ -1,9 +1,12 @@
 import { renderHook } from '@testing-library/react';
+import { resetSiteSettingsQueueForTesting } from '../site-settings-queue';
+import { useGoogleAnalyticsSettings } from '../use-google-analytics-settings';
 import { useStatsSettings } from '../use-stats-settings';
 
 type Site = {
 	stats_options?: { admin_bar: boolean; roles: string[]; count_roles: string[] };
 	wpcom_reader_views_enabled?: boolean;
+	google_analytics?: { is_active: boolean };
 };
 
 const mockSite: {
@@ -73,6 +76,24 @@ describe( 'useStatsSettings', () => {
 		};
 		mockSite.edits = {};
 		mockSite.saves = [];
+		resetSiteSettingsQueueForTesting();
+	} );
+
+	it( 'waits for a Google Analytics save before sending a Stats save', async () => {
+		const { result: analytics } = renderHook( () => useGoogleAnalyticsSettings() );
+		const { result: stats } = renderHook( () => useStatsSettings() );
+
+		const first = analytics.current.saveChange( { is_active: true } );
+		const second = stats.current.saveChange( { admin_bar: false } );
+		await sent();
+		expect( mockSite.saves ).toHaveLength( 1 );
+
+		mockSite.saves[ 0 ].resolve();
+		await first;
+		await sent();
+		expect( mockSite.saves ).toHaveLength( 2 );
+		mockSite.saves[ 1 ].resolve();
+		await second;
 	} );
 
 	it.each( [

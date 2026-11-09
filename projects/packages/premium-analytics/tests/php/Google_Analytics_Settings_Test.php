@@ -14,8 +14,10 @@ use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Google_Analytics_Settings
+ * @covers \Automattic\Jetpack\PremiumAnalytics\Stats_Settings
  */
 #[CoversClass( Google_Analytics_Settings::class )]
+#[CoversClass( Stats_Settings::class )]
 class Google_Analytics_Settings_Test extends BaseTestCase {
 
 	const ROUTE = '/wp/v2/settings';
@@ -57,6 +59,9 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 		remove_all_filters( 'rest_request_after_callbacks' );
 		remove_all_filters( self::FLAG_FILTER );
 		remove_all_filters( 'is_jetpack_site' );
+		remove_all_actions( 'jetpack_bump_stats_extras' );
+		unregister_setting( 'other_plugin', 'other_plugin_ga' );
+		delete_option( 'other_plugin_ga' );
 		$GLOBALS['jpa_test_wpcom_features'] = array();
 		wp_set_current_user( 0 );
 
@@ -187,5 +192,44 @@ class Google_Analytics_Settings_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'code' => 'G-SIMPLE' ), get_option( 'wga' ) );
 		$this->assertFalse( get_option( 'jetpack_wga' ) );
+	}
+
+	public function test_save_counts_google_analytics_as_turned_on_or_off() {
+		$bumps = array();
+		add_action(
+			'jetpack_bump_stats_extras',
+			function ( $group, $value ) use ( &$bumps ) {
+				$bumps[] = array( $group, $value );
+			},
+			10,
+			2
+		);
+
+		$this->post_settings( array( Google_Analytics_Settings::REST_NAME => array( 'code' => 'G-ONE' ) ) );
+		$this->post_settings( array( Google_Analytics_Settings::REST_NAME => array( 'code' => '' ) ) );
+
+		$this->assertSame(
+			array( array( 'google-analytics', 'enabled' ), array( 'google-analytics', 'disabled' ) ),
+			$bumps
+		);
+	}
+
+	public function test_route_leaves_another_plugins_setting_of_the_same_name_alone() {
+		$GLOBALS['jpa_test_wpcom_features'] = array();
+		unregister_setting( 'jetpack_premium_analytics', 'jetpack_wga' );
+		register_setting(
+			'other_plugin',
+			'other_plugin_ga',
+			array(
+				'type'         => 'string',
+				'show_in_rest' => array( 'name' => Google_Analytics_Settings::REST_NAME ),
+			)
+		);
+		update_option( 'other_plugin_ga', 'theirs' );
+		$this->boot_route();
+
+		$this->assertSame( 'theirs', $this->get_settings()[ Google_Analytics_Settings::REST_NAME ] );
+		$this->post_settings( array( Google_Analytics_Settings::REST_NAME => 'changed' ) );
+		$this->assertSame( 'changed', get_option( 'other_plugin_ga' ) );
 	}
 }

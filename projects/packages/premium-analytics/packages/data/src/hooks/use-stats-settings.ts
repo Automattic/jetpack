@@ -1,6 +1,7 @@
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useRegistry } from '@wordpress/data';
 import { useCallback, useMemo, useRef } from 'react';
+import { enqueueSiteSettingsSave } from './site-settings-queue';
 
 export type StatsSettings = {
 	admin_bar: boolean;
@@ -75,8 +76,6 @@ export function useStatsSettings( offered: readonly ( keyof StatsSettings )[] = 
 	const registry = useRegistry();
 	// The change that last edited each setting; a failed save puts back only the settings it still owns.
 	const owners = useRef( new Map< keyof StatsSettings, symbol >() );
-	// Saves go one at a time, in the order made: the site does not apply overlapping requests in order.
-	const queue = useRef< Promise< unknown > >( Promise.resolve() );
 
 	/**
 	 * Save a change, or put back the stored values of what it changed when the site refuses it.
@@ -115,10 +114,8 @@ export function useStatsSettings( offered: readonly ( keyof StatsSettings )[] = 
 					throwOnError: true,
 				} );
 			};
-			const save = queue.current.then( send, send );
-			queue.current = save;
 			try {
-				await save;
+				await enqueueSiteSettingsSave( send );
 			} catch ( error ) {
 				// Editing back to the stored values is how core-data drops an edit.
 				editOwned( toSettings( read().stored, offered ) );

@@ -1,6 +1,7 @@
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
+import { enqueueSiteSettingsSave } from './site-settings-queue';
 
 export type GoogleAnalyticsSettings = {
 	is_active: boolean;
@@ -19,16 +20,12 @@ export function useGoogleAnalyticsSettings() {
 	// The site settings entity has no ID.
 	const site = useEntityRecord< SiteSettings >( 'root', 'site', undefined as unknown as string );
 	const { saveEntityRecord } = useDispatch( coreStore );
-	// The site does not apply overlapping requests in order.
-	const queue = useRef< Promise< unknown > >( Promise.resolve() );
 
 	const saveChange = useCallback(
 		( values: Partial< GoogleAnalyticsSettings > ) => {
 			const send = () =>
 				saveEntityRecord( 'root', 'site', { google_analytics: values }, { throwOnError: true } );
-			const save = queue.current.then( send, send );
-			queue.current = save;
-			return save;
+			return enqueueSiteSettingsSave( send );
 		},
 		[ saveEntityRecord ]
 	);

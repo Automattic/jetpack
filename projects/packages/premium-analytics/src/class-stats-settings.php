@@ -201,6 +201,15 @@ final class Stats_Settings {
 	}
 
 	/**
+	 * Whether this package registered the Google Analytics setting, so a setting of that name from elsewhere is left alone.
+	 *
+	 * @return bool
+	 */
+	private static function offers_google_analytics() {
+		return in_array( Google_Analytics_Settings::REST_NAME, self::get_fields(), true );
+	}
+
+	/**
 	 * The `stats_options` fields the site offers.
 	 *
 	 * @return string[]
@@ -236,7 +245,7 @@ final class Stats_Settings {
 	 */
 	public static function get_stats_options( $value, $name ) {
 		if ( Google_Analytics_Settings::REST_NAME === $name ) {
-			return Google_Analytics_Settings::get();
+			return self::offers_google_analytics() ? Google_Analytics_Settings::get() : $value;
 		}
 		if ( Stats_Options::OPTION_NAME !== $name ) {
 			return $value;
@@ -264,7 +273,7 @@ final class Stats_Settings {
 			$result = Stats_Package_Settings::update_reader_views( rest_sanitize_boolean( $value ) );
 		} elseif ( Stats_Options::OPTION_NAME === $name ) {
 			$result = Stats_Package_Settings::update( is_array( $value ) ? $value : array(), self::get_stats_option_fields() );
-		} elseif ( Google_Analytics_Settings::REST_NAME === $name ) {
+		} elseif ( Google_Analytics_Settings::REST_NAME === $name && self::offers_google_analytics() ) {
 			$result = Google_Analytics_Settings::update( $value );
 		} else {
 			return $updated;

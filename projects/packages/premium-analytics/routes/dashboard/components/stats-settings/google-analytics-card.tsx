@@ -16,7 +16,8 @@ import {
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { getSiteErrorMessage } from './site-error-message';
 import type { JSX } from 'react';
 
 const SUPPORT_URL = 'https://wordpress.com/support/google-analytics/';
@@ -41,12 +42,22 @@ export function GoogleAnalyticsCard(): JSX.Element {
 			setSaving( true );
 			try {
 				await saveChange( values );
-			} catch {
+			} catch ( error ) {
+				const reason = getSiteErrorMessage( error );
 				createErrorNotice(
-					__(
-						'Your Google Analytics settings could not be saved.',
-						'jetpack-premium-analytics-pkg'
-					),
+					reason
+						? sprintf(
+								/* translators: %s: the reason the site gave. */
+								__(
+									'Your Google Analytics settings could not be saved: %s',
+									'jetpack-premium-analytics-pkg'
+								),
+								reason
+							)
+						: __(
+								'Your Google Analytics settings could not be saved.',
+								'jetpack-premium-analytics-pkg'
+							),
 					{ id: 'google-analytics-save-failed', type: 'snackbar' }
 				);
 				return false;
@@ -114,7 +125,7 @@ export function GoogleAnalyticsCard(): JSX.Element {
 									isValid
 										? undefined
 										: __(
-												'Enter a Measurement ID that starts with G-.',
+												'Enter a Measurement ID, such as G-XXXXXXX.',
 												'jetpack-premium-analytics-pkg'
 											)
 								}

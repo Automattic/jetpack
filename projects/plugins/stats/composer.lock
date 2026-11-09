@@ -1490,7 +1490,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "4a2f799d935dece83350a44638e7ebb89ce3000e"
+                "reference": "fb4f341adcaecd93ddf26f34a0894e484bb6b18c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1507,6 +1507,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1523,6 +1524,11 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.17.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/google-analytics"
+                    ]
                 }
             },
             "autoload": {

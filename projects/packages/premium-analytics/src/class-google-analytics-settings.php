@@ -52,8 +52,9 @@ final class Google_Analytics_Settings {
 	public static function is_available() {
 		return Feature_Flags::is_enabled( self::FLAG )
 			// Only jetpack-mu-wpcom loads it, so self-hosted sites never get the setting.
-			// @phan-suppress-next-line PhanUndeclaredClassReference -- Optional: only jetpack-mu-wpcom requires the google-analytics package.
 			&& class_exists( GA_Manager::class )
+			// jetpack-mu-wpcom ships GA_Manager on its own release schedule.
+			&& method_exists( GA_Manager::class, 'get_google_analytics_option_name' )
 			&& function_exists( 'wpcom_site_has_feature' )
 			&& \wpcom_site_has_feature( self::FEATURE );
 	}
@@ -119,7 +120,7 @@ final class Google_Analytics_Settings {
 			if ( ! preg_match( self::CODE_PATTERN, $value['code'] ) ) {
 				return new WP_Error(
 					'invalid_google_analytics_code',
-					__( 'Enter a Measurement ID that starts with G-.', 'jetpack-premium-analytics-pkg' ),
+					__( 'Enter a Measurement ID, such as G-XXXXXXX.', 'jetpack-premium-analytics-pkg' ),
 					array( 'status' => 400 )
 				);
 			}
@@ -128,13 +129,21 @@ final class Google_Analytics_Settings {
 		$option = self::get_option_name();
 		$stored = get_option( $option, array() );
 		$merged = array_merge( is_array( $stored ) ? $stored : array(), $value );
+
+		/** This filter is documented in projects/packages/google-analytics/src/class-ga-manager.php */
+		$merged = apply_filters( 'site_settings_update_wga', $merged, $value ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- GA_Manager's filter, applied as its own save path does.
 		if ( $merged === $stored ) {
 			return true;
 		}
 
-		return update_option( $option, $merged )
-			? true
-			: new WP_Error( 'google_analytics_not_saved', __( 'Google Analytics settings could not be saved.', 'jetpack-premium-analytics-pkg' ) );
+		if ( ! update_option( $option, $merged ) ) {
+			return new WP_Error( 'google_analytics_not_saved', __( 'Google Analytics settings could not be saved.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
+		/** This action is documented in projects/packages/google-analytics/src/class-ga-manager.php */
+		do_action( 'jetpack_bump_stats_extras', 'google-analytics', empty( $merged['code'] ) ? 'disabled' : 'enabled' );
+
+		return true;
 	}
 
 	/**
@@ -143,7 +152,6 @@ final class Google_Analytics_Settings {
 	 * @return string
 	 */
 	private static function get_option_name() {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional: only jetpack-mu-wpcom requires the google-analytics package; is_available() checks it first.
 		return GA_Manager::get_instance()->get_google_analytics_option_name();
 	}
 }
