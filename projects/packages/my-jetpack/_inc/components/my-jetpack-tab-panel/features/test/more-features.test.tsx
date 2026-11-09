@@ -112,7 +112,7 @@ describe( 'MoreFeatures', () => {
 			const { rerender } = render( tree( 'all' ) );
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 			rerender( tree( 'available' ) );
@@ -162,7 +162,7 @@ describe( 'MoreFeatures', () => {
 				);
 				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
 				expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-				expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 				expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 				expect( filterMoreFeatures( groups, 'available', '' ) ).toEqual( [] );
 			} finally {
@@ -213,7 +213,7 @@ describe( 'MoreFeatures', () => {
 			expect( screen.queryByText( 'Inactive' ) !== null ).toBe( ! override );
 			expect( screen.queryByText( 'Unavailable' ) !== null ).toBe( !! override );
 			expect( screen.queryByText( 'Unavailable in Offline mode' ) !== null ).toBe( !! override );
-			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
+			expect( screen.queryByRole( 'switch', { name: 'Activate VideoPress' } ) !== null ).toBe(
 				! override
 			);
 			expect( screen.queryByRole( 'checkbox', { name: 'Select VideoPress' } ) !== null ).toBe(

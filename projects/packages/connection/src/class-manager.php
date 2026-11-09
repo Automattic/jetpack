@@ -430,7 +430,7 @@ class Manager {
 	 * @return WP_User|mixed authenticated user or error.
 	 */
 	public function authenticate_jetpack( $user, $username, $password ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( is_a( $user, '\\WP_User' ) ) {
+		if ( $user instanceof \WP_User ) {
 			return $user;
 		}
 

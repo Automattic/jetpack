@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
@@ -275,6 +276,42 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A dashboard that has never been on waits for the connection rather than reading as turned off.
+	 *
+	 * @param bool   $was_on    Whether the dashboard has been on before.
+	 * @param bool   $connected Whether the site is connected.
+	 * @param string $expected  The resolved state.
+	 *
+	 * @dataProvider provide_awaiting_connection_sites
+	 */
+	#[DataProvider( 'provide_awaiting_connection_sites' )]
+	public function test_woa_protect_page_waits_for_the_connection( $was_on, $connected, $expected ) {
+		$this->set_up_protect_dashboard( true, false );
+		$this->set_connected( $connected );
+		if ( $was_on ) {
+			update_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION, true );
+		}
+
+		$state = WPCOM_Scan::get_initial_state();
+
+		$this->assertSame( $expected, $state['state'] );
+		$this->assertSame( WPCOM_Scan::STATE_IN_PROGRESS === $expected, ! empty( $state['awaitingConnection'] ) );
+	}
+
+	/**
+	 * Data provider for test_woa_protect_page_waits_for_the_connection.
+	 *
+	 * @return array
+	 */
+	public static function provide_awaiting_connection_sites() {
+		return array(
+			'never on, connecting'     => array( false, false, WPCOM_Scan::STATE_IN_PROGRESS ),
+			'never on, connected'      => array( false, true, WPCOM_Scan::STATE_ENABLE ),
+			'turned off, disconnected' => array( true, false, WPCOM_Scan::STATE_ENABLE ),
+		);
+	}
+
+	/**
 	 * The prompt only names failure reasons handle_enable() sends.
 	 *
 	 * @param string|null $param    The `enable_failed` query arg, or null for none.
@@ -303,6 +340,52 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			'connection' => array( 'connection', WPCOM_Scan::ENABLE_ERROR_CONNECTION ),
 			'unknown'    => array( 'unknown', WPCOM_Scan::ENABLE_ERROR_UNKNOWN ),
 			'anything'   => array( 'nope', null ),
+		);
+	}
+
+	/**
+	 * On WoA, Protect's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
+	 *
+	 * @param string[] $plan_features The plan's features.
+	 * @param bool     $hidden        Whether the entry is hidden.
+	 *
+	 * @dataProvider provide_protect_entry_states
+	 */
+	#[DataProvider( 'provide_protect_entry_states' )]
+	public function test_protect_entry_hides_only_on_the_enable_prompt( $plan_features, $hidden ) {
+		global $submenu;
+
+		$this->set_up_admin_menu();
+		$this->set_up_protect_dashboard( true, false );
+		$this->grant_feature( ...$plan_features );
+		$GLOBALS['pagenow']     = 'admin.php';
+		$GLOBALS['plugin_page'] = WPCOM_Scan::MENU_SLUG;
+		$_GET['page']           = WPCOM_Scan::MENU_SLUG;
+
+		WPCOM_Scan::register_page();
+
+		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+		// Core's access check runs before admin_head, so a link into the page must still land.
+		$this->assertTrue( user_can_access_admin_page() );
+
+		// Run directly rather than through admin_head, which would fire other features' callbacks in this suite.
+		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( WPCOM_Scan::class, 'remove_menu_entry' ) ) );
+		if ( $hidden ) {
+			WPCOM_Scan::remove_menu_entry();
+			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		}
+	}
+
+	/**
+	 * Data provider for test_protect_entry_hides_only_on_the_enable_prompt.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_entry_states() {
+		return array(
+			'enable prompt'  => array( array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
+			'upgrade prompt' => array( array(), false ),
 		);
 	}
 
@@ -336,10 +419,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		if ( ! $site['feature'] ) {
 			$this->grant_feature();
 		}
-		if ( $site['connected'] ) {
-			\Jetpack_Options::update_option( 'id', 1234 );
-			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
-		}
+		$this->set_connected( $site['connected'] );
 		if ( ! $site['sticks'] ) {
 			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
 		}
@@ -406,7 +486,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Put a WoA admin request on a site whose plan includes Scan, with the Protect dashboard module in the given state.
+	 * Put a WoA admin request on a connected site whose plan includes Scan, with the Protect dashboard module in the given state.
 	 *
 	 * @param bool $available Whether the Jetpack plugin offers the module.
 	 * @param bool $active    Whether the module is on.
@@ -420,6 +500,23 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
 		}
 		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'protect-dashboard' ) : array() );
+		$this->set_connected( true );
+	}
+
+	/**
+	 * Connect the site to WordPress.com, or disconnect it.
+	 *
+	 * @param bool $connected Whether the site is connected.
+	 * @return void
+	 */
+	private function set_connected( $connected ) {
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		} else {
+			\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		}
+		( new Connection_Manager() )->reset_connection_status();
 	}
 
 	/**
@@ -522,7 +619,83 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A WordPress.com feature's upgrade goes to the plan upgrade flow and its manage link to WordPress.com; other features keep Jetpack's.
+	 * The Protect dashboard is turned on once, only on WoA and only where it is offered.
+	 *
+	 * @param array $site     Overrides for is_atomic, migrated, available, active and activates.
+	 * @param bool  $active   Whether the module is active afterwards.
+	 * @param bool  $migrated Whether the site is marked as migrated afterwards.
+	 *
+	 * @dataProvider provide_protect_dashboard_sites
+	 */
+	#[DataProvider( 'provide_protect_dashboard_sites' )]
+	public function test_protect_dashboard_is_turned_on_once( $site, $active, $migrated ) {
+		$site = array_merge(
+			array(
+				'is_atomic' => true,
+				'migrated'  => false,
+				'available' => true,
+				'active'    => false,
+				'activates' => true,
+			),
+			$site
+		);
+		Constants::set_constant( 'IS_ATOMIC', $site['is_atomic'] );
+		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
+		if ( $site['migrated'] ) {
+			update_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION, true );
+		}
+		if ( $site['available'] ) {
+			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'protect-dashboard' ) ) );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $site['active'] ? array( 'protect-dashboard' ) : array() );
+		if ( ! $site['activates'] ) {
+			add_filter( 'pre_update_option_jetpack_active_modules', fn( $value, $old_value ) => $old_value, 10, 2 );
+		}
+
+		WPCOM_Scan::maybe_activate_protect_dashboard_module();
+
+		$this->assertSame( $active, in_array( 'protect-dashboard', (array) \Jetpack_Options::get_option( 'active_modules' ), true ) );
+		$this->assertSame( $migrated, (bool) get_option( WPCOM_Scan::DASHBOARD_MODULE_ACTIVATED_OPTION ) );
+	}
+
+	/**
+	 * Turned on from the Protect page itself, the page reloads so the dashboard serves it rather than this page's prompt.
+	 */
+	public function test_protect_dashboard_turned_on_from_its_page_reloads_it() {
+		$this->set_up_protect_dashboard( true, false );
+		$GLOBALS['pagenow'] = 'admin.php';
+		$_GET['page']       = WPCOM_Scan::MENU_SLUG;
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$this->expectExceptionMessage( WPCOM_Scan::get_page_url() );
+
+		WPCOM_Scan::maybe_activate_protect_dashboard_module();
+	}
+
+	/**
+	 * Data provider for test_protect_dashboard_is_turned_on_once.
+	 *
+	 * @return array
+	 */
+	public static function provide_protect_dashboard_sites() {
+		return array(
+			'offered and off'           => array( array(), true, true ),
+			'already on'                => array( array( 'active' => true ), true, true ),
+			'turned on before, now off' => array( array( 'migrated' => true ), false, true ),
+			'not offered yet'           => array( array( 'available' => false ), false, false ),
+			'activation fails'          => array( array( 'activates' => false ), false, false ),
+			'not Atomic'                => array( array( 'is_atomic' => false ), false, false ),
+		);
+	}
+
+	/**
+	 * A WordPress.com feature's upgrade goes to the plan upgrade flow; a site that has it, and other features, keep Jetpack's links.
 	 *
 	 * @dataProvider provide_feature_upgrades
 	 *
@@ -546,12 +719,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		}
 
 		$live = str_replace( '%host%', (string) wp_parse_url( home_url(), PHP_URL_HOST ), $live );
-
-		if ( $site_has_feature ) {
-			$this->assertStringEndsWith( $live, $upgrade['manage_url'] );
-			return;
-		}
-
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
@@ -569,9 +736,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_feature_upgrades() {
 		return array(
 			'backup, no plan'  => array( 'backup', false, 'backups-self-serve', '/wp-admin/admin.php?page=jetpack-backup&checkout=complete' ),
-			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', 'https://wordpress.com/scan/%host%' ),
-			'backup, has plan' => array( 'backup', true, null, '/wp-admin/admin.php?page=jetpack-backup' ),
-			'scan, has plan'   => array( 'protect-dashboard', true, null, 'https://wordpress.com/scan/%host%' ),
+			'scan, no plan'    => array( 'protect-dashboard', false, 'scan-self-serve', '/wp-admin/admin.php?page=jetpack-protect&checkout=complete' ),
+			'backup, has plan' => array( 'backup', true, null, null ),
+			'scan, has plan'   => array( 'protect-dashboard', true, null, null ),
 			'another feature'  => array( 'boost', false, null, null ),
 		);
 	}
@@ -669,8 +836,8 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_upgrade_landings() {
 		return array(
-			'Backup, served by the Jetpack plugin' => array( WPCOM_Backup::class, null ),
-			'Protect, served by Calypso'           => array( WPCOM_Scan::class, 'https://wordpress.com/scan/%host%' ),
+			'Backup, served by the Jetpack plugin'  => array( WPCOM_Backup::class, null ),
+			'Protect, served by the Jetpack plugin' => array( WPCOM_Scan::class, null ),
 		);
 	}
 
@@ -957,43 +1124,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Protect hides itself, since admins without a linked WordPress.com account never load the
-	 * WordPress.com menu; Backup leaves its entry to that menu, which links Calypso in its place.
-	 *
-	 * @param string $page        Page class.
-	 * @param bool   $modernized  Whether the Backup modernization filter is on.
-	 * @param bool   $hidden      Whether the entry should be hidden.
-	 *
-	 * @dataProvider provide_sidebar_visibility
-	 */
-	#[DataProvider( 'provide_sidebar_visibility' )]
-	public function test_registered_page_sidebar_visibility( $page, $modernized, $hidden ) {
-		global $submenu;
-
-		$this->set_up_admin_menu();
-		add_filter( WPCOM_Backup::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
-
-		$page::register_page();
-
-		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
-		$this->assertCount( 1, $items );
-		$this->assertSame( $hidden ? 'hide-if-js' : '', $items[0][4] ?? '' );
-	}
-
-	/**
-	 * Each page, the Backup modernization flag, and whether the entry is hidden.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_sidebar_visibility() {
-		return array(
-			'Backup, modernized'      => array( WPCOM_Backup::class, true, false ),
-			'Backup, legacy'          => array( WPCOM_Backup::class, false, false ),
-			'Protect, either setting' => array( WPCOM_Scan::class, true, true ),
-		);
-	}
-
-	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
 	 * "tidy" into something else, and links into the page depend on it.
 	 *
@@ -1154,8 +1284,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public static function provide_transfer_landings() {
 		return array(
 			'Backup'  => array( WPCOM_Backup::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-backup' ),
-			// Calypso's Scan page until the Jetpack plugin serves jetpack-protect on WoA.
-			'Protect' => array( WPCOM_Scan::class, 'https://wordpress.com/scan/example.wpcomstaging.com' ),
+			'Protect' => array( WPCOM_Scan::class, 'https://example.wpcomstaging.com/wp-admin/admin.php?page=jetpack-protect' ),
 		);
 	}
 
@@ -1299,61 +1428,5 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
 		$this->assertTrue( $payload['isEligible'] );
-	}
-
-	/**
-	 * Only the Jetpack plugin's Protect page leaves the sidebar, and only without the standalone plugin.
-	 *
-	 * @dataProvider provide_protect_menu_items
-	 *
-	 * @param array  $args       The menu item's Admin_Menu args.
-	 * @param string $expected   The item's resulting visibility state.
-	 * @param bool   $standalone Whether the standalone Protect plugin is active.
-	 */
-	#[DataProvider( 'provide_protect_menu_items' )]
-	public function test_admin_menu_visibility_hides_only_the_jetpack_protect_page( $args, $expected, $standalone = false ) {
-		if ( $standalone ) {
-			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
-		}
-		$item = array(
-			'menu_slug' => 'jetpack-protect',
-			'args'      => $args,
-		);
-
-		$states = WPCOM_Scan::filter_admin_menu_visibility( array( 'jetpack-protect' => 'default' ), array( $item ) );
-
-		$this->assertSame( $expected, $states['jetpack-protect'] );
-	}
-
-	/**
-	 * Admin_Menu args each Protect page registers with, and the state it should end up in.
-	 *
-	 * @return array[]
-	 */
-	public static function provide_protect_menu_items() {
-		return array(
-			'Jetpack plugin Protect page' => array(
-				array(
-					'key'    => 'jetpack-protect',
-					'module' => 'protect-dashboard',
-				),
-				'hidden',
-			),
-			'standalone Protect plugin'   => array(
-				array(
-					'product' => 'protect',
-					'key'     => 'jetpack-protect',
-				),
-				'default',
-			),
-			'Jetpack plugin Protect page, standalone plugin active' => array(
-				array(
-					'key'    => 'jetpack-protect',
-					'module' => 'protect-dashboard',
-				),
-				'default',
-				true,
-			),
-		);
 	}
 }
