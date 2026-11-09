@@ -609,6 +609,7 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 			'consent API that a delay-JS optimizer loads after the load event' => array( 'consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
 			'script load with no stored choice while the fallback allows' => array( 'script load with no stored choice while the fallback allows', 0, 0, null ),
 			'opt-out consent API that a delay-JS optimizer loads after the load event' => array( 'opt-out consent API that a delay-JS optimizer loads after the load event', 1, 1, null ),
+			'banner that sets opt-out before a delay-JS optimizer loads the consent API' => array( 'banner that sets opt-out before a delay-JS optimizer loads the consent API', 1, 1, null ),
 			'banner whose opt-in never reaches the consent API in a delay-JS replay' => array( 'banner whose opt-in never reaches the consent API in a delay-JS replay', 0, 1, null ),
 			'consent API that never loads'                 => array( 'consent API that never loads', 0, 1, null ),
 			'consent API that throws'                      => array( 'consent API that throws', 0, 1, null ),
