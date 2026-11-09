@@ -54,6 +54,21 @@ describe( 'findDashboardFrame', () => {
 		expect( findDashboardFrame( stack, [] ) ).toBeNull();
 	} );
 
+	it( 'ignores an error message that contains a dashboard URL', () => {
+		const stack = [
+			`Error: Failed to fetch dynamically imported module: ${ origins[ 0 ] }routes/dashboard/content.min.js`,
+			'    at https://example.com/wp-includes/js/other.min.js:1:2',
+		].join( '\n' );
+
+		expect( findDashboardFrame( stack, origins ) ).toBeNull();
+	} );
+
+	it( 'returns null when an origin is an empty string', () => {
+		const stack = 'Error: boom\n    at x (https://example.com/wp-includes/js/other.min.js:1:2)';
+
+		expect( findDashboardFrame( stack, [ '' ] ) ).toBeNull();
+	} );
+
 	it( 'parses a Firefox-style frame', () => {
 		const stack = `fn@${ base }widgets/x/render.min.js:4:9\nother@https://example.com/a.js:1:1`;
 

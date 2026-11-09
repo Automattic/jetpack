@@ -7,6 +7,7 @@ export interface DashboardFrame {
 }
 
 const POSITION = /:(\d+):(\d+)$/;
+const FRAME_LINE = /^\s*at\s|^[^\s]*@/;
 const WIDGET_PATH = /^widgets\/([^/]+)\//;
 
 /**
@@ -50,6 +51,9 @@ export function findDashboardFrame(
 	const candidates = origins.filter( origin => typeof origin === 'string' && origin !== '' );
 
 	for ( const line of stack.split( '\n' ) ) {
+		if ( ! FRAME_LINE.test( line ) ) {
+			continue;
+		}
 		const origin = candidates.find( candidate => line.includes( candidate ) );
 		if ( origin ) {
 			return parseFrame( line, origin );
