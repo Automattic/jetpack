@@ -9,6 +9,7 @@ export interface DashboardFrame {
 const POSITION = /:(\d+):(\d+)$/;
 const FRAME_LINE = /^\s*at\s|^[^:]*@/;
 const WIDGET_PATH = /^widgets\/([^/]+)\//;
+const QUERY_OR_HASH = /[?#]/;
 
 /**
  * Reads the script URL, path, widget and position out of one stack line.
@@ -22,7 +23,9 @@ function parseFrame( line: string, origin: string ): DashboardFrame {
 	const url = line.slice( start ).split( /[\s)]/ )[ 0 ];
 	const position = POSITION.exec( url );
 	const withoutPosition = position ? url.slice( 0, position.index ) : url;
-	const path = withoutPosition.slice( origin.length ).replace( /[?#].*$/, '' );
+	const relative = withoutPosition.slice( origin.length );
+	const cut = relative.search( QUERY_OR_HASH );
+	const path = cut === -1 ? relative : relative.slice( 0, cut );
 
 	return {
 		url,
