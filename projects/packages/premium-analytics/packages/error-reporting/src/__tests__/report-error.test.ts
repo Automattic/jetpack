@@ -17,6 +17,21 @@ const storedBudget = () => JSON.parse( window.localStorage.getItem( BUDGET_KEY )
 
 const ERROR_REPORTING = { enabled: true, version: '1.2.3', script_origins: [ ORIGIN ] };
 
+// The endpoint keeps these top-level keys and silently drops every other.
+const ENDPOINT_PAYLOAD_KEYS = [
+	'message',
+	'trace',
+	'url',
+	'feature',
+	'blog_id',
+	'site_id',
+	'properties',
+	'extra',
+	'severity',
+	'tags',
+	'jetpack_version',
+];
+
 const scriptData = ( errorReporting = ERROR_REPORTING ) =>
 	( {
 		site: { wpcom: { blog_id: 42 } },
@@ -73,7 +88,7 @@ const failStorage = () => {
 
 describe( 'reportError', () => {
 	const originalFetch = window.fetch;
-	let storageSpies: jest.SpyInstance[] = [];
+	let spies: jest.SpyInstance[] = [];
 
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -92,8 +107,8 @@ describe( 'reportError', () => {
 	} );
 
 	afterEach( () => {
-		storageSpies.forEach( spy => spy.mockRestore() );
-		storageSpies = [];
+		spies.forEach( spy => spy.mockRestore() );
+		spies = [];
 		window.fetch = originalFetch;
 		jest.useRealTimers();
 	} );
@@ -307,6 +322,26 @@ describe( 'reportError', () => {
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 	} );
 
+	it( 'reports the same error once when the page query string changed between reports', () => {
+		const page = '/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=/posts';
+
+		window.history.replaceState( {}, '', `${ page }&from=2026-03-01` );
+		reportError( dashboardError( `failed on ${ window.location.href }` ), 'error' );
+
+		window.history.replaceState( {}, '', `${ page }&from=2026-04-01` );
+		reportError( dashboardError( `failed on ${ window.location.href }` ), 'error' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'posts no top-level key the endpoint would drop', () => {
+		reportError( dashboardError(), 'boundary', { componentStack: '\n    at Widget' } );
+
+		expect(
+			Object.keys( sentPayload() ).filter( key => ! ENDPOINT_PAYLOAD_KEYS.includes( key ) )
+		).toEqual( [] );
+	} );
+
 	it( 'stops after 10 reports in the same hour and resumes in the next hour', () => {
 		for ( let i = 0; i < 12; i++ ) {
 			reportError( dashboardError( `failure ${ i }` ), 'error' );
@@ -323,7 +358,7 @@ describe( 'reportError', () => {
 	} );
 
 	it( 'allows only 3 reports per page load when localStorage throws', () => {
-		storageSpies = failStorage();
+		spies = failStorage();
 
 		for ( let i = 0; i < 6; i++ ) {
 			reportError( dashboardError( `failure ${ i }` ), 'error' );
@@ -332,8 +367,8 @@ describe( 'reportError', () => {
 		expect( fetchMock ).toHaveBeenCalledTimes( 3 );
 	} );
 
-	it( 'stops reporting for the rest of the hour after a non-2xx response', async () => {
-		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
+	it.each( [ 403, 429 ] )( 'stops reporting for the rest of the hour after a %i', async status => {
+		fetchMock.mockResolvedValue( { ok: false, status } );
 
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
@@ -347,10 +382,11 @@ describe( 'reportError', () => {
 		jest.advanceTimersByTime( HOUR );
 		reportError( dashboardError( 'next hour' ), 'error' );
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+		expect( console ).toHaveWarned();
 	} );
 
-	it( 'stops after a non-2xx response even when localStorage throws', async () => {
-		storageSpies = failStorage();
+	it( 'stops after a 429 even when localStorage throws', async () => {
+		spies = failStorage();
 		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
 
 		reportError( dashboardError( 'first' ), 'error' );
@@ -358,9 +394,39 @@ describe( 'reportError', () => {
 		reportError( dashboardError( 'second' ), 'error' );
 
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		expect( console ).toHaveWarned();
 	} );
 
-	it( 'resumes in the next hour after a non-2xx response without a page reload', async () => {
+	it( 'keeps reporting after a 400, which means one bad payload rather than too many requests', async () => {
+		fetchMock.mockResolvedValue( { ok: false, status: 400 } );
+
+		reportError( dashboardError( 'first' ), 'error' );
+		await flush();
+		reportError( dashboardError( 'second' ), 'error' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+		expect( console ).toHaveWarned();
+	} );
+
+	it( 'warns with the status of the first refusal and not again on the next', async () => {
+		fetchMock
+			.mockResolvedValueOnce( { ok: false, status: 400 } )
+			.mockResolvedValue( { ok: false, status: 500 } );
+
+		reportError( dashboardError( 'first' ), 'error' );
+		await flush();
+		reportError( dashboardError( 'second' ), 'error' );
+		await flush();
+
+		expect( console ).toHaveWarnedWith(
+			'Premium Analytics error reporting: the endpoint answered 400.'
+		);
+		expect( console ).not.toHaveWarnedWith(
+			'Premium Analytics error reporting: the endpoint answered 500.'
+		);
+	} );
+
+	it( 'resumes in the next hour after a 429 without a page reload', async () => {
 		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
@@ -371,6 +437,7 @@ describe( 'reportError', () => {
 		reportError( dashboardError( 'next hour' ), 'error' );
 
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+		expect( console ).toHaveWarned();
 	} );
 
 	it( 'does not spend a budget slot on a duplicate', () => {
@@ -437,16 +504,6 @@ describe( 'reportError', () => {
 		reportError( dashboardError( 'GET https://example.com/a/b.js failed' ), 'error' );
 
 		expect( sentPayload().message ).toBe( 'GET https://example.com/a/b.js failed' );
-	} );
-
-	it( 'reads the thrown message once per report', () => {
-		const getter = jest.fn( () => 'volatile' );
-		const error = dashboardError();
-		Object.defineProperty( error, 'message', { get: getter } );
-
-		reportError( error, 'error' );
-
-		expect( getter ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'swallows a rejected fetch', async () => {

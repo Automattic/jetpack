@@ -24,8 +24,8 @@ PHP decides whether reporting is on. The package only reads the boolean `premium
 
 ## Dedupe and budget
 
-A report is dropped when its message and first dashboard frame match one already sent during the life of the page.
+A report is dropped when its redacted message and first dashboard frame match one already sent during the life of the page. The key uses the redacted message so that a message embedding the page query string does not produce a new key on every date-range change.
 
-Each browser may send 10 reports per clock hour, counted in `localStorage` against the current hour bucket rather than a rolling window. When storage throws, the cap is 3 per page load. Any non-2xx response stops reporting for the rest of the hour.
+Each browser may send 10 reports per clock hour, counted in `localStorage` against the current hour bucket rather than a rolling window. When storage throws, the cap is 3 per page load. A 403 or a 429 stops reporting for the rest of the hour; any other refusal drops that one report and is named once in the console outside production builds.
 
-The budget exists because the endpoint bans an IP for 60 minutes after 30 requests in an hour. That ban also stops every other Jetpack reporter behind the same IP, Comments included, so a crash loop here must not be able to trigger it.
+The budget exists because the endpoint rate-limits by IP, and a block there reaches the other Jetpack reporters sharing that IP, so a crash loop here must not be able to trigger one.
