@@ -6,14 +6,17 @@ import type { ReactElement } from 'react';
 const ROUTES_DIR = join( __dirname, '../../routes' );
 
 const stages = readdirSync( ROUTES_DIR, { withFileTypes: true } )
-	.filter(
-		entry => entry.isDirectory() && existsSync( join( ROUTES_DIR, entry.name, 'stage.tsx' ) )
+	.flatMap( entry =>
+		entry.isDirectory()
+			? [ 'stage.tsx', 'stage.ts' ]
+					.map( file => join( ROUTES_DIR, entry.name, file ) )
+					.filter( existsSync )
+					.map( ( file ): [ string, () => ReactElement ] => [
+						entry.name,
+						jest.requireActual< { stage: () => ReactElement } >( file ).stage,
+					] )
+			: []
 	)
-	.map( ( { name } ): [ string, () => ReactElement ] => [
-		name,
-		jest.requireActual< { stage: () => ReactElement } >( join( ROUTES_DIR, name, 'stage.tsx' ) )
-			.stage,
-	] )
 	.sort( ( a, b ) => a[ 0 ].localeCompare( b[ 0 ] ) );
 
 describe( 'route stages', () => {
