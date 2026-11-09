@@ -12,6 +12,8 @@ use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_in
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_CARD;
+use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_STRIP;
 
 /**
  * Registers the Ads section, its default layout and its widget types on the Premium Analytics
@@ -109,9 +111,9 @@ class Analytics_Dashboard {
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 'full', 2 ),
-			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 'full', 1 ),
-			get_dashboard_default_widget_instance( 'default-wordads-earnings-history-widget-instance', self::EARNINGS_HISTORY_TYPE, 2, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-wordads-chart-tabs-widget-instance', self::CHART_TABS_TYPE, 0, 'full', DASHBOARD_TILE_CARD ),
+			get_dashboard_default_widget_instance( 'default-wordads-highlights-widget-instance', self::HIGHLIGHTS_TYPE, 1, 'full', DASHBOARD_TILE_STRIP ),
+			get_dashboard_default_widget_instance( 'default-wordads-earnings-history-widget-instance', self::EARNINGS_HISTORY_TYPE, 2, 1, DASHBOARD_TILE_CARD ),
 		);
 	}
 

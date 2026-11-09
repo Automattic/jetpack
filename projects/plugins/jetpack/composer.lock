@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7151e48f228d2dff47cbb9834a0b9ac4",
+    "content-hash": "e09e374556c4ef5f80f1e13c2204e888",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2538,6 +2538,84 @@
             }
         },
         {
+            "name": "automattic/jetpack-monetize",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/monetize",
+                "reference": "cd9666811f65d3188197ee7cd04230cf3ddbd056"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-monetize/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-monetize",
+                "textdomain": "jetpack-monetize",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-dashboard.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The Monetize dashboard: payments, paid subscribers and ads in wp-admin.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-monitor",
             "version": "dev-trunk",
             "dist": {
@@ -3758,7 +3836,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scan",
-                "reference": "a10059429c0fcfd146780faa582c327a93b50f6f"
+                "reference": "9168a76678facf513cbd8f7cfaec151e68dae621"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3829,6 +3907,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Scan UI for the Jetpack plugin in wp-admin.",
+            "abandoned": true,
             "transport-options": {
                 "relative": true
             }
@@ -6891,6 +6970,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-masterbar": 20,
         "automattic/jetpack-menu-badges": 20,
+        "automattic/jetpack-monetize": 20,
         "automattic/jetpack-monitor": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-newsletter": 20,
