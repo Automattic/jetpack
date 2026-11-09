@@ -7,25 +7,49 @@ import type {
 	RemoveSubscriberPayload,
 	RemoveSubscriberResponse,
 	SendBounceConfirmationResponse,
+	RawSubscriber,
+	RawSubscribersResponse,
 	SubscribedNewsletterCategories,
 	Subscriber,
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersQueryParams,
+	SubscriptionPlan,
 	SubscribersResponse,
 } from './types';
 
 /**
- * Coerce a subscriber's `display_name` to a string.
+ * Coerce a value WP.com may have cast to an integer back to a string, keeping absence absent.
  *
- * WP.com's response formatter casts every digit-only string to an integer, so an all-digits name
- * arrives as a number — and DataViews calls string methods on whatever the row title resolves to.
+ * @param value - Raw field value.
+ * @return String, or undefined when the field was null / missing.
+ */
+function toOptionalString( value: string | number | null | undefined ): string | undefined {
+	return value === null || value === undefined ? undefined : String( value );
+}
+
+/**
+ * Restore the string fields WP.com's formatter turned into integers.
+ *
+ * An all-digits display name arrives as a number, and DataViews calls string methods on whatever
+ * the row title resolves to — one such subscriber replaces the entire list with an error boundary.
+ * A digit-only `paid_subscription_id` is worse than cosmetic: `getRemovePayload()` keeps only
+ * string ids, so removing the subscriber would drop the paid subscription from the request and
+ * leave it active.
  *
  * @param subscriber - Raw subscriber row from WP.com.
- * @return Row whose display name is a string.
+ * @return Row whose string fields are strings.
  */
-function normalizeSubscriber< T extends Subscriber >( subscriber: T ): T {
-	return { ...subscriber, display_name: String( subscriber.display_name ?? '' ) };
+function normalizeSubscriber< T extends Subscriber >( subscriber: RawSubscriber< T > ): T {
+	// Annotated rather than built inline: the `as T` below would otherwise swallow the type error
+	// that stops someone deleting these coercions as redundant against `Subscriber`'s own types.
+	const display_name: string = String( subscriber.display_name ?? '' );
+	const plans: SubscriptionPlan[] | undefined = subscriber.plans?.map( plan => ( {
+		...plan,
+		paid_subscription_id: toOptionalString( plan.paid_subscription_id ),
+	} ) );
+
+	return { ...subscriber, display_name, ...( plans && { plans } ) } as T;
 }
 
 /**
@@ -55,7 +79,7 @@ export function fetchSubscribers( params: SubscribersQueryParams ): Promise< Sub
 		.map( filter => `filters[]=${ encodeURIComponent( filter ) }` )
 		.join( '&' );
 
-	return apiFetch< SubscribersResponse >( {
+	return apiFetch< RawSubscribersResponse >( {
 		path: `${ baseUrl }&${ filterQuery }`,
 		method: 'GET',
 	} ).then( response => ( {
@@ -184,13 +208,13 @@ type IndividualParams = {
  * @return Subscriber profile.
  */
 export function fetchSubscriberDetails( params: IndividualParams ): Promise< SubscriberDetails > {
-	return apiFetch< SubscriberDetails >( {
+	return apiFetch< RawSubscriber< SubscriberDetails > >( {
 		path: addQueryArgs( '/wpcom/v2/subscribers/individual', {
 			subscription_id: params.subscription_id ?? 0,
 			user_id: params.user_id ?? 0,
 		} ),
 		method: 'GET',
-	} ).then( normalizeSubscriber );
+	} ).then( raw => normalizeSubscriber< SubscriberDetails >( raw ) );
 }
 
 /**

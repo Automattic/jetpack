@@ -60,6 +60,28 @@ export type BounceRetry = {
 	sent_on: string | null;
 };
 
+/**
+ * Wire shape of the fields WP.com's formatter can hand back as numbers.
+ *
+ * It casts every digit-only string in the response to an integer, so a name or id made only of
+ * digits arrives numeric. Fetchers normalize these before the rest of the app sees a subscriber.
+ */
+export type RawSubscriptionPlan = Omit< SubscriptionPlan, 'paid_subscription_id' > & {
+	paid_subscription_id?: string | number | null;
+};
+
+export type RawSubscriber< T extends Subscriber = Subscriber > = Omit<
+	T,
+	'display_name' | 'plans'
+> & {
+	display_name?: string | number | null;
+	plans?: RawSubscriptionPlan[];
+};
+
+export type RawSubscribersResponse = Omit< SubscribersResponse, 'subscribers' > & {
+	subscribers?: RawSubscriber[];
+};
+
 export type SubscribersResponse = {
 	total: number;
 	pages: number;
