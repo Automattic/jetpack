@@ -423,7 +423,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_authorize( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -449,7 +449,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_provision( $request_data );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -469,7 +469,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_connect( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 
@@ -489,7 +489,7 @@ class REST_Connector {
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result        = $xmlrpc_server->remote_register( $request );
 
-		if ( is_a( $result, 'IXR_Error' ) ) {
+		if ( $result instanceof \IXR_Error ) {
 			$result = new WP_Error( $result->code, $result->message );
 		}
 

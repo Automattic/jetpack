@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Settings: Fix a blank page when non-admins open Settings from the menu.
