@@ -2543,10 +2543,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/monetize",
-                "reference": "cd9666811f65d3188197ee7cd04230cf3ddbd056"
+                "reference": "b40bb6b0079cb7d61eee8199cf3d0c97504c9a01"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
@@ -2554,6 +2555,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
