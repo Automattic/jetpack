@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking pixel: Count visitors who have not made a consent choice on sites without an opt-in banner when a performance plugin delays the WP Consent API script.
