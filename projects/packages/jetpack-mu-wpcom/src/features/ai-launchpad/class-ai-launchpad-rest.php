@@ -242,12 +242,26 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * Whether the site was public from the moment it was created.
 	 *
 	 * WordPress.com only writes `launch-status` for a site created private or coming soon, as `unlaunched`, and flips
-	 * it to `launched` at launch. A site without it never had anything to launch.
+	 * it to `launched` at launch. A public site without it never had anything to launch.
+	 *
+	 * Limited to sites created past the no-guidance cutoff, so the launch task of an older site doesn't flip to done
+	 * (and report a completion) on deploy.
 	 *
 	 * @return bool
 	 */
 	private function was_launched_at_creation() {
-		return false === get_option( 'launch-status' );
+		if ( get_option( 'launch-status' ) ) {
+			return false;
+		}
+
+		if ( $this->is_private_site() || 1 === (int) get_option( 'wpcom_public_coming_soon' ) ) {
+			return false;
+		}
+
+		$cutoff  = (int) \Automattic\Jetpack\Constants::get_constant( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID' );
+		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? (int) get_wpcom_blog_id() : 0;
+
+		return $cutoff > 0 && $blog_id >= $cutoff;
 	}
 
 	/**

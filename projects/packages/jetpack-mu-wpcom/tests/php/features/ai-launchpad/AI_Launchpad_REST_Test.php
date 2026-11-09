@@ -356,31 +356,58 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A site that was public from creation has no launch to do, so its launch task renders completed.
+	 * A site created public past the no-guidance cutoff has no launch to do, so its launch task renders completed.
+	 * Runs in a separate process so IS_ATOMIC and the cutoff constant do not leak.
 	 *
-	 * @param string $launch_task_id The persisted launch task id.
-	 * @dataProvider provide_launch_task_ids
+	 * @param string      $launch_task_id The persisted launch task id.
+	 * @param string|null $launch_status  The `launch-status` option, or null to leave it unset.
+	 * @param string      $blog_public    The `blog_public` option.
+	 * @param int         $coming_soon    The `wpcom_public_coming_soon` option.
+	 * @param int|null    $cutoff         WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID, or null to leave it undefined.
+	 * @param bool        $expected       Whether the launch task renders completed.
+	 * @dataProvider provide_launched_at_creation_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	#[DataProvider( 'provide_launch_task_ids' )]
-	public function test_launch_task_is_completed_on_a_site_launched_at_creation( $launch_task_id ) {
-		delete_option( 'launch-status' );
+	#[DataProvider( 'provide_launched_at_creation_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_launch_task_on_a_site_launched_at_creation( $launch_task_id, $launch_status, $blog_public, $coming_soon, $cutoff, $expected ) {
+		define( 'IS_ATOMIC', true );
+		if ( null !== $cutoff ) {
+			define( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', $cutoff );
+		}
+		update_option( 'jetpack_options', array( 'id' => 200 ) );
+		update_option( 'blog_public', $blog_public );
+		update_option( 'wpcom_public_coming_soon', $coming_soon );
+		if ( null === $launch_status ) {
+			delete_option( 'launch-status' );
+		} else {
+			update_option( 'launch-status', $launch_status );
+		}
 		$this->seed_ai_output_with_tasks( array( 'first_post_published', $launch_task_id ) );
 
 		$completed = array_column( $this->call_api( Requests::GET )->get_data()['tasks'], 'completed', 'id' );
 
-		$this->assertTrue( $completed[ $launch_task_id ] );
+		$this->assertSame( $expected, $completed[ $launch_task_id ] );
 		$this->assertFalse( $completed['first_post_published'] );
 	}
 
 	/**
-	 * Launch task ids the AI may persist.
+	 * Data provider for test_launch_task_on_a_site_launched_at_creation.
 	 *
 	 * @return array
 	 */
-	public static function provide_launch_task_ids() {
+	public static function provide_launched_at_creation_states() {
 		return array(
-			'site_launched' => array( 'site_launched' ),
-			'blog_launched' => array( 'blog_launched' ),
+			'site_launched, created public' => array( 'site_launched', null, '1', 0, 200, true ),
+			'blog_launched, created public' => array( 'blog_launched', null, '1', 0, 200, true ),
+			'empty launch-status'           => array( 'site_launched', '', '1', 0, 200, true ),
+			'created unlaunched'            => array( 'site_launched', 'unlaunched', '1', 0, 200, false ),
+			'private'                       => array( 'site_launched', null, '-1', 0, 200, false ),
+			'coming soon'                   => array( 'site_launched', null, '0', 1, 200, false ),
+			'created before the cutoff'     => array( 'site_launched', null, '1', 0, 201, false ),
+			'no cutoff defined'             => array( 'site_launched', null, '1', 0, null, false ),
 		);
 	}
 
