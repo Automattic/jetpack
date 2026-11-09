@@ -41,7 +41,7 @@ if ( ! function_exists( 'wpcom_launchpad_is_no_guidance' ) ) {
 			return (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
 		}
 
-		// False off Simple and Atomic, which keeps self-hosted Jetpack sites out of the cutoff.
+		// get_wpcom_blog_id() is false outside Simple and Atomic, so self-hosted Jetpack sites never reach the cutoff.
 		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : false;
 
 		return $blog_id && wpcom_launchpad_is_past_no_guidance_cutoff( $blog_id );

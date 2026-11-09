@@ -277,18 +277,23 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A site past the cutoff is no-guidance on Atomic, but a self-hosted site, which shares the blog ID
-	 * sequence, keeps its guidance.
+	 * A site past the cutoff is no-guidance on Atomic unless it uses the AI Launchpad, but a self-hosted
+	 * site, which shares the blog ID sequence, keeps its guidance.
 	 *
 	 * @dataProvider provide_no_guidance_cutoff_hosts
 	 * @group json-api
 	 *
 	 * @param bool $is_atomic Whether the site is on WordPress.com Atomic.
+	 * @param bool $enabled   Whether wpcom_ai_launchpad_enabled is set.
+	 * @param bool $expected  Expected no-guidance value.
 	 */
 	#[DataProvider( 'provide_no_guidance_cutoff_hosts' )]
 	#[Group( 'json-api' )]
-	public function test_no_guidance_cutoff_only_applies_to_atomic( $is_atomic ) {
+	public function test_no_guidance_cutoff_only_applies_to_atomic( $is_atomic, $enabled, $expected ) {
 		Constants::set_constant( 'WPCOM_LAUNCHPAD_NO_GUIDANCE_CUTOFF_BLOG_ID', 1 );
+		if ( $enabled ) {
+			update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		}
 		if ( $is_atomic ) {
 			Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
 			Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
@@ -309,7 +314,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 		) as $transport => $body ) {
 			$options = (array) $body['options'];
 
-			$this->assertSame( $is_atomic, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
+			$this->assertSame( $expected, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
 		}
 	}
 
@@ -320,8 +325,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_no_guidance_cutoff_hosts() {
 		return array(
-			'Atomic'      => array( true ),
-			'self-hosted' => array( false ),
+			'Atomic'                   => array( true, false, true ),
+			'Atomic with AI Launchpad' => array( true, true, false ),
+			'self-hosted'              => array( false, false, false ),
 		);
 	}
 
