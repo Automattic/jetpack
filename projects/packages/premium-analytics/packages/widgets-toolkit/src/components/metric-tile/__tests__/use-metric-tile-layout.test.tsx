@@ -177,4 +177,21 @@ describe( 'useMetricTileLayout', () => {
 
 		expect( probe ).toHaveAttribute( 'data-layout', 'row' );
 	} );
+
+	it( 'follows a span the dashboard commits without changing the size', async () => {
+		mockElementSize( 1320, 82 );
+		render(
+			<div data-testid="item" style={ { gridColumnEnd: 'span 1' } }>
+				<Probe tileCount={ 4 } />
+			</div>
+		);
+		const probe = screen.getByTestId( 'probe' );
+		expect( probe ).toHaveAttribute( 'data-layout', 'compact' );
+
+		await act( async () => {
+			screen.getByTestId( 'item' ).style.gridColumnEnd = 'span 3';
+		} );
+
+		expect( probe ).toHaveAttribute( 'data-layout', 'row' );
+	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Metric tiles: Re-pick the layout when the dashboard commits a widget's column span after it mounts.

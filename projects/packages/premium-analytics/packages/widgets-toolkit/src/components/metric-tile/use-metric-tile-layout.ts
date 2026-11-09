@@ -64,11 +64,15 @@ const SPAN_PATTERN = /^span (\d+)$/;
  * shorthand, which computes onto the start longhand, so both are read.
  */
 export function readColumnSpan( element: Element ): number | null {
+	return findSpanItem( element )?.span ?? null;
+}
+
+function findSpanItem( element: Element ): { item: Element; span: number } | null {
 	for ( let node = element.parentElement; node; node = node.parentElement ) {
 		const { gridColumnEnd, gridColumnStart } = window.getComputedStyle( node );
 		const match = SPAN_PATTERN.exec( gridColumnEnd ) ?? SPAN_PATTERN.exec( gridColumnStart );
 		if ( match ) {
-			return Number( match[ 1 ] );
+			return { item: node, span: Number( match[ 1 ] ) };
 		}
 	}
 	return null;
@@ -93,18 +97,28 @@ export function useMetricTileLayout< T extends HTMLElement >( tileCount: number 
 		[ setSizeRef ]
 	);
 
-	// A span change always moves the width, so re-reading the span on every size
-	// change is enough to follow a widget being resized on the dashboard.
 	useLayoutEffect( () => {
 		const element = elementRef.current;
-		setLayout(
-			pickMetricTileLayout( {
-				width: size.width,
-				height: size.height,
-				tileCount,
-				columnSpan: element ? readColumnSpan( element ) : null,
-			} )
-		);
+		const update = () =>
+			setLayout(
+				pickMetricTileLayout( {
+					width: size.width,
+					height: size.height,
+					tileCount,
+					columnSpan: element ? readColumnSpan( element ) : null,
+				} )
+			);
+		update();
+
+		// The dashboard grid can commit the real span after this effect without
+		// changing the item's width (one full-width column becoming a full-width span).
+		const item = element ? findSpanItem( element )?.item : null;
+		if ( ! item || typeof MutationObserver === 'undefined' ) {
+			return;
+		}
+		const observer = new MutationObserver( update );
+		observer.observe( item, { attributes: true, attributeFilter: [ 'style', 'class' ] } );
+		return () => observer.disconnect();
 	}, [ size, tileCount ] );
 
 	return [ ref, layout ] as const;
