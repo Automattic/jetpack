@@ -7,7 +7,7 @@ export interface DashboardFrame {
 }
 
 const POSITION = /:(\d+):(\d+)$/;
-const FRAME_LINE = /^\s*at\s|^[^\s]*@/;
+const FRAME_LINE = /^\s*at\s|^[^:]*@/;
 const WIDGET_PATH = /^widgets\/([^/]+)\//;
 
 /**
