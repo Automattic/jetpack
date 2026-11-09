@@ -22,7 +22,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 			<Text variant="heading-2xl">{ __( 'Connect to start earning', 'jetpack-monetize' ) }</Text>
 			<Text>
 				{ __(
-					'Payments, paid subscribers and ads are managed on WordPress.com, connect your WordPress.com account to use them here.',
+					'Payments, paid subscribers and ads are managed on WordPress.com. Connect your WordPress.com account to use them here.',
 					'jetpack-monetize'
 				) }
 			</Text>
