@@ -113,7 +113,7 @@ describe( 'reportError', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'posts form-encoded JSON in a single error field with keepalive', () => {
+	it( 'posts form-encoded JSON in a single error field, with keepalive and no credentials', () => {
 		reportError( dashboardError(), 'error' );
 
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
@@ -121,6 +121,7 @@ describe( 'reportError', () => {
 		expect( url ).toBe( 'https://public-api.wordpress.com/rest/v1.1/js-error' );
 		expect( init.method ).toBe( 'POST' );
 		expect( init.keepalive ).toBe( true );
+		expect( init.credentials ).toBe( 'omit' );
 		expect( init.headers ).toBeUndefined();
 		expect( init.body ).toBeInstanceOf( URLSearchParams );
 		expect( [ ...init.body.keys() ] ).toEqual( [ 'error' ] );
