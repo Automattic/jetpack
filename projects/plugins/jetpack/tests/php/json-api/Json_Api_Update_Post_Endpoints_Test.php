@@ -139,6 +139,137 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Connections left out of a publicize list must be skipped before Sync builds the publish event.
+	 *
+	 * @dataProvider provide_endpoint_classes_and_encodings
+	 *
+	 * @param string $class_name   Endpoint class.
+	 * @param string $content_type Request content type.
+	 */
+	#[DataProvider( 'provide_endpoint_classes_and_encodings' )]
+	public function test_publish_with_publicize_list_skips_other_connections_before_publish_event( $class_name, $content_type ) {
+		global $blog_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$publicize_ui                       = $GLOBALS['publicize_ui'] ?? null;
+		$GLOBALS['publicize_ui']            = new stdClass();
+		$GLOBALS['publicize_ui']->publicize = new class() {
+			/**
+			 * Skip meta key prefix.
+			 *
+			 * @var string
+			 */
+			public $POST_SKIP = '_wpas_skip_'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
+			/**
+			 * Connected services.
+			 *
+			 * @return array
+			 */
+			public function get_services() {
+				return array(
+					'facebook' => array(),
+					'linkedin' => array(),
+				);
+			}
+
+			/**
+			 * One connection per service.
+			 *
+			 * @param string $service_name Service name.
+			 * @return array
+			 */
+			public function get_connections( $service_name ) {
+				return array( array( 'unique_id' => $service_name ) );
+			}
+
+			/**
+			 * Connection unique ID.
+			 *
+			 * @param array $connection Connection.
+			 * @return string
+			 */
+			public function get_connection_unique_id( $connection ) {
+				return $connection['unique_id'];
+			}
+		};
+
+		$skipped_at_publish = array();
+		$record             = static function ( $flags, $post ) use ( &$skipped_at_publish ) {
+			$skipped_at_publish[ $post->post_title ] = array(
+				'facebook' => (bool) get_post_meta( $post->ID, '_wpas_skip_facebook', true ),
+				'linkedin' => (bool) get_post_meta( $post->ID, '_wpas_skip_linkedin', true ),
+			);
+			return $flags;
+		};
+		add_filter( 'jetpack_published_post_flags', $record, 10, 2 );
+
+		// Like a page's auto-added menu item, this post is inserted during the endpoint's save.
+		$nested_id = 0;
+		$nest      = static function ( $new_status, $old_status, $post ) use ( &$nested_id ) {
+			if ( 'listed' === $post->post_title && 'publish' === $new_status ) {
+				$nested_id = wp_insert_post( array( 'post_type' => 'nav_menu_item' ) );
+			}
+		};
+		add_action( 'transition_post_status', $nest, 10, 3 );
+
+		$draft_id  = self::factory()->post->create(
+			array(
+				'post_title'  => 'updated',
+				'post_status' => 'draft',
+			)
+		);
+		$responses = array();
+		foreach ( array(
+			'listed'  => array( '/sites/%s/posts/new', "/sites/$blog_id/posts/new", 0 ),
+			'updated' => array( '/sites/%s/posts/%d', "/sites/$blog_id/posts/$draft_id", $draft_id ),
+		) as $title => list( $pattern, $path, $post_id ) ) {
+			$body                                = array(
+				'title'     => $title,
+				'content'   => 'Hi',
+				'status'    => 'publish',
+				'publicize' => array( 'linkedin' ),
+			);
+			WPCOM_JSON_API::init()->post_body    = 'application/json' === $content_type ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : http_build_query( $body );
+			WPCOM_JSON_API::init()->content_type = $content_type;
+
+			$responses[] = $this->get_endpoint( $class_name, $pattern )->callback( $path, $blog_id, $post_id );
+		}
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'later',
+				'post_status' => 'publish',
+			)
+		);
+
+		remove_filter( 'jetpack_published_post_flags', $record, 10 );
+		remove_action( 'transition_post_status', $nest, 10 );
+		$GLOBALS['publicize_ui'] = $publicize_ui;
+
+		$this->assertNotWPError( $responses[0] );
+		$this->assertNotWPError( $responses[1] );
+		$this->assertSame( '', get_post_meta( $nested_id, '_wpas_skip_facebook', true ) );
+		$this->assertSame(
+			array(
+				'listed'  => array(
+					'facebook' => true,
+					'linkedin' => false,
+				),
+				'updated' => array(
+					'facebook' => true,
+					'linkedin' => false,
+				),
+				'later'   => array(
+					'facebook' => false,
+					'linkedin' => false,
+				),
+			),
+			$skipped_at_publish
+		);
+	}
+
+	/**
 	 * Post endpoint classes that create posts, with form-encoded (Post by Email) and JSON bodies.
 	 *
 	 * @return array
