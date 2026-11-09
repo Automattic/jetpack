@@ -7,7 +7,7 @@ import {
 	switchTo,
 } from '../../helpers/admin-shell-helper';
 
-/* The JETPACK-3398 contracts the rewrite adds. Once these pass, drop SPIKE_DOM_FALLBACK. */
+/* JETPACK-3398 contracts. Once these pass, drop the SPIKE_DOM_FALLBACK branches. */
 test.describe( 'Admin shell: contract hooks and events', () => {
 	test.beforeEach( async ( { page } ) => {
 		await installShellProbe( page );
@@ -18,7 +18,7 @@ test.describe( 'Admin shell: contract hooks and events', () => {
 		await openMember( page, 'my-jetpack' );
 		await switchTo( page, 'jetpack-newsletter' );
 		const state = await readShell( page );
-		expect( state.hooks ).toBe( true );
+		expect( state.source ).toBe( 'hooks' );
 		expect( state.apps ).toEqual( { 'my-jetpack': 'hidden', 'jetpack-newsletter': 'visible' } );
 	} );
 
