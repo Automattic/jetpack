@@ -26,7 +26,12 @@ describe( 'ConnectionGate', () => {
 			{ ...connected, isUserConnected: false },
 			false,
 		],
-		[ 'a site with no connected owner', false, { ...connected, hasConnectedOwner: false }, false ],
+		[
+			'a site whose owner is not connected',
+			false,
+			{ ...connected, hasConnectedOwner: false },
+			true,
+		],
 		[ 'an unregistered site', false, { ...connected, isRegistered: false }, false ],
 		[ 'Simple, which has no Jetpack connection', true, {}, true ],
 	] )( 'for %s, shows the content: %p', ( _case, isSimple, connection, showsContent ) => {
