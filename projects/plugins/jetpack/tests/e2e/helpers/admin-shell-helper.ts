@@ -145,31 +145,31 @@ function shellProbe( mountIds: Record< string, string > ) {
 			return { visible, apps, source: 'hooks' };
 		}
 
-		/* No shell on this document (shell off, or ?jetpack_admin_shell=0), so never any hooks:
-		 * the body class names the page and its mount is the app. Keep this after the rewrite. */
-		if ( ! w.jetpackAdminShell ) {
-			// A poll can land on the incoming document before <body> exists.
-			const slug = /(?:^|\s)jetpack_page_(\S+)/.exec( document.body?.className ?? '' )?.[ 1 ];
-			const state = slug && slug in mountIds ? mountState( slug ) : null;
-			const apps: Record< string, string > = state ? { [ slug! ]: state } : {};
-			return { visible: state === 'visible' ? slug! : null, apps, source: 'page' };
+		// SPIKE_DOM_FALLBACK: spike shell without hooks. Remove once the rewrite ships them.
+		const spike = w.jetpackAdminShell as { navigate?: unknown } | undefined;
+		if ( typeof spike?.navigate === 'function' ) {
+			const apps: Record< string, string > = {};
+			for ( const slug of Object.keys( mountIds ) ) {
+				const state = mountState( slug );
+				if ( state ) {
+					apps[ slug ] = state;
+				}
+			}
+			const placeholderUp = [
+				...document.querySelectorAll( '.jetpack-admin-shell-placeholder' ),
+			].some( shown );
+			const visible = placeholderUp
+				? null
+				: ( Object.keys( apps ).find( slug => apps[ slug ] === 'visible' ) ?? null );
+			return { visible, apps, source: 'spike' };
 		}
 
-		// SPIKE_DOM_FALLBACK: spike shell without hooks. Remove once the rewrite ships them.
-		const apps: Record< string, string > = {};
-		for ( const slug of Object.keys( mountIds ) ) {
-			const state = mountState( slug );
-			if ( state ) {
-				apps[ slug ] = state;
-			}
-		}
-		const placeholderUp = [
-			...document.querySelectorAll( '.jetpack-admin-shell-placeholder' ),
-		].some( shown );
-		const visible = placeholderUp
-			? null
-			: ( Object.keys( apps ).find( slug => apps[ slug ] === 'visible' ) ?? null );
-		return { visible, apps, source: 'spike' };
+		/* No shell (shell off, or ?jetpack_admin_shell=0): the body class names the page and its
+		 * mount is the app. Keep this after the rewrite. A poll can land before <body> exists. */
+		const slug = /(?:^|\s)jetpack_page_(\S+)/.exec( document.body?.className ?? '' )?.[ 1 ];
+		const state = slug && slug in mountIds ? mountState( slug ) : null;
+		const apps: Record< string, string > = state ? { [ slug! ]: state } : {};
+		return { visible: state === 'visible' ? slug! : null, apps, source: 'page' };
 	};
 
 	const events: unknown[] = [];
@@ -282,13 +282,8 @@ export function readShell( page: Page ): Promise< ShellSnapshot > {
  * @param page - Page under test.
  * @return True when the shell is active.
  */
-export function isShellActive( page: Page ): Promise< boolean > {
-	return page.evaluate(
-		() =>
-			!! document.querySelector( '[data-shell-page]' ) ||
-			// SPIKE_DOM_FALLBACK: the spike exposes no hook, only its navigate() global.
-			!! ( window as unknown as { jetpackAdminShell?: unknown } ).jetpackAdminShell
-	);
+export async function isShellActive( page: Page ): Promise< boolean > {
+	return ( await readShell( page ) ).source !== 'page';
 }
 
 /**
@@ -376,6 +371,8 @@ export async function withinDocument(
 	page.on( 'request', onRequest );
 	try {
 		await action();
+		// Catch a reload or location.assign() the app fires just after it shows.
+		await settle( page, 500 );
 	} finally {
 		page.off( 'request', onRequest );
 	}
