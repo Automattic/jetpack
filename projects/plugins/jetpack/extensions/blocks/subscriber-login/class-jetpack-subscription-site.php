@@ -8,8 +8,11 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriber_Login;
 
+use Automattic\Jetpack\Extensions\Subscriptions\Jetpack_Subscription_Site as Subscriptions_Site;
 use WP_Block_Template;
 use WP_Post;
+
+require_once __DIR__ . '/../subscriptions/class-jetpack-subscription-site.php';
 
 /**
  * Jetpack_Subscription_Site class.
@@ -39,6 +42,8 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	public function handle_subscriber_login_block_placements() {
+		Subscriptions_Site::seed_missing_options( array( 'jetpack_subscriptions_login_navigation_enabled' ) );
+
 		$this->handle_subscriber_login_block_navigation_placement();
 	}
 
