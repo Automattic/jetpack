@@ -126,6 +126,19 @@ require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
 
+// Suppress PHP 8.6 deprecation warnings from WordPress core.
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80600 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Function spl_object_hash() is deprecated since 8.6, consider using spl_object_id() instead'
+				&& str_ends_with( $errfile, 'tests/phpunit/includes/functions.php' );
+		},
+		E_ALL
+	);
+}
+
 // Speed things up by turning down the password hashing cost.
 tests_add_filter(
 	'wp_hash_password_options',
