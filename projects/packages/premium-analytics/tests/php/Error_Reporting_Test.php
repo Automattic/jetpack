@@ -20,8 +20,10 @@ require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\sanitize_error_reporting_origins' )]
 class Error_Reporting_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
 
@@ -68,17 +70,40 @@ class Error_Reporting_Test extends BaseTestCase {
 	}
 
 	public function test_script_origins_filterable() {
-		add_filter(
-			'jetpack_premium_analytics_error_reporting_script_origins',
-			static function ( $origins ) {
-				$origins[] = 'https://example.com/x/';
-				return $origins;
-			}
-		);
+		$this->add_origin( 'https://example.com/x/' );
 
 		$config = $this->get_config();
 
 		$this->assertContains( 'https://example.com/x/', $config['script_origins'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_a_filter_returning_a_non_array_leaves_the_package_origin() {
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', '__return_false' );
+
+		$config = $this->get_config();
+
+		$this->assertCount( 1, $config['script_origins'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_an_added_origin_gains_its_trailing_slash() {
+		$this->add_origin( 'https://example.com/x' );
+
+		$config = $this->get_config();
+
+		$this->assertContains( 'https://example.com/x/', $config['script_origins'] );
+	}
+
+	/**
+	 * A bare slash matches every stack line, so every error would look like dashboard code.
+	 */
+	public function test_a_root_origin_is_dropped() {
+		$this->add_origin( '/' );
+
+		$config = $this->get_config();
+
+		$this->assertNotContains( '/', $config['script_origins'] );
 		$this->assert_version_and_build_origin( $config );
 	}
 
@@ -102,6 +127,22 @@ class Error_Reporting_Test extends BaseTestCase {
 		$config = $this->get_config();
 
 		$this->assertContains( 'https://example.com/package/build/', $config['script_origins'] );
+	}
+
+	/**
+	 * Appends one origin through the filter.
+	 *
+	 * @param string $origin The origin a package would add.
+	 * @return void
+	 */
+	private function add_origin( string $origin ) {
+		add_filter(
+			'jetpack_premium_analytics_error_reporting_script_origins',
+			static function ( $origins ) use ( $origin ) {
+				$origins[] = $origin;
+				return $origins;
+			}
+		);
 	}
 
 	/**
