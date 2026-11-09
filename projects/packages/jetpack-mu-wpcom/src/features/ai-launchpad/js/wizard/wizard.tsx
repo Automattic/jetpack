@@ -229,6 +229,9 @@ export function Wizard( {
 		window.location.href = 'index.php';
 	};
 
+	// In the treatment, every view after the setup choice leads back towards it instead of skipping.
+	const backReplacesSkip = showAiTool || ( showsSetupChoice( variation ) && ! choosing );
+
 	return (
 		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
 		// "Skip" is the only way out, apart from "Go to my dashboard" once an AI tool is connected.
@@ -322,7 +325,7 @@ export function Wizard( {
 					</Stack>
 				) : (
 					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-						{ showAiTool || ( step === 0 && showsSetupChoice( variation ) && ! choosing ) ? (
+						{ backReplacesSkip ? (
 							<Button variant="minimal" onClick={ handleBack }>
 								{ __( 'Back', 'jetpack-mu-wpcom' ) }
 							</Button>
@@ -332,7 +335,7 @@ export function Wizard( {
 							</Button>
 						) }
 						<Stack gap="sm">
-							{ step > 0 && (
+							{ step > 0 && ! backReplacesSkip && (
 								<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
 									{ __( 'Back', 'jetpack-mu-wpcom' ) }
 								</Button>
