@@ -78,7 +78,7 @@ class Jetpack_Protect {
 	const OPT_IN_MODULES = array( 'sso', 'monitor' );
 
 	/**
-	 * The opt-in modules turned on while this plugin was active.
+	 * The opt-in modules turned on without the Jetpack plugin.
 	 *
 	 * @var string
 	 */
@@ -166,12 +166,13 @@ class Jetpack_Protect {
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_opt_in_modules' ) );
-		add_action( 'jetpack_pre_activate_module', array( __CLASS__, 'record_opt_in' ) );
-		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'forget_opt_in' ) );
+		add_action( 'jetpack_pre_activate_module', array( __CLASS__, 'drop_leftover_opt_in_module' ) );
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'record_opt_in' ) );
+		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'forget_opt_in' ) );
 	}
 
 	/**
-	 * Without the Jetpack plugin, count an opt-in module as on only if it was turned on while this plugin was active.
+	 * Without the Jetpack plugin, count an opt-in module as on only if it was turned on without the Jetpack plugin.
 	 *
 	 * The saved list is left alone, so the Jetpack plugin gets its own state back if it returns.
 	 *
@@ -187,27 +188,36 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Remember that an opt-in module was turned on while this plugin was active.
+	 * Without the Jetpack plugin, drop a leftover saved entry before an opt-in module is turned on, so activation runs its hooks.
+	 *
+	 * @param string $module Module slug.
+	 * @return void
+	 */
+	public static function drop_leftover_opt_in_module( $module ) {
+		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) || ! ( new Modules() )->is_module( $module ) ) {
+			return;
+		}
+		$saved = Jetpack_Options::get_option( 'active_modules', array() );
+		if ( is_array( $saved ) && in_array( $module, $saved, true ) ) {
+			Jetpack_Options::update_option( 'active_modules', array_values( array_diff( $saved, array( $module ) ) ) );
+		}
+	}
+
+	/**
+	 * Remember that an opt-in module was turned on without the Jetpack plugin.
 	 *
 	 * @param string $module Module slug.
 	 * @return void
 	 */
 	public static function record_opt_in( $module ) {
-		if ( ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) ) {
+		if ( class_exists( 'Jetpack', false ) || ! in_array( $module, self::OPT_IN_MODULES, true ) || in_array( $module, self::get_opted_in_modules(), true ) ) {
 			return;
-		}
-		// Drop a leftover saved entry first, so activation runs its hooks, such as Monitor subscribing the user to alerts.
-		if ( ! class_exists( 'Jetpack', false ) ) {
-			$saved = Jetpack_Options::get_option( 'active_modules', array() );
-			if ( is_array( $saved ) && in_array( $module, $saved, true ) ) {
-				Jetpack_Options::update_option( 'active_modules', array_values( array_diff( $saved, array( $module ) ) ) );
-			}
 		}
 		update_option( self::OPTED_IN_MODULES_OPTION, array_merge( self::get_opted_in_modules(), array( $module ) ) );
 	}
 
 	/**
-	 * Forget an opt-in module when it is turned off.
+	 * Forget an opt-in module once it is turned off; before that, the filter would hide it from the deactivation.
 	 *
 	 * @param string $module Module slug.
 	 * @return void
@@ -220,7 +230,7 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * The opt-in modules turned on while this plugin was active.
+	 * The opt-in modules turned on without the Jetpack plugin.
 	 *
 	 * @return string[]
 	 */

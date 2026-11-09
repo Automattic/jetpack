@@ -74,6 +74,9 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 		delete_option( Jetpack_Protect::OPTED_IN_MODULES_OPTION );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_actions( 'jetpack_pre_activate_module' );
+		remove_all_actions( 'jetpack_activate_module' );
+		remove_all_actions( 'jetpack_deactivate_module' );
 		remove_all_filters( 'jetpack_get_available_standalone_modules' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
@@ -114,7 +117,7 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		$this->assertContains( 'sso', Jetpack_Options::get_option( 'active_modules' ), 'The saved list stays intact for the Jetpack plugin.' );
 	}
 
-	public function test_turning_an_opt_in_module_off_needs_a_new_opt_in() {
+	public function test_turning_an_opt_in_module_off_removes_it_and_needs_a_new_opt_in() {
 		new Jetpack_Protect();
 		Monitor::init();
 		Jetpack_Options::update_option( 'active_modules', array() );
@@ -122,9 +125,23 @@ class Jetpack_Protect_Test extends BaseTestCase {
 
 		$modules->activate( 'monitor', false, false );
 		$modules->deactivate( 'monitor' );
+		$saved = Jetpack_Options::get_option( 'active_modules' );
 		Jetpack_Options::update_option( 'active_modules', array( 'monitor' ) );
 
+		$this->assertNotContains( 'monitor', $saved );
 		$this->assertNotContains( 'monitor', $modules->get_active() );
+	}
+
+	public function test_a_failed_activation_is_no_opt_in() {
+		new Jetpack_Protect();
+		Jetpack_Options::update_option( 'active_modules', array( 'sso' ) );
+		$modules = new Modules();
+
+		$modules->activate( 'sso', false, false );
+		add_filter( 'jetpack_get_available_standalone_modules', array( SSO::class, 'add_standalone_module' ) );
+
+		$this->assertNotContains( 'sso', $modules->get_active() );
+		$this->assertSame( array( 'sso' ), Jetpack_Options::get_option( 'active_modules' ) );
 	}
 
 	/**
