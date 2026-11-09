@@ -24,6 +24,10 @@ const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
 // frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
 const EMAIL = /[^\s<>()[\]{}",;:@]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 
+// Each browser words a failed dynamic import differently, and webpack has a name of its own.
+const CHUNK_LOAD =
+	/failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|ChunkLoadError/i;
+
 interface ErrorProperties {
 	source: ReportSource;
 	version: string;
@@ -42,6 +46,7 @@ interface ErrorPayload {
 	trace?: string;
 	url: string;
 	blog_id?: number;
+	tags?: string[];
 	properties?: Partial< ErrorProperties >;
 	extra?: { line?: number; column?: number };
 }
@@ -260,6 +265,8 @@ function buildPayload(
 		trace: stack === undefined ? undefined : sanitizeText( stack, TRACE_LIMIT ),
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
+		// A tab open across a deploy asks for a module that no longer exists, which is nobody's bug.
+		...( CHUNK_LOAD.test( details.message ) ? { tags: [ 'chunk-load' ] } : {} ),
 		properties: definedMembers( {
 			source,
 			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.
