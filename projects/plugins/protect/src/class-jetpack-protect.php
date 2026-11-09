@@ -78,8 +78,11 @@ class Jetpack_Protect {
 
 		Monitor::init();
 
-		// Fallback: an older jetpack-protect package loaded by another plugin may lack the dashboard.
-		if ( class_exists( Dashboard::class ) ) {
+		/*
+		 * The shared dashboard has no site connection flow, so unconnected sites keep the plugin's setup app.
+		 * It also covers an older jetpack-protect package, loaded by another plugin, that lacks the dashboard.
+		 */
+		if ( class_exists( Dashboard::class ) && ( new Connection_Manager() )->is_connected() ) {
 			Dashboard::init( array( 'product' => 'protect' ) );
 		} else {
 			add_action( '_admin_menu', array( $this, 'admin_page_init' ) );

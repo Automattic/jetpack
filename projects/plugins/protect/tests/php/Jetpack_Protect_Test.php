@@ -5,6 +5,7 @@
  * @package automattic/jetpack-protect-plugin
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
@@ -71,11 +72,36 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	public function test_protect_page_comes_from_the_shared_dashboard() {
+	/**
+	 * @dataProvider provide_connection_cases
+	 *
+	 * @param bool $connected Whether the site is connected.
+	 */
+	#[DataProvider( 'provide_connection_cases' )]
+	public function test_protect_page_comes_from_the_shared_dashboard_once_connected( $connected ) {
+		if ( $connected ) {
+			Jetpack_Options::update_option( 'id', 123 );
+			Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		remove_all_actions( 'admin_menu' );
+
 		$protect = new Jetpack_Protect();
 
-		$this->assertSame( 999, has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) ) );
-		$this->assertFalse( has_action( '_admin_menu', array( $protect, 'admin_page_init' ) ) );
+		$this->assertSame( $connected ? 999 : false, has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) ) );
+		$this->assertSame( $connected ? false : 10, has_action( '_admin_menu', array( $protect, 'admin_page_init' ) ) );
+	}
+
+	/**
+	 * Whether the site is connected.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_connection_cases() {
+		return array(
+			'connected'     => array( true ),
+			'not connected' => array( false ),
+		);
 	}
 
 	/**
