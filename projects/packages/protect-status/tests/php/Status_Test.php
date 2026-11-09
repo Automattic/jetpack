@@ -37,6 +37,7 @@ class Status_Test extends BaseTestCase {
 	protected function tear_down() {
 		$this->teardown_mock_data();
 		delete_option( Protect_Status::CHECKS_OPTION_NAME );
+		delete_option( 'jetpack_site_products' );
 	}
 
 	/**
@@ -477,6 +478,16 @@ class Status_Test extends BaseTestCase {
 		$this->assertEquals( $status, Status::get_cached_status() );
 		$this->assertFalse( Status::should_notify_threats() );
 		$this->assertSame( 0, $requests );
+	}
+
+	public function test_turned_off_checks_leave_a_scan_plan_report_alone() {
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		update_option( Protect_Status::CHECKS_OPTION_NAME, 0 );
+		Scan_Status::$status = new Status_Model( array( 'status' => 'idle' ) );
+
+		// My Jetpack reads Protect_Status directly, even on a Scan site.
+		$this->assertSame( 'idle', Protect_Status::get_status()->status );
+		$this->assertSame( 'idle', Status::get_status()->status );
 	}
 
 	public function test_get_cached_status_is_null_before_the_first_report() {

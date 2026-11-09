@@ -122,14 +122,14 @@ class Protect_Status extends Status {
 	}
 
 	/**
-	 * Whether the site owner lets Jetpack check the site every day for known vulnerabilities.
+	 * Whether the site owner lets Jetpack check the site every day for known vulnerabilities; always on with a Scan plan.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function are_checks_enabled() {
-		return (bool) get_option( self::CHECKS_OPTION_NAME, true );
+		return (bool) get_option( self::CHECKS_OPTION_NAME, true ) || Plan::has_required_plan();
 	}
 
 	/**
