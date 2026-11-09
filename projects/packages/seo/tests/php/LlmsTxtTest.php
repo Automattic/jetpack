@@ -334,8 +334,10 @@ class LlmsTxtTest extends TestCase {
 		return array(
 			'texturized apostrophe' => array( array( 'post_title' => "What's New" ), "- [What\u{2019}s New](" ),
 			'ampersand in title'    => array( array( 'post_title' => 'Tips & Tricks' ), '- [Tips & Tricks](' ),
+			'named apostrophe'      => array( array( 'post_title' => 'It&apos;s here' ), "- [It's here](" ),
 			'encoded brackets'      => array( array( 'post_title' => 'Notes &#91;draft&#93;' ), '- [Notes \[draft\]](' ),
 			'encoded newline'       => array( array( 'post_title' => 'One&#10;Two' ), '- [One Two](' ),
+			'encoded return'        => array( array( 'post_title' => 'One&#13;Two' ), '- [One Two](' ),
 			'ampersand in summary'  => array( array( 'post_excerpt' => 'Salt &amp; pepper' ), ': Salt & pepper' ),
 		);
 	}

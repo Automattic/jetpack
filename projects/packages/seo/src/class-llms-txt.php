@@ -244,7 +244,6 @@ class Llms_Txt {
 				continue;
 			}
 
-			// Collapse whitespace (incl. newlines) so each entry stays on one line.
 			$title = self::plain_text( get_the_title( $post ) );
 			if ( '' === $title ) {
 				$title = __( '(untitled)', 'jetpack-seo' );
@@ -296,7 +295,8 @@ class Llms_Txt {
 	 */
 	private static function plain_text( $text ) {
 		// Do not reorder: decoding can reveal whitespace (`&#10;`), and text like `&lt;b&gt;` isn't a tag.
-		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES, 'UTF-8' );
+		// ENT_XHTML because ENT_HTML401 leaves `&apos;` and ENT_HTML5 leaves `&#13;`.
+		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES | ENT_XHTML, 'UTF-8' );
 		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }
