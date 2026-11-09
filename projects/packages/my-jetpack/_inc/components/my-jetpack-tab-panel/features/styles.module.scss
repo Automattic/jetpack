@@ -21,7 +21,12 @@ $band-ground: #f8f8f8;
 .banner {
 	margin-block-end: var(--wpds-dimension-gap-sm);
 
-	:global(.jp-highlight-banner__title) {
+	:global(.jp-highlight-banner__content) {
+		gap: var(--wpds-dimension-gap-sm);
+	}
+
+	// Three classes, to beat the shared rule whatever the load order.
+	&:global(.jp-highlight-banner) :global(.jp-highlight-banner__title) {
 		font-size: 32px;
 	}
 
