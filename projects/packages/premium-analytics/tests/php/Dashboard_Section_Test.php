@@ -1422,6 +1422,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'has_videopress'             => true,
 				'can_view_stats'             => true,
 				'classic_stats_url'          => null,
+				'classic_stats_retired'      => false,
 				'sections'                   => array( 'traffic', 'insights', 'subscribers' ),
 				'plan_date_limited_sections' => array( 'traffic' ),
 			),

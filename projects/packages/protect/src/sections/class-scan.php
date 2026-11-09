@@ -1204,6 +1204,17 @@ class Scan implements Dashboard_Section {
 			return $error;
 		}
 
+		// Protect_Status::STATUS_DISABLED.
+		if ( 'disabled' === $status->status ) {
+			return array(
+				'error'         => false,
+				'scanning'      => false,
+				'checksEnabled' => false,
+				'lastChecked'   => null,
+				'threats'       => array(),
+			);
+		}
+
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -1214,6 +1225,7 @@ class Scan implements Dashboard_Section {
 
 		return array(
 			'error'          => false,
+			'checksEnabled'  => true,
 			'scanning'       => $is_initializing || in_array( $status->status, self::SCANNING_STATUSES, true ),
 			'lastChecked'    => $status->last_checked,
 			'lastScanFailed' => ! empty( $status->last_scan_failed ),
