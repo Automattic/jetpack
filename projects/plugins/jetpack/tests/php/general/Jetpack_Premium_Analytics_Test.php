@@ -29,6 +29,8 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		// A host such as wpcomsh may retire classic Stats, which turns the dashboard on regardless of the opt-in.
+		add_filter( 'jetpack_feature_flag_enabled_' . Classic_Stats::RETIRED_FLAG, '__return_false' );
 		self::reset_flag_cache();
 	}
 

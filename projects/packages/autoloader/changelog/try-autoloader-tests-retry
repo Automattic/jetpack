@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: Retry the `composer install` during integration tests. It's occasionally flaky.
+
+
