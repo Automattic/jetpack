@@ -1699,7 +1699,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "d95312d7191326d9dc83b2d8ce3f191b98445057"
+                "reference": "47ada4c783af93b555057fb2f8bdc41ce9e80976"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1726,7 +1726,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect/compare/v${old}...v${new}"
@@ -2224,7 +2224,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "8056051cb24e441926eb547df5effc27596d46e5"
+                "reference": "dc488bebab78955eb9bb30eb4982b29ad3dc712b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2250,7 +2250,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.31.x-dev"
+                    "dev-trunk": "0.32.x-dev"
                 }
             },
             "autoload": {

@@ -1227,7 +1227,7 @@ class Dashboard_Data {
 	 * Whether Jetpack's SEO output is paused, and the plugin that owns it when one does.
 	 * Every tab reads this one bootstrap for its banner and locked cards.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @return array{paused: bool, conflicting_plugin: string}
 	 */

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Show the upload error message in the media library when the server rejects a file, instead of leaving the upload stuck.
