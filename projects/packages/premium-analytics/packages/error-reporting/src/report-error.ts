@@ -20,6 +20,10 @@ const MESSAGE_LIMIT = 1000;
 const TRACE_LIMIT = 8000;
 const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
 
+// Broader than an RFC address on purpose, but the domain must carry a dot, so a Firefox stack
+// frame such as `render@https://host/x.js:1:1` is not mistaken for one and erased.
+const EMAIL = /[^\s<>()[\]{}",;:@]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+
 // The endpoint bans the IP behind too many requests and answers 403, and 429 asks for the same.
 // Every other refusal is one report's problem, and the hourly budget already bounds the retries.
 const STOP_STATUSES = [ 403, 429 ];
@@ -99,7 +103,7 @@ function redactUrl( url: string ): string {
 }
 
 /**
- * Removes query strings and hashes from free text, then caps its length.
+ * Removes query strings, hashes and email addresses from free text, then caps its length.
  *
  * @param text  - A message, stack or component stack.
  * @param limit - The longest text the endpoint should receive.
@@ -116,7 +120,8 @@ function sanitizeText( text: string, limit: number ): string {
 		clean = clean.split( hash ).join( '#[redacted]' );
 	}
 
-	return clean.replace( ABSOLUTE_URL, redactUrl ).slice( 0, limit );
+	// Truncation comes last, so it cannot cut a redaction in half.
+	return clean.replace( ABSOLUTE_URL, redactUrl ).replace( EMAIL, '[email]' ).slice( 0, limit );
 }
 
 /**

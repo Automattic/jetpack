@@ -227,6 +227,38 @@ describe( 'reportError', () => {
 		expect( trace ).not.toContain( '[redacted]' );
 	} );
 
+	it( 'redacts an email address from the message', () => {
+		reportError( dashboardError( 'save failed for jane.doe+stats@example.co.uk' ), 'error' );
+
+		expect( sentPayload().message ).toBe( 'save failed for [email]' );
+	} );
+
+	it( 'redacts an email address from the trace', () => {
+		const error = dashboardError( 'boom' );
+		error.stack += '\n    at notify (owner@example.com)';
+
+		reportError( error, 'error' );
+
+		const { trace } = sentPayload();
+		expect( trace ).toContain( '[email]' );
+		expect( trace ).not.toContain( 'owner@example.com' );
+	} );
+
+	it( 'redacts every email address in one message', () => {
+		reportError( dashboardError( 'a@example.com told b@example.com' ), 'error' );
+
+		expect( sentPayload().message ).toBe( '[email] told [email]' );
+	} );
+
+	it( 'keeps a Firefox stack frame, whose function@url shape looks like an address', () => {
+		const error = new TypeError( 'boom' );
+		error.stack = `render@${ ORIGIN }widgets/top-posts/render.js:10:5`;
+
+		reportError( error, 'error' );
+
+		expect( sentPayload().trace ).toBe( error.stack );
+	} );
+
 	it( 'truncates an oversized message, trace and component stack and still sends', () => {
 		const error = dashboardError( 'm'.repeat( 5000 ) );
 		error.stack += `\n${ 'x'.repeat( 20000 ) }`;
