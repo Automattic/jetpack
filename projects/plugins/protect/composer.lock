@@ -1699,7 +1699,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "4d6c285a492fa24cf417ce8af78536ccb902eeb6"
+                "reference": "d95312d7191326d9dc83b2d8ce3f191b98445057"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1726,7 +1726,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-protect/compare/v${old}...v${new}"
