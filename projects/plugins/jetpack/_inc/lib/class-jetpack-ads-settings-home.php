@@ -35,15 +35,6 @@ class Jetpack_Ads_Settings_Home {
 	const MONETIZE_SETTINGS_PATH = 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings';
 
 	/**
-	 * Calypso's Ads settings, followed by the site slug.
-	 *
-	 * TODO: DOTCOM-13919 — send Atomic to Monetize › Settings once the wpcom menu opens it.
-	 *
-	 * @var string
-	 */
-	const CALYPSO_URL = 'https://wordpress.com/earn/ads-settings/';
-
-	/**
 	 * Hook the configure URL and the script data.
 	 *
 	 * @return void
@@ -55,36 +46,35 @@ class Jetpack_Ads_Settings_Home {
 	}
 
 	/**
-	 * Whether the Ads settings live on Monetize › Settings. Needs no admin menu, so REST requests agree.
+	 * Whether the Monetize page shows the Ads settings. Needs no admin menu, so REST requests agree.
 	 *
 	 * @return bool
 	 */
 	public static function is_on_monetize_page() {
-		return self::is_consolidation_on()
-			&& class_exists( Dashboard::class )
+		return class_exists( Dashboard::class )
 			&& Dashboard::is_enabled()
 			&& Jetpack::is_module_active( 'monetize' )
 			// The module needs a connection: it stays listed as active, but never loads offline or disconnected.
 			&& Jetpack::is_connection_ready()
-			&& ! ( new Status() )->is_offline_mode()
-			&& ! ( new Host() )->is_wpcom_platform();
+			&& ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
-	 * The Ads settings' home, or null while they stay on Jetpack › Settings.
+	 * Whether Jetpack › Settings drops its Ads card for Monetize › Settings.
+	 *
+	 * @return bool
+	 */
+	public static function is_moved_off_settings() {
+		return self::is_consolidation_on() && self::is_on_monetize_page();
+	}
+
+	/**
+	 * Monetize › Settings, or null where the Monetize page doesn't show the Ads settings.
 	 *
 	 * @return string|null
 	 */
 	public static function get_url() {
-		if ( self::is_on_monetize_page() ) {
-			return admin_url( self::MONETIZE_SETTINGS_PATH );
-		}
-
-		if ( self::is_consolidation_on() && ( new Host() )->is_woa_site() ) {
-			return self::CALYPSO_URL . ( new Status() )->get_site_suffix();
-		}
-
-		return null;
+		return self::is_on_monetize_page() ? admin_url( self::MONETIZE_SETTINGS_PATH ) : null;
 	}
 
 	/**
@@ -98,14 +88,15 @@ class Jetpack_Ads_Settings_Home {
 	}
 
 	/**
-	 * Add the home to `JetpackScriptData.monetize`, and the tab's data on the Monetize page.
+	 * Add the tab's data on the Monetize page, and the URL Jetpack › Settings points to once it drops its card.
 	 *
 	 * @param array $data Script data.
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		$url = self::get_url();
-		if ( null === $url ) {
+		$is_tab_request = self::is_tab_request();
+		$is_moved       = self::is_moved_off_settings();
+		if ( ! $is_tab_request && ! $is_moved ) {
 			return $data;
 		}
 
@@ -113,9 +104,11 @@ class Jetpack_Ads_Settings_Home {
 			$data = array();
 		}
 
-		$data['monetize']['adsSettingsUrl'] = $url;
+		if ( $is_moved ) {
+			$data['monetize']['adsSettingsUrl'] = self::get_url();
+		}
 
-		if ( self::is_tab_request() ) {
+		if ( $is_tab_request ) {
 			$data['monetize']['adsSettings'] = self::get_dashboard_data();
 			$data                            = self::add_tracks_identity( $data );
 		}

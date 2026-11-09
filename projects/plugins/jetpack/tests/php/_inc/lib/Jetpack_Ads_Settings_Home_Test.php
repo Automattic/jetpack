@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\My_Jetpack\Initializer;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,12 +18,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass( Jetpack_Ads_Settings_Home::class )]
 class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
-
-	const ATOMIC = array(
-		'ATOMIC_SITE_ID'       => 1,
-		'ATOMIC_CLIENT_ID'     => 2,
-		'WPCOMSH__PLUGIN_FILE' => 'wpcomsh.php',
-	);
 
 	const ALL_ON = array(
 		'consolidation' => true,
@@ -56,7 +49,6 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG );
-		remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
@@ -78,29 +70,13 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		$all_on = self::ALL_ON;
 
 		return array(
-			'self-hosted, all on'                    => array( $all_on, 'monetize' ),
-			'self-hosted, all on, REST request'      => array( $all_on + array( 'rest' => true ), 'monetize' ),
-			'consolidation off'                      => array( array( 'consolidation' => false ) + $all_on, null ),
+			'self-hosted, all on'               => array( $all_on, 'monetize' ),
+			'self-hosted, all on, REST request' => array( $all_on + array( 'rest' => true ), 'monetize' ),
+			'consolidation off'                 => array( array( 'consolidation' => false ) + $all_on, 'monetize' ),
 			'Monetize flag off, module still in the active list' => array( array( 'monetize' => false ) + $all_on, null ),
-			'monetize module inactive'               => array( array( 'active' => false ) + $all_on, null ),
-			'offline mode, all on'                   => array( $all_on + array( 'offline' => true ), null ),
-			'disconnected, all on'                   => array( array( 'connected' => false ) + $all_on, null ),
-			'Atomic, consolidation on, Monetize off' => array(
-				array(
-					'consolidation' => true,
-					'monetize'      => false,
-					'active'        => false,
-					'atomic'        => true,
-				),
-				'calypso',
-			),
-			'Atomic, host hides My Jetpack'          => array(
-				$all_on + array(
-					'atomic' => true,
-					'hidden' => true,
-				),
-				null,
-			),
+			'monetize module inactive'          => array( array( 'active' => false ) + $all_on, null ),
+			'offline mode, all on'              => array( $all_on + array( 'offline' => true ), null ),
+			'disconnected, all on'              => array( array( 'connected' => false ) + $all_on, null ),
 		);
 	}
 
@@ -108,7 +84,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * @dataProvider provide_sites
 	 *
 	 * @param array       $site What is on.
-	 * @param string|null $home Expected home: 'monetize', 'calypso', or null.
+	 * @param string|null $home Expected home: 'monetize', or null.
 	 */
 	#[DataProvider( 'provide_sites' )]
 	public function test_get_url_names_the_ads_home( $site, $home ) {
@@ -124,7 +100,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		$this->arrange( self::ALL_ON );
 		$this->assertSame( self::expected_url( 'monetize' ), Jetpack::module_configuration_url( 'wordads' ) );
 
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG );
 		$this->assertStringEndsWith( 'page=jetpack-settings#/settings?term=wordads', Jetpack::module_configuration_url( 'wordads' ) );
 	}
 
@@ -143,6 +119,19 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'hasWordAds', 'hasConnectedOwner', 'upgradeUrl', 'earningsUrl', 'isSubdirectorySite', 'moduleOverride', 'tracks' ), array_keys( $payload ) );
 		$this->assertStringContainsString( 'source=calypso-stats-ads-day', $payload['earningsUrl'] );
 		$this->assertStringContainsString( 'source=jetpack-creator-cta', $payload['upgradeUrl'] );
+	}
+
+	/**
+	 * Without settings consolidation the Monetize page still shows the tab, and Jetpack › Settings keeps its card.
+	 */
+	public function test_settings_keeps_the_card_without_consolidation() {
+		$this->arrange( array( 'consolidation' => false ) + self::ALL_ON );
+		$this->assertArrayNotHasKey( 'monetize', Jetpack_Ads_Settings_Home::add_script_data( array() ) );
+
+		$_GET['page'] = 'jetpack-monetize';
+		$data         = Jetpack_Ads_Settings_Home::add_script_data( array() );
+		$this->assertArrayHasKey( 'adsSettings', $data['monetize'] );
+		$this->assertArrayNotHasKey( 'adsSettingsUrl', $data['monetize'] );
 	}
 
 	/**
@@ -177,14 +166,6 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 		if ( ! empty( $site['active'] ) ) {
 			Jetpack_Options::update_option( 'active_modules', array( 'monetize', 'wordads' ) );
 		}
-		if ( ! empty( $site['atomic'] ) ) {
-			foreach ( self::ATOMIC as $name => $value ) {
-				Constants::set_constant( $name, $value );
-			}
-		}
-		if ( ! empty( $site['hidden'] ) ) {
-			add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
-		}
 		if ( ! empty( $site['rest'] ) ) {
 			Constants::set_constant( 'REST_REQUEST', true );
 		}
@@ -199,16 +180,10 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	/**
 	 * The URL a home resolves to on this test site.
 	 *
-	 * @param string|null $home 'monetize', 'calypso', or null.
+	 * @param string|null $home 'monetize', or null.
 	 * @return string|null
 	 */
 	private static function expected_url( $home ) {
-		if ( 'monetize' === $home ) {
-			return admin_url( 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings' );
-		}
-		if ( 'calypso' === $home ) {
-			return 'https://wordpress.com/earn/ads-settings/' . ( new Status() )->get_site_suffix();
-		}
-		return null;
+		return 'monetize' === $home ? admin_url( 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dsettings' ) : null;
 	}
 }

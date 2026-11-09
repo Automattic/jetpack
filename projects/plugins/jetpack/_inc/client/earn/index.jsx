@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isWoASite } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
@@ -198,9 +197,7 @@ export function Earn( props ) {
 					href={ adsSettingsUrl }
 					linkText={ __( 'Open Ads settings', 'jetpack' ) }
 				>
-					{ isWoASite()
-						? __( 'Your ads settings are in Monetize on WordPress.com.', 'jetpack' )
-						: __( 'Your ads settings are on the Monetize page.', 'jetpack' ) }
+					{ __( 'Your ads settings are on the Monetize page.', 'jetpack' ) }
 				</PointerCard>
 			) }
 			{ foundAds && ! adsSettingsUrl && (
