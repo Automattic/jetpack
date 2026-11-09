@@ -1,3 +1,4 @@
 Significance: patch
-Type: other
-Comment: Drops the Jetpack Manage registrar from the admin menu ordering test; no user-facing change in this plugin.
+Type: enhancement
+
+Jetpack Manage: Remove the sidebar link. The agency dashboard is reached through Automattic for Agencies.

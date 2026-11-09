@@ -21,8 +21,8 @@ class Jetpack_Manage {
 	/**
 	 * User meta holding the partner type WordPress.com last reported for that user.
 	 *
-	 * Keyed per user because the lookup is signed as one, and stored rather than cached because
-	 * the banner payload needs an answer without waiting for a request.
+	 * Keyed per user because the lookup is signed as one, and stored so the banner payload only
+	 * has to ask WordPress.com again once the answer is a day old.
 	 *
 	 * @var string
 	 */
@@ -73,8 +73,8 @@ class Jetpack_Manage {
 	/**
 	 * How long after a session starts the refresh runs.
 	 *
-	 * Far enough out to stay clear of the login and the first page loads after it; the stored
-	 * answer is what the sidebar reads in the meantime.
+	 * Far enough out to stay clear of the login and the first page loads after it. A My Jetpack
+	 * visit in the meantime looks the user up itself if the stored answer is stale.
 	 *
 	 * @var int
 	 */
@@ -172,12 +172,12 @@ class Jetpack_Manage {
 			return false;
 		}
 
-		// Do not display the menu if Jetpack plugin is not installed.
+		// Jetpack Manage is only offered alongside the Jetpack plugin.
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return false;
 		}
 
-		// Do not display the menu on Multisite.
+		// Jetpack Manage is not offered on Multisite.
 		if ( is_multisite() ) {
 			return false;
 		}
