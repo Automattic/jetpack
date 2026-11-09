@@ -41,7 +41,7 @@ function getToggleBySection( page: Page, panel: Locator, headingName: string ) {
 		.locator( 'input[type="checkbox"]' );
 }
 
-// Skipped: these test the old Protect app, which the shared dashboard replaced; rewrite them for it (#53685).
+// Skipped: past the connect step these drive the old Protect app, which the shared dashboard replaces once connected.
 test.describe.skip( 'Jetpack Protect Plugin', () => {
 	test.beforeEach( async ( { page, admin, testUtils } ) => {
 		await testUtils.disconnect();

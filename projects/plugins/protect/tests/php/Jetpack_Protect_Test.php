@@ -68,6 +68,7 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		Notification_Counts::reset();
 		Status::$status = null;
 		Protect_Status::delete_option();
+		( new Connection_Manager() )->reset_connection_status();
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
