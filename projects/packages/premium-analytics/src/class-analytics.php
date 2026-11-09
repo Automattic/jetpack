@@ -23,7 +23,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.16.0';
+	const PACKAGE_VERSION = '0.17.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -583,7 +583,7 @@ class Analytics {
 	 * Loads the section registry but not the build: the menu capability depends on the sections.
 	 * Do not rename: wpcomsh retires classic Stats on Atomic only while this method exists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @return void
 	 */

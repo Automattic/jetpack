@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-11-09
+### Added
+- Scan: View the whole file a threat was found in, with the flagged lines highlighted and what the file belongs to, and delete a stray file or restore a changed WordPress core file from there. [#54570]
+
+### Changed
+- Dashboard: Refresh the Firewall block counts while the page is open and after the firewall is turned on, without a reload. [#54570]
+- List the selected threats a bulk Auto-fix leaves out, since each needs its own confirmation. [#54570]
+- Protect Dashboard: Redesign the Firewall card, with what to do next before it blocks anything and its 30-day and all-time block counts once it does. [#54570]
+- Say "Jetpack can fix this threat" in threat details, and refer to the Protect page rather than the Protect dashboard in loading errors. [#54592]
+- Update dependencies. [#54497]
+- Update package dependencies. [#54512]
+
+### Fixed
+- Ask for confirmation before Auto-fix updates a plugin or theme, naming the version it updates to. [#54443]
+- Dashboard: Accept a plugin or theme slug with surrounding spaces when confirming an auto-fix that deletes it, and disable Confirm deletion in the threat list while another action runs on the threat. [#54570]
+- Dashboard: Don't label vulnerabilities from the free check as Low severity when their severity is unknown. [#54442]
+- Dashboard: Explain on the Settings tab why account protection is unavailable, as the Overview does. [#54570]
+- Dashboard: Explain on the Settings tab why login protection is unavailable, as the Overview does. [#54570]
+- Dashboard: Reload the threat lists after an ignore or unignore fails, so the page shows what WordPress.com applied. [#54570]
+- Dashboard: Show a dash instead of an empty cell for a threat with no detection date or severity, as from the free vulnerability check. [#54437]
+- Downtime monitoring: Require a connected WordPress.com account before it can be turned on, and stop saying the site is monitored when no one will get alerts. [#54441]
+- Report a site that hasn't been scanned yet as not scanned, and a failed scan with no results as scan failed, in page view analytics, rather than as active or in progress. [#54594]
+- Scan: Advise removing a vulnerable plugin or theme, or updating WordPress, when no fixed version exists yet, instead of reviewing its code. [#54570]
+- Scan: Keep a threat you fixed hidden after a scan that failed, until a scan completes. [#54570]
+- Scan: Offer a first scan instead of showing "Scanning…" forever when WordPress.com has no scan on record. [#54439]
+- Scan: Report a slow but successful ignore or unignore as done, and refresh the ignored threats list right after either. [#54444]
+- Scan: Say when the last scan didn't complete while listing threats from an earlier scan. [#54570]
+- Scan: Sort a threat with no severity just above Low instead of below it. [#54596]
+- Show one action, Auto-fix, for a threat whose fix deletes the plugin or theme, instead of a separate Delete button beside it. [#54570]
+
 ## [0.5.0] - 2026-11-02
 ### Added
 - Dashboard: Show the email address downtime monitoring alerts go to on the Settings tab. [#54300]
@@ -94,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial version. [#53298]
 - Protect dashboard: Add a Scan history tab for sites with Jetpack Scan, show threat actions on row hover, and offer to delete unused plugins and themes that have threats. [#53196]
 
+[0.6.0]: https://github.com/Automattic/jetpack-protect/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-protect/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-protect/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-protect/compare/v0.2.0...v0.3.0
