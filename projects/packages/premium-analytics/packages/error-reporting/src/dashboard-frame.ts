@@ -37,14 +37,14 @@ function parseFrame( line: string, origin: string ): DashboardFrame {
  * Finds the first stack frame served from an allowlisted script origin.
  *
  * @param stack   - The error stack, if any.
- * @param origins - Absolute URL prefixes that count as dashboard code.
+ * @param origins - Absolute URL prefixes that count as dashboard code, if any.
  * @return The frame, or null when none matches.
  */
 export function findDashboardFrame(
 	stack: string | undefined,
-	origins: string[]
+	origins: string[] | undefined
 ): DashboardFrame | null {
-	if ( typeof stack !== 'string' ) {
+	if ( typeof stack !== 'string' || ! Array.isArray( origins ) ) {
 		return null;
 	}
 

@@ -63,6 +63,12 @@ describe( 'findDashboardFrame', () => {
 		expect( findDashboardFrame( stack, origins ) ).toBeNull();
 	} );
 
+	it( 'returns null when the origin list is absent', () => {
+		const stack = `Error: boom\n    at render (${ base }routes/dashboard/content.min.js:3:4)`;
+
+		expect( findDashboardFrame( stack, undefined ) ).toBeNull();
+	} );
+
 	it( 'returns null when an origin is an empty string', () => {
 		const stack = 'Error: boom\n    at x (https://example.com/wp-includes/js/other.min.js:1:2)';
 

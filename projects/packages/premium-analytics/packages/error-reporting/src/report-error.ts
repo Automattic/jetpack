@@ -20,6 +20,10 @@ const MESSAGE_LIMIT = 1000;
 const TRACE_LIMIT = 8000;
 const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
 
+// The endpoint bans the IP behind too many requests and answers 403, and 429 asks for the same.
+// Every other refusal is one report's problem, and the hourly budget already bounds the retries.
+const STOP_STATUSES = [ 403, 429 ];
+
 interface ErrorProperties {
 	source: ReportSource;
 	route: string;
@@ -37,24 +41,24 @@ interface ErrorPayload {
 	trace?: string;
 	url: string;
 	blog_id?: number;
-	site_id?: number;
 	jetpack_version?: string;
 	properties?: Partial< ErrorProperties >;
 	extra?: { line?: number; column?: number };
-	tags?: string[];
 }
 
 const seen = new Set< string >();
 let pageCount = 0;
 let stoppedHour: number | null = null;
+let warnedOnce = false;
 
 /**
- * Clears the dedupe set, the page counter and the stop flag.
+ * Clears the dedupe set, the page counter, the stop flag and the warning flag.
  */
 export function resetErrorReporterForTests(): void {
 	seen.clear();
 	pageCount = 0;
 	stoppedHour = null;
+	warnedOnce = false;
 }
 
 /**
@@ -192,9 +196,43 @@ function stopForHour( hour: number ): void {
 }
 
 /**
+ * Names a refused report in the console, once per page load and never in a production build.
+ *
+ * @param status - The HTTP status the endpoint answered.
+ */
+function warnRefused( status: number ): void {
+	if ( warnedOnce || process.env.NODE_ENV === 'production' ) {
+		return;
+	}
+
+	warnedOnce = true;
+	// eslint-disable-next-line no-console -- Zero reports otherwise looks exactly like a healthy dashboard.
+	console.warn( `Premium Analytics error reporting: the endpoint answered ${ status }.` );
+}
+
+/**
+ * Handles the endpoint's answer: name any refusal, and stop the hour for the two that ask for it.
+ *
+ * @param response - The endpoint's response.
+ * @param hour     - The current hour bucket.
+ */
+function handleResponse( response: Response, hour: number ): void {
+	if ( response.ok ) {
+		return;
+	}
+
+	warnRefused( response.status );
+
+	if ( STOP_STATUSES.includes( response.status ) ) {
+		stopForHour( hour );
+	}
+}
+
+/**
  * Builds the payload for the js-error endpoint. Only top-level keys the endpoint keeps are allowed.
  *
  * @param details              - The message, name and stack of the thrown value.
+ * @param message              - The sanitized message, which also keys the dedupe set.
  * @param source               - Where the error was caught.
  * @param frame                - The first dashboard frame of the stack, if any.
  * @param extra                - Extra context from the caller.
@@ -203,18 +241,19 @@ function stopForHour( hour: number ): void {
  */
 function buildPayload(
 	details: ThrownDetails,
+	message: string,
 	source: ReportSource,
 	frame: DashboardFrame | null,
 	extra?: { componentStack?: string }
 ): ErrorPayload {
-	const { message, name, stack } = details;
+	const { name, stack } = details;
 	const data = getScriptData();
 	const query = redactQuery( window.location.search );
 
 	return {
 		feature: 'jetpack_stats',
 		severity: 'error',
-		message: sanitizeText( message, MESSAGE_LIMIT ),
+		message,
 		trace: stack === undefined ? undefined : sanitizeText( stack, TRACE_LIMIT ),
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
@@ -255,12 +294,13 @@ export function reportError(
 		}
 
 		const details = describeThrown( error );
-		const { message, stack } = details;
-		const frame = findDashboardFrame( stack, config.script_origins );
+		const frame = findDashboardFrame( details.stack, config.script_origins );
 		if ( source !== 'boundary' && ! frame ) {
 			return;
 		}
 
+		// The raw message can embed the page query string, which changes on every date-range change.
+		const message = sanitizeText( details.message, MESSAGE_LIMIT );
 		const key = `${ message }\n${ frame?.url ?? '' }`;
 		const hour = Math.floor( Date.now() / HOUR_MS );
 		if ( seen.has( key ) || ! spendBudget( hour ) ) {
@@ -272,15 +312,11 @@ export function reportError(
 			.fetch( ENDPOINT, {
 				method: 'POST',
 				body: new URLSearchParams( {
-					error: JSON.stringify( buildPayload( details, source, frame, extra ) ),
+					error: JSON.stringify( buildPayload( details, message, source, frame, extra ) ),
 				} ),
 				keepalive: true,
 			} )
-			.then( response => {
-				if ( ! response.ok ) {
-					stopForHour( hour );
-				}
-			} )
+			.then( response => handleResponse( response, hour ) )
 			.catch( () => {} );
 	} catch {
 		// A reporter failure must never become a second error.
