@@ -52,6 +52,7 @@ import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import { SyncDimensions } from '../private/xy-plot/sync-dimensions';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
 import {
@@ -661,6 +662,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					{ ( { contentHeight } ) => {
 						// Use the measured height, falling back to the passed height if provided.
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
+						const plotMargin = { ...defaultMargin, ...compactMargin, ...margin };
 
 						return (
 							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
@@ -681,16 +683,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
-											margin={ {
-												...defaultMargin,
-												...compactMargin,
-												...margin,
-											} }
+											margin={ plotMargin }
 											// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
 											onPointerOut={ onPointerOut }
 										>
+											<SyncDimensions
+												width={ width }
+												height={ chartHeight }
+												margin={ plotMargin }
+											/>
 											<NearestPointerEvents { ...zoom.handlers } />
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render

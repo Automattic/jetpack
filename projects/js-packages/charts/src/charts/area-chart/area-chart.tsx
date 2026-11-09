@@ -42,6 +42,7 @@ import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import { SyncDimensions } from '../private/xy-plot/sync-dimensions';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './area-chart.module.scss';
 import { AreaChartScalesRef, HoverGlyphs, validateData } from './private';
@@ -438,6 +439,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				>
 					{ ( { contentHeight } ) => {
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
+						const plotMargin = { ...defaultMargin, ...compactMargin, ...margin };
 
 						return (
 							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
@@ -458,7 +460,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
-											margin={ { ...defaultMargin, ...compactMargin, ...margin } }
+											margin={ plotMargin }
 											xScale={ chartOptions.xScale }
 											yScale={ chartOptions.yScale }
 											onPointerDown={ zoom.handlers.onPointerDown }
@@ -467,6 +469,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
+											<SyncDimensions
+												width={ width }
+												height={ chartHeight }
+												margin={ plotMargin }
+											/>
 											{ /* With every series hidden the value scale collapses, so the grid and axes
 											     are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }

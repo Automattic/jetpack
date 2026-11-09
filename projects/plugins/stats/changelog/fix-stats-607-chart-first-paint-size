@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Stop charts from jumping, with their legends showing late, when switching dashboard tabs.

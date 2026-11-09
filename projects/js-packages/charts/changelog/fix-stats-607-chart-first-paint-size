@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Draw line, area and bar charts at their final size from the first frame, so the axis no longer covers the legend and then jumps up.

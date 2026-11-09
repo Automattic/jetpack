@@ -55,8 +55,8 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 	}: Omit< T, 'width' | 'height' | 'size' > & DimensionProps & ResponsiveConfig ) {
 		const {
 			parentRef,
-			width: parentWidth,
-			height: parentHeight,
+			width: observedWidth,
+			height: observedHeight,
 		} = useParentSize( {
 			debounceTime: resizeDebounceTime,
 			enableDebounceLeadingCall: true,
@@ -66,6 +66,10 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 
 		// The context needs a re-render when the node attaches; wrapperRef alone cannot provide that, so mirror the node into state from the same callback ref.
 		const [ scopeNode, setScopeNode ] = useState< HTMLDivElement | null >( null );
+
+		// useParentSize first reports a frame after paint (ResizeObserver, then rAF), so until it does, measure after each commit.
+		// offset* rather than getBoundingClientRect: a transformed ancestor would scale the reading and feed it back.
+		const [ layoutSize, setLayoutSize ] = useState( { width: 0, height: 0 } );
 
 		// Keep our own handle on the wrapper so we can read its live height below, and
 		// still hand the node to useParentSize's ref (a callback ref in practice; guard
@@ -83,6 +87,20 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			},
 			[ parentRef ]
 		);
+
+		const isObserved = observedWidth > 0;
+		useIsomorphicLayoutEffect( () => {
+			if ( isObserved || ! wrapperRef.current ) {
+				return;
+			}
+			const { offsetWidth: w, offsetHeight: h } = wrapperRef.current;
+			setLayoutSize( prev =>
+				prev.width === w && prev.height === h ? prev : { width: w, height: h }
+			);
+		} );
+
+		const parentWidth = isObserved ? observedWidth : layoutSize.width;
+		const parentHeight = isObserved ? observedHeight : layoutSize.height;
 
 		// The parent's available height when it actually constrains the chart, else
 		// null (the chart derives its height from width and grows freely).

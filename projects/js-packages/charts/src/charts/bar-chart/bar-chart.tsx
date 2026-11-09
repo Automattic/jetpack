@@ -30,6 +30,7 @@ import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getTickDecimals, hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
+import { SyncDimensions } from '../private/xy-plot/sync-dimensions';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
 import {
@@ -734,6 +735,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			>
 				{ ( { contentHeight } ) => {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
+					const plotMargin = { ...defaultMargin, ...compactMargin, ...margin };
 
 					return (
 						// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
@@ -753,16 +755,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										theme={ theme }
 										width={ width }
 										height={ chartHeight }
-										margin={ {
-											...defaultMargin,
-											...compactMargin,
-											...margin,
-										} }
+										margin={ plotMargin }
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
 										pointerEventsDataKey="nearest"
 									>
+										<SyncDimensions width={ width } height={ chartHeight } margin={ plotMargin } />
 										{ withTooltips && ( withBandHighlight || onBandHighlightChange ) && (
 											<BandHighlight
 												visible={ withBandHighlight }

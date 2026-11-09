@@ -94,6 +94,59 @@ describe( 'withResponsive', () => {
 			expect( component ).toHaveStyle( { width: '600px', height: '240px' } );
 		} );
 
+		describe( 'before useParentSize has measured', () => {
+			let layoutWidth = 0;
+			let layoutHeight = 0;
+			let widthSpy: jest.SpyInstance;
+			let heightSpy: jest.SpyInstance;
+			beforeEach( () => {
+				widthSpy = jest
+					.spyOn( window.HTMLElement.prototype, 'offsetWidth', 'get' )
+					.mockImplementation( () => layoutWidth );
+				heightSpy = jest
+					.spyOn( window.HTMLElement.prototype, 'offsetHeight', 'get' )
+					.mockImplementation( () => layoutHeight );
+			} );
+			afterEach( () => {
+				widthSpy.mockRestore();
+				heightSpy.mockRestore();
+			} );
+
+			test( 'sizes each render from the wrapper', () => {
+				useParentSize.mockImplementation( () => ( { parentRef: () => {}, width: 0, height: 0 } ) );
+				layoutWidth = 500;
+				const { rerender } = render( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } /> );
+				expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+					width: '500px',
+					height: '250px',
+				} );
+
+				// A sibling (e.g. a legend) narrows the wrapper on a later commit, still before the observer reports.
+				layoutWidth = 300;
+				rerender( <ResponsiveComponent data={ [] } aspectRatio={ 0.5 } /> );
+				expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( {
+					width: '300px',
+					height: '150px',
+				} );
+			} );
+
+			test( 'lets an observed zero height win over the earlier reading', () => {
+				useParentSize.mockImplementation( () => ( { parentRef: () => {}, width: 0, height: 0 } ) );
+				layoutWidth = 500;
+				layoutHeight = 300;
+				const { rerender } = render( <ResponsiveComponent data={ [] } /> );
+				expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( { height: '300px' } );
+
+				useParentSize.mockImplementation( () => ( {
+					parentRef: () => {},
+					width: 500,
+					height: 0,
+				} ) );
+				rerender( <ResponsiveComponent data={ [] } /> );
+				expect( screen.getByTestId( 'mock-component' ) ).toHaveStyle( { height: '0px' } );
+			} );
+		} );
+
 		test( 'respects maxWidth configuration', () => {
 			render( <ResponsiveComponent data={ [] } maxWidth={ 400 } /> );
 			const component = screen.getByTestId( 'mock-component' );
