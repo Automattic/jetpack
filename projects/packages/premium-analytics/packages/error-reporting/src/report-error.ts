@@ -266,7 +266,10 @@ function buildPayload(
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
 		// A tab open across a deploy asks for a module that no longer exists, which is nobody's bug.
-		...( CHUNK_LOAD.test( details.message ) ? { tags: [ 'chunk-load' ] } : {} ),
+		// webpack names the error rather than wording the message, so both are checked.
+		...( CHUNK_LOAD.test( details.message ) || CHUNK_LOAD.test( name ?? '' )
+			? { tags: [ 'chunk-load' ] }
+			: {} ),
 		properties: definedMembers( {
 			source,
 			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.

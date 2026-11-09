@@ -377,6 +377,15 @@ describe( 'reportError', () => {
 		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
 	} );
 
+	it( 'tags a webpack chunk failure, which names the error instead of wording the message', () => {
+		const error = dashboardError( 'Loading chunk 7 failed.' );
+		error.name = 'ChunkLoadError';
+
+		reportError( error, 'boundary' );
+
+		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+	} );
+
 	it( 'sends no tags for an ordinary error', () => {
 		reportError( dashboardError(), 'boundary' );
 
