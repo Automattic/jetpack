@@ -122,9 +122,13 @@
 		height: 26px;
 	}
 
+	/* Hidden so it can't wrap onto its own line; the gap replaces its margins. */
 	.wpcom-gifting-banner__img {
-		height: 16px;
-		width: 16px;
+		display: none;
+	}
+
+	.wpcom-gifting-banner__wrapper {
+		column-gap: 4px;
 	}
 
 	.wpcom-gifting-banner__title,
