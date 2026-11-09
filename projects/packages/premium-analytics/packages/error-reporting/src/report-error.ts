@@ -18,6 +18,31 @@ const HOURLY_LIMIT = 10;
 const PAGE_LIMIT = 3;
 const MESSAGE_LIMIT = 1000;
 const TRACE_LIMIT = 8000;
+const ABSOLUTE_URL = /https?:\/\/[^\s'")]+/g;
+
+interface ErrorProperties {
+	source: ReportSource;
+	route: string;
+	module: string;
+	widget: string;
+	error_name: string;
+	component_stack: string;
+	query: Record< string, string >;
+}
+
+interface ErrorPayload {
+	feature: 'jetpack_stats';
+	severity: 'error';
+	message: string;
+	trace?: string;
+	url: string;
+	blog_id?: number;
+	site_id?: number;
+	jetpack_version?: string;
+	properties?: Partial< ErrorProperties >;
+	extra?: { line?: number; column?: number };
+	tags?: string[];
+}
 
 const seen = new Set< string >();
 let pageCount = 0;
@@ -53,7 +78,23 @@ function describeThrown( error: unknown ): ThrownDetails {
 }
 
 /**
- * Removes the page's own query string and hash from free text, then caps its length.
+ * Cuts an absolute URL at its first query or hash, keeping a trailing stack position.
+ *
+ * @param url - An absolute http(s) URL found in free text.
+ * @return The URL without its query string or hash.
+ */
+function redactUrl( url: string ): string {
+	const cut = url.search( /[?#]/ );
+	if ( cut === -1 ) {
+		return url;
+	}
+
+	const position = /(?::\d+){1,2}$/.exec( url )?.[ 0 ] ?? '';
+	return `${ url.slice( 0, cut ) }${ url[ cut ] }[redacted]${ position }`;
+}
+
+/**
+ * Removes query strings and hashes from free text, then caps its length.
  *
  * @param text  - A message, stack or component stack.
  * @param limit - The longest text the endpoint should receive.
@@ -70,7 +111,7 @@ function sanitizeText( text: string, limit: number ): string {
 		clean = clean.split( hash ).join( '#[redacted]' );
 	}
 
-	return clean.slice( 0, limit );
+	return clean.replace( ABSOLUTE_URL, redactUrl ).slice( 0, limit );
 }
 
 /**
@@ -87,6 +128,30 @@ function definedMembers< T extends Record< string, unknown > >(
 }
 
 /**
+ * Reads the report count of the current hour from the stored budget record.
+ *
+ * @param raw  - The stored value, if any.
+ * @param hour - The current hour bucket.
+ * @return The count, or 0 when the record is absent, corrupt or from another hour.
+ */
+function storedCount( raw: string | null, hour: number ): number {
+	let record: { hour?: unknown; count?: unknown } | null = null;
+	try {
+		record = JSON.parse( raw ?? 'null' );
+	} catch {
+		// A corrupt record counts as absent so the next write repairs it.
+	}
+
+	const count = record?.count;
+	return record?.hour === hour &&
+		typeof count === 'number' &&
+		Number.isInteger( count ) &&
+		count >= 0
+		? count
+		: 0;
+}
+
+/**
  * Spends one report from the budget, which is stored per browser and falls back to a per-page cap.
  *
  * @param hour - The current hour bucket.
@@ -98,11 +163,7 @@ function spendBudget( hour: number ): boolean {
 	}
 
 	try {
-		const stored = JSON.parse( window.localStorage.getItem( BUDGET_KEY ) ?? 'null' );
-		const count =
-			stored?.hour === hour && Number.isInteger( stored.count ) && stored.count >= 0
-				? stored.count
-				: 0;
+		const count = storedCount( window.localStorage.getItem( BUDGET_KEY ), hour );
 
 		if ( count >= HOURLY_LIMIT ) {
 			return false;
@@ -132,7 +193,7 @@ function stopForHour( hour: number ): void {
 /**
  * Builds the payload for the js-error endpoint. Only top-level keys the endpoint keeps are allowed.
  *
- * @param error                - The thrown value.
+ * @param details              - The message, name and stack of the thrown value.
  * @param source               - Where the error was caught.
  * @param frame                - The first dashboard frame of the stack, if any.
  * @param extra                - Extra context from the caller.
@@ -140,12 +201,12 @@ function stopForHour( hour: number ): void {
  * @return The payload object.
  */
 function buildPayload(
-	error: unknown,
+	details: ThrownDetails,
 	source: ReportSource,
 	frame: DashboardFrame | null,
 	extra?: { componentStack?: string }
-) {
-	const { message, name, stack } = describeThrown( error );
+): ErrorPayload {
+	const { message, name, stack } = details;
 	const data = getScriptData();
 	const query = redactQuery( window.location.search );
 
@@ -170,7 +231,7 @@ function buildPayload(
 			query,
 		} ),
 		extra: definedMembers( { line: frame?.line, column: frame?.column } ),
-	};
+	} satisfies ErrorPayload;
 }
 
 /**
@@ -192,7 +253,8 @@ export function reportError(
 			return;
 		}
 
-		const { message, stack } = describeThrown( error );
+		const details = describeThrown( error );
+		const { message, stack } = details;
 		const frame = findDashboardFrame( stack, config.script_origins );
 		if ( source !== 'boundary' && ! frame ) {
 			return;
@@ -209,7 +271,7 @@ export function reportError(
 			.fetch( ENDPOINT, {
 				method: 'POST',
 				body: new URLSearchParams( {
-					error: JSON.stringify( buildPayload( error, source, frame, extra ) ),
+					error: JSON.stringify( buildPayload( details, source, frame, extra ) ),
 				} ),
 				keepalive: true,
 			} )

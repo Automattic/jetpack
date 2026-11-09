@@ -10,6 +10,11 @@ const ORIGIN = 'https://example.com/wp-content/plugins/jetpack/build/';
 const START = new Date( '2026-03-01T10:00:00Z' );
 const HOUR = 3_600_000;
 
+const BUDGET_KEY = 'jetpack-premium-analytics-error-budget';
+const CURRENT_HOUR = Math.floor( START.getTime() / HOUR );
+
+const storedBudget = () => JSON.parse( window.localStorage.getItem( BUDGET_KEY ) as string );
+
 const ERROR_REPORTING = { enabled: true, version: '1.2.3', script_origins: [ ORIGIN ] };
 
 const scriptData = ( errorReporting = ERROR_REPORTING ) =>
@@ -344,6 +349,95 @@ describe( 'reportError', () => {
 		reportError( dashboardError( 'second' ), 'error' );
 
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'resumes in the next hour after a non-2xx response without a page reload', async () => {
+		fetchMock.mockResolvedValue( { ok: false, status: 429 } );
+		reportError( dashboardError( 'first' ), 'error' );
+		await flush();
+		reportError( dashboardError( 'blocked' ), 'error' );
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+
+		jest.advanceTimersByTime( HOUR );
+		reportError( dashboardError( 'next hour' ), 'error' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'does not spend a budget slot on a duplicate', () => {
+		reportError( dashboardError( 'same' ), 'error' );
+		reportError( dashboardError( 'same' ), 'error' );
+		for ( let i = 0; i < 9; i++ ) {
+			reportError( dashboardError( `distinct ${ i }` ), 'error' );
+		}
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 10 );
+	} );
+
+	it.each( [
+		[ 'truncated JSON', '{"hour":' ],
+		[ 'non-JSON text', 'garbage' ],
+	] )( 'treats a %s budget record as absent and repairs it', ( _label, raw ) => {
+		window.localStorage.setItem( BUDGET_KEY, raw );
+
+		for ( let i = 0; i < 4; i++ ) {
+			reportError( dashboardError( `failure ${ i }` ), 'error' );
+		}
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 4 );
+		expect( storedBudget() ).toEqual( { hour: CURRENT_HOUR, count: 4 } );
+	} );
+
+	it.each( [
+		[ 'a string count', { hour: CURRENT_HOUR, count: '9' } ],
+		[ 'a negative count', { hour: CURRENT_HOUR, count: -3 } ],
+		[ 'a fractional count', { hour: CURRENT_HOUR, count: 2.5 } ],
+		[ 'a previous hour', { hour: CURRENT_HOUR - 1, count: 9 } ],
+	] )( 'overwrites a budget record with %s', ( _label, record ) => {
+		window.localStorage.setItem( BUDGET_KEY, JSON.stringify( record ) );
+
+		reportError( dashboardError(), 'error' );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		expect( storedBudget() ).toEqual( { hour: CURRENT_HOUR, count: 1 } );
+	} );
+
+	it( 'strips the query string and hash from other absolute URLs in the message, trace and component stack', () => {
+		const restUrl = 'http://localhost/wp-json/jetpack/v4/stats?_wpnonce=abc123&x=1';
+		const hashUrl = 'https://example.com/app#access_token=zzz';
+		const error = dashboardError( `Request failed: ${ restUrl } (500) and ${ hashUrl }` );
+		error.stack += `\n    at fetch (https://example.com/wp-admin/admin-ajax.php?_wpnonce=abc123:7:8)`;
+
+		reportError( error, 'boundary', { componentStack: `in Loader (${ restUrl })` } );
+
+		const { message, trace, properties } = sentPayload();
+		expect( message ).toBe(
+			'Request failed: http://localhost/wp-json/jetpack/v4/stats?[redacted] (500) and https://example.com/app#[redacted]'
+		);
+		expect( trace ).toContain( 'https://example.com/wp-admin/admin-ajax.php?[redacted]:7:8' );
+		expect( properties.component_stack ).toBe(
+			'in Loader (http://localhost/wp-json/jetpack/v4/stats?[redacted])'
+		);
+		[ message, trace, properties.component_stack ].forEach( field => {
+			expect( field ).not.toContain( 'abc123' );
+			expect( field ).not.toContain( 'zzz' );
+		} );
+	} );
+
+	it( 'leaves an absolute URL without a query string or hash untouched', () => {
+		reportError( dashboardError( 'GET https://example.com/a/b.js failed' ), 'error' );
+
+		expect( sentPayload().message ).toBe( 'GET https://example.com/a/b.js failed' );
+	} );
+
+	it( 'reads the thrown message once per report', () => {
+		const getter = jest.fn( () => 'volatile' );
+		const error = dashboardError();
+		Object.defineProperty( error, 'message', { get: getter } );
+
+		reportError( error, 'error' );
+
+		expect( getter ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'swallows a rejected fetch', async () => {
