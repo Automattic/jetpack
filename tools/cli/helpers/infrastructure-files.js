@@ -30,6 +30,9 @@ infrastructureFileSets.build = new Set( [
 	'tools/cli/commands/build.js',
 	'tools/cli/helpers/install.js',
 	'tools/cli/helpers/projectHelpers.js',
+	'tools/js-tools/tsconfig.base.json',
+	'tools/js-tools/tsconfig.tsc.json',
+	'tools/js-tools/tsconfig.tsc-declaration-only.json',
 	'.github/workflows/build.yml',
 ] );
 infrastructureFileSets.e2e = {
