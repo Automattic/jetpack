@@ -33,6 +33,7 @@ import {
 	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
+	PRESET_LAST_3_YEARS,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
 	QUICK_SURFACE_PRESETS,
@@ -88,6 +89,19 @@ function startOfDayBefore( startOfToday: TZDate, days: number ): TZDate {
 	const day = subDays( startOfToday, days );
 
 	return startOfDay( day );
+}
+
+/**
+ * The first instant of the calendar year `years` before a day's start.
+ *
+ * @param startOfToday - The first instant of today.
+ * @param years        - How many years back.
+ * @return The first instant of that year.
+ */
+function startOfYearBefore( startOfToday: TZDate, years: number ): TZDate {
+	const year = subYears( startOfToday, years );
+
+	return startOfYear( year );
 }
 
 /**
@@ -197,6 +211,16 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		getRange: ( { lastYear } ) => ( {
 			from: startOfYear( lastYear ),
 			to: endOfYear( lastYear ),
+		} ),
+	},
+	{
+		id: PRESET_LAST_3_YEARS,
+		getLabel: () => __( 'Last 3 years', 'jetpack-premium-analytics-pkg' ),
+		// Two years back, not three: the running year is the third, so the chart
+		// draws three yearly buckets rather than four with two cut.
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfYearBefore( initOfToday, 2 ),
+			to: endOfToday,
 		} ),
 	},
 ];
