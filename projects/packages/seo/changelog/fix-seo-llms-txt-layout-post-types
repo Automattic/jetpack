@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop listing theme and page builder layout post types, such as Kadence Elements, in llms.txt and the SEO content views.

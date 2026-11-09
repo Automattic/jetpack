@@ -17,7 +17,14 @@ class Post_Types {
 	 *
 	 * @var string[]
 	 */
-	const EXCLUDED_POST_TYPES = array( 'attachment' );
+	const EXCLUDED_POST_TYPES = array(
+		'attachment',
+		'elementor_library',
+		'et_pb_layout',
+		'fl-builder-template',
+		'fl-theme-layout',
+		'kadence_element',
+	);
 
 	/**
 	 * Return supported post type slugs.
@@ -50,9 +57,9 @@ class Post_Types {
 	 * Return supported post type objects keyed by slug.
 	 *
 	 * Supported means public, UI-visible, and REST-enabled so the SEO dashboard
-	 * can both display and save the post through core-data. Attachments are
-	 * excluded because their REST endpoint is media-specific, not an editable
-	 * content surface for the SEO Content tab.
+	 * can both display and save the post through core-data. Attachments have a
+	 * media-specific REST endpoint, and themes and page builders mark layout
+	 * pieces with exclude_from_search, so both are left out.
 	 *
 	 * @return \WP_Post_Type[]
 	 */
@@ -66,7 +73,23 @@ class Post_Types {
 			'objects'
 		);
 
-		foreach ( self::EXCLUDED_POST_TYPES as $post_type ) {
+		$excluded = array_unique(
+			array_merge(
+				self::EXCLUDED_POST_TYPES,
+				array_keys( wp_filter_object_list( $post_types, array( 'exclude_from_search' => true ) ) )
+			)
+		);
+
+		/**
+		 * Filters the post types left out of llms.txt, the SEO Content tab, Content coverage and the SEO admin columns.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $excluded Post type slugs to leave out. Remove a slug to include that type.
+		 */
+		$excluded = (array) apply_filters( 'jetpack_seo_excluded_post_types', $excluded );
+
+		foreach ( $excluded as $post_type ) {
 			unset( $post_types[ $post_type ] );
 		}
 
