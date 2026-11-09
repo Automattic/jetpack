@@ -37,6 +37,8 @@ class Status_Test extends BaseTestCase {
 	protected function tear_down() {
 		$this->teardown_mock_data();
 		unset( $_GET['page'] );
+		delete_option( Protect_Status::CHECKS_OPTION_NAME );
+		delete_option( 'jetpack_site_products' );
 	}
 
 	/**
@@ -454,6 +456,39 @@ class Status_Test extends BaseTestCase {
 		$this->assertEquals( $this->get_sample_status(), $status );
 		$this->assertTrue( Status::is_cached_status_expired() );
 		$this->assertSame( 0, $requests );
+	}
+
+	public function test_turned_off_checks_skip_wpcom_and_hide_the_stored_report() {
+		$this->mock_connection();
+		update_option( Protect_Status::OPTION_NAME, static::get_sample_api_response() );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+		update_option( Protect_Status::CHECKS_OPTION_NAME, 0 );
+		$requests = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $response ) use ( &$requests ) {
+				++$requests;
+				return $response;
+			},
+			0
+		);
+
+		$status = Status::get_status();
+		$this->assertSame( Protect_Status::STATUS_DISABLED, $status->status );
+		$this->assertSame( array(), $status->threats );
+		$this->assertEquals( $status, Status::get_cached_status() );
+		$this->assertFalse( Status::should_notify_threats() );
+		$this->assertSame( 0, $requests );
+	}
+
+	public function test_turned_off_checks_leave_a_scan_plan_report_alone() {
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		update_option( Protect_Status::CHECKS_OPTION_NAME, 0 );
+		Scan_Status::$status = new Status_Model( array( 'status' => 'idle' ) );
+
+		// My Jetpack reads Protect_Status directly, even on a Scan site.
+		$this->assertSame( 'idle', Protect_Status::get_status()->status );
+		$this->assertSame( 'idle', Status::get_status()->status );
 	}
 
 	public function test_get_cached_status_is_null_before_the_first_report() {
