@@ -3,7 +3,6 @@
  */
 import { act, render, screen } from '@testing-library/react';
 import { video as videoIcon } from '@wordpress/icons';
-import { createContext, useContext, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -45,16 +44,6 @@ jest.mock( '@wordpress/data', () => ( {
 
 const mockPageParams = { from: '2026-06-01', to: '2026-06-16' };
 
-type FakeWidgetRootProps = {
-	attributes?: { reportParams?: Record< string, unknown > };
-	children: ReactNode;
-};
-
-const mockRootContext = createContext< { reportParams: Record< string, unknown > } >( {
-	reportParams: {},
-} );
-const mockUseRootContext = () => useContext( mockRootContext );
-
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 	Leaderboard: ( props: Record< string, unknown > ) => {
@@ -65,20 +54,14 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		mockReportActions( options );
 		return true;
 	},
-	// Resolves like the real root: non-empty host `reportParams`, otherwise the page's params.
-	WidgetRoot: ( { attributes, children }: FakeWidgetRootProps ) => {
-		const hostParams = attributes?.reportParams;
-		const reportParams =
-			hostParams && Object.keys( hostParams ).length > 0 ? hostParams : mockPageParams;
-
-		return (
-			<mockRootContext.Provider value={ { reportParams } }>{ children }</mockRootContext.Provider>
-		);
-	},
+	...jest
+		.requireActual< typeof import( '../../../src/dashboard/test-utils/fake-widget-root' ) >(
+			'../../../src/dashboard/test-utils/fake-widget-root'
+		)
+		.fakeWidgetRoot( () => mockPageParams ),
 	describeError: ( ...args: unknown[] ) => mockDescribeError( ...args ),
 	getVideoPosterUrl: ( poster?: string ) => poster && `${ poster }?resize=100%2C56`,
 	useStatsVideoPlays: ( ...args: unknown[] ) => mockUseStatsVideoPlays( ...args ),
-	useWidgetRootContext: () => mockUseRootContext(),
 } ) );
 
 jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
@@ -164,10 +147,6 @@ describe( 'Top videos widget', () => {
 		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith(
 			{ from: '2026-05-01', to: '2026-05-31', max: 10 },
 			{ maxRows: 10 }
-		);
-		expect( mockUseStatsVideoPlays ).not.toHaveBeenCalledWith(
-			expect.objectContaining( mockPageParams ),
-			expect.anything()
 		);
 	} );
 

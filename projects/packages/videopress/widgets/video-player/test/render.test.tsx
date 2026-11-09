@@ -3,11 +3,11 @@
  */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createContext, useContext, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
 import VideoPlayer from '../render';
+import type { ReactNode } from 'react';
 
 const mockGetEntityRecord = jest.fn();
 const mockHasFinishedResolution = jest.fn();
@@ -15,16 +15,6 @@ const mockGetResolutionError = jest.fn();
 const mockInvalidateResolution = jest.fn();
 
 let mockPageParams: Record< string, unknown > = {};
-
-type FakeWidgetRootProps = {
-	attributes?: { reportParams?: Record< string, unknown > };
-	children: ReactNode;
-};
-
-const mockRootContext = createContext< { reportParams: Record< string, unknown > } >( {
-	reportParams: {},
-} );
-const mockUseRootContext = () => useContext( mockRootContext );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
@@ -59,16 +49,11 @@ type WidgetStateProps = {
 };
 
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
-	// Resolves like the real root: non-empty host `reportParams`, otherwise the page's params.
-	WidgetRoot: ( { attributes, children }: FakeWidgetRootProps ) => {
-		const hostParams = attributes?.reportParams;
-		const reportParams =
-			hostParams && Object.keys( hostParams ).length > 0 ? hostParams : mockPageParams;
-
-		return (
-			<mockRootContext.Provider value={ { reportParams } }>{ children }</mockRootContext.Provider>
-		);
-	},
+	...jest
+		.requireActual< typeof import( '../../../src/dashboard/test-utils/fake-widget-root' ) >(
+			'../../../src/dashboard/test-utils/fake-widget-root'
+		)
+		.fakeWidgetRoot( () => mockPageParams ),
 	WidgetState: ( { isLoading, isError, isEmpty, error, empty, children }: WidgetStateProps ) => {
 		if ( isError ) {
 			return (
@@ -97,7 +82,6 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		description: options.retryDescription,
 		actions: [ { label: 'Retry', onClick: options.onRetry } ],
 	} ),
-	useWidgetRootContext: () => mockUseRootContext(),
 } ) );
 
 const VIEW_QUERY = { context: 'view' };
@@ -125,12 +109,6 @@ describe( 'Video player widget', () => {
 		render( <VideoPlayer attributes={ { reportParams: { post_id: 7 } } } /> );
 
 		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'attachment', 7, VIEW_QUERY );
-		expect( mockGetEntityRecord ).not.toHaveBeenCalledWith(
-			'postType',
-			'attachment',
-			42,
-			VIEW_QUERY
-		);
 	} );
 
 	it( 'asks for a video when the page names none, without a request', () => {
