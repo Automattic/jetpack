@@ -64,6 +64,7 @@ page can read them from the URL search without re-implementing the seed:
 - `from`, `to`, `interval` — the current period and chart granularity.
 - `comp`, `compare_from`, `compare_to`, `compare_preset` — comparison state.
 - `preset`, `period` — the resolved date-range preset and period.
+- `step` — how the date arrows step the window, set by a step and cleared by any other range change.
 - `section` — resolved through the report's `resolveSection` when the report
   defines one, so a shared URL never persists a section the report can't render.
 

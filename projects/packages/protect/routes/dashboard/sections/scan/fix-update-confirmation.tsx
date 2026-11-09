@@ -2,18 +2,9 @@ import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import useOpenThreat from '../use-open-threat';
-import { fixThreats, isBulkFixable, refocusRow, useGetThreatBusy } from './threat-actions';
+import { fixThreats, getBulkRun, refocusRow, useGetThreatBusy } from './threat-actions';
 import type { ScanThreat } from './types';
 import type { RenderModalProps } from '@wordpress/dataviews';
-
-/**
- * The threats a confirmed update starts, as fixThreats leaves out the ones Scan fixes only one at a time.
- *
- * @param threats - Threats whose fixes update their software.
- * @return The threats that will be updated.
- */
-export const getUpdated = ( threats: ScanThreat[] ) =>
-	threats.length > 1 ? threats.filter( isBulkFixable ) : threats;
 
 /**
  * The name of the software a threat's fix updates.
@@ -30,7 +21,7 @@ const getName = ( threat: ScanThreat ) => threat.extension?.name || threat.title
  * @return The title.
  */
 export function getUpdateFixTitle( threats: ScanThreat[] ): string {
-	const updated = getUpdated( threats );
+	const updated = getBulkRun( threats );
 	if ( updated.length > 1 ) {
 		return sprintf(
 			/* translators: %d is a number of plugin and theme updates, two or more. */
@@ -90,7 +81,7 @@ export function FixUpdateConfirmation( {
 	onCancel?: () => void;
 	onConfirm: () => void;
 } ) {
-	const updated = getUpdated( threats );
+	const updated = getBulkRun( threats );
 	const [ only ] = updated;
 	const skipped = threats.length - updated.length;
 

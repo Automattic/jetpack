@@ -121,6 +121,7 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
  * comparison period; rows are sorted by share count and trimmed to `max`.
  */
 export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsState {
+	// No `stat_fields`: it takes exact keys, and the site's `shares_<service>` keys are not known up front.
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();
 
 	const summary = ( data as { stats?: Record< string, unknown > } | undefined )?.stats ?? {};

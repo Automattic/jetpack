@@ -19,7 +19,11 @@ import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
-import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import {
+	DeleteVideosError,
+	useDeleteVideo,
+	type VideoDeletionItem,
+} from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useLibraryInteractions } from '../../src/dashboard/hooks/use-library-interactions';
@@ -29,10 +33,15 @@ import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
 import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import {
+	recordUploadRefusal,
+	type UploadRefusal,
+} from '../../src/dashboard/utils/upload-refusal-analytics';
 import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
+import type { VideoPrivacyItem } from '../../src/dashboard/hooks/use-set-privacy';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
@@ -129,7 +138,7 @@ const StageInner = () => {
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
+	const { isAtLimit, isFree, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade( 'library_at_limit' );
 
 	const onChangeView = useCallback(
@@ -180,7 +189,10 @@ const StageInner = () => {
 		},
 		[ openVideoDetails ]
 	);
-	const handleFilesSelected = useUploadIntake( onUploadsStarted );
+	const handleFilesSelected = useUploadIntake( 'library_intake', onUploadsStarted );
+	const onUploadRefused = useCallback( ( refusal: UploadRefusal ) => {
+		recordUploadRefusal( 'library_dropzone', refusal );
+	}, [] );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -218,7 +230,8 @@ const StageInner = () => {
 				manageCaptions: ( item: LibraryItem ) => {
 					setCaptionVideo( item );
 				},
-				deleteItems: async ( ids: string[] ) => {
+				deleteItems: async ( deletionItems: VideoDeletionItem[] ) => {
+					const ids = deletionItems.map( item => item.id );
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -248,7 +261,7 @@ const StageInner = () => {
 					// from the listing.
 					let failedIds = new Set< string >();
 					try {
-						await deleteVideo( ids );
+						await deleteVideo( deletionItems );
 						createSuccessNotice(
 							sprintf(
 								/* translators: %d: number of deleted videos. */
@@ -293,11 +306,11 @@ const StageInner = () => {
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
-				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
+				setPrivacy: ( privacyItems: VideoPrivacyItem[], privacy: LibraryItemPrivacy ) => {
 					// Batch through useSetPrivacy: each id is POSTed individually so one
 					// failure doesn't abort the rest, and the result reports which ids
 					// succeeded vs. failed so we can surface an accurate notice.
-					setPrivacyAsync( { ids, privacy } )
+					setPrivacyAsync( { items: privacyItems, privacy } )
 						.then( ( { succeeded, failed } ) => {
 							if ( failed.length === 0 ) {
 								createSuccessNotice(
@@ -470,6 +483,7 @@ const StageInner = () => {
 						<Card.Content>
 							<UploadDropzone
 								onFiles={ handleFilesSelected }
+								onRefused={ onUploadRefused }
 								disabled={ isAtLimit }
 								allowMultiple={ ! isFree || isUnlimited }
 								onUpgrade={ runUpgrade }
@@ -536,7 +550,11 @@ const StageInner = () => {
 		>
 			{ isAtLimit && (
 				<div className="vp-library__notice">
-					<FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice
+						location="library_at_limit"
+						message={ FREE_TIER_AT_LIMIT_MESSAGE }
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>

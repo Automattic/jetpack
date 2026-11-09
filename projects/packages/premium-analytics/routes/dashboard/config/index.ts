@@ -28,3 +28,5 @@ export {
 	type WidgetTypeName,
 	type WidgetTypeRenameRecord,
 } from './widget-type-renames';
+
+export { DASHBOARD_GRID } from './grid';

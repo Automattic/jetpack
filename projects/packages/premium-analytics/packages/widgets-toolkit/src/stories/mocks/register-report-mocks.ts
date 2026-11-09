@@ -630,6 +630,27 @@ function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
 }
 
 /**
+ * The site summary narrowed to `stat_fields`, as WPCOM narrows it.
+ *
+ * @param statFields - Comma-separated `stats` keys, or none for every key.
+ * @return The summary response.
+ */
+function siteSummaryForFields( statFields: string | null | undefined ) {
+	const fields = statFields?.split( ',' ).filter( Boolean ) ?? [];
+	if ( ! fields.length ) {
+		return mockSiteSummary;
+	}
+	const stats: Record< string, unknown > = mockSiteSummary.stats;
+
+	return {
+		...mockSiteSummary,
+		stats: Object.fromEntries(
+			fields.filter( key => key in stats ).map( key => [ key, stats[ key ] ] )
+		),
+	};
+}
+
+/**
  * Routes a Stats sub-path to the matching mock generator.
  *
  * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
@@ -688,7 +709,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 	switch ( subPath ) {
 		case '':
 			// Site summary — the bare `/stats` endpoint (all-time totals).
-			return mockSiteSummary;
+			return siteSummaryForFields( getQueryParam( requestPath, 'stat_fields' ) );
 		case '/summary':
 			// Period summary — alternates primary/comparison so the Site overview
 			// widget shows a period-over-period delta on each tile.

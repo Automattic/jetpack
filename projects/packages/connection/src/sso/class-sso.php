@@ -362,7 +362,7 @@ CSS;
 	}
 
 	/**
-	 * Adds settings fields to Settings > General > Secure Sign On that allows users to
+	 * Adds settings fields to Settings > General > WordPress.com login that allows users to
 	 * turn off the login form on wp-login.php
 	 *
 	 * @since jetpack-2.7
@@ -371,13 +371,13 @@ CSS;
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Secure Sign On', 'jetpack-connection' ),
+			__( 'WordPress.com login', 'jetpack-connection' ),
 			'__return_false',
 			'jetpack-sso'
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 * Require two step authentication
 		 */
 		register_setting(
@@ -395,7 +395,7 @@ CSS;
 		);
 
 		/*
-		 * Settings > General > Secure Sign On
+		 * Settings > General > WordPress.com login
 		 */
 		register_setting(
 			'jetpack-sso',
@@ -632,7 +632,7 @@ CSS;
 			unset( $_COOKIE['jetpack_sso_wpcom_referrer'] );
 		}
 
-		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// If we have something to redirect to.
 			$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
@@ -1388,7 +1388,7 @@ CSS;
 
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$args['redirect_to'] = rawurlencode( esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
@@ -1647,8 +1647,8 @@ CSS;
 			return;
 		}
 
-		$redirect_to         = ! empty( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : admin_url(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['request_redirect_to'] ) ) : $redirect_to; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$redirect_to         = ! empty( $_GET['redirect_to'] ) && is_string( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : admin_url(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request_redirect_to = ! empty( $_GET['request_redirect_to'] ) && is_string( $_GET['request_redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['request_redirect_to'] ) ) : $redirect_to; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		/** This filter is documented in core/src/wp-login.php */
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );

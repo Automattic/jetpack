@@ -13,6 +13,10 @@ jest.mock( '../../../router-bridge', () => ( { useRouteSearch: () => mockSearch 
 jest.mock( '../../my-jetpack-tab-panel/features/use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules,
 } ) );
+jest.mock( '../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
 		module: $module,

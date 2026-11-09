@@ -1386,7 +1386,7 @@ class WooCommerce_Analytics extends Module {
 			$wc_datetime = new WC_DateTime( $wc_datetime, self::get_site_datetimezone() );
 		}
 
-		if ( is_a( $wc_datetime, 'WC_DateTime' ) ) {
+		if ( $wc_datetime instanceof \WC_DateTime ) {
 			$wc_datetime->setTimezone( self::get_site_datetimezone() );
 			$date_properties = (array) $wc_datetime;
 

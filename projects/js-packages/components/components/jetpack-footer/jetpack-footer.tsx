@@ -1,4 +1,9 @@
-import { isWpcomPlatformSite, getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	isWpcomPlatformSite,
+	getAdminUrl,
+	getScriptData,
+} from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -31,17 +36,18 @@ const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...
 		! isWpcomPlatformSite() &&
 		! window?.JetpackNetworkAdminData
 	) {
-		items = [
-			{
+		// My Jetpack shows the Features tab to admins only.
+		if ( currentUserCan( 'manage_options' ) ) {
+			items.push( {
 				label: __( 'Features', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
-			},
-			{
-				label: __( 'Help', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
-			},
-			...items,
-		];
+			} );
+		}
+
+		items.push( {
+			label: __( 'Help', 'jetpack-components' ),
+			href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
+		} );
 	}
 
 	if ( menu ) {

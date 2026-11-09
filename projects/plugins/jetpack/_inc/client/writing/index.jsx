@@ -22,7 +22,9 @@ import { getSettings } from 'state/settings';
 import { CarouselMoved } from './carousel-moved';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
+import { InfiniteScrollMoved } from './infinite-scroll-moved';
 import PostByEmail from './post-by-email';
+import { PostByEmailMoved } from './post-by-email-moved';
 import ThemeEnhancements from './theme-enhancements';
 import Widgets from './widgets';
 import WritingMedia from './writing-media';
@@ -142,16 +144,27 @@ export class Writing extends Component {
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
 				{ shouldRenderCustomContent && <CustomContentTypes { ...commonProps } /> }
-				<ThemeEnhancements { ...commonProps } />
-				<Widgets { ...commonProps } />
-				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
-					<PostByEmail
-						{ ...commonProps }
-						connectUrl={ this.props.connectUrl }
-						isLinked={ this.props.isLinked }
-						userCanManageModules={ this.props.userCanManageModules }
-					/>
+				{ isSettingsConsolidationEnabled() ? (
+					this.props.searchTerm &&
+					this.props.isModuleFound( 'infinite-scroll' ) && (
+						<InfiniteScrollMoved getModule={ this.props.module } />
+					)
+				) : (
+					<ThemeEnhancements { ...commonProps } />
 				) }
+				<Widgets { ...commonProps } />
+				{ this.props.isModuleFound( 'post-by-email' ) &&
+					showPostByEmail &&
+					( isSettingsConsolidationEnabled() && this.props.userCanManageModules ? (
+						this.props.searchTerm && <PostByEmailMoved getModule={ this.props.module } />
+					) : (
+						<PostByEmail
+							{ ...commonProps }
+							connectUrl={ this.props.connectUrl }
+							isLinked={ this.props.isLinked }
+							userCanManageModules={ this.props.userCanManageModules }
+						/>
+					) ) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>
 						{ __(

@@ -1,7 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import { ignoreThreat } from '../threat-actions';
+import { ignoreThreat, resetThreatActions } from '../threat-actions';
 import ThreatDetails from '../threat-details';
 import type { ScanThreat } from '../types';
 
@@ -31,6 +31,8 @@ describe( 'ThreatDetails', () => {
 		mockApiFetch.mockReset().mockReturnValue( new Promise( () => {} ) );
 	} );
 
+	afterEach( resetThreatActions );
+
 	it.each( [
 		[ 'starts a replace fix at once', 1, 'replace', 1, [] ],
 		[ 'asks for the slug before a delete fix', 2, 'delete', 0, [ 'Confirm deletion' ] ],
@@ -48,6 +50,102 @@ describe( 'ThreatDetails', () => {
 		);
 		expect( shown ).toEqual( confirm );
 	} );
+
+	it( 'starts a delete fix and closes the confirmation once the slug is typed', async () => {
+		let endFix: ( status: { status: string } ) => void = () => {};
+		mockApiFetch.mockReturnValue( new Promise( resolve => ( endFix = resolve ) ) );
+		render( <ThreatDetails threat={ threatIn( 6, 'delete' ) } canAct /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Auto-fix it' } ) );
+		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Confirm deletion' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/threats/6/fix' ) } )
+		);
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Confirm deletion' } ) ).not.toBeInTheDocument()
+		);
+		expect( screen.getByRole( 'button', { name: 'Fixing…' } ) ).toBeInTheDocument();
+
+		act( () => endFix( { status: 'not_fixed' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Auto-fix it' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
+			'an active plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'active',
+			'current',
+			'Deactivate and delete',
+		],
+		[
+			'an inactive plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'inactive',
+			'current',
+			'Delete it until',
+		],
+		[
+			'the active theme',
+			'themes',
+			'Extension',
+			undefined,
+			'active',
+			'current',
+			'Switch to another',
+		],
+		[ 'a parent theme', 'themes', 'Extension', undefined, 'parent', 'current', 'built on it' ],
+		[
+			'an unused theme',
+			'themes',
+			'Extension',
+			undefined,
+			'inactive',
+			'current',
+			'Delete it until',
+		],
+		[ 'WordPress', undefined, 'Core', undefined, undefined, 'current', 'Update as soon as' ],
+		[
+			'a fixed plugin',
+			'plugins',
+			'Extension',
+			undefined,
+			'active',
+			'fixed',
+			'Review the affected',
+		],
+		[
+			'a file in a plugin',
+			'plugins',
+			'Extension',
+			'wp-content/plugins/akismet/x.php',
+			'active',
+			'current',
+			'Review the affected',
+		],
+	] as const )(
+		'advises on unfixable %s',
+		( _name, type, signature, filename, state, status, advice ) => {
+			const threat: ScanThreat = {
+				id: 4,
+				signature: `Vulnerable.WP.${ signature }`,
+				title: 'Vulnerable software',
+				status,
+				filename,
+				extension: type && { type, slug: 'akismet', name: 'Akismet', version: '1.0', state },
+			};
+			render( <ThreatDetails threat={ threat } canAct={ false } /> );
+
+			expect( screen.getByText( advice, { exact: false } ) ).toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[ 'Confirm deletion', 3, 'delete' ],
@@ -69,6 +167,39 @@ describe( 'ThreatDetails', () => {
 			expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 		}
 	);
+
+	it.each( [
+		[ 'only Auto-fix for a delete fix', 'delete', true, [ 'Auto-fix it' ] ],
+		[ 'Delete plugin where the plan can’t fix', 'delete', false, [ 'Delete plugin' ] ],
+		[ 'both for a fix that doesn’t delete', 'replace', true, [ 'Delete plugin', 'Auto-fix it' ] ],
+		[ 'Delete plugin for an ignored delete fix', 'delete', true, [ 'Delete plugin' ], 'ignored' ],
+	] as const )( 'offers %s', ( _name, fixer, canAct, expected, status = 'current' ) => {
+		const threat: ScanThreat = {
+			...threatIn( 6, fixer ),
+			status: status as ScanThreat[ 'status' ],
+		};
+		render(
+			<ThreatDetails
+				threat={ {
+					...threat,
+					extension: {
+						...threat.extension!,
+						actions: {
+							delete: true,
+							// Any other link skips SoftwareActions' early return.
+							details: 'https://wordpress.org/plugins/akismet/',
+						},
+					},
+				} }
+				canAct={ canAct }
+			/>
+		);
+
+		const shown = [ 'Delete plugin', 'Auto-fix it' ].filter( name =>
+			screen.queryByRole( 'button', { name } )
+		);
+		expect( shown ).toEqual( expected );
+	} );
 
 	it.each( [
 		[ undefined, null ],

@@ -24,6 +24,27 @@ const makeApi = () => ( {
 } );
 
 describe( 'buildLibraryActions', () => {
+	it( 'passes the previous privacy settings with the selected videos', () => {
+		const api = makeApi();
+		const action = buildLibraryActions( api ).find(
+			candidate => candidate.id === 'set-privacy-private'
+		);
+		const rows = [
+			item( { id: '11', privacy: 'public' } ),
+			item( { id: '12', privacy: 'site-default' } ),
+		];
+		if ( action && 'callback' in action ) {
+			action.callback( rows, { registry: {} } );
+		}
+		expect( api.setPrivacy ).toHaveBeenCalledWith(
+			[
+				{ id: '11', type: 'videopress', privacy: 'public' },
+				{ id: '12', type: 'videopress', privacy: 'site-default' },
+			],
+			'private'
+		);
+	} );
+
 	it( 'adds a Manage subtitles action for idle VideoPress items', () => {
 		const api = makeApi();
 		const actions = buildLibraryActions( api );
@@ -136,7 +157,7 @@ describe( 'buildLibraryActions', () => {
 		const rawAction = buildLibraryActions( api ).find(
 			a => a.id === 'delete'
 		) as Action< LibraryItem >;
-		const rows = [ item( { id: '11' } ), item( { id: '12' } ) ];
+		const rows = [ item( { id: '11', type: 'videopress' } ), item( { id: '12', type: 'local' } ) ];
 		const closeModal = jest.fn();
 
 		expect( 'RenderModal' in rawAction ).toBe( true );
@@ -153,7 +174,10 @@ describe( 'buildLibraryActions', () => {
 		expect( api.deleteItems ).not.toHaveBeenCalled();
 
 		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
-		expect( api.deleteItems ).toHaveBeenCalledWith( [ '11', '12' ] );
+		expect( api.deleteItems ).toHaveBeenCalledWith( [
+			{ id: '11', type: 'videopress' },
+			{ id: '12', type: 'local' },
+		] );
 		expect( closeModal ).toHaveBeenCalledTimes( 2 );
 	} );
 } );

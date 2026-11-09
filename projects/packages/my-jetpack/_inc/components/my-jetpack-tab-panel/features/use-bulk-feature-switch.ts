@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { hasPlainSwitch } from '../../../data/module-switch';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
@@ -176,6 +177,8 @@ export function useBulkFeatureSwitch() {
 				await queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 				await fetchModules();
 			} finally {
+				// Even a failed run may have switched some, which can move products between ownership groups.
+				queryClient.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
 				held.forEach( ( { key, token } ) => clearRequestedSwitch( key, token ) );
 				setIsRunning( false );
 			}
