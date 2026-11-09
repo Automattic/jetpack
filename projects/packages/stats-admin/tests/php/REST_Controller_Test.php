@@ -334,7 +334,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		}
 
 		$error = $get_wp_error->invoke(
-			$this->rest_controller,
+			null,
 			array(
 				'error'   => 'err1',
 				'message' => 'msg1',
@@ -347,7 +347,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		);
 
 		$error = $get_wp_error->invoke(
-			$this->rest_controller,
+			null,
 			array(
 				'code'    => 'err2',
 				'message' => 'msg1',
@@ -360,7 +360,7 @@ class REST_Controller_Test extends Stats_TestCase {
 		);
 
 		$error = $get_wp_error->invoke(
-			$this->rest_controller,
+			null,
 			array(
 				'code' => 'err2',
 			),

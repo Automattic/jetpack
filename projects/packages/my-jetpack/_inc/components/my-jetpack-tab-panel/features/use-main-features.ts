@@ -11,6 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
 	clearRequestedSwitch,
@@ -198,6 +199,10 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
 				await fetchModules();
 			}
+		},
+		onSettled: () => {
+			// Not awaited: the switch need not stay busy for it.
+			queryClient.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
 		},
 	} );
 

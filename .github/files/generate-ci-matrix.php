@@ -79,7 +79,7 @@ $matrix   = array();
 $to_split = array();
 
 // Add PHP tests.
-foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5' ) as $php ) {
+foreach ( array( '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
