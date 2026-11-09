@@ -204,8 +204,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return string
 	 */
 	private static function build_consent_gate( $pushes ) {
-		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble).
-		// That recheck needs a stored allow: until a banner sets the consent type (waitfor_consent_hook), wp_has_consent() reads a fallback that can allow anyone.
+		// A delay-JS optimizer can load the WP Consent API after `load` without any event, so recheck on each script load (captured: it doesn't bubble) and when LiteSpeed, WP Rocket or Hummingbird finish replaying.
+		// Mid-replay, a banner queued after the API may still set opt-in, so the script-load recheck needs a stored allow or an opt-out fallback type.
 		// A stored deny wins: without a consent type, which some banners set only on the first visit, wp_has_consent() ignores it.
 		return sprintf(
 			'_stq = window._stq || [];
@@ -236,8 +236,12 @@ document.addEventListener( "wp_listen_for_consent_change", function ( event ) {
 document.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 window.addEventListener( "wp_consent_type_defined", _jpStatsCheck );
 document.addEventListener( "load", function ( event ) {
-	if ( event && event.target && event.target.tagName === "SCRIPT" && _jpStatsStoredChoice() === "allow" ) { _jpStatsCheck(); }
+	if ( ! event || ! event.target || event.target.tagName !== "SCRIPT" ) { return; }
+	if ( _jpStatsStoredChoice() === "allow" || window.wp_fallback_consent_type === "optout" ) { _jpStatsCheck(); }
 }, true );
+[ "DOMContentLiteSpeedLoaded", "rocket-allScriptsLoaded", "wphb-allScriptsLoaded" ].forEach( function ( name ) {
+	window.addEventListener( name, _jpStatsCheck );
+} );
 window.addEventListener( "load", function () {
 	if ( typeof window.wp_has_consent !== "function" ) {
 		window.console && console.warn( "Jetpack Stats: the WP Consent API script has not loaded yet, so Stats waits for it and for a consent choice." );
