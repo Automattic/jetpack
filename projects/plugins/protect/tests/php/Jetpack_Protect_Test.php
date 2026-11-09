@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
@@ -69,6 +70,7 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		Status::$status = null;
 		Protect_Status::delete_option();
 		( new Connection_Manager() )->reset_connection_status();
+		Constants::clear_constants();
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -91,6 +93,47 @@ class Jetpack_Protect_Test extends BaseTestCase {
 
 		$this->assertSame( $connected ? 999 : false, has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) ) );
 		$this->assertSame( $connected ? false : 10, has_action( '_admin_menu', array( $protect, 'admin_page_init' ) ) );
+	}
+
+	public function test_modules_left_on_by_the_jetpack_plugin_stay_off_until_turned_on_again() {
+		Jetpack_Options::update_option( 'active_modules', array( 'sso', 'waf', 'monitor' ) );
+
+		Jetpack_Protect::maybe_release_jetpack_modules();
+		$after_update = Jetpack_Options::get_option( 'active_modules' );
+
+		Jetpack_Options::update_option( 'active_modules', array( 'waf', 'sso' ) );
+		Jetpack_Protect::maybe_release_jetpack_modules();
+
+		$this->assertSame( array( 'waf' ), $after_update );
+		$this->assertSame( array( 'waf', 'sso' ), Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * @dataProvider provide_deactivated_plugins
+	 *
+	 * @param string $plugin   Basename of the deactivated plugin.
+	 * @param bool   $released Whether the opt-in modules should be switched off.
+	 */
+	#[DataProvider( 'provide_deactivated_plugins' )]
+	public function test_deactivating_the_jetpack_plugin_switches_the_opt_in_modules_off( $plugin, $released ) {
+		Constants::set_constant( 'JETPACK__PLUGIN_FILE', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+		Jetpack_Options::update_option( 'active_modules', array( 'monitor', 'waf', 'sso' ) );
+
+		Jetpack_Protect::release_jetpack_modules_on_jetpack_deactivation( $plugin );
+
+		$this->assertSame( $released ? array( 'waf' ) : array( 'monitor', 'waf', 'sso' ), array_values( Jetpack_Options::get_option( 'active_modules' ) ) );
+	}
+
+	/**
+	 * A deactivated plugin, and whether it is the Jetpack plugin.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_deactivated_plugins() {
+		return array(
+			'Jetpack'        => array( 'jetpack/jetpack.php', true ),
+			'another plugin' => array( 'akismet/akismet.php', false ),
+		);
 	}
 
 	/**
