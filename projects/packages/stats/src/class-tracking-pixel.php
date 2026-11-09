@@ -219,7 +219,7 @@ function _jpStatsStoredChoice() {
 		window.consent_api_get_cookie( window.consent_api.cookie_prefix + "_statistics" ) : "";
 }
 function _jpStatsSafeToRecheck() {
-	return _jpStatsStoredChoice() === "allow" || typeof window.wp_consent_type !== "undefined" || window.wp_fallback_consent_type === "optout";
+	return _jpStatsStoredChoice() === "allow" || typeof window.wp_consent_type !== "undefined" || String( window.wp_fallback_consent_type || "" ).indexOf( "optout" ) !== -1;
 }
 function _jpStatsCheck() {
 	if ( _jpStatsFire.done || typeof window.wp_has_consent !== "function" ) { return; }
