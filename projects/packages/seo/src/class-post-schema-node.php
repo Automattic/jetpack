@@ -81,7 +81,7 @@ class Post_Schema_Node {
 	private static function build_article( WP_Post $post ) {
 		$node = array(
 			'@type'            => 'Article',
-			'headline'         => wp_strip_all_tags( get_the_title( $post ) ),
+			'headline'         => html_entity_decode( wp_strip_all_tags( get_the_title( $post ) ), ENT_QUOTES, 'UTF-8' ),
 			'datePublished'    => get_post_time( 'c', true, $post ),
 			'dateModified'     => get_post_modified_time( 'c', true, $post ),
 			'mainEntityOfPage' => array(
@@ -99,8 +99,9 @@ class Post_Schema_Node {
 		$description = Jetpack_SEO_Posts::get_post_description( $post );
 		if ( $description ) {
 			// Cap it: get_post_description() falls back to full post_content, which
-			// would otherwise dump the whole body into the markup.
-			$node['description'] = wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' );
+			// would otherwise dump the whole body into the markup. Decode last, or
+			// wp_trim_words() would strip decoded text such as "<div>".
+			$node['description'] = html_entity_decode( wp_trim_words( wp_strip_all_tags( $description ), self::DESCRIPTION_MAX_WORDS, '' ), ENT_QUOTES, 'UTF-8' );
 		}
 
 		return $node;

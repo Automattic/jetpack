@@ -64,6 +64,6 @@ class Website_Schema_Node {
 		if ( ! is_string( $value ) ) {
 			return '';
 		}
-		return trim( wp_strip_all_tags( $value ) );
+		return trim( html_entity_decode( wp_strip_all_tags( $value ), ENT_QUOTES, 'UTF-8' ) );
 	}
 }

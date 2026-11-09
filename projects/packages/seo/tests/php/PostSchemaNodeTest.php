@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
@@ -119,6 +120,46 @@ class PostSchemaNodeTest extends TestCase {
 		$this->assertArrayHasKey( 'headline', $node );
 		$this->assertArrayHasKey( 'datePublished', $node );
 		$this->assertArrayHasKey( 'mainEntityOfPage', $node );
+	}
+
+	/**
+	 * Article text is plain characters, and escaped markup survives as text.
+	 *
+	 * @dataProvider provide_stored_article_text
+	 *
+	 * @param string $field    Article field under test.
+	 * @param string $stored   Stored value.
+	 * @param string $expected Expected field value.
+	 */
+	#[DataProvider( 'provide_stored_article_text' )]
+	public function test_article_text_decodes_html_entities( $field, $stored, $expected ) {
+		\Jetpack_SEO_Posts::$description = 'description' === $field ? $stored : 'Summary';
+
+		$post_id = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'headline' === $field ? $stored : 'Title',
+			)
+		);
+		$node    = Post_Schema_Node::build( get_post( $post_id ) );
+		wp_delete_post( $post_id, true );
+
+		$this->assertSame( $expected, $node[ $field ] );
+	}
+
+	/**
+	 * Stored Article text and the characters it should produce.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_article_text() {
+		return array(
+			'texturized apostrophe in headline' => array( 'headline', "What's New", "What\u{2019}s New" ),
+			'ampersand in headline'             => array( 'headline', 'Tom &amp; Jerry', 'Tom & Jerry' ),
+			'escaped markup in headline'        => array( 'headline', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
+			'ampersand in description'          => array( 'description', 'Tom &amp; Jerry', 'Tom & Jerry' ),
+			'escaped markup in description'     => array( 'description', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
+		);
 	}
 
 	/**
