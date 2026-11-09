@@ -30,6 +30,7 @@ const STOP_STATUSES = [ 403, 429 ];
 
 interface ErrorProperties {
 	source: ReportSource;
+	version: string;
 	route: string;
 	module: string;
 	widget: string;
@@ -45,7 +46,6 @@ interface ErrorPayload {
 	trace?: string;
 	url: string;
 	blog_id?: number;
-	jetpack_version?: string;
 	properties?: Partial< ErrorProperties >;
 	extra?: { line?: number; column?: number };
 }
@@ -265,9 +265,10 @@ function buildPayload(
 		trace: stack === undefined ? undefined : sanitizeText( stack, TRACE_LIMIT ),
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
-		jetpack_version: data?.premium_analytics?.error_reporting?.version,
 		properties: definedMembers( {
 			source,
+			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.
+			version: data?.premium_analytics?.error_reporting?.version,
 			route: new URLSearchParams( search ).get( 'p' ) ?? '/',
 			module: frame?.path,
 			widget: frame?.widget,

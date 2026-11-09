@@ -133,17 +133,19 @@ describe( 'reportError', () => {
 		expect( sentPayload() ).toMatchObject( { feature: 'jetpack_stats', severity: 'error' } );
 	} );
 
-	it( 'sends message, trace, blog_id and jetpack_version from the script data', () => {
+	it( 'sends message, trace and blog_id, and the package version under properties', () => {
 		const error = dashboardError( 'kaput' );
 
 		reportError( error, 'error' );
 
-		expect( sentPayload() ).toMatchObject( {
+		const payload = sentPayload();
+		expect( payload ).toMatchObject( {
 			message: 'kaput',
 			trace: error.stack,
 			blog_id: 42,
-			jetpack_version: '1.2.3',
+			properties: { version: '1.2.3' },
 		} );
+		expect( payload ).not.toHaveProperty( 'jetpack_version' );
 	} );
 
 	it( 'sends url as origin plus pathname with no query string', () => {
@@ -152,11 +154,12 @@ describe( 'reportError', () => {
 		expect( sentPayload().url ).toBe( 'http://localhost/wp-admin/admin.php' );
 	} );
 
-	it( 'sends properties.source, route, module, widget, error_name and query', () => {
+	it( 'sends properties.source, version, route, module, widget, error_name and query', () => {
 		reportError( dashboardError(), 'error' );
 
 		expect( sentPayload().properties ).toEqual( {
 			source: 'error',
+			version: '1.2.3',
 			route: '/posts',
 			module: 'widgets/top-posts/render.js',
 			widget: 'top-posts',
