@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: Store the empty list of excluded blocks so sites without a persistent object cache skip a database query on every page load.
