@@ -2,36 +2,28 @@
  * External dependencies
  */
 import {
-	hasComparisonEnabled,
 	intervalMenuOptions,
-	resolveIntervalForRange,
+	normalizeReportParams,
 	useReportScope,
 	useScopeLockedIntervals,
 	type DateLimits,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import {
-	PRESET_ALL_TIME,
 	PRESET_CUSTOM,
-	computePrimaryRange,
-	isSelectablePreset,
-	isYearPresetId,
 	planDateStep,
 	reportingTimeZone,
-	toComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { deriveComparisonRange } from '../../search/comparison';
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
 import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
 	ComparisonPresetId,
-	ComputablePresetId,
 	DateRange,
 	DateStep,
 	IntervalType,
@@ -129,89 +121,45 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
- * Whether the URL names a window to measure on the site's clock today rather than to read from
- * its dates: a selectable or year preset, or all time next to the dates the section wrote. The one
- * test behind both resolvers below, so the primary and its comparison can't drift apart.
+ * The window and comparison a set of search params names, read as `normalizeReportParams` reads
+ * them for the widgets, so a stale bookmark's controls match its numbers: a preset is the window it
+ * names today, its comparison preset measured again from that window; a hand-picked range and its
+ * comparison are the dates the URL carries. Gated on the window, so `compare_preset` alone compares
+ * nothing.
  *
- * @param presetId - The preset the URL carries, if any.
- * @param from     - The `from` search param.
- * @param to       - The `to` search param.
- * @return Whether the preset's window is measured today.
+ * @param params          - The search params, staged or committed.
+ * @param timeZone        - The site's reporting zone.
+ * @param lockedIntervals - The buckets the plan locks, which the resolved bucket avoids.
+ * @return The window, the bucket, and the comparison preset and window where comparison is on.
  */
-function namesTodaysWindow(
-	presetId: string | undefined,
-	from: string | undefined,
-	to: string | undefined
-): presetId is ComputablePresetId {
-	return (
-		isSelectablePreset( presetId ) ||
-		isYearPresetId( presetId ) ||
-		( presetId === PRESET_ALL_TIME && !! from && !! to )
-	);
-}
-
-/**
- * The window a preset or a pair of URL dates names: a preset is the window it names today, as
- * `normalizeReportParams` reads it for the widgets, so a stale bookmark's controls match its numbers.
- * All time keeps the URL's start and ends today; a hand-picked range is its dates.
- *
- * @param presetId - The preset the URL carries, if any.
- * @param from     - The `from` search param.
- * @param to       - The `to` search param.
- * @param timeZone - The site's reporting zone.
- * @return The window.
- */
-function resolveRange(
-	presetId: string | undefined,
-	from: string | undefined,
-	to: string | undefined,
-	timeZone: string
-): DateRange {
-	const computed = namesTodaysWindow( presetId, from, to )
-		? computePrimaryRange( presetId, timeZone )
-		: undefined;
-	if ( ! computed ) {
-		return toPickerRange( from, to, timeZone );
-	}
-	return presetId === PRESET_ALL_TIME
-		? { from: decodeDateSearchParam( from, timeZone ), to: computed.to }
-		: computed;
-}
-
-/**
- * The comparison the URL names, read as `normalizeReportParams` reads it for the widgets: a preset
- * window's comparison preset is measured again from the window it names today, a hand-picked
- * window's dates are kept. Gated on the window, so `compare_preset` alone compares nothing.
- *
- * @param params   - The search params, staged or committed.
- * @param primary  - The primary window those params name.
- * @param timeZone - The site's reporting zone.
- * @return The comparison preset and window, or neither when comparison is off.
- */
-function resolveComparison(
+function resolveWindow(
 	params: ReportQuerySearchParams,
-	primary: DateRange,
-	timeZone: string
-): { presetId?: ComparisonPresetId; range?: DateRange } {
-	if ( ! hasComparisonEnabled( params ) ) {
-		return {};
-	}
-
-	const isPresetWindow = namesTodaysWindow( params.preset, params.from, params.to );
-	const from = encodeDateToSearchParam( primary.from );
-	const to = encodeDateToSearchParam( primary.to );
-	const measured =
-		isPresetWindow && toComparisonPresetId( params.compare_preset ) && from && to
-			? deriveComparisonRange( { ...params, from, to } )
-			: undefined;
+	timeZone: string,
+	lockedIntervals: readonly LockableInterval[]
+): {
+	range: DateRange;
+	interval: IntervalType;
+	comparisonPresetId?: ComparisonPresetId;
+	comparisonRange?: DateRange;
+} {
+	const normalized = normalizeReportParams(
+		params as Parameters< typeof normalizeReportParams >[ 0 ],
+		undefined,
+		{ lockedIntervals }
+	);
+	// Defaults stand in for a URL that names no window; the picker shows none, and the arrows
+	// have nothing to step from. The route seeds one before the hook sees it.
+	const namesWindow = !! params.from || !! params.to || normalized.preset === params.preset;
 
 	return {
-		presetId: measured?.compare_preset ?? params.compare_preset ?? undefined,
-		range: toPickerRange(
-			measured?.compare_from ?? params.compare_from,
-			measured?.compare_to ?? params.compare_to,
-			timeZone
-		),
+		range: namesWindow
+			? toPickerRange( normalized.from, normalized.to, timeZone )
+			: { from: undefined, to: undefined },
+		interval: normalized.interval,
+		...( normalized.comp && {
+			comparisonPresetId: normalized.compare_preset,
+			comparisonRange: toPickerRange( normalized.compare_from, normalized.compare_to, timeZone ),
+		} ),
 	};
 }
 
@@ -247,16 +195,27 @@ export function useReportDateFilters< TFrom extends string >(
 	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
-	const range = useMemo(
-		() => resolveRange( presetId, effective.from, effective.to, timeZone ),
-		[ presetId, effective.from, effective.to, timeZone ]
+	// The window being edited; the comparison it names is what applying it would compare.
+	const draft = useMemo(
+		() => resolveWindow( effective, timeZone, lockedIntervals ),
+		[ effective, timeZone, lockedIntervals ]
 	);
+	const { range, interval, comparisonPresetId } = draft;
 
 	const appliedPresetId = useMemo( () => committed.preset ?? undefined, [ committed.preset ] );
-	const appliedRange = useMemo(
-		() => resolveRange( appliedPresetId, committed.from, committed.to, timeZone ),
-		[ appliedPresetId, committed.from, committed.to, timeZone ]
+	/*
+	 * Applied, not staged: a comparison commits on its own but can ride
+	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
+	 */
+	const applied = useMemo(
+		() => resolveWindow( committed, timeZone, lockedIntervals ),
+		[ committed, timeZone, lockedIntervals ]
 	);
+	const {
+		range: appliedRange,
+		comparisonPresetId: appliedComparisonPresetId,
+		comparisonRange: appliedComparisonRange,
+	} = applied;
 
 	const onChange = useCallback(
 		(
@@ -280,48 +239,21 @@ export function useReportDateFilters< TFrom extends string >(
 		[ stage, effective, lockedIntervals ]
 	);
 
-	// Read against the window being edited, so the control names what applying it would compare.
-	const comparisonPresetId = useMemo(
-		() => resolveComparison( effective, range, timeZone ).presetId,
-		[ effective, range, timeZone ]
-	);
-
-	/*
-	 * Applied, not staged: a comparison commits on its own but can ride
-	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
-	 */
-	const { presetId: appliedComparisonPresetId, range: appliedComparisonRange } = useMemo(
-		() => resolveComparison( committed, appliedRange, timeZone ),
-		[ committed, appliedRange, timeZone ]
-	);
-
 	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	// Listed and checked against the range being edited, read as the window it names today, the
-	// dates the widgets bucket by. See `getAllowedIntervalsForPreset` for why the draft, not the applied window.
-	const draftWindow = useMemo(
-		() => ( {
-			from: encodeDateToSearchParam( range.from ) ?? '',
-			to: encodeDateToSearchParam( range.to ) ?? '',
-		} ),
-		[ range ]
-	);
-
+	// Listed against the range being edited, read as the window it names today, the dates the
+	// widgets bucket by. See `getAllowedIntervalsForPreset` for why the draft, not the applied window.
 	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
-		() => intervalMenuOptions( { preset: presetId, ...draftWindow }, lockedIntervals ),
-		[ presetId, draftWindow, lockedIntervals ]
-	);
-
-	const interval = useMemo(
 		() =>
-			resolveIntervalForRange(
-				presetId,
-				draftWindow.from,
-				draftWindow.to,
-				effective.interval,
+			intervalMenuOptions(
+				{
+					preset: presetId,
+					from: encodeDateToSearchParam( range.from ),
+					to: encodeDateToSearchParam( range.to ),
+				},
 				lockedIntervals
 			),
-		[ presetId, draftWindow, effective.interval, lockedIntervals ]
+		[ presetId, range, lockedIntervals ]
 	);
 
 	/**
