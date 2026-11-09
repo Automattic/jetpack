@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-monetize",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"private": true,
 	"description": "The Monetize dashboard: payments, paid subscribers and ads in wp-admin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/monetize/#readme",

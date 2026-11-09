@@ -365,7 +365,7 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Blocked requests on each UTC day, keyed by `Y-m-d`. Days past 30 are only pruned when a block is written.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.32.0
 	 *
 	 * @return array<string, int>
 	 */
@@ -410,7 +410,7 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Whether the firewall has blocked a request other than its own test since it started recording that.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.32.0
 	 *
 	 * @return bool
 	 */

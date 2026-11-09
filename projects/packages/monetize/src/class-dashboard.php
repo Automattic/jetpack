@@ -27,7 +27,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Feature flag that makes the dashboard available while it is built.

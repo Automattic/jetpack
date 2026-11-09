@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-JSON API: Correct the post endpoint documentation for which metadata keys a request can read or change.
