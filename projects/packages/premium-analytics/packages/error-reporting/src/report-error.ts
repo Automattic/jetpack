@@ -323,6 +323,7 @@ export function reportError(
 					error: JSON.stringify( buildPayload( details, message, source, frame, extra ) ),
 				} ),
 				keepalive: true,
+				credentials: 'omit',
 			} )
 			.then( response => handleResponse( response, hour ) )
 			.catch( () => {} );
