@@ -15,6 +15,8 @@ use Automattic\Jetpack\Protect_Status\Protect_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -115,6 +117,23 @@ class Jetpack_Protect_Test extends BaseTestCase {
 		$this->assertSame( array( 'waf' ), array_values( $left_on ) );
 		$this->assertSame( array( 'waf', 'monitor' ), array_values( $modules->get_active() ) );
 		$this->assertContains( 'sso', Jetpack_Options::get_option( 'active_modules' ), 'The saved list stays intact for the Jetpack plugin.' );
+	}
+
+	/**
+	 * Loading the Jetpack plugin's class can't be undone, so this runs in its own process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_with_the_jetpack_plugin_its_module_state_is_left_alone() {
+		class_alias( self::class, 'Jetpack' );
+
+		Jetpack_Protect::record_opt_in( 'sso' );
+
+		$this->assertSame( array( 'sso', 'monitor' ), Jetpack_Protect::filter_opt_in_modules( array( 'sso', 'monitor' ) ) );
+		$this->assertSame( array(), get_option( Jetpack_Protect::OPTED_IN_MODULES_OPTION, array() ) );
 	}
 
 	public function test_turning_an_opt_in_module_off_removes_it_and_needs_a_new_opt_in() {
