@@ -797,7 +797,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 		// Default, then Effective.
 		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
-		$this->assertStringNotContainsString( 'Changed by code on this site.', $output );
+		$this->assertStringNotContainsString( 'Changed by code, not by this screen.', $output );
 	}
 
 	/**
@@ -820,7 +820,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_admin_page();
 
 		$this->assertStringContainsString(
-			'<td>Off</td><td>On<pclass="description">Changedbycodeonthissite.</p></td>',
+			'<td>Off</td><td>On<pclass="description">Changedbycode,notbythisscreen.</p></td>',
 			$this->compact( $output )
 		);
 	}
@@ -837,7 +837,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$output = $this->render_admin_page();
 
 		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
-		$this->assertStringNotContainsString( 'Changed by code on this site.', $output );
+		$this->assertStringNotContainsString( 'Changed by code, not by this screen.', $output );
 	}
 
 	/**
@@ -863,7 +863,7 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		);
 		// Default, then Effective — the override says on, the effective value does not.
 		$this->assertStringContainsString(
-			'<td>Off</td><td>Off<pclass="description">Changedbycodeonthissite.</p></td>',
+			'<td>Off</td><td>Off<pclass="description">Changedbycode,notbythisscreen.</p></td>',
 			$this->compact( $output )
 		);
 	}
