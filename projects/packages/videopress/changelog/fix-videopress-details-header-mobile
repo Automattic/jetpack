@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Keep the video details header readable on phones: truncate the title and collapse "Add to a post or page" to its icon.
