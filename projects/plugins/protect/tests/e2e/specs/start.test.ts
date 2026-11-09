@@ -92,26 +92,26 @@ test.describe( 'Jetpack Protect Plugin', () => {
 			).toHaveCount( 1 );
 		} );
 
-		await test.step( 'Test the brute force protection setting', async () => {
+		await test.step( 'Test the login protection setting', async () => {
 			// Test the setting is present and enabled by default
-			const bruteForceToggle = getToggleBySection( page, firewallPanel, 'Brute force protection' );
+			const bruteForceToggle = getToggleBySection( page, firewallPanel, 'Login protection' );
 			await expect(
-				firewallPanel.getByRole( 'heading', { name: 'Brute force protection' } )
+				firewallPanel.getByRole( 'heading', { name: 'Login protection' } )
 			).toBeVisible();
-			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
+			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Login protection should be on' ).toBeChecked();
 
 			// Test turning brute force off
 			await bruteForceToggle.click();
 			await closeChangesSavedNotice( page );
-			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Brute force protection should be off' ).not.toBeChecked();
+			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Login protection should be off' ).not.toBeChecked();
 
 			// Test turning brute force on
 			await bruteForceToggle.click();
 			await closeChangesSavedNotice( page );
-			await expect( bruteForceToggle, 'Brute force protection should be enabled' ).toBeEnabled();
-			await expect( bruteForceToggle, 'Brute force protection should be on' ).toBeChecked();
+			await expect( bruteForceToggle, 'Login protection should be enabled' ).toBeEnabled();
+			await expect( bruteForceToggle, 'Login protection should be on' ).toBeChecked();
 		} );
 
 		await test.step( 'Test the IP block list settings', async () => {

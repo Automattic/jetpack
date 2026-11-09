@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.16.0';
+	const PACKAGE_VERSION = '6.17.0';
 
 	/**
 	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
@@ -229,6 +229,10 @@ class Initializer {
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 
+		// Not on admin_init: modules are usually toggled over REST, where admin_init never fires.
+		add_action( 'jetpack_activate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+		add_action( 'jetpack_deactivate_module', array( Historically_Active_Modules::class, 'expire_refresh' ) );
+
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
 		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
@@ -243,7 +247,7 @@ class Initializer {
 		// Sets up JITMS.
 		JITM::configure();
 
-		// Add "Jetpack Manage" menu item.
+		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
 
 		/**
@@ -998,12 +1002,13 @@ class Initializer {
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
 				'userFirstName'          => (string) wp_get_current_user()->first_name,
 				'lifecycleStats'         => array(
-					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
-					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
-					'brokenModules'             => Red_Bubble_Notifications::check_for_broken_modules(),
-					'isSiteConnected'           => $connection->is_connected(),
-					'isUserConnected'           => $connection->is_user_connected(),
-					'modules'                   => self::get_active_modules(),
+					'jetpackPlugins'                      => self::get_installed_jetpack_plugins(),
+					'historicallyActiveModules'           => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'historicallyActiveModulesRefreshDue' => Historically_Active_Modules::is_refresh_due(),
+					'brokenModules'                       => Red_Bubble_Notifications::check_for_broken_modules(),
+					'isSiteConnected'                     => $connection->is_connected(),
+					'isUserConnected'                     => $connection->is_user_connected(),
+					'modules'                             => self::get_active_modules(),
 				),
 				'recommendedModules'     => array(
 					'modules'    => self::get_recommended_modules(),
@@ -1110,15 +1115,8 @@ class Initializer {
 	 * @return string The management URL.
 	 */
 	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
-		$eligible = false;
-		/**
-		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
-		 *
-		 * @since 6.11.0
-		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
-		 */
-		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
-		$available = $available && self::is_modules_to_features_enabled();
+		$eligible  = false;
+		$available = self::host_shows_my_jetpack() && self::is_modules_to_features_enabled();
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
@@ -1555,7 +1553,38 @@ class Initializer {
 	}
 
 	/**
-	 * Whether settings move to My Jetpack: the flag is on and My Jetpack's page is available.
+	 * Whether the host shows My Jetpack.
+	 *
+	 * @return bool
+	 */
+	private static function host_shows_my_jetpack() {
+		/**
+		 * Filters whether the host shows My Jetpack, which lets Modules links open Features and settings move to My Jetpack.
+		 *
+		 * @since 6.11.0
+		 * @since $$next-version$$ False also keeps settings on the Settings screen.
+		 * @param bool $available True to allow the Features tab; false keeps the classic Modules and Settings screens, for a host where My Jetpack is not shown.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+	}
+
+	/**
+	 * Whether settings move to My Jetpack on this site: the flag is on, My Jetpack initializes, and the host shows it.
+	 *
+	 * It needs no admin menu, so URL builders that also run in REST use it, while page loads use `is_settings_consolidation_enabled()`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_settings_consolidation_on_for_site() {
+		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG )
+			&& self::should_initialize()
+			&& self::host_shows_my_jetpack();
+	}
+
+	/**
+	 * Whether settings move to My Jetpack: consolidation is on for the site and My Jetpack's page is available.
 	 *
 	 * Without the page, moved settings would have nowhere to go, so they stay on the Settings screen.
 	 *
@@ -1564,11 +1593,11 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_settings_consolidation_enabled() {
-		return Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) && self::is_admin_page_available();
+		return self::is_settings_consolidation_on_for_site() && self::is_admin_page_available();
 	}
 
 	/**
-	 * Point the module's configure URL at its settings panel while the flag is on.
+	 * Point the module's configure URL at its settings panel while settings consolidation is on for the site.
 	 *
 	 * @since 6.16.0
 	 *
@@ -1589,9 +1618,7 @@ class Initializer {
 	}
 
 	/**
-	 * Where a module's settings live: its panel in Features while the flag is on, `$fallback` otherwise.
-	 *
-	 * Reads the flag alone, not `is_settings_consolidation_enabled()`: that one needs the admin menu, which REST requests never build.
+	 * Where a module's settings live: its panel in Features while settings consolidation is on for the site, `$fallback` otherwise.
 	 *
 	 * @since 6.16.0
 	 *
@@ -1600,7 +1627,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function resolve_settings_url( $module, $fallback ) {
-		if ( ! in_array( $module, self::SETTINGS_PANEL_MODULES, true ) || ! Feature_Flags::is_enabled( self::SETTINGS_CONSOLIDATION_FLAG ) ) {
+		if ( ! in_array( $module, self::SETTINGS_PANEL_MODULES, true ) || ! self::is_settings_consolidation_on_for_site() ) {
 			return $fallback;
 		}
 

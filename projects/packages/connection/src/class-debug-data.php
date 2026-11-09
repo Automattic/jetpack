@@ -17,7 +17,7 @@ use WP_User;
 /**
  * Adds connection details to Tools › Site Health › Info, and so to "Copy site info to clipboard".
  *
- * @since $$next-version$$
+ * @since 9.17.0
  */
 class Debug_Data {
 
@@ -31,7 +31,7 @@ class Debug_Data {
 	/**
 	 * Add the Jetpack Connection section, unless an older Jetpack plugin adds its own.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.17.0
 	 *
 	 * @param array $debug The debug information already compiled by Core.
 	 *
@@ -50,7 +50,7 @@ class Debug_Data {
 	/**
 	 * Build the Jetpack Connection section.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.17.0
 	 *
 	 * @return array The section, in the shape Core's `debug_information` filter expects.
 	 */
@@ -87,7 +87,7 @@ class Debug_Data {
 	/**
 	 * Compile the section's fields.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.17.0
 	 *
 	 * @return array Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 	 */
@@ -217,7 +217,7 @@ class Debug_Data {
 		 * For connection-related fields; a product's own status belongs in its own `debug_information` section.
 		 * The IDC and connection test fields are added after this runs, so they stay last and can't be overwritten.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.17.0
 		 *
 		 * @param array $fields Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 		 */

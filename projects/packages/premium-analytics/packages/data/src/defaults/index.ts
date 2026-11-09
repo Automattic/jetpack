@@ -2,6 +2,7 @@ export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	withComparisonPreset,
 	withDefaultComparison,
 } from './reports';
 export {

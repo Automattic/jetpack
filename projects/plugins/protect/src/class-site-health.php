@@ -97,6 +97,31 @@ class Site_Health {
 			'test'        => 'jetpack_protect_checks',
 		);
 
+		$status = Status::get_status();
+		// An unconnected site has no results to load, so it keeps the default result.
+		$fetch_failed = ! empty( $status->error ) && 'site_not_connected' !== $status->error_code;
+		if ( ! $total_threats && ( $fetch_failed || ! empty( $status->last_scan_failed ) ) ) {
+			if ( $fetch_failed ) {
+				$result['label']       = __( 'Jetpack Protect couldn’t check your site for threats', 'jetpack-protect' );
+				$result['description'] = sprintf(
+					'<p>%s</p>',
+					esc_html__( 'We couldn’t load your latest scan results, so we can’t confirm your site is free of threats.', 'jetpack-protect' )
+				);
+			} else {
+				$result['label']       = __( 'Your last Jetpack Protect scan didn’t complete', 'jetpack-protect' );
+				$result['description'] = sprintf(
+					'<p>%s</p>',
+					esc_html__( 'We can’t confirm your site is free of threats until a scan finishes.', 'jetpack-protect' )
+				);
+			}
+			$result['status']  = 'recommended';
+			$result['actions'] = sprintf(
+				'<p><a href="%s">%s</a></p>',
+				esc_url( admin_url( 'admin.php?page=jetpack-protect' ) ),
+				esc_html__( 'Open Jetpack Protect', 'jetpack-protect' )
+			);
+		}
+
 		/**
 		 * If threats found.
 		 */

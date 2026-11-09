@@ -9,6 +9,14 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Report_Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -19,8 +27,22 @@ use WP_REST_Server;
  * The route reads WooCommerce reports from WordPress.com for a connected site.
  *
  * @covers \Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Executor
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Registry
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Request
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Forward_Handler
+ * @covers \Automattic\Jetpack\WooCommerceStats\Report_Execution\Wpcom_Report_Provider
  */
 #[CoversClass( Api_Proxy_Controller::class )]
+#[CoversClass( Default_Reports::class )]
+#[CoversClass( Report_Definition::class )]
+#[CoversClass( Report_Executor::class )]
+#[CoversClass( Report_Registry::class )]
+#[CoversClass( Report_Request::class )]
+#[CoversClass( Wpcom_Forward_Handler::class )]
+#[CoversClass( Wpcom_Report_Provider::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
 
 	/**
@@ -47,6 +69,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$wp_rest_server = new WP_REST_Server();
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		do_action( 'rest_api_init' );
+		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
@@ -66,6 +89,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		remove_all_actions( Report_Registry::REGISTER_ACTION );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -168,6 +192,150 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'no_connection', $response->get_data()['code'] );
 		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_serves_a_cached_report_on_a_site_that_lost_its_connection() {
+		$this->get_report();
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$response = $this->get_report();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * @dataProvider data_wpcom_routes
+	 *
+	 * @param string $route Route WordPress.com serves, forwarded exactly as sent.
+	 */
+	#[DataProvider( 'data_wpcom_routes' )]
+	public function test_forwards_every_route_wordpress_com_serves( $route ) {
+		$this->assertSame( 200, $this->get_report( $route )->get_status() );
+		$this->assertStringContainsString( '/sites/4242/analytics/reports/' . $route . '?', $this->requests[0]['url'] );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function data_wpcom_routes() {
+		$routes = array(
+			'bookings/by-date',
+			'coupons/',
+			'coupons/by-date',
+			'customers/by-date',
+			'customers/new-returning',
+			'order-attribution/channel/summary',
+			'order-attribution/source/summary',
+			'order-attribution/campaign/summary',
+			'order-attribution-by-product/channel/summary',
+			'order-attribution/channel/items',
+			'order-attribution/channel/compare',
+			'orders/by-date',
+			'orders-by-product-type/by-date',
+			'products',
+			'sessions/by-conversion-rate',
+			'sessions/by-date',
+			'sessions/by-device',
+			'sessions/by-location',
+			'taxes/by-date',
+			'taxes/breakdown',
+		);
+
+		return array_combine( $routes, array_map( fn( $route ) => array( $route ), $routes ) );
+	}
+
+	public function test_answers_unknown_report_for_a_route_without_a_definition() {
+		$response = $this->get_report( 'orders/by-week' );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'unknown_report', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_refuses_an_unknown_provider() {
+		$this->assertSame( 400, $this->get_report( 'orders/by-date', array( 'provider' => 'mars' ) )->get_status() );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_answers_unsupported_provider_for_a_provider_without_a_handler() {
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => 'local' ) );
+
+		$this->assertSame( 422, $response->get_status() );
+		$this->assertSame( 'unsupported_provider', $response->get_data()['code'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	public function test_never_forwards_the_provider_param_and_shares_the_cache() {
+		$this->get_report();
+		$this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) + array( 'force_refresh' => '1' ) );
+		$cached = $this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) );
+
+		$this->assertSame( 200, $cached->get_status() );
+		$this->assertCount( 2, $this->requests );
+		$this->assertStringNotContainsString( 'provider', $this->requests[1]['url'] );
+	}
+
+	public function test_answers_needs_connection_when_a_request_names_a_provider() {
+		$this->get_report();
+		\Jetpack_Options::delete_option( 'blog_token' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$response = $this->get_report( 'orders/by-date', array( 'provider' => 'wpcom' ) );
+
+		$this->assertSame( 503, $response->get_status() );
+		$this->assertSame( 'needs_connection', $response->get_data()['code'] );
+	}
+
+	/**
+	 * @dataProvider data_registered_reports
+	 *
+	 * @param string $route Route requested.
+	 * @param string $id    Id of the report the handler should receive.
+	 */
+	#[DataProvider( 'data_registered_reports' )]
+	public function test_serves_a_report_handler_registered_through_the_hook( $route, $id ) {
+		// @phan-suppress-next-line PhanAccessClassInternal -- The test stands in for another package's handler.
+		$handler = new class() implements Report_Handler {
+			/**
+			 * Answer with the report's id.
+			 *
+			 * @param Report_Request $request The request.
+			 * @return array
+			 */
+			public function run( Report_Request $request ) {
+				return array(
+					'data'    => array( 'id' => $request->definition->id ),
+					'status'  => 200,
+					'headers' => array(),
+				);
+			}
+		};
+		add_action(
+			Report_Registry::REGISTER_ACTION,
+			static function ( Report_Registry $registry ) use ( $handler ) {
+				$registry->register_report( new Report_Definition( 'owner.report', 0, array( 'owner/report' ) ) );
+				$registry->register_handler( 'owner.report', 'wpcom', $handler );
+				$registry->register_handler( 'orders.by_date', 'wpcom', $handler );
+			}
+		);
+
+		$response = $this->get_report( $route );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $id, $response->get_data()['id'] );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function data_registered_reports() {
+		return array(
+			'a new report'                 => array( 'owner/report', 'owner.report' ),
+			'a handler that beats the `*`' => array( 'orders/by-date', 'orders.by_date' ),
+		);
 	}
 
 	public function test_caches_a_report_by_path_and_params() {

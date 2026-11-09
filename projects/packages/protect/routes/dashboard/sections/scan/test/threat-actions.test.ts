@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { recordEvent } from '../../../data/tracks';
-import { setScan, useScan } from '../store';
+import { resetScan, setScan, useScan } from '../store';
 import {
 	deleteSoftware,
 	deleteThreatRow,
@@ -12,6 +12,7 @@ import {
 	ignoreThreat,
 	ignoreThreats,
 	loadIgnored,
+	resetThreatActions,
 	unignoreThreat,
 } from '../threat-actions';
 
@@ -24,6 +25,14 @@ const threat = { id: 7, title: 'Malicious code found in file: a.php' };
 window.jetpackProtectDashboard = {
 	scan: { hasPlan: true, url: '#', error: false, threats: [ threat ], ignored: [] },
 };
+
+afterEach( () => {
+	resetThreatActions();
+	resetScan();
+	dispatch( noticesStore ).removeAllNotices( 'snackbar' );
+	mockApiFetch.mockReset();
+	jest.useRealTimers();
+} );
 
 describe( 'ignoreThreat', () => {
 	it( 'moves the threat to the ignored list, and the notice’s Undo unignores it', async () => {
@@ -197,12 +206,7 @@ describe( 'bulk actions', () => {
 			.getNotices()
 			.filter( notice => notice.id.includes( 'bulk' ) );
 
-	afterEach( () => {
-		jest.useRealTimers();
-	} );
-
 	it( 'reports a batch in one snackbar, and Undo unignores only the threats that were ignored', async () => {
-		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		const [ a, b, c ] = [ fileThreat( 31 ), fileThreat( 32 ), fileThreat( 33 ) ];
 		setScan( current => ( { ...current, threats: [ a, b, c ], ignored: [] } ) );
 		mockApiFetch.mockReset().mockImplementation( ( { path, method } ) => {
@@ -286,7 +290,6 @@ describe( 'bulk actions', () => {
 		],
 	] )( 'reports a batch of fixes as %s: %s', async ( status, content, ...answers: string[][] ) => {
 		jest.useFakeTimers();
-		dispatch( noticesStore ).removeAllNotices( 'snackbar' );
 		const ids = [ 41, 42 ];
 		mockApiFetch.mockReset().mockImplementation( ( { path } ) => {
 			const queue = answers[ ids.findIndex( id => path.includes( `/${ id }/` ) ) ];

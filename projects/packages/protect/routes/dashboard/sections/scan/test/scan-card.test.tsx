@@ -3,7 +3,8 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import ScanCard from '../scan-card';
-import { setScan } from '../store';
+import { resetScan, setScan } from '../store';
+import { resetThreatActions } from '../threat-actions';
 import { LEVELS, getLevel } from '../threats-list';
 import type { ScanState } from '../types';
 
@@ -41,6 +42,11 @@ const renderCard = ( scan: Partial< ScanState > ) => {
 
 beforeEach( () => {
 	mockApiFetch.mockReset().mockResolvedValue( [] );
+} );
+
+afterEach( () => {
+	resetThreatActions();
+	resetScan();
 } );
 
 describe( 'ScanCard without Scan', () => {
