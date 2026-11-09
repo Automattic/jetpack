@@ -87,10 +87,11 @@ test.describe( 'Admin shell: frame by frame', () => {
 					page,
 				} ) => {
 					const bug = SPIKE_BUGS[ `${ from } → ${ to } (${ visit })` ];
-					test.fail( !! bug, bug );
 					await arrive( page, from, to, visit );
 					const frames = await recordSwitch( page, to );
 					expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
+					// Called here, so a failed or reloading switch above is still a real failure.
+					test.fail( !! bug, bug );
 
 					const notFound = frames.filter( f => f.notFound );
 					expect

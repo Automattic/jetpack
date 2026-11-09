@@ -52,13 +52,15 @@ test.describe( 'Admin shell: navigation matrix', () => {
 				const bug = SPIKE_BUGS.find(
 					row => ( ! row.a || row.a === a.slug ) && ( ! row.b || row.b === b.slug )
 				);
-				test.fail( !! bug, bug?.reason );
 				await openMember( page, a.slug );
 				await expect( menuLink( page, b.slug ), `${ b.slug } is in the menu` ).toBeAttached();
 				await expectShown( page, a.slug );
 				const leftAt = await where( page );
 
 				await switchTo( page, b.slug );
+				expect( new URL( page.url() ).searchParams.get( 'page' ), 'URL page' ).toBe( b.slug );
+				// Called here, so a failed or reloading switch above is still a real failure.
+				test.fail( !! bug, bug?.reason );
 				await expectShown( page, b.slug );
 				expect( await where( page ), `${ b.slug } lands where a full load does` ).toMatch(
 					b.landing
