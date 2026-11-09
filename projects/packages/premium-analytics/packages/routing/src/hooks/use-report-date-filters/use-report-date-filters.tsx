@@ -16,7 +16,6 @@ import {
 	computePrimaryRange,
 	isSelectablePreset,
 	isYearPresetId,
-	isYearSurfacePresetId,
 	planDateStep,
 	reportingTimeZone,
 	toComparisonPresetId,
@@ -32,6 +31,7 @@ import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
 	ComparisonPresetId,
+	ComputablePresetId,
 	DateRange,
 	DateStep,
 	IntervalType,
@@ -129,6 +129,28 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
+ * Whether the URL names a window to measure on the site's clock today rather than to read from
+ * its dates: a selectable or year preset, or all time next to the dates the section wrote. The one
+ * test behind both resolvers below, so the primary and its comparison can't drift apart.
+ *
+ * @param presetId - The preset the URL carries, if any.
+ * @param from     - The `from` search param.
+ * @param to       - The `to` search param.
+ * @return Whether the preset's window is measured today.
+ */
+function namesTodaysWindow(
+	presetId: string | undefined,
+	from: string | undefined,
+	to: string | undefined
+): presetId is ComputablePresetId {
+	return (
+		isSelectablePreset( presetId ) ||
+		isYearPresetId( presetId ) ||
+		( presetId === PRESET_ALL_TIME && !! from && !! to )
+	);
+}
+
+/**
  * The window a preset or a pair of URL dates names: a preset is the window it names today, as
  * `normalizeReportParams` reads it for the widgets, so a stale bookmark's controls match its numbers.
  * All time keeps the URL's start and ends today; a hand-picked range is its dates.
@@ -145,18 +167,15 @@ function resolveRange(
 	to: string | undefined,
 	timeZone: string
 ): DateRange {
-	if ( isSelectablePreset( presetId ) || isYearPresetId( presetId ) ) {
-		return computePrimaryRange( presetId, timeZone ) ?? toPickerRange( from, to, timeZone );
+	const computed = namesTodaysWindow( presetId, from, to )
+		? computePrimaryRange( presetId, timeZone )
+		: undefined;
+	if ( ! computed ) {
+		return toPickerRange( from, to, timeZone );
 	}
-
-	const allTime =
-		presetId === PRESET_ALL_TIME && from && to
-			? computePrimaryRange( PRESET_ALL_TIME, timeZone )
-			: undefined;
-
-	return allTime
-		? { from: decodeDateSearchParam( from, timeZone ), to: allTime.to }
-		: toPickerRange( from, to, timeZone );
+	return presetId === PRESET_ALL_TIME
+		? { from: decodeDateSearchParam( from, timeZone ), to: computed.to }
+		: computed;
 }
 
 /**
@@ -178,8 +197,7 @@ function resolveComparison(
 		return {};
 	}
 
-	const isPresetWindow =
-		isSelectablePreset( params.preset ) || isYearSurfacePresetId( params.preset );
+	const isPresetWindow = namesTodaysWindow( params.preset, params.from, params.to );
 	const from = encodeDateToSearchParam( primary.from );
 	const to = encodeDateToSearchParam( primary.to );
 	const measured =
