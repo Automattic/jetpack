@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Keep authored content on WordPress.com Atomic sites when users leave.

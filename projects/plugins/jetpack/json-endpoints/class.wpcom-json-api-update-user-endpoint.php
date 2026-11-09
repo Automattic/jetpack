@@ -5,6 +5,9 @@
  * Endpoint: /sites/%s/users/%d/delete
  */
 
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -176,12 +179,28 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public function delete_user( $user_id ) {
 		// Skip the check if the user is deleting themselves.
-		if ( ! current_user_can( 'delete_users' ) && get_current_user_id() !== (int) $user_id ) {
+		$is_self_removal = get_current_user_id() === (int) $user_id;
+		if ( ! $is_self_removal && ! current_user_can( 'delete_users' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot delete users for specified site.', 403 );
 		}
 
 		$input    = (array) $this->input();
 		$reassign = isset( $input['reassign'] ) ? (int) $input['reassign'] : null;
+
+		if ( $is_self_removal && ( new Host() )->is_woa_site() ) {
+			$connection_owner_id = (int) ( new Manager() )->get_connection_owner_id();
+			if ( $connection_owner_id === (int) $user_id ) {
+				return new WP_Error( 'forbidden', 'A site owner cannot be removed through this endpoint.', 403 );
+			}
+
+			if ( $connection_owner_id <= 0 || $reassign !== $connection_owner_id || ! user_can( $reassign, 'manage_options' ) ) {
+				return new WP_Error(
+					'site_owner_unavailable',
+					__( 'We couldn’t verify the site owner to reassign your content. Ask a site administrator for help before leaving.', 'jetpack' ),
+					409
+				);
+			}
+		}
 
 		if ( $reassign !== null ) {
 			if ( (int) $user_id === $reassign ) {
