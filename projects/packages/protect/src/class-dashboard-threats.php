@@ -75,7 +75,7 @@ class Dashboard_Threats {
 	/**
 	 * When Scan last finished a scan, for get_resolved(); null when the most recent one failed, so it can't clear fixes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param object|null $status The cached scan status.
 	 * @return string|null
@@ -130,7 +130,7 @@ class Dashboard_Threats {
 	/**
 	 * Prune as soon as a completed scan is stored, so a failed one fetched before any page reads it can't strand fixes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @param mixed $old_value The previous value, or the option name when the option is added.
 	 * @param mixed $value     Scan's response, as Scan_Status stores it.

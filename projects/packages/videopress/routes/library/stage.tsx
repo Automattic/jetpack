@@ -41,6 +41,7 @@ import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
+import type { VideoPrivacyItem } from '../../src/dashboard/hooks/use-set-privacy';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
 import type { SupportedLayouts, View } from '@wordpress/dataviews';
 import type { ChangeEvent } from 'react';
@@ -305,11 +306,11 @@ const StageInner = () => {
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
 				},
-				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
+				setPrivacy: ( privacyItems: VideoPrivacyItem[], privacy: LibraryItemPrivacy ) => {
 					// Batch through useSetPrivacy: each id is POSTed individually so one
 					// failure doesn't abort the rest, and the result reports which ids
 					// succeeded vs. failed so we can surface an accurate notice.
-					setPrivacyAsync( { ids, privacy } )
+					setPrivacyAsync( { items: privacyItems, privacy } )
 						.then( ( { succeeded, failed } ) => {
 							if ( failed.length === 0 ) {
 								createSuccessNotice(

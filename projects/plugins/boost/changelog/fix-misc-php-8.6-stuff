@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Tests: PHP 8.6 complains if non-null is passed to ReflectionMethod::invokeArgs() for a static method.
+
+
