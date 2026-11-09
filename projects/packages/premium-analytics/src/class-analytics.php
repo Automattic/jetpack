@@ -611,7 +611,6 @@ class Analytics {
 
 		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
 		// the dashboard has no My Jetpack product class and no module to name.
-		// @phan-suppress-next-line PhanTypeMismatchArgument -- Handed on to add_menu_page(), which takes a float.
 		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, $capability, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', self::MENU_POSITION, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
