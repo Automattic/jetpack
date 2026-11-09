@@ -1,20 +1,15 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import {
 	MEMBERS,
 	expectShown,
 	installShellProbe,
 	isShellActive,
+	markDocument,
 	menuLink,
 	openMember,
+	sameDocument,
 	waitForShown,
 } from '../../helpers/admin-shell-helper';
-
-const markDocument = ( page: Page ) =>
-	page.evaluate(
-		() => ( ( window as unknown as { __sameDocument: boolean } ).__sameDocument = true )
-	);
-const sameDocument = ( page: Page ) =>
-	page.evaluate( () => !! ( window as unknown as { __sameDocument?: boolean } ).__sameDocument );
 
 test.describe( 'Admin shell: fallback', () => {
 	test.beforeEach( async ( { page } ) => {
