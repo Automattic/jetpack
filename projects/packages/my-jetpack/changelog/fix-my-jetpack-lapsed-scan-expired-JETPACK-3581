@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show a lapsed Scan purchase as Expired with a renewal link instead of offering an upgrade.
