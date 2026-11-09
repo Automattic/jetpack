@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 /**
  * Definitions by report id, handlers by (report id, provider), and the providers themselves.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Report_Registry {
 
@@ -57,7 +57,7 @@ class Report_Registry {
 		 * Fires to register store reports, their handlers and providers. Experimental: the
 		 * registry's interfaces change in the next steps.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.3
 		 *
 		 * @param Report_Registry $registry The registry to fill.
 		 */
