@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
@@ -125,6 +126,48 @@ class Dashboard {
 		self::load_wp_build();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		if ( class_exists( Admin_Shell::class ) ) {
+			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+		}
+	}
+
+	/**
+	 * Register Forms with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::wp_build_index_path() ) ) {
+			return $members;
+		}
+
+		$members[ self::FORMS_WPBUILD_ADMIN_SLUG ] = array(
+			'build_prefix' => 'jetpack_forms',
+			'build_page'   => 'jetpack-forms-responses',
+			'init_modules' => array( '@jetpack-forms/init' ),
+			/** "Jetpack Forms" is a product name, do not translate. */
+			'title'        => 'Jetpack Forms',
+			'capability'   => 'edit_pages',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Forms routes while another dashboard's page is open.
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		$wp_build_index = self::wp_build_index_path();
+		require_once $wp_build_index;
+
+		// The generated registration runs on wp_default_scripts, which has already fired.
+		if ( function_exists( 'jetpack_forms_register_script_modules' ) ) {
+			jetpack_forms_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
 	}
 
 	/**
