@@ -362,6 +362,23 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
+	 * dashboard even on the run where the registrant registers nothing.
+	 */
+	public function test_publishes_the_error_reporting_origin_without_woocommerce() {
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertSame( array(), $registry->get_all_registered() );
+		$this->assertCount( 1, $origins );
+		$this->assertStringEndsWith( '/', $origins[0] );
+	}
+
+	/**
 	 * The WooCommerce Bookings extension is listed as active, which `is_plugin_active()` reads.
 	 */
 	private function activate_bookings() {

@@ -19,8 +19,9 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 
 /**
- * Without the widget contract version, the widget type waits and the layout seed still lands: the
- * dashboard drops it itself on a site where the type never registers.
+ * Without the widget contract version, the widget type waits while the error reporting origin and
+ * the layout seed still land: the dashboard drops the seed itself on a site where the type never
+ * registers.
  *
  * Each test runs in its own process: the other test files define the constant for the whole run.
  *
@@ -40,6 +41,21 @@ class Analytics_Dashboard_Without_Widget_Types_Test extends BaseTestCase {
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * On WordPress.com Simple the registrant is called directly, so the origin must reach the
+	 * dashboard even on the run where the registrant registers nothing.
+	 */
+	public function test_the_error_reporting_origin_does_not_wait() {
+		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) );
+
+		Analytics_Dashboard::register_widget_types( new Widget_Type_Registry() );
+
+		$origins = apply_filters( 'jetpack_premium_analytics_error_reporting_script_origins', array() );
+
+		$this->assertCount( 1, $origins );
+		$this->assertStringEndsWith( '/', $origins[0] );
 	}
 
 	public function test_the_layout_seed_does_not_wait() {
