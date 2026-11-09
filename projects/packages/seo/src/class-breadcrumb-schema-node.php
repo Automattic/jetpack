@@ -53,7 +53,7 @@ class Breadcrumb_Schema_Node {
 		$last       = count( $items ) - 1;
 		foreach ( $items as $index => $item ) {
 			// Decode only here: names pass through text() twice, and a second strip would remove decoded text such as "<div>".
-			$name = trim( html_entity_decode( self::text( $item['name'] ?? '' ), ENT_QUOTES, 'UTF-8' ) );
+			$name = trim( html_entity_decode( self::text( $item['name'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ) );
 			if ( '' === $name ) {
 				return null;
 			}

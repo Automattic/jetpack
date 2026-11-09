@@ -158,6 +158,7 @@ class PostSchemaNodeTest extends TestCase {
 			'ampersand in headline'             => array( 'headline', 'Tom &amp; Jerry', 'Tom & Jerry' ),
 			'escaped markup in headline'        => array( 'headline', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
 			'ampersand in description'          => array( 'description', 'Tom &amp; Jerry', 'Tom & Jerry' ),
+			'XML apostrophe in description'     => array( 'description', 'It&apos;s new', "It's new" ),
 			'escaped markup in description'     => array( 'description', 'Use &lt;div&gt; tags', 'Use <div> tags' ),
 		);
 	}
