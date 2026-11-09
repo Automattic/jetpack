@@ -15,7 +15,7 @@ add_filter( 'jetpack_seo_conflicting_plugin', 'jetpack_seo_detect_conflicting_pl
 /**
  * Return the display name of the first active SEO plugin Jetpack steps aside for.
  *
- * @since $$next-version$$
+ * @since 16.5
  *
  * @param string|null $plugin A name reported by an earlier callback, or null.
  * @return string|null The plugin's display name, or null when none is active.
@@ -56,7 +56,7 @@ function jetpack_seo_detect_conflicting_plugin( $plugin ) {
 /**
  * Whether `jetpack_seo_conflicting_plugin` names a plugin, by the same rule the SEO dashboard uses.
  *
- * @since $$next-version$$
+ * @since 16.5
  *
  * @return bool
  */

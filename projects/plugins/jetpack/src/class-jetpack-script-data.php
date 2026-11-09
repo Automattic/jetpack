@@ -61,7 +61,7 @@ class Jetpack_Script_Data {
 	/**
 	 * Whether the current theme supports Infinite Scroll, by itself or through a file Jetpack ships for it.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */

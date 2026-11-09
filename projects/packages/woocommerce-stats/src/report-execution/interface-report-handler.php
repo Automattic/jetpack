@@ -14,7 +14,7 @@ use WP_Error;
  *
  * @internal Not a stable contract yet: the signature changes in the next steps.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 interface Report_Handler {
 

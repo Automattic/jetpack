@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a method that returns how many requests the firewall blocked on each day.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooCommerce reports: Keep widgets loading while WordPress.com creates a new store's analytics tables, instead of showing an error, and say when a report waits for the store's next sync.
