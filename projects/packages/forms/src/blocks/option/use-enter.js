@@ -17,6 +17,11 @@ const useEnter = props => {
 				return;
 			}
 
+			// Enter that confirms an IME composition (Japanese, Chinese, Korean) must not split the field.
+			if ( event.isComposing || event.keyCode === 229 ) {
+				return;
+			}
+
 			const { clientId, content, isStandalone } = propsRef.current;
 
 			if ( content.length && ! isStandalone ) {

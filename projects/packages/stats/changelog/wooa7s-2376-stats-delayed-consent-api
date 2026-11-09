@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tracking pixel: Count visitors who allowed statistics when a performance plugin delays the WP Consent API script until they interact with the page.

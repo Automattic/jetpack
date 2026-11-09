@@ -179,7 +179,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			 * @module widgets
 			 *
 			 * @since 3.3.0
-			 * @since $$next-version$$ Added the `$link_title` parameter. The title is only linked when that setting is enabled.
+			 * @since 16.5 Added the `$link_title` parameter. The title is only linked when that setting is enabled.
 			 *
 			 * @param string $likebox_widget_title Likebox Widget title, linked to the Page URL when `$link_title` is true.
 			 * @param string $title Widget title as set in the widget settings.

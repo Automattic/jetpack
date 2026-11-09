@@ -34,14 +34,14 @@ class Jetpack_Debug_Data {
 	 * A dedication function instead of using Core functionality to allow for output in seconds.
 	 *
 	 * @since 7.3.0
-	 * @deprecated $$next-version$$ Nothing in Jetpack uses it any more.
+	 * @deprecated 16.5 Nothing in Jetpack uses it any more.
 	 *
 	 * @param int $seconds Number of seconds to convert to human time.
 	 *
 	 * @return string Human readable time.
 	 */
 	public static function seconds_to_time( $seconds ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.5' );
 
 		$seconds = (int) $seconds;
 		$units   = array(
@@ -70,7 +70,7 @@ class Jetpack_Debug_Data {
 	/**
 	 * Add the Jetpack plugin's own fields to the section the Connection package builds.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $fields Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 	 *
@@ -110,14 +110,14 @@ class Jetpack_Debug_Data {
 	 * Return debug data in the format expected by Core's Site Health Info tab.
 	 *
 	 * @since 7.3.0
-	 * @deprecated $$next-version$$ The Connection package adds the section.
+	 * @deprecated 16.5 The Connection package adds the section.
 	 *
 	 * @param array $debug The debug information already compiled by Core.
 	 *
 	 * @return array Debug information in the same format as the initial argument.
 	 */
 	public static function core_debug_data( $debug ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_section' );
+		_deprecated_function( __METHOD__, 'jetpack-16.5', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_section' );
 
 		if ( ! class_exists( Debug_Data::class ) ) {
 			return $debug;
@@ -132,12 +132,12 @@ class Jetpack_Debug_Data {
 	 * Compile and return array of debug information.
 	 *
 	 * @since 7.3.0
-	 * @deprecated $$next-version$$ The Connection package compiles the fields.
+	 * @deprecated 16.5 The Connection package compiles the fields.
 	 *
 	 * @return array Fields keyed by ID, each with a `label`, a `value` and a `private` flag.
 	 */
 	public static function debug_data() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_fields' );
+		_deprecated_function( __METHOD__, 'jetpack-16.5', 'Automattic\\Jetpack\\Connection\\Debug_Data::get_fields' );
 
 		return class_exists( Debug_Data::class ) ? Debug_Data::get_fields() : array();
 	}
