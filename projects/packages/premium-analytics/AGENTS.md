@@ -388,6 +388,10 @@ export const Default: Story = {
 };
 ```
 
+That canvas follows the **Widget sizes** control in the Storybook toolbar: the usual card, a
+matrix of six boxes, or a card to resize, each captioned with the box the widget gets. Use it
+to see how a widget adapts to the size it is handed before writing a story for one size.
+
 **2. `WidgetDashboardWithWidget`**:
 
 ```tsx
