@@ -92,6 +92,8 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
+		self::publish_error_reporting_origin();
+
 		if ( ! self::widget_contract_is_supported() ) {
 			return;
 		}
@@ -109,6 +111,34 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Let the dashboard's error reporter treat scripts under this package's build as dashboard code.
+	 *
+	 * Called from `register_widget_types()`, not `init()`: WordPress.com Simple calls the registrant
+	 * directly and never runs `init()`.
+	 *
+	 * @return void
+	 */
+	private static function publish_error_reporting_origin() {
+		$callback = array( __CLASS__, 'add_error_reporting_origin' );
+		if ( ! has_filter( 'jetpack_premium_analytics_error_reporting_script_origins', $callback ) ) {
+			add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', $callback );
+		}
+	}
+
+	/**
+	 * Append this package's build base URL to the dashboard's error reporting origins.
+	 *
+	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
+	 * @return string[]
+	 */
+	public static function add_error_reporting_origin( $origins ) {
+		$origins   = is_array( $origins ) ? $origins : array();
+		$origins[] = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		return $origins;
 	}
 
 	/**
