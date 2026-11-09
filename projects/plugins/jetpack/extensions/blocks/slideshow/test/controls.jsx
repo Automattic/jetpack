@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PanelControls } from '../controls';
 
@@ -62,6 +62,44 @@ describe( 'Panel controls', () => {
 		await user.selectOptions( screen.getByLabelText( 'Size' ), [ 'thumbnail' ] );
 
 		expect( onChangeImageSize ).toHaveBeenCalledWith( 'thumbnail' );
+	} );
+
+	test( 'does not render delay control when autoplay is disabled', () => {
+		render( <PanelControls { ...panelProps } /> );
+
+		expect(
+			screen.queryByRole( 'slider', { name: 'Delay between transitions (in seconds)' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'renders delay control with range between 1 and 20 seconds when autoplay is enabled', () => {
+		const propsWithAutoplay = {
+			...panelProps,
+			attributes: { ...panelProps.attributes, autoplay: true, delay: 3 },
+		};
+		render( <PanelControls { ...propsWithAutoplay } /> );
+
+		const delaySlider = screen.getByRole( 'slider', {
+			name: 'Delay between transitions (in seconds)',
+		} );
+		expect( delaySlider ).toBeInTheDocument();
+		expect( delaySlider ).toHaveAttribute( 'min', '1' );
+		expect( delaySlider ).toHaveAttribute( 'max', '20' );
+	} );
+
+	test( 'updates delay attribute when delay value changes beyond 5 seconds', () => {
+		const propsWithAutoplay = {
+			...panelProps,
+			attributes: { ...panelProps.attributes, autoplay: true, delay: 3 },
+		};
+		render( <PanelControls { ...propsWithAutoplay } /> );
+
+		const delaySlider = screen.getByRole( 'slider', {
+			name: 'Delay between transitions (in seconds)',
+		} );
+		fireEvent.change( delaySlider, { target: { value: 15 } } );
+
+		expect( setAttributes ).toHaveBeenCalledWith( { delay: 15 } );
 	} );
 } );
 
