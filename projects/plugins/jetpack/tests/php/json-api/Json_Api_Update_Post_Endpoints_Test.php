@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
@@ -72,6 +74,90 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Publishing with publicize=false must not flag the post for sharing, and must not affect later posts.
+	 *
+	 * @dataProvider provide_endpoint_classes_and_encodings
+	 *
+	 * @param string $class_name   Endpoint class.
+	 * @param string $content_type Request content type.
+	 */
+	#[DataProvider( 'provide_endpoint_classes_and_encodings' )]
+	public function test_publish_with_publicize_false_is_not_flagged_for_sharing( $class_name, $content_type ) {
+		global $blog_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$publicize_ui                       = $GLOBALS['publicize_ui'] ?? null;
+		$GLOBALS['publicize_ui']            = new stdClass();
+		$GLOBALS['publicize_ui']->publicize = new class() {
+			/**
+			 * No services, so the endpoint writes no skip meta.
+			 *
+			 * @return array
+			 */
+			public function get_services() {
+				return array();
+			}
+		};
+
+		$should_publicize = array();
+		$record           = static function ( $new_status, $old_status, $post ) use ( &$should_publicize ) {
+			if ( 'publish' === $new_status ) {
+				$should_publicize[ $post->post_title ] = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+			}
+		};
+		add_action( 'transition_post_status', $record, 10, 3 );
+
+		$body                                = array(
+			'title'     => 'skipped',
+			'content'   => 'Hi',
+			'status'    => 'publish',
+			'publicize' => false,
+		);
+		WPCOM_JSON_API::init()->post_body    = 'application/json' === $content_type ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : http_build_query( $body );
+		WPCOM_JSON_API::init()->content_type = $content_type;
+
+		$response = $this->get_endpoint( $class_name, '/sites/%s/posts/new' )->callback( "/sites/$blog_id/posts/new", $blog_id, 0 );
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'later',
+				'post_status' => 'publish',
+			)
+		);
+
+		remove_action( 'transition_post_status', $record, 10 );
+		$GLOBALS['publicize_ui'] = $publicize_ui;
+
+		$this->assertNotWPError( $response );
+		$this->assertSame(
+			array(
+				'skipped' => false,
+				'later'   => true,
+			),
+			$should_publicize
+		);
+	}
+
+	/**
+	 * Post endpoint classes that create posts, with form-encoded (Post by Email) and JSON bodies.
+	 *
+	 * @return array
+	 */
+	public static function provide_endpoint_classes_and_encodings() {
+		$classes = array(
+			'v1'   => 'WPCOM_JSON_API_Update_Post_Endpoint',
+			'v1.1' => 'WPCOM_JSON_API_Update_Post_v1_1_Endpoint',
+			'v1.2' => 'WPCOM_JSON_API_Update_Post_v1_2_Endpoint',
+		);
+		$data    = array();
+		foreach ( $classes as $version => $class_name ) {
+			$data[ "$version form" ] = array( $class_name, 'application/x-www-form-urlencoded' );
+			$data[ "$version json" ] = array( $class_name, 'application/json' );
+		}
+		return $data;
+	}
+
+	/**
 	 * Helper function that inserts a post.
 	 *
 	 * @return int|WP_Error
@@ -89,10 +175,13 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	/**
 	 * Helper function that returns the post endpoint object.
 	 *
+	 * @param string $class_name Endpoint class.
+	 * @param string $path       Endpoint path.
+	 *
 	 * @return WPCOM_JSON_API_Update_Post_v1_1_Endpoint
 	 */
-	private function get_endpoint() {
-		return new WPCOM_JSON_API_Update_Post_v1_1_Endpoint(
+	private function get_endpoint( $class_name = 'WPCOM_JSON_API_Update_Post_v1_1_Endpoint', $path = '/sites/%s/posts/%d' ) {
+		return new $class_name(
 			array(
 				'description'    => 'Edit a post.',
 				'group'          => 'posts',
@@ -101,7 +190,7 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 				'min_version'    => '1.1',
 				'max_version'    => '1.1',
 				'method'         => 'POST',
-				'path'           => '/sites/%s/posts/%d',
+				'path'           => $path,
 				'path_labels'    => array(
 					'$site'    => '(int|string) Site ID or domain',
 					'$post_ID' => '(int) The post ID',

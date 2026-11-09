@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Infinite Scroll: Load block styles, including layout and spacing, for posts loaded by scrolling.
