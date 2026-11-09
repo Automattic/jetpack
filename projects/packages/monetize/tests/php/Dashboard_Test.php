@@ -217,8 +217,7 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( $expected, Dashboard::is_dashboard_request() );
 	}
 
-	public function test_load_sections_registers_each_file_class_once() {
-		$dir            = __DIR__ . '/fixtures/sections';
+	public function test_init_registers_each_section_once() {
 		$doing_it_wrong = new \ArrayObject();
 		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 		add_action(
@@ -228,23 +227,69 @@ class Dashboard_Test extends BaseTestCase {
 			}
 		);
 
-		Dashboard::load_sections( $dir );
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Loading twice is the behavior under test.
-		Dashboard::load_sections( $dir );
+		Dashboard::init();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
+		Dashboard::init();
 
-		$this->assertSame( array( 'example' => array( 'loaded' => true ) ), Dashboard::get_initial_state() );
+		$this->assertSame( array( 'payments' ), array_keys( Dashboard::get_initial_state() ) );
 		$this->assertCount( 0, $doing_it_wrong );
 	}
 
-	public function test_print_initial_state_escapes_section_state() {
-		Dashboard::load_sections( __DIR__ . '/fixtures/sections' );
-		add_filter( 'jetpack_monetize_example_section_state', static fn() => array( 'title' => '</script>' ) );
+	public function test_print_initial_state_prints_escaped_objects() {
+		Dashboard::register_section( $this->section( 'example', array( 'title' => '</script>' ) ) );
+		Dashboard::register_section( $this->section( 'empty', array() ) );
 
 		ob_start();
 		Dashboard::print_initial_state();
 		$output = ob_get_clean();
-		remove_all_filters( 'jetpack_monetize_example_section_state' );
 
-		$this->assertStringContainsString( 'window.jetpackMonetizeDashboard = {"example":{"title":"\\u003C/script\\u003E"}};', $output );
+		$this->assertStringContainsString( 'window.jetpackMonetizeDashboard = {"example":{"title":"\\u003C/script\\u003E"},"empty":{}};', $output );
+	}
+
+	/**
+	 * A section with a fixed key and state, and no routes.
+	 *
+	 * @param string $key   Section key.
+	 * @param array  $state Section state.
+	 * @return Dashboard_Section
+	 */
+	private function section( $key, array $state ) {
+		return new class( $key, $state ) implements Dashboard_Section {
+			/**
+			 * Section key.
+			 *
+			 * @var string
+			 */
+			private $key;
+
+			/**
+			 * Section state.
+			 *
+			 * @var array
+			 */
+			private $state;
+
+			/**
+			 * @param string $key   Section key.
+			 * @param array  $state Section state.
+			 */
+			public function __construct( $key, array $state ) {
+				$this->key   = $key;
+				$this->state = $state;
+			}
+
+			/** @return string */
+			public function get_key() {
+				return $this->key;
+			}
+
+			/** @return array */
+			public function get_state() {
+				return $this->state;
+			}
+
+			/** @return void */
+			public function register_routes() {}
+		};
 	}
 }

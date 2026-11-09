@@ -55,7 +55,7 @@ class WPCOM_Proxy {
 	 * @param string       $api     A key of APIS.
 	 * @param string       $path    Route pattern under `/sites/<id>/`, e.g. `memberships/product/(?P<id>\d+)`.
 	 * @param string|array $methods HTTP methods the route accepts.
-	 * @param array        $args    Route args, to validate what is forwarded.
+	 * @param array        $args    Route args: only these are forwarded, once validated and sanitized.
 	 * @return bool Whether the route was registered.
 	 */
 	public static function register_route( $api, $path, $methods, array $args = array() ) {
@@ -89,6 +89,28 @@ class WPCOM_Proxy {
 		$prefix   = '/' . self::REST_NAMESPACE . '/' . self::REST_BASE . '/' . $api . '/';
 		$upstream = substr( $request->get_route(), strlen( $prefix ) );
 
-		return rest_ensure_response( ( new self( $api, $upstream ) )->proxy_request_to_wpcom_as_user( $request ) );
+		return rest_ensure_response( ( new self( $api, $upstream ) )->proxy_request_to_wpcom_as_user( self::with_declared_args_only( $request ) ) );
+	}
+
+	/**
+	 * A copy of the request that keeps only its route's declared args, with the values WordPress sanitized.
+	 *
+	 * The body goes out as JSON whatever its incoming encoding, since that is the only body the proxy sends.
+	 *
+	 * @param WP_REST_Request $request The request to one of this class's routes.
+	 * @return WP_REST_Request
+	 */
+	private static function with_declared_args_only( WP_REST_Request $request ) {
+		$declared  = $request->get_attributes()['args'] ?? array();
+		$forwarded = new WP_REST_Request( $request->get_method(), $request->get_route() );
+		$forwarded->set_query_params( array_intersect_key( $request->get_query_params(), $declared ) );
+
+		$body = array_intersect_key( array_merge( $request->get_body_params(), (array) $request->get_json_params() ), $declared );
+		if ( $body ) {
+			$forwarded->set_header( 'Content-Type', 'application/json' );
+			$forwarded->set_body( (string) wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
+		}
+
+		return $forwarded;
 	}
 }

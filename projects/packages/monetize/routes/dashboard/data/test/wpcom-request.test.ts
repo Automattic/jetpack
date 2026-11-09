@@ -1,4 +1,4 @@
-import { WpcomApiError, rejectBodyError, toFetchOptions } from '../wpcom-request';
+import { WpcomApiError, rejectBodyError, toFetchOptions, toWpcomApiError } from '../wpcom-request';
 
 describe( 'toFetchOptions', () => {
 	it.each( [
@@ -43,5 +43,22 @@ describe( 'rejectBodyError', () => {
 		const body = { products: [] };
 
 		expect( rejectBodyError( body ) ).toBe( body );
+	} );
+} );
+
+describe( 'toWpcomApiError', () => {
+	it.each( [
+		[
+			"apiFetch's error object",
+			{ code: 'rest_forbidden', message: 'Sorry.', data: { status: 403 } },
+			'rest_forbidden',
+			'Sorry.',
+		],
+		[ 'a thrown Error', new Error( 'Boom.' ), 'error', 'Boom.' ],
+	] )( 'wraps %s', ( _kind, rejection, code, message ) => {
+		const error = toWpcomApiError( rejection );
+
+		expect( error ).toBeInstanceOf( WpcomApiError );
+		expect( error ).toMatchObject( { code, message } );
 	} );
 } );

@@ -38,9 +38,9 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$register       = static function () {
-			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET' );
+			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupons', 'GET', array( 'type' => array( 'sanitize_callback' => 'sanitize_key' ) ) );
 			WPCOM_Proxy::register_route( 'wpcom/v2', 'memberships/coupon/(?P<id>\d+)', 'DELETE' );
-			WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/settings', 'POST' );
+			WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/settings', 'POST', array( 'paypal' => array( 'sanitize_callback' => 'sanitize_email' ) ) );
 		};
 		add_action( 'rest_api_init', $register );
 		do_action( 'rest_api_init', $wp_rest_server );
@@ -66,15 +66,26 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Requests to the local routes and the WordPress.com request each should send.
+	 * Requests to the local routes and the WordPress.com request each should send: declared args only, sanitized.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_forwarded_requests() {
 		return array(
-			'v2 with a query'  => array( 'GET', '/jetpack/v4/monetize/wpcom/v2/memberships/coupons', array( 'type' => 'all' ), null, 'GET', '/wpcom/v2/sites/999/memberships/coupons?type=all' ),
-			'v2 with an ID'    => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array(), null, 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7' ),
-			'v1.1 with a body' => array( 'POST', '/jetpack/v4/monetize/rest/v1.1/wordads/settings', array(), '{"paypal":"a@example.com"}', 'POST', '/rest/v1.1/sites/999/wordads/settings' ),
+			'v2 with a query'  => array(
+				'GET',
+				'/jetpack/v4/monetize/wpcom/v2/memberships/coupons',
+				array(
+					'type' => 'All',
+					'page' => 2,
+				),
+				null,
+				'GET',
+				'/wpcom/v2/sites/999/memberships/coupons?type=all',
+				null,
+			),
+			'v2 with an ID'    => array( 'DELETE', '/jetpack/v4/monetize/wpcom/v2/memberships/coupon/7', array( 'force' => 1 ), null, 'DELETE', '/wpcom/v2/sites/999/memberships/coupon/7', null ),
+			'v1.1 with a body' => array( 'POST', '/jetpack/v4/monetize/rest/v1.1/wordads/settings', array(), '{"paypal":"a@example.com<>","tos":"signed"}', 'POST', '/rest/v1.1/sites/999/wordads/settings', '{"paypal":"a@example.com"}' ),
 		);
 	}
 
@@ -87,9 +98,10 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 	 * @param string|null $body          Local JSON body.
 	 * @param string      $sent_method   Expected upstream method.
 	 * @param string      $sent_path     Expected upstream path and query, after the API host.
+	 * @param string|null $sent_body     Expected upstream body.
 	 */
 	#[DataProvider( 'provide_forwarded_requests' )]
-	public function test_routes_forward_to_the_same_path_on_wpcom( $method, $route, $query, $body, $sent_method, $sent_path ) {
+	public function test_routes_forward_to_the_same_path_on_wpcom( $method, $route, $query, $body, $sent_method, $sent_path, $sent_body ) {
 		$this->arrange_wpcom( array( 'ok' => true ) );
 
 		$response = $this->dispatch( $method, $route, $query, $body );
@@ -99,7 +111,7 @@ class WPCOM_Proxy_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->sent );
 		$this->assertStringEndsWith( $sent_path, $this->sent[0]['url'] );
 		$this->assertSame( $sent_method, $this->sent[0]['method'] );
-		$this->assertSame( $body, $this->sent[0]['body'] );
+		$this->assertSame( $sent_body, $this->sent[0]['body'] );
 	}
 
 	/**

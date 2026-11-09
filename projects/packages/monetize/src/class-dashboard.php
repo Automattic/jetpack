@@ -59,6 +59,15 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_monetize_jetpack_monetize_dashboard_wp_admin_render_page';
 
 	/**
+	 * The dashboard's sections.
+	 *
+	 * @var string[]
+	 */
+	const SECTIONS = array(
+		Sections\Payments::class,
+	);
+
+	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
 	 *
 	 * @var array
@@ -126,46 +135,21 @@ class Dashboard {
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		}
 
-		self::load_sections( __DIR__ . '/sections' );
+		self::register_sections();
 	}
 
 	/**
-	 * Register the section class each `class-<name>.php` file in a folder declares.
+	 * Register each of SECTIONS, skipping keys already registered so init() can run twice.
 	 *
-	 * The class for `class-paid-subscribers.php` is `Sections\Paid_Subscribers`; the file must have no
-	 * side effects, since the classmap autoloader can also load it.
-	 *
-	 * @param string $dir Folder holding the section files.
 	 * @return void
 	 */
-	public static function load_sections( $dir ) {
-		$files = glob( $dir . '/class-*.php' );
-		foreach ( is_array( $files ) ? $files : array() as $file ) {
-			$name  = str_replace( ' ', '_', ucwords( str_replace( '-', ' ', substr( basename( $file, '.php' ), 6 ) ) ) );
-			$class = __NAMESPACE__ . '\\Sections\\' . $name;
-			if ( ! class_exists( $class ) ) {
-				require_once $file;
-			}
-			if ( ! is_subclass_of( $class, Dashboard_Section::class ) || self::has_section_of_class( $class ) ) {
-				continue;
-			}
-			self::register_section( new $class() );
-		}
-	}
-
-	/**
-	 * Whether a section of the given class is already registered, so init() can run twice.
-	 *
-	 * @param string $class Section class name.
-	 * @return bool
-	 */
-	private static function has_section_of_class( $class ) {
-		foreach ( self::$sections as $section ) {
-			if ( $section instanceof $class ) {
-				return true;
+	private static function register_sections() {
+		foreach ( self::SECTIONS as $class ) {
+			$section = new $class();
+			if ( ! isset( self::$sections[ $section->get_key() ] ) ) {
+				self::register_section( $section );
 			}
 		}
-		return false;
 	}
 
 	/**
@@ -208,12 +192,13 @@ class Dashboard {
 	/**
 	 * Each section's state, keyed by section key.
 	 *
-	 * @return array
+	 * @return object[]
 	 */
 	public static function get_initial_state() {
 		$state = array();
 		foreach ( self::$sections as $key => $section ) {
-			$state[ $key ] = $section->get_state();
+			// An empty array would print as `[]`, and the page reads every section's state as an object.
+			$state[ $key ] = (object) $section->get_state();
 		}
 		return $state;
 	}

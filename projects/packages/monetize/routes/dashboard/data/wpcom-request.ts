@@ -58,6 +58,21 @@ export class WpcomApiError extends Error {
 }
 
 /**
+ * Turn whatever a request rejected with, such as apiFetch's `{ code, message }` object, into a WpcomApiError.
+ *
+ * @param error - The rejection.
+ * @return The error.
+ */
+export function toWpcomApiError( error: unknown ): WpcomApiError {
+	if ( error instanceof WpcomApiError ) {
+		return error;
+	}
+
+	const { code = 'error', message = '' } = ( error ?? {} ) as { code?: string; message?: string };
+	return new WpcomApiError( code, message );
+}
+
+/**
  * Reject a body that reports an error under a success status, as the memberships endpoints do.
  *
  * @param body - The response body.
@@ -71,8 +86,7 @@ export function rejectBodyError< T >( body: T ): T {
 	}
 
 	if ( error && typeof error === 'object' ) {
-		const { code = 'error', message = '' } = error as { code?: string; message?: string };
-		throw new WpcomApiError( code, message );
+		throw toWpcomApiError( error );
 	}
 
 	return body;
