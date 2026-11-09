@@ -44,7 +44,7 @@ export default function HeaderScanButton() {
 					: __( 'Scan site', 'jetpack-protect-pkg' )
 			}
 			disabled={ isScanning }
-			variant="minimal"
+			variant="solid"
 			size="compact"
 		/>
 	);

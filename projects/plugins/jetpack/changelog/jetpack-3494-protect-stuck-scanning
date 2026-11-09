@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Protect: Offer a first scan instead of showing "Scanning…" forever when no scan has run yet.
