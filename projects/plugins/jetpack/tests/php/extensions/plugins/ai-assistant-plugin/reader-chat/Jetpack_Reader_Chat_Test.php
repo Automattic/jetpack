@@ -265,24 +265,37 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Removing or breaking the filter must clear the stored option, so old exclusions do not linger.
+	 * Removing the filter clears the stored option, so old exclusions do not linger.
+	 */
+	public function test_sync_query_filter_option_clears_stored_value_when_filter_is_removed() {
+		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
+
+		Jetpack_Reader_Chat::sync_query_filter_option();
+
+		$this->assertFalse( get_option( 'reader_chat_query_filter', false ) );
+	}
+
+	/**
+	 * A broken filter must not widen what Site Chat can see, so the last good value stays.
 	 *
 	 * @param mixed $value Value returned by the filter.
 	 * @dataProvider provide_unusable_query_filters
 	 */
 	#[DataProvider( 'provide_unusable_query_filters' )]
-	public function test_sync_query_filter_option_clears_stored_value( $value ) {
-		update_option( 'reader_chat_query_filter', array( 'term' => array( 'post_type' => 'page' ) ) );
+	public function test_sync_query_filter_option_keeps_stored_value_when_filter_is_unusable( $value ) {
+		$stored = array( 'term' => array( 'post_type' => 'page' ) );
+		update_option( 'reader_chat_query_filter', $stored );
 		add_filter(
 			'jetpack_site_chat_query_filter',
 			function () use ( $value ) {
 				return $value;
 			}
 		);
+		$this->setExpectedIncorrectUsage( 'jetpack_site_chat_query_filter' );
 
 		Jetpack_Reader_Chat::sync_query_filter_option();
 
-		$this->assertFalse( get_option( 'reader_chat_query_filter', false ) );
+		$this->assertSame( $stored, get_option( 'reader_chat_query_filter' ) );
 	}
 
 	/**
@@ -292,7 +305,6 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 */
 	public static function provide_unusable_query_filters() {
 		return array(
-			'empty array'  => array( array() ),
 			'not an array' => array( 'term' ),
 			'oversized'    => array( array( 'terms' => array( 'post_id' => range( 1, 20000 ) ) ) ),
 		);

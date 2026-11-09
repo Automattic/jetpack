@@ -131,15 +131,25 @@ class Jetpack_Reader_Chat {
 		 */
 		$query_filter = apply_filters( 'jetpack_site_chat_query_filter', array() );
 
-		$encoded = is_array( $query_filter ) && $query_filter ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
-		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
+		if ( empty( $query_filter ) ) {
 			if ( false !== get_option( READER_CHAT_QUERY_FILTER_OPTION, false ) ) {
 				delete_option( READER_CHAT_QUERY_FILTER_OPTION );
 			}
 			return;
 		}
 
-		update_option( READER_CHAT_QUERY_FILTER_OPTION, $query_filter, false );
+		$encoded = is_array( $query_filter ) ? wp_json_encode( $query_filter, JSON_UNESCAPED_SLASHES ) : false;
+		if ( false === $encoded || strlen( $encoded ) > READER_CHAT_QUERY_FILTER_MAX_BYTES ) {
+			// Keep the last good filter: clearing it would expose the content the owner hid.
+			_doing_it_wrong(
+				'jetpack_site_chat_query_filter',
+				esc_html__( 'The Site Chat query filter must be an array under 20 KB. The previous filter stays in effect.', 'jetpack' ),
+				'$$next-version$$'
+			);
+			return;
+		}
+
+		update_option( READER_CHAT_QUERY_FILTER_OPTION, $query_filter );
 	}
 
 	/**
