@@ -24,6 +24,27 @@ const makeApi = () => ( {
 } );
 
 describe( 'buildLibraryActions', () => {
+	it( 'passes the previous privacy settings with the selected videos', () => {
+		const api = makeApi();
+		const action = buildLibraryActions( api ).find(
+			candidate => candidate.id === 'set-privacy-private'
+		);
+		const rows = [
+			item( { id: '11', privacy: 'public' } ),
+			item( { id: '12', privacy: 'site-default' } ),
+		];
+		if ( action && 'callback' in action ) {
+			action.callback( rows, { registry: {} } );
+		}
+		expect( api.setPrivacy ).toHaveBeenCalledWith(
+			[
+				{ id: '11', type: 'videopress', privacy: 'public' },
+				{ id: '12', type: 'videopress', privacy: 'site-default' },
+			],
+			'private'
+		);
+	} );
+
 	it( 'adds a Manage subtitles action for idle VideoPress items', () => {
 		const api = makeApi();
 		const actions = buildLibraryActions( api );

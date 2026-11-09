@@ -5,7 +5,8 @@ import {
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, JetpackFooter, Stack } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	DashboardWidgetHostProvider,
 	usePeriodHost,
@@ -21,7 +22,6 @@ import {
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	canSendFeedback,
@@ -527,7 +527,7 @@ function Dashboard(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<Page
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 								actions={
 									<Stack direction="row" gap="sm">

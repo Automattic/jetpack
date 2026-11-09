@@ -45,6 +45,7 @@ export const isFirstScanNeeded = ( status: ScanStatus ) =>
 	status?.dataSource === 'scan_api' &&
 	! status?.lastChecked &&
 	! status?.error &&
+	! status?.lastScanFailed &&
 	status?.status === SCAN_STATUS_IDLE;
 
 export const isScanInProgress = ( status: ScanStatus ) => {
@@ -52,6 +53,7 @@ export const isScanInProgress = ( status: ScanStatus ) => {
 	const scanIsInitializing =
 		! status?.lastChecked &&
 		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status ) &&
+		! status?.lastScanFailed &&
 		! isFirstScanNeeded( status );
 
 	const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;

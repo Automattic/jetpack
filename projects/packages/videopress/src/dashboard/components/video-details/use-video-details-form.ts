@@ -83,5 +83,5 @@ export function useVideoDetailsForm(
 
 	const isDirty = useMemo( () => ! shallowEqual( values, base ), [ values, base ] );
 
-	return { values, update, isDirty, reset };
+	return { values, update, isDirty, reset, previousPrivacy: base.privacy };
 }

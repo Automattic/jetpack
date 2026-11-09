@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dbd09ef2e3b974f065591f7cb48eccda",
+    "content-hash": "d2cd53e5ed6f2af7b4d6defba25ece7f",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2533,6 +2533,84 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Central registry and renderer for Jetpack admin-menu notification-count badges.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-monetize",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/monetize",
+                "reference": "cd9666811f65d3188197ee7cd04230cf3ddbd056"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-monetize/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-monetize",
+                "textdomain": "jetpack-monetize",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-dashboard.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The Monetize dashboard: payments, paid subscribers and ads in wp-admin.",
             "transport-options": {
                 "relative": true
             }
@@ -6810,6 +6888,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-masterbar": 20,
         "automattic/jetpack-menu-badges": 20,
+        "automattic/jetpack-monetize": 20,
         "automattic/jetpack-monitor": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-newsletter": 20,

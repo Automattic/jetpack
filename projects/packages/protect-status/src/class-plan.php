@@ -33,6 +33,15 @@ class Plan {
 	const CACHE_META_NAME = 'protect-cache';
 
 	/**
+	 * Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const SCAN_PRODUCT_PREFIX = 'jetpack_scan';
+
+	/**
 	 * Checks if the cache is old, meaning we need to fetch new data from WPCOM
 	 */
 	private static function is_cache_old() {
@@ -105,9 +114,8 @@ class Plan {
 			return true;
 		}
 
-		// Every Scan product's slug starts with this: monthly, bi-yearly and the legacy real-time ones.
 		$products = array_column( Current_Plan::get_products(), 'product_slug' );
 
-		return array() !== array_filter( $products, fn( $slug ) => 0 === strpos( (string) $slug, 'jetpack_scan' ) );
+		return array() !== array_filter( $products, fn( $slug ) => 0 === strpos( (string) $slug, self::SCAN_PRODUCT_PREFIX ) );
 	}
 }

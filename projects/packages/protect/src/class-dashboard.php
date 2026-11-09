@@ -184,7 +184,7 @@ class Dashboard {
 		$key = $section->get_key();
 		if ( isset( self::$sections[ $key ] ) ) {
 			/* translators: %s is a dashboard section key. */
-			$message = sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
+			$message = sprintf( __( 'A Protect page section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
 			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.1.0' );
 			return;
 		}
@@ -595,7 +595,7 @@ class Dashboard {
 
 		printf(
 			'<div class="wrap"><h1>Protect</h1><div class="notice notice-error"><p>%s</p></div></div>',
-			esc_html__( 'The Protect dashboard could not be loaded because its assets are missing.', 'jetpack-protect-pkg' )
+			esc_html__( 'The Protect page could not be loaded because its assets are missing.', 'jetpack-protect-pkg' )
 		);
 	}
 }
