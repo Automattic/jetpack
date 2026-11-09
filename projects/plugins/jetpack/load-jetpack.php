@@ -76,6 +76,11 @@ if ( class_exists( \Automattic\Jetpack\PremiumAnalytics\Classic_Stats::class ) )
 	\Automattic\Jetpack\PremiumAnalytics\Classic_Stats::register_feature_flag();
 }
 
+// An older Admin UI package, loaded by another plugin, predates the admin shell.
+if ( method_exists( \Automattic\Jetpack\Admin_UI\Admin_Shell::class, 'register_feature_flag' ) ) {
+	\Automattic\Jetpack\Admin_UI\Admin_Shell::register_feature_flag();
+}
+
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
