@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: Fix site_ID being returned as a string instead of an integer in v1.1 post responses.
