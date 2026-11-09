@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Block editor: Remove the leftover Welcome Tour status endpoint and store state, which nothing has rendered since the tour was replaced by the core welcome guide.
