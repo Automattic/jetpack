@@ -152,6 +152,37 @@ class PostTypesTest extends TestCase {
 	}
 
 	/**
+	 * Hiding a core type from site search doesn't make it a layout type.
+	 *
+	 * @return void
+	 */
+	public function test_core_types_hidden_from_search_stay_supported() {
+		$page                      = get_post_type_object( 'page' );
+		$page->exclude_from_search = true;
+
+		try {
+			$this->assertContains( 'page', Post_Types::get_supported_content_types() );
+		} finally {
+			$page->exclude_from_search = false;
+		}
+	}
+
+	/**
+	 * Attachments stay out even when a filter empties the list.
+	 *
+	 * @return void
+	 */
+	public function test_filter_cannot_bring_back_attachments() {
+		add_filter( 'jetpack_seo_excluded_post_types', '__return_empty_array' );
+
+		try {
+			$this->assertNotContains( 'attachment', Post_Types::get_supported_content_types() );
+		} finally {
+			remove_filter( 'jetpack_seo_excluded_post_types', '__return_empty_array' );
+		}
+	}
+
+	/**
 	 * Both routes into the exclusion list.
 	 *
 	 * @return array<string,array{0:string,1:array<string,bool>}>
