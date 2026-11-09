@@ -16,6 +16,8 @@ const BUDGET_KEY = 'jetpack-premium-analytics-error-budget';
 const HOUR_MS = 3_600_000;
 const HOURLY_LIMIT = 10;
 const PAGE_LIMIT = 3;
+const MESSAGE_LIMIT = 1000;
+const TRACE_LIMIT = 8000;
 
 const seen = new Set< string >();
 let pageCount = 0;
@@ -48,6 +50,27 @@ function describeThrown( error: unknown ): ThrownDetails {
 		name: typeof name === 'string' && name !== '' ? name : undefined,
 		stack: typeof stack === 'string' ? stack : undefined,
 	};
+}
+
+/**
+ * Removes the page's own query string and hash from free text, then caps its length.
+ *
+ * @param text  - A message, stack or component stack.
+ * @param limit - The longest text the endpoint should receive.
+ * @return The text, safe to send.
+ */
+function sanitizeText( text: string, limit: number ): string {
+	const { search, hash } = window.location;
+	let clean = text;
+
+	if ( search ) {
+		clean = clean.split( search ).join( '?[redacted]' );
+	}
+	if ( hash ) {
+		clean = clean.split( hash ).join( '#[redacted]' );
+	}
+
+	return clean.slice( 0, limit );
 }
 
 /**
@@ -129,8 +152,8 @@ function buildPayload(
 	return {
 		feature: 'jetpack_stats',
 		severity: 'error',
-		message,
-		trace: stack,
+		message: sanitizeText( message, MESSAGE_LIMIT ),
+		trace: stack === undefined ? undefined : sanitizeText( stack, TRACE_LIMIT ),
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
 		jetpack_version: data?.premium_analytics?.error_reporting?.version,
@@ -140,7 +163,10 @@ function buildPayload(
 			module: frame?.path,
 			widget: frame?.widget,
 			error_name: name,
-			component_stack: source === 'boundary' ? extra?.componentStack : undefined,
+			component_stack:
+				source === 'boundary' && typeof extra?.componentStack === 'string'
+					? sanitizeText( extra.componentStack, TRACE_LIMIT )
+					: undefined,
 			query,
 		} ),
 		extra: definedMembers( { line: frame?.line, column: frame?.column } ),

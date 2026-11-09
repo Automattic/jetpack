@@ -170,6 +170,60 @@ describe( 'reportError', () => {
 		expect( sentPayload( 1 ).properties ).not.toHaveProperty( 'component_stack' );
 	} );
 
+	it( 'strips the page query string from the message, trace and component stack', () => {
+		window.history.replaceState( {}, '', '/wp-admin/admin.php?page=x&token=secret' );
+		const pageUrl = 'http://localhost/wp-admin/admin.php?page=x&token=secret';
+		const error = dashboardError( `failed on ${ pageUrl }` );
+		error.stack += `\n    at inline (${ pageUrl }:3:4)`;
+
+		reportError( error, 'boundary', { componentStack: `\n    at Widget (${ pageUrl }:5:6)` } );
+
+		const { message, trace, properties } = sentPayload();
+		expect( message ).toBe( 'failed on http://localhost/wp-admin/admin.php?[redacted]' );
+		expect( trace ).toContain( 'admin.php?[redacted]:3:4' );
+		expect( properties.component_stack ).toContain( 'admin.php?[redacted]:5:6' );
+		[ message, trace, properties.component_stack ].forEach( field =>
+			expect( field ).not.toContain( 'token=secret' )
+		);
+	} );
+
+	it( 'strips the page hash from the message, trace and component stack', () => {
+		window.history.replaceState( {}, '', '/wp-admin/admin.php#access_token=abc' );
+		const error = dashboardError( 'at http://localhost/wp-admin/admin.php#access_token=abc' );
+		error.stack += '\n    at inline (http://localhost/wp-admin/admin.php#access_token=abc:3:4)';
+
+		reportError( error, 'boundary', { componentStack: 'in #access_token=abc' } );
+
+		const { message, trace, properties } = sentPayload();
+		expect( message ).toBe( 'at http://localhost/wp-admin/admin.php#[redacted]' );
+		[ message, trace, properties.component_stack ].forEach( field =>
+			expect( field ).not.toContain( 'access_token=abc' )
+		);
+	} );
+
+	it( 'leaves text alone when the page has no query string or hash', () => {
+		window.history.replaceState( {}, '', '/wp-admin/admin.php' );
+
+		reportError( dashboardError( 'what? no #1' ), 'error' );
+
+		const { message, trace } = sentPayload();
+		expect( message ).toBe( 'what? no #1' );
+		expect( trace ).not.toContain( '[redacted]' );
+	} );
+
+	it( 'truncates an oversized message, trace and component stack and still sends', () => {
+		const error = dashboardError( 'm'.repeat( 5000 ) );
+		error.stack += `\n${ 'x'.repeat( 20000 ) }`;
+
+		reportError( error, 'boundary', { componentStack: 'c'.repeat( 20000 ) } );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
+		const { message, trace, properties } = sentPayload();
+		expect( message ).toHaveLength( 1000 );
+		expect( trace ).toHaveLength( 8000 );
+		expect( properties.component_stack ).toHaveLength( 8000 );
+	} );
+
 	it( 'sends extra.line and extra.column of the first dashboard frame', () => {
 		reportError( dashboardError( 'boom', 'widgets/top-posts/render.js:10:5' ), 'error' );
 
