@@ -9,6 +9,7 @@ import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
 
 let mockDetailsMissing = false;
+const mockUseConnectionErrorNotice = jest.fn();
 jest.mock( '@automattic/jetpack-connection', () => {
 	const actual = jest.requireActual( '@automattic/jetpack-connection' );
 
@@ -16,6 +17,11 @@ jest.mock( '@automattic/jetpack-connection', () => {
 		...actual,
 		get ConnectionErrorDetails() {
 			return mockDetailsMissing ? undefined : actual.ConnectionErrorDetails;
+		},
+		// Records the options the card passes; the real hook still runs so the diagnosis renders.
+		useConnectionErrorNotice: ( ...args: unknown[] ) => {
+			mockUseConnectionErrorNotice( ...args );
+			return actual.useConnectionErrorNotice( ...args );
 		},
 	};
 } );
@@ -153,11 +159,13 @@ beforeAll( () => {
 		},
 		site: {
 			host: 'standard',
+			admin_url: 'https://example.org/wp-admin/',
 		},
 	};
 } );
 beforeEach( () => {
 	mockRecordEvent.mockClear();
+	mockUseConnectionErrorNotice.mockClear();
 	resetInitialState();
 	setConnectionStore();
 	global.JetpackScriptData.user.current_user.capabilities = {};
@@ -286,6 +294,26 @@ describe( 'ConnectionStatusCard', () => {
 					).toBeInTheDocument();
 				}
 			);
+
+			it( 'reports the card’s own name when the account prompt is clicked', async () => {
+				const onConnectUser = jest.fn();
+				asAdmin();
+				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
+				needAnAccount();
+				render(
+					<Providers>
+						<ConnectionStatusCard { ...testProps } onConnectUser={ onConnectUser } />
+					</Providers>
+				);
+
+				await userEvent.click( screen.getByRole( 'button', { name: 'Connect my account' } ) );
+
+				expect( onConnectUser ).toHaveBeenCalledTimes( 1 );
+				expect( mockRecordEvent ).toHaveBeenCalledWith(
+					'jetpack_myjetpack_connection_connect_user_click',
+					expect.objectContaining( { from: 'my_jetpack_connection_card' } )
+				);
+			} );
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
@@ -474,6 +502,16 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'offers the package’s CTA for the error', () => {
 			setupWithError();
 			expect( screen.getByRole( 'button', { name: 'Restore Connection' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'repairs under the card’s own reconnect name and returns to My Jetpack', () => {
+			setupWithError();
+			expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					reconnectFrom: 'my_jetpack_connection_card_reconnect',
+					reconnectRedirectUrl: 'https://example.org/wp-admin/admin.php?page=my-jetpack',
+				} )
+			);
 		} );
 
 		it( 'renders a link the error declared', () => {

@@ -1,10 +1,12 @@
 import {
+	CONNECTION_FROM,
 	CONNECTION_STORE_ID,
 	ConnectionErrorDetails,
 	getReconnectErrorMessage,
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -37,8 +39,11 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	connectedSiteId,
 	onConnectUser = null,
 } ) => {
+	// An older shared jetpack-connection script may lack CONNECTION_FROM: its links then send `my-jetpack`.
+	const connectFrom = CONNECTION_FROM?.myJetpackConnectionCard ?? 'my-jetpack';
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
 		redirectUri,
+		from: connectFrom,
 	} );
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
@@ -121,10 +126,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const handleConnectUser = useCallback(
 		( e: MouseEvent< HTMLButtonElement > ) => {
 			e && e.preventDefault();
-			recordEvent( 'jetpack_myjetpack_connection_connect_user_click', tracksEventData );
+			recordEvent( 'jetpack_myjetpack_connection_connect_user_click', {
+				...tracksEventData,
+				from: connectFrom,
+			} );
 			connectUserFn();
 		},
-		[ connectUserFn, recordEvent, tracksEventData ]
+		[ connectFrom, connectUserFn, recordEvent, tracksEventData ]
 	);
 
 	// The same package data the My Jetpack connection error notice runs on, so the
@@ -145,6 +153,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		trackingContext: 'my-jetpack',
 		trackingPlacement: 'connection_card',
 		navigate: assignLocation,
+		reconnectFrom: CONNECTION_FROM?.myJetpackConnectionCardReconnect,
+		reconnectRedirectUrl: getMyJetpackUrl(),
 	} );
 
 	// Show the connection itself during Safe Mode and offline mode.

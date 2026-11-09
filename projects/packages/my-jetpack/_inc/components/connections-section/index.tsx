@@ -1,7 +1,9 @@
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { useCallback } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { getConnectUrl } from '../../utils/connect-url';
+import { leavePageFor } from '../../utils/reload-page';
 import ConnectionStatusCard from '../connection-status-card';
 
 /**
@@ -28,7 +30,8 @@ export default function ConnectionsSection() {
 	};
 
 	const onConnectUser = useCallback( () => {
-		window.location.href = getUserConnectionUrl();
+		// An older shared jetpack-connection script may lack CONNECTION_FROM: its links then send `my-jetpack`.
+		leavePageFor( getConnectUrl( CONNECTION_FROM?.myJetpackConnectionCard ?? 'my-jetpack' ) );
 	}, [] );
 	return (
 		<ConnectionStatusCard
