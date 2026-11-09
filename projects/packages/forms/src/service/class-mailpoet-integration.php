@@ -244,7 +244,7 @@ class MailPoet_Integration {
 				break;
 			}
 		}
-		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
+		if ( ! $form || ! $form instanceof \Automattic\Jetpack\Forms\ContactForm\Contact_Form ) {
 			return;
 		}
 
