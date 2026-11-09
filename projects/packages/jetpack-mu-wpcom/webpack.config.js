@@ -10,7 +10,6 @@ module.exports = async () => {
 		moduleConfig,
 		{
 			entry: {
-				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.jsx',
 				'block-inserter-modifications': './src/features/block-inserter-modifications/index.jsx',
 				'core-customizer-css':

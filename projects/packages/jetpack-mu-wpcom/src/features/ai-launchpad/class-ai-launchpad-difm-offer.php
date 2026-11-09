@@ -150,8 +150,8 @@ class AI_Launchpad_Difm_Offer {
 			return false;
 		}
 
-		// Real plan bundles only, as in wpcom_ai_assistant_banner_tracks_props(): the slug fallback
-		// would also match add-ons such as Professional Email Premium.
+		// Real plan bundles only: the slug fallback would also match add-ons such as
+		// Professional Email Premium.
 		$bundles = wp_list_filter( (array) wpcom_expiry_get_purchases(), array( 'product_type' => 'bundle' ) );
 		$plan    = Expiry_Data::pick_primary_plan_purchase( $bundles );
 		$slug    = $plan && isset( $plan->product_slug ) && is_string( $plan->product_slug ) ? $plan->product_slug : 'free_plan';
