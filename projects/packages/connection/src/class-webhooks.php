@@ -177,6 +177,7 @@ class Webhooks {
 	/**
 	 * Handle the `connect_url_redirect` action,
 	 * which is usually called to repeat an attempt for user to authorize the connection.
+	 * Requires a logged-in user, and one who can connect the site when it isn't registered yet.
 	 *
 	 * @return void
 	 */
@@ -196,7 +197,10 @@ class Webhooks {
 		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 
 		if ( ! $this->connection->is_user_connected() ) {
-			if ( ! $this->connection->is_connected() && current_user_can( 'jetpack_connect' ) ) {
+			if ( ! $this->connection->is_connected() ) {
+				if ( ! current_user_can( 'jetpack_connect' ) ) {
+					return;
+				}
 				$this->connection->register();
 			}
 

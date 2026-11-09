@@ -173,7 +173,7 @@ class Webhooks_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 
 		set_transient( 'jetpack_assumed_site_creation_date', '2022-06-02 11:22:33' );
-		wp_set_current_user( $this->get_user_id( 'editor' ) );
+		wp_set_current_user( $this->get_user_id( 'administrator' ) );
 
 		$webhooks->handle_connect_url_redirect();
 
@@ -187,7 +187,7 @@ class Webhooks_Test extends TestCase {
 
 	/**
 	 * Unit test for the `Webhooks::handle_connect_url_redirect()` method.
-	 * Testing who can register an unregistered site before being sent to authorize.
+	 * Testing that only users who can connect an unregistered site register it and get sent to authorize.
 	 *
 	 * @param string|null $role            The current user's role, or null when logged out.
 	 * @param bool        $expect_register Whether the site should be registered.
@@ -224,7 +224,7 @@ class Webhooks_Test extends TestCase {
 	public static function provide_connect_url_redirect_users() {
 		return array(
 			'logged out'    => array( null, false, false ),
-			'editor'        => array( 'editor', false, true ),
+			'editor'        => array( 'editor', false, false ),
 			'administrator' => array( 'administrator', true, true ),
 		);
 	}
