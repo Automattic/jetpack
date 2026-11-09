@@ -24,8 +24,10 @@ require_once __DIR__ . '/fixtures/wpcom-get-site-functions.php';
  * Tests for the /sites/%s get-site endpoint.
  *
  * @covers \WPCOM_JSON_API_GET_Site_Endpoint
+ * @covers \SAL_Site
  */
 #[CoversClass( WPCOM_JSON_API_GET_Site_Endpoint::class )]
+#[CoversClass( SAL_Site::class )]
 class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	use WP_UnitTestCase_Fix;
 	use Assert_Rest_Xmlrpc_Parity;
