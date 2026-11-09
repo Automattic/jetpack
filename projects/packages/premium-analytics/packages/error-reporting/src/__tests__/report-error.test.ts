@@ -282,6 +282,15 @@ describe( 'reportError', () => {
 		} );
 	} );
 
+	it( 'uses Non-error thrown for an empty thrown string', () => {
+		reportError( '', 'boundary' );
+		resetErrorReporterForTests();
+		reportError( '   ', 'boundary' );
+
+		expect( sentPayload( 0 ).message ).toBe( 'Non-error thrown' );
+		expect( sentPayload( 1 ).message ).toBe( 'Non-error thrown' );
+	} );
+
 	it( 'stringifies a thrown primitive into message', () => {
 		reportError( 'just a string', 'boundary' );
 		reportError( 404, 'boundary' );
