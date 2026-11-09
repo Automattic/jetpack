@@ -22,10 +22,28 @@ PHP decides whether reporting is on. The package only reads the boolean `premium
 
 `premium_analytics.error_reporting.script_origins` lists the URL prefixes that mark a stack frame as dashboard code. It starts with this package's own `build/` URL. A package that ships its own build for the dashboard adds its build base URL, ending in a slash, through the `jetpack_premium_analytics_error_reporting_script_origins` filter. `ads`, `videopress` and `woocommerce-stats` already do this. Without it, an error thrown in that package's widget bundle is dropped as foreign when it arrives through `error` or `unhandledrejection`.
 
+## Redaction
+
+Nothing a reader typed may leave the browser, and the log index on the other side is shared with every other reporter that posts to this endpoint.
+
+The message, the stack and the component stack lose the page's own query string and hash, the query of any absolute URL, and any email address. Truncation to the length limits runs after all of that, so a redaction cannot be cut in half. The email pattern is deliberately broader than a valid address: under-matching leaks an address, over-matching costs a few characters.
+
+The page query reaches the report as one masked string, not as a field per parameter, because each parameter name would otherwise become a field in that shared index. A parameter whose name is not a plain identifier is dropped rather than masked: in string form the name itself is the leak, and there is no key left to hide it behind. A single marker records that something was removed.
+
 ## Dedupe and budget
 
 A report is dropped when its redacted message and first dashboard frame match one already sent during the life of the page. The key uses the redacted message so that a message embedding the page query string does not produce a new key on every date-range change.
 
-Each browser may send 10 reports per clock hour, counted in `localStorage` against the current hour bucket rather than a rolling window. When storage throws, the cap is 3 per page load. A 403 or a 429 stops reporting for the rest of the hour; any other refusal drops that one report and is named once in the console outside production builds.
+Each browser may send 10 reports per clock hour, counted in `localStorage` against the current hour bucket rather than a rolling window. When storage throws, the cap is 3 per page load.
+
+Any refusal from the endpoint stops reporting for the rest of the hour, whatever its status, because a request sent while a ban is already active restarts that ban. Each refusal status is named once in the console outside production builds, so a stall does not pass for a healthy dashboard.
 
 The budget exists because the endpoint rate-limits by IP, and a block there reaches the other Jetpack reporters sharing that IP, so a crash loop here must not be able to trigger one.
+
+## The package version
+
+The Premium Analytics package version travels in `properties.version`. The endpoint's top-level `jetpack_version` conventionally carries the Jetpack plugin version, so filling it with a package version would make a shared field disagree with every other reporter that sets it. `projects/packages/comments` reports its own version the same way.
+
+## Chunk-load failures
+
+A tab left open across a deploy asks for a module file that no longer exists. `React.lazy` turns the failed import into a render error, so the boundary reports it even though it is not a bug of ours. Those reports carry the tag `chunk-load`, which lets a search exclude them, and the four messages matched differ per browser and bundler. Reloading the page would be the other answer, and no user-visible change is allowed here.
