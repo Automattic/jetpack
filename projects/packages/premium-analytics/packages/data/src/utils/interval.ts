@@ -8,6 +8,7 @@ import {
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_LAST_3_YEARS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_MONTH,
@@ -175,6 +176,10 @@ function allowedIntervalsForPreset(
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
 			return [ 'month', 'week', 'quarter' ];
+		// Named rather than left to the range: the window is under the 1095 days
+		// the range wants for years until the last days of its third year.
+		case PRESET_LAST_3_YEARS:
+			return [ 'year', 'month', 'quarter' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}

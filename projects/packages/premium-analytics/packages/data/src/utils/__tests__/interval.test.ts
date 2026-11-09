@@ -142,6 +142,39 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'month', 'quarter', 'year' ] );
 	} );
 
+	/*
+	 * Early January the window is 735 days, well under the 1095 the range-based
+	 * branch wants before it offers years, so the preset's own case is the only
+	 * thing keeping yearly buckets on the menu.
+	 */
+	it( 'opens last 3 years in years, even early in January', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toEqual( [ 'year', 'month', 'quarter' ] );
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-01-05T23:59:59.999Z'
+			)
+		).toBe( 'year' );
+	} );
+
+	it( 'coerces a bucket last 3 years does not offer', () => {
+		expect(
+			resolveIntervalForRange(
+				'last-3-years',
+				'2024-01-01T00:00:00.000Z',
+				'2026-11-09T23:59:59.999Z',
+				'week'
+			)
+		).toBe( 'year' );
+	} );
+
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
 	it( 'offers months, weeks and quarters on a year-length range with no matching preset', () => {
