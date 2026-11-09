@@ -46,7 +46,7 @@ class SSO {
 	/**
 	 * Automattic\Jetpack\Connection\SSO instance.
 	 *
-	 * @var \Automattic\Jetpack\Connection\SSO
+	 * @var \Automattic\Jetpack\Connection\SSO|null
 	 */
 	public static $instance = null;
 

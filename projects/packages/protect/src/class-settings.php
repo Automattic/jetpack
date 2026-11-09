@@ -145,7 +145,7 @@ class Settings {
 	 */
 	public static function update_settings( $request ) {
 		$patch = self::sanitize_ip_lists( (array) $request->get_json_params() );
-		if ( is_wp_error( $patch ) ) {
+		if ( $patch instanceof WP_Error ) {
 			return $patch;
 		}
 		$modules = new Modules();
