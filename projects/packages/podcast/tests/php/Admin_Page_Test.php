@@ -17,6 +17,8 @@ use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -206,6 +208,52 @@ class Admin_Page_Test extends BaseTestCase {
 			),
 			'private status filter'        => array( array( 'blog_public' => '1' ), 'jetpack_is_private_site', false ),
 			'coming soon status filter'    => array( array( 'blog_public' => '1' ), 'jetpack_is_coming_soon', false ),
+		);
+	}
+
+	/**
+	 * @param array $options Site visibility options overriding a launched public site.
+	 * @param bool  $is_private Whether Atomic's private-site helper reports private.
+	 * @param bool  $expected Expected public visibility.
+	 * @dataProvider provide_atomic_site_visibility_states
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[DataProvider( 'provide_atomic_site_visibility_states' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_inject_script_data_uses_atomic_visibility( $options, $is_private, $expected ) {
+		$return_value = $is_private ? 'true' : 'false';
+		// phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval -- Define the optional host helper only in this isolated process.
+		eval( 'namespace Private_Site; function site_is_private() { return ' . $return_value . '; }' );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', 'wpcomsh.php' );
+		Status_Cache::clear();
+		$options = array_merge(
+			array(
+				'blog_public'   => '1',
+				'launch-status' => 'launched',
+			),
+			$options
+		);
+		foreach ( $options as $name => $value ) {
+			update_option( $name, $value );
+		}
+
+		$data = Admin_Page::inject_podcast_script_data( array() );
+		$this->assertSame( $expected, $data['podcast']['is_site_public'] );
+	}
+
+	public static function provide_atomic_site_visibility_states(): array {
+		return array(
+			'public with stale private option' => array( array( 'blog_public' => '-1' ), false, true ),
+			'private with public option'       => array( array(), true, false ),
+			'discouraged string'               => array( array( 'blog_public' => '0' ), false, false ),
+			'discouraged integer'              => array( array( 'blog_public' => 0 ), false, false ),
+			'unlaunched'                       => array( array( 'launch-status' => 'unlaunched' ), false, false ),
+			'coming soon'                      => array( array( 'wpcom_public_coming_soon' => 1 ), false, false ),
+			'legacy coming soon'               => array( array( 'wpcom_coming_soon' => 1 ), false, false ),
 		);
 	}
 
