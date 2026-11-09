@@ -455,6 +455,35 @@ class LlmsTxtTest extends SeoTestCase {
 	}
 
 	/**
+	 * Menu pages that aren't published, are password protected or are hidden from search
+	 * engines stay out, like any other page.
+	 *
+	 * @return void
+	 */
+	public function test_hidden_menu_pages_stay_out() {
+		$draft   = $this->insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+			)
+		);
+		$locked  = $this->insert_post(
+			array(
+				'post_type'     => 'page',
+				'post_title'    => 'Locked',
+				'post_password' => 'hunter2',
+			)
+		);
+		$noindex = $this->insert_page( 'Noindex' );
+		update_post_meta( $noindex->ID, Content_Coverage::META_NOINDEX, '1' );
+		$shown = $this->insert_page( 'Shown' );
+		$this->add_nav_menu( array( $draft->ID, $locked->ID, $noindex->ID, $shown->ID ), 'primary' );
+
+		$this->assertSame( array( 'Shown' ), $this->page_titles() );
+	}
+
+	/**
 	 * Insert and track a published page.
 	 *
 	 * @param string $title      Page title.
