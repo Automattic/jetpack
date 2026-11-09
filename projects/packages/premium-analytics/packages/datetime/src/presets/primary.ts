@@ -92,19 +92,6 @@ function startOfDayBefore( startOfToday: TZDate, days: number ): TZDate {
 }
 
 /**
- * The first instant of the calendar year `years` before a day's start.
- *
- * @param startOfToday - The first instant of today.
- * @param years        - How many years back.
- * @return The first instant of that year.
- */
-function startOfYearBefore( startOfToday: TZDate, years: number ): TZDate {
-	const year = subYears( startOfToday, years );
-
-	return startOfYear( year );
-}
-
-/**
  * Canonical preset definitions. Labels are defined once here and reused by all
  * consumers.
  */
@@ -219,7 +206,7 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		// Two years back, not three: the running year is the third, so the chart
 		// draws three yearly buckets rather than four with two cut.
 		getRange: ( { initOfToday, endOfToday } ) => ( {
-			from: startOfYearBefore( initOfToday, 2 ),
+			from: startOfYear( subYears( initOfToday, 2 ) ),
 			to: endOfToday,
 		} ),
 	},
