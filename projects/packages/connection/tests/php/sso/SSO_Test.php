@@ -182,10 +182,18 @@ class SSO_Test extends BaseTestCase {
 		$this->assertNull( SSO::$instance );
 	}
 
-	public function test_init_standalone_waits_for_after_setup_theme() {
+	/**
+	 * SSO starts on `after_setup_theme`, or at once when a plugin calls init_standalone() after it.
+	 *
+	 * @dataProvider provide_after_setup_theme_states
+	 *
+	 * @param bool $fired Whether `after_setup_theme` has already fired.
+	 */
+	#[DataProvider( 'provide_after_setup_theme_states' )]
+	public function test_init_standalone_starts_sso_on_or_after_after_setup_theme( $fired ) {
 		global $wp_actions;
-		$fired = $wp_actions['after_setup_theme'] ?? null;
-		unset( $wp_actions['after_setup_theme'] );
+		$saved                           = $wp_actions['after_setup_theme'] ?? null;
+		$wp_actions['after_setup_theme'] = $fired ? 1 : 0;
 		self::set_up_standalone_site( true, false, true );
 
 		SSO::init_standalone();
@@ -193,12 +201,26 @@ class SSO_Test extends BaseTestCase {
 		$started  = null !== SSO::$instance;
 
 		remove_action( 'after_setup_theme', array( SSO::class, 'maybe_start_standalone' ), -2 );
-		if ( null !== $fired ) {
-			$wp_actions['after_setup_theme'] = $fired;
+		if ( null === $saved ) {
+			unset( $wp_actions['after_setup_theme'] );
+		} else {
+			$wp_actions['after_setup_theme'] = $saved;
 		}
 		self::clear_standalone_site();
-		$this->assertSame( -2, $priority );
-		$this->assertFalse( $started );
+		$this->assertSame( $fired ? false : -2, $priority );
+		$this->assertSame( $fired, $started );
+	}
+
+	/**
+	 * Whether `after_setup_theme` has already fired.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_after_setup_theme_states() {
+		return array(
+			'not yet fired' => array( false ),
+			'already fired' => array( true ),
+		);
 	}
 
 	/**
