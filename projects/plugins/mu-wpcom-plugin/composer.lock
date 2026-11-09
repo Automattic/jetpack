@@ -545,7 +545,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "b06af2b1200687f3eec7c192d3a4da9c5606bdeb"
+                "reference": "941dbe2ec722acfe1ad92c77720d75139ee21c65"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -566,7 +566,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"
@@ -2016,7 +2016,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "8677aa7ef5f73f7424337beede231a240a77a2c0"
+                "reference": "16c01413902541c00cf8594493da9fedc1031565"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2042,7 +2042,7 @@
             "extra": {
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.39.x-dev"
+                    "dev-trunk": "0.40.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
