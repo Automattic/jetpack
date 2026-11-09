@@ -45,6 +45,7 @@ class Dashboard_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Cache::clear();
 		remove_all_actions( 'rest_api_init' );
+		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		self::reset_sections();
@@ -259,15 +260,33 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
 	}
 
-	public function test_print_initial_state_prints_escaped_objects() {
-		Dashboard::register_section( $this->section( 'example', array( 'title' => '</script>' ) ) );
+	/**
+	 * The `page` query arg, and the `monetize` script data each should end up with.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_script_data_pages() {
+		return array(
+			'the Monetize page' => array( 'jetpack-monetize', '{"other":1,"sections":{"example":{"title":"Ads"},"empty":{}}}' ),
+			'another page'      => array( 'jetpack', '{"other":1}' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_script_data_pages
+	 *
+	 * @param string $page     The `page` query arg.
+	 * @param string $expected The `monetize` script data, as JSON.
+	 */
+	#[DataProvider( 'provide_script_data_pages' )]
+	public function test_add_script_data_adds_section_state_only_on_the_monetize_page( $page, $expected ) {
+		$_GET['page'] = $page;
+		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
 		Dashboard::register_section( $this->section( 'empty', array() ) );
 
-		ob_start();
-		Dashboard::print_initial_state();
-		$output = ob_get_clean();
+		$data = Dashboard::add_script_data( array( 'monetize' => array( 'other' => 1 ) ) );
 
-		$this->assertStringContainsString( 'window.jetpackMonetizeDashboard = {"example":{"title":"\\u003C/script\\u003E"},"empty":{}};', $output );
+		$this->assertSame( $expected, wp_json_encode( $data['monetize'], JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

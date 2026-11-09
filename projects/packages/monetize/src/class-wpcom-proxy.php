@@ -55,7 +55,7 @@ class WPCOM_Proxy {
 	 * @param string       $api     A key of APIS.
 	 * @param string       $path    Route pattern under `/sites/<id>/`, e.g. `memberships/product/(?P<id>\d+)`.
 	 * @param string|array $methods HTTP methods the route accepts.
-	 * @param array        $args    Route args: only these are forwarded, once validated and sanitized.
+	 * @param array        $args    Route args: only these and `_locale` are forwarded, once validated and sanitized.
 	 * @return bool Whether the route was registered.
 	 */
 	public static function register_route( $api, $path, $methods, array $args = array() ) {
@@ -73,7 +73,13 @@ class WPCOM_Proxy {
 					return self::forward( $api, $request );
 				},
 				'permission_callback' => array( Dashboard::class, 'can_manage' ),
-				'args'                => $args,
+				// apiFetch adds `_locale=user` to every request, so WordPress.com answers in the user's language.
+				'args'                => $args + array(
+					'_locale' => array(
+						'type' => 'string',
+						'enum' => array( 'user' ),
+					),
+				),
 			)
 		);
 	}

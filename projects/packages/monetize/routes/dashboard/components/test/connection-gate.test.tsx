@@ -4,7 +4,7 @@ import ConnectionGate from '../connection-gate';
 const mockUseConnection = jest.fn();
 const mockIsSimpleSite = jest.fn();
 
-jest.mock( '@automattic/jetpack-connection', () => ( {
+jest.mock( '@automattic/jetpack-connection/connection-from', () => ( {
 	CONNECTION_FROM: { jetpackMonetizeConnectionGate: 'jetpack_monetize_connection_gate' },
 } ) );
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {

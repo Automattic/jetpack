@@ -1,4 +1,4 @@
-import { CONNECTION_FROM } from '@automattic/jetpack-connection';
+import { CONNECTION_FROM } from '@automattic/jetpack-connection/connection-from';
 import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 

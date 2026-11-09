@@ -135,6 +135,8 @@ class Dashboard {
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		}
 
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+
 		self::register_sections();
 	}
 
@@ -204,13 +206,16 @@ class Dashboard {
 	}
 
 	/**
-	 * Print the page's state as `window.jetpackMonetizeDashboard`, for its scripts.
+	 * Add each section's state to `JetpackScriptData.monetize.sections` on the dashboard's page.
 	 *
-	 * @return void
+	 * @param array $data Script data.
+	 * @return array
 	 */
-	public static function print_initial_state() {
-		$state = wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
-		wp_print_inline_script_tag( 'window.jetpackMonetizeDashboard = ' . ( false === $state ? '{}' : $state ) . ';' );
+	public static function add_script_data( $data ) {
+		if ( self::is_dashboard_request() ) {
+			$data['monetize']['sections'] = (object) self::get_initial_state();
+		}
+		return $data;
 	}
 
 	/**
@@ -367,7 +372,6 @@ class Dashboard {
 	public static function render() {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
-			self::print_initial_state();
 			$render_fn();
 			return;
 		}
