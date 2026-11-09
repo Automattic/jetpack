@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -445,14 +446,46 @@ class Main_Test extends StatsBaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_template_redirect_with_consent_api_skips_web_stories_and_sanitizes_amp() {
+	public function test_template_redirect_with_consent_api_skips_web_stories() {
 		require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10 );
 
 		$this->assertFalse( has_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ) ) );
-		$this->assertSame( 10, has_filter( 'amp_content_sanitizers', array( Tracking_Pixel::class, 'add_amp_consent_sanitizer' ) ) );
+	}
+
+	/**
+	 * AMP sanitizers Stats adds with and without the WP Consent API.
+	 *
+	 * @return array
+	 */
+	public static function amp_sanitizers_by_consent_api() {
+		return array(
+			'without the WP Consent API' => array( false, array() ),
+			'with the WP Consent API'    => array( true, array( AMP_Consent_Sanitizer::class => array() ) ),
+		);
+	}
+
+	/**
+	 * The AMP plugin applies `amp_content_sanitizers` on `wp`, before `template_redirect`, so only `init()` runs here.
+	 *
+	 * @dataProvider amp_sanitizers_by_consent_api
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool  $consent_api Whether the WP Consent API is active.
+	 * @param array $expected    Sanitizers after the filter.
+	 */
+	#[DataProvider( 'amp_sanitizers_by_consent_api' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_init_adds_amp_consent_sanitizer_only_with_consent_api( $consent_api, $expected ) {
+		if ( $consent_api ) {
+			require_once __DIR__ . '/mocks/wp-consent-api-mock.php';
+		}
+
+		$this->assertSame( $expected, apply_filters( 'amp_content_sanitizers', array() ) );
 	}
 
 	/**

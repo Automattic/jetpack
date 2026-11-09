@@ -26,6 +26,13 @@ class Tracking_Pixel {
 	 */
 	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
 
+	/**
+	 * Where the AMP pixel sends views, which AMP_Consent_Sanitizer matches on.
+	 *
+	 * @var string
+	 */
+	const AMP_PIXEL_URL = 'https://pixel.wp.com/g.gif';
+
 	const TRACKED_UTM_PARAMETERS = array(
 		'utm_id',
 		'utm_source',
@@ -393,7 +400,7 @@ if ( document.readyState === "loading" ) {
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
-		return add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
+		return add_query_arg( $data, self::AMP_PIXEL_URL );
 	}
 
 	/**
@@ -433,14 +440,16 @@ if ( document.readyState === "loading" ) {
 	}
 
 	/**
-	 * Register the sanitizer that drops the Stats AMP pixel when the page has no `amp-consent`.
+	 * With the WP Consent API active, add the sanitizer that drops the Stats AMP pixel when the page has no `amp-consent`.
 	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
 	 *
 	 * @param array $sanitizers Sanitizer classes and their args.
 	 * @return array
 	 */
 	public static function add_amp_consent_sanitizer( $sanitizers ) {
-		$sanitizers[ AMP_Consent_Sanitizer::class ] = array();
+		if ( function_exists( 'wp_has_consent' ) ) {
+			$sanitizers[ AMP_Consent_Sanitizer::class ] = array();
+		}
 		return $sanitizers;
 	}
 

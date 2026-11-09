@@ -24,16 +24,20 @@ class AMP_Consent_Sanitizer_Test extends StatsBaseTestCase {
 	 * @return array
 	 */
 	public static function pages() {
-		$stats_pixel = '<amp-pixel data-block-on-consent src="https://pixel.wp.com/g.gif?v=ext&amp;blog=1"></amp-pixel>';
+		$stats_pixel = '<amp-pixel data-block-on-consent src="' . Tracking_Pixel::AMP_PIXEL_URL . '?v=ext&amp;blog=1"></amp-pixel>';
 		$other_pixel = '<amp-pixel src="https://example.com/p.gif"></amp-pixel>';
 
 		return array(
-			'banner on the page'    => array(
+			'banner on the page'                   => array(
 				'<amp-consent id="c" layout="nodisplay"></amp-consent>' . $stats_pixel . $other_pixel,
-				array( 'https://pixel.wp.com/g.gif?v=ext&blog=1', 'https://example.com/p.gif' ),
+				array( Tracking_Pixel::AMP_PIXEL_URL . '?v=ext&blog=1', 'https://example.com/p.gif' ),
 			),
-			'no banner on the page' => array(
+			'no banner on the page'                => array(
 				$stats_pixel . $other_pixel,
+				array( 'https://example.com/p.gif' ),
+			),
+			'no banner, two adjacent Stats pixels' => array(
+				$stats_pixel . $stats_pixel . $other_pixel,
 				array( 'https://example.com/p.gif' ),
 			),
 		);
@@ -52,6 +56,7 @@ class AMP_Consent_Sanitizer_Test extends StatsBaseTestCase {
 		$dom = new \DOMDocument();
 		$dom->loadHTML( "<html><body>$body</body></html>", LIBXML_NOERROR );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- The AMP stub types $dom as an unresolved `Document`, AMP's DOMDocument subclass.
 		( new AMP_Consent_Sanitizer( $dom ) )->sanitize();
 
 		$sources = array();
