@@ -101,18 +101,20 @@ describe( 'StatsErrorBoundary', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	// Not `null`, which React 18 replaces with a TypeError of its own before the outer boundary
+	// sees it. Any falsy value proves the same thing: the catch is not inferred from the error.
 	it( 'rethrows a falsy thrown value', () => {
 		const onCatch = jest.fn();
 		render(
 			<OuterBoundary onCatch={ onCatch }>
 				<StatsErrorBoundary>
-					<Thrower error={ null } />
+					<Thrower error={ 0 } />
 				</StatsErrorBoundary>
 			</OuterBoundary>
 		);
 
 		expect( onCatch ).toHaveBeenCalledTimes( 1 );
-		expect( onCatch.mock.calls[ 0 ][ 0 ] ).toBeNull();
+		expect( onCatch.mock.calls[ 0 ][ 0 ] ).toBe( 0 );
 		expect( reportError ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
