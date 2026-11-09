@@ -44,21 +44,21 @@ const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dash
 /**
  * Tile heights for default layouts, in dashboard rows: a one-line strip of highlights.
  *
- * @since $$next-version$$
+ * @since 0.17.0
  */
 const DASHBOARD_TILE_STRIP = 1;
 
 /**
  * A chart, a figure or a short list.
  *
- * @since $$next-version$$
+ * @since 0.17.0
  */
 const DASHBOARD_TILE_CARD = 2;
 
 /**
  * A leaderboard tall enough for the ten rows the stats endpoints return by default.
  *
- * @since $$next-version$$
+ * @since 0.17.0
  */
 const DASHBOARD_TILE_LIST = 3;
 
