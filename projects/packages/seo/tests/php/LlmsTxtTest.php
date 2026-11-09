@@ -452,9 +452,19 @@ class LlmsTxtTest extends TestCase {
 				'SEO summary.',
 			),
 			'cleaned to a single line'  => array(
-				"<b>First line</b>\n\nsecond line.",
+				"<b>First line</b>\n\n[gallery]second line.",
 				array( 'post_content' => 'Body text.' ),
 				'First line second line.',
+			),
+			'capped like the meta tag'  => array(
+				str_repeat( 'word ', 60 ),
+				array( 'post_content' => 'Body text.' ),
+				trim( str_repeat( 'word ', 55 ) ),
+			),
+			'skipped when blank'        => array(
+				'   ',
+				array( 'post_excerpt' => 'Manual excerpt.' ),
+				'Manual excerpt.',
 			),
 		);
 	}
