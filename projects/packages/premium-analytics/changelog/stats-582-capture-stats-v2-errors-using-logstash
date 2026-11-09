@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Report uncaught dashboard JavaScript errors to Logstash on WordPress.com Simple and Atomic sites.
+Report uncaught dashboard JavaScript errors to WordPress.com on WordPress.com Simple and Atomic sites.
