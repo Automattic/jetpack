@@ -31,7 +31,7 @@ interface ErrorProperties {
 	widget: string;
 	error_name: string;
 	component_stack: string;
-	query: Record< string, string >;
+	query: string;
 }
 
 interface ErrorPayload {
@@ -251,7 +251,7 @@ function buildPayload(
 ): ErrorPayload {
 	const { name, stack } = details;
 	const data = getScriptData();
-	const query = redactQuery( window.location.search );
+	const { search } = window.location;
 
 	return {
 		feature: 'jetpack_stats',
@@ -263,7 +263,7 @@ function buildPayload(
 		jetpack_version: data?.premium_analytics?.error_reporting?.version,
 		properties: definedMembers( {
 			source,
-			route: query.p ?? '/',
+			route: new URLSearchParams( search ).get( 'p' ) ?? '/',
 			module: frame?.path,
 			widget: frame?.widget,
 			error_name: name,
@@ -271,7 +271,7 @@ function buildPayload(
 				source === 'boundary' && typeof extra?.componentStack === 'string'
 					? sanitizeText( extra.componentStack, TRACE_LIMIT )
 					: undefined,
-			query,
+			query: redactQuery( search ),
 		} ),
 		extra: definedMembers( { line: frame?.line, column: frame?.column } ),
 	} satisfies ErrorPayload;

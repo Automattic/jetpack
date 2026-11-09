@@ -160,11 +160,7 @@ describe( 'reportError', () => {
 			module: 'widgets/top-posts/render.js',
 			widget: 'top-posts',
 			error_name: 'TypeError',
-			query: {
-				page: 'jetpack-premium-analytics-wp-admin',
-				p: '/posts',
-				secret: '[redacted]',
-			},
+			query: 'page=jetpack-premium-analytics-wp-admin&p=/posts&secret=[redacted]',
 		} );
 	} );
 
