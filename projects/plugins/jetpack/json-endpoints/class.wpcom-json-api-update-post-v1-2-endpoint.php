@@ -509,6 +509,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		$publicize = $input['publicize'] ?? null;
+		// The (array|bool) input type casts a JSON boolean to array( true ) or array( false ).
+		if ( array( true ) === $publicize || array( false ) === $publicize ) {
+			$publicize = $publicize[0];
+		}
 		unset( $input['publicize'] );
 
 		$publicize_custom_message = $input['publicize_message'] ?? null;
@@ -585,8 +589,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 */
 		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $blog_id, $input, $media_files, $media_urls, $media_attrs, $media_results );
 
-		// A JSON boolean false is cast to array( false ) by the (array|bool) input type.
-		$skip_publicize = false === $publicize || array( false ) === $publicize;
+		$skip_publicize = false === $publicize;
 
 		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 

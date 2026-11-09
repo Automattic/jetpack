@@ -222,14 +222,15 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 		);
 		$responses = array();
 		foreach ( array(
-			'listed'  => array( '/sites/%s/posts/new', "/sites/$blog_id/posts/new", 0 ),
-			'updated' => array( '/sites/%s/posts/%d', "/sites/$blog_id/posts/$draft_id", $draft_id ),
-		) as $title => list( $pattern, $path, $post_id ) ) {
+			'listed'  => array( '/sites/%s/posts/new', "/sites/$blog_id/posts/new", 0, array( 'linkedin' ) ),
+			'updated' => array( '/sites/%s/posts/%d', "/sites/$blog_id/posts/$draft_id", $draft_id, array( 'linkedin' ) ),
+			'shared'  => array( '/sites/%s/posts/new', "/sites/$blog_id/posts/new", 0, true ),
+		) as $title => list( $pattern, $path, $post_id, $publicize ) ) {
 			$body                                = array(
 				'title'     => $title,
 				'content'   => 'Hi',
 				'status'    => 'publish',
-				'publicize' => array( 'linkedin' ),
+				'publicize' => $publicize,
 			);
 			WPCOM_JSON_API::init()->post_body    = 'application/json' === $content_type ? wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) : http_build_query( $body );
 			WPCOM_JSON_API::init()->content_type = $content_type;
@@ -249,6 +250,7 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 
 		$this->assertNotWPError( $responses[0] );
 		$this->assertNotWPError( $responses[1] );
+		$this->assertNotWPError( $responses[2] );
 		$this->assertSame( '', get_post_meta( $nested_id, '_wpas_skip_facebook', true ) );
 		$this->assertSame(
 			array(
@@ -258,6 +260,10 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 				),
 				'updated' => array(
 					'facebook' => true,
+					'linkedin' => false,
+				),
+				'shared'  => array(
+					'facebook' => false,
 					'linkedin' => false,
 				),
 				'later'   => array(

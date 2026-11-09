@@ -483,6 +483,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		$publicize = $input['publicize'] ?? null;
+		// The (array|bool) input type casts a JSON boolean to array( true ) or array( false ).
+		if ( array( true ) === $publicize || array( false ) === $publicize ) {
+			$publicize = $publicize[0];
+		}
 		unset( $input['publicize'] );
 
 		$publicize_custom_message = $input['publicize_message'] ?? null;
@@ -521,8 +525,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media        = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
-		// A JSON boolean false is cast to array( false ) by the (array|bool) input type.
-		$skip_publicize = false === $publicize || array( false ) === $publicize;
+		$skip_publicize = false === $publicize;
 
 		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
@@ -868,8 +871,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	 * @param array|bool $publicize The request's `publicize` value.
 	 */
 	protected function update_publicize_skip_meta( $post_id, $publicize ) {
-		// A JSON boolean false is cast to array( false ) by the (array|bool) input type.
-		$skip_publicize = false === $publicize || array( false ) === $publicize;
+		$skip_publicize = false === $publicize;
 
 		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
 		// to instead flag the ones we don't want to be skipped. proceed with said logic.
