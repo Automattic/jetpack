@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Newsletter: Fix the Subscribers page failing to load when a subscriber's display name is all digits.
+Newsletter: Harden the Subscribers list against numeric values in the subscriber API response.
