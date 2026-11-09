@@ -32,6 +32,11 @@ class Error_Reporting_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Cache::clear();
 		remove_all_filters( 'jetpack_premium_analytics_error_reporting_script_origins' );
+
+		// WorDBless restores the hooks but not these two, so a failed assertion would leak them.
+		unset( $GLOBALS['jpa_test_widget_manifest'] );
+		$this->reset_widget_registry();
+
 		parent::tear_down();
 	}
 
@@ -95,11 +100,6 @@ class Error_Reporting_Test extends BaseTestCase {
 		);
 
 		$config = $this->get_config();
-
-		remove_all_actions( Widget_Type_Registry::REGISTER_ACTION );
-		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
-		unset( $GLOBALS['jpa_test_widget_manifest'] );
-		$this->reset_widget_registry();
 
 		$this->assertContains( 'https://example.com/package/build/', $config['script_origins'] );
 	}
