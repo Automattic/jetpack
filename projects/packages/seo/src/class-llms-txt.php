@@ -132,8 +132,8 @@ class Llms_Txt {
 	 * @return string
 	 */
 	public static function generate() {
-		$name        = wp_strip_all_tags( get_bloginfo( 'name' ) );
-		$description = wp_strip_all_tags( get_bloginfo( 'description' ) );
+		$name        = self::plain_text( get_bloginfo( 'name' ) );
+		$description = self::plain_text( get_bloginfo( 'description' ) );
 
 		$blocks = array();
 
@@ -225,7 +225,7 @@ class Llms_Txt {
 		if ( 'post' === $post_type->name ) {
 			return __( 'Posts', 'jetpack-seo' );
 		}
-		return wp_strip_all_tags( $post_type->label );
+		return self::plain_text( $post_type->label );
 	}
 
 	/**
@@ -245,7 +245,7 @@ class Llms_Txt {
 			}
 
 			// Collapse whitespace (incl. newlines) so each entry stays on one line.
-			$title = trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( get_the_title( $post ) ) ) );
+			$title = self::plain_text( get_the_title( $post ) );
 			if ( '' === $title ) {
 				$title = __( '(untitled)', 'jetpack-seo' );
 			}
@@ -285,6 +285,18 @@ class Llms_Txt {
 		}
 
 		// Collapse whitespace so a link line stays on one row.
-		return trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $raw ) ) );
+		return self::plain_text( $raw );
+	}
+
+	/**
+	 * Reduce a WordPress display string to one line of plain text.
+	 *
+	 * @param string $text Text that may hold tags and HTML entities.
+	 * @return string
+	 */
+	private static function plain_text( $text ) {
+		// Do not reorder: decoding can reveal whitespace (`&#10;`), and text like `&lt;b&gt;` isn't a tag.
+		$text = html_entity_decode( wp_strip_all_tags( $text ), ENT_QUOTES, 'UTF-8' );
+		return trim( preg_replace( '/\s+/', ' ', $text ) );
 	}
 }

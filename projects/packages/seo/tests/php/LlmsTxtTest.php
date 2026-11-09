@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
@@ -83,6 +84,18 @@ class LlmsTxtTest extends TestCase {
 		update_option( 'blogname', 'Site' );
 		update_option( 'blogdescription', 'Just another test site' );
 		$this->assertStringContainsString( '> Just another test site', Llms_Txt::generate() );
+	}
+
+	/**
+	 * WordPress stores the site name and tagline escaped; plain text needs the characters.
+	 *
+	 * @return void
+	 */
+	public function test_generate_decodes_site_identity() {
+		update_option( 'blogname', "Tom's & Jerry's" );
+		update_option( 'blogdescription', 'Cats & dogs' );
+
+		$this->assertStringStartsWith( "# Tom's & Jerry's\n\n> Cats & dogs\n", Llms_Txt::generate() );
 	}
 
 	/**
@@ -274,7 +287,7 @@ class LlmsTxtTest extends TestCase {
 		register_post_type(
 			'seo_book',
 			array(
-				'label'        => 'Books',
+				'label'        => 'Books &amp; Zines',
 				'public'       => true,
 				'show_ui'      => true,
 				'show_in_rest' => true,
@@ -290,9 +303,41 @@ class LlmsTxtTest extends TestCase {
 
 		$output = Llms_Txt::generate();
 
-		$this->assertStringContainsString( "## Books\n\n", $output );
+		$this->assertStringContainsString( "## Books & Zines\n\n", $output );
 		$this->assertStringContainsString( 'Practical Schema', $output );
 		$this->assertStringContainsString( 'A concise guide to schema markup.', $output );
+	}
+
+	/**
+	 * Link lines hold characters rather than HTML entities, and still parse as one link.
+	 *
+	 * @dataProvider provide_entity_link_lines
+	 *
+	 * @param array  $fields   Post fields.
+	 * @param string $expected Text the link line must contain.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_entity_link_lines' )]
+	public function test_link_list_decodes_entities( array $fields, string $expected ) {
+		$output = $this->link_list( array( $this->insert_post( $fields ) ) );
+
+		$this->assertStringContainsString( $expected, $output );
+		$this->assertStringNotContainsString( "\n", $output );
+	}
+
+	/**
+	 * Post fields and the text each must render as.
+	 *
+	 * @return array
+	 */
+	public static function provide_entity_link_lines() {
+		return array(
+			'texturized apostrophe' => array( array( 'post_title' => "What's New" ), "- [What\u{2019}s New](" ),
+			'ampersand in title'    => array( array( 'post_title' => 'Tips & Tricks' ), '- [Tips & Tricks](' ),
+			'encoded brackets'      => array( array( 'post_title' => 'Notes &#91;draft&#93;' ), '- [Notes \[draft\]](' ),
+			'encoded newline'       => array( array( 'post_title' => 'One&#10;Two' ), '- [One Two](' ),
+			'ampersand in summary'  => array( array( 'post_excerpt' => 'Salt &amp; pepper' ), ': Salt & pepper' ),
+		);
 	}
 
 	/**
