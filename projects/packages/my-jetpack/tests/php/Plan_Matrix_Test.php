@@ -38,8 +38,12 @@ use WorDBless\Users as WorDBless_Users;
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
  * @covers \Automattic\Jetpack\My_Jetpack\Product::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Protect::get_status
+ * @covers \Automattic\Jetpack\My_Jetpack\Products\Scan::get_status
  */
 #[CoversMethod( Product::class, 'get_status' )]
+#[CoversMethod( Protect::class, 'get_status' )]
+#[CoversMethod( Scan::class, 'get_status' )]
 class Plan_Matrix_Test extends TestCase {
 
 	/**

@@ -186,14 +186,13 @@ class Scan extends Module_Product {
 	}
 
 	/**
-	 * Get the card's status, Expired for a lapsed purchase that Protect Status no longer counts.
+	 * Get the card's status, Expired for a lapsed purchase, as Protect::get_status() does.
 	 *
 	 * @return string
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
 
-		// Plan only sees active purchases; the purchases lookup still lists a lapsed one, as for other products.
 		if ( Products::STATUS_CAN_UPGRADE === $status && static::is_paid_plan_expired() ) {
 			return Products::STATUS_EXPIRED;
 		}
