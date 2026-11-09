@@ -49,7 +49,7 @@ const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dash
 const DASHBOARD_TILE_STRIP = 1;
 
 /**
- * A chart, a figure or a short list: the height every tile had before lists got taller.
+ * A chart, a figure or a short list.
  *
  * @since $$next-version$$
  */
