@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"main": "src/index.ts",
-	"types": "src/index.ts",
-	"sideEffects": false
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts"
 }
