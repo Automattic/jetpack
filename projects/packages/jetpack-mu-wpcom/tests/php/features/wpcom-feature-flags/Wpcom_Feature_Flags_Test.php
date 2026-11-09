@@ -826,6 +826,21 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * PHP turns an all-digit array key into an int, which the screen's own override filter skips.
+	 */
+	public function test_admin_page_resolves_an_all_digit_flag_name_like_its_callers() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( '2026', array( 'default' => false ) );
+		Wpcom_Feature_Flags::save_overrides( array( '2026' => true ) );
+		Wpcom_Feature_Flags::init();
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
+		$this->assertStringNotContainsString( 'Changed by code on this site.', $output );
+	}
+
+	/**
 	 * The per-flag `jetpack_feature_flag_enabled_{flag}` filter runs after ours
 	 * and beats it. Without the Effective column the screen cannot answer the one
 	 * question it exists for — "I forced it on, so why is the feature still off?"

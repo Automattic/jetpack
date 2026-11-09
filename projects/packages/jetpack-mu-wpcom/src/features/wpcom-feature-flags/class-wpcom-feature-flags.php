@@ -706,7 +706,8 @@ class Wpcom_Feature_Flags {
 			 * wins. Showing it turns the screen from a settings form into
 			 * something that answers "I forced it on, so why is it still off?".
 			 */
-			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( $name ) : null;
+			// As a string, the way callers ask: an all-digit name is an int key here, and filter_enabled() skips ints.
+			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( (string) $name ) : null;
 
 			// Code on the generic or per-flag filter, which this screen cannot name.
 			$expected                         = array_key_exists( $name, $overrides ) ? $overrides[ $name ] : $rows[ $name ]['default'];
