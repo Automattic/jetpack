@@ -744,18 +744,22 @@ if (
 			}
 
 			// Replace poll links.
-			$content = jetpack_preg_replace_outside_tags(
-				'!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i',
-				'[crowdsignal poll=$2]',
-				$content
-			);
+			if ( stripos( $content, 'polldaddy.com/poll' ) !== false || stripos( $content, 'poll.fm/' ) !== false ) {
+				$content = jetpack_preg_replace_outside_tags(
+					'!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i',
+					'[crowdsignal poll=$2]',
+					$content
+				);
+			}
 
 			// Replace survey.fm links.
-			$content = jetpack_preg_replace_outside_tags(
-				'!(?:\n|\A)https?:\/\/([^"\'.]+)\.survey\.fm\/([^"\'\/\s]+)(?:\/.*)?(?:\n|\Z)!i',
-				'[crowdsignal type="iframe" survey="true" height="auto" domain="$1" id="$2"]',
-				$content
-			);
+			if ( stripos( $content, '.survey.fm/' ) !== false ) {
+				$content = jetpack_preg_replace_outside_tags(
+					'!(?:\n|\A)https?:\/\/([^"\'.]+)\.survey\.fm\/([^"\'\/\s]+)(?:\/.*)?(?:\n|\Z)!i',
+					'[crowdsignal type="iframe" survey="true" height="auto" domain="$1" id="$2"]',
+					$content
+				);
+			}
 
 			return $content;
 		}
