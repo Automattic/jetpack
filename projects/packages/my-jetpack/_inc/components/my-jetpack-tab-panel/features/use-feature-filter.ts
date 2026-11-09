@@ -8,10 +8,13 @@ import type { MyJetpackModule } from '../../../types';
 export type FeatureFilter =
 	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
 
-const PLANS = [ 'security', 'growth' ];
+// Must match Main_Features::FILTER_GROUPS, which fills `groups` on each feature.
+const GROUPS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
-	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
+	[ 'all', 'available', 'active', 'inactive', 'included', 'essential', ...GROUPS ].includes(
+		value
+	);
 
 /**
  * The filters offered as pills, in the order they are shown.
@@ -78,8 +81,8 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 		return Boolean( state.feature.included );
 	}
 
-	if ( PLANS.includes( filter ) ) {
-		return Boolean( state.feature.groups?.includes( filter ) );
+	if ( GROUPS.includes( filter ) ) {
+		return state.feature.groups.includes( filter );
 	}
 
 	return state.feature.essential;

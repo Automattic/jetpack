@@ -3,7 +3,14 @@ import type { FeatureState } from '../feature-state';
 
 const buildState = ( feature: Partial< MainFeature >, status = 'inactive' ): FeatureState =>
 	( {
-		feature: { slug: 'feature', name: 'Feature', essential: false, plans: [], ...feature },
+		feature: {
+			slug: 'feature',
+			name: 'Feature',
+			essential: false,
+			plans: [],
+			groups: [],
+			...feature,
+		},
 		status,
 		control: { kind: 'none' },
 	} ) as FeatureState;
