@@ -22,6 +22,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	// The goals the wizard offers.
 	const GOALS = array( 'write', 'build', 'sell', 'newsletter', 'educate', 'portfolio' );
 
+	// The AI tools the "Bring your AI tool" view links to, the only connections GET /mcp-connections returns.
+	const MCP_INTEGRATIONS = array( 'chatgpt', 'claude' );
+
 	/**
 	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
 	 * option, and the launch task reads `launch-status` live.
@@ -411,6 +414,18 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/mcp-connections',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_mcp_connections' ),
+					'permission_callback' => array( $this, 'can_read' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/complete-task',
 			array(
 				array(
@@ -659,6 +674,10 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			),
 			// The free DIFM offer banner under the task list, or null when it must not show.
 			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
+			// The goals step's experiment variation, assigned only when the wizard opens on it, which an AI-built site skips.
+			'goals_variation'    => $shows_wizard && null === $inferred_input ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
+			// Whether GET /mcp-connections can see connections, which needs wpcom's helper.
+			'mcp_detection'      => function_exists( 'wpcom_mcp_get_user_connections' ),
 		);
 	}
 
@@ -1133,6 +1152,51 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		return $extra;
+	}
+
+	/**
+	 * The current user's ChatGPT and Claude MCP connections, which the wizard polls to tell when the user has added
+	 * WordPress.com to their AI tool.
+	 *
+	 * Read from wpcom's `wpcom_mcp_get_user_connections()`, newest per tool, `connected_at` in Unix seconds. Where it
+	 * is not defined the list is empty, so the wizard keeps waiting.
+	 *
+	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null when
+	 * unknown), read only once something is connected because it is costly.
+	 *
+	 * @return array{connections: array<int, array{integration: string, connected_at: int}>, access_level: string|null}
+	 */
+	public function get_mcp_connections() {
+		if ( ! function_exists( 'wpcom_mcp_get_user_connections' ) ) {
+			return array(
+				'connections'  => array(),
+				'access_level' => null,
+			);
+		}
+
+		$connections = array();
+		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+		foreach ( (array) wpcom_mcp_get_user_connections( get_current_user_id() ) as $connection ) {
+			if ( ! is_array( $connection ) || ! in_array( $connection['integration'] ?? null, self::MCP_INTEGRATIONS, true ) ) {
+				continue;
+			}
+			$connections[] = array(
+				'integration'  => $connection['integration'],
+				'connected_at' => (int) ( $connection['connected_at'] ?? 0 ),
+			);
+		}
+
+		$access_level = null;
+		if ( $connections && function_exists( 'wpcom_mcp_get_user_access_level' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+			$level        = wpcom_mcp_get_user_access_level( get_current_user_id() );
+			$access_level = is_string( $level ) ? $level : null;
+		}
+
+		return array(
+			'connections'  => $connections,
+			'access_level' => $access_level,
+		);
 	}
 
 	/**

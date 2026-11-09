@@ -6,6 +6,11 @@
 // The Dialog z-index defaults to auto, below the admin bar and menu.
 .ai-launchpad-wizard__portal {
 	--wp-ui-dialog-z-index: 100000;
+	--wp-ui-tooltip-z-index: 100001;
+}
+
+.ai-launchpad-wizard__tooltip {
+	max-width: 280px;
 }
 
 .ai-launchpad-wizard__title:focus {
@@ -85,7 +90,32 @@
 }
 
 .ai-launchpad-wizard__card-text {
+	flex-grow: 1;
 	min-width: 0;
+}
+
+// Goal-card look, but only the Set up button is interactive.
+.ai-launchpad-wizard__ai-tool-row {
+	align-items: center;
+	cursor: default;
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+}
+
+.ai-launchpad-wizard__ai-tool-action {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+}
+
+.ai-launchpad-wizard__ai-tool-status {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	&.is-connected {
+		color: var(--wpds-color-foreground-content-success);
+	}
 }
 
 // Not VisuallyHidden: wp-admin's unlayered radio styles beat its layered CSS.

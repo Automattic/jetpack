@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
+	findNewConnection,
+	goalsVariation,
 	isLastStep,
 	pickPlaceholder,
+	showsSetupChoice,
 	type WizardState,
 } from './lib.ts';
 
@@ -32,6 +36,87 @@ describe( 'wizard step gating', () => {
 	it( 'treats only the final step as last', () => {
 		assert.equal( isLastStep( 0 ), false );
 		assert.equal( isLastStep( 1 ), true );
+	} );
+} );
+
+describe( 'goals step experiment', () => {
+	it( 'shows the banner in the treatment only', () => {
+		assert.equal( showsSetupChoice( BRING_YOUR_AI_TOOL ), true );
+		assert.equal( showsSetupChoice( 'control' ), false );
+	} );
+
+	it( 'renders control while unassigned, on error, and for an unknown variation', () => {
+		for ( const variation of [ undefined, null, '', 'control', 'something_else' ] ) {
+			assert.equal( goalsVariation( variation ), 'control' );
+		}
+		assert.equal( goalsVariation( 'bring_your_ai_tool' ), 'bring_your_ai_tool' );
+	} );
+} );
+
+describe( 'AI tool connection', () => {
+	const CLICKED_AT = 1_762_430_000;
+
+	it( 'counts a connection to a clicked tool whenever it was made, including before the click', () => {
+		const clicks = { chatgpt: CLICKED_AT };
+		for ( const connectedAt of [ CLICKED_AT - 86_400, CLICKED_AT, CLICKED_AT + 300 ] ) {
+			assert.equal(
+				findNewConnection(
+					[ { integration: 'chatgpt', connected_at: connectedAt } ],
+					clicks,
+					'chatgpt'
+				),
+				'chatgpt'
+			);
+		}
+	} );
+
+	it( 'ignores tools the user never clicked Set up on, and unknown integrations', () => {
+		assert.equal(
+			findNewConnection(
+				[
+					{ integration: 'claude', connected_at: CLICKED_AT + 10 },
+					{ integration: 'cursor', connected_at: CLICKED_AT + 10 },
+				],
+				{ chatgpt: CLICKED_AT },
+				'chatgpt'
+			),
+			null
+		);
+		assert.equal( findNewConnection( [], { chatgpt: CLICKED_AT }, 'chatgpt' ), null );
+	} );
+
+	it( 'prefers the most recently clicked tool when several match', () => {
+		const connections = [
+			{ integration: 'chatgpt', connected_at: CLICKED_AT + 10 },
+			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
+		];
+		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
+		assert.equal( findNewConnection( connections, clicks, 'claude' ), 'claude' );
+		assert.equal( findNewConnection( connections, clicks, 'chatgpt' ), 'chatgpt' );
+	} );
+
+	it( 'falls back to another clicked tool that connected', () => {
+		assert.equal(
+			findNewConnection(
+				[ { integration: 'chatgpt', connected_at: CLICKED_AT + 10 } ],
+				{ chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 },
+				'claude'
+			),
+			'chatgpt'
+		);
+	} );
+
+	it( 'skips tools already shown as connected', () => {
+		const connections = [
+			{ integration: 'chatgpt', connected_at: CLICKED_AT + 10 },
+			{ integration: 'claude', connected_at: CLICKED_AT + 20 },
+		];
+		const clicks = { chatgpt: CLICKED_AT, claude: CLICKED_AT + 5 };
+		assert.equal( findNewConnection( connections, clicks, 'chatgpt', [ 'chatgpt' ] ), 'claude' );
+		assert.equal(
+			findNewConnection( connections.slice( 0, 1 ), clicks, 'claude', [ 'chatgpt' ] ),
+			null
+		);
 	} );
 } );
 

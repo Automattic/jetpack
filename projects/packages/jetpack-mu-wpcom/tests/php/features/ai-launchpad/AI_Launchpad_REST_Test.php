@@ -336,6 +336,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
 		$this->assertArrayHasKey( 'difm_offer', $data );
 		$this->assertNull( $data['difm_offer'] );
+		// wpcom's connections helper isn't loaded here, so the page can't detect a new AI connection.
+		$this->assertFalse( $data['mcp_detection'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
@@ -2178,5 +2180,88 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'wpcom_ai_launchpad_completed' ) );
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_dismissed' ) );
 		$this->assertSame( array( 'first_post_published' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * GET /mcp-connections returns the current user's ChatGPT and Claude connections from wpcom, and nothing else, with
+	 * the account's access level.
+	 *
+	 * In its own process, since Brain Monkey's stubs of wpcom's functions would otherwise outlive the test that made them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_returns_the_ai_tool_connections() {
+		$user_id = get_current_user_id();
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connections' )
+			->once()
+			->with( $user_id )
+			->andReturn(
+				array(
+					array(
+						'integration'  => 'claude',
+						'connected_at' => 1762430000,
+					),
+					array(
+						'integration'  => 'cursor',
+						'connected_at' => 1762430100,
+					),
+					array(
+						'integration'  => 'chatgpt',
+						'connected_at' => '1762430200',
+					),
+				)
+			);
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_access_level' )
+			->once()
+			->with( $user_id )
+			->andReturn( 'read_only' );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array(
+					array(
+						'integration'  => 'claude',
+						'connected_at' => 1762430000,
+					),
+					array(
+						'integration'  => 'chatgpt',
+						'connected_at' => 1762430200,
+					),
+				),
+				'access_level' => 'read_only',
+			),
+			$result->get_data()
+		);
+	}
+
+	/**
+	 * GET /mcp-connections returns an empty list where wpcom's connections function is not defined.
+	 *
+	 * In its own process, since Brain Monkey's stub of the function would otherwise outlive the test that made it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_mcp_connections_is_empty_without_wpcom() {
+		$this->assertFalse( function_exists( 'wpcom_mcp_get_user_connections' ) );
+
+		$result = $this->call_api( Requests::GET, '/mcp-connections' );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'connections'  => array(),
+				'access_level' => null,
+			),
+			$result->get_data()
+		);
 	}
 }

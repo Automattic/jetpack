@@ -13,7 +13,12 @@ import {
 	trackWizardBackClicked,
 	trackWizardBypassed,
 	trackWizardCompleted,
+	trackWizardConnectAiClicked,
 	trackWizardGoalClicked,
+	trackWizardMcpConnectedViewed,
+	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpLinkClicked,
+	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
@@ -74,6 +79,40 @@ describe( 'ai-launchpad tracks', () => {
 	const RECORDERS: Array< [ event: string, fired: () => TrackEventProps ] > = [
 		[ 'viewed', fire( trackViewed, { step: 'goal' } ) ],
 		[ 'wizard_goal_clicked', fire( trackWizardGoalClicked, { goal_clicked: 'sell' } ) ],
+		[
+			'wizard_goal_clicked',
+			fire( trackWizardGoalClicked, { goal_clicked: 'sell', goals_variation: 'control' } ),
+		],
+		[
+			'wizard_mcp_screen_viewed',
+			fire( trackWizardMcpScreenViewed, { goals_variation: 'bring_your_ai_tool' } ),
+		],
+		[
+			'wizard_mcp_chatgpt_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'chatgpt', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_claude_clicked',
+			fire( props => trackWizardMcpLinkClicked( 'claude', props ), {
+				goals_variation: 'bring_your_ai_tool',
+			} ),
+		],
+		[
+			'wizard_mcp_connected_viewed',
+			fire( trackWizardMcpConnectedViewed, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'claude',
+			} ),
+		],
+		[
+			'wizard_mcp_go_to_dashboard_clicked',
+			fire( trackWizardMcpGoToDashboardClicked, {
+				goals_variation: 'bring_your_ai_tool',
+				integration: 'chatgpt',
+			} ),
+		],
 		[ 'wizard_step_completed', fire( trackWizardStepCompleted, { step: 'goal' } ) ],
 		[ 'wizard_step_skipped', fire( trackWizardStepSkipped, { step: 'site_details' } ) ],
 		[ 'wizard_back_clicked', fire( trackWizardBackClicked, { step: 'site_details' } ) ],
@@ -95,6 +134,19 @@ describe( 'ai-launchpad tracks', () => {
 			] );
 		} );
 	}
+
+	it( 'records the Connect your AI click as a goal click with the new value', () => {
+		trackWizardConnectAiClicked( { goals_variation: 'bring_your_ai_tool' } );
+		assert.deepEqual( lastEvent(), [
+			'recordEvent',
+			'jetpack_ai_launchpad_wizard_goal_clicked',
+			{
+				...BOOTSTRAP.props,
+				goal_clicked: 'bring_your_ai_tool',
+				goals_variation: 'bring_your_ai_tool',
+			},
+		] );
+	} );
 
 	it( 'lets a fresh tailor override the tailoring-scoped props', () => {
 		setTracksContext(

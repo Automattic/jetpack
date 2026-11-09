@@ -1,27 +1,38 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Dialog, Stack } from '@wordpress/ui';
+import { Button, ButtonLink, Dialog, Stack } from '@wordpress/ui';
 import { tailor } from '../lib/tailor.ts';
 import {
 	setTracksContext,
 	trackViewed,
 	trackWizardBackClicked,
+	trackWizardConnectAiClicked,
 	trackWizardGoalClicked,
+	trackWizardMcpConnectedViewed,
+	trackWizardMcpGoToDashboardClicked,
+	trackWizardMcpScreenViewed,
 	trackWizardSiteDetailsChanged,
 	trackWizardStepCompleted,
 	trackWizardStepSkipped,
 } from '../lib/tracks.ts';
+import AiToolStep from './ai-tool-step.tsx';
 import DetailsStep from './details-step.tsx';
-import GoalsStep from './goals-step.tsx';
+import GoalsStep, { bringYourAiToolCopy } from './goals-step.tsx';
 import {
+	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
+	goalsVariation,
 	isLastStep,
+	MCP_SETTINGS_URL,
+	showsSetupChoice,
 	TOTAL_STEPS,
+	type AiTool,
 	type WizardState,
 	type WizardStep,
 } from './lib.ts';
+import SetupChoiceStep, { type SetupChoice } from './setup-choice-step.tsx';
 import type { GoalSlug, SiteCopy, TailorResult, WizardInput } from '../lib/types.ts';
 
 import './style.scss';
@@ -39,6 +50,10 @@ interface Props {
 	copy: SiteCopy;
 	// Whether the site was built with AI, which changes the fallback list.
 	aiBuilt?: boolean;
+	// The goals step's ExPlat variation from the server; anything else renders control.
+	goalsVariation?: string | null;
+	// Whether the AI tool view can detect a new connection; without it, Set up only opens the tool.
+	mcpDetection?: boolean;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -55,6 +70,8 @@ interface Props {
  * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
  * @param props.aiBuilt         - Whether the site was built with AI, which changes the fallback list.
+ * @param props.goalsVariation  - The goals step's ExPlat variation from the server.
+ * @param props.mcpDetection    - Whether the AI tool view can detect a new connection.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -65,16 +82,32 @@ export function Wizard( {
 	uiLocale = locale,
 	copy,
 	aiBuilt = false,
+	goalsVariation: assignedVariation = null,
+	mcpDetection = false,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
 	const [ goal, setGoal ] = useState< GoalSlug | null >( null );
+	const variation = goalsVariation( assignedVariation );
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
+	// Whether the "Which AI do you use?" view replaces the goals step. It is not a numbered step.
+	const [ showAiTool, setShowAiTool ] = useState( false );
 	const goalsTitleRef = useRef< HTMLHeadingElement >( null );
+	const aiToolTitleRef = useRef< HTMLHeadingElement >( null );
+	// The AI tools connected from the AI tool view, in the order they connected.
+	const [ connectedTools, setConnectedTools ] = useState< AiTool[] >( [] );
+	// Whether the account's MCP access was read only at the AI tool view's last check. It applies to every tool.
+	const [ readOnlyAccess, setReadOnlyAccess ] = useState( false );
+	const readOnly = readOnlyAccess && connectedTools.length > 0;
+	// The treatment opens on "Guide me" or "Build with my AI" before the goals.
+	const [ choosing, setChoosing ] = useState( showsSetupChoice( variation ) );
+	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
+	const choiceTitleRef = useRef< HTMLHeadingElement >( null );
 
 	const state: WizardState = { goal, siteName, intent, locale, uiLocale };
+	const aiCopy = bringYourAiToolCopy();
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 
@@ -85,12 +118,46 @@ export function Wizard( {
 
 	// Back unmounts its own button, so move focus to the goals title instead of losing it to the page.
 	useEffect( () => {
-		if ( step === 0 ) {
+		if ( choosing ) {
+			choiceTitleRef.current?.focus();
+		} else if ( showAiTool ) {
+			aiToolTitleRef.current?.focus();
+		} else if ( step === 0 ) {
 			goalsTitleRef.current?.focus();
 		}
-	}, [ step ] );
+	}, [ step, showAiTool, choosing ] );
+
+	useEffect( () => {
+		if ( showAiTool ) {
+			trackWizardMcpScreenViewed( { goals_variation: variation } );
+		}
+	}, [ showAiTool, variation ] );
+
+	const handleConnected = useCallback(
+		( tool: AiTool ) => {
+			trackWizardMcpConnectedViewed( { goals_variation: variation, integration: tool } );
+			setConnectedTools( current => [ ...current, tool ] );
+		},
+		[ variation ]
+	);
+
+	const handleGoToDashboard = () => {
+		trackWizardMcpGoToDashboardClicked( {
+			goals_variation: variation,
+			integration: connectedTools[ connectedTools.length - 1 ],
+		} );
+		window.location.assign( 'index.php' );
+	};
 
 	const handleNext = () => {
+		if ( choosing ) {
+			if ( setupChoice === 'ai' ) {
+				trackWizardConnectAiClicked( { goals_variation: variation } );
+				setShowAiTool( true );
+			}
+			setChoosing( false );
+			return;
+		}
 		if ( ! isLastStep( step ) ) {
 			trackWizardStepCompleted( { step: stepName } );
 			// The goal is confirmed from here on; earlier funnel events carry null.
@@ -137,6 +204,11 @@ export function Wizard( {
 	};
 
 	const handleBack = () => {
+		if ( showAiTool || step === 0 ) {
+			setShowAiTool( false );
+			setChoosing( true );
+			return;
+		}
 		if ( step > 0 ) {
 			trackWizardBackClicked( { step: 'site_details' } );
 			setStep( ( step - 1 ) as WizardStep );
@@ -159,28 +231,52 @@ export function Wizard( {
 
 	return (
 		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
-		// "Skip" is the only way out.
+		// "Skip" is the only way out, apart from "Go to my dashboard" once an AI tool is connected.
 		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
 			<Dialog.Popup
 				size="medium"
 				className="ai-launchpad-wizard"
-				initialFocus={ goalsTitleRef }
+				initialFocus={ choosing ? choiceTitleRef : goalsTitleRef }
 				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
 			>
 				<Dialog.Content>
 					<div className="ai-launchpad-wizard__progress" aria-hidden="true">
 						<div
 							className="ai-launchpad-wizard__progress-bar"
-							style={ { width: `${ ( ( step + 1 ) / TOTAL_STEPS ) * 100 }%` } }
+							// The AI tool view ends its path, so it fills the bar.
+							style={ {
+								width: `${ ( showAiTool ? 1 : ( step + 1 ) / TOTAL_STEPS ) * 100 }%`,
+							} }
 						/>
 					</div>
 
-					{ step === 0 && (
+					{ choosing && (
+						<SetupChoiceStep
+							titleRef={ choiceTitleRef }
+							value={ setupChoice }
+							onChange={ setSetupChoice }
+						/>
+					) }
+					{ showAiTool && (
+						<AiToolStep
+							titleRef={ aiToolTitleRef }
+							variation={ variation }
+							detectsConnections={ mcpDetection }
+							connected={ connectedTools }
+							onConnected={ handleConnected }
+							readOnly={ readOnly }
+							onReadOnlyChange={ setReadOnlyAccess }
+						/>
+					) }
+					{ step === 0 && ! showAiTool && ! choosing && (
 						<GoalsStep
 							titleRef={ goalsTitleRef }
 							value={ goal }
 							onChange={ nextGoal => {
-								trackWizardGoalClicked( { goal_clicked: nextGoal } );
+								trackWizardGoalClicked( {
+									goal_clicked: nextGoal,
+									goals_variation: assignedVariation,
+								} );
 								setGoal( nextGoal );
 							} }
 						/>
@@ -195,27 +291,68 @@ export function Wizard( {
 						/>
 					) }
 				</Dialog.Content>
-				<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
-					<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
-						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
-					</Button>
-					<Stack gap="sm">
-						{ step > 0 && (
-							<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
-								{ __( 'Back', 'jetpack-mu-wpcom' ) }
+				{ showAiTool && connectedTools.length > 0 ? (
+					// With read-only access, allowing full access leads; with one AI connected, opening it does; with
+					// both, the dashboard does.
+					<Stack
+						render={ <Dialog.Footer /> }
+						align="center"
+						justify={ readOnly || connectedTools.length === 1 ? 'space-between' : 'flex-end' }
+						gap="md"
+					>
+						{ readOnly || connectedTools.length === 1 ? (
+							<>
+								<Button variant="minimal" onClick={ handleGoToDashboard }>
+									{ aiCopy.goToDashboard }
+								</Button>
+								<ButtonLink
+									variant="solid"
+									href={ readOnly ? MCP_SETTINGS_URL : AI_TOOL_CHAT_URLS[ connectedTools[ 0 ] ] }
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{ readOnly ? aiCopy.allowFullAccess : aiCopy.openTool( connectedTools[ 0 ] ) }
+								</ButtonLink>
+							</>
+						) : (
+							<Button variant="solid" onClick={ handleGoToDashboard }>
+								{ aiCopy.goToDashboard }
 							</Button>
 						) }
-						<Button
-							variant="solid"
-							onClick={ handleNext }
-							disabled={ skipping || ! canContinue( step, state ) }
-						>
-							{ isLastStep( step )
-								? __( 'Finish', 'jetpack-mu-wpcom' )
-								: __( 'Continue', 'jetpack-mu-wpcom' ) }
-						</Button>
 					</Stack>
-				</Stack>
+				) : (
+					<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
+						{ showAiTool || ( step === 0 && showsSetupChoice( variation ) && ! choosing ) ? (
+							<Button variant="minimal" onClick={ handleBack }>
+								{ __( 'Back', 'jetpack-mu-wpcom' ) }
+							</Button>
+						) : (
+							<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
+								{ __( 'Skip', 'jetpack-mu-wpcom' ) }
+							</Button>
+						) }
+						<Stack gap="sm">
+							{ step > 0 && (
+								<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
+									{ __( 'Back', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) }
+							{ ! showAiTool && (
+								<Button
+									variant="solid"
+									onClick={ handleNext }
+									disabled={
+										skipping || ( choosing ? ! setupChoice : ! canContinue( step, state ) )
+									}
+								>
+									{ isLastStep( step )
+										? __( 'Finish', 'jetpack-mu-wpcom' )
+										: __( 'Continue', 'jetpack-mu-wpcom' ) }
+								</Button>
+							) }
+						</Stack>
+					</Stack>
+				) }
 			</Dialog.Popup>
 		</Dialog.Root>
 	);

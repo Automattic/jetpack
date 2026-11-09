@@ -200,11 +200,74 @@ export function trackViewed( props: { step: ViewedStep } ): void {
 /**
  * Records a goal-card click (fires on every click, including reselection).
  *
- * @param props              - The event properties.
- * @param props.goal_clicked - The goal card the user clicked.
+ * @param props                 - The event properties.
+ * @param props.goal_clicked    - The goal card the user clicked.
+ * @param props.goals_variation - The goals step's experiment variation, or null when not assigned.
  */
-export function trackWizardGoalClicked( props: { goal_clicked: GoalSlug } ): void {
+export function trackWizardGoalClicked( props: {
+	goal_clicked: GoalSlug | 'bring_your_ai_tool';
+	goals_variation?: string | null;
+} ): void {
 	record( 'jetpack_ai_launchpad_wizard_goal_clicked', props );
+}
+
+/**
+ * Records a click on the goals step's "Connect your AI" banner, as a goal click with its own value.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardConnectAiClicked( props: { goals_variation: string } ): void {
+	trackWizardGoalClicked( { goal_clicked: 'bring_your_ai_tool', ...props } );
+}
+
+/**
+ * Records a click on the "Bring your AI tool" card's link to an agent's WordPress.com app.
+ *
+ * @param tool                  - The agent whose link was clicked.
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpLinkClicked(
+	tool: 'chatgpt' | 'claude',
+	props: { goals_variation: string }
+): void {
+	record( `jetpack_ai_launchpad_wizard_mcp_${ tool }_clicked`, props );
+}
+
+/**
+ * Records the "Which AI do you use?" view being shown.
+ *
+ * @param props                 - The event properties.
+ * @param props.goals_variation - The goals step's experiment variation.
+ */
+export function trackWizardMcpScreenViewed( props: { goals_variation: string } ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_screen_viewed', props );
+}
+
+/** The props every event about a connected AI tool carries. */
+interface McpConnectedProps extends TrackEventProps {
+	goals_variation: string;
+	// The AI tool that connected, or the latest one when both did.
+	integration: 'chatgpt' | 'claude';
+}
+
+/**
+ * Records an AI tool showing as connected, once the wizard sees the new connection.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpConnectedViewed( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_connected_viewed', props );
+}
+
+/**
+ * Records a click on "Go to my dashboard" once an AI tool is connected.
+ *
+ * @param props - The event properties.
+ */
+export function trackWizardMcpGoToDashboardClicked( props: McpConnectedProps ): void {
+	record( 'jetpack_ai_launchpad_wizard_mcp_go_to_dashboard_clicked', props );
 }
 
 /**
