@@ -274,7 +274,6 @@ describe( 'Wizard start screen', () => {
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 
-		// A mapped message says what to do, so the title does not repeat it.
 		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
 		expect( screen.getByText( /couldn’t reach your site to verify it/ ) ).toBeInTheDocument();
 
@@ -307,7 +306,6 @@ describe( 'Wizard start screen', () => {
 		expect(
 			screen.getByText( /The connection request got an unexpected response/ )
 		).toBeInTheDocument();
-		// A mapped summary already says what to do, so the title does not repeat it.
 		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 

@@ -51,11 +51,10 @@ const ConnectBanner: FC< ConnectBannerProps > = ( { block, explanation = null } 
 		// In the case that the post is new and unsaved, the component requires a re-render
 		// in order to get the correct URI when the handler is called.
 		if ( isReadyToRedirect ) {
-			// A failure re-renders this component, so re-running on a new handler would retry forever.
+			// Reset on failure so the effect doesn't retry on the next handler change.
 			handleConnectUser().catch( () => setIsReadyToRedirect( false ) );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- `handleConnectUser` changes every render.
-	}, [ isReadyToRedirect ] );
+	}, [ isReadyToRedirect, handleConnectUser ] );
 
 	return (
 		<div>

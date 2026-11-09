@@ -28,7 +28,6 @@ describe( 'actions', () => {
 				redirectFunc,
 				redirectUri: undefined,
 			} );
-			// The flag stays set: the browser is leaving, and the UI should stay busy until it has.
 			expect( action.next() ).toEqual( { done: true, value: undefined } );
 		} );
 
