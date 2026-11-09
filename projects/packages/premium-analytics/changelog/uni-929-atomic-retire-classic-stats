@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Note in a docblock that wpcomsh keys off a method's existence.
+
+

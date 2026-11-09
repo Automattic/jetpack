@@ -94,6 +94,8 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Validation:** Ensures required fields are present for API calls; a `step` the arrows set is kept with a hand-picked window only, so a link from a widget steps the way the dashboard did
 
+**Presets:** A computable preset is the window it names today, whatever `from`/`to` the URL kept (all time keeps its `from`), and its `compare_preset` is measured again from that window, falling back to the previous period where the window no longer offers it. A hand-picked window is its dates, and so is its comparison.
+
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
 Returns the default interval for a preset / date range: the first one it allows.

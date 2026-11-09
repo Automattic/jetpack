@@ -15,7 +15,7 @@ import type { FeatureState } from '../feature-state';
 import type { MoreFeaturesGroup } from '../use-more-features';
 
 const activeStats = {
-	feature: { slug: 'stats', name: 'Stats', description: '', plans: [] },
+	feature: { slug: 'stats', name: 'Stats', description: '', plans: [], groups: [] },
 	status: 'active',
 	control: { kind: 'none' },
 } as unknown as FeatureState;
@@ -692,7 +692,7 @@ describe( 'FeaturesContent', () => {
 describe( 'FeaturesContent after connecting the account', () => {
 	const off = ( slug: string, control: FeatureState[ 'control' ], overrides = {} ) =>
 		( {
-			feature: { slug, name: slug, plans: [] },
+			feature: { slug, name: slug, plans: [], groups: [] },
 			status: 'inactive',
 			control,
 			...overrides,
