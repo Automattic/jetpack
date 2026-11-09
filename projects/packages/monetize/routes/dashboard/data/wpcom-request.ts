@@ -81,12 +81,15 @@ export function toWpcomApiError( error: unknown ): WpcomApiError {
 export function rejectBodyError< T >( body: T ): T {
 	const error = ( body as { error?: unknown } | null )?.error;
 
+	// Record the 200 these arrived with, so they aren't retried like a status-less network failure.
 	if ( typeof error === 'string' && error ) {
-		throw new WpcomApiError( 'error', error );
+		throw new WpcomApiError( 'error', error, 200 );
 	}
 
 	if ( error && typeof error === 'object' ) {
-		throw toWpcomApiError( error );
+		const apiError = toWpcomApiError( error );
+		apiError.status ??= 200;
+		throw apiError;
 	}
 
 	return body;

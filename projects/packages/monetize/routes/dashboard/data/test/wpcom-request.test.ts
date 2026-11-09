@@ -36,7 +36,9 @@ describe( 'rejectBodyError', () => {
 		[ 'an object', { error: { code: 'no_plan', message: 'No plan.' } }, 'no_plan', 'No plan.' ],
 	] )( 'throws on %s error under a success status', ( _kind, body, code, message ) => {
 		expect( () => rejectBodyError( body ) ).toThrow( new WpcomApiError( code, message ) );
-		expect( () => rejectBodyError( body ) ).toThrow( expect.objectContaining( { code } ) );
+		expect( () => rejectBodyError( body ) ).toThrow(
+			expect.objectContaining( { code, status: 200 } )
+		);
 	} );
 
 	it( 'passes a body with no error through', () => {
