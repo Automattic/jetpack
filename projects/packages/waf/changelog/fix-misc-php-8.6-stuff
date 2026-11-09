@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Tests: Avoid a PHP 8.6 deprecation warning about `http_build_query()` being passed an object.
+
+

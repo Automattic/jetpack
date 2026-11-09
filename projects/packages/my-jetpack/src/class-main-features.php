@@ -933,6 +933,8 @@ class Main_Features {
 		return array(
 			array(
 				'label'   => __( 'Protect', 'jetpack-my-jetpack' ),
+				// The filter pills these modules also show under, like a feature's `groups`.
+				'groups'  => array( 'security' ),
 				'modules' => array( 'account-protection', 'monitor', 'protect', 'sso', 'waf' ),
 			),
 			array(

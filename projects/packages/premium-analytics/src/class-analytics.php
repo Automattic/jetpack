@@ -581,6 +581,7 @@ class Analytics {
 	 * List the dashboard in a menu built outside wp-admin, such as the one the admin-menu REST endpoint returns.
 	 *
 	 * Loads the section registry but not the build: the menu capability depends on the sections.
+	 * Do not rename: wpcomsh retires classic Stats on Atomic only while this method exists.
 	 *
 	 * @since $$next-version$$
 	 *
