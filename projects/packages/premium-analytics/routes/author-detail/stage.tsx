@@ -7,6 +7,8 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import {
 	buildReportLink,
 	DashboardWidgetHostProvider,
@@ -18,7 +20,6 @@ import {
 	DateFiltersPanel,
 	PeriodChangeStatus,
 	StatsBreadcrumbs,
-	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -224,7 +225,7 @@ function AuthorDetail(): JSX.Element {
 							onEditChange={ onEditChange }
 						>
 							<DetailPageShell
-								visual={ <StatsPageIcon /> }
+								visual={ <Icon icon={ jetpack } /> }
 								breadcrumbs={
 									<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 										<StatsBreadcrumbs items={ breadcrumbs } />

@@ -188,6 +188,7 @@ The chart container is focusable and has `role="application"`, so screen readers
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
+- Each segment carries its own name, built from its label and the figure its legend entry shows, so `legendValueDisplay` governs both. A segment with `legendValueDisplay="none"` is named by its label alone.
 
 ## Legends
 

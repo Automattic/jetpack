@@ -5,6 +5,9 @@ ports Calypso's Scan dashboard (`client/dashboard/sites/scan/`) onto a
 native wp-admin page so customers see active threats, scan history, and
 the fix / ignore / view-details flows without leaving their site.
 
+> [!CAUTION]
+> This package is abandoned. Jetpack shows scan results on the Protect page instead.
+
 The package mirrors the architecture of `projects/packages/activity-log/`
 and `projects/packages/backup/`: a TanStack Query data layer, a hash
 router, an `AdminPage` shell, and `@wordpress/dataviews` lists.

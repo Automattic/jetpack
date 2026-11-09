@@ -171,11 +171,8 @@ class Scan extends Module_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		// Consumers match by substring, so the prefix covers every Scan product. An older Protect Status may lack it.
+		return array( defined( Plan::class . '::SCAN_PRODUCT_PREFIX' ) ? Plan::SCAN_PRODUCT_PREFIX : 'jetpack_scan' );
 	}
 
 	/**

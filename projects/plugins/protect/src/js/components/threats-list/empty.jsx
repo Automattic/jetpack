@@ -116,6 +116,23 @@ const EmptyList = () => {
 		);
 	}
 
+	if ( status?.lastScanFailed ) {
+		return (
+			<div className={ styles.empty }>
+				<H3 weight="bold">{ __( 'Your last scan didn’t complete', 'jetpack-protect' ) }</H3>
+				<Text mb={ 4 }>
+					{ status.threats?.length
+						? __( 'These results are from an earlier scan.', 'jetpack-protect' )
+						: __(
+								'We can’t confirm your site is free of threats until a scan finishes.',
+								'jetpack-protect'
+							) }
+				</Text>
+				<ScanButton />
+			</div>
+		);
+	}
+
 	return (
 		<div className={ styles.empty }>
 			<ProtectCheck />
