@@ -181,6 +181,10 @@ class Webhooks {
 	 * @return void
 	 */
 	public function handle_connect_url_redirect() {
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
 
@@ -192,7 +196,7 @@ class Webhooks {
 		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 
 		if ( ! $this->connection->is_user_connected() ) {
-			if ( ! $this->connection->is_connected() ) {
+			if ( ! $this->connection->is_connected() && current_user_can( 'jetpack_connect' ) ) {
 				$this->connection->register();
 			}
 

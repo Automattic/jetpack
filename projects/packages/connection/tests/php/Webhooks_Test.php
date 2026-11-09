@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
@@ -32,11 +33,20 @@ class Webhooks_Test extends TestCase {
 	private $redirect_stack = array();
 
 	/**
+	 * The Manager instance that maps the Connection capabilities.
+	 *
+	 * @var Manager
+	 */
+	private $caps_manager;
+
+	/**
 	 * Setting up the testing environment.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		Monkey\Functions\when( 'check_admin_referer' )->justReturn( true );
+		$this->caps_manager = new Manager();
+		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 		Monkey\Functions\when( 'wp_safe_redirect' )->alias(
 			function ( $redirect ) {
 				$this->redirect_stack[] = $redirect;
@@ -53,6 +63,8 @@ class Webhooks_Test extends TestCase {
 		Monkey\tearDown();
 		$this->redirect_stack = array();
 		unset( $_GET['handler'], $_GET['action'] );
+		remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -161,6 +173,7 @@ class Webhooks_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
 
 		set_transient( 'jetpack_assumed_site_creation_date', '2022-06-02 11:22:33' );
+		wp_set_current_user( $this->get_user_id( 'editor' ) );
 
 		$webhooks->handle_connect_url_redirect();
 
@@ -170,5 +183,70 @@ class Webhooks_Test extends TestCase {
 
 		static::assertCount( 1, $this->redirect_stack );
 		static::assertStringStartsWith( 'https://example.com/api/base.authorize/1/?response_type=code&', $this->redirect_stack[0] );
+	}
+
+	/**
+	 * Unit test for the `Webhooks::handle_connect_url_redirect()` method.
+	 * Testing who can register an unregistered site before being sent to authorize.
+	 *
+	 * @param string|null $role            The current user's role, or null when logged out.
+	 * @param bool        $expect_register Whether the site should be registered.
+	 * @param bool        $expect_redirect Whether the user should be redirected.
+	 *
+	 * @dataProvider provide_connect_url_redirect_users
+	 */
+	#[DataProvider( 'provide_connect_url_redirect_users' )]
+	public function test_handle_connect_url_redirect_registers_only_for_users_who_can_connect( $role, $expect_register, $expect_redirect ) {
+		$manager = $this->createMock( Manager::class );
+		$manager->method( 'is_user_connected' )->willReturn( false );
+		$manager->method( 'is_connected' )->willReturn( false );
+		$manager->method( 'get_authorization_url' )->willReturn( 'https://example.com/authorize/' );
+		$manager->expects( $expect_register ? $this->once() : $this->never() )->method( 'register' );
+
+		$webhooks = $this->getMockBuilder( Webhooks::class )
+			->setConstructorArgs( array( $manager ) )
+			->onlyMethods( array( 'do_exit' ) )
+			->getMock();
+		$webhooks->expects( $this->exactly( $expect_redirect ? 1 : 0 ) )->method( 'do_exit' );
+
+		wp_set_current_user( $role ? $this->get_user_id( $role ) : 0 );
+
+		$webhooks->handle_connect_url_redirect();
+
+		static::assertCount( $expect_redirect ? 1 : 0, $this->redirect_stack );
+	}
+
+	/**
+	 * Data provider for `test_handle_connect_url_redirect_registers_only_for_users_who_can_connect()`.
+	 *
+	 * @return array
+	 */
+	public static function provide_connect_url_redirect_users() {
+		return array(
+			'logged out'    => array( null, false, false ),
+			'editor'        => array( 'editor', false, true ),
+			'administrator' => array( 'administrator', true, true ),
+		);
+	}
+
+	/**
+	 * Get the ID of a test user with the given role, creating it on first use.
+	 *
+	 * @param string $role The user role.
+	 * @return int
+	 */
+	private function get_user_id( $role ) {
+		$user = get_user_by( 'login', "webhooks_{$role}" );
+		if ( $user ) {
+			return $user->ID;
+		}
+
+		return wp_insert_user(
+			array(
+				'user_login' => "webhooks_{$role}",
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
 	}
 }
