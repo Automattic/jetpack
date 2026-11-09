@@ -1337,6 +1337,33 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * Without this registration the script data key disappears and the error reporter reads
+	 * `undefined` as its gate.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_publishes_the_error_reporting_script_data() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertSame(
+			20,
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\add_error_reporting_script_data' )
+		);
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertArrayHasKey( 'error_reporting', $data['premium_analytics'] );
+	}
+
+	/**
 	 * Without the Tracks transport the dashboard's `@automattic/jetpack-analytics` events
 	 * only pile up in `window._tkq`, so every feedback submission is silently lost.
 	 */
