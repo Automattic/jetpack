@@ -28,7 +28,7 @@ class OuterBoundary extends Component<
 	}
 }
 
-const Thrower = ( { error }: { error: Error } ): never => {
+const Thrower = ( { error }: { error: unknown } ): never => {
 	throw error;
 };
 
@@ -101,18 +101,18 @@ describe( 'StatsErrorBoundary', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'reports once when the same child throws on a re-render', () => {
-		const error = new Error( 'boom' );
-		const tree = (
-			<OuterBoundary onCatch={ jest.fn() }>
+	it( 'rethrows a falsy thrown value', () => {
+		const onCatch = jest.fn();
+		render(
+			<OuterBoundary onCatch={ onCatch }>
 				<StatsErrorBoundary>
-					<Thrower error={ error } />
+					<Thrower error={ null } />
 				</StatsErrorBoundary>
 			</OuterBoundary>
 		);
-		const { rerender } = render( tree );
-		rerender( tree );
 
+		expect( onCatch ).toHaveBeenCalledTimes( 1 );
+		expect( onCatch.mock.calls[ 0 ][ 0 ] ).toBeNull();
 		expect( reportError ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
