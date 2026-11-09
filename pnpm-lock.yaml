@@ -3482,6 +3482,9 @@ importers:
       '@wordpress/ui':
         specifier: 0.26.0
         version: 0.26.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@wordpress/url':
+        specifier: 5.1.0
+        version: 5.1.0
       react:
         specifier: 19.3.0
         version: 19.3.0

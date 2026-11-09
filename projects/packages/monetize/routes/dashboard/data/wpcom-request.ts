@@ -1,3 +1,5 @@
+import { addQueryArgs } from '@wordpress/url';
+
 export type WpcomApi = 'wpcom/v2' | 'rest/v1.1';
 
 export interface WpcomRequest {
@@ -29,19 +31,10 @@ export const PROXY_BASE = '/jetpack/v4/monetize';
  */
 export function toFetchOptions( request: WpcomRequest, isSimple: boolean ): FetchOptions {
 	const { api, path, method = 'GET', query = {}, data } = request;
-	const search = new URLSearchParams();
-
-	for ( const [ key, value ] of Object.entries( query ) ) {
-		if ( value !== undefined ) {
-			search.append( key, String( value ) );
-		}
-	}
-
 	const base = isSimple ? `/${ api }/${ path }` : `${ PROXY_BASE }/${ api }/${ path }`;
-	const queryString = search.toString();
 
 	return {
-		path: queryString ? `${ base }?${ queryString }` : base,
+		path: addQueryArgs( base, query ),
 		method,
 		...( data === undefined ? {} : { data } ),
 	};
