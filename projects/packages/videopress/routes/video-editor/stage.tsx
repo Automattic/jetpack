@@ -278,7 +278,7 @@ function EditorReady( { video, onSelectTool }: ReadyProps ): ReactElement {
 	// The two halves of Save: the description meta POST, then the
 	// fire-and-notice VTT sync (same pair the Details tab saves through).
 	const { mutateAsync: saveVideoMeta, isPending: metaSavePending } = useUpdateVideoMeta();
-	const { syncChapters } = useUpdateChapters();
+	const { syncChapters } = useUpdateChapters( 'dashboard_editor' );
 
 	// The preview player ↔ timeline wiring (playhead, play state, scrub
 	// pause/resume), shared with the block editor's chapter manager modal.

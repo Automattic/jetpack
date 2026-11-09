@@ -87,7 +87,6 @@ function PostingActivityInner() {
 			<MonthCalendarHeatmap
 				valueByDay={ postsByDay }
 				range={ range }
-				chartTitle={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ formatPostCount }
 				emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
 				icon={ postContent }

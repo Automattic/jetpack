@@ -1,8 +1,7 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, ButtonLink } from '@wordpress/ui';
+import { Button, ButtonLink, Switch } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getProtectPageUrl } from '../../../utils/protect-page';
 import { leavePageFor } from '../../../utils/reload-page';
@@ -82,10 +81,10 @@ function PluginToggle( { state, origin, plugin, isOn, name, describedby }: Plugi
 	}, [ isOn, origin, run, state, tracking ] );
 
 	return (
-		<FormToggle
+		<Switch
 			checked={ isOn }
 			disabled={ isBusy }
-			onChange={ onChange }
+			onCheckedChange={ onChange }
 			aria-label={ getSwitchLabel( isOn, name ) }
 			aria-describedby={ describedby }
 		/>
@@ -190,10 +189,14 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			} ),
 		[ origin, state, tracking ]
 	);
+	const onManageClick = useCallback(
+		() => tracking?.trackManageClick( state, 'campaigns_warning' ),
+		[ state, tracking ]
+	);
 
 	if ( state.pending ) {
 		return (
-			// The size of the FormToggle it stands in for, so the row does not resize.
+			// The size of the switch it stands in for, so the row does not resize.
 			<LoadingPlaceholder width={ 32 } height={ 16 } className={ styles[ 'skeleton-switch' ] } />
 		);
 	}
@@ -258,6 +261,8 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 					reloadAfterToggle={ false }
 					describedby={ describedby }
 					onSwitch={ onModuleSwitch }
+					onManageClick={ onManageClick }
+					manageUrl={ manageUrl }
 				/>
 			);
 		}

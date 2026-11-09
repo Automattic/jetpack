@@ -37,7 +37,6 @@ use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Scan_Page\Jetpack_Scan as Scan_Page_Init;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -1209,7 +1208,6 @@ class Jetpack {
 			add_action( 'rest_api_init', array( My_Jetpack_Initializer::class, 'init' ), 0 );
 		}
 
-		Scan_Page_Init::initialize();
 		Jetpack_SEO_Initializer::init();
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
@@ -5042,7 +5040,7 @@ endif;
 				)
 			) {
 				$jp_user = get_user_by( 'email', $jpo_user );
-				if ( is_a( $jp_user, 'WP_User' ) ) {
+				if ( $jp_user instanceof \WP_User ) {
 					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
 						? current_user_can_for_site( get_current_blog_id(), 'manage_options' )
@@ -6696,7 +6694,8 @@ endif;
 			return;
 		}
 
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) || static::is_connection_ready() ) {
+		// Check the site first to avoid resolving the current user during plugins_loaded.
+		if ( static::is_connection_ready() || ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			( new Plugin_Tracking() )->init();
 		}
 	}

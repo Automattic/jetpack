@@ -1,5 +1,15 @@
-import { prepareProductData } from '../prepare-product-data';
+import { prepareProductData, tierPricePerMonth } from '../prepare-product-data';
 import type { ProductSnakeCase } from '../../types';
+
+it.each( [
+	[ 100, 100 / 12 ],
+	[ 0, 0 ],
+	[ null, undefined ],
+	[ undefined, undefined ],
+	[ NaN, undefined ],
+] )( 'turns a yearly tier price of %p into %p a month', ( yearly, monthly ) => {
+	expect( tierPricePerMonth( yearly ) ).toBe( monthly );
+} );
 
 it.each( [
 	[ 'year', 348, 29 ],

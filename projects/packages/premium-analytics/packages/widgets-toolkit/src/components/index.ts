@@ -147,7 +147,6 @@ export {
 	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
-	ReportPageShell,
 	ReportPageTabPanel,
 	ReportPageTabs,
 	ReportRecordsTable,
@@ -161,7 +160,6 @@ export {
 	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
-	type ReportPageShellProps,
 	type ReportPageTab,
 	type ReportPageTabPanelProps,
 	type ReportPageTabsProps,
@@ -202,7 +200,12 @@ export {
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
 } from './download-csv';
-export { UtmUrlBuilderDialog } from './utm-url-builder-dialog';
+export {
+	UtmUrlBuilderButton,
+	UtmUrlBuilderDialog,
+	getUtmUrlBuilderValues,
+	type UtmUrlBuilderValues,
+} from './utm-url-builder-dialog';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
 	EarningsHistoryList,

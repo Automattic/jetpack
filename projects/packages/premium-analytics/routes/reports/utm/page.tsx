@@ -1,26 +1,29 @@
 /**
  * External dependencies
  */
-import { Button } from '@jetpack-premium-analytics/externals';
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
+import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportPageLayout,
 	ReportErrorState,
-	ReportPageShell,
 	ReportPageTabs,
 	ExporterCsvAction,
 	utmCsvExporters,
 	UtmUrlBuilderDialog,
 	type UtmReportRow,
+	type UtmUrlBuilderValues,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Page } from '@wordpress/admin-ui';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
@@ -28,6 +31,7 @@ import {
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
+	useBuildUrlAction,
 	useUtmReportRecords,
 } from './config';
 import type { JSX } from 'react';
@@ -80,17 +84,22 @@ function UtmReport(): JSX.Element {
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
-	const [ isBuilderOpen, setBuilderOpen ] = useState( false );
-	const openBuilder = useCallback( () => setBuilderOpen( true ), [] );
-	const closeBuilder = useCallback( () => setBuilderOpen( false ), [] );
+	const [ builderValues, setBuilderValues ] = useState< Partial< UtmUrlBuilderValues > | null >(
+		null
+	);
+	const openBlankBuilder = useCallback( () => setBuilderValues( {} ), [] );
+	const closeBuilder = useCallback( () => setBuilderValues( null ), [] );
+	const buildUrlAction = useBuildUrlAction( setBuilderValues );
+	const actions = useMemo( () => [ buildUrlAction ], [ buildUrlAction ] );
 
 	return (
-		<ReportPageShell
-			visual={ <StatsPageIcon /> }
+		<Page
+			className={ reportPageStyles.page }
+			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				<>
-					<Button variant="outline" size="compact" onClick={ openBuilder }>
+					<Button variant="outline" size="compact" onClick={ openBlankBuilder }>
 						{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 					<ExporterCsvAction
@@ -124,6 +133,7 @@ function UtmReport(): JSX.Element {
 						isLoading={ records.isLoading }
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
+						actions={ actions }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
 						collapsible
@@ -131,8 +141,10 @@ function UtmReport(): JSX.Element {
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
-			{ isBuilderOpen && <UtmUrlBuilderDialog onClose={ closeBuilder } /> }
-		</ReportPageShell>
+			{ builderValues && (
+				<UtmUrlBuilderDialog initialValues={ builderValues } onClose={ closeBuilder } />
+			) }
+		</Page>
 	);
 }
 

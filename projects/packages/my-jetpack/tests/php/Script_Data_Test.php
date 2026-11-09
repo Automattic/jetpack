@@ -69,7 +69,7 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The settings flag needs the flag on and My Jetpack available, and has no page check.
+	 * Settings consolidation needs the flag, a host that shows My Jetpack, and its registered page, on any screen.
 	 */
 	public function test_settings_consolidation_needs_the_flag_and_an_available_my_jetpack() {
 		global $_registered_pages, $wp_actions;
@@ -79,6 +79,7 @@ class Script_Data_Test extends BaseTestCase {
 		$user_id          = get_current_user_id();
 		$page_hook        = get_plugin_page_hookname( 'my-jetpack', 'jetpack' );
 		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		$host_filter      = 'jetpack_my_jetpack_modules_management_available';
 		$key              = 'settingsConsolidation';
 
 		try {
@@ -103,10 +104,15 @@ class Script_Data_Test extends BaseTestCase {
 			add_filter( $flag_filter, '__return_true' );
 			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 
+			add_filter( $host_filter, '__return_false' );
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+			remove_filter( $host_filter, '__return_false' );
+
 			unset( $_registered_pages[ $page_hook ] );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 		} finally {
 			remove_filter( $flag_filter, '__return_true' );
+			remove_filter( $host_filter, '__return_false' );
 			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
 			$_registered_pages = $registered_pages;
 			$wp_actions        = $actions;

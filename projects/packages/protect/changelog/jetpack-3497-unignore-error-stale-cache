@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Scan: Report a slow but successful ignore or unignore as done, and refresh the ignored threats list right after either.

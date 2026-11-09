@@ -6,12 +6,13 @@ export type ConnectionScreenRoute = `${ typeof MyJetpackRoutes.Connection }?from
 /**
  * A link that connects the user's account, then returns them to `returnTo` without the plans page.
  *
- * @param from     - A standard entry-point name, such as `my_jetpack_header`; any other format lands on the plans page.
+ * @param from     - A standard entry-point name, such as `my_jetpack_header`; any other format gets the legacy connection screen.
  * @param returnTo - The absolute URL to return to; Calypso ignores a relative one. Defaults to the current page.
  * @return The URL.
  */
 export function getConnectUrl( from: string, returnTo: string = window.location.href ): string {
-	return getUserConnectionUrl( { from, redirect_url: returnTo, skip_pricing: false } );
+	// Calypso ignores `skip_pricing` for a standard name; it keeps a legacy fallback off the plans page.
+	return getUserConnectionUrl( { from, redirect_url: returnTo, skip_pricing: true } );
 }
 
 /**

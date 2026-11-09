@@ -392,13 +392,13 @@ const FirewallPage = () => {
 					checked={ isBruteForceModuleEnabled }
 					onChange={ toggleBruteForceProtection }
 					disabled={ isUpdating }
-					aria-label={ __( 'Brute force protection', 'jetpack-protect' ) }
+					aria-label={ __( 'Login protection', 'jetpack-protect' ) }
 					__nextHasNoMarginBottom={ true }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Brute force protection', 'jetpack-protect' ) }
+					{ __( 'Login protection', 'jetpack-protect' ) }
 				</Text>
 				<Text>
 					{ __(

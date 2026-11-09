@@ -448,7 +448,7 @@ it( 'disables edits after a source error but still permits discarding the draft'
 it( 'shows indeterminate server progress and does not offer edits during processing', () => {
 	setEdits( { can_restore_original: true, job: processingJob } );
 	renderEditor();
-	expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
+	expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'aria-valuenow' );
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'

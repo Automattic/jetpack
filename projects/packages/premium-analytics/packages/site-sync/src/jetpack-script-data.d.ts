@@ -38,6 +38,8 @@ declare module '@automattic/jetpack-script-data' {
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.
 			classic_stats_url?: string | null;
+			// Whether the classic Stats page is retired, which also retires the feedback prompts.
+			classic_stats_retired?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.

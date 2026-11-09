@@ -151,9 +151,12 @@ describe( 'page-options-menu', () => {
 			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'offers feedback only to those who may read Stats, where it is sent', async () => {
+		it.each( [
+			[ 'from those who may not read Stats, where it is sent', { can_view_stats: false } ],
+			[ 'once classic Stats is retired', { can_view_stats: true, classic_stats_retired: true } ],
+		] )( 'withholds feedback %s', async ( _case, premiumAnalytics ) => {
 			jest.mocked( getScriptData ).mockReturnValue( {
-				premium_analytics: { can_view_stats: false },
+				premium_analytics: premiumAnalytics,
 			} as ReturnType< typeof getScriptData > );
 			const user = setupUser();
 			render( <PageOptionsMenu onCustomize={ jest.fn() } /> );

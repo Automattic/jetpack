@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Show one banner per SEO tab while another SEO plugin or a filter pauses Jetpack's SEO output, and lock the affected cards with a short line, showing their saved values. The new SEO page is still gated.
+
+

@@ -3,7 +3,7 @@ import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type { DataPoint, DataPointDate, SeriesData } from '../../../types';
 
 /** Domain for a value axis that has nothing to scale, so its ticks still read 0 to 1. */
-const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
+export const EMPTY_DOMAIN: [ number, number ] = [ 0, 1 ];
 
 /**
  * The value a bar is drawn at, preferring `visualValue` so a zero still shows a sliver.

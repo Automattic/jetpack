@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Tooltip, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { Tooltip } from '@wordpress/components';
 import clsx from 'clsx';
 import { forwardRef, useMemo } from 'react';
 /**
@@ -60,12 +59,25 @@ function UnforwardedAbbreviatedText(
 	// Out of the tab order: assistive tech reads the exact figure below, and a
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
 	return (
-		<Tooltip text={ full } placement="bottom">
-			<span ref={ ref } className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
+		<Tooltip.Root>
+			<Tooltip.Trigger
+				render={
+					<span ref={ ref } className={ clsx( styles.anchor, className ) } tabIndex={ -1 } />
+				}
+			>
 				<span aria-hidden="true">{ display }</span>
 				<VisuallyHidden render={ <span /> }>{ full }</VisuallyHidden>
-			</span>
-		</Tooltip>
+			</Tooltip.Trigger>
+			{ /* Hidden from assistive tech, which already has the figure above; the popup props match MetricNoteTooltip. */ }
+			<Tooltip.Popup
+				aria-hidden="true"
+				tabIndex={ undefined }
+				data-testid="abbreviated-value-tooltip"
+				positioner={ <Tooltip.Positioner side="bottom" /> }
+			>
+				{ full }
+			</Tooltip.Popup>
+		</Tooltip.Root>
 	);
 }
 

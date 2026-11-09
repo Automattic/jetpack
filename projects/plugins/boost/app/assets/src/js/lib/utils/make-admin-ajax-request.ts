@@ -13,12 +13,14 @@ class AdminAjaxError extends Error {
 /**
  * Prepare a wp-ajax request, returning a raw Response object.
  *
- * @param {Record< string, string >} payload   Key/value pairs to send with the request.
- * @param {string}                   wpajaxurl
+ * @param {Record< string, string >}      payload   Key/value pairs to send with the request.
+ * @param {string}                        wpajaxurl
+ * @param {Pick< RequestInit, 'signal' >} init      An abort signal that ends the request.
  */
 export async function prepareAdminAjaxRequest(
 	payload: Record< string, string >,
-	wpajaxurl = ajaxurl
+	wpajaxurl = ajaxurl,
+	init: Pick< RequestInit, 'signal' > = {}
 ): Promise< Response > {
 	const args = {
 		method: 'post',
@@ -26,6 +28,7 @@ export async function prepareAdminAjaxRequest(
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},
+		...init,
 	};
 
 	const response = await fetch( wpajaxurl, args );
