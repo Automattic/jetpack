@@ -222,7 +222,7 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
 
 		expect(
-			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-card-tabs-columns' )
 		).toBe( columns );
 	} );
 
@@ -515,6 +515,24 @@ describe( 'MetricTabsChart', () => {
 		}
 	} );
 
+	it( 'draws each card without block elements, which a button cannot hold', () => {
+		const unavailable = {
+			...METRIC,
+			key: 'likes',
+			label: 'Likes',
+			unavailable: "Hourly data isn't available for this metric.",
+		};
+
+		render( <MetricTabsChart metrics={ [ METRIC, unavailable ] } dataFormat={ DATA_FORMAT } /> );
+
+		const tabs = screen.getAllByRole( 'tab' );
+		expect( tabs ).toHaveLength( 2 );
+		for ( const tab of tabs ) {
+			// eslint-disable-next-line testing-library/no-node-access -- A block element has no role to query by.
+			expect( tab.querySelector( 'div' ) ).toBeNull();
+		}
+	} );
+
 	it( 'emits a single series when the metric has no previous period', () => {
 		const withoutPrevious = { ...METRIC, previous: undefined };
 
@@ -600,6 +618,30 @@ describe( 'MetricTabsChart', () => {
 		expect( defaultHiddenSeries ).toEqual( [ series[ 2 ].label, series[ 3 ].label ] );
 		expect( legendInteractive ).toBe( true );
 	} );
+
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )(
+		"seeds the counterpart's previous period hidden before it arrives (%s)",
+		( chartType, spy ) => {
+			render(
+				<MetricTabsChart
+					metrics={ [
+						{ ...VIEWS, previous: undefined, counterpartHidden: true },
+						{ ...VISITORS, previous: undefined },
+					] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+
+			expect( recordedPropsFor( spy, 'Views' ).defaultHiddenSeries ).toEqual( [
+				'Visitors',
+				'Visitors · previous period',
+			] );
+		}
+	);
 
 	it( 'renames the comparison without touching what keeps the counterpart hidden', () => {
 		const chart = ( reportParams: ReportParams ) => (

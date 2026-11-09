@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.3.7] - 2026-11-02
+### Changed
+- Update package dependencies. [#53869] [#54382] [#54390]
+
+### Fixed
+- Fix the class attribute on field wrappers that use the inset label layout. [#54426]
+
 ## [8.3.6] - 2026-10-28
 ### Changed
 - Update package dependencies. [#54118]
@@ -22,9 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.3.4] - 2026-10-19
 ### Changed
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53675]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53675] [#53806]
 - Use apply_shortcodes() terminology instead of do_shortcode(). [#53552]
 
 ### Fixed
@@ -1892,7 +1897,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linting: First pass of style coding standards. [#42734]
 - Move shared integration card logic. [#42908]
 - Reorganize form integration modal code. [#42918]
-- Update Creative Mail integration to hooks. [#42828] [#42762] [#42806] [#42809]
+- Update Creative Mail integration to hooks. [#42762] [#42806] [#42809] [#42828]
 
 ### Fixed
 - Ensure response management compatibility with WordPress 6.6. [#42883]
@@ -2106,7 +2111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.2] - 2024-11-26
 ### Changed
-- Update dependencies. [#39855]
+- Update dependencies.
 
 ## [0.34.1] - 2024-11-25
 ### Changed
@@ -2256,7 +2261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.31.4] - 2024-05-27
 ### Changed
-- Update dependencies. [#37356]
+- Update dependencies.
 
 ## [0.31.3] - 2024-05-20
 ### Changed
@@ -2828,6 +2833,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.3.7]: https://github.com/automattic/jetpack-forms/compare/v8.3.6...v8.3.7
 [8.3.6]: https://github.com/automattic/jetpack-forms/compare/v8.3.5...v8.3.6
 [8.3.5]: https://github.com/automattic/jetpack-forms/compare/v8.3.4...v8.3.5
 [8.3.4]: https://github.com/automattic/jetpack-forms/compare/v8.3.3...v8.3.4

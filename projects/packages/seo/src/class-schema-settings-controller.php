@@ -62,7 +62,7 @@ class Schema_Settings_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( __CLASS__, 'update_item' ),
-					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+					'permission_callback' => array( __CLASS__, 'write_permissions_check' ),
 				),
 			)
 		);
@@ -79,7 +79,7 @@ class Schema_Settings_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( __CLASS__, 'update_author_profile' ),
-					'permission_callback' => array( __CLASS__, 'permissions_check' ),
+					'permission_callback' => array( __CLASS__, 'write_permissions_check' ),
 					'args'                => array(
 						'name'        => array( 'type' => 'string' ),
 						'description' => array( 'type' => 'string' ),
@@ -102,6 +102,38 @@ class Schema_Settings_Controller {
 	 */
 	public static function permissions_check() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Require administrator access and Jetpack ownership before saving SEO settings.
+	 *
+	 * @since 0.10.3
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public static function write_permissions_check() {
+		if ( ! self::permissions_check() ) {
+			return false;
+		}
+
+		if ( Seo_Tools::is_disabled() ) {
+			$plugin  = Seo_Tools::get_conflicting_plugin();
+			$message = $plugin
+				? sprintf(
+					/* translators: %s: name of the SEO plugin that manages the site's SEO, e.g. Yoast SEO. */
+					__( '%s is managing your site’s SEO, so Jetpack has paused its structured data. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' ),
+					$plugin
+				)
+				: __( 'Jetpack’s structured data is turned off on this site. Your changes were not saved. Reload this page to see the current settings.', 'jetpack-seo' );
+
+			return new \WP_Error(
+				'jetpack_seo_tools_disabled',
+				$message,
+				array( 'status' => 409 )
+			);
+		}
+
+		return true;
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show connection owner and administrator names containing characters like & correctly.

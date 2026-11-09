@@ -1,4 +1,4 @@
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "@wordpress/base-styles/mixins";
 
 .chart-loader {
 	padding: 10px calc(var(--spacing-base) * 3) 0;
@@ -50,13 +50,13 @@
 	.empty-state-card-heading {
 		color: var(--wpds-color-foreground-content-neutral);
 
-		@include gb.heading-large;
+		@include mixins.heading-large;
 		margin-bottom: 8px;
 	}
 
 	.empty-state-card-info {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 
-		@include gb.body-medium;
+		@include mixins.body-medium;
 	}
 }

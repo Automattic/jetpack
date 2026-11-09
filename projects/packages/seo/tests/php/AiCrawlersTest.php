@@ -348,13 +348,56 @@ class AiCrawlersTest extends TestCase {
 	 * @return void
 	 */
 	public function test_append_directives_emits_blocks_for_blocked_bots() {
-		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'gptbot' ) ) );
+		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'claudebot' ) ) );
 		$output  = Ai_Crawlers::append_directives( "User-agent: *\nDisallow:", true );
 		$catalog = Ai_Crawlers::get_catalog();
 
 		$this->assertStringContainsString( '# AI crawlers blocked via Jetpack SEO.', $output );
-		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agent'] . "\nDisallow: /", $output );
-		$this->assertStringNotContainsString( 'User-agent: ' . $catalog['claudebot']['user_agent'], $output );
+		foreach ( $catalog['claudebot']['user_agents'] as $user_agent ) {
+			$this->assertStringContainsString( 'User-agent: ' . $user_agent . "\nDisallow: /", $output );
+		}
+		$this->assertStringNotContainsString( 'User-agent: ' . $catalog['gptbot']['user_agents'][0], $output );
+	}
+
+	/**
+	 * Saved blocks keep applying while Jetpack's SEO output is paused. The dashboard's
+	 * paused banner relies on this: it leaves AI crawler rules out of what it lists.
+	 *
+	 * @dataProvider provide_pause_filters
+	 * @param string   $filter   Filter that pauses Jetpack's SEO output.
+	 * @param callable $callback Its callback.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_pause_filters' )]
+	public function test_blocks_still_apply_while_seo_output_is_paused( $filter, $callback ) {
+		update_option( Ai_Crawlers::OPTION, array( 'training' => array( 'gptbot' ) ) );
+		add_filter( $filter, $callback );
+		try {
+			$this->assertTrue( Seo_Tools::is_disabled() );
+			$output = Ai_Crawlers::append_directives( "User-agent: *\nDisallow:", true );
+		} finally {
+			remove_filter( $filter, $callback );
+		}
+
+		$catalog = Ai_Crawlers::get_catalog();
+		$this->assertStringContainsString( 'User-agent: ' . $catalog['gptbot']['user_agents'][0] . "\nDisallow: /", $output );
+	}
+
+	/**
+	 * The two ways Jetpack's SEO output is paused: a named plugin, or the general switch.
+	 *
+	 * @return array
+	 */
+	public static function provide_pause_filters() {
+		return array(
+			'plugin conflict' => array(
+				'jetpack_seo_conflicting_plugin',
+				static function () {
+					return 'Yoast SEO';
+				},
+			),
+			'general disable' => array( 'jetpack_disable_seo_tools', '__return_true' ),
+		);
 	}
 
 	/**
@@ -416,7 +459,9 @@ class AiCrawlersTest extends TestCase {
 		$forced = Ai_Crawlers::get_data_sharing_blocked_slugs();
 		foreach ( Ai_Crawlers::get_catalog() as $slug => $info ) {
 			$expected = in_array( $slug, $forced, true ) ? 1 : 0;
-			$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $info['user_agent'] . "\n" ), $slug );
+			foreach ( $info['user_agents'] as $user_agent ) {
+				$this->assertSame( $expected, substr_count( $output, 'User-agent: ' . $user_agent . "\n" ), $user_agent );
+			}
 		}
 	}
 

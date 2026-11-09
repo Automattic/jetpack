@@ -16,6 +16,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\PremiumAnalytics\Classic_Stats;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -61,7 +62,7 @@ function stats_load() {
 	Admin_Post_List_Column::register();
 
 	// Keep the classic page unless Stats v2 can take over; old links then open it via Stats_Links::open_retired_stats_page().
-	if ( ! Jetpack_Stats_Feature_Flags::is_classic_page_retired() || ! Jetpack::is_premium_analytics_enabled() ) {
+	if ( ! class_exists( Classic_Stats::class ) || ! Classic_Stats::is_retired() || ! Jetpack::is_premium_analytics_enabled() ) {
 		add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 	}
 
@@ -956,12 +957,13 @@ function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) 
 /**
  * Jetpack Stats Dashboard Widget.
  *
- * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ * @deprecated $$next-version$$ The dashboard widget renders WP_Dashboard_Odyssey_Widget::render() instead.
  *
  * @access public
  * @return void
  */
 function stats_jetpack_dashboard_widget() {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Stats_Admin\\WP_Dashboard_Odyssey_Widget::render' );
 	?>
 	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>

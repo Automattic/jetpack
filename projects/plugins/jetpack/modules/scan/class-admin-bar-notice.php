@@ -199,7 +199,7 @@ class Admin_Bar_Notice {
 			'title'  => '',
 			'parent' => 'top-secondary',
 			'meta'   => array(
-				'title' => esc_attr__( 'View security scan details', 'jetpack' ),
+				'title' => esc_attr__( 'View Scan details', 'jetpack' ),
 				'class' => 'error is-hidden',
 			),
 		);

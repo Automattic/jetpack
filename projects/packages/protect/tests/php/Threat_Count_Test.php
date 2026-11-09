@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -29,6 +30,10 @@ class Threat_Count_Test extends BaseTestCase {
 		Notification_Counts::reset();
 		Status::$status = null;
 		Protect_Status::delete_option();
+		delete_option( Scan_Status::OPTION_NAME );
+		delete_option( Dashboard_Threats::RESOLVED_OPTION );
+		delete_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
 		delete_transient( Threat_Count::BACKOFF_TRANSIENT );
 		wp_dequeue_script( Threat_Count::SCRIPT_HANDLE );
 		wp_deregister_script( Threat_Count::SCRIPT_HANDLE );
@@ -223,6 +228,55 @@ class Threat_Count_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'count' => 2 ), $response->get_data() );
 		$this->assertFalse( get_transient( Threat_Count::BACKOFF_TRANSIENT ) );
+	}
+
+	/**
+	 * Whether the scan after a fix failed, and the count expected.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_scans_after_a_fix() {
+		return array(
+			'a failed scan keeps the fix out of the count' => array( true, 0 ),
+			'a completed scan counts the threat again'     => array( false, 1 ),
+		);
+	}
+
+	/**
+	 * Test that a fix the site recorded stays out of both counts until a scan completes.
+	 *
+	 * @dataProvider provide_scans_after_a_fix
+	 *
+	 * @param bool $failed   Whether the scan after the fix failed.
+	 * @param int  $expected The count.
+	 */
+	#[DataProvider( 'provide_scans_after_a_fix' )]
+	public function test_a_recorded_fix_holds_until_a_scan_completes( $failed, $expected ) {
+		update_option( \Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
+		\Automattic\Jetpack\Protect_Status\Plan::has_required_plan( true );
+		Dashboard_Threats::resolve( array( 'id' => '1' ) );
+		update_option(
+			Scan_Status::OPTION_NAME,
+			maybe_serialize(
+				(object) array(
+					'most_recent' => (object) array(
+						'timestamp' => gmdate( 'c', time() + HOUR_IN_SECONDS ),
+						'error'     => $failed,
+					),
+					'threats'     => array(
+						(object) array(
+							'id'        => 1,
+							'signature' => 'PHP.Generic',
+							'filename'  => ABSPATH . 'x.php',
+						),
+					),
+				)
+			)
+		);
+		Status::$status = Status::get_cached_status();
+
+		$this->assertSame( $expected, Threat_Count::get_cached() );
+		$this->assertSame( array( 'count' => $expected ), Threat_Count::get_fresh_count()->get_data() );
 	}
 
 	public function test_get_fresh_count_backs_off_after_a_failed_fetch() {

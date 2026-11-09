@@ -1,4 +1,5 @@
-import { render, act, waitFor } from '@testing-library/react';
+import { render, act, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import VideoPressUploader from '../index.jsx';
 
 const mockApiFetch = jest.fn();
@@ -12,9 +13,17 @@ const mockBuildVideoPressURL = jest.fn( () => ( {} ) );
 let mockPostId = 42;
 // Capture the props handed to child components so tests can drive the
 // MediaPlaceholder's onSelect and the error screen's Retry directly.
-const mockMediaPlaceholder = jest.fn( () => null );
+const mockMediaPlaceholder = jest.fn( ( { children } ) => <div>{ children }</div> );
 const mockUploadError = jest.fn( () => null );
 const mockUploadProgress = jest.fn( () => null );
+const mockRecordingFile = new File( [ 'recorded video' ], 'recording.mp4', { type: 'video/mp4' } );
+
+jest.mock( '../../../../../../components/video-recording', () => ( {
+	__esModule: true,
+	default: ( { onRecorded } ) => (
+		<button onClick={ () => onRecorded( mockRecordingFile ) }>Upload recording</button>
+	),
+} ) );
 
 jest.mock(
 	'@wordpress/api-fetch',
@@ -214,6 +223,14 @@ describe( 'VideoPressUploader — media library selection', () => {
 		}
 	);
 
+	it( 'sends a recording through the regular resumable file upload', async () => {
+		renderUploader();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Upload recording' } ) );
+		expect( mockUploadHandler ).toHaveBeenCalledWith( mockRecordingFile );
+		expect( lastProps( mockUploadProgress ).file ).toBe( mockRecordingFile );
+		expect( mockUploadFromLibrary ).not.toHaveBeenCalled();
+	} );
+
 	it( 'promotes in place via wpcom/v2 on Simple instead of the videopress/v1 walker', async () => {
 		mockIsSimpleSite.mockReturnValue( true );
 		mockPromoteOnSimple.mockResolvedValue( { guid: 'g1234567', mediaId: 10 } );
@@ -223,7 +240,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 			lastProps( mockMediaPlaceholder ).onSelect( libraryAttachment );
 		} );
 
-		expect( mockPromoteOnSimple ).toHaveBeenCalledWith( 10 );
+		expect( mockPromoteOnSimple ).toHaveBeenCalledWith( 10, 'block_editor' );
 		// The videopress/v1 probe 404s at the public-api router on Simple —
 		// the whole point of the promote branch is that it never fires.
 		expect( mockApiFetch ).not.toHaveBeenCalled();
@@ -252,7 +269,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { path: 'videopress/v1/upload/10', method: 'GET' } )
 		);
-		expect( mockUploadFromLibrary ).toHaveBeenCalledWith( 10 );
+		expect( mockUploadFromLibrary ).toHaveBeenCalledWith( 10, 'block_editor' );
 		expect( mockPromoteOnSimple ).not.toHaveBeenCalled();
 	} );
 
@@ -278,7 +295,7 @@ describe( 'VideoPressUploader — media library selection', () => {
 		} );
 
 		expect( mockPromoteOnSimple ).toHaveBeenCalledTimes( 2 );
-		expect( mockPromoteOnSimple ).toHaveBeenLastCalledWith( 10 );
+		expect( mockPromoteOnSimple ).toHaveBeenLastCalledWith( 10, 'block_editor' );
 	} );
 
 	it( 'Retry with nothing stored resets to the picker instead of crashing', async () => {

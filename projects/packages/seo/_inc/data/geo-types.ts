@@ -10,8 +10,8 @@ export interface AiCrawler {
 	slug: string;
 	/** Human-readable name shown in the UI. */
 	label: string;
-	/** User-agent token written to the robots.txt `User-agent:` line. */
-	userAgent: string;
+	/** Every robots.txt `User-agent:` token the operator uses for this crawler. */
+	userAgents: string[];
 	/** Which group the crawler is listed under. */
 	type: 'answer' | 'training';
 }
@@ -38,11 +38,7 @@ export interface GeoState {
 		enabled: boolean;
 		/** The site's llms.txt URL, for the "view" link. */
 		url: string;
-		/**
-		 * Whether WordPress can actually serve the dynamic /llms.txt here. False
-		 * when a static llms.txt or the host's setup fronts the request, so the
-		 * toggle would silently do nothing — the tab then shows an honest notice.
-		 */
+		/** Whether Jetpack can serve llms.txt, considering files, hosting and paused SEO output. */
 		canServe: boolean;
 	};
 	crawlers: {

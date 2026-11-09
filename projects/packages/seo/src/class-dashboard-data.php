@@ -568,38 +568,13 @@ class Dashboard_Data {
 	 * @return bool
 	 */
 	private static function is_jetpack_seo_enabled_without_helper() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			return false;
 		}
 
 		// `Initializer::is_gated()` on Simple reduces to the helper's own
 		// `wpcom_site_has_feature( 'advanced-seo' )` check.
 		return ( new Host() )->is_wpcom_simple() ? ! Initializer::is_gated() : true;
-	}
-
-	/**
-	 * Name of the SEO plugin Jetpack stepped aside for, or '' when Jetpack's SEO output is live.
-	 *
-	 * @return string
-	 */
-	private static function get_conflicting_seo_plugin() {
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-			return '';
-		}
-
-		/**
-		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
-		 * so. Only read while `jetpack_disable_seo_tools` is true.
-		 *
-		 * @since 0.10.1
-		 *
-		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
-		 */
-		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
-
-		return is_string( $name ) ? trim( $name ) : '';
 	}
 
 	/**
@@ -998,8 +973,7 @@ class Dashboard_Data {
 	 * @return array
 	 */
 	public static function get_overview_data() {
-		$modules     = new Modules();
-		$seo_enabled = self::is_jetpack_seo_enabled();
+		$modules = new Modules();
 
 		$codes = get_option( 'verification_services_codes', array() );
 		if ( ! is_array( $codes ) ) {
@@ -1023,10 +997,6 @@ class Dashboard_Data {
 				'facebook'  => ! empty( $codes['facebook'] ),
 			),
 			'content_coverage'        => Content_Coverage::get(),
-			'plan'                    => array(
-				'seo_enabled_for_site' => $seo_enabled,
-			),
-			'conflicting_seo_plugin'  => self::get_conflicting_seo_plugin(),
 			// Whether the site-verification toggle can do anything here. False where
 			// that module isn't present — WordPress.com Simple ships no Jetpack modules
 			// and reports every one of them active — so the dashboard hides the control
@@ -1092,8 +1062,7 @@ class Dashboard_Data {
 		$title_formats_editable = self::is_jetpack_seo_enabled();
 		$front_page_desc        = self::get_front_page_meta_description();
 
-		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
-		if ( apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+		if ( Seo_Tools::is_disabled() ) {
 			// Same for the description, which the helper swaps for the legacy fallback while
 			// another plugin owns the output. Show the one Jetpack resumes with; it's locked.
 			$modern          = get_option( self::FRONT_PAGE_META_OPTION );
@@ -1143,7 +1112,6 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
-			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
@@ -1252,6 +1220,21 @@ class Dashboard_Data {
 	public static function get_content_data() {
 		return array(
 			'post_types' => Post_Types::get_supported_content_type_options(),
+		);
+	}
+
+	/**
+	 * Whether Jetpack's SEO output is paused, and the plugin that owns it when one does.
+	 * Every tab reads this one bootstrap for its banner and locked cards.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{paused: bool, conflicting_plugin: string}
+	 */
+	public static function get_output_data() {
+		return array(
+			'paused'             => Seo_Tools::is_disabled(),
+			'conflicting_plugin' => Seo_Tools::get_conflicting_plugin() ?? '',
 		);
 	}
 

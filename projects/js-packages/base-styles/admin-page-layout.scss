@@ -180,6 +180,12 @@ $jp-breakpoint-mobile: 782px;
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
+
+		// The stage shares Boot's row with the inspector: keep Boot's zero basis,
+		// or the stage takes its content's width and starves the inspector.
+		&:is(.boot-layout__stage, [class*="__stage"]) {
+			flex-basis: 0%;
+		}
 	}
 
 	// ── <AdminPage> root ──────────────────────────────────────────────

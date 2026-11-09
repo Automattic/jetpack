@@ -81,6 +81,22 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'derives the delta of entries that pass only values', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{ id: 'up', label: 'Up', currentValue: 100, previousValue: 80 },
+					{ id: 'down', label: 'Down', currentValue: 50, previousValue: 100 },
+				] }
+				withComparison={ true }
+				deltaFormatter={ testDeltaFormatter }
+			/>
+		);
+
+		expect( screen.getByText( '25delta' ) ).toBeInTheDocument();
+		expect( screen.getByText( '-50delta' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows a placeholder when a row has no previous value', () => {
 		render(
 			<LeaderboardChart
@@ -168,6 +184,31 @@ describe( 'LeaderboardChart', () => {
 		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
 
 		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
+	} );
+
+	it( 'keeps every bar on one side when negative bars clamp', () => {
+		const data = [
+			{ ...mockData[ 0 ], currentShare: undefined, currentValue: -40 },
+			mockData[ 1 ],
+		];
+		render( <LeaderboardChart data={ data } withComparison negativeBars="clamp" /> );
+
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( 0 );
+	} );
+
+	it.each( [
+		[ 'comparison bars draw', false, /^calc\(50%/ ],
+		[ 'the overlay label hides comparison bars', true, /^calc\(100%/ ],
+	] )( 'sizes the current bar against the max when %s', ( _, withOverlayLabel, expected ) => {
+		const data = [
+			{ id: 'a', label: 'A', currentValue: 50, previousValue: 100 },
+			{ id: 'b', label: 'B', currentValue: 25, previousValue: 10 },
+		] as LeaderboardEntry[];
+		render(
+			<LeaderboardChart data={ data } withComparison withOverlayLabel={ withOverlayLabel } />
+		);
+
+		expect( screen.getAllByTestId( 'leaderboard-chart-bar' )[ 0 ].style.width ).toMatch( expected );
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -761,18 +802,25 @@ describe( 'LeaderboardChart', () => {
 			);
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
+
+		it( 'titles only an interactive row’s string label with its full text', () => {
+			const [ interactive, inert ] = mockData;
+			render( <LeaderboardChart data={ [ { ...interactive, onClick: jest.fn() }, inert ] } /> );
+			expect( screen.getByText( String( interactive.label ) ) ).toHaveAttribute(
+				'title',
+				interactive.label
+			);
+			expect( screen.getByText( String( inert.label ) ) ).not.toHaveAttribute( 'title' );
+		} );
 	} );
 
-	describe( 'grid gaps', () => {
-		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
-		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
-		const templateColumns = () =>
-			grid().style.getPropertyValue( '--wp-components-grid-template-columns' );
+	describe( 'grid columns', () => {
+		const grid = () => screen.getByRole( 'list', { name: 'Leaderboard chart' } );
 
 		it( 'lays the rows out without a delta track when not comparing', () => {
 			render( <LeaderboardChart data={ mockData } withComparison={ false } /> );
 
-			expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+			expect( grid() ).not.toHaveClass( 'grid--comparison' );
 		} );
 
 		it.each( [ [ 'Previous period' ], [ 'Current period' ] ] )(
@@ -788,24 +836,12 @@ describe( 'LeaderboardChart', () => {
 					/>
 				);
 
-				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto auto' );
+				expect( grid() ).toHaveClass( 'grid--comparison' );
 
 				await user.click( screen.getByRole( 'button', { name: new RegExp( legendItem ) } ) );
 
-				expect( templateColumns() ).toBe( 'minmax(0, 1fr) auto' );
+				expect( grid() ).not.toHaveClass( 'grid--comparison' );
 			}
 		);
-
-		it( 'hands the catalog role to the grid', () => {
-			render( <LeaderboardChart data={ mockData } /> );
-
-			// Grid writes its gaps into custom properties and reads them from a stylesheet.
-			expect( grid().style.getPropertyValue( '--wp-components-grid-row-gap' ) ).toBe(
-				'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)'
-			);
-			expect( grid().style.getPropertyValue( '--wp-components-grid-column-gap' ) ).toBe(
-				'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)'
-			);
-		} );
 	} );
 } );

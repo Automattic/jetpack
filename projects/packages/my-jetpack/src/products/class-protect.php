@@ -13,6 +13,7 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -50,14 +51,15 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Status_Model properties that may be exposed to users without `manage_options`.
 	 *
-	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
-	 * last scan time from these. The rest of the status report -- the scan state, the error
-	 * details, the list of fixable threat IDs -- is administrator-only.
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts, the
+	 * last scan time and whether that scan failed from these. The rest of the status report --
+	 * the scan state, the error details, the list of fixable threat IDs -- is administrator-only.
 	 *
 	 * @var string[]
 	 */
 	private const NON_ADMIN_SCAN_DATA_KEYS = array(
 		'last_checked',
+		'last_scan_failed',
 		'num_threats',
 		'num_plugins_threats',
 		'num_themes_threats',
@@ -333,7 +335,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Firewall', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => false,
@@ -346,7 +348,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Login protection', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
@@ -458,11 +460,7 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		return Scan::get_paid_plan_product_slugs();
 	}
 
 	/**
@@ -516,7 +514,6 @@ class Protect extends Hybrid_Product {
 	public static function get_protect_page_module_urls() {
 		// method_exists, not class_exists: an older bundled Protect package can ship the class without it.
 		$dashboard = 'Automattic\Jetpack\Protect\Dashboard';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional Protect package, guarded by method_exists.
 		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( $dashboard, 'get_module_settings_urls' ) ) {
 			return array();
 		}
@@ -554,7 +551,7 @@ class Protect extends Hybrid_Product {
 			parent::get_info(),
 			array(
 				'has_protect_page' => static::has_protect_page(),
-				'scan_results_url' => Scan::get_manage_url(),
+				'scan_results_url' => static::get_manage_url(),
 			)
 		);
 	}
@@ -587,6 +584,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Where a site with Scan manages its threats without the Protect page: WordPress.com on WoA, Jetpack Cloud elsewhere.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_dashboard_url() {
+		return Redirect::get_url( ( new Host() )->is_woa_site() ? 'my-jetpack-manage-scan-wpcom' : 'my-jetpack-manage-scan' );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -598,8 +604,7 @@ class Protect extends Hybrid_Product {
 		}
 
 		if ( static::has_paid_plan_for_product() ) {
-			// Paid users without standalone plugin go to Jetpack Cloud Scan dashboard.
-			return Redirect::get_url( 'my-jetpack-manage-scan' );
+			return static::get_scan_dashboard_url();
 		}
 
 		// Free users without standalone plugin go to the Protect details page.

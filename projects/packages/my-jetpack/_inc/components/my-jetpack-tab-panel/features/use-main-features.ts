@@ -11,6 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../../data/constants';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
 import {
 	clearRequestedSwitch,
@@ -123,7 +124,7 @@ function requestPluginSwitch(
 		} );
 }
 
-// What a plugin action asked for; `leavesPage` says the caller navigates away once it succeeds.
+// What a plugin action asked for; `leavesPage` says the caller leaves or reloads the page itself once it succeeds.
 type PluginRequest = { action: PluginAction; leavesPage: boolean };
 
 /**
@@ -167,7 +168,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			const message = action === 'deactivate' ? deactivated : activated;
 
 			// Jetpack's modules only load on the next request, so the page has to reload to
-			// offer them, unless it is about to leave anyway; everything else updates in place.
+			// offer them, unless the caller leaves or reloads anyway; everything else updates in place.
 			if ( plugin === 'jetpack' ) {
 				setPendingSuccessNotice( message );
 				if ( ! leavesPage ) {
@@ -198,6 +199,10 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 			if ( queryClient.getQueryData< MainFeaturesState >( QUERY_KEY )?.jetpack === 'active' ) {
 				await fetchModules();
 			}
+		},
+		onSettled: () => {
+			// Not awaited: the switch need not stay busy for it.
+			queryClient.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
 		},
 	} );
 

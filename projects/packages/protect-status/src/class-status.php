@@ -14,7 +14,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.9.2';
+	const PACKAGE_VERSION = '0.10.1';
 	/**
 	 * Name of the option where status is stored
 	 *
@@ -144,7 +144,7 @@ class Status {
 	/**
 	 * Updated the cached status and its timestamp
 	 *
-	 * @param array $status The new status to be cached.
+	 * @param object $status The new status to be cached, as decoded from the API response.
 	 * @return void
 	 */
 	public static function update_status_option( $status ) {
@@ -184,7 +184,7 @@ class Status {
 	/**
 	 * Whether threats may be announced outside the Protect page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.10.0
 	 *
 	 * @return bool
 	 */
@@ -192,7 +192,7 @@ class Status {
 		/**
 		 * Filters whether threats are announced outside the Protect page. Hosts that handle threats themselves can turn this off.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.10.0
 		 *
 		 * @param bool $enabled Whether to announce threats. Default true.
 		 */
