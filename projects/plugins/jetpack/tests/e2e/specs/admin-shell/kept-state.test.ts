@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { installShellProbe, openMember, switchTo, where } from '../../helpers/admin-shell-helper';
+import {
+	installShellProbe,
+	intermittentSpikeBug,
+	openMember,
+	switchTo,
+	where,
+} from '../../helpers/admin-shell-helper';
 
 const FORMS = 'jetpack-forms-responses-wp-admin';
 
@@ -14,14 +20,8 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 				? 'Spike bug: My Jetpack is sometimes on the wrong tab after Settings.'
 				: null;
 
-		test(
-			`My Jetpack keeps its tab after visiting ${ via }`,
-			{
-				annotation: intermittent
-					? [ { type: 'intermittent spike bug', description: intermittent } ]
-					: [],
-			},
-			async ( { page } ) => {
+		intermittentSpikeBug( intermittent, () => {
+			test( `My Jetpack keeps its tab after visiting ${ via }`, async ( { page } ) => {
 				// Start elsewhere so My Jetpack is a guest app, as most visits to it are.
 				await openMember( page, 'jetpack-podcast' );
 				await switchTo( page, 'my-jetpack' );
@@ -34,8 +34,8 @@ test.describe( 'Admin shell: state survives a round trip', () => {
 				await switchTo( page, 'my-jetpack' );
 				await expect( features ).toHaveAttribute( 'aria-selected', 'true' );
 				expect( await where( page ) ).toBe( url );
-			}
-		);
+			} );
+		} );
 	}
 
 	test( 'Forms keeps its tab and search', async ( { page } ) => {

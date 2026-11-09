@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Stop screen readers from announcing widget content as dimmed outside edit mode.
