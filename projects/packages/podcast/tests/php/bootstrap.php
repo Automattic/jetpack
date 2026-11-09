@@ -14,6 +14,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 define( 'WP_DEBUG', true );
 
+// Isolated PHPUnit processes need a script path for WordPress's URL guessing on PHP 7.4.
+if ( empty( $_SERVER['SCRIPT_FILENAME'] ) ) {
+	$_SERVER['SCRIPT_FILENAME'] = __FILE__;
+}
+
 \Automattic\Jetpack\Test_Environment::init();
 
 if ( ! function_exists( 'tracks_record_event' ) ) {
