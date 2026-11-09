@@ -585,8 +585,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		 */
 		do_action( 'jetpack_dtp_fb_media', $is_dtp_fb_post, $blog_id, $input, $media_files, $media_urls, $media_attrs, $media_results );
 
-		// Any posts coming from Path (client ID 25952) should also not publicize.
-		$skip_publicize = false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] );
+		$skip_publicize = false === $publicize;
 
 		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 

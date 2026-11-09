@@ -521,8 +521,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media        = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
-		// Any posts coming from Path (client ID 25952) should also not publicize.
-		$skip_publicize = false === $publicize || ( isset( $this->api->token_details['client_id'] ) && 25952 === (int) $this->api->token_details['client_id'] );
+		$skip_publicize = false === $publicize;
 
 		$block_publicize_flag = $skip_publicize && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 
