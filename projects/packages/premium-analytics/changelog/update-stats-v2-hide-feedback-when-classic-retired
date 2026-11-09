@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Stop offering feedback (banner, page options menu item and tour step) once the classic Stats page is retired.
