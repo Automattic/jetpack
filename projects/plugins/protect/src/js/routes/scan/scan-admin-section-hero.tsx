@@ -8,6 +8,7 @@ import ErrorAdminSectionHero from '../../components/error-admin-section-hero';
 import OnboardingPopover from '../../components/onboarding-popover';
 import ScanNavigation from '../../components/scan-navigation';
 import useScanStatusQuery, {
+	isChecksOff,
 	isFirstScanNeeded,
 	isScanInProgress,
 } from '../../data/scan/use-scan-status-query';
@@ -36,6 +37,32 @@ const ScanAdminSectionHero: FC = () => {
 	if ( lastChecked ) {
 		// Convert the lastChecked UTC date to a local timestamp
 		lastCheckedLocalTimestamp = new Date( lastChecked + ' UTC' ).getTime();
+	}
+
+	if ( isChecksOff( status ) ) {
+		return (
+			<AdminSectionHero
+				main={
+					<>
+						<AdminSectionHero.StatusIndicator
+							status="inactive"
+							label={ __( 'Off', 'jetpack-protect' ) }
+						/>
+						<AdminSectionHero.Heading>
+							{ __( 'Daily vulnerability checks are off', 'jetpack-protect' ) }
+						</AdminSectionHero.Heading>
+						<AdminSectionHero.Subheading>
+							<Text>
+								{ __(
+									'Jetpack isn’t checking WordPress, plugins and themes for known vulnerabilities. You can turn the check back on in Jetpack’s Protect settings.',
+									'jetpack-protect'
+								) }
+							</Text>
+						</AdminSectionHero.Subheading>
+					</>
+				}
+			/>
+		);
 	}
 
 	if ( isScanInProgress( status ) ) {

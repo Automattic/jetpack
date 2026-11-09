@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
 /**
  * A report's identity, contract version and routes.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Report_Definition {
 

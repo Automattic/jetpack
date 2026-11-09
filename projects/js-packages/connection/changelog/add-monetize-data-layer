@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a connection name for the Monetize dashboard, and export the connection names on their own.
