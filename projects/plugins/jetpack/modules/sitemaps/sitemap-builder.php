@@ -250,14 +250,45 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				break;
 
 			case JP_PAGE_SITEMAP_INDEX_TYPE:
+				$next_type = (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false )
+					? JP_VIDEO_SITEMAP_TYPE
+					: JP_IMAGE_SITEMAP_TYPE;
+
 				$this->build_next_sitemap_index_of_type(
 					JP_PAGE_SITEMAP_INDEX_TYPE,
-					JP_IMAGE_SITEMAP_TYPE,
+					$next_type,
 					$state
 				);
 				break;
 
 			case JP_IMAGE_SITEMAP_TYPE:
+				if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+					Jetpack_Sitemap_State::check_in(
+						array(
+							'sitemap-type'  => JP_VIDEO_SITEMAP_TYPE,
+							'last-added'    => 0,
+							'number'        => 0,
+							'last-modified' => '1970-01-01 00:00:00',
+						)
+					);
+
+					if ( $this->logger ) {
+						$this->logger->report( '-- Cleaning Up ' . JP_IMAGE_SITEMAP_TYPE );
+					}
+
+					// Clean up old files.
+					$this->librarian->delete_numbered_sitemap_rows_after(
+						0,
+						JP_IMAGE_SITEMAP_TYPE
+					);
+					$this->librarian->delete_numbered_sitemap_rows_after(
+						0,
+						JP_IMAGE_SITEMAP_INDEX_TYPE
+					);
+
+					break;
+				}
+
 				$this->build_next_sitemap_of_type(
 					JP_IMAGE_SITEMAP_TYPE,
 					array( $this, 'build_one_image_sitemap' ),
@@ -266,6 +297,29 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				break;
 
 			case JP_IMAGE_SITEMAP_INDEX_TYPE:
+				if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+					Jetpack_Sitemap_State::check_in(
+						array(
+							'sitemap-type'  => JP_VIDEO_SITEMAP_TYPE,
+							'last-added'    => 0,
+							'number'        => 0,
+							'last-modified' => '1970-01-01 00:00:00',
+						)
+					);
+
+					if ( $this->logger ) {
+						$this->logger->report( '-- Cleaning Up ' . JP_IMAGE_SITEMAP_INDEX_TYPE );
+					}
+
+					// Clean up old files.
+					$this->librarian->delete_numbered_sitemap_rows_after(
+						0,
+						JP_IMAGE_SITEMAP_INDEX_TYPE
+					);
+
+					break;
+				}
+
 				$this->build_next_sitemap_index_of_type(
 					JP_IMAGE_SITEMAP_INDEX_TYPE,
 					JP_VIDEO_SITEMAP_TYPE,
@@ -538,6 +592,12 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			JP_IMAGE_SITEMAP_TYPE,
 			JP_VIDEO_SITEMAP_TYPE,
 		);
+
+		if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+			$sitemap_types = array_values(
+				array_diff( $sitemap_types, array( JP_IMAGE_SITEMAP_TYPE ) )
+			);
+		}
 
 		$buffer = null;
 
@@ -1010,6 +1070,18 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * }
 	 */
 	public function build_one_image_sitemap( $number, $from_id ) {
+		/**
+		 * Filter to disable image sitemap generation.
+		 *
+		 * @module sitemaps
+		 * @since 16.5
+		 *
+		 * @param bool $disable Whether to disable image sitemaps. Default false.
+		 */
+		if ( (bool) apply_filters( 'jetpack_sitemap_disable_image_sitemap', false ) ) {
+			return false;
+		}
+
 		$last_post_id   = $from_id;
 		$any_posts_left = true;
 

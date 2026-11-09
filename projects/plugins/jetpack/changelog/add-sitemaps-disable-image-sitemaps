@@ -1,0 +1,3 @@
+Significance: minor
+Type: enhancement
+Comment: Sitemaps: Add `jetpack_sitemap_disable_image_sitemap` filter to allow disabling image sitemap generation and indexing.

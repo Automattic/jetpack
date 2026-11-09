@@ -539,4 +539,53 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_sitemap_suspend_cache_addition', '__return_true' );
 	}
+
+	/**
+	 * Test that build_one_image_sitemap returns false when image sitemaps are disabled via filter.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.5
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_build_one_image_sitemap_returns_false_when_disabled() {
+		add_filter( 'jetpack_sitemap_disable_image_sitemap', '__return_true' );
+
+		$result = $this->builder->build_one_image_sitemap( 1, 0 );
+
+		remove_filter( 'jetpack_sitemap_disable_image_sitemap', '__return_true' );
+
+		$this->assertFalse( $result, 'Expected build_one_image_sitemap to return false when disabled.' );
+	}
+
+	/**
+	 * Test that master sitemap excludes image sitemaps when image sitemaps are disabled via filter.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.5
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_excludes_image_sitemap_when_disabled() {
+		// Create a published post so page sitemap has content.
+		$post_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		add_filter( 'jetpack_sitemap_disable_image_sitemap', '__return_true' );
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_sitemap_disable_image_sitemap', '__return_true' );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertNotEmpty( $master, 'Master sitemap should exist.' );
+		$this->assertStringNotContainsString( 'image-sitemap', $master, 'Master sitemap must not contain image sitemaps when disabled.' );
+		$this->assertStringContainsString( 'sitemap-', $master, 'Master sitemap should still contain standard sitemaps.' );
+
+		wp_delete_post( $post_id, true );
+	}
 }
