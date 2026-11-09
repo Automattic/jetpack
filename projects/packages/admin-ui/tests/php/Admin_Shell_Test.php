@@ -97,24 +97,50 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * A minimal valid member gets the optional keys filled in.
+	 * Data provider for test_get_members_fills_in_only_missing_keys.
 	 *
-	 * @return void
+	 * @return array[] Member, expected optional keys.
 	 */
-	public function test_get_members_fills_in_defaults() {
-		$this->add_members( array( 'jetpack-forms-admin' => self::valid_member() ) );
+	public static function provide_valid_members() {
+		$set = array(
+			'init_modules' => array( '@jetpack/forms-init' ),
+			'default_path' => '/responses',
+			'capability'   => 'edit_posts',
+			'handles'      => array( 'jetpack-forms-dashboard' ),
+		);
 
-		$this->assertSame(
-			array(
-				'jetpack-forms-admin' => array(
+		return array(
+			'required keys only' => array(
+				self::valid_member(),
+				array(
 					'init_modules' => array(),
 					'default_path' => null,
 					'capability'   => 'manage_options',
 					'handles'      => array(),
-				) + self::valid_member(),
+				),
 			),
-			Admin_Shell::get_members()
+			'every key set'      => array( $set + self::valid_member(), $set ),
 		);
+	}
+
+	/**
+	 * Optional keys a member leaves out get defaults, and the ones it sets are kept.
+	 *
+	 * @dataProvider provide_valid_members
+	 *
+	 * @param array $member   Member definition.
+	 * @param array $optional Expected optional keys.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_valid_members' )]
+	public function test_get_members_fills_in_only_missing_keys( $member, $optional ) {
+		$this->add_members( array( 'jetpack-forms-admin' => $member ) );
+
+		$expected = $optional + self::valid_member();
+		$actual   = Admin_Shell::get_members()['jetpack-forms-admin'] ?? array();
+		ksort( $expected );
+		ksort( $actual );
+		$this->assertSame( $expected, $actual );
 	}
 
 	/**
