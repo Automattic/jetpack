@@ -20,8 +20,8 @@ export type MoreFeaturesGroup = {
 /**
  * A module as a feature row, so every surface here reads the state the main features do.
  *
- * The synthesized feature carries no plan and is not essential, which is what those filters
- * should answer for a module.
+ * The synthesized feature carries no plan or group and is not essential, which is what those
+ * filters should answer for a module.
  *
  * @param $module      - The module.
  * @param requested    - Switch key to the value asked of it, for a switch still in flight.
@@ -41,6 +41,7 @@ export function getModuleFeatureState(
 			name: $module.name,
 			description: $module.description,
 			plans: [],
+			groups: [],
 			essential: false,
 		} as MainFeature,
 		status: ( asked ?? $module.activated ) ? 'active' : 'inactive',
