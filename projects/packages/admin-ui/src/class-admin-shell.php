@@ -98,11 +98,9 @@ class Admin_Shell {
 		foreach ( $members as $slug => $member ) {
 			$normalized = self::normalize_member( $slug, $member );
 			if ( null === $normalized ) {
-				_doing_it_wrong(
-					__METHOD__,
-					esc_html( sprintf( 'Admin shell member "%s" is missing a required key or has one of the wrong type, so it was skipped.', is_scalar( $slug ) ? $slug : '' ) ),
-					'$$next-version$$'
-				);
+				$message = sprintf( 'Admin shell member "%s" is missing a required key or has one of the wrong type, so it was skipped.', $slug );
+				// Keep on one line: the release tooling only replaces the version in a single-line call.
+				_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
 				continue;
 			}
 			$valid[ $slug ] = $normalized;

@@ -52,7 +52,7 @@ class Admin_Shell_Test extends TestCase {
 	 * @return void
 	 */
 	public function test_flag_is_registered_off_by_default() {
-		$this->assertFalse( Feature_Flags::get( Admin_Shell::FLAG )['default'] );
+		$this->assertFalse( Feature_Flags::get( Admin_Shell::FLAG )['default'] ?? null );
 		$this->assertFalse( Admin_Shell::is_enabled() );
 	}
 
