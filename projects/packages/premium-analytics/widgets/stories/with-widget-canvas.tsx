@@ -1,6 +1,6 @@
 import { useElementSize } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useLayoutEffect, useRef } from 'react';
-import type { Decorator } from '@storybook/react';
+import type { Decorator, StoryContext } from '@storybook/react';
 import type { ReactNode } from 'react';
 
 // The card's own inset in pixels: a widget gets the card minus this on each side.
@@ -151,9 +151,18 @@ export function WidgetSizesCanvas( {
 	return <WidgetCanvas width={ width }>{ children }</WidgetCanvas>;
 }
 
+// The mode applies to a story viewed on its own, where the toolbar offers it. A
+// Docs page renders every story of a widget at once and keeps the usual card.
+export function getWidgetSizesMode( {
+	globals,
+	viewMode,
+}: Pick< StoryContext, 'globals' | 'viewMode' > ) {
+	return viewMode === 'story' ? globals.widgetSizes : undefined;
+}
+
 // Decorator form of WidgetSizesCanvas for the close-up widget stories.
-export const withWidgetCanvas: Decorator = ( Story, { globals } ) => (
-	<WidgetSizesCanvas mode={ globals.widgetSizes }>
+export const withWidgetCanvas: Decorator = ( Story, context ) => (
+	<WidgetSizesCanvas mode={ getWidgetSizesMode( context ) }>
 		<Story />
 	</WidgetSizesCanvas>
 );

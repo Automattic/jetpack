@@ -57,24 +57,10 @@ const preview = {
 			},
 		},
 	},
-	// Read by the canvas the Premium Analytics widget stories are framed with.
-	globalTypes: {
-		widgetSizes: {
-			description: 'Sizes a Premium Analytics widget story is rendered at',
-			toolbar: {
-				title: 'Widget sizes',
-				icon: 'grow',
-				items: [
-					{ value: 'single', title: 'Widget: single size' },
-					{ value: 'matrix', title: 'Widget: size matrix' },
-					{ value: 'resizable', title: 'Widget: resizable' },
-				],
-				dynamicTitle: true,
-			},
-		},
-	},
 	initialGlobals: {
 		backgrounds: { value: 'jetpack-dashboard' },
+		// Set by the toolbar control in manager.mjs, read by the canvas that frames
+		// the Premium Analytics widget stories.
 		widgetSizes: 'single',
 	},
 	decorators: [
