@@ -84,7 +84,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
-	StatsPageIcon: () => null,
 	// The real guard is covered in the ui package; keep the scheme check here so
 	// the header still refuses a non-http URL.
 	safeHttpUrl: ( value?: string | null ) =>
@@ -721,7 +720,9 @@ describe( 'post detail stage', () => {
 			render( stage() );
 
 			expect( screen.getByText( `locked: ${ isLimited ? 'week' : 'none' }` ) ).toBeInTheDocument();
-			expect( mockDateFilterOptions ).toEqual( { lockedIntervals } );
+			expect( mockDateFilterOptions ).toEqual( {
+				dateLimits: isLimited ? { lockedPresetIds: [], lockedIntervals } : undefined,
+			} );
 			expect( mockPeriodHostLockedIntervals ).toEqual( lockedIntervals );
 			expect( useDateWindowNotice ).toHaveBeenCalled();
 		}

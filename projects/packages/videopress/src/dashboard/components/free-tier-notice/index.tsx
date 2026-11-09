@@ -1,6 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { useUpsellImpression } from '../../hooks/use-upsell-impression';
 import { useVideoPressUpgrade, type UpgradeLocation } from '../../hooks/use-videopress-upgrade';
 import type { ReactElement } from 'react';
 
@@ -33,19 +34,23 @@ const FREE_PLAN_MESSAGE = __(
  * cancelled before the workflow runs — keeping anchor semantics (focus,
  * hover) while delegating navigation to the workflow.
  *
- * @param props          - Component props.
- * @param props.message  - Notice body copy. Defaults to the free-plan copy.
- * @param props.location - Surface displaying the notice.
+ * @param props            - Component props.
+ * @param props.message    - Notice body copy. Defaults to the free-plan copy.
+ * @param props.location   - Surface displaying the notice.
+ * @param props.videoCount - Current known UI video count, if available.
  * @return The Notice element.
  */
 export default function FreeTierNotice( {
 	message = FREE_PLAN_MESSAGE,
 	location,
+	videoCount,
 }: {
 	message?: string;
-	location: Exclude< UpgradeLocation, 'upload_limit' >;
+	location: Exclude< UpgradeLocation, 'upload_limit' | 'pricing_upsell' >;
+	videoCount?: number;
 } ): ReactElement {
 	const runUpgrade = useVideoPressUpgrade( location );
+	const impressionRef = useUpsellImpression( location, videoCount );
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {
@@ -58,7 +63,7 @@ export default function FreeTierNotice( {
 	);
 
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent="info" ref={ impressionRef }>
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>

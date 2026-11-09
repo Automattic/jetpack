@@ -7,12 +7,14 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -88,6 +90,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
@@ -528,44 +531,50 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Jetpack > Protect is hidden with a class, which Calypso's sidebar honors, unless the standalone plugin is active.
-	 *
-	 * Runs in a separate process because the standalone row declares `Jetpack_Protect`.
+	 * Protect shows beside Calypso's Scan, in the menu's A to Z order, whichever page serves it.
 	 *
 	 * @dataProvider provide_protect_entry_cases
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 *
-	 * @param bool $standalone Whether the standalone Protect plugin is active.
-	 * @param bool $hidden     Whether the entry should be hidden.
+	 * @param string   $served_by 'protect page', 'upgrade prompt', or 'nothing'.
+	 * @param string[] $expected  The visible entries, in menu order.
 	 */
 	#[DataProvider( 'provide_protect_entry_cases' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_hides_protect_entry( $standalone, $hidden ) {
+	public function test_jetpack_submenu_shows_protect_beside_scan( $served_by, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $standalone ) {
-			class_alias( get_class( new class() {} ), 'Jetpack_Protect' );
+		$submenu['jetpack'][] = array( 'Search', 'manage_options', 'jetpack-search', 'Search' );
+		if ( 'protect page' === $served_by ) {
+			$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Protect' );
 		}
-		$submenu['jetpack'][] = array( 'Protect', 'manage_options', 'jetpack-protect', 'Jetpack Protect' );
+		if ( 'upgrade prompt' === $served_by ) {
+			WPCOM_Scan::register_page();
+		}
 
 		wpcom_add_jetpack_submenu();
 
-		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => 'jetpack-protect' ) ) );
-		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
+		$calypso = 'https://wordpress.com/scan/' . self::$domain;
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], array( $calypso, 'jetpack-protect', 'jetpack-search' ), true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $calypso === $item[2] ? 'calypso' : $item[2];
+			}
+		}
+
+		$this->assertSame( $expected, $visible );
 	}
 
 	/**
-	 * Whether the standalone plugin is active, and whether the entry should be hidden.
+	 * What serves the Protect slug, and the entries that should show.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_protect_entry_cases() {
 		return array(
-			'Jetpack plugin only'       => array( false, true ),
-			'standalone plugin present' => array( true, false ),
+			'Protect page'   => array( 'protect page', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
+			// As while the dashboard's feature flag is off on a plan that includes Scan.
+			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
 		);
 	}
 
@@ -726,11 +735,12 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 * @param string|null $address  Which Settings address the Jetpack plugin registers.
 	 * @param array       $expected Expected submenu titles, top to bottom; a hidden item ends in "(hidden)".
 	 * @param bool        $atomic   Whether to define the Atomic hosting constants.
+	 * @param bool        $page     Whether a My Jetpack page registered.
 	 */
 	#[DataProvider( 'provide_jetpack_menu_environments' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true ) {
+	public function test_jetpack_submenu_sorts_alphabetically( $simple, $address, $expected, $atomic = true, $page = true ) {
 		global $submenu;
 		if ( $simple ) {
 			define( 'IS_WPCOM', true );
@@ -752,6 +762,10 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			array( 'Akismet Anti-spam <span class="awaiting-mod">2</span>', 'manage_options', 'akismet-key-config' ),
 			array( 'Activity Log', 'manage_options', 'jetpack-activity-log' ),
 		);
+		if ( $page ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][] = array( 'My Jetpack', 'manage_options', 'my-jetpack' );
+		}
 		if ( ! $simple ) {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu['jetpack'][] = array( 'Settings', 'manage_options', $settings_slug );
@@ -828,12 +842,13 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_jetpack_menu_environments() {
 		$atomic = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Scan', 'SEO', 'Social', 'Beta Tester', 'Settings' );
-		$simple = array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' );
+		$simple = array( 'My Jetpack', 'Abonnés', 'Activity Log', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Activity Log (hidden)', 'Beta Tester' );
 
 		return array(
 			'Atomic legacy Settings'             => array( false, 'legacy', $atomic ),
 			'Atomic Settings'                    => array( false, 'own', $atomic ),
-			'Simple'                             => array( true, null, $simple ),
+			'Simple with the My Jetpack page'    => array( true, null, $simple ),
+			'Simple without the My Jetpack page' => array( true, null, array( 'Activity Log', 'Activity Log (hidden)', 'Abonnés', 'Akismet Anti-spam 2', 'Backup', 'Monetize', 'Podcast', 'Scan', 'SEO', 'Social', 'Traffic', 'Beta Tester' ), true, false ),
 			'Other host with WordPress.com menu' => array( false, 'own', $atomic, false ),
 		);
 	}

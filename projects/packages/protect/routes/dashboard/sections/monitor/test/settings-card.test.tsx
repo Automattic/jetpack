@@ -38,6 +38,12 @@ describe( 'MonitorSettingsCard', () => {
 		[ 'Monitor is unavailable', { available: false, monitor: false }, false, false ],
 		[ 'Monitor is unavailable but still set', { available: false }, false, false ],
 		[ 'the user has no WordPress.com connection', { userConnected: false }, true, false ],
+		[
+			'Monitor is off and the user has no WordPress.com connection',
+			{ userConnected: false, monitor: false },
+			false,
+			false,
+		],
 	] )( 'enables the right toggles when %s', ( _name, options, canToggle, canEmail ) => {
 		renderCard( options );
 

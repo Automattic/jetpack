@@ -13,6 +13,7 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use WP_Error;
 use WP_REST_Response;
@@ -50,14 +51,15 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Status_Model properties that may be exposed to users without `manage_options`.
 	 *
-	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
-	 * last scan time from these. The rest of the status report -- the scan state, the error
-	 * details, the list of fixable threat IDs -- is administrator-only.
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts, the
+	 * last scan time and whether that scan failed from these. The rest of the status report --
+	 * the scan state, the error details, the list of fixable threat IDs -- is administrator-only.
 	 *
 	 * @var string[]
 	 */
 	private const NON_ADMIN_SCAN_DATA_KEYS = array(
 		'last_checked',
+		'last_scan_failed',
 		'num_threats',
 		'num_plugins_threats',
 		'num_themes_threats',
@@ -333,7 +335,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Firewall', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => false,
@@ -346,7 +348,7 @@ class Protect extends Hybrid_Product {
 				),
 			),
 			array(
-				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'name'  => __( 'Login protection', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => true ),
 					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
@@ -458,11 +460,7 @@ class Protect extends Hybrid_Product {
 	 * @return array
 	 */
 	public static function get_paid_plan_product_slugs() {
-		return array(
-			'jetpack_scan',
-			'jetpack_scan_monthly',
-			'jetpack_scan_bi_yearly',
-		);
+		return Scan::get_paid_plan_product_slugs();
 	}
 
 	/**
@@ -586,29 +584,12 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Where a host has a paying site manage Scan, so the card, Scan results and Features tab agree.
+	 * Where a site with Scan manages its threats without the Protect page: WordPress.com on WoA, Jetpack Cloud elsewhere.
 	 *
-	 * @return string The host's URL, or an empty string when the host sends none.
+	 * @return string
 	 */
-	private static function get_host_manage_url() {
-		// The standalone plugin's own page keeps the card, as its menu entry does on WoA.
-		if ( static::is_standalone_plugin_active() || ! static::has_paid_plan_for_product() ) {
-			return '';
-		}
-
-		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
-		$upgrade = apply_filters(
-			'jetpack_feature_upgrade',
-			array(
-				'path'     => '/add-protect',
-				'name'     => 'Jetpack Scan', // Product name, do not translate.
-				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
-			),
-			'protect-dashboard',
-			true
-		);
-
-		return is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['manage_url'] ?? '' ) ) : '';
+	public static function get_scan_dashboard_url() {
+		return Redirect::get_url( ( new Host() )->is_woa_site() ? 'my-jetpack-manage-scan-wpcom' : 'my-jetpack-manage-scan' );
 	}
 
 	/**
@@ -617,19 +598,13 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		$host_url = static::get_host_manage_url();
-		if ( $host_url ) {
-			return $host_url;
-		}
-
 		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}
 
 		if ( static::has_paid_plan_for_product() ) {
-			// Paid users without standalone plugin go to Jetpack Cloud Scan dashboard.
-			return Redirect::get_url( 'my-jetpack-manage-scan' );
+			return static::get_scan_dashboard_url();
 		}
 
 		// Free users without standalone plugin go to the Protect details page.

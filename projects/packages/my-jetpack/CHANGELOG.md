@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.0] - 2026-11-06
+### Added
+- Settings panel: Add the Infinite Scroll settings, behind the settings consolidation flag.
+- Settings panel: Add the Post by Email settings, behind the settings consolidation flag.
+- Settings panel: Record Tracks events when a module or option is switched, behind the settings consolidation flag.
+
+### Changed
+- Scan: Decide whether the site owns Scan with the same check as the Protect card and page.
+
+### Fixed
+- Protect card: Show that a site with Scan hasn't been scanned yet instead of calling it secure.
+- Protect card: Show when the last scan didn't complete instead of calling the site secure.
+- Settings panel: Record the Tracks event for the Post by Email switch, behind the settings consolidation flag.
+
+## [6.16.0] - 2026-11-04
+### Added
+- Add a settings panel that Configure on a More Features row opens, behind a feature flag that is off by default. [#54431]
+- Settings panel: Add the Carousel settings, behind the settings consolidation flag. [#54499]
+- Settings panel: Add the Related Posts options, behind the settings flag. [#54435]
+- Settings panel: Add the SEO opt-in invitation, behind the settings flag. [#54436]
+- Settings panel: Lock the settings of a feature the site cannot use, and say why, behind the settings flag. [#54489]
+
+### Changed
+- Products: Point the Creator and VideoPress manage links at their new homes, behind the settings flag. [#54503]
+- Protect: On WordPress.com sites without the Protect page, send Scan's manage links to the WordPress.com dashboard instead of Jetpack Cloud. [#54243]
+- Protect: Open the Protect page from My Jetpack on WordPress.com sites that have it, rather than WordPress.com's Scan. The `jetpack_feature_upgrade` filter no longer reads `manage_url`. [#54243]
+- Update package dependencies. [#54512]
+- Use the design system switch for module and feature toggles. [#54512]
+
+### Fixed
+- Connection: Stop sending a broken return URL when connecting the site from a product card or notice. [#54420]
+- Stop showing $0 and NaN for paid plans on the Boost, Protect and Jetpack AI upgrade pages, and $0.00 on recommendation cards, when prices cannot be loaded. [#54458]
+
 ## [6.15.0] - 2026-11-02
 ### Added
 - Add a feature flag for consolidating settings in My Jetpack, off by default. [#54376]
@@ -3196,6 +3229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.16.0...6.17.0
+[6.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.15.0...6.16.0
 [6.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.14.0...6.15.0
 [6.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.13.0...6.14.0
 [6.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.12.0...6.13.0

@@ -1,10 +1,10 @@
-import { Button, Tooltip } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { EmptyState, Text } from '@wordpress/ui';
+import { EmptyState, Text, Tooltip } from '@wordpress/ui';
 import RecordVideoButton from '../../../client/components/video-recording';
 import {
 	FREE_TIER_AT_LIMIT_MESSAGE,
@@ -17,6 +17,7 @@ import {
 	videoFileAccept,
 } from './video-files';
 import './style.scss';
+import type { UploadRefusal } from '../../utils/upload-refusal-analytics';
 import type { MouseEvent } from 'react';
 
 /**
@@ -57,6 +58,7 @@ import type { MouseEvent } from 'react';
  *                            promise instead.
  * @param props.onUpgrade     - Starts the upgrade the at-limit notice offers.
  *                            Without it the notice carries no action.
+ * @param props.onRefused     - Receives refusals for consumers that measure them.
  * @return The dropzone element.
  */
 const UploadDropzone = ( {
@@ -66,6 +68,7 @@ const UploadDropzone = ( {
 	copyVariant,
 	subCopy,
 	onUpgrade,
+	onRefused,
 }: {
 	onFiles: ( files: File[] ) => void;
 	disabled?: boolean;
@@ -73,6 +76,7 @@ const UploadDropzone = ( {
 	copyVariant?: 'single' | 'multiple';
 	subCopy?: string;
 	onUpgrade?: () => void;
+	onRefused?: ( refusal: UploadRefusal ) => void;
 } ) => {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const [ dragging, setDragging ] = useState( false );
@@ -116,6 +120,12 @@ const UploadDropzone = ( {
 			// fact about the plan standing in for the answer to a question about
 			// the file, which sent both testers off to check their plan.
 			const videos = await filterVideoFiles( files );
+			if ( videos.length < files.length ) {
+				onRefused?.( {
+					reason: 'file_validation',
+					counts: { attempted: files.length, skipped: files.length - videos.length },
+				} );
+			}
 			if ( ! videos.length ) {
 				// The message is derived, not fixed: a real `.webm` is a video we
 				// can't take, and saying "Only video files can be uploaded" to
@@ -127,21 +137,26 @@ const UploadDropzone = ( {
 				return;
 			}
 			if ( disabled ) {
+				onRefused?.( {
+					reason: 'plan_limit',
+					counts: { attempted: files.length, skipped: videos.length },
+				} );
 				rejectAtLimit();
 				return;
 			}
 			onFiles( videos );
 		},
-		[ createErrorNotice, disabled, onFiles, rejectAtLimit ]
+		[ createErrorNotice, disabled, onFiles, onRefused, rejectAtLimit ]
 	);
 
 	const openPicker = useCallback( () => {
 		if ( disabled ) {
+			onRefused?.( { reason: 'plan_limit' } );
 			rejectAtLimit();
 			return;
 		}
 		inputRef.current?.click();
-	}, [ disabled, rejectAtLimit ] );
+	}, [ disabled, onRefused, rejectAtLimit ] );
 
 	const onSurfaceClick = useCallback(
 		( event: MouseEvent< HTMLDivElement > ) => {
@@ -157,20 +172,6 @@ const UploadDropzone = ( {
 			openPicker();
 		},
 		[ openPicker ]
-	);
-
-	const pickerButton = (
-		<Button
-			className="vp-upload-dropzone__button"
-			variant="primary"
-			__next40pxDefaultSize
-			onClick={ openPicker }
-			aria-disabled={ disabled }
-		>
-			{ plural
-				? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
-				: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
-		</Button>
 	);
 
 	return (
@@ -251,15 +252,30 @@ const UploadDropzone = ( {
 				 * mouse user gets before committing, and the click-to-explain
 				 * is the only path a touch user has.
 				 */ }
-				{ disabled ? (
-					// Only at the limit. An enabled tooltip here would just
-					// restate the button's own label; the header needs one
-					// because it is refusing from a toolbar with no copy
-					// around it.
-					<Tooltip text={ FREE_TIER_AT_LIMIT_MESSAGE }>{ pickerButton }</Tooltip>
-				) : (
-					pickerButton
-				) }
+				{ /*
+				 * Only at the limit. An enabled tooltip here would just
+				 * restate the button's own label; the header needs one
+				 * because it is refusing from a toolbar with no copy
+				 * around it.
+				 */ }
+				<Tooltip.Root disabled={ ! disabled }>
+					<Tooltip.Trigger
+						render={
+							<Button
+								className="vp-upload-dropzone__button"
+								variant="primary"
+								__next40pxDefaultSize
+								onClick={ openPicker }
+								aria-disabled={ disabled }
+							/>
+						}
+					>
+						{ plural
+							? __( 'Select videos to upload', 'jetpack-videopress-pkg' )
+							: __( 'Select a video to upload', 'jetpack-videopress-pkg' ) }
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ FREE_TIER_AT_LIMIT_MESSAGE }</Tooltip.Popup>
+				</Tooltip.Root>
 				<RecordVideoButton onRecorded={ file => onFiles( [ file ] ) } disabled={ disabled } />
 			</div>
 			<input

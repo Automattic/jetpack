@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
@@ -22,13 +23,6 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
 } ) );
 
-jest.mock( '@wordpress/components', () => {
-	const react = jest.requireActual( 'react' );
-	return {
-		FormToggle: props => react.createElement( 'input', { type: 'checkbox', ...props } ),
-	};
-} );
-
 jest.mock( '@wordpress/ui', () => {
 	const react = jest.requireActual( 'react' );
 	const Anchor = ( { children, ...props } ) => {
@@ -43,6 +37,7 @@ jest.mock( '@wordpress/ui', () => {
 		return react.createElement( 'a', props, children );
 	};
 	return {
+		...jest.requireActual( '@wordpress/ui' ),
 		Button: ( { children, render: renderProp, ...props } ) => {
 			// Button-only props that shouldn't land on the DOM node.
 			delete props.variant;
@@ -116,7 +111,7 @@ describe( 'ModuleToggle', () => {
 		render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
 		expect( screen.getByRole( 'link', { name: 'Configure' } ) ).toHaveAttribute( 'href', url );
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( blockThemeModules )(
@@ -126,7 +121,7 @@ describe( 'ModuleToggle', () => {
 			render( <ModuleToggle module={ legacyModule( { module, activated: true } ) } /> );
 
 			// The legacy toggle is replaced by the switch action.
-			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 
 			await userEvent.click( screen.getByRole( 'button', { name: switchLabel } ) );
 
@@ -142,8 +137,8 @@ describe( 'ModuleToggle', () => {
 				<ModuleToggle module={ legacyModule( { module, activated: true, override: 'active' } ) } />
 			);
 
-			expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
-			expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+			expect( screen.getByRole( 'switch' ) ).toBeChecked();
+			expect( screen.getByRole( 'switch' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( screen.queryByRole( 'button', { name: switchLabel } ) ).not.toBeInTheDocument();
 		}
 	);
@@ -156,7 +151,7 @@ describe( 'ModuleToggle', () => {
 	] )( 'reloads the page after toggling the menu-registering %s module', async ( slug, name ) => {
 		render( <ModuleToggle module={ buildModule( { module: slug, name } ) } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( mockToggleModule ).toHaveBeenCalledWith( { name: slug, active: false } );
 		// Persists a notice so it survives the reload, then reloads. No inline notice.
@@ -175,7 +170,7 @@ describe( 'ModuleToggle', () => {
 			/>
 		);
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'podcast', active: false } );
 		expect( reloadPage ).not.toHaveBeenCalled();
@@ -196,7 +191,7 @@ describe( 'ModuleToggle', () => {
 			</>
 		);
 
-		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'switch' );
 		await userEvent.click( podcast );
 		await userEvent.click( sitemaps );
 
@@ -216,7 +211,7 @@ describe( 'ModuleToggle', () => {
 
 		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
 
-		const toggle = screen.getByRole( 'checkbox' );
+		const toggle = screen.getByRole( 'switch' );
 		expect( toggle ).toBeChecked();
 
 		await userEvent.click( toggle );
@@ -233,7 +228,7 @@ describe( 'ModuleToggle', () => {
 
 		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
 
-		const toggle = screen.getByRole( 'checkbox' );
+		const toggle = screen.getByRole( 'switch' );
 		await userEvent.click( toggle );
 
 		// The store never changed, so dropping the asked-for value restores the old one.
@@ -245,11 +240,11 @@ describe( 'ModuleToggle', () => {
 
 		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		// A rejection is a failure like any other, not a silent snap back.
 		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
-		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect( screen.getByRole( 'switch' ) ).toBeChecked();
 	} );
 
 	it( 'disables a switch whose request is still waiting its turn', async () => {
@@ -265,12 +260,12 @@ describe( 'ModuleToggle', () => {
 			</>
 		);
 
-		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'switch' );
 		await userEvent.click( podcast );
 		await userEvent.click( sitemaps );
 
 		// The second request has not reached the store, so only this flag can say it is busy.
-		await waitFor( () => expect( sitemaps ).toBeDisabled() );
+		await waitFor( () => expect( sitemaps ).toHaveAttribute( 'aria-disabled', 'true' ) );
 		expect( mockToggleModule ).toHaveBeenCalledTimes( 1 );
 
 		// The queue is module-global: leaving this in flight would stall the next test.
@@ -293,7 +288,7 @@ describe( 'ModuleToggle', () => {
 				/>
 			);
 
-			await userEvent.click( screen.getByRole( 'checkbox' ) );
+			await userEvent.click( screen.getByRole( 'switch' ) );
 
 			expect( onSwitch ).toHaveBeenCalledWith( asked );
 		}
@@ -321,12 +316,38 @@ describe( 'ModuleToggle', () => {
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
 		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox' ) );
+		await userEvent.click( screen.getByRole( 'switch' ) );
 
 		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sitemaps', active: false } );
 		expect( reloadPage ).not.toHaveBeenCalled();
 		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[
+			'marks product ownership stale after a switch succeeds',
+			true,
+			[ [ { queryKey: [ 'product ownership' ] } ] ],
+		],
+		[ 'leaves product ownership alone when a switch fails', false, [] ],
+	] )( '%s', async ( _name, succeeded, expectedCalls ) => {
+		mockToggleModule.mockResolvedValueOnce( succeeded );
+		const queryClient = new QueryClient();
+		const invalidate = jest.spyOn( queryClient, 'invalidateQueries' );
+
+		render(
+			<QueryClientProvider client={ queryClient }>
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</QueryClientProvider>
+		);
+		await userEvent.click( screen.getByRole( 'switch' ) );
+
+		// The notice comes last either way, so the switch has settled once it shows.
+		await waitFor( () =>
+			expect( succeeded ? mockCreateSuccessNotice : mockCreateErrorNotice ).toHaveBeenCalled()
+		);
+		expect( invalidate.mock.calls ).toEqual( expectedCalls );
 	} );
 
 	it( 'is named by the element it is pointed at, in place of its own label', () => {
@@ -337,13 +358,16 @@ describe( 'ModuleToggle', () => {
 			</>
 		);
 
-		expect( screen.getByRole( 'checkbox', { name: 'Activate this feature' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: 'Activate this feature' } ) ).toBeInTheDocument();
 		expect( screen.queryByLabelText( 'Toggle Podcast module' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'locks the switch when told the site cannot use the module', () => {
 		render( <ModuleToggle module={ buildModule() } disabled /> );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Toggle Podcast module' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: 'Toggle Podcast module' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 } );

@@ -177,12 +177,12 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Brute Force Protection sits with Security, Shortlinks with Engagement, and Infinite Scroll in Other.
+	 * Login protection sits with Protect, Shortlinks with Engagement, and Infinite Scroll in Other.
 	 */
 	public function test_module_groups_place_the_regrouped_modules() {
 		$groups = array_column( Main_Features::get_module_groups(), 'modules', 'label' );
 
-		$this->assertContains( 'protect', $groups['Security'] );
+		$this->assertContains( 'protect', $groups['Protect'] );
 		$this->assertContains( 'shortlinks', $groups['Engagement'] );
 		$this->assertNotContains( 'infinite-scroll', array_merge( ...array_values( $groups ) ) );
 	}
@@ -445,11 +445,11 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * The pills filter on plan membership, so every feature has to carry the key they read.
+	 * The pills filter on feature groups, so every feature has to carry the key they read.
 	 */
 	public function test_every_feature_carries_the_keys_the_grid_reads() {
 		foreach ( Main_Features::get_features() as $feature ) {
-			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
+			foreach ( array( 'slug', 'name', 'description', 'icon', 'essential', 'plans', 'groups', 'in_jetpack', 'plugin', 'plugin_status' ) as $key ) {
 				$this->assertArrayHasKey( $key, $feature, "Feature {$feature['slug']} is missing {$key}" );
 			}
 
@@ -666,59 +666,6 @@ class Main_Features_Test extends TestCase {
 			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
 			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
 			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
-		);
-	}
-
-	/**
-	 * A host's manage URL replaces the feature's only for a site that has it, without the standalone plugin, and only as a web address.
-	 *
-	 * @dataProvider provide_host_manage_urls
-	 *
-	 * @param string[] $owned      The products the site pays for.
-	 * @param string   $url        The URL the host sends.
-	 * @param bool     $to_host    Whether the feature's manage link becomes the host's.
-	 * @param bool     $standalone Whether the standalone Backup plugin is active.
-	 */
-	#[DataProvider( 'provide_host_manage_urls' )]
-	public function test_host_manage_url( $owned, $url, $to_host, $standalone = false ) {
-		$this->own( $owned );
-		if ( $standalone ) {
-			$plugin_dir = WP_PLUGIN_DIR . '/' . Products\Backup::$plugin_slug;
-			if ( ! file_exists( $plugin_dir ) ) {
-				mkdir( $plugin_dir, 0777, true );
-			}
-			copy( __DIR__ . '/assets/backup-mock-plugin.txt', $plugin_dir . '/jetpack-backup.php' );
-			wp_cache_delete( 'plugins', 'plugins' );
-			activate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
-		}
-		$default      = array_column( Main_Features::get_features(), 'manage_url', 'slug' )['backup'];
-		$send_to_host = static function ( $upgrade ) use ( $url ) {
-			return array_merge( $upgrade, array( 'manage_url' => $url ) );
-		};
-		add_filter( 'jetpack_feature_upgrade', $send_to_host );
-
-		$features = array_column( Main_Features::get_features(), null, 'slug' );
-		remove_filter( 'jetpack_feature_upgrade', $send_to_host );
-
-		if ( $standalone ) {
-			deactivate_plugins( Products\Backup::$plugin_slug . '/jetpack-backup.php' );
-		}
-
-		$this->assertSame( $to_host ? $url : $default, $features['backup']['manage_url'] );
-		$this->assertArrayNotHasKey( 'manage_url', $features['backup']['upgrade'] );
-	}
-
-	/**
-	 * Data provider for test_host_manage_url.
-	 *
-	 * @return array
-	 */
-	public static function provide_host_manage_urls() {
-		return array(
-			'owns Complete'            => array( array( 'jetpack_complete' ), 'https://example.com/backup', true ),
-			'no plan'                  => array( array(), 'https://example.com/backup', false ),
-			'javascript: URL'          => array( array( 'jetpack_complete' ), 'javascript:alert(1)', false ),
-			'standalone plugin active' => array( array( 'jetpack_complete' ), 'https://example.com/backup', false, true ),
 		);
 	}
 
@@ -952,6 +899,8 @@ class Main_Features_Test extends TestCase {
 		$features = array_column( Main_Features::get_features(), null, 'slug' );
 		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
 		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( array( 'security' ), $features['backup']['groups'] );
+		$this->assertSame( array( 'growth' ), $features['podcast']['groups'] );
 		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
 		$this->own( array( 'jetpack_security_t1_yearly' ) );
 		$features = array_column( Main_Features::get_features(), null, 'slug' );

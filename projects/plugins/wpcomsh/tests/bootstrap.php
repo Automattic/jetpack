@@ -26,7 +26,9 @@ if ( ! $_core_dir ) {
 	}
 }
 
-define( 'IS_ATOMIC', true );
+if ( ! defined( 'IS_ATOMIC' ) ) {
+	define( 'IS_ATOMIC', true );
+}
 define( 'WPMU_PLUGIN_DIR', "{$_wp_content_dir}/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {

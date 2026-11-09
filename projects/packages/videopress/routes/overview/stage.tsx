@@ -49,7 +49,7 @@ const StageInner = () => {
 		compare,
 		setCompare,
 	} = useStats();
-	const { isFree, isAtomic, isUnlimited, videoCount } = useFreeTier();
+	const { isFree, isAtomic, isUnlimited, videoCount, videoCountKnown } = useFreeTier();
 	const dateRangePresets = useMemo( getDateRangePresets, [] );
 
 	const showStorageMeter = isFree === false && videoCount > 0 && ! isUnlimited && ! isAtomic;
@@ -72,7 +72,12 @@ const StageInner = () => {
 			}
 		>
 			<div className="vp-overview">
-				{ isFree && <FreeTierNotice location="overview" /> }
+				{ isFree && (
+					<FreeTierNotice
+						location="overview"
+						videoCount={ videoCountKnown ? videoCount : undefined }
+					/>
+				) }
 				{ statsUnavailable ? (
 					<FetchErrorNotice
 						className="vp-overview__error"

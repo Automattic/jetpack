@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { FixDeleteConfirmation, FixDeleteModal } from '../fix-delete-confirmation';
+import { ignoreThreat } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
@@ -42,6 +43,28 @@ describe( 'FixDeleteModal', () => {
 			)
 		);
 		expect( closeModal ).toHaveBeenCalled();
+	} );
+
+	it( 'ignores spaces around a pasted slug', async () => {
+		render( <FixDeleteConfirmation threat={ threat } onConfirm={ jest.fn() } /> );
+		await userEvent.type( screen.getByRole( 'textbox' ), ' akismet ' );
+		expect( screen.getByRole( 'button', { name: 'Confirm deletion' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		);
+	} );
+
+	it( 'disables Confirm deletion while another action runs on the threat', async () => {
+		( apiFetch as unknown as jest.Mock ).mockReturnValue( new Promise( () => {} ) );
+		const busyThreat = { ...threat, id: 8 };
+		render( <FixDeleteModal items={ [ busyThreat ] } closeModal={ jest.fn() } /> );
+		await userEvent.type( screen.getByRole( 'textbox' ), 'akismet' );
+		const confirm = screen.getByRole( 'button', { name: 'Confirm deletion' } );
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'false' );
+
+		act( () => void ignoreThreat( busyThreat ) );
+
+		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
 	it( 'advises a backup for software not on WordPress.org', () => {

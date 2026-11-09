@@ -9,9 +9,8 @@
  */
 return [
     // # Issue statistics:
-    // PhanUndeclaredClassMethod : 65+ occurrences
-    // PhanUndeclaredClassStaticProperty : 4 occurrences
-    // PhanUndeclaredClassConstant : 3 occurrences
+    // PhanUndeclaredClassMethod : 70+ occurrences
+    // PhanUndeclaredClassConstant : 7 occurrences
     // PhanUndeclaredConstantOfClass : 3 occurrences
     // PhanUndeclaredMethod : 3 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
@@ -34,7 +33,7 @@ return [
         'modules/class-idc-simulator.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-jetpack-sync-debug-helper.php' => ['PhanNonClassMethodCall'],
         'modules/class-modules-helper.php' => ['PhanUndeclaredClassMethod'],
-        'modules/class-protect-helper.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty'],
+        'modules/class-protect-helper.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'modules/class-scan-helper.php' => ['PhanSuspiciousValueComparison', 'PhanTypeConversionFromArray', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/class-social-helper.php' => ['PhanUndeclaredClassMethod'],
         'modules/class-sync-data-settings-tester.php' => ['PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredClass'],

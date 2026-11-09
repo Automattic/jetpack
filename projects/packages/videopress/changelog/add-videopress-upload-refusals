@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Measure client-side upload refusals by reason and handler.

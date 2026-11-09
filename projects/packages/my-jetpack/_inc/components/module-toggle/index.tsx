@@ -1,9 +1,11 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
-import { FormToggle } from '@wordpress/components';
+import { QueryClientContext, type QueryClient } from '@tanstack/react-query';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { Switch } from '@wordpress/ui';
+import { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
+import { QUERY_PRODUCT_BY_OWNERSHIP_KEY } from '../../data/constants';
 import {
 	asksBeforeSwitchingOff,
 	mayHaveRunningCampaigns,
@@ -23,7 +25,6 @@ import { setPendingSuccessNotice } from '../../utils/pending-notice';
 import { reloadPage } from '../../utils/reload-page';
 import SecondaryButton from '../action-button/secondary-button';
 import { BlazeCampaignsWarning } from './blaze-campaigns-warning';
-import type { ChangeEvent } from 'react';
 
 export type ModuleToggleProps = {
 	module: MyJetpackModule;
@@ -77,6 +78,8 @@ export function useModuleActivation(
 ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	// Read optionally: not every surface that renders a switch sits inside a QueryClientProvider.
+	const queryClient = useContext( QueryClientContext ) as QueryClient | undefined;
 
 	const storeIsUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -151,6 +154,11 @@ export function useModuleActivation(
 			onSwitch?.( active );
 			const success = await requestModuleSwitch( toggleModule, $module.module, active );
 
+			if ( success ) {
+				// A switch can move the product between the owned and unowned groups.
+				queryClient?.invalidateQueries( { queryKey: [ QUERY_PRODUCT_BY_OWNERSHIP_KEY ] } );
+			}
+
 			if ( success && reload && MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice(
 					active
@@ -170,7 +178,7 @@ export function useModuleActivation(
 				action: active ? 'activation' : 'deactivation',
 			} );
 		},
-		[ toggleModule, $module, showToggleNotice, reload, onSwitch ]
+		[ toggleModule, $module, showToggleNotice, reload, onSwitch, queryClient ]
 	);
 
 	const setModuleActive = useCallback(
@@ -268,10 +276,6 @@ export function ModuleToggle( {
 	} );
 	const blockThemeMigration = getBlockThemeMigration( $module );
 
-	const onChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
-		[ setModuleActive ]
-	);
 	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
 
 	if ( blockThemeMigration ) {
@@ -298,10 +302,10 @@ export function ModuleToggle( {
 
 	return (
 		<>
-			<FormToggle
+			<Switch
 				disabled={ disabled || isUpdating || !! $module.override }
 				checked={ isActive }
-				onChange={ onChange }
+				onCheckedChange={ setModuleActive }
 				aria-label={
 					labelledby
 						? undefined
