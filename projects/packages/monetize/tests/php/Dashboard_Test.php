@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
+use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Monetize\Dashboard
@@ -98,7 +99,13 @@ class Dashboard_Test extends BaseTestCase {
 
 		Dashboard::init( array( 'module' => 'monetize' ) );
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
-		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'rest_api_init', $wp_rest_server );
+		$registered     = $wp_rest_server->get_routes();
+		$wp_rest_server = null;
+		$this->assertSame( $routes, isset( $registered['/jetpack/v4/monetize/wpcom/v2/memberships/status'] ) );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );
@@ -233,6 +240,23 @@ class Dashboard_Test extends BaseTestCase {
 
 		$this->assertSame( array( 'payments' ), array_keys( Dashboard::get_initial_state() ) );
 		$this->assertCount( 0, $doing_it_wrong );
+	}
+
+	public function test_register_section_refuses_a_taken_key() {
+		$doing_it_wrong = new \ArrayObject();
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
+		add_action(
+			'doing_it_wrong_run',
+			function ( $function_name ) use ( $doing_it_wrong ) {
+				$doing_it_wrong[] = $function_name;
+			}
+		);
+
+		Dashboard::register_section( $this->section( 'example', array( 'first' => true ) ) );
+		Dashboard::register_section( $this->section( 'example', array( 'second' => true ) ) );
+
+		$this->assertEquals( array( 'example' => (object) array( 'first' => true ) ), Dashboard::get_initial_state() );
+		$this->assertSame( array( Dashboard::class . '::register_section' ), $doing_it_wrong->getArrayCopy() );
 	}
 
 	public function test_print_initial_state_prints_escaped_objects() {

@@ -17,8 +17,10 @@ use WP_REST_Server;
 
 /**
  * @covers \Automattic\Jetpack\Monetize\WPCOM_Proxy
+ * @covers \Automattic\Jetpack\Monetize\Dashboard
  */
 #[CoversClass( WPCOM_Proxy::class )]
+#[CoversClass( Dashboard::class )]
 class WPCOM_Proxy_Test extends BaseTestCase {
 
 	const BLOG_ID = 999;
