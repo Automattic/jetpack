@@ -455,7 +455,10 @@ class Wpcom_Feature_Flags {
 			<p>
 				Flags are resolved as: the default they were registered with, then this screen, then
 				any <code>jetpack_feature_flag_enabled_{flag}</code> filter. That per-flag filter runs
-				last, so a sandbox patch or mu-plugin using it beats whatever you set here.
+				last, so a sandbox patch or mu-plugin using it beats whatever you set here. Code can
+				also change a flag through the generic <code>jetpack_feature_flag_enabled</code>
+				filter, which is how a platform sets its own default. Either way, the Effective column
+				says so when the value is not the one this screen would give.
 			</p>
 
 			<form method="post" action="<?php echo esc_url( admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ); ?>">
@@ -519,6 +522,9 @@ class Wpcom_Feature_Flags {
 										echo $row['effective'] ? 'On' : 'Off';
 									}
 									?>
+									<?php if ( $row['changed_by_code'] ) : ?>
+										<p class="description">Changed by code on this site.</p>
+									<?php endif; ?>
 								</td>
 								<td>
 									<?php if ( ! $row['overridable'] ) : ?>
@@ -657,6 +663,7 @@ class Wpcom_Feature_Flags {
 	private static function get_rows() {
 		$has_registry = class_exists( Feature_Flags::class );
 		$registered   = $has_registry ? Feature_Flags::all() : array();
+		$overrides    = self::get_overrides();
 		$rows         = array();
 
 		foreach ( $registered as $name => $definition ) {
@@ -668,7 +675,7 @@ class Wpcom_Feature_Flags {
 			);
 		}
 
-		foreach ( array_keys( self::get_overrides() ) as $name ) {
+		foreach ( array_keys( $overrides ) as $name ) {
 			if ( isset( $rows[ $name ] ) ) {
 				continue;
 			}
@@ -700,6 +707,10 @@ class Wpcom_Feature_Flags {
 			 * something that answers "I forced it on, so why is it still off?".
 			 */
 			$rows[ $name ]['effective'] = $has_registry ? Feature_Flags::is_enabled( $name ) : null;
+
+			// Code on the generic or per-flag filter, which this screen cannot name.
+			$expected                         = array_key_exists( $name, $overrides ) ? $overrides[ $name ] : $rows[ $name ]['default'];
+			$rows[ $name ]['changed_by_code'] = null !== $rows[ $name ]['effective'] && $expected !== $rows[ $name ]['effective'];
 		}
 
 		ksort( $rows );

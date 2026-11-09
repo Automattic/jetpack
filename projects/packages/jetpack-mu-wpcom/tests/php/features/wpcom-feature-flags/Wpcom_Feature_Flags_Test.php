@@ -797,6 +797,32 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 
 		// Default, then Effective.
 		$this->assertStringContainsString( '<td>Off</td><td>On</td>', $this->compact( $output ) );
+		$this->assertStringNotContainsString( 'Changed by code on this site.', $output );
+	}
+
+	/**
+	 * A platform can set its own default on the generic filter, which leaves State
+	 * at Default and the registered Default Off while the flag is on.
+	 */
+	public function test_admin_page_marks_a_default_changed_by_code() {
+		$this->become_automattician_admin();
+		Feature_Flags::register( 'my-feature', array( 'default' => false ) );
+		Wpcom_Feature_Flags::init();
+		add_filter(
+			'jetpack_feature_flag_enabled',
+			function ( $enabled, $name ) {
+				return 'my-feature' === $name ? true : $enabled;
+			},
+			5,
+			2
+		);
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString(
+			'<td>Off</td><td>On<pclass="description">Changedbycodeonthissite.</p></td>',
+			$this->compact( $output )
+		);
 	}
 
 	/**
@@ -821,7 +847,10 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 			'The control still shows the override this screen set.'
 		);
 		// Default, then Effective — the override says on, the effective value does not.
-		$this->assertStringContainsString( '<td>Off</td><td>Off</td>', $this->compact( $output ) );
+		$this->assertStringContainsString(
+			'<td>Off</td><td>Off<pclass="description">Changedbycodeonthissite.</p></td>',
+			$this->compact( $output )
+		);
 	}
 
 	/**
