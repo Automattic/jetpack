@@ -61,21 +61,13 @@ export type BounceRetry = {
 };
 
 /**
- * Wire shape of the fields WP.com's formatter can hand back as numbers.
+ * Wire shape of a subscriber row.
  *
- * It casts every digit-only string in the response to an integer, so a name or id made only of
- * digits arrives numeric. Fetchers normalize these before the rest of the app sees a subscriber.
+ * WP.com's formatter casts every digit-only string in the response to an integer, so an all-digits
+ * display name arrives numeric. Fetchers normalize it before the rest of the app sees a subscriber.
  */
-export type RawSubscriptionPlan = Omit< SubscriptionPlan, 'paid_subscription_id' > & {
-	paid_subscription_id?: string | number | null;
-};
-
-export type RawSubscriber< T extends Subscriber = Subscriber > = Omit<
-	T,
-	'display_name' | 'plans'
-> & {
+export type RawSubscriber< T extends Subscriber = Subscriber > = Omit< T, 'display_name' > & {
 	display_name?: string | number | null;
-	plans?: RawSubscriptionPlan[];
 };
 
 export type RawSubscribersResponse = Omit< SubscribersResponse, 'subscribers' > & {

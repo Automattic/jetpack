@@ -14,42 +14,24 @@ import type {
 	SubscriberDetails,
 	SubscriberStats,
 	SubscribersQueryParams,
-	SubscriptionPlan,
 	SubscribersResponse,
 } from './types';
 
 /**
- * Coerce a value WP.com may have cast to an integer back to a string, keeping absence absent.
- *
- * @param value - Raw field value.
- * @return String, or undefined when the field was null / missing.
- */
-function toOptionalString( value: string | number | null | undefined ): string | undefined {
-	return value === null || value === undefined ? undefined : String( value );
-}
-
-/**
- * Restore the string fields WP.com's formatter turned into integers.
+ * Restore the display name WP.com's formatter turned into an integer.
  *
  * An all-digits display name arrives as a number, and DataViews calls string methods on whatever
  * the row title resolves to — one such subscriber replaces the entire list with an error boundary.
- * A digit-only `paid_subscription_id` is worse than cosmetic: `getRemovePayload()` keeps only
- * string ids, so removing the subscriber would drop the paid subscription from the request and
- * leave it active.
  *
  * @param subscriber - Raw subscriber row from WP.com.
- * @return Row whose string fields are strings.
+ * @return Row whose display name is a string.
  */
 function normalizeSubscriber< T extends Subscriber >( subscriber: RawSubscriber< T > ): T {
 	// Annotated rather than built inline: the `as T` below would otherwise swallow the type error
-	// that stops someone deleting these coercions as redundant against `Subscriber`'s own types.
+	// that stops someone deleting this coercion as redundant against `Subscriber`'s own types.
 	const display_name: string = String( subscriber.display_name ?? '' );
-	const plans: SubscriptionPlan[] | undefined = subscriber.plans?.map( plan => ( {
-		...plan,
-		paid_subscription_id: toOptionalString( plan.paid_subscription_id ),
-	} ) );
 
-	return { ...subscriber, display_name, ...( plans && { plans } ) } as T;
+	return { ...subscriber, display_name } as T;
 }
 
 /**

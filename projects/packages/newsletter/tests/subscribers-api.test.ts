@@ -7,7 +7,6 @@ import {
 	fetchSubscriberDetails,
 	fetchSubscribers,
 } from '../_inc/subscribers/data/api';
-import { getRemovePayload } from '../_inc/subscribers/lib/subscriber-helpers';
 import type { SubscribersQueryParams } from '../_inc/subscribers/data/types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -197,16 +196,6 @@ describe.each( [
 describe( 'fetchSubscribers', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-	} );
-
-	it( 'keeps a digit-only paid subscription id in the removal payload', async () => {
-		mockApiFetch.mockResolvedValue(
-			listResponse( { plans: [ { is_comp: false, paid_subscription_id: 998877 } ] } )
-		);
-
-		const { subscribers } = await fetchSubscribers( listQuery );
-
-		expect( getRemovePayload( subscribers[ 0 ] ).paid_subscription_ids ).toEqual( [ '998877' ] );
 	} );
 
 	it( 'tolerates a response with no subscribers array', async () => {

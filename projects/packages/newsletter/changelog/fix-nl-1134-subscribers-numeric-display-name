@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Subscribers: Keep the list working when the API returns a display name or paid subscription id as a number.
+Subscribers: Keep the list working when the API returns a display name as a number.
