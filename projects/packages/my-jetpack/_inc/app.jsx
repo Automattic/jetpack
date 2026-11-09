@@ -33,6 +33,7 @@ import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/p
 import ProtectProductPage from './components/product-interstitial/protect/product-page';
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
+import { useRefreshProductsOnSwitch } from './data/products/use-refresh-products-on-switch';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import { isOfflineFeatures } from './data/utils/offline-features';
 import { usePaidMenuSync } from './hooks/use-paid-menu-sync';
@@ -80,6 +81,16 @@ function PaidMenuSync() {
 }
 
 /**
+ * Keep product cards in step with features switched on any route.
+ *
+ * @return {null} Renders nothing.
+ */
+function ProductsSwitchSync() {
+	useRefreshProductsOnSwitch();
+	return null;
+}
+
+/**
  * The My Jetpack app tree, rendered by the wp-build stage.
  *
  * @return {import('react').ReactElement} The App component.
@@ -103,6 +114,7 @@ export default function App() {
 			<RouterBridge>
 				<ScrollToTop />
 				<PaidMenuSync />
+				<ProductsSwitchSync />
 				<PartnerCouponGate>
 					<Routes>
 						<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />

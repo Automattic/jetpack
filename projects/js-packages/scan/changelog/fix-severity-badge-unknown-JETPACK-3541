@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show no severity badge for a threat without a severity, instead of labeling it Low.
