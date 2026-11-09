@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/error-reporting.php';
@@ -95,9 +96,6 @@ class Error_Reporting_Test extends BaseTestCase {
 		$this->assertContains( 'https://example.com/x/', $config['script_origins'] );
 	}
 
-	/**
-	 * A bare slash matches every stack line, so every error would look like dashboard code.
-	 */
 	public function test_a_root_origin_is_dropped() {
 		$this->add_origin( '/' );
 
@@ -105,6 +103,32 @@ class Error_Reporting_Test extends BaseTestCase {
 
 		$this->assertNotContains( '/', $config['script_origins'] );
 		$this->assert_version_and_build_origin( $config );
+	}
+
+	/**
+	 * @dataProvider provide_hostless_origins
+	 *
+	 * @param string $origin An origin a filter must not be able to publish.
+	 */
+	#[DataProvider( 'provide_hostless_origins' )]
+	public function test_a_hostless_origin_is_dropped( string $origin ) {
+		$this->add_origin( $origin );
+
+		$config = $this->get_config();
+
+		$this->assertCount( 1, $config['script_origins'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	/**
+	 * @return array<string, string[]>
+	 */
+	public static function provide_hostless_origins(): array {
+		return array(
+			'scheme only'           => array( 'https://' ),
+			'scheme with one slash' => array( 'https:/' ),
+			'path only'             => array( '/build/' ),
+		);
 	}
 
 	public function test_origins_added_while_the_widget_registry_hydrates_are_published() {

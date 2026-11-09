@@ -408,22 +408,27 @@ describe( 'reportError', () => {
 		expect( console ).toHaveWarned();
 	} );
 
-	it( 'warns with the status of the first refusal and not again on the next', async () => {
+	it( 'warns once for each refusal status, so a 400 cannot hide the 403 that stops the hour', async () => {
 		fetchMock
 			.mockResolvedValueOnce( { ok: false, status: 400 } )
-			.mockResolvedValue( { ok: false, status: 500 } );
+			.mockResolvedValueOnce( { ok: false, status: 400 } )
+			.mockResolvedValue( { ok: false, status: 403 } );
 
 		reportError( dashboardError( 'first' ), 'error' );
 		await flush();
 		reportError( dashboardError( 'second' ), 'error' );
 		await flush();
+		reportError( dashboardError( 'third' ), 'error' );
+		await flush();
 
 		expect( console ).toHaveWarnedWith(
 			'Premium Analytics error reporting: the endpoint answered 400.'
 		);
-		expect( console ).not.toHaveWarnedWith(
-			'Premium Analytics error reporting: the endpoint answered 500.'
+		expect( console ).toHaveWarnedWith(
+			'Premium Analytics error reporting: the endpoint answered 403.'
 		);
+		// eslint-disable-next-line no-console -- No matcher counts warnings, and three refusals warning twice is the point.
+		expect( console.warn ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'resumes in the next hour after a 429 without a page reload', async () => {

@@ -49,16 +49,16 @@ interface ErrorPayload {
 const seen = new Set< string >();
 let pageCount = 0;
 let stoppedHour: number | null = null;
-let warnedOnce = false;
+const warnedStatuses = new Set< number >();
 
 /**
- * Clears the dedupe set, the page counter, the stop flag and the warning flag.
+ * Clears the dedupe set, the page counter, the stop flag and the warned statuses.
  */
 export function resetErrorReporterForTests(): void {
 	seen.clear();
 	pageCount = 0;
 	stoppedHour = null;
-	warnedOnce = false;
+	warnedStatuses.clear();
 }
 
 /**
@@ -196,16 +196,19 @@ function stopForHour( hour: number ): void {
 }
 
 /**
- * Names a refused report in the console, once per page load and never in a production build.
+ * Names a refused report in the console, once per status per page load and never in production.
+ *
+ * Once per status rather than once per page: a harmless 400 would otherwise hide the 403 or 429 that
+ * silences the browser for the hour.
  *
  * @param status - The HTTP status the endpoint answered.
  */
 function warnRefused( status: number ): void {
-	if ( warnedOnce || process.env.NODE_ENV === 'production' ) {
+	if ( warnedStatuses.has( status ) || process.env.NODE_ENV === 'production' ) {
 		return;
 	}
 
-	warnedOnce = true;
+	warnedStatuses.add( status );
 	// eslint-disable-next-line no-console -- Zero reports otherwise looks exactly like a healthy dashboard.
 	console.warn( `Premium Analytics error reporting: the endpoint answered ${ status }.` );
 }
