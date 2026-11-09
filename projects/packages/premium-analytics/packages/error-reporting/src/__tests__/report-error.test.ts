@@ -366,6 +366,23 @@ describe( 'reportError', () => {
 		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it.each( [
+		'Failed to fetch dynamically imported module: https://example.com/a.js',
+		'error loading dynamically imported module',
+		'Importing a module script failed.',
+		'ChunkLoadError: Loading chunk 7 failed.',
+	] )( 'tags a failed module load so a search can exclude it: %s', message => {
+		reportError( dashboardError( message ), 'boundary' );
+
+		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
+	} );
+
+	it( 'sends no tags for an ordinary error', () => {
+		reportError( dashboardError(), 'boundary' );
+
+		expect( sentPayload() ).not.toHaveProperty( 'tags' );
+	} );
+
 	it( 'posts no top-level key the endpoint would drop', () => {
 		reportError( dashboardError(), 'boundary', { componentStack: '\n    at Widget' } );
 
