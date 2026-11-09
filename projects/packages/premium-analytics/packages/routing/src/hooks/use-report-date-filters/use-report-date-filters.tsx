@@ -121,11 +121,8 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 }
 
 /**
- * The window and comparison a set of search params names, read as `normalizeReportParams` reads
- * them for the widgets, so a stale bookmark's controls match its numbers: a preset is the window it
- * names today, its comparison preset measured again from that window; a hand-picked range and its
- * comparison are the dates the URL carries. Gated on the window, so `compare_preset` alone compares
- * nothing.
+ * The window, bucket and comparison the picker shows, read through `normalizeReportParams` so they
+ * are the ones the widgets query by.
  *
  * @param params          - The search params, staged or committed.
  * @param timeZone        - The site's reporting zone.
