@@ -285,7 +285,8 @@ class Red_Bubble_Notifications {
 				continue;
 			}
 
-			if ( $product::has_paid_plan_for_product() ) {
+			// Protect counts active purchases only, so a lapsed one is found through its expiry instead.
+			if ( $product::has_paid_plan_for_product() || $product::is_paid_plan_expired() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
 				if ( $purchase ) {
 					// Check if this product is covered by an active bundle plan

@@ -295,4 +295,56 @@ class Red_Bubble_Notifications_Test extends TestCase {
 
 		$this->assertArrayNotHasKey( 'jetpack_complete--plugins_needing_installed_activated', $alerts );
 	}
+
+	/**
+	 * Data provider for test_a_lapsed_scan_purchase_raises_the_plan_expired_alert.
+	 *
+	 * @return array
+	 */
+	public static function provide_lapsed_scan_purchases() {
+		return array(
+			'lapsed Scan'     => array( 'jetpack_scan' ),
+			'lapsed Security' => array( 'jetpack_security_t1_yearly' ),
+		);
+	}
+
+	/**
+	 * A lapsed purchase that includes Scan raises the plan-expired alert, though Protect Status no longer counts it.
+	 *
+	 * @param string $plan_slug The lapsed plan.
+	 *
+	 * @dataProvider provide_lapsed_scan_purchases
+	 */
+	#[DataProvider( 'provide_lapsed_scan_purchases' )]
+	public function test_a_lapsed_scan_purchase_raises_the_plan_expired_alert( $plan_slug ) {
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'ID'             => 1,
+					'product_slug'   => $plan_slug,
+					'product_name'   => 'Lapsed plan',
+					'expiry_status'  => Products::STATUS_EXPIRED,
+					'expiry_date'    => gmdate( 'Y-m-d H:i:s', strtotime( '-1 week' ) ),
+					'expiry_message' => 'Expired',
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => array(),
+				'available' => (object) array( 'scan' => array( 'jetpack_security_t1_yearly' ) ),
+			),
+			HOUR_IN_SECONDS
+		);
+		// Keeps get_site_current_plan() from asking wpcom for a refresh.
+		set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, HOUR_IN_SECONDS );
+
+		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_expiring( array() );
+
+		$this->assertFalse( Products\Protect::has_paid_plan_for_product() );
+		$this->assertContains( Products\Protect::get_name(), $alerts[ "$plan_slug--plan_expired" ]['products_effected'] ?? array() );
+	}
 }
