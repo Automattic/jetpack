@@ -1,0 +1,98 @@
+<?php
+/**
+ * Tests for the error reporting script data.
+ *
+ * @package automattic/jetpack-premium-analytics
+ */
+
+namespace Automattic\Jetpack\PremiumAnalytics;
+
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/../../src/error-reporting.php';
+
+/**
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data
+ */
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_error_reporting_script_data' )]
+class Error_Reporting_Test extends BaseTestCase {
+
+	/**
+	 * Reset the host and filters.
+	 */
+	public function tear_down() {
+		Constants::clear_constants();
+		Cache::clear();
+		remove_all_filters( 'jetpack_premium_analytics_error_reporting_script_origins' );
+		parent::tear_down();
+	}
+
+	public function test_enabled_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$config = $this->get_config();
+
+		$this->assertTrue( $config['enabled'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_enabled_on_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+
+		$config = $this->get_config();
+
+		$this->assertTrue( $config['enabled'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_disabled_on_self_hosted() {
+		$config = $this->get_config();
+
+		$this->assertFalse( $config['enabled'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	public function test_script_origins_filterable() {
+		add_filter(
+			'jetpack_premium_analytics_error_reporting_script_origins',
+			static function ( $origins ) {
+				$origins[] = 'https://example.com/x/';
+				return $origins;
+			}
+		);
+
+		$config = $this->get_config();
+
+		$this->assertContains( 'https://example.com/x/', $config['script_origins'] );
+		$this->assert_version_and_build_origin( $config );
+	}
+
+	/**
+	 * Runs the filter callback and returns the error reporting config.
+	 *
+	 * @return array
+	 */
+	private function get_config(): array {
+		$data = add_error_reporting_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
+
+		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
+
+		return $data['premium_analytics']['error_reporting'];
+	}
+
+	/**
+	 * Asserts the version and that the first origin is the package build.
+	 *
+	 * @param array $config The error reporting config.
+	 * @return void
+	 */
+	private function assert_version_and_build_origin( array $config ) {
+		$this->assertSame( Analytics::PACKAGE_VERSION, $config['version'] );
+		$this->assertStringEndsWith( '/build/', $config['script_origins'][0] );
+	}
+}
