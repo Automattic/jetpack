@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Scan: Keep a threat you fixed hidden after a scan that failed, until a scan completes.

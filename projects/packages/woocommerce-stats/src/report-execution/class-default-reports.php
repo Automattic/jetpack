@@ -12,7 +12,7 @@ use Automattic\Jetpack\WooCommerceStats\Api_Proxy_Controller;
 /**
  * Registers the reports WordPress.com serves, on `Report_Registry::REGISTER_ACTION`.
  *
- * @since $$next-version$$
+ * @since 0.3.3
  */
 class Default_Reports {
 
