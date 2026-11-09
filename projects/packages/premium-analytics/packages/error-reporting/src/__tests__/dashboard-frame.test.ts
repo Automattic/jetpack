@@ -81,6 +81,21 @@ describe( 'findDashboardFrame', () => {
 		} );
 	} );
 
+	it( 'parses a Safari module code frame', () => {
+		const stack = [
+			'fn@https://example.com/wp-includes/js/other.min.js:1:2',
+			`module code@${ origins[ 0 ] }routes/dashboard/content.min.js:3:7`,
+		].join( '\n' );
+
+		expect( findDashboardFrame( stack, origins ) ).toEqual( {
+			url: `${ origins[ 0 ] }routes/dashboard/content.min.js:3:7`,
+			path: 'routes/dashboard/content.min.js',
+			widget: undefined,
+			line: 3,
+			column: 7,
+		} );
+	} );
+
 	it( 'strips a query string from the path', () => {
 		const stack = `Error: boom\n    at fn (${ base }widgets/x/render.min.js?ver=1:5:6)`;
 
