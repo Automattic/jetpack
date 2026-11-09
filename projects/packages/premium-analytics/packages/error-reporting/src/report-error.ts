@@ -65,7 +65,8 @@ export function resetErrorReporterForTests(): void {
  */
 function describeThrown( error: unknown ): ThrownDetails {
 	if ( ( typeof error !== 'object' && typeof error !== 'function' ) || error === null ) {
-		return { message: String( error ) };
+		const text = String( error );
+		return { message: text.trim() === '' ? 'Non-error thrown' : text };
 	}
 
 	const { message, name, stack } = error as Record< string, unknown >;
