@@ -339,7 +339,6 @@ class Red_Bubble_Notifications_Test extends TestCase {
 			),
 			HOUR_IN_SECONDS
 		);
-		// Keeps get_site_current_plan() from asking wpcom for a refresh.
 		set_transient( Wpcom_Products::MY_JETPACK_PLAN_REFRESHED_TRANSIENT_KEY, 1, HOUR_IN_SECONDS );
 
 		$alerts = Red_Bubble_Notifications::alert_if_paid_plan_expiring( array() );

@@ -285,7 +285,7 @@ class Red_Bubble_Notifications {
 				continue;
 			}
 
-			// Protect counts active purchases only, so a lapsed one is found through its expiry instead.
+			// See Protect::get_status() for why a lapsed plan needs the expiry check.
 			if ( $product::has_paid_plan_for_product() || $product::is_paid_plan_expired() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
 				if ( $purchase ) {
