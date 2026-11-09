@@ -314,6 +314,7 @@ class NavMenuPagesTest extends SeoTestCase {
 			'menu reference'             => array( '<!-- wp:navigation {"ref":{older}} /-->', 'older' ),
 			'no reference, newest'       => array( '<!-- wp:navigation /-->', 'newer' ),
 			'trashed reference, newest'  => array( '<!-- wp:navigation {"ref":{trashed}} /-->', 'newer' ),
+			'reference over own links'   => array( '<!-- wp:navigation {"ref":{trashed}} --><!-- wp:navigation-link {"id":{a},"kind":"post-type","type":"page"} /--><!-- /wp:navigation -->', 'newer' ),
 			'deleted reference, none'    => array( '<!-- wp:navigation {"ref":999999} /-->', 'none' ),
 			'own links, local URLs only' => array(
 				'<!-- wp:navigation --><!-- wp:navigation-submenu {"id":{a},"kind":"post-type","type":"page"} --><!-- wp:navigation-link {"url":"{b_url}","kind":"custom"} /--><!-- /wp:navigation-submenu --><!-- wp:navigation-link {"url":"https://example.com","kind":"custom"} /--><!-- /wp:navigation -->',

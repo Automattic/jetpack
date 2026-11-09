@@ -227,10 +227,11 @@ class Nav_Menu_Pages {
 			$inner    = $block['innerBlocks'] ?? array();
 			$followed = false;
 
-			if ( 'core/navigation' === $name && empty( $inner ) && $depth < self::MAX_DEPTH ) {
-				// Without its own links, the block shows the menu it references. Like core, fall back when
-				// there's no reference or that menu isn't published; a deleted menu shows nothing.
-				$menu = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+			if ( 'core/navigation' === $name && ( ! empty( $attrs['ref'] ) || empty( $inner ) ) && $depth < self::MAX_DEPTH ) {
+				// Like core, a menu reference replaces the block's own links, and the block falls back when it
+				// has neither or that menu isn't published; a deleted menu shows nothing.
+				$menu  = empty( $attrs['ref'] ) ? null : get_post( (int) $attrs['ref'] );
+				$inner = array();
 				if ( empty( $attrs['ref'] ) || ( $menu instanceof \WP_Post && 'publish' !== $menu->post_status ) ) {
 					$menu = self::fallback_navigation();
 				}
