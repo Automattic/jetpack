@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
@@ -19,6 +20,7 @@ require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-update-u
  *
  * @covers \WPCOM_JSON_API_Update_User_Endpoint
  */
+#[AllowMockObjectsWithoutExpectations /* Partial stubs require PHPUnit 12.5. */]
 #[CoversClass( WPCOM_JSON_API_Update_User_Endpoint::class )]
 class WPCOM_JSON_API_Update_User_Endpoint_Test extends WP_UnitTestCase {
 	use WP_UnitTestCase_Fix;
