@@ -1,5 +1,6 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { findDashboardFrame } from './dashboard-frame';
+import { detectDomInterference } from './dom-interference';
 import { redactQuery } from './redact-query';
 import type { DashboardFrame } from './dashboard-frame';
 
@@ -35,6 +36,7 @@ interface ErrorProperties {
 	module: string;
 	widget: string;
 	error_name: string;
+	dom_interference: string;
 	component_stack: string;
 	query: string;
 }
@@ -257,6 +259,13 @@ function buildPayload(
 	const { name, stack } = details;
 	const data = getScriptData();
 	const { search } = window.location;
+	const chunkLoad = CHUNK_LOAD.test( details.message ) || CHUNK_LOAD.test( name ?? '' );
+	const domInterference = detectDomInterference();
+	// Both mark an error that is not our bug, so a search on this feature can exclude them.
+	const tags = [
+		...( chunkLoad ? [ 'chunk-load' ] : [] ),
+		...( domInterference ? [ 'dom-interference' ] : [] ),
+	];
 
 	return {
 		feature: 'jetpack_stats',
@@ -265,11 +274,7 @@ function buildPayload(
 		trace: stack === undefined ? undefined : sanitizeText( stack, TRACE_LIMIT ),
 		url: window.location.origin + window.location.pathname,
 		blog_id: data?.site?.wpcom?.blog_id,
-		// A tab open across a deploy asks for a module that no longer exists, which is nobody's bug.
-		// webpack names the error rather than wording the message, so both are checked.
-		...( CHUNK_LOAD.test( details.message ) || CHUNK_LOAD.test( name ?? '' )
-			? { tags: [ 'chunk-load' ] }
-			: {} ),
+		...( tags.length > 0 ? { tags } : {} ),
 		properties: definedMembers( {
 			source,
 			// Not the top-level `jetpack_version`, which conventionally carries the plugin version.
@@ -278,6 +283,7 @@ function buildPayload(
 			module: frame?.path,
 			widget: frame?.widget,
 			error_name: name,
+			dom_interference: domInterference,
 			component_stack:
 				source === 'boundary' && typeof extra?.componentStack === 'string'
 					? sanitizeText( extra.componentStack, TRACE_LIMIT )

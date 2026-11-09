@@ -386,10 +386,22 @@ describe( 'reportError', () => {
 		expect( sentPayload().tags ).toEqual( [ 'chunk-load' ] );
 	} );
 
+	it( 'tags and names a page-mutating agent, whose React crash is not our bug', () => {
+		document.documentElement.classList.add( 'translated-ltr' );
+
+		reportError( dashboardError(), 'boundary' );
+
+		expect( sentPayload().tags ).toEqual( [ 'dom-interference' ] );
+		expect( sentPayload().properties?.dom_interference ).toBe( 'google-translate' );
+
+		document.documentElement.className = '';
+	} );
+
 	it( 'sends no tags for an ordinary error', () => {
 		reportError( dashboardError(), 'boundary' );
 
 		expect( sentPayload() ).not.toHaveProperty( 'tags' );
+		expect( sentPayload().properties ).not.toHaveProperty( 'dom_interference' );
 	} );
 
 	it( 'posts no top-level key the endpoint would drop', () => {
