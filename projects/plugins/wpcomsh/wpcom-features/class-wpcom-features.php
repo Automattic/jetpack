@@ -1606,6 +1606,13 @@ class WPCOM_Features {
 				self::WPCOM_BUSINESS_PLANS,
 				self::WPCOM_ECOMMERCE_PLANS,
 			),
+			self::EXCLUDE_PLANS => array(
+				self::BUSINESS_BUNDLE_MONTHLY,
+				self::ECOMMERCE_BUNDLE_MONTHLY,
+				self::A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY,
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
 		),
 		self::UPGRADED_UPLOAD_FILETYPES         => array(
 			self::SPACE_1GB,

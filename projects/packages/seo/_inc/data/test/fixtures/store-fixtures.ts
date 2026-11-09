@@ -29,7 +29,6 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	title_formats: {},
 	title_separator: '-',
 	title_formats_editable: true,
-	conflicting_seo_plugin: '',
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
@@ -47,25 +46,29 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 
 export const SEEDED_GEO: GeoState = {
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true, aiEnabled: true },
-	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
+	llmsTxt: {
+		enabled: false,
+		url: 'https://example.com/llms.txt',
+		canServe: true,
+	},
 	crawlers: {
 		catalog: [
 			{
 				slug: 'perplexitybot',
-				label: 'Perplexity (PerplexityBot)',
-				userAgent: 'PerplexityBot',
+				label: 'Perplexity',
+				userAgents: [ 'PerplexityBot' ],
 				type: 'answer',
 			},
 			{
 				slug: 'gptbot',
-				label: 'ChatGPT (GPTBot)',
-				userAgent: 'GPTBot',
+				label: 'ChatGPT',
+				userAgents: [ 'GPTBot' ],
 				type: 'training',
 			},
 			{
 				slug: 'google-extended',
-				label: 'Google Gemini (Google-Extended)',
-				userAgent: 'Google-Extended',
+				label: 'Google Gemini',
+				userAgents: [ 'Google-Extended' ],
 				type: 'training',
 			},
 		],

@@ -1,4 +1,4 @@
-import { getPaddedYAxis, getPinnedYTicks, getYTickFormat } from '../fixed-y-axis';
+import { getPaddedYAxis, getPinnedYTicks, getYTickDecimals, getYTickFormat } from '../fixed-y-axis';
 
 const series = ( ...values: Array< number | null > ) => [
 	{ data: values.map( ( value, index ) => ( { date: new Date( 2026, 8, 12 + index ), value } ) ) },
@@ -72,5 +72,23 @@ describe( 'getYTickFormat', () => {
 
 	test( 'labels in compact form when the chart picks its own ticks', () => {
 		expect( getYTickFormat( 'number' )( 4190 ) ).toBe( '4.2K' );
+	} );
+} );
+
+describe( 'getYTickDecimals', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it.each( [
+		[ 'store money', 'currency' as const, undefined, 2 ],
+		[ 'money in its own currency', 'currency' as const, 'USD', undefined ],
+		[ 'a count', 'number' as const, undefined, undefined ],
+	] )( 'holds %s to the right decimals', ( _, metricType, currencyCode, expected ) => {
+		window.JetpackScriptData = {
+			premium_analytics: { store_currency: { code: 'USD', symbol: '$', precision: 2 } },
+		} as unknown as typeof window.JetpackScriptData;
+
+		expect( getYTickDecimals( metricType, currencyCode ) ).toBe( expected );
 	} );
 } );

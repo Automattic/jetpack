@@ -4,6 +4,7 @@ import { Stack, SwitchControl, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
+import ModuleToggle from './module-toggle';
 import SsoToggle from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -70,10 +71,10 @@ export default function LoginProtectionSettingsCard( {
 		<ProtectCard icon={ key } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
-					<SettingToggle
+					<ModuleToggle
 						data={ data }
+						login={ login }
 						name="protect"
-						disabled={ ! login?.bruteForce.available }
 						label={ __( 'Block repeated failed login attempts', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Stops brute force attacks by blocking IP addresses that keep failing to log in.',
@@ -95,7 +96,7 @@ export default function LoginProtectionSettingsCard( {
 							data={ data }
 							name="jetpack_waf_ip_allow_list"
 							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
-							description={ __( 'One address or range per line.', 'jetpack-protect-pkg' ) }
+							showLabel
 							currentIp={ login?.currentIp }
 						/>
 					</div>
@@ -106,10 +107,10 @@ export default function LoginProtectionSettingsCard( {
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
 						{ __( 'Account protection', 'jetpack-protect-pkg' ) }
 					</Text>
-					<SettingToggle
+					<ModuleToggle
 						data={ data }
+						login={ login }
 						name="account-protection"
-						disabled={ ! login?.accountProtection.available }
 						label={ __( 'Protect accounts with weak or leaked passwords', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Asks users with a compromised password to verify their identity and choose a new one.',

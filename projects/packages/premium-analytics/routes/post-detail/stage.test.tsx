@@ -30,7 +30,10 @@ let mockDashboardProps: {
 	onEditChange?: ( next: boolean ) => void;
 	onLayoutChange?: ( next: unknown ) => void;
 	onLayoutReset?: () => void;
+	widgetTypes?: Array< { name: string; title: string } >;
 } = {};
+
+const mockResolvedWidgetTypes = [ { name: 'jpa/post-views', title: 'Post views' } ];
 
 // The policy the stage mounted above the (mocked) WidgetDashboard.
 let mockCanPerform: ( ( request: Record< string, unknown > ) => boolean ) | undefined;
@@ -81,7 +84,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
-	StatsPageIcon: () => null,
 	// The real guard is covered in the ui package; keep the scheme check here so
 	// the header still refuses a non-http URL.
 	safeHttpUrl: ( value?: string | null ) =>
@@ -160,14 +162,16 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		onEditChange,
 		onLayoutChange,
 		onLayoutReset,
+		widgetTypes,
 	}: {
 		children: ReactNode;
 		editMode?: boolean;
 		onEditChange?: ( next: boolean ) => void;
 		onLayoutChange?: ( next: unknown ) => void;
 		onLayoutReset?: () => void;
+		widgetTypes?: Array< { name: string; title: string } >;
 	} ) => {
-		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset };
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset, widgetTypes };
 		return <>{ children }</>;
 	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
@@ -191,7 +195,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 } );
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
-	useWidgetTypes: () => [ [], false ],
+	useWidgetTypes: () => [ mockResolvedWidgetTypes, false ],
 	WidgetHostProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
@@ -241,7 +245,6 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	getPostTypeCopy: jest.requireActual( './components' ).getPostTypeCopy,
 	postHeaderSlots: ( {
 		summary,
 		variant,
@@ -378,7 +381,8 @@ describe( 'post detail stage', () => {
 			41,
 			mockEmailScope.reportParams,
 			false,
-			'post'
+			'post',
+			false
 		);
 	} );
 
@@ -656,6 +660,16 @@ describe( 'post detail stage', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	it( 'titles the views card for the summary’s post type', () => {
+		mockSummary( { type: 'product' } );
+
+		render( stage() );
+
+		expect( mockDashboardProps.widgetTypes ).toContainEqual(
+			expect.objectContaining( { name: 'jpa/post-views', title: 'Product views' } )
+		);
+	} );
+
 	it( 'omits the action while the post URL is unresolved', () => {
 		mockSummary( { url: undefined } );
 
@@ -706,7 +720,9 @@ describe( 'post detail stage', () => {
 			render( stage() );
 
 			expect( screen.getByText( `locked: ${ isLimited ? 'week' : 'none' }` ) ).toBeInTheDocument();
-			expect( mockDateFilterOptions ).toEqual( { lockedIntervals } );
+			expect( mockDateFilterOptions ).toEqual( {
+				dateLimits: isLimited ? { lockedPresetIds: [], lockedIntervals } : undefined,
+			} );
 			expect( mockPeriodHostLockedIntervals ).toEqual( lockedIntervals );
 			expect( useDateWindowNotice ).toHaveBeenCalled();
 		}

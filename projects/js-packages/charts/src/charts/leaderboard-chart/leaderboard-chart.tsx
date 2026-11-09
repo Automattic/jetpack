@@ -1,8 +1,6 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
@@ -23,14 +21,12 @@ import { getAllHiddenMessage } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
+import {
+	resolveLeaderboardEntries,
+	type ResolvedLeaderboardEntry,
+} from './private/resolve-leaderboard-entries';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
-
-// Handed to `Grid` as a chain rather than set in this component's stylesheet: `Grid` writes
-// its own gaps through an Emotion class, which a module class of equal specificity would not
-// reliably outrank. The chain lands on the element and resolves there.
-const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
-const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
 
 /** Indexed by `Math.sign( delta ) + 1`, so [negative, neutral, positive]. */
 const DELTA_TREND_CLASS = [ 'deltaValue--down', 'deltaValue--neutral', 'deltaValue--up' ] as const;
@@ -75,15 +71,15 @@ const getBarWidth = ( share: number ): string =>
 	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
 const hasPreviousValue = (
-	entry: LeaderboardEntry
-): entry is LeaderboardEntry & {
+	entry: ResolvedLeaderboardEntry
+): entry is ResolvedLeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 } => entry.previousValue != null && entry.previousShare != null;
 
 const hasDeltaValue = (
-	entry: LeaderboardEntry
-): entry is LeaderboardEntry & {
+	entry: ResolvedLeaderboardEntry
+): entry is ResolvedLeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 	delta: number;
@@ -103,8 +99,22 @@ function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
 	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
 }
 
-const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
-	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
+const BarLabel = ( {
+	label,
+	isInteractiveRow,
+}: {
+	label: LeaderboardEntry[ 'label' ];
+	isInteractiveRow: boolean;
+} ) => (
+	<>
+		{ typeof label === 'string' ? (
+			<Text className={ styles.label } title={ isInteractiveRow ? label : undefined }>
+				{ label }
+			</Text>
+		) : (
+			label
+		) }
+	</>
 );
 
 /** The largest negative and positive share magnitudes, which size each side of zero. */
@@ -128,6 +138,7 @@ const Bar = ( {
 
 	const bar = (
 		<div
+			data-testid="leaderboard-chart-bar"
 			className={ clsx( styles.bar, {
 				[ styles[ 'bar--animated' ] ]: animation,
 				[ styles[ 'bar--negative' ] ]: divergingScale && isNegative,
@@ -167,7 +178,7 @@ const BarWithLabel = ( {
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
-	entry: LeaderboardEntry;
+	entry: ResolvedLeaderboardEntry;
 	withComparison?: boolean;
 	withOverlayLabel?: boolean;
 	primaryColor: string;
@@ -208,7 +219,7 @@ const BarWithLabel = ( {
 			} ) }
 			data-testid={ divergingScale ? 'leaderboard-chart-diverging-row' : undefined }
 		>
-			<BarLabel label={ entry.label } />
+			<BarLabel label={ entry.label } isInteractiveRow={ Boolean( entry.onClick ) } />
 			{ bars }
 		</div>
 	);
@@ -225,6 +236,7 @@ const BarWithLabel = ( {
  * @param props.height           - Optional height of the chart container in pixels
  * @param props.withComparison   - Whether to show comparison data
  * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.negativeBars     - How a negative value draws: from a shared zero point, or as an empty bar
  * @param props.primaryColor     - Primary color for current period bars
  * @param props.secondaryColor   - Secondary color for comparison period bars
  * @param props.valueFormatter   - Custom formatter for values
@@ -249,6 +261,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	height: propHeight,
 	withComparison = false,
 	withOverlayLabel = false,
+	negativeBars = 'diverge',
 	primaryColor,
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
@@ -318,11 +331,21 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
+	const withComparisonBars = withComparison && ! withOverlayLabel;
+
+	const resolvedData = useMemo(
+		() =>
+			resolveLeaderboardEntries( data ?? [], {
+				includePrevious: withComparisonBars,
+				clampNegative: negativeBars === 'clamp',
+			} ),
+		[ data, withComparisonBars, negativeBars ]
+	);
+
 	// One negative share puts every row on a shared zero point, so the bars stay comparable.
 	const divergingScale = useMemo( (): DivergingScale | undefined => {
-		const withComparisonBars = withComparison && ! withOverlayLabel;
 		const scale = { negative: 0, positive: 0 };
-		for ( const entry of data ?? [] ) {
+		for ( const entry of resolvedData ) {
 			const shares = [ entry.currentShare ];
 			if ( withComparisonBars && hasPreviousValue( entry ) ) {
 				shares.push( entry.previousShare );
@@ -333,7 +356,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			}
 		}
 		return scale.negative > 0 ? scale : undefined;
-	}, [ data, withComparison, withOverlayLabel ] );
+	}, [ resolvedData, withComparisonBars ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -371,8 +394,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Comparing adds a delta track so the values and the deltas each line up in a column
 	// of their own; with either series hidden the grid keeps its two tracks.
 	const showComparisonColumn = withComparison && isComparisonVisible;
-	const templateColumns =
-		showComparisonColumn && isPrimaryVisible ? 'minmax(0, 1fr) auto auto' : 'minmax(0, 1fr) auto';
+	const hasDeltaColumn = showComparisonColumn && isPrimaryVisible;
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -463,15 +485,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							{ getAllHiddenMessage( legendInteractive, 'series' ) }
 						</div>
 					) : (
-						<Grid
+						<div
 							role="list"
 							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
-							templateColumns={ templateColumns }
-							rowGap={ ROW_GAP }
-							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
+							className={ clsx( styles.grid, {
+								[ styles[ 'grid--comparison' ] ]: hasDeltaColumn,
+							} ) }
 						>
-							{ data.map( ( entry, rowIndex ) => {
+							{ resolvedData.map( ( entry, rowIndex ) => {
 								// visibility, not clipping: hidden rows keep their geometry (so a
 								// taller container can reveal them) but leave hit testing, focus,
 								// and the accessibility tree.
@@ -527,7 +549,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 													) }
 												>
 													<span aria-hidden="true">—</span>
-													<VisuallyHidden as="span">
+													<VisuallyHidden render={ <span /> }>
 														{ hasPreviousPeriodValue
 															? __( 'Percentage change unavailable', 'jetpack-charts' )
 															: __( 'No comparison data', 'jetpack-charts' ) }
@@ -599,7 +621,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									</div>
 								);
 							} ) }
-						</Grid>
+						</div>
 					) }
 				</div>
 			</ChartLayout>

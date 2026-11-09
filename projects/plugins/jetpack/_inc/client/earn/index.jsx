@@ -9,6 +9,7 @@ import SettingsGroup from 'components/settings-group';
 import { getSupportUrl, openWpcomSupportDoc } from 'components/support-link';
 import analytics from 'lib/analytics';
 import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
+import { isMovedOut } from 'lib/settings-consolidation';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -86,7 +87,7 @@ export function EarnFeatureButton( props ) {
  * @param {object} props - Component props.
  * @return {import('react').Component} Earn settings component.
  */
-function Earn( props ) {
+export function Earn( props ) {
 	const {
 		active,
 		hasConnectedOwner,
@@ -103,7 +104,7 @@ function Earn( props ) {
 	}
 
 	const foundAds = isModuleFound( 'wordads' ),
-		foundEarnBlocks = isModuleFound( 'earn' );
+		foundEarnBlocks = ! isMovedOut( 'earn' ) && isModuleFound( 'earn' );
 
 	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;

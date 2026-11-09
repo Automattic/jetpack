@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.15.1] - 2026-11-06
+### Removed
+- Leaderboard: Lay out rows with CSS grid, so the package no longer ships its own copy of the WordPress components Grid and the Emotion runtime.
+
+### Fixed
+- Leaderboard chart: Keep an interactive row's label clear of its value on hover and focus, without rewrapping it.
+
+## [4.15.0] - 2026-11-04
+### Added
+- Axis: Add a `tickDecimals` option that keeps value-axis ticks to a number of decimal places, so rounded labels never repeat. [#54399]
+- Bar chart: Add a stacked layout. [#54447]
+- Line, area and bar charts: Add `compactWhenShort`, which drops the axes, grid and legend while the chart is shorter than the new `theme.compactWhenShort.below` (140px by default). [#54338]
+
+### Changed
+- Update package dependencies. [#54391] [#54512]
+
+## [4.14.0] - 2026-11-02
+### Added
+- Leaderboard chart: Derive bar shares and percentage change from the values when an entry omits them, and add a `negativeBars` option to draw negative values as empty bars. [#54250]
+- Legend: Let an interactive legend item own its pressed state and toggle handler. [#54328]
+
+### Changed
+- Update package dependencies. [#53869]
+
+### Fixed
+- Leaderboard chart: Inset overlay labels from the inline start, so they keep their padding in right-to-left languages, and expose the label inset as a CSS custom property. [#54192]
+
 ## [4.13.0] - 2026-10-28
 ### Added
 - Conversion funnel chart: Add `getTooltipContent` to set what each step's tooltip shows, which screen readers also read, and show the default tooltip's count and conversion rate as labeled lines. [#53637]
@@ -37,9 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Heatmap chart: Lighten the color scale to 2.5:1 contrast at the lowest step and 6:1 at the highest, and keep the two ends apart when the empty-cell color sits far from the background. [#53450]
 - Heatmap chart: Offset the grid's focus ring by the design system focus width. [#53522]
 - Legend: Set wrapped rows of a horizontal legend closer together than items on one row, and expose both gaps as CSS variables. [#53704]
-- Update package dependencies. [#53004]
-- Update package dependencies. [#53678]
-- Update package dependencies. [#53806]
+- Update package dependencies. [#53004] [#53678] [#53806]
 
 ### Fixed
 - Conversion funnel chart: Show a focus ring on the focused step bar. [#53522]
@@ -151,8 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, `tooltipStyle` for inline box overrides, and a `variant="bar"` legend that joins the scale steps into one continuous band. [#52368]
 
 ### Changed
-- Update package dependencies. [#52187]
-- Update package dependencies. [#52401]
+- Update package dependencies. [#52187] [#52401]
 
 ### Fixed
 - Bar chart: Align grid lines with axis ticks (explicit or derived). [#52234]
@@ -391,12 +415,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.3] - 2026-05-25
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [1.4.2] - 2026-05-21
 ### Changed
-- Update package dependencies. [#48405]
-- Update package dependencies. [#49012]
+- Update package dependencies. [#48405] [#49012]
 
 ## [1.4.1] - 2026-05-19
 ### Changed
@@ -413,7 +436,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] - 2026-05-11
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [1.3.0] - 2026-05-04
 ### Added
@@ -593,7 +616,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.1] - 2026-01-26
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [0.54.0] - 2026-01-21
 ### Added
@@ -624,8 +647,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Change Geo Chart data format to handle all Google Charts data [#46330]
-- Update package dependencies. [#46362]
-- Update package dependencies. [#46363]
+- Update package dependencies. [#46362] [#46363]
 
 ### Fixed
 - Charts: Add documentation and API references of animation feature. [#46326]
@@ -758,7 +780,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.38.2] - 2025-09-22
 ### Changed
-- Update dependencies. [#43811]
+- Update dependencies.
 
 ## [0.38.1] - 2025-09-19
 ### Changed
@@ -1031,16 +1053,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add dynamic chart margin calculation and improve Y-axis tick formatting [#43679]
 - Refactor BarChart to use @visx/xychart [#43677]
 - Update dependencies. [#43068]
-- Update package dependencies. [#43326]
-- Update package dependencies. [#43354]
-- Update package dependencies. [#43398]
-- Update package dependencies. [#43399]
-- Update package dependencies. [#43400]
-- Update package dependencies. [#43516]
-- Update package dependencies. [#43578]
-- Update package dependencies. [#43718]
-- Update package dependencies. [#43734]
-- Update package dependencies. [#43766]
+- Update package dependencies. [#43326] [#43354] [#43398] [#43399] [#43400] [#43516] [#43578] [#43718] [#43734] [#43766]
 
 ### Removed
 - Removed animation for line and bar charts [#43809]
@@ -1070,8 +1083,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Code: First pass of style coding standards. [#42734]
-- Update package dependencies. [#42762]
-- Update package dependencies. [#42809]
+- Update package dependencies. [#42762] [#42809]
 
 ### Fixed
 - Code: Update stylesheets to use hex instead of named colors. [#42920]
@@ -1087,8 +1099,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduce Theme seriesLineStyles property [#42530]
 
 ### Changed
-- Update package dependencies. [#42509]
-- Update package dependencies. [#42511]
+- Update package dependencies. [#42509] [#42511]
 
 ### Fixed
 - Bar chart: fix tickFormat not working issue [#42524]
@@ -1096,8 +1107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.10.0] - 2025-03-17
 ### Changed
 - Bar chart: align options with line chart [#42448]
-- Update package dependencies. [#42163]
-- Update package dependencies. [#42384]
+- Update package dependencies. [#42163] [#42384]
 
 ## [0.9.0] - 2025-03-02
 ### Added
@@ -1226,6 +1236,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.15.1]: https://github.com/Automattic/charts/compare/v4.15.0...v4.15.1
+[4.15.0]: https://github.com/Automattic/charts/compare/v4.14.0...v4.15.0
+[4.14.0]: https://github.com/Automattic/charts/compare/v4.13.0...v4.14.0
 [4.13.0]: https://github.com/Automattic/charts/compare/v4.12.0...v4.13.0
 [4.12.0]: https://github.com/Automattic/charts/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/charts/compare/v4.11.0...v4.11.1

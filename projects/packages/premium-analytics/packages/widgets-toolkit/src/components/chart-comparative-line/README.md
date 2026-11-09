@@ -4,7 +4,7 @@ A line chart component for comparing time series data across different periods. 
 
 ## Series Styles from Props
 
-This component takes its series styles from props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides and, with `compactWhenShort`, the sparkline margin (`sparkline.margin`) a short chart takes.
+This component takes its series styles from props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides.
 
 ```tsx
 import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -131,7 +131,7 @@ function MyWidget( { series } ) {
 | `dataFormat`          | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)                                                                                             |
 | `tickFormat`          | `DateFormatName`               | No       | Named X-axis date format; uses the chart default when omitted                                                                             |
 | `className`           | `string`                       | No       | CSS class for the chart container                                                                                                         |
-| `chartTitle`          | `string`                       | No       | What the chart shows, such as the widget title; the chart is named "Chart: <title>"                                                       |
+| `chartTitle`          | `string`                       | No       | What the chart shows, when that is not the widget title; the chart is named "Chart: <title>"                                                       |
 | `chartId`             | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`            | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
 | `legendInteractive`   | `boolean`                      | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |

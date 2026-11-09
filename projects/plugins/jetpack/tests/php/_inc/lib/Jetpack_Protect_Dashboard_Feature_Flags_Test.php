@@ -19,7 +19,17 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Drop the flag filter and host constants. The flag itself is registered by the plugin bootstrap, so no reset.
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// The wpcomsh run loads jetpack-mu-wpcom, which drops the module because the test site's plan has no Scan.
+		remove_filter( 'jetpack_get_available_modules', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_available_modules' ) );
+	}
+
+	/**
+	 * Drop the flag filter and constants. The flag itself is registered by the plugin bootstrap, so no reset.
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD );
@@ -29,7 +39,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The flag filter's value (null to leave the default), the host constants to set, and whether the module should be available.
+	 * The flag filter's value (null to leave the default), the constants to set, and whether the module should be available.
 	 *
 	 * @return array[]
 	 */
@@ -37,16 +47,6 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 		return array(
 			'flag left at its default'        => array( null, array(), true ),
 			'flag turned off'                 => array( false, array(), false ),
-			'flag on, WordPress.com Atomic'   => array(
-				null,
-				array(
-					'ATOMIC_SITE_ID'       => 1,
-					'ATOMIC_CLIENT_ID'     => 1,
-					'WPCOMSH__PLUGIN_FILE' => true,
-				),
-				false,
-			),
-			'flag on, WordPress.com Simple'   => array( null, array( 'IS_WPCOM' => true ), false ),
 			'flag on, Jetpack Protect active' => array( null, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
 		);
 	}

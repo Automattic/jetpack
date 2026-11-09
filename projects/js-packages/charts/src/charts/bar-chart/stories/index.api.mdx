@@ -19,17 +19,18 @@ Main chart component with responsive behavior by default.
 | `height` | `number` | `400` | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
-| `layout` | `'grouped' \| 'overlap'` | `'grouped'` | How series share a category. `overlap` draws every primary series in one slot and every `type: 'comparison'` series in a second, with each `group` a narrower, opaque bar in front of the one before it. See [overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). |
+| `layout` | `'grouped' \| 'overlap' \| 'stacked'` | `'grouped'` | How series share a category. `overlap` draws every primary series in one slot and every `type: 'comparison'` series in a second, with each `group` a narrower, opaque bar in front of the one before it. `stacked` draws every primary series of a category as one bar, the first series at the bottom, and does not draw comparison series yet. See [overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout) and [stacked layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#stacked-layout). |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withBandHighlight` | `boolean` | `false` | Highlight the active band across the plot; requires tooltips. Uses the `--a8c-charts-color-surface-secondary` catalog role. |
 | `onBandHighlightChange` | `(selection: BandHighlightSelection \| null) => void` | - | Receive datum, series `key`, rendered point `index`, and `x`, `y`, `width`, `height` in SVG coordinates; requires tooltips, but not the built-in highlight. Emits initial selection on mount and null on dismissal or unmount. |
 | `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Vertical bars rise from the bottom; horizontal bars stretch from the left. Automatically respects user's `prefers-reduced-motion` system setting |
-| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
+| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height. Has no effect in the `stacked` layout. |
 | `showLegend` | `boolean` | `false` | Display chart legend |
 | `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
 | `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
 | `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
+| `compactWhenShort` | `boolean?` | `false` | Below `theme.compactWhenShort.below` (140px by default), drop the axes, grid and legend and default to `theme.compactWhenShort.margin`. Ignored by horizontal bars. See [Compact When Short](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#compact-when-short) |
 | `tooltipPlacement` | `'auto' \| 'beside'` | `'auto'` | Tooltip placement mode. See [beside tooltip positioning and clipping](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#beside-tooltips). |
 | `tooltipAnchorTop` | `number` | - | Override the top anchor for auto or beside placement in SVG coordinates; values less than `margin.top` are above the plot, and negative values are above the SVG. Clipping bounds can clamp the tooltip back into view. |
 | `barClassName` | `(datum: DataPointDate) => string \| undefined` | - | Additional CSS class for each primary bar; retains `visx-bar`. |
@@ -112,9 +113,9 @@ Comparison styling applies to the `grouped` layout only. An `overlap` layout dra
 
 ## Bar colors
 
-`useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's swatches.
+`useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's swatches. In `stacked`, comparison series are not drawn and take no palette slot, so they do not shift the colors of the series after them.
 
-`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. Without a layout, it returns `useChartLegendItems`' items unchanged.
+`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. In `stacked`, comparison series get no item. Without a layout, it returns `useChartLegendItems`' items unchanged.
 
 ## DataPointDate Type
 
@@ -159,6 +160,8 @@ type ChartOptions = {
 			numTicks?: number;
 			tickFormat?: (value: number) => string;
 			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
+			// Value axis only: most decimal places a tick may carry.
+			tickDecimals?: number;
 		};
 	};
 };
@@ -177,9 +180,10 @@ type SeriesChartLegendConfig = {
 	collapseGroups?: boolean;
 	// Append a static "Comparison period" item styled like the `type: 'comparison'` series
 	// (a string replaces the label). Only added when those series have no item of their own.
+	// A stacked bar chart draws no comparison series, so it adds no item.
 	comparisonItem?: boolean | string;
 	// Append one static item per comparison series instead, named from the label of the item it
-	// was folded into and left out while that series is hidden.
+	// was folded into and left out while that series is hidden. Not added by a stacked bar chart either.
 	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;

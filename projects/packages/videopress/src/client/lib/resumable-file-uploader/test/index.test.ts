@@ -1,9 +1,19 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { waitFor } from '@testing-library/react';
+import { Upload } from 'tus-js-client';
+import { createUploadAnalytics } from '../../upload-analytics';
 import resumableFileUploader from '../index';
 import type { HttpRequest, HttpResponse } from 'tus-js-client';
 
 // Jest otherwise resolves tus's Node entrypoint, which cannot read a browser File.
 jest.mock( 'tus-js-client', () => jest.requireActual( 'tus-js-client/dist/tus.js' ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
+
+beforeEach( () => jest.clearAllMocks() );
 
 jest.mock( '../../get-media-token', () => ( {
 	__esModule: true,
@@ -14,8 +24,12 @@ it( 'retries a locked HEAD on the same upload instead of creating another upload
 	const requests: string[] = [];
 	const onSuccess = jest.fn();
 	const onError = jest.fn();
+	const file = new File( [ 'abcdef' ], 'video.mp4', { type: 'video/mp4' } );
+	const analytics = createUploadAnalytics( file, 'block_editor' );
+	analytics.start();
 	const upload = resumableFileUploader( {
-		file: new File( [ 'abcdef' ], 'video.mp4', { type: 'video/mp4' } ),
+		file,
+		analytics,
 		tokenData: { token: 'token', url: 'https://example.com/uploads/', blogId: '1' },
 		onProgress: jest.fn(),
 		onSuccess,
@@ -70,12 +84,31 @@ it( 'retries a locked HEAD on the same upload instead of creating another upload
 			return request;
 		},
 	};
-	await waitFor( () => {
-		expect( onError.mock.calls ).toEqual( [] );
-		expect( onSuccess ).toHaveBeenCalledTimes( 1 );
-	} );
+	await waitFor(
+		() => {
+			expect( onError.mock.calls ).toEqual( [] );
+			expect( onSuccess ).toHaveBeenCalledTimes( 1 );
+		},
+		{ timeout: 10000 }
+	);
 	expect( requests ).toEqual( [ 'HEAD', 'HEAD', 'PATCH' ] );
 	expect( onError ).not.toHaveBeenCalled();
+	expect( upload.options.metadata ).toMatchObject( {
+		source: 'block_editor',
+		upload_id: expect.any( String ),
+	} );
+	expect(
+		jest.mocked( jetpackAnalytics.tracks.recordEvent ).mock.calls.map( ( [ name ] ) => name )
+	).toEqual( [
+		'jetpack_videopress_upload_started',
+		'jetpack_videopress_upload_retried',
+		'jetpack_videopress_upload_succeeded',
+	] );
+	expect( jetpackAnalytics.tracks.recordEvent ).toHaveBeenNthCalledWith(
+		2,
+		'jetpack_videopress_upload_retried',
+		expect.objectContaining( { retry_type: 'network' } )
+	);
 	await upload.abort();
 } );
 
@@ -149,4 +182,29 @@ it( 'aborts the request in flight when the signal aborts', async () => {
 	controller.abort();
 
 	expect( abort ).toHaveBeenCalled();
+} );
+
+it( 'reports saved-upload lookup failure before any request can start', async () => {
+	const error = new Error( 'storage unavailable' );
+	const lookup = jest
+		.spyOn( Upload.prototype, 'findPreviousUploads' )
+		.mockRejectedValueOnce( error );
+	const selected = new File( [ 'x' ], 'video.mp4', { type: 'video/mp4' } );
+	const analytics = createUploadAnalytics( selected, 'dashboard' );
+	const onError = jest.fn();
+	analytics.start();
+	resumableFileUploader( {
+		file: selected,
+		tokenData: { token: 'token', url: 'https://example.com/uploads/', blogId: '1' },
+		onProgress: jest.fn(),
+		onSuccess: jest.fn(),
+		onError,
+		analytics,
+	} );
+	await waitFor( () => expect( onError ).toHaveBeenCalledWith( error ) );
+	expect( jetpackAnalytics.tracks.recordEvent ).toHaveBeenLastCalledWith(
+		'jetpack_videopress_upload_failed',
+		expect.objectContaining( { error_code: 'resume_lookup_failed' } )
+	);
+	lookup.mockRestore();
 } );

@@ -899,7 +899,7 @@ class The_Neverending_Home_Page {
 			// Check if the taxonomy is attached to one post type only and use its plural name.
 			// If not, use "Posts" without confusing the users.
 			if (
-				is_a( $taxonomy, 'WP_Taxonomy' )
+				$taxonomy instanceof \WP_Taxonomy
 				&& is_countable( $taxonomy->object_type )
 				&& ! empty( $taxonomy->object_type )
 				&& count( $taxonomy->object_type ) < 2
@@ -1067,7 +1067,7 @@ class The_Neverending_Home_Page {
 	public function action_wp_footer() {
 		global $wp_scripts, $wp_styles;
 
-		$scripts = is_a( $wp_scripts, 'WP_Scripts' ) ? $wp_scripts->done : array();
+		$scripts = $wp_scripts instanceof \WP_Scripts ? $wp_scripts->done : array();
 		/**
 		 * Filter the list of scripts already present on the page.
 		 *
@@ -1079,7 +1079,7 @@ class The_Neverending_Home_Page {
 		 */
 		$scripts = apply_filters( 'infinite_scroll_existing_scripts', $scripts );
 
-		$styles = is_a( $wp_styles, 'WP_Styles' ) ? $wp_styles->done : array();
+		$styles = $wp_styles instanceof \WP_Styles ? $wp_styles->done : array();
 		/**
 		 * Filter the list of styles already present on the page.
 		 *

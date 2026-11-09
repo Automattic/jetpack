@@ -16,9 +16,14 @@ type LlmsTxt = GeoState[ 'llmsTxt' ];
  */
 const buildCrawlers = ( overrides: Partial< Crawlers > = {} ): Crawlers => ( {
 	catalog: [
-		{ slug: 'oai-searchbot', label: 'OAI-SearchBot', userAgent: 'OAI-SearchBot', type: 'answer' },
-		{ slug: 'perplexity', label: 'PerplexityBot', userAgent: 'PerplexityBot', type: 'answer' },
-		{ slug: 'gptbot', label: 'GPTBot', userAgent: 'GPTBot', type: 'training' },
+		{
+			slug: 'oai-searchbot',
+			label: 'OAI-SearchBot',
+			userAgents: [ 'OAI-SearchBot' ],
+			type: 'answer',
+		},
+		{ slug: 'perplexity', label: 'PerplexityBot', userAgents: [ 'PerplexityBot' ], type: 'answer' },
+		{ slug: 'gptbot', label: 'GPTBot', userAgents: [ 'GPTBot' ], type: 'training' },
 	],
 	blocked: { answer: [], training: [] },
 	searchEnginesVisible: true,
@@ -106,10 +111,35 @@ describe( 'AiCrawlerCard', () => {
 		}
 	);
 
+	describe( 'while Jetpack SEO output is paused', () => {
+		beforeEach( () => {
+			( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+				seo: { output: { paused: true, conflicting_plugin: 'Yoast SEO' } },
+			};
+		} );
+
+		afterEach( () => {
+			delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		} );
+
+		// The Overview banner names the cause; the row only says what happened to llms.txt.
+		it( 'says paused when llms.txt is switched on', () => {
+			renderCard( { llmsTxt: buildLlms( { canServe: false, enabled: true } ) } );
+
+			expect( screen.getByText( 'llms.txt paused' ) ).toHaveAttribute( 'data-status', 'warn' );
+			expect( screen.queryByText( 'llms.txt published' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'says not published, not paused, when llms.txt was never switched on', () => {
+			renderCard( { llmsTxt: buildLlms( { canServe: false, enabled: false } ) } );
+
+			expect( screen.getByText( 'llms.txt not published' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /paused/ ) ).not.toBeInTheDocument();
+		} );
+	} );
+
 	it( 'still reports llms.txt when the crawler settings are the thing that cannot apply', () => {
-		// `Llms_Txt::maybe_serve()` gates only on the setting and `blog_public`. A static
-		// robots.txt stops the *crawler* settings applying but leaves llms.txt working,
-		// so reporting llms.txt inside the crawler branch hid it on those sites.
+		// Static robots.txt only affects crawler controls, independently of llms.txt availability.
 		renderCard( { crawlers: buildCrawlers( { staticRobotsTxt: true } ) } );
 
 		expect( screen.getByText( /static robots.txt file exists/ ) ).toBeInTheDocument();

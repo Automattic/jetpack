@@ -1,7 +1,7 @@
 import { setScan } from '../../sections/scan/store';
 import { recordPageView } from '../page-views';
 import { recordEvent } from '../tracks';
-import type { ScanState } from '../../sections/scan/types';
+import type { ScanState, ScanThreat } from '../../sections/scan/types';
 
 jest.mock( '../tracks', () => ( { recordEvent: jest.fn() } ) );
 
@@ -22,14 +22,36 @@ describe( 'recordPageView', () => {
 		[
 			'overview',
 			undefined,
-			{},
+			{ scanning: true },
 			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'in_progress' } ],
+		],
+		[
+			'overview',
+			undefined,
+			{},
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'not_scanned' } ],
 		],
 		[
 			'overview',
 			undefined,
 			{ error: true },
 			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'error' } ],
+		],
+		[
+			'overview',
+			undefined,
+			{ lastScanFailed: true, lastChecked: '2026-10-01 10:00:00' },
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'scan_failed' } ],
+		],
+		[
+			'overview',
+			undefined,
+			{
+				lastScanFailed: true,
+				lastChecked: '2026-10-01 10:00:00',
+				threats: [ { id: 1, title: 'Threat 1' } as ScanThreat ],
+			},
+			[ 'jetpack_protect_admin_page_view', { has_plan: false, check_status: 'active' } ],
 		],
 		[ 'history', undefined, {}, [ 'jetpack_protect_scan_history_page_view' ] ],
 		[

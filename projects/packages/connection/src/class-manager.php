@@ -430,7 +430,7 @@ class Manager {
 	 * @return WP_User|mixed authenticated user or error.
 	 */
 	public function authenticate_jetpack( $user, $username, $password ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( is_a( $user, '\\WP_User' ) ) {
+		if ( $user instanceof \WP_User ) {
 			return $user;
 		}
 
@@ -3428,6 +3428,11 @@ class Manager {
 		$cap = $roles->translate_role_to_cap( $role );
 		if ( ! $cap ) {
 			return new \WP_Error( 'no_cap', 'Invalid request.', 400 );
+		}
+
+		// The role passes on its name alone; check the capability `Tokens::get()` will require before WordPress.com issues a token.
+		if ( ! current_user_can( $cap ) ) {
+			return new \WP_Error( 'current_user_cannot', 'The current user lacks the capability required for their role.', 400 );
 		}
 
 		if ( ! empty( $data['error'] ) ) {

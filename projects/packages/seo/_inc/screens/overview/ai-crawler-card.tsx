@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
 import { isCrawlerBlocked } from '../../data/blocked-crawlers';
+import getOutput from '../../data/get-output';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
@@ -46,6 +47,7 @@ const pathBasedMultisiteLabel = __(
 );
 const llmsPublishedLabel = __( 'llms.txt published', 'jetpack-seo' );
 const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
+const llmsPausedLabel = __( 'llms.txt paused', 'jetpack-seo' );
 
 /**
  * Overview card summarizing AI access. When the per-crawler settings
@@ -76,13 +78,17 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 	const answerBlocked = answerBots.filter( isBotBlocked ).length;
 	const trainingBlocked = trainingBots.filter( isBotBlocked ).length;
 
-	// The card reports the state of optimization, not who owns it. An llms.txt that
-	// exists reads as published whoever wrote it — `canServe` is false precisely
-	// because something else is already answering that path (a static file, or a
-	// host that fronts it), so calling that "not published" would be wrong. The one
-	// state we can call unpublished is the one Jetpack could fix: it can serve the
-	// file and the setting is off. The GEO tab explains who owns it.
-	const llmsPublished = ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled );
+	// The card reports the state of optimization, not who owns it: `canServe` is false
+	// when a static file or the host already answers /llms.txt, which reads as
+	// published. While Jetpack's SEO output is paused `canServe` is false too, but
+	// nothing is served, so the row says "paused" when llms.txt is switched on and
+	// "not published" when it isn't.
+	const { paused } = getOutput();
+	const llmsPublished = ! paused && ( ! llmsTxt?.canServe || Boolean( llmsTxt?.enabled ) );
+	let llmsLabel: string = llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel;
+	if ( paused && llmsTxt?.enabled ) {
+		llmsLabel = llmsPausedLabel;
+	}
 
 	// When the settings can't apply, choose the highest-precedence reason.
 	// Module-scope labels keep
@@ -131,16 +137,9 @@ const AiCrawlerCard: FC< Props > = ( { data, searchEnginesVisible, llmsTxt, onMa
 					// (the vertically-centred dot next to wrapping text reads oddly).
 					<Text>{ blockedLabel }</Text>
 				) }
-				{ /* Outside the crawler branch on purpose. `Llms_Txt::maybe_serve()` gates
-				     only on the setting and `blog_public`, so a static robots.txt, the
-				     data-sharing opt-out and path-based multisite stop the *crawler*
-				     settings applying without touching llms.txt — reporting it inside that
-				     branch hid a working llms.txt on every one of those sites. */ }
+				{ /* llms.txt has its own availability rules, independent of crawler controls. */ }
 				{ llmsTxt && searchEnginesVisible && (
-					<StatusDot
-						status={ llmsPublished ? 'ok' : 'warn' }
-						label={ llmsPublished ? llmsPublishedLabel : llmsNotPublishedLabel }
-					/>
+					<StatusDot status={ llmsPublished ? 'ok' : 'warn' } label={ llmsLabel } />
 				) }
 				<Stack direction="row" justify="flex-end" className={ styles.footer }>
 					<Button variant="solid" size="compact" onClick={ onManage }>
