@@ -508,6 +508,7 @@ type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJ
 
 type MainFeatureModuleGroup = {
 	label: string;
+	groups?: string[];
 	modules: string[];
 };
 
