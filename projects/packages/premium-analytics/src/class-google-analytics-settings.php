@@ -52,6 +52,7 @@ final class Google_Analytics_Settings {
 	public static function is_available() {
 		return Feature_Flags::is_enabled( self::FLAG )
 			// Only jetpack-mu-wpcom loads it, so self-hosted sites never get the setting.
+			// @phan-suppress-next-line PhanUndeclaredClassReference -- Optional: only jetpack-mu-wpcom requires the google-analytics package.
 			&& class_exists( GA_Manager::class )
 			&& function_exists( 'wpcom_site_has_feature' )
 			&& \wpcom_site_has_feature( self::FEATURE );
@@ -142,6 +143,7 @@ final class Google_Analytics_Settings {
 	 * @return string
 	 */
 	private static function get_option_name() {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Optional: only jetpack-mu-wpcom requires the google-analytics package; is_available() checks it first.
 		return GA_Manager::get_instance()->get_google_analytics_option_name();
 	}
 }
