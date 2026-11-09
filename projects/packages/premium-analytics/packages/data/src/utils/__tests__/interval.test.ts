@@ -142,11 +142,8 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'month', 'quarter', 'year' ] );
 	} );
 
-	/*
-	 * Early January the window is 735 days, well under the 1095 the range-based
-	 * branch wants before it offers years, so the preset's own case is the only
-	 * thing keeping yearly buckets on the menu.
-	 */
+	// Early January the window falls well under the 1095 days the range-based branch
+	// wants before it offers years, so the preset's own case is what keeps them.
 	it( 'opens last 3 years in years, even early in January', () => {
 		expect(
 			getAllowedIntervalsForPreset(

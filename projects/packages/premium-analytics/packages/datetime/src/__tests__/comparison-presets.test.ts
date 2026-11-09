@@ -287,12 +287,7 @@ describe( 'comparison options', () => {
 		expect( options[ 2 ].range ).toEqual( daysRange( [ 2027, 0, 2 ], [ 2027, 2, 3 ] ) );
 	} );
 
-	/*
-	 * Three calendar years back, not 963 days back: the comparison has to start
-	 * on a 1 January for the years it covers to line up with the ones on screen.
-	 * Its end is still cut to the primary's length, so the two run like with
-	 * like. The label counts days, as Last 12 months' does.
-	 */
+	// The range steps calendar years while the label counts days, as Last 12 months' does.
 	it( 'starts the previous period of Last 3 years three calendar years back', () => {
 		const lastThreeYears = daysRange( [ 2024, 0, 1 ], [ 2026, 7, 20 ] );
 		const options = getComparisonOptions( lastThreeYears, { primaryPresetId: 'last-3-years' } );
