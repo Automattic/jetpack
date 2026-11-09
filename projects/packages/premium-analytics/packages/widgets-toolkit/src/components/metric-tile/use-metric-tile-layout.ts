@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { flushSync } from '@wordpress/element';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -112,11 +113,12 @@ export function useMetricTileLayout< T extends HTMLElement >( tileCount: number 
 
 		// The dashboard grid can commit the real span after this effect without
 		// changing the item's width (one full-width column becoming a full-width span).
+		// Flush before the next paint, or the stale layout shows for a frame.
 		const item = element ? findSpanItem( element )?.item : null;
 		if ( ! item || typeof MutationObserver === 'undefined' ) {
 			return;
 		}
-		const observer = new MutationObserver( update );
+		const observer = new MutationObserver( () => flushSync( update ) );
 		observer.observe( item, { attributes: true, attributeFilter: [ 'style', 'class' ] } );
 		return () => observer.disconnect();
 	}, [ size, tileCount ] );
