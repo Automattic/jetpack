@@ -7,7 +7,11 @@ import { getAdsSettingsData } from '../../data/ads-settings-data';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
 import { useHasWordAds } from '../../data/use-has-wordads';
+import { useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
+import useWpcomConnection from '../../data/use-wpcom-connection';
+import ConnectionGate from '../connection-gate';
 import { LearnMore, OptionSwitch } from './option-switch';
+import { PayoutCard } from './payout-card';
 import { AdsPrompt } from './prompt';
 import { TextOption } from './text-option';
 import type { Help } from './option-switch';
@@ -25,7 +29,9 @@ const trackEarningsClick = () => trackClick( 'view-earnings' );
  * @return The options.
  */
 function AdsOptions( { data }: { data: AdsSettingsData } ) {
-	const { values, loadError, saveError, saving, setOption, setModuleActive } = useAdsSettings();
+	const requestSync = useWpcomAdsSync( useWpcomConnection().canUseWpcom );
+	const { values, loadError, saveError, saving, setOption, setModuleActive } =
+		useAdsSettings( requestSync );
 
 	if ( loadError ) {
 		return (
@@ -154,6 +160,10 @@ function AdsOptions( { data }: { data: AdsSettingsData } ) {
 					</Stack>
 				</Card.Content>
 			</Card.Root>
+
+			<ConnectionGate>
+				<PayoutCard adsActive={ isActive } />
+			</ConnectionGate>
 
 			<Card.Root>
 				<Card.Content>

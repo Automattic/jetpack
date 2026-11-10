@@ -14,6 +14,12 @@ jest.mock( '../../../data/use-ads-settings', () => ( {
 	...jest.requireActual( '../../../data/use-ads-settings' ),
 	useAdsSettings: jest.fn(),
 } ) );
+jest.mock( '../../../data/use-wpcom-connection', () => ( {
+	__esModule: true,
+	default: () => ( { canUseWpcom: true } ),
+} ) );
+jest.mock( '../../../data/use-wpcom-ads-settings', () => ( { useWpcomAdsSync: () => jest.fn() } ) );
+jest.mock( '../payout-card', () => ( { PayoutCard: () => null } ) );
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
 } ) );

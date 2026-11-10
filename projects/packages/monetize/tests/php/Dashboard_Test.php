@@ -252,7 +252,7 @@ class Dashboard_Test extends BaseTestCase {
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Running twice is the behavior under test.
 		Dashboard::init();
 
-		$this->assertSame( array( 'payments' ), array_keys( Dashboard::get_initial_state() ) );
+		$this->assertSame( array( 'payments', 'ads' ), array_keys( Dashboard::get_initial_state() ) );
 		$this->assertCount( 0, $doing_it_wrong );
 	}
 
