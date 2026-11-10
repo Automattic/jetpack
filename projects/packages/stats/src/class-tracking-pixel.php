@@ -26,6 +26,13 @@ class Tracking_Pixel {
 	 */
 	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
 
+	/**
+	 * Where the AMP pixel sends views, which AMP_Consent_Sanitizer matches on.
+	 *
+	 * @var string
+	 */
+	const AMP_PIXEL_URL = 'https://pixel.wp.com/g.gif';
+
 	const TRACKED_UTM_PARAMETERS = array(
 		'utm_id',
 		'utm_source',
@@ -396,7 +403,7 @@ if ( document.readyState === "loading" ) {
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
-		return add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
+		return add_query_arg( $data, self::AMP_PIXEL_URL );
 	}
 
 	/**
@@ -412,7 +419,43 @@ if ( document.readyState === "loading" ) {
 			return;
 		}
 
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
+	}
+
+	/**
+	 * Print the AMP pixel, held for the page's `amp-consent` when the WP Consent API is active.
+	 *
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return void
+	 */
+	private static function print_amp_pixel( $data ) {
+		if ( ! function_exists( 'wp_has_consent' ) ) {
+			printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+			return;
+		}
+
+		// Only the AMP plugin runs AMP_Consent_Sanitizer.
+		if ( ! function_exists( 'amp_is_request' ) || ! amp_is_request() ) {
+			return;
+		}
+
+		printf( '<amp-pixel data-block-on-consent src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+	}
+
+	/**
+	 * Register AMP_Consent_Sanitizer when the WP Consent API is active.
+	 * Do not use this function directly, it is hooked into `amp_content_sanitizers`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $sanitizers Sanitizer classes and their args.
+	 * @return array
+	 */
+	public static function add_amp_consent_sanitizer( $sanitizers ) {
+		if ( function_exists( 'wp_has_consent' ) ) {
+			$sanitizers[ AMP_Consent_Sanitizer::class ] = array();
+		}
+		return $sanitizers;
 	}
 
 	/**
@@ -459,7 +502,7 @@ if ( document.readyState === "loading" ) {
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
+		self::print_amp_pixel( $data );
 	}
 
 	/**
