@@ -13,8 +13,31 @@ if [[ "$WITH_WPCOMSH" == true ]]; then
 	export JETPACK_TEST_WPCOMSH=1
 fi
 
+# Testsuites from phpunit.*.xml.dist, split into concurrent shards of roughly equal runtime.
+# Loading json-api's files fires rest_api_init, which some general, sync, and seo-discoverability tests rely on.
+declare -A SHARDS
+SHARDS[shard1]='sitemaps extensions autoloaded'
+SHARDS[shard2]='general json-api sync legacy-full-sync uninstall seo-discoverability'
+SHARDS[shard3]='
+	core-api media photon google-font-face infinite-scroll theme-tools comment-likes likes
+	scan markdown publicize post-by-email related-posts sharedaddy shortcodes widgets widget-visibility
+	wordads subscriptions memberships verification-tools videopress lib restapi get_modules 3rd-party
+	carousel copy-post deprecation seo-tools canonical-urls compatfunctions opengraph block-manifest
+	jetpack-admin unauth-file-upload import seo-module-state
+'
+
+ASSIGNED="$( xargs -n1 <<<"${SHARDS[*]}" | sort )"
+for CONFIG in phpunit.*.xml.dist; do
+	if ! diff <( sed -n 's/.*<testsuite name="\([^"]*\)".*/\1/p' "$CONFIG" | sort ) - <<<"$ASSIGNED"; then
+		echo "::error::Every testsuite in $CONFIG must be in exactly one shard in tests/action-test-php.sh (< unassigned, > unknown or duplicated)."
+		exit 1
+	fi
+done
+
 declare -A TESTS
-TESTS[normal]="phpunit-select-config 'phpunit.#.xml.dist'"
+for shard in "${!SHARDS[@]}"; do
+	TESTS[$shard]="phpunit-select-config 'phpunit.#.xml.dist' --testsuite '$( xargs <<<"${SHARDS[$shard]}" | tr ' ' , )'"
+done
 
 if [[ "$WP_BRANCH" == "trunk" ]]; then
 	TESTS[multisite]="WP_MULTISITE=1 phpunit-select-config 'tests/php.multisite.#.xml'"
@@ -24,22 +47,17 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.4" ]]; then
 	TESTS[lfs]="LEGACY_FULL_SYNC=1 phpunit-select-config 'phpunit.#.xml.dist' --group=legacy-full-sync"
 fi
 
-if [[ ${#TESTS[@]} -eq 1 ]]; then
-	# Note `eval` would be unsafe if the above contained user input, but they don't so we're good.
-	# (then again, passing strings to `concurrently` would too)
-	eval "${TESTS[*]}"
-else
-	export PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL=true
+export PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL=true
 
-	# To run the PHP tests in parallel, we need to create custom configs for each.
-	for test in "${!TESTS[@]}"; do
-		P="${WP_TESTS_CONFIG_FILE_PATH%.php}.$test.php"
-		cp "$WP_TESTS_CONFIG_FILE_PATH" "$P"
-		sed -i "s!wptests_jetpack!wptests_jetpack_$test!" "$P"
-		mysql -e "DROP DATABASE IF EXISTS wptests_jetpack_$test;"
-		mysql -e "CREATE DATABASE wptests_jetpack_$test;"
-		TESTS[$test]="WP_TESTS_CONFIG_FILE_PATH=\"$P\" ${TESTS[$test]}"
-	done
+# To run the PHP tests in parallel, we need to create custom configs for each.
+for test in "${!TESTS[@]}"; do
+	P="${WP_TESTS_CONFIG_FILE_PATH%.php}.$test.php"
+	cp "$WP_TESTS_CONFIG_FILE_PATH" "$P"
+	sed -i "s!wptests_jetpack!wptests_jetpack_$test!" "$P"
+	mysql -e "DROP DATABASE IF EXISTS wptests_jetpack_$test;"
+	mysql -e "CREATE DATABASE wptests_jetpack_$test;"
+	TESTS[$test]="WP_TESTS_CONFIG_FILE_PATH=\"$P\" ${TESTS[$test]}"
+done
 
-	pnpm exec concurrently --names "$( IFS=,; echo "${!TESTS[*]}" )" "${TESTS[@]}"
-fi
+# Note passing strings to `concurrently` would be unsafe if the above contained user input, but they don't so we're good.
+pnpm exec concurrently --names "$( IFS=,; echo "${!TESTS[*]}" )" "${TESTS[@]}"
