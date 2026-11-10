@@ -2,17 +2,19 @@
  * External dependencies
  */
 import { act, render, screen } from '@testing-library/react';
-import { Suspense } from 'react';
+import { Component, Suspense } from 'react';
 /**
  * Internal dependencies
  */
 import { deferOffscreenWidgets } from './deferred-widget-modules';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ReactNode } from 'react';
 
 const RENDER_MODULE = 'test/chart/render';
 const WIDGET_TEXT = `widget ${ RENDER_MODULE }`;
 
 let observerCallback: IntersectionObserverCallback | null = null;
+let suspended = 0;
 let observerOptions: IntersectionObserverInit | undefined;
 
 class MockIntersectionObserver {
@@ -48,11 +50,37 @@ async function mountDeferred(
 	const resolveModule = deferOffscreenWidgets( resolve, new Set( [ RENDER_MODULE ] ) );
 	const { default: Widget } = await resolveModule( RENDER_MODULE );
 	render(
-		<Suspense fallback={ null }>
+		<Suspense fallback={ <Suspended /> }>
 			<Widget { ...( {} as WidgetRenderProps< unknown > ) } />
 		</Suspense>,
 		container ? { container } : undefined
 	);
+}
+
+/**
+ * Counts how often the stand-in suspends; the host has already suspended once for the widget.
+ *
+ * @return Nothing.
+ */
+function Suspended() {
+	suspended++;
+	return null;
+}
+
+class ErrorBoundary extends Component< { children: ReactNode }, { error: Error | null } > {
+	state = { error: null as Error | null };
+
+	static getDerivedStateFromError( error: Error ) {
+		return { error };
+	}
+
+	render() {
+		return this.state.error ? (
+			<p>{ `failed: ${ this.state.error.message }` }</p>
+		) : (
+			this.props.children
+		);
+	}
 }
 
 /**
@@ -70,6 +98,7 @@ describe( 'deferOffscreenWidgets', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		observerCallback = null;
+		suspended = 0;
 		window.innerHeight = 600;
 		window.IntersectionObserver =
 			MockIntersectionObserver as unknown as typeof IntersectionObserver;
@@ -98,13 +127,32 @@ describe( 'deferOffscreenWidgets', () => {
 		await expect( resolveModule( RENDER_MODULE ) ).resolves.toBe( first );
 	} );
 
-	it( 'loads a widget near the viewport in the first render', async () => {
+	it( 'loads a widget near the viewport without suspending again', async () => {
 		placeAt( 700 );
 		const resolve = makeResolver();
 
 		await mountDeferred( resolve );
 
 		await expect( screen.findByText( WIDGET_TEXT ) ).resolves.toBeInTheDocument();
+		expect( suspended ).toBe( 0 );
+	} );
+
+	it( 'hands a failed load to the error boundary', async () => {
+		placeAt( 700 );
+		const resolveModule = deferOffscreenWidgets(
+			jest.fn( () => Promise.reject( new Error( 'chunk failed' ) ) ),
+			new Set( [ RENDER_MODULE ] )
+		);
+		const { default: Widget } = await resolveModule( RENDER_MODULE );
+		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+		render(
+			<ErrorBoundary>
+				<Widget { ...( {} as WidgetRenderProps< unknown > ) } />
+			</ErrorBoundary>
+		);
+
+		await expect( screen.findByText( 'failed: chunk failed' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'holds a widget far below the fold until it nears the viewport', async () => {

@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { GenericSkeleton } from '@jetpack-premium-analytics/widgets-toolkit';
-import { lazy, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styles from './deferred-widget-modules.module.scss';
 import type { ResolveWidgetModule, WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 /**
  * Internal dependencies
  */
 
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
+type WidgetComponent = ComponentType< WidgetRenderProps< unknown > >;
 
 /**
  * How far below the visible area a widget starts loading, as a share of its height: half a
@@ -39,18 +40,38 @@ function getScrollRoot( element: HTMLElement ): HTMLElement | null {
 }
 
 /**
- * Render a skeleton until the widget is near the visible area, then its content.
- *
- * Checked on layout, not on the observer's first callback, so a widget on screen mounts in the
- * same frame. Without `IntersectionObserver` (tests, old browsers) everything renders at once.
- *
- * @param props          - Component props.
- * @param props.children - The widget content.
- * @return The skeleton or the content.
+ * Loads one render module once, however many widgets use it, and remembers the result.
  */
-function NearViewport( { children }: { children: ReactNode } ) {
+interface ModuleLoader {
+	load: () => Promise< WidgetModule >;
+	loaded: () => WidgetComponent | undefined;
+}
+
+/**
+ * Render a skeleton until the widget is near the visible area and its module has loaded.
+ *
+ * Checked on layout, not on the observer's first callback, so a widget on screen starts loading
+ * in the same frame. The module loads without suspending: the host has already suspended once
+ * for this widget, and React throttles a second reveal under the same boundary by up to 300ms.
+ *
+ * @param props        - Component props.
+ * @param props.loader - The widget's module loader.
+ * @param props.props  - The widget's render props.
+ * @return The skeleton or the widget.
+ */
+function NearViewport( {
+	loader,
+	props,
+}: {
+	loader: ModuleLoader;
+	props: WidgetRenderProps< unknown >;
+} ) {
 	const ref = useRef< HTMLDivElement >( null );
+	// Without `IntersectionObserver` (tests, old browsers) everything loads at once.
 	const [ isNear, setIsNear ] = useState( () => typeof IntersectionObserver === 'undefined' );
+	const [ state, setState ] = useState< { Widget?: WidgetComponent; error?: unknown } >( () => ( {
+		Widget: loader.loaded(),
+	} ) );
 
 	useLayoutEffect( () => {
 		const element = ref.current;
@@ -81,13 +102,62 @@ function NearViewport( { children }: { children: ReactNode } ) {
 		return () => observer.disconnect();
 	}, [ isNear ] );
 
-	return isNear ? (
-		children
+	useLayoutEffect( () => {
+		if ( ! isNear || state.Widget ) {
+			return;
+		}
+		let active = true;
+		loader.load().then(
+			module => active && setState( { Widget: module.default } ),
+			error => active && setState( { error } )
+		);
+		return () => {
+			active = false;
+		};
+	}, [ isNear, loader, state.Widget ] );
+
+	if ( state.error ) {
+		// Hand a failed load to the widget's error boundary, as a suspended import would.
+		throw state.error;
+	}
+
+	const { Widget } = state;
+	return isNear && Widget ? (
+		<Widget { ...props } />
 	) : (
 		<div ref={ ref } className={ styles.placeholder }>
 			<GenericSkeleton />
 		</div>
 	);
+}
+
+/**
+ * A loader for one render module; a failed load is forgotten so the next mount retries it.
+ *
+ * @param resolve  - The dashboard's resolver.
+ * @param moduleId - The render module id.
+ * @return The loader.
+ */
+function createModuleLoader( resolve: ResolveWidgetModule, moduleId: string ): ModuleLoader {
+	let pending: Promise< WidgetModule > | null = null;
+	let Widget: WidgetComponent | undefined;
+
+	return {
+		load: () => {
+			pending ??= resolve( moduleId ).then(
+				module => {
+					Widget = module.default;
+					return module;
+				},
+				error => {
+					pending = null;
+					throw error;
+				}
+			);
+			return pending;
+		},
+		loaded: () => Widget,
+	};
 }
 
 /**
@@ -114,14 +184,10 @@ export function deferOffscreenWidgets(
 
 		let module = deferred.get( moduleId );
 		if ( ! module ) {
-			const Widget = lazy( () => resolve( moduleId ) ) as ComponentType<
-				WidgetRenderProps< unknown >
-			>;
+			const loader = createModuleLoader( resolve, moduleId );
 			module = {
 				default: ( props: WidgetRenderProps< unknown > ) => (
-					<NearViewport>
-						<Widget { ...props } />
-					</NearViewport>
+					<NearViewport loader={ loader } props={ props } />
 				),
 			};
 			deferred.set( moduleId, module );
