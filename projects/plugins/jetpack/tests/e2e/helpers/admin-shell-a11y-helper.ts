@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 import { type Page } from '@playwright/test';
-import { MEMBERS, member, menuLink, waitForShown, withinDocument } from './admin-shell-helper';
+import { MOUNT_IDS, member, menuLink, waitForShown, withinDocument } from './admin-shell-helper';
 import type { AxeResults, ElementContext, RunOptions } from 'axe-core';
 
 export interface Announcement {
@@ -142,24 +142,21 @@ export function placeholderSightings( page: Page ): Promise< PlaceholderSighting
 export function hiddenApps(
 	page: Page
 ): Promise< { slug: string; state: string; inert: boolean }[] > {
-	return page.evaluate(
-		mountIds => {
-			const shell = (
-				window as unknown as {
-					__jpShell: { read: () => { apps: Record< string, string > } };
-				}
-			 ).__jpShell.read();
-			return Object.entries( shell.apps )
-				.filter( ( [ , state ] ) => state !== 'visible' )
-				.map( ( [ slug, state ] ) => {
-					const el =
-						document.querySelector( `[data-shell-page="${ slug }"]` ) ??
-						document.getElementById( mountIds[ slug ] );
-					return { slug, state, inert: !! el?.closest( '[inert]' ) };
-				} );
-		},
-		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
-	);
+	return page.evaluate( mountIds => {
+		const shell = (
+			window as unknown as {
+				__jpShell: { read: () => { apps: Record< string, string > } };
+			}
+		 ).__jpShell.read();
+		return Object.entries( shell.apps )
+			.filter( ( [ , state ] ) => state !== 'visible' )
+			.map( ( [ slug, state ] ) => {
+				const el =
+					document.querySelector( `[data-shell-page="${ slug }"]` ) ??
+					document.getElementById( mountIds[ slug ] );
+				return { slug, state, inert: !! el?.closest( '[inert]' ) };
+			} );
+	}, MOUNT_IDS );
 }
 
 /**
@@ -194,23 +191,20 @@ export async function keyboardSwitchTo( page: Page, slug: string ): Promise< voi
  * @return Owner of the focused element.
  */
 export function focusOwner( page: Page ): Promise< string > {
-	return page.evaluate(
-		mountIds => {
-			// eslint-disable-next-line @wordpress/no-global-active-element -- The test reads the whole document.
-			const el = document.activeElement;
-			if ( ! el || el === document.body ) {
-				return 'body';
-			}
-			const app = Object.keys( mountIds ).find( slug =>
-				(
-					document.querySelector( `[data-shell-page="${ slug }"]` ) ??
-					document.getElementById( mountIds[ slug ] )
-				)?.contains( el )
-			);
-			return app ?? ( el.closest( '#adminmenu' ) ? 'menu' : 'other' );
-		},
-		Object.fromEntries( MEMBERS.map( m => [ m.slug, m.mountId ] ) )
-	);
+	return page.evaluate( mountIds => {
+		// eslint-disable-next-line @wordpress/no-global-active-element -- The test reads the whole document.
+		const el = document.activeElement;
+		if ( ! el || el === document.body ) {
+			return 'body';
+		}
+		const app = Object.keys( mountIds ).find( slug =>
+			(
+				document.querySelector( `[data-shell-page="${ slug }"]` ) ??
+				document.getElementById( mountIds[ slug ] )
+			)?.contains( el )
+		);
+		return app ?? ( el.closest( '#adminmenu' ) ? 'menu' : 'other' );
+	}, MOUNT_IDS );
 }
 
 const axePath = createRequire( import.meta.url ).resolve( 'axe-core/axe.min.js' );
