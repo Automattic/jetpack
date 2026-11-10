@@ -288,6 +288,41 @@ test( 'advances the estimated percentage between polls without changing the anno
 	}
 } );
 
+test.each( [
+	[ 'queued', 'Waiting to start…' ],
+	[ 'mobile', 'Testing mobile…' ],
+	[ 'desktop', 'Testing desktop…' ],
+] as const )( 'names the %s step the cloud reports', ( stage, message ) => {
+	render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			isRunning
+			progress={ { elapsed: 0, expected: 40, stage, receivedAt: Date.now() } }
+		/>
+	);
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( message );
+} );
+
+test( 'shows a device score as soon as the cloud has measured it', () => {
+	render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			isRunning
+			progress={ {
+				elapsed: 20,
+				expected: 40,
+				stage: 'desktop',
+				scores: { mobile: 71 },
+				receivedAt: Date.now(),
+			} }
+		/>
+	);
+	expect( within( screen.getByRole( 'status' ) ).getByText( 'Mobile: 71' ) ).toHaveClass(
+		'jetpack-boost-overview__tier--good'
+	);
+	expect( screen.queryByText( 'Desktop:', { exact: false } ) ).not.toBeInTheDocument();
+} );
+
 test( 'keeps the live region mounted before adding the calculating message', () => {
 	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
 	const { rerender } = render( <ScoreCards scores={ scores } /> );

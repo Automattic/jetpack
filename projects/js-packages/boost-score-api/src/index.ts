@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import api from './api';
 import { castToNumber } from './utils/cast-to-number';
 import { castToString } from './utils/cast-to-string';
-import { isJsonObject, JSONObject } from './utils/json-types';
+import { isJsonObject, JSONObject, type JSONValue } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
@@ -65,10 +65,17 @@ interface SpeedHistoryResponse {
 	};
 }
 
+export type SpeedScoreStage = 'queued' | 'mobile' | 'desktop';
+
 export type SpeedScoreProgress = {
 	elapsed: number;
 	expected: number;
+	stage?: SpeedScoreStage;
+	// Scores of the devices Boost Cloud has already measured in this run.
+	scores?: { mobile?: number; desktop?: number };
 };
+
+const stages: readonly string[] = [ 'queued', 'mobile', 'desktop' ];
 
 type ParsedApiResponse = {
 	status: string;
@@ -222,13 +229,42 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 		throw new Error( __( 'Invalid response while requesting metrics', 'boost-score-api' ) );
 	}
 
-	const progress = isJsonObject( response.progress ) ? response.progress : {};
-	const elapsed = castToNumber( progress.elapsed );
-	const expected = castToNumber( progress.expected );
-
 	return {
 		status: requestStatus,
-		...( elapsed !== undefined && expected && { progress: { elapsed, expected } } ),
+		...parseProgress( response.progress ),
+	};
+}
+
+/**
+ * Parse the progress of a pending response, keeping only the fields the dashboard understands.
+ *
+ * @param {JSONValue} value - The `progress` member of a response.
+ * @return {object} `{ progress }`, or nothing when there is no usable estimate.
+ */
+function parseProgress( value: JSONValue ): { progress?: SpeedScoreProgress } {
+	const progress = isJsonObject( value ) ? value : {};
+	const elapsed = castToNumber( progress.elapsed );
+	const expected = castToNumber( progress.expected );
+	if ( elapsed === undefined || ! expected ) {
+		return {};
+	}
+
+	const stage = castToString( progress.stage );
+	const scores = isJsonObject( progress.scores ) ? progress.scores : {};
+	const mobile = castToNumber( scores.mobile );
+	const desktop = castToNumber( scores.desktop );
+	return {
+		progress: {
+			elapsed,
+			expected,
+			...( stage && stages.includes( stage ) && { stage: stage as SpeedScoreStage } ),
+			...( ( mobile !== undefined || desktop !== undefined ) && {
+				scores: {
+					...( mobile !== undefined && { mobile } ),
+					...( desktop !== undefined && { desktop } ),
+				},
+			} ),
+		},
 	};
 }
 
