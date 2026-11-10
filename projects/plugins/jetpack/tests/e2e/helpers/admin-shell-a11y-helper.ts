@@ -32,8 +32,8 @@ type ProbeWindow = {
  */
 function a11yProbe() {
 	const LIVE = '[aria-live], [role="status"], [role="alert"], [role="log"]';
-	const said: unknown[] = [];
-	const placeholders: unknown[] = [];
+	const said: Announcement[] = [];
+	const placeholders: PlaceholderSighting[] = [];
 	const seen = new WeakSet< Element >();
 
 	const politeness = ( el: Element ) =>

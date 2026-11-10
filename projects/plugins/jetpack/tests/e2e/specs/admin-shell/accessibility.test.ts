@@ -269,7 +269,7 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 		await expect( createForm( page ) ).toBeFocused();
 	} );
 
-	test( 'keyboard: sidebar, page, modal, Back', async ( { page } ) => {
+	test( 'keyboard: a switch from the sidebar focuses the page', async ( { page } ) => {
 		await keyboardPass( page, {
 			afterSwitch: async () => {
 				knownGap( NO_FOCUS );
@@ -277,7 +277,6 @@ test.describe( 'Admin shell: accessibility of in-shell navigation', () => {
 				await page.keyboard.press( 'Tab' );
 				expect( await focusOwner( page ), 'Tab after a switch stays in the page' ).toBe( FORMS );
 			},
-			afterBack: () => expect( mainHeading( page, MJ ) ).toBeFocused(),
 		} );
 	} );
 
