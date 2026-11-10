@@ -127,6 +127,7 @@ export {
 	isPlanDateLimitedSection,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
+	startsBeforePolicy,
 	type DateLimitFeature,
 	type StatsDatePolicy,
 } from './utils/stats-date-policy';

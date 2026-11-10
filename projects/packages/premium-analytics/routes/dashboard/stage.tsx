@@ -310,7 +310,7 @@ function Dashboard(): JSX.Element {
 		activeSection,
 		dateFilters.appliedRange,
 		showsPeriodControl,
-		lockedIntervals
+		dateLimits
 	);
 
 	const {

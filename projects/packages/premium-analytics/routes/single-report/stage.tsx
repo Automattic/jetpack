@@ -274,7 +274,7 @@ function SingleReportBody( { page, entityId, adapter }: SingleReportBodyProps ):
 		`${ page.path }:${ entityId }`,
 		dateFilters.appliedRange,
 		! isPinned,
-		lockedIntervals
+		dateLimits
 	);
 
 	const reportSearch = pickReportNavigationParams( search );

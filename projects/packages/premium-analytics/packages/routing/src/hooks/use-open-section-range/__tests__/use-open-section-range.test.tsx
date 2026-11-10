@@ -91,6 +91,26 @@ describe( 'useOpenSectionRange', () => {
 		expect( result.current.traffic ).toEqual( { id: expect.any( Number ), range: NOVEMBER } );
 	} );
 
+	it( 'does not signal a period the section plan will move away from', () => {
+		( getScriptData as jest.Mock ).mockReturnValue( planGatesScriptData( [ 'recent-7-days' ] ) );
+		mockSearch = { section: 'insights' };
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
+		);
+		const { result } = renderHook(
+			() => ( {
+				open: useOpenSectionRange(),
+				traffic: useSettlePeriodChange( 'traffic', NOVEMBER, true ),
+			} ),
+			{ wrapper }
+		);
+
+		act( () => result.current.open( 'traffic', NOVEMBER ) );
+
+		expect( mockSearch ).toMatchObject( { section: 'traffic', preset: 'custom' } );
+		expect( result.current.traffic ).toBeUndefined();
+	} );
+
 	it.each( [
 		[ 'traffic', 'day' ],
 		[ 'store', 'month' ],

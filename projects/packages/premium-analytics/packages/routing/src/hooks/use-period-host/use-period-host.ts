@@ -3,7 +3,7 @@
  */
 import {
 	useSettlePeriodChange,
-	type LockableInterval,
+	type DateLimits,
 	type PeriodChange,
 	type ReportScope,
 } from '@jetpack-premium-analytics/data';
@@ -27,24 +27,26 @@ type PeriodHost = {
  * Let the widgets on a surface set its period, and draw the date control's
  * attention when they do. Both come from one call, so a host wires them together.
  *
- * @param surface         - The surface's key: a dashboard section slug, or a `postSurface`.
- * @param appliedRange    - The range its date control shows.
- * @param isShown         - Whether the date control is on screen.
- * @param lockedIntervals - The buckets the surface's plan locks.
+ * @param surface      - The surface's key: a dashboard section slug, or a `postSurface`.
+ * @param appliedRange - The range its date control shows.
+ * @param isShown      - Whether the date control is on screen.
+ * @param dateLimits   - The buckets and the first day the surface's plan allows.
  * @return The period the widgets open, and the attention the control draws.
  */
 export function usePeriodHost(
 	surface: string,
 	appliedRange: DateRange | undefined,
 	isShown: boolean,
-	lockedIntervals?: readonly LockableInterval[]
+	dateLimits?: Pick< DateLimits, 'lockedIntervals' | 'earliestDate' >
 ): PeriodHost {
 	const commitExactRange = useCommitExactRange();
 	const attention = useSettlePeriodChange( surface, appliedRange, isShown );
+	const lockedIntervals = dateLimits?.lockedIntervals;
+	const earliestDate = dateLimits?.earliestDate;
 
 	const openPeriod = useCallback< OpenPeriod >(
-		range => commitExactRange( surface, range, { lockedIntervals } ),
-		[ commitExactRange, surface, lockedIntervals ]
+		range => commitExactRange( surface, range, { lockedIntervals, earliestDate } ),
+		[ commitExactRange, surface, lockedIntervals, earliestDate ]
 	);
 
 	return { openPeriod, attention };
