@@ -78,7 +78,7 @@ class Jetpack_Protect {
 	const OPT_IN_MODULES = array( 'sso', 'monitor' );
 
 	/**
-	 * Prefix of the option, one per module so concurrent saves can't drop each other, marking an opt-in module turned on without the Jetpack plugin.
+	 * Prefix of the option marking an opt-in module turned on without the Jetpack plugin; one per module so concurrent saves can't drop each other's record.
 	 *
 	 * @var string
 	 */

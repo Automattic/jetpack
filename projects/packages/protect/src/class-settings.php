@@ -51,6 +51,13 @@ class Settings {
 	const MONITOR_NOTIFICATIONS_FAILED = 'jetpack_protect_monitor_notifications_failed_';
 
 	/**
+	 * IXR error codes the client sets itself, for transport and parse failures, rather than WordPress.com.
+	 *
+	 * @var int[]
+	 */
+	const IXR_CLIENT_ERRORS = array( -10520, -32300, -32700 );
+
+	/**
 	 * SSO's options, saved locally as 0 or 1, each with the SSO helper that reads its value in effect.
 	 *
 	 * @var string[]
@@ -175,7 +182,7 @@ class Settings {
 			} elseif ( self::MONITOR_NOTIFICATIONS === $key ) {
 				$result = Monitor::set_notifications( (bool) $value );
 				if ( true !== $result ) {
-					return self::error( 'monitor_notifications_failed', $key, is_wp_error( $result ) ? $result->get_error_message() : '' );
+					return self::error( 'monitor_notifications_failed', $key, self::wpcom_fault_message( $result ) );
 				}
 			}
 		}
@@ -258,6 +265,19 @@ class Settings {
 			return array();
 		}
 		return array_intersect_key( Waf_Runner::get_config(), array_flip( self::WAF_OPTIONS ) );
+	}
+
+	/**
+	 * WordPress.com's own reason for refusing a call, or '' for a transport or parse failure, whose text is untranslated client detail.
+	 *
+	 * @param mixed $result What the IXR call returned.
+	 * @return string
+	 */
+	private static function wpcom_fault_message( $result ) {
+		if ( ! is_wp_error( $result ) || in_array( $result->get_error_code(), self::IXR_CLIENT_ERRORS, true ) ) {
+			return '';
+		}
+		return $result->get_error_message();
 	}
 
 	/**

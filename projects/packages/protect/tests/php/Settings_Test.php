@@ -67,6 +67,8 @@ class Settings_Test extends BaseTestCase {
 		delete_option( 'jetpack_sso_match_by_email' );
 		Jetpack_Options::delete_option( array( 'active_modules', 'id', 'blog_token', 'user_tokens' ) );
 		wp_set_current_user( 0 );
+		remove_all_actions( 'rest_api_init' );
+		$GLOBALS['wp_rest_server'] = null;
 		parent::tear_down();
 	}
 
@@ -248,14 +250,55 @@ class Settings_Test extends BaseTestCase {
 		$this->assertCount( 1, $this->requests );
 	}
 
-	public function test_failed_monitor_email_save_reports_why() {
-		$this->connect_user_with_monitor_on();
+	/**
+	 * @dataProvider provide_failed_monitor_email_saves
+	 *
+	 * @param string $responder The filter callback that answers the request.
+	 * @param string $reason    The reason the message should end with, or '' for none.
+	 */
+	#[DataProvider( 'provide_failed_monitor_email_saves' )]
+	public function test_failed_monitor_email_save_reports_only_wpcom_reasons( $responder, $reason ) {
+		$this->connect_user_with_monitor_on( $responder );
 
 		$result = self::save( array( Settings::MONITOR_NOTIFICATIONS => true ) );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'monitor_notifications_failed', $result->get_error_code() );
-		$this->assertStringContainsString( 'unreachable', $result->get_error_message() );
+		$this->assertSame( 'The "monitor_receive_notifications" setting couldn’t be saved.' . ( $reason ? " $reason" : '' ), $result->get_error_message() );
+	}
+
+	/**
+	 * Data provider for test_failed_monitor_email_save_reports_only_wpcom_reasons.
+	 *
+	 * @return array
+	 */
+	public static function provide_failed_monitor_email_saves() {
+		return array(
+			'WordPress.com refuses'      => array( 'fault_response', 'Not allowed.' ),
+			'WordPress.com is unreached' => array( 'fail_request', '' ),
+		);
+	}
+
+	/**
+	 * Filter callback: WordPress.com answers with an XML-RPC fault.
+	 *
+	 * @param false|array|WP_Error $preempt Unused.
+	 * @param array                $args    Unused.
+	 * @param string               $url     The requested URL.
+	 * @return array
+	 */
+	public function fault_response( $preempt, $args, $url ) {
+		$this->requests[] = $url;
+		return array(
+			'headers'  => array(),
+			'body'     => '<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><int>403</int></value></member><member><name>faultString</name><value><string>Not allowed.</string></value></member></struct></value></fault></methodResponse>',
+			'response' => array(
+				'code'    => 200,
+				'message' => 'OK',
+			),
+			'cookies'  => array(),
+			'filename' => null,
+		);
 	}
 
 	/**
@@ -283,7 +326,6 @@ class Settings_Test extends BaseTestCase {
 
 		$response = rest_do_request( $request );
 
-		remove_all_actions( 'rest_api_init' );
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
@@ -301,9 +343,11 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Sign in a connected administrator on a site with Monitor on, while WordPress.com can't be reached.
+	 * Sign in a connected administrator on a site with Monitor on, with WordPress.com answered by a filter callback.
+	 *
+	 * @param string $responder The `pre_http_request` callback; by default WordPress.com can't be reached.
 	 */
-	private function connect_user_with_monitor_on() {
+	private function connect_user_with_monitor_on( $responder = 'fail_request' ) {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'settings_admin',
@@ -318,6 +362,6 @@ class Settings_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
 		Jetpack_Options::update_option( 'active_modules', array( 'monitor' ) );
 		$this->available = array( 'monitor' );
-		add_filter( 'pre_http_request', array( $this, 'fail_request' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, $responder ), 10, 3 );
 	}
 }
