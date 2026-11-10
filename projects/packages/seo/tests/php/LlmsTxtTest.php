@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use WP_Post;
 
@@ -16,7 +15,7 @@ use WP_Post;
  * @covers \Automattic\Jetpack\SEO\Llms_Txt
  */
 #[CoversClass( Llms_Txt::class )]
-class LlmsTxtTest extends TestCase {
+class LlmsTxtTest extends SeoTestCase {
 
 	/**
 	 * Posts created by this test.
@@ -411,5 +410,104 @@ class LlmsTxtTest extends TestCase {
 		update_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', '1' );
 
 		$this->assertSame( 'Public summary.', $this->summary( $post ) );
+	}
+
+	/**
+	 * Pages list the main menu first, then other displayed menus, then pages with an Order
+	 * set ahead of untouched ones, up to the per-type limit.
+	 *
+	 * @return void
+	 */
+	public function test_pages_rank_main_menu_then_other_menus_then_title() {
+		for ( $i = 1; $i <= 50; $i++ ) {
+			$this->insert_page( sprintf( 'Page %02d', $i ), 51 - $i );
+		}
+		$this->insert_page( 'Aa Untouched' );
+		$scan    = $this->insert_page( 'Zz Scan' );
+		$privacy = $this->insert_page( 'Zy Privacy' );
+		$this->add_nav_menu( array( $scan->ID ), 'primary' );
+		$this->add_nav_menu( array( $privacy->ID ), 'footer' );
+
+		$expected = array( 'Zz Scan', 'Zy Privacy' );
+		for ( $i = 50; $i >= 3; $i-- ) {
+			$expected[] = sprintf( 'Page %02d', $i );
+		}
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * Main-menu pages are listed past the per-type limit, up to their own.
+	 *
+	 * @return void
+	 */
+	public function test_main_menu_pages_pass_the_page_limit_up_to_their_own() {
+		$this->insert_page( 'Aa Extra' );
+		$ids      = array();
+		$expected = array();
+		for ( $i = 1; $i <= Llms_Txt::MAX_MAIN_MENU_PAGES + 1; $i++ ) {
+			$expected[] = sprintf( 'Menu %03d', $i );
+			$ids[]      = $this->insert_page( end( $expected ) )->ID;
+		}
+		$this->add_nav_menu( $ids, 'primary' );
+		array_pop( $expected );
+
+		$this->assertSame( $expected, $this->page_titles() );
+	}
+
+	/**
+	 * Menu pages that aren't published, are password protected or are hidden from search
+	 * engines stay out, like any other page.
+	 *
+	 * @return void
+	 */
+	public function test_hidden_menu_pages_stay_out() {
+		$draft   = $this->insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+			)
+		);
+		$locked  = $this->insert_post(
+			array(
+				'post_type'     => 'page',
+				'post_title'    => 'Locked',
+				'post_password' => 'hunter2',
+			)
+		);
+		$noindex = $this->insert_page( 'Noindex' );
+		update_post_meta( $noindex->ID, Content_Coverage::META_NOINDEX, '1' );
+		$shown = $this->insert_page( 'Shown' );
+		$this->add_nav_menu( array( $draft->ID, $locked->ID, $noindex->ID, $shown->ID ), 'primary' );
+
+		$this->assertSame( array( 'Shown' ), $this->page_titles() );
+	}
+
+	/**
+	 * Insert and track a published page.
+	 *
+	 * @param string $title      Page title.
+	 * @param int    $menu_order Page order.
+	 * @return WP_Post
+	 */
+	private function insert_page( $title, $menu_order = 0 ): WP_Post {
+		return $this->insert_post(
+			array(
+				'post_type'  => 'page',
+				'post_title' => $title,
+				'menu_order' => $menu_order,
+			)
+		);
+	}
+
+	/**
+	 * Titles listed in the generated Pages section, in order.
+	 *
+	 * @return string[]
+	 */
+	private function page_titles(): array {
+		preg_match( '/^## Pages\n\n(.*?)(?:\n\n## |\n\z)/ms', Llms_Txt::generate(), $section );
+		preg_match_all( '/^- \[(.+?)\]/m', $section[1] ?? '', $titles );
+		return $titles[1];
 	}
 }
