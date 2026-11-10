@@ -911,4 +911,23 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$stored = $this->options[ Transient::key( 'jetpack_boost_speed_scores_' . $request->get_cache_id() ) ];
 		$this->assertGreaterThanOrEqual( time() + 3600 - 5, $stored['expire'] );
 	}
+
+	public function test_the_last_poll_survives_reloading_the_request_from_storage() {
+		$this->api_response = array( 'status' => 'pending' );
+		$request            = new Speed_Score_Request( self::URL, array(), microtime( true ) - 30 );
+		$this->assertTrue( $request->poll_update() );
+
+		$this->api_response = array(
+			'status' => 'success',
+			'scores' => array(
+				'mobile'  => 50,
+				'desktop' => 70,
+			),
+		);
+		$reloaded           = Speed_Score_Request::get( $request->get_cache_id() );
+		$this->assertTrue( $reloaded->poll_update() );
+		Speed_Score_Durations::record_finished_run( array( $reloaded ) );
+
+		$this->assertSame( array( 30 ), $this->options[ Speed_Score_Durations::OPTION_NAME ] ?? null );
+	}
 }
