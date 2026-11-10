@@ -20,13 +20,13 @@ class Utils {
 	 * @return string|false IP address.
 	 */
 	public static function get_ip() {
-		$ip = self::get_ip_from_trusted_header();
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
+		$ip          = self::get_ip_from_trusted_header( $remote_addr );
 		if ( $ip ) {
 			return $ip;
 		}
 
-		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
-		return self::pick_ip( $remote_addr, 1, false );
+		return self::pick_ip( $remote_addr, 1, false, $remote_addr );
 	}
 
 	/**
@@ -38,15 +38,16 @@ class Utils {
 	 * @return bool
 	 */
 	public static function is_trusted_header_unresolved() {
-		return false === self::get_ip_from_trusted_header();
+		return false === self::get_ip_from_trusted_header( null );
 	}
 
 	/**
 	 * Read the address from the configured trusted header.
 	 *
+	 * @param string|null $short_list_fallback Address to use when the header has fewer entries than the configured segments.
 	 * @return string|false|null IP address, false if the header yields no valid address, or null if no header is configured or the request lacks it.
 	 */
-	private static function get_ip_from_trusted_header() {
+	private static function get_ip_from_trusted_header( $short_list_fallback ) {
 		$trusted_header_data = get_site_option( 'trusted_ip_header' );
 		if ( ! isset( $trusted_header_data->trusted_header ) || ! isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
 			return null;
@@ -56,7 +57,8 @@ class Utils {
 		return self::pick_ip(
 			wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_ip does it.
 			$trusted_header_data->segments ?? 1,
-			! empty( $trusted_header_data->reverse )
+			! empty( $trusted_header_data->reverse ),
+			$short_list_fallback
 		);
 	}
 
@@ -66,9 +68,10 @@ class Utils {
 	 * @param string|null $value         Raw list of addresses.
 	 * @param int         $segments      Which entry to use, counted from the end of the list.
 	 * @param bool        $reverse_order Whether to reverse the list first.
-	 * @return string|false IP address, or false if the list has fewer entries than `$segments`.
+	 * @param string|null $fallback      Address to use when the list has fewer entries than `$segments`.
+	 * @return string|false IP address.
 	 */
-	private static function pick_ip( $value, $segments, $reverse_order ) {
+	private static function pick_ip( $value, $segments, $reverse_order, $fallback ) {
 		if ( ! $value ) {
 			return false;
 		}
@@ -86,7 +89,7 @@ class Utils {
 		} elseif ( $ip_count >= $segments ) {
 			return self::clean_ip( $ips[ $ip_count - $segments ] );
 		}
-		return false;
+		return $fallback ? self::clean_ip( $fallback ) : false;
 	}
 
 	/**
